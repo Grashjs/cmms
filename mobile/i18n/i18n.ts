@@ -9,6 +9,7 @@ import frJSON from './translations/fr';
 import aeJSON from './translations/ae';
 import zhJSON from './translations/zh';
 import trJSON from './translations/tr';
+import ptBRJSON from './translations/pt_BR';
 
 const resources = {
   de: { translation: deJSON },
@@ -18,6 +19,7 @@ const resources = {
   ae: { translation: aeJSON },
   cn: { translation: zhJSON },
   tr: { translation: trJSON },
+  pt_br: { translation: ptBRJSON }
 };
 
 i18n
