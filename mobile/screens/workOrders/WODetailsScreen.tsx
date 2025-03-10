@@ -162,6 +162,7 @@ export default function WODetailsScreen({
     value: string | number;
     link: { route: keyof RootStackParamList; id: number };
     permissionEntity: PermissionEntity;
+    address?: string;
   }[] = [
     {
       label: t('asset'),
@@ -173,7 +174,8 @@ export default function WODetailsScreen({
       label: t('location'),
       value: workOrder?.location?.name,
       link: { route: 'LocationDetails', id: workOrder?.location?.id },
-      permissionEntity: PermissionEntity.LOCATIONS
+      permissionEntity: PermissionEntity.LOCATIONS,
+      address: workOrder?.location?.address
     },
     {
       label: t('team'),
@@ -496,25 +498,64 @@ export default function WODetailsScreen({
                          label,
                          value,
                          link,
-                         permissionEntity
+                         permissionEntity,
+                         address
                        }: {
     label: string;
     value: string | number;
     link: { route: keyof RootStackParamList; id: number };
     permissionEntity: PermissionEntity;
+    address?: string;
   }) {
     if (value) {
+      const openMaps = () => {
+        if (address) {
+          const encodedAddress = encodeURIComponent(address);
+          const encodedLabel = encodeURIComponent(String(value));
+          
+          // URL para abrir o Google Maps com o endereço
+          const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+          
+          Linking.openURL(googleMapsUrl).catch((err) => {
+            console.error('Erro ao abrir o mapa:', err);
+          });
+        }
+      };
+
+      const isLocation = label === t('location');
+
       return (
         <TouchableOpacity
           // @ts-ignore
           disabled={!hasViewPermission(permissionEntity)}
-          onPress={() => navigation.navigate(link.route, { id: link.id })}
+          onPress={() => {
+            // @ts-ignore
+            navigation.navigate(link.route, { id: link.id });
+          }}
           style={{ marginTop: 20 }}
         >
-          <Text style={{ fontSize: 14, color: theme.colors.grey }}>
+          <Text style={{ fontSize: 14, color: theme.colors.onSurfaceVariant }}>
             {label}
           </Text>
-          <Text variant='titleMedium' style={{ fontWeight: 'bold' }}>{value}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flex: 1 }}>
+              <Text variant='titleMedium' style={{ fontWeight: 'bold' }}>{value}</Text>
+              {isLocation && address && (
+                <Text style={{ fontSize: 14, color: theme.colors.onSurfaceVariant, marginTop: 4 }}>{address}</Text>
+              )}
+            </View>
+            {isLocation && address && (
+              <IconButton
+                icon="directions"
+                size={24}
+                iconColor={theme.colors.primary}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  openMaps();
+                }}
+              />
+            )}
+          </View>
         </TouchableOpacity>
       );
     } else return null;
@@ -527,17 +568,14 @@ export default function WODetailsScreen({
     label: string;
     value: string | number;
   }) {
-    if (value)
-      return (
-        <View key={label} style={{ marginTop: 20 }}>
-          <Divider style={{ marginBottom: 20 }} />
-          <Text style={{ fontSize: 14, color: theme.colors.grey }}>
-            {label}
-          </Text>
-          <Text variant='titleMedium' style={{ fontWeight: 'bold' }}>{value}</Text>
-        </View>
-      );
-    else return null;
+    return (
+      <View style={{ marginTop: 20 }}>
+        <Text style={{ fontSize: 14, color: theme.colors.onSurfaceVariant }}>
+          {label}
+        </Text>
+        <Text variant='titleMedium' style={{ fontWeight: 'bold' }}>{value}</Text>
+      </View>
+    );
   }
 
   const renderConfirmArchive = () => {
@@ -641,6 +679,7 @@ export default function WODetailsScreen({
                       value={value}
                       link={link}
                       permissionEntity={permissionEntity}
+                      address={workOrder?.location?.address}
                     />
                   )
               )}
@@ -707,7 +746,7 @@ export default function WODetailsScreen({
               )}
               {!!workOrder.assignedTo.length && (
                 <View style={{ marginTop: 20 }}>
-                  <Text style={{ fontSize: 14, color: theme.colors.grey }}>
+                  <Text style={{ fontSize: 14, color: theme.colors.onSurfaceVariant }}>
                     {t('assigned_to')}
                   </Text>
                   {workOrder.assignedTo.map((user) => (
@@ -734,7 +773,7 @@ export default function WODetailsScreen({
                 <View>
                   <View style={styles.shadowedCard}>
                     <Text
-                      style={{ marginBottom: 10, color: theme.colors.grey }}
+                      style={{ marginBottom: 10, color: theme.colors.onSurfaceVariant }}
                     >
                       {t('parts')}
                     </Text>
@@ -779,7 +818,7 @@ export default function WODetailsScreen({
                   </View>
                   <View style={styles.shadowedCard}>
                     <Text
-                      style={{ marginBottom: 10, color: theme.colors.grey }}
+                      style={{ marginBottom: 10, color: theme.colors.onSurfaceVariant }}
                     >
                       {t('additional_costs')}
                     </Text>
@@ -849,7 +888,7 @@ export default function WODetailsScreen({
               )}
               {!!tasks.length && (
                 <View style={styles.shadowedCard}>
-                  <Text style={{ marginBottom: 10, color: theme.colors.grey }}>
+                  <Text style={{ marginBottom: 10, color: theme.colors.onSurfaceVariant }}>
                     {t('tasks')}
                   </Text>
                   <TouchableOpacity
@@ -890,7 +929,7 @@ export default function WODetailsScreen({
                       <Text
                         style={{
                           marginBottom: 10,
-                          color: theme.colors.grey
+                          color: theme.colors.onSurfaceVariant
                         }}
                       >
                         {t('files')}
@@ -912,7 +951,7 @@ export default function WODetailsScreen({
                       <Text
                         style={{
                           marginBottom: 10,
-                          color: theme.colors.grey
+                          color: theme.colors.onSurfaceVariant
                         }}
                       >
                         {t('links')}
@@ -946,7 +985,7 @@ export default function WODetailsScreen({
                   )}
                   <View style={styles.shadowedCard}>
                     <Text
-                      style={{ marginBottom: 10, color: theme.colors.grey }}
+                      style={{ marginBottom: 10, color: theme.colors.onSurfaceVariant }}
                     >
                       {t('labors')}
                     </Text>
@@ -998,7 +1037,7 @@ export default function WODetailsScreen({
                       <Text
                         style={{
                           marginBottom: 10,
-                          color: theme.colors.grey
+                          color: theme.colors.onSurfaceVariant
                         }}
                       >
                         {t('history')}
