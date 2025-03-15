@@ -1461,7 +1461,17 @@ const esJSON = {
   components: 'componentes',
   rate: 'Frecuencia',
   select_at_least_column: 'Hacer una coincidencia de columna al menos',
-  already_read: 'Encuesta'
+  already_read: 'Encuesta',
+  OPERATIONAL: 'Operativo',
+  DOWN: 'Fuera de servicio',
+  MODERNIZATION: 'Modernización',
+  STANDBY: 'En espera',
+  INSPECTION_SCHEDULED: 'Inspección programada',
+  COMMISSIONING: 'Puesta en marcha',
+  EMERGENCY_SHUTDOWN: 'Apagado de emergencia',
+  select_asset_status: 'Seleccionar estado del activo',
+  asset_status: 'Estado del activo',
+  ui_configuration: 'Configuración de la interfaz'
 };
 
 export default esJSON;

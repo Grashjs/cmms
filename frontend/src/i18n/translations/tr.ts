@@ -1458,7 +1458,17 @@ const trJSON = {
   BUSINESS_description:
     'Birden fazla konumu ve sistem özelleştirmesini yönetmek için bakım ve operasyon verilerini yakalamaya hazır kuruluşlar.',
   book_demo: 'Demo rezervasyonu yapın',
-  request_pricing: 'Daha fazla bilgi için fiyatlandırma isteyin'
+  request_pricing: 'Daha fazla bilgi için fiyatlandırma isteyin',
+  OPERATIONAL: 'Çalışıyor',
+  DOWN: 'Hizmet Dışı',
+  MODERNIZATION: 'Modernizasyon',
+  STANDBY: 'Beklemede',
+  INSPECTION_SCHEDULED: 'Planlanan İnceleme',
+  COMMISSIONING: 'Devreye Alma',
+  EMERGENCY_SHUTDOWN: 'Acil Kapanış',
+  select_asset_status: 'Varlık durumunu seçin',
+  asset_status: 'Varlık durumu',
+  ui_configuration: 'UI Yapılandırması'
 };
 
 export default trJSON;

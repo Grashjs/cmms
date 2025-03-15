@@ -28,6 +28,9 @@ const ChecklistsSettings = Loader(
 const WorkflowsSettings = Loader(
   lazy(() => import('../content/own/Settings/Workflows'))
 );
+const UIConfigurationSettings = Loader(
+  lazy(() => import('../content/own/Settings/UiConfiguration'))
+);
 const UserProfile = Loader(lazy(() => import('../content/own/UserProfile')));
 const CompanyProfile = Loader(
   lazy(() => import('../content/own/CompanyProfile'))
@@ -117,7 +120,8 @@ const appRoutes = [
         path: 'checklists',
         element: <ChecklistsSettings />
       },
-      { path: 'workflows', element: <WorkflowsSettings /> }
+      { path: 'workflows', element: <WorkflowsSettings /> },
+      { path: 'ui-configuration', element: <UIConfigurationSettings /> }
     ]
   },
   {

@@ -27,6 +27,7 @@ import PendingActionsTwoToneIcon from '@mui/icons-material/PendingActionsTwoTone
 import { PermissionEntity } from '../../../../models/owns/role';
 import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
 import { IS_LOCALHOST } from '../../../../config';
+import { UiConfiguration } from '../../../../models/owns/uiConfiguration';
 
 export interface MenuItem {
   link?: string;
@@ -35,6 +36,7 @@ export interface MenuItem {
   badgeTooltip?: string;
   permission?: PermissionEntity;
   planFeature?: PlanFeature;
+  uiConfigKey?: keyof Omit<UiConfiguration, 'id'>;
 
   items?: MenuItem[];
   name: string;
@@ -133,7 +135,8 @@ const ownMenuItems: MenuItems[] = [
         name: 'requests',
         link: '/app/requests',
         icon: MoveToInboxTwoToneIcon,
-        permission: PermissionEntity.REQUESTS
+        permission: PermissionEntity.REQUESTS,
+        uiConfigKey: 'requests'
       },
       {
         name: 'assets',
@@ -145,7 +148,8 @@ const ownMenuItems: MenuItems[] = [
         name: 'locations',
         link: '/app/locations',
         icon: LocationOnTwoToneIcon,
-        permission: PermissionEntity.LOCATIONS
+        permission: PermissionEntity.LOCATIONS,
+        uiConfigKey: 'locations'
       },
       {
         name: 'parts_and_inventory',
@@ -175,7 +179,8 @@ const ownMenuItems: MenuItems[] = [
         link: '/app/meters',
         icon: SpeedTwoToneIcon,
         permission: PermissionEntity.METERS,
-        planFeature: PlanFeature.METER
+        planFeature: PlanFeature.METER,
+        uiConfigKey: 'meters'
       },
       {
         name: 'people_teams',
@@ -198,6 +203,7 @@ const ownMenuItems: MenuItems[] = [
         link: '/app/vendors-customers/vendors',
         icon: GroupsTwoTone,
         permission: PermissionEntity.VENDORS_AND_CUSTOMERS,
+        uiConfigKey: 'vendorsAndCustomers',
         items: [
           {
             name: 'vendors',

@@ -50,7 +50,8 @@ public class AssetService {
     private final MessageSource messageSource;
 
     @Autowired
-    public void setDeps(@Lazy LocationService locationService, @Lazy LaborService laborService, @Lazy WorkOrderService workOrderService
+    public void setDeps(@Lazy LocationService locationService, @Lazy LaborService laborService,
+                        @Lazy WorkOrderService workOrderService
     ) {
         this.locationService = locationService;
         this.laborService = laborService;
@@ -107,12 +108,14 @@ public class AssetService {
     }
 
     public void notify(Asset asset, String title, String message) {
-        notificationService.createMultiple(asset.getUsers().stream().map(user -> new Notification(message, user, NotificationType.ASSET, asset.getId())).collect(Collectors.toList()), true, title);
+        notificationService.createMultiple(asset.getUsers().stream().map(user -> new Notification(message, user,
+                NotificationType.ASSET, asset.getId())).collect(Collectors.toList()), true, title);
     }
 
     public void patchNotify(Asset oldAsset, Asset newAsset, Locale locale) {
         String title = messageSource.getMessage("new_assignment", null, locale);
-        String message = messageSource.getMessage("notification_asset_assigned", new Object[]{newAsset.getName()}, locale);
+        String message = messageSource.getMessage("notification_asset_assigned", new Object[]{newAsset.getName()},
+                locale);
         notificationService.createMultiple(oldAsset.getNewUsersToNotify(newAsset.getUsers()).stream().map(user ->
                 new Notification(message, user, NotificationType.ASSET, newAsset.getId())).collect(Collectors.toList()), true, title);
     }
@@ -124,19 +127,22 @@ public class AssetService {
     public void stopDownTime(Long id, Locale locale) {
         Asset savedAsset = findById(id).get();
         Collection<AssetDowntime> assetDowntimes = assetDowntimeService.findByAsset(id);
-        Optional<AssetDowntime> optionalRunningDowntime = assetDowntimes.stream().filter(assetDowntime -> assetDowntime.getDuration() == 0).findFirst();
+        Optional<AssetDowntime> optionalRunningDowntime =
+                assetDowntimes.stream().filter(assetDowntime -> assetDowntime.getDuration() == 0).findFirst();
         if (optionalRunningDowntime.isPresent()) {
             AssetDowntime runningDowntime = optionalRunningDowntime.get();
-            runningDowntime.setDuration(Helper.getDateDiff(runningDowntime.getStartsOn(), new Date(), TimeUnit.SECONDS));
+            runningDowntime.setDuration(Helper.getDateDiff(runningDowntime.getStartsOn(), new Date(),
+                    TimeUnit.SECONDS));
             assetDowntimeService.save(runningDowntime);
         }
         savedAsset.setStatus(AssetStatus.OPERATIONAL);
         save(savedAsset);
-        String message = messageSource.getMessage("notification_asset_operational", new Object[]{savedAsset.getName()}, locale);
+        String message = messageSource.getMessage("notification_asset_operational",
+                new Object[]{savedAsset.getName()}, locale);
         notify(savedAsset, message, messageSource.getMessage("asset_status_change", null, locale));
     }
 
-    public void triggerDownTime(Long id, Locale locale) {
+    public void triggerDownTime(Long id, Locale locale, AssetStatus status) {
         Asset asset = findById(id).get();
         AssetDowntime assetDowntime = AssetDowntime
                 .builder()
@@ -145,7 +151,7 @@ public class AssetService {
                 .build();
         assetDowntime.setCompany(asset.getCompany());
         assetDowntimeService.create(assetDowntime);
-        asset.setStatus(AssetStatus.DOWN);
+        asset.setStatus(status);
         save(asset);
         String message = messageSource.getMessage("notification_asset_down", new Object[]{asset.getName()}, locale);
         notify(asset, message, messageSource.getMessage("asset_status_change", null, locale));
@@ -165,7 +171,8 @@ public class AssetService {
     public Page<AssetShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<Asset> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
-        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
+        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
+                searchCriteria.getDirection(), "id");
         return assetRepository.findAll(builder.build(), page).map(asset -> assetMapper.toShowDto(asset, this));
     }
 
@@ -189,7 +196,8 @@ public class AssetService {
                     }
                 }
                 if (hasError)
-                    throw new CustomException("Asset with same barcode exists: " + dto.getBarCode(), HttpStatus.NOT_ACCEPTABLE);
+                    throw new CustomException("Asset with same barcode exists: " + dto.getBarCode(),
+                            HttpStatus.NOT_ACCEPTABLE);
             }
         }
         asset.setBarCode(dto.getBarCode());
@@ -199,11 +207,13 @@ public class AssetService {
         asset.setModel(dto.getModel());
         asset.setPower(dto.getPower());
         asset.setManufacturer(dto.getManufacturer());
-        Optional<Location> optionalLocation = locationService.findByNameIgnoreCaseAndCompany(dto.getLocationName(), companyId);
+        Optional<Location> optionalLocation = locationService.findByNameIgnoreCaseAndCompany(dto.getLocationName(),
+                companyId);
         optionalLocation.ifPresent(asset::setLocation);
         Optional<Asset> optionalAsset = findByNameIgnoreCaseAndCompany(dto.getParentAssetName(), companyId);
         optionalAsset.ifPresent(asset::setParentAsset);
-        Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
+        Optional<AssetCategory> optionalAssetCategory =
+                assetCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
         optionalAssetCategory.ifPresent(asset::setCategory);
         asset.setName(dto.getName());
         Optional<OwnUser> optionalPrimaryUser = userService.findByEmailAndCompany(dto.getPrimaryUserEmail(), companyId);
@@ -223,7 +233,8 @@ public class AssetService {
             optionalTeam.ifPresent(teams::add);
         });
         asset.setTeams(teams);
-        asset.setStatus(AssetStatus.getAssetStatusFromString(dto.getStatus()));
+        asset.setStatus(AssetStatus.getAssetStatusFromString(dto.getStatus(), Helper.getLocale(company),
+                messageSource));
         asset.setAcquisitionCost(dto.getAcquisitionCost());
         List<Customer> customers = new ArrayList<>();
         dto.getCustomersNames().forEach(name -> {
@@ -276,7 +287,8 @@ public class AssetService {
         return orderedAssets;
     }
 
-    private static void orderAssetsRecursive(Map<String, List<AssetImportDTO>> assetMap, List<AssetImportDTO> assets, List<AssetImportDTO> orderedAssets) {
+    private static void orderAssetsRecursive(Map<String, List<AssetImportDTO>> assetMap, List<AssetImportDTO> assets,
+                                             List<AssetImportDTO> orderedAssets) {
         for (AssetImportDTO asset : assets) {
             orderedAssets.add(asset);
             List<AssetImportDTO> children = assetMap.get(asset.getName());

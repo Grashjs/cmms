@@ -2,6 +2,7 @@ package com.grash.controller;
 
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.*;
+import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.factory.StorageServiceFactory;
 import com.grash.mapper.WorkOrderMapper;
@@ -161,7 +162,7 @@ public class WorkOrderController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public WorkOrderShowDTO create(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrder
+    public WorkOrderShowDTO create(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrderPostDTO
                                            workOrderReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)

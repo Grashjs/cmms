@@ -41,7 +41,12 @@ import {
   GridValueGetterParams
 } from '@mui/x-data-grid';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
-import { AssetDTO, AssetMiniDTO, AssetRow } from '../../../models/owns/asset';
+import {
+  AssetDTO,
+  AssetMiniDTO,
+  AssetRow,
+  AssetStatus
+} from '../../../models/owns/asset';
 import Form from '../components/form';
 import * as Yup from 'yup';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -73,17 +78,7 @@ import SearchInput from '../components/SearchInput';
 import File from '../../../models/owns/file';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import useGridStatePersist from '../../../hooks/useGridStatePersist';
-
-const LabelWrapper = styled(Box)(
-  ({ theme }) => `
-    font-size: ${theme.typography.pxToRem(10)};
-    font-weight: bold;
-    text-transform: uppercase;
-    border-radius: ${theme.general.borderRadiusSm};
-    padding: ${theme.spacing(0.9, 1.5, 0.7)};
-    line-height: 1;
-  `
-);
+import AssetStatusTag from './components/AssetStatusTag';
 
 function Assets() {
   const { t }: { t: any } = useTranslation();
@@ -264,19 +259,8 @@ function Assets() {
       field: 'status',
       headerName: t('status'),
       description: t('status'),
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <LabelWrapper
-          sx={{
-            background: `${
-              params.value === 'OPERATIONAL'
-                ? theme.colors.success.main
-                : theme.colors.error.main
-            }`,
-            color: `white`
-          }}
-        >
-          {params.value === 'OPERATIONAL' ? t('operational') : t('down')}
-        </LabelWrapper>
+      renderCell: (params: GridRenderCellParams<AssetStatus>) => (
+        <AssetStatusTag status={params.value} />
       )
     },
     {

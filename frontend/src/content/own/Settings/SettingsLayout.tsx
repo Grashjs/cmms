@@ -20,8 +20,9 @@ function SettingsLayout(props: SettingsLayoutProps) {
     { value: 'work-order', label: t('wo_configuration') },
     { value: 'request', label: t('request_form_configuration') },
     { value: 'roles', label: t('roles') },
-    { value: 'checklists', label: t('checklists') }
-    // { value: 'workflows', label: t('workflows') }
+    { value: 'checklists', label: t('checklists') },
+    { value: 'workflows', label: t('workflows') },
+    { value: 'ui-configuration', label: t('ui_configuration') }
   ];
   const { setTitle } = useContext(TitleContext);
 

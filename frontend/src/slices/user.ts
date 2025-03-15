@@ -5,6 +5,7 @@ import type { AppThunk } from 'src/store';
 import { OwnUser as User, UserMiniDTO } from '../models/user';
 import api from '../utils/api';
 import { revertAll } from 'src/utils/redux';
+import { UiConfiguration } from '../models/owns/uiConfiguration';
 
 const basePath = 'users';
 interface UserState {
@@ -23,7 +24,7 @@ const initialState: UserState = {
   loadingGet: false
 };
 
-const slice = createSlice({
+export const slice = createSlice({
   name: 'users',
   initialState,
   extraReducers: (builder) => builder.addCase(revertAll, () => initialState),
@@ -128,10 +129,10 @@ export const editUser =
     dispatch(slice.actions.editUser({ user: userResponse }));
   };
 
-  export const disableUser =
+export const disableUser =
   (id: number): AppThunk =>
   async (dispatch) => {
-    const userResponse = await api.patch<User>(`${basePath}/${id}/disable`,{});
+    const userResponse = await api.patch<User>(`${basePath}/${id}/disable`, {});
     dispatch(slice.actions.editUser({ user: userResponse }));
   };
 export const editUserRole =

@@ -5,6 +5,7 @@ import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.dto.imports.WorkOrderImportDTO;
+import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
@@ -66,17 +67,21 @@ public class WorkOrderService {
 
     @Transactional
     public WorkOrder create(WorkOrder workOrder) {
+        if (workOrder instanceof WorkOrderPostDTO) {
+            WorkOrderPostDTO workOrderPostDTO = (WorkOrderPostDTO) workOrder;
+            workOrder = workOrderMapper.fromPostDto(workOrderPostDTO);
+            if (workOrderPostDTO.getAsset() != null && workOrderPostDTO.getAssetStatus() != null) {
+                Asset asset = assetService.findById(workOrderPostDTO.getAsset().getId()).get();
+                asset.setStatus(workOrderPostDTO.getAssetStatus());
+                assetService.save(asset);
+            }
+        }
         WorkOrder savedWorkOrder = workOrderRepository.saveAndFlush(workOrder);
         em.refresh(savedWorkOrder);
         Company company = savedWorkOrder.getCompany();
-        if (savedWorkOrder.getAsset() != null) {
-            Asset asset = savedWorkOrder.getAsset();
-            if (asset.getStatus().equals(AssetStatus.OPERATIONAL)) {
-                assetService.triggerDownTime(asset.getId(), Helper.getLocale(company));
-            }
-        }
         notify(savedWorkOrder, Helper.getLocale(company));
-        Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_CREATED, company.getId());
+        Collection<Workflow> workflows =
+                workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_CREATED, company.getId());
         workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, savedWorkOrder));
 
         return savedWorkOrder;
@@ -96,7 +101,8 @@ public class WorkOrderService {
         if (workOrderRepository.existsById(id)) {
             WorkOrder savedWorkOrder = workOrderRepository.findById(id).get();
             if (savedWorkOrder.getFirstTimeToReact() == null) savedWorkOrder.setFirstTimeToReact(new Date());
-            WorkOrder updatedWorkOrder = workOrderRepository.saveAndFlush(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
+            WorkOrder updatedWorkOrder =
+                    workOrderRepository.saveAndFlush(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
             em.refresh(updatedWorkOrder);
             return updatedWorkOrder;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -124,16 +130,19 @@ public class WorkOrderService {
 
     public void notify(WorkOrder workOrder, Locale locale) {
         String title = messageSource.getMessage("new_wo", null, locale);
-        String message = messageSource.getMessage("notification_wo_assigned", new Object[]{workOrder.getTitle()}, locale);
+        String message = messageSource.getMessage("notification_wo_assigned", new Object[]{workOrder.getTitle()},
+                locale);
         Collection<OwnUser> users = workOrder.getUsers();
-        notificationService.createMultiple(users.stream().map(user -> new Notification(message, user, NotificationType.WORK_ORDER, workOrder.getId())).collect(Collectors.toList()), true, title);
+        notificationService.createMultiple(users.stream().map(user -> new Notification(message, user,
+                NotificationType.WORK_ORDER, workOrder.getId())).collect(Collectors.toList()), true, title);
 
         Map<String, Object> mailVariables = new HashMap<String, Object>() {{
             put("workOrderLink", frontendUrl + "/app/work-orders/" + workOrder.getId());
             put("featuresLink", frontendUrl + "/#key-features");
             put("workOrderTitle", workOrder.getTitle());
         }};
-        Collection<OwnUser> usersToMail = users.stream().filter(user -> user.getUserSettings().isEmailUpdatesForWorkOrders()).collect(Collectors.toList());
+        Collection<OwnUser> usersToMail =
+                users.stream().filter(user -> user.getUserSettings().isEmailUpdatesForWorkOrders()).collect(Collectors.toList());
         if (!usersToMail.isEmpty()) {
             emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_wo", null, locale), mailVariables, "new-work-order.html", Helper.getLocale(users.stream().findFirst().get()));
         }
@@ -141,7 +150,8 @@ public class WorkOrderService {
 
     public void patchNotify(WorkOrder oldWorkOrder, WorkOrder newWorkOrder, Locale locale) {
         String title = messageSource.getMessage("new_assignment", null, locale);
-        String message = messageSource.getMessage("notification_wo_assigned", new Object[]{newWorkOrder.getTitle()}, Helper.getLocale(newWorkOrder.getCompany()));
+        String message = messageSource.getMessage("notification_wo_assigned", new Object[]{newWorkOrder.getTitle()},
+                Helper.getLocale(newWorkOrder.getCompany()));
         List<OwnUser> usersToNotify = oldWorkOrder.getNewUsersToNotify(newWorkOrder.getUsers());
         notificationService.createMultiple(usersToNotify.stream().map(user ->
                 new Notification(message, user, NotificationType.WORK_ORDER, newWorkOrder.getId())).collect(Collectors.toList()), true, title);
@@ -151,7 +161,8 @@ public class WorkOrderService {
             put("featuresLink", frontendUrl + "/#key-features");
             put("workOrderTitle", newWorkOrder.getTitle());
         }};
-        Collection<OwnUser> usersToMail = usersToNotify.stream().filter(user -> user.getUserSettings().isEmailUpdatesForWorkOrders()).collect(Collectors.toList());
+        Collection<OwnUser> usersToMail =
+                usersToNotify.stream().filter(user -> user.getUserSettings().isEmailUpdatesForWorkOrders()).collect(Collectors.toList());
         if (!usersToMail.isEmpty()) {
             emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_wo", null, locale), mailVariables, "new-work-order.html", Helper.getLocale(usersToMail.stream().findFirst().get()));
         }
@@ -176,7 +187,8 @@ public class WorkOrderService {
     public Page<WorkOrder> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<WorkOrder> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
-        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
+        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
+                searchCriteria.getDirection(), "id");
         return workOrderRepository.findAll(builder.build(), page);
     }
 
@@ -217,7 +229,8 @@ public class WorkOrderService {
         return workOrderRepository.findByPriorityAndCompany_Id(priority, companyId);
     }
 
-    public Collection<WorkOrder> findByPriorityAndCompanyAndCreatedAtBetween(Priority priority, Long companyId, Date start, Date end) {
+    public Collection<WorkOrder> findByPriorityAndCompanyAndCreatedAtBetween(Priority priority, Long companyId,
+                                                                             Date start, Date end) {
         return workOrderRepository.findByPriorityAndCompany_IdAndCreatedAtBetween(priority, companyId, start, end);
     }
 
@@ -238,7 +251,8 @@ public class WorkOrderService {
         Collection<Long> laborTimesArray = new ArrayList<>();
         workOrders.forEach(workOrder -> {
                     Collection<Labor> labors = laborService.findByWorkOrder(workOrder.getId());
-                    long laborsCosts = labors.stream().mapToLong(labor -> labor.getHourlyRate() * labor.getDuration() / 3600).sum();
+                    long laborsCosts =
+                            labors.stream().mapToLong(labor -> labor.getHourlyRate() * labor.getDuration() / 3600).sum();
                     long laborTimes = labors.stream().mapToLong(Labor::getDuration).sum();
                     laborCostsArray.add(laborsCosts);
                     laborTimesArray.add(laborTimes);
@@ -252,7 +266,8 @@ public class WorkOrderService {
 
     public long getAdditionalCost(Collection<WorkOrder> workOrders) {
         Collection<Long> costs = workOrders.stream().map(workOrder -> {
-                    Collection<AdditionalCost> additionalCosts = additionalCostService.findByWorkOrder(workOrder.getId());
+                    Collection<AdditionalCost> additionalCosts =
+                            additionalCostService.findByWorkOrder(workOrder.getId());
                     return additionalCosts.stream().mapToLong(Cost::getCost).sum();
                 }
         ).collect(Collectors.toList());
@@ -269,7 +284,8 @@ public class WorkOrderService {
     }
 
     public long getAllCost(Collection<WorkOrder> workOrders, boolean includeLaborCost) {
-        return getPartCost(workOrders) + getAdditionalCost(workOrders) + (includeLaborCost ? getLaborCostAndTime(workOrders).getFirst() : 0);
+        return getPartCost(workOrders) + getAdditionalCost(workOrders) + (includeLaborCost ?
+                getLaborCostAndTime(workOrders).getFirst() : 0);
     }
 
     public Collection<WorkOrder> findByCreatedBy(Long id) {
@@ -299,9 +315,11 @@ public class WorkOrderService {
         workOrder.setDescription(dto.getDescription());
         workOrder.setTitle(dto.getTitle());
         workOrder.setRequiredSignature(Helper.getBooleanFromString(dto.getRequiredSignature()));
-        Optional<WorkOrderCategory> optionalWorkOrderCategory = workOrderCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
+        Optional<WorkOrderCategory> optionalWorkOrderCategory =
+                workOrderCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
         optionalWorkOrderCategory.ifPresent(workOrder::setCategory);
-        Optional<Location> optionalLocation = locationService.findByNameIgnoreCaseAndCompany(dto.getLocationName(), companyId);
+        Optional<Location> optionalLocation = locationService.findByNameIgnoreCaseAndCompany(dto.getLocationName(),
+                companyId);
         optionalLocation.ifPresent(workOrder::setLocation);
         Optional<Team> optionalTeam = teamService.findByNameIgnoreCaseAndCompany(dto.getTeamName(), companyId);
         optionalTeam.ifPresent(workOrder::setTeam);

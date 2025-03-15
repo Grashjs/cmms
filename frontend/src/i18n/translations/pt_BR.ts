@@ -1470,7 +1470,17 @@ const ptBRJSON = {
   'Sign out': 'Desconexão',
   'Change Theme': 'Altere o assunto',
   'View all notifications': 'Mostre todas as notificações',
-  rate: 'Freqüência'
+  rate: 'Freqüência',
+  OPERATIONAL: 'Operacional',
+  DOWN: 'Fora de serviço',
+  MODERNIZATION: 'Modernização',
+  STANDBY: 'Em espera',
+  INSPECTION_SCHEDULED: 'Inspeção agendada',
+  COMMISSIONING: 'Comissionamento',
+  EMERGENCY_SHUTDOWN: 'Desligamento de emergência',
+  select_asset_status: 'Selecione o status do ativo',
+  asset_status: 'Status do ativo',
+  ui_configuration: 'Configuração da interface'
 };
 
 export default ptBRJSON;

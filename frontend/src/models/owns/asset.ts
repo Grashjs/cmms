@@ -14,7 +14,20 @@ export default interface Asset extends Audit {
   description: string;
 }
 
-export type AssetStatus = 'OPERATIONAL' | 'DOWN';
+export const assetStatuses = [
+  { status: 'OPERATIONAL', color: (theme) => theme.palette.success.main },
+  { status: 'MODERNIZATION', color: (theme) => '#CBC3E3' },
+  { status: 'DOWN', color: (theme) => theme.palette.error.main },
+  { status: 'STANDBY', color: (theme) => theme.palette.primary.main },
+  {
+    status: 'INSPECTION_SCHEDULED',
+    color: (theme) => theme.palette.warning.main
+  },
+  { status: 'COMMISSIONING', color: (theme) => 'grey' },
+  { status: 'EMERGENCY_SHUTDOWN', color: (theme) => theme.palette.error.dark }
+] as const;
+
+export type AssetStatus = typeof assetStatuses[number]['status'];
 export interface AssetDTO extends Audit {
   id: number;
   name: string;
@@ -52,23 +65,3 @@ export interface AssetMiniDTO {
   id: number;
   name: string;
 }
-export const assets: Asset[] = [
-  {
-    id: 212,
-    name: 'cgvg',
-    createdAt: 'dfggj',
-    description: 'bjhb',
-    createdBy: 1,
-    updatedAt: 'ghfgj',
-    updatedBy: 1
-  },
-  {
-    id: 44,
-    name: 'fcgvc',
-    createdAt: 'dfggj',
-    createdBy: 1,
-    description: 'fchg',
-    updatedAt: 'ghfgj',
-    updatedBy: 1
-  }
-];

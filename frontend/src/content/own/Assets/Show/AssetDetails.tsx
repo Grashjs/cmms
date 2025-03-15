@@ -4,11 +4,13 @@ import {
   Divider,
   Grid,
   Link,
-  Stack, styled,
-  Typography, useTheme
+  Stack,
+  styled,
+  Typography,
+  useTheme
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { AssetDTO } from '../../../../models/owns/asset';
+import { AssetDTO, assetStatuses } from '../../../../models/owns/asset';
 import { UserMiniDTO } from '../../../../models/user';
 import { Customer } from '../../../../models/owns/customer';
 import { Vendor } from '../../../../models/owns/vendor';
@@ -21,6 +23,7 @@ import {
 } from '../../../../utils/urlPaths';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
+import AssetStatusTag from '../components/AssetStatusTag';
 
 interface PropsType {
   asset: AssetDTO;
@@ -70,9 +73,9 @@ const AssetDetails = ({ asset }: PropsType) => {
     }
   ];
   const BasicField = ({
-                        label,
-                        value
-                      }: {
+    label,
+    value
+  }: {
     label: string | number;
     value: string | number;
   }) => {
@@ -89,11 +92,11 @@ const AssetDetails = ({ asset }: PropsType) => {
     ) : null;
   };
   const ListField = <T extends { id: number }>({
-                                                 values,
-                                                 label,
-                                                 getHref,
-                                                 getValueLabel
-                                               }: {
+    values,
+    label,
+    getHref,
+    getValueLabel
+  }: {
     values: T[];
     label: string;
     getHref: (value: T) => string;
@@ -138,14 +141,7 @@ const AssetDetails = ({ asset }: PropsType) => {
               <Grid item xs={12}>
                 <Stack direction={'row'} spacing={2} alignItems={'center'}>
                   <Typography variant="h3">{t('asset_information')}</Typography>
-                  {asset && <LabelWrapper
-                    sx={{
-                      background: `${asset?.status === 'OPERATIONAL' ? theme.colors.success.main : theme.colors.error.main}`,
-                      color: `white`
-                    }}
-                  >
-                    {asset?.status === 'OPERATIONAL' ? t('operational') : t('down')}
-                  </LabelWrapper>}
+                  {asset && <AssetStatusTag status={asset.status} />}
                 </Stack>
               </Grid>
               {informationFields.map((field) => (

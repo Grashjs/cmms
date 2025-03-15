@@ -114,4 +114,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2025_03_01_1740796739_file_path.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2025_03_15_1741998148_ui_configuration.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

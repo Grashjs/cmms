@@ -56,7 +56,8 @@ public class AuthController {
     })
     public ResponseEntity<AuthResponse> login(
             @ApiParam("AuthLoginRequest") @Valid @RequestBody UserLoginRequest userLoginRequest) {
-        AuthResponse authResponse = new AuthResponse(userService.signin(userLoginRequest.getEmail().toLowerCase(), userLoginRequest.getPassword(), userLoginRequest.getType()));
+        AuthResponse authResponse = new AuthResponse(userService.signin(userLoginRequest.getEmail().toLowerCase(),
+                userLoginRequest.getPassword(), userLoginRequest.getType()));
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
 
@@ -90,7 +91,8 @@ public class AuthController {
 //            put("verifyTokenLink", "gg");
 //            put("featuresLink", "s");
 //        }};
-//        emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, subject, variables, "new-work-order.html", Locale.FRENCH);
+//        emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, subject, variables, "new-work-order
+//        .html", Locale.FRENCH);
 //    }
 
     @GetMapping("/activate-account")
@@ -125,25 +127,27 @@ public class AuthController {
 
     @GetMapping(value = "/{username}")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    @ApiOperation(value = "${AuthController.search}", response = UserResponseDTO.class, authorizations = {@Authorization(value = "apiKey")})
+    @ApiOperation(value = "${AuthController.search}", response = UserResponseDTO.class, authorizations =
+            {@Authorization(value = "apiKey")})
     @ApiResponses(value = {//
             @ApiResponse(code = 400, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "The user doesn't exist"), //
             @ApiResponse(code = 500, message = "Expired or invalid JWT token")})
     public UserResponseDTO search(@ApiParam("Username") @PathVariable String username) {
-        return userMapper.toPatchDto(userService.findByEmail(username).get());
+        return userMapper.toResponseDto(userService.findByEmail(username).get());
     }
 
     @GetMapping(value = "/me")
     @PreAuthorize("permitAll()")
-    @ApiOperation(value = "${AuthController.me}", response = UserResponseDTO.class, authorizations = {@Authorization(value = "apiKey")})
+    @ApiOperation(value = "${AuthController.me}", response = UserResponseDTO.class, authorizations =
+            {@Authorization(value = "apiKey")})
     @ApiResponses(value = {//
             @ApiResponse(code = 400, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 500, message = "Expired or invalid JWT token")})
     public UserResponseDTO whoami(HttpServletRequest req) {
-        return userMapper.toPatchDto(userService.whoami(req));
+        return userMapper.toResponseDto(userService.whoami(req));
     }
 
     @GetMapping("/refresh")
@@ -180,17 +184,21 @@ public class AuthController {
             @RequestParam("id") Long id, @ApiIgnore @CurrentUser OwnUser user
     ) {
         if (!user.getSuperAccountRelations().isEmpty()) {//user is superUser
-            SuperAccountRelation superAccountRelation = superAccountRelationRepository.findBySuperUser_IdAndChildUser_Id(user.getId(), id);
+            SuperAccountRelation superAccountRelation =
+                    superAccountRelationRepository.findBySuperUser_IdAndChildUser_Id(user.getId(), id);
             if (superAccountRelation == null) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             OwnUser childUser = userService.findById(id).get();
-            if(!childUser.isEnabled()) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            return new AuthResponse(jwtTokenProvider.createToken(childUser.getEmail(), Collections.singletonList(childUser.getRole().getRoleType())));
+            if (!childUser.isEnabled()) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return new AuthResponse(jwtTokenProvider.createToken(childUser.getEmail(),
+                    Collections.singletonList(childUser.getRole().getRoleType())));
         } else if (user.getParentSuperAccount() != null) { //user is child
-            SuperAccountRelation superAccountRelation = superAccountRelationRepository.findBySuperUser_IdAndChildUser_Id(id, user.getId());
+            SuperAccountRelation superAccountRelation =
+                    superAccountRelationRepository.findBySuperUser_IdAndChildUser_Id(id, user.getId());
             if (superAccountRelation == null) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             OwnUser superUser = userService.findById(id).get();
-            if(!superUser.isEnabled()) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            return new AuthResponse(jwtTokenProvider.createToken(superUser.getEmail(), Collections.singletonList(superUser.getRole().getRoleType())));
+            if (!superUser.isEnabled()) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return new AuthResponse(jwtTokenProvider.createToken(superUser.getEmail(),
+                    Collections.singletonList(superUser.getRole().getRoleType())));
         }
         throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }

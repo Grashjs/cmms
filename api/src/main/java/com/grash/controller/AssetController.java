@@ -59,7 +59,8 @@ public class AssetController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<AssetShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
+    public ResponseEntity<Page<AssetShowDTO>> search(@RequestBody SearchCriteria searchCriteria,
+                                                     HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
@@ -79,7 +80,8 @@ public class AssetController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Asset not found")})
-    public AssetShowDTO getByNfcId(@ApiParam("id") @PathVariable("id") String nfcId, @ApiIgnore @CurrentUser OwnUser user) {
+    public AssetShowDTO getByNfcId(@ApiParam("id") @PathVariable("id") String nfcId,
+                                   @ApiIgnore @CurrentUser OwnUser user) {
         Optional<Asset> optionalAsset = assetService.findByNfcIdAndCompany(nfcId, user.getCompany().getId());
         return getAsset(optionalAsset, user);
     }
@@ -90,7 +92,8 @@ public class AssetController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Asset not found")})
-    public AssetShowDTO getByBarcode(@ApiParam("data") @PathVariable("data") String data, @ApiIgnore @CurrentUser OwnUser user) {
+    public AssetShowDTO getByBarcode(@ApiParam("data") @PathVariable("data") String data,
+                                     @ApiIgnore @CurrentUser OwnUser user) {
         Optional<Asset> optionalAsset = assetService.findByBarcodeAndCompany(data, user.getCompany().getId());
         return getAsset(optionalAsset, user);
     }
@@ -152,7 +155,8 @@ public class AssetController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Asset not found")})
-    public Collection<AssetShowDTO> getChildrenById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public Collection<AssetShowDTO> getChildrenById(@ApiParam("id") @PathVariable("id") Long id,
+                                                    HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return assetService.findByCompany(user.getCompany().getId()).stream().filter(asset -> asset.getParentAsset() == null).map(asset -> assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
@@ -161,7 +165,8 @@ public class AssetController {
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
-                return assetService.findAssetChildren(id).stream().map(asset -> assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
+                return assetService.findAssetChildren(id).stream().map(asset -> assetMapper.toShowDto(asset,
+                        assetService)).collect(Collectors.toList());
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
 
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -176,20 +181,24 @@ public class AssetController {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.ASSETS)) {
             if (assetReq.getBarCode() != null) {
-                Optional<Asset> optionalAssetWithSameBarCode = assetService.findByBarcodeAndCompany(assetReq.getBarCode(), user.getCompany().getId());
+                Optional<Asset> optionalAssetWithSameBarCode =
+                        assetService.findByBarcodeAndCompany(assetReq.getBarCode(), user.getCompany().getId());
                 if (optionalAssetWithSameBarCode.isPresent()) {
                     throw new CustomException("Asset with same barCode exists", HttpStatus.NOT_ACCEPTABLE);
                 }
             }
             if (assetReq.getNfcId() != null) {
-                Optional<Asset> optionalAssetWithSameNfcId = assetService.findByNfcIdAndCompany(assetReq.getNfcId(), user.getCompany().getId());
+                Optional<Asset> optionalAssetWithSameNfcId = assetService.findByNfcIdAndCompany(assetReq.getNfcId(),
+                        user.getCompany().getId());
                 if (optionalAssetWithSameNfcId.isPresent()) {
                     throw new CustomException("Asset with same nfc code exists", HttpStatus.NOT_ACCEPTABLE);
                 }
             }
             Asset createdAsset = assetService.create(assetReq);
-            String message = messageSource.getMessage("notification_asset_assigned", new Object[]{createdAsset.getName()}, Helper.getLocale(user));
-            assetService.notify(createdAsset, messageSource.getMessage("new_assignment", null, Helper.getLocale(user)), message);
+            String message = messageSource.getMessage("notification_asset_assigned",
+                    new Object[]{createdAsset.getName()}, Helper.getLocale(user));
+            assetService.notify(createdAsset, messageSource.getMessage("new_assignment", null,
+                    Helper.getLocale(user)), message);
             return assetMapper.toShowDto(createdAsset, assetService);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -200,7 +209,8 @@ public class AssetController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Asset not found")})
-    public AssetShowDTO patch(@ApiParam("Asset") @Valid @RequestBody AssetPatchDTO asset, @ApiParam("id") @PathVariable("id") Long id,
+    public AssetShowDTO patch(@ApiParam("Asset") @Valid @RequestBody AssetPatchDTO asset,
+                              @ApiParam("id") @PathVariable("id") Long id,
                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
@@ -210,24 +220,26 @@ public class AssetController {
             em.detach(savedAsset);
             if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || savedAsset.getCreatedBy().equals(user.getId())
             ) {
-                if (asset.getStatus().equals(AssetStatus.OPERATIONAL) && !savedAsset.getStatus().equals(AssetStatus.OPERATIONAL)) {
+                if (!asset.getStatus().isReallyDown() && savedAsset.getStatus().isReallyDown()) {
                     assetService.stopDownTime(savedAsset.getId(), Helper.getLocale(user));
-                } else if (asset.getStatus().equals(AssetStatus.DOWN) && !savedAsset.getStatus().equals(AssetStatus.DOWN)) {
-                    assetService.triggerDownTime(savedAsset.getId(), Helper.getLocale(user));
+                } else if (asset.getStatus().isReallyDown() && !savedAsset.getStatus().isReallyDown()) {
+                    assetService.triggerDownTime(savedAsset.getId(), Helper.getLocale(user), asset.getStatus());
                 }
                 if (asset.getBarCode() != null) {
-                    Optional<Asset> optionalAssetWithSameBarCode = assetService.findByBarcodeAndCompany(asset.getBarCode(), user.getCompany().getId());
+                    Optional<Asset> optionalAssetWithSameBarCode =
+                            assetService.findByBarcodeAndCompany(asset.getBarCode(), user.getCompany().getId());
                     if (optionalAssetWithSameBarCode.isPresent() && !optionalAssetWithSameBarCode.get().getId().equals(id)) {
                         throw new CustomException("Asset with same barcode exists", HttpStatus.NOT_ACCEPTABLE);
                     }
                 }
                 if (asset.getNfcId() != null) {
-                    Optional<Asset> optionalAssetWithSameNfcId = assetService.findByNfcIdAndCompany(asset.getNfcId(), user.getCompany().getId());
+                    Optional<Asset> optionalAssetWithSameNfcId = assetService.findByNfcIdAndCompany(asset.getNfcId(),
+                            user.getCompany().getId());
                     if (optionalAssetWithSameNfcId.isPresent() && !optionalAssetWithSameNfcId.get().getId().equals(id)) {
                         throw new CustomException("Asset with same nfc code exists", HttpStatus.NOT_ACCEPTABLE);
                     }
                 }
-                if(asset.getParentAsset() !=null && asset.getParentAsset().getId().equals(id))
+                if (asset.getParentAsset() != null && asset.getParentAsset().getId().equals(id))
                     throw new CustomException("Parent asset cannot be the same id", HttpStatus.NOT_ACCEPTABLE);
                 Asset patchedAsset = assetService.update(id, asset);
                 assetService.patchNotify(savedAsset, patchedAsset, Helper.getLocale(user));

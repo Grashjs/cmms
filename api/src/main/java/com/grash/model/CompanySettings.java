@@ -30,6 +30,8 @@ public class CompanySettings {
     @OneToOne(cascade = CascadeType.ALL)
     private WorkOrderRequestConfiguration WorkOrderRequestConfiguration = new WorkOrderRequestConfiguration(this);
 
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "companySettings")
+    private UiConfiguration uiConfiguration = new UiConfiguration(this);
     @OneToOne
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Company company;
@@ -52,7 +54,7 @@ public class CompanySettings {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<TimeCategory> timeCategories = new ArrayList<>();
-    
+
 
     private List<CostCategory> createCostCategories(List<String> costCategories) {
         return costCategories.stream().map(costCategory -> new CostCategory(costCategory, this)).collect(Collectors.toList());

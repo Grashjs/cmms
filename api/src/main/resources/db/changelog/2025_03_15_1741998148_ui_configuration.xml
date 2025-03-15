@@ -1,0 +1,53 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="1741998172638-1" author="Ibrahima G. Coulibaly">
+        <createTable tableName="ui_configuration">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="requests" type="boolean" defaultValue="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="locations" type="boolean" defaultValue="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="meters" type="boolean" defaultValue="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="vendors_and_customers" type="boolean" defaultValue="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="company_settings_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Add Foreign Key Constraint -->
+        <addForeignKeyConstraint
+                baseTableName="ui_configuration"
+                baseColumnNames="company_settings_id"
+                referencedTableName="company_settings"
+                referencedColumnNames="id"
+                constraintName="fk_ui_configuration_company_settings"/>
+    </changeSet>
+    <changeSet id="1741999354129-1" author="Ibrahima G. Coulibaly">
+        <dropColumn tableName="ui_configuration" columnName="company_settings_id"/>
+        <addColumn tableName="company_settings">
+            <column name="ui_configuration_id" type="bigint">
+                <constraints foreignKeyName="fk_company_settings_ui_configuration" referencedColumnNames="id"
+                             referencedTableName="ui_configuration"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1742004671049-1" author="Ibrahima G. Coulibaly">
+        <delete tableName="ui_configuration"/>
+        <addColumn tableName="ui_configuration">
+            <column name="company_settings_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_ui_configuration_company_settings"
+                             referencedTableName="company_settings" referencedColumnNames="id"/>
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

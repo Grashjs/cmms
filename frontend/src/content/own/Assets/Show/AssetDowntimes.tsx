@@ -22,7 +22,11 @@ import {
 import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import { AssetDTO, AssetStatus } from '../../../../models/owns/asset';
+import {
+  AssetDTO,
+  AssetStatus,
+  assetStatuses
+} from '../../../../models/owns/asset';
 import { useDispatch, useSelector } from '../../../../store';
 import { editAsset } from '../../../../slices/asset';
 import useAuth from '../../../../hooks/useAuth';
@@ -281,8 +285,14 @@ const AssetDowntimes = ({ asset }: PropsType) => {
                     );
                   }}
                 >
-                  <MenuItem value={'OPERATIONAL'}>{t('operational')}</MenuItem>
-                  <MenuItem value={'DOWN'}>{t('down')}</MenuItem>
+                  {assetStatuses.map((assetStatusConfig) => (
+                    <MenuItem
+                      key={assetStatusConfig.status}
+                      value={assetStatusConfig.status}
+                    >
+                      {t(assetStatusConfig.status)}
+                    </MenuItem>
+                  ))}
                 </Select>
                 {hasEditPermission(PermissionEntity.ASSETS, asset) && (
                   <Button

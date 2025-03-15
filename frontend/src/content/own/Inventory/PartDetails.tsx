@@ -333,11 +333,7 @@ export default function PartDetails(props: PartDetailsProps) {
                     >
                       <ListItemText
                         primary={asset.name}
-                        secondary={
-                          asset.status === 'OPERATIONAL'
-                            ? t('operational')
-                            : t('down')
-                        }
+                        secondary={t(asset.status)}
                       />
                     </ListItem>
                   </ListItemButton>

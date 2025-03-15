@@ -24,7 +24,15 @@ import { useTranslation } from 'react-i18next';
 import { IField } from '../type';
 import WorkOrder from '../../../models/owns/workOrder';
 import * as React from 'react';
-import { ChangeEvent, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import {
+  ChangeEvent,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState
+} from 'react';
 import { TitleContext } from '../../../contexts/TitleContext';
 import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
 import CustomDataGrid from '../components/CustomDatagrid';
@@ -42,7 +50,7 @@ import { UserMiniDTO } from '../../../models/user';
 import WorkOrderDetails from './Details/WorkOrderDetails';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { LocationMiniDTO } from '../../../models/owns/location';
-import { AssetMiniDTO } from '../../../models/owns/asset';
+import { AssetMiniDTO, assetStatuses } from '../../../models/owns/asset';
 import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
 import {
   addWorkOrder,
@@ -112,7 +120,11 @@ function WorkOrders() {
   );
   const tabs = [
     { value: 'list', label: t('list_view'), disabled: false },
-    { value: 'calendar', label: t('calendar_view'), disabled: !hasViewPermission(PermissionEntity.WORK_ORDERS) },
+    {
+      value: 'calendar',
+      label: t('calendar_view'),
+      disabled: !hasViewPermission(PermissionEntity.WORK_ORDERS)
+    },
     { value: 'column', label: t('column_view'), disabled: true }
   ];
   const handleTabsChange = (_event: ChangeEvent<{}>, value: string): void => {
@@ -287,6 +299,7 @@ function WorkOrders() {
 
   const formatValues = (values) => {
     const newValues = { ...values };
+    newValues.assetStatus = newValues.assetStatus?.value ?? null;
     newValues.primaryUser = formatSelect(newValues.primaryUser);
     newValues.location = formatSelect(newValues.location);
     newValues.team = formatSelect(newValues.team);
@@ -354,10 +367,10 @@ function WorkOrders() {
               params.value === 'IN_PROGRESS'
                 ? 'success'
                 : params.value === 'ON_HOLD'
-                  ? 'warning'
-                  : params.value === 'COMPLETE'
-                    ? 'info'
-                    : 'secondary'
+                ? 'warning'
+                : params.value === 'COMPLETE'
+                ? 'info'
+                : 'secondary'
             }
           />
           <Typography sx={{ ml: 1 }}>{t(params.value)}</Typography>
@@ -584,6 +597,16 @@ function WorkOrders() {
       relatedFields: [{ field: 'location' }]
     },
     {
+      name: 'assetStatus',
+      type: 'select',
+      label: t('asset_status'),
+      placeholder: t('select_asset_status'),
+      items: assetStatuses.map((assetStatus) => ({
+        label: t(assetStatus.status),
+        value: assetStatus.status
+      }))
+    },
+    {
       name: 'tasks',
       type: 'select',
       type2: 'task',
@@ -645,13 +668,12 @@ function WorkOrders() {
                 : null,
               location: locationParamObject
                 ? {
-                  label: locationParamObject.name,
-                  value: locationParamObject.id
-                }
+                    label: locationParamObject.name,
+                    value: locationParamObject.id
+                  }
                 : null
             }}
-            onChange={({ field, e }) => {
-            }}
+            onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
               return new Promise<void>((resolve, rej) => {
@@ -719,8 +741,7 @@ function WorkOrders() {
               tasks,
               ...getWOBaseValues(t, currentWorkOrder)
             }}
-            onChange={({ field, e }) => {
-            }}
+            onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
               return new Promise<void>((resolve, rej) => {
@@ -885,50 +906,52 @@ function WorkOrders() {
               alignItems: 'center'
             }}
           >
-            {currentTab !== 'calendar' && <Stack
-              sx={{ ml: 1 }}
-              direction="row"
-              spacing={1}
-              justifyContent={'flex-start'}
-              width={'95%'}
-            >
-              <Button
-                onClick={() => setOpenFilterDrawer(true)}
-                sx={{
-                  '& .MuiButton-startIcon': { margin: '0px' },
-                  minWidth: 0
-                }}
-                variant={
-                  _.isEqual(
-                    criteria.filterFields,
-                    initialCriteria.filterFields
-                  )
-                    ? 'outlined'
-                    : 'contained'
-                }
-                startIcon={<FilterAltTwoToneIcon />}
-              />
-              <EnumFilter
-                filterFields={criteria.filterFields}
-                onChange={onFilterChange}
-                completeOptions={['NONE', 'LOW', 'MEDIUM', 'HIGH']}
-                fieldName="priority"
-                icon={<SignalCellularAltTwoToneIcon />}
-              />
-              <EnumFilter
-                filterFields={criteria.filterFields}
-                onChange={onFilterChange}
-                completeOptions={[
-                  'OPEN',
-                  'IN_PROGRESS',
-                  'ON_HOLD',
-                  'COMPLETE'
-                ]}
-                fieldName="status"
-                icon={<CircleTwoToneIcon />}
-              />
-              <SearchInput onChange={debouncedQueryChange} />
-            </Stack>}
+            {currentTab !== 'calendar' && (
+              <Stack
+                sx={{ ml: 1 }}
+                direction="row"
+                spacing={1}
+                justifyContent={'flex-start'}
+                width={'95%'}
+              >
+                <Button
+                  onClick={() => setOpenFilterDrawer(true)}
+                  sx={{
+                    '& .MuiButton-startIcon': { margin: '0px' },
+                    minWidth: 0
+                  }}
+                  variant={
+                    _.isEqual(
+                      criteria.filterFields,
+                      initialCriteria.filterFields
+                    )
+                      ? 'outlined'
+                      : 'contained'
+                  }
+                  startIcon={<FilterAltTwoToneIcon />}
+                />
+                <EnumFilter
+                  filterFields={criteria.filterFields}
+                  onChange={onFilterChange}
+                  completeOptions={['NONE', 'LOW', 'MEDIUM', 'HIGH']}
+                  fieldName="priority"
+                  icon={<SignalCellularAltTwoToneIcon />}
+                />
+                <EnumFilter
+                  filterFields={criteria.filterFields}
+                  onChange={onFilterChange}
+                  completeOptions={[
+                    'OPEN',
+                    'IN_PROGRESS',
+                    'ON_HOLD',
+                    'COMPLETE'
+                  ]}
+                  fieldName="status"
+                  icon={<CircleTwoToneIcon />}
+                />
+                <SearchInput onChange={debouncedQueryChange} />
+              </Stack>
+            )}
             <Divider sx={{ mt: 1 }} />
             <Box sx={{ width: '95%' }}>
               {currentTab === 'list' ? (
@@ -947,7 +970,6 @@ function WorkOrders() {
                   onPageChange={onPageChange}
                   rowsPerPageOptions={[10, 20, 50]}
                   components={{
-
                     NoRowsOverlay: () => (
                       <NoRowsMessageWrapper
                         message={t('noRows.wo.message')}
@@ -955,9 +977,7 @@ function WorkOrders() {
                       />
                     )
                   }}
-                  onRowClick={(params) =>
-                    handleOpenDetails(Number(params.id))
-                  }
+                  onRowClick={(params) => handleOpenDetails(Number(params.id))}
                 />
               ) : (
                 <WorkOrderCalendar

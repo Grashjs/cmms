@@ -1,26 +1,41 @@
 package com.grash.mapper;
 
-import com.grash.dto.UserMiniDTO;
-import com.grash.dto.UserPatchDTO;
-import com.grash.dto.UserResponseDTO;
-import com.grash.dto.UserSignupRequest;
+import com.grash.dto.*;
+import com.grash.model.Asset;
 import com.grash.model.OwnUser;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.Mappings;
+import com.grash.model.UiConfiguration;
+import com.grash.service.AssetService;
+import com.grash.service.UiConfigurationService;
+import org.mapstruct.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
 @Mapper(componentModel = "spring", uses = {SuperAccountRelationMapper.class, FileMapper.class})
-public interface UserMapper {
-    OwnUser updateUser(@MappingTarget OwnUser entity, UserPatchDTO dto);
+public abstract class UserMapper {
+    public abstract OwnUser updateUser(@MappingTarget OwnUser entity, UserPatchDTO dto);
+
+    @Lazy
+    @Autowired
+    private UiConfigurationService uiConfigurationService;
 
     @Mappings({@Mapping(source = "company.id", target = "companyId"),
             @Mapping(source = "company.companySettings.id", target = "companySettingsId"),
             @Mapping(source = "userSettings.id", target = "userSettingsId")})
-    UserResponseDTO toPatchDto(OwnUser model);
+    @Mapping(source = "company.companySettings.uiConfiguration", target = "uiConfiguration")
+    public abstract UserResponseDTO toResponseDto(OwnUser model);
+
+    @AfterMapping
+    protected UserResponseDTO toResponseDto(OwnUser model, @MappingTarget UserResponseDTO target) {
+        if (target.getUiConfiguration() == null) {
+            UiConfiguration uiConfiguration = new UiConfiguration();
+            uiConfiguration.setCompanySettings(model.getCompany().getCompanySettings());
+            target.setUiConfiguration(uiConfigurationService.create(uiConfiguration));
+        }
+        return target;
+    }
 
     @Mappings({})
-    OwnUser toModel(UserSignupRequest dto);
+    public abstract OwnUser toModel(UserSignupRequest dto);
 
-    UserMiniDTO toMiniDto(OwnUser user);
+    public abstract UserMiniDTO toMiniDto(OwnUser user);
 }

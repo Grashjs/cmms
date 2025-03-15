@@ -7,7 +7,6 @@ import com.grash.mapper.UserMapper;
 import com.grash.model.OwnUser;
 import com.grash.model.Role;
 import com.grash.model.enums.PermissionEntity;
-import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import com.grash.security.CurrentUser;
 import com.grash.service.RoleService;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,7 +40,8 @@ public class UserController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<OwnUser>> search(@RequestBody SearchCriteria searchCriteria, @ApiIgnore @CurrentUser OwnUser user) {
+    public ResponseEntity<Page<OwnUser>> search(@RequestBody SearchCriteria searchCriteria,
+                                                @ApiIgnore @CurrentUser OwnUser user) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 searchCriteria.filterCompany(user);
@@ -68,7 +67,8 @@ public class UserController {
                     );
                     return new SuccessResponse(true, "Users have been invited");
                 } else
-                    throw new CustomException("Your current subscription doesn't allow you to invite that many users", HttpStatus.NOT_ACCEPTABLE);
+                    throw new CustomException("Your current subscription doesn't allow you to invite that many users"
+                            , HttpStatus.NOT_ACCEPTABLE);
 
             } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -113,7 +113,7 @@ public class UserController {
             OwnUser savedUser = optionalUser.get();
             if (requester.getId().equals(savedUser.getId()) ||
                     requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
-                return userMapper.toPatchDto(userService.update(id, userReq));
+                return userMapper.toResponseDto(userService.update(id, userReq));
             } else {
                 throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
             }
@@ -134,7 +134,7 @@ public class UserController {
         if (optionalUser.isPresent()) {
             OwnUser savedUser = optionalUser.get();
             if (user.getCompany().getId().equals(savedUser.getCompany().getId())) {
-                return userMapper.toPatchDto(savedUser);
+                return userMapper.toResponseDto(savedUser);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -154,12 +154,14 @@ public class UserController {
         if (optionalUserToPatch.isPresent() && optionalRole.isPresent()) {
             OwnUser userToPatch = optionalUserToPatch.get();
             if (requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
-                int usersCount = (int) userService.findByCompany(requester.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
+                int usersCount =
+                        (int) userService.findByCompany(requester.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
                 if (usersCount <= requester.getCompany().getSubscription().getUsersCount()) {
                     userToPatch.setRole(optionalRole.get());
-                    return userMapper.toPatchDto(userService.save(userToPatch));
+                    return userMapper.toResponseDto(userService.save(userToPatch));
                 } else
-                    throw new CustomException("Company subscription users count doesn't allow this operation", HttpStatus.NOT_ACCEPTABLE);
+                    throw new CustomException("Company subscription users count doesn't allow this operation",
+                            HttpStatus.NOT_ACCEPTABLE);
             } else {
                 throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
             }
@@ -184,7 +186,7 @@ public class UserController {
             if (requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 userToDisable.setEnabled(false);
                 userToDisable.setEnabledInSubscription(false);
-                return userMapper.toPatchDto(userService.save(userToDisable));
+                return userMapper.toResponseDto(userService.save(userToDisable));
             } else {
                 throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
             }

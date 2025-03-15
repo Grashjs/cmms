@@ -29,6 +29,7 @@ import Meter from '../models/owns/meter';
 import Asset, { AssetDTO } from '../models/owns/asset';
 import Location from '../models/owns/location';
 import { useZendesk } from 'react-use-zendesk';
+import { UiConfiguration } from 'src/models/owns/uiConfiguration';
 
 interface AuthState {
   isInitialized: boolean;
@@ -86,6 +87,7 @@ interface AuthContextValue extends AuthState {
     entity: Entity
   ) => boolean;
   getFilteredFields: (fields: Array<IField>) => Array<IField>;
+  patchUiConfiguration: (values: Omit<UiConfiguration, 'id'>) => Promise<void>;
 }
 
 interface AuthProviderProps {
@@ -194,6 +196,12 @@ type PatchFieldConfigurationAction = {
     fieldConfiguration: FieldConfiguration;
   };
 };
+type PatchUiConfigurationAction = {
+  type: 'PATCH_UI_CONFIGURATION';
+  payload: {
+    uiConfiguration: UiConfiguration;
+  };
+};
 type Action =
   | InitializeAction
   | LoginAction
@@ -211,7 +219,8 @@ type Action =
   | CancelSubscriptionAction
   | ResumeSubscriptionAction
   | UpgradeAction
-  | DowngradeAction;
+  | DowngradeAction
+  | PatchUiConfigurationAction;
 
 const initialAuthState: AuthState = {
   isAuthenticated: false,
@@ -327,6 +336,15 @@ const handlers: Record<
         ...state.company,
         subscription: { ...state.company.subscription, cancelled: false }
       }
+    };
+  },
+  PATCH_UI_CONFIGURATION: (
+    state: AuthState,
+    action: PatchUiConfigurationAction
+  ): AuthState => {
+    return {
+      ...state,
+      user: { ...state.user, uiConfiguration: action.payload.uiConfiguration }
     };
   },
   PATCH_COMPANY: (state: AuthState, action: PatchCompanyAction): AuthState => {
@@ -448,6 +466,7 @@ const AuthContext = createContext<AuthContextValue>({
   resetPassword: () => Promise.resolve(false),
   fetchCompanySettings: () => Promise.resolve(),
   patchGeneralPreferences: () => Promise.resolve(),
+  patchUiConfiguration: () => Promise.resolve(),
   patchFieldConfiguration: () => Promise.resolve(),
   hasViewPermission: () => false,
   hasViewOtherPermission: () => false,
@@ -735,6 +754,21 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     });
   };
 
+  const patchUiConfiguration = async (
+    values: Omit<UiConfiguration, 'id'>
+  ): Promise<void> => {
+    const uiConfiguration = await api.patch<UiConfiguration>(
+      `ui-configurations`,
+      values
+    );
+    dispatch({
+      type: 'PATCH_UI_CONFIGURATION',
+      payload: {
+        uiConfiguration
+      }
+    });
+  };
+
   const patchFieldConfiguration = async (
     fieldName: string,
     fieldType: FieldType,
@@ -941,7 +975,8 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         upgrade,
         downgrade,
         switchAccount,
-        loginInternal
+        loginInternal,
+        patchUiConfiguration
       }}
     >
       {children}

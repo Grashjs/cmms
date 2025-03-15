@@ -124,9 +124,9 @@ const SubMenuWrapper = styled(Box)(
                 background: ${theme.colors.alpha.trueWhite[100]};
                 opacity: 0;
                 transition: ${theme.transitions.create([
-    'transform',
-    'opacity'
-  ])};
+                  'transform',
+                  'opacity'
+                ])};
                 width: 6px;
                 height: 6px;
                 transform: scale(0);
@@ -152,9 +152,9 @@ const SubMenuWrapper = styled(Box)(
 );
 
 const renderSidebarMenuItems = ({
-                                  items,
-                                  path
-                                }: {
+  items,
+  path
+}: {
   items: MenuItem[];
   path: string;
 }): JSX.Element => (
@@ -166,10 +166,10 @@ const renderSidebarMenuItems = ({
 );
 
 const reduceChildRoutes = ({
-                             ev,
-                             path,
-                             item
-                           }: {
+  ev,
+  path,
+  item
+}: {
   ev: JSX.Element[];
   path: string;
   item: MenuItem;
@@ -177,23 +177,23 @@ const reduceChildRoutes = ({
   const key = item.name;
   const exactMatch = item.link
     ? !!matchPath(
-      {
-        path: item.link,
-        end: true
-      },
-      path
-    )
+        {
+          path: item.link,
+          end: true
+        },
+        path
+      )
     : false;
 
   if (item.items) {
     const partialMatch = item.link
       ? !!matchPath(
-        {
-          path: item.link,
-          end: false
-        },
-        path
-      )
+          {
+            path: item.link,
+            end: false
+          },
+          path
+        )
       : false;
 
     ev.push(
@@ -235,12 +235,8 @@ function SidebarMenu() {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { hasViewPermission, hasFeature, user } = useAuth();
-  const { urgentCount } = useSelector(
-    (state) => state.workOrders
-  );
-  const { pendingCount } = useSelector(
-    (state) => state.requests
-  );
+  const { urgentCount } = useSelector((state) => state.workOrders);
+  const { pendingCount } = useSelector((state) => state.requests);
 
   useEffect(() => {
     if (user.id) {
@@ -261,17 +257,24 @@ function SidebarMenu() {
               ? hasFeature(item.planFeature)
               : true;
 
-            return hasPermission && featured;
+            const inUiConfig: boolean = user.uiConfiguration
+              ? item.uiConfigKey
+                ? user.uiConfiguration[item.uiConfigKey]
+                : true
+              : true;
+
+            return hasPermission && featured && inUiConfig;
           });
-          if (index === 0) {//ownItems
-            sectionClone.items = sectionClone.items.map((item => {
+          if (index === 0) {
+            //ownItems
+            sectionClone.items = sectionClone.items.map((item) => {
               if (item.name === 'work_orders') {
                 item.badge = urgentCount > 0 ? urgentCount.toString() : null;
               } else if (item.name === 'requests') {
                 item.badge = pendingCount > 0 ? pendingCount.toString() : null;
               }
               return item;
-            }));
+            });
           }
           return sectionClone;
         })

@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.AuditOverride;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -28,7 +29,6 @@ import static java.util.stream.Collectors.toCollection;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Audited(withModifiedFlag = true)
 @AuditOverride(forClass = WorkOrderBase.class)
 public class WorkOrder extends WorkOrderBase {
@@ -106,6 +106,7 @@ public class WorkOrder extends WorkOrderBase {
                         Helper.getDateDiff(workOrder.getParentRequest() == null ? workOrder.getCreatedAt() :
                                 workOrder.getParentRequest().getCreatedAt(), workOrder.getCompletedOn(), TimeUnit.DAYS))
                 .collect(Collectors.toList());
-        return completionTimes.isEmpty() ? 0 : completionTimes.stream().mapToLong(value -> value).sum() / completionTimes.size();
+        return completionTimes.isEmpty() ? 0 :
+                completionTimes.stream().mapToLong(value -> value).sum() / completionTimes.size();
     }
 }

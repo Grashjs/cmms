@@ -1,6 +1,7 @@
 import { Audit } from './owns/audit';
 import { Role } from './owns/role';
 import File from './owns/file';
+import { UiConfiguration } from './owns/uiConfiguration';
 
 export type UserRole = 'admin' | 'customer' | 'subscriber';
 
@@ -47,10 +48,11 @@ export interface UserResponseDTO extends OwnUser {
   userSettingsId: number;
   superAccountRelations: SuperAccountRelation[];
   parentSuperAccount: SuperAccountRelation;
+  uiConfiguration: UiConfiguration | null;
 }
-export interface SuperAccountRelation{
+export interface SuperAccountRelation {
   childCompanyName: string;
   childCompanyLogo: File;
   childUserId: number;
-  superUserId:number;
+  superUserId: number;
 }
