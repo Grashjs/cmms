@@ -7,9 +7,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {LocationMapper.class, TeamMapper.class, UserMapper.class,
+        CustomerMapper.class, AssetMapper.class, FileMapper.class})
 public interface PreventiveMaintenanceMapper {
-    PreventiveMaintenance updatePreventiveMaintenance(@MappingTarget PreventiveMaintenance entity, PreventiveMaintenancePatchDTO dto);
+    PreventiveMaintenance updatePreventiveMaintenance(@MappingTarget PreventiveMaintenance entity,
+                                                      PreventiveMaintenancePatchDTO dto);
 
     @Mappings({})
     PreventiveMaintenancePatchDTO toPatchDto(PreventiveMaintenance model);

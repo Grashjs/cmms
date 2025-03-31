@@ -14,6 +14,6 @@ public class UserMiniDTO {
     private Long id;
     private String firstName;
     private String lastName;
-    private File image;
+    private FileMiniDTO image;
     private String phone;
 }

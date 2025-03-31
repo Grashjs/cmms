@@ -304,7 +304,8 @@ public class UserService {
     void sendRegistrationMailToSuperAdmins(OwnUser user, int employeesCount) {
         if (user.getEmail().equals("superadmin@test.com")) return;
         if (recipients == null || recipients.length == 0) {
-            throw new CustomException("MAIL_RECIPIENTS env variable not set", HttpStatus.INTERNAL_SERVER_ERROR);
+            return;
+//            throw new CustomException("MAIL_RECIPIENTS env variable not set", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         try {
             emailService2.sendHtmlMessage(recipients, "New Atlas registration",

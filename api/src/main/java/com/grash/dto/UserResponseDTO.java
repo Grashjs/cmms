@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -49,5 +50,7 @@ public class UserResponseDTO {
     private Boolean enabledInSubscription;
 
     private UiConfiguration uiConfiguration;
+
+    private Date lastLogin;
 
 }

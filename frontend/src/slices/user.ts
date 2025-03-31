@@ -2,22 +2,22 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 import { getInitialPage, Page, SearchCriteria } from 'src/models/owns/page';
 import type { AppThunk } from 'src/store';
-import { OwnUser as User, UserMiniDTO } from '../models/user';
+import { UserMiniDTO, UserResponseDTO } from '../models/user';
 import api from '../utils/api';
 import { revertAll } from 'src/utils/redux';
 import { UiConfiguration } from '../models/owns/uiConfiguration';
 
 const basePath = 'users';
 interface UserState {
-  users: Page<User>;
-  singleUser: User;
+  users: Page<UserResponseDTO>;
+  singleUser: UserResponseDTO;
   usersMini: UserMiniDTO[];
   disabledUsersMini: UserMiniDTO[];
   loadingGet: boolean;
 }
 
 const initialState: UserState = {
-  users: getInitialPage<User>(),
+  users: getInitialPage<UserResponseDTO>(),
   singleUser: null,
   usersMini: [],
   disabledUsersMini: [],
@@ -29,15 +29,24 @@ export const slice = createSlice({
   initialState,
   extraReducers: (builder) => builder.addCase(revertAll, () => initialState),
   reducers: {
-    getUsers(state: UserState, action: PayloadAction<{ users: Page<User> }>) {
+    getUsers(
+      state: UserState,
+      action: PayloadAction<{ users: Page<UserResponseDTO> }>
+    ) {
       const { users } = action.payload;
       state.users = users;
     },
-    getSingleUser(state: UserState, action: PayloadAction<{ user: User }>) {
+    getSingleUser(
+      state: UserState,
+      action: PayloadAction<{ user: UserResponseDTO }>
+    ) {
       const { user } = action.payload;
       state.singleUser = user;
     },
-    editUser(state: UserState, action: PayloadAction<{ user: User }>) {
+    editUser(
+      state: UserState,
+      action: PayloadAction<{ user: UserResponseDTO }>
+    ) {
       const { user } = action.payload;
       const inContent = state.users.content.some(
         (user1) => user1.id === user.id
@@ -55,7 +64,7 @@ export const slice = createSlice({
     },
     getSingleUserMini(
       state: UserState,
-      action: PayloadAction<{ user: User; id: number }>
+      action: PayloadAction<{ user: UserResponseDTO; id: number }>
     ) {
       const { user, id } = action.payload;
       const index = state.usersMini.findIndex((user1) => user1.id === id);
@@ -77,7 +86,10 @@ export const slice = createSlice({
       const { users } = action.payload;
       state.disabledUsersMini = users;
     },
-    addUser(state: UserState, action: PayloadAction<{ user: User }>) {
+    addUser(
+      state: UserState,
+      action: PayloadAction<{ user: UserResponseDTO }>
+    ) {
       const { user } = action.payload;
       state.users.content = [...state.users.content, user];
     },
@@ -106,7 +118,10 @@ export const getUsers =
   async (dispatch) => {
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
-      const users = await api.post<Page<User>>(`${basePath}/search`, criteria);
+      const users = await api.post<Page<UserResponseDTO>>(
+        `${basePath}/search`,
+        criteria
+      );
       dispatch(slice.actions.getUsers({ users }));
     } finally {
       dispatch(slice.actions.setLoadingGet({ loading: false }));
@@ -117,7 +132,7 @@ export const getSingleUser =
   (id: number): AppThunk =>
   async (dispatch) => {
     dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const user = await api.get<User>(`${basePath}/${id}`);
+    const user = await api.get<UserResponseDTO>(`${basePath}/${id}`);
     dispatch(slice.actions.getSingleUser({ user }));
     dispatch(slice.actions.setLoadingGet({ loading: false }));
   };
@@ -125,20 +140,26 @@ export const getSingleUser =
 export const editUser =
   (id: number, user): AppThunk =>
   async (dispatch) => {
-    const userResponse = await api.patch<User>(`${basePath}/${id}`, user);
+    const userResponse = await api.patch<UserResponseDTO>(
+      `${basePath}/${id}`,
+      user
+    );
     dispatch(slice.actions.editUser({ user: userResponse }));
   };
 
 export const disableUser =
   (id: number): AppThunk =>
   async (dispatch) => {
-    const userResponse = await api.patch<User>(`${basePath}/${id}/disable`, {});
+    const userResponse = await api.patch<UserResponseDTO>(
+      `${basePath}/${id}/disable`,
+      {}
+    );
     dispatch(slice.actions.editUser({ user: userResponse }));
   };
 export const editUserRole =
   (id: number, roleId: number): AppThunk =>
   async (dispatch) => {
-    const userResponse = await api.patch<User>(
+    const userResponse = await api.patch<UserResponseDTO>(
       `${basePath}/${id}/role?role=${roleId}`,
       {}
     );
@@ -147,7 +168,7 @@ export const editUserRole =
 export const getSingleUserMini =
   (id: number): AppThunk =>
   async (dispatch) => {
-    const user = await api.get<User>(`users/${id}`);
+    const user = await api.get<UserResponseDTO>(`users/${id}`);
     dispatch(slice.actions.getSingleUserMini({ user, id }));
   };
 export const getUsersMini = (): AppThunk => async (dispatch) => {
@@ -161,7 +182,7 @@ export const getDisabledUsersMini = (): AppThunk => async (dispatch) => {
 export const addUser =
   (user): AppThunk =>
   async (dispatch) => {
-    const userResponse = await api.post<User>('users', user);
+    const userResponse = await api.post<UserResponseDTO>('users', user);
     dispatch(slice.actions.addUser({ user: userResponse }));
   };
 export const deleteUser =

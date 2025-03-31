@@ -40,14 +40,14 @@ public class UserController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<OwnUser>> search(@RequestBody SearchCriteria searchCriteria,
-                                                @ApiIgnore @CurrentUser OwnUser user) {
+    public ResponseEntity<Page<UserResponseDTO>> search(@RequestBody SearchCriteria searchCriteria,
+                                                        @ApiIgnore @CurrentUser OwnUser user) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 searchCriteria.filterCompany(user);
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
-        return ResponseEntity.ok(userService.findBySearchCriteria(searchCriteria));
+        return ResponseEntity.ok(userService.findBySearchCriteria(searchCriteria).map(userMapper::toResponseDto));
     }
 
     @PostMapping("/invite")

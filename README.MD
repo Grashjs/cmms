@@ -106,7 +106,7 @@ At the moment all variables are optional. Do not delete the .env file
 - You need to update every env variable starting with `PUBLIC_`.
 
 [//]: # (- You must also update every env variable starting with `SMTP`.)
-- Open ports if necessary: make sure to open `REACT_APP_API_URL`, `PUBLIC_FRONT_URL` ports numbers by default
+- Open ports if necessary: make sure to open `PUBLIC_API_URL`, `PUBLIC_FRONT_URL` ports numbers by default
   8080, and 3000. Same for `PUBLIC_MINIO_ENDPOINT` port 9000 if you use Minio.
 
 ### Run

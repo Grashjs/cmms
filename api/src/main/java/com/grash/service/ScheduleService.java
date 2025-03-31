@@ -12,11 +12,13 @@ import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final PreventiveMaintenanceService preventiveMaintenanceService;
@@ -59,9 +61,9 @@ public class ScheduleService {
     public void scheduleWorkOrder(Schedule schedule) {
         int limit = 10; //inclusive schedules at 10
         PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
-        Page<WorkOrder> workOrders = workOrderService.findLastByPM(preventiveMaintenance.getId(), limit);
+        Page<WorkOrder> workOrdersPage = workOrderService.findLastByPM(preventiveMaintenance.getId(), limit);
         boolean isStale = false;
-        if (workOrders.getSize() >= limit && workOrders.stream().allMatch(workOrder -> workOrder.getFirstTimeToReact() == null)) {
+        if (workOrdersPage.getTotalElements() >= limit && workOrdersPage.getContent().stream().allMatch(workOrder -> workOrder.getFirstTimeToReact() == null)) {
             isStale = true;
             schedule.setDisabled(true);
             scheduleRepository.save(schedule);
@@ -70,7 +72,8 @@ public class ScheduleService {
                 .after(new Date())) && !isStale;
         if (shouldSchedule) {
             Timer timer = new Timer();
-            //  Collection<WorkOrder> workOrders = workOrderService.findByPM(schedule.getPreventiveMaintenance().getId());
+            //  Collection<WorkOrder> workOrders = workOrderService.findByPM(schedule.getPreventiveMaintenance()
+            //  .getId());
             Date startsOn = Helper.getNextOccurence(schedule.getStartsOn(), schedule.getFrequency());
             TimerTask timerTask = new TimerTask() {
                 @Override
@@ -85,6 +88,7 @@ public class ScheduleService {
                     WorkOrder savedWorkOrder = workOrderService.create(workOrder);
                     tasks.forEach(task -> {
                         Task copiedTask = new Task(task.getTaskBase(), savedWorkOrder, null, task.getValue());
+                        copiedTask.setCompany(preventiveMaintenance.getCompany());
                         taskService.create(copiedTask);
                     });
                 }
@@ -97,7 +101,8 @@ public class ScheduleService {
             int daysBeforePMNotification = preventiveMaintenance.getCompany()
                     .getCompanySettings().getGeneralPreferences().getDaysBeforePrevMaintNotification();
             if (daysBeforePMNotification > 0) {
-                Date trueStartsOn = preventiveMaintenance.getEstimatedStartDate() == null ? startsOn : preventiveMaintenance.getEstimatedStartDate();
+                Date trueStartsOn = preventiveMaintenance.getEstimatedStartDate() == null ? startsOn :
+                        preventiveMaintenance.getEstimatedStartDate();
                 TimerTask timerTask1 = new TimerTask() {
                     @Override
                     public void run() {
@@ -107,7 +112,8 @@ public class ScheduleService {
                         String title = messageSource.getMessage("coming_wo", null, locale);
                         Collection<OwnUser> usersToMail = preventiveMaintenance.getUsers();
                         Map<String, Object> mailVariables = new HashMap<String, Object>() {{
-                            put("pmLink", frontendUrl + "/app/preventive-maintenances/" + preventiveMaintenance.getId());
+                            put("pmLink",
+                                    frontendUrl + "/app/preventive-maintenances/" + preventiveMaintenance.getId());
                             put("featuresLink", frontendUrl + "/#key-features");
                             put("pmTitle", preventiveMaintenance.getTitle());
                         }};
@@ -115,7 +121,8 @@ public class ScheduleService {
                                 .toArray(String[]::new), title, mailVariables, "coming-work-order.html", locale);
                     }
                 };
-                timer1.scheduleAtFixedRate(timerTask1, Helper.minusDays(trueStartsOn, daysBeforePMNotification), (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);
+                timer1.scheduleAtFixedRate(timerTask1, Helper.minusDays(trueStartsOn, daysBeforePMNotification),
+                        (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);
                 localTimers.put("notification", timer1);
             }
             if (schedule.getEndsOn() != null) {
@@ -145,6 +152,9 @@ public class ScheduleService {
     }
 
     public void stopScheduleTimers(Long id) {
+        if (!timersState.containsKey(id)) {
+            return;
+        }
         timersState.get(id).forEach((key, timer) -> {
             timer.cancel();
             timer.purge();

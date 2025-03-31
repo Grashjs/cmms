@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -57,7 +58,7 @@ public class TaskService {
         return taskRepository.findByWorkOrder_Id(id);
     }
 
-    public Collection<Task> findByPreventiveMaintenance(Long id) {
+    public List<Task> findByPreventiveMaintenance(Long id) {
         return taskRepository.findByPreventiveMaintenance_Id(id);
     }
 }
