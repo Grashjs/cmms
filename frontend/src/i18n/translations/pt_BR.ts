@@ -14,8 +14,8 @@ const ptBRJSON = {
   COMPLETE: 'Concluído',
   'home.built': 'Construído para Facilitar a Gestão de Manutenção',
   home_description:
-    'Quando quadros brancos e notas adesivas são caóticos, e você precisa de um software CMMS fácil o suficiente para sua equipe realmente usar - experimente o Atlas',
-  try_grash: 'Experimente o Atlas',
+    'Quando quadros brancos e notas adesivas são caóticos, e você precisa de um software CMMS fácil o suficiente para sua equipe realmente usar - experimente o {{shortBrandName}}',
+  try_grash: 'Experimente o {{shortBrandName}}',
   login: 'Entrar',
   start_trial: 'Iniciar um teste gratuito',
   'home.what': 'O que',
@@ -24,7 +24,7 @@ const ptBRJSON = {
     'Crie fluxos de trabalho eficientes e confiáveis que colocam você no controle da manutenção. Gere, atribua e acompanhe ordens de serviço. Controle o inventário. E obtenha relatórios automatizados confiáveis que melhoram a visibilidade e criam responsabilidade.',
   key_features: 'Recursos Principais',
   key_features_description:
-    'Alguns dos recursos que tornam o Atlas um dos melhores CMMS disponíveis hoje',
+    'Alguns dos recursos que tornam o {{shortBrandName}} um dos melhores CMMS disponíveis hoje',
   contribute: 'Contribuir',
   work_orders: 'Ordens de Serviço',
   request_system: 'Sistema de Solicitação de Trabalho',
@@ -38,7 +38,7 @@ const ptBRJSON = {
   'work-orders.descriptions.0':
     'Cansado da papelada e das ordens de serviço perdidas? Todos esses itens perdidos afetam diretamente o resultado final e sua reputação.',
   'work-orders.descriptions.1':
-    'Com o Atlas, você pode organizar facilmente todas as suas ordens de serviço, PMs e outras tarefas em um banco de dados centralizado que pode ser acessado em qualquer dispositivo.',
+    'Com o {{shortBrandName}}, você pode organizar facilmente todas as suas ordens de serviço, PMs e outras tarefas em um banco de dados centralizado que pode ser acessado em qualquer dispositivo.',
   'work-orders.checks.0':
     'Visualize todas as suas tarefas, incluindo OS, PMs e solicitações de trabalho.',
   'work-orders.checks.1':
@@ -55,7 +55,7 @@ const ptBRJSON = {
   'work-requests.descriptions.0':
     'Cansado de usar o antigo sistema de telefone e e-mail que resulta em tickets PERDIDOS, interrupções diárias constantes e trabalho duplicado?',
   'work-requests.descriptions.1':
-    'A solução de gerenciamento de manutenção do Atlas permite que qualquer pessoa autorizada envie um problema para o departamento de manutenção simplesmente escaneando um código QR (código de barras) ou visitando uma URL e digitando sua solicitação através de seus dispositivos móveis.',
+    'A solução de gerenciamento de manutenção do {{shortBrandName}} permite que qualquer pessoa autorizada envie um problema para o departamento de manutenção simplesmente escaneando um código QR (código de barras) ou visitando uma URL e digitando sua solicitação através de seus dispositivos móveis.',
   'work-requests.checks.0': 'Nunca mais perca trabalho.',
   'work-requests.checks.1':
     'Reduza o tempo gasto com solicitações de trabalho em até 34%.',
@@ -85,7 +85,7 @@ const ptBRJSON = {
   'eam.descriptions.0':
     'Frustrado ao tentar organizar a bagunça caótica dos equipamentos da empresa, sem saber se o equipamento foi devidamente cuidado, sem saber o custo de manutenção e todas as outras dores de cabeça que vêm com a gestão de ativos?',
   'eam.descriptions.1':
-    'O módulo de Gestão de Ativos Empresariais do Atlas CMMS pode ser usado para entre 10 e 1.000.000 de ativos, permitindo que você rastreie exatamente o que deseja, da maneira que deseja, em uma estrutura de árvore fácil de usar e pesquisável.',
+    'O módulo de Gestão de Ativos Empresariais do {{brandName}} pode ser usado para entre 10 e 1.000.000 de ativos, permitindo que você rastreie exatamente o que deseja, da maneira que deseja, em uma estrutura de árvore fácil de usar e pesquisável.',
   'eam.checks.0':
     'Conheça a saúde dos seus ativos a qualquer momento e o que eles estão custando.',
   'eam.checks.1': 'Visualize registros de manutenção completos e detalhados.',
@@ -102,7 +102,7 @@ const ptBRJSON = {
   'pm.descriptions.0':
     'Pare de desperdiçar horas preciosas distribuindo manualmente listas de verificação de PM e acompanhando sua equipe para garantir que o trabalho seja feito.',
   'pm.descriptions.1':
-    'O Atlas permite que você automatize facilmente o agendamento de PMs para que o trabalho certo seja entregue automaticamente no momento certo para o técnico certo no ativo certo.',
+    'O {{shortBrandName}} permite que você automatize facilmente o agendamento de PMs para que o trabalho certo seja entregue automaticamente no momento certo para o técnico certo no ativo certo.',
   'pm.checks.0':
     'Automatize o agendamento de PMs para ser diário, semanal, mensal, anual ou baseado em eventos ou leituras de medidores.',
   'pm.checks.1':
@@ -119,7 +119,7 @@ const ptBRJSON = {
   'part.descriptions.0':
     'Não tem certeza de quais peças você tem em estoque ou onde estão sendo usadas? Não sabe quando suas peças vão acabar ou se seus técnicos terão as peças necessárias para fazer seus trabalhos?',
   'part.descriptions.1':
-    'Projetamos o gerenciamento de peças do Atlas para resolver esses problemas e muito mais:',
+    'Projetamos o gerenciamento de peças do {{shortBrandName}} para resolver esses problemas e muito mais:',
   'part.checks.0':
     'Receba notificações instantâneas por push e e-mail quando a quantidade de uma peça estiver baixa. Mantenha o número certo de peças em estoque recebendo notificações instantâneas e automáticas por push/e-mail quando a quantidade de uma peça estiver abaixo de um limite personalizado.',
   'part.checks.1':
@@ -141,21 +141,21 @@ const ptBRJSON = {
   'dashboard.descriptions.0':
     'Vamos encarar, o primeiro passo para melhorar suas operações é conhecer o bom, o ruim e o feio.',
   'dashboard.descriptions.1':
-    'Com os Painéis Personalizados do Atlas, você pode finalmente começar a entender o nefasto "buraco negro da manutenção" e começar a colocar planos baseados em dados em ação, resultando em redução de custos de mão de obra, diminuição do tempo de inatividade e muito mais.',
+    'Com os Painéis Personalizados do {{shortBrandName}}, você pode finalmente começar a entender o nefasto "buraco negro da manutenção" e começar a colocar planos baseados em dados em ação, resultando em redução de custos de mão de obra, diminuição do tempo de inatividade e muito mais.',
   'dashboard.descriptions.2':
-    'Com os Painéis Personalizados do Atlas, você poderá...',
+    'Com os Painéis Personalizados do {{shortBrandName}}, você poderá...',
   'dashboard.checks.0': 'Saber onde seu dinheiro está sendo gasto e por quê.',
   'dashboard.checks.1': 'Saber qual ativo está custando mais e por quê.',
   'dashboard.checks.2': 'Crie seus próprios KPIs personalizados.',
   'dashboard.checks.3':
     'Visualize relatórios que são gerados e atualizados automaticamente com base em suas métricas.',
   'dashboard.checks.4':
-    'Visualize relatórios que são facilmente compartilhados via planilhas Excel, PDFs ou dentro do Atlas.',
+    'Visualize relatórios que são facilmente compartilhados via planilhas Excel, PDFs ou dentro do {{shortBrandName}}.',
   'dashboard.checks.5': 'E muito mais...',
   'home.smarter': 'Mais Inteligente',
   'home.work': 'Trabalho',
   'home.smarter_description':
-    'O Atlas torna incrivelmente fácil para os técnicos trabalharem com eficiência, dando-lhes acesso às ferramentas e dados de que precisam para realizar o trabalho - tudo na palma da mão.',
+    'O {{shortBrandName}} torna incrivelmente fácil para os técnicos trabalharem com eficiência, dando-lhes acesso às ferramentas e dados de que precisam para realizar o trabalho - tudo na palma da mão.',
   leading_maintenance:
     'Liderando o Caminho para um Futuro Melhor na Manutenção e Confiabilidade',
   //register
@@ -293,7 +293,7 @@ const ptBRJSON = {
   save: 'Salvar',
   customers: 'Contratantes',
   no_labor:
-    'Nenhum custo de mão de obra foi adicionado ainda. Eles aparecerão aqui quando um usuário registrar o tempo e tiver uma taxa horária armazenada no Atlas.',
+    'Nenhum custo de mão de obra foi adicionado ainda. Eles aparecerão aqui quando um usuário registrar o tempo e tiver uma taxa horária armazenada no {{shortBrandName}}.',
   not_assigned: 'Não Atribuído',
   no_additional_cost: 'Nenhum custo adicional foi adicionado ainda',
   parts: 'Peças',
@@ -875,7 +875,7 @@ const ptBRJSON = {
   external_id: 'ID Externo',
   permissions: 'Permissões',
   create_role_description:
-    'Esta função pode fazer tudo o que um Administrador pode fazer no Atlas, mas você pode personalizar algumas permissões importantes abaixo.',
+    'Esta função pode fazer tudo o que um Administrador pode fazer no {{shortBrandName}}, mas você pode personalizar algumas permissões importantes abaixo.',
   create_and_edit: 'Criar/Editar',
   to_access: 'Acessar',
   role_delete_success: 'A função foi excluída com sucesso',
@@ -1097,7 +1097,7 @@ const ptBRJSON = {
   your_payment_secure: 'Seus dados de pagamento são criptografados e seguros.',
   plan: 'Plano',
   current_plan: 'Plano Atual',
-  number_users_who_will_use_grash: 'Número de usuários que usarão o Atlas',
+  number_users_who_will_use_grash: 'Número de usuários que usarão o {{shortBrandName}}',
   admin_role: 'Admin',
   technical_role: 'Técnico',
   limited_technical_role: 'Técnico Limitado',
@@ -1258,7 +1258,7 @@ const ptBRJSON = {
   and_optional: 'E (Opcional)',
   then: 'Então',
   workflow_description:
-    'Crie fluxos de trabalho personalizados tão fácil quanto Se, E, Então. Economize tempo e atribua facilmente suas ordens de serviço automaticamente através de fluxos de trabalho para personalizar o Atlas para a maneira como sua equipe opera.\nTodos os planos podem criar até 1 fluxo de trabalho personalizado. Para adicionar fluxos de trabalho adicionais, atualize para o nosso plano Business',
+    'Crie fluxos de trabalho personalizados tão fácil quanto Se, E, Então. Economize tempo e atribua facilmente suas ordens de serviço automaticamente através de fluxos de trabalho para personalizar o {{shortBrandName}} para a maneira como sua equipe opera.\nTodos os planos podem criar até 1 fluxo de trabalho personalizado. Para adicionar fluxos de trabalho adicionais, atualize para o nosso plano Business',
   CREATE_PURCHASE_ORDER: 'Criar uma Ordem de Compra',
   PART_IS: 'A Peça é',
   QUANTITY_INFERIOR: 'A quantidade é inferior a',
@@ -1323,7 +1323,7 @@ const ptBRJSON = {
   upgrade: 'Atualizar',
   downgrade: 'Rebaixar',
   upgrade_description:
-    'Você acabou de atualizar seu plano de assinatura. Você precisa habilitar os usuários desabilitados que podem usar o Atlas. Você só pode fazer isso uma vez para a assinatura atual. Por favor, escolha com cuidado',
+    'Você acabou de atualizar seu plano de assinatura. Você precisa habilitar os usuários desabilitados que podem usar o {{shortBrandName}}. Você só pode fazer isso uma vez para a assinatura atual. Por favor, escolha com cuidado',
   enable_users: 'Habilitar usuários',
   max_users_description: 'Você pode habilitar até {{maxUsers}} usuários',
   downgrade_description:

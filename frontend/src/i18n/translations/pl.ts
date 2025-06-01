@@ -14,8 +14,8 @@ const plJSON = {
   COMPLETE: 'Zakończone',
   'home.built': 'Stworzony, aby ułatwić zarządzanie konserwacją',
   home_description:
-    'Gdy tablice i karteczki samoprzylepne są chaosem, a potrzebujesz oprogramowania CMMS, które jest wystarczająco proste, aby twój zespół mógł z niego korzystać – wypróbuj Atlas',
-  try_grash: 'Wypróbuj Atlas',
+    'Gdy tablice i karteczki samoprzylepne są chaosem, a potrzebujesz oprogramowania CMMS, które jest wystarczająco proste, aby twój zespół mógł z niego korzystać – wypróbuj {{shortBrandName}}',
+  try_grash: 'Wypróbuj {{shortBrandName}}',
   login: 'Zaloguj się',
   start_trial: 'Rozpocznij darmowy okres próbny',
   'home.what': 'Co',
@@ -24,7 +24,7 @@ const plJSON = {
     'Buduj efektywne, niezawodne procesy, które dadzą ci kontrolę nad konserwacją. Generuj, przydzielaj i śledź zlecenia pracy. Zarządzaj zapasami. Otrzymuj wiarygodne automatyczne raporty, które zwiększają przejrzystość i wprowadzają odpowiedzialność.',
   key_features: 'Kluczowe funkcje',
   key_features_description:
-    'Niektóre funkcje, które sprawiają, że Atlas jest jednym z najlepszych systemów CMMS dostępnych obecnie',
+    'Niektóre funkcje, które sprawiają, że {{shortBrandName}} jest jednym z najlepszych systemów CMMS dostępnych obecnie',
   contribute: 'Współpracuj',
   work_orders: 'Zlecenia pracy',
   request_system: 'System zgłoszeń pracy',
@@ -39,7 +39,7 @@ const plJSON = {
   'work-orders.descriptions.0':
     'Masz dość stosów papierkowej roboty i zagubionych zleceń? Wszystkie te stracone elementy bezpośrednio wpływają na wynik finansowy oraz twoją reputację.',
   'work-orders.descriptions.1':
-    'Dzięki Atlas możesz łatwo i szybko uporządkować wszystkie swoje zlecenia pracy, konserwacje zapobiegawcze i inne zadania w ramach zespołu w scentralizowanej bazie danych dostępnej z dowolnego urządzenia.',
+    'Dzięki {{shortBrandName}} możesz łatwo i szybko uporządkować wszystkie swoje zlecenia pracy, konserwacje zapobiegawcze i inne zadania w ramach zespołu w scentralizowanej bazie danych dostępnej z dowolnego urządzenia.',
   'work-orders.checks.0':
     'Wyświetl wszystkie swoje zadania, w tym zlecenia pracy, konserwacje oraz zgłoszenia pracy',
   'work-orders.checks.1':
@@ -53,7 +53,7 @@ const plJSON = {
   'work-requests.descriptions.0':
     'Masz dość korzystania ze starego systemu opartego na telefonie i e-mailach, który skutkuje zagubionymi zgłoszeniami, ciągłymi przerwami i powieloną pracą?',
   'work-requests.descriptions.1':
-    'Rozwiązanie Atlas do zarządzania konserwacją pozwala każdemu, kogo upoważnisz, zgłosić problem do działu utrzymania ruchu, wystarczy zeskanować kod QR (kod kreskowy) lub odwiedzić stronę i wpisać zgłoszenie za pomocą urządzenia mobilnego.',
+    'Rozwiązanie {{shortBrandName}} do zarządzania konserwacją pozwala każdemu, kogo upoważnisz, zgłosić problem do działu utrzymania ruchu, wystarczy zeskanować kod QR (kod kreskowy) lub odwiedzić stronę i wpisać zgłoszenie za pomocą urządzenia mobilnego.',
   'work-requests.checks.0': 'Nigdy więcej nie zgubisz zlecenia pracy',
   'work-requests.checks.1': 'Skróć czas obsługi zgłoszeń pracy nawet o 34%',
   'work-requests.checks.2':
@@ -79,7 +79,7 @@ const plJSON = {
   'eam.descriptions.0':
     'Zmęczony próbami uporządkowania chaotycznego bałaganu sprzętu w firmie, zastanawiając się, czy sprzęt jest właściwie utrzymywany, nie znając kosztów jego obsługi i innych problemów związanych z zarządzaniem zasobami?',
   'eam.descriptions.1':
-    'Moduł Zarządzania Aktywami w Atlas CMMS można wykorzystać do zarządzania od 10 do 1 000 000 zasobów, umożliwiając śledzenie dokładnie tego, czego potrzebujesz, w łatwy sposób i z możliwością wyszukiwania w strukturze drzewiastej.',
+    'Moduł Zarządzania Aktywami w {{brandName}} można wykorzystać do zarządzania od 10 do 1 000 000 zasobów, umożliwiając śledzenie dokładnie tego, czego potrzebujesz, w łatwy sposób i z możliwością wyszukiwania w strukturze drzewiastej.',
   'eam.checks.0': 'Znaj status swoich zasobów w każdej chwili oraz ich koszty',
   'eam.checks.1': 'Wyświetl pełne i szczegółowe logi konserwacji',
   'eam.checks.2':
@@ -94,7 +94,7 @@ const plJSON = {
   'pm.descriptions.0':
     'Przestań tracić cenne godziny na ręczne rozsyłanie list kontrolnych konserwacji oraz monitorowanie postępów zespołu w realizacji zadań.',
   'pm.descriptions.1':
-    'Atlas umożliwia łatwą automatyzację harmonogramu konserwacji, dzięki czemu odpowiednia praca trafia automatycznie do właściwego technika w odpowiednim czasie dla odpowiedniego zasobu.',
+    '{{shortBrandName}} umożliwia łatwą automatyzację harmonogramu konserwacji, dzięki czemu odpowiednia praca trafia automatycznie do właściwego technika w odpowiednim czasie dla odpowiedniego zasobu.',
   'pm.checks.0':
     'Automatyzuj harmonogram konserwacji: codziennie, tygodniowo, miesięcznie, rocznie lub na podstawie zdarzeń czy odczytów liczników',
   'pm.checks.1':
@@ -110,7 +110,7 @@ const plJSON = {
   'part.descriptions.0':
     'Nie jesteś pewien, jakie części masz na stanie lub gdzie są używane? Nie wiesz, kiedy zabraknie części lub czy technicy będą mieli niezbędne elementy do wykonania swoich zadań?',
   'part.descriptions.1':
-    'Stworzyliśmy system zarządzania częściami w Atlas, aby rozwiązać te problemy i więcej:',
+    'Stworzyliśmy system zarządzania częściami w {{shortBrandName}}, aby rozwiązać te problemy i więcej:',
   'part.checks.0':
     'Otrzymuj natychmiastowe powiadomienia push i e-mail, gdy ilość danej części jest niska. Utrzymuj odpowiedni stan magazynowy, otrzymując automatyczne powiadomienia, gdy ilość spadnie poniżej ustalonego progu',
   'part.checks.1':
@@ -132,9 +132,9 @@ const plJSON = {
   'dashboard.descriptions.0':
     'Przyznajmy, pierwszym krokiem do poprawy operacji jest poznanie dobrych, złych i niepokojących aspektów.',
   'dashboard.descriptions.1':
-    'Dzięki spersonalizowanym pulpitom Atlas wreszcie możesz zrozumieć tę mroczną „czarną dziurę konserwacji” i rozpocząć wdrażanie planów opartych na danych, co prowadzi do obniżenia kosztów pracy, zmniejszenia przestojów i innych korzyści.',
+    'Dzięki spersonalizowanym pulpitom {{shortBrandName}} wreszcie możesz zrozumieć tę mroczną „czarną dziurę konserwacji” i rozpocząć wdrażanie planów opartych na danych, co prowadzi do obniżenia kosztów pracy, zmniejszenia przestojów i innych korzyści.',
   'dashboard.descriptions.2':
-    'Dzięki spersonalizowanym pulpitom Atlas otrzymasz możliwość...',
+    'Dzięki spersonalizowanym pulpitom {{shortBrandName}} otrzymasz możliwość...',
   'dashboard.checks.0':
     'Dowiedz się, gdzie są wydawane twoje pieniądze i dlaczego',
   'dashboard.checks.1':
@@ -143,12 +143,12 @@ const plJSON = {
   'dashboard.checks.3':
     'Przeglądaj raporty, które są automatycznie generowane i aktualizowane na podstawie twoich metryk',
   'dashboard.checks.4':
-    'Przeglądaj raporty, które można łatwo udostępniać przez arkusze Excel, PDF lub w Atlas',
+    'Przeglądaj raporty, które można łatwo udostępniać przez arkusze Excel, PDF lub w {{shortBrandName}}',
   'dashboard.checks.5': 'I wiele więcej...',
   'home.smarter': 'Inteligentniej',
   'home.work': 'Praca',
   'home.smarter_description':
-    'Atlas umożliwia technikom pracę na wysokim poziomie dzięki dostępowi do narzędzi i danych niezbędnych do wykonania zadania – wszystko z poziomu ich urządzenia.',
+    '{{shortBrandName}} umożliwia technikom pracę na wysokim poziomie dzięki dostępowi do narzędzi i danych niezbędnych do wykonania zadania – wszystko z poziomu ich urządzenia.',
   leading_maintenance:
     'Wyznaczamy kierunek dla lepszej przyszłości w zakresie konserwacji i niezawodności',
   premium_included: 'W zestawie funkcje premium',
@@ -280,7 +280,7 @@ const plJSON = {
   save: 'Zapisz',
   customers: 'Kontrahenci',
   no_labor:
-    'Koszty pracy nie zostały jeszcze dodane. Pojawią się tutaj, gdy użytkownik zarejestruje czas i posiada ustawioną stawkę godzinową w Atlas.',
+    'Koszty pracy nie zostały jeszcze dodane. Pojawią się tutaj, gdy użytkownik zarejestruje czas i posiada ustawioną stawkę godzinową w {{shortBrandName}}.',
   not_assigned: 'Nie przypisano',
   no_additional_cost: 'Dodatkowe koszty nie zostały jeszcze dodane',
   parts: 'Części',
@@ -854,7 +854,7 @@ const plJSON = {
   external_id: 'ID zewnętrzne',
   permissions: 'Uprawnienia',
   create_role_description:
-    'Ta rola ma takie same uprawnienia jak administrator w Atlas, ale możesz dostosować niektóre istotne uprawnienia poniżej.',
+    'Ta rola ma takie same uprawnienia jak administrator w {{shortBrandName}}, ale możesz dostosować niektóre istotne uprawnienia poniżej.',
   create_and_edit: 'Tworzenie/Edytowanie',
   to_access: 'Dostęp',
   role_delete_success: 'Rola została pomyślnie usunięta',
@@ -1077,7 +1077,7 @@ const plJSON = {
   your_payment_secure: 'Twoje dane płatnicze są szyfrowane i bezpieczne.',
   plan: 'Plan',
   current_plan: 'Obecny plan',
-  number_users_who_will_use_grash: 'Liczba użytkowników korzystających z Atlas',
+  number_users_who_will_use_grash: 'Liczba użytkowników korzystających z {{shortBrandName}}',
   admin_role: 'Administrator',
   technical_role: 'Techniczny',
   limited_technical_role: 'Ograniczony techniczny',
@@ -1237,7 +1237,7 @@ const plJSON = {
   and_optional: 'oraz (opcjonalnie)',
   then: 'wtedy',
   workflow_description:
-    'Twórz niestandardowe przepływy pracy tak łatwo, jak: Jeśli, oraz, wtedy. Oszczędzaj czas i automatycznie przypisuj zlecenia pracy za pomocą przepływów, aby dostosować Atlas do działania twojego zespołu.\nWszystkie plany umożliwiają utworzenie do 1 niestandardowego przepływu pracy. Aby dodać więcej przepływów, przejdź na plan biznesowy',
+    'Twórz niestandardowe przepływy pracy tak łatwo, jak: Jeśli, oraz, wtedy. Oszczędzaj czas i automatycznie przypisuj zlecenia pracy za pomocą przepływów, aby dostosować {{shortBrandName}} do działania twojego zespołu.\nWszystkie plany umożliwiają utworzenie do 1 niestandardowego przepływu pracy. Aby dodać więcej przepływów, przejdź na plan biznesowy',
   CREATE_PURCHASE_ORDER: 'Utwórz zamówienie',
   PART_IS: 'Część to',
   QUANTITY_INFERIOR: 'Ilość jest mniejsza niż',
@@ -1300,7 +1300,7 @@ const plJSON = {
   upgrade: 'Ulepsz',
   downgrade: 'Obniż',
   upgrade_description:
-    'Właśnie ulepszyłeś swój plan subskrypcyjny. Musisz włączyć nieaktywowanych użytkowników, którzy mogą korzystać z Atlas. Możesz to zrobić tylko raz w ramach obecnej subskrypcji. Wybierz mądrze',
+    'Właśnie ulepszyłeś swój plan subskrypcyjny. Musisz włączyć nieaktywowanych użytkowników, którzy mogą korzystać z {{shortBrandName}}. Możesz to zrobić tylko raz w ramach obecnej subskrypcji. Wybierz mądrze',
   enable_users: 'Włącz użytkowników',
   max_users_description: 'Możesz włączyć do {{maxUsers}} użytkowników',
   downgrade_description:
@@ -1362,7 +1362,7 @@ const plJSON = {
   simplify_wo: 'Uprość zlecenia pracy w aplikacji mobilnej',
   simplify_wo_description:
     'Ukryj kontrolki czasu, koszty i części w szczegółach zlecenia pracy podczas korzystania z aplikacji mobilnej',
-  account_deletion: 'Usunięcie konta Atlas CMMS',
+  account_deletion: 'Usunięcie konta {{brandName}}',
   switch_account: 'Zmień konto',
   switch_to_super_user: 'Przełącz na super administratora',
   switch_account_description: 'Wybierz konto, aby kontynuować',

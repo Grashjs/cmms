@@ -14,8 +14,8 @@ const trJSON = {
   COMPLETE: 'Tamamlanmış',
   'home.built': 'Bakım Yönetimini Kolaylaştırmak için Tasarlandı',
   home_description:
-    "Beyaz tahtalar ve yapışkan notlar kaosa dönüştüğünde ve ekibinizin gerçekten kullanabileceği kadar kolay bir CMMS yazılımına ihtiyaç duyduğunuzda Atlas'ı deneyin",
-  try_grash: "Atlas'ı deneyin",
+    "Beyaz tahtalar ve yapışkan notlar kaosa dönüştüğünde ve ekibinizin gerçekten kullanabileceği kadar kolay bir CMMS yazılımına ihtiyaç duyduğunuzda {{shortBrandName}}'ı deneyin",
+  try_grash: "{{shortBrandName}}'ı deneyin",
   login: 'Giriş',
   start_trial: 'Ücretsiz denemeyi başlatın',
   'home.what': 'Ne',
@@ -24,7 +24,7 @@ const trJSON = {
     'Bakımın kontrolünü size veren verimli, güvenilir iş akışları oluşturun. ',
   key_features: 'Ana Özellikler',
   key_features_description:
-    "Atlas'ı günümüzün en iyi CMMS'lerinden biri yapan özelliklerden bazıları",
+    "{{shortBrandName}}'ı günümüzün en iyi CMMS'lerinden biri yapan özelliklerden bazıları",
   contribute: 'Katkıda bulun',
   work_orders: 'İş Emirleri',
   request_system: 'İş Talep Sistemi',
@@ -38,7 +38,7 @@ const trJSON = {
   'work-orders.descriptions.0':
     'Bir yığın evraktan ve kayıp İş Emirlerinden bıktınız mı? ',
   'work-orders.descriptions.1':
-    "Atlas ile ekibinizdeki tüm İş Emirlerinizi, PM'lerinizi ve diğer Görevlerinizi, herhangi bir cihazdan herhangi bir yerden erişilebilen merkezi bir veritabanında kolayca ve hızlı bir şekilde düzenleyebilirsiniz.",
+    "{{shortBrandName}} ile ekibinizdeki tüm İş Emirlerinizi, PM'lerinizi ve diğer Görevlerinizi, herhangi bir cihazdan herhangi bir yerden erişilebilen merkezi bir veritabanında kolayca ve hızlı bir şekilde düzenleyebilirsiniz.",
   'work-orders.checks.0':
     "WO'lar, PM'ler ve İş Talepleri dahil tüm Görevlerinizi görüntüleyin",
   'work-orders.checks.1':
@@ -53,7 +53,7 @@ const trJSON = {
   'work-requests.descriptions.0':
     'KAYIP biletlere, sürekli günlük kesintilere ve mükerrer işlere yol açan eski telefon ve e-posta sistemini kullanmaktan bıktınız mı?',
   'work-requests.descriptions.1':
-    "Atlas'ın bakım yönetimi çözümü, yetkilendirdiğiniz herkesin, yalnızca bir QR kodunu (barkod) tarayarak veya bir URL'yi ziyaret edip mobil cihazları aracılığıyla isteklerini yazarak bakım departmanınıza sorun göndermesine olanak tanır.",
+    "{{shortBrandName}}'ın bakım yönetimi çözümü, yetkilendirdiğiniz herkesin, yalnızca bir QR kodunu (barkod) tarayarak veya bir URL'yi ziyaret edip mobil cihazları aracılığıyla isteklerini yazarak bakım departmanınıza sorun göndermesine olanak tanır.",
   'work-requests.checks.0': "İş'i bir daha asla kaybetmeyin.",
   'work-requests.checks.1':
     "İş Taleplerini işlemeye harcanan zamanı %34'e kadar azaltın.",
@@ -78,7 +78,7 @@ const trJSON = {
   'eam.descriptions.0':
     'Şirketin ekipmanlarının kaotik karmaşasını organize etmeye çalışmaktan, ekipmana gereken bakımın yapılıp yapılmadığını merak etmekten, bakımının ne kadara mal olacağını bilmemekten ve varlık yönetiminin getirdiği tüm diğer baş ağrılarından bıktınız mı?',
   'eam.descriptions.1':
-    "Atlas CMMS'nin Kurumsal Varlık Yönetimi modülü, 10 ila 1.000.000 Varlık arasında herhangi bir yerde kullanılabilir ve kullanımı kolay ve aranabilir bir ağaç yapısında tam olarak ne istediğinizi, istediğiniz şekilde izlemenize olanak tanır.",
+    "{{brandName}}'nin Kurumsal Varlık Yönetimi modülü, 10 ila 1.000.000 Varlık arasında herhangi bir yerde kullanılabilir ve kullanımı kolay ve aranabilir bir ağaç yapısında tam olarak ne istediğinizi, istediğiniz şekilde izlemenize olanak tanır.",
   'eam.checks.0':
     'Varlıklarınızın sağlığını ve size ne kadara mal olduklarını her zaman öğrenin',
   'eam.checks.1': 'Tam ve ayrıntılı Bakım Günlüklerini görüntüleyin.',
@@ -92,7 +92,7 @@ const trJSON = {
   'pm.descriptions.0':
     'Değerli saatlerinizi PM kontrol listelerini manuel olarak dağıtarak ve işin tamamlandığından emin olmak için ekibinizle takip ederek boşa harcamayı bırakın.',
   'pm.descriptions.1':
-    'Atlas, PM planlamasını kolaylıkla otomatikleştirmenize olanak tanır; böylece doğru iş, doğru Varlık için doğru zamanda, doğru teknisyene otomatik olarak teslim edilir.',
+    '{{shortBrandName}}, PM planlamasını kolaylıkla otomatikleştirmenize olanak tanır; böylece doğru iş, doğru Varlık için doğru zamanda, doğru teknisyene otomatik olarak teslim edilir.',
   'pm.checks.0':
     'PM planlamasını günlük, haftalık, aylık, yıllık veya olaylara veya Ölçer okumalarına dayalı olacak şekilde otomatikleştirin.',
   'pm.checks.1':
@@ -108,7 +108,7 @@ const trJSON = {
   'part.descriptions.0':
     'Stokta hangi parçaların bulunduğundan veya bunların nerede kullanıldığından emin değil misiniz? ',
   'part.descriptions.1':
-    "Atlas'ın parça yönetimini bu sorunları ve daha fazlasını çözmek için tasarladık:",
+    "{{shortBrandName}}'ın parça yönetimini bu sorunları ve daha fazlasını çözmek için tasarladık:",
   'part.checks.0':
     'Bir parçanın miktarı azaldığında anında push ve e-posta bildirimleri alın. ',
   'part.checks.1':
@@ -123,9 +123,9 @@ const trJSON = {
   'dashboard.descriptions.0':
     'Kabul edelim ki operasyonlarınızı iyileştirmenin ilk adımı iyiyi, kötüyü ve çirkini bilmektir.',
   'dashboard.descriptions.1':
-    'Atlas\'ın Özel Kontrol Panelleri ile nihayet bu kötü niyetli "bakım kara deliğini" anlamaya başlayabilir ve veri destekli planları eyleme geçirmeye başlayabilirsiniz, bu da işçilik maliyetlerinin azalmasına, arıza sürelerinin azalmasına ve daha fazlasına yol açabilir.',
+    '{{shortBrandName}}\'ın Özel Kontrol Panelleri ile nihayet bu kötü niyetli "bakım kara deliğini" anlamaya başlayabilir ve veri destekli planları eyleme geçirmeye başlayabilirsiniz, bu da işçilik maliyetlerinin azalmasına, arıza sürelerinin azalmasına ve daha fazlasına yol açabilir.',
   'dashboard.descriptions.2':
-    "Atlas'ın Özel Kontrol Panelleri ile şunları elde edeceksiniz:",
+    "{{shortBrandName}}'ın Özel Kontrol Panelleri ile şunları elde edeceksiniz:",
   'dashboard.checks.0': 'Paranızın nereye ve neden harcandığını bilin',
   'dashboard.checks.1':
     'Hangi varlığın en çok maliyetli olduğunu ve nedenini öğrenin',
@@ -133,12 +133,12 @@ const trJSON = {
   'dashboard.checks.3':
     'Metriğinize göre otomatik olarak oluşturulan ve güncellenen raporları görüntüleyin',
   'dashboard.checks.4':
-    "Excel sayfaları, PDF'ler veya Atlas aracılığıyla kolayca paylaşılan raporları görüntüleyin",
+    "Excel sayfaları, PDF'ler veya {{shortBrandName}} aracılığıyla kolayca paylaşılan raporları görüntüleyin",
   'dashboard.checks.5': 'Ve çok daha fazlası...',
   'home.smarter': 'Daha akıllı',
   'home.work': 'İş',
   'home.smarter_description':
-    'Atlas, teknisyenlerin işlerini yapmak için ihtiyaç duydukları araçlara ve verilere avuçlarının içinden erişmelerini sağlayarak verimli çalışmalarını inanılmaz derecede kolaylaştırıyor.',
+    '{{shortBrandName}}, teknisyenlerin işlerini yapmak için ihtiyaç duydukları araçlara ve verilere avuçlarının içinden erişmelerini sağlayarak verimli çalışmalarını inanılmaz derecede kolaylaştırıyor.',
   leading_maintenance:
     'Bakım ve Güvenilirlik Konusunda Daha İyi Bir Geleceğe Yol Açıyoruz',
   premium_included: 'Premium özellikler dahil',
@@ -811,7 +811,7 @@ const trJSON = {
   external_id: 'Harici Kimlik',
   permissions: 'İzinler',
   create_role_description:
-    "Bu rol, bir Yöneticinin Atlas'ta yapabileceği her şeyi yapabilir ancak bazı önemli izinleri aşağıda özelleştirebilirsiniz.",
+    "Bu rol, bir Yöneticinin {{shortBrandName}}'ta yapabileceği her şeyi yapabilir ancak bazı önemli izinleri aşağıda özelleştirebilirsiniz.",
   create_and_edit: 'Oluştur/Düzenle',
   to_access: 'Erişim',
   role_delete_success: 'Rol başarıyla silindi',
@@ -1026,7 +1026,7 @@ const trJSON = {
   your_payment_secure: 'Ödeme verileriniz şifrelenir ve güvenlidir.',
   plan: 'Plan',
   current_plan: 'Mevcut Plan',
-  number_users_who_will_use_grash: "Atlas'ı kullanacak kullanıcı sayısı",
+  number_users_who_will_use_grash: "{{shortBrandName}}'ı kullanacak kullanıcı sayısı",
   admin_role: 'Yönetici',
   technical_role: 'Teknik',
   limited_technical_role: 'Sınırlı Teknik',

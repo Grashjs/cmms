@@ -122,8 +122,8 @@ const frJSON = {
   //home
   'home.built': 'Conçu pour faciliter la gestion de la maintenance',
   home_description:
-    "Lorsque les tableaux blancs et les notes autocollantes sont chaotiques et que vous avez besoin d'un logiciel de GMAO suffisamment facile à utiliser pour votre équipe, essayez Atlas",
-  try_grash: 'Essayer Atlas',
+    "Lorsque les tableaux blancs et les notes autocollantes sont chaotiques et que vous avez besoin d'un logiciel de GMAO suffisamment facile à utiliser pour votre équipe, essayez {{shortBrandName}}",
+  try_grash: 'Essayer {{shortBrandName}}',
   login: 'Se connecter',
   start_trial: 'Commencez un essai gratuit',
   'home.what': 'Ce que',
@@ -132,7 +132,7 @@ const frJSON = {
     'Créez des flux de travail efficaces et fiables qui vous permettent de contrôler la maintenance. ',
   key_features: 'Principales fonctionnalités',
   key_features_description:
-    "Certaines des fonctionnalités qui font de Atlas l'une des meilleures GMAO disponibles aujourd'hui",
+    "Certaines des fonctionnalités qui font de {{shortBrandName}} l'une des meilleures GMAO disponibles aujourd'hui",
   contribute: 'Contribuer',
   work_orders: 'Ordres de travail',
   request_system: "Demandes d'intervention",
@@ -146,7 +146,7 @@ const frJSON = {
   'work-orders.descriptions.0':
     'Vous en avez assez des rames de paperasse et des ordres de travail perdus? ',
   'work-orders.descriptions.1':
-    "Avec Atlas, vous pouvez facilement et rapidement organiser tous vos ordres de travail, Maintenances Préventives et autres tâches au sein de votre équipe dans une base de données centralisée accessible n'importe où, sur n'importe quel appareil.",
+    "Avec {{shortBrandName}}, vous pouvez facilement et rapidement organiser tous vos ordres de travail, Maintenances Préventives et autres tâches au sein de votre équipe dans une base de données centralisée accessible n'importe où, sur n'importe quel appareil.",
   'work-orders.checks.0':
     'Affichez toutes vos tâches, y compris les interventions, les Maintenances préventives et les demandes de travail',
   'work-orders.checks.1':
@@ -161,7 +161,7 @@ const frJSON = {
   'work-requests.descriptions.0':
     "Vous en avez assez d'utiliser l'ancien système de téléphone et de messagerie électronique qui entraîne des tickets PERDUS, des interruptions quotidiennes constantes et un travail en double?",
   'work-requests.descriptions.1':
-    'La solution de gestion de la maintenance de Atlas permet à toute personne que vous autorisez de soumettre un problème à votre service de maintenance en scannant simplement un code QR (code à barres) ou en visitant une URL et en saisissant sa demande via ses appareils mobiles.',
+    'La solution de gestion de la maintenance de {{shortBrandName}} permet à toute personne que vous autorisez de soumettre un problème à votre service de maintenance en scannant simplement un code QR (code à barres) ou en visitant une URL et en saisissant sa demande via ses appareils mobiles.',
   'work-requests.checks.0': 'Ne perdez plus jamais de travail.',
   'work-requests.checks.1':
     "Réduisez jusqu'à 34% le temps consacré au traitement des demandes de travail.",
@@ -190,7 +190,7 @@ const frJSON = {
   'eam.descriptions.0':
     "Frustré d'essayer d'organiser le désordre chaotique de l'équipement de l'entreprise, vous vous demandez si l'équipement a été correctement entretenu, vous ne savez pas ce qu'il en coûte pour l'entretenir et tous les autres maux de tête qui accompagnent la gestion des équipements ?",
   'eam.descriptions.1':
-    'Le module de gestion des équipements de Atlas, vous permet de suivre exactement ce que vous voulez, comme vous le souhaitez, dans une arborescence facile à utiliser et interrogeable.',
+    'Le module de gestion des équipements de {{shortBrandName}}, vous permet de suivre exactement ce que vous voulez, comme vous le souhaitez, dans une arborescence facile à utiliser et interrogeable.',
   'eam.checks.0':
     "Connaîssez la santé de vos équipements à tout moment et ce qu'ils vous coûtent",
   'eam.checks.1': 'Affichez les journaux de maintenance complets et détaillés.',
@@ -206,7 +206,7 @@ const frJSON = {
   'pm.descriptions.0':
     'Arrêtez de perdre de précieuses heures à distribuer manuellement des checklists et à faire un suivi avec votre équipe pour vous assurer que le travail est fait.',
   'pm.descriptions.1':
-    "Atlas vous permet d'automatiser facilement la planification des interventions afin que le bon travail soit automatiquement livré au bon moment au bon technicien pour le bon équipement.",
+    "{{shortBrandName}} vous permet d'automatiser facilement la planification des interventions afin que le bon travail soit automatiquement livré au bon moment au bon technicien pour le bon équipement.",
   'pm.checks.0':
     "Automatisez la planification des interventions préventives pour qu'elle soit quotidienne, hebdomadaire, mensuelle, annuelle ou basée sur des événements ou des relevés de compteurs.",
   'pm.checks.1':
@@ -222,7 +222,7 @@ const frJSON = {
   'part.descriptions.0':
     'Vous ne savez pas quelles pièces vous avez en stock ou où elles sont utilisées ? ',
   'part.descriptions.1':
-    'Nous avons conçu la gestion des pièces de Atlas pour résoudre ces problèmes et plus encore :',
+    'Nous avons conçu la gestion des pièces de {{shortBrandName}} pour résoudre ces problèmes et plus encore :',
   'part.checks.0':
     "Recevez des notifications push et par e-mail instantanées lorsque la quantité d'une pièce est faible. ",
   'part.checks.1':
@@ -238,21 +238,21 @@ const frJSON = {
   'dashboard.descriptions.0':
     'Avouons-le, la première étape pour améliorer vos opérations est de connaître le bon, le mauvais et le laid.',
   'dashboard.descriptions.1':
-    "Avec les tableaux de bord personnalisés de Atlas, vous pouvez enfin commencer à comprendre cet infâme « trou noir de la maintenance » et commencer à mettre en œuvre des plans basés sur des données, ce qui entraîne une réduction des coûts de main-d'œuvre, une diminution des temps d'arrêt et plus encore.",
+    "Avec les tableaux de bord personnalisés de {{shortBrandName}}, vous pouvez enfin commencer à comprendre cet infâme « trou noir de la maintenance » et commencer à mettre en œuvre des plans basés sur des données, ce qui entraîne une réduction des coûts de main-d'œuvre, une diminution des temps d'arrêt et plus encore.",
   'dashboard.descriptions.2':
-    'Avec les tableaux de bord personnalisés de Atlas, vous pourrez…',
+    'Avec les tableaux de bord personnalisés de {{shortBrandName}}, vous pourrez…',
   'dashboard.checks.0': 'Savoir où votre argent est dépensé et pourquoi',
   'dashboard.checks.1': 'Savoir quel équipement coûte le plus cher et pourquoi',
   'dashboard.checks.2': 'Créer vos propres KPI personnalisés.',
   'dashboard.checks.3':
     'Afficher des rapports générés et mis à jour automatiquement en fonction de votre métrique',
   'dashboard.checks.4':
-    'Afficher des rapports facilement partageables via des feuilles Excel, des PDF ou dans Atlas',
+    'Afficher des rapports facilement partageables via des feuilles Excel, des PDF ou dans {{shortBrandName}}',
   'dashboard.checks.5': 'Et bien plus ...',
   'home.smarter': 'Plus intelligent',
   'home.work': 'Travail',
   'home.smarter_description':
-    'Atlas permet aux techniciens de travailler efficacement en toute simplicité en leur donnant accès aux outils et aux données dont ils ont besoin pour accomplir leur travail, le tout depuis la paume de leur main.',
+    '{{shortBrandName}} permet aux techniciens de travailler efficacement en toute simplicité en leur donnant accès aux outils et aux données dont ils ont besoin pour accomplir leur travail, le tout depuis la paume de leur main.',
   leading_maintenance:
     'Ouvrir la voie à un avenir meilleur pour la maintenance et la fiabilité',
   //register
@@ -973,7 +973,7 @@ const frJSON = {
   external_id: 'ID externe',
   permissions: 'Permissions',
   create_role_description:
-    "Ce rôle peut faire tout ce qu'un administrateur peut faire dans Atlas, mais vous pouvez personnaliser certaines permissions importantes ci-dessous.",
+    "Ce rôle peut faire tout ce qu'un administrateur peut faire dans {{shortBrandName}}, mais vous pouvez personnaliser certaines permissions importantes ci-dessous.",
   create_and_edit: 'Créer/Modifier',
   to_access: 'Accéder',
   role_delete_success: 'Le rôle a été supprimé avec succès',
@@ -1190,7 +1190,7 @@ const frJSON = {
   plan: 'Plan',
   current_plan: 'Plan actuel',
   number_users_who_will_use_grash:
-    "Nombre d'utilisateurs qui utiliseront Atlas",
+    "Nombre d'utilisateurs qui utiliseront {{shortBrandName}}",
   admin_role: 'Administrateur',
   technical_role: 'Technique',
   limited_technical_role: 'Technique limitée',
@@ -1352,7 +1352,7 @@ const frJSON = {
   and_optional: 'Et(Optionnel)',
   then: 'Alors',
   workflow_description:
-    "Créez des flux de travail personnalisés aussi simples que Si, Et, Alors. Gagnez du temps et attribuez facilement vos ordres de travail automatiquement via des flux de travail pour personnaliser Atlas en fonction du fonctionnement de votre équipe.\nTous les plans peuvent créer jusqu'à 1 flux de travail personnalisé. Pour ajouter des flux de travail supplémentaires, passez à notre plan Business",
+    "Créez des flux de travail personnalisés aussi simples que Si, Et, Alors. Gagnez du temps et attribuez facilement vos ordres de travail automatiquement via des flux de travail pour personnaliser {{shortBrandName}} en fonction du fonctionnement de votre équipe.\nTous les plans peuvent créer jusqu'à 1 flux de travail personnalisé. Pour ajouter des flux de travail supplémentaires, passez à notre plan Business",
   CREATE_PURCHASE_ORDER: 'Créer un bon de commande',
   PART_IS: 'La pièce est',
   QUANTITY_INFERIOR: 'La quantité est inférieure à',
@@ -1415,7 +1415,7 @@ const frJSON = {
   upgrade: 'Mise à niveau',
   downgrade: 'Rétrograder',
   upgrade_description:
-    "Vous venez de mettre à jour votre plan d'abonnement. Vous devez activer les utilisateurs désactivés susceptibles d'utiliser Atlas. Vous ne pouvez le faire qu'une seule fois pour l'abonnement en cours. Veuillez choisir avec soin",
+    "Vous venez de mettre à jour votre plan d'abonnement. Vous devez activer les utilisateurs désactivés susceptibles d'utiliser {{shortBrandName}}. Vous ne pouvez le faire qu'une seule fois pour l'abonnement en cours. Veuillez choisir avec soin",
   enable_users: 'Activer les utilisateurs',
   max_users_description:
     "Vous pouvez activer jusqu'à {{maxUsers}} utilisateurs",
