@@ -7,6 +7,7 @@ import com.grash.model.enums.Language;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -48,6 +49,7 @@ public class GeneralPreferences {
 
     @OneToOne
     @JsonIgnore
+    @ToString.Exclude
     private CompanySettings companySettings;
 
     public GeneralPreferences(CompanySettings companySettings) {
