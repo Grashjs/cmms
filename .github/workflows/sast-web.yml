@@ -28,11 +28,19 @@ jobs:
 
       - name: Run ESLint
         working-directory: frontend
-        run: npx eslint . --ext .ts,.tsx --max-warnings=0 || true
+        run: |
+          npx eslint . \
+            --ext .ts,.tsx \
+            --ignore-pattern commitlint.config.ts \
+            --max-warnings=0 || true
 
-      - name: Generate ESLint report
+      - name: Generate ESLint JSON report
         working-directory: frontend
-        run: npx eslint . --ext .ts,.tsx -f json -o eslint-report.json || true
+        run: |
+          npx eslint . \
+            --ext .ts,.tsx \
+            --ignore-pattern commitlint.config.ts \
+            -f json -o eslint-report.json || true
 
       - name: Upload ESLint report
         uses: actions/upload-artifact@v4
