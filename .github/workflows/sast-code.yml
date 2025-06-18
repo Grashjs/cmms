@@ -1,0 +1,33 @@
+name: SAST Security Scan
+
+on:
+  push:
+    branches:
+      - security
+  pull_request:
+    branches:
+      - security
+
+jobs:
+  sast:
+    name: Semgrep SAST Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v2
+        with:
+          config: >
+            p/java
+            p/typescript
+            p/javascript.react
+            p/react-native
+          sarif_output: semgrep.sarif
+
+      - name: Upload results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: semgrep.sarif
