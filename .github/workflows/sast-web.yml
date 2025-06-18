@@ -10,7 +10,7 @@ on:
 
 jobs:
   web-sast:
-    name: ESLint Security Scan (frontend/)
+    name: ESLint + npm audit Security Scan (frontend/)
     runs-on: ubuntu-latest
 
     steps:
@@ -26,6 +26,9 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      # --------------------------
+      # ESLint Scan
+      # --------------------------
       - name: Run ESLint
         working-directory: frontend
         run: |
@@ -47,3 +50,17 @@ jobs:
         with:
           name: eslint-report
           path: frontend/eslint-report.json
+
+      # --------------------------
+      # npm audit
+      # --------------------------
+      - name: Run npm audit and generate JSON report
+        working-directory: frontend
+        run: |
+          npm audit --json > npm-audit-report.json || true
+
+      - name: Upload npm audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-report
+          path: frontend/npm-audit-report.json
