@@ -10,7 +10,7 @@ on:
 
 jobs:
   web-sast:
-    name: ESLint Security Scan
+    name: ESLint Security Scan (frontend/)
     runs-on: ubuntu-latest
 
     steps:
@@ -22,17 +22,20 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies
+      - name: Navigate to frontend/ and install dependencies
+        working-directory: frontend
         run: npm ci
 
       - name: Run ESLint
+        working-directory: frontend
         run: npx eslint . --ext .ts,.tsx --max-warnings=0 || true
 
-      - name: Upload ESLint results
+      - name: Generate ESLint report
+        working-directory: frontend
         run: npx eslint . --ext .ts,.tsx -f json -o eslint-report.json || true
 
-      - name: Upload report
+      - name: Upload ESLint report
         uses: actions/upload-artifact@v4
         with:
           name: eslint-report
-          path: eslint-report.json
+          path: frontend/eslint-report.json
