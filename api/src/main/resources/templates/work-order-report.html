@@ -203,7 +203,7 @@
                     <th:block th:each="labor : ${labors}">
                         <div>
                             <strong th:text="#{user}+': '"> </strong> <span
-                                th:text="${labor.getAssignedTo().getFullName()}"></span>
+                                th:text="${labor.getAssignedTo() ==null ? '' : labor.getAssignedTo().getFullName()}"></span>
                         </div>
                         <div>
                             <strong th:text="#{duration}+': '"> </strong> <span

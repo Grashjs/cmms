@@ -9,13 +9,10 @@ import com.grash.model.Asset;
 import com.grash.model.Location;
 import com.grash.service.AssetService;
 import com.grash.service.LocationService;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Context;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.Mappings;
+import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", uses = {CustomerMapper.class, VendorMapper.class, UserMapper.class, TeamMapper.class, FileMapper.class})
+@Mapper(componentModel = "spring", uses = {CustomerMapper.class, VendorMapper.class, UserMapper.class,
+        TeamMapper.class, FileMapper.class})
 public interface LocationMapper {
     Location updateLocation(@MappingTarget Location entity, LocationPatchDTO dto);
 
@@ -24,10 +21,12 @@ public interface LocationMapper {
 
     LocationShowDTO toShowDto(Location model, @Context LocationService locationService);
 
+    @Mapping(source = "parentLocation.id", target = "parentId")
     LocationMiniDTO toMiniDto(Location model);
 
     @AfterMapping
-    default LocationShowDTO toShowDto(Location model, @MappingTarget LocationShowDTO target, @Context LocationService locationService) {
+    default LocationShowDTO toShowDto(Location model, @MappingTarget LocationShowDTO target,
+                                      @Context LocationService locationService) {
         target.setHasChildren(locationService.hasChildren(model.getId()));
         return target;
     }

@@ -15,4 +15,6 @@ public class LocationMiniDTO {
 
     private String customId;
 
+    private Long parentId;
+
 }

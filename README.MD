@@ -100,7 +100,7 @@ Do not delete the .env file
 | GCP_BUCKET_NAME             | No       | GCP Bucket Name                                                                                                                                                                                                                                                                                             | (empty)               |
 | MAIL_RECIPIENTS             | No       | Comma-separated email addresses of the super admins where to send information emails like new signups. You can provide your email address.                                                                                                                                                                  | (empty)               |
 | LICENSE_KEY                 | No       | Atlas CMMS license key to get access to advanced features like SSO.                                                                                                                                                                                                                                         | (empty)               |
-| MUI_X_LICENSE               | No       | Mui Pro license key                                                                                                                                                                                                                                                                                         | (empty)               |
+| MUI_X_LICENSE               | No       | [Mui Pro](https://mui.com/store/items/mui-x-pro) license key. 1 dev and 1 year license is perpetual in production                                                                                                                                                                                           | (empty)               |
 | ENABLE_SSO                  | No       | Enables or disables SSO. (`true` or `false` ) Requires `OAUTH2_PROVIDER`, `OAUTH2_CLIENT_ID` and `OAUTH2_CLIENT_SECRET`. Make sure to add `PUBLIC_FRONT_URL` as authorized origin and `${PUBLIC_API_URL}/oauth2/callback/${OAUTH2_PROVIDER}` as authorized redirection URI in your Oauth2 provider settings | false                 |
 | OAUTH2_PROVIDER             | No       | Oauth2 provider `google` or `microsoft`                                                                                                                                                                                                                                                                     | (empty)               |
 | OAUTH2_CLIENT_ID            | No       | Oauth2 Client ID                                                                                                                                                                                                                                                                                            | (empty)               |
@@ -188,10 +188,12 @@ Check CONTRIBUTING.md inside each subproject for details.
 You can also join our [Discord server](https://discord.gg/cHqyVRYpkA)
 
 ## Open source licensing info
+
 Atlas CMMS is dual-licensed:
 
 - [GPLv3 License](./LICENSE) — Free and open source.
-- [Commercial License](./COMMERCIAL_LICENSE.MD) — Required for white labeling, custom branding, and advanced features like SSO.
+- [Commercial License](./COMMERCIAL_LICENSE.MD) — Required for white labeling, custom branding, and advanced features
+  like SSO.
 
 To enable commercial features, you must set a valid `LICENSE_KEY`.  
 Contact us at [contact@atlas-cmms.com](mailto:contact@atlas-cmms.com) to purchase a commercial license.

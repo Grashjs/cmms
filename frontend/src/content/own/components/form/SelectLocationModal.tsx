@@ -13,7 +13,10 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from '../../../../store';
-import { getAssetsMini, resetAssetsHierarchy } from '../../../../slices/asset';
+import {
+  getLocationsMini,
+  resetLocationsHierarchy
+} from '../../../../slices/location';
 import CustomDataGrid, { CustomDatagridColumn } from '../CustomDatagrid';
 import {
   GridEventListener,
@@ -22,104 +25,104 @@ import {
   GridSelectionModel
 } from '@mui/x-data-grid';
 import { DataGridProProps, useGridApiRef } from '@mui/x-data-grid-pro';
-import { AssetMiniDTO } from '../../../../models/owns/asset';
+import { LocationMiniDTO } from '../../../../models/owns/location';
 import { GroupingCellWithLazyLoading } from '../../Assets/GroupingCellWithLazyLoading';
 import ReplayTwoToneIcon from '@mui/icons-material/ReplayTwoTone';
 import { Pageable } from '../../../../models/owns/page';
 import NoRowsMessageWrapper from '../NoRowsMessageWrapper';
 import { usePrevious } from '../../../../hooks/usePrevious';
 
-interface SelectAssetModalProps {
+interface SelectLocationModalProps {
   open: boolean;
   onClose: () => void;
-  onSelect: (assets: AssetMiniDTO[]) => void; // Changed to handle array of assets
-  excludedAssetIds?: number[]; // Changed to array for multiple exclusions
-  locationId?: number;
+  onSelect: (locations: LocationMiniDTO[]) => void; // Changed to handle array of locations
+  excludedLocationIds?: number[]; // Changed to array for multiple exclusions
   maxSelections?: number; // Optional limit for selections
-  initialSelectedAssets?: AssetMiniDTO[]; // Optional pre-selected assets
+  initialSelectedLocations?: LocationMiniDTO[]; // Optional pre-selected locations
 }
 
-const getAssetRows = (assets: AssetMiniDTO[]): IRow[] => {
+const getLocationRows = (locations: LocationMiniDTO[]): IRow[] => {
   // Build a map of parent to children
-  const assetsByParent: { [key: number]: number[] } = {};
-  const assetMap: { [key: number]: AssetMiniDTO } = {};
+  const locationsByParent: { [key: number]: number[] } = {};
+  const locationMap: { [key: number]: LocationMiniDTO } = {};
 
-  // Create asset map for quick lookup
-  assets.forEach((asset) => {
-    assetMap[asset.id] = asset;
+  // Create location map for quick lookup
+  locations.forEach((location) => {
+    locationMap[location.id] = location;
   });
 
   // Build parent-children relationships
-  assets.forEach((asset) => {
-    if (asset.parentId) {
-      if (!assetsByParent[asset.parentId]) {
-        assetsByParent[asset.parentId] = [];
+  locations.forEach((location) => {
+    if (location.parentId) {
+      if (!locationsByParent[location.parentId]) {
+        locationsByParent[location.parentId] = [];
       }
-      assetsByParent[asset.parentId].push(asset.id);
+      locationsByParent[location.parentId].push(location.id);
     }
   });
 
   // Helper function to build hierarchy path
-  const buildHierarchy = (assetId: number): number[] => {
+  const buildHierarchy = (locationId: number): number[] => {
     const hierarchy: number[] = [];
-    let currentAsset = assetMap[assetId];
-    hierarchy.unshift(currentAsset.id);
+    let currentLocation = locationMap[locationId];
+    hierarchy.unshift(currentLocation.id);
 
     while (
-      currentAsset.parentId &&
-      !hierarchy.includes(currentAsset.parentId)
+      currentLocation.parentId &&
+      !hierarchy.includes(currentLocation.parentId)
     ) {
-      hierarchy.unshift(currentAsset.parentId);
-      currentAsset = assetMap[currentAsset.parentId];
+      hierarchy.unshift(currentLocation.parentId);
+      currentLocation = locationMap[currentLocation.parentId];
     }
 
     return hierarchy;
   };
 
-  return assets.map((asset) => {
-    const hierarchy = buildHierarchy(asset.id);
+  return locations.map((location) => {
+    const hierarchy = buildHierarchy(location.id);
     return {
-      ...asset,
+      ...location,
       hierarchy,
-      hasChildren: !!assetsByParent[asset.id]
+      hasChildren: !!locationsByParent[location.id]
     };
   });
 };
-type IRow = AssetMiniDTO & { hierarchy: number[]; hasChildren: boolean };
-const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
+type IRow = LocationMiniDTO & { hierarchy: number[]; hasChildren: boolean };
+const SelectLocationModal: React.FC<SelectLocationModalProps> = ({
   open,
   onClose,
   onSelect,
-  excludedAssetIds = [],
-  locationId,
+  excludedLocationIds = [],
   maxSelections,
-  initialSelectedAssets = []
+  initialSelectedLocations = []
 }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const apiRef = useGridApiRef();
   const theme = useTheme();
-  const { loadingGet, assetsMini } = useSelector((state) => state.assets);
+  const { loadingGet, locationsMini } = useSelector((state) => state.locations);
   const initialized = useRef<boolean>(false);
   const single = maxSelections === 1;
 
-  const assetsHierarchy: IRow[] = useMemo(
-    () => getAssetRows(assetsMini),
-    [assetsMini.length]
+  const locationsHierarchy: IRow[] = useMemo(
+    () => getLocationRows(locationsMini),
+    [locationsMini.length]
   );
 
-  // State for tracking selected assets
-  const [selectedAssets, setSelectedAssets] = useState<AssetMiniDTO[]>(
-    initialSelectedAssets
+  // State for tracking selected locations
+  const [selectedLocations, setSelectedLocations] = useState<LocationMiniDTO[]>(
+    initialSelectedLocations
   );
   const [selectionModel, setSelectionModel] = useState<GridSelectionModel>(
-    initialSelectedAssets.map((asset) => asset.id)
+    initialSelectedLocations.map((location) => location.id)
   );
-  const previousInitialSelectedAssets = usePrevious(initialSelectedAssets);
+  const previousInitialSelectedLocations = usePrevious(
+    initialSelectedLocations
+  );
 
   const handleReset = (callApi: boolean) => {
     if (callApi) {
-      dispatch(getAssetsMini());
+      dispatch(getLocationsMini());
     }
   };
 
@@ -127,24 +130,26 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
     if (
       open &&
       (!initialized.current ||
-        JSON.stringify(previousInitialSelectedAssets) !==
-          JSON.stringify(initialSelectedAssets))
+        JSON.stringify(previousInitialSelectedLocations) !==
+          JSON.stringify(initialSelectedLocations))
     ) {
       initialized.current = true;
       handleReset(true);
-      if (initialSelectedAssets?.length) {
-        setSelectedAssets(initialSelectedAssets);
-        setSelectionModel(initialSelectedAssets.map((asset) => asset.id));
+      if (initialSelectedLocations?.length) {
+        setSelectedLocations(initialSelectedLocations);
+        setSelectionModel(
+          initialSelectedLocations.map((location) => location.id)
+        );
       } else {
-        setSelectedAssets([]);
+        setSelectedLocations([]);
         setSelectionModel([]);
       }
     }
-  }, [open, initialSelectedAssets, previousInitialSelectedAssets]);
+  }, [open, initialSelectedLocations, previousInitialSelectedLocations]);
 
   useEffect(() => {
     if (single && open) {
-      setSelectedAssets([]);
+      setSelectedLocations([]);
       setSelectionModel([]);
     }
   }, [open]);
@@ -191,10 +196,10 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
   };
 
   const handleRowClick: GridEventListener<'rowClick'> = (params) => {
-    // Prevent selection of loading rows or excluded assets
+    // Prevent selection of loading rows or excluded locations
     if (typeof params.id === 'string' && params.id.startsWith('loading_'))
       return;
-    if (excludedAssetIds.includes(params.id as number)) return;
+    if (excludedLocationIds.includes(params.id as number)) return;
 
     // Get the current selection model
     const currentSelectionModel = [...selectionModel];
@@ -214,36 +219,36 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
     }
     setSelectionModel(currentSelectionModel);
 
-    // Update the selected assets array
-    const updatedSelectedAssets = currentSelectionModel.map((id) => {
+    // Update the selected locations array
+    const updatedSelectedLocations = currentSelectionModel.map((id) => {
       return apiRef.current.getRow(id) as IRow;
     });
-    setSelectedAssets(updatedSelectedAssets);
+    setSelectedLocations(updatedSelectedLocations);
     if (single) {
-      onSelect(updatedSelectedAssets);
+      onSelect(updatedSelectedLocations);
       onClose();
     }
   };
 
   const handleConfirmSelection = () => {
-    onSelect(selectedAssets);
+    onSelect(selectedLocations);
     onClose();
   };
 
-  const handleRemoveSelection = (assetId: number) => {
-    const updatedSelectionModel = selectionModel.filter((id) => id !== assetId);
+  const handleRemoveSelection = (locationId: number) => {
+    const updatedSelectionModel = selectionModel.filter(
+      (id) => id !== locationId
+    );
     setSelectionModel(updatedSelectionModel);
 
-    const updatedSelectedAssets = selectedAssets.filter(
-      (asset) => asset.id !== assetId
+    const updatedSelectedLocations = selectedLocations.filter(
+      (location) => location.id !== locationId
     );
-    setSelectedAssets(updatedSelectedAssets);
+    setSelectedLocations(updatedSelectedLocations);
   };
 
-  const filteredAssetsHierarchy = assetsHierarchy.filter(
-    (asset) =>
-      !excludedAssetIds.includes(asset.id) &&
-      (locationId ? asset.locationId === locationId : true)
+  const filteredLocationsHierarchy = locationsHierarchy.filter(
+    (location) => !excludedLocationIds.includes(location.id)
   );
 
   return (
@@ -256,7 +261,7 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
           alignItems: 'center'
         }}
       >
-        <Typography variant="h4">{t('select_asset')}</Typography>
+        <Typography variant="h4">{t('select_location')}</Typography>
         <IconButton
           onClick={() => handleReset(true)}
           color="primary"
@@ -266,13 +271,13 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
         </IconButton>
       </DialogTitle>
 
-      {selectedAssets.length > 0 && (
+      {selectedLocations.length > 0 && (
         <Box sx={{ px: 2, py: 1, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-          {selectedAssets.map((asset) => (
+          {selectedLocations.map((location) => (
             <Chip
-              key={asset.id}
-              label={`${asset.customId}: ${asset.name}`}
-              onDelete={() => handleRemoveSelection(asset.id)}
+              key={location.id}
+              label={`${location.customId}: ${location.name}`}
+              onDelete={() => handleRemoveSelection(location.id)}
               color="primary"
               variant="outlined"
             />
@@ -287,7 +292,7 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
             treeData
             apiRef={apiRef}
             columns={columns}
-            rows={filteredAssetsHierarchy}
+            rows={filteredLocationsHierarchy}
             loading={loadingGet}
             getRowId={(row) => row.id}
             getRowHeight={() => 'auto'}
@@ -302,18 +307,18 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
                 return;
               }
               setSelectionModel(newSelectionModel);
-              const updatedSelectedAssets = newSelectionModel.map((id) => {
+              const updatedSelectedLocations = newSelectionModel.map((id) => {
                 return apiRef.current.getRow(id) as IRow;
               });
 
-              setSelectedAssets(updatedSelectedAssets);
+              setSelectedLocations(updatedSelectedLocations);
             }}
             components={{
               Row: CustomRow,
               NoRowsOverlay: () => (
                 <NoRowsMessageWrapper
-                  message={t('noRows.asset.message')}
-                  action={t('noRows.asset.action')}
+                  message={t('noRows.location.message')}
+                  action={t('noRows.location.action')}
                 />
               )
             }}
@@ -333,9 +338,9 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
             onClick={handleConfirmSelection}
             color="primary"
             variant="contained"
-            disabled={selectedAssets.length === 0}
+            disabled={selectedLocations.length === 0}
           >
-            {t('select')} ({selectedAssets.length})
+            {t('select')} ({selectedLocations.length})
           </Button>
         </DialogActions>
       )}
@@ -343,4 +348,4 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
   );
 };
 
-export default SelectAssetModal;
+export default SelectLocationModal;

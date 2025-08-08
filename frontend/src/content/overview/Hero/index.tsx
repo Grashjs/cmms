@@ -154,7 +154,7 @@ function Hero() {
             color="text.secondary"
             fontWeight="normal"
           >
-            {t('home_description', { shortBrandName: brandConfig.shortName })}
+            {t('home_description', { shortBrandName: brandConfig.name })}
           </TypographyH2>
           <Button
             component={RouterLink}
@@ -162,7 +162,7 @@ function Hero() {
             size="large"
             variant="contained"
           >
-            {t('try_grash', { shortBrandName: brandConfig.shortName })}
+            {t('try_grash', { shortBrandName: brandConfig.name })}
           </Button>
           <Button
             sx={{
@@ -192,7 +192,7 @@ function Hero() {
             <RouterLink to="/app/work-orders">
               <ImgWrapper>
                 <img
-                  alt={brandConfig.shortName}
+                  alt={brandConfig.name}
                   src="/static/images/overview/work_orders_screenshot.png"
                 />
               </ImgWrapper>

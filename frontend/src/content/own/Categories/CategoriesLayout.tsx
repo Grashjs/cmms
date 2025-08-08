@@ -126,7 +126,8 @@ function CategoriesLayout(props: CategoriesLayoutProps) {
     { value: 'meter', label: t('meters') },
     { value: 'time', label: t('timers') },
     { value: 'cost', label: t('costs') },
-    { value: 'part', label: t('parts') }
+    { value: 'part', label: t('parts') },
+    { value: 'purchase-order', label: t('purchase_orders') }
   ];
   const renderModal = () => (
     <Dialog
@@ -166,14 +167,14 @@ function CategoriesLayout(props: CategoriesLayoutProps) {
         }}
       >
         {({
-            errors,
-            handleBlur,
-            handleChange,
-            handleSubmit,
-            isSubmitting,
-            touched,
-            values
-          }) => (
+          errors,
+          handleBlur,
+          handleChange,
+          handleSubmit,
+          isSubmitting,
+          touched,
+          values
+        }) => (
           <form onSubmit={handleSubmit}>
             <DialogContent
               dividers
@@ -258,7 +259,10 @@ function CategoriesLayout(props: CategoriesLayoutProps) {
         </Typography>
       </DialogTitle>
       <Formik
-        initialValues={{ name: currentCategory?.name, description: currentCategory?.description }}
+        initialValues={{
+          name: currentCategory?.name,
+          description: currentCategory?.description
+        }}
         validationSchema={Yup.object().shape({
           name: Yup.string().max(30).required(t('required_name'))
         })}
@@ -278,14 +282,14 @@ function CategoriesLayout(props: CategoriesLayoutProps) {
         }}
       >
         {({
-            errors,
-            handleBlur,
-            handleChange,
-            handleSubmit,
-            isSubmitting,
-            touched,
-            values
-          }) => (
+          errors,
+          handleBlur,
+          handleChange,
+          handleSubmit,
+          isSubmitting,
+          touched,
+          values
+        }) => (
           <form onSubmit={handleSubmit}>
             <DialogContent
               dividers

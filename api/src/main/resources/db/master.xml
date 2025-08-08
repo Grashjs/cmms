@@ -138,4 +138,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2025_06_04_1749052788_drop_has_children.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2025_08_01_1754010675_prevent_cycle.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

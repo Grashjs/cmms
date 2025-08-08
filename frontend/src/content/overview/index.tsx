@@ -30,13 +30,14 @@ function Overview() {
       !isCloudVersion ||
       (isCloudVersion && isLicenseValid != null && !isLicenseValid)
     )
-      navigate('/account/login');
+      console.log('license is invalid');
+    // navigate('/account/login');
   }, [isCloudVersion, isLicenseValid]);
 
   return (
     <OverviewWrapper>
       <Helmet>
-        <title>{brandConfig.shortName}</title>
+        <title>{brandConfig.name}</title>
       </Helmet>
       <NavBar />
       <Hero />

@@ -47,7 +47,7 @@ const baseRoutes = [
     element: <Pricing />
   },
   {
-    path: 'privacy-policy',
+    path: 'privacy',
     element: <PrivacyPolicy />
   },
   {

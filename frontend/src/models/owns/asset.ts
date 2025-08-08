@@ -67,4 +67,6 @@ export interface AssetMiniDTO {
   id: number;
   name: string;
   customId: string;
+  locationId: number;
+  parentId: number;
 }

@@ -32,6 +32,7 @@ import { getRoles } from '../../../../slices/role';
 import { getCurrencies } from '../../../../slices/currency';
 import ClearTwoToneIcon from '@mui/icons-material/ClearTwoTone';
 import { useTranslation } from 'react-i18next';
+import SelectLocationModal from './SelectLocationModal';
 
 export const CustomSelect = ({
   field,
@@ -41,6 +42,7 @@ export const CustomSelect = ({
   handleChange: (formik: FormikProps<IHash<any>>, field: string, e) => void;
 }) => {
   const [assetModalOpen, setAssetModalOpen] = useState(false);
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
   const { t } = useTranslation();
   const formik = useFormikContext();
   const [openTask, setOpenTask] = useState(false);
@@ -130,15 +132,6 @@ export const CustomSelect = ({
       });
       onOpen = fetchTeams;
       break;
-    case 'location':
-      options = locationsMini.map((location) => {
-        return {
-          label: location.name,
-          value: location.id
-        };
-      });
-      onOpen = fetchLocations;
-      break;
     case 'currency':
       options = currencies.map((currency) => {
         return {
@@ -148,15 +141,100 @@ export const CustomSelect = ({
       });
       onOpen = fetchCurrencies;
       break;
+    case 'location':
     case 'parentLocation':
-      options = locationsMini.map((location) => {
-        return {
-          label: location.name,
-          value: location.id
-        };
-      });
+      options = locationsMini
+        .filter((location) => location.id !== excluded)
+        .map((location) => {
+          return {
+            label: location.name,
+            value: location.id
+          };
+        });
       onOpen = fetchLocations;
-      break;
+
+      return (
+        <>
+          <Autocomplete
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                fullWidth={field.fullWidth || true}
+                variant="outlined"
+                required={field.required}
+                label={field.label}
+                placeholder={field.placeholder}
+                error={!!formik.errors[field.name] || field.error}
+                helperText={formik.errors[field.name]}
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent TextField onClick from firing again
+                          setLocationModalOpen(true);
+                        }}
+                      >
+                        <SearchIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
+              />
+            )}
+            fullWidth={field.fullWidth || true}
+            disabled={formik.isSubmitting}
+            onOpen={onOpen}
+            key={field.name}
+            //@ts-ignore
+            getOptionLabel={(option) => option.label}
+            isOptionEqualToValue={(option, value) =>
+              //@ts-ignore
+              option.value == value.value
+            }
+            multiple={field.multiple}
+            value={field.multiple ? fieldValue ?? [] : fieldValue ?? null}
+            options={options}
+            onChange={(event, newValue) => {
+              handleChange(formik, field.name, newValue);
+            }}
+          />
+          <SelectLocationModal
+            open={locationModalOpen}
+            onClose={() => setLocationModalOpen(false)}
+            excludedLocationIds={[excluded]}
+            maxSelections={field.multiple ? 10 : 1}
+            onSelect={(selectedLocations) => {
+              handleChange(
+                formik,
+                field.name,
+                field.multiple
+                  ? selectedLocations.map((location) => ({
+                      label: location.name,
+                      value: location.id
+                    }))
+                  : selectedLocations.length
+                  ? {
+                      label: selectedLocations[0].name,
+                      value: selectedLocations[0].id
+                    }
+                  : null
+              );
+              setLocationModalOpen(false); // Close the modal
+            }}
+            initialSelectedLocations={locationsMini.filter((location) =>
+              (field.multiple
+                ? fieldValue ?? []
+                : fieldValue
+                ? [fieldValue]
+                : []
+              ).some((a) => Number(a.value) === location.id)
+            )}
+          />
+        </>
+      );
     case 'asset': {
       options = assetsMini
         .filter((asset) => asset.id !== excluded)

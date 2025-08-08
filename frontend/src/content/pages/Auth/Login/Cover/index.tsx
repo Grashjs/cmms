@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import JWTLogin from '../LoginJWT';
 
 import { useTranslation } from 'react-i18next';
+import Logo from 'src/components/LogoSign';
 
 const Content = styled(Box)(
   () => `
@@ -37,6 +38,7 @@ function LoginCover() {
             }}
           >
             <Box textAlign="center">
+              <Logo />
               <Typography
                 variant="h2"
                 sx={{

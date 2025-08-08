@@ -25,6 +25,7 @@ export interface LocationMiniDTO {
   name: string;
   address: string;
   customId: string;
+  parentId: number;
 }
 
 export interface LocationRow extends Location {

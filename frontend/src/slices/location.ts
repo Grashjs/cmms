@@ -116,8 +116,14 @@ export const getLocations = (): AppThunk => async (dispatch) => {
   dispatch(slice.actions.getLocations({ locations }));
 };
 export const getLocationsMini = (): AppThunk => async (dispatch) => {
-  const locations = await api.get<LocationMiniDTO[]>('locations/mini');
-  dispatch(slice.actions.getLocationsMini({ locations }));
+  try {
+    dispatch(slice.actions.setLoadingGet({ loading: true }));
+    const locations = await api.get<LocationMiniDTO[]>('locations/mini');
+
+    dispatch(slice.actions.getLocationsMini({ locations }));
+  } finally {
+    dispatch(slice.actions.setLoadingGet({ loading: false }));
+  }
 };
 export const addLocation =
   (location): AppThunk =>

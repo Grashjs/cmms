@@ -115,8 +115,8 @@ export const planFeatureCategories = [
       {
         name: 'Data Importing',
         availability: {
-          basic: true,
-          starter: true,
+          basic: false,
+          starter: false,
           professional: true,
           business: true
         }
@@ -151,8 +151,8 @@ export const planFeatureCategories = [
       {
         name: 'Signature Capture',
         availability: {
-          basic: true,
-          starter: true,
+          basic: false,
+          starter: false,
           professional: true,
           business: true
         }
@@ -178,9 +178,9 @@ export const planFeatureCategories = [
       {
         name: 'Workflow Automation',
         availability: {
-          basic: true,
-          starter: true,
-          professional: true,
+          basic: false,
+          starter: false,
+          professional: false,
           business: true
         }
       }
@@ -203,7 +203,7 @@ export const planFeatureCategories = [
         availability: {
           basic: false,
           starter: false,
-          professional: true,
+          professional: false,
           business: true
         }
       },
@@ -212,7 +212,7 @@ export const planFeatureCategories = [
         availability: {
           basic: false,
           starter: false,
-          professional: true,
+          professional: false,
           business: true
         }
       }
@@ -323,8 +323,8 @@ export const planFeatureCategories = [
       {
         name: 'Purchase Orders',
         availability: {
-          basic: true,
-          starter: true,
+          basic: false,
+          starter: false,
           professional: true,
           business: true
         }
@@ -405,8 +405,8 @@ export const planFeatureCategories = [
       {
         name: 'Itemized Time Reporting',
         availability: {
-          basic: true,
-          starter: true,
+          basic: false,
+          starter: false,
           professional: true,
           business: true
         }
@@ -414,8 +414,8 @@ export const planFeatureCategories = [
       {
         name: 'User Log-in Reports',
         availability: {
-          basic: true,
-          starter: true,
+          basic: false,
+          starter: false,
           professional: true,
           business: true
         }
@@ -423,8 +423,8 @@ export const planFeatureCategories = [
       {
         name: 'Requests Analysis',
         availability: {
-          basic: true,
-          starter: true,
+          basic: false,
+          starter: false,
           professional: true,
           business: true
         }
@@ -432,8 +432,8 @@ export const planFeatureCategories = [
       {
         name: 'Parts Consumption Reports',
         availability: {
-          basic: true,
-          starter: true,
+          basic: false,
+          starter: false,
           professional: true,
           business: true
         }
@@ -441,8 +441,8 @@ export const planFeatureCategories = [
       {
         name: 'Custom Dashboards',
         availability: {
-          basic: true,
-          starter: true,
+          basic: false,
+          starter: false,
           professional: true,
           business: true
         }
@@ -450,8 +450,8 @@ export const planFeatureCategories = [
       {
         name: 'Asset Downtime Reports',
         availability: {
-          basic: true,
-          starter: true,
+          basic: false,
+          starter: false,
           professional: true,
           business: true
         }
@@ -459,8 +459,8 @@ export const planFeatureCategories = [
       {
         name: 'Equipment Reliability Reports',
         availability: {
-          basic: true,
-          starter: true,
+          basic: false,
+          starter: false,
           professional: true,
           business: true
         }
@@ -468,8 +468,8 @@ export const planFeatureCategories = [
       {
         name: 'Multi-site Modules',
         availability: {
-          basic: true,
-          starter: true,
+          basic: false,
+          starter: false,
           professional: true,
           business: true
         }
@@ -559,9 +559,9 @@ export const planFeatureCategories = [
       {
         name: 'Custom Roles',
         availability: {
-          basic: true,
-          starter: true,
-          professional: true,
+          basic: false,
+          starter: false,
+          professional: false,
           business: true
         }
       },

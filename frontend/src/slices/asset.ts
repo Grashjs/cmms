@@ -156,10 +156,15 @@ export const getAssets =
 export const getAssetsMini =
   (locationId?: number): AppThunk =>
   async (dispatch) => {
-    const assets = await api.get<AssetMiniDTO[]>(
-      `${basePath}/mini?locationId=${locationId ?? ''}`
-    );
-    dispatch(slice.actions.getAssetsMini({ assets }));
+    try {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      const assets = await api.get<AssetMiniDTO[]>(
+        `${basePath}/mini?locationId=${locationId ?? ''}`
+      );
+      dispatch(slice.actions.getAssetsMini({ assets }));
+    } finally {
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    }
   };
 export const addAsset =
   (asset): AppThunk =>

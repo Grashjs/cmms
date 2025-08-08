@@ -167,7 +167,7 @@ public class AssetController {
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS) || user.getRole().getCreatePermissions().contains(PermissionEntity.REQUESTS)) {//TODO use assets mini for requesters in front
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
                 return assetService.findAssetChildren(id, pageable.getSort()).stream().map(asset -> assetMapper.toShowDto(asset,
                         assetService)).collect(Collectors.toList());
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
