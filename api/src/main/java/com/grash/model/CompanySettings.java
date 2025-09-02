@@ -8,6 +8,7 @@ import com.grash.model.enums.RoleType;
 import com.grash.utils.Helper;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.*;
@@ -21,6 +22,7 @@ public class CompanySettings {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @ToString.Exclude
     @OneToOne(cascade = CascadeType.ALL)
     private GeneralPreferences generalPreferences = new GeneralPreferences(this);
 
