@@ -1,0 +1,20 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:change-this-secret}

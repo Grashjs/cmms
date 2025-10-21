@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="20251020-2-create-equipment-sequence" author="copilot">
+        <comment>Create equipment table using explicit sequence + trigger to populate primary key</comment>
+
+        <createSequence sequenceName="equipment_seq"
+                        startValue="1"
+                        incrementBy="1"
+                        minValue="1"
+                        maxValue="999999999999999999"/>
+
+        <createTable tableName="equipment">
+            <column name="id" type="NUMBER(19)">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_equipment"/>
+            </column>
+
+            <column name="code" type="VARCHAR2(100)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_equipment_code"/>
+            </column>
+
+            <column name="description" type="VARCHAR2(1000)"/>
+            <column name="status" type="VARCHAR2(50)" defaultValue="'ACTIVE'"/>
+            <column name="created_at" type="TIMESTAMP(6)" defaultValueComputed="SYSTIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="equipment" indexName="idx_equipment_code">
+            <column name="code"/>
+        </createIndex>
+
+        <sql>
+            CREATE OR REPLACE TRIGGER trg_equipment_bi
+            BEFORE INSERT ON equipment
+            FOR EACH ROW
+            WHEN (new.id IS NULL)
+            BEGIN
+              SELECT equipment_seq.NEXTVAL INTO :new.id FROM dual;
+            END;
+        </sql>
+
+        <rollback>
+            <sql>DROP TRIGGER trg_equipment_bi</sql>
+            <dropTable tableName="equipment"/>
+            <dropSequence sequenceName="equipment_seq"/>
+        </rollback>
+
+    </changeSet>
+
+</databaseChangeLog>

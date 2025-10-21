@@ -1,8 +1,6 @@
+target/
+*.log
+*.jar
 .env
-.env.genaiscript
-.genaiscript
+oracle_wallet/
 .DS_Store
-**/.DS_Store
-atlas_backups
-docker-compose-dev.yml
-logo

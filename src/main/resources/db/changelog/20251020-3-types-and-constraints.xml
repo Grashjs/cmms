@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="20251020-3-types-and-constraints" author="copilot">
+        <comment>Add common constraints and examples for boolean & JSON mappings</comment>
+
+        <addCheckConstraint tableName="users"
+                            constraintName="chk_users_active_bool"
+                            condition="active IN (0,1)"/>
+
+        <createTable tableName="entity_metadata">
+            <column name="id" type="NUMBER(19)" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_entity_metadata"/>
+            </column>
+
+            <column name="entity_id" type="NUMBER(19)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="data" type="CLOB">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP(6)" defaultValueComputed="SYSTIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <sql>
+            ALTER TABLE entity_metadata ADD CONSTRAINT chk_entity_metadata_is_json CHECK (data IS JSON);
+        </sql>
+
+        <createTable tableName="sample_with_array">
+            <column name="id" type="NUMBER(19)" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_sample_with_array"/>
+            </column>
+            <column name="int_array_csv" type="VARCHAR2(2000)"/>
+        </createTable>
+
+    </changeSet>
+
+</databaseChangeLog>

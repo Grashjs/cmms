@@ -1,0 +1,20 @@
+CREATE SEQUENCE equipment_seq START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+CREATE TABLE equipment (
+  id NUMBER(19) PRIMARY KEY,
+  code VARCHAR2(100) NOT NULL,
+  description VARCHAR2(1000),
+  status VARCHAR2(50) DEFAULT 'ACTIVE',
+  created_at TIMESTAMP(6) DEFAULT SYSTIMESTAMP NOT NULL
+);
+
+CREATE UNIQUE INDEX uk_equipment_code ON equipment(code);
+
+CREATE OR REPLACE TRIGGER trg_equipment_bi
+BEFORE INSERT ON equipment
+FOR EACH ROW
+WHEN (new.id IS NULL)
+BEGIN
+  SELECT equipment_seq.NEXTVAL INTO :new.id FROM dual;
+END;
+/

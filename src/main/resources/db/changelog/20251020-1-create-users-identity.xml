@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="20251020-1-create-users-identity" author="copilot">
+        <comment>Create users table using Oracle IDENTITY for auto-incrementing primary key</comment>
+
+        <createTable tableName="users">
+            <column name="id" type="NUMBER(19)" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_users"/>
+            </column>
+
+            <column name="username" type="VARCHAR2(255)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_users_username"/>
+            </column>
+
+            <column name="email" type="VARCHAR2(320)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_users_email"/>
+            </column>
+
+            <column name="full_name" type="VARCHAR2(400)"/>
+            <column name="active" type="NUMBER(1)" defaultValueNumeric="1">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP(6) WITH TIME ZONE" defaultValueComputed="SYSTIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex indexName="idx_users_username" tableName="users" unique="true">
+            <column name="username"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>
