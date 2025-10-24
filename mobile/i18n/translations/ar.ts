@@ -170,6 +170,7 @@ const locale = {
   employeesCount: 'عدد الموظفين',
   i_accept: 'انا اقبل',
   terms_conditions: 'الشروط والأحكام',
+  required_fields_notice: 'جميع الحقول المميزة بـ * مطلوبة.',
   create_your_account: 'إنشاء حسابك',
   register: 'يسجل',
   login_description: 'قم بملء الحقول أدناه لتسجيل الدخول إلى حسابك.',

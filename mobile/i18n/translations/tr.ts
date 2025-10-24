@@ -170,6 +170,7 @@ const trJSON = {
   employeesCount: 'Çalışan Sayısı',
   i_accept: 'Kabul ediyorum',
   terms_conditions: 'Şartlar ve koşullar',
+  required_fields_notice: '* ile işaretlenen tüm alanlar zorunludur.',
   create_your_account: 'Hesabını oluştur',
   register: 'Kayıt ol',
   login_description:

@@ -1,12 +1,21 @@
-import { Alert, StyleSheet } from 'react-native';
+import { Alert, Platform, StyleSheet } from 'react-native';
 
 import { View } from '../../components/Themed';
 import * as React from 'react';
 import { useEffect } from 'react';
 import { RootStackScreenProps } from '../../types';
 import { useTranslation } from 'react-i18next';
-import NfcManager, { NfcEvents } from 'react-native-nfc-manager';
 import { ActivityIndicator, Text } from 'react-native-paper';
+
+type NfcModule = typeof import('react-native-nfc-manager');
+
+const nfcModule: NfcModule | null =
+  Platform.OS === 'ios'
+    ? null
+    : (require('react-native-nfc-manager') as NfcModule);
+
+const NfcManager = nfcModule?.default;
+const NfcEvents = nfcModule?.NfcEvents;
 
 export default function SelectNfcModal({
   navigation,
@@ -15,39 +24,46 @@ export default function SelectNfcModal({
   const { onChange } = route.params;
   const { t } = useTranslation();
 
-  // Pre-step, call this before any NFC operations
-  async function initNfc() {
-    await NfcManager.start();
-  }
+  useEffect(() => {
+    if (!NfcManager || !NfcEvents) {
+      navigation.goBack();
+      return;
+    }
 
-  function readNdef() {
-    const cleanUp = () => {
-      NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
-      NfcManager.setEventListener(NfcEvents.SessionClosed, null);
+    const manager = NfcManager;
+    const events = NfcEvents;
+
+    const initNfc = async () => {
+      await manager.start();
     };
 
-    return new Promise<string>((resolve) => {
-      let tagFound = null;
+    const readNdef = () => {
+      const cleanUp = () => {
+        manager.setEventListener(events.DiscoverTag, null);
+        manager.setEventListener(events.SessionClosed, null);
+      };
 
-      NfcManager.setEventListener(NfcEvents.DiscoverTag, (tag) => {
-        tagFound = tag;
-        resolve(tagFound);
-        NfcManager.setAlertMessageIOS('NDEF tag found');
-        NfcManager.unregisterTagEvent().catch(() => 0);
+      return new Promise<string>((resolve) => {
+        let tagFound = null;
+
+        manager.setEventListener(events.DiscoverTag, (tag) => {
+          tagFound = tag;
+          resolve(tagFound);
+          manager.setAlertMessageIOS('NDEF tag found');
+          manager.unregisterTagEvent().catch(() => 0);
+        });
+
+        manager.setEventListener(events.SessionClosed, () => {
+          cleanUp();
+          if (!tagFound) {
+            resolve(null);
+          }
+        });
+
+        manager.registerTagEvent();
       });
+    };
 
-      NfcManager.setEventListener(NfcEvents.SessionClosed, () => {
-        cleanUp();
-        if (!tagFound) {
-          resolve(null);
-        }
-      });
-
-      NfcManager.registerTagEvent();
-    });
-  }
-
-  useEffect(() => {
     initNfc()
       .then(() =>
         readNdef().then((tag) => {
@@ -63,7 +79,7 @@ export default function SelectNfcModal({
           { text: 'Ok', onPress: () => navigation.goBack() }
         ])
       );
-  }, []);
+  }, [NfcManager, NfcEvents, navigation, onChange, t]);
 
   return (
     <View style={styles.container}>

@@ -180,6 +180,7 @@ const locale = {
   employeesCount: 'Número de empleados',
   i_accept: 'Acepto los',
   terms_conditions: 'términos y condiciones',
+  required_fields_notice: 'Todos los campos marcados con * son obligatorios.',
   create_your_account: 'Crea tu cuenta',
   register: 'Registro',
   login_description:

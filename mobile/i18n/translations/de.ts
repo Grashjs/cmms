@@ -184,6 +184,7 @@ const deJSON = {
   employeesCount: 'Anzahl der Mitarbeiter ',
   i_accept: 'Ich akzeptiere die ',
   terms_conditions: 'Allgemeinen Geschäftsbedingungen ',
+  required_fields_notice: 'Alle mit * gekennzeichneten Felder sind erforderlich.',
   create_your_account: 'Erstellen Sie Ihr Konto ',
   register: 'Registrieren ',
   //signin

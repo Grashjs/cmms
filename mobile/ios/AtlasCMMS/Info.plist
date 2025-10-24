@@ -37,7 +37,7 @@
       </dict>
     </array>
     <key>CFBundleVersion</key>
-    <string>1</string>
+    <string>7</string>
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>
     <key>LSRequiresIPhoneOS</key>
@@ -56,13 +56,15 @@
       </dict>
     </dict>
     <key>NSCameraUsageDescription</key>
-    <string>Allow Atlas to access camera.</string>
+    <string>Allow Atlas to use the camera to scan.</string>
     <key>NSMicrophoneUsageDescription</key>
-    <string>Atlas CMMS utilise le micro pour l’enregistrement audio.</string>
+    <string>Allow Atlas to use the microphone for audio notes.</string>
     <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>Atlas CMMS enregistre des images dans votre photothèque.</string>
+    <string>Allow Atlas to save photos to your photo library when you export or download attachments.</string>
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>Atlas CMMS accède à vos photos pour sélectionner des images.</string>
+    <string>Allow Atlas to access your photo library to attach images to work orders and asset records.</string>
+    <key>NSUserNotificationUsageDescription</key>
+    <string>Allow notifications for work order updates.</string>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
     <key>UIRequiredDeviceCapabilities</key>

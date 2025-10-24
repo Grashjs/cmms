@@ -476,8 +476,6 @@ PODS:
     - glog
   - react-native-netinfo (9.3.7):
     - React-Core
-  - react-native-nfc-manager (3.16.1):
-    - React-Core
   - react-native-pager-view (6.1.2):
     - React-Core
   - react-native-pure-jwt (3.0.3):
@@ -650,7 +648,6 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
-  - react-native-nfc-manager (from `../node_modules/react-native-nfc-manager`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-pure-jwt (from `../node_modules/react-native-pure-jwt`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -789,8 +786,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
-  react-native-nfc-manager:
-    :path: "../node_modules/react-native-nfc-manager"
   react-native-pager-view:
     :path: "../node_modules/react-native-pager-view"
   react-native-pure-jwt:
@@ -903,7 +898,6 @@ SPEC CHECKSUMS:
   React-jsinspector: 7bf923954b4e035f494b01ac16633963412660d7
   React-logger: 655ff5db8bd922acfbe76a4983ffab048916343e
   react-native-netinfo: 2517ad504b3d303e90d7a431b0fcaef76d207983
-  react-native-nfc-manager: 5213321cf6c18d879c8092c0bf56806b771ec5ac
   react-native-pager-view: 54bed894cecebe28cede54c01038d9d1e122de43
   react-native-pure-jwt: 0d332f378799316e6e7a79a7e262a246d907cdfb
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc

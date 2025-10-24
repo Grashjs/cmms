@@ -184,6 +184,7 @@ const plJSON = {
   employeesCount: 'Liczba pracowników',
   i_accept: 'Akceptuję',
   terms_conditions: 'warunki i postanowienia',
+  required_fields_notice: 'Wszystkie pola oznaczone * są obowiązkowe.',
   create_your_account: 'Utwórz swoje konto',
   register: 'Rejestr',
   login_description:

@@ -188,6 +188,7 @@ const ptBRJSON = {
   employeesCount: 'Número de Funcionários',
   i_accept: 'Eu aceito os',
   terms_conditions: 'termos e condições',
+  required_fields_notice: 'Todos os campos marcados com * são obrigatórios.',
   create_your_account: 'Crie sua conta',
   register: 'Registrar',
   //signin

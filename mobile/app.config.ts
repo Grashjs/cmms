@@ -28,7 +28,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   assetBundlePatterns: ['**/*'],
   ios: {
     bundleIdentifier: 'com.cmms.atlas',
-    buildNumber: '3',
+    buildNumber: '7',
     jsEngine: 'jsc',
     supportsTablet: false,
     runtimeVersion: {
@@ -58,7 +58,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     }
   },
   plugins: [
-    // 'react-native-nfc-manager',
     [
       'expo-barcode-scanner',
       {

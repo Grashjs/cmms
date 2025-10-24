@@ -177,6 +177,7 @@ const locale = {
   employeesCount: 'Number of Employees',
   i_accept: 'I accept the',
   terms_conditions: 'terms and conditions',
+  required_fields_notice: 'All fields marked with * are required.',
   create_your_account: 'Create your account',
   register: 'Register',
   //signin

@@ -285,6 +285,7 @@ const frJSON = {
   employeesCount: "Nombre d'employés",
   i_accept: "J'accepte les",
   terms_conditions: 'termes et conditions',
+  required_fields_notice: 'Tous les champs marqués d’un * sont obligatoires.',
   create_your_account: 'Créer votre compte',
   login_description:
     'Remplissez les champs ci-dessous pour vous connecter à votre compte.',
