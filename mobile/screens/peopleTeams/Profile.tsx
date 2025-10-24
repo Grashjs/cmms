@@ -38,13 +38,18 @@ export default function UserProfile({
     patchUserSettings,
     userSettings,
     updatePassword,
-    patchUser
+    patchUser,
+    deleteAccount,
+    logout
   } = useAuth();
   const theme = useTheme();
   const { t } = useTranslation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const [changingPicture, setChangingPicture] = useState<boolean>(false);
   const [openChangePassword, setOpenChangePassword] = useState<boolean>();
+  const [openDeleteAccountDialog, setOpenDeleteAccountDialog] =
+    useState<boolean>(false);
+  const [deletingAccount, setDeletingAccount] = useState<boolean>(false);
   const { uploadFiles } = useContext(CompanySettingsContext);
   const fieldsToRender = [
     {
@@ -276,6 +281,66 @@ export default function UserProfile({
       </Portal>
     );
   };
+
+  const handleCloseDeleteAccountDialog = () => {
+    setOpenDeleteAccountDialog(false);
+    setDeletingAccount(false);
+  };
+
+  const handleConfirmDeleteAccount = async () => {
+    setDeletingAccount(true);
+
+    try {
+      await deleteAccount();
+      setOpenDeleteAccountDialog(false);
+      showSnackBar(t('account_deleted'), 'success');
+      await logout();
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Root' }]
+      });
+    } catch (err) {
+      showSnackBar(t('account_delete_error'), 'error');
+    } finally {
+      setDeletingAccount(false);
+    }
+  };
+
+  const renderDeleteAccountDialog = () => {
+    return (
+      <Portal theme={theme}>
+        <Dialog
+          visible={openDeleteAccountDialog}
+          onDismiss={handleCloseDeleteAccountDialog}
+          style={{ backgroundColor: 'white', borderRadius: 5 }}
+        >
+          <Dialog.Title>{t('delete_account')}</Dialog.Title>
+          <Dialog.Content>
+            <Text>{t('delete_account_confirmation')}</Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              accessibilityLabel={t('cancel')}
+              onPress={handleCloseDeleteAccountDialog}
+            >
+              {t('cancel')}
+            </Button>
+            <Button
+              mode="contained"
+              buttonColor={theme.colors.error}
+              textColor={theme.colors.onError}
+              accessibilityLabel={t('confirm_delete_account')}
+              loading={deletingAccount}
+              disabled={deletingAccount}
+              onPress={handleConfirmDeleteAccount}
+            >
+              {t('confirm_delete_account')}
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+    );
+  };
   return (
     <ScrollView
       style={{
@@ -284,6 +349,7 @@ export default function UserProfile({
       }}
     >
       {renderChangePassword()}
+      {renderDeleteAccountDialog()}
       <View style={{ alignItems: 'center', paddingTop: 20 }}>
         {changingPicture ? (
           <ActivityIndicator size="large" />
@@ -332,6 +398,15 @@ export default function UserProfile({
           onPress={() => setOpenChangePassword(true)}
         >
           {t('change_password')}
+        </Button>
+        <Button
+          style={{ marginHorizontal: 20, marginBottom: 20 }}
+          mode="contained"
+          buttonColor={theme.colors.error}
+          textColor={theme.colors.onError}
+          onPress={() => setOpenDeleteAccountDialog(true)}
+        >
+          {t('delete_account')}
         </Button>
       </View>
     </ScrollView>

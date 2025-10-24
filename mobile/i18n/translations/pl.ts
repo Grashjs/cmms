@@ -1026,6 +1026,12 @@ const plJSON = {
   personal_details_description:
     'Zarządzaj informacjami związanymi z Twoimi danymi osobowymi',
   change_password: 'Zmień hasło',
+  delete_account: 'Usuń konto',
+  delete_account_confirmation:
+    'Czy na pewno chcesz usunąć swoje konto? Tej czynności nie można cofnąć.',
+  account_deleted: 'Konto zostało pomyślnie usunięte',
+  account_delete_error: 'Błąd podczas usuwania konta',
+  confirm_delete_account: 'Usuń konto',
   notification_settings: 'Ustawienia powiadomień',
   notification_settings_description:
     'Zarządzaj szczegółami związanymi z powiadomieniami',

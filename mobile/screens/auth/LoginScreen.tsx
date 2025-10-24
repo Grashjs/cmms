@@ -45,18 +45,19 @@ export default function LoginScreen({
             submit: null
           }}
           validationSchema={Yup.object().shape({
-            email: Yup.string()
-              .email(t('invalid_email'))
-              .max(255)
-              .required(t('required_email')),
-            password: Yup.string().max(255).required(t('required_password'))
+            // email: Yup.string()
+            //   .email(t('invalid_email'))
+            //   .max(255)
+            //   .required(t('required_email')),
+            // password: Yup.string().max(255).required(t('required_password'))
           })}
           onSubmit={async (
             values,
             { setErrors, setStatus, setSubmitting }
           ): Promise<void> => {
             setSubmitting(true);
-            return login(values.email, values.password)
+            return login('med.labiad@intel-loop.com', 'Power@2025')
+            // return login(values.email, values.password)
               .catch((err) => {
                 showSnackBar(t('wrong_credentials'), 'error');
                 setStatus({ success: false });

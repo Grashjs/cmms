@@ -11,6 +11,7 @@ import {
   ColorSchemeName,
   GestureResponderEvent,
   Image,
+  Platform,
   Pressable,
   TouchableOpacity,
   View
@@ -548,14 +549,25 @@ function BottomTabNavigator({ navigation }: RootTabScreenProps<'Home'>) {
         tabBarActiveTintColor: theme.colors.primary,
         tabBarStyle: {
           position: 'absolute',
-          bottom: 10,
+          bottom: 17,
           left: 20,
           right: 20,
           elevation: 8,
           borderRadius: 15,
           zIndex: 10,
-          height: 50
-        }
+          height: 70,
+          paddingTop: 6,
+          paddingBottom: Platform.OS === 'ios' ? 18 : 10,
+          borderTopWidth: 0,
+          shadowColor: '#000',
+          shadowOpacity: 0.15,
+          shadowRadius: 8,
+          shadowOffset: { width: 0, height: -2 },
+        },
+        tabBarItemStyle: {
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
       }}
     >
       {user.role.code !== 'REQUESTER' && (

@@ -1041,6 +1041,12 @@ const locale = {
   personal_details_description:
     'Gestionar información relacionada con tus datos personales',
   change_password: 'Cambiar la contraseña',
+  delete_account: 'Eliminar cuenta',
+  delete_account_confirmation:
+    '¿Está seguro de que desea eliminar su cuenta? Esta acción no se puede deshacer.',
+  account_deleted: 'Cuenta eliminada con éxito',
+  account_delete_error: 'Error al eliminar la cuenta',
+  confirm_delete_account: 'Eliminar cuenta',
   notification_settings: 'Configuración de notificaciones',
   notification_settings_description:
     'Administrar detalles relacionados con tus notificaciones',

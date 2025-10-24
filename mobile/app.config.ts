@@ -15,7 +15,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   notification: {
     icon: './assets/images/notification.png'
   },
-  sdkVersion: '47.0.0',
+  sdkVersion: '48.0.0',
   splash: {
     image: './assets/images/splash.png',
     resizeMode: 'contain',
@@ -27,9 +27,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   assetBundlePatterns: ['**/*'],
   ios: {
-    supportsTablet: true,
+    bundleIdentifier: 'com.cmms.atlas',
+    buildNumber: '3',
+    jsEngine: 'jsc',
+    supportsTablet: false,
     runtimeVersion: {
       policy: 'sdkVersion'
+    },
+    infoPlist: {
+      ITSAppUsesNonExemptEncryption: false,
     }
   },
   android: {
@@ -52,7 +58,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     }
   },
   plugins: [
-    'react-native-nfc-manager',
+    // 'react-native-nfc-manager',
     [
       'expo-barcode-scanner',
       {

@@ -969,6 +969,12 @@ const locale = {
   personal_details: 'البيانات الشخصية',
   personal_details_description: 'إدارة المعلومات المتعلقة بتفاصيلك الشخصية',
   change_password: 'تغيير كلمة المرور',
+  delete_account: 'حذف الحساب',
+  delete_account_confirmation:
+    'هل أنت متأكد أنك تريد حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء.',
+  account_deleted: 'تم حذف الحساب بنجاح',
+  account_delete_error: 'حدث خطأ أثناء حذف الحساب',
+  confirm_delete_account: 'حذف الحساب',
   notification_settings: 'إعدادات الإشعارات',
   notification_settings_description: 'إدارة التفاصيل المتعلقة بإشعاراتك',
   recent_activity: 'النشاط الأخير',

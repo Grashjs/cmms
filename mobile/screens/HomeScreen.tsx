@@ -186,7 +186,8 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
         style={{
           display: 'flex',
           flexDirection: 'row',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          alignItems: 'center',
         }}
       >
         {hasViewPermission(PermissionEntity.ASSETS) && (

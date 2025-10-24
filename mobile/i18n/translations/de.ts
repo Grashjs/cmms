@@ -1085,6 +1085,12 @@ const deJSON = {
   personal_details_description:
     'Verwalten Sie Informationen zu Ihren persönlichen Details ',
   change_password: 'Passwort ändern ',
+  delete_account: 'Konto löschen ',
+  delete_account_confirmation:
+    'Möchten Sie Ihr Konto wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+  account_deleted: 'Konto erfolgreich gelöscht',
+  account_delete_error: 'Fehler beim Löschen des Kontos',
+  confirm_delete_account: 'Konto löschen',
   notification_settings: 'Benachrichtigungseinstellungen ',
   notification_settings_description:
     'Verwalten Sie Details zu Ihren Benachrichtigungen ',

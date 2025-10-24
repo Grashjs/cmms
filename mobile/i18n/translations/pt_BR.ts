@@ -1061,6 +1061,12 @@ const ptBRJSON = {
   personal_details_description:
     'Gerencie informações relacionadas aos seus detalhes pessoais',
   change_password: 'Alterar Senha',
+  delete_account: 'Excluir conta',
+  delete_account_confirmation:
+    'Tem certeza de que deseja excluir sua conta? Essa ação não pode ser desfeita.',
+  account_deleted: 'Conta excluída com sucesso',
+  account_delete_error: 'Erro ao excluir a conta',
+  confirm_delete_account: 'Excluir conta',
   notification_settings: 'Configurações de Notificações',
   notification_settings_description:
     'Gerencie detalhes relacionados às suas notificações',
