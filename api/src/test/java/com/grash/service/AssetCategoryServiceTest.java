@@ -166,4 +166,10 @@ class AssetCategoryServiceTest {
 
         assertTrue(assetCategoryService.findByNameIgnoreCaseAndCompanySettings("Test Category", 1L).isPresent());
     }
+
+    @Test
+    void isAssetCategoryInCompany_whenOptionalAndNotNullAndNotInRepo() {
+        when(assetCategoryRepository.findById(1L)).thenReturn(Optional.empty());
+        assertFalse(assetCategoryService.isAssetCategoryInCompany(assetCategory, 1L, true));
+    }
 }

@@ -182,4 +182,37 @@ class AssetDowntimeServiceTest {
 
         assertEquals(1, assetDowntimeService.findByCompanyAndStartsOnBetween(1L, start, end).size());
     }
+
+    @Test
+    void getDowntimesMeantime_withLessThan3Downtimes() {
+        assertEquals(0, assetDowntimeService.getDowntimesMeantime(Collections.singletonList(assetDowntime)));
+    }
+
+    @Test
+    void getDowntimesMeantime_withMoreThan2Downtimes() {
+        AssetDowntime assetDowntime2 = new AssetDowntime();
+        assetDowntime2.setStartsOn(new Date(System.currentTimeMillis() - 200000));
+        AssetDowntime assetDowntime3 = new AssetDowntime();
+        assetDowntime3.setStartsOn(new Date());
+
+        assertEquals(0, assetDowntimeService.getDowntimesMeantime(java.util.Arrays.asList(assetDowntime, assetDowntime2, assetDowntime3)));
+    }
+
+    @Test
+    void update_whenOverlapping_shouldThrowException() {
+        AssetDowntimePatchDTO patchDTO = new AssetDowntimePatchDTO();
+        AssetDowntime existingDowntime = new AssetDowntime();
+        existingDowntime.setStartsOn(new Date(System.currentTimeMillis() - 50000));
+        existingDowntime.setDuration(100000);
+
+        when(assetDowntimeRepository.existsById(1L)).thenReturn(true);
+        when(assetDowntimeRepository.findById(1L)).thenReturn(Optional.of(assetDowntime));
+        when(assetDowntimeMapper.updateAssetDowntime(any(AssetDowntime.class), any(AssetDowntimePatchDTO.class))).thenReturn(assetDowntime);
+        when(assetDowntimeRepository.findByAsset_Id(1L)).thenReturn(Collections.singletonList(existingDowntime));
+
+        CustomException exception = assertThrows(CustomException.class, () -> assetDowntimeService.update(1L, patchDTO));
+
+        assertEquals("The downtimes can't interweave", exception.getMessage());
+        assertEquals(HttpStatus.NOT_ACCEPTABLE, exception.getHttpStatus());
+    }
 }
