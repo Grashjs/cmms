@@ -22,6 +22,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 
+import com.grash.advancedsearch.FilterField;
+import com.grash.model.enums.Priority;
+import com.grash.model.CompanySettings;
+import com.grash.model.GeneralPreferences;
+
 import javax.persistence.EntityManager;
 import java.util.Collections;
 import java.util.Date;
@@ -74,6 +79,7 @@ class RequestServiceTest {
 
         assertNotNull(result);
         assertEquals(request.getId(), result.getId());
+        assertEquals("R000001", result.getCustomId());
         verify(requestRepository).saveAndFlush(request);
         verify(em).refresh(request);
     }
@@ -175,5 +181,193 @@ class RequestServiceTest {
                 .thenReturn(Collections.singletonList(request));
 
         assertEquals(1, requestService.findByCategoryAndCreatedAtBetween(1L, start, end).size());
+    }
+
+    @Test
+    void createWorkOrderFromRequest_withAutoAssign() {
+        OwnUser creator = new OwnUser();
+        Company company = new Company();
+        GeneralPreferences generalPreferences = new GeneralPreferences();
+        generalPreferences.setAutoAssignRequests(true);
+        CompanySettings companySettings = new CompanySettings();
+        companySettings.setGeneralPreferences(generalPreferences);
+        company.setCompanySettings(companySettings);
+        creator.setCompany(company);
+
+        WorkOrder workOrder = new WorkOrder();
+        workOrder.setPrimaryUser(new OwnUser());
+
+        when(workOrderService.getWorkOrderFromWorkOrderBase(request)).thenReturn(workOrder);
+        when(workOrderService.create(any(WorkOrder.class), any(Company.class))).thenReturn(workOrder);
+
+        WorkOrder result = requestService.createWorkOrderFromRequest(request, creator);
+
+        assertNotNull(result);
+        verify(requestRepository).save(request);
+    }
+
+    @Test
+    void createWorkOrderFromRequest_withoutAutoAssign() {
+        OwnUser creator = new OwnUser();
+        Company company = new Company();
+        GeneralPreferences generalPreferences = new GeneralPreferences();
+        generalPreferences.setAutoAssignRequests(false);
+        CompanySettings companySettings = new CompanySettings();
+        companySettings.setGeneralPreferences(generalPreferences);
+        company.setCompanySettings(companySettings);
+        creator.setCompany(company);
+
+        WorkOrder workOrder = new WorkOrder();
+
+        when(workOrderService.getWorkOrderFromWorkOrderBase(request)).thenReturn(workOrder);
+        when(workOrderService.create(any(WorkOrder.class), any(Company.class))).thenReturn(workOrder);
+
+        WorkOrder result = requestService.createWorkOrderFromRequest(request, creator);
+
+        assertNotNull(result);
+        verify(requestRepository).save(request);
+    }
+
+    @Test
+    void createWorkOrderFromRequest_withNullPrimaryUser() {
+        OwnUser creator = new OwnUser();
+        Company company = new Company();
+        GeneralPreferences generalPreferences = new GeneralPreferences();
+        generalPreferences.setAutoAssignRequests(true);
+        CompanySettings companySettings = new CompanySettings();
+        companySettings.setGeneralPreferences(generalPreferences);
+        company.setCompanySettings(companySettings);
+        creator.setCompany(company);
+
+        WorkOrder workOrder = new WorkOrder();
+
+        when(workOrderService.getWorkOrderFromWorkOrderBase(request)).thenReturn(workOrder);
+        when(workOrderService.create(any(WorkOrder.class), any(Company.class))).thenReturn(workOrder);
+
+        WorkOrder result = requestService.createWorkOrderFromRequest(request, creator);
+
+        assertNotNull(result);
+        assertEquals(creator, result.getPrimaryUser());
+        verify(requestRepository).save(request);
+    }
+
+    @Test
+    void findBySearchCriteria_withPriority() {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        FilterField filterField = new FilterField();
+        filterField.setField("priority");
+        filterField.setValues(Collections.singletonList(Priority.HIGH.toString()));
+        searchCriteria.getFilterFields().add(filterField);
+
+        Page<Request> page = new PageImpl<>(Collections.singletonList(request));
+        when(requestRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+        when(requestMapper.toShowDto(any(Request.class))).thenReturn(new RequestShowDTO());
+
+        Page<RequestShowDTO> result = requestService.findBySearchCriteria(searchCriteria);
+
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void findBySearchCriteria_withStatusCancelled() {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        FilterField filterField = new FilterField();
+        filterField.setField("status");
+        filterField.setValues(Collections.singletonList("CANCELLED"));
+        searchCriteria.getFilterFields().add(filterField);
+
+        Page<Request> page = new PageImpl<>(Collections.singletonList(request));
+        when(requestRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+        when(requestMapper.toShowDto(any(Request.class))).thenReturn(new RequestShowDTO());
+
+        Page<RequestShowDTO> result = requestService.findBySearchCriteria(searchCriteria);
+
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void findBySearchCriteria_withStatusApproved() {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        FilterField filterField = new FilterField();
+        filterField.setField("status");
+        filterField.setValues(Collections.singletonList("APPROVED"));
+        searchCriteria.getFilterFields().add(filterField);
+
+        Page<Request> page = new PageImpl<>(Collections.singletonList(request));
+        when(requestRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+        when(requestMapper.toShowDto(any(Request.class))).thenReturn(new RequestShowDTO());
+
+        Page<RequestShowDTO> result = requestService.findBySearchCriteria(searchCriteria);
+
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void findBySearchCriteria_withStatusPending() {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        FilterField filterField = new FilterField();
+        filterField.setField("status");
+        filterField.setValues(Collections.singletonList("PENDING"));
+        searchCriteria.getFilterFields().add(filterField);
+
+        Page<Request> page = new PageImpl<>(Collections.singletonList(request));
+        when(requestRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+        when(requestMapper.toShowDto(any(Request.class))).thenReturn(new RequestShowDTO());
+
+        Page<RequestShowDTO> result = requestService.findBySearchCriteria(searchCriteria);
+
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void findBySearchCriteria_withStatusUnknown() {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        FilterField filterField = new FilterField();
+        filterField.setField("status");
+        filterField.setValues(Collections.singletonList("UNKNOWN"));
+        searchCriteria.getFilterFields().add(filterField);
+
+        Page<Request> page = new PageImpl<>(Collections.singletonList(request));
+        when(requestRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+        when(requestMapper.toShowDto(any(Request.class))).thenReturn(new RequestShowDTO());
+
+        Page<RequestShowDTO> result = requestService.findBySearchCriteria(searchCriteria);
+
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void isRequestInCompany_withOptionalTrueAndRequestNull() {
+        assertTrue(requestService.isRequestInCompany(null, 1L, true));
+    }
+
+    @Test
+    void isRequestInCompany_withOptionalTrueAndRequestInCompany() {
+        when(requestRepository.findById(1L)).thenReturn(Optional.of(request));
+        assertTrue(requestService.isRequestInCompany(request, 1L, true));
+    }
+
+    @Test
+    void isRequestInCompany_withOptionalTrueAndRequestNotInCompany() {
+        when(requestRepository.findById(1L)).thenReturn(Optional.of(request));
+        assertFalse(requestService.isRequestInCompany(request, 2L, true));
+    }
+
+    @Test
+    void isRequestInCompany_withOptionalFalseAndRequestInCompany() {
+        when(requestRepository.findById(1L)).thenReturn(Optional.of(request));
+        assertTrue(requestService.isRequestInCompany(request, 1L, false));
+    }
+
+    @Test
+    void isRequestInCompany_withOptionalFalseAndRequestNotInCompany() {
+        when(requestRepository.findById(1L)).thenReturn(Optional.of(request));
+        assertFalse(requestService.isRequestInCompany(request, 2L, false));
+    }
+
+    @Test
+    void isRequestInCompany_withOptionalFalseAndRequestNotFound() {
+        when(requestRepository.findById(1L)).thenReturn(Optional.empty());
+        assertFalse(requestService.isRequestInCompany(request, 1L, false));
     }
 }

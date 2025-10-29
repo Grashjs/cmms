@@ -340,6 +340,19 @@ class AssetServiceTest {
                             assetService.importAsset(asset, assetImportDTO, company);
                         }
                         verify(assetRepository, times(1)).save(any(Asset.class));        }
+
+        @Test
+        void testImportAssetLocationNotFound() {
+            final AssetImportDTO assetImportDTO = new AssetImportDTO();
+            assetImportDTO.setLocationName("NonExistentLocation");
+
+            when(locationService.findByNameIgnoreCaseAndCompany(any(), any())).thenReturn(Collections.emptyList());
+
+            assetService.importAsset(asset, assetImportDTO, company);
+
+            assertNull(asset.getLocation());
+            verify(assetRepository, times(1)).save(any(Asset.class));
+        }
     }
 
     @Nested
