@@ -1,8 +1,8 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.VendorPatchDTO;
-import com.grash.dto.VendorShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.VendorMapper;
 import com.grash.model.Company;
@@ -122,14 +122,14 @@ class VendorServiceTest {
     @Test
     void findBySearchCriteria() {
         Page<Vendor> page = new PageImpl<>(Collections.singletonList(vendor));
-        when(vendorRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+        lenient().when(vendorRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
 
         SearchCriteria searchCriteria = new SearchCriteria();
         searchCriteria.setPageNum(0);
         searchCriteria.setPageSize(10);
         searchCriteria.setSortField("id");
         searchCriteria.setDirection(Sort.Direction.ASC);
-        searchCriteria.setFilterFields(Collections.emptyList());
+        searchCriteria.setFilterFields(Collections.singletonList(FilterField.builder().field("name").operation("eq").value("Test").build()));
 
         Page<Vendor> result = vendorService.findBySearchCriteria(searchCriteria);
 
