@@ -9,6 +9,7 @@ import com.grash.model.Reading;
 import com.grash.repository.ReadingRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -52,75 +53,103 @@ class ReadingServiceTest {
         reading.setMeter(meter);
     }
 
-    @Test
-    void create() {
-        when(readingRepository.save(any(Reading.class))).thenReturn(reading);
+    @Nested
+    class Create {
+        @Test
+        void create() {
+            when(readingRepository.save(any(Reading.class))).thenReturn(reading);
 
-        Reading result = readingService.create(reading);
+            Reading result = readingService.create(reading);
 
-        assertNotNull(result);
-        assertEquals(reading.getId(), result.getId());
-        verify(readingRepository).save(reading);
+            assertNotNull(result);
+            assertEquals(reading.getId(), result.getId());
+            verify(readingRepository).save(reading);
+        }
     }
 
-    @Test
-    void update_whenExists() {
-        ReadingPatchDTO patchDTO = new ReadingPatchDTO();
-        when(readingRepository.existsById(1L)).thenReturn(true);
-        when(readingRepository.findById(1L)).thenReturn(Optional.of(reading));
-        when(readingRepository.save(any(Reading.class))).thenReturn(reading);
-        when(readingMapper.updateReading(any(Reading.class), any(ReadingPatchDTO.class))).thenReturn(reading);
+    @Nested
+    class Update {
+        @Test
+        void update_whenExists() {
+            ReadingPatchDTO patchDTO = new ReadingPatchDTO();
+            when(readingRepository.existsById(1L)).thenReturn(true);
+            when(readingRepository.findById(1L)).thenReturn(Optional.of(reading));
+            when(readingRepository.save(any(Reading.class))).thenReturn(reading);
+            when(readingMapper.updateReading(any(Reading.class), any(ReadingPatchDTO.class))).thenReturn(reading);
 
-        Reading result = readingService.update(1L, patchDTO);
+            Reading result = readingService.update(1L, patchDTO);
 
-        assertNotNull(result);
-        assertEquals(reading.getId(), result.getId());
-        verify(readingRepository).save(reading);
+            assertNotNull(result);
+            assertEquals(reading.getId(), result.getId());
+            verify(readingRepository).save(reading);
+        }
+
+        @Test
+        void update_whenNotExists_shouldThrowException() {
+            ReadingPatchDTO patchDTO = new ReadingPatchDTO();
+            when(readingRepository.existsById(1L)).thenReturn(false);
+
+            CustomException exception = assertThrows(CustomException.class, () -> readingService.update(1L, patchDTO));
+
+            assertEquals("Not found", exception.getMessage());
+            assertEquals(HttpStatus.NOT_FOUND, exception.getHttpStatus());
+        }
     }
 
-    @Test
-    void update_whenNotExists_shouldThrowException() {
-        ReadingPatchDTO patchDTO = new ReadingPatchDTO();
-        when(readingRepository.existsById(1L)).thenReturn(false);
+    @Nested
+    class GetAll {
+        @Test
+        void getAll() {
+            when(readingRepository.findAll()).thenReturn(Collections.singletonList(reading));
 
-        CustomException exception = assertThrows(CustomException.class, () -> readingService.update(1L, patchDTO));
-
-        assertEquals("Not found", exception.getMessage());
-        assertEquals(HttpStatus.NOT_FOUND, exception.getHttpStatus());
+            assertEquals(1, readingService.getAll().size());
+        }
     }
 
-    @Test
-    void getAll() {
-        when(readingRepository.findAll()).thenReturn(Collections.singletonList(reading));
-
-        assertEquals(1, readingService.getAll().size());
+    @Nested
+    class Delete {
+        @Test
+        void delete() {
+            doNothing().when(readingRepository).deleteById(1L);
+            readingService.delete(1L);
+            verify(readingRepository).deleteById(1L);
+        }
     }
 
-    @Test
-    void delete() {
-        doNothing().when(readingRepository).deleteById(1L);
-        readingService.delete(1L);
-        verify(readingRepository).deleteById(1L);
+    @Nested
+    class FindById {
+        @Test
+        void findById_whenFound_shouldReturnOptionalOfReading() {
+            when(readingRepository.findById(1L)).thenReturn(Optional.of(reading));
+
+            assertTrue(readingService.findById(1L).isPresent());
+        }
+
+        @Test
+        void findById_whenNotFound_shouldReturnEmptyOptional() {
+            when(readingRepository.findById(1L)).thenReturn(Optional.empty());
+
+            assertFalse(readingService.findById(1L).isPresent());
+        }
     }
 
-    @Test
-    void findById() {
-        when(readingRepository.findById(1L)).thenReturn(Optional.of(reading));
+    @Nested
+    class FindByCompany {
+        @Test
+        void findByCompany() {
+            when(readingRepository.findByCompany_Id(1L)).thenReturn(Collections.singletonList(reading));
 
-        assertTrue(readingService.findById(1L).isPresent());
+            assertEquals(1, readingService.findByCompany(1L).size());
+        }
     }
 
-    @Test
-    void findByCompany() {
-        when(readingRepository.findByCompany_Id(1L)).thenReturn(Collections.singletonList(reading));
+    @Nested
+    class FindByMeter {
+        @Test
+        void findByMeter() {
+            when(readingRepository.findByMeter_Id(1L)).thenReturn(Collections.singletonList(reading));
 
-        assertEquals(1, readingService.findByCompany(1L).size());
-    }
-
-    @Test
-    void findByMeter() {
-        when(readingRepository.findByMeter_Id(1L)).thenReturn(Collections.singletonList(reading));
-
-        assertEquals(1, readingService.findByMeter(1L).size());
+            assertEquals(1, readingService.findByMeter(1L).size());
+        }
     }
 }
