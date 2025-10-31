@@ -211,6 +211,27 @@ class PreventiveMaintenanceServiceTest {
         }
 
         @Test
+        @DisplayName("isPreventiveMaintenanceInCompany should return true for optional matching company")
+        void isPreventiveMaintenanceInCompany_optionalMatchingCompany() {
+            when(preventiveMaintenanceRepository.findById(1L)).thenReturn(Optional.of(preventiveMaintenance));
+            assertTrue(preventiveMaintenanceService.isPreventiveMaintenanceInCompany(preventiveMaintenance, 1L, true));
+        }
+
+        @Test
+        @DisplayName("isPreventiveMaintenanceInCompany should return false for optional non-matching company")
+        void isPreventiveMaintenanceInCompany_optionalNonMatchingCompany() {
+            when(preventiveMaintenanceRepository.findById(1L)).thenReturn(Optional.of(preventiveMaintenance));
+            assertFalse(preventiveMaintenanceService.isPreventiveMaintenanceInCompany(preventiveMaintenance, 2L, true));
+        }
+
+        @Test
+        @DisplayName("isPreventiveMaintenanceInCompany should return false for optional non-existent PM")
+        void isPreventiveMaintenanceInCompany_optionalNonExistent() {
+            when(preventiveMaintenanceRepository.findById(1L)).thenReturn(Optional.empty());
+            assertFalse(preventiveMaintenanceService.isPreventiveMaintenanceInCompany(preventiveMaintenance, 1L, true));
+        }
+
+        @Test
         @DisplayName("should get events")
         void getEvents() {
             Calendar cal = Calendar.getInstance();
@@ -241,6 +262,60 @@ class PreventiveMaintenanceServiceTest {
             List<CalendarEvent<PreventiveMaintenance>> events = preventiveMaintenanceService.getEvents(endDate, 1L);
 
             assertTrue(events.isEmpty());
+        }
+
+        @Test
+        @DisplayName("should get events with endsOn before end date")
+        void getEvents_withEndsOnBeforeEnd() {
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.WEEK_OF_YEAR, 2);
+            preventiveMaintenance.getSchedule().setEndsOn(cal.getTime());
+
+            cal.add(Calendar.MONTH, 1);
+            Date endDate = cal.getTime();
+
+            when(preventiveMaintenanceRepository.findByCreatedAtBeforeAndCompany_Id(any(), anyLong()))
+                    .thenReturn(Collections.singletonList(preventiveMaintenance));
+
+            List<CalendarEvent<PreventiveMaintenance>> events = preventiveMaintenanceService.getEvents(endDate, 1L);
+
+            assertEquals(3, events.size());
+        }
+
+        @Test
+        @DisplayName("should get events with endsOn after end date")
+        void getEvents_withEndsOnAfterEnd() {
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.MONTH, 2);
+            preventiveMaintenance.getSchedule().setEndsOn(cal.getTime());
+
+            cal.add(Calendar.MONTH, -1);
+            Date endDate = cal.getTime();
+
+            when(preventiveMaintenanceRepository.findByCreatedAtBeforeAndCompany_Id(any(), anyLong()))
+                    .thenReturn(Collections.singletonList(preventiveMaintenance));
+
+            List<CalendarEvent<PreventiveMaintenance>> events = preventiveMaintenanceService.getEvents(endDate, 1L);
+
+            assertTrue(events.size() >= 4 && events.size() <= 5);
+        }
+
+        @Test
+        @DisplayName("should get one event if starts after end date")
+        void getEvents_startsAfterEnd() {
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.MONTH, 2);
+            preventiveMaintenance.getSchedule().setStartsOn(cal.getTime());
+
+            cal.add(Calendar.MONTH, -1);
+            Date endDate = cal.getTime();
+
+            when(preventiveMaintenanceRepository.findByCreatedAtBeforeAndCompany_Id(any(), anyLong()))
+                    .thenReturn(Collections.singletonList(preventiveMaintenance));
+
+            List<CalendarEvent<PreventiveMaintenance>> events = preventiveMaintenanceService.getEvents(endDate, 1L);
+
+            assertEquals(1, events.size());
         }
     }
 }
