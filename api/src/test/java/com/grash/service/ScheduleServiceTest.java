@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -166,6 +167,15 @@ class ScheduleServiceTest {
     @DisplayName("Scheduling Logic")
     class SchedulingTests {
 
+        @BeforeEach
+        void cleanUpTimers() throws NoSuchFieldException, IllegalAccessException {
+            // Clean up timers state before each test to ensure isolation
+            Field timersStateField = ScheduleService.class.getDeclaredField("timersState");
+            timersStateField.setAccessible(true);
+            Map<Long, Map<String, Timer>> timersState = (Map<Long, Map<String, Timer>>) timersStateField.get(scheduleService);
+            timersState.clear();
+        }
+
         @Test
         @DisplayName("should disable schedule if it becomes stale")
         void scheduleWorkOrder_stale() {
@@ -193,7 +203,7 @@ class ScheduleServiceTest {
 
             verify(scheduleRepository, never()).save(any(Schedule.class));
         }
-        
+
         @Test
         @DisplayName("should not schedule if endsOn is in the past")
         void scheduleWorkOrder_ended() {
@@ -209,11 +219,90 @@ class ScheduleServiceTest {
         }
 
         @Test
+        @DisplayName("should schedule work order with notification and stop timers")
+        void scheduleWorkOrder_withNotificationAndStop() throws NoSuchFieldException, IllegalAccessException {
+            // Arrange
+            Page<WorkOrder> emptyPage = new PageImpl<>(Collections.emptyList());
+            when(workOrderService.findLastByPM(anyLong(), anyInt())).thenReturn(emptyPage);
+
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DATE, 30);
+            schedule.setEndsOn(cal.getTime());
+
+            // Act
+            scheduleService.scheduleWorkOrder(schedule);
+
+            // Assert
+            Field timersStateField = ScheduleService.class.getDeclaredField("timersState");
+            timersStateField.setAccessible(true);
+            Map<Long, Map<String, Timer>> timersState = (Map<Long, Map<String, Timer>>) timersStateField.get(scheduleService);
+
+            assertTrue(timersState.containsKey(1L));
+            Map<String, Timer> localTimers = timersState.get(1L);
+            assertTrue(localTimers.containsKey("wo_creation"));
+            assertTrue(localTimers.containsKey("notification"));
+            assertTrue(localTimers.containsKey("stop"));
+
+            // Clean up timers
+            scheduleService.stopScheduleTimers(1L);
+        }
+
+        @Test
+        @DisplayName("should schedule work order without notification timer")
+        void scheduleWorkOrder_withoutNotification() throws NoSuchFieldException, IllegalAccessException {
+            // Arrange
+            schedule.getPreventiveMaintenance().getCompany().getCompanySettings().getGeneralPreferences().setDaysBeforePrevMaintNotification(0);
+            Page<WorkOrder> emptyPage = new PageImpl<>(Collections.emptyList());
+            when(workOrderService.findLastByPM(anyLong(), anyInt())).thenReturn(emptyPage);
+
+            // Act
+            scheduleService.scheduleWorkOrder(schedule);
+
+            // Assert
+            Field timersStateField = ScheduleService.class.getDeclaredField("timersState");
+            timersStateField.setAccessible(true);
+            Map<Long, Map<String, Timer>> timersState = (Map<Long, Map<String, Timer>>) timersStateField.get(scheduleService);
+
+            assertTrue(timersState.containsKey(1L));
+            Map<String, Timer> localTimers = timersState.get(1L);
+            assertTrue(localTimers.containsKey("wo_creation"));
+            assertFalse(localTimers.containsKey("notification"));
+            assertFalse(localTimers.containsKey("stop"));
+
+            // Clean up timers
+            scheduleService.stopScheduleTimers(1L);
+        }
+
+        @Test
         @DisplayName("should stop schedule timers")
-        void stopScheduleTimers() {
-            // This test is limited because we can't easily access the timersState map.
-            // We will just call the method to ensure it doesn't throw an exception.
-            assertDoesNotThrow(() -> scheduleService.stopScheduleTimers(1L));
+        void stopScheduleTimers() throws NoSuchFieldException, IllegalAccessException {
+            // Use reflection to access the private timersState map
+            Field timersStateField = ScheduleService.class.getDeclaredField("timersState");
+            timersStateField.setAccessible(true);
+            Map<Long, Map<String, Timer>> timersState = (Map<Long, Map<String, Timer>>) timersStateField.get(scheduleService);
+
+            // Prepare mock timers
+            Timer woCreationTimer = mock(Timer.class);
+            Timer notificationTimer = mock(Timer.class);
+            Map<String, Timer> localTimers = new HashMap<>();
+            localTimers.put("wo_creation", woCreationTimer);
+            localTimers.put("notification", notificationTimer);
+            timersState.put(1L, localTimers);
+
+            // Call the method to test
+            scheduleService.stopScheduleTimers(1L);
+
+            // Verify timers are cancelled and purged
+            verify(woCreationTimer).cancel();
+            verify(woCreationTimer).purge();
+            verify(notificationTimer).cancel();
+            verify(notificationTimer).purge();
+        }
+
+        @Test
+        @DisplayName("should not throw when stopping non-existent timers")
+        void stopScheduleTimers_nonExistent() {
+            assertDoesNotThrow(() -> scheduleService.stopScheduleTimers(99L));
         }
 
         @Test
