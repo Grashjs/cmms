@@ -153,6 +153,41 @@ class UserServiceTest {
         }
 
         @Test
+        @DisplayName("Should send email to super admins on signup")
+        void signupNewUserAndSendEmailToSuperAdmins() {
+            UserSignupRequest userSignupRequest = new UserSignupRequest();
+            userSignupRequest.setEmail("newuser@test.com");
+            userSignupRequest.setPassword("password");
+            userSignupRequest.setCompanyName("New Company");
+
+            ReflectionTestUtils.setField(userService, "PUBLIC_API_URL", "http://remotehost");
+            ReflectionTestUtils.setField(userService, "recipients", new String[]{"admin@test.com"});
+            ReflectionTestUtils.setField(userService, "enableMails", true);
+
+            BrandConfig brandConfig = new BrandConfig();
+            brandConfig.setName("Test Brand");
+            brandConfig.setShortName("TB");
+            when(brandingService.getBrandConfig()).thenReturn(brandConfig);
+
+            when(userRepository.existsByEmailIgnoreCase("newuser@test.com")).thenReturn(false);
+            when(userMapper.toModel(any(UserSignupRequest.class))).thenAnswer(invocation -> {
+                UserSignupRequest req = invocation.getArgument(0);
+                OwnUser newUser = new OwnUser();
+                newUser.setEmail(req.getEmail());
+                newUser.setPassword(req.getPassword());
+                newUser.setCompany(company);
+                return newUser;
+            });
+            when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
+            when(utils.generateStringId()).thenReturn("randomId");
+            when(subscriptionPlanService.findByCode("BUSINESS")).thenReturn(Optional.of(new SubscriptionPlan()));
+            when(currencyService.findByCode("$")).thenReturn(Optional.of(new Currency()));
+            when(userRepository.save(any(OwnUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            userService.signup(userSignupRequest);
+        }
+
+        @Test
         @DisplayName("Should throw exception when email already exists")
         void signupWithExistingEmail() {
             UserSignupRequest userSignupRequest = new UserSignupRequest();
@@ -196,6 +231,29 @@ class UserServiceTest {
 
             assertNotNull(updatedUser);
             assertEquals("Updated", updatedUser.getFirstName());
+        }
+
+        @Test
+        @DisplayName("Should update user password")
+        void updateUserPassword() {
+            UserPatchDTO patchDTO = new UserPatchDTO();
+            patchDTO.setNewPassword("newPassword");
+
+            when(userRepository.existsById(1L)).thenReturn(true);
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            when(passwordEncoder.encode("newPassword")).thenReturn("encodedNewPassword");
+            when(userMapper.updateUser(user, patchDTO)).thenAnswer(invocation -> {
+                user.setPassword("encodedNewPassword");
+                return user;
+            });
+            when(userRepository.saveAndFlush(any(OwnUser.class))).thenReturn(user);
+
+            ReflectionTestUtils.setField(userService, "enableInvitationViaEmail", false);
+
+            OwnUser updatedUser = userService.update(1L, patchDTO);
+
+            assertNotNull(updatedUser);
+            assertEquals("encodedNewPassword", updatedUser.getPassword());
         }
 
         @Test
@@ -248,6 +306,22 @@ class UserServiceTest {
             String token = userService.signin("test@test.com", "password", "ADMIN");
 
             assertEquals("test-token", token);
+        }
+
+        @Test
+        @DisplayName("Should throw exception for wrong role")
+        void signinWithWrongRole() {
+            Authentication authentication = mock(Authentication.class);
+            Collection authorities = Collections.singletonList((GrantedAuthority) () -> "ROLE_USER");
+            when(authentication.getAuthorities()).thenReturn(authorities);
+            when(authenticationManager.authenticate(any())).thenReturn(authentication);
+
+            CustomException exception = assertThrows(CustomException.class, () -> {
+                userService.signin("test@test.com", "password", "ADMIN");
+            });
+
+            assertEquals("Invalid credentials", exception.getMessage());
+            assertEquals(HttpStatus.FORBIDDEN, exception.getHttpStatus());
         }
 
         @Test
@@ -390,6 +464,22 @@ class UserServiceTest {
         @Test
         @DisplayName("Should return false if user is not in company")
         void isUserNotInCompany() {
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+            assertFalse(userService.isUserInCompany(user, 2L, false));
+        }
+
+        @Test
+        @DisplayName("Should return false if user is not in company and optional is true")
+        void isUserNotInCompanyOptional() {
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+            assertFalse(userService.isUserInCompany(user, 2L, true));
+        }
+
+        @Test
+        @DisplayName("Should return false if user is not in company and optional is false")
+        void isUserNotInCompanyNotOptional() {
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
             assertFalse(userService.isUserInCompany(user, 2L, false));
