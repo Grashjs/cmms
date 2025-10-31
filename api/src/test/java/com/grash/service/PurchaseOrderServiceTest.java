@@ -191,6 +191,27 @@ class PurchaseOrderServiceTest {
         }
 
         @Test
+        @DisplayName("isPurchaseOrderInCompany should return true for optional matching company")
+        void isPurchaseOrderInCompany_optionalMatchingCompany() {
+            when(purchaseOrderRepository.findById(1L)).thenReturn(Optional.of(purchaseOrder));
+            assertTrue(purchaseOrderService.isPurchaseOrderInCompany(purchaseOrder, 1L, true));
+        }
+
+        @Test
+        @DisplayName("isPurchaseOrderInCompany should return false for optional non-matching company")
+        void isPurchaseOrderInCompany_optionalNonMatchingCompany() {
+            when(purchaseOrderRepository.findById(1L)).thenReturn(Optional.of(purchaseOrder));
+            assertFalse(purchaseOrderService.isPurchaseOrderInCompany(purchaseOrder, 2L, true));
+        }
+
+        @Test
+        @DisplayName("isPurchaseOrderInCompany should return false for optional non-existent PO")
+        void isPurchaseOrderInCompany_optionalNonExistent() {
+            when(purchaseOrderRepository.findById(1L)).thenReturn(Optional.empty());
+            assertFalse(purchaseOrderService.isPurchaseOrderInCompany(purchaseOrder, 1L, true));
+        }
+
+        @Test
         @DisplayName("should find by search criteria")
         void findBySearchCriteria() {
             SearchCriteria searchCriteria = new SearchCriteria();
@@ -210,6 +231,29 @@ class PurchaseOrderServiceTest {
             assertEquals(1, result.getTotalElements());
             assertEquals(dto, result.getContent().get(0));
             verify(purchaseOrderRepository).findAll((Specification<PurchaseOrder>) any(), any(Pageable.class));
+            verify(purchaseOrderMapper).toShowDto(purchaseOrder);
+        }
+
+        @Test
+        @DisplayName("should find by search criteria with empty filters")
+        void findBySearchCriteria_emptyFilters() {
+            SearchCriteria searchCriteria = new SearchCriteria();
+            searchCriteria.setFilterFields(Collections.emptyList());
+            searchCriteria.setPageNum(0);
+            searchCriteria.setPageSize(10);
+            searchCriteria.setSortField("id");
+
+            Page<PurchaseOrder> page = new PageImpl<>(Collections.singletonList(purchaseOrder));
+            PurchaseOrderShowDTO dto = new PurchaseOrderShowDTO();
+
+            when(purchaseOrderRepository.findAll((Specification<PurchaseOrder>) isNull(), any(Pageable.class))).thenReturn(page);
+            when(purchaseOrderMapper.toShowDto(any(PurchaseOrder.class))).thenReturn(dto);
+
+            Page<PurchaseOrderShowDTO> result = purchaseOrderService.findBySearchCriteria(searchCriteria);
+
+            assertEquals(1, result.getTotalElements());
+            assertEquals(dto, result.getContent().get(0));
+            verify(purchaseOrderRepository).findAll((Specification<PurchaseOrder>) isNull(), any(Pageable.class));
             verify(purchaseOrderMapper).toShowDto(purchaseOrder);
         }
     }
