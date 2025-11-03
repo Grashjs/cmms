@@ -1,13 +1,15 @@
-
 package com.grash.service;
 
 import com.grash.dto.WorkOrderPatchDTO;
+import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.Company;
 import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
 import com.grash.repository.WorkOrderRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
 
 import javax.persistence.EntityManager;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -104,75 +107,160 @@ class WorkOrderServiceTest {
         workOrderService.setDeps(laborService, additionalCostService, partQuantityService);
     }
 
-    @Test
-    void testCreateWorkOrder() {
-        when(customSequenceService.getNextWorkOrderSequence(any(Company.class))).thenReturn(1L);
-        when(workOrderRepository.saveAndFlush(any(WorkOrder.class))).thenReturn(workOrder);
-        WorkOrder createdWorkOrder = workOrderService.create(workOrder, company);
-        assertNotNull(createdWorkOrder);
-        assertEquals("Test Work Order", createdWorkOrder.getTitle());
-        verify(workOrderRepository, times(1)).saveAndFlush(workOrder);
-        verify(em, times(1)).refresh(any(WorkOrder.class));
+    @Nested
+    @DisplayName("Create Tests")
+    class CreateTests {
+        @Test
+        @DisplayName("Should create work order successfully")
+        void testCreateWorkOrder() {
+            when(customSequenceService.getNextWorkOrderSequence(any(Company.class))).thenReturn(1L);
+            when(workOrderRepository.saveAndFlush(any(WorkOrder.class))).thenReturn(workOrder);
+            WorkOrder createdWorkOrder = workOrderService.create(workOrder, company);
+            assertNotNull(createdWorkOrder);
+            assertEquals("Test Work Order", createdWorkOrder.getTitle());
+            verify(workOrderRepository, times(1)).saveAndFlush(workOrder);
+            verify(em, times(1)).refresh(any(WorkOrder.class));
+        }
     }
 
-    @Test
-    void testUpdateWorkOrder() {
-        WorkOrderPatchDTO patchDTO = new WorkOrderPatchDTO();
-        patchDTO.setTitle("Updated Work Order");
+    @Nested
+    @DisplayName("Update Tests")
+    class UpdateTests {
+        @Test
+        @DisplayName("Should update work order successfully")
+        void testUpdateWorkOrder() {
+            WorkOrderPatchDTO patchDTO = new WorkOrderPatchDTO();
+            patchDTO.setTitle("Updated Work Order");
 
-        when(workOrderRepository.existsById(1L)).thenReturn(true);
-        when(workOrderRepository.findById(1L)).thenReturn(Optional.of(workOrder));
-        when(workOrderMapper.updateWorkOrder(any(WorkOrder.class), any(WorkOrderPatchDTO.class))).thenReturn(workOrder);
-        when(workOrderRepository.saveAndFlush(any(WorkOrder.class))).thenReturn(workOrder);
+            when(workOrderRepository.existsById(1L)).thenReturn(true);
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(workOrder));
+            when(workOrderMapper.updateWorkOrder(any(WorkOrder.class), any(WorkOrderPatchDTO.class))).thenReturn(workOrder);
+            when(workOrderRepository.saveAndFlush(any(WorkOrder.class))).thenReturn(workOrder);
 
-        WorkOrder updatedWorkOrder = workOrderService.update(1L, patchDTO, user);
+            WorkOrder updatedWorkOrder = workOrderService.update(1L, patchDTO, user);
 
-        assertNotNull(updatedWorkOrder);
-        verify(em, times(1)).refresh(any(WorkOrder.class));
+            assertNotNull(updatedWorkOrder);
+            verify(em, times(1)).refresh(any(WorkOrder.class));
+        }
+
+        @Test
+        @DisplayName("Should throw exception when work order does not exist")
+        void testUpdateWorkOrderNotFound() {
+            WorkOrderPatchDTO patchDTO = new WorkOrderPatchDTO();
+            patchDTO.setTitle("Updated Work Order");
+
+            when(workOrderRepository.existsById(1L)).thenReturn(false);
+
+            assertThrows(CustomException.class, () -> workOrderService.update(1L, patchDTO, user));
+        }
+
+        @Test
+        @DisplayName("Should return null when user is not authorized to update")
+        void testUpdateWorkOrderNotAuthorized() {
+            WorkOrderPatchDTO patchDTO = new WorkOrderPatchDTO();
+            patchDTO.setTitle("Updated Work Order");
+
+            Company otherCompany = new Company();
+            otherCompany.setId(2L);
+            user.setCompany(otherCompany);
+
+            when(workOrderRepository.existsById(1L)).thenReturn(true);
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(workOrder));
+
+            assertNull(workOrderService.update(1L, patchDTO, user));
+        }
     }
 
-    @Test
-    void testGetAllWorkOrders() {
-        workOrderService.getAll();
-        verify(workOrderRepository, times(1)).findAll();
+    @Nested
+    @DisplayName("Read Tests")
+    class ReadTests {
+        @Test
+        @DisplayName("Should get all work orders")
+        void testGetAllWorkOrders() {
+            when(workOrderRepository.findAll()).thenReturn(Collections.singletonList(workOrder));
+            workOrderService.getAll();
+            verify(workOrderRepository, times(1)).findAll();
+        }
+
+        @Test
+        @DisplayName("Should find work order by id")
+        void testFindWorkOrderById() {
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(workOrder));
+            Optional<WorkOrder> foundWorkOrder = workOrderService.findById(1L);
+            assertTrue(foundWorkOrder.isPresent());
+            assertEquals("Test Work Order", foundWorkOrder.get().getTitle());
+            verify(workOrderRepository, times(1)).findById(1L);
+        }
+
+        @Test
+        @DisplayName("Should find work orders by company")
+        void testFindByCompany() {
+            when(workOrderRepository.findByCompany_Id(1L)).thenReturn(Collections.singletonList(workOrder));
+            workOrderService.findByCompany(1L);
+            verify(workOrderRepository, times(1)).findByCompany_Id(1L);
+        }
+
+        @Test
+        @DisplayName("Should find work orders by asset")
+        void testFindByAsset() {
+            when(workOrderRepository.findByAsset_Id(1L)).thenReturn(Collections.singletonList(workOrder));
+            workOrderService.findByAsset(1L);
+            verify(workOrderRepository, times(1)).findByAsset_Id(1L);
+        }
+
+        @Test
+        @DisplayName("Should find work orders by location")
+        void testFindByLocation() {
+            when(workOrderRepository.findByLocation_Id(1L)).thenReturn(Collections.singletonList(workOrder));
+            workOrderService.findByLocation(1L);
+            verify(workOrderRepository, times(1)).findByLocation_Id(1L);
+        }
     }
 
-    @Test
-    void testDeleteWorkOrder() {
-        workOrderService.delete(1L);
-        verify(workOrderRepository, times(1)).deleteById(1L);
+    @Nested
+    @DisplayName("Delete Tests")
+    class DeleteTests {
+        @Test
+        @DisplayName("Should delete work order successfully")
+        void testDeleteWorkOrder() {
+            workOrderService.delete(1L);
+            verify(workOrderRepository, times(1)).deleteById(1L);
+        }
     }
 
-    @Test
-    void testFindWorkOrderById() {
-        when(workOrderRepository.findById(1L)).thenReturn(Optional.of(workOrder));
-        Optional<WorkOrder> foundWorkOrder = workOrderService.findById(1L);
-        assertTrue(foundWorkOrder.isPresent());
-        assertEquals("Test Work Order", foundWorkOrder.get().getTitle());
-        verify(workOrderRepository, times(1)).findById(1L);
-    }
+    @Nested
+    @DisplayName("Other Tests")
+    class OtherTests {
+        @Test
+        @DisplayName("Should return true if work order is in company")
+        void testIsWorkOrderInCompany() {
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(workOrder));
+            assertTrue(workOrderService.isWorkOrderInCompany(workOrder, 1L, false));
+        }
 
-    @Test
-    void testFindByCompany() {
-        workOrderService.findByCompany(1L);
-        verify(workOrderRepository, times(1)).findByCompany_Id(1L);
-    }
+        @Test
+        @DisplayName("Should return false if work order is not in company")
+        void testIsWorkOrderNotInCompany() {
+            Company otherCompany = new Company();
+            otherCompany.setId(2L);
+            workOrder.setCompany(otherCompany);
 
-    @Test
-    void testFindByAsset() {
-        workOrderService.findByAsset(1L);
-        verify(workOrderRepository, times(1)).findByAsset_Id(1L);
-    }
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(workOrder));
+            assertFalse(workOrderService.isWorkOrderInCompany(workOrder, 1L, false));
+        }
 
-    @Test
-    void testFindByLocation() {
-        workOrderService.findByLocation(1L);
-        verify(workOrderRepository, times(1)).findByLocation_Id(1L);
-    }
+        @Test
+        @DisplayName("Should return false if work order not found")
+        void testIsWorkOrderInCompanyNotFound() {
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.empty());
+            assertFalse(workOrderService.isWorkOrderInCompany(workOrder, 1L, false));
+        }
 
-    @Test
-    void testIsWorkOrderInCompany() {
-        when(workOrderRepository.findById(1L)).thenReturn(Optional.of(workOrder));
-        assertTrue(workOrderService.isWorkOrderInCompany(workOrder, 1L, false));
+        @Test
+        @DisplayName("Should set dependencies")
+        void testSetDeps() {
+            workOrderService.setDeps(workflowService);
+            workOrderService.setDeps(laborService, additionalCostService, partQuantityService);
+        }
     }
 }
