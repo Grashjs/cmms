@@ -99,7 +99,7 @@ class VendorControllerTest {
         @Test
         @DisplayName("Should return vendors for non-client user")
         void shouldReturnVendorsForNonClientUser() {
-            clientRole.setRoleType(RoleType.ROLE_ADMIN);
+            clientRole.setRoleType(RoleType.ROLE_SUPER_ADMIN);
             Page<Vendor> page = new PageImpl<>(Collections.singletonList(vendor));
             when(userService.whoami(request)).thenReturn(user);
             when(vendorService.findBySearchCriteria(any(SearchCriteria.class))).thenReturn(page);
