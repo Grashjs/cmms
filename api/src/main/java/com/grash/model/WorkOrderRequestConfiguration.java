@@ -24,7 +24,7 @@ public class WorkOrderRequestConfiguration {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "workOrderRequestConfiguration", fetch = FetchType.LAZY)
     private Set<FieldConfiguration> fieldConfigurations = new HashSet<>(createFieldConfigurations(Arrays.asList("asset", "location", "primaryUser", "dueDate", "category", "team"), this, null));
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private CompanySettings companySettings;
 

@@ -28,7 +28,7 @@ public class File extends CompanyAudit {
 
     private boolean hidden = false;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private Task task;

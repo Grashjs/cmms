@@ -22,7 +22,7 @@ public class CustomField {
     @NotNull
     private String value;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Vendor vendor;

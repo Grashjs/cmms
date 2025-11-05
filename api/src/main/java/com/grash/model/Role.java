@@ -53,7 +53,7 @@ public class Role {
     private Set<PermissionEntity> deleteOtherPermissions = new HashSet<>();
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private CompanySettings companySettings;

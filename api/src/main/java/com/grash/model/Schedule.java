@@ -33,7 +33,7 @@ public class Schedule extends Audit {
 
     private Integer dueDateDelay;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @OnDelete(action = OnDeleteAction.CASCADE)
     private PreventiveMaintenance preventiveMaintenance;

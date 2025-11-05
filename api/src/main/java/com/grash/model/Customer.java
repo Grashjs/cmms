@@ -30,7 +30,7 @@ public class Customer extends BasicInfos {
 
     private String billingAddress2;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Currency billingCurrency;
 
     @ManyToMany

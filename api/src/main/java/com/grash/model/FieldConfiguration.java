@@ -28,11 +28,11 @@ public class FieldConfiguration {
     @Builder.Default
     private FieldType fieldType = FieldType.OPTIONAL;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private WorkOrderRequestConfiguration workOrderRequestConfiguration;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private WorkOrderConfiguration workOrderConfiguration;
 

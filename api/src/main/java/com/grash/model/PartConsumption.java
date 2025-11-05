@@ -19,12 +19,12 @@ public class PartConsumption extends CompanyAudit {
     @Min(value = 0L, message = "The value must be positive")
     private double quantity;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Part part;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private WorkOrder workOrder;
 
