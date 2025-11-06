@@ -62,6 +62,7 @@ import { SheetManager } from 'react-native-actions-sheet';
 import LoadingDialog from '../../components/LoadingDialog';
 import WorkOrder from '../../models/workOrder';
 import {
+  DocumentDirectoryPath,
   DownloadDirectoryPath,
   downloadFile,
   DownloadFileOptions
@@ -269,25 +270,33 @@ export default function WODetailsScreen({
     };
   }, [primaryTime, runningTimer]); // Run effect whenever runningTimer changes
 
-  const actualDownload = (uri: string): Promise<any> => {
-    const fileName = workOrder.title;
-    //Define path to store file along with the extension
-    const path = `${DownloadDirectoryPath}/${fileName}.pdf`;
-    //Define options
+  const actualDownload = async (uri: string): Promise<void> => {
+    const rawFileName = workOrder?.title ?? `work-order-${id}`;
+    const fileName = rawFileName.replace(/[\\/:*?"<>|]/g, '_');
+    const directoryPath =
+      Platform.OS === 'ios' ? DocumentDirectoryPath : DownloadDirectoryPath;
+    if (!directoryPath) {
+      throw new Error('Missing download directory path');
+    }
+    const path = `${directoryPath}/${fileName}.pdf`;
     const options: DownloadFileOptions = {
       fromUrl: uri,
       toFile: path
     };
-    //Call downloadFile
     const response = downloadFile(options);
-    return response.promise.then(async (res) => {
-      //Transform response
-      if (res && res.statusCode === 200 && res.bytesWritten > 0) {
-        Linking.openURL(uri);
-      } else {
-        console.log(res);
+    const res = await response.promise;
+
+    if (res && res.statusCode === 200 && res.bytesWritten > 0) {
+      const localFilePath = `file://${path}`;
+      try {
+        await Linking.openURL(localFilePath);
+      } catch (error) {
+        console.error('Failed to open local file, falling back to remote URL', error);
+        await Linking.openURL(uri);
       }
-    });
+    } else {
+      throw new Error('Unable to download work order report');
+    }
   };
   const getRunningTimerDuration = (labor: Labor) => {
     return durationToHours(
