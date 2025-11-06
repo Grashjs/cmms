@@ -135,7 +135,7 @@ Celebrate on how easy this was
 
 ### Mobile app
 
-You can use the [live Android app](https://play.google.com/store/apps/details?id=com.atlas.cmms) and configure it with
+You can use the [Android app](https://play.google.com/store/apps/details?id=com.atlas.cmms) or [iOS App](https://apps.apple.com/fr/app/atlas-cmms/id6751547284) and configure it with
 your custom backend server url
 
 ## Getting help
