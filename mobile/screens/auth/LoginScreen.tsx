@@ -1,4 +1,4 @@
-import { Image, ScrollView, StyleSheet } from 'react-native';
+import { Image, Platform, ScrollView, StyleSheet } from 'react-native';
 import * as Yup from 'yup';
 import { View } from '../../components/Themed';
 import { AuthStackScreenProps } from '../../types';
@@ -10,8 +10,7 @@ import {
   Button,
   HelperText,
   Text,
-  TextInput,
-  useTheme
+  TextInput
 } from 'react-native-paper';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import * as React from 'react';
@@ -25,6 +24,7 @@ export default function LoginScreen({
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { login } = useAuth();
   const theme = useAppTheme();
+  const shouldShowRegistration = Platform.OS !== 'ios';
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const toggleShowPassword = () => setShowPassword((value) => !value);
 
@@ -118,17 +118,23 @@ export default function LoginScreen({
               >
                 {t('login')}
               </Button>
-              <Text style={{ marginVertical: 20 }}>{t('no_account_yet')}</Text>
-              <Button
-                mode={'outlined'}
-                onPress={() => navigation.navigate('Register')}
-                style={{
-                  // @ts-ignore
-                  color: theme.colors.primary
-                }}
-              >
-                {t('register_here')}
-              </Button>
+              {shouldShowRegistration && (
+                <>
+                  <Text style={{ marginVertical: 20 }}>
+                    {t('no_account_yet')}
+                  </Text>
+                  <Button
+                    mode={'outlined'}
+                    onPress={() => navigation.navigate('Register')}
+                    style={{
+                      // @ts-ignore
+                      color: theme.colors.primary
+                    }}
+                  >
+                    {t('register_here')}
+                  </Button>
+                </>
+              )}
 
               <Button
                 mode={'text'}

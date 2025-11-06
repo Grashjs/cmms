@@ -453,11 +453,13 @@ function AuthNavigator() {
         component={LoginScreen}
         options={{ title: t('login') }}
       />
-      <AuthStack.Screen
-        name="Register"
-        component={RegisterScreen}
-        options={{ title: t('register') }}
-      />
+      {Platform.OS !== 'ios' && (
+        <AuthStack.Screen
+          name="Register"
+          component={RegisterScreen}
+          options={{ title: t('register') }}
+        />
+      )}
       <AuthStack.Screen
         name="Verify"
         component={VerifyScreen}
