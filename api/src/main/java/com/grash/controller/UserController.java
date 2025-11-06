@@ -203,4 +203,31 @@ public class UserController {
         }
 
     }
+
+    @PatchMapping("/soft-delete/{id}")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "User not found")})
+    public UserResponseDTO softDelete(@ApiParam("id") @PathVariable("id") Long id,
+                                      @ApiIgnore @CurrentUser OwnUser requester) {
+        Optional<OwnUser> optionalUserToSoftDelete = userService.findByIdAndCompany(id, requester.getCompany().getId());
+
+        if (optionalUserToSoftDelete.isPresent()) {
+            OwnUser userToSoftDelete = optionalUserToSoftDelete.get();
+            if (requester.getId().equals(id) || requester.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+                userToSoftDelete.setEnabled(false);
+                    userToSoftDelete.setEnabledInSubscription(false);
+                    userToSoftDelete.setEmail(userToSoftDelete.getEmail().concat("_".concat(id.toString())));
+                    return userMapper.toResponseDto(userService.save(userToSoftDelete));
+            }
+            else {
+                throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
+            }
+        } else {
+            throw new CustomException("User not found", HttpStatus.NOT_FOUND);
+        }
+    }
 }
+
