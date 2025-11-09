@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { ExpoConfig, ConfigContext } from 'expo/config';
 
 const apiUrl = process.env.API_URL;
+const googleServicesJson = process.env.GOOGLE_SERVICES_JSON;
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -39,8 +40,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     versionCode: 30,
     package: 'com.atlas.cmms',
-    googleServicesFile:
-      process.env.GOOGLE_SERVICES_JSON ?? './google-services.json',
+    googleServicesFile: googleServicesJson ?? './google-services.json',
     runtimeVersion: '1.0.0'
   },
   web: {
