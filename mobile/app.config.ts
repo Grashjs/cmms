@@ -37,7 +37,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       foregroundImage: './assets/images/adaptive-icon.png',
       backgroundColor: '#ffffff'
     },
-    versionCode: 26,
+    versionCode: 30,
     package: 'com.atlas.cmms',
     googleServicesFile: './google-services.json',
     runtimeVersion: '1.0.0'
