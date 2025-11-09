@@ -14,6 +14,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@expo/config-plugins": "^54.0.2",
     "@expo/vector-icons": "^13.0.0",
     "@react-native-async-storage/async-storage": "^2.1.2",
     "@react-native-community/datetimepicker": "6.7.3",

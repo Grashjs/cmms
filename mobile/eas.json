@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 3.7.2"
+    "version": ">= 3.7.2",
+    "appVersionSource": "remote"
   },
   "build": {
     "development": {
@@ -22,7 +23,8 @@
       "channel": "master",
       "ios": {
         "resourceClass": "m1-medium"
-      }
+      },
+      "autoIncrement": true
     },
     "previewAndroid": {
       "android": {
