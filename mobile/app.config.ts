@@ -39,7 +39,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     versionCode: 30,
     package: 'com.atlas.cmms',
-    googleServicesFile: './google-services.json',
+    googleServicesFile:
+      process.env.GOOGLE_SERVICES_JSON ?? './google-services.json',
     runtimeVersion: '1.0.0'
   },
   web: {
