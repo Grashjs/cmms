@@ -82,7 +82,10 @@ public class SubscriptionController {
                 Collection<OwnUser> users = usersIds.stream().map(userId -> userService.findByIdAndCompany(userId,
                         user.getCompany().getId()).get()).collect(Collectors.toList());
                 if (users.stream().noneMatch(OwnUser::isEnabledInSubscription)) {
-                    users.forEach(user1 -> user1.setEnabledInSubscription(true));
+                    users.forEach(user1 -> {
+                        user1.setEnabled(true);
+                        user1.setEnabledInSubscription(true);
+                    });
                     userService.saveAll(users);
                     subscription.setUpgradeNeeded(false);
                     subscriptionService.save(subscription);
@@ -116,9 +119,9 @@ public class SubscriptionController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @PostMapping("/downgrade")
+    @GetMapping("/downgrade")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public SuccessResponse downgrade(@RequestBody Collection<Long> usersIds,
+    public SuccessResponse downgrade(@RequestParam Collection<Long> usersIds,
                                      HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.isOwnsCompany()) {
@@ -131,7 +134,10 @@ public class SubscriptionController {
                                 userService.findByIdAndCompany(userId, user.getCompany().getId()).get())
                         .filter(user1 -> !user1.isOwnsCompany()).collect(Collectors.toList());
                 if (users.stream().allMatch(OwnUser::isEnabledInSubscription)) {
-                    users.forEach(user1 -> user1.setEnabledInSubscription(false));
+                    users.forEach(user1 -> {
+                        user1.setEnabled(false);
+                        user1.setEnabledInSubscription(false);
+                    });
                     userService.saveAll(users);
                     subscription.setDowngradeNeeded(false);
                     subscriptionService.save(subscription);

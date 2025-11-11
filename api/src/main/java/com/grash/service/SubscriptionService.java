@@ -3,8 +3,12 @@ package com.grash.service;
 import com.grash.dto.SubscriptionPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.SubscriptionMapper;
+import com.grash.model.Company;
+import com.grash.model.OwnUser;
 import com.grash.model.Subscription;
+import com.grash.repository.CompanyRepository;
 import com.grash.repository.SubscriptionRepository;
+import com.grash.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,8 @@ public class SubscriptionService {
     private final SubscriptionPlanService subscriptionPlanService;
     private final SubscriptionMapper subscriptionMapper;
     private final EntityManager em;
+    private final CompanyRepository companyRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public Subscription create(Subscription subscription) {
@@ -77,10 +83,18 @@ public class SubscriptionService {
     }
 
     public void resetToFreePlan(Subscription subscription) {
+        Optional<Company> optionalCompany = companyRepository.findBySubscription_Id(subscription.getId());
+        if (!optionalCompany.isPresent()) return;
+
         subscription.setActivated(false);
         subscription.setUsersCount(3);
         subscription.setMonthly(true);
         subscription.setFastSpringId(null);
+        int subscriptionUsersCount =
+                (int) userRepository.findByCompany_Id(optionalCompany.get().getId()).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
+        if (subscriptionUsersCount > subscription.getUsersCount()) {
+            subscription.setDowngradeNeeded(true);
+        }
         subscription.setCancelled(false);
         subscription.setSubscriptionPlan(subscriptionPlanService.findByCode("FREE").get());
         subscription.setStartsOn(new Date());
