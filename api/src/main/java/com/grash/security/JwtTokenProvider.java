@@ -40,7 +40,7 @@ public class JwtTokenProvider {
 
 
     private final CustomUserDetailsService customUserDetailsService;
-    
+
     public String createToken(String username, List<RoleType> roles) {
 
         Claims claims = Jwts.claims().setSubject(username);
@@ -60,6 +60,9 @@ public class JwtTokenProvider {
 
     public Authentication getAuthentication(String token) {
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(getUsername(token));
+        if (!userDetails.isEnabled()) {
+            throw new CustomException("User account is disabled", HttpStatus.UNAUTHORIZED);
+        }
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
