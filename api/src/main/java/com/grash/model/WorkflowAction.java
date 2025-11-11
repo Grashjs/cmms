@@ -13,6 +13,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.FetchType;
 
 @Entity
 @Data
