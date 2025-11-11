@@ -90,9 +90,9 @@ public class SubscriptionService {
         subscription.setUsersCount(3);
         subscription.setMonthly(true);
         subscription.setFastSpringId(null);
-        int subscriptionUsersCount =
+        int currentUsersCount =
                 (int) userRepository.findByCompany_Id(optionalCompany.get().getId()).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
-        if (subscriptionUsersCount > subscription.getUsersCount()) {
+        if (currentUsersCount > subscription.getUsersCount()) {
             subscription.setDowngradeNeeded(true);
         }
         subscription.setCancelled(false);
