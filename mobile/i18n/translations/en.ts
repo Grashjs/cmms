@@ -177,6 +177,7 @@ const locale = {
   employeesCount: 'Number of Employees',
   i_accept: 'I accept the',
   terms_conditions: 'terms and conditions',
+  required_fields_notice: 'All fields marked with * are required.',
   create_your_account: 'Create your account',
   register: 'Register',
   //signin
@@ -1019,6 +1020,12 @@ const locale = {
   personal_details_description:
     'Manage informations related to your personal details',
   change_password: 'Change password',
+  delete_account: 'Delete account',
+  delete_account_confirmation:
+    'Are you sure you want to delete your account? This action cannot be undone.',
+  account_deleted: 'Account deleted successfully',
+  account_delete_error: 'Error deleting account',
+  confirm_delete_account: 'Delete account',
   notification_settings: 'Notifications Settings',
   notification_settings_description:
     'Manage details related to your notifications',

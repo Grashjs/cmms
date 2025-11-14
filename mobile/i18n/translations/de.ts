@@ -184,6 +184,7 @@ const deJSON = {
   employeesCount: 'Anzahl der Mitarbeiter ',
   i_accept: 'Ich akzeptiere die ',
   terms_conditions: 'Allgemeinen Geschäftsbedingungen ',
+  required_fields_notice: 'Alle mit * gekennzeichneten Felder sind erforderlich.',
   create_your_account: 'Erstellen Sie Ihr Konto ',
   register: 'Registrieren ',
   //signin
@@ -1085,6 +1086,12 @@ const deJSON = {
   personal_details_description:
     'Verwalten Sie Informationen zu Ihren persönlichen Details ',
   change_password: 'Passwort ändern ',
+  delete_account: 'Konto löschen ',
+  delete_account_confirmation:
+    'Möchten Sie Ihr Konto wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+  account_deleted: 'Konto erfolgreich gelöscht',
+  account_delete_error: 'Fehler beim Löschen des Kontos',
+  confirm_delete_account: 'Konto löschen',
   notification_settings: 'Benachrichtigungseinstellungen ',
   notification_settings_description:
     'Verwalten Sie Details zu Ihren Benachrichtigungen ',
