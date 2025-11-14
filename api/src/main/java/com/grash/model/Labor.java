@@ -24,7 +24,7 @@ public class Labor extends Time {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private OwnUser assignedTo;
 
     private boolean includeToTotalTime = true;
@@ -38,10 +38,10 @@ public class Labor extends Time {
 
     private TimeStatus status = TimeStatus.STOPPED;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private TimeCategory timeCategory;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @NotNull

@@ -27,10 +27,10 @@ public class Meter extends CompanyAudit {
     @NotNull
     private int updateFrequency;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private MeterCategory meterCategory;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private File image;
 
     @ManyToMany
@@ -44,10 +44,10 @@ public class Meter extends CompanyAudit {
             })
     private List<OwnUser> users = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Location location;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

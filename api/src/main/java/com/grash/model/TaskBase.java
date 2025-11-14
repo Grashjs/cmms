@@ -13,6 +13,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -37,10 +38,10 @@ public class TaskBase extends CompanyAudit {
     @JsonManagedReference
     private Collection<TaskOption> options = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private OwnUser user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Asset asset;
 

@@ -14,7 +14,7 @@ public class CustomSequence {
     private Long id;
 
     // Company reference to isolate sequences by company
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Company company;
 
     // Sequence counters for each entity type

@@ -22,7 +22,7 @@ public class Notification extends Audit {
 
     private boolean seen;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private OwnUser user;
 

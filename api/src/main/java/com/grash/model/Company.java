@@ -24,7 +24,7 @@ public class Company extends Audit {
 
     private int employeesCount;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private File logo;
 
     private String city;
@@ -33,10 +33,10 @@ public class Company extends Audit {
 
     private String zipCode;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Subscription subscription;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private CompanySettings companySettings = new CompanySettings(this);
 
     private boolean demo;

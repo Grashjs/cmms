@@ -39,7 +39,7 @@ public class WorkOrder extends WorkOrderBase {
     @Audited(withModifiedFlag = true)
     private String customId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private OwnUser completedBy;
 
@@ -47,13 +47,13 @@ public class WorkOrder extends WorkOrderBase {
 
     private Status status = Status.OPEN;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private File signature;
 
     private boolean archived;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private Request parentRequest;
@@ -61,7 +61,7 @@ public class WorkOrder extends WorkOrderBase {
     private String feedback;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private PreventiveMaintenance parentPreventiveMaintenance;
 

@@ -25,7 +25,7 @@ public class WorkOrderConfiguration {
     private Set<FieldConfiguration> workOrderFieldConfigurations = new HashSet<>(createFieldConfigurations(Arrays.asList("description", "asset",
             "priority", "images", "primaryUser", "assignedTo", "team", "location", "dueDate", "category", "purchaseOrder", "files", "signature", "completeFiles", "completeTasks", "completeTime", "completeParts", "completeCost"), null, this));
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private CompanySettings companySettings;
 

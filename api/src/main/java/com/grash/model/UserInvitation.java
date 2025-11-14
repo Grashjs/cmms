@@ -22,7 +22,7 @@ public class UserInvitation extends Audit {
     @NotNull
     private String email;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
     private Role role;
 

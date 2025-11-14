@@ -8,6 +8,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.FetchType;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
@@ -19,12 +20,12 @@ public class PartConsumption extends CompanyAudit {
     @Min(value = 0L, message = "The value must be positive")
     private double quantity;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Part part;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private WorkOrder workOrder;
 

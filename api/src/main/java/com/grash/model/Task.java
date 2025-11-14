@@ -27,7 +27,7 @@ import java.util.Locale;
 @Builder
 @AllArgsConstructor
 public class Task extends CompanyAudit {
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
     private TaskBase taskBase;
 
@@ -38,12 +38,12 @@ public class Task extends CompanyAudit {
     @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
     private List<File> images = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private WorkOrder workOrder;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private PreventiveMaintenance preventiveMaintenance;

@@ -19,12 +19,12 @@ public class FloorPlan {
     @NotNull
     private String name;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private File image;
 
     private long area;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Location location;
