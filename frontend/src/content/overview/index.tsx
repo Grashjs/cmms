@@ -124,7 +124,7 @@ function Footer() {
           </Grid>
           <Grid item xs={12} md={3}>
             <SectionHeading variant="h5">Mobile apps</SectionHeading>
-            <Stack spacing={2}>
+            <Stack spacing={1} direction="row">
               <img
                 style={{ cursor: 'pointer' }}
                 onClick={() =>
@@ -133,6 +133,15 @@ function Footer() {
                 }
                 width={'150px'}
                 src={'/static/images/overview/playstore-badge.png'}
+              />
+              <img
+                style={{ cursor: 'pointer' }}
+                onClick={() =>
+                  (window.location.href =
+                    'https://apps.apple.com/us/app/atlas-cmms/id6751547284')
+                }
+                width={'150px'}
+                src={'/static/images/overview/app_store_badge.svg.webp'}
               />
             </Stack>
           </Grid>

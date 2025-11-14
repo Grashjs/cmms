@@ -944,11 +944,8 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   };
   const downgrade = async (users: number[]) => {
     try {
-      const { success } = await api.post<{ success: boolean }>(
-        'subscriptions/downgrade',
-        users,
-        {},
-        true
+      const { success } = await api.get<{ success: boolean }>(
+        `subscriptions/downgrade?usersIds=${users.join(',')}`
       );
       if (success)
         dispatch({

@@ -2,12 +2,13 @@ import 'dotenv/config';
 import { ExpoConfig, ConfigContext } from 'expo/config';
 
 const apiUrl = process.env.API_URL;
+const googleServicesJson = process.env.GOOGLE_SERVICES_JSON;
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Atlas CMMS',
   slug: 'atlas-cmms',
-  version: '1.0.29',
+  version: '1.0.30',
   orientation: 'portrait',
   icon: './assets/images/icon.png',
   scheme: 'atlascmms',
@@ -43,9 +44,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       foregroundImage: './assets/images/adaptive-icon.png',
       backgroundColor: '#ffffff'
     },
-    versionCode: 26,
+    versionCode: 30,
     package: 'com.atlas.cmms',
-    googleServicesFile: './google-services.json',
+    googleServicesFile: googleServicesJson ?? './google-services.json',
     runtimeVersion: '1.0.0'
   },
   web: {
