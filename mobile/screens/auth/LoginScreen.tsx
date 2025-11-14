@@ -6,12 +6,7 @@ import { Formik } from 'formik';
 import { useTranslation } from 'react-i18next';
 import useAuth from '../../hooks/useAuth';
 import { useContext, useState } from 'react';
-import {
-  Button,
-  HelperText,
-  Text,
-  TextInput
-} from 'react-native-paper';
+import { Button, HelperText, Text, TextInput } from 'react-native-paper';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import * as React from 'react';
 import { Asset } from 'expo-asset';
@@ -56,8 +51,6 @@ export default function LoginScreen({
             { setErrors, setStatus, setSubmitting }
           ): Promise<void> => {
             setSubmitting(true);
-            // return login('mugabekazidenyse@gmail.com', 'Testable!1')
-            // return login('med.labiad@intel-loop.com', 'Power@2025')
             return login(values.email, values.password)
               .catch((err) => {
                 showSnackBar(t('wrong_credentials'), 'error');
