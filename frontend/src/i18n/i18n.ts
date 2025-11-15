@@ -12,6 +12,7 @@ import plJSON from './translations/pl';
 import ptBRJSON from './translations/pt_BR';
 import itJSON from './translations/it';
 import svJSON from './translations/sv';
+import ruJSON from './translations/ru';
 import { FlagComponent } from 'country-flag-icons/react/1x1';
 import {
   BR,
@@ -23,8 +24,10 @@ import {
   US,
   SA,
   IT,
-  SE
-} from 'country-flag-icons/react/3x2';
+  SE,
+  RU
+} 
+from 'country-flag-icons/react/3x2';
 import { LocaleSingularArg } from '@fullcalendar/react';
 import deLocale from '@fullcalendar/core/locales/de';
 import esLocale from '@fullcalendar/core/locales/es';
@@ -36,8 +39,9 @@ import plLocale from '@fullcalendar/core/locales/pl';
 import enLocale from '@fullcalendar/core/locales/en-gb';
 import itLocale from '@fullcalendar/core/locales/it';
 import svLocale from '@fullcalendar/core/locales/sv';
+import ruLocale from '@fullcalendar/core/locales/ru';
 import { Locale as DateLocale } from 'date-fns';
-import { fr, de, es, ar, tr, ptBR, pl, enUS, it, sv } from 'date-fns/locale';
+import { fr, de, es, ar, tr, ptBR, pl, enUS, it, sv, ru } from 'date-fns/locale';
 const resources = {
   de: { translation: deJSON },
   en: { translation: locale },
@@ -50,7 +54,8 @@ const resources = {
   pt_br: { translation: ptBRJSON },
   ar: { translation: arJSON },
   it: { translation: itJSON },
-  sv: { translation: svJSON }
+  sv: { translation: svJSON },
+  ru: { translation: ruJSON }
 };
 
 i18n
@@ -79,6 +84,7 @@ export type SupportedLanguage =
   | 'PL'
   | 'IT'
   | 'SV'
+  | 'RU'
   | 'AR';
 
 export const supportedLanguages: {
@@ -157,6 +163,13 @@ export const supportedLanguages: {
     Icon: SE,
     calendarLocale: svLocale,
     dateLocale: sv
+  },
+  {
+    code: 'ru',
+    label: 'Russian',
+    Icon: RU,
+    calendarLocale: ruLocale,
+    dateLocale: ru
   }
 ];
 export default i18n;

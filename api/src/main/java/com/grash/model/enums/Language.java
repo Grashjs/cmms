@@ -10,5 +10,6 @@ public enum Language {
     DE,
     AR,
     IT,
-    SV
+    SV,
+    RU
 }
