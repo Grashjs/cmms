@@ -131,6 +131,8 @@ public class Helper {
                 return new Locale("it", "IT");
             case SV:
                 return new Locale("sv", "SE");
+            case RU:
+                return new Locale("ru", "RU");
             default:
                 return Locale.getDefault();
         }
