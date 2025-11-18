@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -19,7 +20,7 @@ public class ChecklistPostDTO {
 
     private String description;
 
-    private Collection<TaskBaseDTO> taskBases;
+    private List<TaskBaseDTO> taskBases;
 
     private String category;
 

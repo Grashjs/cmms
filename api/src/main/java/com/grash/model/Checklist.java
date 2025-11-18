@@ -23,6 +23,7 @@ public class Checklist extends DateAudit {
     private Long id;
 
     @OneToMany(orphanRemoval = true)
+    @OrderBy("createdAt ASC")
     private List<TaskBase> taskBases = new ArrayList<>();
 
     @NotNull
