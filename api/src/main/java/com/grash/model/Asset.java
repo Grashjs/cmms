@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -28,13 +29,13 @@ public class Asset extends CompanyAudit {
 
     private boolean archived;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private File image;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Location location;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Asset parentAsset;
 
@@ -44,13 +45,13 @@ public class Asset extends CompanyAudit {
 
     private String barCode;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private AssetCategory category;
 
     @NotNull
     private String name;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private OwnUser primaryUser;
 
     private Double acquisitionCost;
@@ -88,6 +89,7 @@ public class Asset extends CompanyAudit {
                     @Index(name = "idx_asset_vendor_asset_id", columnList = "id_asset"),
                     @Index(name = "idx_asset_vendor_vendor_id", columnList = "id_vendor")
             })
+    @BatchSize(size = 64)
     private List<Vendor> vendors = new ArrayList<>();
 
     @ManyToMany
@@ -112,7 +114,7 @@ public class Asset extends CompanyAudit {
             })
     private List<Part> parts = new ArrayList<>();
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Deprecation deprecation;
 
     private Date warrantyExpirationDate;
@@ -136,6 +138,7 @@ public class Asset extends CompanyAudit {
                     @Index(name = "idx_asset_file_asset_id", columnList = "id_asset"),
                     @Index(name = "idx_asset_file_file_id", columnList = "id_file")
             })
+    @BatchSize(size = 64)
     private List<File> files = new ArrayList<>();
 
     private String power;

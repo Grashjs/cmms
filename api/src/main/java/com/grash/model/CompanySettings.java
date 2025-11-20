@@ -21,18 +21,18 @@ public class CompanySettings {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private GeneralPreferences generalPreferences = new GeneralPreferences(this);
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private WorkOrderConfiguration workOrderConfiguration = new WorkOrderConfiguration(this);
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private WorkOrderRequestConfiguration WorkOrderRequestConfiguration = new WorkOrderRequestConfiguration(this);
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "companySettings")
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     private UiConfiguration uiConfiguration = new UiConfiguration(this);
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Company company;
 

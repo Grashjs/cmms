@@ -20,10 +20,10 @@ public class Request extends WorkOrderBase {
 
     private String cancellationReason;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private File audioDescription;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private WorkOrder workOrder;
 
     @PreRemove

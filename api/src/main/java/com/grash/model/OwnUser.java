@@ -39,7 +39,7 @@ public class OwnUser extends Audit {
 
     private String phone;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
     private Role role;
 
@@ -60,13 +60,13 @@ public class OwnUser extends Audit {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private boolean enabledInSubscription = true;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Company company;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private boolean ownsCompany;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private UserSettings userSettings = new UserSettings();
 
     @ManyToOne(fetch = FetchType.LAZY)

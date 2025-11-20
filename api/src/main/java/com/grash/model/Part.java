@@ -44,7 +44,7 @@ public class Part extends CompanyAudit {
 
     private String description;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private PartCategory category;
 
     private double quantity;
@@ -66,7 +66,7 @@ public class Part extends CompanyAudit {
             })
     private List<File> files = new ArrayList<>();
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private File image;
 
     @ManyToMany

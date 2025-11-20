@@ -35,7 +35,7 @@ public class WorkOrderMeterTrigger extends WorkOrderBase {
     @NotNull
     private int waitBefore;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

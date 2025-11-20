@@ -55,11 +55,11 @@ public class Location extends CompanyAudit {
             })
     private List<Team> teams = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Location parentLocation;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private File image;
 
     @ManyToMany
