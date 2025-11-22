@@ -64,6 +64,7 @@ interface AuthContextValue extends AuthState {
   logout: () => void;
   register: (values: any) => Promise<void>;
   getInfos: () => void;
+  deleteAccount: () => Promise<void>;
   switchAccount: (id: number) => Promise<void>;
   patchUserSettings: (values: Partial<UserSettings>) => Promise<UserSettings>;
   patchUser: (values: Partial<OwnUser>) => Promise<void>;
@@ -469,6 +470,7 @@ const AuthContext = createContext<AuthContextValue>({
   logout: () => Promise.resolve(),
   register: () => Promise.resolve(),
   getInfos: () => Promise.resolve(),
+  deleteAccount: () => Promise.resolve(),
   patchUserSettings: () => Promise.resolve(null),
   patchCompany: () => Promise.resolve(),
   patchUser: () => Promise.resolve(),
@@ -739,6 +741,17 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   const logout = async (): Promise<void> => {
     setSession(null);
     dispatch({ type: 'LOGOUT' });
+  };
+
+  const deleteAccount = async (): Promise<void> => {
+    if (!state.user) {
+      return;
+    }
+
+    await api.patch<UserResponseDTO>(
+      `users/soft-delete/${state.user.id}`,
+      state.user
+    );
   };
 
   const register = async (values): Promise<void> => {
@@ -1116,6 +1129,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         logout,
         register,
         getInfos,
+        deleteAccount,
         patchUser,
         patchSubscription,
         cancelSubscription,
