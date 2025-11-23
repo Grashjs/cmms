@@ -3,7 +3,7 @@ import { RootStackScreenProps } from '../../types';
 import { useTranslation } from 'react-i18next';
 import * as React from 'react';
 import { Card, IconButton, Text, useTheme } from 'react-native-paper';
-import { IconSource } from 'react-native-paper/src/components/Icon';
+import type { IconSource } from 'react-native-paper';
 
 export default function SelectTasksOrChecklistModal({
                                                       navigation,

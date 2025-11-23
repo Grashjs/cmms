@@ -10,6 +10,7 @@ import {
   TextInput,
   useTheme
 } from 'react-native-paper';
+import type { IconSource } from 'react-native-paper';
 import * as React from 'react';
 import { useContext, useEffect, useRef, useState } from 'react';
 import PartQuantity from '../models/partQuantity';
@@ -20,7 +21,6 @@ import ActionSheet, { ActionSheetRef } from 'react-native-actions-sheet';
 import { editPartQuantity } from '../slices/partQuantity';
 import { useDispatch } from '../store';
 import { CustomSnackBarContext } from '../contexts/CustomSnackBarContext';
-import { IconSource } from 'react-native-paper/src/components/Icon';
 import { getFormattedCostPerUnit } from '../utils/formatters';
 
 export default function PartQuantities({

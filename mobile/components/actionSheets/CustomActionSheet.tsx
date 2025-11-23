@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { Divider, List } from 'react-native-paper';
 import * as React from 'react';
 import { useRef } from 'react';
-import { IconSource } from 'react-native-paper/src/components/Icon';
+import type { IconSource } from 'react-native-paper';
 import ActionSheet, { ActionSheetRef } from 'react-native-actions-sheet';
 
 export interface CustomActionSheetOption {

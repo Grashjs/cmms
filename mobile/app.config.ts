@@ -8,7 +8,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Atlas CMMS',
   slug: 'atlas-cmms',
-  version: '1.0.30',
+  version: '1.0.31',
   orientation: 'portrait',
   icon: './assets/images/icon.png',
   scheme: 'atlascmms',
@@ -16,7 +16,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   notification: {
     icon: './assets/images/notification.png'
   },
-  sdkVersion: '48.0.0',
   splash: {
     image: './assets/images/splash.png',
     resizeMode: 'contain',
@@ -29,7 +28,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   assetBundlePatterns: ['**/*'],
   ios: {
     bundleIdentifier: 'com.cmms.atlas',
-    buildNumber: '8',
+    buildNumber: '9',
     jsEngine: 'jsc',
     supportsTablet: false,
     runtimeVersion: {
@@ -44,10 +43,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       foregroundImage: './assets/images/adaptive-icon.png',
       backgroundColor: '#ffffff'
     },
-    versionCode: 30,
+    versionCode: 31,
     package: 'com.atlas.cmms',
     googleServicesFile: googleServicesJson ?? './google-services.json',
-    runtimeVersion: '1.0.0'
+    runtimeVersion: {
+      policy: 'sdkVersion'
+    }
   },
   web: {
     favicon: './assets/images/favicon.png'
@@ -59,11 +60,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     }
   },
   plugins: [
+    'expo-asset',
+    'expo-font',
     [
       'expo-barcode-scanner',
       {
         cameraPermission: 'Allow Atlas to access camera.'
       }
-    ]
+    ],
+    'expo-notifications',
+    'expo-build-properties'
   ]
 });
