@@ -33,7 +33,8 @@ public interface MeterMapper {
         if (!readings.isEmpty()) {
             Reading lastReading = Collections.max(readings, new AuditComparator());
             target.setLastReading(lastReading.getCreatedAt());
-            Date nextReading = Helper.getNextOccurence(lastReading.getCreatedAt(), target.getUpdateFrequency());
+            Date nextReading = Helper.incrementDays(lastReading.getCreatedAt(),
+                    target.getUpdateFrequency());
             target.setNextReading(nextReading);
         }
         return target;

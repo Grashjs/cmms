@@ -15,10 +15,8 @@ export const canAddReading = (meter: Meter): boolean => {
     return false;
   }
   if (!meter.nextReading) return true;
-  return (
-    sameDay(new Date(), new Date(meter.nextReading)) &&
-    !sameDay(new Date(), new Date(meter.lastReading))
-  );
+
+  return new Date() >= new Date(meter.nextReading);
 };
 
 export const getImageAndFiles = (

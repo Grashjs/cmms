@@ -162,7 +162,7 @@ public class AssetController {
                                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return assetService.findByCompany(user.getCompany().getId(), pageable.getSort()).stream().filter(asset -> asset.getParentAsset() == null).map(asset -> assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
+            return assetService.findByCompanyAndParentAssetNull(user.getCompany().getId(), pageable).stream().map(asset -> assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
         }
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {

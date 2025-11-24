@@ -67,9 +67,8 @@ public class ReadingController {
             Collection<Reading> readings = readingService.findByMeter(readingReq.getMeter().getId());
             if (!readings.isEmpty()) {
                 Reading lastReading = Collections.max(readings, new AuditComparator());
-                Date nextReading = Helper.getNextOccurence(lastReading.getCreatedAt(), meter.getUpdateFrequency());
-                if (!(Helper.isSameDay(new Date(), nextReading) && !Helper.isSameDay(new Date(),
-                        lastReading.getCreatedAt()))) {
+                Date nextReading = Helper.incrementDays(lastReading.getCreatedAt(), meter.getUpdateFrequency());
+                if (new Date().before(nextReading)) {
                     throw new CustomException("The update frequency has not been respected", HttpStatus.NOT_ACCEPTABLE);
                 }
             }
@@ -78,7 +77,7 @@ public class ReadingController {
             meterTriggers.forEach(meterTrigger -> {
                 boolean error = false;
                 StringBuilder message = new StringBuilder();
-                String title = "new_wo";
+                String title = messageSource.getMessage("new_wo", null, locale);
                 Object[] notificationArgs = new Object[]{meter.getName(), meterTrigger.getValue(), meter.getUnit()};
                 if (meterTrigger.getTriggerCondition().equals(WorkOrderMeterTriggerCondition.LESS_THAN)) {
                     if (readingReq.getValue() < meterTrigger.getValue()) {

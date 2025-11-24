@@ -615,6 +615,11 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         action: 'sign_up',
         label: 'sign_up'
       });
+    //@ts-ignore
+    if (window.lintrk) {
+      // @ts-ignore
+      window.lintrk('track', { conversion_id: 24670282 });
+    }
     const response = await api.post<{ message: string; success: boolean }>(
       'auth/signup',
       values,

@@ -115,6 +115,11 @@ public class AssetService {
         return assetRepository.findByCompany_Id(id, sort);
     }
 
+    public List<Asset> findByCompanyAndParentAssetNull(Long id, Pageable pageable) {
+        return assetRepository.findByCompany_IdAndParentAssetIsNull(id, pageable);
+    }
+
+
     public List<Asset> findByCompanyAndBefore(Long id, Date date) {
         return assetRepository.findByCompany_IdAndCreatedAtBefore(id, date);
     }

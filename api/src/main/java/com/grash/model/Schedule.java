@@ -33,7 +33,7 @@ public class Schedule extends Audit {
 
     private Integer dueDateDelay;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @OnDelete(action = OnDeleteAction.CASCADE)
     private PreventiveMaintenance preventiveMaintenance;
@@ -43,11 +43,13 @@ public class Schedule extends Audit {
     }
 
     public void setFrequency(int frequency) {
-        if(frequency<1) throw new CustomException("Frequency should not be less than 1", HttpStatus.NOT_ACCEPTABLE);
+        if (frequency < 1) throw new CustomException("Frequency should not be less than 1", HttpStatus.NOT_ACCEPTABLE);
         this.frequency = frequency;
     }
+
     public void setDueDateDelay(Integer dueDateDelay) {
-        if(dueDateDelay !=null && dueDateDelay<1) throw new CustomException("Due date delay should not be less than 1", HttpStatus.NOT_ACCEPTABLE);
+        if (dueDateDelay != null && dueDateDelay < 1)
+            throw new CustomException("Due date delay should not be less than 1", HttpStatus.NOT_ACCEPTABLE);
         this.dueDateDelay = dueDateDelay;
     }
 }

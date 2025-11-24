@@ -35,7 +35,7 @@ public class Subscription extends Audit {
     @JsonIgnore
     private String fastSpringId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
     private SubscriptionPlan subscriptionPlan;
 

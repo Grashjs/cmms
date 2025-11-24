@@ -23,7 +23,7 @@ public class GeneralPreferences {
 
     private DateFormat dateFormat = DateFormat.MMDDYY;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Currency currency;
 
     private BusinessType businessType = BusinessType.GENERAL_ASSET_MANAGEMENT;
@@ -46,7 +46,7 @@ public class GeneralPreferences {
 
     private int daysBeforePrevMaintNotification = 1;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private CompanySettings companySettings;
 

@@ -23,6 +23,7 @@ public class Checklist extends DateAudit {
     private Long id;
 
     @OneToMany(orphanRemoval = true)
+    @OrderBy("createdAt ASC")
     private List<TaskBase> taskBases = new ArrayList<>();
 
     @NotNull
@@ -32,7 +33,7 @@ public class Checklist extends DateAudit {
 
     private String category;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private CompanySettings companySettings;
