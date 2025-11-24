@@ -106,6 +106,9 @@ public class SubscriptionController {
         }
         OwnUser user = userService.whoami(req);
         if (user.isOwnsCompany()) {
+            if (user.getCompany().isDemo())
+                throw new CustomException("This live Demo account can't be upgraded. Please create a regular account" +
+                        ".", HttpStatus.NOT_ACCEPTABLE);
             subscriptionChangeRequestRepository.save(subscriptionChangeRequest);
             try {
                 emailService2.sendHtmlMessage(recipients, "New " + brandingService.getBrandConfig().getShortName() +
