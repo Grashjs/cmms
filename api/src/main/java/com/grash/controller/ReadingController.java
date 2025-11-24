@@ -77,7 +77,7 @@ public class ReadingController {
             meterTriggers.forEach(meterTrigger -> {
                 boolean error = false;
                 StringBuilder message = new StringBuilder();
-                String title = "new_wo";
+                String title = messageSource.getMessage("new_wo", null, locale);
                 Object[] notificationArgs = new Object[]{meter.getName(), meterTrigger.getValue(), meter.getUnit()};
                 if (meterTrigger.getTriggerCondition().equals(WorkOrderMeterTriggerCondition.LESS_THAN)) {
                     if (readingReq.getValue() < meterTrigger.getValue()) {
