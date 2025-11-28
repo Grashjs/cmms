@@ -43,6 +43,7 @@ import {
   Chip,
   useMediaQuery
 } from '@mui/material';
+import { fireGa4Event } from '../../utils/overall';
 
 const PricingWrapper = styled(Box)(
   ({ theme }) => `
@@ -88,6 +89,9 @@ function Pricing() {
     }
   }, [isXs, isSm, isMdDown]);
 
+  useEffect(() => {
+    fireGa4Event('pricing_view');
+  }, []);
   return (
     <PricingWrapper>
       <Helmet>

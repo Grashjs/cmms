@@ -73,7 +73,11 @@ import { PermissionEntity } from '../../../models/owns/role';
 import PermissionErrorMessage from '../components/PermissionErrorMessage';
 import ConfirmDialog from '../components/ConfirmDialog';
 import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
-import { getImageAndFiles, onSearchQueryChange } from '../../../utils/overall';
+import {
+  fireGa4Event,
+  getImageAndFiles,
+  onSearchQueryChange
+} from '../../../utils/overall';
 import { getSingleLocation } from '../../../slices/location';
 import { getSingleAsset } from '../../../slices/asset';
 import Category from '../../../models/owns/category';
@@ -707,6 +711,8 @@ function WorkOrders() {
             }}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
+              if (workOrders.totalElements === 0)
+                fireGa4Event('first_wo_creation');
               let formattedValues = formatValues(values);
               return new Promise<void>((resolve, rej) => {
                 uploadFiles(formattedValues.files, formattedValues.image)

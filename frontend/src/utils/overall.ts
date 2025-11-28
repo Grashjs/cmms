@@ -9,6 +9,9 @@ import {
 } from '../models/owns/page';
 import React from 'react';
 import { sameDay } from './dates';
+import { googleTrackingId, IS_LOCALHOST } from '../config';
+import ReactGA from 'react-ga4';
+import { UaEventOptions } from 'react-ga4/types/ga4';
 
 export const canAddReading = (meter: Meter): boolean => {
   if (!meter) {
@@ -123,4 +126,21 @@ export const onSearchQueryChange = <T>(
       }
     ];
   setCriteria({ ...criteria, filterFields: newFilterFields });
+};
+
+export const fireGa4Event = (
+  optionsOrName: UaEventOptions | string,
+  conversionKey?: string,
+  params?: any
+) => {
+  if (
+    !IS_LOCALHOST &&
+    googleTrackingId &&
+    (conversionKey ? !sessionStorage.getItem(conversionKey) : true)
+  ) {
+    // Fire UA event
+    ReactGA.event(optionsOrName, params);
+    // Mark this user as converted for this session
+    sessionStorage.setItem(conversionKey, 'true');
+  }
 };

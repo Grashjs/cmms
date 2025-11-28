@@ -33,6 +33,7 @@ import { UiConfiguration } from 'src/models/owns/uiConfiguration';
 import { googleTrackingId, IS_LOCALHOST } from '../config';
 import ReactGA from 'react-ga4';
 import { getLicenseValidity } from '../slices/license';
+import { fireGa4Event } from '../utils/overall';
 
 interface AuthState {
   isInitialized: boolean;
@@ -610,21 +611,14 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     invitationMode: boolean
   ): Promise<{ success: boolean; message: string }> => {
     const conversionKey = `signup_conversion_fired_${values.email}`;
-    if (
-      !IS_LOCALHOST &&
-      googleTrackingId &&
-      !sessionStorage.getItem(conversionKey)
-    ) {
-      // Fire UA event
-      ReactGA.event({
+    fireGa4Event(
+      {
         category: 'sign_up',
         action: 'sign_up',
         label: 'sign_up'
-      });
-      // Mark this user as converted for this session
-      sessionStorage.setItem(conversionKey, 'true');
-    }
-
+      },
+      conversionKey
+    );
     // @ts-ignore
     if (window.lintrk) {
       // @ts-ignore
