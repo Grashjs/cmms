@@ -607,13 +607,23 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     values,
     invitationMode: boolean
   ): Promise<{ success: boolean; message: string }> => {
-    if (!IS_LOCALHOST && googleTrackingId)
+    const conversionKey = `signup_conversion_fired_${values.email}`;
+    if (
+      !IS_LOCALHOST &&
+      googleTrackingId &&
+      !sessionStorage.getItem(conversionKey)
+    ) {
+      // Fire UA event
       ReactGA.event({
         category: 'sign_up',
         action: 'sign_up',
         label: 'sign_up'
       });
-    //@ts-ignore
+      // Mark this user as converted for this session
+      sessionStorage.setItem(conversionKey, 'true');
+    }
+
+    // @ts-ignore
     if (window.lintrk) {
       // @ts-ignore
       window.lintrk('track', { conversion_id: 24670282 });
