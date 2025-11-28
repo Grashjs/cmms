@@ -140,7 +140,6 @@ export const fireGa4Event = (
   ) {
     // Fire UA event
     ReactGA.event(optionsOrName, params);
-    // Mark this user as converted for this session
-    sessionStorage.setItem(conversionKey, 'true');
+    if (conversionKey) sessionStorage.setItem(conversionKey, 'true');
   }
 };
