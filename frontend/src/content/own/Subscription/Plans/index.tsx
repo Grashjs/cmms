@@ -31,6 +31,7 @@ import { CompanySettingsContext } from '../../../../contexts/CompanySettingsCont
 import { Order } from '../../../../models/owns/fastspring';
 import api from '../../../../utils/api';
 import { useBrand } from '../../../../hooks/useBrand';
+import { fireGa4Event } from '../../../../utils/overall';
 
 function SubscriptionPlans() {
   const { t }: { t: any } = useTranslation();
@@ -106,6 +107,14 @@ function SubscriptionPlans() {
   };
   const onUpgradeRequest = async () => {
     setSubmitting(true);
+    const cost = getCost();
+    fireGa4Event({
+      category: 'Pricing',
+      action: 'Upgrade_Request',
+      label: 'Upgrade_Request',
+      value: period == 'monthly' ? cost : cost * 10
+    });
+
     const payload = {
       code: selectedPlanObject.code,
       monthly: period === 'monthly',
@@ -201,6 +210,10 @@ function SubscriptionPlans() {
   const onSubcriptionPatchFailure = () => {
     showSnackBar(t("The Subscription couldn't be changed"), 'error');
   };
+
+  useEffect(() => {
+    fireGa4Event('pricing_view');
+  }, []);
 
   if (user.ownsCompany)
     return (

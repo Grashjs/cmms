@@ -18,6 +18,7 @@ import CheckCircleOutlineTwoToneIcon from '@mui/icons-material/CheckCircleOutlin
 import { Link as RouterLink } from 'react-router-dom';
 import { boolean } from 'yup';
 import { useTranslation } from 'react-i18next';
+import { fireGa4Event } from '../../../utils/overall';
 
 interface SubscriptionPlanSelectorProps {
   monthly: boolean;
@@ -147,6 +148,17 @@ export default function SubscriptionPlanSelector({
                     fullWidth
                     variant="contained"
                     component={RouterLink}
+                    onClick={() => {
+                      if (plan.id !== 'basic') {
+                        fireGa4Event({
+                          category: 'Pricing',
+                          action: 'Plan_Selection',
+                          label: `${plan.id}_Trial`,
+                          value:
+                            plan.id === 'business' ? 100 : Number(plan.price)
+                        });
+                      }
+                    }}
                     to={
                       '/account/register' +
                       (plan.id !== 'basic'

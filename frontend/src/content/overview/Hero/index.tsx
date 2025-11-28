@@ -14,6 +14,7 @@ import useScrollToLocation from 'src/hooks/useScrollToLocation';
 import useAuth from '../../../hooks/useAuth';
 import { useBrand } from '../../../hooks/useBrand';
 import api, { authHeader } from '../../../utils/api';
+import { fireGa4Event } from '../../../utils/overall';
 
 const TypographyH1 = styled(Typography)(
   ({ theme }) => `
@@ -145,6 +146,7 @@ function Hero() {
   const onSeeLiveDemo = async () => {
     setGeneratingAccount(true);
     try {
+      fireGa4Event('live_demo_view');
       const { success, message } = await api.get<{
         success: boolean;
         message: string;
@@ -216,10 +218,13 @@ function Hero() {
             sx={{
               ml: 2
             }}
-            component="a"
             href={`mailto:${brandConfig.mail}`}
             size="medium"
             variant="text"
+            onClick={() => {
+              fireGa4Event('contact_us_click');
+              window.location.href = `mailto:${brandConfig.mail}`;
+            }}
           >
             {t('contact_us')}
           </Button>

@@ -80,7 +80,11 @@ import {
   Sort
 } from '../../../models/owns/page';
 import Filters from './Filters';
-import { getRandomColor, onSearchQueryChange } from '../../../utils/overall';
+import {
+  fireGa4Event,
+  getRandomColor,
+  onSearchQueryChange
+} from '../../../utils/overall';
 import SearchInput from '../components/SearchInput';
 import File from '../../../models/owns/file';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
@@ -689,6 +693,8 @@ function Assets() {
             }}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
+              if (assetsHierarchy.length === 0)
+                fireGa4Event('first_asset_creation');
               let formattedValues = formatAssetValues(values);
               return new Promise<void>((resolve, rej) => {
                 uploadFiles(formattedValues.files, formattedValues.image)
