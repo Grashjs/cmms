@@ -1,4 +1,4 @@
-import { IconSource } from 'react-native-paper/src/components/Icon';
+import type { IconSource } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
 import { IconButton, Text } from 'react-native-paper';
 import * as React from 'react';

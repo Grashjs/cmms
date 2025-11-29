@@ -16,7 +16,7 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Meter from '../../models/meter';
-import { IconSource } from 'react-native-paper/src/components/Icon';
+import type { IconSource } from 'react-native-paper';
 import { onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
@@ -169,7 +169,7 @@ export default function MetersScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
+    // alignItems: 'center',
     justifyContent: 'center'
   },
   title: {

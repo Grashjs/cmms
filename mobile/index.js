@@ -1,6 +1,4 @@
 import { registerRootComponent } from 'expo';
-import * as encoding from 'text-encoding';
-
 import App from './App';
 
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);

@@ -6,7 +6,7 @@ import { View } from 'react-native';
 import { Divider, List, Text } from 'react-native-paper';
 import * as React from 'react';
 import { useContext, useRef } from 'react';
-import { IconSource } from 'react-native-paper/src/components/Icon';
+import type { IconSource } from 'react-native-paper';
 import { RootStackParamList } from '../../types';
 import { useTranslation } from 'react-i18next';
 import useAuth from '../../hooks/useAuth';

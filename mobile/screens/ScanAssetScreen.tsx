@@ -1,4 +1,4 @@
-import { Alert, StyleSheet } from 'react-native';
+import { Alert, Platform, StyleSheet } from 'react-native';
 import { View } from '../components/Themed';
 import { Divider, List, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -12,31 +12,38 @@ export default function ScanAssetScreen({
   const theme = useTheme();
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  // NFC scanning must remain disabled on iOS; keep barcode only there.
+  const isNfcEnabled = Platform.select({ ios: false, default: true });
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <View>
-        <List.Item
-          title={t('NFC')}
-          onPress={() =>
-            navigation.navigate('SelectNfc', {
-              onChange: (nfcId) =>
-                dispatch(getAssetByNfc(nfcId))
-                  .then((assetId: number) =>
-                    navigation.replace('AssetDetails', { id: assetId })
-                  )
-                  .catch((err) =>
-                    Alert.alert(t('error'), t('no_asset_found_nfc'), [
-                      { text: t('no'), onPress: () => navigation.goBack() },
-                      {
-                        text: t('yes'),
-                        onPress: () => navigation.replace('AddAsset', { nfcId })
-                      }
-                    ])
-                  )
-            })
-          }
-        />
-        <Divider />
+        {isNfcEnabled && (
+          <>
+            <List.Item
+              title={t('NFC')}
+              onPress={() =>
+                navigation.navigate('SelectNfc', {
+                  onChange: (nfcId) =>
+                    dispatch(getAssetByNfc(nfcId))
+                      .then((assetId: number) =>
+                        navigation.replace('AssetDetails', { id: assetId })
+                      )
+                      .catch((err) =>
+                        Alert.alert(t('error'), t('no_asset_found_nfc'), [
+                          { text: t('no'), onPress: () => navigation.goBack() },
+                          {
+                            text: t('yes'),
+                            onPress: () => navigation.replace('AddAsset', { nfcId })
+                          }
+                        ])
+                      )
+                })
+              }
+            />
+            <Divider />
+          </>
+        )}
         <List.Item
           title={t('barcode')}
           onPress={() =>

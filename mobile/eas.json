@@ -1,6 +1,6 @@
 {
   "cli": {
-    "version": ">= 3.7.2",
+    "version": ">= 7.0.0",
     "appVersionSource": "remote"
   },
   "build": {
@@ -14,13 +14,13 @@
     },
     "preview": {
       "distribution": "internal",
-      "channel": "preview",
+      "channel": "preview-51",
       "ios": {
         "resourceClass": "m1-medium"
       }
     },
     "production": {
-      "channel": "master",
+      "channel": "production-1-0-31",
       "ios": {
         "resourceClass": "m1-medium"
       },
