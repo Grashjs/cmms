@@ -15,6 +15,7 @@ const useGridStatePersist = (
 ) => {
   const stateItem = `${prefix}DataGridState`;
   const hasRestoredSortingRef = useRef(false);
+  const hasRestoredPaginationRef = useRef(false);
   const columnAttemptCountRef = useRef(0);
   const MAX_COLUMN_ATTEMPTS = 20;
 
@@ -47,6 +48,8 @@ const useGridStatePersist = (
     ) {
       try {
         const state = JSON.parse(localStorage.getItem(stateItem));
+
+        // Restore columns
         if (
           columnAttemptCountRef.current < MAX_COLUMN_ATTEMPTS &&
           state.columns
@@ -63,6 +66,14 @@ const useGridStatePersist = (
             sorting: state.sorting
           });
           hasRestoredSortingRef.current = true;
+        }
+
+        // Restore pagination only once
+        if (!hasRestoredPaginationRef.current && state.pagination) {
+          apiRef.current.restoreState({
+            pagination: state.pagination
+          });
+          hasRestoredPaginationRef.current = true;
         }
       } catch (error) {
         console.error('Error restoring grid state:', error);
