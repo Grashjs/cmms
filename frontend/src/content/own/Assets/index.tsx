@@ -469,6 +469,13 @@ function Assets() {
       midWidth: true
     },
     {
+      name: 'barCode',
+      type: 'text',
+      label: t('barcode'),
+      placeholder: t('barcode'),
+      midWidth: true
+    },
+    {
       name: 'serialNumber',
       type: 'text',
       label: t('serial_number'),

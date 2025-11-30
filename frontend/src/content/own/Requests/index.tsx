@@ -258,6 +258,14 @@ function Files() {
           : t('pending')
     },
     {
+      field: 'dueDate',
+      headerName: t('due_date'),
+      description: t('due_date'),
+      width: 150,
+      valueGetter: (params: GridValueGetterParams<null, Request>) =>
+        getFormattedDate(params.value)
+    },
+    {
       field: 'createdAt',
       headerName: t('created_at'),
       description: t('created_at'),
@@ -566,7 +574,8 @@ function Files() {
                       description: 'description',
                       priority: 'priority',
                       // status: 'status',
-                      createdAt: 'createdAt'
+                      createdAt: 'createdAt',
+                      dueDate: 'dueDate'
                     };
 
                     const field = model[0].field;

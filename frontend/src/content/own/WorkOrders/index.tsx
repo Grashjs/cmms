@@ -102,6 +102,7 @@ import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import { getPreventiveMaintenanceUrl } from 'src/utils/urlPaths';
 import { useGridApiRef } from '@mui/x-data-grid-pro';
 import useGridStatePersist from '../../../hooks/useGridStatePersist';
+import Request from '../../../models/owns/request';
 
 function WorkOrders() {
   const { t }: { t: any } = useTranslation();
@@ -469,6 +470,14 @@ function WorkOrders() {
         params.value?.name
     },
     {
+      field: 'dueDate',
+      headerName: t('due_date'),
+      description: t('due_date'),
+      width: 150,
+      valueGetter: (params: GridValueGetterParams<null, WorkOrder>) =>
+        getFormattedDate(params.value)
+    },
+    {
       field: 'daysSinceCreated',
       headerName: t('days_since_creation'),
       description: t('days_since_creation'),
@@ -537,7 +546,8 @@ function WorkOrders() {
     files: 'files',
     completedOn: 'completedOn',
     updatedAt: 'updatedAt',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    dueDate: 'dueDate'
   };
 
   const defaultFields: Array<IField> = [
