@@ -81,12 +81,12 @@ public class Helper {
             throw new CustomException("getNextOccurence should not have 0 as parameter",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         Date result = date;
-        if (result.after(new Date())) {
+        Date now = new Date();
+
+        while (!result.after(now)) {
             result = incrementDays(result, days);
-        } else
-            while (result.before(new Date())) {
-                result = incrementDays(result, days);
-            }
+        }
+
         return result;
     }
 
