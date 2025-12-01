@@ -76,7 +76,7 @@ public class Helper {
         return c.getTime();
     }
 
-    public static Date getNextOccurence(Date date, int days) {
+    public static Date getNextOccurrence(Date date, int days) {
         if (days == 0)
             throw new CustomException("getNextOccurence should not have 0 as parameter",
                     HttpStatus.INTERNAL_SERVER_ERROR);
