@@ -65,65 +65,27 @@ const BoxContent = styled(Box)(
 `
 );
 
-const LabelWrapper = styled(Box)(
+const MobileImgWrapper = styled(Box)(
   ({ theme }) => `
-    background-color: ${theme.colors.success.main};
-    color: ${theme.palette.success.contrastText};
-    font-weight: bold;
-    border-radius: 30px;
-    text-transform: uppercase;
-    display: inline-block;
-    font-size: ${theme.typography.pxToRem(11)};
-    padding: ${theme.spacing(0.5)} ${theme.spacing(1.5)};
-    margin-bottom: ${theme.spacing(2)};
-`
-);
-
-const ListItemWrapper = styled(Box)(
-  () => `
-    display: flex;
-    align-items: center;
-`
-);
-
-const MuiAvatar = styled(Box)(
-  ({ theme }) => `
-    width: ${theme.spacing(8)};
-    height: ${theme.spacing(8)};
-    border-radius: ${theme.general.borderRadius};
-    background-color: #e5f7ff;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: ${theme.spacing(2)};
+    position: absolute;
+    z-index: 6;
+    width: 15%;
+    left: -14%;
+    bottom: -25%;
+         ${theme.breakpoints.down('md')} {
+    left: 45%;
+    bottom: -50%;
+  }
+    transform: translateY(-50%);
+    overflow: hidden;
+    border-radius: ${theme.general.borderRadiusLg};
+    box-shadow: 0 0rem 14rem 0 rgb(0 0 0 / 20%), 0 0.8rem 2.3rem rgb(0 0 0 / 3%), 0 0.2rem 0.7rem rgb(0 0 0 / 15%);
 
     img {
-      width: 60%;
-      height: 60%;
       display: block;
+      width: 100%;
     }
-`
-);
-
-const TsAvatar = styled(Box)(
-  ({ theme }) => `
-    width: ${theme.spacing(8)};
-    height: ${theme.spacing(8)};
-    border-radius: ${theme.general.borderRadius};
-    background-color: #dfebf6;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: ${theme.spacing(2)};
-
-    img {
-      width: 60%;
-      height: 60%;
-      display: block;
-    }
-`
+  `
 );
 
 function Hero() {
@@ -239,6 +201,9 @@ function Hero() {
                 />
               </ImgWrapper>
             </RouterLink>
+            <MobileImgWrapper>
+              <img alt="Mobile App" src="/static/mobile_app.jpeg" />
+            </MobileImgWrapper>
             <BoxAccent
               sx={{
                 display: { xs: 'none', md: 'block' }
