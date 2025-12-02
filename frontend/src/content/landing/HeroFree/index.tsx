@@ -58,6 +58,29 @@ const BoxContent = styled(Box)(
 `
 );
 
+const MobileImgWrapper = styled(Box)(
+  ({ theme }) => `
+    position: absolute;
+    z-index: 6;
+    width: 15%;
+    left: -14%;
+    bottom: -25%;
+         ${theme.breakpoints.down('md')} {
+    left: 45%;
+    bottom: -50%;
+  }
+    transform: translateY(-50%);
+    overflow: hidden;
+    border-radius: ${theme.general.borderRadiusLg};
+    box-shadow: 0 0rem 14rem 0 rgb(0 0 0 / 20%), 0 0.8rem 2.3rem rgb(0 0 0 / 3%), 0 0.2rem 0.7rem rgb(0 0 0 / 15%);
+
+    img {
+      display: block;
+      width: 100%;
+    }
+  `
+);
+
 function HeroFree() {
   const { t }: { t: any } = useTranslation();
 
@@ -110,6 +133,9 @@ function HeroFree() {
                 />
               </ImgWrapper>
             </RouterLink>
+            <MobileImgWrapper>
+              <img alt="Mobile App" src="/static/mobile_app.jpeg" />
+            </MobileImgWrapper>
             <BoxAccent
               sx={{
                 display: { xs: 'none', md: 'block' }

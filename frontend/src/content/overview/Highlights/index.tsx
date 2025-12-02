@@ -911,7 +911,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
             to="/account/register"
             variant="contained"
           >
-            {t('register')}
+            {hidePricing ? 'Sign Up for Free' : t('register')}
           </Button>
         </Container>
       </Container>
