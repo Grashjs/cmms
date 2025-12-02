@@ -72,7 +72,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    supportedLngs: Object.keys(resources),
+    // supportedLngs: Object.keys(resources),
     keySeparator: false,
     fallbackLng: 'en',
     react: {
