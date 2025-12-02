@@ -327,7 +327,7 @@ const icons = {
   Amplify: '/static/images/logo/amplify.svg'
 };
 
-function Highlights() {
+function Highlights({ hidePricing }: { hidePricing?: boolean }) {
   const { t }: { t: any } = useTranslation();
   const brandConfig = useBrand();
   const [currentTab, setCurrentTab] = useState('work-orders');
@@ -862,20 +862,26 @@ function Highlights() {
           </BoxRtl>
         )}
       </Container>
-      <TypographyH1Primary
-        textAlign="center"
-        sx={{
-          mt: 8,
-          mb: 2
-        }}
-        variant="h1"
-      >
-        {t('choose_your_plan')}
-      </TypographyH1Primary>
-      <Box px={4}>
-        <SubscriptionPlanSelector monthly={monthly} setMonthly={setMonthly} />
-      </Box>
-
+      {!hidePricing && (
+        <>
+          <TypographyH1Primary
+            textAlign="center"
+            sx={{
+              mt: 8,
+              mb: 2
+            }}
+            variant="h1"
+          >
+            {t('choose_your_plan')}
+          </TypographyH1Primary>
+          <Box px={4}>
+            <SubscriptionPlanSelector
+              monthly={monthly}
+              setMonthly={setMonthly}
+            />
+          </Box>
+        </>
+      )}
       <Container
         sx={{
           pt: { xs: 6, md: 12 },
