@@ -296,9 +296,12 @@ const LayoutImgButton = styled(Box)(
       bottom: ${theme.spacing(3)};
       color: ${theme.colors.alpha.trueWhite[100]};;
       background: rgba(0,0,0,.8);
-      padding: ${theme.spacing(2, 4.5)};
+      padding: ${theme.spacing(1, 2)};
       border-radius: ${theme.general.borderRadiusXl};
       z-index: 5;
+     ${theme.breakpoints.down('md')} {
+    font-size: 12px;
+  }
     }
 
     img {
