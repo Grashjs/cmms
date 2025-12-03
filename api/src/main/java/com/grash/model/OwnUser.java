@@ -148,8 +148,15 @@ public class OwnUser extends Audit {
     private String ssoProviderId;
     private boolean createdViaSso = false;
 
+    private String utmSource;
+    private String utmMedium;
+    private String utmCampaign;
+    private String utmTerm;
+    private String utmContent;
     private String gclid;
-    
+    private String fbclid;
+
+
     public int hashCode() {
         return Math.toIntExact(id);
     }

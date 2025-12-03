@@ -26,6 +26,7 @@ import { useNavigate } from 'react-router-dom';
 import i18n from 'i18next';
 import countries from '../../../../i18n/countries';
 import { verify } from '../../../../utils/jwt';
+import { useUtmTracker } from '@nik0di3m/utm-tracker-hook';
 
 function RegisterJWT({
   email,

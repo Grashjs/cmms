@@ -1,10 +1,8 @@
 package com.grash.mapper;
 
 import com.grash.dto.*;
-import com.grash.model.Asset;
 import com.grash.model.OwnUser;
 import com.grash.model.UiConfiguration;
-import com.grash.service.AssetService;
 import com.grash.service.UiConfigurationService;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +34,21 @@ public abstract class UserMapper {
 
     @Mappings({})
     public abstract OwnUser toModel(UserSignupRequest dto);
+
+    @AfterMapping
+    protected OwnUser toModel(OwnUser user, @MappingTarget UserSignupRequest target) {
+        UtmParams utm = target.getUtmParams();
+        if (utm != null) {
+            user.setUtmSource(utm.getUtm_source());
+            user.setUtmMedium(utm.getUtm_medium());
+            user.setUtmCampaign(utm.getUtm_campaign());
+            user.setUtmTerm(utm.getUtm_term());
+            user.setUtmContent(utm.getUtm_content());
+            user.setGclid(utm.getGclid());
+            user.setFbclid(utm.getFbclid());
+        }
+        return user;
+    }
 
     public abstract UserMiniDTO toMiniDto(OwnUser user);
 }
