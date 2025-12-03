@@ -15,6 +15,7 @@ import {
   customLogoPaths,
   googleTrackingId,
   IS_LOCALHOST,
+  isCloudVersion,
   isWhiteLabeled
 } from './config';
 import { useEffect, useState } from 'react';
@@ -23,6 +24,7 @@ import { getLicenseValidity } from './slices/license';
 import { useDispatch, useSelector } from './store';
 import { useBrand } from './hooks/useBrand';
 import { useTranslation } from 'react-i18next';
+import { saveGclidFromUrl } from './utils/gclid';
 
 if (!IS_LOCALHOST && googleTrackingId) ReactGA.initialize(googleTrackingId);
 
@@ -107,6 +109,10 @@ function App() {
       link.href = logo.dark;
     }
   }, [logo.dark, isLicenseValid]);
+
+  useEffect(() => {
+    if (isCloudVersion) saveGclidFromUrl();
+  }, []);
 
   return (
     <ThemeProvider>

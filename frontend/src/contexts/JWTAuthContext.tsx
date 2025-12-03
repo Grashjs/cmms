@@ -34,6 +34,7 @@ import { googleTrackingId, IS_LOCALHOST } from '../config';
 import ReactGA from 'react-ga4';
 import { getLicenseValidity } from '../slices/license';
 import { fireGa4Event } from '../utils/overall';
+import { getGclid } from '../utils/gclid';
 
 interface AuthState {
   isInitialized: boolean;
@@ -622,9 +623,10 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       // @ts-ignore
       window.lintrk('track', { conversion_id: 24670282 });
     }
+    const gclid = getGclid();
     const response = await api.post<{ message: string; success: boolean }>(
       'auth/signup',
-      values,
+      { ...values, gclid },
       { headers: authHeader(true) }
     );
     const { message, success } = response;
