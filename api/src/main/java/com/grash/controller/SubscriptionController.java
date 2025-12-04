@@ -105,7 +105,7 @@ public class SubscriptionController {
             throw new CustomException("MAIL_RECIPIENTS env variable not set", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         OwnUser user = userService.whoami(req);
-        if (user.isOwnsCompany()) {
+        if (user.isOwnsCompany() && !user.getCompany().isDemo()) {
             subscriptionChangeRequestRepository.save(subscriptionChangeRequest);
             try {
                 emailService2.sendHtmlMessage(recipients, "New " + brandingService.getBrandConfig().getShortName() +
