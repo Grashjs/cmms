@@ -390,6 +390,7 @@ public class UserService {
     }
 
     private void appendUtmParameters(StringBuilder body, UserSignupRequest request) {
+        if (request.getUtmParams() == null) return;
         body.append("\n--- Marketing Attribution ---\n");
 
         if (request.getUtmParams().getUtm_source() != null) {
