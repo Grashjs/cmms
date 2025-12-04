@@ -36,18 +36,18 @@ public abstract class UserMapper {
     public abstract OwnUser toModel(UserSignupRequest dto);
 
     @AfterMapping
-    protected OwnUser toModel(OwnUser user, @MappingTarget UserSignupRequest target) {
-        UtmParams utm = target.getUtmParams();
+    protected OwnUser toModel(UserSignupRequest dto, @MappingTarget OwnUser target) {
+        UtmParams utm = dto.getUtmParams();
         if (utm != null) {
-            user.setUtmSource(utm.getUtm_source());
-            user.setUtmMedium(utm.getUtm_medium());
-            user.setUtmCampaign(utm.getUtm_campaign());
-            user.setUtmTerm(utm.getUtm_term());
-            user.setUtmContent(utm.getUtm_content());
-            user.setGclid(utm.getGclid());
-            user.setFbclid(utm.getFbclid());
+            target.setUtmSource(utm.getUtm_source());
+            target.setUtmMedium(utm.getUtm_medium());
+            target.setUtmCampaign(utm.getUtm_campaign());
+            target.setUtmTerm(utm.getUtm_term());
+            target.setUtmContent(utm.getUtm_content());
+            target.setGclid(utm.getGclid());
+            target.setFbclid(utm.getFbclid());
         }
-        return user;
+        return target;
     }
 
     public abstract UserMiniDTO toMiniDto(OwnUser user);
