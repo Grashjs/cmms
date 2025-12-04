@@ -110,6 +110,13 @@ function App() {
     }
   }, [logo.dark, isLicenseValid]);
 
+  useEffect(() => {
+    if (isCloudVersion) {
+      const referrer = document.referrer || null;
+      localStorage.setItem('referrerData', referrer);
+    }
+  }, []);
+
   return (
     <UtmTrackerProvider>
       <ThemeProvider>

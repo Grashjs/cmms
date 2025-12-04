@@ -46,6 +46,7 @@ public abstract class UserMapper {
             target.setUtmContent(utm.getUtm_content());
             target.setGclid(utm.getGclid());
             target.setFbclid(utm.getFbclid());
+            target.setReferrer(utm.getReferrer());
         }
         return target;
     }

@@ -11,4 +11,5 @@ public class UtmParams {
     private String utm_content;
     private String gclid;
     private String fbclid;
+    private String referrer;
 }

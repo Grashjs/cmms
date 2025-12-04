@@ -26,4 +26,9 @@
         </rollback>
 
     </changeSet>
+    <changeSet id="1764862112662-1" author="Ibrahima G. Coulibaly">
+        <addColumn tableName="own_user">
+            <column name="referrer" type="text"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

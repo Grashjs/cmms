@@ -155,6 +155,7 @@ public class OwnUser extends Audit {
     private String utmContent;
     private String gclid;
     private String fbclid;
+    private String referrer;
 
 
     public int hashCode() {
