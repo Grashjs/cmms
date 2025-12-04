@@ -390,7 +390,7 @@ public class UserService {
     }
 
     private void appendUtmParameters(StringBuilder body, UserSignupRequest request) {
-        if (request.getUtmParams() == null) return;
+        if (!cloudVersion || request.getUtmParams() == null) return;
         body.append("\n--- Marketing Attribution ---\n");
         if (request.getUtmParams().getReferrer() != null) {
             body.append(String.format("Referrer: %s%n", request.getUtmParams().getReferrer()));
