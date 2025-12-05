@@ -24,7 +24,7 @@ import LanguageSwitcher from '../../layouts/ExtendedSidebarLayout/Header/Buttons
 import { Link as RouterLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
-import { isWhiteLabeled } from '../../config';
+import { demoLink, isWhiteLabeled } from '../../config';
 
 const HeaderWrapper = styled(Card)(
   ({ theme }) => `
@@ -112,7 +112,7 @@ export default function NavBar() {
               <Button
                 component={RouterLink}
                 to="/app/work-orders"
-                variant="outlined"
+                variant="text"
                 sx={{
                   ml: 2,
                   size: { xs: 'small', md: 'medium' }
@@ -130,6 +130,18 @@ export default function NavBar() {
                 }}
               >
                 {t('register')}
+              </Button>
+              <Button
+                onClick={() => {
+                  window.location.href = demoLink;
+                }}
+                variant="outlined"
+                sx={{
+                  ml: 2,
+                  size: { xs: 'small', md: 'medium' }
+                }}
+              >
+                {t('book_demo')}
               </Button>
             </Stack>
 
@@ -247,7 +259,7 @@ export default function NavBar() {
                       <Button
                         component={RouterLink}
                         to="/app/work-orders"
-                        variant="outlined"
+                        variant="text"
                         fullWidth
                         size="large"
                         onClick={handleMenuClose}
@@ -263,6 +275,16 @@ export default function NavBar() {
                         onClick={handleMenuClose}
                       >
                         {t('register')}
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          window.location.href = demoLink;
+                        }}
+                        variant="outlined"
+                        fullWidth
+                        size="large"
+                      >
+                        {t('book_demo')}
                       </Button>
                     </Stack>
                   </Box>
