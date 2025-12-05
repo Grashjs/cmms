@@ -11,6 +11,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Stack,
   styled,
   Tab,
   Tabs,
@@ -21,6 +22,7 @@ import { AE, CN, DE, ES, FR, US, BR } from 'country-flag-icons/react/3x2';
 import SubscriptionPlans from '../SubscriptionPlans';
 import SubscriptionPlanSelector from '../../pricing/components/SubscriptionPlanSelector';
 import { useBrand } from '../../../hooks/useBrand';
+import { demoLink } from '../../../config';
 
 const AvatarSuccess = styled(Avatar)(
   ({ theme }) => `
@@ -901,18 +903,29 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
         <Container
           sx={{
             mb: 6,
-            textAlign: 'center'
+            justifyContent: 'center'
           }}
           maxWidth="sm"
         >
-          <Button
-            component={RouterLink}
-            size="large"
-            to="/account/register"
-            variant="contained"
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            justifyContent={'center'}
+            spacing={2}
           >
-            {hidePricing ? 'Sign Up for Free' : t('register')}
-          </Button>
+            <Button
+              component={RouterLink}
+              size="large"
+              to="/account/register"
+              variant="contained"
+            >
+              {hidePricing ? 'Sign Up for Free' : t('register')}
+            </Button>
+            {!hidePricing && (
+              <Button size="large" href={demoLink} variant="outlined">
+                {t('book_demo')}
+              </Button>
+            )}
+          </Stack>
         </Container>
       </Container>
     </BoxHighlights>

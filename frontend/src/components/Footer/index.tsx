@@ -98,7 +98,7 @@ export function Footer() {
           </Grid>
           <Grid item xs={12} md={3}>
             <SectionHeading variant="h5">Mobile apps</SectionHeading>
-            <Stack spacing={1} direction="row">
+            <Stack spacing={1} direction={{ xs: 'column', lg: 'row' }}>
               <img
                 style={{ cursor: 'pointer' }}
                 onClick={() =>

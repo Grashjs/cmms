@@ -84,7 +84,7 @@ export default function SubscriptionPlanSelector({
               )}
               <CardContent
                 sx={{
-                  p: 3,
+                  p: { xs: 2, md: 3 },
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column'
