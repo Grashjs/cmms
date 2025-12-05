@@ -46,7 +46,7 @@ const HeaderWrapper = styled(Card)(
 // Spacer to prevent content from going under fixed navbar
 const NavbarSpacer = styled(Box)(
   ({ theme }) => `
-    height: ${theme.spacing(7)};
+    height: ${theme.spacing(10)};
     margin-bottom: ${theme.spacing(10)};
   `
 );
@@ -148,9 +148,7 @@ export default function NavBar() {
                   {t('register')}
                 </Button>
                 <Button
-                  onClick={() => {
-                    window.location.href = demoLink;
-                  }}
+                  href={demoLink}
                   variant="outlined"
                   sx={{
                     ml: 2,
@@ -295,9 +293,7 @@ export default function NavBar() {
                           {t('register')}
                         </Button>
                         <Button
-                          onClick={() => {
-                            window.location.href = demoLink;
-                          }}
+                          href={demoLink}
                           variant="outlined"
                           fullWidth
                           size="large"
