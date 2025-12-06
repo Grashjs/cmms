@@ -411,14 +411,14 @@ export default function WODetailsScreen({
     setIsExtended(currentScrollPosition <= 0);
   };
   const onCompleteWO = (
-    signatureId: number | undefined,
+    signature: string | undefined,
     feedback: string | undefined
   ): Promise<any> => {
     return dispatch(
       changeWorkOrderStatus(id, {
         status: 'COMPLETE',
         feedback: feedback ?? null,
-        signature: signatureId ? { id: signatureId } : null
+        signature
       })
     ).then(() => navigation.navigate('Root'));
   };
@@ -784,7 +784,7 @@ export default function WODetailsScreen({
                         {t('signature')}
                       </Text>
                       <Image
-                        source={{ uri: workOrder.signature.url }}
+                        source={{ uri: workOrder.signature }}
                         style={{ height: 200 }}
                       />
                     </View>
