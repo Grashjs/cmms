@@ -2,39 +2,37 @@ package com.grash.service;
 
 import com.grash.dto.SchedulePatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.job.PreventiveMaintenanceNotificationJob;
+import com.grash.job.WorkOrderCreationJob;
 import com.grash.mapper.ScheduleMapper;
-import com.grash.model.*;
-import com.grash.model.enums.PermissionEntity;
+import com.grash.model.PreventiveMaintenance;
+import com.grash.model.Schedule;
+import com.grash.model.WorkOrder;
 import com.grash.repository.ScheduleRepository;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
+import lombok.extern.slf4j.Slf4j;
+import org.quartz.*;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
-    private final PreventiveMaintenanceService preventiveMaintenanceService;
     private final ScheduleMapper scheduleMapper;
-    private final MessageSource messageSource;
-    private final EmailService2 emailService2;
     private final WorkOrderService workOrderService;
-    private final TaskService taskService;
-    private final UserService userService;
-    @Value("${frontend.url}")
-    private String frontendUrl;
-    private final Map<Long, Map<String, Timer>> timersState = new HashMap<>();
+
+    // Quartz Scheduler
+    private final Scheduler scheduler;
 
     public Schedule create(Schedule Schedule) {
         return scheduleRepository.save(Schedule);
@@ -52,6 +50,8 @@ public class ScheduleService {
     }
 
     public void delete(Long id) {
+        // Ensure jobs are killed before deleting data
+        stopScheduleTimers(id);
         scheduleRepository.deleteById(id);
     }
 
@@ -67,113 +67,106 @@ public class ScheduleService {
         int limit = 10; //inclusive schedules at 10
         PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
         Page<WorkOrder> workOrdersPage = workOrderService.findLastByPM(preventiveMaintenance.getId(), limit);
+
         boolean isStale = false;
         if (workOrdersPage.getTotalElements() >= limit && workOrdersPage.getContent().stream().allMatch(workOrder -> workOrder.getFirstTimeToReact() == null)) {
             isStale = true;
             schedule.setDisabled(true);
             scheduleRepository.save(schedule);
         }
-        boolean shouldSchedule = !schedule.isDisabled() && (schedule.getEndsOn() == null || schedule.getEndsOn()
-                .after(new Date())) && !isStale;
-        if (shouldSchedule) {
-            Timer timer = new Timer();
-            //  Collection<WorkOrder> workOrders = workOrderService.findByPM(schedule.getPreventiveMaintenance()
-            //  .getId());
-            Date startsOn = Helper.getNextOccurrence(schedule.getStartsOn(), schedule.getFrequency());
-            TimerTask timerTask = new TimerTask() {
-                @Override
-                public void run() {//create WO
-                    PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
-                    WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(preventiveMaintenance);
-                    Collection<Task> tasks = taskService.findByPreventiveMaintenance(preventiveMaintenance.getId());
-                    workOrder.setParentPreventiveMaintenance(preventiveMaintenance);
-                    if (schedule.getDueDateDelay() != null) {
-                        workOrder.setDueDate(Helper.incrementDays(new Date(), schedule.getDueDateDelay()));
-                    }
-                    WorkOrder savedWorkOrder = workOrderService.create(workOrder, preventiveMaintenance.getCompany());
-                    tasks.forEach(task -> {
-                        Task copiedTask = new Task(task.getTaskBase(), savedWorkOrder, null, task.getValue());
-                        copiedTask.setCompany(preventiveMaintenance.getCompany());
-                        taskService.create(copiedTask);
-                    });
-                }
-            };
-            timer.scheduleAtFixedRate(timerTask, startsOn, (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);
-            Map<String, Timer> localTimers = new HashMap<>();
-            localTimers.put("wo_creation", timer);//first wo creation
 
-            Timer timer1 = new Timer();// use daysBeforePrevMaintNotification
-            int daysBeforePMNotification = preventiveMaintenance.getCompany()
-                    .getCompanySettings().getGeneralPreferences().getDaysBeforePrevMaintNotification();
-            if (daysBeforePMNotification > 0) {
-                Date trueStartsOn = preventiveMaintenance.getEstimatedStartDate() == null ? startsOn :
-                        preventiveMaintenance.getEstimatedStartDate();
-                TimerTask timerTask1 = new TimerTask() {
-                    @Override
-                    public void run() {
-                        //send notification to assigned users
-                        PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
-                        Locale locale = Helper.getLocale(preventiveMaintenance.getCompany());
-                        String title = messageSource.getMessage("coming_wo", null, locale);
-                        Collection<OwnUser> admins =
-                                userService.findWorkersByCompany(preventiveMaintenance.getCompany().getId()).stream().filter(ownUser -> ownUser.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)).collect(Collectors.toList());
-                        List<OwnUser> usersToMail = new ArrayList<>(Stream.concat(
-                                        preventiveMaintenance.getUsers().stream(),
-                                        admins.stream()).filter(user -> user.isEnabled() && user.getUserSettings().shouldEmailUpdatesForWorkOrders())
-                                .collect(Collectors.toMap(
-                                        OwnUser::getId,  // key by ID
-                                        Function.identity(), // value is the user object
-                                        (existing, replacement) -> existing))  // if duplicate keys, keep existing
-                                .values());
-                        Map<String, Object> mailVariables = new HashMap<String, Object>() {{
-                            put("pmLink",
-                                    frontendUrl + "/app/preventive-maintenances/" + preventiveMaintenance.getId());
-                            put("featuresLink", frontendUrl + "/#key-features");
-                            put("pmTitle", preventiveMaintenance.getTitle());
-                        }};
-                        emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
-                                .toArray(String[]::new), title, mailVariables, "coming-work-order.html", locale);
-                    }
-                };
-                timer1.scheduleAtFixedRate(timerTask1, Helper.getNextOccurrence(Helper.minusDays(trueStartsOn,
-                                daysBeforePMNotification), 1),
-                        (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);
-                localTimers.put("notification", timer1);
+        boolean shouldSchedule =
+                !schedule.isDisabled() && (schedule.getEndsOn() == null || schedule.getEndsOn().after(new Date())) && !isStale;
+
+        if (shouldSchedule) {
+            try {
+                // 1. Calculate Frequency in Milliseconds
+                long frequencyInMillis = (long) schedule.getFrequency() * 24 * 60 * 60 * 1000;
+
+                // ---------------------------------------------------------
+                // JOB 1: Work Order Creation
+                // ---------------------------------------------------------
+                Date startsOn = Helper.getNextOccurrence(schedule.getStartsOn(), schedule.getFrequency());
+
+                JobDetail woJob = JobBuilder.newJob(WorkOrderCreationJob.class)
+                        .withIdentity("wo-job-" + schedule.getId(), "wo-group")
+                        .usingJobData("scheduleId", schedule.getId())
+                        .storeDurably() // Allows job to exist even without triggers (optional safety)
+                        .build();
+
+                Trigger woTrigger = TriggerBuilder.newTrigger()
+                        .withIdentity("wo-trigger-" + schedule.getId(), "wo-group")
+                        .startAt(startsOn)
+                        .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                                .withIntervalInMilliseconds(frequencyInMillis)
+                                .repeatForever())
+                        .endAt(schedule.getEndsOn()) // Native Quartz support for 'endsOn'
+                        .build();
+
+                // If a job with this key exists, it is replaced
+                scheduler.scheduleJob(woJob, woTrigger);
+
+
+                // ---------------------------------------------------------
+                // JOB 2: Notification (Optional based on daysBeforePMNotification)
+                // ---------------------------------------------------------
+                int daysBeforePMNotification = preventiveMaintenance.getCompany()
+                        .getCompanySettings().getGeneralPreferences().getDaysBeforePrevMaintNotification();
+
+                if (daysBeforePMNotification > 0) {
+                    Date trueStartsOn = preventiveMaintenance.getEstimatedStartDate() == null ? startsOn :
+                            preventiveMaintenance.getEstimatedStartDate();
+
+                    // Logic preserved: Helper.minusDays, then Helper.getNextOccurrence with frequency 1 (to ensure
+                    // it's in future)
+                    Date notificationStart = Helper.getNextOccurrence(
+                            Helper.minusDays(trueStartsOn, daysBeforePMNotification),
+                            1
+                    );
+
+                    JobDetail notifJob = JobBuilder.newJob(PreventiveMaintenanceNotificationJob.class)
+                            .withIdentity("notif-job-" + schedule.getId(), "notif-group")
+                            .usingJobData("scheduleId", schedule.getId())
+                            .build();
+
+                    Trigger notifTrigger = TriggerBuilder.newTrigger()
+                            .withIdentity("notif-trigger-" + schedule.getId(), "notif-group")
+                            .startAt(notificationStart)
+                            .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                                    .withIntervalInMilliseconds(frequencyInMillis)
+                                    .repeatForever())
+                            .endAt(schedule.getEndsOn()) // Stop sending emails when schedule ends
+                            .build();
+
+                    scheduler.scheduleJob(notifJob, notifTrigger);
+                }
+
+            } catch (SchedulerException e) {
+                log.error("Error scheduling quartz job for schedule " + schedule.getId(), e);
+                // Depending on your error handling policy, you might want to throw a RuntimeException here
             }
-            if (schedule.getEndsOn() != null) {
-                Timer timer2 = new Timer();
-                TimerTask timerTask2 = new TimerTask() {
-                    @Override
-                    public void run() {
-                        //stop other timers
-                        timersState.get(schedule.getId()).get("wo_creation").cancel();
-                        timersState.get(schedule.getId()).get("wo_creation").purge();
-                        if (timersState.get(schedule.getId()).containsKey("notification")) {
-                            timersState.get(schedule.getId()).get("notification").cancel();
-                            timersState.get(schedule.getId()).get("notification").purge();
-                        }
-                    }
-                };
-                timer2.schedule(timerTask2, schedule.getEndsOn());
-                localTimers.put("stop", timer2); //third schedule stopping
-            }
-            timersState.put(schedule.getId(), localTimers);
         }
     }
 
     public void reScheduleWorkOrder(Long id, Schedule schedule) {
+        // Quartz "reschedule" is best handled by deleting and recreating
+        // to ensure all parameters (trigger times, data map) are fresh.
         stopScheduleTimers(id);
         scheduleWorkOrder(schedule);
     }
 
     public void stopScheduleTimers(Long id) {
-        if (!timersState.containsKey(id)) {
-            return;
+        try {
+            // Delete Work Order Job
+            scheduler.deleteJob(new JobKey("wo-job-" + id, "wo-group"));
+
+            // Delete Notification Job (it might not exist, but Quartz handles that gracefully usually, or returns
+            // false)
+            scheduler.deleteJob(new JobKey("notif-job-" + id, "notif-group"));
+
+        } catch (SchedulerException e) {
+            log.error("Error stopping quartz jobs for schedule " + id, e);
         }
-        timersState.get(id).forEach((key, timer) -> {
-            timer.cancel();
-            timer.purge();
-        });
     }
 
     public Schedule save(Schedule schedule) {
