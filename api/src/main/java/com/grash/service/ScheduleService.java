@@ -9,7 +9,6 @@ import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
 import com.grash.model.WorkOrder;
 import com.grash.repository.ScheduleRepository;
-import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
@@ -21,6 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
+
+import com.grash.model.enums.RecurrenceBasedOn;
+import org.quartz.CronScheduleBuilder;
+
+import java.util.Calendar;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -80,32 +86,80 @@ public class ScheduleService {
 
         if (shouldSchedule) {
             try {
-                // 1. Calculate Frequency in Milliseconds
-                long frequencyInMillis = (long) schedule.getFrequency() * 24 * 60 * 60 * 1000;
+                ScheduleBuilder scheduleBuilder;
+                Date startsOn = schedule.getStartsOn();
+
+                if (schedule.getRecurrenceBasedOn() == RecurrenceBasedOn.COMPLETED_DATE) {
+                    scheduleBuilder = SimpleScheduleBuilder.simpleSchedule()
+                            .withRepeatCount(0);
+                } else { // SCHEDULED_DATE
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(startsOn);
+                    int hour = cal.get(Calendar.HOUR_OF_DAY);
+                    int minute = cal.get(Calendar.MINUTE);
+
+                    switch (schedule.getRecurrenceType()) {
+                        case DAILY:
+                            scheduleBuilder = SimpleScheduleBuilder.simpleSchedule()
+                                    .withIntervalInHours(24 * schedule.getFrequency())
+                                    .repeatForever();
+                            break;
+                        case WEEKLY:
+                            if (schedule.getDaysOfWeek() == null || schedule.getDaysOfWeek().isEmpty()) {
+                                throw new CustomException("Days of week are required for weekly recurrence.",
+                                        HttpStatus.BAD_REQUEST);
+                            }
+                            // This will trigger every week on the specified days.
+                            // The job must handle frequency > 1 week internally.
+                            String daysOfWeekCron = schedule.getDaysOfWeek().stream()
+                                    .map(d -> (d % 7) + 1) // Convert ISO day (Mon=1..Sun=7) to Quartz (Sun=1..Sat=7)
+                                    .map(String::valueOf)
+                                    .collect(Collectors.joining(","));
+
+                            String cronExpression = String.format("0 %d %d ? * %s", minute, hour, daysOfWeekCron);
+                            scheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression)
+                                    .inTimeZone(TimeZone.getDefault()); // Consider using company-specific timezone
+                            break;
+                        case MONTHLY:
+                            int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
+                            // This triggers every 'frequency' months on the given day of the month.
+                            String cronMonthly = String.format("0 %d %d %d 1/%d ?", minute, hour, dayOfMonth,
+                                    schedule.getFrequency());
+                            scheduleBuilder = CronScheduleBuilder.cronSchedule(cronMonthly)
+                                    .inTimeZone(TimeZone.getDefault());
+                            break;
+                        case YEARLY:
+                            // Cron doesn't directly support "every N years".
+                            // This trigger will fire every year. The job must handle the frequency logic.
+                            int dayOfMonthYearly = cal.get(Calendar.DAY_OF_MONTH);
+                            int month = cal.get(Calendar.MONTH) + 1; // Calendar month is 0-based
+                            String cronYearly = String.format("0 %d %d %d %d ?", minute, hour, dayOfMonthYearly, month);
+                            scheduleBuilder = CronScheduleBuilder.cronSchedule(cronYearly)
+                                    .inTimeZone(TimeZone.getDefault());
+                            break;
+                        default:
+                            throw new CustomException("Unsupported recurrence type: " + schedule.getRecurrenceType(),
+                                    HttpStatus.BAD_REQUEST);
+                    }
+                }
 
                 // ---------------------------------------------------------
                 // JOB 1: Work Order Creation
                 // ---------------------------------------------------------
-                Date startsOn = Helper.getNextOccurrence(schedule.getStartsOn(), schedule.getFrequency());
-
                 JobDetail woJob = JobBuilder.newJob(WorkOrderCreationJob.class)
                         .withIdentity("wo-job-" + schedule.getId(), "wo-group")
                         .usingJobData("scheduleId", schedule.getId())
-                        .storeDurably() // Allows job to exist even without triggers (optional safety)
+                        .storeDurably()
                         .build();
 
                 Trigger woTrigger = TriggerBuilder.newTrigger()
                         .withIdentity("wo-trigger-" + schedule.getId(), "wo-group")
                         .startAt(startsOn)
-                        .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                                .withIntervalInMilliseconds(frequencyInMillis)
-                                .repeatForever())
-                        .endAt(schedule.getEndsOn()) // Native Quartz support for 'endsOn'
+                        .withSchedule(scheduleBuilder)
+                        .endAt(schedule.getEndsOn())
                         .build();
 
-                // If a job with this key exists, it is replaced
                 scheduler.scheduleJob(woJob, woTrigger);
-
 
                 // ---------------------------------------------------------
                 // JOB 2: Notification (Optional based on daysBeforePMNotification)
@@ -114,15 +168,13 @@ public class ScheduleService {
                         .getCompanySettings().getGeneralPreferences().getDaysBeforePrevMaintNotification();
 
                 if (daysBeforePMNotification > 0) {
-                    Date trueStartsOn = preventiveMaintenance.getEstimatedStartDate() == null ? startsOn :
+                    Date trueStartsOnForNotif = preventiveMaintenance.getEstimatedStartDate() == null ? startsOn :
                             preventiveMaintenance.getEstimatedStartDate();
 
-                    // Logic preserved: Helper.minusDays, then Helper.getNextOccurrence with frequency 1 (to ensure
-                    // it's in future)
-                    Date notificationStart = Helper.getNextOccurrence(
-                            Helper.minusDays(trueStartsOn, daysBeforePMNotification),
-                            1
-                    );
+                    Calendar notifCal = Calendar.getInstance();
+                    notifCal.setTime(trueStartsOnForNotif);
+                    notifCal.add(Calendar.DATE, -daysBeforePMNotification);
+                    Date notificationStart = notifCal.getTime();
 
                     JobDetail notifJob = JobBuilder.newJob(PreventiveMaintenanceNotificationJob.class)
                             .withIdentity("notif-job-" + schedule.getId(), "notif-group")
@@ -132,10 +184,8 @@ public class ScheduleService {
                     Trigger notifTrigger = TriggerBuilder.newTrigger()
                             .withIdentity("notif-trigger-" + schedule.getId(), "notif-group")
                             .startAt(notificationStart)
-                            .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                                    .withIntervalInMilliseconds(frequencyInMillis)
-                                    .repeatForever())
-                            .endAt(schedule.getEndsOn()) // Stop sending emails when schedule ends
+                            .withSchedule(scheduleBuilder) // Uses the same recurrence schedule
+                            .endAt(schedule.getEndsOn())
                             .build();
 
                     scheduler.scheduleJob(notifJob, notifTrigger);
@@ -166,6 +216,61 @@ public class ScheduleService {
 
         } catch (SchedulerException e) {
             log.error("Error stopping quartz jobs for schedule " + id, e);
+        }
+    }
+
+    public void scheduleNextWorkOrderJobAfterCompletion(Long scheduleId, Date completedDate) {
+        Optional<Schedule> scheduleOpt = scheduleRepository.findById(scheduleId);
+        if (!scheduleOpt.isPresent()) return;
+
+        Schedule schedule = scheduleOpt.get();
+
+        // Only applies to COMPLETED_DATE schedules
+        if (schedule.getRecurrenceBasedOn() != RecurrenceBasedOn.COMPLETED_DATE) return;
+
+        // 1. Calculate the next run date based on Frequency
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(completedDate);
+
+        switch (schedule.getRecurrenceType()) {
+            case DAILY:
+                cal.add(Calendar.DAY_OF_YEAR, schedule.getFrequency());
+                break;
+            case WEEKLY:
+                cal.add(Calendar.WEEK_OF_YEAR, schedule.getFrequency());
+                break;
+            case MONTHLY:
+                cal.add(Calendar.MONTH, schedule.getFrequency());
+                break;
+            case YEARLY:
+                cal.add(Calendar.YEAR, schedule.getFrequency());
+                break;
+        }
+        Date nextRunDate = cal.getTime();
+
+        // 2. Schedule a "One-Shot" Job for that date
+        try {
+            JobKey jobKey = new JobKey("wo-job-chained-" + schedule.getId() + "-" + nextRunDate.getTime(), "wo-group");
+
+            JobDetail woJob = JobBuilder.newJob(WorkOrderCreationJob.class)
+                    .withIdentity(jobKey)
+                    .usingJobData("scheduleId", schedule.getId())
+                    .storeDurably()
+                    .build();
+
+            Trigger woTrigger = TriggerBuilder.newTrigger()
+                    .startAt(nextRunDate)
+                    .withSchedule(SimpleScheduleBuilder.simpleSchedule().withRepeatCount(0)) // Run Once
+                    .build();
+
+            scheduler.scheduleJob(woJob, woTrigger);
+            log.info("Chained next schedule for Schedule ID {} at {}", schedule.getId(), nextRunDate);
+
+            // (Optional) You can also schedule the Notification Job here similarly
+            // by subtracting daysBeforePMNotification from nextRunDate
+
+        } catch (SchedulerException e) {
+            log.error("Failed to chain next schedule for ID " + schedule.getId(), e);
         }
     }
 

@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
-import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,9 +40,7 @@ import javax.validation.Valid;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.Comparator.comparingLong;
 import static java.util.stream.Collectors.collectingAndThen;
@@ -81,6 +78,7 @@ public class WorkOrderController {
     private final EntityManager em;
     private final PreventiveMaintenanceMapper preventiveMaintenanceMapper;
     private final BrandingService brandingService;
+    private final ScheduleService scheduleService;
 
 
     @Value("${frontend.url}")
@@ -283,6 +281,8 @@ public class WorkOrderController {
                             assetService.stopDownTime(asset.getId(), Helper.getLocale(user));
                         }
                     }
+                    if (savedWorkOrder.getParentPreventiveMaintenance() != null)
+                        scheduleService.scheduleNextWorkOrderJobAfterCompletion(savedWorkOrder.getParentPreventiveMaintenance().getSchedule().getId(), savedWorkOrder.getCompletedOn());
                 }
                 Collection<Labor> labors = laborService.findByWorkOrder(id);
                 Collection<Labor> primaryTimes = labors.stream().filter(Labor::isLogged).collect(Collectors.toList());
