@@ -79,7 +79,7 @@ public class ScheduleService {
             Timer timer = new Timer();
             //  Collection<WorkOrder> workOrders = workOrderService.findByPM(schedule.getPreventiveMaintenance()
             //  .getId());
-            Date startsOn = Helper.getNextOccurence(schedule.getStartsOn(), schedule.getFrequency());
+            Date startsOn = Helper.getNextOccurrence(schedule.getStartsOn(), schedule.getFrequency());
             TimerTask timerTask = new TimerTask() {
                 @Override
                 public void run() {//create WO
@@ -135,7 +135,7 @@ public class ScheduleService {
                                 .toArray(String[]::new), title, mailVariables, "coming-work-order.html", locale);
                     }
                 };
-                timer1.scheduleAtFixedRate(timerTask1, Helper.getNextOccurence(Helper.minusDays(trueStartsOn,
+                timer1.scheduleAtFixedRate(timerTask1, Helper.getNextOccurrence(Helper.minusDays(trueStartsOn,
                                 daysBeforePMNotification), 1),
                         (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);
                 localTimers.put("notification", timer1);

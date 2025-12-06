@@ -150,4 +150,8 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2025_09_26_1700000000_cascade_delete_not_null.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2025_12_03_1764796622_gclid.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2025_12_03_1764797305_utm.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

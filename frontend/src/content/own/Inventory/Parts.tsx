@@ -668,16 +668,13 @@ const Parts = ({ setAction }: PropsType) => {
       {renderPartAddModal()}
       {renderPartUpdateModal()}
       {renderMenu()}
-      <Grid
-        item
-        xs={12}
-        display="flex"
-        flexDirection="row"
+      <Stack
+        mb={1}
+        direction="row"
         justifyContent="space-between"
         alignItems="center"
       >
         <Tabs
-          sx={{ mb: 2 }}
           onChange={handleTabsChange}
           value={currentTab}
           variant="scrollable"
@@ -689,13 +686,11 @@ const Parts = ({ setAction }: PropsType) => {
             <Tab key={tab.value} label={tab.label} value={tab.value} />
           ))}
         </Tabs>
-        <Box sx={{ my: 0.5 }}>
-          <SearchInput onChange={debouncedQueryChange} />
-        </Box>
-        <IconButton sx={{ mr: 2 }} onClick={handleOpenMenu} color="primary">
+        <SearchInput onChange={debouncedQueryChange} />
+        <IconButton onClick={handleOpenMenu} color="primary">
           <MoreVertTwoToneIcon />
         </IconButton>
-      </Grid>
+      </Stack>
       {currentTab === 'list' && (
         <CustomDataGrid
           apiRef={apiRef}

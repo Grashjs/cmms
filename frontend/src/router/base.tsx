@@ -36,11 +36,16 @@ const PrivacyPolicy = Loader(lazy(() => import('../content/privacyPolicy')));
 const DeletionPolicy = Loader(
   lazy(() => import('../content/own/deletionPolicy'))
 );
+const Landing = Loader(lazy(() => import('../content/landing')));
 
 const baseRoutes = [
   {
     path: '/',
     element: <Overview />
+  },
+  {
+    path: 'free-cmms',
+    element: <Landing />
   },
   {
     path: 'pricing',

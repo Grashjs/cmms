@@ -34,6 +34,7 @@ import { googleTrackingId, IS_LOCALHOST } from '../config';
 import ReactGA from 'react-ga4';
 import { getLicenseValidity } from '../slices/license';
 import { fireGa4Event } from '../utils/overall';
+import { useUtmTracker } from '@nik0di3m/utm-tracker-hook';
 
 interface AuthState {
   isInitialized: boolean;
@@ -51,7 +52,6 @@ interface AuthContextValue extends AuthState {
   login: (email: string, password: string) => Promise<void>;
   loginInternal: (accessToken: string) => void;
   logout: () => void;
-  deleteAccount: () => Promise<void>;
   register: (
     values: any,
     invitationMode: boolean
@@ -460,7 +460,6 @@ const AuthContext = createContext<AuthContextValue>({
   login: () => Promise.resolve(),
   loginInternal: () => null,
   logout: () => Promise.resolve(),
-  deleteAccount: () => Promise.resolve(),
   register: () => Promise.resolve({ success: false, message: null }),
   getInfos: () => Promise.resolve(),
   patchUserSettings: () => Promise.resolve(),
@@ -494,6 +493,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   const { children } = props;
   const [state, dispatch] = useReducer(reducer, initialAuthState);
   const { loginUser: loginZendesk, logoutUser: logoutZendesk } = useZendesk();
+  const utmParams = useUtmTracker();
   const switchLanguage = ({ lng }: { lng: any }) => {
     internationalization.changeLanguage(lng);
   };
@@ -626,7 +626,13 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     }
     const response = await api.post<{ message: string; success: boolean }>(
       'auth/signup',
-      values,
+      {
+        ...values,
+        utmParams: {
+          ...utmParams,
+          referrer: localStorage.getItem('referrerData')
+        }
+      },
       { headers: authHeader(true) }
     );
     const { message, success } = response;
@@ -966,17 +972,6 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       return false;
     }
   };
-
-  const deleteAccount = async () => {
-    if (!state.user) {
-      return;
-    }
-
-    await api.patch<UserResponseDTO>(
-      `users/soft-delete/${state.user.id}`,
-      state.user
-    );
-  };
   useEffect(() => {
     getInfos();
   }, []);
@@ -990,7 +985,6 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         logout,
         register,
         getInfos,
-        deleteAccount,
         patchUser,
         patchSubscription,
         cancelSubscription,

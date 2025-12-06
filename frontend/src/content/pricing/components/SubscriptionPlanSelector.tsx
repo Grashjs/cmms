@@ -84,7 +84,7 @@ export default function SubscriptionPlanSelector({
               )}
               <CardContent
                 sx={{
-                  p: 3,
+                  p: { xs: 2, md: 3 },
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column'
@@ -167,7 +167,7 @@ export default function SubscriptionPlanSelector({
                     }
                     sx={{ mb: 1 }}
                   >
-                    {plan.id === 'basic' ? t('Get started') : t('Try for free')}
+                    {plan.id === 'basic' ? t('Get started') : t('try_for_free')}
                   </Button>
                   <Typography
                     variant="caption"

@@ -312,17 +312,9 @@ function Files() {
           <Helmet>
             <title>{t('files')}</title>
           </Helmet>
-          <Grid
-            container
-            justifyContent="center"
-            alignItems="stretch"
-            spacing={1}
-            paddingX={4}
-          >
+          <Box justifyContent="center" alignItems="stretch" paddingX={4}>
             {hasCreatePermission(PermissionEntity.FILES) && (
-              <Grid
-                item
-                xs={12}
+              <Box
                 display="flex"
                 flexDirection="row"
                 justifyContent="right"
@@ -331,58 +323,56 @@ function Files() {
                 <Button
                   startIcon={<AddTwoToneIcon />}
                   onClick={() => setOpenAddModal(true)}
-                  sx={{ mx: 6, my: 1 }}
+                  sx={{ my: 1 }}
                   variant="contained"
                 >
                   {t('file')}
                 </Button>
-              </Grid>
+              </Box>
             )}
-            <Grid item xs={12}>
-              <Card
-                sx={{
-                  p: 2,
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
-                }}
-              >
-                <Box sx={{ width: '95%' }}>
-                  <CustomDataGrid
-                    apiRef={apiRef}
-                    columns={columns}
-                    pageSize={criteria.pageSize}
-                    page={criteria.pageNum}
-                    rows={files.content}
-                    rowCount={files.totalElements}
-                    pagination
-                    paginationMode="server"
-                    onPageSizeChange={onPageSizeChange}
-                    onPageChange={onPageChange}
-                    rowsPerPageOptions={[10, 20, 50]}
-                    loading={loadingGet}
-                    components={{
-                      NoRowsOverlay: () => (
-                        <NoRowsMessageWrapper
-                          message={t('noRows.file.message')}
-                          action={t('noRows.file.action')}
-                        />
-                      )
-                    }}
-                    onRowClick={(params: GridRowParams<File>) =>
-                      window.open(params.row.url, '_blank')
+            <Card
+              sx={{
+                p: 2,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}
+            >
+              <Box sx={{ width: '95%' }}>
+                <CustomDataGrid
+                  apiRef={apiRef}
+                  columns={columns}
+                  pageSize={criteria.pageSize}
+                  page={criteria.pageNum}
+                  rows={files.content}
+                  rowCount={files.totalElements}
+                  pagination
+                  paginationMode="server"
+                  onPageSizeChange={onPageSizeChange}
+                  onPageChange={onPageChange}
+                  rowsPerPageOptions={[10, 20, 50]}
+                  loading={loadingGet}
+                  components={{
+                    NoRowsOverlay: () => (
+                      <NoRowsMessageWrapper
+                        message={t('noRows.file.message')}
+                        action={t('noRows.file.action')}
+                      />
+                    )
+                  }}
+                  onRowClick={(params: GridRowParams<File>) =>
+                    window.open(params.row.url, '_blank')
+                  }
+                  initialState={{
+                    columns: {
+                      columnVisibilityModel: {}
                     }
-                    initialState={{
-                      columns: {
-                        columnVisibilityModel: {}
-                      }
-                    }}
-                  />
-                </Box>
-              </Card>
-            </Grid>
-          </Grid>
+                  }}
+                />
+              </Box>
+            </Card>
+          </Box>
           <ConfirmDialog
             open={openDelete}
             onCancel={() => {

@@ -1,21 +1,13 @@
 import {
   Box,
   Button,
-  CircularProgress,
   Container,
   Grid,
-  Stack,
   styled,
   Typography
 } from '@mui/material';
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import useScrollToLocation from 'src/hooks/useScrollToLocation';
-import useAuth from '../../../hooks/useAuth';
-import { useBrand } from '../../../hooks/useBrand';
-import api, { authHeader } from '../../../utils/api';
-import { fireGa4Event } from '../../../utils/overall';
+import { Link as RouterLink } from 'react-router-dom';
 
 const TypographyH1 = styled(Typography)(
   ({ theme }) => `
@@ -89,42 +81,9 @@ const MobileImgWrapper = styled(Box)(
   `
 );
 
-function Hero() {
+function HeroFree() {
   const { t }: { t: any } = useTranslation();
-  const { isAuthenticated, loginInternal } = useAuth();
-  const brandConfig = useBrand();
-  const navigate = useNavigate();
-  const [generatingAccount, setGeneratingAccount] = useState<boolean>(false);
-  useScrollToLocation();
-  const [shouldNavigate, setShouldNavigate] = useState(false);
 
-  useEffect(() => {
-    if (shouldNavigate && isAuthenticated) {
-      navigate('/app/work-orders');
-      setGeneratingAccount(false);
-      setShouldNavigate(false);
-    }
-  }, [isAuthenticated, shouldNavigate, navigate]);
-
-  const onSeeLiveDemo = async () => {
-    setGeneratingAccount(true);
-    try {
-      fireGa4Event('live_demo_view');
-      const { success, message } = await api.get<{
-        success: boolean;
-        message: string;
-      }>('demo/generate-account', { headers: authHeader(true) });
-
-      if (success) {
-        loginInternal(message);
-        setShouldNavigate(true);
-      } else {
-        setGeneratingAccount(false);
-      }
-    } catch (error) {
-      setGeneratingAccount(false);
-    }
-  };
   return (
     <Container maxWidth="lg">
       <Grid
@@ -140,7 +99,7 @@ function Hero() {
             }}
             variant="h1"
           >
-            {t('home.built')}
+            Free CMMS for Work Order Management
           </TypographyH1>
           <TypographyH2
             sx={{
@@ -151,55 +110,25 @@ function Hero() {
             color="text.secondary"
             fontWeight="normal"
           >
-            {t('home_description', { shortBrandName: brandConfig.name })}
+            A Free CMMS to manage work orders at your factory, shop floor,
+            building, car fleet, restaurant chain, solar and wind sites or just
+            about any industry.
           </TypographyH2>
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={1}>
-            <Button
-              component={RouterLink}
-              to={isAuthenticated ? '/app/work-orders' : '/account/register'}
-              size="large"
-              variant="contained"
-            >
-              {t('try_for_free')}
-            </Button>
-            <Button
-              sx={{
-                ml: 2
-              }}
-              component="a"
-              startIcon={
-                generatingAccount && (
-                  <CircularProgress size={'1rem'} color="primary" />
-                )
-              }
-              onClick={onSeeLiveDemo}
-              size="medium"
-              variant="text"
-            >
-              {t('see_live_demo')}
-            </Button>
-            <Button
-              sx={{
-                ml: 2
-              }}
-              href={`mailto:${brandConfig.mail}`}
-              size="medium"
-              variant="text"
-              onClick={() => {
-                fireGa4Event('contact_us_click');
-                window.location.href = `mailto:${brandConfig.mail}`;
-              }}
-            >
-              {t('contact_us')}
-            </Button>
-          </Stack>
+          <Button
+            component={RouterLink}
+            to={'/account/register'}
+            size="large"
+            variant="contained"
+          >
+            Get Started for Free - No Credit Card Required!
+          </Button>
         </Grid>
         <Grid item md={6}>
           <BoxContent>
-            <RouterLink to="/app/work-orders">
+            <RouterLink to="/account/register">
               <ImgWrapper>
                 <img
-                  alt={brandConfig.name}
+                  alt="Work Orders"
                   src="/static/images/overview/work_orders_screenshot.png"
                 />
               </ImgWrapper>
@@ -219,4 +148,4 @@ function Hero() {
   );
 }
 
-export default Hero;
+export default HeroFree;

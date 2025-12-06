@@ -15,6 +15,7 @@ import {
   customLogoPaths,
   googleTrackingId,
   IS_LOCALHOST,
+  isCloudVersion,
   isWhiteLabeled
 } from './config';
 import { useEffect, useState } from 'react';
@@ -23,6 +24,7 @@ import { getLicenseValidity } from './slices/license';
 import { useDispatch, useSelector } from './store';
 import { useBrand } from './hooks/useBrand';
 import { useTranslation } from 'react-i18next';
+import { UtmTrackerProvider } from '@nik0di3m/utm-tracker-hook';
 
 if (!IS_LOCALHOST && googleTrackingId) ReactGA.initialize(googleTrackingId);
 
@@ -108,26 +110,35 @@ function App() {
     }
   }, [logo.dark, isLicenseValid]);
 
+  useEffect(() => {
+    if (isCloudVersion) {
+      const referrer = document.referrer || null;
+      localStorage.setItem('referrerData', referrer);
+    }
+  }, []);
+
   return (
-    <ThemeProvider>
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <SnackbarProvider
-          maxSnack={6}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right'
-          }}
-        >
-          <CustomSnackBarProvider>
-            <CompanySettingsProvider>
-              <CssBaseline />
-              {isInitialized ? content : <AppInit />}
-              {user && company?.demo && <DemoAlert />}
-            </CompanySettingsProvider>
-          </CustomSnackBarProvider>
-        </SnackbarProvider>
-      </LocalizationProvider>
-    </ThemeProvider>
+    <UtmTrackerProvider>
+      <ThemeProvider>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <SnackbarProvider
+            maxSnack={6}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right'
+            }}
+          >
+            <CustomSnackBarProvider>
+              <CompanySettingsProvider>
+                <CssBaseline />
+                {isInitialized ? content : <AppInit />}
+                {user && company?.demo && <DemoAlert />}
+              </CompanySettingsProvider>
+            </CustomSnackBarProvider>
+          </SnackbarProvider>
+        </LocalizationProvider>
+      </ThemeProvider>
+    </UtmTrackerProvider>
   );
 }
 export default App;

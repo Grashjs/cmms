@@ -102,6 +102,7 @@ import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import { getPreventiveMaintenanceUrl } from 'src/utils/urlPaths';
 import { useGridApiRef } from '@mui/x-data-grid-pro';
 import useGridStatePersist from '../../../hooks/useGridStatePersist';
+import Request from '../../../models/owns/request';
 
 function WorkOrders() {
   const { t }: { t: any } = useTranslation();
@@ -469,6 +470,14 @@ function WorkOrders() {
         params.value?.name
     },
     {
+      field: 'dueDate',
+      headerName: t('due_date'),
+      description: t('due_date'),
+      width: 150,
+      valueGetter: (params: GridValueGetterParams<null, WorkOrder>) =>
+        getFormattedDate(params.value)
+    },
+    {
       field: 'daysSinceCreated',
       headerName: t('days_since_creation'),
       description: t('days_since_creation'),
@@ -537,7 +546,8 @@ function WorkOrders() {
     files: 'files',
     completedOn: 'completedOn',
     updatedAt: 'updatedAt',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    dueDate: 'dueDate'
   };
 
   const defaultFields: Array<IField> = [
@@ -879,16 +889,9 @@ function WorkOrders() {
       <Helmet>
         <title>{t('work_orders')}</title>
       </Helmet>
-      <Grid
-        container
-        justifyContent="center"
-        alignItems="stretch"
-        spacing={1}
-        paddingX={4}
-      >
-        <Grid
-          item
-          xs={12}
+      <Box justifyContent="center" alignItems="stretch" paddingX={4}>
+        <Box
+          my={1}
           display="flex"
           flexDirection="row"
           justifyContent="space-between"
@@ -934,134 +937,124 @@ function WorkOrders() {
               </Button>
             )}
           </Stack>
-        </Grid>
-        <Grid item xs={12}>
-          <Card
-            sx={{
-              p: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center'
-            }}
-          >
-            {currentTab !== 'calendar' && (
-              <Stack
-                sx={{ ml: 1 }}
-                direction="row"
-                spacing={1}
-                justifyContent={'flex-start'}
-                width={'95%'}
-              >
-                <Button
-                  onClick={() => setOpenFilterDrawer(true)}
-                  sx={{
-                    '& .MuiButton-startIcon': { margin: '0px' },
-                    minWidth: 0
-                  }}
-                  variant={
-                    _.isEqual(
-                      criteria.filterFields,
-                      initialCriteria.filterFields
-                    )
-                      ? 'outlined'
-                      : 'contained'
+        </Box>
+        <Card
+          sx={{
+            p: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}
+        >
+          {currentTab !== 'calendar' && (
+            <Stack
+              sx={{ ml: 1 }}
+              direction="row"
+              spacing={1}
+              justifyContent={'flex-start'}
+              width={'95%'}
+            >
+              <Button
+                onClick={() => setOpenFilterDrawer(true)}
+                sx={{
+                  '& .MuiButton-startIcon': { margin: '0px' },
+                  minWidth: 0
+                }}
+                variant={
+                  _.isEqual(criteria.filterFields, initialCriteria.filterFields)
+                    ? 'outlined'
+                    : 'contained'
+                }
+                startIcon={<FilterAltTwoToneIcon />}
+              />
+              <EnumFilter
+                filterFields={criteria.filterFields}
+                onChange={onFilterChange}
+                completeOptions={['NONE', 'LOW', 'MEDIUM', 'HIGH']}
+                fieldName="priority"
+                icon={<SignalCellularAltTwoToneIcon />}
+              />
+              <EnumFilter
+                filterFields={criteria.filterFields}
+                onChange={onFilterChange}
+                completeOptions={['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETE']}
+                fieldName="status"
+                icon={<CircleTwoToneIcon />}
+              />
+              <SearchInput onChange={debouncedQueryChange} />
+            </Stack>
+          )}
+          <Divider sx={{ mt: 1 }} />
+          <Box sx={{ width: '95%' }}>
+            {currentTab === 'list' ? (
+              <CustomDataGrid
+                apiRef={apiRef}
+                pageSize={criteria.pageSize}
+                page={criteria.pageNum}
+                columns={columns}
+                rows={workOrders.content}
+                rowCount={workOrders.totalElements}
+                loading={loadingGet}
+                pagination
+                disableColumnFilter
+                paginationMode="server"
+                sortingMode="server"
+                initialState={{
+                  columns: {
+                    columnVisibilityModel: {}
                   }
-                  startIcon={<FilterAltTwoToneIcon />}
-                />
-                <EnumFilter
-                  filterFields={criteria.filterFields}
-                  onChange={onFilterChange}
-                  completeOptions={['NONE', 'LOW', 'MEDIUM', 'HIGH']}
-                  fieldName="priority"
-                  icon={<SignalCellularAltTwoToneIcon />}
-                />
-                <EnumFilter
-                  filterFields={criteria.filterFields}
-                  onChange={onFilterChange}
-                  completeOptions={[
-                    'OPEN',
-                    'IN_PROGRESS',
-                    'ON_HOLD',
-                    'COMPLETE'
-                  ]}
-                  fieldName="status"
-                  icon={<CircleTwoToneIcon />}
-                />
-                <SearchInput onChange={debouncedQueryChange} />
-              </Stack>
-            )}
-            <Divider sx={{ mt: 1 }} />
-            <Box sx={{ width: '95%' }}>
-              {currentTab === 'list' ? (
-                <CustomDataGrid
-                  apiRef={apiRef}
-                  pageSize={criteria.pageSize}
-                  page={criteria.pageNum}
-                  columns={columns}
-                  rows={workOrders.content}
-                  rowCount={workOrders.totalElements}
-                  loading={loadingGet}
-                  pagination
-                  disableColumnFilter
-                  paginationMode="server"
-                  sortingMode="server"
-                  initialState={{
-                    columns: {
-                      columnVisibilityModel: {}
-                    }
-                  }}
-                  onSortModelChange={(model) => {
-                    if (model.length === 0) {
-                      setCriteria({
-                        ...criteria,
-                        sortField: undefined,
-                        direction: undefined
-                      });
-                      return;
-                    }
-
-                    const field = model[0].field;
-                    const mappedField = fieldMapping[field];
-
-                    // Only proceed if we have a mapping for this field
-                    if (!mappedField) return;
-
+                }}
+                onSortModelChange={(model) => {
+                  if (model.length === 0) {
                     setCriteria({
                       ...criteria,
-                      sortField: mappedField,
-                      direction: (model[0].sort?.toUpperCase() ||
-                        'ASC') as SortDirection
+                      sortField: undefined,
+                      direction: undefined
                     });
-                  }}
-                  onPageSizeChange={onPageSizeChange}
-                  onPageChange={onPageChange}
-                  rowsPerPageOptions={[10, 20, 50]}
-                  components={{
-                    NoRowsOverlay: () => (
-                      <NoRowsMessageWrapper
-                        message={t('noRows.wo.message')}
-                        action={t('noRows.wo.action')}
-                      />
-                    )
-                  }}
-                  onRowClick={(params) => handleOpenDetails(Number(params.id))}
-                />
-              ) : (
-                <WorkOrderCalendar
-                  handleAddWorkOrder={(date: Date) => {
-                    setInitialDueDate(date);
-                    setOpenAddModal(true);
-                  }}
-                  handleOpenDetails={(id, type) => {
-                    if (type === 'WORK_ORDER') handleOpenDetails(id);
-                    else navigate(getPreventiveMaintenanceUrl(id));
-                  }}
-                />
-              )}
-            </Box>
-          </Card>
-        </Grid>
-      </Grid>
+                    return;
+                  }
+
+                  const field = model[0].field;
+                  const mappedField = fieldMapping[field];
+
+                  // Only proceed if we have a mapping for this field
+                  if (!mappedField) return;
+
+                  setCriteria({
+                    ...criteria,
+                    sortField: mappedField,
+                    direction: (model[0].sort?.toUpperCase() ||
+                      'ASC') as SortDirection
+                  });
+                }}
+                onPageSizeChange={onPageSizeChange}
+                onPageChange={onPageChange}
+                rowsPerPageOptions={[10, 20, 50]}
+                components={{
+                  NoRowsOverlay: () => (
+                    <NoRowsMessageWrapper
+                      message={t('noRows.wo.message')}
+                      action={t('noRows.wo.action')}
+                    />
+                  )
+                }}
+                onRowClick={(params) => handleOpenDetails(Number(params.id))}
+              />
+            ) : (
+              <WorkOrderCalendar
+                handleAddWorkOrder={(date: Date) => {
+                  setInitialDueDate(date);
+                  setOpenAddModal(true);
+                }}
+                handleOpenDetails={(id, type) => {
+                  if (type === 'WORK_ORDER') handleOpenDetails(id);
+                  else navigate(getPreventiveMaintenanceUrl(id));
+                }}
+              />
+            )}
+          </Box>
+        </Card>
+      </Box>
       {renderWorkOrderAddModal()}
       {renderWorkOrderUpdateModal()}
       <Drawer

@@ -73,6 +73,7 @@ services:
         LOGO_PATHS: ${LOGO_PATHS:- }
         CUSTOM_COLORS: ${CUSTOM_COLORS:- }
         BRAND_CONFIG: ${BRAND_CONFIG:- }
+        DEMO_LINK: ${DEMO_LINK:- }
     ports:
       - "3000:3000"
     depends_on:

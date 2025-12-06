@@ -11,6 +11,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Stack,
   styled,
   Tab,
   Tabs,
@@ -21,6 +22,7 @@ import { AE, CN, DE, ES, FR, US, BR } from 'country-flag-icons/react/3x2';
 import SubscriptionPlans from '../SubscriptionPlans';
 import SubscriptionPlanSelector from '../../pricing/components/SubscriptionPlanSelector';
 import { useBrand } from '../../../hooks/useBrand';
+import { demoLink } from '../../../config';
 
 const AvatarSuccess = styled(Avatar)(
   ({ theme }) => `
@@ -296,9 +298,12 @@ const LayoutImgButton = styled(Box)(
       bottom: ${theme.spacing(3)};
       color: ${theme.colors.alpha.trueWhite[100]};;
       background: rgba(0,0,0,.8);
-      padding: ${theme.spacing(2, 4.5)};
+      padding: ${theme.spacing(1, 2)};
       border-radius: ${theme.general.borderRadiusXl};
       z-index: 5;
+     ${theme.breakpoints.down('md')} {
+    font-size: 12px;
+  }
     }
 
     img {
@@ -324,7 +329,7 @@ const icons = {
   Amplify: '/static/images/logo/amplify.svg'
 };
 
-function Highlights() {
+function Highlights({ hidePricing }: { hidePricing?: boolean }) {
   const { t }: { t: any } = useTranslation();
   const brandConfig = useBrand();
   const [currentTab, setCurrentTab] = useState('work-orders');
@@ -859,20 +864,26 @@ function Highlights() {
           </BoxRtl>
         )}
       </Container>
-      <TypographyH1Primary
-        textAlign="center"
-        sx={{
-          mt: 8,
-          mb: 2
-        }}
-        variant="h1"
-      >
-        {t('choose_your_plan')}
-      </TypographyH1Primary>
-      <Box px={4}>
-        <SubscriptionPlanSelector monthly={monthly} setMonthly={setMonthly} />
-      </Box>
-
+      {!hidePricing && (
+        <>
+          <TypographyH1Primary
+            textAlign="center"
+            sx={{
+              mt: 8,
+              mb: 2
+            }}
+            variant="h1"
+          >
+            {t('choose_your_plan')}
+          </TypographyH1Primary>
+          <Box px={4}>
+            <SubscriptionPlanSelector
+              monthly={monthly}
+              setMonthly={setMonthly}
+            />
+          </Box>
+        </>
+      )}
       <Container
         sx={{
           pt: { xs: 6, md: 12 },
@@ -892,18 +903,29 @@ function Highlights() {
         <Container
           sx={{
             mb: 6,
-            textAlign: 'center'
+            justifyContent: 'center'
           }}
           maxWidth="sm"
         >
-          <Button
-            component={RouterLink}
-            size="large"
-            to="/account/register"
-            variant="contained"
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            justifyContent={'center'}
+            spacing={2}
           >
-            {t('register')}
-          </Button>
+            <Button
+              component={RouterLink}
+              size="large"
+              to="/account/register"
+              variant="contained"
+            >
+              {hidePricing ? 'Sign Up for Free' : t('register')}
+            </Button>
+            {!hidePricing && (
+              <Button size="large" href={demoLink} variant="outlined">
+                {t('book_demo')}
+              </Button>
+            )}
+          </Stack>
         </Container>
       </Container>
     </BoxHighlights>

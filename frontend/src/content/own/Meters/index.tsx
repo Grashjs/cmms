@@ -549,24 +549,14 @@ function Meters() {
           {renderAddModal()}
           {renderUpdateModal()}
           {renderMenu()}
-          <Grid
-            container
-            justifyContent="center"
-            alignItems="stretch"
-            spacing={1}
-            paddingX={4}
-          >
-            <Grid
-              item
-              xs={12}
-              display="flex"
-              flexDirection="row"
+          <Box justifyContent="center" alignItems="stretch" paddingX={4}>
+            <Stack
+              my={1}
+              direction="row"
               justifyContent="space-between"
               alignItems="center"
             >
-              <Box sx={{ my: 0.5 }}>
-                <SearchInput onChange={debouncedQueryChange} />
-              </Box>
+              <SearchInput onChange={debouncedQueryChange} />
               <Stack direction={'row'} alignItems="center" spacing={1}>
                 <IconButton onClick={handleOpenMenu} color="primary">
                   <MoreVertTwoToneIcon />
@@ -574,7 +564,6 @@ function Meters() {
                 {hasCreatePermission(PermissionEntity.METERS) && (
                   <Button
                     startIcon={<AddTwoToneIcon />}
-                    sx={{ mx: 6, my: 1 }}
                     variant="contained"
                     onClick={() => setOpenAddModal(true)}
                   >
@@ -582,84 +571,81 @@ function Meters() {
                   </Button>
                 )}
               </Stack>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Card
-                sx={{
-                  p: 2,
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
-                }}
-              >
-                <Box sx={{ width: '95%' }}>
-                  <CustomDataGrid
-                    apiRef={apiRef}
-                    columns={columns}
-                    loading={loadingGet}
-                    pageSize={criteria.pageSize}
-                    page={criteria.pageNum}
-                    rows={meters.content}
-                    rowCount={meters.totalElements}
-                    pagination
-                    paginationMode="server"
-                    sortingMode="server"
-                    onPageSizeChange={onPageSizeChange}
-                    onPageChange={onPageChange}
-                    rowsPerPageOptions={[10, 20, 50]}
-                    onSortModelChange={(model) => {
-                      if (model.length === 0) {
-                        setCriteria({
-                          ...criteria,
-                          sortField: undefined,
-                          direction: undefined
-                        });
-                        return;
-                      }
-
-                      const fieldMapping = {
-                        name: 'name',
-                        unit: 'unit',
-                        asset: 'asset.name',
-                        location: 'location.name',
-                        customId: 'customId',
-                        createdAt: 'createdAt',
-                        createdBy: 'createdBy'
-                      };
-
-                      const field = model[0].field;
-                      const mappedField = fieldMapping[field];
-
-                      if (!mappedField) return;
-
+            </Stack>
+            <Card
+              sx={{
+                p: 2,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}
+            >
+              <Box sx={{ width: '95%' }}>
+                <CustomDataGrid
+                  apiRef={apiRef}
+                  columns={columns}
+                  loading={loadingGet}
+                  pageSize={criteria.pageSize}
+                  page={criteria.pageNum}
+                  rows={meters.content}
+                  rowCount={meters.totalElements}
+                  pagination
+                  paginationMode="server"
+                  sortingMode="server"
+                  onPageSizeChange={onPageSizeChange}
+                  onPageChange={onPageChange}
+                  rowsPerPageOptions={[10, 20, 50]}
+                  onSortModelChange={(model) => {
+                    if (model.length === 0) {
                       setCriteria({
                         ...criteria,
-                        sortField: mappedField,
-                        direction: (model[0].sort?.toUpperCase() ||
-                          'ASC') as SortDirection
+                        sortField: undefined,
+                        direction: undefined
                       });
-                    }}
-                    onRowClick={({ id }) => handleOpenDetails(Number(id))}
-                    components={{
-                      NoRowsOverlay: () => (
-                        <NoRowsMessageWrapper
-                          message={t('noRows.meter.message')}
-                          action={t('')}
-                        />
-                      )
-                    }}
-                    initialState={{
-                      columns: {
-                        columnVisibilityModel: {}
-                      }
-                    }}
-                  />
-                </Box>
-              </Card>
-            </Grid>
-          </Grid>
+                      return;
+                    }
+
+                    const fieldMapping = {
+                      name: 'name',
+                      unit: 'unit',
+                      asset: 'asset.name',
+                      location: 'location.name',
+                      customId: 'customId',
+                      createdAt: 'createdAt',
+                      createdBy: 'createdBy'
+                    };
+
+                    const field = model[0].field;
+                    const mappedField = fieldMapping[field];
+
+                    if (!mappedField) return;
+
+                    setCriteria({
+                      ...criteria,
+                      sortField: mappedField,
+                      direction: (model[0].sort?.toUpperCase() ||
+                        'ASC') as SortDirection
+                    });
+                  }}
+                  onRowClick={({ id }) => handleOpenDetails(Number(id))}
+                  components={{
+                    NoRowsOverlay: () => (
+                      <NoRowsMessageWrapper
+                        message={t('noRows.meter.message')}
+                        action={t('')}
+                      />
+                    )
+                  }}
+                  initialState={{
+                    columns: {
+                      columnVisibilityModel: {}
+                    }
+                  }}
+                />
+              </Box>
+            </Card>
+          </Box>
           <Drawer
             anchor="right"
             open={openDrawer}

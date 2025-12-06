@@ -82,4 +82,6 @@ export const brandRawConfig: BrandRawConfig = getRuntimeValue('BRAND_CONFIG')
   ? JSON.parse(getRuntimeValue('BRAND_CONFIG'))
   : null;
 
+export const demoLink: string = getRuntimeValue('DEMO_LINK');
+
 export const isWhiteLabeled: boolean = !!(customLogoPaths || brandRawConfig);

@@ -343,18 +343,78 @@ public class UserService {
 //            throw new CustomException("MAIL_RECIPIENTS env variable not set", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         try {
-            emailService2.sendHtmlMessage(recipients, userSignupRequest.getSubscriptionPlanId() == null ?
-                            "New " + brandingService.getBrandConfig().getShortName() + " " +
-                                    "registration" :
-                            brandingService.getBrandConfig().getShortName() + " plan " + userSignupRequest.getSubscriptionPlanId() + " used",
-                    user.getFirstName() + " " + user.getLastName() + " just created an account from company "
-                            + user.getCompany().getName() + " with " + userSignupRequest.getEmployeesCount() + " " +
-                            "employees.\nEmail: " + user.getEmail()
-                            + "\nPhone: " + user.getPhone()
-                            + (user.isOwnsCompany() ? "" : " after invitation"));
-
+            String subject = buildRegistrationEmailSubject(userSignupRequest, brandingService);
+            String body = buildRegistrationEmailBody(user, userSignupRequest);
+            emailService2.sendHtmlMessage(recipients, subject, body);
         } catch (MessagingException e) {
             e.printStackTrace();
+        }
+    }
+
+    private String buildRegistrationEmailSubject(UserSignupRequest request, BrandingService brandingService) {
+        String brandName = brandingService.getBrandConfig().getShortName();
+
+        if (request.getSubscriptionPlanId() == null) {
+            return String.format("New %s registration", brandName);
+        }
+
+        return String.format("%s plan %s used", brandName, request.getSubscriptionPlanId());
+    }
+
+    private String buildRegistrationEmailBody(OwnUser user, UserSignupRequest request) {
+        StringBuilder body = new StringBuilder();
+
+        // User basic info
+        body.append(String.format("%s %s just created an account%n",
+                user.getFirstName(),
+                user.getLastName()));
+
+        // Company info
+        body.append(String.format("Company: %s (%s employees)%n",
+                user.getCompany().getName(),
+                request.getEmployeesCount()));
+
+        // Contact info
+        body.append(String.format("Email: %s%n", user.getEmail()));
+        body.append(String.format("Phone: %s%n", user.getPhone()));
+
+        // Registration type
+        if (!user.isOwnsCompany()) {
+            body.append("Registration type: After invitation\n");
+        }
+
+        // UTM parameters
+        appendUtmParameters(body, request);
+
+        return body.toString();
+    }
+
+    private void appendUtmParameters(StringBuilder body, UserSignupRequest request) {
+        if (!cloudVersion || request.getUtmParams() == null || !request.getUtmParams().hasAnyParam()) return;
+        body.append("\n--- Marketing Attribution ---\n");
+        if (request.getUtmParams().getReferrer() != null) {
+            body.append(String.format("Referrer: %s%n", request.getUtmParams().getReferrer()));
+        }
+        if (request.getUtmParams().getUtm_source() != null) {
+            body.append(String.format("UTM Source: %s%n", request.getUtmParams().getUtm_source()));
+        }
+        if (request.getUtmParams().getUtm_medium() != null) {
+            body.append(String.format("UTM Medium: %s%n", request.getUtmParams().getUtm_medium()));
+        }
+        if (request.getUtmParams().getUtm_campaign() != null) {
+            body.append(String.format("UTM Campaign: %s%n", request.getUtmParams().getUtm_campaign()));
+        }
+        if (request.getUtmParams().getUtm_term() != null) {
+            body.append(String.format("UTM Term: %s%n", request.getUtmParams().getUtm_term()));
+        }
+        if (request.getUtmParams().getUtm_content() != null) {
+            body.append(String.format("UTM Content: %s%n", request.getUtmParams().getUtm_content()));
+        }
+        if (request.getUtmParams().getGclid() != null) {
+            body.append(String.format("Google Click ID: %s%n", request.getUtmParams().getGclid()));
+        }
+        if (request.getUtmParams().getFbclid() != null) {
+            body.append(String.format("Facebook Click ID: %s%n", request.getUtmParams().getFbclid()));
         }
     }
 }

@@ -41,4 +41,6 @@ public class UserSignupRequest {
 
     private Boolean demo;
 
+    private UtmParams utmParams;
+
 }

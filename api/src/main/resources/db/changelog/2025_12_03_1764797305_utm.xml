@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="add-utm-fields-to-user-20251203" author="Ibrahima G. Coulibaly">
+
+        <addColumn tableName="own_user">
+            <column name="utm_source" type="varchar(255)"/>
+            <column name="utm_medium" type="varchar(255)"/>
+            <column name="utm_campaign" type="varchar(255)"/>
+            <column name="utm_term" type="varchar(255)"/>
+            <column name="utm_content" type="varchar(255)"/>
+            <column name="fbclid" type="varchar(255)"/>
+        </addColumn>
+
+        <rollback>
+            <dropColumn tableName="own_user" columnName="utm_source"/>
+            <dropColumn tableName="own_user" columnName="utm_medium"/>
+            <dropColumn tableName="own_user" columnName="utm_campaign"/>
+            <dropColumn tableName="own_user" columnName="utm_term"/>
+            <dropColumn tableName="own_user" columnName="utm_content"/>
+            <dropColumn tableName="own_user" columnName="fbclid"/>
+        </rollback>
+
+    </changeSet>
+    <changeSet id="1764862112662-1" author="Ibrahima G. Coulibaly">
+        <addColumn tableName="own_user">
+            <column name="referrer" type="text"/>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>
