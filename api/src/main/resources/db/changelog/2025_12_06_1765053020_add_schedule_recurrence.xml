@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet author="gemini" id="1765053020-1">
+        <addColumn tableName="schedule">
+            <column name="recurrence_type" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="gemini" id="1765053020-2">
+        <addColumn tableName="schedule">
+            <column name="recurrence_based_on" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="gemini" id="1765053020-3">
+        <createTable tableName="schedule_days_of_week">
+            <column name="schedule_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="days_of_week" type="integer"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="schedule_days_of_week"
+                                 baseColumnNames="schedule_id"
+                                 constraintName="fk_schedule_days_of_week_schedule"
+                                 referencedTableName="schedule"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+    <changeSet id="1765054843038-1" author="Ibrahima G. Coulibaly">
+        <sql>
+            update schedule set recurrence_type = 'DAILY', recurrence_based_on = 'SCHEDULED_DATE' where recurrence_type is null;
+        </sql>
+        <addNotNullConstraint tableName="schedule" columnName="recurrence_type"/>
+        <addNotNullConstraint tableName="schedule" columnName="recurrence_based_on"/>
+    </changeSet>
+
+</databaseChangeLog>
