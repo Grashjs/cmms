@@ -51,6 +51,7 @@ import useAuth from '../../../../hooks/useAuth';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import ClearTwoToneIcon from '@mui/icons-material/ClearTwoTone';
 import { CustomSelect } from './CustomSelect2';
+import SignaturePad from './SignaturePad';
 
 interface PropsType {
   fields: Array<IField>;
@@ -248,6 +249,14 @@ export default (props: PropsType) => {
                       selected={formik.values[field.name] ?? []}
                       onChange={(newPartQuantities) => {
                         handleChange(formik, field.name, newPartQuantities);
+                      }}
+                    />
+                  ) : field.type === 'signature' ? (
+                    <SignaturePad
+                      label={field.label}
+                      value={formik.values[field.name]}
+                      onChange={(signature) => {
+                        formik.setFieldValue(field.name, signature);
                       }}
                     />
                   ) : (

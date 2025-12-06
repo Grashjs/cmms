@@ -26,7 +26,8 @@ export interface IField {
     | 'dateRange'
     | 'nfc'
     | 'barcode'
-    | 'audio';
+    | 'audio'
+    | 'signature';
   type2?:
     | 'customer'
     | 'vendor'

@@ -47,9 +47,8 @@ public class WorkOrder extends WorkOrderBase {
 
     private Status status = Status.OPEN;
 
-    @OneToOne(fetch = FetchType.LAZY)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
-    private File signature;
+    private String signature;
 
     private boolean archived;
 

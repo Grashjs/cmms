@@ -17,7 +17,7 @@ export default function CompleteWorkOrderModal({
   const { uploadFiles } = useContext(CompanySettingsContext);
 
   const getFieldsAndShape = (): [Array<IField>, { [key: string]: any }] => {
-    let fields = [];
+    let fields: IField[] = [];
     let shape = {};
     if (fieldsConfig.feedback) {
       fields.push({
@@ -32,13 +32,12 @@ export default function CompleteWorkOrderModal({
     if (fieldsConfig.signature) {
       fields.push({
         name: 'signature',
-        type: 'file',
-        label: t('signature'),
-        fileType: 'image'
+        type: 'signature',
+        label: t('signature')
       });
       shape = {
         ...shape,
-        signature: Yup.array().required(t('required_signature'))
+        signature: Yup.string().required(t('required_signature'))
       };
     }
     return [fields, shape];
@@ -53,15 +52,7 @@ export default function CompleteWorkOrderModal({
         navigation={navigation}
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
-          return new Promise<void>((resolve, rej) => {
-            uploadFiles([], values.signature ?? [])
-              .then((files) => {
-                onComplete(files[0]?.id, values?.feedback).then(resolve);
-              })
-              .catch((err) => {
-                rej(err);
-              });
-          });
+          return onComplete(values.signature, values.feedback);
         }}
       />
     </View>

@@ -22,7 +22,7 @@ public class WorkOrderShowDTO extends WorkOrderBaseShowDTO {
 
     private PreventiveMaintenance parentPreventiveMaintenance;
 
-    private FileShowDTO signature;
+    private String signature;
 
     private Status status;
 

@@ -25,7 +25,8 @@ export interface IField {
     | 'switch'
     | 'partQuantity'
     | 'coordinates'
-    | 'dateRange';
+    | 'dateRange'
+    | 'signature';
   type2?:
     | 'customer'
     | 'vendor'
