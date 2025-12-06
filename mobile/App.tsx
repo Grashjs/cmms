@@ -98,12 +98,12 @@ export default function App() {
           if (arr[2] === 'work-orders') {
             if (isNumeric(arr[3]))
               navigate('WODetails', { id: Number(arr[3]) });
-            else navigate('WorkOrders', {});
+            else navigate('WorkOrders', { filterFields: [] });
           } else {
             if (arr[2] === 'requests') {
               if (isNumeric(arr[3]))
                 navigate('RequestDetails', { id: Number(arr[3]) });
-              else navigate('Requests', {});
+              else navigate('Requests');
             }
           }
         }

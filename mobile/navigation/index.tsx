@@ -43,7 +43,7 @@ import LinkingConfiguration from './LinkingConfiguration';
 import useAuth from '../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 import { IconButton, Text, useTheme } from 'react-native-paper';
-import type { IconSource } from 'react-native-paper';
+import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import MoreEntitiesScreen from '../screens/MoreEntitiesScreen';
 import MetersScreen from '../screens/meters/MetersScreen';
 import WorkOrdersScreen from '../screens/workOrders/WorkOrdersScreen';
@@ -467,7 +467,9 @@ function AuthNavigator() {
       />
       <AuthStack.Screen
         name="CustomServer"
-        component={React.lazy(() => import('../screens/auth/CustomServerScreen'))}
+        component={React.lazy(
+          () => import('../screens/auth/CustomServerScreen')
+        )}
         options={{ title: t('custom_server') }}
       />
     </AuthStack.Navigator>
@@ -564,12 +566,12 @@ function BottomTabNavigator({ navigation }: RootTabScreenProps<'Home'>) {
           shadowColor: '#000',
           shadowOpacity: 0.15,
           shadowRadius: 8,
-          shadowOffset: { width: 0, height: -2 },
+          shadowOffset: { width: 0, height: -2 }
         },
         tabBarItemStyle: {
           justifyContent: 'center',
-          alignItems: 'center',
-        },
+          alignItems: 'center'
+        }
       }}
     >
       {user.role.code !== 'REQUESTER' && (

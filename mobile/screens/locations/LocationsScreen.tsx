@@ -21,7 +21,7 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Location from '../../models/location';
-import type { IconSource } from 'react-native-paper';
+import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import { onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';

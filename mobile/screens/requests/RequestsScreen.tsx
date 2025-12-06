@@ -24,7 +24,6 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Request from '../../models/request';
-import type { IconSource } from 'react-native-paper';
 import { getPriorityColor, onSearchQueryChange } from '../../utils/overall';
 import { RootTabScreenProps } from '../../types';
 import Tag from '../../components/Tag';

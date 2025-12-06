@@ -16,16 +16,16 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Meter from '../../models/meter';
-import type { IconSource } from 'react-native-paper';
+import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import { onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 import { IconWithLabel } from '../../components/IconWithLabel';
 
 export default function MetersScreen({
-                                       navigation,
-                                       route
-                                     }: RootStackScreenProps<'Meters'>) {
+  navigation,
+  route
+}: RootStackScreenProps<'Meters'>) {
   const { t } = useTranslation();
   const [startedSearch, setStartedSearch] = useState<boolean>(false);
   const { meters, loadingGet, currentPageNum, lastPage } = useSelector(
@@ -74,10 +74,10 @@ export default function MetersScreen({
   };
 
   const isCloseToBottom = ({
-                             layoutMeasurement,
-                             contentOffset,
-                             contentSize
-                           }) => {
+    layoutMeasurement,
+    contentOffset,
+    contentSize
+  }) => {
     const paddingToBottom = 20;
     return (
       layoutMeasurement.height + contentOffset.y >=
@@ -135,20 +135,25 @@ export default function MetersScreen({
                 backgroundColor: 'white'
               }}
               key={meter.id}
-              onPress={() => navigation.push('MeterDetails', { id: meter.id, meterProp: meter })}
+              onPress={() =>
+                navigation.push('MeterDetails', {
+                  id: meter.id,
+                  meterProp: meter
+                })
+              }
             >
               <Card.Content>
-                <Text variant='titleMedium'>{meter.name}</Text>
+                <Text variant="titleMedium">{meter.name}</Text>
                 {meter.asset && (
                   <IconWithLabel
                     label={meter.asset.name}
-                    icon='package-variant-closed'
+                    icon="package-variant-closed"
                   />
                 )}
                 {meter.location && (
                   <IconWithLabel
                     label={meter.location.name}
-                    icon='map-marker-outline'
+                    icon="map-marker-outline"
                   />
                 )}
               </Card.Content>

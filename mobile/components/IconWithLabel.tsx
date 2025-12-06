@@ -1,13 +1,13 @@
-import type { IconSource } from 'react-native-paper';
+import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import { StyleSheet, View } from 'react-native';
 import { IconButton, Text } from 'react-native-paper';
 import * as React from 'react';
 
 export function IconWithLabel({
-                                icon,
-                                label,
-                                color
-                              }: {
+  icon,
+  label,
+  color
+}: {
   icon: IconSource;
   label: string;
   color?: string;

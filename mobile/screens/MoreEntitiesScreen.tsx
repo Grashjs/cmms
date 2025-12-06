@@ -1,6 +1,6 @@
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { View } from '../components/Themed';
-import type { IconSource } from 'react-native-paper';
+import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import { IconButton, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { RootStackParamList, RootTabScreenProps } from '../types';

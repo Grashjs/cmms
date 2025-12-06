@@ -25,8 +25,7 @@ import Meter, { MeterMiniDTO } from './models/meter';
 
 declare global {
   namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList {
-    }
+    interface RootParamList extends RootStackParamList {}
   }
 }
 
@@ -110,7 +109,10 @@ export type RootStackParamList = {
   };
   SelectTasks: { onChange: (tasks: Task[]) => void; selected: Task[] };
   SelectChecklists: { onChange: (tasks: Task[]) => void; selected: Task[] };
-  SelectTasksOrChecklist: { onChange: (tasks: Task[]) => void; selected: Task[] };
+  SelectTasksOrChecklist: {
+    onChange: (tasks: Task[]) => void;
+    selected: Task[];
+  };
   SelectCategories: {
     onChange: (categories: Category[]) => void;
     selected: number[];
@@ -154,6 +156,7 @@ export type RootTabParamList = {
   Requests: undefined;
   MoreEntities: undefined;
 };
+export type RootParamList = RootStackParamList & RootTabParamList;
 
 export type RootTabScreenProps<Screen extends keyof RootTabParamList> =
   CompositeScreenProps<
@@ -173,5 +176,6 @@ export type SuperUserStackParamList = {
 export type AuthStackScreenProps<Screen extends keyof AuthStackParamList> =
   NativeStackScreenProps<AuthStackParamList, Screen>;
 
-export type SuperUserStackScreenProps<Screen extends keyof SuperUserStackParamList> =
-  NativeStackScreenProps<SuperUserStackParamList, Screen>;
+export type SuperUserStackScreenProps<
+  Screen extends keyof SuperUserStackParamList
+> = NativeStackScreenProps<SuperUserStackParamList, Screen>;

@@ -6,13 +6,13 @@ import { View } from 'react-native';
 import { Divider, List, Text } from 'react-native-paper';
 import * as React from 'react';
 import { useContext, useRef } from 'react';
-import type { IconSource } from 'react-native-paper';
 import { RootStackParamList } from '../../types';
 import { useTranslation } from 'react-i18next';
 import useAuth from '../../hooks/useAuth';
 import { PermissionEntity } from '../../models/role';
 import { useNetInfo } from '@react-native-community/netinfo';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
+import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 
 export default function CreateEntitiesSheet(
   props: SheetProps<{ navigation: any }>

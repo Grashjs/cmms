@@ -57,7 +57,6 @@
     "react-native": "0.74.5",
     "react-native-actions-sheet": "^0.8.21",
     "react-native-dotenv": "^3.4.11",
-    "react-native-dropdown-picker": "^5.4.4",
     "react-native-dropdown-select-list": "^2.0.4",
     "react-native-flash-message": "^0.4.1",
     "react-native-fs": "^2.20.0",

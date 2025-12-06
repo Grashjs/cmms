@@ -25,7 +25,6 @@ import {
   Text,
   useTheme
 } from 'react-native-paper';
-import Dropdown from 'react-native-dropdown-picker';
 import { useTranslation } from 'react-i18next';
 import * as React from 'react';
 import { Fragment, useContext, useEffect, useState } from 'react';
@@ -80,7 +79,6 @@ export default function WODetailsScreen({
   );
   const workOrder = workOrderInfos[id]?.workOrder ?? workOrderProp;
   const { t } = useTranslation();
-  const [openDropDown, setOpenDropDown] = useState<boolean>(false);
   const [dropDownValue, setDropdownValue] = useState<string>(
     workOrder?.status ?? ''
   );
@@ -291,7 +289,10 @@ export default function WODetailsScreen({
       try {
         await Linking.openURL(localFilePath);
       } catch (error) {
-        console.error('Failed to open local file, falling back to remote URL', error);
+        console.error(
+          'Failed to open local file, falling back to remote URL',
+          error
+        );
         await Linking.openURL(uri);
       }
     } else {
@@ -333,7 +334,8 @@ export default function WODetailsScreen({
         if (Platform.OS === 'ios') {
           await actualDownload(uri);
         } else {
-          if (Platform.Version >= 29) await actualDownload(uri);
+          if (Platform.OS === 'android' && Platform.Version >= 29)
+            await actualDownload(uri);
           else {
             try {
               const granted = await PermissionsAndroid.request(
@@ -686,18 +688,34 @@ export default function WODetailsScreen({
               />
             )}
             <View style={{ marginTop: 20 }}>
-              <View style={styles.dropdown}>
-                <Dropdown
-                  disabled={
-                    !hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder)
-                  }
-                  value={workOrder.status}
-                  items={statuses}
-                  open={openDropDown}
-                  setOpen={setOpenDropDown}
-                  setValue={setDropdownValue}
-                />
-              </View>
+              <TouchableOpacity
+                disabled={
+                  !hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder)
+                }
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: 12,
+                  borderWidth: 1,
+                  borderColor: theme.colors.onSurfaceVariant,
+                  borderRadius: 4
+                }}
+                onPress={() =>
+                  SheetManager.show('dropdown-sheet', {
+                    payload: {
+                      items: statuses,
+                      value: workOrder.status,
+                      setValue: setDropdownValue
+                    }
+                  })
+                }
+              >
+                <Text>
+                  {statuses.find((s) => s.value === workOrder.status)?.label}
+                </Text>
+                <IconButton icon="menu-down" size={24} style={{ margin: -5 }} />
+              </TouchableOpacity>
               {workOrder.audioDescription && (
                 <View style={{ backgroundColor: 'white', paddingVertical: 20 }}>
                   <Text>{t('audio_description')}</Text>
@@ -1178,6 +1196,5 @@ const styles = StyleSheet.create({
     bottom: 16,
     right: 16,
     position: 'absolute'
-  },
-  dropdown: { zIndex: 10 }
+  }
 });

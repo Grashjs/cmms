@@ -10,7 +10,7 @@ import {
   TextInput,
   useTheme
 } from 'react-native-paper';
-import type { IconSource } from 'react-native-paper';
+import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import * as React from 'react';
 import { useContext, useEffect, useRef, useState } from 'react';
 import PartQuantity from '../models/partQuantity';

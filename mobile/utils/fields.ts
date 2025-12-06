@@ -294,7 +294,7 @@ export const getAssetFields = (t): Array<IField> => {
       ? [
           {
             name: 'nfcId',
-            type: 'nfc',
+            type: 'nfc' as const,
             label: t('nfc_tag')
           }
         ]
