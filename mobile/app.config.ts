@@ -35,7 +35,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       policy: 'sdkVersion'
     },
     infoPlist: {
-      ITSAppUsesNonExemptEncryption: false,
+      ITSAppUsesNonExemptEncryption: false
     }
   },
   android: {
@@ -45,7 +45,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     versionCode: 31,
     package: 'com.atlas.cmms',
-    googleServicesFile: googleServicesJson ?? './google-services.json',
+    googleServicesFile:
+      googleServicesJson ?? './android/app/google-services.json',
     runtimeVersion: {
       policy: 'sdkVersion'
     }

@@ -20,6 +20,10 @@ import mime from 'mime';
 import { ActionSheetRef, SheetManager } from 'react-native-actions-sheet';
 import { CustomSnackBarContext } from '../contexts/CustomSnackBarContext';
 import { IFile } from '../models/file';
+import {
+  DocumentPickerOptions,
+  DocumentPickerResult
+} from 'expo-document-picker';
 
 interface OwnProps {
   title: string;
@@ -42,10 +46,12 @@ export default function FileUpload({
   const { t } = useTranslation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const maxFileSize: number = 7;
-  const checkStoragePermission = async () => {
+  const checkAndroidStoragePermission = async () => {
     // For Android 13+ (API level 33+), we need to use the newer permissions
     const permissionName =
-      Platform.Version >= 33
+      (typeof Platform.Version === 'number'
+        ? Platform.Version
+        : Number(Platform.Version)) >= 33
         ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
         : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
 
@@ -258,22 +264,62 @@ export default function FileUpload({
     }
   };
   const pickFile = async () => {
-    const hasPermissions = await checkStoragePermission();
-    if (hasPermissions) {
-      let result = await DocumentPicker.getDocumentAsync({});
-      if (result.type !== 'cancel') {
-        await checkSize(result.uri);
-        onChangeInternal(
-          [
-            {
-              uri: result.uri,
-              name: result.name,
-              type: mime.getType(result.name)
-            }
-          ],
-          'file'
-        );
+    const hasPermissions =
+      Platform.OS === 'android' ? await checkAndroidStoragePermission() : true;
+    if (!hasPermissions) {
+      return;
+    }
+    try {
+      // Pass the 'multiple' prop to enable multi-file selection if needed
+      const options: DocumentPickerOptions = {
+        type:
+          type === 'spreadsheet'
+            ? [
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'text/csv'
+              ]
+            : '*/*', // Default to all file types
+        copyToCacheDirectory: true,
+        multiple
+      };
+
+      const result: DocumentPickerResult =
+        await DocumentPicker.getDocumentAsync(options);
+      if (
+        result.canceled === true ||
+        !result.assets ||
+        result.assets.length === 0
+      ) {
+        console.log('Document picker was canceled or no file selected');
+        return;
       }
+
+      // Process selected files (currently only handles the first asset due to existing component logic)
+      const selectedAssets = result.assets;
+      const filesToUpload: IFile[] = [];
+
+      // Loop through selected assets to perform size checks
+      for (const asset of selectedAssets) {
+        await checkSize(asset.uri);
+
+        filesToUpload.push({
+          uri: asset.uri,
+          name: asset.name,
+          type:
+            mime.getType(asset.name) ||
+            asset.mimeType ||
+            'application/octet-stream' // Use mime or the asset's mimeType
+        });
+
+        // Break the loop if 'multiple' is false, as the current display logic only shows one file.
+        if (!multiple) break;
+      }
+
+      // Pass the selected file(s) to the internal change handler
+      onChangeInternal(filesToUpload, 'file');
+    } catch (error) {
+      console.error('Error picking document:', error);
     }
   };
   const onPress = () => {
@@ -310,25 +356,34 @@ export default function FileUpload({
               />
             </View>
           ))}
-        {type === 'file' && !!files.length && (
-          <View
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}
-          >
-            <Text style={{ color: theme.colors.primary }}>{files[0].name}</Text>
-            <IconButton
-              onPress={() => {
-                onChangeInternal([], 'file');
+        {type !== 'image' && // Covers 'file' and 'spreadsheet' types
+          !!files.length &&
+          files.map((file, index) => (
+            <View
+              key={file.uri} // <--- Use a unique key
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingVertical: 1 // Optional: Add padding for separation
               }}
-              icon={'close-circle'}
-              iconColor={theme.colors.error}
-            />
-          </View>
-        )}
+            >
+              <Text style={{ color: theme.colors.primary, flexShrink: 1 }}>
+                {file.name}
+              </Text>
+              <IconButton
+                onPress={() => {
+                  onChangeInternal(
+                    files.filter((_, i) => i !== index),
+                    'file'
+                  );
+                }}
+                icon={'close-circle'}
+                iconColor={theme.colors.error}
+              />
+            </View>
+          ))}
       </ScrollView>
     </View>
   );

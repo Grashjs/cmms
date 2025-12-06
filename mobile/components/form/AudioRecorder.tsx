@@ -16,9 +16,9 @@ export default function AudioRecorder({
   const [recordingURI, setRecordingURI] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
-  const [playbackStatus, setPlaybackStatus] = useState<'idle' | 'playing' | 'paused'>(
-    'idle'
-  );
+  const [playbackStatus, setPlaybackStatus] = useState<
+    'idle' | 'playing' | 'paused'
+  >('idle');
   const theme = useTheme();
   const { t } = useTranslation();
   const startRecording = async () => {
@@ -104,17 +104,16 @@ export default function AudioRecorder({
 
       let playbackSound = sound;
       if (!playbackSound) {
-        const createdSound = await Audio.Sound.createAsync({ uri: recordingURI });
+        const createdSound = await Audio.Sound.createAsync({
+          uri: recordingURI
+        });
         playbackSound = createdSound.sound;
         playbackSound.setOnPlaybackStatusUpdate(async (status) => {
           if (!status.isLoaded) return;
           if (status.didJustFinish) {
+            await playbackSound.stopAsync();
+            await playbackSound.setPositionAsync(0);
             setPlaybackStatus('idle');
-            try {
-              await playbackSound.setPositionAsync(0);
-            } catch (err) {
-              console.error('Failed to reset audio position', err);
-            }
           } else if (!status.isPlaying && status.positionMillis > 0) {
             setPlaybackStatus('paused');
           }
@@ -157,9 +156,9 @@ export default function AudioRecorder({
   useEffect(() => {
     return () => {
       if (sound) {
-        sound.unloadAsync().catch((error) =>
-          console.error('Failed to unload sound', error)
-        );
+        sound
+          .unloadAsync()
+          .catch((error) => console.error('Failed to unload sound', error));
       }
     };
   }, [sound]);
@@ -181,7 +180,11 @@ export default function AudioRecorder({
 
       {recordingURI && (
         <View
-          style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center'
+          }}
         >
           {playbackStatus !== 'playing' && (
             <IconButton
