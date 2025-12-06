@@ -11,6 +11,7 @@ import {
   ColorSchemeName,
   GestureResponderEvent,
   Image,
+  Platform,
   Pressable,
   TouchableOpacity,
   View
@@ -42,7 +43,7 @@ import LinkingConfiguration from './LinkingConfiguration';
 import useAuth from '../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 import { IconButton, Text, useTheme } from 'react-native-paper';
-import { IconSource } from 'react-native-paper/src/components/Icon';
+import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import MoreEntitiesScreen from '../screens/MoreEntitiesScreen';
 import MetersScreen from '../screens/meters/MetersScreen';
 import WorkOrdersScreen from '../screens/workOrders/WorkOrdersScreen';
@@ -452,11 +453,13 @@ function AuthNavigator() {
         component={LoginScreen}
         options={{ title: t('login') }}
       />
-      <AuthStack.Screen
-        name="Register"
-        component={RegisterScreen}
-        options={{ title: t('register') }}
-      />
+      {Platform.OS !== 'ios' && (
+        <AuthStack.Screen
+          name="Register"
+          component={RegisterScreen}
+          options={{ title: t('register') }}
+        />
+      )}
       <AuthStack.Screen
         name="Verify"
         component={VerifyScreen}
@@ -464,7 +467,9 @@ function AuthNavigator() {
       />
       <AuthStack.Screen
         name="CustomServer"
-        component={React.lazy(() => import('../screens/auth/CustomServerScreen'))}
+        component={React.lazy(
+          () => import('../screens/auth/CustomServerScreen')
+        )}
         options={{ title: t('custom_server') }}
       />
     </AuthStack.Navigator>
@@ -548,13 +553,24 @@ function BottomTabNavigator({ navigation }: RootTabScreenProps<'Home'>) {
         tabBarActiveTintColor: theme.colors.primary,
         tabBarStyle: {
           position: 'absolute',
-          bottom: 10,
+          bottom: 17,
           left: 20,
           right: 20,
           elevation: 8,
           borderRadius: 15,
           zIndex: 10,
-          height: 50
+          height: 70,
+          paddingTop: 6,
+          paddingBottom: Platform.OS === 'ios' ? 18 : 10,
+          borderTopWidth: 0,
+          shadowColor: '#000',
+          shadowOpacity: 0.15,
+          shadowRadius: 8,
+          shadowOffset: { width: 0, height: -2 }
+        },
+        tabBarItemStyle: {
+          justifyContent: 'center',
+          alignItems: 'center'
         }
       }}
     >

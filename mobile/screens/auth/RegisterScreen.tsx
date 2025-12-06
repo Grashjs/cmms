@@ -109,9 +109,20 @@ export default function RegisterScreen({
             setFieldValue
           }) => (
             <View>
+              <Text
+                style={[
+                  styles.requiredNotice,
+                  {
+                    color:
+                      theme.colors.onSurfaceVariant,
+                  }
+                ]}
+              >
+                {t('required_fields_notice')}
+              </Text>
               <TextInput
                 error={Boolean(touched.firstName && errors.firstName)}
-                label={t('first_name')}
+                label={`${t('first_name')} *`}
                 onBlur={handleBlur('firstName')}
                 onChangeText={handleChange('firstName')}
                 value={values.firstName}
@@ -125,7 +136,7 @@ export default function RegisterScreen({
               </HelperText>
               <TextInput
                 error={Boolean(touched.lastName && errors.lastName)}
-                label={t('last_name')}
+                label={`${t('last_name')} *`}
                 onBlur={handleBlur('lastName')}
                 onChangeText={handleChange('lastName')}
                 value={values.lastName}
@@ -139,7 +150,7 @@ export default function RegisterScreen({
               </HelperText>
               <TextInput
                 error={Boolean(touched.email && errors.email)}
-                label={t('email')}
+                label={`${t('email')} *`}
                 onBlur={handleBlur('email')}
                 onChangeText={handleChange('email')}
                 value={values.email}
@@ -167,7 +178,7 @@ export default function RegisterScreen({
               </HelperText>
               <TextInput
                 error={Boolean(touched.password && errors.password)}
-                label={t('password')}
+                label={`${t('password')} *`}
                 onBlur={handleBlur('password')}
                 onChangeText={handleChange('password')}
                 value={values.password}
@@ -185,7 +196,7 @@ export default function RegisterScreen({
               </HelperText>
               <TextInput
                 error={Boolean(touched.companyName && errors.companyName)}
-                label={t('companyName')}
+                label={`${t('companyName')} *`}
                 onBlur={handleBlur('companyName')}
                 onChangeText={handleChange('companyName')}
                 value={values.companyName}
@@ -199,7 +210,7 @@ export default function RegisterScreen({
               </HelperText>
               <TextInput
                 error={Boolean(touched.employeesCount && errors.employeesCount)}
-                label={t('employeesCount')}
+                label={`${t('employeesCount')}`}
                 onBlur={handleBlur('employeesCount')}
                 onChangeText={handleChange('employeesCount')}
                 value={values.employeesCount}
@@ -214,13 +225,26 @@ export default function RegisterScreen({
                 {errors.employeesCount?.toString()}
               </HelperText>
               <View style={styles.checkboxContainer}>
-                <Checkbox
-                  status={values.terms ? 'checked' : 'unchecked'}
-                  color={theme.colors.primary}
-                  onPress={(event) => setFieldValue('terms', !values.terms)}
-                />
+                <View
+                  style={[
+                    styles.checkboxWrapper,
+                    !values.terms && {
+                      borderColor: theme.colors.outline,
+                      borderWidth: 1,
+                      width: 24,
+                      height: 24,
+                    }
+                  ]}
+                >
+                  <Checkbox
+                    status={values.terms ? 'checked' : 'unchecked'}
+                    color={theme.colors.primary}
+                    uncheckedColor={theme.colors.outline}
+                    onPress={(event) => setFieldValue('terms', !values.terms)}
+                  />
+                </View>
                 <View style={styles.row}>
-                  <Text>{t('i_accept')}</Text>
+                  <Text>{`* ${t('i_accept').trim()}`}</Text>
                   <TouchableOpacity
                     onPress={() => {
                       Linking.canOpenURL(termsOfServiceUrl).then(
@@ -288,9 +312,18 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center'
   },
+  checkboxWrapper: {
+    borderRadius: 4,
+    marginRight: 8,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
   row: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center'
+  },
+  requiredNotice: {
+    marginBottom: 16
   }
 });

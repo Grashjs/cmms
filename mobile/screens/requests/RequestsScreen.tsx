@@ -24,7 +24,6 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Request from '../../models/request';
-import { IconSource } from 'react-native-paper/src/components/Icon';
 import { getPriorityColor, onSearchQueryChange } from '../../utils/overall';
 import { RootTabScreenProps } from '../../types';
 import Tag from '../../components/Tag';
@@ -390,7 +389,7 @@ export default function RequestsScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
+    // alignItems: 'center',
     justifyContent: 'center'
   },
   title: {

@@ -170,6 +170,7 @@ const trJSON = {
   employeesCount: 'Çalışan Sayısı',
   i_accept: 'Kabul ediyorum',
   terms_conditions: 'Şartlar ve koşullar',
+  required_fields_notice: '* ile işaretlenen tüm alanlar zorunludur.',
   create_your_account: 'Hesabını oluştur',
   register: 'Kayıt ol',
   login_description:
@@ -1002,6 +1003,12 @@ const trJSON = {
   personal_details_description:
     'Kişisel bilgilerinizle ilgili bilgileri yönetin',
   change_password: 'Şifre değiştir',
+  delete_account: 'Hesabı sil',
+  delete_account_confirmation:
+    'Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.',
+  account_deleted: 'Hesap başarıyla silindi',
+  account_delete_error: 'Hesap silinirken hata oluştu',
+  confirm_delete_account: 'Hesabı sil',
   notification_settings: 'Bildirim Ayarları',
   notification_settings_description:
     'Bildirimlerinizle ilgili ayrıntıları yönetin',

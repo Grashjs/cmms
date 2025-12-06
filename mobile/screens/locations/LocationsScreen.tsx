@@ -21,7 +21,7 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Location from '../../models/location';
-import { IconSource } from 'react-native-paper/src/components/Icon';
+import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import { onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
@@ -288,7 +288,7 @@ export default function LocationsScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
+    // alignItems: 'center',
     justifyContent: 'center'
   },
   title: {

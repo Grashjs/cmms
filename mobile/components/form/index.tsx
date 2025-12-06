@@ -1,4 +1,10 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View
+} from 'react-native';
 import { IField, IHash } from '../../models/form';
 import * as Yup from 'yup';
 import { ObjectSchema } from 'yup';
@@ -49,6 +55,8 @@ export default function Form(props: OwnProps) {
   const { t } = useTranslation();
   const shape: IHash<any> = {};
   const theme = useTheme();
+  // Disable NFC-related form inputs on iOS (barcode only).
+  const isNfcEnabled = Platform.OS !== 'ios';
   props.fields.forEach((f) => {
     shape[f.name] = Yup.string();
     if (f.required) {
@@ -471,16 +479,21 @@ export default function Form(props: OwnProps) {
       >
         {(formik) => (
           <View>
-            {props.fields.map((field, index) => (
-              <View
-                key={index}
-                style={{
-                  width: '100%',
-                  backgroundColor: 'white',
-                  paddingHorizontal: 10,
-                  paddingVertical: 10
-                }}
-              >
+            {props.fields.map((field, index) => {
+              if (!isNfcEnabled && field.type === 'nfc') {
+                return null;
+              }
+
+              return (
+                <View
+                  key={index}
+                  style={{
+                    width: '100%',
+                    backgroundColor: 'white',
+                    paddingHorizontal: 10,
+                    paddingVertical: 10
+                  }}
+                >
                 {field.type === 'text' ? (
                   <TextInput
                     style={{ width: '100%' }}
@@ -611,13 +624,14 @@ export default function Form(props: OwnProps) {
                 ) : (
                   renderSelect(formik, field)
                 )}
-                {Boolean(formik.errors[field.name]) && (
-                  <HelperText type="error">
-                    {t(formik.errors[field.name]?.toString())}
-                  </HelperText>
-                )}
-              </View>
-            ))}
+                  {Boolean(formik.errors[field.name]) && (
+                    <HelperText type="error">
+                      {t(formik.errors[field.name]?.toString())}
+                    </HelperText>
+                  )}
+                </View>
+              );
+            })}
             <Button
               style={{ marginVertical: 20, zIndex: 10 }}
               onPress={() => formik.handleSubmit()}

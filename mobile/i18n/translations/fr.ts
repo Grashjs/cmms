@@ -285,6 +285,7 @@ const frJSON = {
   employeesCount: "Nombre d'employés",
   i_accept: "J'accepte les",
   terms_conditions: 'termes et conditions',
+  required_fields_notice: 'Tous les champs marqués d’un * sont obligatoires.',
   create_your_account: 'Créer votre compte',
   login_description:
     'Remplissez les champs ci-dessous pour vous connecter à votre compte.',
@@ -1157,6 +1158,12 @@ const frJSON = {
   personal_details_description:
     'Gérer les informations relatives à vos données personnelles',
   change_password: 'Changer le mot de passe',
+  delete_account: 'Supprimer le compte',
+  delete_account_confirmation:
+    'Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.',
+  account_deleted: 'Compte supprimé avec succès',
+  account_delete_error: 'Erreur lors de la suppression du compte',
+  confirm_delete_account: 'Supprimer le compte',
   notification_settings: 'Paramètres de notifications',
   notification_settings_description:
     'Gérer les détails liés à vos notifications',
