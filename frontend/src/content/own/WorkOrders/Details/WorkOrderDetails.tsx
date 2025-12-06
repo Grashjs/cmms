@@ -558,7 +558,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
               >
                 <Box>
                   {changingStatus ? (
-                    <CircularProgress />
+                    <CircularProgress size={'2rem'} />
                   ) : (
                     <Select
                       onChange={(event) => {
