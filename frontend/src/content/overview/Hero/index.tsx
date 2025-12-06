@@ -4,6 +4,7 @@ import {
   CircularProgress,
   Container,
   Grid,
+  Stack,
   styled,
   Typography
 } from '@mui/material';
@@ -152,44 +153,46 @@ function Hero() {
           >
             {t('home_description', { shortBrandName: brandConfig.name })}
           </TypographyH2>
-          <Button
-            component={RouterLink}
-            to={isAuthenticated ? '/app/work-orders' : '/account/register'}
-            size="large"
-            variant="contained"
-          >
-            {t('try_grash', { shortBrandName: brandConfig.name })}
-          </Button>
-          <Button
-            sx={{
-              ml: 2
-            }}
-            component="a"
-            startIcon={
-              generatingAccount && (
-                <CircularProgress size={'1rem'} color="primary" />
-              )
-            }
-            onClick={onSeeLiveDemo}
-            size="medium"
-            variant="text"
-          >
-            {t('see_live_demo')}
-          </Button>
-          <Button
-            sx={{
-              ml: 2
-            }}
-            href={`mailto:${brandConfig.mail}`}
-            size="medium"
-            variant="text"
-            onClick={() => {
-              fireGa4Event('contact_us_click');
-              window.location.href = `mailto:${brandConfig.mail}`;
-            }}
-          >
-            {t('contact_us')}
-          </Button>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={1}>
+            <Button
+              component={RouterLink}
+              to={isAuthenticated ? '/app/work-orders' : '/account/register'}
+              size="large"
+              variant="contained"
+            >
+              {t('try_f', { shortBrandName: brandConfig.name })}
+            </Button>
+            <Button
+              sx={{
+                ml: 2
+              }}
+              component="a"
+              startIcon={
+                generatingAccount && (
+                  <CircularProgress size={'1rem'} color="primary" />
+                )
+              }
+              onClick={onSeeLiveDemo}
+              size="medium"
+              variant="text"
+            >
+              {t('see_live_demo')}
+            </Button>
+            <Button
+              sx={{
+                ml: 2
+              }}
+              href={`mailto:${brandConfig.mail}`}
+              size="medium"
+              variant="text"
+              onClick={() => {
+                fireGa4Event('contact_us_click');
+                window.location.href = `mailto:${brandConfig.mail}`;
+              }}
+            >
+              {t('contact_us')}
+            </Button>
+          </Stack>
         </Grid>
         <Grid item md={6}>
           <BoxContent>

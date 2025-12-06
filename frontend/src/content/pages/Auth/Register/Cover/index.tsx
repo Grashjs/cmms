@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import CheckCircleOutlineTwoToneIcon from '@mui/icons-material/CheckCircleOutlineTwoTone';
 import Scrollbar from 'src/components/Scrollbar';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper';
+import { Autoplay, Navigation, Pagination } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -61,7 +61,7 @@ const SidebarContent = styled(Box)(
   ({ theme }) => `
   display: flex;
   flex-direction: column;
-  padding: ${theme.spacing(6)};
+  padding: ${theme.spacing(2, 6)};
 `
 );
 
@@ -225,12 +225,16 @@ function RegisterCover() {
                   spaceBetween={30}
                   slidesPerView={1}
                   loop
+                  autoplay={{
+                    delay: 2000,
+                    disableOnInteraction: false
+                  }}
                   navigation={{
                     nextEl: '.MuiSwipe-right',
                     prevEl: '.MuiSwipe-left'
                   }}
                   // @ts-ignore
-                  modules={[Navigation, Pagination]}
+                  modules={[Navigation, Pagination, Autoplay]}
                   pagination={{
                     clickable: true,
                     dynamicBullets: true
@@ -278,9 +282,9 @@ function RegisterCover() {
               />
               <Box>
                 <TypographyPrimary
-                  variant="h3"
+                  variant="h4"
                   sx={{
-                    mb: 3
+                    mb: 1
                   }}
                 >
                   {t('register')}
