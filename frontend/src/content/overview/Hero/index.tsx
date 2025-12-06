@@ -160,7 +160,7 @@ function Hero() {
               size="large"
               variant="contained"
             >
-              {t('try_f', { shortBrandName: brandConfig.name })}
+              {t('try_for_free')}
             </Button>
             <Button
               sx={{

@@ -773,16 +773,9 @@ function Assets() {
         <Helmet>
           <title>{t('assets')}</title>
         </Helmet>
-        <Grid
-          container
-          justifyContent="center"
-          alignItems="stretch"
-          spacing={1}
-          paddingX={4}
-        >
-          <Grid
-            item
-            xs={12}
+        <Box justifyContent="center" alignItems="stretch" paddingX={4}>
+          <Box
+            my={1}
             display="flex"
             flexDirection="row"
             justifyContent="space-between"
@@ -812,89 +805,85 @@ function Assets() {
                 </Button>
               )}
             </Stack>
-          </Grid>
-          <Grid item xs={12}>
-            <Card
-              sx={{
-                p: 2,
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}
-            >
-              <Box sx={{ width: '95%' }}>
-                <CustomDataGrid
-                  pro
-                  treeData={view === 'hierarchy'}
-                  columns={columns}
-                  rows={view === 'hierarchy' ? assetsHierarchy : assets.content}
-                  apiRef={apiRef}
-                  getRowHeight={() => 'auto'}
-                  getTreeDataPath={(row) =>
-                    view === 'hierarchy'
-                      ? row.hierarchy.map((id) => id.toString())
-                      : [row.id.toString()]
+          </Box>
+          <Card
+            sx={{
+              p: 2,
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}
+          >
+            <Box sx={{ width: '95%' }}>
+              <CustomDataGrid
+                pro
+                treeData={view === 'hierarchy'}
+                columns={columns}
+                rows={view === 'hierarchy' ? assetsHierarchy : assets.content}
+                apiRef={apiRef}
+                getRowHeight={() => 'auto'}
+                getTreeDataPath={(row) =>
+                  view === 'hierarchy'
+                    ? row.hierarchy.map((id) => id.toString())
+                    : [row.id.toString()]
+                }
+                disableColumnFilter
+                loading={loadingGet}
+                groupingColDef={
+                  view === 'hierarchy' ? groupingColDef : undefined
+                }
+                paginationMode={view === 'hierarchy' ? undefined : 'server'}
+                sortingMode={view === 'hierarchy' ? 'client' : undefined}
+                onSortModelChange={(model) => {
+                  if (view !== 'hierarchy') return;
+
+                  if (model.length === 0) {
+                    setCriteria({
+                      ...criteria,
+                      sortField: undefined,
+                      direction: undefined
+                    });
+                    return;
                   }
-                  disableColumnFilter
-                  loading={loadingGet}
-                  groupingColDef={
-                    view === 'hierarchy' ? groupingColDef : undefined
+
+                  const field = model[0].field;
+                  const mappedField = fieldMapping[field];
+
+                  // Only proceed if we have a mapping for this field
+                  if (!mappedField) return;
+
+                  setPageable((prevState) => ({
+                    ...prevState,
+                    sort: model.length
+                      ? [`${mappedField},${model[0].sort}` as Sort]
+                      : []
+                  }));
+                }}
+                onPageSizeChange={onPageSizeChange}
+                onPageChange={onPageChange}
+                rowsPerPageOptions={view === 'list' ? [10, 20, 50] : undefined}
+                components={{
+                  Row: CustomRow,
+                  NoRowsOverlay: () => (
+                    <NoRowsMessageWrapper
+                      message={t('noRows.asset.message')}
+                      action={t('noRows.asset.action')}
+                    />
+                  )
+                }}
+                onRowClick={(params) => {
+                  navigate(getAssetUrl(params.id));
+                }}
+                initialState={{
+                  columns: {
+                    columnVisibilityModel: {}
                   }
-                  paginationMode={view === 'hierarchy' ? undefined : 'server'}
-                  sortingMode={view === 'hierarchy' ? 'client' : undefined}
-                  onSortModelChange={(model) => {
-                    if (view !== 'hierarchy') return;
-
-                    if (model.length === 0) {
-                      setCriteria({
-                        ...criteria,
-                        sortField: undefined,
-                        direction: undefined
-                      });
-                      return;
-                    }
-
-                    const field = model[0].field;
-                    const mappedField = fieldMapping[field];
-
-                    // Only proceed if we have a mapping for this field
-                    if (!mappedField) return;
-
-                    setPageable((prevState) => ({
-                      ...prevState,
-                      sort: model.length
-                        ? [`${mappedField},${model[0].sort}` as Sort]
-                        : []
-                    }));
-                  }}
-                  onPageSizeChange={onPageSizeChange}
-                  onPageChange={onPageChange}
-                  rowsPerPageOptions={
-                    view === 'list' ? [10, 20, 50] : undefined
-                  }
-                  components={{
-                    Row: CustomRow,
-                    NoRowsOverlay: () => (
-                      <NoRowsMessageWrapper
-                        message={t('noRows.asset.message')}
-                        action={t('noRows.asset.action')}
-                      />
-                    )
-                  }}
-                  onRowClick={(params) => {
-                    navigate(getAssetUrl(params.id));
-                  }}
-                  initialState={{
-                    columns: {
-                      columnVisibilityModel: {}
-                    }
-                  }}
-                />
-              </Box>
-            </Card>
-          </Grid>
-        </Grid>
+                }}
+              />
+            </Box>
+          </Card>
+        </Box>
         {renderMenu()}
         <Drawer
           anchor="left"

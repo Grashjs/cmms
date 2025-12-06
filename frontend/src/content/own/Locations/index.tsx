@@ -687,23 +687,15 @@ function Locations() {
         <Helmet>
           <title>{t('locations')}</title>
         </Helmet>
-        <Grid
-          container
-          justifyContent="center"
-          alignItems="stretch"
-          spacing={1}
-          paddingX={4}
-          pt={1}
-        >
-          <Grid
-            item
-            xs={12}
+        <Box justifyContent="center" alignItems="stretch" paddingX={4}>
+          <Box
+            my={1}
             display="flex"
             flexDirection="row"
             justifyContent="space-between"
             alignItems="center"
           >
-            {tabs.length > 1 && (
+            {tabs.length > 1 ? (
               <Tabs
                 onChange={handleTabsChange}
                 value={currentTab}
@@ -716,6 +708,8 @@ function Locations() {
                   <Tab key={tab.value} label={tab.label} value={tab.value} />
                 ))}
               </Tabs>
+            ) : (
+              <Box />
             )}
             <Stack direction={'row'} alignItems="center" spacing={1}>
               <IconButton onClick={() => handleReset(true)} color="primary">
@@ -735,105 +729,95 @@ function Locations() {
                 </Button>
               )}
             </Stack>
-          </Grid>
+          </Box>
           {currentTab === 'list' && (
-            <Grid item xs={12}>
-              <Card
-                sx={{
-                  p: 2,
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
-                }}
-              >
-                <Box sx={{ width: '95%' }}>
-                  <CustomDataGrid
-                    pro
-                    treeData
-                    columns={columns}
-                    rows={locationsHierarchy}
-                    loading={loadingGet}
-                    apiRef={apiRef}
-                    getTreeDataPath={(row) =>
-                      row.hierarchy.map((id) => id.toString())
+            <Card
+              sx={{
+                p: 2,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}
+            >
+              <Box sx={{ width: '95%' }}>
+                <CustomDataGrid
+                  pro
+                  treeData
+                  columns={columns}
+                  rows={locationsHierarchy}
+                  loading={loadingGet}
+                  apiRef={apiRef}
+                  getTreeDataPath={(row) =>
+                    row.hierarchy.map((id) => id.toString())
+                  }
+                  groupingColDef={groupingColDef}
+                  components={{
+                    Row: CustomRow,
+                    NoRowsOverlay: () => (
+                      <NoRowsMessageWrapper
+                        message={t('noRows.location.message')}
+                        action={t('noRows.location.action')}
+                      />
+                    )
+                  }}
+                  onRowClick={(params) => handleOpenDetails(Number(params.id))}
+                  initialState={{
+                    columns: {
+                      columnVisibilityModel: {}
                     }
-                    groupingColDef={groupingColDef}
-                    components={{
-                      Row: CustomRow,
-                      NoRowsOverlay: () => (
-                        <NoRowsMessageWrapper
-                          message={t('noRows.location.message')}
-                          action={t('noRows.location.action')}
-                        />
-                      )
-                    }}
-                    onRowClick={(params) =>
-                      handleOpenDetails(Number(params.id))
-                    }
-                    initialState={{
-                      columns: {
-                        columnVisibilityModel: {}
-                      }
-                    }}
-                    sortingMode="client"
-                    onSortModelChange={(model, details) => {
-                      const mapper: Record<string, string> = {
-                        name: 'name',
-                        address: 'address',
-                        createdAt: 'createdAt',
-                        customId: 'customId'
-                      };
-                      if (
-                        model.length &&
-                        !Object.keys(mapper).includes(model[0].field)
-                      )
-                        return;
-                      //model length is at max 1
-                      setPageable((prevState) => ({
-                        ...prevState,
-                        sort: model.length
-                          ? [
-                              `${mapper[model[0].field]},${
-                                model[0].sort
-                              }` as Sort
-                            ]
-                          : []
-                      }));
-                    }}
-                  />
-                </Box>
-              </Card>
-            </Grid>
+                  }}
+                  sortingMode="client"
+                  onSortModelChange={(model, details) => {
+                    const mapper: Record<string, string> = {
+                      name: 'name',
+                      address: 'address',
+                      createdAt: 'createdAt',
+                      customId: 'customId'
+                    };
+                    if (
+                      model.length &&
+                      !Object.keys(mapper).includes(model[0].field)
+                    )
+                      return;
+                    //model length is at max 1
+                    setPageable((prevState) => ({
+                      ...prevState,
+                      sort: model.length
+                        ? [`${mapper[model[0].field]},${model[0].sort}` as Sort]
+                        : []
+                    }));
+                  }}
+                />
+              </Box>
+            </Card>
           )}
           {currentTab === 'map' && (
-            <Grid item xs={12}>
-              <Card
-                sx={{
-                  p: 2,
-                  justifyContent: 'center'
-                }}
-              >
-                <Map
-                  dimensions={{ width: 1000, height: 500 }}
-                  locations={locations
-                    .filter((location) => location.longitude)
-                    .map(({ name, longitude, latitude, address, id }) => {
-                      return {
-                        title: name,
-                        coordinates: {
-                          lng: longitude,
-                          lat: latitude
-                        },
-                        address,
-                        id
-                      };
-                    })}
-                />
-              </Card>
-            </Grid>
+            <Card
+              sx={{
+                p: 2,
+                justifyContent: 'center'
+              }}
+            >
+              <Map
+                dimensions={{ width: 1000, height: 500 }}
+                locations={locations
+                  .filter((location) => location.longitude)
+                  .map(({ name, longitude, latitude, address, id }) => {
+                    return {
+                      title: name,
+                      coordinates: {
+                        lng: longitude,
+                        lat: latitude
+                      },
+                      address,
+                      id
+                    };
+                  })}
+              />
+            </Card>
           )}
-        </Grid>
+        </Box>
         {renderLocationAddModal()}
         {renderLocationUpdateModal()}
         <Drawer

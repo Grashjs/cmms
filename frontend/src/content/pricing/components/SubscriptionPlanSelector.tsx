@@ -167,7 +167,7 @@ export default function SubscriptionPlanSelector({
                     }
                     sx={{ mb: 1 }}
                   >
-                    {plan.id === 'basic' ? t('Get started') : t('Try for free')}
+                    {plan.id === 'basic' ? t('Get started') : t('try_for_free')}
                   </Button>
                   <Typography
                     variant="caption"

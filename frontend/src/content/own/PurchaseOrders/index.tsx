@@ -9,6 +9,7 @@ import {
   DialogTitle,
   Drawer,
   Grid,
+  Stack,
   Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
@@ -525,80 +526,64 @@ function PurchaseOrders() {
           <Helmet>
             <title>{t('purchase_orders')}</title>
           </Helmet>
-          <Grid
-            container
-            justifyContent="center"
-            alignItems="stretch"
-            spacing={1}
-            paddingX={4}
-          >
+          <Box justifyContent="center" alignItems="stretch" paddingX={4}>
             {hasCreatePermission(PermissionEntity.PURCHASE_ORDERS) && (
-              <Grid
-                item
-                xs={12}
-                display="flex"
-                flexDirection="row"
+              <Stack
+                my={1}
+                direction="row"
                 justifyContent="space-between"
                 alignItems="center"
               >
-                <Box sx={{ my: 0.5 }}>
-                  <SearchInput onChange={debouncedQueryChange} />
-                </Box>
+                <SearchInput onChange={debouncedQueryChange} />
                 <Button
                   onClick={() => navigate('/app/purchase-orders/create')}
                   startIcon={<AddTwoToneIcon />}
-                  sx={{ mx: 6, my: 1 }}
                   variant="contained"
                 >
                   {t('purchase_order')}
                 </Button>
-              </Grid>
+              </Stack>
             )}
-            <Grid item xs={12}>
-              <Card
-                sx={{
-                  p: 2,
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
-                }}
-              >
-                <Box sx={{ width: '95%' }}>
-                  <CustomDataGrid
-                    columns={columns}
-                    pageSize={criteria.pageSize}
-                    page={criteria.pageNum}
-                    rows={purchaseOrders.content}
-                    rowCount={purchaseOrders.totalElements}
-                    pagination
-                    paginationMode="server"
-                    onPageSizeChange={onPageSizeChange}
-                    onPageChange={onPageChange}
-                    rowsPerPageOptions={[10, 20, 50]}
-                    loading={loadingGet}
-                    components={{
-                      
-                      NoRowsOverlay: () => (
-                        <NoRowsMessageWrapper
-                          message={t('noRows.po.message')}
-                          action={t('noRows.po.action')}
-                        />
-                      )
-                    }}
-                    onRowClick={(params) =>
-                      handleOpenDetails(Number(params.id))
+            <Card
+              sx={{
+                p: 2,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}
+            >
+              <Box sx={{ width: '95%' }}>
+                <CustomDataGrid
+                  columns={columns}
+                  pageSize={criteria.pageSize}
+                  page={criteria.pageNum}
+                  rows={purchaseOrders.content}
+                  rowCount={purchaseOrders.totalElements}
+                  pagination
+                  paginationMode="server"
+                  onPageSizeChange={onPageSizeChange}
+                  onPageChange={onPageChange}
+                  rowsPerPageOptions={[10, 20, 50]}
+                  loading={loadingGet}
+                  components={{
+                    NoRowsOverlay: () => (
+                      <NoRowsMessageWrapper
+                        message={t('noRows.po.message')}
+                        action={t('noRows.po.action')}
+                      />
+                    )
+                  }}
+                  onRowClick={(params) => handleOpenDetails(Number(params.id))}
+                  initialState={{
+                    columns: {
+                      columnVisibilityModel: {}
                     }
-                    initialState={{
-                      columns: {
-                        columnVisibilityModel: {}
-                      }
-                    }}
-                  />
-                </Box>
-              </Card>
-            </Grid>
-          </Grid>
+                  }}
+                />
+              </Box>
+            </Card>
+          </Box>
           <Drawer
             anchor="right"
             open={openDrawer}

@@ -588,33 +588,23 @@ function Files() {
         </Helmet>
         {renderAddModal()}
         {renderUpdateModal()}
-        <Grid
-          container
+        <Stack
           justifyContent="center"
           alignItems="stretch"
           spacing={1}
           paddingX={4}
         >
           {hasCreatePermission(PermissionEntity.PREVENTIVE_MAINTENANCES) && (
-            <Grid
-              item
-              xs={12}
-              display="flex"
-              flexDirection="row"
-              justifyContent="right"
-              alignItems="center"
+            <Button
+              startIcon={<AddTwoToneIcon />}
+              sx={{ mt: 1, alignSelf: 'flex-end' }}
+              variant="contained"
+              onClick={() => setOpenAddModal(true)}
             >
-              <Button
-                startIcon={<AddTwoToneIcon />}
-                sx={{ mx: 6, my: 1 }}
-                variant="contained"
-                onClick={() => setOpenAddModal(true)}
-              >
-                {t('create_trigger')}
-              </Button>
-            </Grid>
+              {t('create_trigger')}
+            </Button>
           )}
-          <Grid item xs={12}>
+          <Box>
             <Card
               sx={{
                 p: 2,
@@ -695,8 +685,8 @@ function Files() {
                 />
               </Box>
             </Card>
-          </Grid>
-        </Grid>
+          </Box>
+        </Stack>
         <Drawer
           anchor="right"
           open={openDrawer}

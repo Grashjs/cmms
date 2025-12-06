@@ -476,17 +476,9 @@ function Files() {
         </Helmet>
         {renderAddModal()}
         {renderUpdateModal()}
-        <Grid
-          container
-          justifyContent="center"
-          alignItems="stretch"
-          spacing={1}
-          paddingX={4}
-        >
+        <Box justifyContent="center" alignItems="stretch" paddingX={4}>
           {hasCreatePermission(PermissionEntity.REQUESTS) && (
-            <Grid
-              item
-              xs={12}
+            <Box
               display="flex"
               flexDirection="row"
               justifyContent="right"
@@ -494,113 +486,111 @@ function Files() {
             >
               <Button
                 startIcon={<AddTwoToneIcon />}
-                sx={{ mx: 6, my: 1 }}
+                sx={{ my: 1 }}
                 variant="contained"
                 onClick={() => setOpenAddModal(true)}
               >
                 {t('request')}
               </Button>
-            </Grid>
+            </Box>
           )}
-          <Grid item xs={12}>
-            <Card
-              sx={{
-                p: 2,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center'
-              }}
+          <Card
+            sx={{
+              p: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center'
+            }}
+          >
+            <Stack
+              sx={{ ml: 1 }}
+              direction="row"
+              spacing={1}
+              justifyContent={'flex-start'}
+              width={'95%'}
             >
-              <Stack
-                sx={{ ml: 1 }}
-                direction="row"
-                spacing={1}
-                justifyContent={'flex-start'}
-                width={'95%'}
-              >
-                <EnumFilter
-                  filterFields={criteria.filterFields}
-                  onChange={onFilterChange}
-                  completeOptions={['NONE', 'LOW', 'MEDIUM', 'HIGH']}
-                  fieldName="priority"
-                  icon={<SignalCellularAltTwoToneIcon />}
-                />
-                <EnumFilter
-                  filterFields={criteria.filterFields}
-                  onChange={onFilterChange}
-                  completeOptions={['APPROVED', 'CANCELLED', 'PENDING']}
-                  fieldName="status"
-                  icon={<CircleTwoToneIcon />}
-                />
-                <SearchInput onChange={debouncedQueryChange} />
-              </Stack>
-              <Divider sx={{ mt: 1 }} />
-              <Box sx={{ width: '95%' }}>
-                <CustomDataGrid
-                  apiRef={apiRef}
-                  columns={columns}
-                  loading={loadingGet}
-                  pageSize={criteria.pageSize}
-                  page={criteria.pageNum}
-                  rows={requests.content}
-                  rowCount={requests.totalElements}
-                  pagination
-                  paginationMode="server"
-                  onPageSizeChange={onPageSizeChange}
-                  onPageChange={onPageChange}
-                  rowsPerPageOptions={[10, 20, 50]}
-                  onRowClick={({ id }) => handleOpenDetails(Number(id))}
-                  components={{
-                    NoRowsOverlay: () => (
-                      <NoRowsMessageWrapper
-                        message={t('noRows.request.message')}
-                        action={t('noRows.request.action')}
-                      />
-                    )
-                  }}
-                  onSortModelChange={(model) => {
-                    if (model.length === 0) {
-                      setCriteria({
-                        ...criteria,
-                        sortField: undefined,
-                        direction: undefined
-                      });
-                      return;
-                    }
-
-                    const fieldMapping = {
-                      customId: 'customId',
-                      title: 'title',
-                      description: 'description',
-                      priority: 'priority',
-                      // status: 'status',
-                      createdAt: 'createdAt',
-                      dueDate: 'dueDate'
-                    };
-
-                    const field = model[0].field;
-                    const mappedField = fieldMapping[field];
-
-                    if (!mappedField) return;
-
+              <EnumFilter
+                filterFields={criteria.filterFields}
+                onChange={onFilterChange}
+                completeOptions={['NONE', 'LOW', 'MEDIUM', 'HIGH']}
+                fieldName="priority"
+                icon={<SignalCellularAltTwoToneIcon />}
+              />
+              <EnumFilter
+                filterFields={criteria.filterFields}
+                onChange={onFilterChange}
+                completeOptions={['APPROVED', 'CANCELLED', 'PENDING']}
+                fieldName="status"
+                icon={<CircleTwoToneIcon />}
+              />
+              <SearchInput onChange={debouncedQueryChange} />
+            </Stack>
+            <Divider sx={{ mt: 1 }} />
+            <Box sx={{ width: '95%' }}>
+              <CustomDataGrid
+                apiRef={apiRef}
+                columns={columns}
+                loading={loadingGet}
+                pageSize={criteria.pageSize}
+                page={criteria.pageNum}
+                rows={requests.content}
+                rowCount={requests.totalElements}
+                pagination
+                paginationMode="server"
+                onPageSizeChange={onPageSizeChange}
+                onPageChange={onPageChange}
+                rowsPerPageOptions={[10, 20, 50]}
+                onRowClick={({ id }) => handleOpenDetails(Number(id))}
+                components={{
+                  NoRowsOverlay: () => (
+                    <NoRowsMessageWrapper
+                      message={t('noRows.request.message')}
+                      action={t('noRows.request.action')}
+                    />
+                  )
+                }}
+                onSortModelChange={(model) => {
+                  if (model.length === 0) {
                     setCriteria({
                       ...criteria,
-                      sortField: mappedField,
-                      direction: (model[0].sort?.toUpperCase() ||
-                        'ASC') as SortDirection
+                      sortField: undefined,
+                      direction: undefined
                     });
-                  }}
-                  sortingMode={'server'}
-                  initialState={{
-                    columns: {
-                      columnVisibilityModel: {}
-                    }
-                  }}
-                />
-              </Box>
-            </Card>
-          </Grid>
-        </Grid>
+                    return;
+                  }
+
+                  const fieldMapping = {
+                    customId: 'customId',
+                    title: 'title',
+                    description: 'description',
+                    priority: 'priority',
+                    // status: 'status',
+                    createdAt: 'createdAt',
+                    dueDate: 'dueDate'
+                  };
+
+                  const field = model[0].field;
+                  const mappedField = fieldMapping[field];
+
+                  if (!mappedField) return;
+
+                  setCriteria({
+                    ...criteria,
+                    sortField: mappedField,
+                    direction: (model[0].sort?.toUpperCase() ||
+                      'ASC') as SortDirection
+                  });
+                }}
+                sortingMode={'server'}
+                initialState={{
+                  columns: {
+                    columnVisibilityModel: {}
+                  }
+                }}
+              />
+            </Box>
+          </Card>
+        </Box>
         <Drawer
           anchor="right"
           open={openDrawer}
