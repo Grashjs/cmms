@@ -626,7 +626,13 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     }
     const response = await api.post<{ message: string; success: boolean }>(
       'auth/signup',
-      { ...values, utmParams, referrer: localStorage.getItem('referrerData') },
+      {
+        ...values,
+        utmParams: {
+          ...utmParams,
+          referrer: localStorage.getItem('referrerData')
+        }
+      },
       { headers: authHeader(true) }
     );
     const { message, success } = response;
