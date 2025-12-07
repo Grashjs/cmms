@@ -19,7 +19,7 @@
         <sql>
             update own_user ou
             set role_id=(select r.id from role r where r.code=ou.role_code and r.role_type=ou.role_type and r.company_settings_id is null)
-            where ou.role_type !=0
+            where ou.role_type !=0 and ou.role_code !=6
         </sql>
     </changeSet>
     <changeSet id="update-role-permissions-fk-cascade" author="Ibrahima G. Coulibaly">
