@@ -112,7 +112,7 @@ function App() {
 
   useEffect(() => {
     if (isCloudVersion) {
-      const referrer = document.referrer || null;
+      const referrer = document.referrer || '';
       localStorage.setItem('referrerData', referrer);
     }
   }, []);
