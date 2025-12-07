@@ -6,11 +6,11 @@ public enum Language {
     TR,
     ES,
     PT_BR,
-    PT,
     PL,
     DE,
     AR,
     IT,
     SV,
-    RU
+    RU,
+    PT,
 }
