@@ -54,8 +54,12 @@ public class PreventiveMaintenanceService {
     public PreventiveMaintenance update(Long id, PreventiveMaintenancePatchDTO preventiveMaintenance) {
         if (preventiveMaintenanceRepository.existsById(id)) {
             PreventiveMaintenance savedPreventiveMaintenance = preventiveMaintenanceRepository.findById(id).get();
+            PreventiveMaintenance pmToSave =
+                    preventiveMaintenanceMapper.updatePreventiveMaintenance(savedPreventiveMaintenance,
+                            preventiveMaintenance);
+            pmToSave.getSchedule().setDisabled(false);
             PreventiveMaintenance updatedPM =
-                    preventiveMaintenanceRepository.saveAndFlush(preventiveMaintenanceMapper.updatePreventiveMaintenance(savedPreventiveMaintenance, preventiveMaintenance));
+                    preventiveMaintenanceRepository.saveAndFlush(pmToSave);
             em.refresh(updatedPM);
             return updatedPM;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
