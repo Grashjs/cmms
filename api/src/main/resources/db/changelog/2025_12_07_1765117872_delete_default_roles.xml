@@ -116,4 +116,8 @@
             delete from role r where r.company_settings_id is not null and r.role_type=1 and r.code!=6
         </sql>
     </changeSet>
+    <changeSet id="1765120833958-1" author="Ibrahima G. Coulibaly">
+        <dropColumn tableName="own_user" columnName="role_code"/>
+        <dropColumn tableName="own_user" columnName="role_type"/>
+    </changeSet>
 </databaseChangeLog>
