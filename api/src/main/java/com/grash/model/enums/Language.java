@@ -13,4 +13,5 @@ public enum Language {
     SV,
     RU,
     PT,
+    //always add new languages at the end
 }

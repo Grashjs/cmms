@@ -69,7 +69,7 @@ public class ScheduleService {
     }
 
     public void scheduleWorkOrder(Schedule schedule) {
-        int limit = 10; //inclusive schedules at 10
+        int limit = 10;
         PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
         Page<WorkOrder> workOrdersPage = workOrderService.findLastByPM(preventiveMaintenance.getId(), limit);
 
@@ -155,16 +155,14 @@ public class ScheduleService {
                 }
 
                 // ---------------------------------------------------------
-                // JOB 1: Work Order Creation
+                // JOB 1: Work Order Creation (FIXED)
                 // ---------------------------------------------------------
-                Date now = new Date();
-                Date effectiveStartDate = startsOn.before(now) ? now : startsOn;
 
                 // Validate that end date is after start date
-                if (schedule.getEndsOn() != null && !schedule.getEndsOn().after(effectiveStartDate)) {
+                if (schedule.getEndsOn() != null && !schedule.getEndsOn().after(startsOn)) {
                     log.warn("Schedule {} has endsOn date {} that is not after effective start date {}. Skipping " +
                                     "scheduling.",
-                            schedule.getId(), schedule.getEndsOn(), effectiveStartDate);
+                            schedule.getId(), schedule.getEndsOn(), startsOn);
                     return;
                 }
 
@@ -176,7 +174,7 @@ public class ScheduleService {
 
                 Trigger woTrigger = TriggerBuilder.newTrigger()
                         .withIdentity("wo-trigger-" + schedule.getId(), "wo-group")
-                        .startAt(effectiveStartDate)  // Use current time if startsOn is in the past
+                        .startAt(startsOn) // Now points to the original startsOn
                         .withSchedule(scheduleBuilder)
                         .endAt(schedule.getEndsOn())
                         .build();
@@ -184,7 +182,7 @@ public class ScheduleService {
                 scheduler.scheduleJob(woJob, woTrigger);
 
                 // ---------------------------------------------------------
-                // JOB 2: Notification (Shared Method Call)
+                // JOB 2: Notification (Shared Method Call - FIXED CALL SITE)
                 // ---------------------------------------------------------
                 int daysBeforePMNotification = preventiveMaintenance.getCompany()
                         .getCompanySettings().getGeneralPreferences().getDaysBeforePrevMaintNotification();
@@ -193,15 +191,9 @@ public class ScheduleService {
                     Date trueStartsOnForNotif = preventiveMaintenance.getEstimatedStartDate() == null ? startsOn :
                             preventiveMaintenance.getEstimatedStartDate();
 
-                    // Calculate the actual notification trigger date (N days before)
-                    Calendar notifCal = Calendar.getInstance();
-                    notifCal.setTime(trueStartsOnForNotif);
-                    notifCal.add(Calendar.DAY_OF_MONTH, -daysBeforePMNotification);
-                    Date notificationTriggerDate = notifCal.getTime();
-
                     scheduleNotificationJob(
                             schedule.getId(),
-                            notificationTriggerDate, // Use the calculated trigger date
+                            trueStartsOnForNotif, // Pass the date the WO is scheduled to run
                             schedule.getEndsOn(),
                             scheduleBuilder,
                             daysBeforePMNotification
@@ -236,33 +228,28 @@ public class ScheduleService {
         }
     }
 
-    // =========================================================================================
-    // NEW SHARED NOTIFICATION SCHEDULING METHOD
-    // =========================================================================================
-
     private void scheduleNotificationJob(
             Long scheduleId,
-            Date startsOn,
+            Date woStartOn,
             Date endsOn,
             ScheduleBuilder scheduleBuilder,
             int daysBeforeNotification) throws SchedulerException {
-        boolean shouldScheduleNotification = startsOn.after(new Date());
 
-        if (endsOn != null) {
-            shouldScheduleNotification = shouldScheduleNotification &&
-                    startsOn.before(endsOn);
-        }
+        // 1. Calculate the actual start date for the FIRST notification
+        Calendar notifCal = Calendar.getInstance();
+        notifCal.setTime(woStartOn);
+        notifCal.add(Calendar.DATE, -daysBeforeNotification);
+        Date notificationStart = notifCal.getTime(); // Correctly calculated first notification date
+
+        // 2. Determine if we should schedule
+        boolean shouldScheduleNotification = endsOn == null || notificationStart.before(endsOn);
+
         if (!shouldScheduleNotification) {
-            log.debug("Skipping notification scheduling for schedule {}. Trigger date {} is either in the" +
-                            " past or after endsOn date.",
-                    scheduleId, startsOn);
+            log.debug("Skipping notification scheduling for schedule {}. First trigger date {} is after endsOn date " +
+                            "{}.",
+                    scheduleId, notificationStart, endsOn);
             return;
         }
-        // 1. Calculate the actual start date for the notification (shifted back)
-        Calendar notifCal = Calendar.getInstance();
-        notifCal.setTime(startsOn);
-        notifCal.add(Calendar.DATE, -daysBeforeNotification);
-        Date notificationStart = notifCal.getTime();
 
         JobDetail notifJob = JobBuilder.newJob(PreventiveMaintenanceNotificationJob.class)
                 .withIdentity("notif-job-" + scheduleId, "notif-group")
@@ -271,12 +258,13 @@ public class ScheduleService {
 
         Trigger notifTrigger = TriggerBuilder.newTrigger()
                 .withIdentity("notif-trigger-" + scheduleId, "notif-group")
-                .startAt(notificationStart)
-                .withSchedule(scheduleBuilder)
+                .startAt(notificationStart) // Use the calculated FIRST notification date
+                .withSchedule(scheduleBuilder) // Use the same recurrence schedule as the WO
                 .endAt(endsOn)
                 .build();
 
         scheduler.scheduleJob(notifJob, notifTrigger);
+        log.info("Scheduled notification job for Schedule ID {} to start at {}", scheduleId, notificationStart);
     }
 
     // =========================================================================================
