@@ -160,6 +160,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2025_12_07_1765115673_role_company_settings_null.xml"
              relativeToChangelogFile="true"/>
-<!--    <include file="changelog/2025_12_07_1765115673_delete_default_roles.xml"-->
-<!--             relativeToChangelogFile="true"/>-->
+    <include file="changelog/2025_12_07_1765117872_delete_default_roles.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>
