@@ -74,9 +74,7 @@ public class WorkOrderAud implements Serializable {
     @Column(name = "status")
     private Status status;
 
-    @ManyToOne
-    @JoinColumn(name = "signature_id")
-    private File signature;
+    private String signature;
 
     @Column(name = "archived")
     private Boolean archived;
@@ -146,7 +144,8 @@ public class WorkOrderAud implements Serializable {
     private Boolean statusMod;
 
     @Column(name = "signature_MOD")
-    private Boolean signatureIdMod;
+    private Boolean signatureMod;
+
 
     @Column(name = "archived_MOD")
     private Boolean archivedMod;
@@ -211,7 +210,7 @@ public class WorkOrderAud implements Serializable {
         if (statusMod != null && statusMod) {
             summary.append("Status: ").append(status).append("\n");
         }
-        if (signatureIdMod != null && signatureIdMod) {
+        if (signatureMod != null && signatureMod) {
             summary.append("Signature.\n");
         }
         if (archivedMod != null && archivedMod) {

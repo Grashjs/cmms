@@ -36,6 +36,7 @@ import { getTaskTypes } from '../../utils/displayers';
 import NumberInput from '../NumberInput';
 import DateRangePicker from './DateRangePicker';
 import AudioRecorder from './AudioRecorder';
+import SignaturePad from './SignaturePad';
 import { SheetManager } from 'react-native-actions-sheet';
 
 interface OwnProps {
@@ -619,6 +620,14 @@ export default function Form(props: OwnProps) {
                     title={field.label}
                     onChange={(audio) => {
                       formik.setFieldValue(field.name, audio);
+                    }}
+                  />
+                ) : field.type === 'signature' ? (
+                  <SignaturePad
+                    label={field.label}
+                    value={formik.values[field.name]}
+                    onChange={(signature) => {
+                      formik.setFieldValue(field.name, signature);
                     }}
                   />
                 ) : (

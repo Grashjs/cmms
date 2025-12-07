@@ -156,4 +156,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2025_12_06_1765053020_add_schedule_recurrence.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2025_12_06_1765045582_signature.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

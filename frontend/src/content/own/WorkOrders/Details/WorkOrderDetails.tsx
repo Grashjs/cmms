@@ -289,7 +289,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
     []
   );
   const onCompleteWO = (
-    signatureId: number | undefined,
+    signature: string | undefined,
     feedback: string | undefined
   ) => {
     setChangingStatus(true);
@@ -297,7 +297,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
       changeWorkOrderStatus(workOrder?.id, {
         status: 'COMPLETE',
         feedback: feedback ?? null,
-        signature: signatureId ? { id: signatureId } : null
+        signature
       })
     )
       .then(() => dispatch(getLabors(workOrder?.id)))
@@ -780,7 +780,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
                         {t('signature')}
                       </Typography>
                       <img
-                        src={workOrder.signature.url}
+                        src={workOrder.signature}
                         style={{
                           borderRadius: 5,
                           height: 100,
@@ -788,8 +788,8 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
                         }}
                         onClick={() => {
                           setImageState(
-                            [workOrder.signature.url],
-                            workOrder.signature.url
+                            [workOrder.signature],
+                            workOrder.signature
                           );
                         }}
                       />

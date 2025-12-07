@@ -12,6 +12,6 @@ import java.util.Date;
 @NoArgsConstructor
 public class WorkOrderChangeStatusDTO {
     private Status status;
-    private File signature;
+    private String signature;
     private String feedback;
 }

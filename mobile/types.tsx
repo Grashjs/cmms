@@ -123,7 +123,7 @@ export type RootStackParamList = {
   SelectBarcode: { onChange: (value: string) => void };
   CompleteWorkOrder: {
     onComplete: (
-      signatureId: number | undefined,
+      signature: string | undefined,
       feedback: string | undefined
     ) => Promise<any>;
     fieldsConfig: { feedback: boolean; signature: boolean };
