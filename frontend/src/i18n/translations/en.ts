@@ -1427,11 +1427,11 @@ const locale = {
   'schedule.weekly_one': 'Every {{count}} week on {{days}}',
   'schedule.weekly_other': 'Every {{count}} weeks on {{days}}',
 
-  'schedule.monthly_one': 'Every {{count}} month on day {{day}}',
-  'schedule.monthly_other': 'Every {{count}} months on day {{day}}',
+  'schedule.monthly_one': 'Every {{count}} month',
+  'schedule.monthly_other': 'Every {{count}} months',
 
-  'schedule.yearly_one': 'Every {{count}} year on {{month}} {{day}}',
-  'schedule.yearly_other': 'Every {{count}} years on {{month}} {{day}}'
+  'schedule.yearly_one': 'Every {{count}} year',
+  'schedule.yearly_other': 'Every {{count}} years'
 };
 
 export default locale;

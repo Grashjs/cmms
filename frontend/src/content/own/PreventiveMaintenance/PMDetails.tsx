@@ -169,6 +169,22 @@ export default function PMDetails({
             {t('trigger_details')}
           </Typography>
           <Grid container spacing={2}>
+            {preventiveMaintenance.schedule?.recurrenceBasedOn && (
+              <Grid item xs={12} lg={6}>
+                <Typography
+                  variant="h6"
+                  sx={{ color: theme.colors.alpha.black[70] }}
+                >
+                  {t('based_on')}
+                </Typography>
+                <Typography variant="h6">
+                  {preventiveMaintenance.schedule.recurrenceBasedOn ===
+                  'SCHEDULED_DATE'
+                    ? t('scheduled_date')
+                    : t('completed_on')}
+                </Typography>
+              </Grid>
+            )}
             {preventiveMaintenance.schedule?.startsOn && (
               <Grid item xs={12} lg={6}>
                 <Typography

@@ -53,7 +53,7 @@ function RegisterJWT({
     { [key: string]: any }
   ] => {
     let fields = {
-      email,
+      email: email ?? '',
       firstName: '',
       lastName: '',
       countryCode: null,

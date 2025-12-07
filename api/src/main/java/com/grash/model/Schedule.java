@@ -46,7 +46,7 @@ public class Schedule extends Audit {
     private RecurrenceBasedOn recurrenceBasedOn = RecurrenceBasedOn.SCHEDULED_DATE;
 
     @ElementCollection
-    private List<Integer> daysOfWeek = new ArrayList<>();
+    private List<Integer> daysOfWeek = new ArrayList<>();//0 monday
 
     @OneToOne(fetch = FetchType.LAZY)
     @JsonIgnore

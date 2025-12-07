@@ -114,39 +114,39 @@ public class ScheduleService {
                                     .withIntervalInHours(24 * schedule.getFrequency())
                                     .repeatForever();
                             break;
+
                         case WEEKLY:
                             if (schedule.getDaysOfWeek() == null || schedule.getDaysOfWeek().isEmpty()) {
                                 throw new CustomException("Days of week are required for weekly recurrence.",
                                         HttpStatus.BAD_REQUEST);
                             }
-                            // This will trigger every week on the specified days.
-                            // The job must handle frequency > 1 week internally.
+
+                            // Convert ISO days to Quartz format
                             String daysOfWeekCron = schedule.getDaysOfWeek().stream()
-                                    .map(d -> (d % 7) + 1) // Convert ISO day (Mon=1..Sun=7) to Quartz (Sun=1..Sat=7)
+                                    .map(d -> (d + 1) % 7 + 1) // 0-based (Mon=0) to Calendar (Sun=1, Mon=2)
                                     .map(String::valueOf)
                                     .collect(Collectors.joining(","));
 
                             String cronExpression = String.format("0 %d %d ? * %s", minute, hour, daysOfWeekCron);
                             scheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression)
-                                    .inTimeZone(TimeZone.getDefault()); // Consider using company-specific timezone
+                                    .inTimeZone(TimeZone.getDefault());
+
+                            // Store the frequency in the job data so the job can handle it
+                            // The cron will fire every week on specified days, but the job will check frequency
                             break;
+
                         case MONTHLY:
-                            int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
-                            // This triggers every 'frequency' months on the given day of the month.
-                            String cronMonthly = String.format("0 %d %d %d 1/%d ?", minute, hour, dayOfMonth,
-                                    schedule.getFrequency());
-                            scheduleBuilder = CronScheduleBuilder.cronSchedule(cronMonthly)
-                                    .inTimeZone(TimeZone.getDefault());
+                            scheduleBuilder = CalendarIntervalScheduleBuilder.calendarIntervalSchedule()
+                                    .withIntervalInMonths(schedule.getFrequency())
+                                    .preserveHourOfDayAcrossDaylightSavings(true);
                             break;
+
                         case YEARLY:
-                            // Cron doesn't directly support "every N years".
-                            // This trigger will fire every year. The job must handle the frequency logic.
-                            int dayOfMonthYearly = cal.get(Calendar.DAY_OF_MONTH);
-                            int month = cal.get(Calendar.MONTH) + 1; // Calendar month is 0-based
-                            String cronYearly = String.format("0 %d %d %d %d ?", minute, hour, dayOfMonthYearly, month);
-                            scheduleBuilder = CronScheduleBuilder.cronSchedule(cronYearly)
-                                    .inTimeZone(TimeZone.getDefault());
+                            scheduleBuilder = CalendarIntervalScheduleBuilder.calendarIntervalSchedule()
+                                    .withIntervalInYears(schedule.getFrequency())
+                                    .preserveHourOfDayAcrossDaylightSavings(true);
                             break;
+
                         default:
                             throw new CustomException("Unsupported recurrence type: " + schedule.getRecurrenceType(),
                                     HttpStatus.BAD_REQUEST);

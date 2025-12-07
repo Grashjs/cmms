@@ -4,6 +4,7 @@ import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
 import com.grash.model.Task;
 import com.grash.model.WorkOrder;
+import com.grash.model.enums.RecurrenceType;
 import com.grash.repository.ScheduleRepository;
 import com.grash.service.TaskService;
 import com.grash.service.WorkOrderService;
@@ -16,6 +17,7 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Date;
 
@@ -39,6 +41,21 @@ public class WorkOrderCreationJob extends QuartzJobBean {
             return;
         }
 
+        if (schedule.getRecurrenceType() == RecurrenceType.WEEKLY && schedule.getFrequency() > 1) {
+            // Calculate weeks since startsOn
+            long daysSinceStart = ChronoUnit.DAYS.between(
+                    schedule.getStartsOn().toInstant(),
+                    new Date().toInstant()
+            );
+            long weeksSinceStart = daysSinceStart / 7;
+
+            // Only execute if we're on the correct week interval
+            if (weeksSinceStart % schedule.getFrequency() != 0) {
+                log.info("Skipping execution - not on correct week interval for schedule {}", scheduleId);
+                return;
+            }
+        }
+        
         PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
 
         WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(preventiveMaintenance);

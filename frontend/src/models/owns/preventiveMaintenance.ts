@@ -6,6 +6,7 @@ export default interface PreventiveMaintenance extends WorkOrderBase {
   name: string;
   schedule: Schedule;
   customId: string;
+  nextWorkOrderDate: string;
 }
 export interface PreventiveMaintenancePost extends PreventiveMaintenance {
   frequency: number;

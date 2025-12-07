@@ -34,7 +34,7 @@ export function getScheduleDescription(
   locale: DateLocale,
   t: (key: string, options?: any) => string
 ): string {
-  const { frequency, recurrenceType, daysOfWeek } = schedule;
+  const { frequency, recurrenceType, daysOfWeek, recurrenceBasedOn } = schedule;
 
   // WEEKLY → translated weekdays
   const weekdayNames = getWeekdays(locale);
@@ -44,7 +44,9 @@ export function getScheduleDescription(
       return t('schedule.daily', { count: frequency });
 
     case 'WEEKLY': {
-      const days = [...(daysOfWeek || [])] // copy array first
+      const days = [
+        ...((recurrenceBasedOn === 'SCHEDULED_DATE' ? daysOfWeek : []) || [])
+      ] // copy array first
         .sort()
         .map((d) => weekdayNames[d])
         .join(', ');

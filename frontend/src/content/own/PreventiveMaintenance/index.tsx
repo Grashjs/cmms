@@ -77,7 +77,7 @@ import { supportedLanguages } from '../../../i18n/i18n';
 import i18n from 'i18next';
 import Schedule from '../../../models/owns/schedule';
 
-function Files() {
+function PMs() {
   const { t }: { t: any } = useTranslation();
   const { setTitle } = useContext(TitleContext);
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
@@ -306,13 +306,7 @@ function Files() {
       width: 150,
       valueGetter: (
         params: GridValueGetterParams<null, PreventiveMaintenance>
-      ) =>
-        getFormattedDate(
-          getNextOccurence(
-            new Date(params.row.schedule?.startsOn),
-            params.row.schedule.frequency
-          ).toString()
-        )
+      ) => getFormattedDate(params.row.nextWorkOrderDate)
     },
     {
       field: 'primaryUser',
@@ -610,68 +604,58 @@ function Files() {
             }}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
-              let formattedValues = formatValues(values);
-              return new Promise<void>((resolve, rej) => {
+              try {
+                let formattedValues = formatValues(values);
+
                 const files = formattedValues.files.find((file) => file.id)
                   ? []
                   : formattedValues.files;
-                uploadFiles(files, formattedValues.image)
-                  .then((files) => {
-                    const imageAndFiles = getImageAndFiles(
-                      files,
-                      currentPM.image
-                    );
-                    formattedValues = {
-                      ...formattedValues,
-                      image: imageAndFiles.image,
-                      files: [...currentPM.files, ...imageAndFiles.files]
-                    };
-                    dispatch(
-                      patchTasksOfPreventiveMaintenance(
-                        currentPM?.id,
-                        formattedValues.tasks.map((task) => {
-                          return {
-                            ...task.taskBase,
-                            options: task.taskBase.options.map(
-                              (option) => option.label
-                            )
-                          };
-                        })
+
+                const uploadedFiles = await uploadFiles(
+                  files,
+                  formattedValues.image
+                );
+
+                const imageAndFiles = getImageAndFiles(
+                  uploadedFiles,
+                  currentPM.image
+                );
+
+                formattedValues = {
+                  ...formattedValues,
+                  image: imageAndFiles.image,
+                  files: [...currentPM.files, ...imageAndFiles.files]
+                };
+
+                await dispatch(
+                  patchTasksOfPreventiveMaintenance(
+                    currentPM?.id,
+                    formattedValues.tasks.map((task) => ({
+                      ...task.taskBase,
+                      options: task.taskBase.options.map(
+                        (option) => option.label
                       )
-                    )
-                      .then(() =>
-                        dispatch(
-                          editPreventiveMaintenance(
-                            currentPM?.id,
-                            formattedValues
-                          )
-                        )
-                          .then(() => {
-                            dispatch(
-                              patchSchedule(
-                                currentPM.schedule.id,
-                                currentPM.id,
-                                {
-                                  ...currentPM.schedule,
-                                  ...formattedValues
-                                }
-                              )
-                            );
-                          })
-                          .then(onEditSuccess)
-                          .catch(onEditFailure)
-                          .finally(resolve)
-                      )
-                      .catch((err) => {
-                        onEditFailure(err);
-                        rej();
-                      });
+                    }))
+                  )
+                );
+
+                await dispatch(
+                  editPreventiveMaintenance(currentPM?.id, formattedValues)
+                );
+
+                await dispatch(
+                  patchSchedule(currentPM.schedule.id, currentPM.id, {
+                    ...currentPM.schedule,
+                    ...formattedValues
                   })
-                  .catch((err) => {
-                    onEditFailure(err);
-                    rej(err);
-                  });
-              });
+                );
+                if (hasViewPermission(PermissionEntity.PREVENTIVE_MAINTENANCES))
+                  dispatch(getPreventiveMaintenances(criteria));
+                onEditSuccess();
+              } catch (err) {
+                onEditFailure(err);
+                throw err;
+              }
             }}
           />
         </Box>
@@ -816,4 +800,4 @@ function Files() {
   else return <PermissionErrorMessage message={'no_access_pm'} />;
 }
 
-export default Files;
+export default PMs;
