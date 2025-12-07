@@ -31,9 +31,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     buildNumber: '9',
     jsEngine: 'jsc',
     supportsTablet: false,
-    runtimeVersion: {
-      policy: 'sdkVersion'
-    },
+    runtimeVersion: '1.0.31',
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false
     }
@@ -47,9 +45,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: 'com.atlas.cmms',
     googleServicesFile:
       googleServicesJson ?? './android/app/google-services.json',
-    runtimeVersion: {
-      policy: 'sdkVersion'
-    }
+    runtimeVersion: '1.0.31' // Changed from policy object to fixed string
   },
   web: {
     favicon: './assets/images/favicon.png'

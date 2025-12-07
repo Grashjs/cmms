@@ -1543,7 +1543,23 @@ const frJSON = {
     'Demande de mise à niveau reçue ! Nous vous contacterons bientôt avec les détails de paiement',
   continue_with_sso: 'Continuer avec SSO',
   demo_warning:
-    "Cette instance est en mode démo. N'utilisez pas cela pour de vraies données ! Tout sera supprimé à intervalles réguliers !"
+    "Cette instance est en mode démo. N'utilisez pas cela pour de vraies données ! Tout sera supprimé à intervalles réguliers !",
+  days: 'Jours',
+  weeks: 'Semaines',
+  months: 'Mois',
+  years: 'Années',
+  based_on: 'Basé sur',
+  scheduled_date: 'Date prévue',
+  on: 'Sur',
+  required_days_of_week: 'Jours de la semaine requis',
+  'schedule.daily_one': 'Chaque {{count}} jour',
+  'schedule.daily_other': 'Chaque {{count}} jours',
+  'schedule.weekly_one': 'Chaque {{count}} semaine le {{days}}',
+  'schedule.weekly_other': 'Chaque {{count}} semaines le {{days}}',
+  'schedule.monthly_one': 'Chaque {{count}} mois',
+  'schedule.monthly_other': 'Chaque {{count}} mois',
+  'schedule.yearly_one': 'Chaque {{count}} an',
+  'schedule.yearly_other': 'Chaque {{count}} ans'
 };
 
 export default frJSON;

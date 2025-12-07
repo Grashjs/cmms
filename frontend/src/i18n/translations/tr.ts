@@ -1475,7 +1475,23 @@ const trJSON = {
   upgrade_request_success:
     'Yükseltme talebiniz alındı! Ödeme detaylarıyla yakında sizinle iletişime geçeceğiz',
   continue_with_sso: 'SSO ile devam etmek',
-  see_live_demo: 'Canlı demoyu gör'
+  see_live_demo: 'Canlı demoyu gör',
+  days: 'Günler',
+  weeks: 'Haftalar',
+  months: 'Aylar',
+  years: 'Yıllar',
+  based_on: 'Dayalı',
+  scheduled_date: 'Planlanan tarih',
+  on: 'Açık',
+  required_days_of_week: 'Haftanın gerekli günleri',
+  'schedule.daily_one': 'Her {{count}} gün',
+  'schedule.daily_other': 'Her {{count}} gün',
+  'schedule.weekly_one': 'Her {{count}} hafta {{days}} üzerinde',
+  'schedule.weekly_other': 'Her {{count}} hafta {{days}} üzerinde',
+  'schedule.monthly_one': 'Her {{count}} ay',
+  'schedule.monthly_other': 'Her {{count}} ay',
+  'schedule.yearly_one': 'Her {{count}} yıl',
+  'schedule.yearly_other': 'Her {{count}} yıl'
 };
 
 export default trJSON;

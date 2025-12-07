@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import SignatureCanvas from 'react-signature-canvas';
 import { Button, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 interface SignaturePadProps {
   label: string;
@@ -14,11 +15,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   value
 }) => {
   const sigCanvas = useRef<SignatureCanvas>(null);
-  const [hasChanged, setHasChanged] = useState(false);
-
-  const handleBegin = () => {
-    setHasChanged(true);
-  };
+  const { t } = useTranslation();
 
   const handleEnd = () => {
     if (sigCanvas.current) {
@@ -31,15 +28,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     if (sigCanvas.current) {
       sigCanvas.current.clear();
       onChange('');
-      setHasChanged(false);
-    }
-  };
-
-  const saveSignature = () => {
-    if (sigCanvas.current) {
-      const signature = sigCanvas.current.toDataURL();
-      onChange(signature);
-      setHasChanged(false);
     }
   };
 
@@ -62,19 +50,13 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
           canvasProps={{
             style: styles.canvas
           }}
-          onBegin={handleBegin}
           onEnd={handleEnd}
         />
       </div>
       <div style={styles.buttonContainer}>
         <Button variant={'outlined'} onClick={handleClear}>
-          Clear
+          {t('clear')}
         </Button>
-        {hasChanged && (
-          <Button variant={'contained'} onClick={saveSignature}>
-            Save Signature
-          </Button>
-        )}
       </div>
     </div>
   );

@@ -1502,6 +1502,22 @@ const ruJSON = {
   see_live_demo: 'Посмотреть демо',
   demo_warning:
     'Этот экземпляр работает в демо-режиме. Не используйте его для реальных данных! Всё будет удаляться регулярно!',
+  days: 'Дни',
+  weeks: 'Недели',
+  months: 'Месяцы',
+  years: 'Годы',
+  based_on: 'На основе',
+  scheduled_date: 'Запланированная дата',
+  on: 'В',
+  required_days_of_week: 'Обязательные дни недели',
+  'schedule.daily_one': 'Каждый {{count}} день',
+  'schedule.daily_other': 'Каждые {{count}} дней',
+  'schedule.weekly_one': 'Каждую {{count}} неделю в {{days}}',
+  'schedule.weekly_other': 'Каждые {{count}} недели в {{days}}',
+  'schedule.monthly_one': 'Каждый {{count}} месяц',
+  'schedule.monthly_other': 'Каждые {{count}} месяцев',
+  'schedule.yearly_one': 'Каждый {{count}} год',
+  'schedule.yearly_other': 'Каждые {{count}} лет'
 };
 
 export default ruJSON;

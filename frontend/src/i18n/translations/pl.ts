@@ -1464,7 +1464,23 @@ const plJSON = {
   upgrade_request_success:
     'Otrzymano prośbę o uaktualnienie! Wkrótce skontaktujemy się z Tobą w sprawie szczegółów płatności',
   continue_with_sso: 'Kontynuuj z wykorzystaniem SSO',
-  see_live_demo: 'Zobacz pokaz na żywo'
+  see_live_demo: 'Zobacz pokaz na żywo',
+  days: 'Dni',
+  weeks: 'Tygodnie',
+  months: 'Miesiące',
+  years: 'Lata',
+  based_on: 'Na podstawie',
+  scheduled_date: 'Zaplanowana data',
+  on: 'W dniu',
+  required_days_of_week: 'Wymagane dni tygodnia',
+  'schedule.daily_one': 'Co {{count}} dzień',
+  'schedule.daily_other': 'Co {{count}} dni',
+  'schedule.weekly_one': 'Co {{count}} tydzień w {{days}}',
+  'schedule.weekly_other': 'Co {{count}} tygodni w {{days}}',
+  'schedule.monthly_one': 'Co {{count}} miesiąc',
+  'schedule.monthly_other': 'Co {{count}} miesięcy',
+  'schedule.yearly_one': 'Co {{count}} rok',
+  'schedule.yearly_other': 'Co {{count}} lat'
 };
 
 export default plJSON;

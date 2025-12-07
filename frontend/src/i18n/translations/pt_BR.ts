@@ -1487,7 +1487,23 @@ const ptBRJSON = {
   upgrade_request_success:
     'Solicitação de upgrade recebida! Entraremos em contato em breve com os detalhes de pagamento',
   continue_with_sso: 'Continuar com o SSO',
-  see_live_demo: 'Ver demonstração ao vivo'
+  see_live_demo: 'Ver demonstração ao vivo',
+  days: 'Dias',
+  weeks: 'Semanas',
+  months: 'Meses',
+  years: 'Anos',
+  based_on: 'Com base em',
+  scheduled_date: 'Data programada',
+  on: 'Em',
+  required_days_of_week: 'Dias da semana obrigatórios',
+  'schedule.daily_one': 'A cada {{count}} dia',
+  'schedule.daily_other': 'A cada {{count}} dias',
+  'schedule.weekly_one': 'A cada {{count}} semana em {{days}}',
+  'schedule.weekly_other': 'A cada {{count}} semanas em {{days}}',
+  'schedule.monthly_one': 'A cada {{count}} mês',
+  'schedule.monthly_other': 'A cada {{count}} meses',
+  'schedule.yearly_one': 'A cada {{count}} ano',
+  'schedule.yearly_other': 'A cada {{count}} anos'
 };
 
 export default ptBRJSON;

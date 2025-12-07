@@ -1462,7 +1462,23 @@ const locale = {
   upgrade_request_success:
     'Richiesta di aggiornamento ricevuta! Ti contatteremo presto con i dettagli di pagamento',
   continue_with_sso: 'Continua con SSO',
-  see_live_demo: 'Vedi demo dal vivo'
+  see_live_demo: 'Vedi demo dal vivo',
+  days: 'Giorni',
+  weeks: 'Settimane',
+  months: 'Mesi',
+  years: 'Anni',
+  based_on: 'Basato su',
+  scheduled_date: 'Data pianificata',
+  on: 'Su',
+  required_days_of_week: 'Giorni della settimana richiesti',
+  'schedule.daily_one': 'Ogni {{count}} giorno',
+  'schedule.daily_other': 'Ogni {{count}} giorni',
+  'schedule.weekly_one': 'Ogni {{count}} settimana il {{days}}',
+  'schedule.weekly_other': 'Ogni {{count}} settimane il {{days}}',
+  'schedule.monthly_one': 'Ogni {{count}} mese',
+  'schedule.monthly_other': 'Ogni {{count}} mesi',
+  'schedule.yearly_one': 'Ogni {{count}} anno',
+  'schedule.yearly_other': 'Ogni {{count}} anni'
 };
 
 export default locale;

@@ -1478,7 +1478,23 @@ const esJSON = {
   upgrade_request_success:
     '¡Solicitud de actualización recibida! Nos pondremos en contacto contigo pronto con los detalles de pago',
   continue_with_sso: 'Continuar con SSO',
-  see_live_demo: 'Ver demostración en vivo'
+  see_live_demo: 'Ver demostración en vivo',
+  days: 'Días',
+  weeks: 'Semanas',
+  months: 'Meses',
+  years: 'Años',
+  based_on: 'Basado en',
+  scheduled_date: 'Fecha programada',
+  on: 'En',
+  required_days_of_week: 'Días de la semana requeridos',
+  'schedule.daily_one': 'Cada {{count}} día',
+  'schedule.daily_other': 'Cada {{count}} días',
+  'schedule.weekly_one': 'Cada {{count}} semana en {{days}}',
+  'schedule.weekly_other': 'Cada {{count}} semanas en {{days}}',
+  'schedule.monthly_one': 'Cada {{count}} mes',
+  'schedule.monthly_other': 'Cada {{count}} meses',
+  'schedule.yearly_one': 'Cada {{count}} año',
+  'schedule.yearly_other': 'Cada {{count}} años'
 };
 
 export default esJSON;

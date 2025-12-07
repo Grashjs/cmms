@@ -1440,7 +1440,23 @@ const locale = {
   upgrade_request_success:
     'Uppgraderingsbegäran mottagen! Vi kontaktar dig snart med betalningsuppgifter.',
   continue_with_sso: 'Fortsätt med SSO',
-  see_live_demo: 'Se live-demo'
+  see_live_demo: 'Se live-demo',
+  days: 'Dagar',
+  weeks: 'Veckor',
+  months: 'Månader',
+  years: 'År',
+  based_on: 'Baserat på',
+  scheduled_date: 'Schemalagt datum',
+  on: 'På',
+  required_days_of_week: 'Obligatoriska veckodagar',
+  'schedule.daily_one': 'Var {{count}} dag',
+  'schedule.daily_other': 'Var {{count}} dagar',
+  'schedule.weekly_one': 'Var {{count}} vecka på {{days}}',
+  'schedule.weekly_other': 'Var {{count}} veckor på {{days}}',
+  'schedule.monthly_one': 'Var {{count}} månad',
+  'schedule.monthly_other': 'Var {{count}} månader',
+  'schedule.yearly_one': 'Var {{count}} år',
+  'schedule.yearly_other': 'Var {{count}} år'
 };
 
 export default locale;
