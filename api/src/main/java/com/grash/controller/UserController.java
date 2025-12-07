@@ -64,7 +64,7 @@ public class UserController {
             int companyUsersCount =
                     (int) userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.isEnabled() && user1.isEnabledInSubscriptionAndPaid()).count();
             Optional<Role> optionalRole = roleService.findById(invitation.getRole().getId());
-            if (optionalRole.isPresent() && user.getCompany().getCompanySettings().getId().equals(optionalRole.get().getCompanySettings().getId())) {
+            if (optionalRole.isPresent() && optionalRole.get().belongsToCompany(user.getCompany())) {
                 if (companyUsersCount + invitation.getEmails().size() <= user.getCompany().getSubscription().getUsersCount() || !optionalRole.get().isPaid()) {
                     invitation.getEmails().forEach(email ->
                             userService.invite(email, optionalRole.get(), user)
@@ -159,7 +159,7 @@ public class UserController {
         Optional<OwnUser> optionalUserToPatch = userService.findByIdAndCompany(id, requester.getCompany().getId());
         Optional<Role> optionalRole = roleService.findById(roleId);
 
-        if (optionalUserToPatch.isPresent() && optionalRole.isPresent() && optionalRole.get().getCompanySettings().getId().equals(requester.getCompany().getCompanySettings().getId())) {
+        if (optionalUserToPatch.isPresent() && optionalRole.isPresent() && optionalRole.get().belongsOnlyToCompany(requester.getCompany())) {
             OwnUser userToPatch = optionalUserToPatch.get();
             if (requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 int usersCount =
@@ -218,11 +218,10 @@ public class UserController {
             OwnUser userToSoftDelete = optionalUserToSoftDelete.get();
             if (requester.getId().equals(id) || requester.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
                 userToSoftDelete.setEnabled(false);
-                    userToSoftDelete.setEnabledInSubscription(false);
-                    userToSoftDelete.setEmail(userToSoftDelete.getEmail().concat("_".concat(id.toString())));
-                    return userMapper.toResponseDto(userService.save(userToSoftDelete));
-            }
-            else {
+                userToSoftDelete.setEnabledInSubscription(false);
+                userToSoftDelete.setEmail(userToSoftDelete.getEmail().concat("_".concat(id.toString())));
+                return userMapper.toResponseDto(userService.save(userToSoftDelete));
+            } else {
                 throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
             }
         } else {
