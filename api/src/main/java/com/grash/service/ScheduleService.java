@@ -264,7 +264,7 @@ public class ScheduleService {
                 .build();
 
         scheduler.scheduleJob(notifJob, notifTrigger);
-        log.info("Scheduled notification job for Schedule ID {} to start at {}", scheduleId, notificationStart);
+//        log.info("Scheduled notification job for Schedule ID {} to start at {}", scheduleId, notificationStart);
     }
 
     // =========================================================================================

@@ -9,5 +9,7 @@ import java.util.Optional;
 public interface CompanyRepository extends JpaRepository<Company, Long> {
     List<Company> findByDemoTrue();
 
+    void deleteAllByDemoTrue();
+
     Optional<Company> findBySubscription_Id(Long id);
 }
