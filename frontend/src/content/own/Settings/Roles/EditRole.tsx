@@ -215,7 +215,7 @@ function EditRole({ role, open, onClose, formatValues }: EditRoleProps) {
                         control={
                           <Checkbox checked={values.createPeopleTeams} />
                         }
-                        label={'people_teams'}
+                        label={t('people_teams')}
                       />
                       <FormControlLabel
                         onChange={handleChange}
@@ -254,13 +254,13 @@ function EditRole({ role, open, onClose, formatValues }: EditRoleProps) {
                         onChange={handleChange}
                         name={'deleteLocations'}
                         control={<Checkbox checked={values.deleteLocations} />}
-                        label="Locations"
+                        label={t('locations')}
                       />
                       <FormControlLabel
                         onChange={handleChange}
                         name={'deleteAssets'}
                         control={<Checkbox checked={values.deleteAssets} />}
-                        label="Assets"
+                        label={t('assets')}
                       />
                       <FormControlLabel
                         onChange={handleChange}
@@ -268,7 +268,7 @@ function EditRole({ role, open, onClose, formatValues }: EditRoleProps) {
                         control={
                           <Checkbox checked={values.deletePartsAndSets} />
                         }
-                        label="Parts and Sets of Parts"
+                        label={t('parts_and_sets')}
                       />
                       <FormControlLabel
                         onChange={handleChange}
@@ -276,13 +276,13 @@ function EditRole({ role, open, onClose, formatValues }: EditRoleProps) {
                         control={
                           <Checkbox checked={values.deletePurchaseOrders} />
                         }
-                        label="Purchase Order"
+                        label={t('purchase_orders')}
                       />
                       <FormControlLabel
                         onChange={handleChange}
                         name={'deleteMeters'}
                         control={<Checkbox checked={values.deleteMeters} />}
-                        label="Meters"
+                        label={t('meters')}
                       />
                       <FormControlLabel
                         onChange={handleChange}
@@ -290,19 +290,19 @@ function EditRole({ role, open, onClose, formatValues }: EditRoleProps) {
                         control={
                           <Checkbox checked={values.deleteVendorsCustomers} />
                         }
-                        label="Vendors & Customers"
+                        label={t('vendors_customers')}
                       />
                       <FormControlLabel
                         onChange={handleChange}
                         name={'deleteCategories'}
                         control={<Checkbox checked={values.deleteCategories} />}
-                        label="Categories"
+                        label={t('categories')}
                       />
                       <FormControlLabel
                         onChange={handleChange}
                         name={'deleteFiles'}
                         control={<Checkbox checked={values.deleteFiles} />}
-                        label="Files"
+                        label={t('files')}
                       />
                       <FormControlLabel
                         onChange={handleChange}
@@ -310,7 +310,7 @@ function EditRole({ role, open, onClose, formatValues }: EditRoleProps) {
                         control={
                           <Checkbox checked={values.deletePeopleTeams} />
                         }
-                        label="People and Teams"
+                        label={t('people_teams')}
                       />
                     </Box>
 
