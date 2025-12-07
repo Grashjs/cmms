@@ -199,29 +199,13 @@ public class ScheduleService {
                     notifCal.add(Calendar.DAY_OF_MONTH, -daysBeforePMNotification);
                     Date notificationTriggerDate = notifCal.getTime();
 
-                    // Only schedule notification if:
-                    // 1. The trigger date is in the future
-                    // 2. The trigger date is before the endsOn date (if endsOn is set)
-                    boolean shouldScheduleNotification = notificationTriggerDate.after(now);
-
-                    if (schedule.getEndsOn() != null) {
-                        shouldScheduleNotification = shouldScheduleNotification &&
-                                notificationTriggerDate.before(schedule.getEndsOn());
-                    }
-
-                    if (shouldScheduleNotification) {
-                        scheduleNotificationJob(
-                                schedule.getId(),
-                                notificationTriggerDate, // Use the calculated trigger date
-                                schedule.getEndsOn(),
-                                scheduleBuilder,
-                                daysBeforePMNotification
-                        );
-                    } else {
-                        log.debug("Skipping notification scheduling for schedule {}. Trigger date {} is either in the" +
-                                        " past or after endsOn date.",
-                                schedule.getId(), notificationTriggerDate);
-                    }
+                    scheduleNotificationJob(
+                            schedule.getId(),
+                            notificationTriggerDate, // Use the calculated trigger date
+                            schedule.getEndsOn(),
+                            scheduleBuilder,
+                            daysBeforePMNotification
+                    );
                 }
 
             } catch (SchedulerException e) {
@@ -262,7 +246,18 @@ public class ScheduleService {
             Date endsOn,
             ScheduleBuilder scheduleBuilder,
             int daysBeforeNotification) throws SchedulerException {
+        boolean shouldScheduleNotification = startsOn.after(new Date());
 
+        if (endsOn != null) {
+            shouldScheduleNotification = shouldScheduleNotification &&
+                    startsOn.before(endsOn);
+        }
+        if (!shouldScheduleNotification) {
+            log.debug("Skipping notification scheduling for schedule {}. Trigger date {} is either in the" +
+                            " past or after endsOn date.",
+                    scheduleId, startsOn);
+            return;
+        }
         // 1. Calculate the actual start date for the notification (shifted back)
         Calendar notifCal = Calendar.getInstance();
         notifCal.setTime(startsOn);
