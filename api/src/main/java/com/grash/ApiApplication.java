@@ -53,8 +53,8 @@ public class ApiApplication implements SmartInitializingSingleton {
             log.info("Scheduling existing work orders and subscriptions...");
             scheduleExistingItems();
 
-            log.info("Updating default roles...");
-            updateDefaultRoles();
+//            log.info("Updating default roles...");
+//            updateDefaultRoles();
 
             log.info("Application initialization completed successfully");
         } catch (Exception e) {
