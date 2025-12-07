@@ -3,6 +3,8 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.exception.CustomException;
 import com.grash.model.abstracts.Audit;
+import com.grash.model.enums.RecurrenceBasedOn;
+import com.grash.model.enums.RecurrenceType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
@@ -11,7 +13,9 @@ import org.springframework.http.HttpStatus;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Data
@@ -32,6 +36,17 @@ public class Schedule extends Audit {
     private Date endsOn;
 
     private Integer dueDateDelay;
+
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private RecurrenceType recurrenceType = RecurrenceType.DAILY;
+
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private RecurrenceBasedOn recurrenceBasedOn = RecurrenceBasedOn.SCHEDULED_DATE;
+
+    @ElementCollection
+    private List<Integer> daysOfWeek = new ArrayList<>();//0 monday
 
     @OneToOne(fetch = FetchType.LAZY)
     @JsonIgnore

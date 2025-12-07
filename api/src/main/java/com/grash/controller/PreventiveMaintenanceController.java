@@ -85,6 +85,9 @@ public class PreventiveMaintenanceController {
         preventiveMaintenance = preventiveMaintenanceService.create(preventiveMaintenance, user);
 
         Schedule schedule = preventiveMaintenance.getSchedule();
+        schedule.setDaysOfWeek(preventiveMaintenancePost.getDaysOfWeek());
+        schedule.setRecurrenceBasedOn(preventiveMaintenancePost.getRecurrenceBasedOn());
+        schedule.setRecurrenceType(preventiveMaintenancePost.getRecurrenceType());
         schedule.setEndsOn(preventiveMaintenancePost.getEndsOn());
         schedule.setStartsOn(preventiveMaintenancePost.getStartsOn() != null ?
                 preventiveMaintenancePost.getStartsOn() : new Date());

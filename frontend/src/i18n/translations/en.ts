@@ -1412,7 +1412,26 @@ const locale = {
   continue_with_sso: 'Continue with SSO',
   see_live_demo: 'See live demo',
   demo_warning:
-    'This instance is in demo mode. Do not use this for real data! Everything will be deleted at regular intervals!'
+    'This instance is in demo mode. Do not use this for real data! Everything will be deleted at regular intervals!',
+  days: 'Days',
+  weeks: 'Weeks',
+  months: 'Months',
+  years: 'Years',
+  based_on: 'Based on',
+  scheduled_date: 'Scheduled date',
+  on: 'On',
+  required_days_of_week: 'Required days of week',
+  'schedule.daily_one': 'Every {{count}} day',
+  'schedule.daily_other': 'Every {{count}} days',
+
+  'schedule.weekly_one': 'Every {{count}} week on {{days}}',
+  'schedule.weekly_other': 'Every {{count}} weeks on {{days}}',
+
+  'schedule.monthly_one': 'Every {{count}} month',
+  'schedule.monthly_other': 'Every {{count}} months',
+
+  'schedule.yearly_one': 'Every {{count}} year',
+  'schedule.yearly_other': 'Every {{count}} years'
 };
 
 export default locale;

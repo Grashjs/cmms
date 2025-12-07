@@ -2,39 +2,42 @@ package com.grash.service;
 
 import com.grash.dto.SchedulePatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.job.PreventiveMaintenanceNotificationJob;
+import com.grash.job.WorkOrderCreationJob;
 import com.grash.mapper.ScheduleMapper;
-import com.grash.model.*;
-import com.grash.model.enums.PermissionEntity;
+import com.grash.model.PreventiveMaintenance;
+import com.grash.model.Schedule;
+import com.grash.model.WorkOrder;
+import com.grash.model.enums.Status;
 import com.grash.repository.ScheduleRepository;
-import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
+import lombok.extern.slf4j.Slf4j;
+import org.quartz.*;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.function.Function;
+
+import com.grash.model.enums.RecurrenceBasedOn;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.SimpleScheduleBuilder; // Added import for SimpleScheduleBuilder
+
+import java.util.Calendar;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
-    private final PreventiveMaintenanceService preventiveMaintenanceService;
     private final ScheduleMapper scheduleMapper;
-    private final MessageSource messageSource;
-    private final EmailService2 emailService2;
     private final WorkOrderService workOrderService;
-    private final TaskService taskService;
-    private final UserService userService;
-    @Value("${frontend.url}")
-    private String frontendUrl;
-    private final Map<Long, Map<String, Timer>> timersState = new HashMap<>();
+
+    // Quartz Scheduler
+    private final Scheduler scheduler;
 
     public Schedule create(Schedule Schedule) {
         return scheduleRepository.save(Schedule);
@@ -52,6 +55,8 @@ public class ScheduleService {
     }
 
     public void delete(Long id) {
+        // Ensure jobs are killed before deleting data
+        stopScheduleTimers(id);
         scheduleRepository.deleteById(id);
     }
 
@@ -67,113 +72,256 @@ public class ScheduleService {
         int limit = 10; //inclusive schedules at 10
         PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
         Page<WorkOrder> workOrdersPage = workOrderService.findLastByPM(preventiveMaintenance.getId(), limit);
+
         boolean isStale = false;
         if (workOrdersPage.getTotalElements() >= limit && workOrdersPage.getContent().stream().allMatch(workOrder -> workOrder.getFirstTimeToReact() == null)) {
             isStale = true;
             schedule.setDisabled(true);
             scheduleRepository.save(schedule);
         }
-        boolean shouldSchedule = !schedule.isDisabled() && (schedule.getEndsOn() == null || schedule.getEndsOn()
-                .after(new Date())) && !isStale;
-        if (shouldSchedule) {
-            Timer timer = new Timer();
-            //  Collection<WorkOrder> workOrders = workOrderService.findByPM(schedule.getPreventiveMaintenance()
-            //  .getId());
-            Date startsOn = Helper.getNextOccurrence(schedule.getStartsOn(), schedule.getFrequency());
-            TimerTask timerTask = new TimerTask() {
-                @Override
-                public void run() {//create WO
-                    PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
-                    WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(preventiveMaintenance);
-                    Collection<Task> tasks = taskService.findByPreventiveMaintenance(preventiveMaintenance.getId());
-                    workOrder.setParentPreventiveMaintenance(preventiveMaintenance);
-                    if (schedule.getDueDateDelay() != null) {
-                        workOrder.setDueDate(Helper.incrementDays(new Date(), schedule.getDueDateDelay()));
-                    }
-                    WorkOrder savedWorkOrder = workOrderService.create(workOrder, preventiveMaintenance.getCompany());
-                    tasks.forEach(task -> {
-                        Task copiedTask = new Task(task.getTaskBase(), savedWorkOrder, null, task.getValue());
-                        copiedTask.setCompany(preventiveMaintenance.getCompany());
-                        taskService.create(copiedTask);
-                    });
-                }
-            };
-            timer.scheduleAtFixedRate(timerTask, startsOn, (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);
-            Map<String, Timer> localTimers = new HashMap<>();
-            localTimers.put("wo_creation", timer);//first wo creation
 
-            Timer timer1 = new Timer();// use daysBeforePrevMaintNotification
-            int daysBeforePMNotification = preventiveMaintenance.getCompany()
-                    .getCompanySettings().getGeneralPreferences().getDaysBeforePrevMaintNotification();
-            if (daysBeforePMNotification > 0) {
-                Date trueStartsOn = preventiveMaintenance.getEstimatedStartDate() == null ? startsOn :
-                        preventiveMaintenance.getEstimatedStartDate();
-                TimerTask timerTask1 = new TimerTask() {
-                    @Override
-                    public void run() {
-                        //send notification to assigned users
-                        PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
-                        Locale locale = Helper.getLocale(preventiveMaintenance.getCompany());
-                        String title = messageSource.getMessage("coming_wo", null, locale);
-                        Collection<OwnUser> admins =
-                                userService.findWorkersByCompany(preventiveMaintenance.getCompany().getId()).stream().filter(ownUser -> ownUser.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)).collect(Collectors.toList());
-                        List<OwnUser> usersToMail = new ArrayList<>(Stream.concat(
-                                        preventiveMaintenance.getUsers().stream(),
-                                        admins.stream()).filter(user -> user.isEnabled() && user.getUserSettings().shouldEmailUpdatesForWorkOrders())
-                                .collect(Collectors.toMap(
-                                        OwnUser::getId,  // key by ID
-                                        Function.identity(), // value is the user object
-                                        (existing, replacement) -> existing))  // if duplicate keys, keep existing
-                                .values());
-                        Map<String, Object> mailVariables = new HashMap<String, Object>() {{
-                            put("pmLink",
-                                    frontendUrl + "/app/preventive-maintenances/" + preventiveMaintenance.getId());
-                            put("featuresLink", frontendUrl + "/#key-features");
-                            put("pmTitle", preventiveMaintenance.getTitle());
-                        }};
-                        emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
-                                .toArray(String[]::new), title, mailVariables, "coming-work-order.html", locale);
+        boolean shouldSchedule =
+                !schedule.isDisabled() && (schedule.getEndsOn() == null || schedule.getEndsOn().after(new Date())) && !isStale;
+
+        if (shouldSchedule) {
+            try {
+                ScheduleBuilder scheduleBuilder = null;
+                Date startsOn = schedule.getStartsOn();
+
+                if (schedule.getRecurrenceBasedOn() == RecurrenceBasedOn.COMPLETED_DATE) {
+                    if (workOrdersPage.isEmpty()) {
+                        scheduleBuilder = SimpleScheduleBuilder.simpleSchedule()
+                                .withRepeatCount(0);
+                    } else {
+                        WorkOrder lastCompletedWorkOrder =
+                                workOrdersPage.stream()
+                                        .filter(w -> Status.COMPLETE.equals(w.getStatus()))
+                                        .max(Comparator.comparing(WorkOrder::getCompletedOn))
+                                        .orElse(null);
+                        if (lastCompletedWorkOrder == null) return;
+                        scheduleNextWorkOrderJobAfterCompletion(schedule.getId(),
+                                lastCompletedWorkOrder.getCompletedOn());
                     }
-                };
-                timer1.scheduleAtFixedRate(timerTask1, Helper.getNextOccurrence(Helper.minusDays(trueStartsOn,
-                                daysBeforePMNotification), 1),
-                        (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);
-                localTimers.put("notification", timer1);
-            }
-            if (schedule.getEndsOn() != null) {
-                Timer timer2 = new Timer();
-                TimerTask timerTask2 = new TimerTask() {
-                    @Override
-                    public void run() {
-                        //stop other timers
-                        timersState.get(schedule.getId()).get("wo_creation").cancel();
-                        timersState.get(schedule.getId()).get("wo_creation").purge();
-                        if (timersState.get(schedule.getId()).containsKey("notification")) {
-                            timersState.get(schedule.getId()).get("notification").cancel();
-                            timersState.get(schedule.getId()).get("notification").purge();
-                        }
+                } else { // SCHEDULED_DATE
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(startsOn);
+                    int hour = cal.get(Calendar.HOUR_OF_DAY);
+                    int minute = cal.get(Calendar.MINUTE);
+
+                    switch (schedule.getRecurrenceType()) {
+                        case DAILY:
+                            scheduleBuilder = SimpleScheduleBuilder.simpleSchedule()
+                                    .withIntervalInHours(24 * schedule.getFrequency())
+                                    .repeatForever();
+                            break;
+
+                        case WEEKLY:
+                            if (schedule.getDaysOfWeek() == null || schedule.getDaysOfWeek().isEmpty()) {
+                                throw new CustomException("Days of week are required for weekly recurrence.",
+                                        HttpStatus.BAD_REQUEST);
+                            }
+
+                            // Convert ISO days to Quartz format
+                            String daysOfWeekCron = schedule.getDaysOfWeek().stream()
+                                    .map(d -> (d + 1) % 7 + 1) // 0-based (Mon=0) to Calendar (Sun=1, Mon=2)
+                                    .map(String::valueOf)
+                                    .collect(Collectors.joining(","));
+
+                            String cronExpression = String.format("0 %d %d ? * %s", minute, hour, daysOfWeekCron);
+                            scheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression)
+                                    .inTimeZone(TimeZone.getDefault());
+
+                            // Store the frequency in the job data so the job can handle it
+                            // The cron will fire every week on specified days, but the job will check frequency
+                            break;
+
+                        case MONTHLY:
+                            scheduleBuilder = CalendarIntervalScheduleBuilder.calendarIntervalSchedule()
+                                    .withIntervalInMonths(schedule.getFrequency())
+                                    .preserveHourOfDayAcrossDaylightSavings(true);
+                            break;
+
+                        case YEARLY:
+                            scheduleBuilder = CalendarIntervalScheduleBuilder.calendarIntervalSchedule()
+                                    .withIntervalInYears(schedule.getFrequency())
+                                    .preserveHourOfDayAcrossDaylightSavings(true);
+                            break;
+
+                        default:
+                            throw new CustomException("Unsupported recurrence type: " + schedule.getRecurrenceType(),
+                                    HttpStatus.BAD_REQUEST);
                     }
-                };
-                timer2.schedule(timerTask2, schedule.getEndsOn());
-                localTimers.put("stop", timer2); //third schedule stopping
+                }
+
+                // ---------------------------------------------------------
+                // JOB 1: Work Order Creation
+                // ---------------------------------------------------------
+                JobDetail woJob = JobBuilder.newJob(WorkOrderCreationJob.class)
+                        .withIdentity("wo-job-" + schedule.getId(), "wo-group")
+                        .usingJobData("scheduleId", schedule.getId())
+                        .storeDurably()
+                        .build();
+
+                Trigger woTrigger = TriggerBuilder.newTrigger()
+                        .withIdentity("wo-trigger-" + schedule.getId(), "wo-group")
+                        .startAt(startsOn)
+                        .withSchedule(scheduleBuilder)
+                        .endAt(schedule.getEndsOn())
+                        .build();
+
+                scheduler.scheduleJob(woJob, woTrigger);
+
+                // ---------------------------------------------------------
+                // JOB 2: Notification (Shared Method Call)
+                // ---------------------------------------------------------
+                int daysBeforePMNotification = preventiveMaintenance.getCompany()
+                        .getCompanySettings().getGeneralPreferences().getDaysBeforePrevMaintNotification();
+
+                if (daysBeforePMNotification > 0) {
+                    Date trueStartsOnForNotif = preventiveMaintenance.getEstimatedStartDate() == null ? startsOn :
+                            preventiveMaintenance.getEstimatedStartDate();
+
+                    // Call the shared method for initial setup
+                    scheduleNotificationJob(
+                            schedule.getId(),
+                            trueStartsOnForNotif,
+                            schedule.getEndsOn(),
+                            scheduleBuilder, // Pass the recurrence schedule
+                            daysBeforePMNotification
+                    );
+                }
+
+            } catch (SchedulerException e) {
+                log.error("Error scheduling quartz job for schedule " + schedule.getId(), e);
+                // Depending on your error handling policy, you might want to throw a RuntimeException here
             }
-            timersState.put(schedule.getId(), localTimers);
         }
     }
 
     public void reScheduleWorkOrder(Long id, Schedule schedule) {
+        // Quartz "reschedule" is best handled by deleting and recreating
+        // to ensure all parameters (trigger times, data map) are fresh.
         stopScheduleTimers(id);
         scheduleWorkOrder(schedule);
     }
 
     public void stopScheduleTimers(Long id) {
-        if (!timersState.containsKey(id)) {
-            return;
+        try {
+            // Delete Work Order Job
+            scheduler.deleteJob(new JobKey("wo-job-" + id, "wo-group"));
+
+            // Delete Notification Job (it might not exist, but Quartz handles that gracefully usually, or returns
+            // false)
+            scheduler.deleteJob(new JobKey("notif-job-" + id, "notif-group"));
+
+        } catch (SchedulerException e) {
+            log.error("Error stopping quartz jobs for schedule " + id, e);
         }
-        timersState.get(id).forEach((key, timer) -> {
-            timer.cancel();
-            timer.purge();
-        });
+    }
+
+    // =========================================================================================
+    // NEW SHARED NOTIFICATION SCHEDULING METHOD
+    // =========================================================================================
+
+    private void scheduleNotificationJob(
+            Long scheduleId,
+            Date startsOn,
+            Date endsOn,
+            ScheduleBuilder scheduleBuilder,
+            int daysBeforeNotification) throws SchedulerException {
+
+        // 1. Calculate the actual start date for the notification (shifted back)
+        Calendar notifCal = Calendar.getInstance();
+        notifCal.setTime(startsOn);
+        notifCal.add(Calendar.DATE, -daysBeforeNotification);
+        Date notificationStart = notifCal.getTime();
+
+        JobDetail notifJob = JobBuilder.newJob(PreventiveMaintenanceNotificationJob.class)
+                .withIdentity("notif-job-" + scheduleId, "notif-group")
+                .usingJobData("scheduleId", scheduleId)
+                .build();
+
+        Trigger notifTrigger = TriggerBuilder.newTrigger()
+                .withIdentity("notif-trigger-" + scheduleId, "notif-group")
+                .startAt(notificationStart)
+                .withSchedule(scheduleBuilder)
+                .endAt(endsOn)
+                .build();
+
+        scheduler.scheduleJob(notifJob, notifTrigger);
+    }
+
+    // =========================================================================================
+    // CHAINING METHOD (Updated to use the shared notification method)
+    // =========================================================================================
+
+    public void scheduleNextWorkOrderJobAfterCompletion(Long scheduleId, Date completedDate) {
+        Optional<Schedule> scheduleOpt = scheduleRepository.findById(scheduleId);
+        if (!scheduleOpt.isPresent()) return;
+
+        Schedule schedule = scheduleOpt.get();
+
+        // Only applies to COMPLETED_DATE schedules
+        if (schedule.getRecurrenceBasedOn() != RecurrenceBasedOn.COMPLETED_DATE) return;
+
+        // 1. Calculate the next run date based on Frequency
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(completedDate);
+
+        switch (schedule.getRecurrenceType()) {
+            case DAILY:
+                cal.add(Calendar.DAY_OF_YEAR, schedule.getFrequency());
+                break;
+            case WEEKLY:
+                cal.add(Calendar.WEEK_OF_YEAR, schedule.getFrequency());
+                break;
+            case MONTHLY:
+                cal.add(Calendar.MONTH, schedule.getFrequency());
+                break;
+            case YEARLY:
+                cal.add(Calendar.YEAR, schedule.getFrequency());
+                break;
+        }
+        Date nextRunDate = cal.getTime();
+
+        // The one-shot schedule for the chained job
+        ScheduleBuilder oneShotSchedule = SimpleScheduleBuilder.simpleSchedule().withRepeatCount(0);
+
+        // 2. Schedule a "One-Shot" Job for that date
+        try {
+            JobKey jobKey = new JobKey("wo-job-chained-" + schedule.getId() + "-" + nextRunDate.getTime(), "wo-group");
+
+            JobDetail woJob = JobBuilder.newJob(WorkOrderCreationJob.class)
+                    .withIdentity(jobKey)
+                    .usingJobData("scheduleId", schedule.getId())
+                    .storeDurably()
+                    .build();
+
+            Trigger woTrigger = TriggerBuilder.newTrigger()
+                    .startAt(nextRunDate)
+                    .withSchedule(oneShotSchedule) // Run Once
+                    .build();
+
+            scheduler.scheduleJob(woJob, woTrigger);
+            log.info("Chained next schedule for Schedule ID {} at {}", schedule.getId(), nextRunDate);
+
+            PreventiveMaintenance pm = schedule.getPreventiveMaintenance();
+            int daysBeforePMNotification = pm.getCompany()
+                    .getCompanySettings().getGeneralPreferences().getDaysBeforePrevMaintNotification();
+
+            if (daysBeforePMNotification > 0) {
+                scheduleNotificationJob(
+                        schedule.getId(),
+                        nextRunDate, // The calculated WO start date
+                        schedule.getEndsOn(),
+                        oneShotSchedule, // The one-shot schedule for notification
+                        daysBeforePMNotification
+                );
+            }
+
+        } catch (SchedulerException e) {
+            log.error("Failed to chain next schedule for ID " + schedule.getId(), e);
+        }
     }
 
     public Schedule save(Schedule schedule) {
