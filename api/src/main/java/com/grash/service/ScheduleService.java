@@ -101,6 +101,7 @@ public class ScheduleService {
                         if (lastCompletedWorkOrder == null) return;
                         scheduleNextWorkOrderJobAfterCompletion(schedule.getId(),
                                 lastCompletedWorkOrder.getCompletedOn());
+                        return; // Exit after scheduling completion-based job
                     }
                 } else { // SCHEDULED_DATE
                     Calendar cal = Calendar.getInstance();
@@ -156,6 +157,17 @@ public class ScheduleService {
                 // ---------------------------------------------------------
                 // JOB 1: Work Order Creation
                 // ---------------------------------------------------------
+                Date now = new Date();
+                Date effectiveStartDate = startsOn.before(now) ? now : startsOn;
+
+                // Validate that end date is after start date
+                if (schedule.getEndsOn() != null && !schedule.getEndsOn().after(effectiveStartDate)) {
+                    log.warn("Schedule {} has endsOn date {} that is not after effective start date {}. Skipping " +
+                                    "scheduling.",
+                            schedule.getId(), schedule.getEndsOn(), effectiveStartDate);
+                    return;
+                }
+
                 JobDetail woJob = JobBuilder.newJob(WorkOrderCreationJob.class)
                         .withIdentity("wo-job-" + schedule.getId(), "wo-group")
                         .usingJobData("scheduleId", schedule.getId())
@@ -164,7 +176,7 @@ public class ScheduleService {
 
                 Trigger woTrigger = TriggerBuilder.newTrigger()
                         .withIdentity("wo-trigger-" + schedule.getId(), "wo-group")
-                        .startAt(startsOn)
+                        .startAt(effectiveStartDate)  // Use current time if startsOn is in the past
                         .withSchedule(scheduleBuilder)
                         .endAt(schedule.getEndsOn())
                         .build();
@@ -181,14 +193,35 @@ public class ScheduleService {
                     Date trueStartsOnForNotif = preventiveMaintenance.getEstimatedStartDate() == null ? startsOn :
                             preventiveMaintenance.getEstimatedStartDate();
 
-                    // Call the shared method for initial setup
-                    scheduleNotificationJob(
-                            schedule.getId(),
-                            trueStartsOnForNotif,
-                            schedule.getEndsOn(),
-                            scheduleBuilder, // Pass the recurrence schedule
-                            daysBeforePMNotification
-                    );
+                    // Calculate the actual notification trigger date (N days before)
+                    Calendar notifCal = Calendar.getInstance();
+                    notifCal.setTime(trueStartsOnForNotif);
+                    notifCal.add(Calendar.DAY_OF_MONTH, -daysBeforePMNotification);
+                    Date notificationTriggerDate = notifCal.getTime();
+
+                    // Only schedule notification if:
+                    // 1. The trigger date is in the future
+                    // 2. The trigger date is before the endsOn date (if endsOn is set)
+                    boolean shouldScheduleNotification = notificationTriggerDate.after(now);
+
+                    if (schedule.getEndsOn() != null) {
+                        shouldScheduleNotification = shouldScheduleNotification &&
+                                notificationTriggerDate.before(schedule.getEndsOn());
+                    }
+
+                    if (shouldScheduleNotification) {
+                        scheduleNotificationJob(
+                                schedule.getId(),
+                                notificationTriggerDate, // Use the calculated trigger date
+                                schedule.getEndsOn(),
+                                scheduleBuilder,
+                                daysBeforePMNotification
+                        );
+                    } else {
+                        log.debug("Skipping notification scheduling for schedule {}. Trigger date {} is either in the" +
+                                        " past or after endsOn date.",
+                                schedule.getId(), notificationTriggerDate);
+                    }
                 }
 
             } catch (SchedulerException e) {
