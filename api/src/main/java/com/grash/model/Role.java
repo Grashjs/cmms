@@ -54,7 +54,16 @@ public class Role {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private CompanySettings companySettings;
+
+    public boolean belongsToCompany(Company company) {
+        return this.companySettings == null ||
+                belongsOnlyToCompany(company);
+    }
+
+    public boolean belongsOnlyToCompany(Company company) {
+        return this.companySettings != null
+                && company.getCompanySettings().getId().equals(this.companySettings.getId());
+    }
 }

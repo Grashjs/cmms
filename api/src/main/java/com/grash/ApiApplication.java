@@ -53,8 +53,8 @@ public class ApiApplication implements SmartInitializingSingleton {
             log.info("Scheduling existing work orders and subscriptions...");
             scheduleExistingItems();
 
-//            log.info("Updating default roles...");
-//            updateDefaultRoles();
+            log.info("Updating default roles...");
+            roleService.updateDefaultRoles();
 
             log.info("Application initialization completed successfully");
         } catch (Exception e) {
@@ -165,58 +165,6 @@ public class ApiApplication implements SmartInitializingSingleton {
                 log.error("Failed to schedule subscription end for subscription ID: {}", subscription.getId(), e);
             }
         });
-    }
-
-    private void updateDefaultRoles() {
-        List<Role> defaultRoles = roleService.findDefaultRoles();
-        List<Role> upToDateRoles = Helper.getDefaultRoles();
-
-        // Create a map for O(1) lookup
-        Map<RoleCode, Role> upToDateRoleMap = upToDateRoles.stream()
-                .collect(Collectors.toMap(Role::getCode, Function.identity()));
-
-        List<Role> rolesToUpdate = defaultRoles.stream()
-                .filter(defaultRole -> {
-                    Role upToDateRole = upToDateRoleMap.get(defaultRole.getCode());
-                    return upToDateRole != null && hasPermissionChanges(defaultRole, upToDateRole);
-                })
-                .peek(defaultRole -> {
-                    Role upToDateRole = upToDateRoleMap.get(defaultRole.getCode());
-                    updatePermissions(defaultRole, upToDateRole);
-                    log.info("Updating permissions for role: {}", defaultRole.getName());
-                })
-                .collect(Collectors.toList());
-
-        if (!rolesToUpdate.isEmpty()) {
-            log.info("Saving {} updated roles...", rolesToUpdate.size());
-            roleService.saveAll(rolesToUpdate);
-        } else {
-            log.info("No role updates needed");
-        }
-    }
-
-    private boolean hasPermissionChanges(Role current, Role updated) {
-        return !CollectionUtils.isEqualCollection(current.getCreatePermissions(), updated.getCreatePermissions()) ||
-                !CollectionUtils.isEqualCollection(current.getEditOtherPermissions(),
-                        updated.getEditOtherPermissions()) ||
-                !CollectionUtils.isEqualCollection(current.getDeleteOtherPermissions(),
-                        updated.getDeleteOtherPermissions()) ||
-                !CollectionUtils.isEqualCollection(current.getViewOtherPermissions(),
-                        updated.getViewOtherPermissions()) ||
-                !CollectionUtils.isEqualCollection(current.getViewPermissions(), updated.getViewPermissions());
-    }
-
-    private void updatePermissions(Role target, Role source) {
-        updatePermissionSet(target.getCreatePermissions(), source.getCreatePermissions());
-        updatePermissionSet(target.getEditOtherPermissions(), source.getEditOtherPermissions());
-        updatePermissionSet(target.getDeleteOtherPermissions(), source.getDeleteOtherPermissions());
-        updatePermissionSet(target.getViewOtherPermissions(), source.getViewOtherPermissions());
-        updatePermissionSet(target.getViewPermissions(), source.getViewPermissions());
-    }
-
-    private void updatePermissionSet(Collection<PermissionEntity> target, Collection<PermissionEntity> source) {
-        target.clear();
-        target.addAll(source);
     }
 
     @NotNull

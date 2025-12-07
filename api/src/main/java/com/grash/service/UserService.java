@@ -143,8 +143,18 @@ public class UserService {
                 throw new CustomException("You are not invited to this organization for this role",
                         HttpStatus.NOT_ACCEPTABLE);
             } else {
+                List<UserInvitation> userInvitations =
+                        userInvitationService.findByRoleAndEmail(optionalRole.get().getId(), user.getEmail());
+                userInvitations.sort(Comparator.comparing(UserInvitation::getCreatedAt).reversed());
+                if (userInvitations.isEmpty()) {
+                    throw new CustomException("You are not invited to this organization for this role",
+                            HttpStatus.NOT_ACCEPTABLE);
+                }
+                Optional<OwnUser> optionalInviter = findById(userInvitations.get(0).getCreatedBy());
+                if (!optionalInviter.isPresent())
+                    throw new CustomException("Inviter not found", HttpStatus.NOT_ACCEPTABLE);
                 user.setRole(optionalRole.get());
-                user.setCompany(optionalRole.get().getCompanySettings().getCompany());
+                user.setCompany(optionalInviter.get().getCompany());
                 return enableAndReturnToken(user, true, userReq);
             }
         }

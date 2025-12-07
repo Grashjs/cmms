@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,7 +30,7 @@ public class UserInvitationService {
         return userInvitationRepository.findById(id);
     }
 
-    public Collection<UserInvitation> findByRoleAndEmail(Long id, String email) {
+    public List<UserInvitation> findByRoleAndEmail(Long id, String email) {
         return userInvitationRepository.findByRole_IdAndEmailIgnoreCase(id, email);
     }
 
