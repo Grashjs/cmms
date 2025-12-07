@@ -121,6 +121,8 @@ public class Helper {
                 return new Locale("es", "ES");
             case PT_BR:
                 return new Locale("pt", "BR");
+            case PT:
+                return new Locale("pt", "BR");
             case PL:
                 return new Locale("pl", "PL");
             case DE:
