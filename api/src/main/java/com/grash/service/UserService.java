@@ -150,11 +150,13 @@ public class UserService {
                     throw new CustomException("You are not invited to this organization for this role",
                             HttpStatus.NOT_ACCEPTABLE);
                 }
-                Optional<OwnUser> optionalInviter = findById(userInvitations.get(0).getCreatedBy());
-                if (!optionalInviter.isPresent())
-                    throw new CustomException("Inviter not found", HttpStatus.NOT_ACCEPTABLE);
                 user.setRole(optionalRole.get());
-                user.setCompany(optionalInviter.get().getCompany());
+                if (optionalRole.get().getCompanySettings() == null) {
+                    Optional<OwnUser> optionalInviter = findById(userInvitations.get(0).getCreatedBy());
+                    if (!optionalInviter.isPresent())
+                        throw new CustomException("Inviter not found", HttpStatus.NOT_ACCEPTABLE);
+                    user.setCompany(optionalInviter.get().getCompany());
+                } else user.setCompany(optionalRole.get().getCompanySettings().getCompany());
                 return enableAndReturnToken(user, true, userReq);
             }
         }
