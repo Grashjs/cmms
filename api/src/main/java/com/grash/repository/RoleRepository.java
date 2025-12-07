@@ -16,6 +16,12 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     @Query("SELECT r from Role r where r.companySettings.company.id = :x ")
     Collection<Role> findByCompany_Id(@Param("x") Long id);
 
-    @Query("SELECT r from Role r where r.code !=:userCreated")
+    @Query("SELECT r from Role r " +
+            "LEFT JOIN FETCH r.createPermissions " +
+            "LEFT JOIN FETCH r.editOtherPermissions " +
+            "LEFT JOIN FETCH r.deleteOtherPermissions " +
+            "LEFT JOIN FETCH r.viewOtherPermissions " +
+            "LEFT JOIN FETCH r.viewPermissions " +
+            " where r.code !=:userCreated")
     List<Role> findDefaultRoles(@Param("userCreated") RoleCode userCreated);
 }
