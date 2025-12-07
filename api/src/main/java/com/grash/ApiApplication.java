@@ -2,33 +2,33 @@ package com.grash;
 
 import com.grash.dto.UserSignupRequest;
 import com.grash.model.*;
-import com.grash.model.enums.Language;
-import com.grash.model.enums.PlanFeatures;
-import com.grash.model.enums.RoleCode;
-import com.grash.model.enums.RoleType;
+import com.grash.model.enums.*;
 import com.grash.service.*;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @SpringBootApplication
 @RequiredArgsConstructor
 @EnableCaching
-public class ApiApplication implements CommandLineRunner {
+@Slf4j
+public class ApiApplication implements SmartInitializingSingleton {
 
     private final UserService userService;
     private final UserInvitationService userInvitationService;
     @Value("${superAdmin.role.name}")
     private String superAdminRole;
-
     private final RoleService roleService;
     private final CompanyService companyService;
     private final SubscriptionPlanService subscriptionPlanService;
@@ -40,10 +40,34 @@ public class ApiApplication implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) {
+    public void afterSingletonsInstantiated() {
+        log.info("Starting application initialization...");
+
+        try {
+            log.info("Initializing super admin...");
+            initializeSuperAdmin();
+
+            log.info("Initializing subscription plans...");
+            initializeSubscriptionPlans();
+
+            log.info("Scheduling existing work orders and subscriptions...");
+            scheduleExistingItems();
+
+            log.info("Updating default roles...");
+            updateDefaultRoles();
+
+            log.info("Application initialization completed successfully");
+        } catch (Exception e) {
+            log.error("Application initialization failed", e);
+            throw new RuntimeException("Failed to initialize application", e);
+        }
+    }
+
+    private void initializeSuperAdmin() {
         // Find or create the super admin role
         Role savedSuperAdminRole = roleService.findByName(superAdminRole)
                 .orElseGet(() -> {
+                    log.info("Creating super admin role...");
                     Company company = companyService.create(new Company());
                     return roleService.create(Role.builder()
                             .name(superAdminRole)
@@ -54,21 +78,32 @@ public class ApiApplication implements CommandLineRunner {
                 });
 
         if (userService.findByCompany(savedSuperAdminRole.getCompanySettings().getCompany().getId()).isEmpty()) {
+            log.info("Creating super admin user...");
             UserSignupRequest signupRequest = getSuperAdminSignupRequest(savedSuperAdminRole);
             userInvitationService.create(new UserInvitation(signupRequest.getEmail(), savedSuperAdminRole));
             userService.signup(signupRequest);
+        } else {
+            log.info("Super admin user already exists");
         }
+    }
+
+    private void initializeSubscriptionPlans() {
         if (!subscriptionPlanService.existByCode("FREE")) {
+            log.info("Creating FREE subscription plan...");
             subscriptionPlanService.create(SubscriptionPlan.builder()
                     .code("FREE")
                     .name("Free")
                     .monthlyCostPerUser(0)
                     .yearlyCostPerUser(0).build());
         }
+
         if (!subscriptionPlanService.existByCode("STARTER")) {
+            log.info("Creating STARTER subscription plan...");
             subscriptionPlanService.create(SubscriptionPlan.builder()
                     .code("STARTER")
-                    .name("Starter").features(new HashSet<>(Arrays.asList(PlanFeatures.PREVENTIVE_MAINTENANCE,
+                    .name("Starter")
+                    .features(new HashSet<>(Arrays.asList(
+                            PlanFeatures.PREVENTIVE_MAINTENANCE,
                             PlanFeatures.CHECKLIST,
                             PlanFeatures.FILE,
                             PlanFeatures.METER,
@@ -77,12 +112,15 @@ public class ApiApplication implements CommandLineRunner {
                     .monthlyCostPerUser(10)
                     .yearlyCostPerUser(100).build());
         }
+
         if (!subscriptionPlanService.existByCode("PROFESSIONAL")) {
+            log.info("Creating PROFESSIONAL subscription plan...");
             subscriptionPlanService.create(SubscriptionPlan.builder()
                     .code("PROFESSIONAL")
                     .name("Professional")
                     .monthlyCostPerUser(15)
-                    .features(new HashSet<>(Arrays.asList(PlanFeatures.PREVENTIVE_MAINTENANCE,
+                    .features(new HashSet<>(Arrays.asList(
+                            PlanFeatures.PREVENTIVE_MAINTENANCE,
                             PlanFeatures.CHECKLIST,
                             PlanFeatures.FILE,
                             PlanFeatures.METER,
@@ -95,7 +133,9 @@ public class ApiApplication implements CommandLineRunner {
                     )))
                     .yearlyCostPerUser(150).build());
         }
+
         if (!subscriptionPlanService.existByCode("BUSINESS")) {
+            log.info("Creating BUSINESS subscription plan...");
             subscriptionPlanService.create(SubscriptionPlan.builder()
                     .code("BUSINESS")
                     .name("Business")
@@ -103,52 +143,80 @@ public class ApiApplication implements CommandLineRunner {
                     .features(new HashSet<>(Arrays.asList(PlanFeatures.values())))
                     .yearlyCostPerUser(800).build());
         }
-        Collection<Schedule> schedules = scheduleService.getAll();
-        schedules.forEach(scheduleService::scheduleWorkOrder);
-        Collection<Subscription> subscriptions = subscriptionService.getAll();
-        subscriptions.forEach(subscriptionService::scheduleEnd);
+    }
 
+    private void scheduleExistingItems() {
+        Collection<Schedule> schedules = scheduleService.getAll();
+        log.info("Scheduling {} work orders...", schedules.size());
+        schedules.forEach(schedule -> {
+            try {
+                scheduleService.scheduleWorkOrder(schedule);
+            } catch (Exception e) {
+                log.error("Failed to schedule work order for schedule ID: {}", schedule.getId(), e);
+            }
+        });
+
+        Collection<Subscription> subscriptions = subscriptionService.getAll();
+        log.info("Scheduling {} subscription ends...", subscriptions.size());
+        subscriptions.forEach(subscription -> {
+            try {
+                subscriptionService.scheduleEnd(subscription);
+            } catch (Exception e) {
+                log.error("Failed to schedule subscription end for subscription ID: {}", subscription.getId(), e);
+            }
+        });
+    }
+
+    private void updateDefaultRoles() {
         List<Role> defaultRoles = roleService.findDefaultRoles();
         List<Role> upToDateRoles = Helper.getDefaultRoles();
-        List<Role> rolesToUpdate = new ArrayList<>();
 
-        for (Role defaultRole : defaultRoles) {
-            for (Role upToDateRole : upToDateRoles) {
-                if (defaultRole.getCode().equals(upToDateRole.getCode())) {
-                    if (!CollectionUtils.isEqualCollection(defaultRole.getCreatePermissions(),
-                            upToDateRole.getCreatePermissions()) ||
-                            !CollectionUtils.isEqualCollection(defaultRole.getEditOtherPermissions(),
-                                    upToDateRole.getEditOtherPermissions()) ||
-                            !CollectionUtils.isEqualCollection(defaultRole.getDeleteOtherPermissions(),
-                                    upToDateRole.getDeleteOtherPermissions()) ||
-                            !CollectionUtils.isEqualCollection(defaultRole.getViewOtherPermissions(),
-                                    upToDateRole.getViewOtherPermissions()) ||
-                            !CollectionUtils.isEqualCollection(defaultRole.getViewPermissions(),
-                                    upToDateRole.getViewPermissions())) {
-                        // Update the role in the database
-                        defaultRole.getCreatePermissions().clear();
-                        defaultRole.getEditOtherPermissions().clear();
-                        defaultRole.getDeleteOtherPermissions().clear();
-                        defaultRole.getViewOtherPermissions().clear();
-                        defaultRole.getViewPermissions().clear();
+        // Create a map for O(1) lookup
+        Map<RoleCode, Role> upToDateRoleMap = upToDateRoles.stream()
+                .collect(Collectors.toMap(Role::getCode, Function.identity()));
 
-                        defaultRole.getCreatePermissions().addAll(upToDateRole.getCreatePermissions());
-                        defaultRole.getEditOtherPermissions().addAll(upToDateRole.getEditOtherPermissions());
-                        defaultRole.getDeleteOtherPermissions().addAll(upToDateRole.getDeleteOtherPermissions());
-                        defaultRole.getViewOtherPermissions().addAll(upToDateRole.getViewOtherPermissions());
-                        defaultRole.getViewPermissions().addAll(upToDateRole.getViewPermissions());
+        List<Role> rolesToUpdate = defaultRoles.stream()
+                .filter(defaultRole -> {
+                    Role upToDateRole = upToDateRoleMap.get(defaultRole.getCode());
+                    return upToDateRole != null && hasPermissionChanges(defaultRole, upToDateRole);
+                })
+                .peek(defaultRole -> {
+                    Role upToDateRole = upToDateRoleMap.get(defaultRole.getCode());
+                    updatePermissions(defaultRole, upToDateRole);
+                    log.info("Updating permissions for role: {}", defaultRole.getName());
+                })
+                .collect(Collectors.toList());
 
-                        rolesToUpdate.add(defaultRole);
-                        // Optionally, you can break the loop if you only want to update the first occurrence of the
-                        // role
-                        // break;
-                    }
-                    // If the roles match, no need to check further, break the loop
-                    break;
-                }
-            }
+        if (!rolesToUpdate.isEmpty()) {
+            log.info("Saving {} updated roles...", rolesToUpdate.size());
+            roleService.saveAll(rolesToUpdate);
+        } else {
+            log.info("No role updates needed");
         }
-        if (!rolesToUpdate.isEmpty()) roleService.saveAll(rolesToUpdate);
+    }
+
+    private boolean hasPermissionChanges(Role current, Role updated) {
+        return !CollectionUtils.isEqualCollection(current.getCreatePermissions(), updated.getCreatePermissions()) ||
+                !CollectionUtils.isEqualCollection(current.getEditOtherPermissions(),
+                        updated.getEditOtherPermissions()) ||
+                !CollectionUtils.isEqualCollection(current.getDeleteOtherPermissions(),
+                        updated.getDeleteOtherPermissions()) ||
+                !CollectionUtils.isEqualCollection(current.getViewOtherPermissions(),
+                        updated.getViewOtherPermissions()) ||
+                !CollectionUtils.isEqualCollection(current.getViewPermissions(), updated.getViewPermissions());
+    }
+
+    private void updatePermissions(Role target, Role source) {
+        updatePermissionSet(target.getCreatePermissions(), source.getCreatePermissions());
+        updatePermissionSet(target.getEditOtherPermissions(), source.getEditOtherPermissions());
+        updatePermissionSet(target.getDeleteOtherPermissions(), source.getDeleteOtherPermissions());
+        updatePermissionSet(target.getViewOtherPermissions(), source.getViewOtherPermissions());
+        updatePermissionSet(target.getViewPermissions(), source.getViewPermissions());
+    }
+
+    private void updatePermissionSet(Collection<PermissionEntity> target, Collection<PermissionEntity> source) {
+        target.clear();
+        target.addAll(source);
     }
 
     @NotNull
