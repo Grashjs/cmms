@@ -19,7 +19,7 @@ public class DeleteDemoCompaniesJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) {
-        List<Company> companies = companyRepository.findByDemoTrue();
-        companies.forEach(company -> companyService.delete(company.getId()));
+//        List<Company> companies = companyRepository.findByDemoTrue();
+//        companies.forEach(company -> companyService.delete(company.getId()));
     }
 }
