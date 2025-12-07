@@ -8,6 +8,7 @@ import com.grash.mapper.ScheduleMapper;
 import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
 import com.grash.model.WorkOrder;
+import com.grash.model.enums.Status;
 import com.grash.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,15 +18,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 import com.grash.model.enums.RecurrenceBasedOn;
 import org.quartz.CronScheduleBuilder;
+import org.quartz.SimpleScheduleBuilder; // Added import for SimpleScheduleBuilder
 
 import java.util.Calendar;
-import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 @Service
@@ -86,12 +85,23 @@ public class ScheduleService {
 
         if (shouldSchedule) {
             try {
-                ScheduleBuilder scheduleBuilder;
+                ScheduleBuilder scheduleBuilder = null;
                 Date startsOn = schedule.getStartsOn();
 
                 if (schedule.getRecurrenceBasedOn() == RecurrenceBasedOn.COMPLETED_DATE) {
-                    scheduleBuilder = SimpleScheduleBuilder.simpleSchedule()
-                            .withRepeatCount(0);
+                    if (workOrdersPage.isEmpty()) {
+                        scheduleBuilder = SimpleScheduleBuilder.simpleSchedule()
+                                .withRepeatCount(0);
+                    } else {
+                        WorkOrder lastCompletedWorkOrder =
+                                workOrdersPage.stream()
+                                        .filter(w -> Status.COMPLETE.equals(w.getStatus()))
+                                        .max(Comparator.comparing(WorkOrder::getCompletedOn))
+                                        .orElse(null);
+                        if (lastCompletedWorkOrder == null) return;
+                        scheduleNextWorkOrderJobAfterCompletion(schedule.getId(),
+                                lastCompletedWorkOrder.getCompletedOn());
+                    }
                 } else { // SCHEDULED_DATE
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(startsOn);
@@ -162,7 +172,7 @@ public class ScheduleService {
                 scheduler.scheduleJob(woJob, woTrigger);
 
                 // ---------------------------------------------------------
-                // JOB 2: Notification (Optional based on daysBeforePMNotification)
+                // JOB 2: Notification (Shared Method Call)
                 // ---------------------------------------------------------
                 int daysBeforePMNotification = preventiveMaintenance.getCompany()
                         .getCompanySettings().getGeneralPreferences().getDaysBeforePrevMaintNotification();
@@ -171,24 +181,14 @@ public class ScheduleService {
                     Date trueStartsOnForNotif = preventiveMaintenance.getEstimatedStartDate() == null ? startsOn :
                             preventiveMaintenance.getEstimatedStartDate();
 
-                    Calendar notifCal = Calendar.getInstance();
-                    notifCal.setTime(trueStartsOnForNotif);
-                    notifCal.add(Calendar.DATE, -daysBeforePMNotification);
-                    Date notificationStart = notifCal.getTime();
-
-                    JobDetail notifJob = JobBuilder.newJob(PreventiveMaintenanceNotificationJob.class)
-                            .withIdentity("notif-job-" + schedule.getId(), "notif-group")
-                            .usingJobData("scheduleId", schedule.getId())
-                            .build();
-
-                    Trigger notifTrigger = TriggerBuilder.newTrigger()
-                            .withIdentity("notif-trigger-" + schedule.getId(), "notif-group")
-                            .startAt(notificationStart)
-                            .withSchedule(scheduleBuilder) // Uses the same recurrence schedule
-                            .endAt(schedule.getEndsOn())
-                            .build();
-
-                    scheduler.scheduleJob(notifJob, notifTrigger);
+                    // Call the shared method for initial setup
+                    scheduleNotificationJob(
+                            schedule.getId(),
+                            trueStartsOnForNotif,
+                            schedule.getEndsOn(),
+                            scheduleBuilder, // Pass the recurrence schedule
+                            daysBeforePMNotification
+                    );
                 }
 
             } catch (SchedulerException e) {
@@ -219,6 +219,42 @@ public class ScheduleService {
         }
     }
 
+    // =========================================================================================
+    // NEW SHARED NOTIFICATION SCHEDULING METHOD
+    // =========================================================================================
+
+    private void scheduleNotificationJob(
+            Long scheduleId,
+            Date startsOn,
+            Date endsOn,
+            ScheduleBuilder scheduleBuilder,
+            int daysBeforeNotification) throws SchedulerException {
+
+        // 1. Calculate the actual start date for the notification (shifted back)
+        Calendar notifCal = Calendar.getInstance();
+        notifCal.setTime(startsOn);
+        notifCal.add(Calendar.DATE, -daysBeforeNotification);
+        Date notificationStart = notifCal.getTime();
+
+        JobDetail notifJob = JobBuilder.newJob(PreventiveMaintenanceNotificationJob.class)
+                .withIdentity("notif-job-" + scheduleId, "notif-group")
+                .usingJobData("scheduleId", scheduleId)
+                .build();
+
+        Trigger notifTrigger = TriggerBuilder.newTrigger()
+                .withIdentity("notif-trigger-" + scheduleId, "notif-group")
+                .startAt(notificationStart)
+                .withSchedule(scheduleBuilder)
+                .endAt(endsOn)
+                .build();
+
+        scheduler.scheduleJob(notifJob, notifTrigger);
+    }
+
+    // =========================================================================================
+    // CHAINING METHOD (Updated to use the shared notification method)
+    // =========================================================================================
+
     public void scheduleNextWorkOrderJobAfterCompletion(Long scheduleId, Date completedDate) {
         Optional<Schedule> scheduleOpt = scheduleRepository.findById(scheduleId);
         if (!scheduleOpt.isPresent()) return;
@@ -248,6 +284,9 @@ public class ScheduleService {
         }
         Date nextRunDate = cal.getTime();
 
+        // The one-shot schedule for the chained job
+        ScheduleBuilder oneShotSchedule = SimpleScheduleBuilder.simpleSchedule().withRepeatCount(0);
+
         // 2. Schedule a "One-Shot" Job for that date
         try {
             JobKey jobKey = new JobKey("wo-job-chained-" + schedule.getId() + "-" + nextRunDate.getTime(), "wo-group");
@@ -260,14 +299,25 @@ public class ScheduleService {
 
             Trigger woTrigger = TriggerBuilder.newTrigger()
                     .startAt(nextRunDate)
-                    .withSchedule(SimpleScheduleBuilder.simpleSchedule().withRepeatCount(0)) // Run Once
+                    .withSchedule(oneShotSchedule) // Run Once
                     .build();
 
             scheduler.scheduleJob(woJob, woTrigger);
             log.info("Chained next schedule for Schedule ID {} at {}", schedule.getId(), nextRunDate);
 
-            // (Optional) You can also schedule the Notification Job here similarly
-            // by subtracting daysBeforePMNotification from nextRunDate
+            PreventiveMaintenance pm = schedule.getPreventiveMaintenance();
+            int daysBeforePMNotification = pm.getCompany()
+                    .getCompanySettings().getGeneralPreferences().getDaysBeforePrevMaintNotification();
+
+            if (daysBeforePMNotification > 0) {
+                scheduleNotificationJob(
+                        schedule.getId(),
+                        nextRunDate, // The calculated WO start date
+                        schedule.getEndsOn(),
+                        oneShotSchedule, // The one-shot schedule for notification
+                        daysBeforePMNotification
+                );
+            }
 
         } catch (SchedulerException e) {
             log.error("Failed to chain next schedule for ID " + schedule.getId(), e);

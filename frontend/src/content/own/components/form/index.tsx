@@ -99,6 +99,7 @@ export default (props: PropsType) => {
       relatedFields.forEach((relatedField) => {
         if (
           formik.values[name] === relatedField.value ||
+          formik.values[name]?.value === relatedField.value ||
           (type === 'switch' &&
             formik.values[name] &&
             (formik.values[name][0] === 'on') === relatedField.value) ||

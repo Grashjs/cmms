@@ -7,4 +7,7 @@ export default interface Schedule extends Audit {
   endsOn: string;
   frequency: number;
   dueDateDelay: number;
+  recurrenceBasedOn: 'SCHEDULED_DATE' | 'COMPLETED_DATE';
+  recurrenceType: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  daysOfWeek: number[];
 }

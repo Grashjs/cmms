@@ -39,11 +39,11 @@ public class Schedule extends Audit {
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    private RecurrenceType recurrenceType;
+    private RecurrenceType recurrenceType = RecurrenceType.DAILY;
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    private RecurrenceBasedOn recurrenceBasedOn;
+    private RecurrenceBasedOn recurrenceBasedOn = RecurrenceBasedOn.SCHEDULED_DATE;
 
     @ElementCollection
     private List<Integer> daysOfWeek = new ArrayList<>();

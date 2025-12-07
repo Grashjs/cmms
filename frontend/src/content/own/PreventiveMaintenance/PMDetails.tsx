@@ -30,6 +30,9 @@ import FilesList from '../components/FilesList';
 import { getTasksByPreventiveMaintenance } from '../../../slices/task';
 import Tasks from '../WorkOrders/Details/Tasks';
 import { Task } from '../../../models/owns/tasks';
+import { getScheduleDescription } from '../../../utils/dates';
+import { supportedLanguages } from '../../../i18n/i18n';
+import i18n from 'i18next';
 
 interface RequestDetailsProps {
   preventiveMaintenance: PreventiveMaintenance;
@@ -49,6 +52,7 @@ export default function PMDetails({
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const theme = useTheme();
+  const getLanguage = i18n.language;
   const { hasEditPermission, hasDeletePermission, hasViewPermission } =
     useAuth();
   const navigate = useNavigate();
@@ -200,9 +204,12 @@ export default function PMDetails({
                   {t('frequency')}
                 </Typography>
                 <Typography variant="h6">
-                  {t(`every_frequency_days`, {
-                    frequency: preventiveMaintenance.schedule.frequency
-                  })}
+                  {getScheduleDescription(
+                    preventiveMaintenance.schedule,
+                    supportedLanguages.find(({ code }) => code === getLanguage)
+                      .dateLocale,
+                    t
+                  )}
                 </Typography>
               </Grid>
             )}
