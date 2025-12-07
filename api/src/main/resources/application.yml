@@ -87,7 +87,7 @@ fast-spring:
 management:
   health:
     mail:
-      enabled: true
+      enabled: ${ENABLE_MAIL_HEALTH_CHECK:true}
 api:
   host: ${PUBLIC_API_URL}
 storage:
