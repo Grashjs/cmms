@@ -18,7 +18,7 @@ public class Reading extends Audit {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private long value;
+    private double value;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull

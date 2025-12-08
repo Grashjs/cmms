@@ -1,13 +1,13 @@
 script({
     system: ["system"],
     temperature: 0.5,
-    model:"google:gemini-2.0-flash"
+    model:"google:gemini-2.5-flash"
 })
 
 const product = env.vars.product || "GenAIScript"
 
 // find previous tag
-const version  = "1.2.0"
+const version  = "1.3.0"
 const tag = await git.lastTag()
 const excludedPaths = [
     "package.json",

@@ -162,4 +162,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2025_12_07_1765117872_delete_default_roles.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2025_12_08_1765155752_reading_value.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>
