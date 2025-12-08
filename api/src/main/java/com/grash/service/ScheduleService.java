@@ -113,7 +113,8 @@ public class ScheduleService {
                         case DAILY:
                             scheduleBuilder = SimpleScheduleBuilder.simpleSchedule()
                                     .withIntervalInHours(24 * schedule.getFrequency())
-                                    .repeatForever();
+                                    .repeatForever()
+                                    .withMisfireHandlingInstructionNextWithRemainingCount();
                             break;
 
                         case WEEKLY:
@@ -130,6 +131,7 @@ public class ScheduleService {
 
                             String cronExpression = String.format("0 %d %d ? * %s", minute, hour, daysOfWeekCron);
                             scheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression)
+                                    .withMisfireHandlingInstructionDoNothing()
                                     .inTimeZone(TimeZone.getDefault());
 
                             // Store the frequency in the job data so the job can handle it
@@ -139,12 +141,14 @@ public class ScheduleService {
                         case MONTHLY:
                             scheduleBuilder = CalendarIntervalScheduleBuilder.calendarIntervalSchedule()
                                     .withIntervalInMonths(schedule.getFrequency())
+                                    .withMisfireHandlingInstructionDoNothing()
                                     .preserveHourOfDayAcrossDaylightSavings(true);
                             break;
 
                         case YEARLY:
                             scheduleBuilder = CalendarIntervalScheduleBuilder.calendarIntervalSchedule()
                                     .withIntervalInYears(schedule.getFrequency())
+                                    .withMisfireHandlingInstructionDoNothing()
                                     .preserveHourOfDayAcrossDaylightSavings(true);
                             break;
 
