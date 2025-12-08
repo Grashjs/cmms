@@ -41,7 +41,7 @@ public class CompanySettings {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<Role> roleList = getDefaultRoles();
+    private List<Role> roleList = new ArrayList<>();
 
     public CompanySettings(Company company) {
         this.company = company;
@@ -64,10 +64,4 @@ public class CompanySettings {
         return timeCategories.stream().map(timeCategory -> new TimeCategory(timeCategory, this)).collect(Collectors.toList());
     }
 
-    private Set<Role> getDefaultRoles() {
-        return Helper.getDefaultRoles().stream().peek(role -> {
-            role.setCompanySettings(this);
-            role.setRoleType(RoleType.ROLE_CLIENT);
-        }).collect(Collectors.toSet());
-    }
 }

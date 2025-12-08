@@ -22,9 +22,11 @@ public class CompanyService {
     private final CompanyRepository companyRepository;
     private final CompanyMapper companyMapper;
     private final EntityManager em;
+    private final RoleService roleService;
 
-    public Company create(Company Company) {
-        return companyRepository.save(Company);
+    public Company create(Company company) {
+        company.getCompanySettings().setRoleList(roleService.findDefaultRoles());
+        return companyRepository.save(company);
     }
 
     public Company update(Company Company) {
