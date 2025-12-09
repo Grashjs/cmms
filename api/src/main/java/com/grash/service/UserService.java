@@ -59,6 +59,7 @@ public class UserService {
     private final SubscriptionService subscriptionService;
     private final UserMapper userMapper;
     private final BrandingService brandingService;
+    private final DemoDataService demoDataService;
 
     @Value("${api.host}")
     private String PUBLIC_API_URL;
@@ -134,6 +135,7 @@ public class UserService {
             user.setCompany(company);
             user.setRole(company.getCompanySettings().getRoleList().stream().filter(role -> role.getName().equals(
                     "Administrator")).findFirst().get());
+            if (cloudVersion) demoDataService.createDemoData(user, company);
         } else {
             Optional<Role> optionalRole = roleService.findById(user.getRole().getId());
             if (!optionalRole.isPresent())

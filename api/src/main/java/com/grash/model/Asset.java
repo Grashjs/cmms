@@ -58,6 +58,8 @@ public class Asset extends CompanyAudit {
 
     private String nfcId;
 
+    private boolean isDemo;
+
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinTable(name = "T_Asset_User_Associations",

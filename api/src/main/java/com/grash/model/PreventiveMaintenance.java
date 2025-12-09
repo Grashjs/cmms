@@ -15,10 +15,12 @@ public class PreventiveMaintenance extends WorkOrderBase {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    
+
     private String customId;
 
     private String name;
+
+    private boolean isDemo;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

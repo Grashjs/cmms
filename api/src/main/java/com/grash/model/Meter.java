@@ -33,6 +33,8 @@ public class Meter extends CompanyAudit {
     @OneToOne(fetch = FetchType.LAZY)
     private File image;
 
+    private boolean isDemo;
+
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinTable(name = "T_Meter_User_Associations",
@@ -53,8 +55,9 @@ public class Meter extends CompanyAudit {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Asset asset;
 
-    public void setUpdateFrequency(int updateFrequency){
-        if(updateFrequency<1) throw new CustomException("Frequency should not be less than 1", HttpStatus.NOT_ACCEPTABLE);
+    public void setUpdateFrequency(int updateFrequency) {
+        if (updateFrequency < 1)
+            throw new CustomException("Frequency should not be less than 1", HttpStatus.NOT_ACCEPTABLE);
         this.updateFrequency = updateFrequency;
     }
 }

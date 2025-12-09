@@ -164,4 +164,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2025_12_08_1765155752_reading_value.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2025_12_09_1765200000_add_is_demo_column.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

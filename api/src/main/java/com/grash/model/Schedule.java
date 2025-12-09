@@ -37,6 +37,8 @@ public class Schedule extends Audit {
 
     private Integer dueDateDelay;
 
+    private boolean isDemo;
+
     @Enumerated(EnumType.STRING)
     @NotNull
     private RecurrenceType recurrenceType = RecurrenceType.DAILY;
