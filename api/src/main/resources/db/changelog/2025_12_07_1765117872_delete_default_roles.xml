@@ -5,6 +5,21 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
 
+    <changeSet id="1765294198936-1" author="Ibrahima G. Coulibaly">
+        <sql>
+            WITH ranked_roles AS (
+                SELECT id
+                FROM role
+                WHERE role_type =1
+                ORDER BY id
+                LIMIT 6
+                )
+            UPDATE role
+            SET company_settings_id = NULL
+                FROM ranked_roles
+            WHERE role.id = ranked_roles.id;
+        </sql>
+    </changeSet>
     <changeSet id="1765117872-1" author="Ibrahima G. Coulibaly">
         <addColumn tableName="own_user">
             <column name="role_code" type="int"/>
