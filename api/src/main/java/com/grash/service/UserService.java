@@ -6,6 +6,7 @@ import com.grash.dto.SignupSuccessResponse;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.UserPatchDTO;
 import com.grash.dto.UserSignupRequest;
+import com.grash.event.CompanyCreatedEvent;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
 import com.grash.model.*;
@@ -17,6 +18,7 @@ import com.grash.utils.Helper;
 import com.grash.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -61,6 +63,7 @@ public class UserService {
     private final UserMapper userMapper;
     private final BrandingService brandingService;
     private final DemoDataService demoDataService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Value("${api.host}")
     private String PUBLIC_API_URL;
@@ -96,8 +99,8 @@ public class UserService {
     }
 
     private void onCompanyAndUserCreation(OwnUser user) {
-        if (cloudVersion) {
-            demoDataService.createDemoData(user, user.getCompany());
+        if (cloudVersion && user.isOwnsCompany()) {
+            applicationEventPublisher.publishEvent(new CompanyCreatedEvent(user));
         }
     }
 

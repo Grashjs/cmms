@@ -1,5 +1,6 @@
 package com.grash.service;
 
+import com.grash.event.CompanyCreatedEvent;
 import com.grash.model.*;
 import com.grash.model.enums.*;
 import com.grash.repository.*;
@@ -7,8 +8,11 @@ import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.*;
 
@@ -40,9 +44,14 @@ public class DemoDataService {
     @Lazy
     private ScheduleService scheduleService;
 
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Async
+    public void handleUserCreated(CompanyCreatedEvent event) {
+        createDemoData(event.getUser(), event.getUser().getCompany());
+    }
 
     @Transactional
-//    @Async
+    @Async
     public void createDemoData(OwnUser user, Company company) {
         // Work Order Categories
         WorkOrderCategory woCategory1 = createWorkOrderCategory("Electrical", company, user);
