@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="2025_12_09_1765200000_add_is_demo_column" author="gemini">
+        <addColumn tableName="cost_category">
+            <column name="is_demo" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="time_category">
+            <column name="is_demo" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="asset_category">
+            <column name="is_demo" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="work_order_category">
+            <column name="is_demo" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="purchase_order_category">
+            <column name="is_demo" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="part_category">
+            <column name="is_demo" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="location">
+            <column name="is_demo" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="asset">
+            <column name="is_demo" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="meter">
+            <column name="is_demo" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="part">
+            <column name="is_demo" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="vendor">
+            <column name="is_demo" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="customer">
+            <column name="is_demo" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="preventive_maintenance">
+            <column name="is_demo" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="work_order">
+            <column name="is_demo" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="request">
+            <column name="is_demo" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="purchase_order">
+            <column name="is_demo" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="schedule">
+            <column name="is_demo" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+<changeSet id="1765247317837-1" author="Ibrahima G. Coulibaly">
+    <addColumn tableName="additional_cost">
+        <column name="is_demo" type="boolean" valueBoolean="false">
+            <constraints nullable="false"/>
+        </column>
+    </addColumn>
+    <addColumn tableName="part_quantity">
+        <column name="is_demo" type="boolean" valueBoolean="false">
+            <constraints nullable="false"/>
+        </column>
+    </addColumn>
+    <addColumn tableName="labor">
+        <column name="is_demo" type="boolean" valueBoolean="false">
+            <constraints nullable="false"/>
+        </column>
+    </addColumn>
+</changeSet>
+    <changeSet id="1765247337897-1" author="Ibrahima G. Coulibaly">
+        <addColumn tableName="meter_category">
+            <column name="is_demo" type="boolean" valueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1765247426996-1" author="Ibrahima G. Coulibaly">
+        <addColumn tableName="work_order_aud">
+            <column name="is_demo" type="boolean"/>
+            <column name="is_demo_mod" type="boolean"></column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>
