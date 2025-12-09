@@ -143,7 +143,7 @@ public class DemoDataService {
 
         // Work Orders
         WorkOrder wo1 = createWorkOrder("Fix leaking pipe", "A pipe is leaking in the main building", woCategory5,
-                asset1, location1, user, new Date(), Status.OPEN, Priority.HIGH, company);
+                asset1, location1, user, new Date(), Status.IN_PROGRESS, Priority.HIGH, company);
         WorkOrder wo2 = createWorkOrder("Replace air filter", "Replace the air filter in HVAC-001", woCategory3,
                 asset1, location2, user, new Date(), Status.ON_HOLD, Priority.LOW, company);
         WorkOrder wo3 = createWorkOrder("Perform annual inspection", "Annual inspection of the backup generator",
