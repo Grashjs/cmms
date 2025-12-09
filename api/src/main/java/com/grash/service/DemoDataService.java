@@ -1,20 +1,16 @@
 package com.grash.service;
 
 import com.grash.model.*;
-import com.grash.model.abstracts.CategoryAbstract;
 import com.grash.model.enums.*;
 import com.grash.repository.*;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -411,5 +407,29 @@ public class DemoDataService {
         additionalCost.setCreatedBy(user.getId());
         additionalCost.setDate(date);
         additionalCostRepository.save(additionalCost);
+    }
+
+    @Transactional
+    public void deleteDemoData(Long companyId) {
+        additionalCostRepository.deleteByWorkOrder_Company_IdAndIsDemoTrue(companyId);
+        partQuantityRepository.deleteByCompany_IdAndIsDemoTrue(companyId);
+        laborRepository.deleteByCompany_IdAndIsDemoTrue(companyId);
+        requestRepository.deleteByCompany_IdAndIsDemoTrue(companyId);
+        workOrderRepository.deleteByCompany_IdAndIsDemoTrue(companyId);
+        preventiveMaintenanceRepository.deleteByCompany_IdAndIsDemoTrue(companyId);
+        scheduleService.deleteByCompanyIdAndIsDemoTrue(companyId);
+        customerRepository.deleteByCompany_IdAndIsDemoTrue(companyId);
+        vendorRepository.deleteByCompany_IdAndIsDemoTrue(companyId);
+        meterRepository.deleteByCompany_IdAndIsDemoTrue(companyId);
+        partRepository.deleteByCompany_IdAndIsDemoTrue(companyId);
+        assetRepository.deleteByCompany_IdAndIsDemoTrue(companyId);
+        locationRepository.deleteByCompany_IdAndIsDemoTrue(companyId);
+        purchaseOrderCategoryRepository.deleteByCompanySettings_Company_IdAndIsDemoTrue(companyId);
+        partCategoryRepository.deleteByCompanySettings_Company_IdAndIsDemoTrue(companyId);
+        costCategoryRepository.deleteByCompanySettings_Company_IdAndIsDemoTrue(companyId);
+        timeCategoryRepository.deleteByCompanySettings_Company_IdAndIsDemoTrue(companyId);
+        meterCategoryRepository.deleteByCompanySettings_Company_IdAndIsDemoTrue(companyId);
+        assetCategoryRepository.deleteByCompanySettings_Company_IdAndIsDemoTrue(companyId);
+        workOrderCategoryRepository.deleteByCompanySettings_Company_IdAndIsDemoTrue(companyId);
     }
 }

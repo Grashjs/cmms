@@ -11,4 +11,6 @@ public interface VendorRepository extends JpaRepository<Vendor, Long>, JpaSpecif
     Collection<Vendor> findByCompany_Id(Long id);
 
     Optional<Vendor> findByNameIgnoreCaseAndCompany_Id(String name, Long companyId);
+
+    void deleteByCompany_IdAndIsDemoTrue(Long companyId);
 }

@@ -9,8 +9,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-public interface PreventiveMaintenanceRepository extends JpaRepository<PreventiveMaintenance, Long>, JpaSpecificationExecutor<PreventiveMaintenance> {
+public interface PreventiveMaintenanceRepository extends JpaRepository<PreventiveMaintenance, Long>,
+        JpaSpecificationExecutor<PreventiveMaintenance> {
     Collection<PreventiveMaintenance> findByCompany_Id(@Param("x") Long id);
 
     List<PreventiveMaintenance> findByCreatedAtBeforeAndCompany_Id(Date start, Long companyId);
+
+    void deleteByCompany_IdAndIsDemoTrue(Long companyId);
 }

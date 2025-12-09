@@ -347,4 +347,8 @@ public class ScheduleService {
     public Schedule save(Schedule schedule) {
         return scheduleRepository.saveAndFlush(schedule);
     }
+
+    public void deleteByCompanyIdAndIsDemoTrue(Long companyId) {
+        scheduleRepository.deleteByPreventiveMaintenanceCompany_IdAndIsDemoTrue(companyId);
+    }
 }

@@ -13,4 +13,6 @@ public interface PartCategoryRepository extends JpaRepository<PartCategory, Long
     Optional<PartCategory> findByName(String name);
 
     Optional<PartCategory> findByNameIgnoreCaseAndCompanySettings_Id(String category, Long companySettingsId);
+
+    void deleteByCompanySettings_Company_IdAndIsDemoTrue(Long companyId);
 }

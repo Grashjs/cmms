@@ -35,5 +35,7 @@ public interface AssetRepository extends JpaRepository<Asset, Long>, JpaSpecific
     Optional<Asset> findByBarCodeAndCompany_Id(String data, Long id);
 
     List<Asset> findByCompany_IdAndCreatedAtBefore(Long id, Date date);
+
+    void deleteByCompany_IdAndIsDemoTrue(Long companyId);
 }
 
