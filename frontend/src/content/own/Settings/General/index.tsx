@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   debounce,
   Divider,
   Grid,
@@ -19,12 +20,15 @@ import internationalization, {
 } from '../../../../i18n/i18n';
 import { useDispatch, useSelector } from '../../../../store';
 import { getCurrencies } from '../../../../slices/currency';
-import { useContext, useEffect, useMemo } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { GeneralPreferences } from '../../../../models/owns/generalPreferences';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
+import ConfirmDialog from '../../components/ConfirmDialog';
+import api, { authHeader } from '../../../../utils/api';
 
 function GeneralSettings() {
   const { t }: { t: any } = useTranslation();
+  const [openDeleteDemo, setOpenDeleteDemo] = useState<boolean>(false);
   const switchLanguage = ({ lng }: { lng: any }) => {
     internationalization.changeLanguage(lng);
   };
@@ -46,7 +50,16 @@ function GeneralSettings() {
     () => debounce(onDaysBeforePMNotifChange, 1300),
     []
   );
-
+  const onDeleteDemoData = async () => {
+    const { success, message } = await api.deletes<{
+      success: boolean;
+      message: string;
+    }>('demo/demo-data');
+    if (success) {
+      showSnackBar('Demo data deleted successfully', 'success');
+      setOpenDeleteDemo(false);
+    }
+  };
   const switches: {
     title: string;
     description: string;
@@ -260,6 +273,21 @@ function GeneralSettings() {
                       />
                     ))}
                   </Grid>
+                  <Divider sx={{ my: 3 }} />
+                  <Button
+                    onClick={() => setOpenDeleteDemo(true)}
+                    variant={'outlined'}
+                    color={'error'}
+                  >
+                    {t('delete_demo_data')}
+                  </Button>
+                  <ConfirmDialog
+                    open={openDeleteDemo}
+                    onCancel={() => setOpenDeleteDemo(false)}
+                    onConfirm={onDeleteDemoData}
+                    confirmText={'Delete'}
+                    question={'Are you sure you want to delete demo data?'}
+                  />
                 </Grid>
               </Grid>
             </form>

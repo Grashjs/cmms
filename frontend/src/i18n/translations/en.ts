@@ -1431,7 +1431,8 @@ const locale = {
   'schedule.monthly_other': 'Every {{count}} months',
 
   'schedule.yearly_one': 'Every {{count}} year',
-  'schedule.yearly_other': 'Every {{count}} years'
+  'schedule.yearly_other': 'Every {{count}} years',
+  delete_demo_data: 'Delete demo data'
 };
 
 export default locale;

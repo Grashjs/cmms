@@ -8,22 +8,23 @@ import com.grash.model.Asset;
 import com.grash.model.Company;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.Language;
+import com.grash.security.CurrentUser;
 import com.grash.security.CustomUserDetail;
-import com.grash.service.AssetService;
-import com.grash.service.ImportService;
-import com.grash.service.RateLimiterService;
-import com.grash.service.UserService;
+import com.grash.service.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -42,6 +43,7 @@ public class DemoController {
     private final RateLimiterService rateLimiterService;
     private final ImportService importService;
     private final AssetService assetService;
+    private final DemoDataService demoDataService;
 
     @GetMapping("/generate-account")
     public SuccessResponse generateAccount(HttpServletRequest req) {
@@ -75,6 +77,13 @@ public class DemoController {
         }
 
         return new SuccessResponse(response.isSuccess(), response.getMessage());
+    }
+
+    @DeleteMapping("/demo-data")
+    @PreAuthorize("permitAll()")
+    public SuccessResponse deleteDemoData(@ApiIgnore @CurrentUser OwnUser user) {
+        demoDataService.deleteDemoData(user.getCompany().getId());
+        return new SuccessResponse(true, "Demo data deleted successfully");
     }
 
     private void importDemoData(Company company) {
