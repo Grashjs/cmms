@@ -21,6 +21,7 @@
         </sql>
     </changeSet>
     <changeSet id="1765117872-1" author="Ibrahima G. Coulibaly">
+        <validCheckSum>ANY</validCheckSum>
         <addColumn tableName="own_user">
             <column name="role_code" type="int"/>
             <column name="role_type" type="int"/>
@@ -33,7 +34,13 @@
         </sql>
         <sql>
             update own_user ou
-            set role_id=(select r.id from role r where r.code=ou.role_code and r.role_type=ou.role_type and r.company_settings_id is null)
+            set role_id=(
+                select MIN(r.id)
+                from role r
+                where r.code=ou.role_code
+                  and r.role_type=ou.role_type
+                  and r.company_settings_id is null
+            )
             where ou.role_type !=0 and ou.role_code !=6
         </sql>
     </changeSet>
