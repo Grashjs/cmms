@@ -134,8 +134,8 @@ public class DemoDataService {
                 "Middleville Road", 26, "Electrical");
 
         // Preventive Maintenances
-        createPreventiveMaintenance("Quarterly HVAC Inspection", "HVAC Inspection", asset1, company, 1,
-                RecurrenceType.YEARLY,
+        createPreventiveMaintenance("Quarterly HVAC Inspection", "HVAC Inspection", asset1, company, 90,
+                RecurrenceType.DAILY,
                 RecurrenceBasedOn.SCHEDULED_DATE, new ArrayList<>());
         createPreventiveMaintenance("Weekly Generator Checkup", "Generator Checkup", asset3, company, 1,
                 RecurrenceType.WEEKLY,
