@@ -189,7 +189,7 @@ public class LocationController {
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
-            if (savedLocation.getCreatedBy().equals(user.getId()) ||
+            if (user.getId().equals(savedLocation.getCreatedBy()) ||
                     user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.LOCATIONS)) {
                 locationService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),

@@ -9,12 +9,16 @@ import com.grash.model.enums.Language;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
+import com.grash.security.CustomUserDetail;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -313,6 +317,17 @@ public class Helper {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static void setCurrentUser(OwnUser user) {
+        CustomUserDetail customUserDetail =
+                CustomUserDetail.builder().user(user).build();
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                customUserDetail,
+                null,
+                customUserDetail.getAuthorities()
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
 }

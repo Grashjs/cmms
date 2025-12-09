@@ -97,7 +97,8 @@ public class CustomerController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Customer not found")})
-    public Customer patch(@ApiParam("Customer") @Valid @RequestBody CustomerPatchDTO customer, @ApiParam("id") @PathVariable("id") Long id,
+    public Customer patch(@ApiParam("Customer") @Valid @RequestBody CustomerPatchDTO customer,
+                          @ApiParam("id") @PathVariable("id") Long id,
                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Customer> optionalCustomer = customerService.findById(id);
@@ -122,7 +123,7 @@ public class CustomerController {
         Optional<Customer> optionalCustomer = customerService.findById(id);
         if (optionalCustomer.isPresent()) {
             Customer savedCustomer = optionalCustomer.get();
-            if (savedCustomer.getCreatedBy().equals(user.getId()) ||
+            if (user.getId().equals(savedCustomer.getCreatedBy()) ||
                     user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
                 customerService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),

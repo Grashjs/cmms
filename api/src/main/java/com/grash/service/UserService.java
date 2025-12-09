@@ -27,6 +27,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -94,12 +95,19 @@ public class UserService {
         }
     }
 
+    private void onCompanyAndUserCreation(OwnUser user) {
+        if (cloudVersion) {
+            demoDataService.createDemoData(user, user.getCompany());
+        }
+    }
+
     private SignupSuccessResponse<OwnUser> enableAndReturnToken(OwnUser user, boolean sendEmailToSuperAdmins,
                                                                 UserSignupRequest userSignupRequest) {
         user.setEnabled(true);
         userRepository.save(user);
         if (sendEmailToSuperAdmins)
             sendRegistrationMailToSuperAdmins(user, userSignupRequest);
+        onCompanyAndUserCreation(user);
         return new SignupSuccessResponse<>(true, jwtTokenProvider.createToken(user.getEmail(),
                 Collections.singletonList(user.getRole().getRoleType())), user);
     }
@@ -135,7 +143,6 @@ public class UserService {
             user.setCompany(company);
             user.setRole(company.getCompanySettings().getRoleList().stream().filter(role -> role.getName().equals(
                     "Administrator")).findFirst().get());
-            if (cloudVersion) demoDataService.createDemoData(user, company);
         } else {
             Optional<Role> optionalRole = roleService.findById(user.getRole().getId());
             if (!optionalRole.isPresent())
@@ -187,6 +194,7 @@ public class UserService {
             if (Boolean.TRUE.equals(userReq.getDemo()))
                 return enableAndReturnToken(user, false, userReq);
             userRepository.save(user);
+            onCompanyAndUserCreation(user);
             sendRegistrationMailToSuperAdmins(user, userReq);
             return new SignupSuccessResponse<>(true, "Successful registration. Check your mailbox to activate your " +
                     "account", null);
