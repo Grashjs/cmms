@@ -43,6 +43,13 @@ public class DemoDataService {
     @Autowired
     @Lazy
     private ScheduleService scheduleService;
+    @Autowired
+    @Lazy
+    private WorkOrderService workOrderService;
+
+    @Autowired
+    @Lazy
+    private RequestService requestService;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async
@@ -369,6 +376,7 @@ public class DemoDataService {
         workOrder.setCompany(company);
         workOrder.setCreatedBy(user.getId());
         workOrder.setDemo(true);
+        workOrder.setCustomId(workOrderService.getWorkOrderNumber(company));
         return workOrderRepository.save(workOrder);
     }
 
@@ -382,7 +390,7 @@ public class DemoDataService {
         request.setCompany(company);
         request.setCreatedBy(user.getId());
         request.setDemo(true);
-        return requestRepository.save(request);
+        return requestService.create(request, company);
     }
 
 

@@ -90,7 +90,7 @@ public class WorkOrderService {
         return savedWorkOrder;
     }
 
-    private String getWorkOrderNumber(Company company) {
+    public String getWorkOrderNumber(Company company) {
         Long nextSequence = customSequenceService.getNextWorkOrderSequence(company);
         return "WO" + String.format("%06d", nextSequence);
     }
