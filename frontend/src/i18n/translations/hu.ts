@@ -14,12 +14,12 @@ const locale = {
   COMPLETE: 'Befejezett',
   'home.built': 'Karbantartás-kezelés Egyszerűsítésére Építve',
   home_description:
-    "Amikor a táblák és ragacsos jegyzetek káoszt okoznak, és szükséged van egy CMMS szoftverre, amely elég egyszerű ahhoz, hogy a csapatod ténylegesen használja - próbáld ki a {{shortBrandName}}-t",
+    'Amikor a táblák és ragacsos jegyzetek káoszt okoznak, és szükséged van egy CMMS szoftverre, amely elég egyszerű ahhoz, hogy a csapatod ténylegesen használja - próbáld ki a {{shortBrandName}}-t',
   try_grash: '{{shortBrandName}} Kipróbálása',
   login: 'Bejelentkezés',
   start_trial: 'Ingyenes Próbaidőszak Indítása',
   'home.what': 'Mit',
-  'home.you_will_have': "Lesz neked",
+  'home.you_will_have': 'Lesz neked',
   'home.you_will_have_description':
     'Építs hatékony, megbízható munkafolyamatokat, amelyek irányítást adnak a karbantartás felett. Generálj, rendelj ki és kövesd nyomon a munkarendeléseket. Irányítsd a készletet. És kapj megbízható automatizált jelentéseket, amelyek javítják a láthatóságot és felelősségvállalást teremtenek.',
   key_features: 'Főbb Funkciók',
@@ -34,7 +34,8 @@ const locale = {
   parts_inventory: 'Alkatrész Készlet',
   custom_dashboards: 'Egyedi Műszerfalak',
   'work-orders.title': 'Kezeld a Munkarendeléseidet Profi Módon',
-  'work-orders.description.short': 'Tekintsd meg és Kezeld az összes Feladatodat',
+  'work-orders.description.short':
+    'Tekintsd meg és Kezeld az összes Feladatodat',
   'work-orders.descriptions.0':
     'Elegendő a papírmunkák tömegéből és az elveszett Munkarendelésekből? Mindezek az elveszett tételek közvetlenül befolyásolják a nyereséget és a hírnevedet.',
   'work-orders.descriptions.1':
@@ -43,7 +44,8 @@ const locale = {
     'Tekintsd meg az összes Feladatodat, beleértve a WO-kat, PM-eket és Munkakérelmeket',
   'work-orders.checks.1':
     'Állítsd be a Feladat prioritását, hogy a megfelelő munka kerüljön először elvégzésre.',
-  'work-orders.checks.2': 'Tekintsd meg a jelenlegi és közelgő Feladatok naptárát.',
+  'work-orders.checks.2':
+    'Tekintsd meg a jelenlegi és közelgő Feladatok naptárát.',
   'work-orders.checks.3':
     'Tekintsd meg a munkakijelöléseket kritikus információkkal, mint az Eszköz információk, határidő, prioritás és egyebek.',
   'work-orders.checks.4':
@@ -60,16 +62,19 @@ const locale = {
   'work-requests.checks.2':
     'Csökkentsd a Kérelmezőkkel való kommunikációra fordított időt akár 41%-kal (hívások, e-mailek, üzenetek).',
 
-  'mobile-app.title': 'Mobil CMMS alkalmazás, amely erősíti a karbantartási csapatodat',
+  'mobile-app.title':
+    'Mobil CMMS alkalmazás, amely erősíti a karbantartási csapatodat',
   'mobile-app.descriptions.0':
     'Android mobil alkalmazásunk használatával ügyfeleink jobb szervezést, kommunikációt, felelősségvállalást és akár 30%-kal nagyobb produktivitást tapasztalnak az egész karbantartási csapatukban.',
   'mobile-app.descriptions.1':
     'Kézi eszközükről a karbantartási csapatod bármelyik tagja képes:',
-  'mobile-app.checks.0': 'Megtekinteni a hozzájuk rendelt Munkarendeléseket és PM-eket.',
+  'mobile-app.checks.0':
+    'Megtekinteni a hozzájuk rendelt Munkarendeléseket és PM-eket.',
   'mobile-app.checks.1': 'Naplózni Munkarendeléseiket 60 másodpercen belül',
   'mobile-app.checks.2':
     'Azonnali kommunikációt kapni push és e-mail értesítéseken keresztül.',
-  'mobile-app.checks.3': 'Új Munkarendeléseket indítani, miközben a terepen vannak.',
+  'mobile-app.checks.3':
+    'Új Munkarendeléseket indítani, miközben a terepen vannak.',
   'mobile-app.checks.4':
     'Reagálni és naplózni problémákat, miközben ténylegesen a probléma megoldásán dolgoznak',
   'mobile-app.checks.5':
@@ -84,7 +89,8 @@ const locale = {
   'eam.checks.0':
     'Ismerd az eszközeid állapotát minden időpontban és azt, hogy mennyibe kerülnek',
   'eam.checks.1': 'Tekintsd meg a teljes és részletes Karbantartási Naplókat.',
-  'eam.checks.2': 'Csak azt kövesd nyomon, amit akarsz, korlátlan egyedi mezőkkel',
+  'eam.checks.2':
+    'Csak azt kövesd nyomon, amit akarsz, korlátlan egyedi mezőkkel',
   'eam.checks.3': 'Szervezd az eszközeidet világos szülő-gyermek hierarchiában',
   'eam.checks.4':
     'Találj információkat gyorsan és egyszerűen QR-kódokkal (vonalkódok)',
@@ -120,7 +126,8 @@ const locale = {
     'Automatikus alkatrészhasználat követés. Ahogy a Munkarendelések vagy PM-ek alkatrészeket használnak, a készlet automatikusan frissül, hogy tükrözze a használt alkatrészeket.',
   'part.checks.3':
     'Ismerd az alkatrészhasználatot. Tekintsd meg az Alkatrész Naplót, hogy lásd, hol használják az alkatrészt és ki által',
-  'part.checks.4': 'Elimináld a nem használt alkatrészeket. Tudd, mikor vált egy alkatrész elavulttá.',
+  'part.checks.4':
+    'Elimináld a nem használt alkatrészeket. Tudd, mikor vált egy alkatrész elavulttá.',
   'part.checks.5':
     'Valós Idejű Jelentések. Tudd, milyen alkatrészeket használnak hol és mennyibe kerülnek.',
   'part.checks.6':
@@ -133,8 +140,7 @@ const locale = {
     'Nézzünk szembe vele, az első lépés a működésed javításához az, hogy ismerd a jót, a rosszat és a csúnyát.',
   'dashboard.descriptions.1':
     'A {{shortBrandName}} Egyedi Műszerfaljaival végre elkezdheted megérteni azt a hírhedt "karbantartás fekete lyukát" és elkezdheted adatokkal alátámasztott tervek végrehajtását, ami csökkentett munkaerőköltségeket, csökkentett állásidőt és még többet eredményez.',
-  'dashboard.descriptions.2':
-    'A {{shortBrandName}} Egyedi Műszerfaljaival ...',
+  'dashboard.descriptions.2': 'A {{shortBrandName}} Egyedi Műszerfaljaival ...',
   'dashboard.checks.0': 'Tudd, hova költik a pénzedet és miért',
   'dashboard.checks.1': 'Tudd, melyik eszköz kerül a legtöbbe és miért',
   'dashboard.checks.2': 'Hozz létre saját egyedi KPI-kat.',
@@ -168,7 +174,7 @@ const locale = {
   required_password: 'A jelszó mező kötelező',
   required_terms: 'El kell fogadnod a feltételeinket',
   verify_email: 'Kérjük, ellenőrizd az e-mailedet a fiókod aktiválásához',
-  registration_error: "A regisztráció nem sikerült",
+  registration_error: 'A regisztráció nem sikerült',
   first_name: 'Keresztnév',
   last_name: 'Vezetéknév',
   email: 'E-mail cím',
@@ -181,7 +187,8 @@ const locale = {
   create_your_account: 'Hozd létre a fiókodat',
   register: 'Regisztráció',
   //signin
-  login_description: 'Töltsd ki az alábbi mezőket a fiókodba való bejelentkezéshez.',
+  login_description:
+    'Töltsd ki az alábbi mezőket a fiókodba való bejelentkezéshez.',
   no_account_yet: 'Még nincs fiókod?',
   signup_here: 'Regisztrálj itt',
   wrong_credentials: 'Hibás bejelentkezési adatok',
@@ -219,7 +226,8 @@ const locale = {
   required_hours: 'Órák mező kötelező',
   required_minutes: 'Percek mező kötelező',
   add_time: 'Idő Hozzáadása',
-  add_time_description: 'Töltsd ki az alábbi mezőket Idő létrehozásához és hozzáadásához',
+  add_time_description:
+    'Töltsd ki az alábbi mezőket Idő létrehozásához és hozzáadásához',
   feedback: 'Visszajelzés',
   feedback_description: 'Add meg a visszajelzésedet',
   required_feedback: 'Visszajelzés kötelező',
@@ -228,7 +236,7 @@ const locale = {
   close_wo: 'Munkarendelés Lezárása',
   close: 'Lezárás',
   task_update_success: 'Feladat sikeresen frissítve',
-  task_update_failure: "A feladat nem frissíthető",
+  task_update_failure: 'A feladat nem frissíthető',
   notes_save_success: 'Jegyzetek sikeresen mentve',
   images_add_task_success: 'A képek hozzáadva a feladathoz',
   images_add_task_failure: 'Valami hiba történt',
@@ -237,10 +245,11 @@ const locale = {
   add_images: 'Képek Hozzáadása',
   tasks: 'Feladatok',
   wo_archive_success: 'A Munkarendelés archiválva',
-  wo_archive_failure: "A Munkarendelés nem archiválható",
-  wo_archive_confirm: 'Biztos vagy benne, hogy archiválni akarod ezt a Munkarendelést ',
+  wo_archive_failure: 'A Munkarendelés nem archiválható',
+  wo_archive_confirm:
+    'Biztos vagy benne, hogy archiválni akarod ezt a Munkarendelést ',
   quantity_change_success: 'Mennyiség sikeresen módosítva',
-  quantity_change_failure: "A mennyiség nem módosítható",
+  quantity_change_failure: 'A mennyiség nem módosítható',
   details: 'Részletek',
   updates: 'Frissítések',
   id: 'ID',
@@ -253,11 +262,11 @@ const locale = {
   calendar_view: 'Naptár nézet',
   column_view: 'Oszlop nézet',
   wo_create_success: 'A Munkarendelés sikeresen létrehozva',
-  wo_create_failure: "A Munkarendelés nem hozható létre",
+  wo_create_failure: 'A Munkarendelés nem hozható létre',
   changes_saved_success: 'A változtatások mentve',
-  wo_update_failure: "A Munkarendelés nem szerkeszthető",
+  wo_update_failure: 'A Munkarendelés nem szerkeszthető',
   wo_delete_success: 'A Munkarendelés sikeresen törölve',
-  wo_delete_failure: "A Munkarendelés nem törölhető",
+  wo_delete_failure: 'A Munkarendelés nem törölhető',
   status: 'Állapot',
   title: 'Cím',
   priority: 'Prioritás',
@@ -281,7 +290,7 @@ const locale = {
   save: 'Mentés',
   customers: 'Vállalkozók',
   no_labor:
-    "Még nincsenek munkaerőköltségek hozzáadva. Itt fognak megjelenni, amikor egy felhasználó időt naplóz és órabére van mentve a {{brandName}}-ben.",
+    'Még nincsenek munkaerőköltségek hozzáadva. Itt fognak megjelenni, amikor egy felhasználó időt naplóz és órabére van mentve a {{brandName}}-ben.',
   not_assigned: 'Nincs Hozzárendelve',
   no_additional_cost: 'Még nincsenek Extra költségek hozzáadva',
   parts: 'Alkatrészek',
@@ -308,14 +317,16 @@ const locale = {
   add_wo_description:
     'Töltsd ki az alábbi mezőket új Munkarendelés létrehozásához és hozzáadásához',
   edit_wo: 'Munkarendelés Szerkesztése',
-  edit_wo_description: 'Töltsd ki az alábbi mezőket a Munkarendelés frissítéséhez',
+  edit_wo_description:
+    'Töltsd ki az alábbi mezőket a Munkarendelés frissítéséhez',
   'noRows.wo.message':
     'A Munkarendelések olyan feladatok vagy munkák, amelyek ütemezhetők vagy hozzárendelhetők valakihez',
   'noRows.wo.action': "Nyomd meg a '+' gombot Munkarendelés létrehozásához",
   to_delete: 'Törlés',
-  confirm_delete_wo: 'Biztos vagy benne, hogy törölni akarod ezt a Munkarendelést?',
+  confirm_delete_wo:
+    'Biztos vagy benne, hogy törölni akarod ezt a Munkarendelést?',
   no_access_wo:
-    "Nincs hozzáférésed a Munkarendelésekhez. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen",
+    'Nincs hozzáférésed a Munkarendelésekhez. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen',
   cancel: 'Mégse',
   select_parts: 'Alkatrészek Kiválasztása',
   sets_of_parts: 'Alkatrész Készletek',
@@ -329,12 +340,12 @@ const locale = {
   wo_details: 'Munkarendelés Részletek',
   confirm_delete_file: 'Biztos vagy benne, hogy törölni akarod ezt a fájlt?',
   wo_schedule_success: 'Munkarendelés sikeresen ütemezve',
-  wo_schedule_failure: "A munkarendelés nem ütemezhető",
+  wo_schedule_failure: 'A munkarendelés nem ütemezhető',
   pm_create_success: 'A Megelőző Karbantartás sikeresen létrehozva',
-  pm_create_failure: "A Megelőző Karbantartás nem hozható létre",
-  pm_edit_failure: "A Megelőző Karbantartás nem szerkeszthető",
+  pm_create_failure: 'A Megelőző Karbantartás nem hozható létre',
+  pm_edit_failure: 'A Megelőző Karbantartás nem szerkeszthető',
   pm_delete_success: 'A Megelőző Karbantartás sikeresen törölve',
-  pm_delete_failure: "A Megelőző Karbantartás nem törölhető",
+  pm_delete_failure: 'A Megelőző Karbantartás nem törölhető',
   pm_name: 'PM név',
   enter_pm_name: 'Add meg a PM nevét',
   required_pm_name: 'PM név kötelező',
@@ -344,18 +355,20 @@ const locale = {
   edit_pm: 'Megelőző Karbantartás Szerkesztése',
   edit_pm_description:
     'Töltsd ki az alábbi mezőket a Megelőző Karbantartás szerkesztéséhez',
-  confirm_delete_pm: 'Biztos vagy benne, hogy törölni akarod ezt a Megelőző Karbantartást?',
+  confirm_delete_pm:
+    'Biztos vagy benne, hogy törölni akarod ezt a Megelőző Karbantartást?',
   'noRows.pm.message':
     'A Megelőző Karbantartások ismétlődő feladatok, amelyek segítenek az eszközeid karbantartásában',
-  'noRows.pm.action': "Nyomd meg a '+' gombot Megelőző Karbantartás létrehozásához",
+  'noRows.pm.action':
+    "Nyomd meg a '+' gombot Megelőző Karbantartás létrehozásához",
   no_access_pm:
-    "Nincs hozzáférésed a Megelőző Karbantartáshoz. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen",
+    'Nincs hozzáférésed a Megelőző Karbantartáshoz. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen',
   //assets
   asset_create_success: 'Az Eszköz sikeresen létrehozva',
-  asset_create_failure: "Az Eszköz nem hozható létre",
-  asset_edit_failure: "Az Eszköz nem szerkeszthető",
+  asset_create_failure: 'Az Eszköz nem hozható létre',
+  asset_edit_failure: 'Az Eszköz nem szerkeszthető',
   asset_delete_success: 'Az Eszköz sikeresen törölve',
-  asset_delete_failure: "Az Eszköz nem törölhető",
+  asset_delete_failure: 'Az Eszköz nem törölhető',
   name: 'Név',
   model: 'Modell',
   serial_number: 'Sorozatszám',
@@ -368,10 +381,13 @@ const locale = {
   enter_asset_additional_information: 'Add meg az eszköz további információit',
   required_asset_name: 'Eszköz neve kötelező',
   add_asset: 'Eszköz Hozzáadása',
-  add_asset_description: 'Töltsd ki az alábbi mezőket új Eszköz létrehozásához és hozzáadásához',
+  add_asset_description:
+    'Töltsd ki az alábbi mezőket új Eszköz létrehozásához és hozzáadásához',
   edit_asset: 'Eszköz Szerkesztése',
-  edit_asset_description: 'Töltsd ki az alábbi mezőket az Eszköz szerkesztéséhez',
-  confirm_delete_asset: 'Biztos vagy benne, hogy törölni akarod ezt az Eszközt?',
+  edit_asset_description:
+    'Töltsd ki az alábbi mezőket az Eszköz szerkesztéséhez',
+  confirm_delete_asset:
+    'Biztos vagy benne, hogy törölni akarod ezt az Eszközt?',
   asset_details: 'Eszköz Részletek',
   parent_asset: 'Szülő Eszköz',
   child_assets: 'Gyermek Eszközök',
@@ -384,10 +400,10 @@ const locale = {
   enter_asset_area: 'Add meg az eszköz területét',
   //locations
   location_create_success: 'A Helyszín sikeresen létrehozva',
-  location_create_failure: "A Helyszín nem hozható létre",
-  location_edit_failure: "A Helyszín nem szerkeszthető",
+  location_create_failure: 'A Helyszín nem hozható létre',
+  location_edit_failure: 'A Helyszín nem szerkeszthető',
   location_delete_success: 'A Helyszín sikeresen törölve',
-  location_delete_failure: "A Helyszín nem törölhető",
+  location_delete_failure: 'A Helyszín nem törölhető',
   address: 'Cím',
   enter_location_name: 'Add meg a helyszín nevét',
   enter_location_address: 'Add meg a helyszín címét',
@@ -396,8 +412,10 @@ const locale = {
   add_location_description:
     'Töltsd ki az alábbi mezőket új Helyszín létrehozásához és hozzáadásához',
   edit_location: 'Helyszín Szerkesztése',
-  edit_location_description: 'Töltsd ki az alábbi mezőket a Helyszín szerkesztéséhez',
-  confirm_delete_location: 'Biztos vagy benne, hogy törölni akarod ezt a Helyszínt?',
+  edit_location_description:
+    'Töltsd ki az alábbi mezőket a Helyszín szerkesztéséhez',
+  confirm_delete_location:
+    'Biztos vagy benne, hogy törölni akarod ezt a Helyszínt?',
   location_details: 'Helyszín Részletek',
   parent_location: 'Szülő Helyszínek',
   child_locations: 'Gyermek Helyszínek',
@@ -415,30 +433,30 @@ const locale = {
   assigned_vendors: 'Hozzárendelt Szállítók',
   //no_access
   no_access_location:
-    "Nincs hozzáférésed a Helyszínekhez. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen",
+    'Nincs hozzáférésed a Helyszínekhez. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen',
   no_access_vendors_customers:
-    "Nincs hozzáférésed a Szállítókhoz és Vállalkozókhoz. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen",
+    'Nincs hozzáférésed a Szállítókhoz és Vállalkozókhoz. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen',
   no_access_people_team:
-    "Nincs hozzáférésed az Emberekhez és Csapatokhoz. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen",
+    'Nincs hozzáférésed az Emberekhez és Csapatokhoz. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen',
   no_access_analytics:
-    "Nincs hozzáférésed az Analitikához. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen",
+    'Nincs hozzáférésed az Analitikához. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen',
   no_access_assets:
-    "Nincs hozzáférésed az Eszközökhöz. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen",
+    'Nincs hozzáférésed az Eszközökhöz. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen',
   no_access_categories:
-    "Nincs hozzáférésed a Kategóriákhoz. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen",
+    'Nincs hozzáférésed a Kategóriákhoz. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen',
   no_access_files:
-    "Nincs hozzáférésed a Fájlokhoz. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen",
+    'Nincs hozzáférésed a Fájlokhoz. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen',
   no_access_inventory:
-    "Nincs hozzáférésed a Készlethez. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen",
+    'Nincs hozzáférésed a Készlethez. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen',
   no_access_meters:
-    "Nincs hozzáférésed a Mérőkhöz. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen",
+    'Nincs hozzáférésed a Mérőkhöz. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen',
   no_access_purchase_orders:
-    "Nem hozhatsz létre Beszerzési Rendelést. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen",
+    'Nem hozhatsz létre Beszerzési Rendelést. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen',
   no_access_requests:
-    "Nincs hozzáférésed a Kérelmekhez. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen",
+    'Nincs hozzáférésed a Kérelmekhez. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen',
   no_access_settings:
-    "Nincs hozzáférésed a beállításokhoz. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen",
-  no_access_page: "Nincs hozzáférésed ehhez az oldalhoz",
+    'Nincs hozzáférésed a beállításokhoz. Lépj kapcsolatba az adminisztrátorral, ha hozzáférésed kellene legyen',
+  no_access_page: 'Nincs hozzáférésed ehhez az oldalhoz',
   file: 'Fájl',
   'noRows.location.message':
     'A Helyszínek lehetővé teszik az eszközök és dolgozók hatékonyabb kezelését',
@@ -446,25 +464,26 @@ const locale = {
   //inventory
   card_view: 'Kártya nézet',
   set_create_success: 'A Készlet sikeresen létrehozva',
-  set_create_failure: "A Készlet nem hozható létre",
-  set_edit_failure: "A Készlet nem szerkeszthető",
+  set_create_failure: 'A Készlet nem hozható létre',
+  set_edit_failure: 'A Készlet nem szerkeszthető',
   set_delete_success: 'A Készlet sikeresen törölve',
-  set_delete_failure: "A Készlet nem törölhető",
+  set_delete_failure: 'A Készlet nem törölhető',
   total_cost: 'Teljes Költség',
   part: 'Alkatrész',
   enter_part_name: 'Add meg az Alkatrész nevét',
   required_set_name: 'Készlet neve kötelező',
   add_set: 'Készlet Hozzáadása',
-  add_set_description: 'Töltsd ki az alábbi mezőket új Készlet létrehozásához és hozzáadásához',
+  add_set_description:
+    'Töltsd ki az alábbi mezőket új Készlet létrehozásához és hozzáadásához',
   create_set: 'Készlet Létrehozása',
   edit_set: 'Készlet Szerkesztése',
   edit_set_description: 'Töltsd ki az alábbi mezőket a Készlet szerkesztéséhez',
   confirm_delete_set: 'Biztos vagy benne, hogy törölni akarod ezt a Készletet?',
   part_create_success: 'Az Alkatrész sikeresen létrehozva',
-  part_create_failure: "Az Alkatrész nem hozható létre",
-  part_edit_failure: "Az Alkatrész nem szerkeszthető",
+  part_create_failure: 'Az Alkatrész nem hozható létre',
+  part_edit_failure: 'Az Alkatrész nem szerkeszthető',
   part_delete_success: 'Az Alkatrész sikeresen törölve',
-  part_delete_failure: "Az Alkatrész nem törölhető",
+  part_delete_failure: 'Az Alkatrész nem törölhető',
   quantity: 'Mennyiség',
   open_wo: 'Nyitott Munkarendelések',
   enter_part_category: 'Add meg az Alkatrész kategóriáját',
@@ -477,13 +496,17 @@ const locale = {
   enter_part_area: 'Add meg az Alkatrész Területét',
   additional_part_details: 'További Alkatrész Részletek',
   add_part: 'Alkatrész Hozzáadása',
-  add_part_description: 'Töltsd ki az alábbi mezőket új Alkatrész létrehozásához és hozzáadásához',
+  add_part_description:
+    'Töltsd ki az alábbi mezőket új Alkatrész létrehozásához és hozzáadásához',
   create_part: 'Alkatrész Létrehozása',
   update_part: 'Alkatrész Frissítése',
-  update_part_description: 'Töltsd ki az alábbi mezőket az Alkatrész frissítéséhez',
-  'noRows.part.message': 'Az alkatrészek eszközökké kombinálhatók vagy egyedül használhatók',
+  update_part_description:
+    'Töltsd ki az alábbi mezőket az Alkatrész frissítéséhez',
+  'noRows.part.message':
+    'Az alkatrészek eszközökké kombinálhatók vagy egyedül használhatók',
   'noRows.part.action': "Nyomd meg a '+' gombot Alkatrész létrehozásához",
-  confirm_delete_part: 'Biztos vagy benne, hogy törölni akarod ezt az Alkatrészt?',
+  confirm_delete_part:
+    'Biztos vagy benne, hogy törölni akarod ezt az Alkatrészt?',
   part_details: 'Alkatrész részletek',
   area_details: 'Terület részletek',
   assigned_people: 'Hozzárendelt emberek',
@@ -493,9 +516,9 @@ const locale = {
   workers: 'Dolgozók',
   Parts_and_Inventory: 'Alkatrészek és Készlet',
   //purchase order
-  po_edit_failure: "A Beszerzési Rendelés nem szerkeszthető",
+  po_edit_failure: 'A Beszerzési Rendelés nem szerkeszthető',
   po_delete_success: 'A Beszerzési Rendelés sikeresen törölve',
-  po_delete_failure: "A Beszerzési Rendelés nem törölhető",
+  po_delete_failure: 'A Beszerzési Rendelés nem törölhető',
   number_of_items: 'Tételek száma',
   total_quantity: 'Teljes Mennyiség',
   shipping_to: 'Szállítás ide',
@@ -519,22 +542,26 @@ const locale = {
   shipping_method: 'Szállítási Mód',
   required_name: 'A név kötelező',
   edit_po: 'Beszerzési Rendelés Szerkesztése',
-  edit_po_description: 'Töltsd ki az alábbi mezőket a Beszerzési Rendelés frissítéséhez',
+  edit_po_description:
+    'Töltsd ki az alábbi mezőket a Beszerzési Rendelés frissítéséhez',
   purchase_order: 'Beszerzési Rendelés',
   'noRows.po.message': 'Kezeld a Beszerzési Rendeléseidet egy helyen',
-  'noRows.po.action': "Nyomd meg a '+' gombot Beszerzési Rendelés létrehozásához.",
-  confirm_delete_po: 'Biztos vagy benne, hogy törölni akarod ezt a Beszerzési Rendelést?',
+  'noRows.po.action':
+    "Nyomd meg a '+' gombot Beszerzési Rendelés létrehozásához.",
+  confirm_delete_po:
+    'Biztos vagy benne, hogy törölni akarod ezt a Beszerzési Rendelést?',
   upgrade_po: 'Frissítés Beszerzési Rendelések létrehozásához',
   new_po: 'Új Beszerzési Rendelés',
   po_create_success: 'A Beszerzési Rendelés sikeresen létrehozva',
   select_one_part: 'Válassz ki legalább 1 alkatrészt ',
-  po_create_failure: "A Beszerzési Rendelés nem hozható létre",
+  po_create_failure: 'A Beszerzési Rendelés nem hozható létre',
   approve_while_submitting: 'Jóváhagyás beküldés közben',
   invalid_fax: 'A fax szám érvénytelen',
   submit: 'Beküldés',
-  each_item_superior_zero: 'Minden Tétel mennyiségének 0-nál nagyobbnak kell lennie',
+  each_item_superior_zero:
+    'Minden Tétel mennyiségének 0-nál nagyobbnak kell lennie',
   quantity_edit_success: 'Mennyiség sikeresen módosítva',
-  quantity_edit_failure: "A mennyiség nem módosítható",
+  quantity_edit_failure: 'A mennyiség nem módosítható',
   APPROVED: 'Jóváhagyva',
   PENDING: 'Függőben',
   REJECTED: 'Elutasítva',
@@ -545,19 +572,17 @@ const locale = {
   value: 'Érték',
   required_value: 'Az érték kötelező',
   required_trigger_condition: 'A feltétel kötelező',
-  wo_trigger_create_success:
-    'A Munkarendelés trigger sikeresen létrehozva',
-  wo_trigger_create_failure: "A Munkarendelés trigger nem hozható létre",
+  wo_trigger_create_success: 'A Munkarendelés trigger sikeresen létrehozva',
+  wo_trigger_create_failure: 'A Munkarendelés trigger nem hozható létre',
   add_wo_trigger: 'Munkarendelés Trigger Hozzáadása',
   add_wo_trigger_description:
     'Töltsd ki az alábbi mezőket Munkarendelés Trigger létrehozásához és hozzáadásához',
-  wo_trigger_edit_success:
-    'A Munkarendelés trigger sikeresen frissítve',
+  wo_trigger_edit_success: 'A Munkarendelés trigger sikeresen frissítve',
   meter_create_success: 'A mérő sikeresen létrehozva',
-  meter_create_failure: "A mérő nem hozható létre ",
-  meter_edit_failure: "A mérő nem szerkeszthető",
+  meter_create_failure: 'A mérő nem hozható létre ',
+  meter_edit_failure: 'A mérő nem szerkeszthető',
   meter_delete_success: 'A mérő sikeresen törölve',
-  meter_delete_failure: "A mérő nem törölhető",
+  meter_delete_failure: 'A mérő nem törölhető',
   next_reading_due: 'Következő Leolvasás Esedékes',
   unit_of_measurement: 'Mértékegység',
   last_reading: 'Utolsó Leolvasás',
@@ -596,10 +621,10 @@ const locale = {
   //vendors_customers
   Vendors_Customers: 'Szállítók és Vállalkozók',
   customer_create_success: 'A Vállalkozó sikeresen létrehozva',
-  customer_create_failure: "A Vállalkozó nem hozható létre",
-  customer_edit_failure: "A Vállalkozó nem szerkeszthető",
+  customer_create_failure: 'A Vállalkozó nem hozható létre',
+  customer_edit_failure: 'A Vállalkozó nem szerkeszthető',
   customer_delete_success: 'A Vállalkozó sikeresen törölve',
-  customer_delete_failure: "A Vállalkozó nem törölhető",
+  customer_delete_failure: 'A Vállalkozó nem törölhető',
   customer_name: 'Vállalkozó Neve',
   website: 'Weboldal',
   customer_type: 'Vállalkozó típusa',
@@ -623,20 +648,22 @@ const locale = {
   type: 'Típus',
   billing_currency: 'Számlázási Pénznem',
   go_back: 'Vissza',
-  confirm_delete_customer: 'Biztos vagy benne, hogy törölni akarod ezt a Vállalkozót?',
+  confirm_delete_customer:
+    'Biztos vagy benne, hogy törölni akarod ezt a Vállalkozót?',
   //vendor
   vendor_create_success: 'A Szállító sikeresen létrehozva',
-  vendor_create_failure: "A Szállító nem hozható létre",
-  vendor_edit_failure: "A Szállító nem szerkeszthető",
+  vendor_create_failure: 'A Szállító nem hozható létre',
+  vendor_edit_failure: 'A Szállító nem szerkeszthető',
   vendor_delete_success: 'A Szállító sikeresen törölve',
-  vendor_delete_failure: "A Szállító nem törölhető",
+  vendor_delete_failure: 'A Szállító nem törölhető',
   required_company_name: 'Cégnév kötelező',
   vendor_type: 'Szállító Típusa',
   contact_name: 'Kapcsolattartó neve',
   add_vendor: 'Szállító hozzáadása',
   add_vendor_description:
     'Töltsd ki az alábbi mezőket új szállító létrehozásához és hozzáadásához',
-  confirm_delete_vendor: 'Biztos vagy benne, hogy törölni akarod ezt a Szállítót?',
+  confirm_delete_vendor:
+    'Biztos vagy benne, hogy törölni akarod ezt a Szállítót?',
   'noRows.vendor.message':
     'A szállítók olyan szervezetek, amelyek Eszközöket vagy Alkatrészeket biztosítanak',
   'noRows.vendor.action': "Nyomd meg a '+' gombot Szállító létrehozásához",
@@ -644,7 +671,8 @@ const locale = {
   //people teams
   role: 'Szerep',
   edit_user: 'Felhasználó Szerkesztése',
-  edit_user_description: 'Töltsd ki az alábbi mezőket a felhasználó szerkesztéséhez',
+  edit_user_description:
+    'Töltsd ki az alábbi mezőket a felhasználó szerkesztéséhez',
   job_title: 'Beosztás',
   invite_users: 'Felhasználók Meghívása',
   bring_people_team: 'Hozz új embereket a csapatba',
@@ -653,15 +681,15 @@ const locale = {
   enter_email: 'Add meg az e-mail címet',
   users_invite_success: 'Felhasználók meghívva',
   users_invite_failure:
-    "A felhasználók nem hívhatók meg. Ellenőrizd a jelenlegi előfizetésed tagszámát",
+    'A felhasználók nem hívhatók meg. Ellenőrizd a jelenlegi előfizetésed tagszámát',
   please_type_emails: 'Írj be e-mail címeket a meghíváshoz',
   please_select_role: 'Válassz egy szerepet',
   invite: 'Meghívás',
   team_create_success: 'A Csapat sikeresen létrehozva',
-  team_create_failure: "A Csapat nem hozható létre",
-  team_edit_failure: "A Csapat nem szerkeszthető",
+  team_create_failure: 'A Csapat nem hozható létre',
+  team_edit_failure: 'A Csapat nem szerkeszthető',
   team_delete_success: 'A Csapat sikeresen törölve',
-  team_delete_failure: "A Csapat nem törölhető",
+  team_delete_failure: 'A Csapat nem törölhető',
   team_name: 'Csapat neve',
   people_in_team: 'Emberek a csapatban',
   required_team_name: 'Csapat neve kötelező',
@@ -692,12 +720,13 @@ const locale = {
   REQUESTER_description:
     'A kérelmezők csak munkakérelmeket nyújthatnak be és megtekinthetik azok állapotát',
   select_user_role: 'Felhasználói szerep kiválasztása',
-  'noRows.team.message': 'A csapatok segítenek az emberek specifikus csoportjainak kezelésében.',
+  'noRows.team.message':
+    'A csapatok segítenek az emberek specifikus csoportjainak kezelésében.',
   'noRows.team.action': "Nyomd meg a '+' gombot csapat létrehozásához.",
   user_details: 'Felhasználó részletek',
   //files
   file_delete_success: 'A fájl sikeresen törölve',
-  file_delete_failure: "A fájl nem törölhető",
+  file_delete_failure: 'A fájl nem törölhető',
   uploaded_by: 'Feltöltötte',
   uploaded_on: 'Feltöltve',
   rename: 'Átnevezés',
@@ -713,20 +742,22 @@ const locale = {
   requests_analysis: 'Kérelmek elemzése',
   //categories,
   category_create_success: 'A Kategória sikeresen létrehozva',
-  category_create_failure: "A Kategória nem hozható létre",
-  category_edit_failure: "A Kategória nem szerkeszthető",
+  category_create_failure: 'A Kategória nem hozható létre',
+  category_edit_failure: 'A Kategória nem szerkeszthető',
   category_delete_success: 'A Kategória sikeresen törölve',
-  category_delete_failure: "A Kategória nem törölhető",
+  category_delete_failure: 'A Kategória nem törölhető',
   timers: 'Időmérők',
   costs: 'Költségek',
   add_category: 'Új kategória hozzáadása',
-  add_category_description: 'Töltsd ki a nevet új kategória létrehozásához és hozzáadásához',
+  add_category_description:
+    'Töltsd ki a nevet új kategória létrehozásához és hozzáadásához',
   edit_category: 'Kategória Szerkesztése',
   edit_category_description: 'Töltsd ki a nevet a kategória szerkesztéséhez',
-  no_category_action: "Nyomd meg a '+' gombot az első kategóriád hozzáadásához.",
-  confirm_delete_category: 'Biztos vagy benne, hogy törölni akarod ezt a Kategóriát?',
-  no_category_message:
-    "Úgy tűnik, még nincsenek {{categoryName}} Kategóriáid.",
+  no_category_action:
+    "Nyomd meg a '+' gombot az első kategóriád hozzáadásához.",
+  confirm_delete_category:
+    'Biztos vagy benne, hogy törölni akarod ezt a Kategóriát?',
+  no_category_message: 'Úgy tűnik, még nincsenek {{categoryName}} Kategóriáid.',
   acquisition_cost: 'Beszerzési költség',
   //settings
   general_settings: 'Általános Beállítások',
@@ -740,7 +771,7 @@ const locale = {
   hidden: 'Rejtett',
   creating_wo: 'Munkarendelés létrehozása',
   completing_wo: 'Munkarendelés befejezése',
-  role_edit_failure: "A szerep nem szerkeszthető",
+  role_edit_failure: 'A szerep nem szerkeszthető',
   edit_role: 'Szerep szerkesztése',
   edit_role_description: 'Töltsd ki az alábbi mezőket a szerep szerkesztéséhez',
   external_id: 'Külső ID',
@@ -750,12 +781,11 @@ const locale = {
   create_and_edit: 'Létrehozás/Szerkesztés',
   to_access: 'Hozzáféréshez',
   to_create_edit: 'Létrehozáshoz/szerkesztéshez',
-  to_delete: 'Törléshez',
   checklist_create_success: 'Az Ellenőrzőlista sikeresen létrehozva',
-  checklist_create_failure: "Az Ellenőrzőlista nem hozható létre",
-  checklist_edit_failure: "Az Ellenőrzőlista nem szerkeszthető",
+  checklist_create_failure: 'Az Ellenőrzőlista nem hozható létre',
+  checklist_edit_failure: 'Az Ellenőrzőlista nem szerkeszthető',
   checklist_delete_success: 'Az Ellenőrzőlista sikeresen törölve',
-  checklist_delete_failure: "Az Ellenőrzőlista nem törölhető",
+  checklist_delete_failure: 'Az Ellenőrzőlista nem törölhető',
   checklist_name: 'Ellenőrzőlista neve',
   enter_checklist_name: 'Add meg az ellenőrzőlista nevét',
   required_checklist_name: 'Ellenőrzőlista neve kötelező',
@@ -763,10 +793,14 @@ const locale = {
   add_checklist_description:
     'Töltsd ki az alábbi mezőket új Ellenőrzőlista létrehozásához és hozzáadásához',
   edit_checklist: 'Ellenőrzőlista Szerkesztése',
-  edit_checklist_description: 'Töltsd ki az alábbi mezőket az Ellenőrzőlista szerkesztéséhez',
-  confirm_delete_checklist: 'Biztos vagy benne, hogy törölni akarod ezt az Ellenőrzőlistát?',
-  'noRows.checklist.message': 'Az ellenőrzőlisták segítenek a munka szabványosításában',
-  'noRows.checklist.action': "Nyomd meg a '+' gombot Ellenőrzőlista létrehozásához",
+  edit_checklist_description:
+    'Töltsd ki az alábbi mezőket az Ellenőrzőlista szerkesztéséhez',
+  confirm_delete_checklist:
+    'Biztos vagy benne, hogy törölni akarod ezt az Ellenőrzőlistát?',
+  'noRows.checklist.message':
+    'Az ellenőrzőlisták segítenek a munka szabványosításában',
+  'noRows.checklist.action':
+    "Nyomd meg a '+' gombot Ellenőrzőlista létrehozásához",
   task_type: 'Feladat típusa',
   task_label: 'Feladat címke',
   enter_task_label: 'Add meg a feladat címkéjét',
@@ -867,7 +901,8 @@ const locale = {
     'Add meg a regisztrációhoz használt e-mail címet a jelszavad visszaállításához.',
   send_me_new_password: 'Küldj új jelszót',
   want_to_sign_in_again: 'Szeretnél újra bejelentkezni?',
-  check_mails_for_instructions: 'Ellenőrizd az e-mailedet további utasításokért',
+  check_mails_for_instructions:
+    'Ellenőrizd az e-mailedet további utasításokért',
   pdf_report: 'PDF Jelentés',
   HIGH: 'Magas',
   MEDIUM: 'Közepes',
@@ -911,8 +946,7 @@ const locale = {
     '{{created}} Helyszín létrehozva és {{updated}} frissítve',
   import_part_success:
     '{{created}} Alkatrész létrehozva és {{updated}} frissítve',
-  import_meter_success:
-    '{{created}} Mérő létrehozva és {{updated}} frissítve',
+  import_meter_success: '{{created}} Mérő létrehozva és {{updated}} frissítve',
   import_asset_success:
     '{{created}} Eszköz létrehozva és {{updated}} frissítve',
   wo_calendar: 'Munkarendelések Naptára',
@@ -1046,18 +1080,19 @@ const locale = {
   PART_UPDATED: 'Alkatrész frissítve',
   add_condition: 'Feltétel hozzáadása',
   workflow_creation_success: 'Munkafolyamat sikeresen létrehozva',
-  workflow_creation_failure: "A munkafolyamat létrehozása nem sikerült",
+  workflow_creation_failure: 'A munkafolyamat létrehozása nem sikerült',
   action_value_missing: 'A művelet értéke hiányzik',
   condition_value_missing: 'Egy feltétel értéke hiányzik',
   workflow_edit_success: 'A munkafolyamat sikeresen frissítve',
-  workflow_edit_failure: "A munkafolyamat nem szerkeszthető",
+  workflow_edit_failure: 'A munkafolyamat nem szerkeszthető',
   workflow_delete_success: 'A munkafolyamat sikeresen törölve',
-  workflow_delete_failure: "A munkafolyamat nem törölhető",
-  confirm_delete_workflow: 'Biztos vagy benne, hogy törölni akarod ezt a munkafolyamatot',
+  workflow_delete_failure: 'A munkafolyamat nem törölhető',
+  confirm_delete_workflow:
+    'Biztos vagy benne, hogy törölni akarod ezt a munkafolyamatot',
   click_here: 'Kattints ide',
   verify_email_title: 'E-mail Ellenőrzése',
   verify_email_description:
-    "Ellenőrző e-mail lett küldve neked. Ellenőrizd a spam mappát, ha nem látod a bejövő levelek között.",
+    'Ellenőrző e-mail lett küldve neked. Ellenőrizd a spam mappát, ha nem látod a bejövő levelek között.',
   upgrade: 'Frissítés',
   downgrade: 'Visszaminősítés',
   upgrade_description:
@@ -1099,17 +1134,20 @@ const locale = {
   edit_company: 'Cég szerkesztése',
   fill_fields_below: 'Töltsd ki az alábbi mezőket',
   IMPORT_CSV_feature: 'CSV importálás',
-  no_import_access: 'Frissítsd a csomagodat CSV, Excel fájlokból való importáláshoz',
+  no_import_access:
+    'Frissítsd a csomagodat CSV, Excel fájlokból való importáláshoz',
   register_here: 'Regisztrálj itt',
   home: 'Kezdőlap',
   user: 'Felhasználó',
   start_work_order: 'Munkarendelés Indítása',
   priority_label: '{{priority}} prioritás',
   stop_work_order: 'Időmérő leállítása',
-  required_files_on_completion: 'Fájlok szükségesek a Munkarendelés Befejezéséhez',
+  required_files_on_completion:
+    'Fájlok szükségesek a Munkarendelés Befejezéséhez',
   required_tasks_on_completion: 'A feladatokat be kell fejezni',
   required_labor_on_completion: 'Időt kell naplóznod',
-  required_part_on_completion: 'Nincs Alkatrész használva ebben a Munkarendelésben',
+  required_part_on_completion:
+    'Nincs Alkatrész használva ebben a Munkarendelésben',
   required_cost_on_completion:
     'Nincs Költséginformáció megadva ebben a Munkarendelésben',
   complete_work_order: 'Munkarendelés Befejezése',
@@ -1156,7 +1194,7 @@ const locale = {
   loading: 'Betöltés',
   please_wait: 'Kérlek várj...',
   add_file: 'Fájl hozzáadása',
-  asset_update_failure: "Az Eszköz nem szerkeszthető",
+  asset_update_failure: 'Az Eszköz nem szerkeszthető',
   no_wo_linked_location: 'Nincs Munkarendelés ezen a helyszínen',
   confirm_delete_file_location:
     'Biztos vagy benne, hogy törölni akarod ezt a fájlt erről a helyszínről?',
@@ -1167,13 +1205,14 @@ const locale = {
   edit_vendor: 'Szállító szerkesztése',
   reading_history: 'Leolvasási történet',
   user_invite_success: 'A felhasználó meghívva',
-  user_invite_failure: "A felhasználó nem hívható meg",
+  user_invite_failure: 'A felhasználó nem hívható meg',
   create_child_asset: 'Gyermek eszköz létrehozása',
   not_enough_part: 'Nincs elég ebből az alkatrészből',
   update_profile: 'Profil frissítése',
   confirm_logout: 'Biztos vagy benne, hogy ki akarsz jelentkezni?',
   report: 'Jelentés',
-  end_cannot_be_ulterior_to_start: 'A befejezési dátum nem lehet korábbi a kezdési dátumnál',
+  end_cannot_be_ulterior_to_start:
+    'A befejezési dátum nem lehet korábbi a kezdési dátumnál',
   storage_permission_needed_description:
     'Tárolási engedélyt kell adnod a fájl letöltéséhez',
   permission_denied: 'Engedély Megtagadva!',
@@ -1205,7 +1244,7 @@ const locale = {
   downtime_duration_in_days: 'Állásidő időtartama napokban',
   downtime_duration_in_minutes: 'Állásidő időtartama percekben',
   asset_status_change_success: 'Eszköz állapot sikeresen módosítva',
-  asset_status_change_failure: "Az eszköz állapot nem módosítható",
+  asset_status_change_failure: 'Az eszköz állapot nem módosítható',
   set_asset_status: 'Eszköz Állapot Beállítása',
   set_asset_status_description: 'Állítsd be az eszköz állapotát',
   asset_status_history: 'Eszköz Állapot Történet',
@@ -1213,37 +1252,64 @@ const locale = {
   asset_status_changed_to: 'Eszköz állapot módosítva erre: {{status}}',
   asset_status_changed_by: 'Eszköz állapot módosítva általa: {{user}}',
   asset_status_changed_on: 'Eszköz állapot módosítva ekkor: {{date}}',
-  asset_status_changed_from_to: 'Eszköz állapot módosítva erről: {{from}} erre: {{to}}',
-  asset_status_changed_from_to_by: 'Eszköz állapot módosítva erről: {{from}} erre: {{to}} általa: {{user}}',
-  asset_status_changed_from_to_on: 'Eszköz állapot módosítva erről: {{from}} erre: {{to}} ekkor: {{date}}',
-  asset_status_changed_from_to_by_on: 'Eszköz állapot módosítva erről: {{from}} erre: {{to}} általa: {{user}} ekkor: {{date}}',
-  asset_status_changed_from_to_by_on_with_downtime: 'Eszköz állapot módosítva erről: {{from}} erre: {{to}} általa: {{user}} ekkor: {{date}} állásidővel: {{downtime}}',
-  asset_status_changed_from_to_on_with_downtime: 'Eszköz állapot módosítva erről: {{from}} erre: {{to}} ekkor: {{date}} állásidővel: {{downtime}}',
-  asset_status_changed_from_to_by_with_downtime: 'Eszköz állapot módosítva erről: {{from}} erre: {{to}} általa: {{user}} állásidővel: {{downtime}}',
-  asset_status_changed_from_to_with_downtime: 'Eszköz állapot módosítva erről: {{from}} erre: {{to}} állásidővel: {{downtime}}',
-  asset_status_changed_to_by: 'Eszköz állapot módosítva erre: {{status}} általa: {{user}}',
-  asset_status_changed_to_on: 'Eszköz állapot módosítva erre: {{status}} ekkor: {{date}}',
-  asset_status_changed_to_by_on: 'Eszköz állapot módosítva erre: {{status}} általa: {{user}} ekkor: {{date}}',
-  asset_status_changed_to_with_downtime: 'Eszköz állapot módosítva erre: {{status}} állásidővel: {{downtime}}',
-  asset_status_changed_to_by_with_downtime: 'Eszköz állapot módosítva erre: {{status}} általa: {{user}} állásidővel: {{downtime}}',
-  asset_status_changed_to_on_with_downtime: 'Eszköz állapot módosítva erre: {{status}} ekkor: {{date}} állásidővel: {{downtime}}',
-  asset_status_changed_to_by_on_with_downtime: 'Eszköz állapot módosítva erre: {{status}} általa: {{user}} ekkor: {{date}} állásidővel: {{downtime}}',
-  asset_status_changed_by_on: 'Eszköz állapot módosítva általa: {{user}} ekkor: {{date}}',
-  asset_status_changed_by_with_downtime: 'Eszköz állapot módosítva általa: {{user}} állásidővel: {{downtime}}',
-  asset_status_changed_on_with_downtime: 'Eszköz állapot módosítva ekkor: {{date}} állásidővel: {{downtime}}',
-  asset_status_changed_by_on_with_downtime: 'Eszköz állapot módosítva általa: {{user}} ekkor: {{date}} állásidővel: {{downtime}}',
-  asset_status_changed_with_downtime: 'Eszköz állapot módosítva állásidővel: {{downtime}}',
+  asset_status_changed_from_to:
+    'Eszköz állapot módosítva erről: {{from}} erre: {{to}}',
+  asset_status_changed_from_to_by:
+    'Eszköz állapot módosítva erről: {{from}} erre: {{to}} általa: {{user}}',
+  asset_status_changed_from_to_on:
+    'Eszköz állapot módosítva erről: {{from}} erre: {{to}} ekkor: {{date}}',
+  asset_status_changed_from_to_by_on:
+    'Eszköz állapot módosítva erről: {{from}} erre: {{to}} általa: {{user}} ekkor: {{date}}',
+  asset_status_changed_from_to_by_on_with_downtime:
+    'Eszköz állapot módosítva erről: {{from}} erre: {{to}} általa: {{user}} ekkor: {{date}} állásidővel: {{downtime}}',
+  asset_status_changed_from_to_on_with_downtime:
+    'Eszköz állapot módosítva erről: {{from}} erre: {{to}} ekkor: {{date}} állásidővel: {{downtime}}',
+  asset_status_changed_from_to_by_with_downtime:
+    'Eszköz állapot módosítva erről: {{from}} erre: {{to}} általa: {{user}} állásidővel: {{downtime}}',
+  asset_status_changed_from_to_with_downtime:
+    'Eszköz állapot módosítva erről: {{from}} erre: {{to}} állásidővel: {{downtime}}',
+  asset_status_changed_to_by:
+    'Eszköz állapot módosítva erre: {{status}} általa: {{user}}',
+  asset_status_changed_to_on:
+    'Eszköz állapot módosítva erre: {{status}} ekkor: {{date}}',
+  asset_status_changed_to_by_on:
+    'Eszköz állapot módosítva erre: {{status}} általa: {{user}} ekkor: {{date}}',
+  asset_status_changed_to_with_downtime:
+    'Eszköz állapot módosítva erre: {{status}} állásidővel: {{downtime}}',
+  asset_status_changed_to_by_with_downtime:
+    'Eszköz állapot módosítva erre: {{status}} általa: {{user}} állásidővel: {{downtime}}',
+  asset_status_changed_to_on_with_downtime:
+    'Eszköz állapot módosítva erre: {{status}} ekkor: {{date}} állásidővel: {{downtime}}',
+  asset_status_changed_to_by_on_with_downtime:
+    'Eszköz állapot módosítva erre: {{status}} általa: {{user}} ekkor: {{date}} állásidővel: {{downtime}}',
+  asset_status_changed_by_on:
+    'Eszköz állapot módosítva általa: {{user}} ekkor: {{date}}',
+  asset_status_changed_by_with_downtime:
+    'Eszköz állapot módosítva általa: {{user}} állásidővel: {{downtime}}',
+  asset_status_changed_on_with_downtime:
+    'Eszköz állapot módosítva ekkor: {{date}} állásidővel: {{downtime}}',
+  asset_status_changed_by_on_with_downtime:
+    'Eszköz állapot módosítva általa: {{user}} ekkor: {{date}} állásidővel: {{downtime}}',
+  asset_status_changed_with_downtime:
+    'Eszköz állapot módosítva állásidővel: {{downtime}}',
   asset_status_changed: 'Eszköz állapot módosítva',
   asset_status_changed_from: 'Eszköz állapot módosítva erről: {{from}}',
-  asset_status_changed_from_by: 'Eszköz állapot módosítva erről: {{from}} általa: {{user}}',
-  asset_status_changed_from_on: 'Eszköz állapot módosítva erről: {{from}} ekkor: {{date}}',
-  asset_status_changed_from_by_on: 'Eszköz állapot módosítva erről: {{from}} általa: {{user}} ekkor: {{date}}',
-  asset_status_changed_from_with_downtime: 'Eszköz állapot módosítva erről: {{from}} állásidővel: {{downtime}}',
-  asset_status_changed_from_by_with_downtime: 'Eszköz állapot módosítva erről: {{from}} általa: {{user}} állásidővel: {{downtime}}',
-  asset_status_changed_from_on_with_downtime: 'Eszköz állapot módosítva erről: {{from}} ekkor: {{date}} állásidővel: {{downtime}}',
-  asset_status_changed_from_by_on_with_downtime: 'Eszköz állapot módosítva erről: {{from}} általa: {{user}} ekkor: {{date}} állásidővel: {{downtime}}',
+  asset_status_changed_from_by:
+    'Eszköz állapot módosítva erről: {{from}} általa: {{user}}',
+  asset_status_changed_from_on:
+    'Eszköz állapot módosítva erről: {{from}} ekkor: {{date}}',
+  asset_status_changed_from_by_on:
+    'Eszköz állapot módosítva erről: {{from}} általa: {{user}} ekkor: {{date}}',
+  asset_status_changed_from_with_downtime:
+    'Eszköz állapot módosítva erről: {{from}} állásidővel: {{downtime}}',
+  asset_status_changed_from_by_with_downtime:
+    'Eszköz állapot módosítva erről: {{from}} általa: {{user}} állásidővel: {{downtime}}',
+  asset_status_changed_from_on_with_downtime:
+    'Eszköz állapot módosítva erről: {{from}} ekkor: {{date}} állásidővel: {{downtime}}',
+  asset_status_changed_from_by_on_with_downtime:
+    'Eszköz állapot módosítva erről: {{from}} általa: {{user}} ekkor: {{date}} állásidővel: {{downtime}}',
   upgrade_request_received:
-    "Frissítési kérelem érkezett! Hamarosan felvesszük veled a kapcsolatot a fizetési részletekkel",
+    'Frissítési kérelem érkezett! Hamarosan felvesszük veled a kapcsolatot a fizetési részletekkel',
   continue_with_sso: 'Folytatás SSO-val',
   see_live_demo: 'Élő demó megtekintése',
   demo_warning:

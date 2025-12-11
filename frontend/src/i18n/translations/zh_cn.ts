@@ -14,12 +14,12 @@ const locale = {
   COMPLETE: '完成',
   'home.built': '为简化维护管理而构建',
   home_description:
-    "当白板和便利贴变成混乱，而您需要一个足够简单让团队真正使用的CMMS软件时 - 试试{{shortBrandName}}",
+    '当白板和便利贴变成混乱，而您需要一个足够简单让团队真正使用的CMMS软件时 - 试试{{shortBrandName}}',
   try_grash: '试用{{shortBrandName}}',
   login: '登录',
   start_trial: '开始免费试用',
   'home.what': '什么',
-  'home.you_will_have': "您将拥有",
+  'home.you_will_have': '您将拥有',
   'home.you_will_have_description':
     '构建高效、可靠的工作流程，让您掌控维护工作。生成、分配和跟踪工单。控制库存。获得可靠的自动化报告，提高可见性并创建问责制。',
   key_features: '主要功能',
@@ -39,10 +39,8 @@ const locale = {
     '厌倦了大量的文书工作和丢失的工单？所有这些丢失的项目直接影响底线和您的声誉。',
   'work-orders.descriptions.1':
     '使用{{shortBrandName}}，您可以轻松快速地在集中式数据库中组织团队的所有工单、PM和其他任务，该数据库可在任何设备上的任何地方访问。',
-  'work-orders.checks.0':
-    '查看您的所有任务，包括工单、PM和工作请求',
-  'work-orders.checks.1':
-    '设置任务优先级，以便首先完成正确的工作。',
+  'work-orders.checks.0': '查看您的所有任务，包括工单、PM和工作请求',
+  'work-orders.checks.1': '设置任务优先级，以便首先完成正确的工作。',
   'work-orders.checks.2': '查看当前和即将到来的任务日历。',
   'work-orders.checks.3':
     '查看包含关键信息的工作分配，如资产信息、截止日期、优先级等。',
@@ -55,25 +53,20 @@ const locale = {
   'work-requests.descriptions.1':
     '{{shortBrandName}}的维护管理解决方案允许您授权的任何人通过简单扫描二维码（条形码）或访问URL并通过移动设备输入请求来向您的维护部门提交问题。',
   'work-requests.checks.0': '永远不会丢失工作。',
-  'work-requests.checks.1':
-    '减少处理工作请求的时间高达34%。',
+  'work-requests.checks.1': '减少处理工作请求的时间高达34%。',
   'work-requests.checks.2':
     '减少与请求者沟通的时间高达41%（电话、电子邮件、短信）。',
 
   'mobile-app.title': '增强维护团队能力的移动CMMS应用',
   'mobile-app.descriptions.0':
     '通过使用我们的Android移动应用，我们的客户在整个维护团队中体验到更好的组织、沟通、问责制和高达30%的生产力提升。',
-  'mobile-app.descriptions.1':
-    '从手持设备，维护团队的任何成员都可以：',
+  'mobile-app.descriptions.1': '从手持设备，维护团队的任何成员都可以：',
   'mobile-app.checks.0': '查看分配给他们的工单和PM。',
   'mobile-app.checks.1': '在60秒内记录他们的工单',
-  'mobile-app.checks.2':
-    '通过推送和电子邮件通知接收即时通信。',
+  'mobile-app.checks.2': '通过推送和电子邮件通知接收即时通信。',
   'mobile-app.checks.3': '在现场时启动新的工单。',
-  'mobile-app.checks.4':
-    '在实际处理问题时响应和记录问题',
-  'mobile-app.checks.5':
-    '在诊断问题时查找关键资产信息。',
+  'mobile-app.checks.4': '在实际处理问题时响应和记录问题',
+  'mobile-app.checks.5': '在诊断问题时查找关键资产信息。',
 
   'eam.title': '企业资产管理',
   'eam.description.short': '了解您的资产',
@@ -81,13 +74,11 @@ const locale = {
     '对试图组织公司设备的混乱状况感到沮丧，想知道设备是否得到适当维护，不知道维护成本以及管理资产带来的所有其他头痛问题？',
   'eam.descriptions.1':
     '{{brandName}}的企业资产管理模块可用于10到1,000,000个资产，让您以易于使用和可搜索的树形结构准确跟踪您想要的内容。',
-  'eam.checks.0':
-    '随时了解资产的健康状况以及它们的成本',
+  'eam.checks.0': '随时了解资产的健康状况以及它们的成本',
   'eam.checks.1': '查看完整详细的维护日志。',
   'eam.checks.2': '使用无限自定义字段仅跟踪您想要的内容',
   'eam.checks.3': '在清晰的父子层次结构中组织您的资产',
-  'eam.checks.4':
-    '使用二维码（条形码）快速轻松地查找信息',
+  'eam.checks.4': '使用二维码（条形码）快速轻松地查找信息',
   'eam.checks.5': '通过传感器连接获取实时资产数据。',
 
   'pm.title': '有效的预防性维护计划',
@@ -95,15 +86,11 @@ const locale = {
     '停止浪费宝贵时间手动分发PM检查清单并跟进团队以确保工作完成。',
   'pm.descriptions.1':
     '{{shortBrandName}}允许您轻松自动化PM调度，以便在正确的时间将正确的工作自动交付给正确的技术人员处理正确的资产。',
-  'pm.checks.0':
-    '自动化PM调度为每日、每周、每月、每年，或基于事件或仪表读数。',
-  'pm.checks.1':
-    '创建或到期PM时的自动推送和电子邮件通知。',
-  'pm.checks.2':
-    '我们易于使用的日历允许您查看所有开放工作和即将到来的PM计划。',
+  'pm.checks.0': '自动化PM调度为每日、每周、每月、每年，或基于事件或仪表读数。',
+  'pm.checks.1': '创建或到期PM时的自动推送和电子邮件通知。',
+  'pm.checks.2': '我们易于使用的日历允许您查看所有开放工作和即将到来的PM计划。',
   'pm.checks.3': '拖放更改截止日期。',
-  'pm.checks.4':
-    'PM完成后，工作会自动记录在资产的维护日志中。',
+  'pm.checks.4': 'PM完成后，工作会自动记录在资产的维护日志中。',
   'pm.checks.5': '使用几乎不需要培训。',
 
   'part.title': '控制您的备件库存',
@@ -121,12 +108,9 @@ const locale = {
   'part.checks.3':
     '了解零件使用情况。查看零件日志以了解零件在哪里使用以及由谁使用',
   'part.checks.4': '消除未使用的零件。知道零件何时过时。',
-  'part.checks.5':
-    '实时报告。了解在哪里使用哪些零件以及它们的成本。',
-  'part.checks.6':
-    '优化库存水平。立即查看零件预测，了解明年可能使用多少零件。',
-  'part.checks.7':
-    '条形码查找。使用自定义二维码使您的库存易于跟踪和访问',
+  'part.checks.5': '实时报告。了解在哪里使用哪些零件以及它们的成本。',
+  'part.checks.6': '优化库存水平。立即查看零件预测，了解明年可能使用多少零件。',
+  'part.checks.7': '条形码查找。使用自定义二维码使您的库存易于跟踪和访问',
 
   'dashboard.title': '您的数据，您的方式，使用自定义仪表板',
   'dashboard.descriptions.0':
@@ -138,8 +122,7 @@ const locale = {
   'dashboard.checks.0': '知道您的钱花在哪里以及为什么',
   'dashboard.checks.1': '知道哪个资产成本最高以及为什么',
   'dashboard.checks.2': '创建您自己的自定义KPI。',
-  'dashboard.checks.3':
-    '查看根据您的指标自动生成和更新的报告',
+  'dashboard.checks.3': '查看根据您的指标自动生成和更新的报告',
   'dashboard.checks.4':
     '查看通过Excel表格、PDF或在{{shortBrandName}}内轻松共享的报告',
   'dashboard.checks.5': '还有更多...',
@@ -147,8 +130,7 @@ const locale = {
   'home.work': '工作',
   'home.smarter_description':
     '{{shortBrandName}}通过为技术人员提供完成工作所需的工具和数据访问权限，使他们能够高效工作变得异常简单 — 所有这些都来自他们的手掌。',
-  leading_maintenance:
-    '引领维护和可靠性更美好未来的道路',
+  leading_maintenance: '引领维护和可靠性更美好未来的道路',
   //register
   premium_included: '包含高级功能',
   no_credit_card: '无需信用卡',
@@ -168,7 +150,7 @@ const locale = {
   required_password: '密码字段是必需的',
   required_terms: '您必须同意我们的条款和条件',
   verify_email: '请检查您的电子邮件以激活您的账户',
-  registration_error: "注册未成功",
+  registration_error: '注册未成功',
   first_name: '名字',
   last_name: '姓氏',
   email: '电子邮件地址',
@@ -200,18 +182,15 @@ const locale = {
   date: '日期',
   cost: '成本',
   include_cost: '将此成本包含在总成本中',
-  include_cost_description:
-    '这将把成本添加到工单的总成本中',
+  include_cost_description: '这将把成本添加到工单的总成本中',
   required_cost_description: '成本描述是必需的',
   required_cost: '成本是必需的',
   add_cost: '添加额外成本',
-  add_cost_description:
-    '填写以下字段以创建和添加额外成本',
+  add_cost_description: '填写以下字段以创建和添加额外成本',
   add: '添加',
   hourly_rate: '小时费率',
   include_time: '将此时间包含在总时间中',
-  include_time_description:
-    '这将把持续时间添加到工单的总时间中',
+  include_time_description: '这将把持续时间添加到工单的总时间中',
   work_started_at: '工作开始时间',
   duration: '持续时间',
   hours: '小时',
@@ -228,7 +207,7 @@ const locale = {
   close_wo: '关闭工单',
   close: '关闭',
   task_update_success: '任务更新成功',
-  task_update_failure: "任务无法更新",
+  task_update_failure: '任务无法更新',
   notes_save_success: '笔记保存成功',
   images_add_task_success: '图像已添加到任务',
   images_add_task_failure: '出现了问题',
@@ -237,10 +216,10 @@ const locale = {
   add_images: '添加图像',
   tasks: '任务',
   wo_archive_success: '工单已存档',
-  wo_archive_failure: "工单无法存档",
+  wo_archive_failure: '工单无法存档',
   wo_archive_confirm: '您确定要存档此工单吗 ',
   quantity_change_success: '数量更改成功',
-  quantity_change_failure: "数量无法更改",
+  quantity_change_failure: '数量无法更改',
   details: '详细信息',
   updates: '更新',
   id: 'ID',
@@ -253,11 +232,11 @@ const locale = {
   calendar_view: '日历视图',
   column_view: '列视图',
   wo_create_success: '工单创建成功',
-  wo_create_failure: "工单无法创建",
+  wo_create_failure: '工单无法创建',
   changes_saved_success: '更改已保存',
-  wo_update_failure: "工单无法编辑",
+  wo_update_failure: '工单无法编辑',
   wo_delete_success: '工单删除成功',
-  wo_delete_failure: "工单无法删除",
+  wo_delete_failure: '工单无法删除',
   status: '状态',
   title: '标题',
   priority: '优先级',
@@ -281,13 +260,12 @@ const locale = {
   save: '保存',
   customers: '承包商',
   no_labor:
-    "尚未添加劳动成本。当用户记录时间并在{{brandName}}中保存小时费率时，它们将出现在这里。",
+    '尚未添加劳动成本。当用户记录时间并在{{brandName}}中保存小时费率时，它们将出现在这里。',
   not_assigned: '未分配',
   no_additional_cost: '尚未添加额外成本',
   parts: '零件',
   links: '链接',
-  confirm_delete_file_wo:
-    '您确定要从此工单中删除此文件吗？',
+  confirm_delete_file_wo: '您确定要从此工单中删除此文件吗？',
   archive: '存档',
   labors: '劳动',
   add_additional_cost: '添加额外成本',
@@ -305,17 +283,14 @@ const locale = {
   requires_signature: '需要签名',
   required_wo_title: '工单标题是必需的',
   add_wo: '添加工单',
-  add_wo_description:
-    '填写以下字段以创建和添加新工单',
+  add_wo_description: '填写以下字段以创建和添加新工单',
   edit_wo: '编辑工单',
   edit_wo_description: '填写以下字段以更新工单',
-  'noRows.wo.message':
-    '工单是可以安排或分配给某人的任务或作业',
+  'noRows.wo.message': '工单是可以安排或分配给某人的任务或作业',
   'noRows.wo.action': "按'+'按钮创建工单",
   to_delete: '删除',
   confirm_delete_wo: '您确定要删除此工单吗？',
-  no_access_wo:
-    "您无权访问工单。如果您应该有访问权限，请联系您的管理员",
+  no_access_wo: '您无权访问工单。如果您应该有访问权限，请联系您的管理员',
   cancel: '取消',
   select_parts: '选择零件',
   sets_of_parts: '零件套装',
@@ -329,33 +304,29 @@ const locale = {
   wo_details: '工单详细信息',
   confirm_delete_file: '您确定要删除此文件吗？',
   wo_schedule_success: '工单安排成功',
-  wo_schedule_failure: "工单无法安排",
+  wo_schedule_failure: '工单无法安排',
   pm_create_success: '预防性维护创建成功',
-  pm_create_failure: "预防性维护无法创建",
-  pm_edit_failure: "预防性维护无法编辑",
+  pm_create_failure: '预防性维护无法创建',
+  pm_edit_failure: '预防性维护无法编辑',
   pm_delete_success: '预防性维护删除成功',
-  pm_delete_failure: "预防性维护无法删除",
+  pm_delete_failure: '预防性维护无法删除',
   pm_name: 'PM名称',
   enter_pm_name: '输入PM名称',
   required_pm_name: 'PM名称是必需的',
   add_pm: '添加预防性维护',
-  add_pm_description:
-    '填写以下字段以创建和添加新的预防性维护',
+  add_pm_description: '填写以下字段以创建和添加新的预防性维护',
   edit_pm: '编辑预防性维护',
-  edit_pm_description:
-    '填写以下字段以编辑预防性维护',
+  edit_pm_description: '填写以下字段以编辑预防性维护',
   confirm_delete_pm: '您确定要删除此预防性维护吗？',
-  'noRows.pm.message':
-    '预防性维护是帮助维护资产的重复任务',
+  'noRows.pm.message': '预防性维护是帮助维护资产的重复任务',
   'noRows.pm.action': "按'+'按钮创建预防性维护",
-  no_access_pm:
-    "您无权访问预防性维护。如果您应该有访问权限，请联系您的管理员",
+  no_access_pm: '您无权访问预防性维护。如果您应该有访问权限，请联系您的管理员',
   //assets
   asset_create_success: '资产创建成功',
-  asset_create_failure: "资产无法创建",
-  asset_edit_failure: "资产无法编辑",
+  asset_create_failure: '资产无法创建',
+  asset_edit_failure: '资产无法编辑',
   asset_delete_success: '资产删除成功',
-  asset_delete_failure: "资产无法删除",
+  asset_delete_failure: '资产无法删除',
   name: '名称',
   model: '型号',
   serial_number: '序列号',
@@ -384,17 +355,16 @@ const locale = {
   enter_asset_area: '输入资产区域',
   //locations
   location_create_success: '位置创建成功',
-  location_create_failure: "位置无法创建",
-  location_edit_failure: "位置无法编辑",
+  location_create_failure: '位置无法创建',
+  location_edit_failure: '位置无法编辑',
   location_delete_success: '位置删除成功',
-  location_delete_failure: "位置无法删除",
+  location_delete_failure: '位置无法删除',
   address: '地址',
   enter_location_name: '输入位置名称',
   enter_location_address: '输入位置地址',
   required_location_name: '位置名称是必需的',
   add_location: '添加位置',
-  add_location_description:
-    '填写以下字段以创建和添加新位置',
+  add_location_description: '填写以下字段以创建和添加新位置',
   edit_location: '编辑位置',
   edit_location_description: '填写以下字段以编辑位置',
   confirm_delete_location: '您确定要删除此位置吗？',
@@ -404,8 +374,7 @@ const locale = {
   no_child_location: '无子位置',
   floor_plan: '平面图',
   add_floor_plan: '添加新平面图',
-  add_floor_plan_description:
-    '填写以下字段以创建新平面图',
+  add_floor_plan_description: '填写以下字段以创建新平面图',
   no_asset_in_location: '此位置没有资产',
   no_wo_in_location: '此位置没有工单',
   no_file_in_location: '此位置没有关联文件',
@@ -414,42 +383,33 @@ const locale = {
   assigned_customers: '分配的承包商',
   assigned_vendors: '分配的供应商',
   //no_access
-  no_access_location:
-    "您无权访问位置。如果您应该有访问权限，请联系您的管理员",
+  no_access_location: '您无权访问位置。如果您应该有访问权限，请联系您的管理员',
   no_access_vendors_customers:
-    "您无权访问供应商和承包商。如果您应该有访问权限，请联系您的管理员",
+    '您无权访问供应商和承包商。如果您应该有访问权限，请联系您的管理员',
   no_access_people_team:
-    "您无权访问人员和团队。如果您应该有访问权限，请联系您的管理员",
-  no_access_analytics:
-    "您无权访问分析。如果您应该有访问权限，请联系您的管理员",
-  no_access_assets:
-    "您无权访问资产。如果您应该有访问权限，请联系您的管理员",
+    '您无权访问人员和团队。如果您应该有访问权限，请联系您的管理员',
+  no_access_analytics: '您无权访问分析。如果您应该有访问权限，请联系您的管理员',
+  no_access_assets: '您无权访问资产。如果您应该有访问权限，请联系您的管理员',
   no_access_categories:
-    "您无权访问类别。如果您应该有访问权限，请联系您的管理员",
-  no_access_files:
-    "您无权访问文件。如果您应该有访问权限，请联系您的管理员",
-  no_access_inventory:
-    "您无权访问库存。如果您应该有访问权限，请联系您的管理员",
-  no_access_meters:
-    "您无权访问仪表。如果您应该有访问权限，请联系您的管理员",
+    '您无权访问类别。如果您应该有访问权限，请联系您的管理员',
+  no_access_files: '您无权访问文件。如果您应该有访问权限，请联系您的管理员',
+  no_access_inventory: '您无权访问库存。如果您应该有访问权限，请联系您的管理员',
+  no_access_meters: '您无权访问仪表。如果您应该有访问权限，请联系您的管理员',
   no_access_purchase_orders:
-    "您无法创建采购订单。如果您应该有访问权限，请联系您的管理员",
-  no_access_requests:
-    "您无权访问请求。如果您应该有访问权限，请联系您的管理员",
-  no_access_settings:
-    "您无权访问设置。如果您应该有访问权限，请联系您的管理员",
-  no_access_page: "您无权访问此页面",
+    '您无法创建采购订单。如果您应该有访问权限，请联系您的管理员',
+  no_access_requests: '您无权访问请求。如果您应该有访问权限，请联系您的管理员',
+  no_access_settings: '您无权访问设置。如果您应该有访问权限，请联系您的管理员',
+  no_access_page: '您无权访问此页面',
   file: '文件',
-  'noRows.location.message':
-    '位置让您更有效地管理资产和工人',
+  'noRows.location.message': '位置让您更有效地管理资产和工人',
   'noRows.location.action': "按'+'按钮创建位置",
   //inventory
   card_view: '卡片视图',
   set_create_success: '套装创建成功',
-  set_create_failure: "套装无法创建",
-  set_edit_failure: "套装无法编辑",
+  set_create_failure: '套装无法创建',
+  set_edit_failure: '套装无法编辑',
   set_delete_success: '套装删除成功',
-  set_delete_failure: "套装无法删除",
+  set_delete_failure: '套装无法删除',
   total_cost: '总成本',
   part: '零件',
   enter_part_name: '输入零件名称',
@@ -461,10 +421,10 @@ const locale = {
   edit_set_description: '填写以下字段以编辑套装',
   confirm_delete_set: '您确定要删除此套装吗？',
   part_create_success: '零件创建成功',
-  part_create_failure: "零件无法创建",
-  part_edit_failure: "零件无法编辑",
+  part_create_failure: '零件无法创建',
+  part_edit_failure: '零件无法编辑',
   part_delete_success: '零件删除成功',
-  part_delete_failure: "零件无法删除",
+  part_delete_failure: '零件无法删除',
   quantity: '数量',
   open_wo: '开放工单',
   enter_part_category: '输入零件类别',
@@ -493,9 +453,9 @@ const locale = {
   workers: '工人',
   Parts_and_Inventory: '零件和库存',
   //purchase order
-  po_edit_failure: "采购订单无法编辑",
+  po_edit_failure: '采购订单无法编辑',
   po_delete_success: '采购订单删除成功',
-  po_delete_failure: "采购订单无法删除",
+  po_delete_failure: '采购订单无法删除',
   number_of_items: '项目数量',
   total_quantity: '总数量',
   shipping_to: '运送至',
@@ -528,13 +488,13 @@ const locale = {
   new_po: '新采购订单',
   po_create_success: '采购订单创建成功',
   select_one_part: '至少选择1个零件 ',
-  po_create_failure: "采购订单无法创建",
+  po_create_failure: '采购订单无法创建',
   approve_while_submitting: '提交时批准',
   invalid_fax: '传真号码无效',
   submit: '提交',
   each_item_superior_zero: '每个项目数量必须大于0',
   quantity_edit_success: '数量更改成功',
-  quantity_edit_failure: "数量无法更改",
+  quantity_edit_failure: '数量无法更改',
   APPROVED: '已批准',
   PENDING: '待处理',
   REJECTED: '已拒绝',
@@ -545,19 +505,16 @@ const locale = {
   value: '值',
   required_value: '值是必需的',
   required_trigger_condition: '条件是必需的',
-  wo_trigger_create_success:
-    '工单触发器创建成功',
-  wo_trigger_create_failure: "工单触发器无法创建",
+  wo_trigger_create_success: '工单触发器创建成功',
+  wo_trigger_create_failure: '工单触发器无法创建',
   add_wo_trigger: '添加工单触发器',
-  add_wo_trigger_description:
-    '填写以下字段以创建和添加工单触发器',
-  wo_trigger_edit_success:
-    '工单触发器更新成功',
+  add_wo_trigger_description: '填写以下字段以创建和添加工单触发器',
+  wo_trigger_edit_success: '工单触发器更新成功',
   meter_create_success: '仪表创建成功',
-  meter_create_failure: "仪表无法创建 ",
-  meter_edit_failure: "仪表无法编辑",
+  meter_create_failure: '仪表无法创建 ',
+  meter_edit_failure: '仪表无法编辑',
   meter_delete_success: '仪表删除成功',
-  meter_delete_failure: "仪表无法删除",
+  meter_delete_failure: '仪表无法删除',
   next_reading_due: '下次读数到期',
   unit_of_measurement: '测量单位',
   last_reading: '最后读数',
@@ -570,8 +527,7 @@ const locale = {
   required_meter_update_frequency: '仪表更新频率是必需的',
   required_asset: '资产是必需的',
   add_meter: '添加仪表',
-  add_meter_description:
-    '填写以下字段以创建和添加新仪表',
+  add_meter_description: '填写以下字段以创建和添加新仪表',
   edit_meter: '编辑仪表',
   edit_meter_description: '填写以下字段以编辑仪表',
   confirm_delete_meter: '您确定要删除此仪表吗？',
@@ -582,8 +538,7 @@ const locale = {
   wo_triggers: '工单触发器',
   add_trigger: '添加触发器',
   meter_details: '仪表详细信息',
-  'noRows.meter.message':
-    '仪表读数让您能够监控资产并根据定义的条件触发新工单',
+  'noRows.meter.message': '仪表读数让您能够监控资产并根据定义的条件触发新工单',
   'noRows.meter.action': "按'+'按钮创建仪表",
   meter: '仪表',
   //upload
@@ -596,16 +551,15 @@ const locale = {
   //vendors_customers
   Vendors_Customers: '供应商和承包商',
   customer_create_success: '承包商创建成功',
-  customer_create_failure: "承包商无法创建",
-  customer_edit_failure: "承包商无法编辑",
+  customer_create_failure: '承包商无法创建',
+  customer_edit_failure: '承包商无法编辑',
   customer_delete_success: '承包商删除成功',
-  customer_delete_failure: "承包商无法删除",
+  customer_delete_failure: '承包商无法删除',
   customer_name: '承包商名称',
   website: '网站',
   customer_type: '承包商类型',
   customer_type_description: '例如：管道、电气',
-  customer_description_description:
-    '用几行描述此承包商的目的...',
+  customer_description_description: '用几行描述此承包商的目的...',
   billing_information: '账单信息',
   address_line_2: '地址第2行',
   billing_name: '账单名称',
@@ -616,8 +570,7 @@ const locale = {
   invalid_website: '无效网站',
   billing_address: '账单地址',
   add_customer: '添加承包商',
-  add_customer_description:
-    '填写以下字段以创建和添加新承包商',
+  add_customer_description: '填写以下字段以创建和添加新承包商',
   'noRows.customer.message': '承包商是外部工人',
   'noRows.customer.action': "按'+'按钮创建承包商",
   type: '类型',
@@ -626,19 +579,17 @@ const locale = {
   confirm_delete_customer: '您确定要删除此承包商吗？',
   //vendor
   vendor_create_success: '供应商创建成功',
-  vendor_create_failure: "供应商无法创建",
-  vendor_edit_failure: "供应商无法编辑",
+  vendor_create_failure: '供应商无法创建',
+  vendor_edit_failure: '供应商无法编辑',
   vendor_delete_success: '供应商删除成功',
-  vendor_delete_failure: "供应商无法删除",
+  vendor_delete_failure: '供应商无法删除',
   required_company_name: '公司名称是必需的',
   vendor_type: '供应商类型',
   contact_name: '联系人姓名',
   add_vendor: '添加供应商',
-  add_vendor_description:
-    '填写以下字段以创建和添加新供应商',
+  add_vendor_description: '填写以下字段以创建和添加新供应商',
   confirm_delete_vendor: '您确定要删除此供应商吗？',
-  'noRows.vendor.message':
-    '供应商是提供资产或零件的组织',
+  'noRows.vendor.message': '供应商是提供资产或零件的组织',
   'noRows.vendor.action': "按'+'按钮创建供应商",
   vendor_type_description: '例如：管道、电气',
   //people teams
@@ -652,16 +603,15 @@ const locale = {
     "您可以通过在每次电子邮件输入后按'tab'或'enter'一次添加20个用户。任何重复和已注册的电子邮件地址将在请求用户注册时被删除。",
   enter_email: '输入电子邮件地址',
   users_invite_success: '用户已邀请',
-  users_invite_failure:
-    "用户无法邀请。检查您当前的订阅成员数量",
+  users_invite_failure: '用户无法邀请。检查您当前的订阅成员数量',
   please_type_emails: '输入要邀请的电子邮件地址',
   please_select_role: '选择角色',
   invite: '邀请',
   team_create_success: '团队创建成功',
-  team_create_failure: "团队无法创建",
-  team_edit_failure: "团队无法编辑",
+  team_create_failure: '团队无法创建',
+  team_edit_failure: '团队无法编辑',
   team_delete_success: '团队删除成功',
-  team_delete_failure: "团队无法删除",
+  team_delete_failure: '团队无法删除',
   team_name: '团队名称',
   people_in_team: '团队成员',
   required_team_name: '团队名称是必需的',
@@ -671,11 +621,9 @@ const locale = {
   overview: '概览',
   activity: '活动',
   wo_complete_last_14_days: '过去14天完成的工单',
-  no_wo_complete_last_14_days:
-    '您在过去两周内没有完成工单',
+  no_wo_complete_last_14_days: '您在过去两周内没有完成工单',
   ADMIN_name: '管理员',
-  ADMIN_description:
-    '管理员拥有完全访问权限；包括编辑、添加、删除工单和请求',
+  ADMIN_description: '管理员拥有完全访问权限；包括编辑、添加、删除工单和请求',
   LIMITED_ADMIN_name: '有限管理员',
   LIMITED_ADMIN_description:
     '有限管理员与管理员具有相同的访问权限，除了他们无法查看/编辑设置或添加/编辑人员和团队。他们无法删除工单、资产、位置、仪表和采购订单，除非他们创建了承包商、类别和PM触发器。',
@@ -683,21 +631,18 @@ const locale = {
   TECHNICIAN_description:
     '技术员可以创建和关闭工单、资产和位置。只能编辑和删除他们创建的内容',
   LIMITED_TECHNICIAN_name: '有限技术员',
-  LIMITED_TECHNICIAN_description:
-    '有限技术员只能看到分配给他们的工单',
+  LIMITED_TECHNICIAN_description: '有限技术员只能看到分配给他们的工单',
   VIEW_ONLY_name: '仅查看',
-  VIEW_ONLY_description:
-    '仅查看用户拥有完全查看访问权限，但无法编辑任何内容',
+  VIEW_ONLY_description: '仅查看用户拥有完全查看访问权限，但无法编辑任何内容',
   REQUESTER_name: '请求者',
-  REQUESTER_description:
-    '请求者只能提交工作请求并查看其状态',
+  REQUESTER_description: '请求者只能提交工作请求并查看其状态',
   select_user_role: '选择用户角色',
   'noRows.team.message': '团队帮助您管理特定的人群。',
   'noRows.team.action': "按'+'按钮创建团队。",
   user_details: '用户详细信息',
   //files
   file_delete_success: '文件删除成功',
-  file_delete_failure: "文件无法删除",
+  file_delete_failure: '文件无法删除',
   uploaded_by: '上传者',
   uploaded_on: '上传于',
   rename: '重命名',
@@ -707,16 +652,15 @@ const locale = {
   edit_file: '编辑文件',
   'noRows.file.message': '在一个地方获取所有文件',
   'noRows.file.action': "按'+'按钮上传文件",
-  upgrade_files:
-    '升级以在您的资产、工单、位置等中使用文件...',
+  upgrade_files: '升级以在您的资产、工单、位置等中使用文件...',
   parts_consumption: '零件消耗',
   requests_analysis: '请求分析',
   //categories,
   category_create_success: '类别创建成功',
-  category_create_failure: "类别无法创建",
-  category_edit_failure: "类别无法编辑",
+  category_create_failure: '类别无法创建',
+  category_edit_failure: '类别无法编辑',
   category_delete_success: '类别删除成功',
-  category_delete_failure: "类别无法删除",
+  category_delete_failure: '类别无法删除',
   timers: '计时器',
   costs: '成本',
   add_category: '添加新类别',
@@ -725,22 +669,20 @@ const locale = {
   edit_category_description: '填写名称以编辑类别',
   no_category_action: "按'+'按钮添加您的第一个类别。",
   confirm_delete_category: '您确定要删除此类别吗？',
-  no_category_message:
-    "看起来您还没有{{categoryName}}类别。",
+  no_category_message: '看起来您还没有{{categoryName}}类别。',
   acquisition_cost: '采购成本',
   //settings
   general_settings: '常规设置',
   request_form_configuration: '请求表单配置',
   roles: '角色',
   checklists: '检查清单',
-  field_configuration_description:
-    '您可以将字段标记为可选、隐藏或必需',
+  field_configuration_description: '您可以将字段标记为可选、隐藏或必需',
   optional: '可选',
   required: '必需',
   hidden: '隐藏',
   creating_wo: '创建工单',
   completing_wo: '完成工单',
-  role_edit_failure: "角色无法编辑",
+  role_edit_failure: '角色无法编辑',
   edit_role: '编辑角色',
   edit_role_description: '填写以下字段以编辑角色',
   external_id: '外部ID',
@@ -750,18 +692,16 @@ const locale = {
   create_and_edit: '创建/编辑',
   to_access: '访问',
   to_create_edit: '创建/编辑',
-  to_delete: '删除',
   checklist_create_success: '检查清单创建成功',
-  checklist_create_failure: "检查清单无法创建",
-  checklist_edit_failure: "检查清单无法编辑",
+  checklist_create_failure: '检查清单无法创建',
+  checklist_edit_failure: '检查清单无法编辑',
   checklist_delete_success: '检查清单删除成功',
-  checklist_delete_failure: "检查清单无法删除",
+  checklist_delete_failure: '检查清单无法删除',
   checklist_name: '检查清单名称',
   enter_checklist_name: '输入检查清单名称',
   required_checklist_name: '检查清单名称是必需的',
   add_checklist: '添加检查清单',
-  add_checklist_description:
-    '填写以下字段以创建和添加新检查清单',
+  add_checklist_description: '填写以下字段以创建和添加新检查清单',
   edit_checklist: '编辑检查清单',
   edit_checklist_description: '填写以下字段以编辑检查清单',
   confirm_delete_checklist: '您确定要删除此检查清单吗？',
@@ -800,12 +740,10 @@ const locale = {
   new_password: '新密码',
   confirm_password: '确认密码',
   personal_details: '个人详细信息',
-  personal_details_description:
-    '管理与您的个人详细信息相关的信息',
+  personal_details_description: '管理与您的个人详细信息相关的信息',
   change_password: '更改密码',
   notification_settings: '通知设置',
-  notification_settings_description:
-    '管理与您的通知相关的详细信息',
+  notification_settings_description: '管理与您的通知相关的详细信息',
   recent_activity: '最近活动',
   created: '已创建',
   completed: '已完成',
@@ -837,8 +775,7 @@ const locale = {
   your_payment_secure: '您的付款数据已加密且安全。',
   plan: '计划',
   current_plan: '当前计划',
-  number_users_who_will_use_grash:
-    '将使用{{shortBrandName}}的用户数量',
+  number_users_who_will_use_grash: '将使用{{shortBrandName}}的用户数量',
   admin_role: '管理员',
   technical_role: '技术',
   limited_technical_role: '有限技术',
@@ -863,8 +800,7 @@ const locale = {
   checkout_description: '填写以下字段',
   per_month: '每月',
   per_year: '每年',
-  recover_password_description:
-    '输入用于注册的电子邮件以重置您的密码。',
+  recover_password_description: '输入用于注册的电子邮件以重置您的密码。',
   send_me_new_password: '发送新密码',
   want_to_sign_in_again: '想要再次登录？',
   check_mails_for_instructions: '检查您的电子邮件以获取进一步说明',
@@ -892,8 +828,7 @@ const locale = {
   to_import: '导入',
   required_match: '{{field}}匹配是必需的',
   archived: '已存档',
-  import_wo_success:
-    '{{created}}个工单已创建，{{updated}}个已更新',
+  import_wo_success: '{{created}}个工单已创建，{{updated}}个已更新',
   to_export: '导出',
   filters: '过滤器',
   more_filters: '更多过滤器',
@@ -907,14 +842,10 @@ const locale = {
   ALL: '全部',
   REACTIVE: '反应性',
   REPEATING: '预防性',
-  import_location_success:
-    '{{created}}个位置已创建，{{updated}}个已更新',
-  import_part_success:
-    '{{created}}个零件已创建，{{updated}}个已更新',
-  import_meter_success:
-    '{{created}}个仪表已创建，{{updated}}个已更新',
-  import_asset_success:
-    '{{created}}个资产已创建，{{updated}}个已更新',
+  import_location_success: '{{created}}个位置已创建，{{updated}}个已更新',
+  import_part_success: '{{created}}个零件已创建，{{updated}}个已更新',
+  import_meter_success: '{{created}}个仪表已创建，{{updated}}个已更新',
+  import_asset_success: '{{created}}个资产已创建，{{updated}}个已更新',
   wo_calendar: '工单日历',
   month: '月',
   week: '周',
@@ -923,8 +854,7 @@ const locale = {
   previous: '上一个',
   today: '今天',
   to_filter: '过滤',
-  'noRows.asset.message':
-    '资产是您的公司可以干预的资源',
+  'noRows.asset.message': '资产是您的公司可以干预的资源',
   'noRows.asset.action': "按'+'按钮创建新资产。",
   reset_filters: '重置过滤器',
   toggle_menu: '切换菜单',
@@ -990,8 +920,7 @@ const locale = {
   detail_panel_toggle: '详细面板切换',
   cancel_subscription: '取消订阅',
   resume_subscription: '恢复订阅',
-  confirm_cancel_subscription:
-    '您确定要取消订阅吗？',
+  confirm_cancel_subscription: '您确定要取消订阅吗？',
   workflows: '工作流',
   create_workflow: '创建工作流',
   if: '如果',
@@ -1046,18 +975,18 @@ const locale = {
   PART_UPDATED: '零件已更新',
   add_condition: '添加条件',
   workflow_creation_success: '工作流创建成功',
-  workflow_creation_failure: "工作流创建失败",
+  workflow_creation_failure: '工作流创建失败',
   action_value_missing: '操作值缺失',
   condition_value_missing: '条件值缺失',
   workflow_edit_success: '工作流更新成功',
-  workflow_edit_failure: "工作流无法编辑",
+  workflow_edit_failure: '工作流无法编辑',
   workflow_delete_success: '工作流删除成功',
-  workflow_delete_failure: "工作流无法删除",
+  workflow_delete_failure: '工作流无法删除',
   confirm_delete_workflow: '您确定要删除此工作流吗',
   click_here: '点击这里',
   verify_email_title: '验证电子邮件',
   verify_email_description:
-    "验证电子邮件已发送给您。如果在收件箱中看不到，请检查垃圾邮件。",
+    '验证电子邮件已发送给您。如果在收件箱中看不到，请检查垃圾邮件。',
   upgrade: '升级',
   downgrade: '降级',
   upgrade_description:
@@ -1110,8 +1039,7 @@ const locale = {
   required_tasks_on_completion: '任务必须完成',
   required_labor_on_completion: '您必须记录时间',
   required_part_on_completion: '此工单中未使用零件',
-  required_cost_on_completion:
-    '此工单中未提供成本信息',
+  required_cost_on_completion: '此工单中未提供成本信息',
   complete_work_order: '完成工单',
   no_parts: '无零件',
   edit_quantity: '编辑数量',
@@ -1149,33 +1077,29 @@ const locale = {
   compliant_work_orders: '合规工单',
   stats: '统计',
   vendors_and_customers: '供应商和承包商',
-  no_notification_message:
-    '重要更新将出现在这里，帮助您跟踪工作进度',
+  no_notification_message: '重要更新将出现在这里，帮助您跟踪工作进度',
   no_notification: '无通知',
   view_children: '查看子项',
   loading: '加载中',
   please_wait: '请稍候...',
   add_file: '添加文件',
-  asset_update_failure: "资产无法编辑",
+  asset_update_failure: '资产无法编辑',
   no_wo_linked_location: '此位置没有工单',
-  confirm_delete_file_location:
-    '您确定要从此位置删除此文件吗？',
-  confirm_delete_file_part:
-    '您确定要从此零件删除此文件吗？',
+  confirm_delete_file_location: '您确定要从此位置删除此文件吗？',
+  confirm_delete_file_part: '您确定要从此零件删除此文件吗？',
   no_wo_linked_part: '没有工单链接到此零件',
   edit_customer: '编辑承包商',
   edit_vendor: '编辑供应商',
   reading_history: '读数历史',
   user_invite_success: '用户已邀请',
-  user_invite_failure: "用户无法邀请",
+  user_invite_failure: '用户无法邀请',
   create_child_asset: '创建子资产',
   not_enough_part: '此零件不足',
   update_profile: '更新个人资料',
   confirm_logout: '您确定要注销吗？',
   report: '报告',
   end_cannot_be_ulterior_to_start: '结束日期不能早于开始日期',
-  storage_permission_needed_description:
-    '您需要授予存储权限才能下载文件',
+  storage_permission_needed_description: '您需要授予存储权限才能下载文件',
   permission_denied: '权限被拒绝！',
   to_scan: '扫描',
   nfc_tag: 'NFC标签',
@@ -1185,11 +1109,9 @@ const locale = {
   'no nfc support': '不支持NFC',
   remaining_parts: '剩余{{quantity}}',
   team_members_count: '{{count}}名成员',
-  no_asset_found_nfc:
-    '未找到具有此NFC标签的资产。您想创建一个吗？',
+  no_asset_found_nfc: '未找到具有此NFC标签的资产。您想创建一个吗？',
   no_access_to_camera: '无法访问相机',
-  no_asset_found_barcode:
-    '未找到具有此条形码的资产。您想创建一个吗？',
+  no_asset_found_barcode: '未找到具有此条形码的资产。您想创建一个吗？',
   remove_blank_meter_tasks: '选择一个仪表',
   no_notification_permission: '无通知权限',
   OPERATIONAL: '运行中',
@@ -1205,7 +1127,7 @@ const locale = {
   downtime_duration_in_days: '停机时间（天）',
   downtime_duration_in_minutes: '停机时间（分钟）',
   asset_status_change_success: '资产状态更改成功',
-  asset_status_change_failure: "资产状态无法更改",
+  asset_status_change_failure: '资产状态无法更改',
   set_asset_status: '设置资产状态',
   set_asset_status_description: '设置资产的状态',
   asset_status_history: '资产状态历史',
@@ -1216,38 +1138,52 @@ const locale = {
   asset_status_changed_from_to: '资产状态从{{from}}更改为{{to}}',
   asset_status_changed_from_to_by: '资产状态由{{user}}从{{from}}更改为{{to}}',
   asset_status_changed_from_to_on: '资产状态在{{date}}从{{from}}更改为{{to}}',
-  asset_status_changed_from_to_by_on: '资产状态由{{user}}在{{date}}从{{from}}更改为{{to}}',
-  asset_status_changed_from_to_by_on_with_downtime: '资产状态由{{user}}在{{date}}从{{from}}更改为{{to}}，停机时间为{{downtime}}',
-  asset_status_changed_from_to_on_with_downtime: '资产状态在{{date}}从{{from}}更改为{{to}}，停机时间为{{downtime}}',
-  asset_status_changed_from_to_by_with_downtime: '资产状态由{{user}}从{{from}}更改为{{to}}，停机时间为{{downtime}}',
-  asset_status_changed_from_to_with_downtime: '资产状态从{{from}}更改为{{to}}，停机时间为{{downtime}}',
+  asset_status_changed_from_to_by_on:
+    '资产状态由{{user}}在{{date}}从{{from}}更改为{{to}}',
+  asset_status_changed_from_to_by_on_with_downtime:
+    '资产状态由{{user}}在{{date}}从{{from}}更改为{{to}}，停机时间为{{downtime}}',
+  asset_status_changed_from_to_on_with_downtime:
+    '资产状态在{{date}}从{{from}}更改为{{to}}，停机时间为{{downtime}}',
+  asset_status_changed_from_to_by_with_downtime:
+    '资产状态由{{user}}从{{from}}更改为{{to}}，停机时间为{{downtime}}',
+  asset_status_changed_from_to_with_downtime:
+    '资产状态从{{from}}更改为{{to}}，停机时间为{{downtime}}',
   asset_status_changed_to_by: '资产状态由{{user}}更改为{{status}}',
   asset_status_changed_to_on: '资产状态在{{date}}更改为{{status}}',
   asset_status_changed_to_by_on: '资产状态由{{user}}在{{date}}更改为{{status}}',
-  asset_status_changed_to_with_downtime: '资产状态更改为{{status}}，停机时间为{{downtime}}',
-  asset_status_changed_to_by_with_downtime: '资产状态由{{user}}更改为{{status}}，停机时间为{{downtime}}',
-  asset_status_changed_to_on_with_downtime: '资产状态在{{date}}更改为{{status}}，停机时间为{{downtime}}',
-  asset_status_changed_to_by_on_with_downtime: '资产状态由{{user}}在{{date}}更改为{{status}}，停机时间为{{downtime}}',
+  asset_status_changed_to_with_downtime:
+    '资产状态更改为{{status}}，停机时间为{{downtime}}',
+  asset_status_changed_to_by_with_downtime:
+    '资产状态由{{user}}更改为{{status}}，停机时间为{{downtime}}',
+  asset_status_changed_to_on_with_downtime:
+    '资产状态在{{date}}更改为{{status}}，停机时间为{{downtime}}',
+  asset_status_changed_to_by_on_with_downtime:
+    '资产状态由{{user}}在{{date}}更改为{{status}}，停机时间为{{downtime}}',
   asset_status_changed_by_on: '资产状态由{{user}}在{{date}}更改',
-  asset_status_changed_by_with_downtime: '资产状态由{{user}}更改，停机时间为{{downtime}}',
-  asset_status_changed_on_with_downtime: '资产状态在{{date}}更改，停机时间为{{downtime}}',
-  asset_status_changed_by_on_with_downtime: '资产状态由{{user}}在{{date}}更改，停机时间为{{downtime}}',
+  asset_status_changed_by_with_downtime:
+    '资产状态由{{user}}更改，停机时间为{{downtime}}',
+  asset_status_changed_on_with_downtime:
+    '资产状态在{{date}}更改，停机时间为{{downtime}}',
+  asset_status_changed_by_on_with_downtime:
+    '资产状态由{{user}}在{{date}}更改，停机时间为{{downtime}}',
   asset_status_changed_with_downtime: '资产状态已更改，停机时间为{{downtime}}',
   asset_status_changed: '资产状态已更改',
   asset_status_changed_from: '资产状态从{{from}}更改',
   asset_status_changed_from_by: '资产状态由{{user}}从{{from}}更改',
   asset_status_changed_from_on: '资产状态在{{date}}从{{from}}更改',
   asset_status_changed_from_by_on: '资产状态由{{user}}在{{date}}从{{from}}更改',
-  asset_status_changed_from_with_downtime: '资产状态从{{from}}更改，停机时间为{{downtime}}',
-  asset_status_changed_from_by_with_downtime: '资产状态由{{user}}从{{from}}更改，停机时间为{{downtime}}',
-  asset_status_changed_from_on_with_downtime: '资产状态在{{date}}从{{from}}更改，停机时间为{{downtime}}',
-  asset_status_changed_from_by_on_with_downtime: '资产状态由{{user}}在{{date}}从{{from}}更改，停机时间为{{downtime}}',
-  upgrade_request_received:
-    "升级请求已收到！我们将很快与您联系提供付款详情",
+  asset_status_changed_from_with_downtime:
+    '资产状态从{{from}}更改，停机时间为{{downtime}}',
+  asset_status_changed_from_by_with_downtime:
+    '资产状态由{{user}}从{{from}}更改，停机时间为{{downtime}}',
+  asset_status_changed_from_on_with_downtime:
+    '资产状态在{{date}}从{{from}}更改，停机时间为{{downtime}}',
+  asset_status_changed_from_by_on_with_downtime:
+    '资产状态由{{user}}在{{date}}从{{from}}更改，停机时间为{{downtime}}',
+  upgrade_request_received: '升级请求已收到！我们将很快与您联系提供付款详情',
   continue_with_sso: '使用SSO继续',
   see_live_demo: '查看实时演示',
-  demo_warning:
-    '此实例处于演示模式。请勿将其用于真实数据！所有内容将定期删除！'
+  demo_warning: '此实例处于演示模式。请勿将其用于真实数据！所有内容将定期删除！'
 };
 
 export default locale;
