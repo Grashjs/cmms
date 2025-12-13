@@ -12,6 +12,9 @@ import ptBRJSON from './translations/pt_BR';
 import itJSON from './translations/it';
 import svJSON from './translations/sv';
 import ruJSON from './translations/ru';
+import huJSON from './translations/hu';
+import nlJSON from './translations/nl';
+import zhCNJSON from './translations/zh_cn';
 import { FlagComponent } from 'country-flag-icons/react/1x1';
 import {
   BR,
@@ -24,7 +27,10 @@ import {
   SA,
   IT,
   SE,
-  RU
+  RU,
+  HU,
+  NL,
+  CN
 } from 'country-flag-icons/react/3x2';
 import { LocaleSingularArg } from '@fullcalendar/react';
 import deLocale from '@fullcalendar/core/locales/de';
@@ -38,6 +44,9 @@ import enLocale from '@fullcalendar/core/locales/en-gb';
 import itLocale from '@fullcalendar/core/locales/it';
 import svLocale from '@fullcalendar/core/locales/sv';
 import ruLocale from '@fullcalendar/core/locales/ru';
+import huLocale from '@fullcalendar/core/locales/hu';
+import nlLocale from '@fullcalendar/core/locales/nl';
+import zhCNLocale from '@fullcalendar/core/locales/zh-cn';
 import { Locale as DateLocale } from 'date-fns';
 import {
   fr,
@@ -50,7 +59,10 @@ import {
   enUS,
   it,
   sv,
-  ru
+  ru,
+  hu,
+  nl,
+  zhCN
 } from 'date-fns/locale';
 
 const resources = {
@@ -64,7 +76,10 @@ const resources = {
   ar: { translation: arJSON },
   it: { translation: itJSON },
   sv: { translation: svJSON },
-  ru: { translation: ruJSON }
+  ru: { translation: ruJSON },
+  hu: { translation: huJSON },
+  nl: { translation: nlJSON },
+  zh_cn: { translation: zhCNJSON }
 };
 
 i18n
@@ -99,7 +114,10 @@ export type SupportedLanguage =
   | 'IT'
   | 'SV'
   | 'RU'
-  | 'AR';
+  | 'AR'
+  | 'HU'
+  | 'NL'
+  | 'ZH_CN';
 
 export const supportedLanguages: {
   code: Lowercase<SupportedLanguage>;
@@ -184,6 +202,27 @@ export const supportedLanguages: {
     Icon: RU,
     calendarLocale: ruLocale,
     dateLocale: ru
+  },
+  {
+    code: 'hu',
+    label: 'Hungarian',
+    Icon: HU,
+    calendarLocale: huLocale,
+    dateLocale: hu
+  },
+  {
+    code: 'nl',
+    label: 'Dutch',
+    Icon: NL,
+    calendarLocale: nlLocale,
+    dateLocale: nl
+  },
+  {
+    code: 'zh_cn',
+    label: 'Chinese (Simplified)',
+    Icon: CN,
+    calendarLocale: zhCNLocale,
+    dateLocale: zhCN
   }
 ];
 
