@@ -6,6 +6,7 @@ import com.grash.model.Task;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.RecurrenceType;
 import com.grash.repository.ScheduleRepository;
+import com.grash.service.ScheduleService;
 import com.grash.service.TaskService;
 import com.grash.service.WorkOrderService;
 import com.grash.utils.Helper;
@@ -29,6 +30,7 @@ public class WorkOrderCreationJob extends QuartzJobBean {
     private final ScheduleRepository scheduleRepository;
     private final WorkOrderService workOrderService;
     private final TaskService taskService;
+    private final ScheduleService scheduleService;
 
     @Override
     @Transactional
@@ -40,21 +42,7 @@ public class WorkOrderCreationJob extends QuartzJobBean {
         if (schedule == null || schedule.isDisabled()) {
             return;
         }
-
-        if (schedule.getRecurrenceType() == RecurrenceType.WEEKLY && schedule.getFrequency() > 1) {
-            // Calculate weeks since startsOn
-            long daysSinceStart = ChronoUnit.DAYS.between(
-                    schedule.getStartsOn().toInstant(),
-                    new Date().toInstant()
-            );
-            long weeksSinceStart = daysSinceStart / 7;
-
-            // Only execute if we're on the correct week interval
-            if (weeksSinceStart % schedule.getFrequency() != 0) {
-                log.info("Skipping execution - not on correct week interval for schedule {}", scheduleId);
-                return;
-            }
-        }
+        scheduleService.checkIfWeeklyShouldRun(schedule);
         
         PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
 

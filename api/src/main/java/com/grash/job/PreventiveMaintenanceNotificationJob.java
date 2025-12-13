@@ -4,8 +4,10 @@ import com.grash.model.OwnUser;
 import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
 import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.RecurrenceType;
 import com.grash.repository.ScheduleRepository;
 import com.grash.service.EmailService2;
+import com.grash.service.ScheduleService;
 import com.grash.service.UserService;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -32,6 +35,7 @@ public class PreventiveMaintenanceNotificationJob extends QuartzJobBean {
     private final UserService userService;
     private final EmailService2 emailService2;
     private final MessageSource messageSource;
+    private final ScheduleService scheduleService;
 
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -45,6 +49,7 @@ public class PreventiveMaintenanceNotificationJob extends QuartzJobBean {
         if (schedule == null || schedule.isDisabled()) {
             return;
         }
+        scheduleService.checkIfWeeklyShouldRun(schedule);
 
         PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
         Locale locale = Helper.getLocale(preventiveMaintenance.getCompany());

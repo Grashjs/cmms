@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import com.grash.model.enums.RecurrenceBasedOn;
@@ -392,5 +393,22 @@ public class ScheduleService {
 
     public void deleteByCompanyIdAndIsDemoTrue(Long companyId) {
         scheduleRepository.deleteByPreventiveMaintenanceCompany_IdAndIsDemoTrue(companyId);
+    }
+
+    public void checkIfWeeklyShouldRun(Schedule schedule) {
+        if (schedule.getRecurrenceType() == RecurrenceType.WEEKLY && schedule.getFrequency() > 1) {
+            // Calculate weeks since startsOn
+            long daysSinceStart = ChronoUnit.DAYS.between(
+                    schedule.getStartsOn().toInstant(),
+                    new Date().toInstant()
+            );
+            long weeksSinceStart = daysSinceStart / 7;
+
+            // Only execute if we're on the correct week interval
+            if (weeksSinceStart % schedule.getFrequency() != 0) {
+                log.info("Skipping execution - not on correct week interval for schedule {}", schedule.getId());
+                return;
+            }
+        }
     }
 }
