@@ -792,57 +792,52 @@ function WorkOrders() {
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
-              return new Promise<void>((resolve, rej) => {
-                //differentiate files from api and formattedValues
+              try {
+                // Differentiate files from api and formattedValues
                 const files = formattedValues.files.find((file) => file.id)
                   ? []
                   : formattedValues.files;
-                uploadFiles(files, formattedValues.image)
-                  .then((files) => {
-                    const imageAndFiles = getImageAndFiles(
-                      files,
-                      currentWorkOrder.image
-                    );
-                    formattedValues = {
-                      ...formattedValues,
-                      image: imageAndFiles.image,
-                      files: [...currentWorkOrder.files, ...imageAndFiles.files]
-                    };
-                    dispatch(
-                      //TODO editTask
-                      patchTasksOfWorkOrder(
-                        currentWorkOrder?.id,
-                        formattedValues.tasks.map((task) => {
-                          return {
-                            ...task.taskBase,
-                            options: task.taskBase.options.map(
-                              (option) => option.label
-                            )
-                          };
-                        })
-                      )
-                    )
-                      .then(() =>
-                        dispatch(
-                          editWorkOrder(currentWorkOrder?.id, formattedValues)
+
+                const uploadedFiles = await uploadFiles(
+                  files,
+                  formattedValues.image
+                );
+
+                const imageAndFiles = getImageAndFiles(
+                  uploadedFiles,
+                  currentWorkOrder.image
+                );
+
+                formattedValues = {
+                  ...formattedValues,
+                  image: imageAndFiles.image,
+                  files: [...currentWorkOrder.files, ...imageAndFiles.files]
+                };
+
+                await dispatch(
+                  //TODO editTask
+                  patchTasksOfWorkOrder(
+                    currentWorkOrder?.id,
+                    formattedValues.tasks.map((task) => {
+                      return {
+                        ...task.taskBase,
+                        options: task.taskBase.options.map(
+                          (option) => option.label
                         )
-                          .then(onEditSuccess)
-                          .then(() => resolve())
-                          .catch((err) => {
-                            onEditFailure(err);
-                            rej();
-                          })
-                      )
-                      .catch((err) => {
-                        onEditFailure(err);
-                        rej();
-                      });
-                  })
-                  .catch((err) => {
-                    onEditFailure(err);
-                    rej();
-                  });
-              });
+                      };
+                    })
+                  )
+                );
+
+                await dispatch(
+                  editWorkOrder(currentWorkOrder?.id, formattedValues)
+                );
+
+                await onEditSuccess();
+              } catch (err) {
+                onEditFailure(err);
+                throw err; // Re-throw to maintain the rejection behavior
+              }
             }}
           />
         </Box>

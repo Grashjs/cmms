@@ -55,7 +55,7 @@ public class TaskService {
     }
 
     public List<Task> findByWorkOrder(Long id) {
-        return taskRepository.findByWorkOrder_Id(id);
+        return taskRepository.findByWorkOrder_IdOrderByCreatedAtAsc(id);
     }
 
     public List<Task> findByPreventiveMaintenance(Long id) {

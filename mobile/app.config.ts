@@ -25,7 +25,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     fallbackToCacheTimeout: 0,
     url: 'https://u.expo.dev/803b5007-0c60-4030-ac3a-c7630b223b92'
   },
-  assetBundlePatterns: ['**/*'],
   ios: {
     bundleIdentifier: 'com.cmms.atlas',
     buildNumber: '9',
@@ -57,7 +56,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     }
   },
   plugins: [
-    'expo-asset',
+    [
+      'expo-asset',
+      {
+        assets: ['**/*']
+      }
+    ],
     'expo-font',
     [
       'expo-barcode-scanner',

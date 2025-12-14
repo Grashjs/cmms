@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -24,5 +25,5 @@ public class TaskBaseDTO {
 
     private Meter meter;
 
-    private Collection<String> options;
+    private List<String> options;
 }

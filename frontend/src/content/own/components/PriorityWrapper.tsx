@@ -10,6 +10,7 @@ const LabelWrapper = styled(Box)(
     border-radius: ${theme.general.borderRadiusSm};
     padding: ${theme.spacing(0.9, 1.5, 0.7)};
     line-height: 1;
+    width: fit-content;
   `
 );
 export default function PriorityWrapper(props: {

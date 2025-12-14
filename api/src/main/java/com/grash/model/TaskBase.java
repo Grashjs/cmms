@@ -18,6 +18,7 @@ import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -36,7 +37,7 @@ public class TaskBase extends CompanyAudit {
             orphanRemoval = true
     )
     @JsonManagedReference
-    private Collection<TaskOption> options = new ArrayList<>();
+    private List<TaskOption> options = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     private OwnUser user;
