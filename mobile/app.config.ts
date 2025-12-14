@@ -59,7 +59,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     }
   },
   plugins: [
-    'expo-asset',
+    [
+      'expo-asset',
+      {
+        assets: ['./assets']
+      }
+    ],
     'expo-font',
     [
       'expo-barcode-scanner',
