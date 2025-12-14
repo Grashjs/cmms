@@ -154,9 +154,7 @@ export default function PartsScreen({
                           ? {
                               uri: part.image.url
                             }
-                          : Asset.fromModule(
-                              require('../../assets/images/no-image.png')
-                            )
+                          : require('../../assets/images/no-image.png')
                       }
                     />
                   )}

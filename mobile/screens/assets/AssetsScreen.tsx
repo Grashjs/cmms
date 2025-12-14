@@ -83,7 +83,7 @@ const AssetCard = ({
                 ? {
                     uri: asset.image.url
                   }
-                : Asset.fromModule(require('../../assets/images/no-image.png'))
+                : require('../../assets/images/no-image.png')
             }
           />
           <Text variant="titleMedium">{asset.name}</Text>

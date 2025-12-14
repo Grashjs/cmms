@@ -31,7 +31,7 @@ export default function LoginScreen({
       >
         <Image
           style={{ height: 180, width: 180 }}
-          source={Asset.fromModule(require('../../assets/images/icon.png'))}
+          source={require('../../assets/images/icon.png')}
         />
         <Formik
           initialValues={{
