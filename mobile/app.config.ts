@@ -53,15 +53,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     API_URL: apiUrl,
     eas: {
       projectId: '803b5007-0c60-4030-ac3a-c7630b223b92'
+    },
+    updates: {
+      assetPatternsToBeBundled: ['**/*']
     }
   },
   plugins: [
-    [
-      'expo-asset',
-      {
-        assets: ['**/*']
-      }
-    ],
+    'expo-asset',
     'expo-font',
     [
       'expo-barcode-scanner',
