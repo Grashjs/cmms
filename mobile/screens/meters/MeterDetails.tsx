@@ -11,6 +11,7 @@ import {
   IconButton,
   Portal,
   Text,
+  TextInput,
   useTheme
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -145,7 +146,7 @@ export default function MeterDetails({
         >
           <Dialog.Title>{t('add_reading')}</Dialog.Title>
           <Dialog.Content>
-            <NumberInput
+            <TextInput
               style={{ width: '100%' }}
               mode="outlined"
               label={t('reading')}
