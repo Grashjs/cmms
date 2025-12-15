@@ -54,7 +54,12 @@ function Overview() {
   return (
     <OverviewWrapper>
       <Helmet>
-        <title>{brandConfig.name}</title>
+        <title>
+          {brandConfig.name}
+          {isCloudVersion
+            ? ' - Open-Source Maintenance Management Software | Free EAM Solution'
+            : ''}
+        </title>
       </Helmet>
       <NavBar />
       <Hero />
