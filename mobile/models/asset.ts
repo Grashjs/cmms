@@ -24,6 +24,7 @@ export type AssetStatus =
   | 'COMMISSIONING'
   | 'EMERGENCY_SHUTDOWN';
 export interface AssetDTO extends Audit {
+  nfcId: string;
   id: number;
   name: string;
   image: File;
