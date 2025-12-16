@@ -42,7 +42,7 @@ export default function AssetDetails({
     { label: t('serial_number'), value: asset?.serialNumber },
     {
       label: t('status'),
-      value: asset?.status === 'OPERATIONAL' ? t('operational') : t('down')
+      value: t(asset?.status)
     },
     {
       label: t('acquisition_cost'),

@@ -7,6 +7,7 @@ import Location from './location';
 import { CustomerMiniDTO } from './customer';
 import File, { FileMiniDTO } from './file';
 import Category from './category';
+import { customTheme } from '../custom-theme';
 
 export default interface Asset extends Audit {
   id: number;
@@ -14,7 +15,14 @@ export default interface Asset extends Audit {
   description: string;
 }
 
-export type AssetStatus = 'OPERATIONAL' | 'DOWN';
+export type AssetStatus =
+  | 'OPERATIONAL'
+  | 'DOWN'
+  | 'MODERNIZATION'
+  | 'STANDBY'
+  | 'INSPECTION_SCHEDULED'
+  | 'COMMISSIONING'
+  | 'EMERGENCY_SHUTDOWN';
 export interface AssetDTO extends Audit {
   id: number;
   name: string;
@@ -43,7 +51,10 @@ export interface AssetDTO extends Audit {
   files: FileMiniDTO[];
   customId: string;
 }
-export const assetStatuses = [
+export const assetStatuses: {
+  status: AssetStatus;
+  color: (theme: typeof customTheme) => string;
+}[] = [
   { status: 'OPERATIONAL', color: (theme) => theme.colors.success },
   { status: 'MODERNIZATION', color: (theme) => '#CBC3E3' },
   { status: 'DOWN', color: (theme) => theme.colors.error },
@@ -66,3 +77,19 @@ export interface AssetMiniDTO {
   customId: string;
   parentId: number;
 }
+
+export const getAssetStatusConfig = (
+  status: AssetStatus
+): {
+  status: AssetStatus;
+  color: (theme: typeof customTheme) => string;
+} => {
+  const statusConfig = assetStatuses.find((s) => s.status === status);
+  if (statusConfig) {
+    return statusConfig;
+  }
+  return {
+    status: 'OPERATIONAL',
+    color: (theme) => theme.colors.success
+  };
+};

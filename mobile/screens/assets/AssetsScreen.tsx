@@ -14,7 +14,12 @@ import { getAssetChildren, getAssets, getMoreAssets } from '../../slices/asset';
 import { FilterField, SearchCriteria } from '../../models/page';
 import { Button, Card, Searchbar, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { AssetDTO, AssetRow } from '../../models/asset';
+import {
+  AssetDTO,
+  AssetRow,
+  assetStatuses,
+  getAssetStatusConfig
+} from '../../models/asset';
 import { isCloseToBottom, onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import Tag from '../../components/Tag';
@@ -63,14 +68,8 @@ const AssetCard = ({
               />
             </View>
             <Tag
-              text={
-                asset?.status === 'OPERATIONAL' ? t('operational') : t('down')
-              }
-              backgroundColor={
-                asset.status === 'OPERATIONAL'
-                  ? theme.colors.success
-                  : theme.colors.error
-              }
+              text={t(asset?.status)}
+              backgroundColor={getAssetStatusConfig(asset?.status).color(theme)}
               color="white"
             />
           </View>
