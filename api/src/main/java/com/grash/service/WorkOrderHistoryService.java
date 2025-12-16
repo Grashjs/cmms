@@ -49,7 +49,7 @@ public class WorkOrderHistoryService {
             OwnUser user = workOrderAud.getWorkOrderAudId().getRev().getUser();
             return WorkOrderHistory.builder()
                     .workOrder(workOrder)
-                    .name(workOrderAud.getSummary())
+                    .name(workOrderAud.getSummary(messageSource, Helper.getLocale(user)))
                     .user(user)
                     .build();
         }).collect(Collectors.toList());

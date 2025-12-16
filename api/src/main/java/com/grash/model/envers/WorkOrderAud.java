@@ -6,10 +6,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.springframework.context.MessageSource;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Locale;
 
 @Entity
 @Data
@@ -163,14 +165,15 @@ public class WorkOrderAud implements Serializable {
     @Column(name = "asset_MOD")
     private Boolean assetIdMod;
 
-    public String getSummary() {
+    public String getSummary(MessageSource messageSource, Locale locale) {
         StringBuilder summary = new StringBuilder();
 
         if (dueDateMod != null && dueDateMod) {
             summary.append("Due Date: ").append(dueDate).append("\n");
         }
         if (priorityMod != null && priorityMod) {
-            summary.append("Priority: ").append(priority).append("\n");
+            summary.append("Priority: ").append(messageSource.getMessage(priority.toString(), null, locale)).append(
+                    "\n");
         }
         if (estimatedDurationMod != null && estimatedDurationMod) {
             summary.append("Estimated Duration: ").append(estimatedDuration).append("\n");
@@ -208,10 +211,10 @@ public class WorkOrderAud implements Serializable {
             summary.append("Completed On: ").append(completedOn).append("\n");
         }
         if (statusMod != null && statusMod) {
-            summary.append("Status: ").append(status).append("\n");
+            summary.append("Status: ").append(messageSource.getMessage(status.toString(), null, locale)).append("\n");
         }
         if (signatureMod != null && signatureMod) {
-            summary.append("Signature.\n");
+            summary.append("Signature\n");
         }
         if (archivedMod != null && archivedMod) {
             summary.append("Archived: ").append(archived).append("\n");
