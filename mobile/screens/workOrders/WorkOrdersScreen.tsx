@@ -282,7 +282,7 @@ export default function WorkOrdersScreen({
                   <Card.Content>
                     {/* Header: Title, ID, and Status */}
                     <View style={styles.cardHeader}>
-                      <View style={{ flex: 1 }}>
+                      <View>
                         <Text variant="titleMedium" style={styles.cardTitle}>
                           {workOrder.title}
                         </Text>
@@ -334,6 +334,7 @@ export default function WorkOrdersScreen({
                           icon="clock-alert-outline"
                         />
                       )}
+                      <View style={{ flex: 1 }} />
                       {allUsers.length > 0 && (
                         <View style={styles.assigneeContainer}>
                           {allUsers.slice(0, 3).map((user, index) => (
@@ -433,14 +434,13 @@ const styles = StyleSheet.create({
     marginVertical: 8
   },
   cardBody: {
-    // marginBottom: 8,
-    // gap: 4
+    gap: 10
   },
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 4
+    marginTop: 10
   },
   assigneeContainer: {
     flexDirection: 'row',

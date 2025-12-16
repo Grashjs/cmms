@@ -316,37 +316,41 @@ export default function RequestsScreen({
                         />
                       </View>
                     </View>
-                    <Text style={{ fontWeight: 'bold', fontSize: 18 }}>
+                    <Text
+                      style={{ marginTop: 5, fontWeight: 'bold', fontSize: 18 }}
+                    >
                       {request.title}
                     </Text>
-                    {request.dueDate && (
-                      <IconWithLabel
-                        color={
-                          (dayDiff(new Date(request.dueDate), new Date()) <=
-                            2 ||
-                            new Date() > new Date(request.dueDate)) &&
-                          request.workOrder?.status !== 'COMPLETE'
-                            ? theme.colors.error
-                            : theme.colors.grey
-                        }
-                        label={getFormattedDate(request.dueDate)}
-                        icon="clock-alert-outline"
-                      />
-                    )}
-                    {request.asset && (
-                      <IconWithLabel
-                        label={request.asset.name}
-                        icon="package-variant-closed"
-                        color={theme.colors.grey}
-                      />
-                    )}
-                    {request.location && (
-                      <IconWithLabel
-                        label={request.location.name}
-                        icon="map-marker-outline"
-                        color={theme.colors.grey}
-                      />
-                    )}
+                    <View style={{ marginTop: 7, gap: 10 }}>
+                      {request.dueDate && (
+                        <IconWithLabel
+                          color={
+                            (dayDiff(new Date(request.dueDate), new Date()) <=
+                              2 ||
+                              new Date() > new Date(request.dueDate)) &&
+                            request.workOrder?.status !== 'COMPLETE'
+                              ? theme.colors.error
+                              : theme.colors.grey
+                          }
+                          label={getFormattedDate(request.dueDate)}
+                          icon="clock-alert-outline"
+                        />
+                      )}
+                      {request.asset && (
+                        <IconWithLabel
+                          label={request.asset.name}
+                          icon="package-variant-closed"
+                          color={theme.colors.grey}
+                        />
+                      )}
+                      {request.location && (
+                        <IconWithLabel
+                          label={request.location.name}
+                          icon="map-marker-outline"
+                          color={theme.colors.grey}
+                        />
+                      )}
+                    </View>
                   </Card.Content>
                 </Card>
               ))

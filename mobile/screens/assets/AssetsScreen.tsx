@@ -45,7 +45,7 @@ const AssetCard = ({
   return (
     <Card
       style={{
-        padding: 5,
+        padding: 2,
         marginVertical: 5,
         backgroundColor: 'white'
       }}
@@ -87,12 +87,14 @@ const AssetCard = ({
           />
           <Text variant="titleMedium">{asset.name}</Text>
         </View>
-        {asset.location && (
-          <IconWithLabel
-            label={asset.location.name}
-            icon="map-marker-outline"
-          />
-        )}
+        <View style={{ marginBottom: 10 }}>
+          {asset.location && (
+            <IconWithLabel
+              label={asset.location.name}
+              icon="map-marker-outline"
+            />
+          )}
+        </View>
       </Card.Content>
       {showChildrenButton && asset.hasChildren && (
         <Card.Actions>

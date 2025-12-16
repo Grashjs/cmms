@@ -133,18 +133,20 @@ export default function MetersScreen({
             >
               <Card.Content>
                 <Text variant="titleMedium">{meter.name}</Text>
-                {meter.asset && (
-                  <IconWithLabel
-                    label={meter.asset.name}
-                    icon="package-variant-closed"
-                  />
-                )}
-                {meter.location && (
-                  <IconWithLabel
-                    label={meter.location.name}
-                    icon="map-marker-outline"
-                  />
-                )}
+                <View style={{ marginTop: 7, gap: 10 }}>
+                  {meter.asset && (
+                    <IconWithLabel
+                      label={meter.asset.name}
+                      icon="package-variant-closed"
+                    />
+                  )}
+                  {meter.location && (
+                    <IconWithLabel
+                      label={meter.location.name}
+                      icon="map-marker-outline"
+                    />
+                  )}
+                </View>
               </Card.Content>
             </Card>
           ))
