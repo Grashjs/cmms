@@ -297,16 +297,18 @@ export default function RequestsScreen({
                             backgroundColor="#545454"
                           />
                         </View>
-                        <View style={{ marginRight: 10 }}>
-                          <Tag
-                            text={t(request.priority)}
-                            color="white"
-                            backgroundColor={getPriorityColor(
-                              request.priority,
-                              theme
-                            )}
-                          />
-                        </View>
+                        {request.priority !== 'NONE' && (
+                          <View style={{ marginRight: 10 }}>
+                            <Tag
+                              text={t(request.priority)}
+                              color="white"
+                              backgroundColor={getPriorityColor(
+                                request.priority,
+                                theme
+                              )}
+                            />
+                          </View>
+                        )}
                         <Tag
                           text={getStatusMeta(request)[0]}
                           color="white"
