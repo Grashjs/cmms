@@ -694,13 +694,17 @@ export default function WODetailsScreen({
             <View style={styles.row}>
               <Text
                 variant="titleMedium"
-                style={{ marginRight: 10 }}
+                style={{ marginRight: 10, color: 'grey' }}
               >{`#${workOrder.customId}`}</Text>
-              <Tag
-                text={t('priority_label', { priority: t(workOrder.priority) })}
-                color="white"
-                backgroundColor={getPriorityColor(workOrder.priority, theme)}
-              />
+              {workOrder.priority !== 'NONE' && (
+                <Tag
+                  text={t('priority_label', {
+                    priority: t(workOrder.priority)
+                  })}
+                  color="white"
+                  backgroundColor={getPriorityColor(workOrder.priority, theme)}
+                />
+              )}
             </View>
             {workOrder.image && (
               <Image
