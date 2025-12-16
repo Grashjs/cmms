@@ -59,6 +59,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     }
   },
   plugins: [
+    ['react-native-nfc-manager'],
     [
       'expo-asset',
       {

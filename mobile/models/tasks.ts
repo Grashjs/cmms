@@ -1,6 +1,7 @@
 import { AssetMiniDTO } from './asset';
 import File from './file';
 import { UserMiniDTO } from './user';
+import { Audit } from './audit';
 
 export type TaskType =
   | 'SUBTASK'
@@ -25,7 +26,7 @@ export interface TaskBase {
   meter?: number;
 }
 
-export interface Task {
+export interface Task extends Audit {
   id: number;
   value?: string | number;
   notes: string;
@@ -36,27 +37,3 @@ export interface Task {
 export const isTask = (object): object is Task => {
   return !!object.taskBase;
 };
-export const tasks: Task[] = [
-  {
-    id: 74,
-    taskBase: {
-      id: 12,
-      label: 'Clean air filter & check its condition',
-      taskType: 'SUBTASK'
-    },
-    value: 'OPEN',
-    notes: '',
-    images: []
-  },
-  {
-    id: 75,
-    taskBase: {
-      id: 11,
-      label: 'Check nothing',
-      taskType: 'SUBTASK'
-    },
-    value: 'OPEN',
-    notes: '',
-    images: []
-  }
-];
