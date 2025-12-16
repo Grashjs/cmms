@@ -185,7 +185,7 @@ public class WorkOrderAud implements Serializable {
             summary.append("Title: ").append(title).append("\n");
         }
         if (requiredSignatureMod != null && requiredSignatureMod) {
-            summary.append("Required Signature: ").append(requiredSignature).append("\n");
+            summary.append("Required Signature: ").append(getBooleanText(requiredSignature, messageSource, locale)).append("\n");
         }
         if (imageIdMod != null && imageIdMod) {
             summary.append("Image.\n");
@@ -217,7 +217,7 @@ public class WorkOrderAud implements Serializable {
             summary.append("Signature\n");
         }
         if (archivedMod != null && archivedMod) {
-            summary.append("Archived: ").append(archived).append("\n");
+            summary.append("Archived: ").append(getBooleanText(archived, messageSource, locale)).append("\n");
         }
         if (parentRequestIdMod != null && parentRequestIdMod) {
             summary.append("Parent Request: ").append(parentRequest == null ? "N/A" : parentRequest.getTitle()).append("\n");
@@ -237,4 +237,7 @@ public class WorkOrderAud implements Serializable {
     }
 
 
+    private String getBooleanText(Boolean value, MessageSource messageSource, Locale locale) {
+        return value == null ? "" : messageSource.getMessage(value ? "Yes" : "No", null, locale);
+    }
 }
