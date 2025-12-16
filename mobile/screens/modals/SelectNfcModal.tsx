@@ -24,62 +24,69 @@ export default function SelectNfcModal({
   const { onChange } = route.params;
   const { t } = useTranslation();
 
+  // Pre-step, call this before any NFC operations
+  async function initNfc() {
+    await NfcManager.start();
+  }
+
+  function readNdef() {
+    const cleanUp = () => {
+      NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
+      NfcManager.setEventListener(NfcEvents.SessionClosed, null);
+    };
+
+    return new Promise<string>((resolve) => {
+      let tagFound = null;
+
+      NfcManager.setEventListener(NfcEvents.DiscoverTag, (tag) => {
+        tagFound = tag;
+        resolve(tagFound);
+        NfcManager.setAlertMessageIOS('NDEF tag found');
+        NfcManager.unregisterTagEvent().catch(() => 0);
+      });
+
+      NfcManager.setEventListener(NfcEvents.SessionClosed, () => {
+        cleanUp();
+        if (!tagFound) {
+          resolve(null);
+        }
+      });
+
+      NfcManager.registerTagEvent();
+    });
+  }
+
   useEffect(() => {
     if (!NfcManager || !NfcEvents) {
       navigation.goBack();
       return;
     }
 
-    const manager = NfcManager;
-    const events = NfcEvents;
-
-    const initNfc = async () => {
-      await manager.start();
-    };
-
-    const readNdef = () => {
-      const cleanUp = () => {
-        manager.setEventListener(events.DiscoverTag, null);
-        manager.setEventListener(events.SessionClosed, null);
-      };
-
-      return new Promise<string>((resolve) => {
-        let tagFound = null;
-
-        manager.setEventListener(events.DiscoverTag, (tag) => {
-          tagFound = tag;
-          resolve(tagFound);
-          manager.setAlertMessageIOS('NDEF tag found');
-          manager.unregisterTagEvent().catch(() => 0);
-        });
-
-        manager.setEventListener(events.SessionClosed, () => {
-          cleanUp();
-          if (!tagFound) {
-            resolve(null);
-          }
-        });
-
-        manager.registerTagEvent();
-      });
-    };
+    let cancelled = false;
 
     initNfc()
-      .then(() =>
-        readNdef().then((tag) => {
-          if (tag) onChange(tag);
-          else
-            Alert.alert(t('error'), t('tag_not_found'), [
-              { text: 'Ok', onPress: () => navigation.goBack() }
-            ]);
-        })
-      )
-      .catch((error) =>
+      .then(() => readNdef())
+      .then((tag) => {
+        if (cancelled) return;
+        if (tag) onChange?.(tag);
+        else {
+          Alert.alert(t('error'), t('tag_not_found'), [
+            { text: 'Ok', onPress: () => navigation.goBack() }
+          ]);
+        }
+      })
+      .catch((error) => {
+        if (cancelled) return;
         Alert.alert(t('error'), t(error.message), [
           { text: 'Ok', onPress: () => navigation.goBack() }
-        ])
-      );
-  }, [NfcManager, NfcEvents, navigation, onChange, t]);
+        ]);
+      });
+
+    return () => {
+      cancelled = true;
+      NfcManager?.cancelTechnologyRequest().catch(() => {});
+    };
+  }, []);
 
   return (
     <View style={styles.container}>
