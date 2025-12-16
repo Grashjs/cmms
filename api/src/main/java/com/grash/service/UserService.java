@@ -150,27 +150,21 @@ public class UserService {
             Optional<Role> optionalRole = roleService.findById(user.getRole().getId());
             if (!optionalRole.isPresent())
                 throw new CustomException("Role not found", HttpStatus.NOT_ACCEPTABLE);
-            if (enableInvitationViaEmail && userInvitationService.findByRoleAndEmail(optionalRole.get().getId(),
-                    user.getEmail()).isEmpty()) {
+            List<UserInvitation> userInvitations =
+                    userInvitationService.findByRoleAndEmail(optionalRole.get().getId(), user.getEmail());
+            if (enableInvitationViaEmail && userInvitations.isEmpty()) {
                 throw new CustomException("You are not invited to this organization for this role",
                         HttpStatus.NOT_ACCEPTABLE);
-            } else {
-                List<UserInvitation> userInvitations =
-                        userInvitationService.findByRoleAndEmail(optionalRole.get().getId(), user.getEmail());
-                userInvitations.sort(Comparator.comparing(UserInvitation::getCreatedAt).reversed());
-                if (userInvitations.isEmpty()) {
-                    throw new CustomException("You are not invited to this organization for this role",
-                            HttpStatus.NOT_ACCEPTABLE);
-                }
-                user.setRole(optionalRole.get());
-                if (optionalRole.get().getCompanySettings() == null) {
-                    Optional<OwnUser> optionalInviter = findById(userInvitations.get(0).getCreatedBy());
-                    if (!optionalInviter.isPresent())
-                        throw new CustomException("Inviter not found", HttpStatus.NOT_ACCEPTABLE);
-                    user.setCompany(optionalInviter.get().getCompany());
-                } else user.setCompany(optionalRole.get().getCompanySettings().getCompany());
-                return enableAndReturnToken(user, true, userReq);
             }
+            userInvitations.sort(Comparator.comparing(UserInvitation::getCreatedAt).reversed());
+            user.setRole(optionalRole.get());
+            if (optionalRole.get().getCompanySettings() == null) {
+                Optional<OwnUser> optionalInviter = findById(userInvitations.get(0).getCreatedBy());
+                if (!optionalInviter.isPresent())
+                    throw new CustomException("Inviter not found", HttpStatus.NOT_ACCEPTABLE);
+                user.setCompany(optionalInviter.get().getCompany());
+            } else user.setCompany(optionalRole.get().getCompanySettings().getCompany());
+            return enableAndReturnToken(user, true, userReq);
         }
         if (Helper.isLocalhost(PUBLIC_API_URL)) {
             return enableAndReturnToken(user, false, userReq);
