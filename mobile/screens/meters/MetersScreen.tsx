@@ -17,7 +17,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import Meter from '../../models/meter';
 import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
-import { onSearchQueryChange } from '../../utils/overall';
+import { isCloseToBottom, onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 import { IconWithLabel } from '../../components/IconWithLabel';
@@ -73,17 +73,6 @@ export default function MetersScreen({
     setCriteria(getCriteriaFromFilterFields([]));
   };
 
-  const isCloseToBottom = ({
-    layoutMeasurement,
-    contentOffset,
-    contentSize
-  }) => {
-    const paddingToBottom = 20;
-    return (
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom
-    );
-  };
   const onQueryChange = (query) => {
     onSearchQueryChange<Meter>(query, criteria, setCriteria, setSearchQuery, [
       'name',

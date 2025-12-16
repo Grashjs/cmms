@@ -10,13 +10,13 @@ import { FilterField, SearchCriteria } from '../../models/page';
 import { Card, Searchbar, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { Customer } from '../../models/customer';
-import { onSearchQueryChange } from '../../utils/overall';
+import { isCloseToBottom, onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 
 export default function CustomersScreen({
-                                          navigation
-                                        }: RootStackScreenProps<'VendorsCustomers'>) {
+  navigation
+}: RootStackScreenProps<'VendorsCustomers'>) {
   const { t } = useTranslation();
   const [startedSearch, setStartedSearch] = useState<boolean>(false);
   const { customers, loadingGet, currentPageNum, lastPage } = useSelector(
@@ -69,17 +69,6 @@ export default function CustomersScreen({
     setCriteria(getCriteriaFromFilterFields([]));
   };
 
-  const isCloseToBottom = ({
-                             layoutMeasurement,
-                             contentOffset,
-                             contentSize
-                           }) => {
-    const paddingToBottom = 20;
-    return (
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom
-    );
-  };
   const onQueryChange = (query) => {
     onSearchQueryChange<Customer>(
       query,
@@ -143,11 +132,14 @@ export default function CustomersScreen({
               }}
               key={customer.id}
               onPress={() =>
-                navigation.push('CustomerDetails', { id: customer.id, customerProp: customer })
+                navigation.push('CustomerDetails', {
+                  id: customer.id,
+                  customerProp: customer
+                })
               }
             >
               <Card.Content>
-                <Text variant='titleMedium'>{customer.name}</Text>
+                <Text variant="titleMedium">{customer.name}</Text>
                 <Text>{customer.customerType}</Text>
               </Card.Content>
             </Card>

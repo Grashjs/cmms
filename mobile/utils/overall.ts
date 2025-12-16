@@ -7,6 +7,8 @@ import { Priority, WorkOrderStatus } from '../models/workOrder';
 import { MD3Theme } from 'react-native-paper';
 import mime from 'mime';
 import ImagePicker from 'expo-image-picker';
+import { NativeSyntheticEvent } from 'react-native/Libraries/Types/CoreEventTypes';
+import { NativeScrollEvent } from 'react-native/Libraries/Components/ScrollView/ScrollView';
 
 export const canAddReading = (meter: Meter): boolean => {
   if (!meter) {
@@ -172,3 +174,14 @@ export function formatImages(
     };
   });
 }
+
+export const isCloseToBottom = ({
+  layoutMeasurement,
+  contentOffset,
+  contentSize
+}: NativeSyntheticEvent<NativeScrollEvent>['nativeEvent']) => {
+  const threshold = layoutMeasurement.height * 0.5;
+  return (
+    layoutMeasurement.height + contentOffset.y >= contentSize.height - threshold
+  );
+};

@@ -24,7 +24,11 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Request from '../../models/request';
-import { getPriorityColor, onSearchQueryChange } from '../../utils/overall';
+import {
+  getPriorityColor,
+  isCloseToBottom,
+  onSearchQueryChange
+} from '../../utils/overall';
 import { RootTabScreenProps } from '../../types';
 import Tag from '../../components/Tag';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
@@ -175,17 +179,7 @@ export default function RequestsScreen({
       return [t('rejected'), theme.colors.error];
     } else return [t('pending'), theme.colors.primary];
   };
-  const isCloseToBottom = ({
-    layoutMeasurement,
-    contentOffset,
-    contentSize
-  }) => {
-    const paddingToBottom = 20;
-    return (
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom
-    );
-  };
+
   const onFilterChange = (newFilters: FilterField[]) => {
     const newCriteria = { ...criteria };
     newCriteria.filterFields = newFilters;

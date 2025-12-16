@@ -10,13 +10,13 @@ import { FilterField, SearchCriteria } from '../../models/page';
 import { Card, Searchbar, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { Vendor } from '../../models/vendor';
-import { onSearchQueryChange } from '../../utils/overall';
+import { isCloseToBottom, onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 
 export default function VendorsScreen({
-                                        navigation
-                                      }: RootStackScreenProps<'VendorsCustomers'>) {
+  navigation
+}: RootStackScreenProps<'VendorsCustomers'>) {
   const { t } = useTranslation();
   const [startedSearch, setStartedSearch] = useState<boolean>(false);
   const { vendors, loadingGet, currentPageNum, lastPage } = useSelector(
@@ -64,17 +64,6 @@ export default function VendorsScreen({
     setCriteria(getCriteriaFromFilterFields([]));
   };
 
-  const isCloseToBottom = ({
-                             layoutMeasurement,
-                             contentOffset,
-                             contentSize
-                           }) => {
-    const paddingToBottom = 20;
-    return (
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom
-    );
-  };
   const onQueryChange = (query) => {
     onSearchQueryChange<Vendor>(query, criteria, setCriteria, setSearchQuery, [
       'name',
@@ -130,11 +119,14 @@ export default function VendorsScreen({
               }}
               key={vendor.id}
               onPress={() =>
-                navigation.push('VendorDetails', { id: vendor.id, vendorProp: vendor })
+                navigation.push('VendorDetails', {
+                  id: vendor.id,
+                  vendorProp: vendor
+                })
               }
             >
               <Card.Content>
-                <Text variant='titleMedium'>{vendor.name}</Text>
+                <Text variant="titleMedium">{vendor.name}</Text>
                 <Text>{vendor.vendorType}</Text>
               </Card.Content>
             </Card>

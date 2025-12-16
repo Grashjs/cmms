@@ -19,6 +19,7 @@ import WorkOrder from '../../models/workOrder';
 import {
   getPriorityColor,
   getStatusColor,
+  isCloseToBottom,
   onSearchQueryChange
 } from '../../utils/overall';
 import { RootTabScreenProps } from '../../types';
@@ -121,17 +122,7 @@ export default function WorkOrdersScreen({
     newCriteria.filterFields = newFilters;
     setCriteria(newCriteria);
   };
-  const isCloseToBottom = ({
-    layoutMeasurement,
-    contentOffset,
-    contentSize
-  }) => {
-    const paddingToBottom = 20;
-    return (
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom
-    );
-  };
+
   const onQueryChange = (query) => {
     onSearchQueryChange<WorkOrder>(
       query,

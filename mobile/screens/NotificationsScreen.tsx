@@ -22,6 +22,7 @@ import { useContext, useEffect } from 'react';
 import { CompanySettingsContext } from '../contexts/CompanySettingsContext';
 import { useTranslation } from 'react-i18next';
 import { SearchCriteria } from '../models/page';
+import { isCloseToBottom } from '../utils/overall';
 
 export default function NotificationsScreen({
   navigation
@@ -85,17 +86,7 @@ export default function NotificationsScreen({
     INFO: 'information',
     PURCHASE_ORDER: 'comma-circle-outline'
   };
-  const isCloseToBottom = ({
-    layoutMeasurement,
-    contentOffset,
-    contentSize
-  }) => {
-    const paddingToBottom = 20;
-    return (
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom
-    );
-  };
+
   return (
     <ScrollView
       style={styles.container}
