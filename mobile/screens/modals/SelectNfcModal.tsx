@@ -1,5 +1,4 @@
 import { Alert, Platform, StyleSheet } from 'react-native';
-
 import { View } from '../../components/Themed';
 import * as React from 'react';
 import { useEffect } from 'react';
@@ -15,7 +14,7 @@ const nfcModule: NfcModule | null =
     : (require('react-native-nfc-manager') as NfcModule);
 
 const NfcManager = nfcModule?.default;
-const NfcEvents = nfcModule?.NfcEvents;
+const NfcTech = nfcModule?.NfcTech;
 
 export default function SelectNfcModal({
   navigation,
@@ -24,52 +23,36 @@ export default function SelectNfcModal({
   const { onChange } = route.params;
   const { t } = useTranslation();
 
-  // Pre-step, call this before any NFC operations
-  async function initNfc() {
-    await NfcManager.start();
-  }
-
-  function readNdef() {
-    const cleanUp = () => {
-      NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
-      NfcManager.setEventListener(NfcEvents.SessionClosed, null);
-    };
-
-    return new Promise<string>((resolve) => {
-      let tagFound = null;
-
-      NfcManager.setEventListener(NfcEvents.DiscoverTag, (tag) => {
-        tagFound = tag;
-        resolve(tagFound);
-        NfcManager.setAlertMessageIOS('NDEF tag found');
-        NfcManager.unregisterTagEvent().catch(() => 0);
-      });
-
-      NfcManager.setEventListener(NfcEvents.SessionClosed, () => {
-        cleanUp();
-        if (!tagFound) {
-          resolve(null);
-        }
-      });
-
-      NfcManager.registerTagEvent();
-    });
+  async function readNdef() {
+    try {
+      await NfcManager.requestTechnology(NfcTech.Ndef);
+      const tag = await NfcManager.getTag();
+      return tag?.id || null;
+    } catch (ex) {
+      console.warn('NFC Error:', ex);
+      throw ex;
+    } finally {
+      // Always clean up
+      NfcManager.cancelTechnologyRequest().catch(() => {});
+    }
   }
 
   useEffect(() => {
-    if (!NfcManager || !NfcEvents) {
+    if (!NfcManager || !NfcTech) {
       navigation.goBack();
       return;
     }
 
     let cancelled = false;
 
-    initNfc()
+    // Initialize NFC
+    NfcManager.start()
       .then(() => readNdef())
-      .then((tag) => {
+      .then((tagId) => {
         if (cancelled) return;
-        if (tag) onChange?.(tag);
-        else {
+        if (tagId) {
+          onChange(tagId);
+        } else {
           Alert.alert(t('error'), t('tag_not_found'), [
             { text: 'Ok', onPress: () => navigation.goBack() }
           ]);
