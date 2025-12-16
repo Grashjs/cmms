@@ -80,6 +80,7 @@ export default function LoginScreen({
                 value={values.email}
                 mode="outlined"
                 style={{ marginBottom: 10 }}
+                autoCapitalize="none"
               />
               {Boolean(touched.email && errors.email) && (
                 <HelperText type="error">{errors.email?.toString()}</HelperText>
@@ -91,6 +92,7 @@ export default function LoginScreen({
                 onChangeText={handleChange('password')}
                 value={values.password}
                 secureTextEntry={!showPassword}
+                autoCapitalize="none"
                 right={
                   <TextInput.Icon onPress={toggleShowPassword} icon="eye" />
                 }
