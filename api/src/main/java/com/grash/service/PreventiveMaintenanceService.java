@@ -11,8 +11,15 @@ import com.grash.model.Company;
 import com.grash.model.OwnUser;
 import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
+import com.grash.model.enums.RecurrenceBasedOn;
 import com.grash.repository.PreventiveMaintenanceRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.quartz.TriggerKey;
+import org.quartz.spi.OperableTrigger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,16 +33,12 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PreventiveMaintenanceService {
     private final PreventiveMaintenanceRepository preventiveMaintenanceRepository;
-    private final TeamService teamService;
-    private final UserService userService;
-    private final AssetService assetService;
-    private final CompanyService companyService;
-    private final LocationService locationService;
     private final EntityManager em;
     private final CustomSequenceService customSequenceService;
-
+    private final Scheduler scheduler;
     private final PreventiveMaintenanceMapper preventiveMaintenanceMapper;
 
     @Transactional
@@ -105,34 +108,58 @@ public class PreventiveMaintenanceService {
         List<PreventiveMaintenance> preventiveMaintenances =
                 preventiveMaintenanceRepository.findByCreatedAtBeforeAndCompany_Id(end, companyId);
         List<CalendarEvent<PreventiveMaintenance>> result = new ArrayList<>();
+
         for (PreventiveMaintenance preventiveMaintenance : preventiveMaintenances) {
             Schedule schedule = preventiveMaintenance.getSchedule();
-            if (schedule.isDisabled()) continue;
-            List<Date> dates = new ArrayList<>();
+            if (schedule == null || schedule.isDisabled()) continue;
 
-            // Create a Calendar instance and set the start date
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(schedule.getStartsOn());
+            if (schedule.getRecurrenceBasedOn() != RecurrenceBasedOn.SCHEDULED_DATE) continue;
 
-            // Add the start date to the list
-            dates.add(schedule.getStartsOn());
+            try {
+                TriggerKey triggerKey = new TriggerKey("wo-trigger-" + schedule.getId(), "wo-group");
+                Trigger trigger = scheduler.getTrigger(triggerKey);
 
-            Date max = schedule.getEndsOn() == null ? end : schedule.getEndsOn().before(end) ? schedule.getEndsOn() :
-                    end;
-            // Loop until the calendar date is after the end date
-            while (calendar.getTime().before(max)) {
-                // Add the frequency days to the current date
-                calendar.add(Calendar.DAY_OF_MONTH, schedule.getFrequency());
-
-                // Add the new date to the list if it's before or equal to the end date
-                if (!calendar.getTime().after(max)) {
-                    dates.add(calendar.getTime());
+                if (trigger == null) {
+                    log.warn("No trigger found for schedule {}", schedule.getId());
+                    continue;
                 }
-            }
 
-            result.addAll(dates.stream().map(date -> new CalendarEvent<>("PREVENTIVE_MAINTENANCE",
-                    preventiveMaintenance, date)).collect(Collectors.toList()));
+                // Get all fire times up to the end date
+                List<Date> fireTimes = new ArrayList<>();
+
+                // Use TriggerUtils to get computed fire times
+                if (trigger instanceof OperableTrigger) {
+                    OperableTrigger operableTrigger = (OperableTrigger) trigger;
+                    Date currentTime = new Date();
+
+                    // Start from now or startsOn, whichever is earlier
+                    Date startTime = schedule.getStartsOn().before(currentTime) ?
+                            schedule.getStartsOn() : currentTime;
+
+                    // Compute fire times
+                    Date fireTime = operableTrigger.getFireTimeAfter(startTime);
+                    while (fireTime != null && (fireTime.before(end) || fireTime.equals(end))) {
+                        fireTimes.add(fireTime);
+                        fireTime = operableTrigger.getFireTimeAfter(fireTime);
+
+                        // Safety limit to prevent infinite loops
+                        if (fireTimes.size() > 1000) {
+                            log.warn("Reached safety limit of 1000 events for schedule {}", schedule.getId());
+                            break;
+                        }
+                    }
+                }
+
+                // Convert fire times to calendar events
+                result.addAll(fireTimes.stream()
+                        .map(date -> new CalendarEvent<>("PREVENTIVE_MAINTENANCE", preventiveMaintenance, date))
+                        .collect(Collectors.toList()));
+
+            } catch (SchedulerException e) {
+                log.error("Error getting trigger fire times for schedule {}", schedule.getId(), e);
+            }
         }
+
         return result;
     }
 }
