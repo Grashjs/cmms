@@ -31,6 +31,8 @@ public class AssetShowDTO extends AuditShowDTO {
 
     private String barCode;
 
+    private String nfcId;
+
     private AssetCategory category;
 
     private String name;
