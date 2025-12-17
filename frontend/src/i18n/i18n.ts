@@ -12,6 +12,7 @@ import ptBRJSON from './translations/pt_BR';
 import itJSON from './translations/it';
 import svJSON from './translations/sv';
 import ruJSON from './translations/ru';
+import koJSON from './translations/ko';
 import { FlagComponent } from 'country-flag-icons/react/1x1';
 import {
   BR,
@@ -24,7 +25,8 @@ import {
   SA,
   IT,
   SE,
-  RU
+  RU,
+  KR
 } from 'country-flag-icons/react/3x2';
 import { LocaleSingularArg } from '@fullcalendar/react';
 import deLocale from '@fullcalendar/core/locales/de';
@@ -38,6 +40,7 @@ import enLocale from '@fullcalendar/core/locales/en-gb';
 import itLocale from '@fullcalendar/core/locales/it';
 import svLocale from '@fullcalendar/core/locales/sv';
 import ruLocale from '@fullcalendar/core/locales/ru';
+import koLocale from '@fullcalendar/core/locales/ko';
 import { Locale as DateLocale } from 'date-fns';
 import {
   fr,
@@ -50,7 +53,8 @@ import {
   enUS,
   it,
   sv,
-  ru
+  ru,
+  ko
 } from 'date-fns/locale';
 
 const resources = {
@@ -64,7 +68,8 @@ const resources = {
   ar: { translation: arJSON },
   it: { translation: itJSON },
   sv: { translation: svJSON },
-  ru: { translation: ruJSON }
+  ru: { translation: ruJSON },
+  ko: { translation: koJSON }
 };
 
 i18n
@@ -99,7 +104,8 @@ export type SupportedLanguage =
   | 'IT'
   | 'SV'
   | 'RU'
-  | 'AR';
+  | 'AR'
+  | 'KO';
 
 export const supportedLanguages: {
   code: Lowercase<SupportedLanguage>;
@@ -184,6 +190,13 @@ export const supportedLanguages: {
     Icon: RU,
     calendarLocale: ruLocale,
     dateLocale: ru
+  },
+  {
+    code: 'ko',
+    label: 'Korean',
+    Icon: KR,
+    calendarLocale: koLocale,
+    dateLocale: ko
   }
 ];
 
