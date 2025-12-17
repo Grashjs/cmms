@@ -1,4 +1,4 @@
-ID,Name,Title,Description,Priority,Estimated Hours,Requires Signature,Category,Location Name,Team Name,Primary User,Assigned To,Asset Name,Starts On,Frequency,Recurrence Type,Recurrence Based On,Due Date Delay,Ends On,Days of Week
-,Monthly Pump Inspection,Pump PM,Check pump seals and bearings,HIGH,2,No,Mechanical,Building A,Maintenance Team,tech@company.com,tech@company.com,Pump-001,2026-01-15,1,MONTHLY,SCHEDULED_DATE,3,,
-,Weekly Compressor Check,Compressor PM,Visual inspection and pressure test,MEDIUM,1,Yes,Electrical,Building B,Maintenance Team,tech@company.com,,Compressor-050,2026-01-05,1,WEEKLY,COMPLETION_DATE,1,,0;2;4
-,Quarterly HVAC Service,HVAC PM,Full HVAC system maintenance,CRITICAL,4,No,HVAC,Floor 2,HVAC Team,hvac@company.com,hvac@company.com,HVAC-101,2026-02-01,3,MONTHLY,SCHEDULED_DATE,7,2026-12-31,
+ID,Name,Title,Description,Priority,Estimated Hours,Requires Signature,Category,Location Name,Team Name,Primary User,Assigned To,Asset Name,Expected Start Date,Checklist Name,Starts On,Frequency,Recurrence Type,Recurrence Based On,Due Date Delay,Ends On,Days of Week
+,Monthly Pump Inspection,Pump PM,Check pump seals and bearings,HIGH,2,No,Mechanical,Building A,Maintenance Team,tech@company.com,tech@company.com,Pump-001,2026-01-15,Pump Inspection Checklist,2026-01-15,1,MONTHLY,SCHEDULED_DATE,3,,
+,Weekly Compressor Check,Compressor PM,Visual inspection and pressure test,MEDIUM,1,Yes,Electrical,Building B,Maintenance Team,tech@company.com,,Compressor-050,2026-01-05,,2026-01-05,1,WEEKLY,COMPLETION_DATE,1,,0;2;4
+,Quarterly HVAC Service,HVAC PM,Full HVAC system maintenance,CRITICAL,4,No,HVAC,Floor 2,HVAC Team,hvac@company.com,hvac@company.com,HVAC-101,2026-02-01,HVAC Maintenance Tasks,2026-02-01,3,MONTHLY,SCHEDULED_DATE,7,2026-12-31,

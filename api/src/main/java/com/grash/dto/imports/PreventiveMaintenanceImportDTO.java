@@ -44,6 +44,10 @@ public class PreventiveMaintenanceImportDTO {
 
     private String assetName;
 
+    private Double expectedStartDate; // Expected start date for generated WOs
+
+    private String checklistName; // Name of checklist to copy tasks from
+
     @NotNull
     private Double startsOn;
 

@@ -50,6 +50,7 @@ public class PreventiveMaintenanceService {
     private final TeamService teamService;
     private final UserService userService;
     private final AssetService assetService;
+    private final ChecklistService checklistService;
 
     @Transactional
     public PreventiveMaintenance create(PreventiveMaintenance preventiveMaintenance, OwnUser user) {
@@ -258,6 +259,11 @@ public class PreventiveMaintenanceService {
             optionalAsset.ifPresent(pm::setAsset);
         }
         
+        // Set expected start date
+        if (dto.getExpectedStartDate() != null) {
+            pm.setEstimatedStartDate(Helper.getDateFromExcelDate(dto.getExpectedStartDate()));
+        }
+        
         // Generate custom ID if creating new PM
         if (pm.getId() == null) {
             Long nextSequence = customSequenceService.getNextPreventiveMaintenanceSequence(company);
@@ -323,6 +329,24 @@ public class PreventiveMaintenanceService {
         // Save PM with schedule
         savedPM.setSchedule(schedule);
         preventiveMaintenanceRepository.saveAndFlush(savedPM);
+        
+        // Copy tasks from checklist if specified
+        if (dto.getChecklistName() != null && !dto.getChecklistName().isEmpty()) {
+            Collection<Checklist> checklists = checklistService.findByCompanySettings(companySettingsId);
+            Optional<Checklist> optionalChecklist = checklists.stream()
+                .filter(c -> c.getName().equalsIgnoreCase(dto.getChecklistName()))
+                .findFirst();
+            if (optionalChecklist.isPresent()) {
+                Checklist checklist = optionalChecklist.get();
+                // Copy tasks from checklist to PM
+                for (TaskBase taskBase : checklist.getTaskBases()) {
+                    Task task = new Task(taskBase, null, savedPM, null);
+                    task.setCompany(company);
+                    em.persist(task);
+                }
+            }
+        }
+        
         em.refresh(savedPM);
     }
 }

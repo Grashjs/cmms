@@ -178,6 +178,8 @@ export const getOwnHeadersConfig = (
         formatter: arrayFormatter
       },
       { label: t('asset_name'), keyName: 'assetName' },
+      { label: t('expected_start_date'), keyName: 'expectedStartDate' },
+      { label: t('checklist_name'), keyName: 'checklistName' },
       { label: t('starts_on'), keyName: 'startsOn', required: true },
       { label: t('frequency'), keyName: 'frequency', required: true },
       { label: t('recurrence_type'), keyName: 'recurrenceType', required: true },
