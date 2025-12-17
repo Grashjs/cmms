@@ -212,6 +212,7 @@ export default function RequestsScreen({
             style={{ backgroundColor: theme.colors.background }}
           />
           <ScrollView
+            contentContainerStyle={{ paddingBottom: 100 }}
             style={styles.scrollView}
             onScroll={({ nativeEvent }) => {
               if (isCloseToBottom(nativeEvent)) {

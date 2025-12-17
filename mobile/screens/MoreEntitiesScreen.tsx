@@ -79,6 +79,7 @@ export default function MoreEntitiesScreen({
   ];
   return (
     <ScrollView
+      contentContainerStyle={{ paddingBottom: 100 }}
       style={{
         ...styles.container,
         backgroundColor: theme.colors.background,
