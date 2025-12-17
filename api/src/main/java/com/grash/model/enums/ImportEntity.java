@@ -5,5 +5,6 @@ public enum ImportEntity {
     ASSET,
     LOCATION,
     PART,
-    METER
+    METER,
+    PREVENTIVE_MAINTENANCE
 }

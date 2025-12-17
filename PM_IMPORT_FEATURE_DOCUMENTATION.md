@@ -1,0 +1,374 @@
+# Preventive Maintenance CSV Import Feature
+
+## Overview
+
+This feature enables bulk import of Preventive Maintenance (PM) schedules via CSV file upload, following the same pattern as existing Work Order, Asset, Location, Part, and Meter imports.
+
+---
+
+## Features
+
+- **Bulk PM Creation**: Import multiple PMs at once
+- **Bulk PM Update**: Update existing PMs by including their ID
+- **Schedule Configuration**: Full schedule setup including recurrence, frequency, and dates
+- **Relationship Lookups**: Automatic lookup of assets, users, teams, locations, categories by name/email
+- **Validation**: Row-level validation with detailed error reporting
+- **Template Download**: Pre-formatted CSV template with examples
+
+---
+
+## CSV Format
+
+### Required Fields
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| Name | Unique PM identifier | `Monthly Pump Inspection` |
+| Title | PM display title | `Pump PM` |
+| Starts On | Start date (YYYY-MM-DD or Excel date) | `2026-01-15` |
+| Frequency | Recurrence frequency (integer) | `1` (every 1 month) |
+| Recurrence Type | DAILY, WEEKLY, MONTHLY, YEARLY | `MONTHLY` |
+
+### Optional Fields
+
+| Field | Description | Example | Default |
+|-------|-------------|---------|---------|
+| ID | PM ID for updates | `1234` | null (create new) |
+| Description | Detailed description | `Check seals and bearings` | empty |
+| Priority | NONE, LOW, MEDIUM, HIGH, CRITICAL | `HIGH` | NONE |
+| Estimated Hours | Time estimate in hours | `2.5` | null |
+| Requires Signature | Yes/No or True/False | `Yes` | false |
+| Category | Category name | `Mechanical` | null |
+| Location Name | Location name | `Building A` | null |
+| Team Name | Team name | `Maintenance Team` | null |
+| Primary User | User email | `tech@company.com` | null |
+| Assigned To | Semicolon-separated emails | `user1@co.com;user2@co.com` | empty list |
+| Asset Name | Asset name | `Pump-001` | null |
+| Recurrence Based On | SCHEDULED_DATE or COMPLETION_DATE | `SCHEDULED_DATE` | SCHEDULED_DATE |
+| Due Date Delay | Days after trigger | `3` | null |
+| Ends On | End date (YYYY-MM-DD or Excel date) | `2026-12-31` | null |
+| Days of Week | Semicolon-separated 0-6 (0=Sunday) | `0;2;4` (Sun/Tue/Thu) | empty list |
+
+---
+
+## Field Details
+
+### Priority
+- **Values**: `NONE`, `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`
+- **Case Insensitive**: `high`, `High`, `HIGH` all work
+- **Invalid values**: Default to `NONE`
+
+### Recurrence Type
+- **Values**: `DAILY`, `WEEKLY`, `MONTHLY`, `YEARLY`
+- **Case Insensitive**
+- **Invalid values**: Default to `MONTHLY`
+
+### Recurrence Based On
+- **SCHEDULED_DATE**: Next occurrence based on schedule (e.g., every 1st of month)
+- **COMPLETION_DATE**: Next occurrence based on when previous WO was completed
+- **Default**: `SCHEDULED_DATE`
+
+### Frequency
+- **Integer**: Number of recurrence units
+- **Examples**:
+  - `1` + `MONTHLY` = Every month
+  - `2` + `WEEKLY` = Every 2 weeks
+  - `3` + `MONTHLY` = Every quarter
+  - `6` + `MONTHLY` = Twice a year
+
+### Days of Week (for WEEKLY recurrence)
+- **Format**: Semicolon-separated integers
+- **Values**: `0` (Sunday) to `6` (Saturday)
+- **Examples**:
+  - `1;3;5` = Monday, Wednesday, Friday
+  - `0;6` = Sunday and Saturday
+  - Empty = All days
+
+### Dates (Starts On, Ends On)
+- **Formats Supported**:
+  - ISO Date: `2026-01-15`
+  - Excel Serial Date: `45678.5` (converted automatically)
+- **Starts On**: Required, when PM schedule begins
+- **Ends On**: Optional, when PM schedule stops
+
+### Estimated Hours
+- **Format**: Decimal hours
+- **Conversion**: Automatically converted to minutes in backend
+- **Example**: `2.5` hours = 150 minutes
+
+### Requires Signature
+- **Accepted Values**: `Yes`, `No`, `True`, `False` (case insensitive)
+- **Default**: `No`/`False`
+
+### Lookups (by name/email)
+All relationships are looked up by name or email:
+- **Category**: Looked up by name (case insensitive)
+- **Location**: Looked up by name (case insensitive)
+- **Team**: Looked up by name (case insensitive)
+- **Asset**: Looked up by name (case insensitive)
+- **Primary User**: Looked up by email (exact match)
+- **Assigned To**: Each email looked up separately
+
+**If lookup fails**: Field is left empty (not an error)
+
+---
+
+## Import Process
+
+### 1. Access Import Page
+Navigate to: **Settings → Import**
+
+### 2. Select Entity Type
+Choose **"Preventive Maintenances"** from dropdown
+
+### 3. Download Template (Optional)
+Click **"Download Template"** button to get pre-formatted CSV
+
+### 4. Prepare CSV File
+- Fill in your PM data
+- Ensure required fields are present
+- Use correct date formats
+- Use semicolons for multi-value fields
+
+### 5. Upload CSV
+- Click **"Upload"** button
+- Select your CSV file
+- System parses and validates
+
+### 6. Match Columns
+- System auto-matches column headers
+- Review and adjust if needed
+- Required fields highlighted
+
+### 7. Review Data
+- Preview imported data in spreadsheet view
+- Check for errors or warnings
+- Make corrections if needed
+
+### 8. Import
+- Click **"Import"** button
+- System processes all rows
+- Shows success/error counts
+
+### 9. Results
+- **Created**: Number of new PMs created
+- **Updated**: Number of existing PMs updated
+- **Errors**: Any validation failures
+
+---
+
+## Examples
+
+### Example 1: Monthly PM with Due Date Delay
+```csv
+ID,Name,Title,Description,Priority,Estimated Hours,Requires Signature,Category,Location Name,Team Name,Primary User,Assigned To,Asset Name,Starts On,Frequency,Recurrence Type,Recurrence Based On,Due Date Delay,Ends On,Days of Week
+,Monthly Pump Check,Pump PM,Inspect seals and bearings,HIGH,2,No,Mechanical,Plant A,Maint Team,tech@co.com,tech@co.com,Pump-001,2026-01-01,1,MONTHLY,SCHEDULED_DATE,3,,
+```
+**Result**: PM triggers on 1st of each month, WO due 3 days later (4th of month)
+
+### Example 2: Weekly PM on Specific Days
+```csv
+ID,Name,Title,Description,Priority,Estimated Hours,Requires Signature,Category,Location Name,Team Name,Primary User,Assigned To,Asset Name,Starts On,Frequency,Recurrence Type,Recurrence Based On,Due Date Delay,Ends On,Days of Week
+,Weekly Safety Check,Safety PM,Daily safety inspection,MEDIUM,0.5,Yes,Safety,Building B,Safety Team,safety@co.com,,Forklift-05,2026-01-06,1,WEEKLY,SCHEDULED_DATE,0,,1;3;5
+```
+**Result**: PM triggers every Monday, Wednesday, Friday
+
+### Example 3: Quarterly PM with End Date
+```csv
+ID,Name,Title,Description,Priority,Estimated Hours,Requires Signature,Category,Location Name,Team Name,Primary User,Assigned To,Asset Name,Starts On,Frequency,Recurrence Type,Recurrence Based On,Due Date Delay,Ends On,Days of Week
+,Quarterly HVAC Service,HVAC PM,Full system maintenance,CRITICAL,4,No,HVAC,Floor 2,HVAC Team,hvac@co.com,hvac@co.com;tech@co.com,HVAC-101,2026-01-01,3,MONTHLY,SCHEDULED_DATE,7,2026-12-31,
+```
+**Result**: PM triggers every 3 months (quarterly) from Jan 1 to Dec 31, 2026
+
+### Example 4: Update Existing PM
+```csv
+ID,Name,Title,Description,Priority,Estimated Hours,Requires Signature,Category,Location Name,Team Name,Primary User,Assigned To,Asset Name,Starts On,Frequency,Recurrence Type,Recurrence Based On,Due Date Delay,Ends On,Days of Week
+1234,Monthly Pump Check,Updated Pump PM,Updated description,CRITICAL,3,Yes,Mechanical,Plant A,Maint Team,tech@co.com,tech@co.com,Pump-001,2026-01-01,1,MONTHLY,SCHEDULED_DATE,5,,
+```
+**Result**: PM #1234 is updated with new values
+
+---
+
+## Validation Rules
+
+### Required Field Validation
+- **Name**: Must be present and non-empty
+- **Title**: Must be present and non-empty
+- **Starts On**: Must be present and valid date
+- **Frequency**: Must be present and positive integer
+- **Recurrence Type**: Must be present and valid enum value
+
+### Data Type Validation
+- **Estimated Hours**: Must be numeric if present
+- **Frequency**: Must be integer
+- **Due Date Delay**: Must be integer if present
+- **Days of Week**: Must be integers 0-6 if present
+
+### Enum Validation
+- **Priority**: Must be valid Priority enum or defaults to NONE
+- **Recurrence Type**: Must be valid RecurrenceType enum or defaults to MONTHLY
+- **Recurrence Based On**: Must be valid RecurrenceBasedOn enum or defaults to SCHEDULED_DATE
+
+### Lookup Validation
+- **Non-existent lookups**: Silently skipped (not an error)
+- **Invalid emails**: Skipped
+- **Invalid names**: Skipped
+
+---
+
+## Permissions
+
+### Required Permissions
+- **Create Permission**: `PREVENTIVE_MAINTENANCES`
+- **Feature Flag**: `IMPORT_CSV` (subscription plan feature)
+
+### Access Control
+- Only users with PM create permission can import
+- Only users with CSV import feature can access import page
+- PMs are scoped to user's company
+
+---
+
+## API Endpoint
+
+### POST `/import/preventive-maintenances`
+
+**Request Body**:
+```json
+[
+  {
+    "id": null,
+    "name": "Monthly Pump Inspection",
+    "title": "Pump PM",
+    "description": "Check pump seals and bearings",
+    "priority": "HIGH",
+    "estimatedDuration": 2.0,
+    "requiredSignature": "No",
+    "category": "Mechanical",
+    "locationName": "Building A",
+    "teamName": "Maintenance Team",
+    "primaryUserEmail": "tech@company.com",
+    "assignedToEmails": ["tech@company.com"],
+    "assetName": "Pump-001",
+    "startsOn": 45678.0,
+    "frequency": 1,
+    "recurrenceType": "MONTHLY",
+    "recurrenceBasedOn": "SCHEDULED_DATE",
+    "dueDateDelay": 3,
+    "endsOn": null,
+    "daysOfWeek": []
+  }
+]
+```
+
+**Response**:
+```json
+{
+  "created": 5,
+  "updated": 2
+}
+```
+
+---
+
+## Troubleshooting
+
+### Issue: "Access Denied"
+**Solution**: Ensure you have:
+- `PREVENTIVE_MAINTENANCES` create permission
+- `IMPORT_CSV` feature in subscription plan
+
+### Issue: "Required field missing"
+**Solution**: Check that Name, Title, Starts On, Frequency, and Recurrence Type are all present
+
+### Issue: "Invalid date format"
+**Solution**: Use `YYYY-MM-DD` format (e.g., `2026-01-15`)
+
+### Issue: "Lookup not found"
+**Solution**: Verify that:
+- Category name matches exactly (case insensitive)
+- Location/Team/Asset names exist in your company
+- User emails are correct and users exist
+
+### Issue: "PM not updating"
+**Solution**: Ensure ID column contains the correct PM ID number
+
+### Issue: "Days of week not working"
+**Solution**: 
+- Only applies to WEEKLY recurrence
+- Use semicolons: `0;2;4` not commas
+- Use 0-6 (0=Sunday, 6=Saturday)
+
+---
+
+## Technical Implementation
+
+### Backend
+- **Controller**: `ImportController.importPreventiveMaintenances()`
+- **Service**: `ImportService.importPreventiveMaintenances()`
+- **PM Service**: `PreventiveMaintenanceService.importPreventiveMaintenance()`
+- **DTO**: `PreventiveMaintenanceImportDTO`
+- **Enum**: `ImportEntity.PREVENTIVE_MAINTENANCE`
+
+### Frontend
+- **Page**: `/frontend/src/content/own/Imports/index.tsx`
+- **Entity Type**: `'preventive-maintenances'`
+- **Headers Config**: `/frontend/src/utils/states.ts`
+- **Redux Slice**: `/frontend/src/slices/imports.ts`
+
+### Template
+- **Location**: `/api/src/main/resources/import-templates/en/preventive_maintenance.csv`
+- **Download**: Via `/import/download-template` endpoint
+
+---
+
+## Best Practices
+
+1. **Start with Template**: Always download template first to ensure correct format
+2. **Test with Small Batch**: Import 2-3 PMs first to verify format
+3. **Use Descriptive Names**: Make PM names unique and descriptive
+4. **Verify Lookups**: Check that all referenced entities (assets, users, etc.) exist
+5. **Set Realistic Schedules**: Ensure start dates and frequencies make sense
+6. **Include Due Date Delays**: Give technicians time to complete work
+7. **Use End Dates Sparingly**: Only set end date if PM truly expires
+8. **Document Recurrence Logic**: Add notes in Description field explaining schedule
+
+---
+
+## Comparison with Work Order Import
+
+| Feature | Work Order Import | PM Import |
+|---------|------------------|-----------|
+| Create/Update | ✅ Yes | ✅ Yes |
+| Relationships | ✅ Asset, Location, Team, Users | ✅ Asset, Location, Team, Users, Category |
+| Schedule | ❌ No | ✅ Yes (full schedule config) |
+| Status | ✅ Yes | ❌ No (always active) |
+| Completion | ✅ Yes | ❌ No (generates WOs) |
+| Custom Fields | ✅ Yes | ✅ Yes |
+
+---
+
+## Future Enhancements
+
+- **Validation Preview**: Show validation errors before import
+- **Partial Import**: Option to skip errors and import valid rows
+- **Import History**: Track all imports with timestamps
+- **Bulk Edit**: Update multiple PMs at once
+- **Template Customization**: Save custom column mappings
+- **Excel Support**: Direct Excel file upload (currently CSV only)
+
+---
+
+## Support
+
+For issues or questions:
+1. Check this documentation
+2. Review CSV template examples
+3. Test with small batch first
+4. Contact Atlas CMMS support
+
+---
+
+**Version**: 1.0  
+**Last Updated**: December 2025  
+**Author**: Atlas CMMS Development Team

@@ -5,6 +5,11 @@ import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.CalendarEvent;
 import com.grash.dto.PreventiveMaintenancePatchDTO;
 import com.grash.dto.PreventiveMaintenanceShowDTO;
+import com.grash.dto.imports.PreventiveMaintenanceImportDTO;
+import com.grash.model.*;
+import com.grash.model.enums.Priority;
+import com.grash.model.enums.RecurrenceType;
+import com.grash.utils.Helper;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.model.Company;
@@ -40,6 +45,11 @@ public class PreventiveMaintenanceService {
     private final CustomSequenceService customSequenceService;
     private final Scheduler scheduler;
     private final PreventiveMaintenanceMapper preventiveMaintenanceMapper;
+    private final WorkOrderCategoryService workOrderCategoryService;
+    private final LocationService locationService;
+    private final TeamService teamService;
+    private final UserService userService;
+    private final AssetService assetService;
 
     @Transactional
     public PreventiveMaintenance create(PreventiveMaintenance preventiveMaintenance, OwnUser user) {
@@ -161,5 +171,158 @@ public class PreventiveMaintenanceService {
         }
 
         return result;
+    }
+
+    public Optional<PreventiveMaintenance> findByIdAndCompany(Long id, Long companyId) {
+        return preventiveMaintenanceRepository.findById(id)
+                .filter(pm -> pm.getCompany().getId().equals(companyId));
+    }
+
+    @Transactional
+    public void importPreventiveMaintenance(PreventiveMaintenance pm, PreventiveMaintenanceImportDTO dto, Company company) {
+        Long companySettingsId = company.getCompanySettings().getId();
+        Long companyId = company.getId();
+        
+        // Set basic fields
+        pm.setName(dto.getName());
+        pm.setTitle(dto.getTitle());
+        pm.setDescription(dto.getDescription());
+        pm.setCompany(company);
+        
+        // Set priority
+        if (dto.getPriority() != null && !dto.getPriority().isEmpty()) {
+            try {
+                pm.setPriority(Priority.valueOf(dto.getPriority().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                pm.setPriority(Priority.NONE);
+            }
+        } else {
+            pm.setPriority(Priority.NONE);
+        }
+        
+        // Set estimated duration (convert hours to minutes)
+        if (dto.getEstimatedDuration() != null) {
+            pm.setEstimatedDuration(dto.getEstimatedDuration() * 60);
+        }
+        
+        // Set required signature
+        if (dto.getRequiredSignature() != null) {
+            pm.setRequiredSignature(dto.getRequiredSignature().equalsIgnoreCase("Yes") || 
+                                   dto.getRequiredSignature().equalsIgnoreCase("True"));
+        }
+        
+        // Lookup and set category
+        if (dto.getCategory() != null && !dto.getCategory().isEmpty()) {
+            Optional<WorkOrderCategory> optionalCategory = 
+                workOrderCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
+            optionalCategory.ifPresent(pm::setCategory);
+        }
+        
+        // Lookup and set location
+        if (dto.getLocationName() != null && !dto.getLocationName().isEmpty()) {
+            Optional<Location> optionalLocation = 
+                locationService.findByNameIgnoreCaseAndCompany(dto.getLocationName(), companyId).stream().findFirst();
+            optionalLocation.ifPresent(pm::setLocation);
+        }
+        
+        // Lookup and set team
+        if (dto.getTeamName() != null && !dto.getTeamName().isEmpty()) {
+            Optional<Team> optionalTeam = 
+                teamService.findByNameIgnoreCaseAndCompany(dto.getTeamName(), companyId);
+            optionalTeam.ifPresent(pm::setTeam);
+        }
+        
+        // Lookup and set primary user
+        if (dto.getPrimaryUserEmail() != null && !dto.getPrimaryUserEmail().isEmpty()) {
+            Optional<OwnUser> optionalUser = 
+                userService.findByEmailAndCompany(dto.getPrimaryUserEmail(), companyId);
+            optionalUser.ifPresent(pm::setPrimaryUser);
+        }
+        
+        // Lookup and set assigned users
+        if (dto.getAssignedToEmails() != null && !dto.getAssignedToEmails().isEmpty()) {
+            List<OwnUser> assignedUsers = new ArrayList<>();
+            for (String email : dto.getAssignedToEmails()) {
+                if (email != null && !email.trim().isEmpty()) {
+                    Optional<OwnUser> optionalUser = userService.findByEmailAndCompany(email.trim(), companyId);
+                    optionalUser.ifPresent(assignedUsers::add);
+                }
+            }
+            pm.setAssignedTo(assignedUsers);
+        }
+        
+        // Lookup and set asset
+        if (dto.getAssetName() != null && !dto.getAssetName().isEmpty()) {
+            Optional<Asset> optionalAsset = 
+                assetService.findByNameIgnoreCaseAndCompany(dto.getAssetName(), companyId).stream().findFirst();
+            optionalAsset.ifPresent(pm::setAsset);
+        }
+        
+        // Generate custom ID if creating new PM
+        if (pm.getId() == null) {
+            Long nextSequence = customSequenceService.getNextPreventiveMaintenanceSequence(company);
+            pm.setCustomId("PM" + String.format("%06d", nextSequence));
+        }
+        
+        // Save PM first to get ID
+        PreventiveMaintenance savedPM = preventiveMaintenanceRepository.saveAndFlush(pm);
+        
+        // Create or update schedule
+        Schedule schedule = savedPM.getSchedule();
+        if (schedule == null) {
+            schedule = new Schedule(savedPM);
+        }
+        
+        // Set schedule fields
+        if (dto.getStartsOn() != null) {
+            schedule.setStartsOn(Helper.getDateFromExcelDate(dto.getStartsOn()));
+        }
+        
+        if (dto.getFrequency() != null) {
+            schedule.setFrequency(dto.getFrequency());
+        }
+        
+        // Set recurrence type
+        if (dto.getRecurrenceType() != null && !dto.getRecurrenceType().isEmpty()) {
+            try {
+                schedule.setRecurrenceType(RecurrenceType.valueOf(dto.getRecurrenceType().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                schedule.setRecurrenceType(RecurrenceType.MONTHLY);
+            }
+        }
+        
+        // Set recurrence based on
+        if (dto.getRecurrenceBasedOn() != null && !dto.getRecurrenceBasedOn().isEmpty()) {
+            try {
+                schedule.setRecurrenceBasedOn(RecurrenceBasedOn.valueOf(dto.getRecurrenceBasedOn().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                schedule.setRecurrenceBasedOn(RecurrenceBasedOn.SCHEDULED_DATE);
+            }
+        } else {
+            schedule.setRecurrenceBasedOn(RecurrenceBasedOn.SCHEDULED_DATE);
+        }
+        
+        // Set due date delay
+        if (dto.getDueDateDelay() != null) {
+            schedule.setDueDateDelay(dto.getDueDateDelay());
+        }
+        
+        // Set ends on
+        if (dto.getEndsOn() != null) {
+            schedule.setEndsOn(Helper.getDateFromExcelDate(dto.getEndsOn()));
+        }
+        
+        // Set days of week for weekly recurrence
+        if (dto.getDaysOfWeek() != null && !dto.getDaysOfWeek().isEmpty()) {
+            schedule.setDaysOfWeek(dto.getDaysOfWeek());
+        }
+        
+        // Enable schedule
+        schedule.setDisabled(false);
+        
+        // Save PM with schedule
+        savedPM.setSchedule(schedule);
+        preventiveMaintenanceRepository.saveAndFlush(savedPM);
+        em.refresh(savedPM);
     }
 }

@@ -155,6 +155,40 @@ export const getOwnHeadersConfig = (
         keyName: 'usersEmails',
         formatter: arrayFormatter
       }
+    ],
+    'preventive-maintenances': [
+      {
+        label: t('id'),
+        keyName: 'id',
+        formatter: idFormatter
+      },
+      { label: t('name'), keyName: 'name', required: true },
+      { label: t('title'), keyName: 'title', required: true },
+      { label: t('description'), keyName: 'description' },
+      { label: t('priority'), keyName: 'priority' },
+      { label: t('estimated_hours'), keyName: 'estimatedDuration' },
+      { label: t('requires_signature'), keyName: 'requiredSignature' },
+      { label: t('category'), keyName: 'category' },
+      { label: t('location_name'), keyName: 'locationName' },
+      { label: t('team_name'), keyName: 'teamName' },
+      { label: t('primary_worker'), keyName: 'primaryUserEmail' },
+      {
+        label: t('assigned_to'),
+        keyName: 'assignedToEmails',
+        formatter: arrayFormatter
+      },
+      { label: t('asset_name'), keyName: 'assetName' },
+      { label: t('starts_on'), keyName: 'startsOn', required: true },
+      { label: t('frequency'), keyName: 'frequency', required: true },
+      { label: t('recurrence_type'), keyName: 'recurrenceType', required: true },
+      { label: t('recurrence_based_on'), keyName: 'recurrenceBasedOn' },
+      { label: t('due_date_delay'), keyName: 'dueDateDelay' },
+      { label: t('ends_on'), keyName: 'endsOn' },
+      {
+        label: t('days_of_week'),
+        keyName: 'daysOfWeek',
+        formatter: arrayFormatter
+      }
     ]
   };
 };

@@ -61,7 +61,8 @@ export type EntityType =
   | 'locations'
   | 'assets'
   | 'parts'
-  | 'meters';
+  | 'meters'
+  | 'preventive-maintenances';
 
 const Import = ({}: OwnProps) => {
   const { hasViewPermission, hasFeature } = useAuth();
@@ -92,7 +93,8 @@ const Import = ({}: OwnProps) => {
     { label: t('assets'), value: 'assets' },
     { label: t('locations'), value: 'locations' },
     { label: t('parts'), value: 'parts' },
-    { label: t('meters'), value: 'meters' }
+    { label: t('meters'), value: 'meters' },
+    { label: t('preventive_maintenances'), value: 'preventive-maintenances' }
   ];
   useEffect(() => {
     setTitle(t('import'));
@@ -189,6 +191,8 @@ const Import = ({}: OwnProps) => {
         return 'import_part_success';
       case 'meters':
         return 'import_meter_success';
+      case 'preventive-maintenances':
+        return 'import_pm_success';
     }
   };
   const downloadTemplate = () => {
