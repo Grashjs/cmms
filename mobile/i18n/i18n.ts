@@ -13,6 +13,7 @@ import itJSON from './translations/it';
 import ptBRJSON from './translations/pt_BR';
 import svJSON from './translations/sv';
 import ruJSON from './translations/ru';
+import csJSON from './translations/cs';
 const resources = {
   de: { translation: deJSON },
   en: { translation: locale },
@@ -24,7 +25,8 @@ const resources = {
   ar: { translation: arJSON },
   it: { translation: itJSON },
   sv: { translation: svJSON },
-  ru: { translation: ruJSON }
+  ru: { translation: ruJSON },
+  cs: { translation: csJSON }
 };
 
 i18n
