@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public interface PreventiveMaintenanceRepository extends JpaRepository<PreventiveMaintenance, Long>,
         JpaSpecificationExecutor<PreventiveMaintenance> {
@@ -16,4 +17,6 @@ public interface PreventiveMaintenanceRepository extends JpaRepository<Preventiv
     List<PreventiveMaintenance> findByCreatedAtBeforeAndCompany_Id(Date start, Long companyId);
 
     void deleteByCompany_IdAndIsDemoTrue(Long companyId);
+
+    Optional<PreventiveMaintenance> findByIdAndCompany_Id(Long id, Long companyId);
 }

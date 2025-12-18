@@ -95,6 +95,18 @@ public class ImportController {
         }
     }
 
+    @PostMapping("/preventive-maintenances")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ImportResponse importPreventiveMaintenances(@Valid @RequestBody List<PreventiveMaintenanceImportDTO> toImport,
+                                                       HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)
+                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
+            return importService.importPreventiveMaintenances(toImport, user.getCompany());
+        } else {
+            throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        }
+    }
 
     @GetMapping("/download-template")
     @PreAuthorize("hasRole('ROLE_CLIENT')")

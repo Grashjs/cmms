@@ -5,36 +5,42 @@ export const getOwnHeadersConfig = (
 ): Record<EntityType, OwnHeader[]> => {
   const idFormatter = (value) => (isNaN(value) ? null : value);
   const arrayFormatter = (value) => value?.split(',') ?? [];
+
+  const workOrderHeaders: OwnHeader[] = [
+    {
+      label: t('id'),
+      keyName: 'id',
+      formatter: idFormatter
+    },
+    { label: t('title'), keyName: 'title', required: true },
+    { label: t('description'), keyName: 'description' },
+    { label: t('due_date'), keyName: 'dueDate' },
+    { label: t('completed_on'), keyName: 'completedOn' },
+    { label: t('status'), keyName: 'status' },
+    { label: t('estimated_hours'), keyName: 'estimatedDuration' },
+    { label: t('priority'), keyName: 'priority' },
+    { label: t('category'), keyName: 'category' },
+    { label: t('completed_by'), keyName: 'completedByEmail' },
+    {
+      label: t('assigned_to'),
+      keyName: 'assignedToEmails',
+      formatter: arrayFormatter
+    },
+    { label: t('primary_worker'), keyName: 'primaryUserEmail' },
+    { label: t('asset_name'), keyName: 'assetName' },
+    { label: t('location_name'), keyName: 'locationName' },
+    { label: t('team_name'), keyName: 'teamName' },
+    {
+      label: t('customers'),
+      keyName: 'customersNames',
+      formatter: arrayFormatter
+    },
+    { label: t('feedback'), keyName: 'feedback' },
+    { label: t('requires_signature'), keyName: 'requiredSignature' },
+    { label: t('archived'), keyName: 'archived' }
+  ];
   return {
-    'work-orders': [
-      {
-        label: t('id'),
-        keyName: 'id',
-        formatter: idFormatter
-      },
-      { label: t('title'), keyName: 'title', required: true },
-      { label: t('description'), keyName: 'description' },
-      { label: t('due_date'), keyName: 'dueDate' },
-      { label: t('completed_on'), keyName: 'completedOn' },
-      { label: t('status'), keyName: 'status' },
-      { label: t('estimated_hours'), keyName: 'estimatedDuration' },
-      { label: t('priority'), keyName: 'priority' },
-      { label: t('category'), keyName: 'category' },
-      { label: t('completed_by'), keyName: 'completedByEmail' },
-      {
-        label: t('assigned_to'),
-        keyName: 'assignedToEmails',
-        formatter: arrayFormatter
-      },
-      { label: t('primary_worker'), keyName: 'primaryUserEmail' },
-      { label: t('asset_name'), keyName: 'assetName' },
-      { label: t('location_name'), keyName: 'locationName' },
-      { label: t('team_name'), keyName: 'teamName' },
-      { label: t('customers'), keyName: 'customersNames', formatter: arrayFormatter },
-      { label: t('feedback'), keyName: 'feedback' },
-      { label: t('requires_signature'), keyName: 'requiredSignature' },
-      { label: t('archived'), keyName: 'archived' }
-    ],
+    'work-orders': workOrderHeaders,
     locations: [
       {
         label: t('id'),
@@ -46,8 +52,16 @@ export const getOwnHeadersConfig = (
       { label: t('longitude'), keyName: 'longitude' },
       { label: t('latitude'), keyName: 'latitude' },
       { label: t('parent_location'), keyName: 'parentLocationName' },
-      { label: t('customers'), keyName: 'customersNames', formatter: arrayFormatter },
-      { label: t('vendors'), keyName: 'vendorsNames', formatter: arrayFormatter },
+      {
+        label: t('customers'),
+        keyName: 'customersNames',
+        formatter: arrayFormatter
+      },
+      {
+        label: t('vendors'),
+        keyName: 'vendorsNames',
+        formatter: arrayFormatter
+      },
       {
         label: t('assigned_to'),
         keyName: 'workersEmails',
@@ -77,8 +91,16 @@ export const getOwnHeadersConfig = (
       { label: t('manufacturer'), keyName: 'manufacturer' },
       { label: t('category'), keyName: 'category' },
       { label: t('primary_worker'), keyName: 'primaryUserEmail' },
-      { label: t('customers'), keyName: 'customersNames', formatter: arrayFormatter },
-      { label: t('vendors'), keyName: 'vendorsNames', formatter: arrayFormatter },
+      {
+        label: t('customers'),
+        keyName: 'customersNames',
+        formatter: arrayFormatter
+      },
+      {
+        label: t('vendors'),
+        keyName: 'vendorsNames',
+        formatter: arrayFormatter
+      },
       {
         label: t('warranty_expiration_date'),
         keyName: 'warrantyExpirationDate'
@@ -120,8 +142,16 @@ export const getOwnHeadersConfig = (
       { label: t('area'), keyName: 'area' },
       { label: t('minimum_quantity'), keyName: 'minQuantity' },
       { label: t('location_name'), keyName: 'locationName' },
-      { label: t('customers'), keyName: 'customersNames', formatter: arrayFormatter },
-      { label: t('vendors'), keyName: 'vendorsNames', formatter: arrayFormatter },
+      {
+        label: t('customers'),
+        keyName: 'customersNames',
+        formatter: arrayFormatter
+      },
+      {
+        label: t('vendors'),
+        keyName: 'vendorsNames',
+        formatter: arrayFormatter
+      },
       {
         label: t('assigned_to'),
         keyName: 'assignedToEmails',
@@ -155,6 +185,29 @@ export const getOwnHeadersConfig = (
         keyName: 'usersEmails',
         formatter: arrayFormatter
       }
+    ],
+    'preventive-maintenances': [
+      { label: t('name'), keyName: 'name', required: true },
+      { label: t('starts_on'), keyName: 'startsOn' },
+      { label: t('ends_on'), keyName: 'endsOn' },
+      { label: t('frequency'), keyName: 'frequency', required: true },
+      { label: t('due_date_delay'), keyName: 'dueDateDelay' },
+      {
+        label: t('recurrence_type'),
+        keyName: 'recurrenceType',
+        required: true
+      },
+      {
+        label: t('recurrence_based_on'),
+        keyName: 'recurrenceBasedOn',
+        required: true
+      },
+      {
+        label: t('days_of_week'),
+        keyName: 'daysOfWeek',
+        formatter: arrayFormatter
+      },
+      ...workOrderHeaders.filter((h) => h.keyName !== 'dueDate')
     ]
   };
 };

@@ -1432,7 +1432,12 @@ const locale = {
 
   'schedule.yearly_one': 'Every {{count}} year',
   'schedule.yearly_other': 'Every {{count}} years',
-  delete_demo_data: 'Delete demo data'
+  delete_demo_data: 'Delete demo data',
+  import_pm_success:
+    '{{created}} Work Order schedules have been created and {{updated}} have been updated',
+  recurrence_type: 'Recurrence type',
+  recurrence_based_on: 'Recurrence based on',
+  days_of_week: 'Days of week'
 };
 
 export default locale;

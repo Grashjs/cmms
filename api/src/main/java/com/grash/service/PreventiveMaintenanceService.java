@@ -5,14 +5,15 @@ import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.CalendarEvent;
 import com.grash.dto.PreventiveMaintenancePatchDTO;
 import com.grash.dto.PreventiveMaintenanceShowDTO;
+import com.grash.dto.imports.PreventiveMaintenanceImportDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PreventiveMaintenanceMapper;
-import com.grash.model.Company;
-import com.grash.model.OwnUser;
-import com.grash.model.PreventiveMaintenance;
-import com.grash.model.Schedule;
+import com.grash.model.*;
+import com.grash.model.enums.Priority;
 import com.grash.model.enums.RecurrenceBasedOn;
+import com.grash.model.enums.RecurrenceType;
 import com.grash.repository.PreventiveMaintenanceRepository;
+import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Scheduler;
@@ -40,6 +41,13 @@ public class PreventiveMaintenanceService {
     private final CustomSequenceService customSequenceService;
     private final Scheduler scheduler;
     private final PreventiveMaintenanceMapper preventiveMaintenanceMapper;
+    private final LocationService locationService;
+    private final TeamService teamService;
+    private final UserService userService;
+    private final AssetService assetService;
+    private final WorkOrderCategoryService workOrderCategoryService;
+    private final ScheduleService scheduleService;
+
 
     @Transactional
     public PreventiveMaintenance create(PreventiveMaintenance preventiveMaintenance, OwnUser user) {
@@ -161,5 +169,87 @@ public class PreventiveMaintenanceService {
         }
 
         return result;
+    }
+
+    public Optional<PreventiveMaintenance> findByIdAndCompany(Long id, Long companyId) {
+        return preventiveMaintenanceRepository.findByIdAndCompany_Id(id, companyId);
+    }
+
+    public void importPreventiveMaintenance(PreventiveMaintenance preventiveMaintenance,
+                                            PreventiveMaintenanceImportDTO pmImportDTO, Company company) {
+        Long companyId = company.getId();
+        Long companySettingsId = company.getCompanySettings().getId();
+
+        preventiveMaintenance.setName(pmImportDTO.getName());
+        preventiveMaintenance.setTitle(pmImportDTO.getTitle());
+        preventiveMaintenance.setDescription(pmImportDTO.getDescription());
+        preventiveMaintenance.setPriority(Priority.getPriorityFromString(pmImportDTO.getPriority()));
+        preventiveMaintenance.setEstimatedDuration(pmImportDTO.getEstimatedDuration());
+
+        Optional<WorkOrderCategory> optionalWorkOrderCategory =
+                workOrderCategoryService.findByNameIgnoreCaseAndCompanySettings(pmImportDTO.getCategory(),
+                        companySettingsId);
+        optionalWorkOrderCategory.ifPresent(preventiveMaintenance::setCategory);
+
+        Optional<Location> optionalLocation =
+                locationService.findByNameIgnoreCaseAndCompany(pmImportDTO.getLocationName(),
+                        companyId).stream().findFirst();
+        optionalLocation.ifPresent(preventiveMaintenance::setLocation);
+
+        Optional<Team> optionalTeam = teamService.findByNameIgnoreCaseAndCompany(pmImportDTO.getTeamName(), companyId);
+        optionalTeam.ifPresent(preventiveMaintenance::setTeam);
+
+        Optional<OwnUser> optionalPrimaryUser = userService.findByEmailAndCompany(pmImportDTO.getPrimaryUserEmail(),
+                companyId);
+        optionalPrimaryUser.ifPresent(preventiveMaintenance::setPrimaryUser);
+
+        List<OwnUser> assignedTo = new ArrayList<>();
+        pmImportDTO.getAssignedToEmails().forEach(email -> {
+            Optional<OwnUser> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
+            optionalUser1.ifPresent(assignedTo::add);
+        });
+        preventiveMaintenance.setAssignedTo(assignedTo);
+
+        Optional<Asset> optionalAsset =
+                assetService.findByNameIgnoreCaseAndCompany(pmImportDTO.getAssetName(), companyId).stream().findFirst();
+        optionalAsset.ifPresent(preventiveMaintenance::setAsset);
+
+        Schedule schedule = preventiveMaintenance.getSchedule();
+        schedule.setStartsOn(Helper.getDateFromExcelDate(pmImportDTO.getStartsOn()));
+        schedule.setFrequency((int) pmImportDTO.getFrequency());
+        schedule.setDueDateDelay(pmImportDTO.getDueDateDelay() == null ? null :
+                pmImportDTO.getDueDateDelay().intValue());
+        schedule.setEndsOn(Helper.getDateFromExcelDate(pmImportDTO.getEndsOn()));
+        schedule.setRecurrenceType(RecurrenceType.valueOf(pmImportDTO.getRecurrenceType().toUpperCase()));
+        schedule.setRecurrenceBasedOn(RecurrenceBasedOn.valueOf(pmImportDTO.getRecurrenceBasedOn().trim().replaceAll(
+                "\\s+", "_").toUpperCase()));
+        schedule.setDaysOfWeek(pmImportDTO.getDaysOfWeek().stream().map(this::getDayOfWeekNumber).collect(Collectors.toList()));
+
+        preventiveMaintenance.setCustomId("PM" + String.format("%06d",
+                customSequenceService.getNextPreventiveMaintenanceSequence(company)));
+
+        PreventiveMaintenance savedPM = preventiveMaintenanceRepository.save(preventiveMaintenance);
+        scheduleService.scheduleWorkOrder(savedPM.getSchedule());
+    }
+
+    private int getDayOfWeekNumber(String day) {
+        switch (day.toLowerCase()) {
+            case "monday":
+                return 0;
+            case "tuesday":
+                return 1;
+            case "wednesday":
+                return 2;
+            case "thursday":
+                return 3;
+            case "friday":
+                return 4;
+            case "saturday":
+                return 5;
+            case "sunday":
+                return 6;
+            default:
+                throw new IllegalArgumentException("Invalid day of week: " + day);
+        }
     }
 }

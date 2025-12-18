@@ -12,7 +12,8 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Grid, Link,
+  Grid,
+  Link,
   MenuItem,
   Select,
   Stack,
@@ -46,8 +47,7 @@ import api from '../../../utils/api';
 import i18n from 'i18next';
 import downloadFile from 'downloadjs';
 
-interface OwnProps {
-}
+interface OwnProps {}
 
 export interface OwnHeader {
   label: string;
@@ -61,7 +61,8 @@ export type EntityType =
   | 'locations'
   | 'assets'
   | 'parts'
-  | 'meters';
+  | 'meters'
+  | 'preventive-maintenances';
 
 const Import = ({}: OwnProps) => {
   const { hasViewPermission, hasFeature } = useAuth();
@@ -92,7 +93,8 @@ const Import = ({}: OwnProps) => {
     { label: t('assets'), value: 'assets' },
     { label: t('locations'), value: 'locations' },
     { label: t('parts'), value: 'parts' },
-    { label: t('meters'), value: 'meters' }
+    { label: t('meters'), value: 'meters' },
+    { label: t('preventive_maintenance'), value: 'preventive-maintenances' }
   ];
   useEffect(() => {
     setTitle(t('import'));
@@ -189,13 +191,21 @@ const Import = ({}: OwnProps) => {
         return 'import_part_success';
       case 'meters':
         return 'import_meter_success';
+      case 'preventive-maintenances':
+        return 'import_pm_success';
     }
   };
   const downloadTemplate = () => {
-    api.get<any>(
-      `import/download-template?language=${i18n.language.toUpperCase()}&importEntity=${entity.toUpperCase().replace('-', '_').substring(0, entity.length - 1)}`, { raw: true })
-      .then(res => res.blob())
-      .then(blob => {
+    api
+      .get<any>(
+        `import/download-template?language=${i18n.language.toUpperCase()}&importEntity=${entity
+          .toUpperCase()
+          .replace('-', '_')
+          .substring(0, entity.length - 1)}`,
+        { raw: true }
+      )
+      .then((res) => res.blob())
+      .then((blob) => {
         downloadFile(blob, `${entity} import template.csv`);
       });
   };
@@ -234,7 +244,7 @@ const Import = ({}: OwnProps) => {
             matches.find(
               (headerMatching) => headerMatching.ownHeader.keyName === keyName
             )?.userHeader
-            ];
+          ];
         if (formatter) {
           value = formatter(value);
         }
@@ -256,9 +266,10 @@ const Import = ({}: OwnProps) => {
         );
         setOpenModal(false);
         reset();
-      }).catch((error) => {
-      showSnackBar(t('import_error'), 'error');
-    })
+      })
+      .catch((error) => {
+        showSnackBar(t('import_error'), 'error');
+      })
       .finally(() => {
         setLoadingImport(false);
       });
@@ -335,8 +346,8 @@ const Import = ({}: OwnProps) => {
                 <Typography>
                   {getMatchLabel(userHeader)
                     ? t(`matched_to_field`, {
-                      field: getMatchLabel(userHeader)
-                    })
+                        field: getMatchLabel(userHeader)
+                      })
                     : t('no_match_yet')}
                 </Typography>
                 <Stack direction="row" spacing={1}>
@@ -407,7 +418,7 @@ const Import = ({}: OwnProps) => {
                 onDrop={(files: any) => {
                   setLoading(true);
                   var reader = new FileReader();
-                  reader.onload = function(e) {
+                  reader.onload = function (e) {
                     const data = e.target.result;
                     const file = read(data, {
                       type: 'string'
@@ -546,10 +557,18 @@ const Import = ({}: OwnProps) => {
                     >
                       {t('start_import_process')}
                     </Button>
-                    <Stack direction={'row'} sx={{ mt: 2 }} onClick={downloadTemplate}>
+                    <Stack
+                      direction={'row'}
+                      sx={{ mt: 2 }}
+                      onClick={downloadTemplate}
+                    >
                       <DownloadTwoToneIcon color={'primary'} />
-                      <Typography color={'primary'} style={{ cursor: 'pointer' }}
-                      >{t('download_template')}</Typography>
+                      <Typography
+                        color={'primary'}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {t('download_template')}
+                      </Typography>
                     </Stack>
                   </Grid>
                 </Grid>

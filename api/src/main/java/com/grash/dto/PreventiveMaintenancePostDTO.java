@@ -19,6 +19,7 @@ import java.util.List;
 public class PreventiveMaintenancePostDTO extends WorkOrderBase {
     private Date startsOn;
 
+    @NotNull
     private String name;
 
     @NotNull
