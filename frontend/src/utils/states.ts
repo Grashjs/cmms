@@ -1,4 +1,5 @@
 import { EntityType, OwnHeader } from 'src/content/own/Imports';
+import { WorkOrderImportDTO } from '../models/owns/imports';
 
 export const getOwnHeadersConfig = (
   t: any
@@ -6,7 +7,9 @@ export const getOwnHeadersConfig = (
   const idFormatter = (value) => (isNaN(value) ? null : value);
   const arrayFormatter = (value) => value?.split(',') ?? [];
 
-  const workOrderHeaders: OwnHeader[] = [
+  const workOrderHeaders: (Omit<OwnHeader, 'keyName'> & {
+    keyName: keyof WorkOrderImportDTO;
+  })[] = [
     {
       label: t('id'),
       keyName: 'id',
@@ -207,7 +210,19 @@ export const getOwnHeadersConfig = (
         keyName: 'daysOfWeek',
         formatter: arrayFormatter
       },
-      ...workOrderHeaders.filter((h) => h.keyName !== 'dueDate')
+      ...workOrderHeaders.filter(
+        (h) =>
+          !(
+            [
+              'dueDate',
+              'completedOn',
+              'completedByEmail',
+              'status',
+              'feedback',
+              'archived'
+            ] as (keyof WorkOrderImportDTO)[]
+          ).includes(h.keyName)
+      )
     ]
   };
 };

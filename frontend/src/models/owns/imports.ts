@@ -13,7 +13,7 @@ export type ImportDTO =
   | MeterImportDTO
   | PreventiveMaintenanceImportDTO;
 
-interface WorkOrderImportDTO {
+export interface WorkOrderImportDTO {
   id: number;
   dueDate: number;
   priority: string;
