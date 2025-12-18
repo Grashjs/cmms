@@ -177,42 +177,11 @@ public class PreventiveMaintenanceService {
 
     public void importPreventiveMaintenance(PreventiveMaintenance preventiveMaintenance,
                                             PreventiveMaintenanceImportDTO pmImportDTO, Company company) {
-        Long companyId = company.getId();
-        Long companySettingsId = company.getCompanySettings().getId();
+
+        Helper.populateWorkOrderBaseFromImportDTO(preventiveMaintenance, pmImportDTO, company, locationService,
+                teamService, userService, assetService, workOrderCategoryService);
 
         preventiveMaintenance.setName(pmImportDTO.getName());
-        preventiveMaintenance.setTitle(pmImportDTO.getTitle());
-        preventiveMaintenance.setDescription(pmImportDTO.getDescription());
-        preventiveMaintenance.setPriority(Priority.getPriorityFromString(pmImportDTO.getPriority()));
-        preventiveMaintenance.setEstimatedDuration(pmImportDTO.getEstimatedDuration());
-
-        Optional<WorkOrderCategory> optionalWorkOrderCategory =
-                workOrderCategoryService.findByNameIgnoreCaseAndCompanySettings(pmImportDTO.getCategory(),
-                        companySettingsId);
-        optionalWorkOrderCategory.ifPresent(preventiveMaintenance::setCategory);
-
-        Optional<Location> optionalLocation =
-                locationService.findByNameIgnoreCaseAndCompany(pmImportDTO.getLocationName(),
-                        companyId).stream().findFirst();
-        optionalLocation.ifPresent(preventiveMaintenance::setLocation);
-
-        Optional<Team> optionalTeam = teamService.findByNameIgnoreCaseAndCompany(pmImportDTO.getTeamName(), companyId);
-        optionalTeam.ifPresent(preventiveMaintenance::setTeam);
-
-        Optional<OwnUser> optionalPrimaryUser = userService.findByEmailAndCompany(pmImportDTO.getPrimaryUserEmail(),
-                companyId);
-        optionalPrimaryUser.ifPresent(preventiveMaintenance::setPrimaryUser);
-
-        List<OwnUser> assignedTo = new ArrayList<>();
-        pmImportDTO.getAssignedToEmails().forEach(email -> {
-            Optional<OwnUser> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
-            optionalUser1.ifPresent(assignedTo::add);
-        });
-        preventiveMaintenance.setAssignedTo(assignedTo);
-
-        Optional<Asset> optionalAsset =
-                assetService.findByNameIgnoreCaseAndCompany(pmImportDTO.getAssetName(), companyId).stream().findFirst();
-        optionalAsset.ifPresent(preventiveMaintenance::setAsset);
 
         Schedule schedule = preventiveMaintenance.getSchedule();
         schedule.setStartsOn(Helper.getDateFromExcelDate(pmImportDTO.getStartsOn()));
@@ -229,7 +198,7 @@ public class PreventiveMaintenanceService {
                 customSequenceService.getNextPreventiveMaintenanceSequence(company)));
 
         PreventiveMaintenance savedPM = preventiveMaintenanceRepository.save(preventiveMaintenance);
-        scheduleService.scheduleWorkOrder(savedPM.getSchedule());
+        scheduleService.reScheduleWorkOrder(savedPM.getSchedule());
     }
 
     private int getDayOfWeekNumber(String day) {

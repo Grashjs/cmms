@@ -212,11 +212,11 @@ public class ScheduleService {
         }
     }
 
-    public void reScheduleWorkOrder(Long id, Schedule schedule) {
+    public void reScheduleWorkOrder(Schedule newSchedule) {
         // Quartz "reschedule" is best handled by deleting and recreating
         // to ensure all parameters (trigger times, data map) are fresh.
-        stopScheduleTimers(id);
-        scheduleWorkOrder(schedule);
+        stopScheduleTimers(newSchedule.getId());
+        scheduleWorkOrder(newSchedule);
     }
 
     public void stopScheduleTimers(Long id) {

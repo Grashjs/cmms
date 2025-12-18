@@ -323,35 +323,15 @@ public class WorkOrderService {
     }
 
     public void importWorkOrder(WorkOrder workOrder, WorkOrderImportDTO dto, Company company) {
-        Long companySettingsId = company.getCompanySettings().getId();
-        Long companyId = company.getId();
+        Helper.populateWorkOrderBaseFromImportDTO(workOrder, dto, company, locationService, teamService, userService,
+                assetService, workOrderCategoryService);
+
         workOrder.setDueDate(Helper.getDateFromExcelDate(dto.getDueDate()));
-        workOrder.setPriority(Priority.getPriorityFromString(dto.getPriority()));
-        workOrder.setEstimatedDuration(dto.getEstimatedDuration());
-        workOrder.setDescription(dto.getDescription());
-        workOrder.setTitle(dto.getTitle());
         workOrder.setCustomId(getWorkOrderNumber(company));
         workOrder.setRequiredSignature(Helper.getBooleanFromString(dto.getRequiredSignature()));
-        Optional<WorkOrderCategory> optionalWorkOrderCategory =
-                workOrderCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
-        optionalWorkOrderCategory.ifPresent(workOrder::setCategory);
-        Optional<Location> optionalLocation = locationService.findByNameIgnoreCaseAndCompany(dto.getLocationName(),
-                companyId).stream().findFirst();
-        optionalLocation.ifPresent(workOrder::setLocation);
-        Optional<Team> optionalTeam = teamService.findByNameIgnoreCaseAndCompany(dto.getTeamName(), companyId);
-        optionalTeam.ifPresent(workOrder::setTeam);
-        Optional<OwnUser> optionalPrimaryUser = userService.findByEmailAndCompany(dto.getPrimaryUserEmail(), companyId);
-        optionalPrimaryUser.ifPresent(workOrder::setPrimaryUser);
-        List<OwnUser> assignedTo = new ArrayList<>();
-        dto.getAssignedToEmails().forEach(email -> {
-            Optional<OwnUser> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
-            optionalUser1.ifPresent(assignedTo::add);
-        });
-        workOrder.setAssignedTo(assignedTo);
-        Optional<Asset> optionalAsset =
-                assetService.findByNameIgnoreCaseAndCompany(dto.getAssetName(), companyId).stream().findFirst();
-        optionalAsset.ifPresent(workOrder::setAsset);
-        Optional<OwnUser> optionalCompletedBy = userService.findByEmailAndCompany(dto.getCompletedByEmail(), companyId);
+
+        Optional<OwnUser> optionalCompletedBy = userService.findByEmailAndCompany(dto.getCompletedByEmail(),
+                company.getId());
         optionalCompletedBy.ifPresent(workOrder::setCompletedBy);
         workOrder.setCompletedOn(dto.getCompletedOn() == null ? null : Helper.addSeconds(new Date(), 60 * 10));
         workOrder.setArchived(Helper.getBooleanFromString(dto.getArchived()));
@@ -359,7 +339,7 @@ public class WorkOrderService {
         workOrder.setFeedback(dto.getFeedback());
         List<Customer> customers = new ArrayList<>();
         dto.getCustomersNames().forEach(name -> {
-            Optional<Customer> optionalCustomer = customerService.findByNameIgnoreCaseAndCompany(name, companyId);
+            Optional<Customer> optionalCustomer = customerService.findByNameIgnoreCaseAndCompany(name, company.getId());
             optionalCustomer.ifPresent(customers::add);
         });
         workOrder.setCustomers(customers);

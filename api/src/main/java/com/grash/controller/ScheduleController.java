@@ -66,7 +66,8 @@ public class ScheduleController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Schedule not found")})
-    public Schedule patch(@ApiParam("Schedule") @Valid @RequestBody SchedulePatchDTO schedule, @ApiParam("id") @PathVariable("id") Long id,
+    public Schedule patch(@ApiParam("Schedule") @Valid @RequestBody SchedulePatchDTO schedule,
+                          @ApiParam("id") @PathVariable("id") Long id,
                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Schedule> optionalSchedule = scheduleService.findById(id);
@@ -75,7 +76,7 @@ public class ScheduleController {
             Schedule savedSchedule = optionalSchedule.get();
             Schedule updatedSchedule = scheduleService.update(id, schedule);
             //TODO unschedule previous schedule
-            scheduleService.reScheduleWorkOrder(id, updatedSchedule);
+            scheduleService.reScheduleWorkOrder(updatedSchedule);
             return updatedSchedule;
         } else throw new CustomException("Schedule not found", HttpStatus.NOT_FOUND);
     }
