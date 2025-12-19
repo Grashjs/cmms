@@ -151,6 +151,14 @@ public class Helper {
                 return new Locale("sv", "SE");
             case RU:
                 return new Locale("ru", "RU");
+            case HU:
+                return new Locale("hu", "HU");
+            case NL:
+                return new Locale("nl", "NL");
+            case ZH_CN:
+                return new Locale("zh", "CN");
+            case ZH:
+                return new Locale("zh", "CN");
             default:
                 return Locale.getDefault();
         }
