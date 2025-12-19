@@ -12,6 +12,7 @@ import { CustomSnackbarProvider } from './contexts/CustomSnackBarContext';
 import { AuthProvider } from './contexts/AuthContext';
 import FlashMessage from 'react-native-flash-message';
 import { URL } from 'react-native-url-polyfill';
+import 'text-encoding';
 
 import Constants from 'expo-constants';
 

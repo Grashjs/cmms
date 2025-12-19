@@ -16,4 +16,6 @@ public interface PartRepository extends JpaRepository<Part, Long>, JpaSpecificat
     Optional<Part> findByNameIgnoreCaseAndCompany_Id(String name, Long companyId);
 
     Optional<Part> findByBarcodeAndCompany_Id(String barcode, Long companyId);
+
+    void deleteByCompany_IdAndIsDemoTrue(Long companyId);
 }

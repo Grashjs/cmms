@@ -14,6 +14,7 @@ import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { formatWorkOrderValues, getWorkOrderFields } from '../../utils/fields';
 import { assetStatuses } from '../../models/asset';
 import { useTheme } from 'react-native-paper';
+import { useAppTheme } from '../../custom-theme';
 
 export default function CreateWorkOrderScreen({
   navigation,
@@ -21,7 +22,7 @@ export default function CreateWorkOrderScreen({
 }: RootStackScreenProps<'AddWorkOrder'>) {
   const { t } = useTranslation();
   const [initialDueDate, setInitialDueDate] = useState<Date>(null);
-  const theme = useTheme();
+  const theme = useAppTheme();
   const { uploadFiles, getWOFieldsAndShapes } = useContext(
     CompanySettingsContext
   );

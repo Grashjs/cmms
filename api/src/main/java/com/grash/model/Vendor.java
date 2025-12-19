@@ -27,6 +27,8 @@ public class Vendor extends BasicInfos {
 
     private long rate;
 
+    private boolean isDemo;
+
     @ManyToMany
     @JsonIgnore
     @JoinTable(name = "T_Asset_Vendor_Associations",

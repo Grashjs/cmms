@@ -10,13 +10,13 @@ import { FilterField, SearchCriteria } from '../../models/page';
 import { Card, Searchbar, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Team from '../../models/team';
-import { onSearchQueryChange } from '../../utils/overall';
+import { isCloseToBottom, onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 
 export default function Teams({
-                                navigation
-                              }: RootStackScreenProps<'PeopleTeams'>) {
+  navigation
+}: RootStackScreenProps<'PeopleTeams'>) {
   const { t } = useTranslation();
   const [startedSearch, setStartedSearch] = useState<boolean>(false);
   const { teams, loadingGet, currentPageNum, lastPage } = useSelector(
@@ -64,17 +64,6 @@ export default function Teams({
     setCriteria(getCriteriaFromFilterFields([]));
   };
 
-  const isCloseToBottom = ({
-                             layoutMeasurement,
-                             contentOffset,
-                             contentSize
-                           }) => {
-    const paddingToBottom = 20;
-    return (
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom
-    );
-  };
   const onQueryChange = (query) => {
     onSearchQueryChange<Team>(query, criteria, setCriteria, setSearchQuery, [
       'name',
@@ -125,10 +114,12 @@ export default function Teams({
                 backgroundColor: 'white'
               }}
               key={team.id}
-              onPress={() => navigation.push('TeamDetails', { id: team.id, teamProp: team })}
+              onPress={() =>
+                navigation.push('TeamDetails', { id: team.id, teamProp: team })
+              }
             >
               <Card.Content>
-                <Text variant='titleMedium'>{team.name}</Text>
+                <Text variant="titleMedium">{team.name}</Text>
                 <Text>
                   {t('team_members_count', { count: team.users.length })}
                 </Text>

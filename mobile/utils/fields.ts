@@ -219,6 +219,15 @@ export const getAssetFields = (t): Array<IField> => {
       type: 'barcode',
       label: t('barcode')
     },
+    ...(!isIos
+      ? [
+          {
+            name: 'nfcId',
+            type: 'nfc' as const,
+            label: t('nfc_tag')
+          }
+        ]
+      : []),
     {
       name: 'category',
       midWidth: true,
@@ -290,15 +299,6 @@ export const getAssetFields = (t): Array<IField> => {
       label: t('vendors'),
       placeholder: t('vendors_description')
     },
-    ...(!isIos
-      ? [
-          {
-            name: 'nfcId',
-            type: 'nfc' as const,
-            label: t('nfc_tag')
-          }
-        ]
-      : []),
     {
       name: 'inServiceDate',
       type: 'date',

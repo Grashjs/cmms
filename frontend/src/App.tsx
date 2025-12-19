@@ -53,6 +53,43 @@ const DemoAlert = () => {
   );
 };
 
+const DemoCleaningAlert = () => {
+  const { isInitialized, company, isAuthenticated, user } = useAuth();
+  const { t } = useTranslation();
+  const userCreatedAt = new Date(user?.createdAt);
+  const [show, setShow] = useState<boolean>(true);
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  if (
+    isCloudVersion &&
+    isAuthenticated &&
+    user?.ownsCompany &&
+    show &&
+    userCreatedAt > sevenDaysAgo &&
+    !localStorage.getItem('demoDataCleaningHint')
+  )
+    return (
+      <Alert
+        onClose={() => {
+          setShow(false);
+          localStorage.setItem('demoDataCleaningHint', 'shown');
+        }}
+        sx={{
+          position: 'fixed',
+          bottom: 10,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1000,
+          width: '50%'
+        }}
+        severity="info"
+      >
+        {t('You can delete demo data from General Settings')}
+      </Alert>
+    );
+  return null;
+};
 function App() {
   const content = useRoutes(router);
   const navigate = useNavigate();
@@ -133,6 +170,7 @@ function App() {
                 <CssBaseline />
                 {isInitialized ? content : <AppInit />}
                 {user && company?.demo && <DemoAlert />}
+                <DemoCleaningAlert />
               </CompanySettingsProvider>
             </CustomSnackBarProvider>
           </SnackbarProvider>

@@ -53,9 +53,7 @@ export default function CustomServerScreen({
           }}
           enableReinitialize
           validationSchema={Yup.object().shape({
-            serverUrl: Yup.string()
-              .url(t('invalid_url'))
-              .required(t('required_url'))
+            serverUrl: Yup.string().required(t('required_url'))
           })}
           onSubmit={async (
             values,

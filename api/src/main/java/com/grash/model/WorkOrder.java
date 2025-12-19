@@ -52,6 +52,7 @@ public class WorkOrder extends WorkOrderBase {
 
     private boolean archived;
 
+    private boolean isDemo;
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)

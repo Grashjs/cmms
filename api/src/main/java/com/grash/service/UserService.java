@@ -6,6 +6,7 @@ import com.grash.dto.SignupSuccessResponse;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.UserPatchDTO;
 import com.grash.dto.UserSignupRequest;
+import com.grash.event.CompanyCreatedEvent;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
 import com.grash.model.*;
@@ -17,6 +18,7 @@ import com.grash.utils.Helper;
 import com.grash.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +29,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -59,6 +62,8 @@ public class UserService {
     private final SubscriptionService subscriptionService;
     private final UserMapper userMapper;
     private final BrandingService brandingService;
+    private final DemoDataService demoDataService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Value("${api.host}")
     private String PUBLIC_API_URL;
@@ -93,12 +98,19 @@ public class UserService {
         }
     }
 
+    private void onCompanyAndUserCreation(OwnUser user) {
+        if (cloudVersion && user.isOwnsCompany()) {
+            applicationEventPublisher.publishEvent(new CompanyCreatedEvent(user));
+        }
+    }
+
     private SignupSuccessResponse<OwnUser> enableAndReturnToken(OwnUser user, boolean sendEmailToSuperAdmins,
                                                                 UserSignupRequest userSignupRequest) {
         user.setEnabled(true);
         userRepository.save(user);
         if (sendEmailToSuperAdmins)
             sendRegistrationMailToSuperAdmins(user, userSignupRequest);
+        onCompanyAndUserCreation(user);
         return new SignupSuccessResponse<>(true, jwtTokenProvider.createToken(user.getEmail(),
                 Collections.singletonList(user.getRole().getRoleType())), user);
     }
@@ -138,27 +150,21 @@ public class UserService {
             Optional<Role> optionalRole = roleService.findById(user.getRole().getId());
             if (!optionalRole.isPresent())
                 throw new CustomException("Role not found", HttpStatus.NOT_ACCEPTABLE);
-            if (enableInvitationViaEmail && userInvitationService.findByRoleAndEmail(optionalRole.get().getId(),
-                    user.getEmail()).isEmpty()) {
+            List<UserInvitation> userInvitations =
+                    userInvitationService.findByRoleAndEmail(optionalRole.get().getId(), user.getEmail());
+            if (enableInvitationViaEmail && userInvitations.isEmpty()) {
                 throw new CustomException("You are not invited to this organization for this role",
                         HttpStatus.NOT_ACCEPTABLE);
-            } else {
-                List<UserInvitation> userInvitations =
-                        userInvitationService.findByRoleAndEmail(optionalRole.get().getId(), user.getEmail());
-                userInvitations.sort(Comparator.comparing(UserInvitation::getCreatedAt).reversed());
-                if (userInvitations.isEmpty()) {
-                    throw new CustomException("You are not invited to this organization for this role",
-                            HttpStatus.NOT_ACCEPTABLE);
-                }
-                user.setRole(optionalRole.get());
-                if (optionalRole.get().getCompanySettings() == null) {
-                    Optional<OwnUser> optionalInviter = findById(userInvitations.get(0).getCreatedBy());
-                    if (!optionalInviter.isPresent())
-                        throw new CustomException("Inviter not found", HttpStatus.NOT_ACCEPTABLE);
-                    user.setCompany(optionalInviter.get().getCompany());
-                } else user.setCompany(optionalRole.get().getCompanySettings().getCompany());
-                return enableAndReturnToken(user, true, userReq);
             }
+            userInvitations.sort(Comparator.comparing(UserInvitation::getCreatedAt).reversed());
+            user.setRole(optionalRole.get());
+            if (optionalRole.get().getCompanySettings() == null) {
+                Optional<OwnUser> optionalInviter = findById(userInvitations.get(0).getCreatedBy());
+                if (!optionalInviter.isPresent())
+                    throw new CustomException("Inviter not found", HttpStatus.NOT_ACCEPTABLE);
+                user.setCompany(optionalInviter.get().getCompany());
+            } else user.setCompany(optionalRole.get().getCompanySettings().getCompany());
+            return enableAndReturnToken(user, true, userReq);
         }
         if (Helper.isLocalhost(PUBLIC_API_URL)) {
             return enableAndReturnToken(user, false, userReq);
@@ -185,6 +191,7 @@ public class UserService {
             if (Boolean.TRUE.equals(userReq.getDemo()))
                 return enableAndReturnToken(user, false, userReq);
             userRepository.save(user);
+            onCompanyAndUserCreation(user);
             sendRegistrationMailToSuperAdmins(user, userReq);
             return new SignupSuccessResponse<>(true, "Successful registration. Check your mailbox to activate your " +
                     "account", null);

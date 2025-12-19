@@ -8,6 +8,7 @@ import com.grash.mapper.ScheduleMapper;
 import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
 import com.grash.model.WorkOrder;
+import com.grash.model.enums.RecurrenceType;
 import com.grash.model.enums.Status;
 import com.grash.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import com.grash.model.enums.RecurrenceBasedOn;
@@ -85,7 +87,7 @@ public class ScheduleService {
 
         if (shouldSchedule) {
             try {
-                ScheduleBuilder scheduleBuilder = null;
+                ScheduleBuilder<?> scheduleBuilder = null;
                 Date startsOn = schedule.getStartsOn();
 
                 if (schedule.getRecurrenceBasedOn() == RecurrenceBasedOn.COMPLETED_DATE) {
@@ -196,10 +198,9 @@ public class ScheduleService {
                             preventiveMaintenance.getEstimatedStartDate();
 
                     scheduleNotificationJob(
-                            schedule.getId(),
                             trueStartsOnForNotif, // Pass the date the WO is scheduled to run
-                            schedule.getEndsOn(),
                             scheduleBuilder,
+                            schedule,
                             daysBeforePMNotification
                     );
                 }
@@ -211,11 +212,11 @@ public class ScheduleService {
         }
     }
 
-    public void reScheduleWorkOrder(Long id, Schedule schedule) {
+    public void reScheduleWorkOrder(Schedule newSchedule) {
         // Quartz "reschedule" is best handled by deleting and recreating
         // to ensure all parameters (trigger times, data map) are fresh.
-        stopScheduleTimers(id);
-        scheduleWorkOrder(schedule);
+        stopScheduleTimers(newSchedule.getId());
+        scheduleWorkOrder(newSchedule);
     }
 
     public void stopScheduleTimers(Long id) {
@@ -233,17 +234,17 @@ public class ScheduleService {
     }
 
     private void scheduleNotificationJob(
-            Long scheduleId,
             Date woStartOn,
-            Date endsOn,
-            ScheduleBuilder scheduleBuilder,
+            ScheduleBuilder<?> woScheduleBuilder,
+            Schedule schedule,
             int daysBeforeNotification) throws SchedulerException {
-
+        Long scheduleId = schedule.getId();
+        Date endsOn = schedule.getEndsOn();
         // 1. Calculate the actual start date for the FIRST notification
         Calendar notifCal = Calendar.getInstance();
         notifCal.setTime(woStartOn);
         notifCal.add(Calendar.DATE, -daysBeforeNotification);
-        Date notificationStart = notifCal.getTime(); // Correctly calculated first notification date
+        Date notificationStart = notifCal.getTime();
 
         // 2. Determine if we should schedule
         boolean shouldScheduleNotification = endsOn == null || notificationStart.before(endsOn);
@@ -255,6 +256,50 @@ public class ScheduleService {
             return;
         }
 
+        ScheduleBuilder<?> notificationScheduleBuilder;
+
+        if (schedule.getRecurrenceType() == RecurrenceType.WEEKLY) {
+            // WEEKLY needs special handling because notification days differ from WO days
+            if (schedule.getDaysOfWeek() == null || schedule.getDaysOfWeek().isEmpty()) {
+                throw new CustomException("Days of week are required for weekly recurrence.",
+                        HttpStatus.BAD_REQUEST);
+            }
+
+            // Extract hour and minute from the notification start date
+            Calendar notifTimeCal = Calendar.getInstance();
+            notifTimeCal.setTime(notificationStart);
+            int notifHour = notifTimeCal.get(Calendar.HOUR_OF_DAY);
+            int notifMinute = notifTimeCal.get(Calendar.MINUTE);
+
+            // Calculate notification days by subtracting daysBeforeNotification from each WO day
+            Set<Integer> notificationDays = new HashSet<>();
+            for (Integer woDay : schedule.getDaysOfWeek()) {
+                // Subtract the notification offset
+                int notifDay = (woDay - daysBeforeNotification) % 7;
+                // Handle negative wraparound (e.g., Mon-3days = Fri of previous week)
+                if (notifDay < 0) {
+                    notifDay += 7;
+                }
+                notificationDays.add(notifDay);
+            }
+
+            // Convert to Quartz cron format (Sun=1, Mon=2, ..., Sat=7)
+            String notifDaysOfWeekCron = notificationDays.stream()
+                    .map(d -> (d + 1) % 7 + 1)
+                    .sorted()
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(","));
+
+            String cronExpression = String.format("0 %d %d ? * %s", notifMinute, notifHour, notifDaysOfWeekCron);
+            notificationScheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression)
+                    .withMisfireHandlingInstructionDoNothing()
+                    .inTimeZone(TimeZone.getDefault());
+        } else {
+            // For DAILY, MONTHLY, YEARLY: use the same recurrence pattern as the WO
+            // The different startAt() date will handle the offset
+            notificationScheduleBuilder = woScheduleBuilder;
+        }
+
         JobDetail notifJob = JobBuilder.newJob(PreventiveMaintenanceNotificationJob.class)
                 .withIdentity("notif-job-" + scheduleId, "notif-group")
                 .usingJobData("scheduleId", scheduleId)
@@ -262,13 +307,12 @@ public class ScheduleService {
 
         Trigger notifTrigger = TriggerBuilder.newTrigger()
                 .withIdentity("notif-trigger-" + scheduleId, "notif-group")
-                .startAt(notificationStart) // Use the calculated FIRST notification date
-                .withSchedule(scheduleBuilder) // Use the same recurrence schedule as the WO
+                .startAt(notificationStart) // Offset start date for all types
+                .withSchedule(notificationScheduleBuilder)
                 .endAt(endsOn)
                 .build();
 
         scheduler.scheduleJob(notifJob, notifTrigger);
-//        log.info("Scheduled notification job for Schedule ID {} to start at {}", scheduleId, notificationStart);
     }
 
     // =========================================================================================
@@ -331,10 +375,9 @@ public class ScheduleService {
 
             if (daysBeforePMNotification > 0) {
                 scheduleNotificationJob(
-                        schedule.getId(),
                         nextRunDate, // The calculated WO start date
-                        schedule.getEndsOn(),
-                        oneShotSchedule, // The one-shot schedule for notification
+                        oneShotSchedule,
+                        schedule,
                         daysBeforePMNotification
                 );
             }
@@ -346,5 +389,26 @@ public class ScheduleService {
 
     public Schedule save(Schedule schedule) {
         return scheduleRepository.saveAndFlush(schedule);
+    }
+
+    public void deleteByCompanyIdAndIsDemoTrue(Long companyId) {
+        scheduleRepository.deleteByPreventiveMaintenanceCompany_IdAndIsDemoTrue(companyId);
+    }
+
+    public void checkIfWeeklyShouldRun(Schedule schedule) {
+        if (schedule.getRecurrenceType() == RecurrenceType.WEEKLY && schedule.getFrequency() > 1) {
+            // Calculate weeks since startsOn
+            long daysSinceStart = ChronoUnit.DAYS.between(
+                    schedule.getStartsOn().toInstant(),
+                    new Date().toInstant()
+            );
+            long weeksSinceStart = daysSinceStart / 7;
+
+            // Only execute if we're on the correct week interval
+            if (weeksSinceStart % schedule.getFrequency() != 0) {
+                log.info("Skipping execution - not on correct week interval for schedule {}", schedule.getId());
+                return;
+            }
+        }
     }
 }

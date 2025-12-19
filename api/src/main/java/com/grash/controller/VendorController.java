@@ -97,7 +97,8 @@ public class VendorController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Vendor not found")})
-    public Vendor patch(@ApiParam("Vendor") @Valid @RequestBody VendorPatchDTO vendor, @ApiParam("id") @PathVariable("id") Long id,
+    public Vendor patch(@ApiParam("Vendor") @Valid @RequestBody VendorPatchDTO vendor, @ApiParam("id") @PathVariable(
+            "id") Long id,
                         HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Vendor> optionalVendor = vendorService.findById(id);
@@ -122,7 +123,7 @@ public class VendorController {
         Optional<Vendor> optionalVendor = vendorService.findById(id);
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
-            if (savedVendor.getCreatedBy().equals(user.getId()) ||
+            if (user.getId().equals(savedVendor.getCreatedBy()) ||
                     user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
                 vendorService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),

@@ -28,6 +28,8 @@ public class AdditionalCost extends Cost {
 
     private Date date;
 
+    private boolean isDemo;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
     @OnDelete(action = OnDeleteAction.CASCADE)

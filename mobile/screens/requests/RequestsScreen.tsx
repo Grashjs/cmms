@@ -24,7 +24,11 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Request from '../../models/request';
-import { getPriorityColor, onSearchQueryChange } from '../../utils/overall';
+import {
+  getPriorityColor,
+  isCloseToBottom,
+  onSearchQueryChange
+} from '../../utils/overall';
 import { RootTabScreenProps } from '../../types';
 import Tag from '../../components/Tag';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
@@ -175,17 +179,7 @@ export default function RequestsScreen({
       return [t('rejected'), theme.colors.error];
     } else return [t('pending'), theme.colors.primary];
   };
-  const isCloseToBottom = ({
-    layoutMeasurement,
-    contentOffset,
-    contentSize
-  }) => {
-    const paddingToBottom = 20;
-    return (
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom
-    );
-  };
+
   const onFilterChange = (newFilters: FilterField[]) => {
     const newCriteria = { ...criteria };
     newCriteria.filterFields = newFilters;
@@ -218,6 +212,7 @@ export default function RequestsScreen({
             style={{ backgroundColor: theme.colors.background }}
           />
           <ScrollView
+            contentContainerStyle={{ paddingBottom: 100 }}
             style={styles.scrollView}
             onScroll={({ nativeEvent }) => {
               if (isCloseToBottom(nativeEvent)) {
@@ -303,16 +298,18 @@ export default function RequestsScreen({
                             backgroundColor="#545454"
                           />
                         </View>
-                        <View style={{ marginRight: 10 }}>
-                          <Tag
-                            text={t(request.priority)}
-                            color="white"
-                            backgroundColor={getPriorityColor(
-                              request.priority,
-                              theme
-                            )}
-                          />
-                        </View>
+                        {request.priority !== 'NONE' && (
+                          <View style={{ marginRight: 10 }}>
+                            <Tag
+                              text={t(request.priority)}
+                              color="white"
+                              backgroundColor={getPriorityColor(
+                                request.priority,
+                                theme
+                              )}
+                            />
+                          </View>
+                        )}
                         <Tag
                           text={getStatusMeta(request)[0]}
                           color="white"
@@ -320,37 +317,41 @@ export default function RequestsScreen({
                         />
                       </View>
                     </View>
-                    <Text style={{ fontWeight: 'bold', fontSize: 18 }}>
+                    <Text
+                      style={{ marginTop: 5, fontWeight: 'bold', fontSize: 18 }}
+                    >
                       {request.title}
                     </Text>
-                    {request.dueDate && (
-                      <IconWithLabel
-                        color={
-                          (dayDiff(new Date(request.dueDate), new Date()) <=
-                            2 ||
-                            new Date() > new Date(request.dueDate)) &&
-                          request.workOrder?.status !== 'COMPLETE'
-                            ? theme.colors.error
-                            : theme.colors.grey
-                        }
-                        label={getFormattedDate(request.dueDate)}
-                        icon="clock-alert-outline"
-                      />
-                    )}
-                    {request.asset && (
-                      <IconWithLabel
-                        label={request.asset.name}
-                        icon="package-variant-closed"
-                        color={theme.colors.grey}
-                      />
-                    )}
-                    {request.location && (
-                      <IconWithLabel
-                        label={request.location.name}
-                        icon="map-marker-outline"
-                        color={theme.colors.grey}
-                      />
-                    )}
+                    <View style={{ marginTop: 7, gap: 10 }}>
+                      {request.dueDate && (
+                        <IconWithLabel
+                          color={
+                            (dayDiff(new Date(request.dueDate), new Date()) <=
+                              2 ||
+                              new Date() > new Date(request.dueDate)) &&
+                            request.workOrder?.status !== 'COMPLETE'
+                              ? theme.colors.error
+                              : theme.colors.grey
+                          }
+                          label={getFormattedDate(request.dueDate)}
+                          icon="clock-alert-outline"
+                        />
+                      )}
+                      {request.asset && (
+                        <IconWithLabel
+                          label={request.asset.name}
+                          icon="package-variant-closed"
+                          color={theme.colors.grey}
+                        />
+                      )}
+                      {request.location && (
+                        <IconWithLabel
+                          label={request.location.name}
+                          icon="map-marker-outline"
+                          color={theme.colors.grey}
+                        />
+                      )}
+                    </View>
                   </Card.Content>
                 </Card>
               ))

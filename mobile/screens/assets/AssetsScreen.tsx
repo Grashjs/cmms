@@ -14,8 +14,13 @@ import { getAssetChildren, getAssets, getMoreAssets } from '../../slices/asset';
 import { FilterField, SearchCriteria } from '../../models/page';
 import { Button, Card, Searchbar, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { AssetDTO, AssetRow } from '../../models/asset';
-import { onSearchQueryChange } from '../../utils/overall';
+import {
+  AssetDTO,
+  AssetRow,
+  assetStatuses,
+  getAssetStatusConfig
+} from '../../models/asset';
+import { isCloseToBottom, onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import Tag from '../../components/Tag';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
@@ -40,7 +45,7 @@ const AssetCard = ({
   return (
     <Card
       style={{
-        padding: 5,
+        padding: 2,
         marginVertical: 5,
         backgroundColor: 'white'
       }}
@@ -63,14 +68,8 @@ const AssetCard = ({
               />
             </View>
             <Tag
-              text={
-                asset?.status === 'OPERATIONAL' ? t('operational') : t('down')
-              }
-              backgroundColor={
-                asset.status === 'OPERATIONAL'
-                  ? theme.colors.success
-                  : theme.colors.error
-              }
+              text={t(asset?.status)}
+              backgroundColor={getAssetStatusConfig(asset?.status).color(theme)}
               color="white"
             />
           </View>
@@ -83,17 +82,19 @@ const AssetCard = ({
                 ? {
                     uri: asset.image.url
                   }
-                : Asset.fromModule(require('../../assets/images/no-image.png'))
+                : require('../../assets/images/no-image.png')
             }
           />
           <Text variant="titleMedium">{asset.name}</Text>
         </View>
-        {asset.location && (
-          <IconWithLabel
-            label={asset.location.name}
-            icon="map-marker-outline"
-          />
-        )}
+        <View style={{ marginBottom: 10 }}>
+          {asset.location && (
+            <IconWithLabel
+              label={asset.location.name}
+              icon="map-marker-outline"
+            />
+          )}
+        </View>
       </Card.Content>
       {showChildrenButton && asset.hasChildren && (
         <Card.Actions>
@@ -168,17 +169,6 @@ export default function AssetsScreen({
     setCriteria(getCriteriaFromFilterFields([]));
   };
 
-  const isCloseToBottom = ({
-    layoutMeasurement,
-    contentOffset,
-    contentSize
-  }) => {
-    const paddingToBottom = 20;
-    return (
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom
-    );
-  };
   const onQueryChange = (query) => {
     onSearchQueryChange<AssetDTO>(
       query,

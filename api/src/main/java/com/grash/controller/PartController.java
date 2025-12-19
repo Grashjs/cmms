@@ -51,12 +51,14 @@ public class PartController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<PartShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
+    public ResponseEntity<Page<PartShowDTO>> search(@RequestBody SearchCriteria searchCriteria,
+                                                    HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
                 searchCriteria.filterCompany(user);
-                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS);
+                boolean canViewOthers =
+                        user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS);
                 if (!canViewOthers) {
                     searchCriteria.filterCreatedBy(user);
                 }
@@ -92,7 +94,8 @@ public class PartController {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
             if (partReq.getBarcode() != null) {
-                Optional<Part> optionalPartWithSameBarCode = partService.findByBarcodeAndCompany(partReq.getBarcode(), user.getCompany().getId());
+                Optional<Part> optionalPartWithSameBarCode = partService.findByBarcodeAndCompany(partReq.getBarcode()
+                        , user.getCompany().getId());
                 if (optionalPartWithSameBarCode.isPresent()) {
                     throw new CustomException("Part with same barcode exists", HttpStatus.NOT_ACCEPTABLE);
                 }
@@ -109,7 +112,8 @@ public class PartController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Part not found")})
-    public PartShowDTO patch(@ApiParam("Part") @Valid @RequestBody PartPatchDTO part, @ApiParam("id") @PathVariable("id") Long id,
+    public PartShowDTO patch(@ApiParam("Part") @Valid @RequestBody PartPatchDTO part, @ApiParam("id") @PathVariable(
+                                     "id") Long id,
                              HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
@@ -119,13 +123,16 @@ public class PartController {
             em.detach(savedPart);
             if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || savedPart.getCreatedBy().equals(user.getId())) {
                 if (part.getBarcode() != null) {
-                    Optional<Part> optionalPartWithSameBarCode = partService.findByBarcodeAndCompany(part.getBarcode(), user.getCompany().getId());
+                    Optional<Part> optionalPartWithSameBarCode =
+                            partService.findByBarcodeAndCompany(part.getBarcode(), user.getCompany().getId());
                     if (optionalPartWithSameBarCode.isPresent() && !optionalPartWithSameBarCode.get().getId().equals(id)) {
                         throw new CustomException("Part with same barcode exists", HttpStatus.NOT_ACCEPTABLE);
                     }
                 }
                 Part patchedPart = partService.update(id, part);
-                Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.PURCHASE_ORDER_CREATED, user.getCompany().getId());
+                Collection<Workflow> workflows =
+                        workflowService.findByMainConditionAndCompany(WFMainCondition.PART_UPDATED,
+                        user.getCompany().getId());
                 workflows.forEach(workflow -> workflowService.runPart(workflow, patchedPart));
                 partService.patchNotify(savedPart, patchedPart, Helper.getLocale(user));
                 return partMapper.toShowDto(patchedPart);

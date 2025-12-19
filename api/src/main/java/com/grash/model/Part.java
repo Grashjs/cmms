@@ -28,6 +28,8 @@ public class Part extends CompanyAudit {
 
     private double cost;
 
+    private boolean isDemo;
+
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

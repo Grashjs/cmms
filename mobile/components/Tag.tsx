@@ -17,7 +17,8 @@ export default function Tag({
         backgroundColor,
         paddingHorizontal: 8,
         paddingVertical: 5,
-        borderRadius: 5
+        borderRadius: 5,
+        alignSelf: 'flex-start'
       }}
     >
       <Text variant={'bodySmall'} style={{ color }}>

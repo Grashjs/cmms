@@ -9,12 +9,28 @@ import com.grash.model.enums.Language;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
+import com.grash.model.abstracts.WorkOrderBase;
+import com.grash.dto.imports.WorkOrderImportDTO;
+import com.grash.model.enums.Priority;
+import com.grash.model.WorkOrderCategory;
+import com.grash.model.Location;
+import com.grash.model.Team;
+import com.grash.model.Asset;
+import com.grash.service.LocationService;
+import com.grash.service.TeamService;
+import com.grash.service.UserService;
+import com.grash.service.AssetService;
+import com.grash.service.WorkOrderCategoryService;
+import com.grash.security.CustomUserDetail;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -321,6 +337,61 @@ public class Helper {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static void populateWorkOrderBaseFromImportDTO(
+            WorkOrderBase workOrderBase,
+            WorkOrderImportDTO dto,
+            Company company,
+            LocationService locationService,
+            TeamService teamService,
+            UserService userService,
+            AssetService assetService,
+            WorkOrderCategoryService workOrderCategoryService
+    ) {
+        Long companyId = company.getId();
+        Long companySettingsId = company.getCompanySettings().getId();
+
+        workOrderBase.setTitle(dto.getTitle());
+        workOrderBase.setDescription(dto.getDescription());
+        workOrderBase.setPriority(Priority.getPriorityFromString(dto.getPriority()));
+        workOrderBase.setEstimatedDuration(dto.getEstimatedDuration());
+
+        Optional<WorkOrderCategory> optionalWorkOrderCategory =
+                workOrderCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
+        optionalWorkOrderCategory.ifPresent(workOrderBase::setCategory);
+
+        Optional<Location> optionalLocation = locationService.findByNameIgnoreCaseAndCompany(dto.getLocationName(),
+                companyId).stream().findFirst();
+        optionalLocation.ifPresent(workOrderBase::setLocation);
+
+        Optional<Team> optionalTeam = teamService.findByNameIgnoreCaseAndCompany(dto.getTeamName(), companyId);
+        optionalTeam.ifPresent(workOrderBase::setTeam);
+
+        Optional<OwnUser> optionalPrimaryUser = userService.findByEmailAndCompany(dto.getPrimaryUserEmail(), companyId);
+        optionalPrimaryUser.ifPresent(workOrderBase::setPrimaryUser);
+
+        List<OwnUser> assignedTo = new ArrayList<>();
+        dto.getAssignedToEmails().forEach(email -> {
+            Optional<OwnUser> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
+            optionalUser1.ifPresent(assignedTo::add);
+        });
+        workOrderBase.setAssignedTo(assignedTo);
+
+        Optional<Asset> optionalAsset =
+                assetService.findByNameIgnoreCaseAndCompany(dto.getAssetName(), companyId).stream().findFirst();
+        optionalAsset.ifPresent(workOrderBase::setAsset);
+    }
+
+    public static void setCurrentUser(OwnUser user) {
+        CustomUserDetail customUserDetail =
+                CustomUserDetail.builder().user(user).build();
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                customUserDetail,
+                null,
+                customUserDetail.getAuthorities()
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
 }

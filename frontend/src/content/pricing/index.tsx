@@ -95,7 +95,7 @@ function Pricing() {
   return (
     <PricingWrapper>
       <Helmet>
-        <title>Pricing - CMMS</title>
+        <title>Pricing - Atlas CMMS</title>
       </Helmet>
       <NavBar />
 

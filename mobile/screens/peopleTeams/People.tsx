@@ -24,14 +24,14 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import User from '../../models/user';
-import { onSearchQueryChange } from '../../utils/overall';
+import { isCloseToBottom, onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 import { getUserInitials } from '../../utils/displayers';
 
 export default function People({
-                                 navigation
-                               }: RootStackScreenProps<'PeopleTeams'>) {
+  navigation
+}: RootStackScreenProps<'PeopleTeams'>) {
   const { t } = useTranslation();
   const currentUser = useAuth().user;
   const [startedSearch, setStartedSearch] = useState<boolean>(false);
@@ -80,17 +80,6 @@ export default function People({
     setCriteria(getCriteriaFromFilterFields([]));
   };
 
-  const isCloseToBottom = ({
-                             layoutMeasurement,
-                             contentOffset,
-                             contentSize
-                           }) => {
-    const paddingToBottom = 20;
-    return (
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom
-    );
-  };
   const onQueryChange = (query) => {
     onSearchQueryChange<User>(query, criteria, setCriteria, setSearchQuery, [
       'firstName',
@@ -142,7 +131,11 @@ export default function People({
               onPress={() => {
                 if (user.id === currentUser.id) {
                   navigation.navigate('UserProfile');
-                } else navigation.push('UserDetails', { id: user.id, userProp: user });
+                } else
+                  navigation.push('UserDetails', {
+                    id: user.id,
+                    userProp: user
+                  });
               }}
             >
               <View

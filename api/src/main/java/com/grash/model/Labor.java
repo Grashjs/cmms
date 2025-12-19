@@ -33,6 +33,8 @@ public class Labor extends Time {
 
     private long hourlyRate;
 
+    private boolean isDemo;
+
     @NotNull
     private Date startedAt;
 
@@ -55,7 +57,8 @@ public class Labor extends Time {
         return Helper.addSeconds(startedAt, Math.toIntExact(this.getDuration()));
     }
 
-    public Labor(OwnUser user, long hourlyRate, Date startedAt, WorkOrder workOrder, boolean logged, TimeStatus status) {
+    public Labor(OwnUser user, long hourlyRate, Date startedAt, WorkOrder workOrder, boolean logged,
+                 TimeStatus status) {
         this.assignedTo = user;
         this.hourlyRate = hourlyRate;
         this.startedAt = startedAt;

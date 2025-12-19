@@ -34,6 +34,8 @@ public class PartQuantity extends CompanyAudit {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private WorkOrder workOrder;
 
+    private boolean isDemo;
+
     public double getCost() {
         return quantity * part.getCost();
     }

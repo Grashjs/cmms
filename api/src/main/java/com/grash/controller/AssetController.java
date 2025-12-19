@@ -280,7 +280,7 @@ public class AssetController {
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
-            if (savedAsset.getCreatedBy().equals(user.getId()) ||
+            if (user.getId().equals(savedAsset.getCreatedBy()) ||
                     user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.ASSETS)) {
                 assetService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),

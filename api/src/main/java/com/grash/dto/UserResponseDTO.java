@@ -53,4 +53,6 @@ public class UserResponseDTO {
 
     private Date lastLogin;
 
+    private Date createdAt;
+
 }

@@ -5,6 +5,7 @@ import com.grash.model.*;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +18,7 @@ public class ImportService {
     private final PartService partService;
     private final MeterService meterService;
     private final WorkOrderService workOrderService;
+    private final PreventiveMaintenanceService preventiveMaintenanceService;
 
     public ImportResponse importWorkOrders(List<WorkOrderImportDTO> toImport, Company company) {
         final int[] created = {0};
@@ -142,4 +144,31 @@ public class ImportService {
                 .updated(updated[0])
                 .build();
     }
+
+    public ImportResponse importPreventiveMaintenances(List<PreventiveMaintenanceImportDTO> toImport, Company company) {
+        final int[] created = {0};
+        final int[] updated = {0};
+        toImport.forEach(pmImportDTO -> {
+            Long id = pmImportDTO.getId();
+            PreventiveMaintenance preventiveMaintenance = new PreventiveMaintenance();
+            if (id == null) {
+                created[0]++;
+            } else {
+                Optional<PreventiveMaintenance> optionalPM = preventiveMaintenanceService.findByIdAndCompany(id,
+                        company.getId());
+                if (optionalPM.isPresent()) {
+                    preventiveMaintenance = optionalPM.get();
+                    updated[0]++;
+                } else {
+                    created[0]++;
+                }
+            }
+            preventiveMaintenanceService.importPreventiveMaintenance(preventiveMaintenance, pmImportDTO, company);
+        });
+        return ImportResponse.builder()
+                .created(created[0])
+                .updated(updated[0])
+                .build();
+    }
+
 }

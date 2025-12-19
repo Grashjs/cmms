@@ -3,15 +3,17 @@ export type ImportKeys =
   | keyof AssetImportDTO
   | keyof MeterImportDTO
   | keyof PartImportDTO
-  | keyof LocationImportDTO;
+  | keyof LocationImportDTO
+  | keyof PreventiveMaintenanceImportDTO;
 export type ImportDTO =
   | WorkOrderImportDTO
   | AssetImportDTO
   | LocationImportDTO
   | PartImportDTO
-  | MeterImportDTO;
+  | MeterImportDTO
+  | PreventiveMaintenanceImportDTO;
 
-interface WorkOrderImportDTO {
+export interface WorkOrderImportDTO {
   id: number;
   dueDate: number;
   priority: string;
@@ -98,6 +100,16 @@ interface PartImportDTO {
   teamsNames: string[];
   customersNames: string[];
   vendorsNames: string[];
+}
+interface PreventiveMaintenanceImportDTO extends WorkOrderImportDTO {
+  startsOn: number;
+  name: string;
+  frequency: number;
+  dueDateDelay: number;
+  endsOn: number;
+  recurrenceType: string;
+  recurrenceBasedOn: string;
+  daysOfWeek: string[];
 }
 
 export interface ImportResponse {

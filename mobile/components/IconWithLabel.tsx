@@ -1,6 +1,6 @@
 import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import { StyleSheet, View } from 'react-native';
-import { IconButton, Text } from 'react-native-paper';
+import { Icon, IconButton, Text } from 'react-native-paper';
 import * as React from 'react';
 
 export function IconWithLabel({
@@ -14,7 +14,7 @@ export function IconWithLabel({
 }) {
   return (
     <View style={{ ...styles.row, justifyContent: 'flex-start' }}>
-      <IconButton icon={icon} size={20} iconColor={color} />
+      <Icon source={icon} size={25} color={color} />
       <Text style={{ color, flexShrink: 1 }} variant={'bodyMedium'}>
         {label}
       </Text>
@@ -26,6 +26,7 @@ const styles = StyleSheet.create({
   row: {
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
+    gap: 8
   }
 });

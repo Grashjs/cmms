@@ -84,6 +84,12 @@ const slice = createSlice({
       if (state.workOrderInfos[workOrder.id]) {
         state.workOrderInfos[workOrder.id].workOrder = workOrder;
       } else state.workOrderInfos[workOrder.id] = { workOrder };
+      const workOrderIndex = state.workOrders.content.findIndex(
+        (wo) => wo.id === workOrder.id
+      );
+      if (workOrderIndex !== -1) {
+        state.workOrders.content[workOrderIndex] = workOrder;
+      }
     },
     deleteWorkOrder(
       state: WorkOrderState,

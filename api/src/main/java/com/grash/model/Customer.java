@@ -33,6 +33,8 @@ public class Customer extends BasicInfos {
     @OneToOne(fetch = FetchType.LAZY)
     private Currency billingCurrency;
 
+    private boolean isDemo;
+
     @ManyToMany
     @JsonIgnore
     @JoinTable(name = "T_Part_customer_Associations",

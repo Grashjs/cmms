@@ -8,11 +8,13 @@ import { Divider, Text, useTheme } from 'react-native-paper';
 import { View } from '../../../components/Themed';
 import { getAssetsByLocation } from '../../../slices/asset';
 import Tag from '../../../components/Tag';
+import { getAssetStatusConfig } from '../../../models/asset';
+import { useAppTheme } from '../../../custom-theme';
 
 export default function LocationAssets({
-                                         location,
-                                         navigation
-                                       }: {
+  location,
+  navigation
+}: {
   location: Location;
   navigation: any;
 }) {
@@ -20,7 +22,7 @@ export default function LocationAssets({
   const dispatch = useDispatch();
   const { assetsByLocation } = useSelector((state) => state.assets);
   const assets = assetsByLocation[location.id] ?? [];
-  const theme = useTheme();
+  const theme = useAppTheme();
 
   useEffect(() => {
     dispatch(getAssetsByLocation(location.id));
@@ -44,20 +46,15 @@ export default function LocationAssets({
               alignItems: 'center'
             }}
           >
-            <Text style={{ fontWeight: 'bold', flexShrink: 1, marginRight: 10 }}>{asset.name}</Text>
+            <Text
+              style={{ fontWeight: 'bold', flexShrink: 1, marginRight: 10 }}
+            >
+              {asset.name}
+            </Text>
             <Tag
-              text={
-                asset?.status === 'OPERATIONAL'
-                  ? t('operational')
-                  : t('down')
-              }
-              backgroundColor={
-                asset.status === 'OPERATIONAL'
-                  ? //@ts-ignore
-                  theme.colors.success
-                  : theme.colors.error
-              }
-              color='white'
+              text={t(asset?.status)}
+              backgroundColor={getAssetStatusConfig(asset?.status).color(theme)}
+              color="white"
             />
           </View>
           <Divider />

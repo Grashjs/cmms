@@ -3,12 +3,16 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   debounce,
   Dialog,
   DialogContent,
   DialogTitle,
   Drawer,
   Grid,
+  IconButton,
+  Menu,
+  MenuItem,
   Stack,
   Typography
 } from '@mui/material';
@@ -76,6 +80,9 @@ import { getWeekdays } from '../../../utils/dates';
 import { supportedLanguages } from '../../../i18n/i18n';
 import i18n from 'i18next';
 import Schedule from '../../../models/owns/schedule';
+import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
+import { exportEntity } from '../../../slices/exports';
+import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 
 function PMs() {
   const { t }: { t: any } = useTranslation();
@@ -88,7 +95,8 @@ function PMs() {
     companySettings,
     hasViewPermission,
     hasCreatePermission,
-    getFilteredFields
+    getFilteredFields,
+    hasFeature
   } = useAuth();
   const [currentPM, setCurrentPM] = useState<PreventiveMaintenance>();
   const { tasksByPreventiveMaintenance } = useSelector((state) => state.tasks);
@@ -103,6 +111,14 @@ function PMs() {
   const { preventiveMaintenances, loadingGet, singlePreventiveMaintenance } =
     useSelector((state) => state.preventiveMaintenances);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const openMenu = Boolean(anchorEl);
+  const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
   const [criteria, setCriteria] = useState<SearchCriteria>({
     filterFields: [
       {
@@ -662,6 +678,26 @@ function PMs() {
       </DialogContent>
     </Dialog>
   );
+  const renderMenu = () => (
+    <Menu
+      id="basic-menu"
+      anchorEl={anchorEl}
+      open={openMenu}
+      onClose={handleCloseMenu}
+      MenuListProps={{
+        'aria-labelledby': 'basic-button'
+      }}
+    >
+      {hasViewPermission(PermissionEntity.SETTINGS) && (
+        <MenuItem
+          onClick={() => navigate('/app/imports/preventive-maintenances')}
+          disabled={!hasFeature(PlanFeature.IMPORT_CSV)}
+        >
+          {t('to_import')}
+        </MenuItem>
+      )}
+    </Menu>
+  );
   if (hasViewPermission(PermissionEntity.PREVENTIVE_MAINTENANCES))
     return (
       <>
@@ -670,22 +706,28 @@ function PMs() {
         </Helmet>
         {renderAddModal()}
         {renderUpdateModal()}
+        {renderMenu()}
         <Stack
           justifyContent="center"
           alignItems="stretch"
           spacing={1}
           paddingX={4}
         >
-          {hasCreatePermission(PermissionEntity.PREVENTIVE_MAINTENANCES) && (
-            <Button
-              startIcon={<AddTwoToneIcon />}
-              sx={{ mt: 1, alignSelf: 'flex-end' }}
-              variant="contained"
-              onClick={() => setOpenAddModal(true)}
-            >
-              {t('create_trigger')}
-            </Button>
-          )}
+          <Stack direction={'row'} alignSelf={'flex-end'} spacing={2} mt={1}>
+            <IconButton onClick={handleOpenMenu} color="primary">
+              <MoreVertTwoToneIcon />
+            </IconButton>
+            {hasCreatePermission(PermissionEntity.PREVENTIVE_MAINTENANCES) && (
+              <Button
+                startIcon={<AddTwoToneIcon />}
+                sx={{ mt: 1, alignSelf: 'flex-end' }}
+                variant="contained"
+                onClick={() => setOpenAddModal(true)}
+              >
+                {t('create_trigger')}
+              </Button>
+            )}
+          </Stack>
           <Box>
             <Card
               sx={{

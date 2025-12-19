@@ -68,7 +68,27 @@ import {
 } from 'react-native-fs';
 import Labor from '../../models/labor';
 import { AudioPlayer } from '../../components/AudioPlayer';
+import { Task } from '../../models/tasks';
 
+const getRemainingTasksLength = (tasks: Task[]): number => {
+  const SECONDS_MS = 5_000;
+
+  const mappedTasks = tasks.map((task) => {
+    const createdAt = new Date(task.createdAt).getTime();
+    const updatedAt = new Date(task.updatedAt).getTime();
+
+    const updatedAfterMoreThanThreshold = updatedAt - createdAt > SECONDS_MS;
+
+    return {
+      ...task,
+      updatedAfterMoreThanThreshold
+    };
+  });
+
+  return mappedTasks.filter(
+    (task) => !task.value || !task.updatedAfterMoreThanThreshold
+  ).length;
+};
 export default function WODetailsScreen({
   navigation,
   route
@@ -132,6 +152,7 @@ export default function WODetailsScreen({
   );
   const [openDelete, setOpenDelete] = React.useState(false);
   const [openArchive, setOpenArchive] = React.useState(false);
+  const remainingTasksLength = getRemainingTasksLength(tasks);
   const loadingDetails =
     loadingPartQuantities[id] ||
     loadingTasks[id] ||
@@ -673,13 +694,17 @@ export default function WODetailsScreen({
             <View style={styles.row}>
               <Text
                 variant="titleMedium"
-                style={{ marginRight: 10 }}
+                style={{ marginRight: 10, color: 'grey' }}
               >{`#${workOrder.customId}`}</Text>
-              <Tag
-                text={t('priority_label', { priority: t(workOrder.priority) })}
-                color="white"
-                backgroundColor={getPriorityColor(workOrder.priority, theme)}
-              />
+              {workOrder.priority !== 'NONE' && (
+                <Tag
+                  text={t('priority_label', {
+                    priority: t(workOrder.priority)
+                  })}
+                  color="white"
+                  backgroundColor={getPriorityColor(workOrder.priority, theme)}
+                />
+              )}
             </View>
             {workOrder.image && (
               <Image
@@ -982,13 +1007,13 @@ export default function WODetailsScreen({
                     <Text variant="titleLarge" style={{ fontWeight: 'bold' }}>
                       {' '}
                       {t('remaining_tasks', {
-                        count: tasks.filter((task) => !task.value).length
+                        count: remainingTasksLength
                       })}
                     </Text>
                     <Text variant="bodyMedium">
                       {t('complete_tasks_percent', {
                         percent: (
-                          (tasks.filter((task) => task.value).length * 100) /
+                          ((tasks.length - remainingTasksLength) * 100) /
                           tasks.length
                         ).toFixed(0)
                       })}
@@ -996,7 +1021,7 @@ export default function WODetailsScreen({
                     <Divider style={{ marginTop: 5 }} />
                     <ProgressBar
                       progress={
-                        tasks.filter((task) => task.value).length / tasks.length
+                        (tasks.length - remainingTasksLength) / tasks.length
                       }
                     />
                   </TouchableOpacity>

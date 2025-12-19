@@ -113,8 +113,7 @@ export default function RegisterScreen({
                 style={[
                   styles.requiredNotice,
                   {
-                    color:
-                      theme.colors.onSurfaceVariant,
+                    color: theme.colors.onSurfaceVariant
                   }
                 ]}
               >
@@ -154,6 +153,7 @@ export default function RegisterScreen({
                 onBlur={handleBlur('email')}
                 onChangeText={handleChange('email')}
                 value={values.email}
+                autoCapitalize="none"
                 mode="outlined"
               />
               <HelperText
@@ -181,6 +181,7 @@ export default function RegisterScreen({
                 label={`${t('password')} *`}
                 onBlur={handleBlur('password')}
                 onChangeText={handleChange('password')}
+                autoCapitalize="none"
                 value={values.password}
                 secureTextEntry={!showPassword}
                 right={
@@ -232,7 +233,7 @@ export default function RegisterScreen({
                       borderColor: theme.colors.outline,
                       borderWidth: 1,
                       width: 24,
-                      height: 24,
+                      height: 24
                     }
                   ]}
                 >

@@ -13,4 +13,6 @@ public interface MeterRepository extends JpaRepository<Meter, Long>, JpaSpecific
     Collection<Meter> findByAsset_Id(Long id);
 
     Optional<Meter> findByIdAndCompany_Id(Long id, Long companyId);
+
+    void deleteByCompany_IdAndIsDemoTrue(Long companyId);
 }

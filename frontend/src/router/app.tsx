@@ -345,7 +345,8 @@ const appRoutes = [
       { path: 'assets', element: <Imports /> },
       { path: 'locations', element: <Imports /> },
       { path: 'parts', element: <Imports /> },
-      { path: 'meters', element: <Imports /> }
+      { path: 'meters', element: <Imports /> },
+      { path: 'preventive-maintenances', element: <Imports /> }
     ]
   },
   { path: 'upgrade', element: <Upgrade /> },

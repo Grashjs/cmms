@@ -173,6 +173,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
   ];
   return (
     <ScrollView
+      contentContainerStyle={{ paddingBottom: 100 }}
       style={{ ...styles.container, backgroundColor: theme.colors.background }}
       refreshControl={
         <RefreshControl
@@ -187,7 +188,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
           display: 'flex',
           flexDirection: 'row',
           justifyContent: 'space-between',
-          alignItems: 'center',
+          alignItems: 'center'
         }}
       >
         {hasViewPermission(PermissionEntity.ASSETS) && (

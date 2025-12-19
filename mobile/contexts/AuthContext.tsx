@@ -46,6 +46,7 @@ import Meter from '../models/meter';
 import { AssetDTO } from '../models/asset';
 import Location from '../models/location';
 import { UiConfiguration } from '../models/uiConfiguration';
+import Constants from 'expo-constants';
 
 interface AuthState {
   isInitialized: boolean;
@@ -582,7 +583,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   };
 
   async function registerForPushNotificationsAsync() {
-    let token;
+    let token: string;
     if (Device.isDevice) {
       const { status: existingStatus } =
         await Notifications.getPermissionsAsync();
@@ -595,7 +596,11 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         Alert.alert(t('error'), t('failed_push_notification'));
         return;
       }
-      token = (await Notifications.getExpoPushTokenAsync()).data;
+      const projectId =
+        Constants?.expoConfig?.extra?.eas?.projectId ??
+        Constants?.easConfig?.projectId;
+
+      token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
     } else {
       Alert.alert('Must use physical device for Push Notifications');
     }
