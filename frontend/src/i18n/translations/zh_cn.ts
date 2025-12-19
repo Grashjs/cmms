@@ -1183,7 +1183,22 @@ const locale = {
   upgrade_request_received: '升级请求已收到！我们将很快与您联系提供付款详情',
   continue_with_sso: '使用SSO继续',
   see_live_demo: '查看实时演示',
-  demo_warning: '此实例处于演示模式。请勿将其用于真实数据！所有内容将定期删除！'
+  demo_warning:
+    '此实例处于演示模式。请勿将其用于真实数据！所有内容将定期删除！',
+  Statistics: '统计',
+  requests: '请求',
+  assets: '资产',
+  locations: '位置',
+  parts_and_inventory: '备件 / 库存',
+  purchase_orders: '采购订单',
+  meters: '仪表',
+  people_teams: '人员与团队',
+  vendors_customers: '供应商与承包商',
+  categories: '分类',
+  settings: '设置',
+  people: '人员',
+  teams: '团队',
+  vendors: '供应商'
 };
 
 export default locale;

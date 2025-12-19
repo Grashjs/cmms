@@ -1313,7 +1313,21 @@ const locale = {
   continue_with_sso: 'Folytatás SSO-val',
   see_live_demo: 'Élő demó megtekintése',
   demo_warning:
-    'Ez a példány demó módban van. Ne használd valós adatokhoz! Minden rendszeresen törlésre kerül!'
+    'Ez a példány demó módban van. Ne használd valós adatokhoz! Minden rendszeresen törlésre kerül!',
+  Statistics: 'Statisztika',
+  requests: 'Kérések',
+  assets: 'Eszközök',
+  locations: 'Helyszínek',
+  parts_and_inventory: 'Alkatrészek / Készlet',
+  purchase_orders: 'Beszerzési rendelések',
+  meters: 'Mérőórák',
+  people_teams: 'Személyek és csapatok',
+  vendors_customers: 'Beszállítók és alvállalkozók',
+  categories: 'Kategóriák',
+  settings: 'Beállítások',
+  people: 'Személyek',
+  teams: 'Csapatok',
+  vendors: 'Beszállítók'
 };
 
 export default locale;

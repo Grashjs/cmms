@@ -1344,6 +1344,7 @@ const locale = {
   top_level: '顶层',
   no_results_found: '未找到结果',
   no_sub_assets: '无子资产',
-  no_assets_available: '无可用资产'
+  no_assets_available: '无可用资产',
+  Statistics: '统计'
 };
 export default locale;
