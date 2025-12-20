@@ -148,7 +148,7 @@ export const fireGa4Event = (
         typeof optionsOrName === 'string'
           ? optionsOrName
           : optionsOrName.action || optionsOrName.category;
-
+      //@ts-ignore
       window.uetq.push('event', eventName, params || {});
     }
 
