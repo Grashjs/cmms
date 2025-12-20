@@ -138,8 +138,20 @@ export const fireGa4Event = (
     googleTrackingId &&
     (conversionKey ? !sessionStorage.getItem(conversionKey) : true)
   ) {
-    // Fire UA event
+    // Fire GA4 event
     ReactGA.event(optionsOrName, params);
+
+    // Fire UET event
+    //@ts-ignore
+    if (window.uetq) {
+      const eventName =
+        typeof optionsOrName === 'string'
+          ? optionsOrName
+          : optionsOrName.action || optionsOrName.category;
+
+      window.uetq.push('event', eventName, params || {});
+    }
+
     if (conversionKey) sessionStorage.setItem(conversionKey, 'true');
   }
 };
