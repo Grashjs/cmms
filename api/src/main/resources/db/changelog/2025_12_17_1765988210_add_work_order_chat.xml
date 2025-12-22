@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Create work_order_message table -->
+    <changeSet author="manus" id="1765988210-1">
+        <createTable tableName="work_order_message">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_work_order_message"/>
+            </column>
+            <column name="work_order_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="message_type" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="content" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="file_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="parent_message_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="edited" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="company_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Add foreign keys for work_order_message -->
+    <changeSet author="manus" id="1765988210-2">
+        <addForeignKeyConstraint
+                baseTableName="work_order_message"
+                baseColumnNames="work_order_id"
+                constraintName="fk_work_order_message_work_order"
+                referencedTableName="work_order"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet author="manus" id="1765988210-3">
+        <addForeignKeyConstraint
+                baseTableName="work_order_message"
+                baseColumnNames="user_id"
+                constraintName="fk_work_order_message_user"
+                referencedTableName="own_user"
+                referencedColumnNames="id"
+                onDelete="SET NULL"/>
+    </changeSet>
+
+    <changeSet author="manus" id="1765988210-4">
+        <addForeignKeyConstraint
+                baseTableName="work_order_message"
+                baseColumnNames="file_id"
+                constraintName="fk_work_order_message_file"
+                referencedTableName="file"
+                referencedColumnNames="id"
+                onDelete="SET NULL"/>
+    </changeSet>
+
+    <changeSet author="manus" id="1765988210-5">
+        <addForeignKeyConstraint
+                baseTableName="work_order_message"
+                baseColumnNames="parent_message_id"
+                constraintName="fk_work_order_message_parent"
+                referencedTableName="work_order_message"
+                referencedColumnNames="id"
+                onDelete="SET NULL"/>
+    </changeSet>
+
+    <changeSet author="manus" id="1765988210-6">
+        <addForeignKeyConstraint
+                baseTableName="work_order_message"
+                baseColumnNames="company_id"
+                constraintName="fk_work_order_message_company"
+                referencedTableName="company"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+    <!-- Add indexes for work_order_message -->
+    <changeSet author="manus" id="1765988210-7">
+        <createIndex indexName="idx_work_order_message_work_order_id" tableName="work_order_message">
+            <column name="work_order_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="manus" id="1765988210-8">
+        <createIndex indexName="idx_work_order_message_user_id" tableName="work_order_message">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="manus" id="1765988210-9">
+        <createIndex indexName="idx_work_order_message_created_at" tableName="work_order_message">
+            <column name="created_at"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="manus" id="1765988210-10">
+        <createIndex indexName="idx_work_order_message_company_id" tableName="work_order_message">
+            <column name="company_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Create work_order_message_read table -->
+    <changeSet author="manus" id="1765988210-11">
+        <createTable tableName="work_order_message_read">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_work_order_message_read"/>
+            </column>
+            <column name="message_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="read_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Add foreign keys for work_order_message_read -->
+    <changeSet author="manus" id="1765988210-12">
+        <addForeignKeyConstraint
+                baseTableName="work_order_message_read"
+                baseColumnNames="message_id"
+                constraintName="fk_work_order_message_read_message"
+                referencedTableName="work_order_message"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet author="manus" id="1765988210-13">
+        <addForeignKeyConstraint
+                baseTableName="work_order_message_read"
+                baseColumnNames="user_id"
+                constraintName="fk_work_order_message_read_user"
+                referencedTableName="own_user"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+    <!-- Add unique constraint and indexes for work_order_message_read -->
+    <changeSet author="manus" id="1765988210-14">
+        <addUniqueConstraint
+                tableName="work_order_message_read"
+                columnNames="message_id, user_id"
+                constraintName="uk_work_order_message_read_message_user"/>
+    </changeSet>
+
+    <changeSet author="manus" id="1765988210-15">
+        <createIndex indexName="idx_work_order_message_read_message_id" tableName="work_order_message_read">
+            <column name="message_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="manus" id="1765988210-16">
+        <createIndex indexName="idx_work_order_message_read_user_id" tableName="work_order_message_read">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Create work_order_message_reaction table -->
+    <changeSet author="manus" id="1765988210-17">
+        <createTable tableName="work_order_message_reaction">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_work_order_message_reaction"/>
+            </column>
+            <column name="message_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reaction" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Add foreign keys for work_order_message_reaction -->
+    <changeSet author="manus" id="1765988210-18">
+        <addForeignKeyConstraint
+                baseTableName="work_order_message_reaction"
+                baseColumnNames="message_id"
+                constraintName="fk_work_order_message_reaction_message"
+                referencedTableName="work_order_message"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet author="manus" id="1765988210-19">
+        <addForeignKeyConstraint
+                baseTableName="work_order_message_reaction"
+                baseColumnNames="user_id"
+                constraintName="fk_work_order_message_reaction_user"
+                referencedTableName="own_user"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+    <!-- Add unique constraint and indexes for work_order_message_reaction -->
+    <changeSet author="manus" id="1765988210-20">
+        <addUniqueConstraint
+                tableName="work_order_message_reaction"
+                columnNames="message_id, user_id, reaction"
+                constraintName="uk_work_order_message_reaction_message_user_reaction"/>
+    </changeSet>
+
+    <changeSet author="manus" id="1765988210-21">
+        <createIndex indexName="idx_work_order_message_reaction_message_id" tableName="work_order_message_reaction">
+            <column name="message_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="manus" id="1765988210-22">
+        <createIndex indexName="idx_work_order_message_reaction_user_id" tableName="work_order_message_reaction">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

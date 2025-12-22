@@ -93,6 +93,7 @@ import FilesList from '../../components/FilesList';
 import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
 import PartQuantitiesList from '../../components/PartQuantitiesList';
 import AddFileModal from './AddFileModal';
+import WorkOrderChatPanel from '../Chat/WorkOrderChatPanel';
 import { useBrand } from '../../../../hooks/useBrand';
 
 const LabelWrapper = styled(Box)(
@@ -368,7 +369,8 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const workOrderStatuses = ['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETE'];
   const tabs = [
     { value: 'details', label: t('details') },
-    { value: 'updates', label: t('updates') }
+    { value: 'updates', label: t('updates') },
+    { value: 'chat', label: t('chat') }
   ];
 
   const getPath = (resource, id) => {
@@ -1335,6 +1337,13 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
                 </ListItem>
               ))}
           </List>
+        )}
+        {currentTab === 'chat' && (
+          <WorkOrderChatPanel
+            workOrderId={workOrder.id}
+            currentUserId={user.id}
+            isWorkOrderCompleted={workOrder.status === 'COMPLETE'}
+          />
         )}
       </Grid>
       <AddTimeModal
