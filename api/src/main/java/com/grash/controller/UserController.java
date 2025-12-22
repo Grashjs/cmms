@@ -159,7 +159,7 @@ public class UserController {
         Optional<OwnUser> optionalUserToPatch = userService.findByIdAndCompany(id, requester.getCompany().getId());
         Optional<Role> optionalRole = roleService.findById(roleId);
 
-        if (optionalUserToPatch.isPresent() && optionalRole.isPresent() && optionalRole.get().belongsOnlyToCompany(requester.getCompany())) {
+        if (optionalUserToPatch.isPresent() && optionalRole.isPresent() && optionalRole.get().belongsToCompany(requester.getCompany())) {
             OwnUser userToPatch = optionalUserToPatch.get();
             if (requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 int usersCount =
