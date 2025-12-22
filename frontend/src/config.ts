@@ -85,3 +85,5 @@ export const brandRawConfig: BrandRawConfig = getRuntimeValue('BRAND_CONFIG')
 export const demoLink: string = getRuntimeValue('DEMO_LINK');
 
 export const isWhiteLabeled: boolean = !!(customLogoPaths || brandRawConfig);
+
+export const IS_ORIGINAL_CLOUD = !isWhiteLabeled && isCloudVersion;

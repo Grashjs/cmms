@@ -14,7 +14,7 @@ import Hero from './Hero';
 import Highlights from './Highlights';
 import NavBar from '../../components/NavBar';
 import { useEffect } from 'react';
-import { isCloudVersion } from '../../config';
+import { IS_ORIGINAL_CLOUD, isCloudVersion } from '../../config';
 import { useBrand } from '../../hooks/useBrand';
 import { useSelector } from '../../store';
 import {
@@ -39,24 +39,14 @@ const OverviewWrapper = styled(Box)(
 function Overview() {
   const { t }: { t: any } = useTranslation();
   const navigate = useNavigate();
-  const { isLicenseValid } = useSelector((state) => state.license);
   const brandConfig = useBrand();
-
-  useEffect(() => {
-    if (
-      !isCloudVersion ||
-      (isCloudVersion && isLicenseValid != null && !isLicenseValid)
-    )
-      console.log('license is invalid');
-    // navigate('/account/login');
-  }, [isCloudVersion, isLicenseValid]);
 
   return (
     <OverviewWrapper>
       <Helmet>
         <title>
           {brandConfig.name}
-          {isCloudVersion
+          {IS_ORIGINAL_CLOUD
             ? ' - Open-Source Maintenance Management Software | Free EAM Solution'
             : ''}
         </title>

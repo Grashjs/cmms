@@ -16,12 +16,11 @@ import Logo from 'src/components/LogoSign';
 import LanguageSwitcher from 'src/layouts/ExtendedSidebarLayout/Header/Buttons/LanguageSwitcher';
 import NavBar from '../../components/NavBar';
 import { useBrand } from '../../hooks/useBrand';
-import { isCloudVersion, isWhiteLabeled } from '../../config';
+import { IS_ORIGINAL_CLOUD } from '../../config';
 
 function TermsOfService() {
   const { t }: { t: any } = useTranslation();
   const brandConfig = useBrand();
-  const IS_ORIGINAL_CLOUD = !isWhiteLabeled && isCloudVersion;
 
   return (
     <Box>
