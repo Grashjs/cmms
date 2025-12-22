@@ -935,7 +935,7 @@ function WorkOrders() {
         </Box>
         <Card
           sx={{
-            p: 2,
+            py: 2,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center'

@@ -546,9 +546,9 @@ function PurchaseOrders() {
             )}
             <Card
               sx={{
-                p: 2,
+                py: 2,
                 display: 'flex',
-                flexDirection: 'row',
+                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'space-between'
               }}

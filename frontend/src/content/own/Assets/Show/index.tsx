@@ -48,7 +48,7 @@ const ShowAsset = ({}: PropsType) => {
   const { uploadFiles } = useContext(CompanySettingsContext);
   const location = useLocation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const { assetInfos } = useSelector((state) => state.assets);
+  const { assetInfos, loadingGet } = useSelector((state) => state.assets);
   const asset: AssetDTO = assetInfos[assetId]?.asset;
   const navigate = useNavigate();
   const [openDelete, setOpenDelete] = useState<boolean>(false);
@@ -433,7 +433,7 @@ const ShowAsset = ({}: PropsType) => {
       >
         {isNumeric(assetId) ? (
           tabIndex === 0 ? (
-            <AssetDetails asset={asset} />
+            <AssetDetails asset={asset} loading={loadingGet} />
           ) : tabIndex === 1 ? (
             <AssetWorkOrders asset={asset} />
           ) : tabIndex === 2 ? (

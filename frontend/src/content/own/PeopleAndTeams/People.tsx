@@ -419,11 +419,7 @@ const People = ({ openModal, handleCloseModal }: PropsType) => {
   return (
     <Box
       sx={{
-        p: 2,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        width: '100%'
+        p: 2
       }}
     >
       <Stack direction="row" width="95%">

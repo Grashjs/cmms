@@ -217,24 +217,34 @@ export const getAssetChildren =
 export const getAssetDetails =
   (id: number): AppThunk =>
   async (dispatch) => {
-    const asset = await api.get<AssetDTO>(`${basePath}/${id}`);
-    dispatch(
-      slice.actions.getAssetDetails({
-        id,
-        asset
-      })
-    );
+    try {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      const asset = await api.get<AssetDTO>(`${basePath}/${id}`);
+      dispatch(
+        slice.actions.getAssetDetails({
+          id,
+          asset
+        })
+      );
+    } finally {
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    }
   };
 export const getAssetWorkOrders =
   (id: number): AppThunk =>
   async (dispatch) => {
-    const workOrders = await api.get<WorkOrder[]>(`work-orders/asset/${id}`);
-    dispatch(
-      slice.actions.getAssetWorkOrders({
-        id,
-        workOrders
-      })
-    );
+    try {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      const workOrders = await api.get<WorkOrder[]>(`work-orders/asset/${id}`);
+      dispatch(
+        slice.actions.getAssetWorkOrders({
+          id,
+          workOrders
+        })
+      );
+    } finally {
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    }
   };
 
 export const getAssetsByLocation =

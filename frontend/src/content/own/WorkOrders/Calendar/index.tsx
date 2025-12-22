@@ -242,59 +242,57 @@ function ApplicationsCalendar({
 
   return (
     <Grid item xs={12}>
-      <Card>
-        <Box p={3}>
-          <Actions
-            date={date}
-            onNext={handleDateNext}
-            onPrevious={handleDatePrev}
-            onToday={handleDateToday}
-            changeView={changeView}
-            view={view}
-          />
-        </Box>
-        <Divider />
-        <FullCalendarWrapper>
-          {loadingGet && (
-            <Stack position="absolute" top={'45%'} left={'45%'} zIndex={10}>
-              <CircularProgress size={64} />
-            </Stack>
+      <Box p={3}>
+        <Actions
+          date={date}
+          onNext={handleDateNext}
+          onPrevious={handleDatePrev}
+          onToday={handleDateToday}
+          changeView={changeView}
+          view={view}
+        />
+      </Box>
+      <Divider />
+      <FullCalendarWrapper>
+        {loadingGet && (
+          <Stack position="absolute" top={'45%'} left={'45%'} zIndex={10}>
+            <CircularProgress size={64} />
+          </Stack>
+        )}
+        <FullCalendar
+          allDayMaintainDuration
+          initialDate={date}
+          initialView={view}
+          locale={
+            supportedLanguages.find(({ code }) => code === getLanguage)
+              .calendarLocale
+          }
+          droppable
+          eventDisplay="block"
+          eventClick={(arg) =>
+            handleOpenDetails(
+              Number(arg.event.id),
+              arg.event.extendedProps.type
+            )
+          }
+          dateClick={(event) => handleAddWorkOrder(event.date)}
+          dayMaxEventRows={4}
+          events={calendar.events.map((eventPayload) =>
+            getEventFromWO(eventPayload)
           )}
-          <FullCalendar
-            allDayMaintainDuration
-            initialDate={date}
-            initialView={view}
-            locale={
-              supportedLanguages.find(({ code }) => code === getLanguage)
-                .calendarLocale
-            }
-            droppable
-            eventDisplay="block"
-            eventClick={(arg) =>
-              handleOpenDetails(
-                Number(arg.event.id),
-                arg.event.extendedProps.type
-              )
-            }
-            dateClick={(event) => handleAddWorkOrder(event.date)}
-            dayMaxEventRows={4}
-            events={calendar.events.map((eventPayload) =>
-              getEventFromWO(eventPayload)
-            )}
-            headerToolbar={false}
-            height={660}
-            ref={calendarRef}
-            rerenderDelay={10}
-            weekends
-            plugins={[
-              dayGridPlugin,
-              timeGridPlugin,
-              interactionPlugin,
-              listPlugin
-            ]}
-          />
-        </FullCalendarWrapper>
-      </Card>
+          headerToolbar={false}
+          height={660}
+          ref={calendarRef}
+          rerenderDelay={10}
+          weekends
+          plugins={[
+            dayGridPlugin,
+            timeGridPlugin,
+            interactionPlugin,
+            listPlugin
+          ]}
+        />
+      </FullCalendarWrapper>
     </Grid>
   );
 }

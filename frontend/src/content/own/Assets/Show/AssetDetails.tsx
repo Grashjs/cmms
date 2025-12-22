@@ -10,7 +10,7 @@ import {
   useTheme
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { AssetDTO, assetStatuses } from '../../../../models/owns/asset';
+import { AssetDTO } from '../../../../models/owns/asset';
 import { UserMiniDTO } from '../../../../models/user';
 import { Customer } from '../../../../models/owns/customer';
 import { Vendor } from '../../../../models/owns/vendor';
@@ -24,9 +24,11 @@ import {
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
 import AssetStatusTag from '../components/AssetStatusTag';
+import Loading from '../../Analytics/Loading';
 
 interface PropsType {
   asset: AssetDTO;
+  loading: boolean;
 }
 
 const LabelWrapper = styled(Box)(
@@ -39,7 +41,7 @@ const LabelWrapper = styled(Box)(
     line-height: 1;
   `
 );
-const AssetDetails = ({ asset }: PropsType) => {
+const AssetDetails = ({ asset, loading }: PropsType) => {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const { getFormattedDate, getFormattedCurrency } = useContext(
@@ -131,6 +133,19 @@ const AssetDetails = ({ asset }: PropsType) => {
       )
     );
   };
+  if (loading)
+    return (
+      <Box
+        sx={{
+          height: '50vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <Loading />
+      </Box>
+    );
   return (
     <Box sx={{ px: 4 }}>
       <Grid container spacing={2}>
