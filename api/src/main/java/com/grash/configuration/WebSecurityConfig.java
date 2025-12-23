@@ -52,7 +52,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/auth/sso/**").permitAll()//
                 .antMatchers("/auth/sendMail").permitAll()//
                 .antMatchers("/auth/resetpwd/**").permitAll()
-                .antMatchers("/license/validity").permitAll()
+                .antMatchers("/license/state").permitAll()
                 .antMatchers("/oauth2/**").permitAll()
                 .antMatchers("/login/oauth2/**").permitAll()
                 .antMatchers("/fast-spring/**").permitAll()

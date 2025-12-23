@@ -55,4 +55,8 @@ public class CompanyService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
+    public boolean existsAtLeastTwo() {//superAdmin and user's company
+        return companyRepository.existsAtLeastTwo();
+    }
+
 }

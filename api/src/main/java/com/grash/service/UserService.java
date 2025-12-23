@@ -6,6 +6,7 @@ import com.grash.dto.SignupSuccessResponse;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.UserPatchDTO;
 import com.grash.dto.UserSignupRequest;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.event.CompanyCreatedEvent;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
@@ -64,6 +65,7 @@ public class UserService {
     private final BrandingService brandingService;
     private final DemoDataService demoDataService;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final LicenseService licenseService;
 
     @Value("${api.host}")
     private String PUBLIC_API_URL;
@@ -130,6 +132,8 @@ public class UserService {
         user.setUsername(utils.generateStringId());
         if (user.getRole() == null) {
             //create company with default roles
+            if (!licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE) && companyService.existsAtLeastTwo())
+                throw new CustomException("You need a license to create another company", HttpStatus.FORBIDDEN);
             Subscription subscription =
                     Subscription.builder().usersCount(cloudVersion ? 10 : 100).monthly(cloudVersion)
                             .startsOn(new Date())

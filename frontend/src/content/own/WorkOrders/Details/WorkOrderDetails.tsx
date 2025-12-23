@@ -94,6 +94,7 @@ import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
 import PartQuantitiesList from '../../components/PartQuantitiesList';
 import AddFileModal from './AddFileModal';
 import { useBrand } from '../../../../hooks/useBrand';
+import { hasLicenseEntitlement } from '../../../../models/owns/license';
 
 const LabelWrapper = styled(Box)(
   ({ theme }) => `
@@ -143,6 +144,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const { relationsByWorkOrder, loadingRelations } = useSelector(
     (state) => state.relations
   );
+  const { state: licensingState } = useSelector((state) => state.license);
   const currentWorkOrderHistories = workOrderHistories[workOrder.id] ?? [];
   const currentWorkOrderRelations = relationsByWorkOrder[workOrder.id] ?? [];
   const labors = timesByWorkOrder[workOrder.id] ?? [];
@@ -1319,23 +1321,30 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
             </Box>
           </Box>
         )}
-        {currentTab == 'updates' && (
-          <List>
-            {[...currentWorkOrderHistories]
-              .reverse()
-              .map((workOrderHistory) => (
-                <ListItem
-                  key={workOrderHistory.id}
-                  secondaryAction={getFormattedDate(workOrderHistory.createdAt)}
-                >
-                  <ListItemText
-                    primary={`${workOrderHistory.user.firstName} ${workOrderHistory.user.lastName}`}
-                    secondary={workOrderHistory.name}
-                  />
-                </ListItem>
-              ))}
-          </List>
-        )}
+        {currentTab == 'updates' &&
+          (hasLicenseEntitlement(licensingState, 'WORK_ORDER_HISTORY') ? (
+            <List>
+              {[...currentWorkOrderHistories]
+                .reverse()
+                .map((workOrderHistory) => (
+                  <ListItem
+                    key={workOrderHistory.id}
+                    secondaryAction={getFormattedDate(
+                      workOrderHistory.createdAt
+                    )}
+                  >
+                    <ListItemText
+                      primary={`${workOrderHistory.user.firstName} ${workOrderHistory.user.lastName}`}
+                      secondary={workOrderHistory.name}
+                    />
+                  </ListItem>
+                ))}
+            </List>
+          ) : (
+            <Typography textAlign={'center'}>
+              You need a license to see Work Order history
+            </Typography>
+          ))}
       </Grid>
       <AddTimeModal
         open={openAddTimeModal}

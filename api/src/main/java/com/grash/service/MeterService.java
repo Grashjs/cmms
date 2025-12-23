@@ -5,6 +5,7 @@ import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.MeterPatchDTO;
 import com.grash.dto.MeterShowDTO;
 import com.grash.dto.imports.MeterImportDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MeterMapper;
 import com.grash.model.*;
@@ -39,9 +40,12 @@ public class MeterService {
     private final MeterMapper meterMapper;
     private final NotificationService notificationService;
     private final ReadingService readingService;
+    private final LicenseService licenseService;
 
     @Transactional
     public Meter create(Meter meter) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.METER))
+            throw new CustomException("You need a license to create a meter", HttpStatus.FORBIDDEN);
         Meter savedMeter = meterRepository.saveAndFlush(meter);
         em.refresh(savedMeter);
         return savedMeter;
@@ -50,6 +54,8 @@ public class MeterService {
     @Transactional
     public Meter update(Long id, MeterPatchDTO meter) {
         if (meterRepository.existsById(id)) {
+            if (!licenseService.hasEntitlement(LicenseEntitlement.METER))
+                throw new CustomException("You need a license to update a meter", HttpStatus.FORBIDDEN);
             Meter savedMeter = meterRepository.findById(id).get();
             Meter patchedMeter = meterRepository.saveAndFlush(meterMapper.updateMeter(savedMeter, meter));
             em.refresh(patchedMeter);

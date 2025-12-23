@@ -26,6 +26,7 @@ import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContex
 import useAuth from '../../../../hooks/useAuth';
 import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
 import { useBrand } from '../../../../hooks/useBrand';
+import { getErrorMessage } from '../../../../utils/api';
 
 // const roles = [
 //   { label: 'Free', value: 'free' },
@@ -57,7 +58,7 @@ function PageHeader({ rolesNumber, formatValues }: PageHeaderProps) {
     showSnackBar(t('role_create_success'), 'success');
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('role_create_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('role_create_failure')), 'error');
 
   return (
     <>

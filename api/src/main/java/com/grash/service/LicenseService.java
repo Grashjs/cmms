@@ -39,18 +39,19 @@ public class LicenseService {
     private long lastCheckedTime = 0;
     private static final long TWELVE_HOUR_MILLIS = 12 * 60 * 60 * 1000;
 
-    public synchronized boolean isLicenseValid() {
+
+    public synchronized LicensingState getLicensingState() {
         long now = System.currentTimeMillis();
 
         if ((now - lastCheckedTime) < TWELVE_HOUR_MILLIS && lastLicenseResponse != null) {
-            return lastLicenseResponse.getMeta().isValid();
+            return LicensingState.builder().valid(lastLicenseResponse.getMeta().isValid()).entitlements(cachedEntitlements).build();
         }
 
         if (licenseKey == null || licenseKey.isEmpty()) {
             lastLicenseResponse = null;
             cachedEntitlements.clear();
             lastCheckedTime = now;
-            return false;
+            return LicensingState.builder().valid(false).build();
         }
 
         try {
@@ -84,7 +85,7 @@ public class LicenseService {
                     cachedEntitlements.clear();
                 }
 
-                return lastLicenseResponse.getMeta().isValid();
+                return LicensingState.builder().valid(lastLicenseResponse.getMeta().isValid()).entitlements(cachedEntitlements).build();
             }
         } catch (Exception e) {
             log.error("License validation failed", e);
@@ -93,7 +94,7 @@ public class LicenseService {
         }
 
         lastCheckedTime = now;
-        return false;
+        return LicensingState.builder().valid(false).build();
     }
 
     public boolean isSSOEnabled() {
@@ -101,7 +102,7 @@ public class LicenseService {
     }
 
     public boolean hasEntitlement(LicenseEntitlement entitlement) {
-        if (!isLicenseValid()) {
+        if (!getLicensingState().isValid()) {
             return false;
         }
 

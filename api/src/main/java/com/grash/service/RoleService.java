@@ -2,6 +2,7 @@ package com.grash.service;
 
 import com.google.rpc.Help;
 import com.grash.dto.RolePatchDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RoleMapper;
 import com.grash.model.Company;
@@ -23,13 +24,18 @@ public class RoleService {
     private final RoleRepository roleRepository;
     private final RoleMapper roleMapper;
     private final CompanySettingsService companySettingsService;
+    private final LicenseService licenseService;
 
-    public Role create(Role Role) {
-        return roleRepository.save(Role);
+    public Role create(Role role) {
+        if (role.getCode().equals(RoleCode.USER_CREATED) && !licenseService.hasEntitlement(LicenseEntitlement.CUSTOM_ROLES))
+            throw new CustomException("You need a license to create custom roles", HttpStatus.FORBIDDEN);
+        return roleRepository.save(role);
     }
 
     public Role update(Long id, RolePatchDTO role) {
         if (roleRepository.existsById(id)) {
+            if (!licenseService.hasEntitlement(LicenseEntitlement.CUSTOM_ROLES))
+                throw new CustomException("You need a license to update roles", HttpStatus.FORBIDDEN);
             Role savedRole = roleRepository.findById(id).get();
             return roleRepository.save(roleMapper.updateRole(savedRole, role));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

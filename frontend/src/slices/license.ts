@@ -3,14 +3,15 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { AppThunk } from 'src/store';
 import api from '../utils/api';
 import { revertAll } from 'src/utils/redux';
+import { LicenseEntitlement, LicensingState } from '../models/owns/license';
 
 const basePath = 'license';
 interface LicenseState {
-  isLicenseValid: boolean | null;
+  state: LicensingState;
 }
 
 const initialState: LicenseState = {
-  isLicenseValid: null
+  state: { valid: false, entitlements: [] }
 };
 
 const slice = createSlice({
@@ -19,10 +20,9 @@ const slice = createSlice({
   reducers: {
     getLicenseValidity(
       state: LicenseState,
-      action: PayloadAction<{ validity: boolean }>
+      action: PayloadAction<LicenseState['state']>
     ) {
-      const { validity } = action.payload;
-      state.isLicenseValid = validity;
+      state.state = action.payload;
     }
   }
 });
@@ -30,10 +30,8 @@ const slice = createSlice({
 export const reducer = slice.reducer;
 
 export const getLicenseValidity = (): AppThunk => async (dispatch) => {
-  const { success } = await api.get<{ success: boolean }>(
-    `${basePath}/validity`
-  );
-  dispatch(slice.actions.getLicenseValidity({ validity: success }));
+  const response = await api.get<LicenseState['state']>(`${basePath}/state`);
+  dispatch(slice.actions.getLicenseValidity(response));
 };
 
 export default slice;

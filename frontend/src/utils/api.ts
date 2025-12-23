@@ -55,12 +55,15 @@ export function authHeader(publicRoute: boolean): HeadersInit {
   }
 }
 
-export const getErrorMessage = (error: any): string => {
+export const getErrorMessage = (
+  error: any,
+  defaultMessage?: string
+): string => {
   try {
     const parsed = JSON.parse(error.message);
-    return parsed?.message ?? error.message;
+    return parsed?.message ?? error.message ?? defaultMessage;
   } catch {
-    return error.message;
+    return error.message ?? defaultMessage;
   }
 };
 
