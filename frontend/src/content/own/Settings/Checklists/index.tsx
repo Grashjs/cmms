@@ -28,6 +28,7 @@ import { getTaskFromTaskBase } from '../../../../utils/formatters';
 import useAuth from '../../../../hooks/useAuth';
 import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
 import FeatureErrorMessage from '../../components/FeatureErrorMessage';
+import { getErrorMessage } from '../../../../utils/api';
 
 function Checklists() {
   const { t }: { t: any } = useTranslation();
@@ -54,8 +55,7 @@ function Checklists() {
     setOpenEditChecklist(false);
     showSnackBar(t('changes_saved_success'), 'success');
   };
-  const onEditFailure = (err) =>
-    showSnackBar(t('checklist_update_failure'), 'error');
+  const onEditFailure = (err) => showSnackBar(getErrorMessage(err), 'error');
   const handleDelete = (id: number) => {
     dispatch(deleteChecklist(id)).then(onDeleteSuccess).catch(onDeleteFailure);
     setOpenDelete(false);
@@ -152,25 +152,23 @@ function Checklists() {
             open={openCreateChecklist}
             onClose={() => setOpenCreateChecklist(false)}
             selected={[]}
-            onSelect={(tasks, infos): Promise<void> => {
-              return new Promise<void>((res, rej) => {
-                dispatch(
-                  addChecklist(
-                    {
-                      ...infos,
-                      taskBases: tasks.map((task) => {
-                        return {
-                          ...task.taskBase,
-                          options: task.taskBase.options.map(
-                            (option) => option.label
-                          )
-                        };
-                      })
-                    },
-                    companySettingsId
-                  )
-                ).finally(res);
-              });
+            onSelect={async (tasks, infos): Promise<void> => {
+              await dispatch(
+                addChecklist(
+                  {
+                    ...infos,
+                    taskBases: tasks.map((task) => {
+                      return {
+                        ...task.taskBase,
+                        options: task.taskBase.options.map(
+                          (option) => option.label
+                        )
+                      };
+                    })
+                  },
+                  companySettingsId
+                )
+              ).catch((error) => showSnackBar(getErrorMessage(error), 'error'));
             }}
             action="createChecklist"
           />
@@ -182,9 +180,9 @@ function Checklists() {
                 getTaskFromTaskBase(taskBase)
               ) ?? []
             }
-            onSelect={(tasks, infos) => {
-              return new Promise<void>((res, rej) => {
-                dispatch(
+            onSelect={async (tasks, infos) => {
+              try {
+                await dispatch(
                   editChecklist(currentChecklist.id, {
                     ...infos,
                     taskBases: tasks.map((task) => {
@@ -196,14 +194,12 @@ function Checklists() {
                       };
                     })
                   })
-                )
-                  .then(onEditSuccess)
-                  .then(() => res())
-                  .catch((err) => {
-                    onEditFailure(err);
-                    rej();
-                  });
-              });
+                );
+                onEditSuccess();
+              } catch (err) {
+                onEditFailure(err);
+                throw err;
+              }
             }}
             action="editChecklist"
             infos={{

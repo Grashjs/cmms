@@ -55,4 +55,13 @@ export function authHeader(publicRoute: boolean): HeadersInit {
   }
 }
 
+export const getErrorMessage = (error: any): string => {
+  try {
+    const parsed = JSON.parse(error.message);
+    return parsed?.message ?? error.message;
+  } catch {
+    return error.message;
+  }
+};
+
 export default { get, patch, post, deletes };

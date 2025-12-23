@@ -6,6 +6,7 @@ import com.grash.exception.CustomException;
 import com.grash.model.Checklist;
 import com.grash.model.Company;
 import com.grash.model.TaskBase;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.repository.CheckListRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,21 +26,17 @@ public class ChecklistService {
     private final CompanySettingsService companySettingsService;
     private final TaskBaseService taskBaseService;
     private final EntityManager em;
-
-    @Transactional
-    public Checklist create(Checklist checklist) {
-        Checklist savedChecklist = checklistRepository.saveAndFlush(checklist);
-        em.refresh(savedChecklist);
-        return savedChecklist;
-    }
+    private final LicenseService licenseService;
 
     @Transactional
     public Checklist createPost(ChecklistPostDTO checklistReq, Company company) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.CHECKLIST))
+            throw new CustomException("You need a license to create a checklist", HttpStatus.FORBIDDEN);
         List<TaskBase> taskBases = checklistReq.getTaskBases().stream()
                 .map(taskBaseDto -> taskBaseService.createFromTaskBaseDTO(taskBaseDto, company)).collect(Collectors.toList());
         Checklist checklist = Checklist.builder()
                 .name(checklistReq.getName())
-                .companySettings(checklistReq.getCompanySettings())
+                .companySettings(company.getCompanySettings())
                 .taskBases(taskBases)
                 .category(checklistReq.getCategory())
                 .description(checklistReq.getDescription())
@@ -51,6 +48,8 @@ public class ChecklistService {
 
     @Transactional
     public Checklist update(Long id, ChecklistPatchDTO checklistReq, Company company) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.CHECKLIST))
+            throw new CustomException("You need a license to update a checklist", HttpStatus.FORBIDDEN);
         if (checklistRepository.existsById(id)) {
             Checklist savedChecklist = checklistRepository.getById(id);
             savedChecklist.setCategory(checklistReq.getCategory());
