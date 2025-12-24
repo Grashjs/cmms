@@ -4,8 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grash.dto.keygen.*;
 import com.grash.service.KeygenService;
 import com.grash.service.StripeService;
+
+import com.grash.service.EmailService2;
 import com.stripe.exception.SignatureVerificationException;
-import com.stripe.model.Customer;
 import com.stripe.model.Event;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
@@ -14,11 +15,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,6 +34,7 @@ import java.util.stream.Collectors;
 class WebhookController {
 
     private final KeygenService keygenService;
+    private final EmailService2 emailService;
     @Value("${stripe.webhook-secret-key}")
     private String stripeWebhookSecretKey;
 
@@ -74,8 +79,14 @@ class WebhookController {
             log.info("Creating license for keygen user {} with plan {}", email, planId);
             KeygenLicenseResponse keygenLicenseResponse = keygenService.createLicense(planId, email);
 
-            // TODO: Implement email sending logic, e.g., via an EmailService
-            log.info("Skipping confirmation email for now.");
+            Map<String, Object> model = new HashMap<>();
+            model.put("name", session.getCustomerDetails().getName());
+            model.put("plan", planId);
+            model.put("licenseKey", keygenLicenseResponse.getData().getAttributes().getKey());
+            model.put("expiringAt", keygenLicenseResponse.getData().getAttributes().getExpiry());
+            emailService.sendMessageUsingThymeleafTemplate(new String[]{email}, "Atlas CMMS license key", model,
+                    "checkout" +
+                    "-complete.html", Locale.getDefault());
 
         } catch (Exception e) {
             log.error("Failed to create license for keygen user {}", email, e);
