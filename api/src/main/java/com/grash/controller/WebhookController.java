@@ -35,6 +35,8 @@ class WebhookController {
 
     private final KeygenService keygenService;
     private final EmailService2 emailService;
+    @Value("${mail.recipients:#{null}}")
+    private String[] recipients;
     @Value("${stripe.webhook-secret-key}")
     private String stripeWebhookSecretKey;
 
@@ -86,11 +88,14 @@ class WebhookController {
             model.put("expiringAt", keygenLicenseResponse.getData().getAttributes().getExpiry());
             emailService.sendMessageUsingThymeleafTemplate(new String[]{email}, "Atlas CMMS license key", model,
                     "checkout" +
-                    "-complete.html", Locale.getDefault());
+                            "-complete.html", Locale.getDefault());
 
         } catch (Exception e) {
             log.error("Failed to create license for keygen user {}", email, e);
-            // Optional: Add to a retry queue or notify administrators
+            if (recipients != null && recipients.length > 0) {
+                emailService.sendSimpleMessage(recipients, "Failed to create license for keygen user " + email,
+                        "Failed to create license for keygen user " + email + "\n" + e.getMessage());
+            }
         }
     }
 }
