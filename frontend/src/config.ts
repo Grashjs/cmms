@@ -87,3 +87,8 @@ export const demoLink: string = getRuntimeValue('DEMO_LINK');
 export const isWhiteLabeled: boolean = !!(customLogoPaths || brandRawConfig);
 
 export const IS_ORIGINAL_CLOUD = !isWhiteLabeled && isCloudVersion;
+
+export const keygenAccountId = '1ca3e517-f3d8-473f-a45c-81069900acb7';
+export const stripePublishableKey: string = getRuntimeValue(
+  'STRIPE_PUBLISHABLE_KEY'
+);

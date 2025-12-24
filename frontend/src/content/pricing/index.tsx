@@ -28,7 +28,11 @@ import LanguageSwitcher from 'src/layouts/ExtendedSidebarLayout/Header/Buttons/L
 import { ExpandMore, GitHub } from '@mui/icons-material';
 import CheckCircleOutlineTwoToneIcon from '@mui/icons-material/CheckCircleOutlineTwoTone';
 import { useEffect, useState } from 'react';
-import { pricingPlans, planFeatureCategories } from './pricingData';
+import {
+  pricingPlans,
+  planFeatureCategories,
+  selfHostedPlans
+} from './pricingData';
 import NavBar from '../../components/NavBar';
 import Faq from './components/Faq';
 import SubscriptionPlanSelector, {
@@ -59,6 +63,8 @@ function Pricing() {
   const theme = useTheme();
 
   const [monthly, setMonthly] = useState<boolean>(true);
+  const type = 'cloud';
+  const typePlans = type === 'cloud' ? pricingPlans : selfHostedPlans;
   const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
 
   const isXs = useMediaQuery(theme.breakpoints.only('xs'));
@@ -69,12 +75,12 @@ function Pricing() {
   useEffect(() => {
     // Find the popular plan
     const popularPlan =
-      pricingPlans.find((plan) => plan.popular)?.id || pricingPlans[0].id;
+      typePlans.find((plan) => plan.popular)?.id || pricingPlans[0].id;
 
     if (isXs) {
       // For extra small screens, select 2 plans (popular plan + one more)
       const secondPlan =
-        pricingPlans.find((plan) => plan.id !== popularPlan)?.id || '';
+        typePlans.find((plan) => plan.id !== popularPlan)?.id || '';
       setSelectedPlans([popularPlan, secondPlan]);
     } else if (isSm) {
       // For small screens, select 3 plans (popular plan + two more)
@@ -85,7 +91,7 @@ function Pricing() {
       setSelectedPlans([popularPlan, ...otherPlans]);
     } else {
       // For medium and up, show all plans
-      setSelectedPlans(pricingPlans.map((plan) => plan.id));
+      setSelectedPlans(typePlans.map((plan) => plan.id));
     }
   }, [isXs, isSm, isMdDown]);
 
@@ -153,14 +159,14 @@ function Pricing() {
                 renderValue={(selected) => (
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {selected.map((value) => {
-                      const plan = pricingPlans.find((p) => p.id === value);
+                      const plan = typePlans.find((p) => p.id === value);
                       return <Chip key={value} label={plan?.name} />;
                     })}
                   </Box>
                 )}
                 sx={{ mb: 2 }}
               >
-                {pricingPlans.map((plan) => (
+                {typePlans.map((plan) => (
                   <MenuItem
                     key={plan.id}
                     value={plan.id}

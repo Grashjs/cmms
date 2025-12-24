@@ -1,5 +1,3 @@
-import { alpha } from '@mui/material/styles';
-
 // Pricing plans
 export const pricingPlans: {
   id: string;
@@ -697,6 +695,64 @@ export const planFeatureCategories = [
           business: true
         }
       }
+    ]
+  }
+];
+
+// Self-Hosted Pricing plans
+export const selfHostedPlans: {
+  id: string;
+  name: string;
+  price: string;
+  description: string;
+  popular: boolean;
+  features: string[];
+}[] = [
+  {
+    id: 'sh-free',
+    name: 'Free Self-Hosted',
+    price: 'Free',
+    description:
+      'For small teams needing full data sovereignty and basic maintenance tracking on their own infrastructure.',
+    popular: false,
+    features: [
+      'Core Work Order Management',
+      'Asset & Inventory Tracking',
+      'Preventive Maintenance',
+      'Local Data Storage'
+    ]
+  },
+  {
+    id: 'sh-professional',
+    name: 'Professional Self-Hosted',
+    price: '15',
+    description:
+      'Ideal for growing plants that require advanced checklists, workflows, and deeper system integration.',
+    popular: true,
+    features: [
+      'Everything in Standard plus:',
+      'Custom Checklists & Procedures',
+      'Automated Workflows',
+      'Webhook Integration',
+      'Meter Readings',
+      'NFC & Barcode Scanning',
+      'Email & Community Support'
+    ]
+  },
+  {
+    id: 'sh-enterprise',
+    name: 'Enterprise Self-Hosted',
+    price: 'Contact Sales',
+    description:
+      'Full-scale operations requiring multi-instance management, custom branding, and top-tier security.',
+    popular: false,
+    features: [
+      'Everything in Professional plus:',
+      'Multi-Instance Management',
+      'Single Sign-On (SSO)',
+      'Custom User Roles',
+      'White-label / Custom Branding',
+      'Priority Implementation Support'
     ]
   }
 ];
