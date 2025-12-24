@@ -74,5 +74,13 @@ export async function authHeader(publicRoute) {
     };
   }
 }
+const getErrorMessage = (error: any, defaultMessage?: string): string => {
+  try {
+    const parsed = JSON.parse(error.message);
+    return parsed?.message ?? error.message ?? defaultMessage;
+  } catch {
+    return error.message ?? defaultMessage;
+  }
+};
 
-export default { get, patch, post, deletes };
+export default { get, patch, post, deletes, getErrorMessage };

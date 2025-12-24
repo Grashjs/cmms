@@ -1461,6 +1461,7 @@ const locale = {
   top_level: 'Top Level',
   no_results_found: 'No results found',
   no_sub_assets: 'No sub-assets',
-  no_assets_available: 'No assets available'
+  no_assets_available: 'No assets available',
+  you_need_a_license: 'You need a license to access this feature'
 };
 export default locale;

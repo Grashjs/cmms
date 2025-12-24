@@ -94,7 +94,7 @@ import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
 import PartQuantitiesList from '../../components/PartQuantitiesList';
 import AddFileModal from './AddFileModal';
 import { useBrand } from '../../../../hooks/useBrand';
-import { hasLicenseEntitlement } from '../../../../models/owns/license';
+import { useLicenseEntitlement } from '../../../../hooks/useLicenseEntitlement';
 
 const LabelWrapper = styled(Box)(
   ({ theme }) => `
@@ -123,6 +123,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const { t }: { t: any } = useTranslation();
   const { user, hasEditPermission, hasDeletePermission } = useAuth();
   const brandConfig = useBrand();
+  const hasWOHistoryEntitlement = useLicenseEntitlement('WORK_ORDER_HISTORY');
   const [openAddTimeModal, setOpenAddTimeModal] = useState<boolean>(false);
   const [openAddFileModal, setOpenAddFileModal] = useState<boolean>(false);
   const [openAddCostModal, setOpenAddCostModal] = useState<boolean>(false);
@@ -144,7 +145,6 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const { relationsByWorkOrder, loadingRelations } = useSelector(
     (state) => state.relations
   );
-  const { state: licensingState } = useSelector((state) => state.license);
   const currentWorkOrderHistories = workOrderHistories[workOrder.id] ?? [];
   const currentWorkOrderRelations = relationsByWorkOrder[workOrder.id] ?? [];
   const labors = timesByWorkOrder[workOrder.id] ?? [];
@@ -1322,7 +1322,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
           </Box>
         )}
         {currentTab == 'updates' &&
-          (hasLicenseEntitlement(licensingState, 'WORK_ORDER_HISTORY') ? (
+          (hasWOHistoryEntitlement ? (
             <List>
               {[...currentWorkOrderHistories]
                 .reverse()
