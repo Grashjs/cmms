@@ -19,6 +19,10 @@ import { Link as RouterLink } from 'react-router-dom';
 import { boolean } from 'yup';
 import { useTranslation } from 'react-i18next';
 import { fireGa4Event } from '../../../utils/overall';
+import { apiUrl, keygenAccountId, stripePublishableKey } from '../../../config';
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe(stripePublishableKey);
 
 interface SubscriptionPlanSelectorProps {
   monthly: boolean;
@@ -151,8 +155,12 @@ export default function SubscriptionPlanSelector({
                   <Button
                     fullWidth
                     variant="contained"
-                    component={RouterLink}
-                    onClick={() => {
+                    component={
+                      selfHosted && plan.id !== 'sh-free'
+                        ? 'button'
+                        : RouterLink
+                    }
+                    onClick={async () => {
                       if (plan.id !== 'basic') {
                         fireGa4Event({
                           category: 'Pricing',
@@ -162,12 +170,46 @@ export default function SubscriptionPlanSelector({
                             plan.id === 'business' ? 100 : Number(plan.price)
                         });
                       }
+
+                      // Handle Stripe Checkout for self-hosted paid plans
+                      if (selfHosted && plan.id !== 'sh-free') {
+                        try {
+                          // Create Checkout Session on backend
+                          const response = await fetch(
+                            `${apiUrl}stripe/create-checkout-session`,
+                            {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json'
+                              },
+                              body: JSON.stringify({
+                                planId: plan.id,
+                                planName: plan.name,
+                                price: plan.price
+                              })
+                            }
+                          );
+
+                          const { sessionId, url } = await response.json();
+                          window.location.href = url;
+                        } catch (error) {
+                          console.error(
+                            'Failed to create checkout session:',
+                            error
+                          );
+                          // Show error to user
+                        }
+                      }
                     }}
                     to={
-                      '/account/register' +
-                      (plan.id !== 'basic'
-                        ? `?subscription-plan-id=${plan.id}`
-                        : '')
+                      selfHosted && plan.id !== 'sh-free'
+                        ? undefined
+                        : selfHosted
+                        ? '/account/register'
+                        : '/account/register' +
+                          (plan.id !== 'basic'
+                            ? `?subscription-plan-id=${plan.id}`
+                            : '')
                     }
                     sx={{ mb: 1 }}
                   >

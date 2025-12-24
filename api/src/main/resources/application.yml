@@ -121,6 +121,7 @@ white-labeling:
 stripe:
   publishable-key: ${STRIPE_PUBLISHABLE_KEY}
   secret-key: ${STRIPE_SECRET_KEY}
+  webhook-secret-key: ${STRIPE_WEBHOOK_SECRET_KEY}
   plan-id: ${STRIPE_PLAN_ID}
 keygen:
   product-token: ${KEYGEN_PRODUCT_TOKEN}

@@ -25,6 +25,7 @@
     "@nik0di3m/utm-tracker-hook": "^1.3.0",
     "@reduxjs/toolkit": "1.8.2",
     "@stomp/stompjs": "^7.0.0",
+    "@stripe/stripe-js": "^8.6.0",
     "@types/check-types": "^7.3.4",
     "@types/jsonwebtoken": "8.5.8",
     "@types/nprogress": "0.2.0",

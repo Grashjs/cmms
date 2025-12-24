@@ -2,31 +2,38 @@ package com.grash.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grash.dto.keygen.*;
-import com.grash.dto.stripe.StripeCustomer;
-import com.grash.dto.stripe.StripeWebhookRequest;
 import com.grash.service.KeygenService;
 import com.grash.service.StripeService;
+import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Customer;
-import com.stripe.model.Subscription;
+import com.stripe.model.Event;
+import com.stripe.model.checkout.Session;
+import com.stripe.net.Webhook;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/webhooks")
 @RequiredArgsConstructor
+@Slf4j
 class WebhookController {
 
     private final KeygenService keygenService;
     private final StripeService stripeService;
     private final ObjectMapper objectMapper;
+    @Value("${stripe.webhook-secret-key}")
+    private String stripeWebhookSecretKey;
 
     @PostMapping(value = "/keygen-webhook", consumes = {"application/vnd.api+json", "application/json"})
     public ResponseEntity<Void> handleKeygenWebhook(@RequestBody KeygenWebhookRequest request) {
@@ -74,32 +81,53 @@ class WebhookController {
         keygenService.updateUserMetadata(user.getId(), metadata);
     }
 
-    @PostMapping(value = "/stripe-webhook", consumes = "application/json")
-    public ResponseEntity<Void> handleStripeWebhook(@RequestBody StripeWebhookRequest request) {
-        try {
-            if ("customer.created".equals(request.getType())) {
-                handleCustomerCreated(request.getData().getCustomer());
-            }
+    @PostMapping("/stripe-webhook")
+    public ResponseEntity<String> handleWebhook(
+            HttpServletRequest request) throws IOException {
+        String payload = request.getReader().lines().collect(Collectors.joining("\n"));
 
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        Event event;
+        // 2. Get the Stripe-Signature header
+        String sigHeader = request.getHeader("Stripe-Signature");
+        try {
+            event = Webhook.constructEvent(payload, sigHeader, stripeWebhookSecretKey);
+        } catch (SignatureVerificationException e) {
+            log.error("Invalid signature: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid signature");
         }
+
+        // Handle the event
+        switch (event.getType()) {
+            case "checkout.session.completed":
+                Session session = (Session) event.getData()
+                        .getObject();
+
+                if (session != null) {
+                    handleCheckoutSessionCompleted(session);
+                }
+                break;
+
+            case "payment_intent.succeeded":
+                log.info("Payment succeeded: {}", event.getId());
+                break;
+
+            default:
+                log.info("Unhandled event type: {}", event.getType());
+        }
+
+        return ResponseEntity.ok("Success");
     }
 
-    private void handleCustomerCreated(StripeCustomer customer) throws Exception {
-        String keygenUserId = customer.getMetadata().get("keygenUserId");
-        if (keygenUserId == null) {
-            throw new RuntimeException("Customer does not have a Keygen user ID");
-        }
+    private void handleCheckoutSessionCompleted(Session session) {
+        String email = Optional.ofNullable(session.getCustomerEmail()).orElse(session.getCustomerDetails().getEmail());
+        String planId = session.getMetadata().get("planId");
 
-        Subscription subscription = stripeService.createSubscription(customer.getId(), keygenUserId);
+        log.info("Checkout completed for email: {}, plan: {}", email, planId);
 
-        KeygenLicenseResponse response = keygenService.createLicense(keygenUserId, subscription.getId());
-
-        if (response.getErrors() != null) {
-            throw new RuntimeException("Failed to create license");
-        }
+        // TODO:
+        // 1. Create license in Keygen
+        // 2. Send confirmation email
+        // 3. Update database
+        // 4. Any other post-payment logic
     }
 }
