@@ -2,6 +2,7 @@ package com.grash.service;
 
 import com.grash.dto.stripe.CheckoutRequest;
 import com.grash.dto.stripe.CheckoutResponse;
+import com.grash.exception.CustomException;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
@@ -10,10 +11,16 @@ import com.stripe.model.checkout.Session;
 import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.SubscriptionCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
+import lombok.Builder;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class StripeService {
@@ -58,18 +65,44 @@ public class StripeService {
                         .build());
     }
 
-    public CheckoutResponse createCheckoutSession(CheckoutRequest request) throws StripeException {
+    @Data
+    @Builder
+    static
+    class SelfHostedPlan {
+        private String id;
+        private BigDecimal pricePerUser;
+        private String name;
+        private boolean monthly;
+    }
 
+    public CheckoutResponse createCheckoutSession(CheckoutRequest request) throws StripeException {
+        List<SelfHostedPlan> selfHostedPlans = Arrays.asList(
+                SelfHostedPlan.builder()
+                        .id("sh-professional-monthly")
+                        .pricePerUser(BigDecimal.valueOf(15))
+                        .name("Professional")
+                        .monthly(true)
+                        .build(),
+                SelfHostedPlan.builder()
+                        .id("sh-enterprise-monthly")
+                        .pricePerUser(BigDecimal.valueOf(100))
+                        .monthly(true)
+                        .name("Enterprise")
+                        .build()
+        );
+        SelfHostedPlan plan = (selfHostedPlans.stream()
+                .filter(selfHostedPlan -> selfHostedPlan.getId().equals(request.getPlanId()))
+                .findFirst().orElseThrow(() -> new CustomException("Plan not found", HttpStatus.BAD_REQUEST)));
         // Build line items
         SessionCreateParams.LineItem.PriceData.ProductData productData =
                 SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                        .setName(request.getPlanName())
-                        .build();
+                        .setName(plan.getName()).build();
 
         SessionCreateParams.LineItem.PriceData priceData =
                 SessionCreateParams.LineItem.PriceData.builder()
                         .setCurrency("usd")
-                        .setUnitAmount((long) (request.getPrice() * 100)) // Convert to cents
+                        .setUnitAmountDecimal(plan.getPricePerUser().multiply(BigDecimal.valueOf(100))) // Convert to
+                        // cents
                         .setProductData(productData)
                         .build();
 
@@ -87,10 +120,7 @@ public class StripeService {
                 .addLineItem(lineItem)
                 .putMetadata("planId", request.getPlanId());
 
-        // Optionally pre-fill customer email
-        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
-            paramsBuilder.setCustomerEmail(request.getEmail());
-        }
+        paramsBuilder.setCustomerEmail(request.getEmail().trim().toLowerCase());
 
         SessionCreateParams params = paramsBuilder.build();
 

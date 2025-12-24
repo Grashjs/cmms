@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/stripe")
 @RequiredArgsConstructor
@@ -19,7 +21,7 @@ public class StripeController {
     private final StripeService stripeService;
 
     @PostMapping("/create-checkout-session")
-    public ResponseEntity<?> createCheckoutSession(@RequestBody CheckoutRequest request) {
+    public ResponseEntity<?> createCheckoutSession(@Valid @RequestBody CheckoutRequest request) {
         try {
             CheckoutResponse response = stripeService.createCheckoutSession(request);
             return ResponseEntity.ok(response);

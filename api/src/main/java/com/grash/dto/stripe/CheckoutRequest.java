@@ -3,10 +3,12 @@ package com.grash.dto.stripe;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
+
 @Data
 public class CheckoutRequest {
+    @NotNull
     private String planId;
-    private String planName;
-    private Double price;
-    private String email; // Optional: pre-fill customer email
+    @NotNull
+    private String email;
 }

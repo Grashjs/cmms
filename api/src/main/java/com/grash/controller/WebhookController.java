@@ -121,13 +121,19 @@ class WebhookController {
     private void handleCheckoutSessionCompleted(Session session) {
         String email = Optional.ofNullable(session.getCustomerEmail()).orElse(session.getCustomerDetails().getEmail());
         String planId = session.getMetadata().get("planId");
+        String keygenUserId = "keygen_user_" + email;
 
         log.info("Checkout completed for email: {}, plan: {}", email, planId);
+        try {
+            log.info("Creating license for keygen user {} with plan {}", keygenUserId, planId);
+            keygenService.createLicense(planId, keygenUserId);
+            
+            // TODO: Implement email sending logic, e.g., via an EmailService
+            log.info("Skipping confirmation email for now.");
 
-        // TODO:
-        // 1. Create license in Keygen
-        // 2. Send confirmation email
-        // 3. Update database
-        // 4. Any other post-payment logic
+        } catch (Exception e) {
+            log.error("Failed to create license for keygen user {}", keygenUserId, e);
+            // Optional: Add to a retry queue or notify administrators
+        }
     }
 }

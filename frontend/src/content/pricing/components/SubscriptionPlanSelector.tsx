@@ -20,9 +20,6 @@ import { boolean } from 'yup';
 import { useTranslation } from 'react-i18next';
 import { fireGa4Event } from '../../../utils/overall';
 import { apiUrl, keygenAccountId, stripePublishableKey } from '../../../config';
-import { loadStripe } from '@stripe/stripe-js';
-
-const stripePromise = loadStripe(stripePublishableKey);
 
 interface SubscriptionPlanSelectorProps {
   monthly: boolean;
@@ -183,9 +180,9 @@ export default function SubscriptionPlanSelector({
                                 'Content-Type': 'application/json'
                               },
                               body: JSON.stringify({
-                                planId: plan.id,
-                                planName: plan.name,
-                                price: plan.price
+                                planId:
+                                  plan.id + (monthly ? '-monthly' : 'yearly'),
+                                email: 'ibracool99@gmail.com'
                               })
                             }
                           );
