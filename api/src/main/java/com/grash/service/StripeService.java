@@ -1,5 +1,6 @@
 package com.grash.service;
 
+import com.grash.dto.license.SelfHostedPlan;
 import com.grash.dto.stripe.CheckoutRequest;
 import com.grash.dto.stripe.CheckoutResponse;
 import com.grash.exception.CustomException;
@@ -21,6 +22,8 @@ import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+
+import static com.grash.utils.Consts.selfHostedPlans;
 
 @Service
 public class StripeService {
@@ -65,31 +68,7 @@ public class StripeService {
                         .build());
     }
 
-    @Data
-    @Builder
-    static
-    class SelfHostedPlan {
-        private String id;
-        private BigDecimal pricePerUser;
-        private String name;
-        private boolean monthly;
-    }
-
     public CheckoutResponse createCheckoutSession(CheckoutRequest request) throws StripeException {
-        List<SelfHostedPlan> selfHostedPlans = Arrays.asList(
-                SelfHostedPlan.builder()
-                        .id("sh-professional-monthly")
-                        .pricePerUser(BigDecimal.valueOf(15))
-                        .name("Professional")
-                        .monthly(true)
-                        .build(),
-                SelfHostedPlan.builder()
-                        .id("sh-enterprise-monthly")
-                        .pricePerUser(BigDecimal.valueOf(100))
-                        .monthly(true)
-                        .name("Enterprise")
-                        .build()
-        );
         SelfHostedPlan plan = (selfHostedPlans.stream()
                 .filter(selfHostedPlan -> selfHostedPlan.getId().equals(request.getPlanId()))
                 .findFirst().orElseThrow(() -> new CustomException("Plan not found", HttpStatus.BAD_REQUEST)));

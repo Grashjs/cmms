@@ -5,9 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class KeygenLicenseResponse {
-    private KeygenLicenseResponseData data;
-    private Object errors;
+@NoArgsConstructor
+public class KeygenUserCreateData {
+    private String type;
+    private KeygenUserCreateAttributes attributes;
 }

@@ -182,7 +182,7 @@ export default function SubscriptionPlanSelector({
                               body: JSON.stringify({
                                 planId:
                                   plan.id + (monthly ? '-monthly' : 'yearly'),
-                                email: 'ibracool99@gmail.com'
+                                email: 'ibracool991@gmail.com'
                               })
                             }
                           );

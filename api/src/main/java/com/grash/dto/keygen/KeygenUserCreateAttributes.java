@@ -1,3 +1,4 @@
+// KeygenUserCreateAttributes.java
 package com.grash.dto.keygen;
 
 import lombok.AllArgsConstructor;
@@ -7,9 +8,11 @@ import lombok.NoArgsConstructor;
 import java.util.Map;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class KeygenLicenseAttributes {
-    private String name;
+@NoArgsConstructor
+public class KeygenUserCreateAttributes {
+    private String email;
+    private String firstName;
+    private String lastName;
     private Map<String, String> metadata;
 }
