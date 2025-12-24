@@ -29,7 +29,7 @@ public class LicenseService {
     @Value("${license-fingerprint-required}")
     private boolean licenseFingerprintRequired;
 
-    @Value("${keygen.account-id:1ca3e517-f3d8-473f-a45c-81069900acb7}")
+    @Value("${keygen.account-id}")
     private String keygenAccountId;
 
     private final RestTemplate restTemplate = new RestTemplate();

@@ -23,7 +23,7 @@ import {
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import Logo from 'src/components/LogoSign';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import LanguageSwitcher from 'src/layouts/ExtendedSidebarLayout/Header/Buttons/LanguageSwitcher';
 import { ExpandMore, GitHub } from '@mui/icons-material';
 import CheckCircleOutlineTwoToneIcon from '@mui/icons-material/CheckCircleOutlineTwoTone';
@@ -61,9 +61,13 @@ const PricingWrapper = styled(Box)(
 function Pricing() {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
+  const location = useLocation();
+  const navigate = useNavigate();
 
+  const queryParams = new URLSearchParams(location.search);
+  const type: 'selfhosted' | 'cloud' =
+    queryParams.get('type') === 'selfhosted' ? 'selfhosted' : 'cloud';
   const [monthly, setMonthly] = useState<boolean>(true);
-  const type = 'cloud';
   const typePlans = type === 'cloud' ? pricingPlans : selfHostedPlans;
   const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
 
@@ -71,20 +75,27 @@ function Pricing() {
   const isSm = useMediaQuery(theme.breakpoints.only('sm'));
   const isMdDown = useMediaQuery(theme.breakpoints.down('md'));
 
+  const handleTabsChange = (
+    _event: React.ChangeEvent<{}>,
+    value: string
+  ): void => {
+    navigate(`${location.pathname}?type=${value}`);
+  };
+
   // Set default selected plans based on screen size
   useEffect(() => {
     // Find the popular plan
     const popularPlan =
-      typePlans.find((plan) => plan.popular)?.id || pricingPlans[0].id;
+      typePlans.find((plan) => plan.popular)?.id || typePlans[0].id;
 
     if (isXs) {
       // For extra small screens, select 2 plans (popular plan + one more)
       const secondPlan =
         typePlans.find((plan) => plan.id !== popularPlan)?.id || '';
-      setSelectedPlans([popularPlan, secondPlan]);
+      setSelectedPlans([popularPlan, secondPlan].filter(Boolean));
     } else if (isSm) {
       // For small screens, select 3 plans (popular plan + two more)
-      const otherPlans = pricingPlans
+      const otherPlans = typePlans
         .filter((plan) => plan.id !== popularPlan)
         .slice(0, 2)
         .map((plan) => plan.id);
@@ -93,7 +104,7 @@ function Pricing() {
       // For medium and up, show all plans
       setSelectedPlans(typePlans.map((plan) => plan.id));
     }
-  }, [isXs, isSm, isMdDown]);
+  }, [isXs, isSm, isMdDown, type]);
 
   useEffect(() => {
     fireGa4Event('pricing_view');
@@ -117,7 +128,23 @@ function Pricing() {
           </Typography>
         </Box>
 
-        <SubscriptionPlanSelector monthly={monthly} setMonthly={setMonthly} />
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+          <Tabs
+            value={type}
+            onChange={handleTabsChange}
+            indicatorColor="primary"
+            textColor="primary"
+          >
+            <Tab label="Cloud" value="cloud" />
+            <Tab label="Self-Hosted" value="selfhosted" />
+          </Tabs>
+        </Box>
+
+        <SubscriptionPlanSelector
+          monthly={monthly}
+          setMonthly={setMonthly}
+          selfHosted={type === 'selfhosted'}
+        />
         <Box textAlign="center" my={6}>
           <Typography variant="h1" component="h1" gutterBottom>
             {t('Compare Plans and Pricing')}
@@ -190,7 +217,7 @@ function Pricing() {
                   {/* Empty grid for alignment */}
                 </Grid>
                 {/* Filter plans based on selection for small/medium screens */}
-                {pricingPlans
+                {typePlans
                   .filter(
                     (plan) => !isMdDown || selectedPlans.includes(plan.id)
                   )
@@ -265,7 +292,7 @@ function Pricing() {
                         <Typography variant="body2">{feature.name}</Typography>
                       </Grid>
 
-                      {pricingPlans
+                      {typePlans
                         .filter(
                           (plan) => !isMdDown || selectedPlans.includes(plan.id)
                         )

@@ -1,4 +1,4 @@
-import { pricingPlans } from '../pricingData';
+import { pricingPlans, selfHostedPlans } from '../pricingData';
 import {
   Box,
   Button,
@@ -23,12 +23,14 @@ import { fireGa4Event } from '../../../utils/overall';
 interface SubscriptionPlanSelectorProps {
   monthly: boolean;
   setMonthly: (value: ((prevState: boolean) => boolean) | boolean) => void;
+  selfHosted?: boolean;
 }
 export const PRICING_YEAR_MULTIPLIER: number = 10;
 
 export default function SubscriptionPlanSelector({
   monthly,
-  setMonthly
+  setMonthly,
+  selfHosted
 }: SubscriptionPlanSelectorProps) {
   const theme = useTheme();
   const { t }: { t: any } = useTranslation();
@@ -53,7 +55,7 @@ export default function SubscriptionPlanSelector({
         </Stack>
       </Box>
       <Grid container spacing={2} justifyContent="center">
-        {pricingPlans.map((plan, index) => (
+        {(selfHosted ? selfHostedPlans : pricingPlans).map((plan, index) => (
           <Grid item xs={12} md={3} key={plan.id}>
             <Card
               sx={{
@@ -125,22 +127,24 @@ export default function SubscriptionPlanSelector({
                 </Box>
 
                 <List sx={{ mt: 2, flexGrow: 1 }}>
-                  {plan.features.slice(0, 5).map((feature, featureIdx) => (
-                    <ListItem
-                      key={`${plan.id}-${featureIdx}`}
-                      sx={{
-                        px: 0,
-                        py: 0.6
-                      }}
-                    >
-                      <ListItemIcon sx={{ minWidth: 34 }}>
-                        <CheckCircleOutlineTwoToneIcon
-                          sx={{ color: 'primary.main' }}
-                        />
-                      </ListItemIcon>
-                      <ListItemText primary={feature} />
-                    </ListItem>
-                  ))}
+                  {plan.features
+                    .slice(0, selfHosted ? 7 : 5)
+                    .map((feature, featureIdx) => (
+                      <ListItem
+                        key={`${plan.id}-${featureIdx}`}
+                        sx={{
+                          px: 0,
+                          py: 0.6
+                        }}
+                      >
+                        <ListItemIcon sx={{ minWidth: 34 }}>
+                          <CheckCircleOutlineTwoToneIcon
+                            sx={{ color: 'primary.main' }}
+                          />
+                        </ListItemIcon>
+                        <ListItemText primary={feature} />
+                      </ListItem>
+                    ))}
                 </List>
 
                 <Box mt="auto" pt={3}>
@@ -167,16 +171,22 @@ export default function SubscriptionPlanSelector({
                     }
                     sx={{ mb: 1 }}
                   >
-                    {plan.id === 'basic' ? t('Get started') : t('try_for_free')}
+                    {plan.id === 'basic' || plan.id === 'sh-free'
+                      ? t('Get started')
+                      : selfHosted
+                      ? 'Get your license'
+                      : t('try_for_free')}
                   </Button>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    align="center"
-                    display="block"
-                  >
-                    {t('No Credit Card Required.')}
-                  </Typography>
+                  {!selfHosted && (
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      align="center"
+                      display="block"
+                    >
+                      {t('No Credit Card Required.')}
+                    </Typography>
+                  )}
                 </Box>
               </CardContent>
             </Card>
