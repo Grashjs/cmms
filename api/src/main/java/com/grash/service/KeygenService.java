@@ -25,25 +25,7 @@ public class KeygenService {
     @Value("${keygen.account-id}")
     private String keygenAccountId;
 
-    @Value("${keygen.policy-id}")
-    private String keygenPolicyId;
-
     private final RestTemplate restTemplate = new RestTemplate();
-
-    public KeygenEventResponse fetchWebhookEvent(String eventId) {
-        String url = String.format("https://api.keygen.sh/v1/accounts/%s/webhook-events/%s",
-                keygenAccountId, eventId);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + keygenProductToken);
-        headers.set("Accept", "application/vnd.api+json");
-
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<KeygenEventResponse> response = restTemplate.exchange(
-                url, HttpMethod.GET, entity, KeygenEventResponse.class);
-
-        return response.getBody();
-    }
 
     public void updateUserMetadata(String userId, Map<String, String> metadata) {
         String url = String.format("https://api.keygen.sh/v1/accounts/%s/users/%s",
@@ -76,11 +58,7 @@ public class KeygenService {
         KeygenLicenseRequest request = new KeygenLicenseRequest(data);
         return request;
     }
-    // Add these methods to your KeygenService class
 
-    /**
-     * Fetch or create a Keygen user and return their UUID
-     */
     /**
      * Fetch or create a Keygen user and return their UUID
      */

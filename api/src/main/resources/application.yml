@@ -119,11 +119,8 @@ white-labeling:
   brand-config: ${BRAND_CONFIG:}
 
 stripe:
-  publishable-key: ${STRIPE_PUBLISHABLE_KEY}
-  secret-key: ${STRIPE_SECRET_KEY}
-  webhook-secret-key: ${STRIPE_WEBHOOK_SECRET_KEY}
-  plan-id: ${STRIPE_PLAN_ID}
+  secret-key: ${STRIPE_SECRET_KEY:}
+  webhook-secret-key: ${STRIPE_WEBHOOK_SECRET_KEY:}
 keygen:
   product-token: ${KEYGEN_PRODUCT_TOKEN}
   account-id: 1ca3e517-f3d8-473f-a45c-81069900acb7
-  policy-id: ${KEYGEN_POLICY_ID}

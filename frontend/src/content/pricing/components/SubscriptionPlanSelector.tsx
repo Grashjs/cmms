@@ -16,10 +16,11 @@ import {
 } from '@mui/material';
 import CheckCircleOutlineTwoToneIcon from '@mui/icons-material/CheckCircleOutlineTwoTone';
 import { Link as RouterLink } from 'react-router-dom';
-import { boolean } from 'yup';
 import { useTranslation } from 'react-i18next';
 import { fireGa4Event } from '../../../utils/overall';
-import { apiUrl, keygenAccountId, stripePublishableKey } from '../../../config';
+import { apiUrl } from '../../../config';
+import { useState } from 'react';
+import EmailModal from './EmailModal';
 
 interface SubscriptionPlanSelectorProps {
   monthly: boolean;
@@ -35,6 +36,49 @@ export default function SubscriptionPlanSelector({
 }: SubscriptionPlanSelectorProps) {
   const theme = useTheme();
   const { t }: { t: any } = useTranslation();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+
+  const handleOpenModal = (plan) => {
+    setSelectedPlan(plan);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedPlan(null);
+  };
+
+  const handleCheckout = async (email: string) => {
+    if (!selectedPlan) return;
+
+    try {
+      // Create Checkout Session on backend
+      const response = await fetch(
+        `${apiUrl}stripe/create-checkout-session`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            planId:
+              selectedPlan.id + (monthly ? '-monthly' : '-yearly'),
+            email: email
+          })
+        }
+      );
+
+      const { url } = await response.json();
+      window.location.href = url;
+    } catch (error) {
+      console.error(
+        'Failed to create checkout session:',
+        error
+      );
+    }
+    handleCloseModal();
+  };
 
   return (
     <Box>
@@ -170,32 +214,7 @@ export default function SubscriptionPlanSelector({
 
                       // Handle Stripe Checkout for self-hosted paid plans
                       if (selfHosted && plan.id !== 'sh-free') {
-                        try {
-                          // Create Checkout Session on backend
-                          const response = await fetch(
-                            `${apiUrl}stripe/create-checkout-session`,
-                            {
-                              method: 'POST',
-                              headers: {
-                                'Content-Type': 'application/json'
-                              },
-                              body: JSON.stringify({
-                                planId:
-                                  plan.id + (monthly ? '-monthly' : 'yearly'),
-                                email: 'ibracool991@gmail.com'
-                              })
-                            }
-                          );
-
-                          const { sessionId, url } = await response.json();
-                          window.location.href = url;
-                        } catch (error) {
-                          console.error(
-                            'Failed to create checkout session:',
-                            error
-                          );
-                          // Show error to user
-                        }
+                        handleOpenModal(plan)
                       }
                     }}
                     to={
@@ -232,6 +251,11 @@ export default function SubscriptionPlanSelector({
           </Grid>
         ))}
       </Grid>
+      <EmailModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleCheckout}
+      />
     </Box>
   );
 }

@@ -31,41 +31,12 @@ public class StripeService {
     @Value("${stripe.secret-key}")
     private String stripeSecretKey;
 
-    @Value("${stripe.plan-id}")
-    private String stripePlanId;
-
     @Value("${frontend.url}")
     private String frontendUrl;
 
     @PostConstruct
     public void init() {
         Stripe.apiKey = stripeSecretKey;
-    }
-
-    public Customer createCustomer(String email, String description, String stripeToken, String keygenUserId) throws Exception {
-        CustomerCreateParams params = CustomerCreateParams.builder()
-                .setDescription(description)
-                .setEmail(email)
-                .setSource(stripeToken)
-                .putMetadata("keygenUserId", keygenUserId)
-                .build();
-
-        return Customer.create(params);
-    }
-
-    public Subscription createSubscription(String customerId, String idempotencyKey) throws Exception {
-
-        SubscriptionCreateParams params = SubscriptionCreateParams.builder()
-                .setCustomer(customerId)
-                .addItem(SubscriptionCreateParams.Item.builder()
-                        .setPrice(stripePlanId)
-                        .build())
-                .build();
-
-        return Subscription.create(params,
-                com.stripe.net.RequestOptions.builder()
-                        .setIdempotencyKey(idempotencyKey)
-                        .build());
     }
 
     public CheckoutResponse createCheckoutSession(CheckoutRequest request) throws StripeException {
