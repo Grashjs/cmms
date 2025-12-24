@@ -1244,6 +1244,9 @@ const locale = {
   verify_email_title: 'Verify Email',
   verify_email_description:
     "A verification email has been sent to you. Check the spams if you don't see it in your inbox.",
+  payment_success_title: 'Payment Successful!',
+  payment_success_description:
+    'Your payment was processed successfully. Please check your email for your license details.',
   upgrade: 'Upgrade',
   downgrade: 'Downgrade',
   upgrade_description:

@@ -65,7 +65,7 @@ public class StripeService {
         // Build session parameters
         SessionCreateParams.Builder paramsBuilder = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT) // Use SUBSCRIPTION for recurring
-                .setSuccessUrl(frontendUrl + "/stripe/success?session_id={CHECKOUT_SESSION_ID}")
+                .setSuccessUrl(frontendUrl + "/payment/success?session_id={CHECKOUT_SESSION_ID}")
                 .setCancelUrl(frontendUrl + "/pricing?type=selfhosted")
                 .addLineItem(lineItem)
                 .putMetadata("planId", request.getPlanId());

@@ -1412,6 +1412,9 @@ const frJSON = {
   verify_email_title: "Vérifier l'e-mail",
   verify_email_description:
     'Un e-mail de vérification vous a été envoyé. Vérifiez les spams si vous ne le voyez pas dans votre boîte de réception.',
+  payment_success_title: 'Paiement réussi !',
+  payment_success_description:
+    'Votre paiement a été traité avec succès. Veuillez vérifier votre e-mail pour les détails de votre licence.',
   upgrade: 'Mise à niveau',
   downgrade: 'Rétrograder',
   upgrade_description:
