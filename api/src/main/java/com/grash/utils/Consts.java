@@ -10,8 +10,7 @@ import java.util.List;
 //TODO use yaml
 public class Consts {
     public static final String TOKEN_PREFIX = "Bearer ";
-    public static final String FRONT_TUTORIAL_LINK = "#";
-    public static final int WISHES_LIMIT = 7;
+
     public static List<SelfHostedPlan> selfHostedPlans = Arrays.asList(
             SelfHostedPlan.builder()
                     .id("sh-professional-monthly")

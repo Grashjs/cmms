@@ -54,28 +54,21 @@ export default function SubscriptionPlanSelector({
 
     try {
       // Create Checkout Session on backend
-      const response = await fetch(
-        `${apiUrl}stripe/create-checkout-session`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            planId:
-              selectedPlan.id + (monthly ? '-monthly' : '-yearly'),
-            email: email
-          })
-        }
-      );
+      const response = await fetch(`${apiUrl}stripe/create-checkout-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          planId: selectedPlan.id + (monthly ? '-monthly' : '-yearly'),
+          email: email
+        })
+      });
 
       const { url } = await response.json();
-      window.location.href = url;
+      if (url) window.location.href = url;
     } catch (error) {
-      console.error(
-        'Failed to create checkout session:',
-        error
-      );
+      console.error('Failed to create checkout session:', error);
     }
     handleCloseModal();
   };
@@ -214,7 +207,7 @@ export default function SubscriptionPlanSelector({
 
                       // Handle Stripe Checkout for self-hosted paid plans
                       if (selfHosted && plan.id !== 'sh-free') {
-                        handleOpenModal(plan)
+                        handleOpenModal(plan);
                       }
                     }}
                     to={

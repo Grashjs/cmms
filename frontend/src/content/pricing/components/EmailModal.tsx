@@ -48,6 +48,7 @@ export default function EmailModal({
           variant="outlined"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
           error={!!error}
           helperText={error}
         />
@@ -57,6 +58,7 @@ export default function EmailModal({
         <Button
           startIcon={loading && <CircularProgress size={'1rem'} />}
           onClick={handleSubmit}
+          disabled={loading}
         >
           Continue
         </Button>
