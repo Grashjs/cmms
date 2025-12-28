@@ -63,6 +63,8 @@ public class PartService {
     public void consumePart(Long id, double quantity, WorkOrder workOrder, Locale locale) {
         Part part = findById(id).get();
         part.setQuantity(part.getQuantity() - quantity);
+        if (part.getQuantity() < 0)
+            throw new CustomException("There is not enough of this part", HttpStatus.NOT_ACCEPTABLE);
         if (quantity < 0) {
             PartConsumption partConsumption =
                     Collections.max(partConsumptionService.findByWorkOrderAndPart(workOrder.getId(), part.getId()),
@@ -72,15 +74,13 @@ public class PartService {
             partConsumptionService.save(partConsumption);
         } else {
             String message = messageSource.getMessage("notification_part_low", new Object[]{part.getName()}, locale);
-            if (part.getQuantity() >= quantity) {
-                if (part.getQuantity() < part.getMinQuantity()) {
-                    notificationService.createMultiple(part.getAssignedTo().stream().map(user ->
-                            new Notification(message, user, NotificationType.PART, part.getId())
-                    ).collect(Collectors.toList()), true, message);
-                }
-                partConsumptionService.create(new PartConsumption(part, workOrder, quantity));
-                partRepository.save(part);
-            } else throw new CustomException("There is not enough of this part", HttpStatus.NOT_ACCEPTABLE);
+            if (part.getQuantity() < part.getMinQuantity()) {
+                notificationService.createMultiple(part.getAssignedTo().stream().map(user ->
+                        new Notification(message, user, NotificationType.PART, part.getId())
+                ).collect(Collectors.toList()), true, message);
+            }
+            partConsumptionService.create(new PartConsumption(part, workOrder, quantity));
+            partRepository.save(part);
         }
     }
 
