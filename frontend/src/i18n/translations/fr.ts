@@ -1559,7 +1559,9 @@ const frJSON = {
   'schedule.monthly_one': 'Chaque {{count}} mois',
   'schedule.monthly_other': 'Chaque {{count}} mois',
   'schedule.yearly_one': 'Chaque {{count}} an',
-  'schedule.yearly_other': 'Chaque {{count}} ans'
+  'schedule.yearly_other': 'Chaque {{count}} ans',
+  recent_work_orders: 'Ordres de travail récents',
+  no_recent_work_orders: 'Aucun ordre de travail'
 };
 
 export default frJSON;

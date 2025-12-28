@@ -5,8 +5,10 @@ import com.grash.dto.PreventiveMaintenancePatchDTO;
 import com.grash.dto.PreventiveMaintenancePostDTO;
 import com.grash.dto.PreventiveMaintenanceShowDTO;
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.WorkOrderMiniDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PreventiveMaintenanceMapper;
+import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.OwnUser;
 import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
@@ -15,6 +17,7 @@ import com.grash.model.enums.RoleType;
 import com.grash.service.PreventiveMaintenanceService;
 import com.grash.service.ScheduleService;
 import com.grash.service.UserService;
+import com.grash.service.WorkOrderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -31,7 +34,9 @@ import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/preventive-maintenances")
@@ -43,6 +48,8 @@ public class PreventiveMaintenanceController {
     private final UserService userService;
     private final ScheduleService scheduleService;
     private final PreventiveMaintenanceMapper preventiveMaintenanceMapper;
+    private final WorkOrderService workOrderService;
+    private final WorkOrderMapper workOrderMapper;
     private final EntityManager em;
 
     @PostMapping("/search")
@@ -71,6 +78,15 @@ public class PreventiveMaintenanceController {
             PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
             return preventiveMaintenanceMapper.toShowDto(savedPreventiveMaintenance);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/{id}/recent-work-orders")
+    @PreAuthorize("permitAll()")
+    public List<WorkOrderMiniDTO> getRecentWorkOrders(@ApiParam("id") @PathVariable("id") Long id,
+                                                      HttpServletRequest req) {
+        return workOrderService.findLastByPM(id, 10).stream()
+                .map(workOrderMapper::toMiniDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional

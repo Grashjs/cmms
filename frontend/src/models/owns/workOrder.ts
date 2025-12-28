@@ -28,3 +28,10 @@ export default interface WorkOrder extends WorkOrderBase {
   customId: string;
   //parentPreventiveMaintenance:
 }
+
+export interface WorkOrderMini {
+  id: number;
+  title: string;
+  status: string;
+  createdAt: string;
+}

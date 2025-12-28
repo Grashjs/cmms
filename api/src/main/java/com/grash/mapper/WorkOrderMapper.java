@@ -1,6 +1,7 @@
 package com.grash.mapper;
 
 import com.grash.dto.WorkOrderBaseMiniDTO;
+import com.grash.dto.WorkOrderMiniDTO;
 import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.dto.WorkOrderShowDTO;
 import com.grash.dto.workOrder.WorkOrderPostDTO;
@@ -20,6 +21,8 @@ public interface WorkOrderMapper {
             @Mapping(source = "parentRequest.audioDescription", target = "audioDescription")
     })
     WorkOrderShowDTO toShowDto(WorkOrder model);
+
+    WorkOrderMiniDTO toMiniDto(WorkOrder model);
 
     WorkOrderBaseMiniDTO toBaseMiniDto(WorkOrder model);
 
