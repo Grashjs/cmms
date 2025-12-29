@@ -168,70 +168,71 @@ public class WorkOrderAud implements Serializable {
 
     public String getSummary(MessageSource messageSource, Locale locale) {
         StringBuilder summary = new StringBuilder();
+        String separator = ", ";
 
         if (dueDateMod != null && dueDateMod) {
-            summary.append("Due Date: ").append(dueDate).append("\n");
+            summary.append("Due Date: ").append(dueDate).append(separator);
         }
         if (priorityMod != null && priorityMod) {
             summary.append("Priority: ").append(messageSource.getMessage(priority.toString(), null, locale)).append(
-                    "\n");
+                    separator);
         }
         if (estimatedDurationMod != null && estimatedDurationMod) {
-            summary.append("Estimated Duration: ").append(estimatedDuration).append("\n");
+            summary.append("Estimated Duration: ").append(estimatedDuration).append(separator);
         }
         if (descriptionMod != null && descriptionMod) {
-            summary.append("Description: ").append(description).append("\n");
+            summary.append("Description: ").append(description).append(separator);
         }
         if (titleMod != null && titleMod) {
-            summary.append("Title: ").append(title).append("\n");
+            summary.append("Title: ").append(title).append(separator);
         }
         if (requiredSignatureMod != null && requiredSignatureMod) {
-            summary.append("Required Signature: ").append(getBooleanText(requiredSignature, messageSource, locale)).append("\n");
+            summary.append("Required Signature: ").append(getBooleanText(requiredSignature, messageSource, locale)).append(separator);
         }
         if (imageIdMod != null && imageIdMod) {
-            summary.append("Image.\n");
+            summary.append("Image").append(separator);
         }
         if (categoryIdMod != null && categoryIdMod) {
-            summary.append("Category: ").append(category == null ? "N/A" : category.getName()).append("\n");
+            summary.append("Category: ").append(category == null ? "N/A" : category.getName()).append(separator);
         }
         if (locationIdMod != null && locationIdMod) {
-            summary.append("Location: ").append(location == null ? "N/A" : location.getName()).append("\n");
+            summary.append("Location: ").append(location == null ? "N/A" : location.getName()).append(separator);
         }
         if (teamIdMod != null && teamIdMod) {
-            summary.append("Team: ").append(team == null ? "N/A" : team.getName()).append("\n");
+            summary.append("Team: ").append(team == null ? "N/A" : team.getName()).append(separator);
         }
         if (primaryUserIdMod != null && primaryUserIdMod) {
             summary.append("Primary User: ").append(primaryUser == null ? "N/A" : primaryUser.getFullName()).append(
-                    "\n");
+                    separator);
         }
         if (completedByIdMod != null && completedByIdMod) {
             summary.append("Completed By: ").append(completedBy == null ? "N/A" : completedBy.getFullName()).append(
-                    "\n");
+                    separator);
         }
         if (completedOnMod != null && completedOnMod) {
-            summary.append("Completed On: ").append(completedOn).append("\n");
+            summary.append("Completed On: ").append(completedOn).append(separator);
         }
         if (statusMod != null && statusMod) {
-            summary.append("Status: ").append(messageSource.getMessage(status.toString(), null, locale)).append("\n");
+            summary.append("Status: ").append(messageSource.getMessage(status.toString(), null, locale)).append(separator);
         }
         if (signatureMod != null && signatureMod) {
-            summary.append("Signature\n");
+            summary.append("Signature").append(separator);
         }
         if (archivedMod != null && archivedMod) {
-            summary.append("Archived: ").append(getBooleanText(archived, messageSource, locale)).append("\n");
+            summary.append("Archived: ").append(getBooleanText(archived, messageSource, locale)).append(separator);
         }
         if (parentRequestIdMod != null && parentRequestIdMod) {
-            summary.append("Parent Request: ").append(parentRequest == null ? "N/A" : parentRequest.getTitle()).append("\n");
+            summary.append("Parent Request: ").append(parentRequest == null ? "N/A" : parentRequest.getTitle()).append(separator);
         }
         if (feedbackMod != null && feedbackMod) {
-            summary.append("Feedback: ").append(feedback).append("\n");
+            summary.append("Feedback: ").append(feedback).append(separator);
         }
         if (parentPreventiveMaintenanceIdMod != null && parentPreventiveMaintenanceIdMod) {
             summary.append("Parent Preventive Maintenance: ").append(parentPreventiveMaintenance == null ? "N/A" :
-                    parentPreventiveMaintenance.getName()).append("\n");
+                    parentPreventiveMaintenance.getName()).append(separator);
         }
         if (assetIdMod != null && assetIdMod) {
-            summary.append("Asset: ").append(asset == null ? "N/A" : asset.getName()).append("\n");
+            summary.append("Asset: ").append(asset == null ? "N/A" : asset.getName()).append(separator);
         }
 
         return summary.toString();
