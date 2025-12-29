@@ -235,7 +235,7 @@ public class WorkOrderAud implements Serializable {
             summary.append("Asset: ").append(asset == null ? "N/A" : asset.getName()).append(separator);
         }
 
-        return summary.toString();
+        return summary.substring(0, summary.length() - separator.length());
     }
 
 
