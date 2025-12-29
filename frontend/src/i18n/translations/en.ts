@@ -60,7 +60,7 @@ const locale = {
     'Reduce time communicating with Requesters by up to 41% (calls, emails, texts).',
   'mobile-app.title': 'A mobile CMMS app that empowers your maintenance team',
   'mobile-app.descriptions.0':
-    'Through the use of our Android mobile app, our clients experience better organization, communication, accountability and productivity by up to 30% throughout their entire maintenance team.',
+    'Through the use of our iOS/Android mobile apps, our clients experience better organization, communication, accountability and productivity by up to 30% throughout their entire maintenance team.',
   'mobile-app.descriptions.1':
     'From their handheld device anyone on your maintenance team can:',
   'mobile-app.checks.0': 'View their assigned Work Orders and PMs.',
