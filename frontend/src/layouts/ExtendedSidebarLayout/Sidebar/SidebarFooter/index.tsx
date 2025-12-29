@@ -97,24 +97,26 @@ function SidebarFooter() {
           <QuestionMarkTwoToneIcon fontSize="small" />
         </IconButton>
       </LightTooltip>
-      <LightTooltip placement="top" arrow title={t('wo_calendar')}>
-        <IconButton
-          sx={{
-            background: `${theme.colors.alpha.trueWhite[10]}`,
-            color: `${theme.colors.alpha.trueWhite[70]}`,
-            transition: `${theme.transitions.create(['all'])}`,
+      {user.superAccountRelations.length === 0 && (
+        <LightTooltip placement="top" arrow title={t('wo_calendar')}>
+          <IconButton
+            sx={{
+              background: `${theme.colors.alpha.trueWhite[10]}`,
+              color: `${theme.colors.alpha.trueWhite[70]}`,
+              transition: `${theme.transitions.create(['all'])}`,
 
-            '&:hover': {
-              background: `${alpha(theme.colors.alpha.trueWhite[100], 0.2)}`,
-              color: `${theme.colors.alpha.trueWhite[100]}`
-            }
-          }}
-          to="/app/work-orders?view=calendar"
-          component={RouterLink}
-        >
-          <EventTwoToneIcon fontSize="small" />
-        </IconButton>
-      </LightTooltip>
+              '&:hover': {
+                background: `${alpha(theme.colors.alpha.trueWhite[100], 0.2)}`,
+                color: `${theme.colors.alpha.trueWhite[100]}`
+              }
+            }}
+            to="/app/work-orders?view=calendar"
+            component={RouterLink}
+          >
+            <EventTwoToneIcon fontSize="small" />
+          </IconButton>
+        </LightTooltip>
+      )}
       <LightTooltip placement="top" arrow title={t('Logout')}>
         <IconButton
           sx={{

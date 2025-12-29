@@ -247,7 +247,7 @@ function SidebarMenu() {
   }, [user.id]);
   return (
     <>
-      {menuItems
+      {(user.superAccountRelations.length ? [] : menuItems)
         .map((section, index) => {
           const sectionClone = { ...section };
           sectionClone.items = sectionClone.items.filter((item) => {
