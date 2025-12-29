@@ -1,6 +1,7 @@
 package com.grash.model.envers;
 
 import com.grash.model.*;
+import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,7 +30,7 @@ public class WorkOrderAud implements Serializable {
     private Date dueDate;
 
     @Column(name = "priority")
-    private Integer priority;
+    private Priority priority;
 
     @Column(name = "estimated_duration")
     private Double estimatedDuration;
