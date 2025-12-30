@@ -6,7 +6,7 @@
 
 Atlas CMMS is available under a **dual-licensing model**:
 
-1. **Open Source License:** GPL v3 for non-commercial use, development, and internal business operations
+1. **Open Source License:** GPL v3 for non-commercial use, development
 
 2. **Commercial License:** This proprietary license for commercial distribution, white-labeling, and enterprise deployment
 
