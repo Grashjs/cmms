@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- ROLLBACK SCRIPT FOR WORK ORDER CHAT FEATURE -->
+    <!-- This script will remove all tables and constraints created by the chat feature migration -->
+    <!-- Execute this script if you need to rollback the Work Order Chat feature -->
+
+    <!-- Drop work_order_message_reaction table -->
+    <changeSet author="manus" id="rollback-1765988210-1">
+        <dropTable tableName="work_order_message_reaction" cascadeConstraints="true"/>
+    </changeSet>
+
+    <!-- Drop work_order_message_read table -->
+    <changeSet author="manus" id="rollback-1765988210-2">
+        <dropTable tableName="work_order_message_read" cascadeConstraints="true"/>
+    </changeSet>
+
+    <!-- Drop work_order_message table -->
+    <changeSet author="manus" id="rollback-1765988210-3">
+        <dropTable tableName="work_order_message" cascadeConstraints="true"/>
+    </changeSet>
+
+</databaseChangeLog>
