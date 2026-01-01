@@ -31,7 +31,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -121,7 +120,7 @@ public class UserService {
     public SignupSuccessResponse<OwnUser> signup(UserSignupRequest userReq) {
         LicensingState licensingState = licenseService.getLicensingState();
         if (licensingState.isHasLicense()) {
-            if (userRepository.hasMoreUsersThan(licensingState.getUsersCount() - 1))
+            if (userRepository.hasMorePaidUsersThan(licensingState.getUsersCount() - 1))
                 throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount());
         }
         OwnUser user = userMapper.toModel(userReq);

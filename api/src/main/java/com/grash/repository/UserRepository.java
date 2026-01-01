@@ -40,8 +40,10 @@ public interface UserRepository extends JpaRepository<OwnUser, Long>, JpaSpecifi
             "(:emailDomain))")
     List<OwnUser> findBySSOCompany(@Param("emailDomain") String emailDomain);
 
-    @Query(value = "SELECT EXISTS(SELECT 1 FROM own_user LEFT JOIN company ON own_user.company_id = company.id WHERE " +
-            "own_user.enabled=true AND " +
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM own_user RIGHT JOIN company" +
+            " ON own_user.company_id = company.id RIGHT JOIN role ON own_user.role_id = role.id" +
+            " WHERE own_user.enabled AND role.paid=true AND " +
+            "role.role_type!=0 AND " +
             "company.demo=false OFFSET :threshold LIMIT 1)", nativeQuery = true)
-    boolean hasMoreUsersThan(@Param("threshold") int threshold);
+    boolean hasMorePaidUsersThan(@Param("threshold") int threshold);
 }

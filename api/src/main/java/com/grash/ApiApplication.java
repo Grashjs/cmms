@@ -6,10 +6,8 @@ import com.grash.model.*;
 import com.grash.model.enums.*;
 import com.grash.repository.UserRepository;
 import com.grash.service.*;
-import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,8 +16,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @SpringBootApplication
 @RequiredArgsConstructor
@@ -177,7 +173,7 @@ public class ApiApplication implements SmartInitializingSingleton {
     private void checkLicenseUsersCount() {
         LicensingState licensingState = licenseService.getLicensingState();
         if (licensingState.isHasLicense()) {
-            if (userRepository.hasMoreUsersThan(licensingState.getUsersCount()))
+            if (userRepository.hasMorePaidUsersThan(licensingState.getUsersCount()))
                 throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount());
         }
     }
