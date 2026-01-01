@@ -6,6 +6,8 @@ import com.grash.dto.keygen.*;
 import com.grash.dto.paddle.BillingDetails;
 import com.grash.dto.paddle.PaddleTransactionData;
 import com.grash.dto.paddle.PaddleWebhookEvent;
+import com.grash.dto.paddle.subscription.PaddleSubscriptionData;
+import com.grash.dto.paddle.subscription.PaddleSubscriptionWebhookEvent;
 import com.grash.service.KeygenService;
 import com.grash.service.EmailService2;
 import lombok.Data;
@@ -60,7 +62,8 @@ class WebhookController {
         }
 
         try {
-            PaddleWebhookEvent webhookEvent = objectMapper.readValue(payload, PaddleWebhookEvent.class);
+            PaddleSubscriptionWebhookEvent webhookEvent = objectMapper.readValue(payload,
+                    PaddleSubscriptionWebhookEvent.class);
             String eventType = webhookEvent.getEventType();
             String eventId = webhookEvent.getEventId();
 
@@ -72,7 +75,7 @@ class WebhookController {
             // Clean up old events periodically
             cleanupOldEvents();
 
-            if (eventType.equals("transaction.paid")) {
+            if (eventType.equals("subscription.created")) {
                 handleTransactionCompleted(webhookEvent, eventId);
             } else {
                 log.info("Unhandled event type: {}", eventType);
@@ -173,9 +176,9 @@ class WebhookController {
         );
     }
 
-    private void handleTransactionCompleted(PaddleWebhookEvent webhookEvent, String eventId) {
+    private void handleTransactionCompleted(PaddleSubscriptionWebhookEvent webhookEvent, String eventId) {
         try {
-            PaddleTransactionData data = webhookEvent.getData();
+            PaddleSubscriptionData data = webhookEvent.getData();
 
             String email = data.getCustomData() != null ? data.getCustomData().get("email") : null;
             String planId = data.getCustomData() != null ? data.getCustomData().get("planId") : null;
