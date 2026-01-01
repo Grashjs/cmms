@@ -15,12 +15,13 @@ import {
   useTheme
 } from '@mui/material';
 import CheckCircleOutlineTwoToneIcon from '@mui/icons-material/CheckCircleOutlineTwoTone';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { fireGa4Event } from '../../../utils/overall';
-import { apiUrl } from '../../../config';
-import { useState } from 'react';
+import { apiUrl, PADDLE_SECRET_TOKEN } from '../../../config';
+import { useEffect, useState } from 'react';
 import EmailModal from './EmailModal';
+import { initializePaddle, Paddle } from '@paddle/paddle-js';
 
 interface SubscriptionPlanSelectorProps {
   monthly: boolean;
@@ -38,6 +39,23 @@ export default function SubscriptionPlanSelector({
   const { t }: { t: any } = useTranslation();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const navigate = useNavigate();
+  let paddle: Paddle = null;
+
+  useEffect(() => {
+    const initPaddle = async () => {
+      paddle = await initializePaddle({
+        token: PADDLE_SECRET_TOKEN,
+        eventCallback: function (data) {
+          if (data.name == 'checkout.completed') {
+            navigate('/payment/success');
+          }
+        }
+      });
+      paddle.Environment.set('sandbox');
+    };
+    if (modalOpen) initPaddle();
+  }, [modalOpen]);
 
   const handleOpenModal = (plan) => {
     setSelectedPlan(plan);
@@ -54,7 +72,7 @@ export default function SubscriptionPlanSelector({
 
     try {
       // Create Checkout Session on backend
-      const response = await fetch(`${apiUrl}stripe/create-checkout-session`, {
+      const response = await fetch(`${apiUrl}paddle/create-checkout-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -65,8 +83,15 @@ export default function SubscriptionPlanSelector({
         })
       });
 
-      const { url } = await response.json();
-      if (url) window.location.href = url;
+      const data = await response.json();
+      if (data.sessionId) {
+        paddle.Checkout.open({
+          transactionId: data.sessionId,
+          customer: {
+            email: email.trim().toLowerCase()
+          }
+        });
+      }
     } catch (error) {
       console.error('Failed to create checkout session:', error);
     }

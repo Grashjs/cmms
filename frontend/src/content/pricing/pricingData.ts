@@ -92,7 +92,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -104,7 +104,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -116,7 +116,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -128,7 +128,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -140,7 +140,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -152,7 +152,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -164,7 +164,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -176,7 +176,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -188,7 +188,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -200,7 +200,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -212,7 +212,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       }
     ]
@@ -229,7 +229,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -241,7 +241,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': false,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -253,7 +253,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': false,
-          'sh-enterprise': true
+          'sh-business': true
         }
       }
     ]
@@ -270,7 +270,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -282,7 +282,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -294,7 +294,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -306,7 +306,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -318,7 +318,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -330,7 +330,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -342,7 +342,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -354,7 +354,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -366,7 +366,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -378,7 +378,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -390,7 +390,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -402,7 +402,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -414,7 +414,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       }
     ]
@@ -431,7 +431,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': false,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -443,7 +443,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': false,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -455,7 +455,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': false,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -467,7 +467,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': false,
-          'sh-enterprise': true
+          'sh-business': true
         }
       }
     ]
@@ -484,7 +484,7 @@ export const planFeatureCategories = [
           business: 'Full',
           'sh-free': true,
           'sh-professional': 'Full',
-          'sh-enterprise': 'Full'
+          'sh-business': 'Full'
         }
       },
       {
@@ -496,7 +496,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -508,7 +508,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -520,7 +520,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -532,7 +532,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -544,7 +544,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -556,7 +556,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -568,7 +568,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -580,7 +580,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -592,7 +592,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       }
     ]
@@ -609,7 +609,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -621,7 +621,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': false,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -633,7 +633,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': false,
-          'sh-enterprise': true
+          'sh-business': true
         }
       }
     ]
@@ -650,7 +650,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -662,7 +662,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -674,7 +674,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -686,7 +686,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -698,7 +698,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -710,7 +710,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': false,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -722,7 +722,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': false,
-          'sh-enterprise': true
+          'sh-business': true
         }
       }
     ]
@@ -739,7 +739,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -751,7 +751,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -763,7 +763,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       }
     ]
@@ -780,7 +780,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -792,7 +792,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -804,7 +804,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': true,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -816,7 +816,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -828,7 +828,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': false,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -840,7 +840,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': false,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -852,7 +852,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': true,
-          'sh-enterprise': true
+          'sh-business': true
         }
       },
       {
@@ -864,7 +864,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': false,
-          'sh-enterprise': true
+          'sh-business': true
         }
       }
     ]
@@ -881,7 +881,7 @@ export const planFeatureCategories = [
           business: true,
           'sh-free': false,
           'sh-professional': false,
-          'sh-enterprise': true
+          'sh-business': true
         }
       }
     ]
@@ -928,7 +928,7 @@ export const selfHostedPlans: {
     ]
   },
   {
-    id: 'sh-enterprise',
+    id: 'sh-business',
     name: 'Enterprise',
     price: '100',
     description:

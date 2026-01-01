@@ -1,5 +1,5 @@
 // CheckoutResponse.java
-package com.grash.dto.stripe;
+package com.grash.dto.checkout;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,5 +8,4 @@ import lombok.Data;
 @AllArgsConstructor
 public class CheckoutResponse {
     private String sessionId;
-    private String url;
 }

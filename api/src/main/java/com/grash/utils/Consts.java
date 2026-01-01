@@ -1,7 +1,6 @@
 package com.grash.utils;
 
 import com.grash.dto.license.SelfHostedPlan;
-import com.grash.service.StripeService;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -14,17 +13,17 @@ public class Consts {
     public static List<SelfHostedPlan> selfHostedPlans = Arrays.asList(
             SelfHostedPlan.builder()
                     .id("sh-professional-monthly")
-                    .pricePerUser(BigDecimal.valueOf(15))
+                    .paddlePriceId("pri_01kdv3d9rjmp9bjqw6dw70hpc4")
                     .name("Professional Atlas CMMS license")
                     .monthly(true)
                     .keygenPolicyId("5df4c975-8933-4c9f-89e0-2207365699a9")
                     .build(),
             SelfHostedPlan.builder()
-                    .id("sh-enterprise-monthly")
-                    .pricePerUser(BigDecimal.valueOf(100))
+                    .id("sh-business-monthly")
+                    .paddlePriceId("pri_01kdv3fnrk04dcqkcey9h654x0")
                     .keygenPolicyId("c168a294-7f62-47bc-a010-a26e8758b00c")
                     .monthly(true)
-                    .name("Enterprise Atlas CMMS license")
+                    .name("Business Atlas CMMS license")
                     .build()
     );
 }

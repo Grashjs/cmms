@@ -65,7 +65,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/auth/activate-account**").permitAll()//
                 .antMatchers("/demo/generate-account").permitAll()//
                 .antMatchers("/webhooks/**").permitAll()//
-                .antMatchers("/stripe/create-checkout-session").permitAll()//
+                .antMatchers("/paddle/create-checkout-session").permitAll()//
                 .antMatchers("/auth/reset-pwd-confirm**").permitAll()//
                 .antMatchers("/h2-console/**/**").permitAll()
                 // Disallow everything else..

@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class SelfHostedPlan {
     private String id;
-    private BigDecimal pricePerUser;
+    private String paddlePriceId;
     private String name;
     private boolean monthly;
     private String keygenPolicyId;

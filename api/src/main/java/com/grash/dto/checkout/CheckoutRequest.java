@@ -1,5 +1,5 @@
 // CheckoutRequest.java
-package com.grash.dto.stripe;
+package com.grash.dto.checkout;
 
 import lombok.Data;
 
