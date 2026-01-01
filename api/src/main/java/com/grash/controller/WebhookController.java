@@ -77,6 +77,8 @@ class WebhookController {
 
             if (eventType.equals("subscription.created")) {
                 handleTransactionCompleted(webhookEvent, eventId);
+            } else if (eventType.equals("subscription.updated")) {
+                handleSubscriptionUpdated(webhookEvent, eventId);
             } else {
                 log.info("Unhandled event type: {}", eventType);
             }
@@ -176,6 +178,60 @@ class WebhookController {
         );
     }
 
+    private void handleSubscriptionUpdated(PaddleSubscriptionWebhookEvent webhookEvent, String eventId) {
+        try {
+            PaddleSubscriptionData data = webhookEvent.getData();
+            String paddleSubscriptionId = data.getId();
+
+            // A subscription.updated event is fired for many reasons. We only care about renewals which keep it active.
+            if (!"active".equalsIgnoreCase(data.getStatus())) {
+                log.info("Subscription {} status is '{}', not an active renewal. Skipping.", paddleSubscriptionId,
+                        data.getStatus());
+                return;
+            }
+
+            log.info("Processing subscription renewal for Paddle subscription ID: {}, eventId: {}",
+                    paddleSubscriptionId, eventId);
+
+            // Find the license in Keygen using the Paddle subscription ID from metadata
+            KeygenLicenseResponseData license = keygenService.getLicenseByPaddleSubscriptionId(paddleSubscriptionId);
+
+            if (license == null) {
+                log.error("No license found for Paddle subscription ID: {}", paddleSubscriptionId);
+                throw new RuntimeException("License not found for paddle subscription " + paddleSubscriptionId);
+            }
+
+            String licenseId = license.getId();
+            log.info("Found license {} for renewal. Extending expiry.", licenseId);
+
+            String newExpiry = data.getNextBilledAt();
+            if (newExpiry == null) {
+                log.error("next_billed_at is null for paddle subscription {}", paddleSubscriptionId);
+                throw new RuntimeException("next_billed_at is null for paddle subscription " + paddleSubscriptionId);
+            }
+
+            keygenService.extendLicense(licenseId, newExpiry);
+
+            log.info("Successfully extended license {} for Paddle subscription ID: {}", licenseId,
+                    paddleSubscriptionId);
+
+        } catch (Exception e) {
+            log.error("Failed to process subscription renewal for eventId: {}", eventId, e);
+
+            if (recipients != null && recipients.length > 0) {
+                emailService.sendSimpleMessage(
+                        recipients,
+                        "Failed to process subscription renewal",
+                        "Failed to process subscription renewal" +
+                                "\nEvent ID: " + eventId +
+                                "\nError: " + e.getMessage()
+                );
+            }
+            processedEvents.remove(eventId);
+            throw new RuntimeException("Failed to process subscription renewal", e);
+        }
+    }
+
     private void handleTransactionCompleted(PaddleSubscriptionWebhookEvent webhookEvent, String eventId) {
         try {
             PaddleSubscriptionData data = webhookEvent.getData();
@@ -201,7 +257,8 @@ class WebhookController {
                     email, planId, eventId);
 
             log.info("Creating license for keygen user {} with plan {}", email, planId);
-            KeygenLicenseResponse keygenLicenseResponse = keygenService.createLicense(planId, email, quantity);
+            KeygenLicenseResponse keygenLicenseResponse = keygenService.createLicense(planId, email, quantity,
+                    data.getId());
 
             Map<String, Object> model = new HashMap<>();
             model.put("name", customerName);

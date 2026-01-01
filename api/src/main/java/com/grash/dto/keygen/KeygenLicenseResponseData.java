@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class KeygenLicenseResponseData {
+    private String id;
     private String type;
     private KeygenLicenseResponseAttributes attributes;
     private KeygenLicenseRelationships relationships;

@@ -3,6 +3,7 @@ package com.grash.service;
 import com.grash.dto.keygen.*;
 import com.grash.dto.license.SelfHostedPlan;
 import com.grash.exception.CustomException;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.grash.utils.Consts.selfHostedPlans;
@@ -127,7 +129,8 @@ public class KeygenService {
     /**
      * Create a license for a user by email
      */
-    public KeygenLicenseResponse createLicense(String planId, String email, Integer quantity) {
+    public KeygenLicenseResponse createLicense(String planId, String email, Integer quantity,
+                                               String paddleSubscriptionId) {
         // Get or create the Keygen user and get their UUID
         String keygenUserId = getOrCreateKeygenUser(email);
 
@@ -138,6 +141,7 @@ public class KeygenService {
 
         Map<String, String> metadata = new HashMap<>();
         metadata.put("usersCount", quantity.toString());
+        metadata.put("paddleSubscriptionId", paddleSubscriptionId);
         KeygenLicenseAttributes attributes = new KeygenLicenseAttributes(plan.getName(), metadata);
         KeygenLicenseRequest request = getKeygenLicenseRequest(keygenUserId, plan, attributes);
 
@@ -151,5 +155,77 @@ public class KeygenService {
                 url, entity, KeygenLicenseResponse.class);
 
         return response.getBody();
+    }
+
+    public void extendLicense(String licenseId, String newExpiry) {
+        String url = String.format("https://api.keygen.sh/v1/accounts/%s/licenses/%s",
+                keygenAccountId, licenseId);
+
+        KeygenLicenseUpdateAttributes attributes = new KeygenLicenseUpdateAttributes();
+        attributes.setExpiry(newExpiry);
+
+        KeygenLicenseUpdateData data = new KeygenLicenseUpdateData("licenses", attributes);
+        KeygenLicenseUpdateRequest request = new KeygenLicenseUpdateRequest(data);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + keygenProductToken);
+        headers.setContentType(MediaType.parseMediaType("application/vnd.api+json"));
+        headers.set("Accept", "application/vnd.api+json");
+
+        HttpEntity<KeygenLicenseUpdateRequest> entity = new HttpEntity<>(request, headers);
+        restTemplate.exchange(url, HttpMethod.PATCH, entity, Map.class);
+    }
+
+    public KeygenLicenseResponseData findLicenseByUserEmailAndPolicyId(String email, String policyId) {
+        try {
+            String userId = fetchKeygenUserByEmail(email);
+            String url = String.format("https://api.keygen.sh/v1/accounts/%s/licenses?user=%s&policy=%s",
+                    keygenAccountId, userId, policyId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + keygenProductToken);
+            headers.set("Accept", "application/vnd.api+json");
+
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            ResponseEntity<LicenseListResponse> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, LicenseListResponse.class);
+
+            if (response.getBody() != null &&
+                    response.getBody().getData() != null && response.getBody().getData().size() == 1) {
+                return response.getBody().getData().get(0);
+            }
+        } catch (CustomException e) {
+            // User not found, so no license will be found
+            return null;
+        }
+
+        return null;
+    }
+
+    public KeygenLicenseResponseData getLicenseByPaddleSubscriptionId(String paddleSubscriptionId) {
+        String url = String.format("https://api.keygen.sh/v1/accounts/%s/licenses?metadata[paddleSubscriptionId]=%s",
+                keygenAccountId, paddleSubscriptionId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + keygenProductToken);
+        headers.set("Accept", "application/vnd.api+json");
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<LicenseListResponse> response = restTemplate.exchange(
+                url, HttpMethod.GET, entity, LicenseListResponse.class);
+
+        if (response.getBody() != null &&
+                response.getBody().getData() != null && response.getBody().getData().size() == 1) {
+            // The API returns a list of licenses, we expect only one for a unique paddleSubscriptionId
+            return response.getBody().getData().get(0);
+        }
+
+        return null;
+    }
+
+    // Main response wrapper
+    @Data
+    public static class LicenseListResponse {
+        private List<KeygenLicenseResponseData> data;
     }
 }
