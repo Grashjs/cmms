@@ -14,9 +14,12 @@ import CardMembershipTwoToneIcon from '@mui/icons-material/CardMembershipTwoTone
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth';
 import i18n from 'i18next';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import mailToLink from 'mailto-link';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
+import { isCloudVersion } from '../../../config';
+import { getLicenseValidity } from '../../../slices/license';
+import { useDispatch, useSelector } from 'src/store';
 
 interface CompanyPlanProps {
   plan: SubscriptionPlan;
@@ -31,7 +34,13 @@ function CompanyPlan(props: CompanyPlanProps) {
   const [loadingCancel, setLoadingCancel] = useState<boolean>(false);
   const [loadingResume, setLoadingResume] = useState<boolean>(false);
   const { t }: { t: any } = useTranslation();
+  const dispatch = useDispatch();
   const getLanguage = i18n.language;
+  const { state: licensingState } = useSelector((state) => state.license);
+  const expiryDate = isCloudVersion
+    ? company.subscription.endsOn
+    : licensingState.expirationDate;
+
   return (
     <Card
       sx={{
@@ -83,29 +92,41 @@ function CompanyPlan(props: CompanyPlanProps) {
           }}
         >
           {t('you_are_using_plan', {
-            planName: plan.name,
-            expiration: new Date(company.subscription.endsOn).toLocaleString(
-              getLanguage === 'fr' ? 'fr-FR' : undefined
-            )
+            planName: isCloudVersion
+              ? plan.name
+              : licensingState.planName ?? 'Free',
+            expiration: expiryDate
+              ? new Date(expiryDate).toLocaleString(
+                  getLanguage === 'fr' ? 'fr-FR' : undefined
+                )
+              : ''
           })}
         </Typography>
         <Box sx={{ mt: 2 }}>
           <Button
             sx={{ mr: 2 }}
             variant="contained"
-            to="/app/subscription/plans"
-            component={RouterLink}
+            component={isCloudVersion ? RouterLink : 'a'}
+            {...(isCloudVersion
+              ? { to: '/app/subscription/plans' }
+              : {
+                  href: 'https://atlas-cmms.com/pricing?type=selfhosted',
+                  target: '_blank',
+                  rel: 'noopener noreferrer'
+                })}
           >
             {t('upgrade_now')}
           </Button>
-          <Button
-            onClick={() => navigate('/pricing')}
-            variant="contained"
-            color="secondary"
-            sx={{ mr: 2 }}
-          >
-            {t('learn_more')}
-          </Button>
+          {isCloudVersion && (
+            <Button
+              onClick={() => navigate('/pricing')}
+              variant="contained"
+              color="secondary"
+              sx={{ mr: 2 }}
+            >
+              {t('learn_more')}
+            </Button>
+          )}
           {company.subscription.activated &&
             (company.subscription.cancelled ? (
               <Button

@@ -13,5 +13,7 @@ const licenseEntitlements = [
 export type LicensingState = {
   valid: boolean;
   entitlements: LicenseEntitlement[];
+  expirationDate: string;
+  planName: string;
 };
 export type LicenseEntitlement = typeof licenseEntitlements[number];

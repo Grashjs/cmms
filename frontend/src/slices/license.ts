@@ -11,7 +11,12 @@ interface LicenseState {
 }
 
 const initialState: LicenseState = {
-  state: { valid: false, entitlements: [] }
+  state: {
+    valid: false,
+    entitlements: [],
+    expirationDate: null,
+    planName: null
+  }
 };
 
 const slice = createSlice({

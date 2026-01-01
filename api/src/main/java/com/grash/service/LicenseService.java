@@ -10,10 +10,8 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.time.Instant;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -74,10 +72,13 @@ public class LicenseService {
     }
 
     private LicensingState buildLicensingStateFromCache() {
+        String rawExpiry = cachedLicenseResponse.getData().getAttributes().getExpiry();
         return LicensingState.builder()
                 .valid(cachedLicenseResponse.getMeta().isValid())
                 .hasLicense(true)
                 .entitlements(cachedEntitlements)
+                .planName(cachedLicenseResponse.getData().getAttributes().getName())
+                .expirationDate(rawExpiry == null ? null : Date.from(Instant.parse(rawExpiry)))
                 .usersCount(extractUsersCount(cachedLicenseResponse))
                 .build();
     }
@@ -107,11 +108,14 @@ public class LicenseService {
                 } else {
                     cachedEntitlements.clear();
                 }
+                String rawExpiry = cachedLicenseResponse.getData().getAttributes().getExpiry();
 
                 return LicensingState.builder()
                         .hasLicense(true)
                         .valid(cachedLicenseResponse.getMeta().isValid())
                         .entitlements(cachedEntitlements)
+                        .planName(cachedLicenseResponse.getData().getAttributes().getName())
+                        .expirationDate(rawExpiry == null ? null : Date.from(Instant.parse(rawExpiry)))
                         .usersCount(extractUsersCount(cachedLicenseResponse))
                         .build();
             }
