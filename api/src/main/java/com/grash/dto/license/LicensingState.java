@@ -10,7 +10,10 @@ import java.util.Set;
 @Data
 @Builder
 public class LicensingState {
+    private boolean hasLicense;
     private boolean valid;
     @Builder.Default
     private Set<String> entitlements = new HashSet<>();
+
+    private int usersCount;
 }

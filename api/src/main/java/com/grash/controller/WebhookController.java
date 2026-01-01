@@ -179,6 +179,7 @@ class WebhookController {
 
             String email = data.getCustomData() != null ? data.getCustomData().get("email") : null;
             String planId = data.getCustomData() != null ? data.getCustomData().get("planId") : null;
+            Integer quantity = data.getItems().get(0).getQuantity();
 
             if (email == null) {
                 log.error("Email not found in custom_data for transaction");
@@ -197,7 +198,7 @@ class WebhookController {
                     email, planId, eventId);
 
             log.info("Creating license for keygen user {} with plan {}", email, planId);
-            KeygenLicenseResponse keygenLicenseResponse = keygenService.createLicense(planId, email);
+            KeygenLicenseResponse keygenLicenseResponse = keygenService.createLicense(planId, email, quantity);
 
             Map<String, Object> model = new HashMap<>();
             model.put("name", customerName);

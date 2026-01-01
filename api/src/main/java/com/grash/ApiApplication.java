@@ -1,8 +1,10 @@
 package com.grash;
 
 import com.grash.dto.UserSignupRequest;
+import com.grash.dto.license.LicensingState;
 import com.grash.model.*;
 import com.grash.model.enums.*;
+import com.grash.repository.UserRepository;
 import com.grash.service.*;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class ApiApplication implements SmartInitializingSingleton {
 
     private final UserService userService;
     private final UserInvitationService userInvitationService;
+    private final UserRepository userRepository;
     @Value("${superAdmin.role.name}")
     private String superAdminRole;
     private final RoleService roleService;
@@ -34,6 +37,7 @@ public class ApiApplication implements SmartInitializingSingleton {
     private final SubscriptionPlanService subscriptionPlanService;
     private final SubscriptionService subscriptionService;
     private final ScheduleService scheduleService;
+    private final LicenseService licenseService;
 
     public static void main(String[] args) {
         SpringApplication.run(ApiApplication.class, args);
@@ -55,6 +59,8 @@ public class ApiApplication implements SmartInitializingSingleton {
 
             log.info("Updating default roles...");
             roleService.updateDefaultRoles();
+
+            checkLicenseUsersCount();
 
             log.info("Application initialization completed successfully");
         } catch (Exception e) {
@@ -165,6 +171,15 @@ public class ApiApplication implements SmartInitializingSingleton {
                 log.error("Failed to schedule subscription end for subscription ID: {}", subscription.getId(), e);
             }
         });
+    }
+
+
+    private void checkLicenseUsersCount() {
+        LicensingState licensingState = licenseService.getLicensingState();
+        if (licensingState.isHasLicense()) {
+            if (userRepository.hasMoreUsersThan(licensingState.getUsersCount()))
+                throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount());
+        }
     }
 
     @NotNull

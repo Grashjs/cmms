@@ -127,7 +127,7 @@ public class KeygenService {
     /**
      * Create a license for a user by email
      */
-    public KeygenLicenseResponse createLicense(String planId, String email) {
+    public KeygenLicenseResponse createLicense(String planId, String email, Integer quantity) {
         // Get or create the Keygen user and get their UUID
         String keygenUserId = getOrCreateKeygenUser(email);
 
@@ -137,6 +137,7 @@ public class KeygenService {
                 .findFirst().orElseThrow(() -> new CustomException("Plan not found", HttpStatus.BAD_REQUEST));
 
         Map<String, String> metadata = new HashMap<>();
+        metadata.put("usersCount", quantity.toString());
         KeygenLicenseAttributes attributes = new KeygenLicenseAttributes(plan.getName(), metadata);
         KeygenLicenseRequest request = getKeygenLicenseRequest(keygenUserId, plan, attributes);
 

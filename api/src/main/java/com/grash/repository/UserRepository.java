@@ -39,4 +39,9 @@ public interface UserRepository extends JpaRepository<OwnUser, Long>, JpaSpecifi
     @Query("select u from OwnUser u where u.createdViaSso=true and lower(u.email) like concat('%@',lower" +
             "(:emailDomain))")
     List<OwnUser> findBySSOCompany(@Param("emailDomain") String emailDomain);
+
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM own_user LEFT JOIN company ON own_user.company_id = company.id WHERE " +
+            "own_user.enabled=true AND " +
+            "company.demo=false OFFSET :threshold LIMIT 1)", nativeQuery = true)
+    boolean hasMoreUsersThan(@Param("threshold") int threshold);
 }

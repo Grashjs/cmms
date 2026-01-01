@@ -7,6 +7,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.dto.UserPatchDTO;
 import com.grash.dto.UserSignupRequest;
 import com.grash.dto.license.LicenseEntitlement;
+import com.grash.dto.license.LicensingState;
 import com.grash.event.CompanyCreatedEvent;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
@@ -118,6 +119,11 @@ public class UserService {
     }
 
     public SignupSuccessResponse<OwnUser> signup(UserSignupRequest userReq) {
+        LicensingState licensingState = licenseService.getLicensingState();
+        if (licensingState.isHasLicense()) {
+            if (userRepository.hasMoreUsersThan(licensingState.getUsersCount() - 1))
+                throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount());
+        }
         OwnUser user = userMapper.toModel(userReq);
         user.setEmail(user.getEmail().toLowerCase());
         if (userRepository.existsByEmailIgnoreCase(user.getEmail())) {
