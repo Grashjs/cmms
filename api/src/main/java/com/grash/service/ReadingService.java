@@ -1,6 +1,7 @@
 package com.grash.service;
 
 import com.grash.dto.ReadingPatchDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.ReadingMapper;
 import com.grash.model.OwnUser;
@@ -21,6 +22,7 @@ import java.util.Optional;
 public class ReadingService {
     private final ReadingRepository readingRepository;
     private final ReadingMapper readingMapper;
+    private final LicenseService licenseService;
     private MeterService meterService;
 
     @Autowired

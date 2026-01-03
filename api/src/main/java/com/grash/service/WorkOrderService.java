@@ -5,6 +5,7 @@ import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.dto.imports.WorkOrderImportDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;

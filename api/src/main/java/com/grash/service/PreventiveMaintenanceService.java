@@ -6,6 +6,7 @@ import com.grash.dto.CalendarEvent;
 import com.grash.dto.PreventiveMaintenancePatchDTO;
 import com.grash.dto.PreventiveMaintenanceShowDTO;
 import com.grash.dto.imports.PreventiveMaintenanceImportDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.model.*;
@@ -47,6 +48,7 @@ public class PreventiveMaintenanceService {
     private final AssetService assetService;
     private final WorkOrderCategoryService workOrderCategoryService;
     private final ScheduleService scheduleService;
+    private final LicenseService licenseService;
 
 
     @Transactional
@@ -113,6 +115,8 @@ public class PreventiveMaintenanceService {
     }
 
     public List<CalendarEvent<PreventiveMaintenance>> getEvents(Date end, Long companyId) {
+        if(!licenseService.hasEntitlement(LicenseEntitlement.PM_CALENDAR))
+            return Collections.emptyList();
         List<PreventiveMaintenance> preventiveMaintenances =
                 preventiveMaintenanceRepository.findByCreatedAtBeforeAndCompany_Id(end, companyId);
         List<CalendarEvent<PreventiveMaintenance>> result = new ArrayList<>();

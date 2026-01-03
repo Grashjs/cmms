@@ -2,6 +2,7 @@ package com.grash.controller;
 
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.*;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.factory.StorageServiceFactory;
@@ -79,6 +80,7 @@ public class WorkOrderController {
     private final PreventiveMaintenanceMapper preventiveMaintenanceMapper;
     private final BrandingService brandingService;
     private final ScheduleService scheduleService;
+    private final LicenseService licenseService;
 
 
     @Value("${frontend.url}")
@@ -259,7 +261,9 @@ public class WorkOrderController {
         Status savedWorkOrderStatusBefore = savedWorkOrder.getStatus();
 
         if (workOrder.getStatus() == null) throw new CustomException("Status can't be null", HttpStatus.NOT_ACCEPTABLE);
-
+        if (workOrder.getSignature() != null && !licenseService.hasEntitlement(LicenseEntitlement.SIGNATURE_CAPTURE))
+            throw new CustomException("You need a license to add signature to work order",
+                    HttpStatus.FORBIDDEN);
         savedWorkOrder.setSignature(workOrder.getSignature());
         savedWorkOrder.setStatus(workOrder.getStatus());
         savedWorkOrder.setFeedback(workOrder.getFeedback());

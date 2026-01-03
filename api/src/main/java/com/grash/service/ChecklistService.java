@@ -48,8 +48,6 @@ public class ChecklistService {
 
     @Transactional
     public Checklist update(Long id, ChecklistPatchDTO checklistReq, Company company) {
-        if (!licenseService.hasEntitlement(LicenseEntitlement.CHECKLIST))
-            throw new CustomException("You need a license to update a checklist", HttpStatus.FORBIDDEN);
         if (checklistRepository.existsById(id)) {
             Checklist savedChecklist = checklistRepository.getById(id);
             savedChecklist.setCategory(checklistReq.getCategory());

@@ -1,6 +1,7 @@
 package com.grash.service;
 
 import com.grash.dto.WorkOrderMeterTriggerPatchDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMeterTriggerMapper;
 import com.grash.model.WorkOrderMeterTrigger;
@@ -22,10 +23,14 @@ public class WorkOrderMeterTriggerService {
     private final WorkOrderMeterTriggerMapper workOrderMeterTriggerMapper;
     private final MeterService meterService;
     private final EntityManager em;
+    private final LicenseService licenseService;
 
     @Transactional
     public WorkOrderMeterTrigger create(WorkOrderMeterTrigger workOrderMeterTrigger) {
-        WorkOrderMeterTrigger savedWorkOrderMeterTrigger = workOrderMeterTriggerRepository.saveAndFlush(workOrderMeterTrigger);
+        if (!licenseService.hasEntitlement(LicenseEntitlement.CONDITION_BASED_PM))
+            throw new CustomException("You need a license to create a meter trigger", HttpStatus.FORBIDDEN);
+        WorkOrderMeterTrigger savedWorkOrderMeterTrigger =
+                workOrderMeterTriggerRepository.saveAndFlush(workOrderMeterTrigger);
         em.refresh(savedWorkOrderMeterTrigger);
         return savedWorkOrderMeterTrigger;
     }
@@ -34,7 +39,8 @@ public class WorkOrderMeterTriggerService {
     public WorkOrderMeterTrigger update(Long id, WorkOrderMeterTriggerPatchDTO workOrderMeterTrigger) {
         if (workOrderMeterTriggerRepository.existsById(id)) {
             WorkOrderMeterTrigger savedWorkOrderMeterTrigger = workOrderMeterTriggerRepository.findById(id).get();
-            WorkOrderMeterTrigger updatedWorkOrderMeterTrigger = workOrderMeterTriggerRepository.save(workOrderMeterTriggerMapper.updateWorkOrderMeterTrigger(savedWorkOrderMeterTrigger, workOrderMeterTrigger));
+            WorkOrderMeterTrigger updatedWorkOrderMeterTrigger =
+                    workOrderMeterTriggerRepository.save(workOrderMeterTriggerMapper.updateWorkOrderMeterTrigger(savedWorkOrderMeterTrigger, workOrderMeterTrigger));
             return updatedWorkOrderMeterTrigger;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

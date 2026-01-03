@@ -5,6 +5,7 @@ import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.AssetPatchDTO;
 import com.grash.dto.AssetShowDTO;
 import com.grash.dto.imports.AssetImportDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetMapper;
 import com.grash.model.*;
@@ -51,6 +52,7 @@ public class AssetService {
     private WorkOrderService workOrderService;
     private final MessageSource messageSource;
     private final CustomSequenceService customSequenceService;
+    private final LicenseService licenseService;
 
     @Autowired
     public void setDeps(@Lazy LocationService locationService, @Lazy LaborService laborService,
@@ -63,6 +65,9 @@ public class AssetService {
 
     @Transactional
     public Asset create(Asset asset, OwnUser user) {
+        if (asset.getParentAsset() != null && !licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY))
+            throw new CustomException("You need a license to add a child asset to another asset.",
+                    HttpStatus.FORBIDDEN);
         // Generate custom ID
         Company company = user.getCompany();
         asset.setCustomId(getAssetNumber(company));
@@ -79,6 +84,9 @@ public class AssetService {
 
     @Transactional
     public Asset update(Long id, AssetPatchDTO asset) {
+        if (asset.getParentAsset() != null && !licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY))
+            throw new CustomException("You need a license to add a child asset to another asset.",
+                    HttpStatus.FORBIDDEN);
         if (assetRepository.existsById(id)) {
             Asset savedAsset = assetRepository.findById(id).get();
             Asset patchedAsset = assetRepository.saveAndFlush(assetMapper.updateAsset(savedAsset, asset));
@@ -230,6 +238,8 @@ public class AssetService {
     }
 
     public void importAsset(Asset asset, AssetImportDTO dto, Company company) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY))
+            throw new CustomException("You need a license to import assets with hierarchy", HttpStatus.FORBIDDEN);
         Long companySettingsId = company.getCompanySettings().getId();
         Long companyId = company.getId();
         asset.setArea(dto.getArea());

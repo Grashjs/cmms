@@ -5,6 +5,7 @@ import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.PartPatchDTO;
 import com.grash.dto.PartShowDTO;
 import com.grash.dto.imports.PartImportDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PartMapper;
 import com.grash.model.*;
@@ -41,6 +42,7 @@ public class PartService {
     private final NotificationService notificationService;
     private final UserService userService;
     private final TeamService teamService;
+    private final LicenseService licenseService;
 
     @Transactional
     public Part create(Part Part) {
@@ -73,7 +75,7 @@ public class PartService {
         } else {
             String message = messageSource.getMessage("notification_part_low", new Object[]{part.getName()}, locale);
             if (part.getQuantity() >= quantity) {
-                if (part.getQuantity() < part.getMinQuantity()) {
+                if (part.getQuantity() < part.getMinQuantity() && licenseService.hasEntitlement(LicenseEntitlement.LOW_STOCK_ALERTS)) {
                     notificationService.createMultiple(part.getAssignedTo().stream().map(user ->
                             new Notification(message, user, NotificationType.PART, part.getId())
                     ).collect(Collectors.toList()), true, message);

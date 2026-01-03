@@ -54,8 +54,6 @@ public class MeterService {
     @Transactional
     public Meter update(Long id, MeterPatchDTO meter) {
         if (meterRepository.existsById(id)) {
-            if (!licenseService.hasEntitlement(LicenseEntitlement.METER))
-                throw new CustomException("You need a license to update a meter", HttpStatus.FORBIDDEN);
             Meter savedMeter = meterRepository.findById(id).get();
             Meter patchedMeter = meterRepository.saveAndFlush(meterMapper.updateMeter(savedMeter, meter));
             em.refresh(patchedMeter);
@@ -124,6 +122,8 @@ public class MeterService {
     }
 
     public void importMeter(Meter meter, MeterImportDTO dto, Company company) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.METER))
+            throw new CustomException("You need a license to create a meter", HttpStatus.FORBIDDEN);
         Long companyId = company.getId();
         Long companySettingsId = company.getCompanySettings().getId();
         meter.setName(dto.getName());

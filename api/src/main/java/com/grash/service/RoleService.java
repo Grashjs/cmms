@@ -34,8 +34,6 @@ public class RoleService {
 
     public Role update(Long id, RolePatchDTO role) {
         if (roleRepository.existsById(id)) {
-            if (!licenseService.hasEntitlement(LicenseEntitlement.CUSTOM_ROLES))
-                throw new CustomException("You need a license to update roles", HttpStatus.FORBIDDEN);
             Role savedRole = roleRepository.findById(id).get();
             return roleRepository.save(roleMapper.updateRole(savedRole, role));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

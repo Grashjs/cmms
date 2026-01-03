@@ -1,6 +1,7 @@
 package com.grash.service;
 
 import com.grash.dto.AssetDowntimePatchDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetDowntimeMapper;
 import com.grash.model.AssetDowntime;
@@ -20,8 +21,11 @@ public class AssetDowntimeService {
     private final AssetDowntimeRepository assetDowntimeRepository;
     private final CompanyService companyService;
     private final AssetDowntimeMapper assetDowntimeMapper;
+    private final LicenseService licenseService;
 
     public AssetDowntime create(AssetDowntime assetDowntime) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.ASSET_DOWNTIME))
+            throw new CustomException("You need a license to create asset downtime", HttpStatus.FORBIDDEN);
         checkOverlapping(assetDowntime);
         return assetDowntimeRepository.save(assetDowntime);
     }
@@ -33,7 +37,8 @@ public class AssetDowntimeService {
     public AssetDowntime update(Long id, AssetDowntimePatchDTO assetDowntime) {
         if (assetDowntimeRepository.existsById(id)) {
             AssetDowntime savedAssetDowntime = assetDowntimeRepository.findById(id).get();
-            AssetDowntime updatedAssetDowntime = assetDowntimeMapper.updateAssetDowntime(savedAssetDowntime, assetDowntime);
+            AssetDowntime updatedAssetDowntime = assetDowntimeMapper.updateAssetDowntime(savedAssetDowntime,
+                    assetDowntime);
             checkOverlapping(updatedAssetDowntime);
             return assetDowntimeRepository.save(updatedAssetDowntime);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -74,7 +79,8 @@ public class AssetDowntimeService {
             DowntimeComparator downtimeComparator = new DowntimeComparator();
             AssetDowntime firstDowntime = Collections.min(downtimes, downtimeComparator);
             AssetDowntime lastDowntime = Collections.max(downtimes, downtimeComparator);
-            result = (Helper.getDateDiff(firstDowntime.getStartsOn(), lastDowntime.getStartsOn(), TimeUnit.HOURS)) / (downtimes.size() - 1);
+            result =
+                    (Helper.getDateDiff(firstDowntime.getStartsOn(), lastDowntime.getStartsOn(), TimeUnit.HOURS)) / (downtimes.size() - 1);
         }
         return result;
     }
