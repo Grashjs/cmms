@@ -33,7 +33,7 @@ public class Subscription extends Audit {
     private boolean activated;
 
     @JsonIgnore
-    private String fastSpringId;
+    private String paddleSubscriptionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
@@ -48,7 +48,8 @@ public class Subscription extends Audit {
     private boolean upgradeNeeded;
 
     public void setUsersCount(int usersCount) {
-        if (usersCount < 1) throw new CustomException("Users count should not be less than 1", HttpStatus.NOT_ACCEPTABLE);
+        if (usersCount < 1)
+            throw new CustomException("Users count should not be less than 1", HttpStatus.NOT_ACCEPTABLE);
         this.usersCount = usersCount;
     }
 }

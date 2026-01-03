@@ -34,5 +34,8 @@ public class SubscriptionPlan {
 
     @ElementCollection(targetClass = PlanFeatures.class)
     private Set<PlanFeatures> features = new HashSet<>();
+    
+    private String monthlyPaddlePriceId;
+    private String yearlyPaddlePriceId;
 
 }

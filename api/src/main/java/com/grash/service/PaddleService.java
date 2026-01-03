@@ -5,6 +5,9 @@ import com.grash.dto.license.SelfHostedPlan;
 import com.grash.dto.checkout.CheckoutRequest;
 import com.grash.dto.checkout.CheckoutResponse;
 import com.grash.exception.CustomException;
+import com.grash.model.Subscription;
+import com.grash.model.SubscriptionPlan;
+import com.grash.model.enums.PlanFeatures;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +23,10 @@ import static com.grash.utils.Consts.selfHostedPlans;
 @Service
 @RequiredArgsConstructor
 public class PaddleService {
+
+    private final SubscriptionPlanService subscriptionPlanService;
+    private final WorkflowService workflowService;
+    private final UserService userService;
 
     @Value("${paddle.api-key}")
     private String paddleApiKey;
@@ -42,26 +49,41 @@ public class PaddleService {
     }
 
     public CheckoutResponse createCheckoutSession(CheckoutRequest request) {
-        SelfHostedPlan plan = selfHostedPlans.stream()
-                .filter(selfHostedPlan -> selfHostedPlan.getId().equals(request.getPlanId()))
-                .findFirst()
-                .orElseThrow(() -> new CustomException("Plan not found", HttpStatus.BAD_REQUEST));
+        if (request.getUserId() == null && request.getEmail() == null)
+            throw new CustomException("Email and ID cannot be null", HttpStatus.BAD_REQUEST);
+        boolean selfHosted = request.getUserId() == null;
 
         PaddleTransactionRequest transactionRequest = new PaddleTransactionRequest();
 
         // Add item
         PaddleItem item = new PaddleItem();
-        item.setPriceId(plan.getPaddlePriceId());
-        item.setQuantity(1);
+        if (selfHosted) {
+            SelfHostedPlan selfHostedPlan = selfHostedPlans.stream()
+                    .filter(selfHostedPlan1 -> selfHostedPlan1.getId().equals(request.getPlanId()))
+                    .findFirst()
+                    .orElseThrow(() -> new CustomException("Plan not found", HttpStatus.BAD_REQUEST));
+            item.setPriceId(selfHostedPlan.getPaddlePriceId());
+            item.setQuantity(1);
+        } else {
+            SubscriptionPlan subscriptionPlan =
+                    subscriptionPlanService.findByCode(request.getPlanId().split("-")[0].toUpperCase())
+                            .orElseThrow(() -> new CustomException("Plan not found", HttpStatus.BAD_REQUEST));
+            item.setPriceId(request.getPlanId().toLowerCase().contains("monthly") ?
+                    subscriptionPlan.getMonthlyPaddlePriceId() : subscriptionPlan.getYearlyPaddlePriceId());
+            item.setQuantity(request.getQuantity());
+        }
         transactionRequest.setItems(Collections.singletonList(item));
 
         // Set customer email
-        transactionRequest.setCustomerEmail(request.getEmail().trim().toLowerCase());
+        String email = (request.getUserId() == null ? request.getEmail() :
+                userService.findById(request.getUserId()).get().getEmail()).trim().toLowerCase();
+        transactionRequest.setCustomerEmail(email);
 
         // Set custom data (metadata)
         Map<String, String> customData = new HashMap<>();
         customData.put("planId", request.getPlanId());
-        customData.put("email", request.getEmail().trim().toLowerCase());
+        if (request.getUserId() != null) customData.put("userId", request.getUserId().toString());
+        customData.put("email", email);
         transactionRequest.setCustomData(customData);
 
         // Set checkout settings
@@ -120,6 +142,52 @@ public class PaddleService {
             throw new CustomException("Error retrieving Paddle transaction: " + e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public void updateSubscription(Subscription savedSubscription, String planCode, String id, Date startsOn,
+                                   Date endsOn, Long companyId, int usersCount) {
+        boolean monthly = planCode.toLowerCase().contains("monthly");
+        savedSubscription.setMonthly(monthly);
+        savedSubscription.setActivated(true);
+        SubscriptionPlan subscriptionPlan =
+                subscriptionPlanService.findByCode(planCode.split("-")[0].toUpperCase()).get();
+        if (subscriptionPlan.getFeatures().contains(PlanFeatures.WORKFLOW)) {
+            workflowService.enableWorkflows(companyId);
+        } else {
+            workflowService.disableWorkflows(companyId);
+        }
+        savedSubscription.setPaddleSubscriptionId(id);
+        savedSubscription.setSubscriptionPlan(subscriptionPlan);
+        savedSubscription.setStartsOn(startsOn);
+        savedSubscription.setEndsOn(endsOn);
+        savedSubscription.setCancelled(false);
+        savedSubscription.setUsersCount(usersCount);
+    }
+
+    public void cancelSubscription(String subscriptionId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(paddleApiKey);
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        restTemplate.exchange(
+                paddleApiUrl + "/subscriptions/" + subscriptionId + "/cancel",
+                HttpMethod.POST,
+                entity,
+                Object.class
+        );
+    }
+
+    public void resumeSubscription(String subscriptionId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(paddleApiKey);
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        restTemplate.exchange(
+                paddleApiUrl + "/subscriptions/" + subscriptionId + "/resume",
+                HttpMethod.POST,
+                entity,
+                Object.class
+        );
     }
 
     // Request DTOs

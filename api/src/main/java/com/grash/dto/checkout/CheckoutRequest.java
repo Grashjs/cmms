@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 public class CheckoutRequest {
     @NotNull
     private String planId;
-    @NotNull
     private String email;
+    private Long userId;
+    private Integer quantity;
 }

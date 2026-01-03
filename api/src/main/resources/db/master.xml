@@ -166,4 +166,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2025_12_09_1765200000_add_is_demo_column.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_01_03_1767462867_subscription_paddle.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>
