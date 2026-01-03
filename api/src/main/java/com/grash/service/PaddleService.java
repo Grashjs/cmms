@@ -5,6 +5,7 @@ import com.grash.dto.license.SelfHostedPlan;
 import com.grash.dto.checkout.CheckoutRequest;
 import com.grash.dto.checkout.CheckoutResponse;
 import com.grash.exception.CustomException;
+import com.grash.model.OwnUser;
 import com.grash.model.Subscription;
 import com.grash.model.SubscriptionPlan;
 import com.grash.model.enums.PlanFeatures;
@@ -147,6 +148,19 @@ public class PaddleService {
     public void updateSubscription(Subscription savedSubscription, String planCode, String id, Date startsOn,
                                    Date endsOn, Long companyId, int usersCount) {
         boolean monthly = planCode.toLowerCase().contains("monthly");
+        
+        int subscriptionUsersCount =
+                (int) userService.findByCompany(companyId).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
+        if (usersCount < subscriptionUsersCount) {
+            savedSubscription.setDowngradeNeeded(true);
+        } else {
+            int usersNotInSubscriptionCount =
+                    (int) userService.findByCompany(companyId).stream().filter(user1 -> !user1.isEnabledInSubscription()).count();
+            if (usersNotInSubscriptionCount > 0) {
+                savedSubscription.setUpgradeNeeded(true);
+            }
+        }
+
         savedSubscription.setMonthly(monthly);
         savedSubscription.setActivated(true);
         SubscriptionPlan subscriptionPlan =

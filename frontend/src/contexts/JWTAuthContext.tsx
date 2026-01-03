@@ -691,7 +691,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     });
   };
   const cancelSubscription = async (): Promise<void> => {
-    const response = await api.get<{ success: boolean }>(`fast-spring/cancel`);
+    const response = await api.get<{ success: boolean }>(`paddle/cancel`);
     const { success } = response;
     if (success) {
       dispatch({

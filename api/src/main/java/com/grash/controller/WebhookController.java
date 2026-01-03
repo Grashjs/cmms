@@ -1,6 +1,5 @@
 package com.grash.controller;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grash.dto.keygen.*;
 import com.grash.dto.paddle.BillingDetails;
@@ -8,8 +7,10 @@ import com.grash.dto.paddle.PaddleTransactionData;
 import com.grash.dto.paddle.PaddleWebhookEvent;
 import com.grash.dto.paddle.subscription.PaddleSubscriptionData;
 import com.grash.dto.paddle.subscription.PaddleSubscriptionWebhookEvent;
-import com.grash.service.KeygenService;
-import com.grash.service.EmailService2;
+import com.grash.exception.CustomException;
+import com.grash.model.OwnUser;
+import com.grash.model.Subscription;
+import com.grash.service.*;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -37,6 +40,12 @@ class WebhookController {
     private final KeygenService keygenService;
     private final EmailService2 emailService;
     private final ObjectMapper objectMapper;
+    private final UserService userService;
+    private final SubscriptionService subscriptionService;
+    private final PaddleService paddleService;
+
+    @Value("${cloud-version}")
+    private boolean cloudVersion;
 
     private final Map<String, Long> processedEvents = new ConcurrentHashMap<>();
 
@@ -75,12 +84,19 @@ class WebhookController {
             // Clean up old events periodically
             cleanupOldEvents();
 
-            if (eventType.equals("subscription.created")) {
-                handleTransactionCompleted(webhookEvent, eventId);
-            } else if (eventType.equals("subscription.updated")) {
-                handleSubscriptionUpdated(webhookEvent, eventId);
-            } else {
-                log.info("Unhandled event type: {}", eventType);
+            switch (eventType) {
+                case "subscription.created":
+                    handleSubscriptionCreated(webhookEvent, eventId);
+                    break;
+                case "subscription.updated":
+                    handleSubscriptionUpdated(webhookEvent, eventId);
+                    break;
+                case "subscription.canceled":
+//                case "subscription.past_due":
+                    handleSubscriptionDeactivated(webhookEvent, eventId);
+                    break;
+                default:
+                    log.info("Unhandled event type: {}", eventType);
             }
 
             // Mark event as processed
@@ -179,6 +195,38 @@ class WebhookController {
     }
 
     private void handleSubscriptionUpdated(PaddleSubscriptionWebhookEvent webhookEvent, String eventId) {
+        PaddleSubscriptionData data = webhookEvent.getData();
+        if (data.getCustomData() != null && data.getCustomData().containsKey("userId")) {
+            handleCloudSubscriptionUpdated(webhookEvent, eventId);
+        } else {
+            handleSelfHostedSubscriptionUpdated(webhookEvent, eventId);
+        }
+    }
+
+    private void handleCloudSubscriptionUpdated(PaddleSubscriptionWebhookEvent webhookEvent, String eventId) {
+        checkIfCloudVersion();
+        PaddleSubscriptionData data = webhookEvent.getData();
+        long userId = Long.parseLong(data.getCustomData().get("userId"));
+        Optional<OwnUser> optionalOwnUser = userService.findById(userId);
+        if (optionalOwnUser.isPresent()) {
+            OwnUser user = optionalOwnUser.get();
+            Optional<Subscription> optionalSubscription =
+                    subscriptionService.findById(user.getCompany().getSubscription().getId());
+            if (optionalSubscription.isPresent()) {
+                Subscription savedSubscription = optionalSubscription.get();
+                String planCode = data.getCustomData().get("planId");
+                int newUsersCount = data.getItems().get(0).getQuantity();
+
+                paddleService.updateSubscription(savedSubscription, planCode, data.getId(),
+                        new Date(), parseDate(data.getNextBilledAt()), user.getCompany().getId(), newUsersCount);
+
+                subscriptionService.save(savedSubscription);
+                log.info("Successfully updated cloud subscription for user ID: {}, eventId: {}", userId, eventId);
+            } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
+        } else throw new CustomException("User Not Found", HttpStatus.NOT_FOUND);
+    }
+
+    private void handleSelfHostedSubscriptionUpdated(PaddleSubscriptionWebhookEvent webhookEvent, String eventId) {
         try {
             PaddleSubscriptionData data = webhookEvent.getData();
             String paddleSubscriptionId = data.getId();
@@ -252,7 +300,16 @@ class WebhookController {
         }
     }
 
-    private void handleTransactionCompleted(PaddleSubscriptionWebhookEvent webhookEvent, String eventId) {
+    private void handleSubscriptionCreated(PaddleSubscriptionWebhookEvent webhookEvent, String eventId) {
+        PaddleSubscriptionData data = webhookEvent.getData();
+        if (data.getCustomData() != null && data.getCustomData().containsKey("userId")) {
+            handleCloudSubscriptionUpdated(webhookEvent, eventId);
+        } else {
+            handleSelfHostedSubscriptionCreated(webhookEvent, eventId);
+        }
+    }
+
+    private void handleSelfHostedSubscriptionCreated(PaddleSubscriptionWebhookEvent webhookEvent, String eventId) {
         try {
             PaddleSubscriptionData data = webhookEvent.getData();
 
@@ -314,5 +371,37 @@ class WebhookController {
 
             throw new RuntimeException("Failed to process transaction", e);
         }
+    }
+
+    private void handleSubscriptionDeactivated(PaddleSubscriptionWebhookEvent webhookEvent, String eventId) {
+        checkIfCloudVersion();
+        Optional<Subscription> optionalSubscription =
+                subscriptionService.findByPaddleSubscriptionId(webhookEvent.getData().getId());
+        if (optionalSubscription.isPresent()) {
+            Subscription savedSubscription = optionalSubscription.get();
+            subscriptionService.resetToFreePlan(savedSubscription);
+            log.info("Successfully deactivated cloud subscription for paddle subscription ID: {}, eventId: {}",
+                    webhookEvent.getData().getId(), eventId);
+        } else {
+            log.info("Subscription Not found for paddle subscription ID: {}, eventId: {}",
+                    webhookEvent.getData().getId(), eventId);
+        }
+    }
+
+    private Date parseDate(String dateStr) {
+        if (dateStr == null) return null;
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'").parse(dateStr);
+        } catch (ParseException e) {
+            try {
+                return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(dateStr);
+            } catch (ParseException e1) {
+                return null;
+            }
+        }
+    }
+
+    private void checkIfCloudVersion() {
+        if (!cloudVersion) throw new CustomException("Paddle Cloud is not enabled", HttpStatus.FORBIDDEN);
     }
 }

@@ -55,7 +55,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/license/state").permitAll()
                 .antMatchers("/oauth2/**").permitAll()
                 .antMatchers("/login/oauth2/**").permitAll()
-                .antMatchers("/paddle/cloud/**").permitAll()
                 .antMatchers("/health-check").permitAll()
                 .antMatchers("/mail/send").permitAll()
                 .antMatchers("/subscription-plans").permitAll()
