@@ -17,4 +17,13 @@
             <column name="yearly_paddle_price_id" type="varchar"/>
         </addColumn>
     </changeSet>
+    <changeSet id="1767471062837-1" author="Ibrahima (generated)">
+        <addColumn tableName="subscription">
+            <column name="scheduled_change_date" type="timestamp"/>
+            <column name="scheduled_change_type" type="integer"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1767471412649-1" author="Ibrahima (generated)">
+        <dropColumn tableName="subscription" columnName="cancelled"/>
+    </changeSet>
 </databaseChangeLog>

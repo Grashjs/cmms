@@ -3,6 +3,7 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.exception.CustomException;
 import com.grash.model.abstracts.Audit;
+import com.grash.model.enums.SubscriptionScheduledChangeType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,8 +29,6 @@ public class Subscription extends Audit {
 
     private boolean monthly;
 
-    private boolean cancelled;
-
     private boolean activated;
 
     @JsonIgnore
@@ -46,6 +45,10 @@ public class Subscription extends Audit {
     private boolean downgradeNeeded;
 
     private boolean upgradeNeeded;
+
+    private Date scheduledChangeDate;
+
+    private SubscriptionScheduledChangeType scheduledChangeType;
 
     public void setUsersCount(int usersCount) {
         if (usersCount < 1)

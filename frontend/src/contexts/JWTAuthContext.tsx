@@ -35,6 +35,7 @@ import ReactGA from 'react-ga4';
 import { getLicenseValidity } from '../slices/license';
 import { fireGa4Event } from '../utils/overall';
 import { useUtmTracker } from '@nik0di3m/utm-tracker-hook';
+import { addDays } from 'date-fns';
 
 interface AuthState {
   isInitialized: boolean;
@@ -330,7 +331,14 @@ const handlers: Record<
       ...state,
       company: {
         ...state.company,
-        subscription: { ...state.company.subscription, cancelled: true }
+        subscription: {
+          ...state.company.subscription,
+          scheduledChangeType: 'RESET_TO_FREE',
+          scheduledChangeDate: addDays(
+            new Date(),
+            state.company.subscription.monthly ? 30 : 365
+          ).toString()
+        }
       }
     };
   },
@@ -342,7 +350,10 @@ const handlers: Record<
       ...state,
       company: {
         ...state.company,
-        subscription: { ...state.company.subscription, cancelled: false }
+        subscription: {
+          ...state.company.subscription,
+          scheduledChangeType: null
+        }
       }
     };
   },
@@ -701,7 +712,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     }
   };
   const resumeSubscription = async (): Promise<void> => {
-    const response = await api.get<{ success: boolean }>(`fast-spring/resume`);
+    const response = await api.get<{ success: boolean }>(`paddle/resume`);
     const { success } = response;
     if (success) {
       dispatch({

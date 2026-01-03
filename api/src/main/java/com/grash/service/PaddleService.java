@@ -145,10 +145,11 @@ public class PaddleService {
         }
     }
 
-    public void updateSubscription(Subscription savedSubscription, String planCode, String id, Date startsOn,
+    public void updateSubscription(Subscription savedSubscription, String planCode, String paddleSubscriptionId,
+                                   Date startsOn,
                                    Date endsOn, Long companyId, int usersCount) {
         boolean monthly = planCode.toLowerCase().contains("monthly");
-        
+
         int subscriptionUsersCount =
                 (int) userService.findByCompany(companyId).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
         if (usersCount < subscriptionUsersCount) {
@@ -170,21 +171,22 @@ public class PaddleService {
         } else {
             workflowService.disableWorkflows(companyId);
         }
-        savedSubscription.setPaddleSubscriptionId(id);
+        savedSubscription.setPaddleSubscriptionId(paddleSubscriptionId);
         savedSubscription.setSubscriptionPlan(subscriptionPlan);
         savedSubscription.setStartsOn(startsOn);
         savedSubscription.setEndsOn(endsOn);
-        savedSubscription.setCancelled(false);
+        //avoid setting scheduledDate fields
         savedSubscription.setUsersCount(usersCount);
     }
 
-    public void cancelSubscription(String subscriptionId) {
+    public void pauseSubscription(String subscriptionId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(paddleApiKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         restTemplate.exchange(
-                paddleApiUrl + "/subscriptions/" + subscriptionId + "/cancel",
+                paddleApiUrl + "/subscriptions/" + subscriptionId + "/pause",
                 HttpMethod.POST,
                 entity,
                 Object.class
@@ -194,7 +196,10 @@ public class PaddleService {
     public void resumeSubscription(String subscriptionId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(paddleApiKey);
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        Map<String, String> body = new HashMap<>();
+        body.put("effective_from", "immediately");
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
 
         restTemplate.exchange(
                 paddleApiUrl + "/subscriptions/" + subscriptionId + "/resume",

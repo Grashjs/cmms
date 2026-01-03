@@ -406,7 +406,7 @@ function SubscriptionPlans() {
                     startIcon={submitting && <CircularProgress size="1rem" />}
                     disabled={!selectedPlan || submitting}
                   >
-                    {t('request_upgrade')}
+                    {t('upgrade_now')}
                   </Button>
                 </Box>
               </Card>

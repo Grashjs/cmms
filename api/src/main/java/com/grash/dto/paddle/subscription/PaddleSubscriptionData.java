@@ -35,4 +35,8 @@ public class PaddleSubscriptionData {
 
     @JsonProperty("scheduled_change")
     private ScheduledChange scheduledChange;
+
+    @JsonProperty("current_billing_period")
+    private BillingPeriod currentBillingPeriod;
+
 }

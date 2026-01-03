@@ -89,13 +89,14 @@ public class SubscriptionService {
         subscription.setActivated(false);
         subscription.setUsersCount(3);
         subscription.setMonthly(true);
-        subscription.setPaddleSubscriptionId(null);
+//        subscription.setPaddleSubscriptionId(null);
         int currentUsersCount =
                 (int) userRepository.findByCompany_Id(optionalCompany.get().getId()).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
         if (currentUsersCount > subscription.getUsersCount()) {
             subscription.setDowngradeNeeded(true);
         }
-        subscription.setCancelled(false);
+        subscription.setScheduledChangeType(null);
+        subscription.setScheduledChangeDate(null);
         subscription.setSubscriptionPlan(subscriptionPlanService.findByCode("FREE").get());
         subscription.setStartsOn(new Date());
         subscription.setEndsOn(null);

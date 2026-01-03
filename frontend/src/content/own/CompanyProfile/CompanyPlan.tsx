@@ -20,6 +20,7 @@ import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext
 import { isCloudVersion } from '../../../config';
 import { getLicenseValidity } from '../../../slices/license';
 import { useDispatch, useSelector } from 'src/store';
+import subscriptionPlan from '../../../slices/subscriptionPlan';
 
 interface CompanyPlanProps {
   plan: SubscriptionPlan;
@@ -101,6 +102,14 @@ function CompanyPlan(props: CompanyPlanProps) {
                 )
               : ''
           })}
+          {company.subscription.scheduledChangeDate &&
+          company.subscription.scheduledChangeType === 'RESET_TO_FREE'
+            ? ` ${t('subscription_will_cancel_on', {
+                date: new Date(
+                  company.subscription.scheduledChangeDate
+                ).toLocaleDateString(getLanguage === 'fr' ? 'fr-FR' : undefined)
+              })}`
+            : ''}
         </Typography>
         <Box sx={{ mt: 2 }}>
           <Button
@@ -128,7 +137,8 @@ function CompanyPlan(props: CompanyPlanProps) {
             </Button>
           )}
           {company.subscription.activated &&
-            (company.subscription.cancelled ? (
+            (company.subscription.subscriptionPlan.code === 'FREE' &&
+            company.subscription.paddleSubscriptionId ? (
               <Button
                 onClick={() => {
                   setLoadingResume(true);
@@ -146,24 +156,31 @@ function CompanyPlan(props: CompanyPlanProps) {
                 {t('resume_subscription')}
               </Button>
             ) : (
-              <Button
-                onClick={() => {
-                  if (window.confirm(t('confirm_cancel_subscription'))) {
-                    setLoadingCancel(true);
-                    cancelSubscription().finally(() => setLoadingCancel(false));
+              !(
+                company.subscription.scheduledChangeDate &&
+                company.subscription.scheduledChangeType === 'RESET_TO_FREE'
+              ) && (
+                <Button
+                  onClick={() => {
+                    if (window.confirm(t('confirm_cancel_subscription'))) {
+                      setLoadingCancel(true);
+                      cancelSubscription().finally(() =>
+                        setLoadingCancel(false)
+                      );
+                    }
+                  }}
+                  variant="contained"
+                  color="error"
+                  disabled={loadingCancel}
+                  startIcon={
+                    loadingCancel ? (
+                      <CircularProgress color="error" size={'1rem'} />
+                    ) : null
                   }
-                }}
-                variant="contained"
-                color="error"
-                disabled={loadingCancel}
-                startIcon={
-                  loadingCancel ? (
-                    <CircularProgress color="error" size={'1rem'} />
-                  ) : null
-                }
-              >
-                {t('cancel_subscription')}
-              </Button>
+                >
+                  {t('cancel_subscription')}
+                </Button>
+              )
             ))}
         </Box>
       </Box>

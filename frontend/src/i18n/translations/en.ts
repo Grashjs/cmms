@@ -1440,7 +1440,8 @@ const locale = {
     '{{created}} Work Order schedules have been created and {{updated}} have been updated',
   recurrence_type: 'Recurrence type',
   recurrence_based_on: 'Recurrence based on',
-  days_of_week: 'Days of week'
+  days_of_week: 'Days of week',
+  subscription_will_cancel_on: 'Subscription will cancel on {{date}}'
 };
 
 export default locale;

@@ -6,6 +6,7 @@ import com.grash.dto.checkout.CheckoutResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.OwnUser;
 import com.grash.model.Subscription;
+import com.grash.model.enums.SubscriptionScheduledChangeType;
 import com.grash.service.PaddleService;
 import com.grash.service.SubscriptionService;
 import com.grash.service.UserService;
@@ -32,7 +33,7 @@ public class PaddleController {
 
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @GetMapping("/cancel")
-    public SuccessResponse onCancel(HttpServletRequest req) {
+    public SuccessResponse cancel(HttpServletRequest req) {
         checkIfCloudVersion();
         OwnUser user = userService.whoami(req);
         Optional<Subscription> optionalSubscription =
@@ -42,19 +43,17 @@ public class PaddleController {
             if (!savedSubscription.isActivated()) {
                 throw new CustomException("Subscription is not activated", HttpStatus.NOT_ACCEPTABLE);
             }
-            if (savedSubscription.isCancelled()) {
+            if (savedSubscription.getScheduledChangeType() == SubscriptionScheduledChangeType.RESET_TO_FREE) {
                 throw new CustomException("Subscription already cancelled", HttpStatus.NOT_ACCEPTABLE);
             }
-            paddleService.cancelSubscription(savedSubscription.getPaddleSubscriptionId());
-            savedSubscription.setCancelled(true);
-            subscriptionService.save(savedSubscription);
+            paddleService.pauseSubscription(savedSubscription.getPaddleSubscriptionId());
             return new SuccessResponse(true, "Subscription cancelled");
         } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
     }
 
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @GetMapping("/resume")
-    public SuccessResponse onResume(HttpServletRequest req) {
+    public SuccessResponse resume(HttpServletRequest req) {
         checkIfCloudVersion();
         OwnUser user = userService.whoami(req);
         Optional<Subscription> optionalSubscription =
@@ -64,12 +63,7 @@ public class PaddleController {
             if (!savedSubscription.isActivated()) {
                 throw new CustomException("Subscription is not activated", HttpStatus.NOT_ACCEPTABLE);
             }
-            if (!savedSubscription.isCancelled()) {
-                throw new CustomException("Subscription is active", HttpStatus.NOT_ACCEPTABLE);
-            }
             paddleService.resumeSubscription(savedSubscription.getPaddleSubscriptionId());
-            savedSubscription.setCancelled(false);
-            subscriptionService.save(savedSubscription);
             return new SuccessResponse(true, "Subscription resumed");
         } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
     }
