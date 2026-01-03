@@ -3,6 +3,7 @@ package com.grash.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grash.dto.license.*;
 import com.grash.utils.FingerprintGenerator;
+import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,6 +43,14 @@ public class LicenseService {
     private volatile long lastCheckedTime = 0;
 
     public synchronized LicensingState getLicensingState() {
+        //TODO remove
+        if (true) return LicensingState.builder()
+                .valid(true)
+                .hasLicense(true)
+                .expirationDate(Helper.incrementDays(new Date(), 365))
+                .planName("Free")
+                .entitlements(Arrays.stream(LicenseEntitlement.values()).map(Enum::toString).collect(Collectors.toSet()))
+                .usersCount(500).build();
         if (isCacheValid()) {
             return buildLicensingStateFromCache();
         }
