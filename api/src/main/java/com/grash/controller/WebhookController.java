@@ -182,7 +182,13 @@ class WebhookController {
         try {
             PaddleSubscriptionData data = webhookEvent.getData();
             String paddleSubscriptionId = data.getId();
+            String email = data.getCustomData() != null ? data.getCustomData().get("email") : null;
+            String planId = data.getCustomData() != null ? data.getCustomData().get("planId") : null;
+            Integer quantity = data.getItems().get(0).getQuantity();
 
+            String customerName = Optional.ofNullable(data.getBillingDetails())
+                    .map(BillingDetails::getCustomerName)
+                    .orElse(email);
             // A subscription.updated event is fired for many reasons. We only care about renewals which keep it active.
             if (!"active".equalsIgnoreCase(data.getStatus())) {
                 log.info("Subscription {} status is '{}', not an active renewal. Skipping.", paddleSubscriptionId,
@@ -212,6 +218,20 @@ class WebhookController {
 
             keygenService.extendLicense(licenseId, newExpiry);
 
+            Map<String, Object> model = new HashMap<>();
+            model.put("name", customerName);
+            model.put("plan", planId);
+            model.put("usersCount", quantity);
+            model.put("licenseKey", license.getAttributes().getKey());
+            model.put("expiringAt", license.getAttributes().getExpiry());
+
+            emailService.sendMessageUsingThymeleafTemplate(
+                    new String[]{email},
+                    "Atlas CMMS license key renewal",
+                    model,
+                    "checkout-complete.html",
+                    Locale.getDefault()
+            );
             log.info("Successfully extended license {} for Paddle subscription ID: {}", licenseId,
                     paddleSubscriptionId);
 
@@ -263,6 +283,7 @@ class WebhookController {
             Map<String, Object> model = new HashMap<>();
             model.put("name", customerName);
             model.put("plan", planId);
+            model.put("usersCount", quantity);
             model.put("licenseKey", keygenLicenseResponse.getData().getAttributes().getKey());
             model.put("expiringAt", keygenLicenseResponse.getData().getAttributes().getExpiry());
 
