@@ -22,5 +22,5 @@ public interface PartRepository extends JpaRepository<Part, Long>, JpaSpecificat
 
     @Query("SELECT CASE WHEN COUNT(p) > :threshold THEN true ELSE false END " +
             "FROM Part p WHERE p.company.id = :companyId")
-    boolean hasMoreThan(@Param("companyId") Long companyId, @Param("threshold") int threshold);
+    boolean hasMoreThan(@Param("companyId") Long companyId, @Param("threshold") Long threshold);
 }

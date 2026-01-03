@@ -42,7 +42,7 @@ public interface AssetRepository extends JpaRepository<Asset, Long>, JpaSpecific
 
     @Query("SELECT CASE WHEN COUNT(a) > :threshold THEN true ELSE false END " +
             "FROM Asset a WHERE a.company.id = :companyId")
-    boolean hasMoreThan(@Param("companyId") Long companyId, @Param("threshold") int threshold);
+    boolean hasMoreThan(@Param("companyId") Long companyId, @Param("threshold") Long threshold);
 
 }
 

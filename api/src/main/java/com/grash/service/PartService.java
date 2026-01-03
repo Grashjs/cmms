@@ -68,7 +68,7 @@ public class PartService {
     private void checkUsageBasedLimit(Company company) {
         Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_PARTS);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_PARTS)
-                && partRepository.hasMoreThan(company.getId(), threshold
+                && partRepository.hasMoreThan(company.getId(), threshold.longValue()
         ))
             throw new CustomException("You need a license to add a new part. Free Limit reached: " + threshold,
                     HttpStatus.FORBIDDEN);

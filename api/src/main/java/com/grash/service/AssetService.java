@@ -101,7 +101,7 @@ public class AssetService {
     private void checkUsageBasedLimit(Company company) {
         Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ASSETS);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ASSETS)
-                && assetRepository.hasMoreThan(company.getId(), threshold
+                && assetRepository.hasMoreThan(company.getId(), threshold.longValue()
         ))
             throw new CustomException("You need a license to add a new asset. Free Limit reached: " + threshold,
                     HttpStatus.FORBIDDEN);

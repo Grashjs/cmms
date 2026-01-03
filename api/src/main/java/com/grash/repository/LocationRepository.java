@@ -30,5 +30,5 @@ public interface LocationRepository extends JpaRepository<Location, Long>, JpaSp
 
     @Query("SELECT CASE WHEN COUNT(l) > :threshold THEN true ELSE false END " +
             "FROM Location l WHERE l.company.id = :companyId")
-    boolean hasMoreThan(@Param("companyId") Long companyId, @Param("threshold") int threshold);
+    boolean hasMoreThan(@Param("companyId") Long companyId, @Param("threshold") Long threshold);
 }

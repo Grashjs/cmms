@@ -67,7 +67,7 @@ public class ChecklistService {
     private void checkUsageBasedLimit(Company company) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_CHECKLIST)
                 && checklistRepository.hasMoreThan(company.getId(),
-                usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_CHECKLIST)))
+                usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_CHECKLIST).longValue()))
             throw new CustomException("You need a license to add a checklist", HttpStatus.FORBIDDEN);
     }
 

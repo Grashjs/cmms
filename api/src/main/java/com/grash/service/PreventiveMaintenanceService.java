@@ -99,7 +99,7 @@ public class PreventiveMaintenanceService {
     private void checkUsageBasedLimit(Company company) {
         Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_PM_SCHEDULES);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_PM_SCHEDULES)
-                && preventiveMaintenanceRepository.hasMoreThan(company.getId(), threshold
+                && preventiveMaintenanceRepository.hasMoreThan(company.getId(), threshold.longValue()
         ))
             throw new CustomException("You need a license to add a new PM schedule. Free Limit reached: " + threshold,
                     HttpStatus.FORBIDDEN);

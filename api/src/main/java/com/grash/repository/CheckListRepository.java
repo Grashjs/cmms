@@ -12,5 +12,5 @@ public interface CheckListRepository extends JpaRepository<Checklist, Long> {
 
     @Query("SELECT CASE WHEN COUNT(c) > :threshold THEN true ELSE false END " +
             "FROM Checklist c WHERE c.companySettings.company.id = :companyId")
-    boolean hasMoreThan(@Param("companyId") Long companyId, @Param("threshold") int threshold);
+    boolean hasMoreThan(@Param("companyId") Long companyId, @Param("threshold") Long threshold);
 }

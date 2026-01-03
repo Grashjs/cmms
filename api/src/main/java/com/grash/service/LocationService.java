@@ -69,7 +69,7 @@ public class LocationService {
     private void checkUsageBasedLimit(Company company) {
         Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_LOCATIONS);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_LOCATIONS)
-                && locationRepository.hasMoreThan(company.getId(), threshold
+                && locationRepository.hasMoreThan(company.getId(), threshold.longValue()
         ))
             throw new CustomException("You need a license to add a new location. Free Limit reached: " + threshold,
                     HttpStatus.FORBIDDEN);

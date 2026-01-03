@@ -112,7 +112,7 @@ public class WorkOrderService {
     private void checkUsageBasedLimit(Company company) {
         Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)
-                && workOrderRepository.hasMoreActiveThan(company.getId(), threshold
+                && workOrderRepository.hasMoreActiveThan(company.getId(), threshold.longValue()
         ))
             throw new CustomException("You need a license to add a new location. Free Limit reached: " + threshold,
                     HttpStatus.FORBIDDEN);
