@@ -1,7 +1,6 @@
 package com.grash.dto.license;
 
 public enum LicenseEntitlement {
-    CHECKLIST,
     SSO,
     WORK_ORDER_HISTORY,
     WORKFLOW,
@@ -29,7 +28,8 @@ public enum LicenseEntitlement {
     API_ACCESS,//TODO
     UNLIMITED_ASSETS,
     UNLIMITED_LOCATIONS,
-    UNLIMITED_PARTS_INVENTORY,
-    UNLIMITED_WORK_ORDERS,
+    UNLIMITED_PARTS,
     UNLIMITED_PM_SCHEDULES,
+    UNLIMITED_ACTIVE_WORK_ORDERS,
+    UNLIMITED_CHECKLIST,
 }

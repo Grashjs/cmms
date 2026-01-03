@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.grash.utils.Consts.usageBasedLicenseLimits;
+
 @Service
 @RequiredArgsConstructor
 public class ChecklistService {
@@ -30,8 +32,7 @@ public class ChecklistService {
 
     @Transactional
     public Checklist createPost(ChecklistPostDTO checklistReq, Company company) {
-        if (!licenseService.hasEntitlement(LicenseEntitlement.CHECKLIST))
-            throw new CustomException("You need a license to create a checklist", HttpStatus.FORBIDDEN);
+        checkUsageBasedLimit(company);
         List<TaskBase> taskBases = checklistReq.getTaskBases().stream()
                 .map(taskBaseDto -> taskBaseService.createFromTaskBaseDTO(taskBaseDto, company)).collect(Collectors.toList());
         Checklist checklist = Checklist.builder()
@@ -61,6 +62,13 @@ public class ChecklistService {
             em.refresh(updatedChecklist);
             return updatedChecklist;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    private void checkUsageBasedLimit(Company company) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_CHECKLIST)
+                && checklistRepository.hasMoreThan(company.getId(),
+                usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_CHECKLIST)))
+            throw new CustomException("You need a license to add a checklist", HttpStatus.FORBIDDEN);
     }
 
     public Collection<Checklist> getAll() {

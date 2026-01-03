@@ -33,6 +33,8 @@ import javax.persistence.EntityManager;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.grash.utils.Consts.usageBasedLicenseLimits;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -53,7 +55,7 @@ public class PreventiveMaintenanceService {
 
     @Transactional
     public PreventiveMaintenance create(PreventiveMaintenance preventiveMaintenance, OwnUser user) {
-        // Generate custom ID
+        checkUsageBasedLimit(user.getCompany());
         Company company = user.getCompany();
         Long nextSequence = customSequenceService.getNextPreventiveMaintenanceSequence(company);
         preventiveMaintenance.setCustomId("PM" + String.format("%06d", nextSequence));
@@ -94,6 +96,16 @@ public class PreventiveMaintenanceService {
         return preventiveMaintenanceRepository.findByCompany_Id(id);
     }
 
+    private void checkUsageBasedLimit(Company company) {
+        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_PM_SCHEDULES);
+        if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_PM_SCHEDULES)
+                && preventiveMaintenanceRepository.hasMoreThan(company.getId(), threshold
+        ))
+            throw new CustomException("You need a license to add a new PM schedule. Free Limit reached: " + threshold,
+                    HttpStatus.FORBIDDEN);
+
+    }
+
     public Page<PreventiveMaintenanceShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<PreventiveMaintenance> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
@@ -115,7 +127,7 @@ public class PreventiveMaintenanceService {
     }
 
     public List<CalendarEvent<PreventiveMaintenance>> getEvents(Date end, Long companyId) {
-        if(!licenseService.hasEntitlement(LicenseEntitlement.PM_CALENDAR))
+        if (!licenseService.hasEntitlement(LicenseEntitlement.PM_CALENDAR))
             return Collections.emptyList();
         List<PreventiveMaintenance> preventiveMaintenances =
                 preventiveMaintenanceRepository.findByCreatedAtBeforeAndCompany_Id(end, companyId);
@@ -181,7 +193,7 @@ public class PreventiveMaintenanceService {
 
     public void importPreventiveMaintenance(PreventiveMaintenance preventiveMaintenance,
                                             PreventiveMaintenanceImportDTO pmImportDTO, Company company) {
-
+        checkUsageBasedLimit(company);
         Helper.populateWorkOrderBaseFromImportDTO(preventiveMaintenance, pmImportDTO, company, locationService,
                 teamService, userService, assetService, workOrderCategoryService);
 

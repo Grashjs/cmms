@@ -36,6 +36,8 @@ import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.grash.utils.Consts.usageBasedLicenseLimits;
+
 @Service
 @RequiredArgsConstructor
 public class WorkOrderService {
@@ -61,6 +63,7 @@ public class WorkOrderService {
 
     @Value("${frontend.url}")
     private String frontendUrl;
+    private LicenseService licenseService;
 
     @Autowired
     public void setDeps(@Lazy WorkflowService workflowService
@@ -70,6 +73,7 @@ public class WorkOrderService {
 
     @Transactional
     public WorkOrder create(WorkOrder workOrder, Company company) {
+        checkUsageBasedLimit(company);
         if (workOrder instanceof WorkOrderPostDTO) {
             WorkOrderPostDTO workOrderPostDTO = (WorkOrderPostDTO) workOrder;
             workOrder = workOrderMapper.fromPostDto(workOrderPostDTO);
@@ -103,6 +107,15 @@ public class WorkOrderService {
         this.laborService = laborService;
         this.additionalCostService = additionalCostService;
         this.partQuantityService = partQuantityService;
+    }
+
+    private void checkUsageBasedLimit(Company company) {
+        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS);
+        if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)
+                && workOrderRepository.hasMoreActiveThan(company.getId(), threshold
+        ))
+            throw new CustomException("You need a license to add a new location. Free Limit reached: " + threshold,
+                    HttpStatus.FORBIDDEN);
     }
 
     @Transactional
@@ -324,6 +337,7 @@ public class WorkOrderService {
     }
 
     public void importWorkOrder(WorkOrder workOrder, WorkOrderImportDTO dto, Company company) {
+        checkUsageBasedLimit(company);
         Helper.populateWorkOrderBaseFromImportDTO(workOrder, dto, company, locationService, teamService, userService,
                 assetService, workOrderCategoryService);
 
@@ -443,5 +457,10 @@ public class WorkOrderService {
 
     public Collection<WorkOrder> findByAssignedToUserAndCreatedAtBetween(Long id, Date start, Date end) {
         return workOrderRepository.findByAssignedToUserAndCreatedAtBetween(id, start, end);
+    }
+
+    @Autowired
+    public void setLicenseService(LicenseService licenseService) {
+        this.licenseService = licenseService;
     }
 }

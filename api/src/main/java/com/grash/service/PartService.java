@@ -26,6 +26,8 @@ import javax.persistence.EntityManager;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.grash.utils.Consts.usageBasedLicenseLimits;
+
 @Service
 @RequiredArgsConstructor
 public class PartService {
@@ -45,7 +47,8 @@ public class PartService {
     private final LicenseService licenseService;
 
     @Transactional
-    public Part create(Part Part) {
+    public Part create(Part Part, OwnUser user) {
+        checkUsageBasedLimit(user.getCompany());
         Part savedPart = partRepository.saveAndFlush(Part);
         em.refresh(savedPart);
         return savedPart;
@@ -60,6 +63,15 @@ public class PartService {
             return patchedPart;
 
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    private void checkUsageBasedLimit(Company company) {
+        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_PARTS);
+        if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_PARTS)
+                && partRepository.hasMoreThan(company.getId(), threshold
+        ))
+            throw new CustomException("You need a license to add a new part. Free Limit reached: " + threshold,
+                    HttpStatus.FORBIDDEN);
     }
 
     public void consumePart(Long id, double quantity, WorkOrder workOrder, Locale locale) {
@@ -141,6 +153,7 @@ public class PartService {
     }
 
     public void importPart(Part part, PartImportDTO dto, Company company) {
+        checkUsageBasedLimit(company);
         Long companyId = company.getId();
         Long companySettingsId = company.getCompanySettings().getId();
         part.setName(dto.getName());

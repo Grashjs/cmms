@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.parameters.P;
 
 import java.util.Collection;
@@ -37,5 +39,10 @@ public interface AssetRepository extends JpaRepository<Asset, Long>, JpaSpecific
     List<Asset> findByCompany_IdAndCreatedAtBefore(Long id, Date date);
 
     void deleteByCompany_IdAndIsDemoTrue(Long companyId);
+
+    @Query("SELECT CASE WHEN COUNT(a) > :threshold THEN true ELSE false END " +
+            "FROM Asset a WHERE a.company.id = :companyId")
+    boolean hasMoreThan(@Param("companyId") Long companyId, @Param("threshold") int threshold);
+
 }
 

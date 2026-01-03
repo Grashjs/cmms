@@ -31,6 +31,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.grash.utils.Consts.usageBasedLicenseLimits;
+
 @Service
 @RequiredArgsConstructor
 public class AssetService {
@@ -65,6 +67,7 @@ public class AssetService {
 
     @Transactional
     public Asset create(Asset asset, OwnUser user) {
+        checkUsageBasedLimit(user.getCompany());
         if (asset.getParentAsset() != null && !licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY))
             throw new CustomException("You need a license to add a child asset to another asset.",
                     HttpStatus.FORBIDDEN);
@@ -93,6 +96,15 @@ public class AssetService {
             em.refresh(patchedAsset);
             return patchedAsset;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    private void checkUsageBasedLimit(Company company) {
+        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ASSETS);
+        if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ASSETS)
+                && assetRepository.hasMoreThan(company.getId(), threshold
+        ))
+            throw new CustomException("You need a license to add a new asset. Free Limit reached: " + threshold,
+                    HttpStatus.FORBIDDEN);
     }
 
     public Asset save(Asset asset) {
@@ -238,6 +250,7 @@ public class AssetService {
     }
 
     public void importAsset(Asset asset, AssetImportDTO dto, Company company) {
+        checkUsageBasedLimit(company);
         if (!licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY))
             throw new CustomException("You need a license to import assets with hierarchy", HttpStatus.FORBIDDEN);
         Long companySettingsId = company.getCompanySettings().getId();

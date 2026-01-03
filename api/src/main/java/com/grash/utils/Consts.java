@@ -1,16 +1,18 @@
 package com.grash.utils;
 
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.dto.license.SelfHostedPlan;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 //TODO use yaml
 public class Consts {
     public static final String TOKEN_PREFIX = "Bearer ";
 
-    public static List<SelfHostedPlan> selfHostedPlans = Arrays.asList(
+    public static final List<SelfHostedPlan> selfHostedPlans = Arrays.asList(
             SelfHostedPlan.builder()
                     .id("sh-professional-monthly")
                     .paddlePriceId("pri_01kdv3d9rjmp9bjqw6dw70hpc4")
@@ -26,4 +28,16 @@ public class Consts {
                     .name("Business Atlas CMMS license")
                     .build()
     );
+
+    public static final Map<LicenseEntitlement, Integer> usageBasedLicenseLimits =
+            new HashMap<LicenseEntitlement, Integer>() {
+                {
+                    put(LicenseEntitlement.UNLIMITED_CHECKLIST, 10);
+                    put(LicenseEntitlement.UNLIMITED_ASSETS, 100);
+                    put(LicenseEntitlement.UNLIMITED_PARTS, 100);
+                    put(LicenseEntitlement.UNLIMITED_LOCATIONS, 40);
+                    put(LicenseEntitlement.UNLIMITED_PM_SCHEDULES, 20);
+                    put(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS, 30);
+                }
+            };
 }
