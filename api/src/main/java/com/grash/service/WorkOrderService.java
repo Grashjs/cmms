@@ -63,7 +63,7 @@ public class WorkOrderService {
 
     @Value("${frontend.url}")
     private String frontendUrl;
-    private LicenseService licenseService;
+    private final LicenseService licenseService;
 
     @Autowired
     public void setDeps(@Lazy WorkflowService workflowService
@@ -459,8 +459,4 @@ public class WorkOrderService {
         return workOrderRepository.findByAssignedToUserAndCreatedAtBetween(id, start, end);
     }
 
-    @Autowired
-    public void setLicenseService(LicenseService licenseService) {
-        this.licenseService = licenseService;
-    }
 }

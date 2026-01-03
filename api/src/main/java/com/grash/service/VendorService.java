@@ -29,7 +29,7 @@ public class VendorService {
     private AssetService assetService;
     private LocationService locationService;
     private PartService partService;
-    private LicenseService licenseService;
+    private final LicenseService licenseService;
 
     @Autowired
     public void setDeps(@Lazy PartService partService, @Lazy LocationService locationService,
@@ -41,7 +41,7 @@ public class VendorService {
     }
 
     public Vendor create(Vendor Vendor) {
-        if(!licenseService.hasEntitlement(LicenseEntitlement.CUSTOMER_VENDOR))
+        if (!licenseService.hasEntitlement(LicenseEntitlement.CUSTOMER_VENDOR))
             throw new CustomException("You need a license to create a vendor", HttpStatus.FORBIDDEN);
         return vendorRepository.save(Vendor);
     }
@@ -91,8 +91,4 @@ public class VendorService {
         return vendorRepository.findByNameIgnoreCaseAndCompany_Id(name, companyId);
     }
 
-    @Autowired
-    public void setLicenseService(LicenseService licenseService) {
-        this.licenseService = licenseService;
-    }
 }
