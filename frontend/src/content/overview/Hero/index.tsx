@@ -37,6 +37,7 @@ const ImgWrapper = styled(Box)(
     overflow: hidden;
     border-radius: ${theme.general.borderRadiusLg};
     box-shadow: 0 0rem 14rem 0 rgb(255 255 255 / 20%), 0 0.8rem 2.3rem rgb(111 130 156 / 3%), 0 0.2rem 0.7rem rgb(17 29 57 / 15%);
+    aspect-ratio: 1920 / 922;
 
     img {
       display: block;
@@ -81,6 +82,7 @@ const MobileImgWrapper = styled(Box)(
     overflow: hidden;
     border-radius: ${theme.general.borderRadiusLg};
     box-shadow: 0 0rem 14rem 0 rgb(0 0 0 / 20%), 0 0.8rem 2.3rem rgb(0 0 0 / 3%), 0 0.2rem 0.7rem rgb(0 0 0 / 15%);
+    aspect-ratio: 720 / 1600;
 
     img {
       display: block;
@@ -201,11 +203,16 @@ function Hero() {
                 <img
                   alt={brandConfig.name}
                   src="/static/images/overview/work_orders_screenshot.png"
+                  loading={'eager'}
                 />
               </ImgWrapper>
             </RouterLink>
             <MobileImgWrapper>
-              <img alt="Mobile App" src="/static/mobile_app.jpeg" />
+              <img
+                alt="Mobile App"
+                src="/static/mobile_app.jpeg"
+                loading={'eager'}
+              />
             </MobileImgWrapper>
             <BoxAccent
               sx={{
