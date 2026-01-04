@@ -58,7 +58,7 @@ public class ScheduleService {
 
     public void delete(Long id) {
         // Ensure jobs are killed before deleting data
-        stopScheduleTimers(id);
+        stopScheduleJobs(id);
         scheduleRepository.deleteById(id);
     }
 
@@ -215,21 +215,21 @@ public class ScheduleService {
     public void reScheduleWorkOrder(Schedule newSchedule) {
         // Quartz "reschedule" is best handled by deleting and recreating
         // to ensure all parameters (trigger times, data map) are fresh.
-        stopScheduleTimers(newSchedule.getId());
+        stopScheduleJobs(newSchedule.getId());
         scheduleWorkOrder(newSchedule);
     }
 
-    public void stopScheduleTimers(Long id) {
+    public void stopScheduleJobs(Long scheduleId) {
         try {
             // Delete Work Order Job
-            scheduler.deleteJob(new JobKey("wo-job-" + id, "wo-group"));
+            scheduler.deleteJob(new JobKey("wo-job-" + scheduleId, "wo-group"));
 
             // Delete Notification Job (it might not exist, but Quartz handles that gracefully usually, or returns
             // false)
-            scheduler.deleteJob(new JobKey("notif-job-" + id, "notif-group"));
+            scheduler.deleteJob(new JobKey("notif-job-" + scheduleId, "notif-group"));
 
         } catch (SchedulerException e) {
-            log.error("Error stopping quartz jobs for schedule " + id, e);
+            log.error("Error stopping quartz jobs for schedule " + scheduleId, e);
         }
     }
 

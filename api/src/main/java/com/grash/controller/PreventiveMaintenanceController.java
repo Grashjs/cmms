@@ -146,7 +146,7 @@ public class PreventiveMaintenanceController {
 
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent()) {
-            scheduleService.stopScheduleTimers(optionalPreventiveMaintenance.get().getSchedule().getId());
+            scheduleService.stopScheduleJobs(optionalPreventiveMaintenance.get().getSchedule().getId());
             preventiveMaintenanceService.delete(id);
             return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                     HttpStatus.OK);
