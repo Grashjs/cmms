@@ -2,6 +2,7 @@ package com.grash.service;
 
 import com.grash.dto.SubscriptionPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.job.SubscriptionEndJob;
 import com.grash.mapper.SubscriptionMapper;
 import com.grash.model.Company;
 import com.grash.model.OwnUser;
@@ -10,6 +11,8 @@ import com.grash.repository.CompanyRepository;
 import com.grash.repository.SubscriptionRepository;
 import com.grash.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.quartz.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +22,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final CompanyService companyService;
@@ -27,11 +31,13 @@ public class SubscriptionService {
     private final EntityManager em;
     private final CompanyRepository companyRepository;
     private final UserRepository userRepository;
+    private final Scheduler scheduler;
 
     @Transactional
     public Subscription create(Subscription subscription) {
         Subscription savedSubscription = subscriptionRepository.saveAndFlush(subscription);
         em.refresh(savedSubscription);
+        scheduleEnd(savedSubscription);
         return savedSubscription;
     }
 
@@ -43,12 +49,14 @@ public class SubscriptionService {
                     subscriptionRepository.saveAndFlush(subscriptionMapper.updateSubscription(savedSubscription,
                             subscriptionPatchDTO));
             em.refresh(updatedSubscription);
+            scheduleEnd(updatedSubscription);
             return updatedSubscription;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     public void save(Subscription subscription) {
         subscriptionRepository.save(subscription);
+        scheduleEnd(subscription);
     }
 
     public Collection<Subscription> getAll() {
@@ -56,6 +64,11 @@ public class SubscriptionService {
     }
 
     public void delete(Long id) {
+        try {
+            scheduler.deleteJob(new JobKey("subscription-end-job-" + id, "subscription-group"));
+        } catch (SchedulerException e) {
+            log.error("Error stopping quartz job for subscription " + id, e);
+        }
         subscriptionRepository.deleteById(id);
     }
 
@@ -67,14 +80,24 @@ public class SubscriptionService {
         boolean shouldSchedule =
                 !subscription.getSubscriptionPlan().getCode().equals("FREE") && subscription.getEndsOn() != null;
         if (shouldSchedule) {
-            Timer timer = new Timer();
-            TimerTask timerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    resetToFreePlan(subscription);
+            try {
+                JobDetail jobDetail = JobBuilder.newJob(SubscriptionEndJob.class)
+                        .withIdentity("subscription-end-job-" + subscription.getId(), "subscription-group")
+                        .usingJobData("subscriptionId", subscription.getId())
+                        .build();
+
+                Trigger trigger = TriggerBuilder.newTrigger()
+                        .withIdentity("subscription-end-trigger-" + subscription.getId(), "subscription-group")
+                        .startAt(subscription.getEndsOn())
+                        .build();
+
+                if (scheduler.checkExists(jobDetail.getKey())) {
+                    scheduler.deleteJob(jobDetail.getKey());
                 }
-            };
-            timer.schedule(timerTask, subscription.getEndsOn());
+                scheduler.scheduleJob(jobDetail, trigger);
+            } catch (SchedulerException e) {
+                log.error("Error scheduling subscription end job for subscription " + subscription.getId(), e);
+            }
         }
     }
 
@@ -101,5 +124,9 @@ public class SubscriptionService {
         subscription.setStartsOn(new Date());
         subscription.setEndsOn(null);
         subscriptionRepository.save(subscription);
+    }
+
+    public List<Subscription> findPaidAndEnding() {
+        return subscriptionRepository.findPaidAndEnding();
     }
 }

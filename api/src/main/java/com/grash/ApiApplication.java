@@ -158,7 +158,7 @@ public class ApiApplication implements SmartInitializingSingleton {
             }
         });
 
-        Collection<Subscription> subscriptions = subscriptionService.getAll();
+        Collection<Subscription> subscriptions = subscriptionService.findPaidAndEnding();
         log.info("Scheduling {} subscription ends...", subscriptions.size());
         subscriptions.forEach(subscription -> {
             try {
