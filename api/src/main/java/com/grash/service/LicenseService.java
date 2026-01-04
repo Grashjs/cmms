@@ -50,7 +50,7 @@ public class LicenseService {
                 .expirationDate(Helper.incrementDays(new Date(), 365))
                 .planName("Free")
                 .entitlements(Arrays.stream(LicenseEntitlement.values()).map(Enum::toString).collect(Collectors.toSet()))
-                .usersCount(500).build();
+                .usersCount(5000000).build();
         if (isCacheValid()) {
             return buildLicensingStateFromCache();
         }
