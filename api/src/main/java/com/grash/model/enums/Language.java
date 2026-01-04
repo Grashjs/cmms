@@ -1,5 +1,9 @@
 package com.grash.model.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
+import java.util.Arrays;
+
 public enum Language {
     EN,
     FR,
@@ -16,6 +20,14 @@ public enum Language {
     HU,
     NL,
     ZH_CN,
-    ZH
+    ZH;
     //always add new languages at the end
+    
+    @JsonCreator
+    public static Language fromString(String value) {
+        return Arrays.stream(Language.values())
+                .filter(lang -> lang.name().equalsIgnoreCase(value))
+                .findFirst()
+                .orElse(Language.EN); // This is your fallback
+    }
 }
