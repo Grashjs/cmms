@@ -17,7 +17,7 @@ import {
   useTheme
 } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import PlanFeatures from './PlanFeatures';
 import { TitleContext } from '../../../../contexts/TitleContext';
 import { useDispatch, useSelector } from '../../../../store';
@@ -57,6 +57,7 @@ function SubscriptionPlans() {
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { getFormattedCurrency } = useContext(CompanySettingsContext);
   const [submitting, setSubmitting] = useState(false);
+  const checkoutComplete = useRef<boolean>(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   let paddle: Paddle = null;
@@ -67,6 +68,11 @@ function SubscriptionPlans() {
         token: PADDLE_SECRET_TOKEN,
         eventCallback: function (data) {
           if (data.name == 'checkout.completed') {
+            checkoutComplete.current = true;
+          } else if (
+            data.name == 'checkout.closed' &&
+            checkoutComplete.current
+          ) {
             patchSubscription({
               id: randomInt(),
               usersCount,
@@ -423,7 +429,9 @@ function SubscriptionPlans() {
                     size="large"
                     variant="contained"
                     startIcon={submitting && <CircularProgress size="1rem" />}
-                    disabled={!selectedPlan || submitting}
+                    disabled={
+                      !selectedPlan || submitting || selectedPlan == 'FREE'
+                    }
                   >
                     {t('upgrade_now')}
                   </Button>

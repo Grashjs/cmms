@@ -75,7 +75,7 @@ public class SubscriptionController {
         OwnUser user = userService.whoami(req);
         if (user.isOwnsCompany()) {
             int enabledUsersCount =
-                    (int) userService.findByCompany(user.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscription).count();
+                    (int) userService.findByCompany(user.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
             Subscription subscription = user.getCompany().getSubscription();
             int subscriptionUsersCount = subscription.getUsersCount();
             if (enabledUsersCount + usersIds.size() <= subscriptionUsersCount) {
