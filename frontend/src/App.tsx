@@ -25,6 +25,7 @@ import { useDispatch, useSelector } from './store';
 import { useBrand } from './hooks/useBrand';
 import { useTranslation } from 'react-i18next';
 import { UtmTrackerProvider } from '@nik0di3m/utm-tracker-hook';
+import { useLicenseEntitlement } from './hooks/useLicenseEntitlement';
 
 if (!IS_LOCALHOST && googleTrackingId) ReactGA.initialize(googleTrackingId);
 
@@ -96,8 +97,10 @@ function App() {
   const dispatch = useDispatch();
   const { logo } = useBrand();
   const { isInitialized, company, isAuthenticated, user } = useAuth();
-  const { isLicenseValid } = useSelector((state) => state.license);
+  const { state: licensingState } = useSelector((state) => state.license);
+  const hasBrandingEntitlement = useLicenseEntitlement('BRANDING');
   let location = useLocation();
+
   useEffect(() => {
     if (!IS_LOCALHOST && googleTrackingId)
       ReactGA.send({
@@ -132,11 +135,11 @@ function App() {
   }, [user, isInitialized, isAuthenticated, location]);
 
   useEffect(() => {
-    if (isWhiteLabeled) dispatch(getLicenseValidity());
+    dispatch(getLicenseValidity());
   }, []);
 
   useEffect(() => {
-    if (customLogoPaths && isLicenseValid) {
+    if (customLogoPaths && hasBrandingEntitlement) {
       let link: HTMLLinkElement = document.querySelector("link[rel~='icon']");
       if (!link) {
         link = document.createElement('link');
@@ -145,7 +148,7 @@ function App() {
       }
       link.href = logo.dark;
     }
-  }, [logo.dark, isLicenseValid]);
+  }, [logo.dark, hasBrandingEntitlement]);
 
   useEffect(() => {
     if (isCloudVersion) {

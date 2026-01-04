@@ -65,6 +65,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers-pro/AdapterDayjs';
 import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import { useBrand } from '../../../../hooks/useBrand';
+import { getErrorMessage } from '../../../../utils/api';
 
 interface UICondition {
   type: WorkflowConditionType;
@@ -699,11 +700,11 @@ function Workflows() {
               ? onWorkflowCreationSuccess
               : onWorkflowEditSuccess
           )
-          .catch(() =>
+          .catch((err) =>
             showSnackBar(
               t(
                 view === 'create'
-                  ? 'workflow_creation_failure'
+                  ? getErrorMessage(err, 'workflow_creation_failure')
                   : 'workflow_edit_failure'
               ),
               'error'

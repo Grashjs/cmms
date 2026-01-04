@@ -52,10 +52,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/auth/sso/**").permitAll()//
                 .antMatchers("/auth/sendMail").permitAll()//
                 .antMatchers("/auth/resetpwd/**").permitAll()
-                .antMatchers("/license/validity").permitAll()
+                .antMatchers("/license/state").permitAll()
                 .antMatchers("/oauth2/**").permitAll()
                 .antMatchers("/login/oauth2/**").permitAll()
-                .antMatchers("/fast-spring/**").permitAll()
                 .antMatchers("/health-check").permitAll()
                 .antMatchers("/mail/send").permitAll()
                 .antMatchers("/subscription-plans").permitAll()
@@ -64,6 +63,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/newsLetters").permitAll()
                 .antMatchers("/auth/activate-account**").permitAll()//
                 .antMatchers("/demo/generate-account").permitAll()//
+                .antMatchers("/webhooks/**").permitAll()//
+                .antMatchers("/paddle/create-checkout-session").permitAll()//
                 .antMatchers("/auth/reset-pwd-confirm**").permitAll()//
                 .antMatchers("/h2-console/**/**").permitAll()
                 // Disallow everything else..

@@ -4,6 +4,7 @@ import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.RequestPatchDTO;
 import com.grash.dto.RequestShowDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RequestMapper;
 import com.grash.model.*;
@@ -39,9 +40,12 @@ public class RequestService {
     private final RequestMapper requestMapper;
     private final EntityManager em;
     private final CustomSequenceService customSequenceService;
+    private final LicenseService licenseService;
 
     @Transactional
     public Request create(Request request, Company company) {
+        if (request.getAudioDescription() != null && !licenseService.hasEntitlement(LicenseEntitlement.VOICE_NOTES))
+            throw new CustomException("You need a license to add voice notes", HttpStatus.FORBIDDEN);
         Long nextSequence = customSequenceService.getNextRequestSequence(company);
         request.setCustomId("R" + String.format("%06d", nextSequence));
 

@@ -5,6 +5,7 @@ import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.PartPatchDTO;
 import com.grash.dto.PartShowDTO;
 import com.grash.dto.imports.PartImportDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PartMapper;
 import com.grash.model.*;
@@ -25,6 +26,8 @@ import javax.persistence.EntityManager;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.grash.utils.Consts.usageBasedLicenseLimits;
+
 @Service
 @RequiredArgsConstructor
 public class PartService {
@@ -41,9 +44,11 @@ public class PartService {
     private final NotificationService notificationService;
     private final UserService userService;
     private final TeamService teamService;
+    private final LicenseService licenseService;
 
     @Transactional
-    public Part create(Part Part) {
+    public Part create(Part Part, OwnUser user) {
+        checkUsageBasedLimit(user.getCompany());
         Part savedPart = partRepository.saveAndFlush(Part);
         em.refresh(savedPart);
         return savedPart;
@@ -60,6 +65,15 @@ public class PartService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
+    private void checkUsageBasedLimit(Company company) {
+        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_PARTS);
+        if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_PARTS)
+                && partRepository.hasMoreThan(company.getId(), threshold.longValue()
+        ))
+            throw new CustomException("You need a license to add a new part. Free Limit reached: " + threshold,
+                    HttpStatus.FORBIDDEN);
+    }
+
     public void consumePart(Long id, double quantity, WorkOrder workOrder, Locale locale) {
         Part part = findById(id).get();
         part.setQuantity(part.getQuantity() - quantity);
@@ -74,13 +88,13 @@ public class PartService {
             partConsumptionService.save(partConsumption);
         } else {
             String message = messageSource.getMessage("notification_part_low", new Object[]{part.getName()}, locale);
-            if (part.getQuantity() < part.getMinQuantity()) {
-                notificationService.createMultiple(part.getAssignedTo().stream().map(user ->
-                        new Notification(message, user, NotificationType.PART, part.getId())
-                ).collect(Collectors.toList()), true, message);
-            }
-            partConsumptionService.create(new PartConsumption(part, workOrder, quantity));
-            partRepository.save(part);
+                if (part.getQuantity() < part.getMinQuantity() && licenseService.hasEntitlement(LicenseEntitlement.LOW_STOCK_ALERTS)) {
+                    notificationService.createMultiple(part.getAssignedTo().stream().map(user ->
+                            new Notification(message, user, NotificationType.PART, part.getId())
+                    ).collect(Collectors.toList()), true, message);
+                }
+                partConsumptionService.create(new PartConsumption(part, workOrder, quantity));
+                partRepository.save(part);
         }
     }
 
@@ -139,6 +153,7 @@ public class PartService {
     }
 
     public void importPart(Part part, PartImportDTO dto, Company company) {
+        checkUsageBasedLimit(company);
         Long companyId = company.getId();
         Long companySettingsId = company.getCompanySettings().getId();
         part.setName(dto.getName());

@@ -2,6 +2,7 @@ package com.grash.controller;
 
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.WorkflowPostDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkflowActionMapper;
 import com.grash.mapper.WorkflowConditionMapper;
@@ -9,10 +10,7 @@ import com.grash.model.*;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleType;
-import com.grash.service.UserService;
-import com.grash.service.WorkflowActionService;
-import com.grash.service.WorkflowConditionService;
-import com.grash.service.WorkflowService;
+import com.grash.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -42,6 +40,7 @@ public class WorkflowController {
     private final WorkflowConditionService workflowConditionService;
     private final WorkflowActionMapper workflowActionMapper;
     private final WorkflowActionService workflowActionService;
+    private final LicenseService licenseService;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -61,13 +60,16 @@ public class WorkflowController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Workflow create(@ApiParam("Workflow") @Valid @RequestBody WorkflowPostDTO workflowReq, HttpServletRequest req) {
+    public Workflow create(@ApiParam("Workflow") @Valid @RequestBody WorkflowPostDTO workflowReq,
+                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
-            int workflowsCount = (int) workflowService.findByCompany(user.getCompany().getId()).stream().filter(Workflow::isEnabled).count();
-            if (user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.WORKFLOW) || workflowsCount == 0) {
+            int workflowsCount =
+                    (int) workflowService.findByCompany(user.getCompany().getId()).stream().filter(Workflow::isEnabled).count();
+            if ((user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.WORKFLOW) && licenseService.hasEntitlement(LicenseEntitlement.WORKFLOW)) || workflowsCount == 0) {
                 return createWorkflow(workflowReq, user.getCompany());
-            } else throw new CustomException("You can't create a new workflow", HttpStatus.NOT_ACCEPTABLE);
+            } else
+                throw new CustomException("You can't create a new workflow. Please upgrade", HttpStatus.NOT_ACCEPTABLE);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -92,7 +94,8 @@ public class WorkflowController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Workflow not found")})
-    public Workflow patch(@ApiParam("Workflow") @Valid @RequestBody WorkflowPostDTO workflow, @ApiParam("id") @PathVariable("id") Long id,
+    public Workflow patch(@ApiParam("Workflow") @Valid @RequestBody WorkflowPostDTO workflow,
+                          @ApiParam("id") @PathVariable("id") Long id,
                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Workflow> optionalWorkflow = workflowService.findById(id);
@@ -123,8 +126,9 @@ public class WorkflowController {
     }
 
     private Workflow createWorkflow(WorkflowPostDTO workflowReq, Company company) {
-        List<WorkflowCondition> workflowConditions = workflowReq.getSecondaryConditions().stream().map(workflowConditionMapper::toModel)
-                .collect(Collectors.toList());
+        List<WorkflowCondition> workflowConditions =
+                workflowReq.getSecondaryConditions().stream().map(workflowConditionMapper::toModel)
+                        .collect(Collectors.toList());
         Collection<WorkflowCondition> savedWorkOrderConditions = workflowConditionService.saveAll(workflowConditions);
         WorkflowAction workflowAction = workflowActionMapper.toModel(workflowReq.getAction());
         WorkflowAction savedWorkflowAction = workflowActionService.create(workflowAction);

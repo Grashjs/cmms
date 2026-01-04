@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
@@ -25,4 +27,8 @@ public interface LocationRepository extends JpaRepository<Location, Long>, JpaSp
     int countByParentLocation_Id(Long locationId);
 
     void deleteByCompany_IdAndIsDemoTrue(Long companyId);
+
+    @Query("SELECT CASE WHEN COUNT(l) > :threshold THEN true ELSE false END " +
+            "FROM Location l WHERE l.company.id = :companyId")
+    boolean hasMoreThan(@Param("companyId") Long companyId, @Param("threshold") Long threshold);
 }

@@ -1,4 +1,4 @@
-import { pricingPlans } from '../pricingData';
+import { pricingPlans, selfHostedPlans } from '../pricingData';
 import {
   Box,
   Button,
@@ -15,23 +15,92 @@ import {
   useTheme
 } from '@mui/material';
 import CheckCircleOutlineTwoToneIcon from '@mui/icons-material/CheckCircleOutlineTwoTone';
-import { Link as RouterLink } from 'react-router-dom';
-import { boolean } from 'yup';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { fireGa4Event } from '../../../utils/overall';
+import {
+  apiUrl,
+  PADDLE_SECRET_TOKEN,
+  paddleEnvironment
+} from '../../../config';
+import { useEffect, useState } from 'react';
+import EmailModal from './EmailModal';
+import { initializePaddle, Paddle } from '@paddle/paddle-js';
 
 interface SubscriptionPlanSelectorProps {
   monthly: boolean;
   setMonthly: (value: ((prevState: boolean) => boolean) | boolean) => void;
+  selfHosted?: boolean;
 }
 export const PRICING_YEAR_MULTIPLIER: number = 10;
 
 export default function SubscriptionPlanSelector({
   monthly,
-  setMonthly
+  setMonthly,
+  selfHosted
 }: SubscriptionPlanSelectorProps) {
   const theme = useTheme();
   const { t }: { t: any } = useTranslation();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const navigate = useNavigate();
+  let paddle: Paddle = null;
+
+  useEffect(() => {
+    const initPaddle = async () => {
+      paddle = await initializePaddle({
+        token: PADDLE_SECRET_TOKEN,
+        eventCallback: function (data) {
+          if (data.name == 'checkout.completed') {
+            navigate('/payment/success');
+          }
+        }
+      });
+      paddle.Environment.set(paddleEnvironment);
+    };
+    if (modalOpen) initPaddle();
+  }, [modalOpen]);
+
+  const handleOpenModal = (plan) => {
+    setSelectedPlan(plan);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedPlan(null);
+  };
+
+  const handleCheckout = async (email: string) => {
+    if (!selectedPlan) return;
+
+    try {
+      // Create Checkout Session on backend
+      const response = await fetch(`${apiUrl}paddle/create-checkout-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          planId: selectedPlan.id + (monthly ? '-monthly' : '-yearly'),
+          email: email
+        })
+      });
+
+      const data = await response.json();
+      if (data.sessionId) {
+        paddle.Checkout.open({
+          transactionId: data.sessionId,
+          customer: {
+            email: email.trim().toLowerCase()
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Failed to create checkout session:', error);
+    }
+    handleCloseModal();
+  };
 
   return (
     <Box>
@@ -53,7 +122,7 @@ export default function SubscriptionPlanSelector({
         </Stack>
       </Box>
       <Grid container spacing={2} justifyContent="center">
-        {pricingPlans.map((plan, index) => (
+        {(selfHosted ? selfHostedPlans : pricingPlans).map((plan, index) => (
           <Grid item xs={12} md={3} key={plan.id}>
             <Card
               sx={{
@@ -125,30 +194,36 @@ export default function SubscriptionPlanSelector({
                 </Box>
 
                 <List sx={{ mt: 2, flexGrow: 1 }}>
-                  {plan.features.slice(0, 5).map((feature, featureIdx) => (
-                    <ListItem
-                      key={`${plan.id}-${featureIdx}`}
-                      sx={{
-                        px: 0,
-                        py: 0.6
-                      }}
-                    >
-                      <ListItemIcon sx={{ minWidth: 34 }}>
-                        <CheckCircleOutlineTwoToneIcon
-                          sx={{ color: 'primary.main' }}
-                        />
-                      </ListItemIcon>
-                      <ListItemText primary={feature} />
-                    </ListItem>
-                  ))}
+                  {plan.features
+                    .slice(0, selfHosted ? 7 : 5)
+                    .map((feature, featureIdx) => (
+                      <ListItem
+                        key={`${plan.id}-${featureIdx}`}
+                        sx={{
+                          px: 0,
+                          py: 0.6
+                        }}
+                      >
+                        <ListItemIcon sx={{ minWidth: 34 }}>
+                          <CheckCircleOutlineTwoToneIcon
+                            sx={{ color: 'primary.main' }}
+                          />
+                        </ListItemIcon>
+                        <ListItemText primary={feature} />
+                      </ListItem>
+                    ))}
                 </List>
 
                 <Box mt="auto" pt={3}>
                   <Button
                     fullWidth
                     variant="contained"
-                    component={RouterLink}
-                    onClick={() => {
+                    component={
+                      selfHosted && plan.id !== 'sh-free'
+                        ? 'button'
+                        : RouterLink
+                    }
+                    onClick={async () => {
                       if (plan.id !== 'basic') {
                         fireGa4Event({
                           category: 'Pricing',
@@ -158,31 +233,51 @@ export default function SubscriptionPlanSelector({
                             plan.id === 'business' ? 100 : Number(plan.price)
                         });
                       }
+
+                      // Handle Stripe Checkout for self-hosted paid plans
+                      if (selfHosted && plan.id !== 'sh-free') {
+                        handleOpenModal(plan);
+                      }
                     }}
                     to={
-                      '/account/register' +
-                      (plan.id !== 'basic'
-                        ? `?subscription-plan-id=${plan.id}`
-                        : '')
+                      selfHosted && plan.id !== 'sh-free'
+                        ? undefined
+                        : selfHosted
+                        ? '/account/register'
+                        : '/account/register' +
+                          (plan.id !== 'basic'
+                            ? `?subscription-plan-id=${plan.id}`
+                            : '')
                     }
                     sx={{ mb: 1 }}
                   >
-                    {plan.id === 'basic' ? t('Get started') : t('try_for_free')}
+                    {plan.id === 'basic' || plan.id === 'sh-free'
+                      ? t('Get started')
+                      : selfHosted
+                      ? 'Get your license'
+                      : t('try_for_free')}
                   </Button>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    align="center"
-                    display="block"
-                  >
-                    {t('No Credit Card Required.')}
-                  </Typography>
+                  {!selfHosted && (
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      align="center"
+                      display="block"
+                    >
+                      {t('No Credit Card Required.')}
+                    </Typography>
+                  )}
                 </Box>
               </CardContent>
             </Card>
           </Grid>
         ))}
       </Grid>
+      <EmailModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleCheckout}
+      />
     </Box>
   );
 }

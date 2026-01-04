@@ -1,13 +1,13 @@
 package com.grash;
 
 import com.grash.dto.UserSignupRequest;
+import com.grash.dto.license.LicensingState;
 import com.grash.model.*;
 import com.grash.model.enums.*;
+import com.grash.repository.UserRepository;
 import com.grash.service.*;
-import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,8 +16,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @SpringBootApplication
 @RequiredArgsConstructor
@@ -27,6 +25,7 @@ public class ApiApplication implements SmartInitializingSingleton {
 
     private final UserService userService;
     private final UserInvitationService userInvitationService;
+    private final UserRepository userRepository;
     @Value("${superAdmin.role.name}")
     private String superAdminRole;
     private final RoleService roleService;
@@ -34,6 +33,7 @@ public class ApiApplication implements SmartInitializingSingleton {
     private final SubscriptionPlanService subscriptionPlanService;
     private final SubscriptionService subscriptionService;
     private final ScheduleService scheduleService;
+    private final LicenseService licenseService;
 
     public static void main(String[] args) {
         SpringApplication.run(ApiApplication.class, args);
@@ -55,6 +55,8 @@ public class ApiApplication implements SmartInitializingSingleton {
 
             log.info("Updating default roles...");
             roleService.updateDefaultRoles();
+
+            checkLicenseUsersCount();
 
             log.info("Application initialization completed successfully");
         } catch (Exception e) {
@@ -165,6 +167,15 @@ public class ApiApplication implements SmartInitializingSingleton {
                 log.error("Failed to schedule subscription end for subscription ID: {}", subscription.getId(), e);
             }
         });
+    }
+
+
+    private void checkLicenseUsersCount() {
+        LicensingState licensingState = licenseService.getLicensingState();
+        if (licensingState.isHasLicense()) {
+            if (userRepository.hasMorePaidUsersThan(licensingState.getUsersCount()))
+                throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount());
+        }
     }
 
     @NotNull

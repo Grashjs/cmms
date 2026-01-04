@@ -87,3 +87,11 @@ export const demoLink: string = getRuntimeValue('DEMO_LINK');
 export const isWhiteLabeled: boolean = !!(customLogoPaths || brandRawConfig);
 
 export const IS_ORIGINAL_CLOUD = !isWhiteLabeled && isCloudVersion;
+
+export const PADDLE_SECRET_TOKEN: string = getRuntimeValue(
+  'PADDLE_SECRET_TOKEN'
+);
+
+export const paddleEnvironment = getRuntimeValue('PADDLE_ENVIRONMENT') as
+  | 'sandbox'
+  | 'production';

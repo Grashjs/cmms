@@ -1,5 +1,3 @@
-import { alpha } from '@mui/material/styles';
-
 // Pricing plans
 export const pricingPlans: {
   id: string;
@@ -91,7 +89,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -100,7 +101,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -109,7 +113,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -118,7 +125,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -127,7 +137,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -136,7 +149,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -145,7 +161,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -154,7 +173,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -163,7 +185,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -172,7 +197,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -181,7 +209,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: false,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       }
     ]
@@ -195,7 +226,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -204,7 +238,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: false,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': false,
+          'sh-business': true
         }
       },
       {
@@ -213,7 +250,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: false,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': false,
+          'sh-business': true
         }
       }
     ]
@@ -227,7 +267,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -236,7 +279,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -245,7 +291,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -254,7 +303,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -263,7 +315,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -272,7 +327,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -281,7 +339,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -290,7 +351,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -299,7 +363,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -308,7 +375,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -317,7 +387,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -326,7 +399,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -335,7 +411,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       }
     ]
@@ -349,7 +428,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: false,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': false,
+          'sh-business': true
         }
       },
       {
@@ -358,7 +440,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: false,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': false,
+          'sh-business': true
         }
       },
       {
@@ -367,7 +452,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: false,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': false,
+          'sh-business': true
         }
       },
       {
@@ -376,7 +464,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: false,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': false,
+          'sh-business': true
         }
       }
     ]
@@ -390,7 +481,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: '30 Days',
           professional: 'Full',
-          business: 'Full'
+          business: 'Full',
+          'sh-free': true,
+          'sh-professional': 'Full',
+          'sh-business': 'Full'
         }
       },
       {
@@ -399,7 +493,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -408,7 +505,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -417,7 +517,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -426,7 +529,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -435,7 +541,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -444,7 +553,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -453,7 +565,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -462,7 +577,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -471,7 +589,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       }
     ]
@@ -485,7 +606,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: false,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -494,7 +618,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: false,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': false,
+          'sh-business': true
         }
       },
       {
@@ -503,7 +630,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: false,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': false,
+          'sh-business': true
         }
       }
     ]
@@ -517,7 +647,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -526,7 +659,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -535,7 +671,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -544,7 +683,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -553,7 +695,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -562,7 +707,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: false,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': false,
+          'sh-business': true
         }
       },
       {
@@ -571,7 +719,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: false,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': false,
+          'sh-business': true
         }
       }
     ]
@@ -585,7 +736,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -594,7 +748,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -603,7 +760,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       }
     ]
@@ -617,7 +777,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -626,7 +789,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -635,7 +801,10 @@ export const planFeatureCategories = [
           basic: true,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': true,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -644,7 +813,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: true,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -653,7 +825,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': false,
+          'sh-business': true
         }
       },
       {
@@ -662,7 +837,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: false,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': false,
+          'sh-business': true
         }
       },
       {
@@ -671,7 +849,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: true,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': true,
+          'sh-business': true
         }
       },
       {
@@ -680,7 +861,10 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: false,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': false,
+          'sh-business': true
         }
       }
     ]
@@ -694,9 +878,69 @@ export const planFeatureCategories = [
           basic: false,
           starter: false,
           professional: false,
-          business: true
+          business: true,
+          'sh-free': false,
+          'sh-professional': false,
+          'sh-business': true
         }
       }
+    ]
+  }
+];
+// Self-Hosted Pricing plans
+export const selfHostedPlans: {
+  id: string;
+  name: string;
+  price: string;
+  description: string;
+  popular: boolean;
+  features: string[];
+}[] = [
+  {
+    id: 'sh-free',
+    name: 'Basic',
+    price: 'Free',
+    description:
+      'For small teams needing full data sovereignty and basic maintenance tracking on their own infrastructure.',
+    popular: false,
+    features: [
+      'Core Work Order Management',
+      'Asset & Inventory Tracking',
+      'Preventive Maintenance',
+      'Local Data Storage'
+    ]
+  },
+  {
+    id: 'sh-professional',
+    name: 'Professional',
+    price: '15',
+    description:
+      'Ideal for growing plants that require advanced checklists, workflows, and deeper system integration.',
+    popular: true,
+    features: [
+      'Everything in Basic plus:',
+      'Custom Checklists & Procedures',
+      'Automated Workflows',
+      'Webhook Integration',
+      'Meter Readings',
+      'NFC & Barcode Scanning',
+      'Email & Community Support'
+    ]
+  },
+  {
+    id: 'sh-business',
+    name: 'Enterprise',
+    price: '100',
+    description:
+      'Full-scale operations requiring multi-instance management, custom branding, and top-tier security.',
+    popular: false,
+    features: [
+      'Everything in Professional plus:',
+      'Multi-Instance Management',
+      'Single Sign-On (SSO)',
+      'Custom User Roles',
+      'White-label / Custom Branding',
+      'Priority Implementation Support'
     ]
   }
 ];

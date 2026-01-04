@@ -6,6 +6,8 @@ import com.grash.dto.SignupSuccessResponse;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.UserPatchDTO;
 import com.grash.dto.UserSignupRequest;
+import com.grash.dto.license.LicenseEntitlement;
+import com.grash.dto.license.LicensingState;
 import com.grash.event.CompanyCreatedEvent;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
@@ -29,7 +31,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -64,6 +65,7 @@ public class UserService {
     private final BrandingService brandingService;
     private final DemoDataService demoDataService;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final LicenseService licenseService;
 
     @Value("${api.host}")
     private String PUBLIC_API_URL;
@@ -116,6 +118,11 @@ public class UserService {
     }
 
     public SignupSuccessResponse<OwnUser> signup(UserSignupRequest userReq) {
+        LicensingState licensingState = licenseService.getLicensingState();
+        if (licensingState.isHasLicense()) {
+            if (userRepository.hasMorePaidUsersThan(licensingState.getUsersCount() - 1))
+                throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount());
+        }
         OwnUser user = userMapper.toModel(userReq);
         user.setEmail(user.getEmail().toLowerCase());
         if (userRepository.existsByEmailIgnoreCase(user.getEmail())) {
@@ -130,6 +137,8 @@ public class UserService {
         user.setUsername(utils.generateStringId());
         if (user.getRole() == null) {
             //create company with default roles
+            if (!licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE) && companyService.existsAtLeastTwo())
+                throw new CustomException("You need a license to create another company", HttpStatus.FORBIDDEN);
             Subscription subscription =
                     Subscription.builder().usersCount(cloudVersion ? 10 : 100).monthly(cloudVersion)
                             .startsOn(new Date())

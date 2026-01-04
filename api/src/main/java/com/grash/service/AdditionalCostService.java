@@ -1,6 +1,7 @@
 package com.grash.service;
 
 import com.grash.dto.AdditionalCostPatchDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AdditionalCostMapper;
 import com.grash.model.AdditionalCost;
@@ -21,16 +22,16 @@ import java.util.Optional;
 public class AdditionalCostService {
 
     private final AdditionalCostRepository additionalCostRepository;
-    private final CompanyService companyService;
-    private final UserService userService;
-    private final WorkOrderService workOrderService;
     private final EntityManager em;
 
 
     private final AdditionalCostMapper additionalCostMapper;
+    private final LicenseService licenseService;
 
     @Transactional
     public AdditionalCost create(AdditionalCost additionalCost) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.COST_TRACKING))
+            throw new CustomException("You need a license to create a additional cost", HttpStatus.FORBIDDEN);
         AdditionalCost savedAdditionalCost = additionalCostRepository.saveAndFlush(additionalCost);
         em.refresh(savedAdditionalCost);
         return savedAdditionalCost;
@@ -40,7 +41,8 @@ public class AdditionalCostService {
     public AdditionalCost update(Long id, AdditionalCostPatchDTO additionalCost) {
         if (additionalCostRepository.existsById(id)) {
             AdditionalCost savedAdditionalCost = additionalCostRepository.findById(id).get();
-            AdditionalCost updatedAdditionalCost = additionalCostRepository.saveAndFlush(additionalCostMapper.updateAdditionalCost(savedAdditionalCost, additionalCost));
+            AdditionalCost updatedAdditionalCost =
+                    additionalCostRepository.saveAndFlush(additionalCostMapper.updateAdditionalCost(savedAdditionalCost, additionalCost));
             em.refresh(updatedAdditionalCost);
             return updatedAdditionalCost;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

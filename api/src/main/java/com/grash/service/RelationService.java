@@ -2,6 +2,7 @@ package com.grash.service;
 
 import com.grash.dto.RelationPatchDTO;
 import com.grash.dto.RelationPostDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RelationMapper;
 import com.grash.model.Relation;
@@ -29,6 +30,7 @@ public class RelationService {
     private final WorkOrderService workOrderService;
     private final RelationMapper relationMapper;
     private final EntityManager em;
+    private final LicenseService licenseService;
 
     public Relation create(Relation relation) {
         Relation savedRelation = relationRepository.saveAndFlush(relation);
@@ -64,6 +66,9 @@ public class RelationService {
     }
 
     public Relation createPost(RelationPostDTO relationReq) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.WORK_ORDER_LINKING))
+            throw new CustomException("You need a license to link work orders", HttpStatus.FORBIDDEN);
+
         WorkOrder parent = relationReq.getParent();
         WorkOrder child = relationReq.getChild();
         RelationTypeInternal relationType = getRelationTypeInternal(relationReq.getRelationType());

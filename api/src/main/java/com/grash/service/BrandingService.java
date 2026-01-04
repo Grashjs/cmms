@@ -4,6 +4,7 @@ package com.grash.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grash.dto.BrandConfig;
+import com.grash.dto.license.LicenseEntitlement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,7 @@ public class BrandingService {
                 .addressStreet("410, Boulevard Zerktouni, Hamad, №1")
                 .addressCity("Casablanca-Morocco 20040")
                 .build();
-        if (!licenseService.isLicenseValid()) return defaultConfig;
+        if (!licenseService.hasEntitlement(LicenseEntitlement.BRANDING)) return defaultConfig;
         if (brandRawConfig == null || brandRawConfig.isEmpty()) {
             return defaultConfig;
         } else {

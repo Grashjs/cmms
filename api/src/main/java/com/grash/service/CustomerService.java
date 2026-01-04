@@ -3,6 +3,7 @@ package com.grash.service;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.CustomerPatchDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CustomerMapper;
 import com.grash.model.Customer;
@@ -25,22 +26,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CustomerService {
     private final CustomerRepository customerRepository;
-    private final CompanyService companyService;
-    private PartService partService;
-    private LocationService locationService;
-    private AssetService assetService;
     private final CustomerMapper customerMapper;
+    private final LicenseService licenseService;
 
-    @Autowired
-    public void setDeps(@Lazy PartService partService, @Lazy LocationService locationService,
-                        @Lazy AssetService assetService
-    ) {
-        this.partService = partService;
-        this.locationService = locationService;
-        this.assetService = assetService;
-    }
 
     public Customer create(Customer Customer) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.CUSTOMER_VENDOR))
+            throw new CustomException("You need a license to create a contractor", HttpStatus.FORBIDDEN);
         return customerRepository.save(Customer);
     }
 

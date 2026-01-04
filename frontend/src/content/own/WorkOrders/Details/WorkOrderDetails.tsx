@@ -94,6 +94,7 @@ import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
 import PartQuantitiesList from '../../components/PartQuantitiesList';
 import AddFileModal from './AddFileModal';
 import { useBrand } from '../../../../hooks/useBrand';
+import { useLicenseEntitlement } from '../../../../hooks/useLicenseEntitlement';
 
 const LabelWrapper = styled(Box)(
   ({ theme }) => `
@@ -122,6 +123,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const { t }: { t: any } = useTranslation();
   const { user, hasEditPermission, hasDeletePermission } = useAuth();
   const brandConfig = useBrand();
+  const hasWOHistoryEntitlement = useLicenseEntitlement('WORK_ORDER_HISTORY');
   const [openAddTimeModal, setOpenAddTimeModal] = useState<boolean>(false);
   const [openAddFileModal, setOpenAddFileModal] = useState<boolean>(false);
   const [openAddCostModal, setOpenAddCostModal] = useState<boolean>(false);
@@ -1319,23 +1321,30 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
             </Box>
           </Box>
         )}
-        {currentTab == 'updates' && (
-          <List>
-            {[...currentWorkOrderHistories]
-              .reverse()
-              .map((workOrderHistory) => (
-                <ListItem
-                  key={workOrderHistory.id}
-                  secondaryAction={getFormattedDate(workOrderHistory.createdAt)}
-                >
-                  <ListItemText
-                    primary={`${workOrderHistory.user.firstName} ${workOrderHistory.user.lastName}`}
-                    secondary={workOrderHistory.name}
-                  />
-                </ListItem>
-              ))}
-          </List>
-        )}
+        {currentTab == 'updates' &&
+          (hasWOHistoryEntitlement ? (
+            <List>
+              {[...currentWorkOrderHistories]
+                .reverse()
+                .map((workOrderHistory) => (
+                  <ListItem
+                    key={workOrderHistory.id}
+                    secondaryAction={getFormattedDate(
+                      workOrderHistory.createdAt
+                    )}
+                  >
+                    <ListItemText
+                      primary={`${workOrderHistory.user.firstName} ${workOrderHistory.user.lastName}`}
+                      secondary={workOrderHistory.name}
+                    />
+                  </ListItem>
+                ))}
+            </List>
+          ) : (
+            <Typography textAlign={'center'}>
+              You need a license to see Work Order history
+            </Typography>
+          ))}
       </Grid>
       <AddTimeModal
         open={openAddTimeModal}

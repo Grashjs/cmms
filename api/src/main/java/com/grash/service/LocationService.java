@@ -5,6 +5,7 @@ import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.LocationPatchDTO;
 import com.grash.dto.LocationShowDTO;
 import com.grash.dto.imports.LocationImportDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.LocationMapper;
 import com.grash.model.*;
@@ -25,6 +26,8 @@ import javax.persistence.EntityManager;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.grash.utils.Consts.usageBasedLicenseLimits;
+
 @Service
 @RequiredArgsConstructor
 public class LocationService {
@@ -40,9 +43,11 @@ public class LocationService {
     private final EntityManager em;
     private final FileService fileService;
     private final CustomSequenceService customSequenceService;
+    private final LicenseService licenseService;
 
     @Transactional
     public Location create(Location location, Company company) {
+        checkUsageBasedLimit(company);
         location.setCustomId(getLocationNumber(company));
 
         Location savedLocation = locationRepository.saveAndFlush(location);
@@ -59,6 +64,16 @@ public class LocationService {
             em.refresh(patchedLocation);
             return patchedLocation;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    private void checkUsageBasedLimit(Company company) {
+        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_LOCATIONS);
+        if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_LOCATIONS)
+                && locationRepository.hasMoreThan(company.getId(), threshold.longValue()
+        ))
+            throw new CustomException("You need a license to add a new location. Free Limit reached: " + threshold,
+                    HttpStatus.FORBIDDEN);
+
     }
 
     public Collection<Location> getAll() {
@@ -126,6 +141,7 @@ public class LocationService {
     }
 
     public void importLocation(Location location, LocationImportDTO dto, Company company) {
+        checkUsageBasedLimit(company);
         Long companyId = company.getId();
         location.setName(dto.getName());
         location.setAddress(dto.getAddress());

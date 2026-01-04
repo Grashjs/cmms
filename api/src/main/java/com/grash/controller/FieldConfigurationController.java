@@ -1,12 +1,14 @@
 package com.grash.controller;
 
 import com.grash.dto.FieldConfigurationPatchDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.model.FieldConfiguration;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.service.FieldConfigurationService;
+import com.grash.service.LicenseService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -29,6 +31,7 @@ public class FieldConfigurationController {
 
     private final FieldConfigurationService fieldConfigurationService;
     private final UserService userService;
+    private final LicenseService licenseService;
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
@@ -38,6 +41,8 @@ public class FieldConfigurationController {
             @ApiResponse(code = 404, message = "FieldConfiguration not found")})
     public FieldConfiguration patch(@ApiParam("FieldConfiguration") @Valid @RequestBody FieldConfigurationPatchDTO fieldConfiguration, @ApiParam("id") @PathVariable("id") Long id,
                                     HttpServletRequest req) {
+        if(!licenseService.hasEntitlement(LicenseEntitlement.FIELD_CONFIGURATION))
+            throw new CustomException("You need a license to edit field configurations", HttpStatus.FORBIDDEN);
         OwnUser user = userService.whoami(req);
         Optional<FieldConfiguration> optionalFieldConfiguration = fieldConfigurationService.findById(id);
 

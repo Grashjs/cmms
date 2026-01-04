@@ -28,10 +28,15 @@ import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContex
 import { SubscriptionPlan } from '../../../../models/owns/subscriptionPlan';
 import { useNavigate } from 'react-router-dom';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
-import { Order } from '../../../../models/owns/fastspring';
 import api from '../../../../utils/api';
 import { useBrand } from '../../../../hooks/useBrand';
 import { fireGa4Event } from '../../../../utils/overall';
+import { initializePaddle, Paddle } from '@paddle/paddle-js';
+import {
+  apiUrl,
+  PADDLE_SECRET_TOKEN,
+  paddleEnvironment
+} from '../../../../config';
 
 function SubscriptionPlans() {
   const { t }: { t: any } = useTranslation();
@@ -54,6 +59,27 @@ function SubscriptionPlans() {
   const [submitting, setSubmitting] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  let paddle: Paddle = null;
+
+  useEffect(() => {
+    const initPaddle = async () => {
+      paddle = await initializePaddle({
+        token: PADDLE_SECRET_TOKEN,
+        eventCallback: function (data) {
+          if (data.name == 'checkout.completed') {
+            patchSubscription({
+              id: randomInt(),
+              usersCount,
+              monthly: period === 'monthly',
+              subscriptionPlan: selectedPlanObject
+            }).then(onSubcriptionPatchSuccess);
+          }
+        }
+      });
+      paddle.Environment.set(paddleEnvironment);
+    };
+    initPaddle();
+  }, [usersCount, period, selectedPlanObject?.code]);
 
   useEffect(() => {
     setTitle(t('plans'));
@@ -68,42 +94,42 @@ function SubscriptionPlans() {
     }
   }, [subscriptionPlans]);
 
-  const [country, setCountry] = useState('US');
-  const buyProduct = () => {
-    let path;
-    switch (selectedPlanObject.code) {
-      case 'STARTER':
-        path = 'starter';
-        break;
-      case 'BUSINESS':
-        path = 'business';
-        break;
-      case 'PROFESSIONAL':
-        path = 'professional';
-        break;
-      default:
-        break;
+  const buyProduct = async () => {
+    setSubmitting(true);
+    if (selectedPlanObject.code === 'BUSINESS') {
+      onUpgradeRequest();
+      return;
     }
-    path = `${path}-${period === 'monthly' ? 'monthly' : 'annually'}`;
-    // @ts-ignore
-    window.fastspring.builder.push({
-      products: [
-        {
-          path,
+    let path = selectedPlanObject.code.toLowerCase();
+    path = `${path}-${period === 'monthly' ? 'monthly' : 'yearly'}`;
+    try {
+      // Create Checkout Session on backend
+      const response = await fetch(`${apiUrl}paddle/create-checkout-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          planId: path,
+          userId: user.id,
           quantity: usersCount
-        }
-      ],
-      paymentContact: {
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        phoneNumber: user?.phone ?? null
-      },
-      tags: {
-        userId: user.id
-      },
-      checkout: true
-    });
+        })
+      });
+
+      const data = await response.json();
+      if (data.sessionId) {
+        paddle.Checkout.open({
+          transactionId: data.sessionId,
+          customer: {
+            email: user.email.trim().toLowerCase()
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Failed to create checkout session:', error);
+    } finally {
+      setSubmitting(false);
+    }
   };
   const onUpgradeRequest = async () => {
     setSubmitting(true);
@@ -136,50 +162,6 @@ function SubscriptionPlans() {
       setSubmitting(false);
     }
   };
-  useEffect(() => {
-    const onNewOrder = (order: Order) => {
-      setUsersCount(order.items[0].quantity);
-    };
-    // Add SBL script programatically
-    const scriptId = 'fsc-api';
-    const existingScript = document.getElementById(scriptId);
-    if (!existingScript) {
-      const storeFrontToUse = 'grash.test.onfastspring.com/popup-grash';
-      const script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.id = scriptId;
-      script.src =
-        'https://d1f8f9xcsvx3ha.cloudfront.net/sbl/0.9.3/fastspring-builder.js';
-      script.dataset.storefront = storeFrontToUse;
-      // Make sure to add callback function to window so that the DOM is aware of it
-      // @ts-ignore
-      window.onNewOrder = onNewOrder;
-      script.setAttribute('data-data-callback', 'fastSpringCallBack');
-      script.setAttribute('data-popup-webhook-received', 'onNewOrder');
-      document.body.appendChild(script);
-    }
-    return () => {
-      document.body.removeChild(existingScript);
-    };
-  }, []);
-
-  useEffect(() => {
-    // @ts-ignore
-    window.onPopupClosed = (data: { id: string | null }) => {
-      if (data?.id) {
-        patchSubscription({
-          id: randomInt(),
-          usersCount,
-          monthly: period === 'monthly',
-          subscriptionPlan: selectedPlanObject
-        }).then(onSubcriptionPatchSuccess);
-      } else {
-        onSubcriptionPatchFailure();
-      }
-    };
-    const script = document.getElementById('fsc-api');
-    if (script) script.setAttribute('data-popup-closed', 'onPopupClosed');
-  }, [selectedPlanObject]);
 
   const periods = [
     { name: t('monthly'), value: 'monthly' },
@@ -437,13 +419,13 @@ function SubscriptionPlans() {
                     </Typography>
                   )}
                   <Button
-                    onClick={onUpgradeRequest}
+                    onClick={buyProduct}
                     size="large"
                     variant="contained"
                     startIcon={submitting && <CircularProgress size="1rem" />}
                     disabled={!selectedPlan || submitting}
                   >
-                    {t('request_upgrade')}
+                    {t('upgrade_now')}
                   </Button>
                 </Box>
               </Card>

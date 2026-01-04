@@ -1245,6 +1245,9 @@ const locale = {
   verify_email_title: 'Verify Email',
   verify_email_description:
     "A verification email has been sent to you. Check the spams if you don't see it in your inbox.",
+  payment_success_title: 'Payment Successful!',
+  payment_success_description:
+    'Your payment was processed successfully. Please check your email for your license details.',
   upgrade: 'Upgrade',
   downgrade: 'Downgrade',
   upgrade_description:
@@ -1408,8 +1411,7 @@ const locale = {
   ui_configuration: 'UI configuration',
   password_leave_empty_if_you_dont_want_to_change:
     "Password - leave empty if you don't want to change it",
-  upgrade_request_success:
-    "Upgrade request received! We'll contact you soon with payment details",
+  upgrade_request_success: "Upgrade request received! We'll contact you soon",
   continue_with_sso: 'Continue with SSO',
   see_live_demo: 'See live demo',
   demo_warning:
@@ -1441,6 +1443,8 @@ const locale = {
   days_of_week: 'Days of week',
   no_recent_work_orders: 'No recent work orders',
   recent_work_orders: 'Recent work orders'
+  days_of_week: 'Days of week',
+  subscription_will_cancel_on: 'Subscription will cancel on {{date}}'
 };
 
 export default locale;

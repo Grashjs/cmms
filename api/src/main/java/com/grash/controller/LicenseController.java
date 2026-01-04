@@ -3,6 +3,7 @@ package com.grash.controller;
 import com.grash.dto.FloorPlanPatchDTO;
 import com.grash.dto.FloorPlanShowDTO;
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.license.LicensingState;
 import com.grash.exception.CustomException;
 import com.grash.mapper.FloorPlanMapper;
 import com.grash.model.FloorPlan;
@@ -35,8 +36,8 @@ public class LicenseController {
 
     private final LicenseService licenseService;
 
-    @GetMapping("/validity")
-    public SuccessResponse getValidity(HttpServletRequest req) {
-        return new SuccessResponse(licenseService.isLicenseValid(), "");
+    @GetMapping("/state")
+    public LicensingState getValidity(HttpServletRequest req) {
+        return licenseService.getLicensingState();
     }
 }

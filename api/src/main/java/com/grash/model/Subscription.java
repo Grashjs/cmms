@@ -3,6 +3,7 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.exception.CustomException;
 import com.grash.model.abstracts.Audit;
+import com.grash.model.enums.SubscriptionScheduledChangeType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,12 +29,10 @@ public class Subscription extends Audit {
 
     private boolean monthly;
 
-    private boolean cancelled;
-
     private boolean activated;
 
     @JsonIgnore
-    private String fastSpringId;
+    private String paddleSubscriptionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
@@ -47,8 +46,13 @@ public class Subscription extends Audit {
 
     private boolean upgradeNeeded;
 
+    private Date scheduledChangeDate;
+
+    private SubscriptionScheduledChangeType scheduledChangeType;
+
     public void setUsersCount(int usersCount) {
-        if (usersCount < 1) throw new CustomException("Users count should not be less than 1", HttpStatus.NOT_ACCEPTABLE);
+        if (usersCount < 1)
+            throw new CustomException("Users count should not be less than 1", HttpStatus.NOT_ACCEPTABLE);
         this.usersCount = usersCount;
     }
 }

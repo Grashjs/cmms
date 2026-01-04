@@ -6,6 +6,7 @@ import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.FilePatchDTO;
 import com.grash.dto.FileShowDTO;
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.factory.StorageServiceFactory;
 import com.grash.mapper.FileMapper;
@@ -14,6 +15,7 @@ import com.grash.model.OwnUser;
 import com.grash.model.Task;
 import com.grash.model.enums.*;
 import com.grash.service.FileService;
+import com.grash.service.LicenseService;
 import com.grash.service.TaskService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -44,6 +46,7 @@ public class FileController {
     private final UserService userService;
     private final TaskService taskService;
     private final FileMapper fileMapper;
+    private final LicenseService licenseService;
 
     @PostMapping(value = "/upload", produces = "application/json")
     public List<FileShowDTO> handleFileUpload(@RequestParam("files") MultipartFile[] filesReq,
@@ -51,6 +54,8 @@ public class FileController {
                                               @RequestParam("hidden") String hidden, HttpServletRequest req,
                                               @RequestParam("type") FileType fileType,
                                               @RequestParam(value = "taskId", required = false) Integer taskId) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.FILE_ATTACHMENTS))
+            throw new CustomException("You need a license to add a file", HttpStatus.FORBIDDEN);
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.FILES) &&
                 user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.FILE)) {

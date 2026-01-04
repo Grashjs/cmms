@@ -65,6 +65,7 @@ import { canAddReading, onSearchQueryChange } from '../../../utils/overall';
 import SearchInput from '../components/SearchInput';
 import { useGridApiRef } from '@mui/x-data-grid-pro';
 import useGridStatePersist from '../../../hooks/useGridStatePersist';
+import { getErrorMessage } from '../../../utils/api';
 
 const LabelWrapper = styled(Box)(
   ({ theme }) => `
@@ -212,12 +213,13 @@ function Meters() {
     showSnackBar(t('meter_create_success'), 'success');
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('meter_create_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('meter_create_failure')), 'error');
   const onEditSuccess = () => {
     setOpenUpdateModal(false);
     showSnackBar(t('changes_saved_success'), 'success');
   };
-  const onEditFailure = (err) => showSnackBar(t('meter_edit_failure'), 'error');
+  const onEditFailure = (err) =>
+    showSnackBar(getErrorMessage(err, t('meter_edit_failure')), 'error');
   const onDeleteSuccess = () => {
     showSnackBar(t('meter_delete_success'), 'success');
   };

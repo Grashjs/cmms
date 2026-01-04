@@ -3,11 +3,10 @@ package com.grash.service;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.VendorPatchDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.VendorMapper;
-import com.grash.model.OwnUser;
 import com.grash.model.Vendor;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.VendorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +29,7 @@ public class VendorService {
     private AssetService assetService;
     private LocationService locationService;
     private PartService partService;
+    private final LicenseService licenseService;
 
     @Autowired
     public void setDeps(@Lazy PartService partService, @Lazy LocationService locationService,
@@ -41,6 +41,8 @@ public class VendorService {
     }
 
     public Vendor create(Vendor Vendor) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.CUSTOMER_VENDOR))
+            throw new CustomException("You need a license to create a vendor", HttpStatus.FORBIDDEN);
         return vendorRepository.save(Vendor);
     }
 
@@ -88,4 +90,5 @@ public class VendorService {
     public Optional<Vendor> findByNameIgnoreCaseAndCompany(String name, Long companyId) {
         return vendorRepository.findByNameIgnoreCaseAndCompany_Id(name, companyId);
     }
+
 }

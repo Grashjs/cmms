@@ -73,6 +73,8 @@ security:
       secret-key: ${JWT_SECRET_KEY}
       expire-length: 1209600000 # 1000*60*60*24*14
   invitation-via-email: ${INVITATION_VIA_EMAIL}
+  cors:
+    enabled: ${ENABLE_CORS:true}
 frontend:
   url: ${PUBLIC_FRONT_URL}
 mail:
@@ -117,3 +119,11 @@ white-labeling:
   logo-paths: ${LOGO_PATHS:}
   custom-colors: ${CUSTOM_COLORS:}
   brand-config: ${BRAND_CONFIG:}
+
+paddle:
+  api-key: ${PADDLE_API_KEY:}
+  environment: ${PADDLE_ENVIRONMENT:sandbox}
+  webhook-secret-key: ${PADDLE_WEBHOOK_SECRET_KEY:}
+keygen:
+  product-token: ${KEYGEN_PRODUCT_TOKEN}
+  account-id: 1ca3e517-f3d8-473f-a45c-81069900acb7

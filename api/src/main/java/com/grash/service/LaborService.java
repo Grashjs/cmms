@@ -1,6 +1,7 @@
 package com.grash.service;
 
 import com.grash.dto.LaborPatchDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.LaborMapper;
 import com.grash.model.Labor;
@@ -31,9 +32,12 @@ public class LaborService {
     private final WorkOrderService workOrderService;
     private final LaborMapper laborMapper;
     private final EntityManager em;
+    private final LicenseService licenseService;
 
     @Transactional
     public Labor create(Labor labor) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.TIME_TRACKING))
+            throw new CustomException("You need a license to create a labor", HttpStatus.FORBIDDEN);
         Labor savedLabor = laborRepository.saveAndFlush(labor);
         em.refresh(savedLabor);
         return savedLabor;

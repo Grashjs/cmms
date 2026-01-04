@@ -100,7 +100,7 @@ public class PartController {
                     throw new CustomException("Part with same barcode exists", HttpStatus.NOT_ACCEPTABLE);
                 }
             }
-            Part savedPart = partService.create(partReq);
+            Part savedPart = partService.create(partReq, user);
             partService.notify(savedPart, Helper.getLocale(user));
             return partMapper.toShowDto(savedPart);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -132,7 +132,7 @@ public class PartController {
                 Part patchedPart = partService.update(id, part);
                 Collection<Workflow> workflows =
                         workflowService.findByMainConditionAndCompany(WFMainCondition.PART_UPDATED,
-                        user.getCompany().getId());
+                                user.getCompany().getId());
                 workflows.forEach(workflow -> workflowService.runPart(workflow, patchedPart));
                 partService.patchNotify(savedPart, patchedPart, Helper.getLocale(user));
                 return partMapper.toShowDto(patchedPart);

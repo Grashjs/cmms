@@ -5,6 +5,7 @@ import com.grash.dto.AssetMiniDTO;
 import com.grash.dto.AssetPatchDTO;
 import com.grash.dto.AssetShowDTO;
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetMapper;
 import com.grash.model.Asset;
@@ -16,10 +17,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import com.grash.security.CurrentUser;
-import com.grash.service.AssetService;
-import com.grash.service.LocationService;
-import com.grash.service.PartService;
-import com.grash.service.UserService;
+import com.grash.service.*;
 import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -58,6 +56,7 @@ public class AssetController {
     private final PartService partService;
     private final MessageSource messageSource;
     private final EntityManager em;
+    private final LicenseService licenseService;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -84,6 +83,8 @@ public class AssetController {
             @ApiResponse(code = 404, message = "Asset not found")})
     public AssetShowDTO getByNfcId(@RequestParam String nfcId,
                                    @ApiIgnore @CurrentUser OwnUser user) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.NFC_BARCODE))
+            throw new CustomException("You need a license to scan an asset", HttpStatus.FORBIDDEN);
         Optional<Asset> optionalAsset = assetService.findByNfcIdAndCompany(nfcId, user.getCompany().getId());
         return getAsset(optionalAsset, user);
     }
@@ -96,6 +97,8 @@ public class AssetController {
             @ApiResponse(code = 404, message = "Asset not found")})
     public AssetShowDTO getByBarcode(@RequestParam String data,
                                      @ApiIgnore @CurrentUser OwnUser user) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.NFC_BARCODE))
+            throw new CustomException("You need a license to scan an asset", HttpStatus.FORBIDDEN);
         Optional<Asset> optionalAsset = assetService.findByBarcodeAndCompany(data, user.getCompany().getId());
         return getAsset(optionalAsset, user);
     }
