@@ -1442,8 +1442,7 @@ const locale = {
   recurrence_based_on: 'Recurrence based on',
   days_of_week: 'Days of week',
   no_recent_work_orders: 'No recent work orders',
-  recent_work_orders: 'Recent work orders'
-  days_of_week: 'Days of week',
+  recent_work_orders: 'Recent work orders',
   subscription_will_cancel_on: 'Subscription will cancel on {{date}}'
 };
 
