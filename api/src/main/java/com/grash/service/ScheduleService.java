@@ -71,10 +71,19 @@ public class ScheduleService {
     }
 
     public void scheduleWorkOrder(Schedule schedule) {
+        int limit = 5;
         PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
+        Page<WorkOrder> workOrdersPage = workOrderService.findLastByPM(preventiveMaintenance.getId(), limit);
+
+        boolean isStale = false;
+        if (workOrdersPage.getTotalElements() >= limit && workOrdersPage.getContent().stream().allMatch(workOrder -> workOrder.getFirstTimeToReact() == null)) {
+            isStale = true;
+            schedule.setDisabled(true);
+            scheduleRepository.save(schedule);
+        }
 
         boolean shouldSchedule =
-                !schedule.isDisabled() && (schedule.getEndsOn() == null || schedule.getEndsOn().after(new Date()));
+                !schedule.isDisabled() && (schedule.getEndsOn() == null || schedule.getEndsOn().after(new Date())) && !isStale;
 
         if (shouldSchedule) {
             try {
@@ -82,7 +91,6 @@ public class ScheduleService {
                 Date startsOn = schedule.getStartsOn();
 
                 if (schedule.getRecurrenceBasedOn() == RecurrenceBasedOn.COMPLETED_DATE) {
-                    Page<WorkOrder> workOrdersPage = workOrderService.findLastByPM(preventiveMaintenance.getId(), 1);
                     if (workOrdersPage.isEmpty()) {
                         scheduleBuilder = SimpleScheduleBuilder.simpleSchedule()
                                 .withRepeatCount(0);
