@@ -411,4 +411,8 @@ public class ScheduleService {
             }
         }
     }
+
+    public Collection<Schedule> findActive() {
+        return scheduleRepository.findByActive();
+    }
 }

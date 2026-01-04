@@ -12,4 +12,8 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     Collection<Schedule> findByCompany_Id(@Param("x") Long id);
 
     void deleteByPreventiveMaintenanceCompany_IdAndIsDemoTrue(Long companyId);
+
+    @Query("SELECT s from Schedule s where s.disabled = false AND (s.endsOn=null OR s.endsOn>CURRENT_DATE )")
+    Collection<Schedule> findByActive();
+
 }

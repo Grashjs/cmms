@@ -15,6 +15,12 @@ spring:
   jackson:
     serialization:
       fail-on-empty-beans: false
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: never
+    properties:
+      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
   liquibase:
     change-log: classpath:/db/master.xml
     enabled: true

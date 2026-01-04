@@ -148,7 +148,7 @@ public class ApiApplication implements SmartInitializingSingleton {
     }
 
     private void scheduleExistingItems() {
-        Collection<Schedule> schedules = scheduleService.getAll();
+        Collection<Schedule> schedules = scheduleService.findActive();
         log.info("Scheduling {} work orders...", schedules.size());
         schedules.forEach(schedule -> {
             try {

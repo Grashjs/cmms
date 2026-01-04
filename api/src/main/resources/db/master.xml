@@ -168,4 +168,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_01_03_1767462867_subscription_paddle.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_01_04_1767500000_quartz_tables.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>
