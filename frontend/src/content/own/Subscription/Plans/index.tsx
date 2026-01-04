@@ -102,7 +102,7 @@ function SubscriptionPlans() {
 
   const buyProduct = async () => {
     setSubmitting(true);
-    if (selectedPlanObject.code === 'BUSINESS') {
+    if (selectedPlan === 'BUSINESS' || selectedPlanObject.code === 'BUSINESS') {
       onUpgradeRequest();
       return;
     }
@@ -159,6 +159,7 @@ function SubscriptionPlans() {
       );
       if (success) {
         showSnackBar(t('upgrade_request_success'), 'success');
+        navigate('/app/work-orders');
         return;
       }
     } catch (err) {
