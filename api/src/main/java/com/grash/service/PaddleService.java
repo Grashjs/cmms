@@ -152,11 +152,18 @@ public class PaddleService {
 
         int subscriptionUsersCount =
                 (int) userService.findByCompany(companyId).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
-        savedSubscription.setDowngradeNeeded(usersCount < subscriptionUsersCount);
-        if (usersCount > subscriptionUsersCount) {//ignore usersCount=subscriptionUsersCount
+
+        if (usersCount < subscriptionUsersCount) {
+            savedSubscription.setDowngradeNeeded(true);
+            savedSubscription.setUpgradeNeeded(false);
+        } else if (usersCount == subscriptionUsersCount) {
+            savedSubscription.setDowngradeNeeded(false);
+            savedSubscription.setUpgradeNeeded(false);
+        } else {
             int usersNotInSubscriptionCount =
                     (int) userService.findByCompany(companyId).stream().filter(user1 -> user1.isEnabled() && user1.getRole().isPaid() && !user1.isEnabledInSubscription()).count();
             savedSubscription.setUpgradeNeeded(usersNotInSubscriptionCount > 0);
+            savedSubscription.setDowngradeNeeded(false);
         }
 
         savedSubscription.setMonthly(monthly);
