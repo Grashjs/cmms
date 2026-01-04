@@ -127,18 +127,18 @@ function Pricing() {
             )}
           </Typography>
         </Box>
-
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
-          <Tabs
-            value={type}
-            onChange={handleTabsChange}
-            indicatorColor="primary"
-            textColor="primary"
-          >
-            <Tab label="Cloud" value="cloud" />
-            <Tab label="Self-Hosted" value="selfhosted" />
-          </Tabs>
-        </Box>
+        {/*TODO uncomment*/}
+        {/*<Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>*/}
+        {/*  <Tabs*/}
+        {/*    value={type}*/}
+        {/*    onChange={handleTabsChange}*/}
+        {/*    indicatorColor="primary"*/}
+        {/*    textColor="primary"*/}
+        {/*  >*/}
+        {/*    <Tab label="Cloud" value="cloud" />*/}
+        {/*    <Tab label="Self-Hosted" value="selfhosted" />*/}
+        {/*  </Tabs>*/}
+        {/*</Box>*/}
 
         <SubscriptionPlanSelector
           monthly={monthly}
