@@ -39,11 +39,6 @@ function Sidebar() {
   const { sidebarToggle, toggleSidebar } = useContext(SidebarContext);
   const closeSidebar = () => toggleSidebar();
   const theme = useTheme();
-  const { user, company } = useAuth();
-  const TRIAL_DAYS = 15;
-
-  const daysPassed = dayjs().diff(dayjs(company.createdAt), 'day');
-  const daysLeft = TRIAL_DAYS - daysPassed;
 
   return (
     <>
@@ -96,44 +91,6 @@ function Sidebar() {
               background: theme.colors.alpha.trueWhite[10]
             }}
           />
-          {isCloudVersion &&
-            !company.demo &&
-            user.ownsCompany &&
-            !company.subscription.activated && (
-              <Stack
-                sx={{
-                  backgroundColor: 'rgb(51, 194, 255)',
-                  p: 2,
-                  mx: 2,
-                  mt: 2,
-                  borderRadius: 2
-                }}
-                spacing={1}
-              >
-                <Typography
-                  color={'white'}
-                  fontSize={'16px'}
-                  fontWeight={'bold'}
-                >
-                  {daysLeft > 0
-                    ? `Your trial ends in ${daysLeft} days`
-                    : `Your trial has ended`}
-                </Typography>
-                <Typography color={'white'} fontSize={'14px'}>
-                  You are on the {company.subscription.subscriptionPlan.name}{' '}
-                  plan
-                </Typography>
-                <Button
-                  component={Link}
-                  href={'/app/subscription/plans'}
-                  variant="contained"
-                  color="primary"
-                  sx={{ mt: 1 }}
-                >
-                  Upgrade
-                </Button>
-              </Stack>
-            )}
           <SidebarMenu />
         </Scrollbar>
         <Divider
