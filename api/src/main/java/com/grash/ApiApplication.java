@@ -50,9 +50,6 @@ public class ApiApplication implements SmartInitializingSingleton {
             log.info("Initializing subscription plans...");
             initializeSubscriptionPlans();
 
-            log.info("Scheduling existing work orders and subscriptions...");
-            scheduleExistingItems();
-
             log.info("Updating default roles...");
             roleService.updateDefaultRoles();
 
@@ -145,28 +142,6 @@ public class ApiApplication implements SmartInitializingSingleton {
                     .features(new HashSet<>(Arrays.asList(PlanFeatures.values())))
                     .yearlyCostPerUser(800).build());
         }
-    }
-
-    private void scheduleExistingItems() {
-        Collection<Schedule> schedules = scheduleService.findActive();
-        log.info("Scheduling {} work orders...", schedules.size());
-        schedules.forEach(schedule -> {
-            try {
-                scheduleService.scheduleWorkOrder(schedule);
-            } catch (Exception e) {
-                log.error("Failed to schedule work order for schedule ID: {}", schedule.getId(), e);
-            }
-        });
-
-        Collection<Subscription> subscriptions = subscriptionService.findPaidAndEnding();
-        log.info("Scheduling {} subscription ends...", subscriptions.size());
-        subscriptions.forEach(subscription -> {
-            try {
-                subscriptionService.scheduleEnd(subscription);
-            } catch (Exception e) {
-                log.error("Failed to schedule subscription end for subscription ID: {}", subscription.getId(), e);
-            }
-        });
     }
 
 

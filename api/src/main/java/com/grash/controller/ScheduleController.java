@@ -45,58 +45,63 @@ public class ScheduleController {
 //        } else return scheduleService.getAll();
 //    }
 
-//    @GetMapping("/{id}")
-//    @PreAuthorize("permitAll()")
-//    @ApiResponses(value = {//
-//            @ApiResponse(code = 500, message = "Something went wrong"),
-//            @ApiResponse(code = 403, message = "Access denied"),
-//            @ApiResponse(code = 404, message = "Schedule not found")})
-//    public Schedule getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-//        OwnUser user = userService.whoami(req);
-//        Optional<Schedule> optionalSchedule = scheduleService.findById(id);
-//        if (optionalSchedule.isPresent()) {
-//            Schedule savedSchedule = optionalSchedule.get();
-//            return savedSchedule;
-//        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-//    }
-//
-//    @PatchMapping("/{id}")
-//    @PreAuthorize("hasRole('ROLE_CLIENT')")
-//    @ApiResponses(value = {//
-//            @ApiResponse(code = 500, message = "Something went wrong"), //
-//            @ApiResponse(code = 403, message = "Access denied"), //
-//            @ApiResponse(code = 404, message = "Schedule not found")})
-//    public Schedule patch(@ApiParam("Schedule") @Valid @RequestBody SchedulePatchDTO schedule,
-//                          @ApiParam("id") @PathVariable("id") Long id,
-//                          HttpServletRequest req) {
-//        OwnUser user = userService.whoami(req);
-//        Optional<Schedule> optionalSchedule = scheduleService.findById(id);
-//
-//        if (optionalSchedule.isPresent()) {
-//            Schedule savedSchedule = optionalSchedule.get();
-//            Schedule updatedSchedule = scheduleService.update(id, schedule);
-//            //TODO unschedule previous schedule
-//            scheduleService.reScheduleWorkOrder(updatedSchedule);
-//            return updatedSchedule;
-//        } else throw new CustomException("Schedule not found", HttpStatus.NOT_FOUND);
-//    }
+    @GetMapping("/{id}")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "Schedule not found")})
+    public Schedule getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<Schedule> optionalSchedule = scheduleService.findById(id);
+        if (optionalSchedule.isPresent()) {
+            Schedule savedSchedule = optionalSchedule.get();
+            if (!savedSchedule.getPreventiveMaintenance().getCompany().getId().equals(user.getCompany().getId()))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return savedSchedule;
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
 
-//    @DeleteMapping("/{id}")
-//    @PreAuthorize("hasRole('ROLE_CLIENT')")
-//    @ApiResponses(value = {//
-//            @ApiResponse(code = 500, message = "Something went wrong"), //
-//            @ApiResponse(code = 403, message = "Access denied"), //
-//            @ApiResponse(code = 404, message = "Schedule not found")})
-//    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-//        OwnUser user = userService.whoami(req);
-//
-//        Optional<Schedule> optionalSchedule = scheduleService.findById(id);
-//        if (optionalSchedule.isPresent()) {
-//            Schedule savedSchedule = optionalSchedule.get();
-//            scheduleService.delete(id);
-//            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-//                    HttpStatus.OK);
-//        } else throw new CustomException("Schedule not found", HttpStatus.NOT_FOUND);
-//    }
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "Schedule not found")})
+    public Schedule patch(@ApiParam("Schedule") @Valid @RequestBody SchedulePatchDTO schedule,
+                          @ApiParam("id") @PathVariable("id") Long id,
+                          HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<Schedule> optionalSchedule = scheduleService.findById(id);
+
+        if (optionalSchedule.isPresent()) {
+            Schedule savedSchedule = optionalSchedule.get();
+            if (!savedSchedule.getPreventiveMaintenance().canBeEditedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            Schedule updatedSchedule = scheduleService.update(id, schedule);
+            scheduleService.reScheduleWorkOrder(updatedSchedule);
+            return updatedSchedule;
+        } else throw new CustomException("Schedule not found", HttpStatus.NOT_FOUND);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "Schedule not found")})
+    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+
+        Optional<Schedule> optionalSchedule = scheduleService.findById(id);
+        if (optionalSchedule.isPresent()) {
+            Schedule savedSchedule = optionalSchedule.get();
+            if (!savedSchedule.getPreventiveMaintenance().canBeEditedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            scheduleService.delete(id);
+            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                    HttpStatus.OK);
+        } else throw new CustomException("Schedule not found", HttpStatus.NOT_FOUND);
+    }
 
 }

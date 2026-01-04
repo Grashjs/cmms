@@ -53,6 +53,7 @@ public class Schedule extends Audit {
     @OneToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @NotNull
     private PreventiveMaintenance preventiveMaintenance;
 
     public Schedule(PreventiveMaintenance preventiveMaintenance) {
