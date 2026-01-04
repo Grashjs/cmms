@@ -32,7 +32,11 @@ import api from '../../../../utils/api';
 import { useBrand } from '../../../../hooks/useBrand';
 import { fireGa4Event } from '../../../../utils/overall';
 import { initializePaddle, Paddle } from '@paddle/paddle-js';
-import { apiUrl, PADDLE_SECRET_TOKEN } from '../../../../config';
+import {
+  apiUrl,
+  PADDLE_SECRET_TOKEN,
+  paddleEnvironment
+} from '../../../../config';
 
 function SubscriptionPlans() {
   const { t }: { t: any } = useTranslation();
@@ -72,7 +76,7 @@ function SubscriptionPlans() {
           }
         }
       });
-      paddle.Environment.set('sandbox');
+      paddle.Environment.set(paddleEnvironment);
     };
     initPaddle();
   }, [usersCount, period, selectedPlanObject?.code]);

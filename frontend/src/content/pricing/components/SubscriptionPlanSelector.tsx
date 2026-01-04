@@ -18,7 +18,11 @@ import CheckCircleOutlineTwoToneIcon from '@mui/icons-material/CheckCircleOutlin
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { fireGa4Event } from '../../../utils/overall';
-import { apiUrl, PADDLE_SECRET_TOKEN } from '../../../config';
+import {
+  apiUrl,
+  PADDLE_SECRET_TOKEN,
+  paddleEnvironment
+} from '../../../config';
 import { useEffect, useState } from 'react';
 import EmailModal from './EmailModal';
 import { initializePaddle, Paddle } from '@paddle/paddle-js';
@@ -52,7 +56,7 @@ export default function SubscriptionPlanSelector({
           }
         }
       });
-      paddle.Environment.set('sandbox');
+      paddle.Environment.set(paddleEnvironment);
     };
     if (modalOpen) initPaddle();
   }, [modalOpen]);

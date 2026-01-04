@@ -91,3 +91,7 @@ export const IS_ORIGINAL_CLOUD = !isWhiteLabeled && isCloudVersion;
 export const PADDLE_SECRET_TOKEN: string = getRuntimeValue(
   'PADDLE_SECRET_TOKEN'
 );
+
+export const paddleEnvironment = getRuntimeValue('PADDLE_ENVIRONMENT') as
+  | 'sandbox'
+  | 'production';
