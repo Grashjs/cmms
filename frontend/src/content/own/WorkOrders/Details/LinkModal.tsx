@@ -1,13 +1,15 @@
 import {
   Autocomplete,
   Button,
-  CircularProgress, debounce,
+  CircularProgress,
+  debounce,
   Dialog,
   DialogContent,
   DialogTitle,
   Grid,
   MenuItem,
-  Select, TextField,
+  Select,
+  TextField,
   Typography
 } from '@mui/material';
 import FormHelperText from '@mui/material/FormHelperText';
@@ -21,9 +23,11 @@ import { createRelation } from '../../../../slices/relation';
 import { relationTypes } from 'src/models/owns/relation';
 import { onSearchQueryChange } from '../../../../utils/overall';
 import WorkOrder from '../../../../models/owns/workOrder';
-import { useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { SearchCriteria } from '../../../../models/owns/page';
 import { getWorkOrders, getWorkOrdersMini } from '../../../../slices/workOrder';
+import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
+import { getErrorMessage } from '../../../../utils/api';
 
 interface LinkModalProps {
   open: boolean;
@@ -32,15 +36,17 @@ interface LinkModalProps {
 }
 
 export default function LinkModal({
-                                    open,
-                                    onClose,
-                                    workOrderId
-                                  }: LinkModalProps) {
+  open,
+  onClose,
+  workOrderId
+}: LinkModalProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { workOrdersMini } = useSelector((state) => state.workOrders);
+  const { showSnackBar } = useContext(CustomSnackBarContext);
   const [criteria, setCriteria] = useState<SearchCriteria>({
-    filterFields: [], pageSize: 10,
+    filterFields: [],
+    pageSize: 10,
     pageNum: 0,
     direction: 'DESC'
   });
@@ -82,22 +88,24 @@ export default function LinkModal({
           { resetForm, setErrors, setStatus, setSubmitting }
         ) => {
           setSubmitting(true);
-          dispatch(createRelation(workOrderId, _values)).finally(() => {
-            setSubmitting(false);
-            onClose();
-          });
+          dispatch(createRelation(workOrderId, _values))
+            .catch((err) => showSnackBar(getErrorMessage(err), 'error'))
+            .finally(() => {
+              setSubmitting(false);
+              onClose();
+            });
         }}
       >
         {({
-            errors,
-            handleBlur,
-            handleChange,
-            handleSubmit,
-            setFieldValue,
-            isSubmitting,
-            touched,
-            values
-          }) => (
+          errors,
+          handleBlur,
+          handleChange,
+          handleSubmit,
+          setFieldValue,
+          isSubmitting,
+          touched,
+          values
+        }) => (
           <form onSubmit={handleSubmit}>
             <DialogContent
               dividers
@@ -136,7 +144,9 @@ export default function LinkModal({
                         options={workOrdersMini.content}
                         // @ts-ignore
                         getOptionLabel={(option) => option.title}
-                        onInputChange={(event, value) => debouncedQueryChange({ target: { value } })}
+                        onInputChange={(event, value) =>
+                          debouncedQueryChange({ target: { value } })
+                        }
                         onChange={(event, value) => {
                           setFieldValue('child', value);
                         }}

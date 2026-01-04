@@ -9,6 +9,9 @@ import { createLabor } from '../../../../slices/labor';
 import useAuth from '../../../../hooks/useAuth';
 import FeatureErrorMessage from '../../components/FeatureErrorMessage';
 import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
+import { getErrorMessage } from '../../../../utils/api';
+import { useContext } from 'react';
+import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 
 interface AddTimeProps {
   open: boolean;
@@ -17,13 +20,14 @@ interface AddTimeProps {
 }
 
 export default function AddTimeModal({
-                                       open,
-                                       onClose,
-                                       workOrderId
-                                     }: AddTimeProps) {
+  open,
+  onClose,
+  workOrderId
+}: AddTimeProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { hasFeature } = useAuth();
+  const { showSnackBar } = useContext(CustomSnackBarContext);
   const fields: Array<IField> = [
     {
       name: 'assignedTo',
@@ -105,8 +109,7 @@ export default function AddTimeModal({
             validation={Yup.object().shape(shape)}
             submitText={t('add')}
             values={{ includeToTotalTime: true }}
-            onChange={({ field, e }) => {
-            }}
+            onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               const formattedValues = { ...values };
               formattedValues.assignedTo = formatSelect(
@@ -117,9 +120,9 @@ export default function AddTimeModal({
               );
               formattedValues.duration =
                 values.hours * 3600 + values.minutes * 60;
-              return dispatch(
-                createLabor(workOrderId, formattedValues)
-              ).finally(() => onClose());
+              return dispatch(createLabor(workOrderId, formattedValues))
+                .catch((err) => showSnackBar(getErrorMessage(err), 'error'))
+                .then(() => onClose());
             }}
           />
         ) : (

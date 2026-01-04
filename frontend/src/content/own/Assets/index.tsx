@@ -90,6 +90,7 @@ import File from '../../../models/owns/file';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import AssetStatusTag from './components/AssetStatusTag';
+import { getErrorMessage } from '../../../utils/api';
 
 function Assets() {
   const { t }: { t: any } = useTranslation();
@@ -206,7 +207,7 @@ function Assets() {
     showSnackBar(t('asset_create_success'), 'success');
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('asset_create_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('asset_create_failure')), 'error');
   const handleCloseFilterDrawer = () => setOpenFilterDrawer(false);
   const onPageSizeChange = (size: number) => {
     setCriteria({ ...criteria, pageSize: size });

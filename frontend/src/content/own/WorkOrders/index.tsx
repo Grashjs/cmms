@@ -103,6 +103,7 @@ import { getPreventiveMaintenanceUrl } from 'src/utils/urlPaths';
 import { useGridApiRef } from '@mui/x-data-grid-pro';
 import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import Request from '../../../models/owns/request';
+import { getErrorMessage } from '../../../utils/api';
 
 function WorkOrders() {
   const { t }: { t: any } = useTranslation();
@@ -334,7 +335,7 @@ function WorkOrders() {
     showSnackBar(t('wo_create_success'), 'success');
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('wo_create_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('wo_create_failure')), 'error');
   const onEditSuccess = () => {
     setOpenUpdateModal(false);
     showSnackBar(t('changes_saved_success'), 'success');

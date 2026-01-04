@@ -12,6 +12,7 @@ import { useContext } from 'react';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 import { getImageAndFiles } from '../../../utils/overall';
+import { getErrorMessage } from '../../../utils/api';
 
 interface AddTriggerProps {
   open: boolean;
@@ -82,7 +83,7 @@ export default function AddTriggerModal({
     showSnackBar(t('wo_trigger_create_success'), 'success');
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('wo_trigger_create_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('wo_trigger_create_failure')), 'error');
 
   return (
     <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>

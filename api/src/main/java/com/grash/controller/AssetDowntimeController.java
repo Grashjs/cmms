@@ -57,17 +57,19 @@ public class AssetDowntimeController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public AssetDowntime create(@ApiParam("AssetDowntime") @Valid @RequestBody AssetDowntime assetDowntimeReq, HttpServletRequest req) {
+    public AssetDowntime create(@ApiParam("AssetDowntime") @Valid @RequestBody AssetDowntime assetDowntimeReq,
+                                HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(assetDowntimeReq.getAsset().getId());
         if (!optionalAsset.isPresent()) {
             throw new CustomException("Asset Not found", HttpStatus.BAD_REQUEST);
         }
         if (optionalAsset.get().getRealCreatedAt().after(assetDowntimeReq.getStartsOn())) {
-            throw new CustomException("The downtime can't occur before the asset in service date", HttpStatus.NOT_ACCEPTABLE);
+            throw new CustomException("The downtime can't occur before the asset in service date",
+                    HttpStatus.NOT_ACCEPTABLE);
         }
         if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || optionalAsset.get().getCreatedBy().equals(user.getId())) {
-            return assetDowntimeService.create(assetDowntimeReq);
+            return assetDowntimeService.create(assetDowntimeReq, true);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 

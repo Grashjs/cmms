@@ -66,6 +66,7 @@ import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import { useGridApiRef } from '@mui/x-data-grid-pro';
 import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import { CategoryMiniDTO } from '../../../models/owns/category';
+import { getErrorMessage } from '../../../utils/api';
 
 interface PropsType {
   setAction: (p: () => () => void) => void;
@@ -144,7 +145,7 @@ const Parts = ({ setAction }: PropsType) => {
     showSnackBar(t('part_create_success'), 'success');
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('part_create_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('part_create_failure')), 'error');
   const onEditSuccess = () => {
     setOpenUpdateModal(false);
     showSnackBar(t('changes_saved_success'), 'success');

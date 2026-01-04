@@ -48,6 +48,7 @@ import {
 } from '../../../../utils/formatters';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
 import AssetDowntime from '../../../../models/owns/assetDowntime';
+import { getErrorMessage } from '../../../../utils/api';
 
 interface PropsType {
   asset: AssetDTO;
@@ -78,7 +79,7 @@ const AssetDowntimes = ({ asset }: PropsType) => {
     showSnackBar(t('create_downtime_success'), 'success');
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('create_downtime_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('create_downtime_failure')), 'error');
   const onEditSuccess = () => {
     setOpenEditModal(false);
     showSnackBar(t('edit_downtime_success'), 'success');

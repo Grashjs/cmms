@@ -23,8 +23,8 @@ public class AssetDowntimeService {
     private final AssetDowntimeMapper assetDowntimeMapper;
     private final LicenseService licenseService;
 
-    public AssetDowntime create(AssetDowntime assetDowntime) {
-        if (!licenseService.hasEntitlement(LicenseEntitlement.ASSET_DOWNTIME))
+    public AssetDowntime create(AssetDowntime assetDowntime, boolean manual) {
+        if (manual && !licenseService.hasEntitlement(LicenseEntitlement.ASSET_DOWNTIME))
             throw new CustomException("You need a license to create asset downtime", HttpStatus.FORBIDDEN);
         checkOverlapping(assetDowntime);
         return assetDowntimeRepository.save(assetDowntime);

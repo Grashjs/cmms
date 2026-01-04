@@ -83,6 +83,7 @@ import Schedule from '../../../models/owns/schedule';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import { exportEntity } from '../../../slices/exports';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
+import { getErrorMessage } from '../../../utils/api';
 
 function PMs() {
   const { t }: { t: any } = useTranslation();
@@ -218,7 +219,7 @@ function PMs() {
     showSnackBar(t('wo_schedule_success'), 'success');
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('wo_schedule_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('wo_schedule_failure')), 'error');
   const onEditSuccess = () => {
     setOpenUpdateModal(false);
     showSnackBar(t('changes_saved_success'), 'success');

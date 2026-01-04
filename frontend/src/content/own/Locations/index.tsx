@@ -73,6 +73,7 @@ import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import { Pageable, Sort } from '../../../models/owns/page';
 import { googleMapsConfig } from '../../../config';
+import { getErrorMessage } from '../../../utils/api';
 
 function Locations() {
   const { t }: { t: any } = useTranslation();
@@ -153,7 +154,7 @@ function Locations() {
     showSnackBar(t('location_create_success'), 'success');
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('location_create_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('location_create_failure')), 'error');
   const onEditSuccess = () => {
     setOpenUpdateModal(false);
     showSnackBar(t('changes_saved_success'), 'success');

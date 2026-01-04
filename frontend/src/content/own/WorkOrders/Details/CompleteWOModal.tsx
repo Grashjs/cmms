@@ -6,6 +6,8 @@ import { IField } from '../../type';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
 import { StoreReturnType } from '../../../../store';
+import { getErrorMessage } from '../../../../utils/api';
+import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 
 interface SignatureProps {
   open: boolean;
@@ -24,6 +26,7 @@ export default function CompleteWOModal({
 }: SignatureProps) {
   const { t }: { t: any } = useTranslation();
   const { uploadFiles } = useContext(CompanySettingsContext);
+  const { showSnackBar } = useContext(CustomSnackBarContext);
 
   const getFieldsAndShape = (): [Array<IField>, { [key: string]: any }] => {
     let fields: IField[] = [];
@@ -75,7 +78,9 @@ export default function CompleteWOModal({
           values={{}}
           onChange={({ field, e }) => {}}
           onSubmit={async (values) => {
-            return onComplete(values.signature, values.feedback).then(onClose);
+            return onComplete(values.signature, values.feedback)
+              .then(onClose)
+              .catch((err) => showSnackBar(getErrorMessage(err), 'error'));
           }}
         />
       </DialogContent>

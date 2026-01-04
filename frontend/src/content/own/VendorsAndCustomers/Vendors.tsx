@@ -49,6 +49,7 @@ import SearchInput from '../components/SearchInput';
 import { useGridApiRef } from '@mui/x-data-grid-pro';
 import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import { useBrand } from '../../../hooks/useBrand';
+import { getErrorMessage } from '../../../utils/api';
 
 interface PropsType {
   values?: any;
@@ -99,7 +100,7 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
     showSnackBar(t('vendor_create_success'), 'success');
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('vendor_create_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('vendor_create_failure')), 'error');
   const onEditSuccess = () => {
     setViewOrUpdate('view');
     showSnackBar(t('changes_saved_success'), 'success');

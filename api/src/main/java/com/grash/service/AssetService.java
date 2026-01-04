@@ -101,7 +101,7 @@ public class AssetService {
     private void checkUsageBasedLimit(Company company) {
         Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ASSETS);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ASSETS)
-                && assetRepository.hasMoreThan(company.getId(), threshold.longValue()
+                && assetRepository.hasMoreThan(company.getId(), threshold.longValue() - 1
         ))
             throw new CustomException("You need a license to add a new asset. Free Limit reached: " + threshold,
                     HttpStatus.FORBIDDEN);
@@ -224,7 +224,7 @@ public class AssetService {
                 .asset(asset)
                 .build();
         downtime.setCompany(company);
-        assetDowntimeService.create(downtime);
+        assetDowntimeService.create(downtime, false);
     }
 
     public boolean isAssetInCompany(Asset asset, long companyId, boolean optional) {

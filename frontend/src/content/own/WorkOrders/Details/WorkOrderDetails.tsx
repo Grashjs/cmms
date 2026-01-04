@@ -95,6 +95,7 @@ import PartQuantitiesList from '../../components/PartQuantitiesList';
 import AddFileModal from './AddFileModal';
 import { useBrand } from '../../../../hooks/useBrand';
 import { useLicenseEntitlement } from '../../../../hooks/useLicenseEntitlement';
+import { getErrorMessage } from '../../../../utils/api';
 
 const LabelWrapper = styled(Box)(
   ({ theme }) => `
@@ -644,9 +645,11 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
                     }
                     onClick={() => {
                       setControllingTime(true);
-                      dispatch(
-                        controlTimer(!runningTimer, workOrder.id)
-                      ).finally(() => setControllingTime(false));
+                      dispatch(controlTimer(!runningTimer, workOrder.id))
+                        .catch((err) =>
+                          showSnackBar(getErrorMessage(err), 'error')
+                        )
+                        .finally(() => setControllingTime(false));
                     }}
                     variant={runningTimer ? 'contained' : 'outlined'}
                   >
