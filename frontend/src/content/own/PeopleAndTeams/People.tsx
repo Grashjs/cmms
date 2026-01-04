@@ -277,14 +277,24 @@ const People = ({ openModal, handleCloseModal }: PropsType) => {
 
   // const shape = {};
 
-  const columns: GridEnrichedColDef[] = [
+  const columns: GridEnrichedColDef<OwnUser>[] = [
     {
       field: 'name',
       headerName: t('name'),
       width: 150,
-      valueGetter: (params) => `${params.row.firstName} ${params.row.lastName}`,
+      valueGetter: (params) =>
+        `${params.row.firstName} ${params.row.lastName}${
+          params.row.enabled ? '' : ` (${t('disabled')})`
+        }`,
       renderCell: (params: GridRenderCellParams<string>) => (
-        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
+        <Box
+          sx={{
+            fontWeight: 'bold',
+            color: params.row.enabled ? 'inherit' : 'gray'
+          }}
+        >
+          {params.value}
+        </Box>
       )
     },
     {
