@@ -96,7 +96,10 @@ function SubscriptionPlans() {
 
   const buyProduct = async () => {
     setSubmitting(true);
-    onUpgradeRequest();
+    if (selectedPlanObject.code === 'BUSINESS') {
+      onUpgradeRequest();
+      return;
+    }
     let path = selectedPlanObject.code.toLowerCase();
     path = `${path}-${period === 'monthly' ? 'monthly' : 'yearly'}`;
     try {
@@ -129,6 +132,7 @@ function SubscriptionPlans() {
     }
   };
   const onUpgradeRequest = async () => {
+    setSubmitting(true);
     const cost = getCost();
     fireGa4Event({
       category: 'Pricing',
@@ -142,10 +146,21 @@ function SubscriptionPlans() {
       monthly: period === 'monthly',
       usersCount
     };
-    const { success } = await api.post<{ success: boolean }>(
-      'subscriptions/request-upgrade',
-      payload
-    );
+    try {
+      const { success } = await api.post<{ success: boolean }>(
+        'subscriptions/request-upgrade',
+        payload
+      );
+      if (success) {
+        showSnackBar(t('upgrade_request_success'), 'success');
+        return;
+      }
+    } catch (err) {
+      showSnackBar(t('failure'), 'error');
+      return;
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const periods = [

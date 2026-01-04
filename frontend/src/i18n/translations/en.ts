@@ -1410,8 +1410,7 @@ const locale = {
   ui_configuration: 'UI configuration',
   password_leave_empty_if_you_dont_want_to_change:
     "Password - leave empty if you don't want to change it",
-  upgrade_request_success:
-    "Upgrade request received! We'll contact you soon with payment details",
+  upgrade_request_success: "Upgrade request received! We'll contact you soon",
   continue_with_sso: 'Continue with SSO',
   see_live_demo: 'See live demo',
   demo_warning:
