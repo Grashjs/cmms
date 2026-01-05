@@ -150,19 +150,24 @@ public class PaddleService {
                                    Date endsOn, Long companyId, int usersCount) {
         boolean monthly = planCode.toLowerCase().contains("monthly");
 
-        int subscriptionUsersCount =
-                (int) userService.findByCompany(companyId).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
+        Collection<OwnUser> companyUsers = userService.findByCompany(companyId);
 
-        if (usersCount < subscriptionUsersCount) {
+        int subscriptionUsersCount = (int) companyUsers.stream()
+                .filter(OwnUser::isEnabledInSubscriptionAndPaid)
+                .count();
+
+        int enabledPaidUsersCount = (int) companyUsers.stream()
+                .filter(user -> user.isEnabled() && user.isEnabledInSubscription() && user.getRole().isPaid())
+                .count();
+        
+        if (enabledPaidUsersCount < subscriptionUsersCount) {
             savedSubscription.setDowngradeNeeded(true);
             savedSubscription.setUpgradeNeeded(false);
-        } else if (usersCount == subscriptionUsersCount) {
+        } else if (enabledPaidUsersCount > subscriptionUsersCount) {
+            savedSubscription.setUpgradeNeeded(true);
             savedSubscription.setDowngradeNeeded(false);
-            savedSubscription.setUpgradeNeeded(false);
         } else {
-            int usersNotInSubscriptionCount =
-                    (int) userService.findByCompany(companyId).stream().filter(user1 -> user1.isEnabled() && user1.getRole().isPaid() && !user1.isEnabledInSubscription()).count();
-            savedSubscription.setUpgradeNeeded(usersNotInSubscriptionCount > 0);
+            savedSubscription.setUpgradeNeeded(false);
             savedSubscription.setDowngradeNeeded(false);
         }
 
