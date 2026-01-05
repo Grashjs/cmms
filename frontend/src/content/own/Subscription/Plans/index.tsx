@@ -60,11 +60,11 @@ function SubscriptionPlans() {
   const checkoutComplete = useRef<boolean>(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  let paddle: Paddle = null;
+  let paddle = useRef<Paddle | null>(null);
 
   useEffect(() => {
     const initPaddle = async () => {
-      paddle = await initializePaddle({
+      paddle.current = await initializePaddle({
         token: PADDLE_SECRET_TOKEN,
         eventCallback: function (data) {
           if (data.name == 'checkout.completed') {
@@ -82,7 +82,7 @@ function SubscriptionPlans() {
           }
         }
       });
-      paddle.Environment.set(paddleEnvironment);
+      paddle.current.Environment.set(paddleEnvironment);
     };
     initPaddle();
   }, [usersCount, period, selectedPlanObject?.code]);
@@ -124,7 +124,7 @@ function SubscriptionPlans() {
 
       const data = await response.json();
       if (data.sessionId) {
-        paddle.Checkout.open({
+        paddle.current.Checkout.open({
           transactionId: data.sessionId,
           customer: {
             email: user.email.trim().toLowerCase()
