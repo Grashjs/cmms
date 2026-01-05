@@ -27,6 +27,8 @@ import i18n from 'i18next';
 import countries from '../../../../i18n/countries';
 import { verify } from '../../../../utils/jwt';
 import { useUtmTracker } from '@nik0di3m/utm-tracker-hook';
+import { inviteUsers } from '../../../../slices/user';
+import { useDispatch } from '../../../../store';
 
 function RegisterJWT({
   email,
@@ -48,6 +50,7 @@ function RegisterJWT({
   const navigate = useNavigate();
   const getLanguage = i18n.language;
   const [showPassword, setShowPassword] = useState(false);
+  const dispatch = useDispatch();
   const getFieldsAndShapes = (): [
     { [key: string]: any },
     { [key: string]: any }
@@ -103,6 +106,8 @@ function RegisterJWT({
         valuesClone.phone =
           (values.countryCode ? `+${values.countryCode.phone}` : '') +
           `${values.phone}`;
+        if (invitationMode)
+          await dispatch(inviteUsers(role, [valuesClone.email]));
         return register(
           role ? { ...valuesClone, role: { id: role } } : valuesClone,
           invitationMode

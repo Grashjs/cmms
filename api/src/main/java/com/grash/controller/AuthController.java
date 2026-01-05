@@ -74,7 +74,6 @@ public class AuthController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 422, message = "Username is already in use")})
     public SignupSuccessResponse<UserResponseDTO> signup(@Valid @RequestBody UserSignupRequest user) {
-        //TODO: add currentUser especially for disabled email verifications
         SignupSuccessResponse<OwnUser> response = userService.signup(user);
         return new SignupSuccessResponse<>(response.isSuccess(), response.getMessage(),
                 userMapper.toResponseDto(response.getUser()));

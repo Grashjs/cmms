@@ -297,9 +297,9 @@ public class UserService {
     }
 
     public void invite(String email, Role role, OwnUser inviter) {
-        throwIfEmailNotificationsNotEnabled();
         if (!userRepository.existsByEmailIgnoreCase(email) && Helper.isValidEmailAddress(email)) {
             userInvitationService.create(new UserInvitation(email, role));
+            if (!enableInvitationViaEmail || !enableMails) return;
             Map<String, Object> variables = new HashMap<String, Object>() {{
                 put("joinLink", frontendUrl + "/account/register?" + "email=" + email + "&role=" + role.getId());
                 put("featuresLink", frontendUrl + "/#key-features");
