@@ -23,7 +23,7 @@ import {
   PADDLE_SECRET_TOKEN,
   paddleEnvironment
 } from '../../../config';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import EmailModal from './EmailModal';
 import { initializePaddle, Paddle } from '@paddle/paddle-js';
 
@@ -44,11 +44,11 @@ export default function SubscriptionPlanSelector({
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const navigate = useNavigate();
-  let paddle: Paddle = null;
+  let paddle = useRef<Paddle | null>(null);
 
   useEffect(() => {
     const initPaddle = async () => {
-      paddle = await initializePaddle({
+      paddle.current = await initializePaddle({
         token: PADDLE_SECRET_TOKEN,
         eventCallback: function (data) {
           if (data.name == 'checkout.completed') {
@@ -56,7 +56,7 @@ export default function SubscriptionPlanSelector({
           }
         }
       });
-      paddle.Environment.set(paddleEnvironment);
+      paddle.current.Environment.set(paddleEnvironment);
     };
     if (modalOpen) initPaddle();
   }, [modalOpen]);
@@ -89,7 +89,7 @@ export default function SubscriptionPlanSelector({
 
       const data = await response.json();
       if (data.sessionId) {
-        paddle.Checkout.open({
+        paddle.current.Checkout.open({
           transactionId: data.sessionId,
           customer: {
             email: email.trim().toLowerCase()
