@@ -45,11 +45,12 @@ public class LicenseService {
     public synchronized LicensingState getLicensingState() {
         //TODO remove
         if (true) return LicensingState.builder()
-                .valid(true)
+                .valid(false)
                 .hasLicense(true)
                 .expirationDate(Helper.incrementDays(new Date(), 365))
                 .planName("Free")
-                .entitlements(Arrays.stream(LicenseEntitlement.values()).map(Enum::toString).collect(Collectors.toSet()))
+//                .entitlements(Arrays.stream(LicenseEntitlement.values()).map(Enum::toString).collect(Collectors
+//                .toSet()))
                 .usersCount(5000000).build();
         if (isCacheValid()) {
             return buildLicensingStateFromCache();

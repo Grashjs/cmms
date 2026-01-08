@@ -4,7 +4,6 @@ public enum LicenseEntitlement {
     SSO,
     WORK_ORDER_HISTORY,
     WORKFLOW,
-    METER,
     MULTI_INSTANCE,
     WEBHOOK,//TODO
     BRANDING,
@@ -32,4 +31,5 @@ public enum LicenseEntitlement {
     UNLIMITED_PM_SCHEDULES,
     UNLIMITED_ACTIVE_WORK_ORDERS,
     UNLIMITED_CHECKLIST,
+    UNLIMITED_METERS
 }

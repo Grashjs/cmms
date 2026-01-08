@@ -25,6 +25,8 @@ import javax.persistence.EntityManager;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.grash.utils.Consts.usageBasedLicenseLimits;
+
 @Service
 @RequiredArgsConstructor
 public class MeterService {
@@ -43,12 +45,20 @@ public class MeterService {
     private final LicenseService licenseService;
 
     @Transactional
-    public Meter create(Meter meter) {
-        if (!licenseService.hasEntitlement(LicenseEntitlement.METER))
-            throw new CustomException("You need a license to create a meter", HttpStatus.FORBIDDEN);
+    public Meter create(Meter meter, OwnUser user) {
+        checkUsageBasedLimit(user.getCompany());
         Meter savedMeter = meterRepository.saveAndFlush(meter);
         em.refresh(savedMeter);
         return savedMeter;
+    }
+
+    private void checkUsageBasedLimit(Company company) {
+        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_METERS);
+        if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_METERS)
+                && meterRepository.hasMoreThan(company.getId(), threshold.longValue() - 1
+        ))
+            throw new CustomException("You need a license to add a new meter. Free Limit reached: " + threshold,
+                    HttpStatus.FORBIDDEN);
     }
 
     @Transactional
@@ -122,8 +132,7 @@ public class MeterService {
     }
 
     public void importMeter(Meter meter, MeterImportDTO dto, Company company) {
-        if (!licenseService.hasEntitlement(LicenseEntitlement.METER))
-            throw new CustomException("You need a license to create a meter", HttpStatus.FORBIDDEN);
+        checkUsageBasedLimit(company);
         Long companyId = company.getId();
         Long companySettingsId = company.getCompanySettings().getId();
         meter.setName(dto.getName());

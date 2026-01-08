@@ -53,7 +53,8 @@ public class MeterController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<MeterShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
+    public ResponseEntity<Page<MeterShowDTO>> search(@RequestBody SearchCriteria searchCriteria,
+                                                     HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.METERS)) {
@@ -117,7 +118,7 @@ public class MeterController {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.METERS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.METER)) {
-            Meter savedMeter = meterService.create(meterReq);
+            Meter savedMeter = meterService.create(meterReq, user);
             meterService.notify(savedMeter, Helper.getLocale(user));
             return meterMapper.toShowDto(savedMeter, readingService);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -129,7 +130,8 @@ public class MeterController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Meter not found")})
-    public MeterShowDTO patch(@ApiParam("Meter") @Valid @RequestBody MeterPatchDTO meter, @ApiParam("id") @PathVariable("id") Long id,
+    public MeterShowDTO patch(@ApiParam("Meter") @Valid @RequestBody MeterPatchDTO meter,
+                              @ApiParam("id") @PathVariable("id") Long id,
                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
