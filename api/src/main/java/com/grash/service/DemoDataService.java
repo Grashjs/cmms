@@ -350,7 +350,7 @@ public class DemoDataService {
         schedule.setRecurrenceBasedOn(recurrenceBasedOn);
         schedule.setDaysOfWeek(daysOfWeek);
         schedule.setDueDateDelay(1);
-        schedule.setEndsOn(Helper.incrementDays(new Date(), 100));
+        schedule.setEndsOn(Helper.incrementDays(new Date(), 1));
         schedule.setDemo(true);
 
         pm.setSchedule(schedule);
