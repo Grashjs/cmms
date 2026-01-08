@@ -1,246 +1,107 @@
-# ATLAS CMMS COMMERCIAL LICENSE AGREEMENT
+# Atlas CMMS Commercial License Agreement
 
-**Version 1.0 - Effective Date: July 2025**
+Effective Date: January 8, 2026
 
-## PREAMBLE
+This Atlas CMMS Commercial License Agreement (the "Agreement") is a legally binding contract between INTELLOOP LLC ("Licensor") and the individual or entity ("Licensee") who has purchased a license to use the Atlas CMMS software.
 
-Atlas CMMS is available under a **dual-licensing model**:
+This Agreement governs your use of the Atlas CMMS software, version 1.4 and later (the "Software"), for self-hosted deployments on Licensee's own infrastructure. By installing, copying, or otherwise using the Software, you agree to be bound by the terms of this Agreement. If you do not agree to the terms of this Agreement, do not install or use the Software.
 
-1. **Open Source License:** GPL v3 for non-commercial use, development
+Cloud Subscription Notice: Use of Atlas CMMS via Licensor's cloud-hosted service (atlas-cmms.com) is governed by separate Terms of Service, not this Agreement.
 
-2. **Commercial License:** This proprietary license for commercial distribution, white-labeling, and enterprise deployment
+Background: Dual Licensing & Version History
 
-This Commercial License Agreement governs the use of Atlas CMMS software when the GPL v3 license terms are insufficient for your intended use case.
+The Software is offered under a dual-license model. You MUST choose ONE of the following licenses for your use of the Software; you cannot combine rights from both.
 
-## DEFINITIONS
+- The GNU Affero General Public License, version 3 (AGPLv3), which is an OSI-approved open-source license. If you choose this license, you must comply with all of its terms, including the provisions regarding source code disclosure for network use.
+- This Commercial License Agreement, which you must purchase from Licensor or an authorized reseller. If you have purchased a Commercial License, the AGPLv3 does NOT apply to your use.
 
-**"Software"** means the Atlas CMMS application, including all source code, documentation, assets, and related materials.
+Version 1.3 Legacy Notice: Atlas CMMS version 1.3 and all prior versions remain licensed under the GNU General Public License v3.0 (GPLv3) and are not subject to this dual-license model. This Agreement applies only to version 1.4 and subsequent releases.
 
-**"Licensor"** means Intelloop LLC, the owner and developer of Atlas CMMS.
+1\. Definitions
 
-**"Licensee"** means the individual or entity obtaining rights under this Commercial License.
+- "Software" refers to Atlas CMMS version 1.4 and any subsequent versions, including all source code, object code, documentation, and related materials provided by Licensor.
+- "Legacy Versions" refers to Atlas CMMS version 1.3 and all prior versions, which remain perpetually licensed under the GNU General Public License v3.0 (GPLv3). This Commercial License does NOT apply to Legacy Versions.
+- "Licensee" refers to the individual or legal entity that has purchased a license under this Agreement.
+- "Authorized User" means an employee, contractor, or agent of the Licensee who is authorized to access and use the Software on behalf of the Licensee.
+- "Order Form" means the ordering document or online order process for the purchase of the license, which specifies the license type, term, number of Authorized Users, and fees.
+- "Term" means the period for which the license is granted, as specified in the Order Form (e.g., perpetual or subscription).
+- "Production Use" means use of the Software in a live environment where it is accessed by Licensee's employees, customers, or end-users for actual business operations, as opposed to development, testing, or evaluation purposes.
+- "Deployment" means a single installation instance of the Software on Licensee's infrastructure, whether physical, virtual, or containerized.
+- "Third Party" means any person or entity other than Licensee and its Authorized Users.
+- "Enterprise Features" means the features and functionality designated as commercial or enterprise-only in Licensor's current Feature Matrix, available at <https://atlas-cmms.com/pricing> or as otherwise communicated by Licensor. The Feature Matrix may be updated by Licensor from time to time.
 
-**"Commercial Use"** means any use of the Software for commercial advantage, monetary compensation, or business purposes including but not limited to:
+2\. License Grant
 
-- Distributing the Software to third parties for compensation
-- Offering the Software as a service (SaaS) to external customers
-- White-labeling or rebranding the Software for client deployment
-- Integrating the Software into commercial products or services
-- Removing or modifying Atlas CMMS branding for commercial purposes
+Subject to the terms and conditions of this Agreement and payment of all applicable fees, Licensor hereby grants to Licensee a non-exclusive, non-transferable, non-sublicensable license to:
 
-**"Atlas CMMS Marks"** means all trademarks, service marks, logos, trade names, and other proprietary designations of Atlas CMMS and Intelloop LLC.
+- 2.1. Use: Install, execute, and use the Software in object code form for Licensee's internal business purposes, including access to Enterprise Features as specified in the Order Form.
+- 2.2. Modify: Modify the source code of the Software for Licensee's internal business purposes only.
+- 2.3. Users: Permit the number of Authorized Users specified in the Order Form to use the Software.
+- 2.4. Ownership of Modifications: Any modifications, enhancements, or derivative works created by Licensee remain the property of Licensee. However, such modifications do not grant Licensee any ownership rights in the underlying Software, which remains the exclusive property of Licensor as stated in Section 4.
 
-## GRANT OF COMMERCIAL LICENSE
+3\. License Restrictions
 
-Subject to the terms and conditions of this Agreement, Licensor grants Licensee a non-exclusive, non-transferable commercial license to:
+Under this Commercial License, Licensee shall not:
 
-### Commercial Distribution Rights
+- 3.1. Third-Party Distribution: Distribute, sell, sublicense, rent, lease, or otherwise make the Software available to any Third Party, except as explicitly permitted in Section 3.6 (SaaS Use Rights).
+- 3.2. Public Repositories: Publicly distribute or publish the Software or modifications in a manner that would make it available under open-source terms.
+- 3.3. Remove Notices: Remove or alter any copyright, trademark, or other proprietary notices in the Software.
+- 3.4. Circumvent Licensing: Circumvent, reverse-engineer, or attempt to circumvent any license key or other copy-protection mechanism in the Software.
+- 3.5. Competitive Use: Use the Software to develop, market, or distribute a product or service that competes directly with Atlas CMMS or other products offered by Licensor.
+- 3.6. SaaS Use Rights: Commercial Licensees MAY use the Software to provide internal services to their own customers (e.g., a facilities management company using Atlas to manage client properties), provided that:
+    - (a) The Software is not the primary product being sold or marketed;
+    - (b) Access is limited to Licensee's direct customers under service contracts;
+    - (c) The number of Authorized Users does not exceed the Order Form limits;
+    - (d) No sublicensing or redistribution of the Software occurs.
+    - For broader SaaS/OEM rights, Licensee must contact Licensor for an Enterprise SaaS License.
 
-- Distribute the Software to third parties for commercial purposes
-- Modify and customize the Software for client-specific requirements
-- Deploy the Software in commercial environments and service offerings
+4\. Intellectual Property Rights
 
-### Branding and White-labeling Rights
+All right, title, and interest in and to the Software, including all copyrights, patents, trade secrets, and other intellectual property rights, are and shall remain the sole and exclusive property of Licensor. This Agreement does not transfer any ownership rights to the Licensee.
 
-- Remove or modify Atlas CMMS branding elements within the Software interface
-- Apply custom branding, logos, and visual identity to the Software
-- Present the Software under Licensee's brand identity to end customers
+5\. Term and Termination
 
-### Proprietary Distribution Rights
+- 5.1. Term: This Agreement shall commence on the date the license is purchased and shall continue for the Term specified in the Order Form.
+- 5.2. Termination for Breach: Either party may terminate this Agreement if the other party commits a material breach and fails to cure such breach within thirty (30) days of receiving written notice.
+- 5.3. Effect of Termination: Upon termination, Licensee must immediately cease all use of the Software and destroy all copies in its possession or control.
+- 5.4. Survival: The following sections shall survive termination or expiration of this Agreement: Sections 3, 4, 7, 8.2, 9, 10, and 11.
 
-- Distribute the Software without disclosing source code to recipients
-- Impose additional restrictions on end-user rights as permitted by law
-- Maintain proprietary control over customizations and modifications
+6\. Support and Maintenance
 
-## COMMERCIAL LICENSE TIERS
+If included in the Order Form, Licensor will provide support and maintenance services in accordance with its then-current Support and Maintenance Policy.
 
-### PROFESSIONAL COMMERCIAL LICENSE
+7\. Proprietary Information and Trade Secrets
 
-**Scope:** Single organization commercial deployment
+- 7.1. Acknowledgment of Public Availability: Licensee acknowledges that the source code of the Software is publicly available under the AGPLv3 license via the project's public repository at <https://github.com/Grashjs/cmms>.
+- 7.2. Non-Public Information: Notwithstanding Section 7.1, Licensor may provide Licensee with certain non-public information in connection with this Agreement, including but not limited to: license keys, activation mechanisms, private documentation, and advance access to unreleased features ("Non-Public Information").
+- 7.3. Confidentiality Obligations: Licensee agrees to maintain the confidentiality of the Non-Public Information and shall not disclose such information to Third Parties without Licensor's prior written consent.
 
-- **White-labeling:** Full branding customization rights
-- **Distribution:** Up to 100 end-user installations
-- **Support:** Professional technical support included
-- **Updates:** Access to commercial releases and security updates
+8\. Warranty and Disclaimer
 
-### ENTERPRISE COMMERCIAL LICENSE
+- 8.1. Limited Warranty: Licensor warrants that for a period of ninety (90) days from the date of purchase, the Software will perform substantially in accordance with its documentation.
+- 8.2. Copyright Warranty: Licensor warrants that it is the sole copyright holder of all code within the Software or has otherwise obtained the right to grant the licenses set forth in this Agreement.
+- 8.3. DISCLAIMER: EXCEPT FOR THE WARRANTIES SET FORTH ABOVE, THE SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
 
-**Scope:** Large-scale commercial deployment and distribution
+9\. Limitation of Liability
 
-- **White-labeling:** Complete branding and trademark rights
-- **Distribution:** Unlimited end-user installations
-- **Reseller Rights:** Authority to sublicense to third parties
-- **Custom Development:** Dedicated development and customization services
-- **Support:** Premium support with guaranteed SLA
+IN NO EVENT SHALL LICENSOR BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOST PROFITS OR LOST DATA. LICENSOR'S TOTAL CUMULATIVE LIABILITY UNDER THIS AGREEMENT SHALL IN NO EVENT EXCEED THE FEES PAID BY LICENSEE FOR THE SOFTWARE IN THE TWELVE (12) MONTHS PRECEDING THE EVENT GIVING RISE TO THE CLAIM. Nothing in this Section shall exclude or limit Licensor's liability for: (a) death or personal injury caused by negligence; (b) fraud; or (c) any liability that cannot be excluded or limited under applicable law.
 
-### OEM/INTEGRATOR LICENSE
+10\. Indemnification
 
-**Scope:** Software vendors and system integrators
+- 10.1. Licensee Indemnification: Licensee shall indemnify, defend, and hold harmless Licensor from any claims or expenses arising out of: (a) Licensee's use of the Software in violation of this Agreement; or (b) claims that Licensee's modifications to the Software infringe third-party rights.
+- 10.2. Licensor Indemnification: Licensor shall indemnify Licensee against claims that the unmodified Software infringes a third-party's valid patent, copyright, or trade secret, provided that Licensee promptly notifies Licensor of such claim and Licensor has sole control of the defense. Licensor's maximum liability under this section shall not exceed the fees paid in the preceding twelve (12) months.
 
-- **Embedding Rights:** Integration into larger software solutions
-- **Redistribution:** Rights to bundle with other commercial products
-- **Source Code Access:** Full source code licensing for modifications
-- **Royalty Structure:** Revenue-sharing or per-deployment licensing model
+11\. General Provisions
 
-## RESTRICTIONS AND LIMITATIONS
+- 11.1. Governing Law and Jurisdiction: This Agreement shall be governed by the laws of the Kingdom of Morocco. For international disputes, the parties agree to resolve disputes through good faith negotiation, followed by binding arbitration under the UNCITRAL Arbitration Rules, with arbitration seated in Casablanca, Morocco. Notwithstanding the above, Licensor retains the right to seek injunctive relief in any court of competent jurisdiction.
+- 11.2. Audit Rights: Licensor reserves the right, upon reasonable notice, to audit Licensee's use of the Software to verify compliance with this Agreement. If an audit reveals underpayment of more than five percent (5%), Licensee shall reimburse Licensor for the reasonable costs of the audit.
+- 11.3. Export Compliance: Licensee agrees to comply with all applicable export control laws and shall not export, re-export, or transfer the Software in violation of such laws.
+- 11.4. Entire Agreement: This Agreement, together with the Order Form, constitutes the entire agreement between the parties.
+- 11.5. Severability: If any provision of this Agreement is held to be invalid, the remaining provisions shall remain in full force.
+- 11.6. Assignment: Licensee may not assign this Agreement without the prior written consent of Licensor.
+- 11.7. Force Majeure: Neither party shall be liable for any failure or delay in performance due to causes beyond its reasonable control.
 
-### Trademark Protection
+12\. Software Updates and Version Control
 
-- Atlas CMMS Marks remain the exclusive property of Licensor
-- Licensee may not use Atlas CMMS Marks in marketing without explicit written permission
-- All trademark notices must be preserved in source code and documentation
-- Licensee must clearly identify their role as a licensed distributor when required
-
-### Attribution Requirements
-
-- Original copyright notices must be preserved in source code
-- Commercial license acknowledgment must be included in distributed software
-- Licensee must maintain records of all commercial distributions
-
-### Competitive Restrictions
-
-- Licensee may not develop competing CMMS products using Atlas CMMS source code
-- Licensee may not reverse-engineer the Software for competitive purposes
-- Licensee may not sublicense rights beyond those explicitly granted
-
-## INTELLECTUAL PROPERTY RIGHTS
-
-### Ownership
-
-- Licensor retains all ownership rights to the Software and Atlas CMMS Marks
-- This license grants usage rights only, not ownership transfer
-- All improvements and modifications remain subject to this Agreement
-
-### Patent Rights
-
-- Licensor grants necessary patent rights for licensed use of the Software
-- Licensee agrees not to assert patent claims against the Software or Licensor
-- Cross-licensing of improvements may be required under certain circumstances
-
-## SUPPORT AND MAINTENANCE
-
-### Professional Support
-
-- Technical support provided during business hours (GMT+1)
-- Email and video conference support channels
-- Response time guarantees based on license tier
-- Access to private documentation and resources
-
-### Software Updates
-
-- Regular security updates and bug fixes
-- Feature updates and enhancements
-- Migration assistance for major version upgrades
-- Early access to beta releases and new features
-
-## COMPLIANCE AND AUDIT RIGHTS
-
-### Compliance Monitoring
-
-- Licensee must maintain accurate records of Software deployment
-- Annual compliance reporting may be required for enterprise licenses
-- Licensor reserves the right to audit compliance upon reasonable notice
-
-### Violation Remedies
-
-- Immediate termination rights for material breaches
-- Monetary damages for unauthorized commercial use
-- Injunctive relief for trademark violations
-- Recovery of legal costs and attorney fees
-
-## TERMINATION
-
-### Termination Conditions
-
-- Either party may terminate with 30 days written notice
-- Immediate termination for material breach or non-payment
-- Automatic termination upon insolvency or bankruptcy
-
-### Post-Termination Obligations
-
-- Cessation of all commercial distribution within 30 days
-- Return or destruction of confidential materials
-- Continued obligation to honor end-user licenses already granted
-- Survival of intellectual property and confidentiality provisions
-
-## WARRANTIES AND DISCLAIMERS
-
-### Limited Warranty
-
-- Software will perform substantially in accordance with documentation
-- Professional support services will be provided with reasonable skill
-- 90-day warranty period for material defects
-
-### Disclaimer
-
-- SOFTWARE PROVIDED "AS IS" BEYOND EXPRESS WARRANTIES
-- NO IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS
-- LICENSOR NOT LIABLE FOR CONSEQUENTIAL OR INDIRECT DAMAGES
-
-## INDEMNIFICATION
-
-### Licensor Indemnification
-
-- Defense against third-party intellectual property claims
-- Coverage for properly licensed use of the Software
-- Exclusions for modifications and unauthorized use
-
-### Licensee Indemnification
-
-- Defense against claims arising from Licensee's commercial use
-- Coverage for branding modifications and customer deployments
-- Protection for Licensor against end-user claims
-
-## GENERAL PROVISIONS
-
-### Governing Law
-
-This Agreement is governed by the laws of Morocco, with disputes resolved in Casablanca courts.
-
-### Entire Agreement
-
-This Agreement constitutes the complete understanding between parties and supersedes all prior agreements.
-
-### Amendment
-
-Modifications must be in writing and signed by both parties.
-
-### Severability
-
-Invalid provisions do not affect the remainder of the Agreement.
-
-## CONTACT INFORMATION
-
-**For Commercial Licensing Inquiries: Intelloop LLC**
-
-Atlas CMMS Commercial Licensing Department
-
-410 BD ZERKTOUNI RES. HAMAD APT N°1 CASABLANCA, 20040, MOROCCO
-
-**Email:** contact@atlas-cmms.com
-
-[//]: # (**Website:** https://atlas-cmms.com/commercial-license)
-
-**Phone:** +212 630 690 050
-
-## FREQUENTLY ASKED QUESTIONS
-
-### Q: Can I modify Atlas CMMS branding under GPL v3?
-
-**A:** No. Branding and trademark elements are protected intellectual property separate from the GPL v3 license. Commercial licensing is required for branding modifications.
-
-### Q: Can I deploy Atlas CMMS for clients under GPL v3?
-
-**A:** Internal business use is permitted under GPL v3. However, commercial distribution to clients requires a Commercial License to ensure proper legal protection and support.
-
-### Q: What's the difference between GPL v3 and Commercial licensing?
-
-**A:** GPL v3 requires source code disclosure and license preservation. Commercial licensing allows proprietary distribution, branding customization, and commercial deployment without GPL v3 restrictions.
-
-### Q: Do I need a Commercial License for SaaS deployment?
-
-**A:** Yes. Offering Atlas CMMS as a service to external customers constitutes commercial use requiring appropriate commercial licensing.
-
----
-
-**© 2025 Intelloop LLC. All rights reserved. Atlas CMMS is a registered trademark of Intelloop LLC.**
+- 12.1. Update Entitlement: Licensees with active Maintenance are entitled to receive all updates and new versions released during the Maintenance period.
+- 12.2. AGPLv3 Version Availability: All versions of the Software released under this Commercial License will also be made available under AGPLv3 simultaneously via the public repository.

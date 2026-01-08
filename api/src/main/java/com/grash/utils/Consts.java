@@ -33,10 +33,10 @@ public class Consts {
             new HashMap<LicenseEntitlement, Integer>() {
                 {
                     put(LicenseEntitlement.UNLIMITED_CHECKLIST, 10);
-                    put(LicenseEntitlement.UNLIMITED_ASSETS, 100);
+                    put(LicenseEntitlement.UNLIMITED_ASSETS, 50);
                     put(LicenseEntitlement.UNLIMITED_PARTS, 100);
-                    put(LicenseEntitlement.UNLIMITED_LOCATIONS, 40);
-                    put(LicenseEntitlement.UNLIMITED_PM_SCHEDULES, 20);
+                    put(LicenseEntitlement.UNLIMITED_LOCATIONS, 10);
+                    put(LicenseEntitlement.UNLIMITED_PM_SCHEDULES, 10);
                     put(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS, 30);
                 }
             };
