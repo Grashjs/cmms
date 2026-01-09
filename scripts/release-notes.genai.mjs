@@ -7,7 +7,7 @@ script({
 const product = env.vars.product || "GenAIScript"
 
 // find previous tag
-const version  = "1.3.0"
+const version  = "1.4.0"
 const tag = await git.lastTag()
 const excludedPaths = [
     "package.json",
