@@ -61,29 +61,30 @@ export default function CreateAssetScreen({
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           let formattedValues = formatAssetValues(values);
-          return new Promise<void>((resolve, rej) => {
-            uploadFiles(formattedValues.files, formattedValues.image)
-              .then((files) => {
-                formattedValues = {
-                  ...formattedValues,
-                  image: files.length ? { id: files[0].id } : null,
-                  files: files.map((file) => {
-                    return { id: file.id };
-                  })
-                };
-                dispatch(addAsset(formattedValues))
-                  .then(onCreationSuccess)
-                  .then(() => {
-                    dispatch(getAssetChildren(0, []));
-                  })
-                  .catch(onCreationFailure)
-                  .finally(resolve);
+          try {
+            const files = await uploadFiles(
+              formattedValues.files,
+              formattedValues.image
+            );
+            formattedValues = {
+              ...formattedValues,
+              image: files.length ? { id: files[0].id } : null,
+              files: files.map((file) => {
+                return { id: file.id };
               })
-              .catch((err) => {
-                onCreationFailure(err);
-                rej(err);
-              });
-          });
+            };
+            try {
+              await dispatch(addAsset(formattedValues));
+              await onCreationSuccess();
+              await dispatch(getAssetChildren(0, []));
+            } catch (err) {
+              onCreationFailure(err);
+              throw err;
+            }
+          } catch (err) {
+            onCreationFailure(err);
+            throw err;
+          }
         }}
       />
     </View>
