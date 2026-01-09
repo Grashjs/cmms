@@ -100,7 +100,7 @@ Do not delete the .env file
 | GCP_PROJECT_ID              | No       | The Google Cloud project ID, also found in the `GCP_JSON` file.                                                                                                                                                                                                                                             | (empty)               |
 | GCP_BUCKET_NAME             | No       | GCP Bucket Name                                                                                                                                                                                                                                                                                             | (empty)               |
 | MAIL_RECIPIENTS             | No       | Comma-separated email addresses of the super admins where to send information emails like new signups. You can provide your email address.                                                                                                                                                                  | (empty)               |
-| LICENSE_KEY                 | No       | [Atlas CMMS license key](https://atlas-cmms.com/pricing?type=selfhosted) to get access to advanced features.                                                                                                                                                                                                                                     | (empty)               |
+| LICENSE_KEY                 | No       | [Atlas CMMS license key](https://atlas-cmms.com/pricing?type=selfhosted) to get access to advanced features.                                                                                                                                                                                                | (empty)               |
 | MUI_X_LICENSE               | No       | [Mui Pro](https://mui.com/store/items/mui-x-pro) license key. 1 dev and 1 year license is perpetual in production                                                                                                                                                                                           | (empty)               |
 | ENABLE_SSO                  | No       | Enables or disables SSO. (`true` or `false` ) Requires `OAUTH2_PROVIDER`, `OAUTH2_CLIENT_ID` and `OAUTH2_CLIENT_SECRET`. Make sure to add `PUBLIC_FRONT_URL` as authorized origin and `${PUBLIC_API_URL}/oauth2/callback/${OAUTH2_PROVIDER}` as authorized redirection URI in your Oauth2 provider settings | false                 |
 | OAUTH2_PROVIDER             | No       | Oauth2 provider `google` or `microsoft`                                                                                                                                                                                                                                                                     | (empty)               |
@@ -136,7 +136,8 @@ Celebrate on how easy this was
 
 ### Mobile app
 
-You can use the [Android app](https://play.google.com/store/apps/details?id=com.atlas.cmms) or [iOS App](https://apps.apple.com/fr/app/atlas-cmms/id6751547284) and configure it with
+You can use the [Android app](https://play.google.com/store/apps/details?id=com.atlas.cmms)
+or [iOS App](https://apps.apple.com/fr/app/atlas-cmms/id6751547284) and configure it with
 your custom backend server url
 
 ## Getting help

@@ -926,7 +926,7 @@ export const selfHostedPlans: {
   },
   {
     id: 'sh-business',
-    name: 'Enterprise',
+    name: 'Business',
     price: '40',
     description:
       'Full-scale operations requiring multi-instance management, custom branding, and top-tier security.',
