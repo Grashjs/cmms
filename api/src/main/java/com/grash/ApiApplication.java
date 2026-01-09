@@ -149,7 +149,7 @@ public class ApiApplication implements SmartInitializingSingleton {
         LicensingState licensingState = licenseService.getLicensingState();
         if (licensingState.isHasLicense()) {
             if (userRepository.hasMorePaidUsersThan(licensingState.getUsersCount()))
-                throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount());
+                throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount() + ". Refer to https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
         }
     }
 

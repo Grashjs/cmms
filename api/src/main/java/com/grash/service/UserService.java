@@ -121,7 +121,7 @@ public class UserService {
         LicensingState licensingState = licenseService.getLicensingState();
         if (licensingState.isHasLicense()) {
             if (userRepository.hasMorePaidUsersThan(licensingState.getUsersCount() - 1))
-                throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount());
+                throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount() + ". Refer to https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
         }
         OwnUser user = userMapper.toModel(userReq);
         user.setEmail(user.getEmail().toLowerCase());
