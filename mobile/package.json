@@ -1,6 +1,6 @@
 {
   "name": "atlas",
-  "version": "1.0.34",
+  "version": "1.0.35",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
@@ -80,7 +80,7 @@
     "redux-thunk": "^2.4.2",
     "sockjs-client": "^1.6.1",
     "text-encoding": "^0.7.0",
-    "websocket": "^1.0.34",
+    "websocket": "^1.0.35",
     "yup": "^1.0.0"
   },
   "devDependencies": {
