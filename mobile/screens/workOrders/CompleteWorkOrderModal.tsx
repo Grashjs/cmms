@@ -7,6 +7,8 @@ import { useContext } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import { IField } from '../../models/form';
 import Form from '../../components/form';
+import { getErrorMessage } from '../../utils/api';
+import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 
 export default function CompleteWorkOrderModal({
   navigation,
@@ -15,6 +17,7 @@ export default function CompleteWorkOrderModal({
   const { onComplete, fieldsConfig } = route.params;
   const { t }: { t: any } = useTranslation();
   const { uploadFiles } = useContext(CompanySettingsContext);
+  const { showSnackBar } = useContext(CustomSnackBarContext);
 
   const getFieldsAndShape = (): [Array<IField>, { [key: string]: any }] => {
     let fields: IField[] = [];
@@ -52,7 +55,9 @@ export default function CompleteWorkOrderModal({
         navigation={navigation}
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
-          return onComplete(values.signature, values.feedback);
+          return onComplete(values.signature, values.feedback).catch((err) =>
+            showSnackBar(getErrorMessage(err), 'error')
+          );
         }}
       />
     </View>

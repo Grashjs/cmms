@@ -9,6 +9,7 @@ import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import { useDispatch } from '../../store';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { formatAssetValues, getAssetFields } from '../../utils/fields';
+import { getErrorMessage } from '../../utils/api';
 import useAuth from '../../hooks/useAuth';
 import { addAsset, getAssetChildren } from '../../slices/asset';
 
@@ -26,7 +27,7 @@ export default function CreateAssetScreen({
     navigation.goBack();
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('asset_create_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('asset_create_failure')), 'error');
 
   const shape = {
     name: Yup.string().required(t('required_asset_name'))
@@ -60,29 +61,30 @@ export default function CreateAssetScreen({
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           let formattedValues = formatAssetValues(values);
-          return new Promise<void>((resolve, rej) => {
-            uploadFiles(formattedValues.files, formattedValues.image)
-              .then((files) => {
-                formattedValues = {
-                  ...formattedValues,
-                  image: files.length ? { id: files[0].id } : null,
-                  files: files.map((file) => {
-                    return { id: file.id };
-                  })
-                };
-                dispatch(addAsset(formattedValues))
-                  .then(onCreationSuccess)
-                  .then(() => {
-                    dispatch(getAssetChildren(0, []));
-                  })
-                  .catch(onCreationFailure)
-                  .finally(resolve);
+          try {
+            const files = await uploadFiles(
+              formattedValues.files,
+              formattedValues.image
+            );
+            formattedValues = {
+              ...formattedValues,
+              image: files.length ? { id: files[0].id } : null,
+              files: files.map((file) => {
+                return { id: file.id };
               })
-              .catch((err) => {
-                onCreationFailure(err);
-                rej(err);
-              });
-          });
+            };
+            try {
+              await dispatch(addAsset(formattedValues));
+              await onCreationSuccess();
+              await dispatch(getAssetChildren(0, []));
+            } catch (err) {
+              onCreationFailure(err);
+              throw err;
+            }
+          } catch (err) {
+            onCreationFailure(err);
+            throw err;
+          }
         }}
       />
     </View>

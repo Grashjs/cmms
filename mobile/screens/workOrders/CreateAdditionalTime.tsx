@@ -9,12 +9,16 @@ import { formatSelect } from '../../utils/formatters';
 import { RootStackScreenProps } from '../../types';
 import { useDispatch } from '../../store';
 import { createLabor } from '../../slices/labor';
+import { getErrorMessage } from '../../utils/api';
+import { useContext } from 'react';
+import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 
 export default function CreateAdditionalTime({
-                                               navigation,
-                                               route
-                                             }: RootStackScreenProps<'AddAdditionalCost'>) {
+  navigation,
+  route
+}: RootStackScreenProps<'AddAdditionalCost'>) {
   const { t } = useTranslation();
+  const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
   const fields: Array<IField> = [
     {
@@ -81,8 +85,7 @@ export default function CreateAdditionalTime({
         validation={Yup.object().shape(shape)}
         submitText={t('add')}
         values={{ includeToTotalTime: true }}
-        onChange={({ field, e }) => {
-        }}
+        onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           const formattedValues = { ...values };
           formattedValues.assignedTo = formatSelect(formattedValues.assignedTo);
@@ -92,7 +95,9 @@ export default function CreateAdditionalTime({
           formattedValues.duration = values.hours * 3600 + values.minutes * 60;
           return dispatch(
             createLabor(route.params.workOrderId, formattedValues)
-          ).finally(() => navigation.goBack());
+          )
+            .catch((err) => showSnackBar(getErrorMessage(err), 'error'))
+            .finally(() => navigation.goBack());
         }}
       />
     </View>

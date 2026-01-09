@@ -69,6 +69,7 @@ import {
 import Labor from '../../models/labor';
 import { AudioPlayer } from '../../components/AudioPlayer';
 import { Task } from '../../models/tasks';
+import { getErrorMessage } from '../../utils/api';
 
 const getRemainingTasksLength = (tasks: Task[]): number => {
   const SECONDS_MS = 5_000;
@@ -1181,9 +1182,9 @@ export default function WODetailsScreen({
                 color="white"
                 onPress={() => {
                   setControllingTime(true);
-                  dispatch(controlTimer(!runningTimer, id)).finally(() =>
-                    setControllingTime(false)
-                  );
+                  dispatch(controlTimer(!runningTimer, id))
+                    .catch((err) => showSnackBar(getErrorMessage(err), 'error'))
+                    .finally(() => setControllingTime(false));
                 }}
                 visible={true}
                 style={[styles.fabStyle]}

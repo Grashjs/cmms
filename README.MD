@@ -198,9 +198,8 @@ You can also join our [Discord server](https://discord.gg/cHqyVRYpkA)
 
 Atlas CMMS is dual-licensed:
 
-- [GPLv3 License](./LICENSE) — Free and open source.
-- [Commercial License](./COMMERCIAL_LICENSE.MD) — Required for white labeling, custom branding, and advanced features
-  like SSO.
+- [AGPLv3 License](./LICENSE) — Free and open source.
+- [Commercial License](./COMMERCIAL_LICENSE.MD) — Required for white labeling, custom branding, and advanced features.
 
 To enable commercial features, you must set a valid `LICENSE_KEY`.  
 Contact us at [contact@atlas-cmms.com](mailto:contact@atlas-cmms.com) to purchase a commercial license.

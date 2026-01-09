@@ -15,6 +15,7 @@ import { formatWorkOrderValues, getWorkOrderFields } from '../../utils/fields';
 import { assetStatuses } from '../../models/asset';
 import { useTheme } from 'react-native-paper';
 import { useAppTheme } from '../../custom-theme';
+import { getErrorMessage } from '../../utils/api';
 
 export default function CreateWorkOrderScreen({
   navigation,
@@ -37,7 +38,7 @@ export default function CreateWorkOrderScreen({
     navigation.goBack();
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('wo_create_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('wo_create_failure')), 'error');
   const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
     return getWOFieldsAndShapes(getWorkOrderFields(t), defaultShape);
   };

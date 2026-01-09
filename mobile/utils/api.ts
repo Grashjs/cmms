@@ -3,13 +3,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 async function api<T>(url: string, options): Promise<T> {
   return fetch(url, { headers: await authHeader(false), ...options }).then(
-    (response) => {
+    async (response) => {
       if (!response.ok) {
         if (response.status === 403) {
           //TODO
           // AsyncStorage.clear();
         }
-        throw new Error(response.statusText);
+        throw new Error(JSON.stringify(await response.json()));
       }
       return response.json() as Promise<T>;
     }
@@ -74,7 +74,10 @@ export async function authHeader(publicRoute) {
     };
   }
 }
-const getErrorMessage = (error: any, defaultMessage?: string): string => {
+export const getErrorMessage = (
+  error: any,
+  defaultMessage?: string
+): string => {
   try {
     const parsed = JSON.parse(error.message);
     return parsed?.message ?? error.message ?? defaultMessage;

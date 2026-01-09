@@ -12,6 +12,7 @@ import { formatPartValues, getPartFields } from '../../utils/fields';
 import useAuth from '../../hooks/useAuth';
 import { addPart } from '../../slices/part';
 import { getImageAndFiles } from '../../utils/overall';
+import { getErrorMessage } from '../../utils/api';
 
 export default function CreatePartScreen({
   navigation,
@@ -27,7 +28,7 @@ export default function CreatePartScreen({
     navigation.goBack();
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('part_create_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('part_create_failure')), 'error');
 
   const shape = {
     name: Yup.string().required(t('required_part_name'))
