@@ -121,6 +121,10 @@ public class UserService {
 
     public void checkUsageBasedLimit(int newUsersCount) {
         LicensingState licensingState = licenseService.getLicensingState();
+        if (licensingState.isHasLicense()) {
+            if (userRepository.hasMorePaidUsersThan(licensingState.getUsersCount() - newUsersCount))
+                throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount() + ". Refer to https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
+        }
         Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_USERS);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)
                 && userRepository.hasMorePaidUsersThan(threshold - newUsersCount
@@ -129,12 +133,6 @@ public class UserService {
     }
 
     public SignupSuccessResponse<OwnUser> signup(UserSignupRequest userReq) {
-        LicensingState licensingState = licenseService.getLicensingState();
-        if (licensingState.isHasLicense()) {
-            if (userRepository.hasMorePaidUsersThan(licensingState.getUsersCount() - 1))
-                throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount() + ". Refer to https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
-        }
-        checkUsageBasedLimit(1);
         OwnUser user = userMapper.toModel(userReq);
         user.setEmail(user.getEmail().toLowerCase());
         if (userRepository.existsByEmailIgnoreCase(user.getEmail())) {
@@ -311,6 +309,7 @@ public class UserService {
 
     public void invite(String email, Role role, OwnUser inviter) {
         if (!userRepository.existsByEmailIgnoreCase(email) && Helper.isValidEmailAddress(email)) {
+            if (role.isPaid()) checkUsageBasedLimit(1);
             userInvitationService.create(new UserInvitation(email, role));
             if (!enableInvitationViaEmail || !enableMails) return;
             Map<String, Object> variables = new HashMap<String, Object>() {{

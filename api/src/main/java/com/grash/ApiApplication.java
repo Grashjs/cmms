@@ -31,9 +31,6 @@ public class ApiApplication implements SmartInitializingSingleton {
     private final RoleService roleService;
     private final CompanyService companyService;
     private final SubscriptionPlanService subscriptionPlanService;
-    private final SubscriptionService subscriptionService;
-    private final ScheduleService scheduleService;
-    private final LicenseService licenseService;
 
     public static void main(String[] args) {
         SpringApplication.run(ApiApplication.class, args);
@@ -53,7 +50,7 @@ public class ApiApplication implements SmartInitializingSingleton {
             log.info("Updating default roles...");
             roleService.updateDefaultRoles();
 
-            checkLicenseUsersCount();
+            userService.checkUsageBasedLimit(0);
 
             log.info("Application initialization completed successfully");
         } catch (Exception e) {
@@ -143,16 +140,7 @@ public class ApiApplication implements SmartInitializingSingleton {
                     .yearlyCostPerUser(800).build());
         }
     }
-
-
-    private void checkLicenseUsersCount() {
-        LicensingState licensingState = licenseService.getLicensingState();
-        if (licensingState.isHasLicense()) {
-            if (userRepository.hasMorePaidUsersThan(licensingState.getUsersCount()))
-                throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount() + ". Refer to https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
-        }
-        userService.checkUsageBasedLimit(0);
-    }
+    
 
     @NotNull
     private static UserSignupRequest getSuperAdminSignupRequest(Role savedSuperAdminRole) {
