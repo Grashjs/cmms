@@ -165,10 +165,12 @@ public class UserService {
             user.setCompany(company);
             user.setRole(company.getCompanySettings().getRoleList().stream().filter(role -> role.getName().equals(
                     "Administrator")).findFirst().get());
+            checkUsageBasedLimit(1);
         } else {
             Optional<Role> optionalRole = roleService.findById(user.getRole().getId());
             if (!optionalRole.isPresent())
                 throw new CustomException("Role not found", HttpStatus.NOT_ACCEPTABLE);
+            if (optionalRole.get().isPaid()) checkUsageBasedLimit(1);
             List<UserInvitation> userInvitations =
                     userInvitationService.findByRoleAndEmail(optionalRole.get().getId(), user.getEmail());
             if (enableInvitationViaEmail && userInvitations.isEmpty()) {
