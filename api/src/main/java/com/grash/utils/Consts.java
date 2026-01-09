@@ -32,7 +32,7 @@ public class Consts {
     public static final Map<LicenseEntitlement, Integer> usageBasedLicenseLimits =
             new HashMap<LicenseEntitlement, Integer>() {
                 {
-                    put(LicenseEntitlement.UNLIMITED_CHECKLIST, 10);
+                    put(LicenseEntitlement.UNLIMITED_CHECKLISTS, 10);
                     put(LicenseEntitlement.UNLIMITED_ASSETS, 50);
                     put(LicenseEntitlement.UNLIMITED_PARTS, 100);
                     put(LicenseEntitlement.UNLIMITED_LOCATIONS, 10);
