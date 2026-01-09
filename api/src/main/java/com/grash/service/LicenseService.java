@@ -23,7 +23,7 @@ public class LicenseService {
     private static final long CACHE_DURATION_MILLIS = 12 * 60 * 60 * 1000; // 12 hours
     private static final String API_URL_TEMPLATE = "https://api.keygen.sh/v1/accounts/%s/licenses/actions/validate-key";
     private static final String ENTITLEMENTS_URL_TEMPLATE = "https://api.keygen.sh/v1/accounts/%s/licenses/%s" +
-            "/entitlements";
+            "/entitlements?limit=100";
     private static final MediaType KEYGEN_MEDIA_TYPE = MediaType.valueOf("application/vnd.api+json");
 
     private final ObjectMapper objectMapper;
@@ -43,15 +43,6 @@ public class LicenseService {
     private volatile long lastCheckedTime = 0;
 
     public synchronized LicensingState getLicensingState() {
-        //TODO remove
-        if (true) return LicensingState.builder()
-                .valid(false)
-                .hasLicense(true)
-                .expirationDate(Helper.incrementDays(new Date(), 365))
-                .planName("Free")
-//                .entitlements(Arrays.stream(LicenseEntitlement.values()).map(Enum::toString).collect(Collectors
-//                .toSet()))
-                .usersCount(5000000).build();
         if (isCacheValid()) {
             return buildLicensingStateFromCache();
         }

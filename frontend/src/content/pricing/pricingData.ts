@@ -65,11 +65,9 @@ export const pricingPlans: {
     features: [
       'Everything in Professional plus:',
       'Workflow Automation',
-      'Downtime Tracking',
-      'Reliability Tracking',
       'Purchase Order Management',
       'Multi-site Module Support',
-      'Standard API Access',
+      'API Access',
       'Custom Work Order Statuses',
       'Custom Integrations Support',
       'Customizable Dashboards',
@@ -211,7 +209,7 @@ export const planFeatureCategories = [
           professional: false,
           business: true,
           'sh-free': false,
-          'sh-professional': true,
+          'sh-professional': false,
           'sh-business': true
         }
       }
@@ -608,7 +606,7 @@ export const planFeatureCategories = [
           professional: false,
           business: true,
           'sh-free': false,
-          'sh-professional': true,
+          'sh-professional': false,
           'sh-business': true
         }
       },
@@ -919,18 +917,17 @@ export const selfHostedPlans: {
     popular: true,
     features: [
       'Everything in Basic plus:',
-      'Custom Checklists & Procedures',
-      'Automated Workflows',
-      'Webhook Integration',
+      'Unlimited Assets/Checklists',
+      'File Uploads',
       'Meter Readings',
       'NFC & Barcode Scanning',
-      'Email & Community Support'
+      'Email Support'
     ]
   },
   {
     id: 'sh-business',
     name: 'Enterprise',
-    price: '100',
+    price: '40',
     description:
       'Full-scale operations requiring multi-instance management, custom branding, and top-tier security.',
     popular: false,
@@ -939,7 +936,9 @@ export const selfHostedPlans: {
       'Multi-Instance Management',
       'Single Sign-On (SSO)',
       'Custom User Roles',
-      'White-label / Custom Branding',
+      'Automated Workflows',
+      'Webhook Integration',
+      'API Access',
       'Priority Implementation Support'
     ]
   }
