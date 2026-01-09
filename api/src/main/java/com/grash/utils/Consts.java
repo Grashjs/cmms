@@ -53,6 +53,7 @@ public class Consts {
                     put(LicenseEntitlement.UNLIMITED_PM_SCHEDULES, 10);
                     put(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS, 30);
                     put(LicenseEntitlement.UNLIMITED_METERS, 10);
+                    put(LicenseEntitlement.UNLIMITED_USERS, 5);
                 }
             };
 }

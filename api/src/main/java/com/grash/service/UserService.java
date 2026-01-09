@@ -40,6 +40,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.util.*;
 
+import static com.grash.utils.Consts.usageBasedLicenseLimits;
+
 
 @Service
 @RequiredArgsConstructor
@@ -117,12 +119,22 @@ public class UserService {
                 Collections.singletonList(user.getRole().getRoleType())), user);
     }
 
+    public void checkUsageBasedLimit(int newUsersCount) {
+        LicensingState licensingState = licenseService.getLicensingState();
+        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_USERS);
+        if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)
+                && userRepository.hasMorePaidUsersThan(threshold - newUsersCount
+        ))
+            throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount() + ". Refer to https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
+    }
+
     public SignupSuccessResponse<OwnUser> signup(UserSignupRequest userReq) {
         LicensingState licensingState = licenseService.getLicensingState();
         if (licensingState.isHasLicense()) {
             if (userRepository.hasMorePaidUsersThan(licensingState.getUsersCount() - 1))
                 throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount() + ". Refer to https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
         }
+        checkUsageBasedLimit(1);
         OwnUser user = userMapper.toModel(userReq);
         user.setEmail(user.getEmail().toLowerCase());
         if (userRepository.existsByEmailIgnoreCase(user.getEmail())) {
@@ -248,6 +260,7 @@ public class UserService {
     public void enableUser(String email) {
         OwnUser user = userRepository.findByEmailIgnoreCase(email).get();
         if (user.getRole().isPaid()) {
+            checkUsageBasedLimit(1);
             int companyUsersCount =
                     (int) findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.isEnabled() && user1.isEnabledInSubscriptionAndPaid()).count();
             if (companyUsersCount + 1 > user.getCompany().getSubscription().getUsersCount())
