@@ -11,6 +11,7 @@ import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { formatMeterValues, getMeterFields } from '../../utils/fields';
 import useAuth from '../../hooks/useAuth';
 import { addMeter } from '../../slices/meter';
+import { getErrorMessage } from '../../utils/api';
 
 export default function CreateMeterScreen({
   navigation,
@@ -26,7 +27,7 @@ export default function CreateMeterScreen({
     navigation.goBack();
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('meter_create_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('meter_create_failure')), 'error');
 
   const shape = {
     name: Yup.string().required(t('required_meter_name')),

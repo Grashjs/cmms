@@ -9,12 +9,16 @@ import { formatSelect } from '../../utils/formatters';
 import { createAdditionalCost } from '../../slices/additionalCost';
 import { RootStackScreenProps } from '../../types';
 import { useDispatch } from '../../store';
+import { getErrorMessage } from '../../utils/api';
+import { useContext } from 'react';
+import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 
 export default function CreateAdditionalCost({
   navigation,
   route
 }: RootStackScreenProps<'AddAdditionalCost'>) {
   const { t } = useTranslation();
+  const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
   const fields: Array<IField> = [
     {
@@ -76,7 +80,9 @@ export default function CreateAdditionalCost({
           formattedValues.category = formatSelect(formattedValues.category);
           return dispatch(
             createAdditionalCost(route.params.workOrderId, formattedValues)
-          ).finally(() => navigation.goBack());
+          )
+            .catch((err) => showSnackBar(getErrorMessage(err), 'error'))
+            .finally(() => navigation.goBack());
         }}
       />
     </View>

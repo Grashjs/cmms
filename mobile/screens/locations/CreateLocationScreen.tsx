@@ -11,6 +11,7 @@ import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { formatLocationValues, getLocationFields } from '../../utils/fields';
 import useAuth from '../../hooks/useAuth';
 import { addLocation, getLocationChildren } from '../../slices/location';
+import { getErrorMessage } from '../../utils/api';
 
 export default function CreateLocationScreen({
   navigation,
@@ -26,7 +27,7 @@ export default function CreateLocationScreen({
     navigation.goBack();
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('location_create_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('location_create_failure')), 'error');
 
   const shape = {
     name: Yup.string().required(t('required_location_name'))

@@ -9,6 +9,7 @@ import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import { useDispatch } from '../../store';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { formatAssetValues, getAssetFields } from '../../utils/fields';
+import { getErrorMessage } from '../../utils/api';
 import useAuth from '../../hooks/useAuth';
 import { addAsset, getAssetChildren } from '../../slices/asset';
 
@@ -26,7 +27,7 @@ export default function CreateAssetScreen({
     navigation.goBack();
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('asset_create_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('asset_create_failure')), 'error');
 
   const shape = {
     name: Yup.string().required(t('required_asset_name'))
