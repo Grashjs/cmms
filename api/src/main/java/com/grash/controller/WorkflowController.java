@@ -2,10 +2,12 @@ package com.grash.controller;
 
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.WorkflowPostDTO;
+import com.grash.dto.WorkflowShowDTO;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkflowActionMapper;
 import com.grash.mapper.WorkflowConditionMapper;
+import com.grash.mapper.WorkflowMapper;
 import com.grash.model.*;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
@@ -40,27 +42,29 @@ public class WorkflowController {
     private final WorkflowActionMapper workflowActionMapper;
     private final WorkflowActionService workflowActionService;
     private final LicenseService licenseService;
+    private final WorkflowMapper workflowMapper;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
 
-    public Collection<Workflow> getAll(HttpServletRequest req) {
+    public Collection<WorkflowShowDTO> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return workflowService.findByCompany(user.getCompany().getId());
-        } else return workflowService.getAll();
+            return workflowService.findByCompany(user.getCompany().getId()).stream().map(workflowMapper::toShowDto).collect(Collectors.toList());
+        } else
+            return workflowService.getAll().stream().map(workflowMapper::toShowDto).collect(Collectors.toList());
     }
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    Workflow create(@Valid @RequestBody WorkflowPostDTO workflowReq,
-                    HttpServletRequest req) {
+    public WorkflowShowDTO create(@Valid @RequestBody WorkflowPostDTO workflowReq,
+                                  HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
             int workflowsCount =
                     (int) workflowService.findByCompany(user.getCompany().getId()).stream().filter(Workflow::isEnabled).count();
             if ((user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.WORKFLOW) && licenseService.hasEntitlement(LicenseEntitlement.WORKFLOW)) || workflowsCount == 0) {
-                return createWorkflow(workflowReq, user.getCompany());
+                return workflowMapper.toShowDto(createWorkflow(workflowReq, user.getCompany()));
             } else
                 throw new CustomException("You can't create a new workflow. Please upgrade", HttpStatus.NOT_ACCEPTABLE);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -69,28 +73,28 @@ public class WorkflowController {
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
 
-    public Workflow getById(@PathVariable("id") Long id, HttpServletRequest req) {
+    public WorkflowShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Workflow> optionalWorkflow = workflowService.findById(id);
         if (optionalWorkflow.isPresent()) {
             Workflow savedWorkflow = optionalWorkflow.get();
-            return savedWorkflow;
+            return workflowMapper.toShowDto(savedWorkflow);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public Workflow patch(@Valid @RequestBody WorkflowPostDTO workflow,
-                          @PathVariable("id") Long id,
-                          HttpServletRequest req) {
+    public WorkflowShowDTO patch(@Valid @RequestBody WorkflowPostDTO workflow,
+                                 @PathVariable("id") Long id,
+                                 HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Workflow> optionalWorkflow = workflowService.findById(id);
 
         if (optionalWorkflow.isPresent()) {
             Workflow savedWorkflow = optionalWorkflow.get();
             workflowService.delete(id);
-            return createWorkflow(workflow, user.getCompany());
+            return workflowMapper.toShowDto(createWorkflow(workflow, user.getCompany()));
         } else throw new CustomException("Workflow not found", HttpStatus.NOT_FOUND);
     }
 

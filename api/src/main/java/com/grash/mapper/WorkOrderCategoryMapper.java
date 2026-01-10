@@ -1,5 +1,6 @@
 package com.grash.mapper;
 
+import com.grash.dto.CategoryMiniDTO;
 import com.grash.dto.CategoryPatchDTO;
 import com.grash.model.WorkOrderCategory;
 import org.mapstruct.Mapper;
@@ -12,4 +13,6 @@ public interface WorkOrderCategoryMapper {
 
     @Mappings({})
     CategoryPatchDTO toPatchDto(WorkOrderCategory model);
+
+    CategoryMiniDTO toMiniDto(WorkOrderCategory model);
 }
