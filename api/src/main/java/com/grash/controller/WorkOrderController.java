@@ -362,7 +362,7 @@ public class WorkOrderController {
         } else throw new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND);
     }
 
-    @RequestMapping(path = "/report/{id}")
+    @GetMapping(path = "/report/{id}")
     @Transactional
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<?> getPDF(@PathVariable("id") Long id, HttpServletRequest req,
