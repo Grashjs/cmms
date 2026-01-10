@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 
-@Mapper(componentModel = "spring", uses = {FileMapper.class})
+@Mapper(componentModel = "spring", uses = {FileMapper.class, TaskBaseMapper.class})
 public interface TaskMapper {
     Task updateTask(@MappingTarget Task entity, TaskPatchDTO dto);
 
