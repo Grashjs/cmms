@@ -49,7 +49,7 @@ public class SubscriptionPlanController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    public SubscriptionPlan patch(Long id,
+    public SubscriptionPlan patch(@Valid @RequestBody SubscriptionPlanPatchDTO subscriptionPlan, Long id,
                                   HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<SubscriptionPlan> optionalSubscriptionPlan = subscriptionPlanService.findById(id);

@@ -63,7 +63,8 @@ public class WorkOrderMeterTriggerController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public WorkOrderMeterTriggerShowDTO patch(Long id,
+    public WorkOrderMeterTriggerShowDTO patch(@Valid @RequestBody WorkOrderMeterTriggerPatchDTO workOrderMeterTrigger
+            , Long id,
                                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrderMeterTrigger> optionalWorkOrderMeterTrigger = workOrderMeterTriggerService.findById(id);

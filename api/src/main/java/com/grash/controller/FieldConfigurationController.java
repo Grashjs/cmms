@@ -34,7 +34,7 @@ public class FieldConfigurationController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public FieldConfiguration patch(Long id,
+    public FieldConfiguration patch(@Valid @RequestBody FieldConfigurationPatchDTO fieldConfiguration, Long id,
                                     HttpServletRequest req) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.FIELD_CONFIGURATION))
             throw new CustomException("You need a license to edit field configurations", HttpStatus.FORBIDDEN);

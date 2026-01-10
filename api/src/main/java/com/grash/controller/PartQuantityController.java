@@ -64,7 +64,7 @@ public class PartQuantityController {
 
     @PatchMapping("/work-order/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<PartQuantityShowDTO> patchWorkOrder(Long id,
+    public Collection<PartQuantityShowDTO> patchWorkOrder(@Valid @RequestBody List<Long> parts, Long id,
                                                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
@@ -103,7 +103,7 @@ public class PartQuantityController {
 
     @PatchMapping("/purchase-order/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<PartQuantityShowDTO> patchPurchaseOrder(Long id,
+    public Collection<PartQuantityShowDTO> patchPurchaseOrder(@Valid @RequestBody List<PartQuantityCompletePatchDTO> partQuantitiesReq, Long id,
                                                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);

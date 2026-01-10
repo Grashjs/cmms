@@ -170,4 +170,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_01_04_1767500000_quartz_tables.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_01_10_1768015926_enums_type.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

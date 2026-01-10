@@ -59,7 +59,7 @@ public class WorkOrderCategoryController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public WorkOrderCategory patch(Long id,
+    public WorkOrderCategory patch(@Valid @RequestBody CategoryPatchDTO categoryPatchDTO, Long id,
                                    HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrderCategory> optionalWorkOrderCategory = workOrderCategoryService.findById(id);

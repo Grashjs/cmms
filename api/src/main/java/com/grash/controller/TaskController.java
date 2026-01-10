@@ -71,7 +71,7 @@ public class TaskController {
 
     @PatchMapping("/preventive-maintenance/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<TaskShowDTO> createByPreventiveMaintenance(Long id, HttpServletRequest req) {
+    public Collection<TaskShowDTO> createByPreventiveMaintenance(@Valid @RequestBody Collection<TaskBaseDTO> taskBasesReq, Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent() && optionalPreventiveMaintenance.get().canBeEditedBy(user)) {

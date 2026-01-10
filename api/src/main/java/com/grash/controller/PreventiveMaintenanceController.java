@@ -87,7 +87,8 @@ public class PreventiveMaintenanceController {
     @Transactional
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public PreventiveMaintenanceShowDTO patch(Long id,
+    public PreventiveMaintenanceShowDTO patch(@Valid @RequestBody PreventiveMaintenancePatchDTO preventiveMaintenance
+            , Long id,
                                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);

@@ -59,7 +59,7 @@ public class PurchaseOrderCategoryController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public PurchaseOrderCategory patch(Long id,
+    public PurchaseOrderCategory patch(@Valid @RequestBody CategoryPatchDTO categoryPatchDTO, Long id,
                                        HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {

@@ -11,23 +11,22 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
@@ -36,77 +35,75 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${enable-sso}")
     private boolean enableSso;
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         // Disable CSRF (cross site request forgery)
-        http.csrf().disable();
+        http.csrf(csrf -> csrf.disable());
 
         // No session will be created or used by spring security
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // Entry points
-        http.authorizeRequests()//
-                .antMatchers("/auth/signin").permitAll()//
-                .antMatchers("/auth/signup").permitAll()//
-                .antMatchers("/auth/sso/**").permitAll()//
-                .antMatchers("/auth/sendMail").permitAll()//
-                .antMatchers("/auth/resetpwd/**").permitAll()
-                .antMatchers("/license/state").permitAll()
-                .antMatchers("/oauth2/**").permitAll()
-                .antMatchers("/login/oauth2/**").permitAll()
-                .antMatchers("/health-check").permitAll()
-                .antMatchers("/mail/send").permitAll()
-                .antMatchers("/subscription-plans").permitAll()
-                .antMatchers("/files/download/tos", "/files/download/privacy-policy").permitAll()
-                .antMatchers("/ws/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/newsLetters").permitAll()
-                .antMatchers("/auth/activate-account**").permitAll()//
-                .antMatchers("/demo/generate-account").permitAll()//
-                .antMatchers("/webhooks/**").permitAll()//
-                .antMatchers("/paddle/create-checkout-session").permitAll()//
-                .antMatchers("/auth/reset-pwd-confirm**").permitAll()//
-                .antMatchers("/h2-console/**/**").permitAll()
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/auth/signin").permitAll()
+                .requestMatchers("/auth/signup").permitAll()
+                .requestMatchers("/auth/sso/**").permitAll()
+                .requestMatchers("/auth/sendMail").permitAll()
+                .requestMatchers("/auth/resetpwd/**").permitAll()
+                .requestMatchers("/license/state").permitAll()
+                .requestMatchers("/oauth2/**").permitAll()
+                .requestMatchers("/login/oauth2/**").permitAll()
+                .requestMatchers("/health-check").permitAll()
+                .requestMatchers("/mail/send").permitAll()
+                .requestMatchers("/subscription-plans").permitAll()
+                .requestMatchers("/files/download/tos", "/files/download/privacy-policy").permitAll()
+                .requestMatchers("/ws/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/newsLetters").permitAll()
+                .requestMatchers("/auth/activate-account**").permitAll()
+                .requestMatchers("/demo/generate-account").permitAll()
+                .requestMatchers("/webhooks/**").permitAll()
+                .requestMatchers("/paddle/create-checkout-session").permitAll()
+                .requestMatchers("/auth/reset-pwd-confirm**").permitAll()
+                .requestMatchers("/h2-console/**/**").permitAll()
                 // Disallow everything else..
-                .anyRequest().authenticated();
+                .anyRequest().authenticated()
+        );
 
         // OAuth2 Configuration
-        if (enableSso && licenseService.isSSOEnabled()) http.oauth2Login()
-                .authorizationEndpoint()
-                .baseUri("/oauth2/authorize")
-                .and()
-                .redirectionEndpoint()
-                .baseUri("/oauth2/callback/*")
-                .and()
-                .successHandler(oAuth2AuthenticationSuccessHandler)
-                .failureHandler(oAuth2AuthenticationFailureHandler);
+        if (enableSso && licenseService.isSSOEnabled()) {
+            http.oauth2Login(oauth2 -> oauth2
+                    .authorizationEndpoint(endpoint -> endpoint.baseUri("/oauth2/authorize"))
+                    .redirectionEndpoint(endpoint -> endpoint.baseUri("/oauth2/callback/*"))
+                    .successHandler(oAuth2AuthenticationSuccessHandler)
+                    .failureHandler(oAuth2AuthenticationFailureHandler)
+            );
+        }
 
         // If a user try to access a resource without having enough permissions
-        http.exceptionHandling().accessDeniedPage("/login");
+        http.exceptionHandling(exception -> exception.accessDeniedPage("/login"));
 
         // Apply JWT
         http.apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
-        http.cors();
+        http.cors(cors -> {
+        }); // Using lambda for cors configuration
 
-        // Optional, if you want to test the API from a browser
-        // http.httpBasic();
+        return http.build();
     }
 
-    @Override
-    public void configure(WebSecurity web) {
-        // Allow swagger to be accessed without authentication
-        web.ignoring().antMatchers("/v2/api-docs")//
-                .antMatchers("/swagger-resources/**")//
-                .antMatchers("/swagger-ui.html")//
-                .antMatchers("/com/grash/configuration/**")//
-                .antMatchers("/webjars/**")//
-                .antMatchers("/public")
-                .antMatchers("/images/**")
-                // Un-secure H2 Database (for testing purposes, H2 console shouldn't be unprotected in production)
-                .and()
-                .ignoring()
-                .antMatchers("/h2-console/**/**");
-        ;
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring()
+                .requestMatchers("/v2/api-docs")//
+                .requestMatchers("/swagger-resources/**")//
+                .requestMatchers("/swagger-ui.html")//
+                .requestMatchers("/com/grash/configuration/**")//
+                .requestMatchers("/webjars/**")//
+                .requestMatchers("/public")
+                .requestMatchers("/images/**")
+                // Un-secure H2 Database (for testing purposes, H2 console shouldn\'t be unprotected in production)
+//                .requestMatchers("/h2-console/**/**")
+                ;
     }
 
     @Bean
@@ -114,10 +111,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder(12);
     }
 
-    @Override
-    @Bean
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
 
 }

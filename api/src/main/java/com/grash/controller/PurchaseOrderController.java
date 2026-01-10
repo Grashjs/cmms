@@ -86,7 +86,7 @@ public class PurchaseOrderController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public PurchaseOrderShowDTO patch(Long id,
+    public PurchaseOrderShowDTO patch(@Valid @RequestBody PurchaseOrderPatchDTO purchaseOrder, Long id,
                                       HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
