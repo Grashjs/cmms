@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="create_missing_sequences_snake_case" author="Ibrahima G. Coulibaly">
+        <sql splitStatements="false"><![CDATA[
+            DO
+            $body$
+            DECLARE
+            tbl TEXT;
+                max_id
+            BIGINT;
+                tables_to_check
+            TEXT[] := ARRAY[
+                    'additional_cost', 'asset', 'asset_category', 'asset_downtime', 'checklist', 'company',
+                    'company_settings', 'cost_category', 'currency', 'customer', 'custom_field', 'custom_sequence',
+                    'deprecation', 'field_configuration', 'file', 'floor_plan', 'general_preferences', 'labor',
+                    'location', 'meter', 'meter_category', 'multi_parts', 'notification', 'own_user', 'part',
+                    'part_category', 'part_consumption', 'part_quantity', 'preventive_maintenance', 'purchase_order',
+                    'purchase_order_category', 'push_notification_token', 'reading', 'relation', 'request', 'role',
+                    'schedule', 'subscription', 'subscription_change_request', 'subscription_plan', 'super_account_relation',
+                    'task', 'task_base', 'task_option', 'team', 'time_category', 'ui_configuration', 'user_invitation',
+                    'user_settings', 'vendor', 'verification_token', 'workflow', 'workflow_action', 'workflow_condition',
+                    'work_order', 'work_order_category', 'work_order_configuration', 'work_order_history',
+                    'work_order_meter_trigger', 'work_order_request_configuration'
+                ];
+            BEGIN
+                FOREACH
+            tbl IN ARRAY tables_to_check LOOP
+                    EXECUTE format('SELECT COALESCE(MAX(id), 0) FROM %I', tbl) INTO max_id;
+            EXECUTE format(
+                    'CREATE SEQUENCE IF NOT EXISTS %I_seq START WITH %s INCREMENT BY 1',
+                    tbl,
+                    max_id + 1
+                    );
+            END LOOP;
+            END
+            $body$;
+            ]]></sql>
+    </changeSet>
+    <changeSet id="1768024677353-1" author="Ibrahima (generated)">
+        <sql splitStatements="false"><![CDATA[
+            DO
+            $body$
+            DECLARE
+            tbl TEXT;
+                max_id
+            BIGINT;
+                tables_to_check
+            TEXT[] := ARRAY[
+                    'additional_cost', 'asset', 'asset_category', 'asset_downtime', 'checklist', 'company',
+                    'company_settings', 'cost_category', 'currency', 'customer', 'custom_field', 'custom_sequence',
+                    'deprecation', 'field_configuration', 'file', 'floor_plan', 'general_preferences', 'labor',
+                    'location', 'meter', 'meter_category', 'multi_parts', 'notification', 'own_user', 'part',
+                    'part_category', 'part_consumption', 'part_quantity', 'preventive_maintenance', 'purchase_order',
+                    'purchase_order_category', 'push_notification_token', 'reading', 'relation', 'request', 'role',
+                    'schedule', 'subscription', 'subscription_change_request', 'subscription_plan', 'super_account_relation',
+                    'task', 'task_base', 'task_option', 'team', 'time_category', 'ui_configuration', 'user_invitation',
+                    'user_settings', 'vendor', 'verification_token', 'workflow', 'workflow_action', 'workflow_condition',
+                    'work_order', 'work_order_category', 'work_order_configuration', 'work_order_history',
+                    'work_order_meter_trigger', 'work_order_request_configuration'
+                ];
+            BEGIN
+                FOREACH
+            tbl IN ARRAY tables_to_check LOOP
+                    -- Get max id from table
+                    EXECUTE format('SELECT COALESCE(MAX(id), 0) FROM %I', tbl) INTO max_id;
+
+                    -- Drop existing sequence if it exists
+            EXECUTE format('DROP SEQUENCE IF EXISTS %I_seq', tbl);
+
+            -- Create sequence with increment 50
+            EXECUTE format(
+                    'CREATE SEQUENCE %I_seq START WITH %s INCREMENT BY 50',
+                    tbl,
+                    max_id + 1
+                    );
+            END LOOP;
+            END
+            $body$;
+            ]]></sql>
+    </changeSet>
+
+</databaseChangeLog>
