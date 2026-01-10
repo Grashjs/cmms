@@ -12,7 +12,6 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class LocationShowDTO extends AuditShowDTO {
-    private Company company;
 
     private String name;
 

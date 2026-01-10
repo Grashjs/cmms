@@ -11,6 +11,7 @@ import com.grash.model.OwnUser;
 import com.grash.model.Subscription;
 import com.grash.model.enums.SubscriptionScheduledChangeType;
 import com.grash.service.*;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Scheduler;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/webhooks")
+@Hidden
 @RequiredArgsConstructor
 @Slf4j
 class WebhookController {

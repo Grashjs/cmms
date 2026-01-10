@@ -11,6 +11,7 @@ import com.grash.model.enums.Language;
 import com.grash.security.CurrentUser;
 import com.grash.security.CustomUserDetail;
 import com.grash.service.*;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -46,6 +47,7 @@ public class DemoController {
     private final AssetService assetService;
     private final DemoDataService demoDataService;
 
+    @Hidden
     @GetMapping("/generate-account")
     public SuccessResponse generateAccount(HttpServletRequest req) {
         String clientIp = req.getRemoteAddr(); // use IP as the key

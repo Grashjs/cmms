@@ -5,6 +5,8 @@ import com.grash.model.Currency;
 import com.grash.model.enums.BusinessType;
 import com.grash.model.enums.DateFormat;
 import com.grash.model.enums.Language;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +20,7 @@ import org.springframework.http.HttpStatus;
 public class GeneralPreferencesPatchDTO {
 
     private Language language;
+    @Schema(implementation = IdDTO.class)
     private Currency currency;
     private BusinessType businessType;
     private DateFormat dateFormat;

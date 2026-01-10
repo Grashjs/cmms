@@ -2,6 +2,8 @@ package com.grash.dto;
 
 import com.grash.model.PurchaseOrderCategory;
 import com.grash.model.Vendor;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +14,7 @@ import java.util.Date;
 public class PurchaseOrderPatchDTO {
     private String name;
 
+    @Schema(implementation = IdDTO.class)
     private PurchaseOrderCategory category;
 
     private Date shippingDueDate;
@@ -44,6 +47,7 @@ public class PurchaseOrderPatchDTO {
 
     private String additionalInfoNotes;
 
+    @Schema(implementation = IdDTO.class)
     private Vendor vendor;
 
     // private Company requesterInformation;

@@ -10,6 +10,7 @@ import com.grash.model.enums.SubscriptionScheduledChangeType;
 import com.grash.service.PaddleService;
 import com.grash.service.SubscriptionService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -18,10 +19,12 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/paddle")
+@Hidden
 @RequiredArgsConstructor
 public class PaddleController {
 

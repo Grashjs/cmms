@@ -73,7 +73,7 @@ public class RelationController {
         Long parentId = relationReq.getParent().getId();
         Long childId = relationReq.getChild().getId();
         if (relationService.findByParentAndChild(parentId, childId).isEmpty() && relationService.findByParentAndChild(childId, parentId).isEmpty()) {
-            return relationService.createPost(relationReq);
+            return relationService.createPost(relationReq, user);
         } else
             throw new CustomException("There already is a relation between these 2 Work Orders",
                     HttpStatus.NOT_ACCEPTABLE);
