@@ -21,7 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -43,7 +43,7 @@ public class UserController {
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<UserResponseDTO>> search(@RequestBody SearchCriteria searchCriteria,
-                                                        @ApiIgnore @CurrentUser OwnUser user) {
+                                                        @Parameter(hidden = true) @CurrentUser OwnUser user) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 searchCriteria.filterCompany(user);
@@ -54,7 +54,8 @@ public class UserController {
 
     @PostMapping("/invite")
     @PreAuthorize("permitAll()")
-    public SuccessResponse invite(@RequestBody UserInvitationDTO invitation, @ApiIgnore @CurrentUser OwnUser user) {
+    public SuccessResponse invite(@RequestBody UserInvitationDTO invitation,
+                                  @Parameter(hidden = true) @CurrentUser OwnUser user) {
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
             int companyUsersCount =
                     (int) userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.isEnabled() && user1.isEnabledInSubscriptionAndPaid()).count();
@@ -75,7 +76,7 @@ public class UserController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<UserMiniDTO> getMini(@ApiIgnore @CurrentUser OwnUser user,
+    public Collection<UserMiniDTO> getMini(@Parameter(hidden = true) @CurrentUser OwnUser user,
                                            @RequestParam(required = false) Boolean withRequesters) {
         return Boolean.TRUE.equals(withRequesters) ?
                 userService.findByCompany(user.getCompany().getId()).stream()
@@ -88,7 +89,7 @@ public class UserController {
 
     @GetMapping("/mini/disabled")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<UserMiniDTO> getMiniDisabled(@ApiIgnore @CurrentUser OwnUser user) {
+    public Collection<UserMiniDTO> getMiniDisabled(@Parameter(hidden = true) @CurrentUser OwnUser user) {
         return userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> !user1.isEnabledInSubscription()).map(userMapper::toMiniDto).collect(Collectors.toList());
     }
 
@@ -97,7 +98,7 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public UserResponseDTO patch(@Valid @RequestBody UserPatchDTO userReq,
                                  @PathVariable("id") Long id,
-                                 @ApiIgnore @CurrentUser OwnUser requester) {
+                                 @Parameter(hidden = true) @CurrentUser OwnUser requester) {
         Optional<OwnUser> optionalUser = userService.findByIdAndCompany(id, requester.getCompany().getId());
 
         if (optionalUser.isPresent()) {
@@ -116,7 +117,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public UserResponseDTO getById(@PathVariable("id") Long id, @ApiIgnore @CurrentUser OwnUser user) {
+    public UserResponseDTO getById(@PathVariable("id") Long id, @Parameter(hidden = true) @CurrentUser OwnUser user) {
         Optional<OwnUser> optionalUser = userService.findByIdAndCompany(id, user.getCompany().getId());
         if (optionalUser.isPresent()) {
             OwnUser savedUser = optionalUser.get();
@@ -130,7 +131,7 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public UserResponseDTO patchRole(@PathVariable("id") Long id,
                                      @RequestParam("role") Long roleId,
-                                     @ApiIgnore @CurrentUser OwnUser requester) {
+                                     @Parameter(hidden = true) @CurrentUser OwnUser requester) {
         Optional<OwnUser> optionalUserToPatch = userService.findByIdAndCompany(id, requester.getCompany().getId());
         Optional<Role> optionalRole = roleService.findById(roleId);
 
@@ -157,7 +158,7 @@ public class UserController {
     @PatchMapping("/{id}/disable")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public UserResponseDTO disable(@PathVariable("id") Long id,
-                                   @ApiIgnore @CurrentUser OwnUser requester) {
+                                   @Parameter(hidden = true) @CurrentUser OwnUser requester) {
         Optional<OwnUser> optionalUserToDisable = userService.findByIdAndCompany(id, requester.getCompany().getId());
 
         if (optionalUserToDisable.isPresent()) {
@@ -178,7 +179,7 @@ public class UserController {
     @PatchMapping("/soft-delete/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public UserResponseDTO softDelete(@PathVariable("id") Long id,
-                                      @ApiIgnore @CurrentUser OwnUser requester) {
+                                      @Parameter(hidden = true) @CurrentUser OwnUser requester) {
         Optional<OwnUser> optionalUserToSoftDelete = userService.findByIdAndCompany(id, requester.getCompany().getId());
 
         if (optionalUserToSoftDelete.isPresent()) {

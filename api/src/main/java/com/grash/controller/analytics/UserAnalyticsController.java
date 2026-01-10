@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -42,7 +42,7 @@ public class UserAnalyticsController {
             value = "getUserWOStats",
             key = "#user.id"
     )
-    public ResponseEntity<UserWOStats> getWOStats(@ApiIgnore @CurrentUser OwnUser user) {
+    public ResponseEntity<UserWOStats> getWOStats(@Parameter(hidden = true) @CurrentUser OwnUser user) {
         Collection<WorkOrder> createdWorkOrders = workOrderService.findByCreatedBy(user.getId());
         Collection<WorkOrder> completedWorkOrders = workOrderService.findByCompletedBy(user.getId());
         return ResponseEntity.ok(UserWOStats.builder()
@@ -54,7 +54,7 @@ public class UserAnalyticsController {
     @GetMapping("/two-weeks/work-orders/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<List<WOStatsByDay>> getWoStatsByUserFor2Weeks(@PathVariable("id") Long id,
-                                                                        @ApiIgnore @CurrentUser OwnUser user) {
+                                                                        @Parameter(hidden = true) @CurrentUser OwnUser user) {
         if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
             Optional<OwnUser> optionalUser = userService.findByIdAndCompany(id, user.getCompany().getId());
             if (optionalUser.isPresent()) {

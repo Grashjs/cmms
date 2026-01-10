@@ -19,6 +19,7 @@ import com.grash.model.enums.RoleType;
 import com.grash.security.CurrentUser;
 import com.grash.service.*;
 import com.grash.utils.Helper;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
@@ -76,7 +77,7 @@ public class AssetController {
     @GetMapping("/nfc")
     @PreAuthorize("permitAll()")
     public AssetShowDTO getByNfcId(@RequestParam String nfcId,
-                                   @ApiIgnore @CurrentUser OwnUser user) {
+                                   @Parameter(hidden = true) @CurrentUser OwnUser user) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.NFC_BARCODE))
             throw new CustomException("You need a license to scan an asset", HttpStatus.FORBIDDEN);
         Optional<Asset> optionalAsset = assetService.findByNfcIdAndCompany(nfcId, user.getCompany().getId());
@@ -86,7 +87,7 @@ public class AssetController {
     @GetMapping("/barcode")
     @PreAuthorize("permitAll()")
     public AssetShowDTO getByBarcode(@RequestParam String data,
-                                     @ApiIgnore @CurrentUser OwnUser user) {
+                                     @Parameter(hidden = true) @CurrentUser OwnUser user) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.NFC_BARCODE))
             throw new CustomException("You need a license to scan an asset", HttpStatus.FORBIDDEN);
         Optional<Asset> optionalAsset = assetService.findByBarcodeAndCompany(data, user.getCompany().getId());

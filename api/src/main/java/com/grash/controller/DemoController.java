@@ -24,9 +24,10 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -81,7 +82,7 @@ public class DemoController {
 
     @DeleteMapping("/demo-data")
     @PreAuthorize("permitAll()")
-    public SuccessResponse deleteDemoData(@ApiIgnore @CurrentUser OwnUser user) {
+    public SuccessResponse deleteDemoData(@Parameter(hidden = true) @CurrentUser OwnUser user) {
         demoDataService.deleteDemoData(user.getCompany().getId());
         return new SuccessResponse(true, "Demo data deleted successfully");
     }

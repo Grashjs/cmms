@@ -22,7 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -162,7 +162,7 @@ public class AuthController {
     @GetMapping("/switch-account")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public AuthResponse switchAccount(
-            @RequestParam("id") Long id, @ApiIgnore @CurrentUser OwnUser user
+            @RequestParam("id") Long id, @Parameter(hidden = true) @CurrentUser OwnUser user
     ) {
         if (!user.getSuperAccountRelations().isEmpty()) {//user is superUser
             SuperAccountRelation superAccountRelation =

@@ -16,7 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -46,7 +46,7 @@ public class PartAnalyticsController {
             value = "getPartStats",
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
-    public ResponseEntity<PartStats> getPartStats(@ApiIgnore @CurrentUser OwnUser user,
+    public ResponseEntity<PartStats> getPartStats(@Parameter(hidden = true) @CurrentUser OwnUser user,
                                                   @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<PartConsumption> partConsumptions =
@@ -69,7 +69,7 @@ public class PartAnalyticsController {
             value = "getPartPareto",
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
-    public ResponseEntity<List<PartConsumptionsByPart>> getPareto(@ApiIgnore @CurrentUser OwnUser user,
+    public ResponseEntity<List<PartConsumptionsByPart>> getPareto(@Parameter(hidden = true) @CurrentUser OwnUser user,
                                                                   @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<PartConsumption> partConsumptions = partConsumptionService.findByCompanyAndCreatedAtBetween
@@ -96,7 +96,7 @@ public class PartAnalyticsController {
             value = "getConsumptionByAsset",
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
-    public ResponseEntity<Collection<PartConsumptionsByAsset>> getConsumptionByAsset(@ApiIgnore @CurrentUser OwnUser user,
+    public ResponseEntity<Collection<PartConsumptionsByAsset>> getConsumptionByAsset(@Parameter(hidden = true) @CurrentUser OwnUser user,
                                                                                      @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(),
@@ -126,7 +126,8 @@ public class PartAnalyticsController {
             value = "getConsumptionByPartCategory",
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
-    public ResponseEntity<Collection<PartConsumptionByCategory>> getConsumptionByPartCategory(@ApiIgnore @CurrentUser OwnUser user,
+    public ResponseEntity<Collection<PartConsumptionByCategory>> getConsumptionByPartCategory(@Parameter(hidden =
+                                                                                                      true) @CurrentUser OwnUser user,
                                                                                               @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<PartCategory> partCategories =
@@ -155,7 +156,8 @@ public class PartAnalyticsController {
             value = "getConsumptionByWOCategory",
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
-    public ResponseEntity<Collection<PartConsumptionByWOCategory>> getConsumptionByWOCategory(@ApiIgnore @CurrentUser OwnUser user,
+    public ResponseEntity<Collection<PartConsumptionByWOCategory>> getConsumptionByWOCategory(@Parameter(hidden =
+                                                                                                      true) @CurrentUser OwnUser user,
                                                                                               @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<WorkOrderCategory> workOrderCategories =
@@ -184,7 +186,7 @@ public class PartAnalyticsController {
             value = "getPartConsumptionsByMonth",
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
-    public ResponseEntity<List<PartConsumptionsByMonth>> getPartConsumptionsByMonth(@ApiIgnore @CurrentUser OwnUser user,
+    public ResponseEntity<List<PartConsumptionsByMonth>> getPartConsumptionsByMonth(@Parameter(hidden = true) @CurrentUser OwnUser user,
                                                                                     @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             List<PartConsumptionsByMonth> result = new ArrayList<>();

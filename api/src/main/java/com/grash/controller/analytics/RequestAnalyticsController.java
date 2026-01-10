@@ -21,7 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -50,7 +50,7 @@ public class RequestAnalyticsController {
             value = "getRequestStats",
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
-    public ResponseEntity<RequestStats> getRequestStats(@ApiIgnore @CurrentUser OwnUser user,
+    public ResponseEntity<RequestStats> getRequestStats(@Parameter(hidden = true) @CurrentUser OwnUser user,
                                                         @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<Request> requests = requestService.findByCreatedAtBetweenAndCompany(dateRange.getStart(),
@@ -80,7 +80,7 @@ public class RequestAnalyticsController {
             value = "getRequestByPriority",
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
-    public ResponseEntity<RequestStatsByPriority> getByPriority(@ApiIgnore @CurrentUser OwnUser user,
+    public ResponseEntity<RequestStatsByPriority> getByPriority(@Parameter(hidden = true) @CurrentUser OwnUser user,
                                                                 @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<Request> requests = requestService.findByCreatedAtBetweenAndCompany(dateRange.getStart(),
@@ -115,7 +115,7 @@ public class RequestAnalyticsController {
             value = "getCycleTimeByMonth",
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
-    public ResponseEntity<List<RequestsByMonth>> getCycleTimeByMonth(@ApiIgnore @CurrentUser OwnUser user,
+    public ResponseEntity<List<RequestsByMonth>> getCycleTimeByMonth(@Parameter(hidden = true) @CurrentUser OwnUser user,
                                                                      @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             List<RequestsByMonth> result = new ArrayList<>();
@@ -153,7 +153,7 @@ public class RequestAnalyticsController {
             value = "getRequestCountsByCategory",
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
-    public ResponseEntity<Collection<CountByCategory>> getCountsByCategory(@ApiIgnore @CurrentUser OwnUser user,
+    public ResponseEntity<Collection<CountByCategory>> getCountsByCategory(@Parameter(hidden = true) @CurrentUser OwnUser user,
                                                                            @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<WorkOrderCategory> categories =
@@ -178,7 +178,7 @@ public class RequestAnalyticsController {
             value = "getReceivedAndResolvedRequests",
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
-    public ResponseEntity<List<RequestsResolvedByDate>> getReceivedAndResolvedForDateRange(@ApiIgnore @CurrentUser OwnUser user,
+    public ResponseEntity<List<RequestsResolvedByDate>> getReceivedAndResolvedForDateRange(@Parameter(hidden = true) @CurrentUser OwnUser user,
                                                                                            @RequestBody DateRange dateRange) {
         LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
         if (user.canSeeAnalytics()) {
