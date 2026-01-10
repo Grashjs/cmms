@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 public class Checklist extends DateAudit {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @OneToMany(orphanRemoval = true)

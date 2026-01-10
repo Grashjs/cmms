@@ -8,7 +8,6 @@ import lombok.*;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,7 +19,7 @@ import java.util.Set;
 @EqualsAndHashCode(exclude = "companySettings")
 public class Role {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @NotNull

@@ -6,7 +6,6 @@ import lombok.*;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,7 +19,7 @@ import java.util.stream.Collectors;
 
 public class FieldConfiguration {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @NotNull
@@ -38,8 +37,7 @@ public class FieldConfiguration {
     private WorkOrderConfiguration workOrderConfiguration;
 
 
-    public static Collection<FieldConfiguration> createFieldConfigurations(List<String> fieldNames,
-                                                                           WorkOrderRequestConfiguration workOrderRequestConfiguration, WorkOrderConfiguration workOrderConfiguration) {
+    public static Collection<FieldConfiguration> createFieldConfigurations(List<String> fieldNames, WorkOrderRequestConfiguration workOrderRequestConfiguration, WorkOrderConfiguration workOrderConfiguration) {
         return fieldNames.stream().map(fieldName -> FieldConfiguration
                 .builder()
                 .fieldName(fieldName)

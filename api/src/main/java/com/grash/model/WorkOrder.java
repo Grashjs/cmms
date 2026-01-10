@@ -17,7 +17,6 @@ import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.*;
-
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -34,7 +33,7 @@ import static java.util.stream.Collectors.toCollection;
 @AuditOverride(forClass = WorkOrderBase.class)
 public class WorkOrder extends WorkOrderBase {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Audited(withModifiedFlag = true)

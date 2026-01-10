@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,12 +18,11 @@ import static com.grash.model.FieldConfiguration.createFieldConfigurations;
 @EqualsAndHashCode(exclude = "companySettings")
 public class WorkOrderRequestConfiguration {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "workOrderRequestConfiguration", fetch = FetchType.LAZY)
-    private Set<FieldConfiguration> fieldConfigurations = new HashSet<>(createFieldConfigurations(Arrays.asList(
-            "asset", "location", "primaryUser", "dueDate", "category", "team"), this, null));
+    private Set<FieldConfiguration> fieldConfigurations = new HashSet<>(createFieldConfigurations(Arrays.asList("asset", "location", "primaryUser", "dueDate", "category", "team"), this, null));
 
     @OneToOne(fetch = FetchType.LAZY)
     @JsonIgnore

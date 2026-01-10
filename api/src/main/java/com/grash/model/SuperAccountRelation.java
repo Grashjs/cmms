@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-
 @Entity
 @Data
 @Builder
@@ -15,7 +14,7 @@ import jakarta.validation.constraints.NotNull;
 @AllArgsConstructor
 public class SuperAccountRelation {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @NotNull

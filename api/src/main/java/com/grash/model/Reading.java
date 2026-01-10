@@ -15,7 +15,7 @@ import jakarta.validation.constraints.NotNull;
 @NoArgsConstructor
 public class Reading extends Audit {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private double value;

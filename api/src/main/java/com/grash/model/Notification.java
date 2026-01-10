@@ -14,7 +14,7 @@ import jakarta.validation.constraints.NotNull;
 @NoArgsConstructor
 public class Notification extends Audit {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @NotNull

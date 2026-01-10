@@ -9,7 +9,6 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-
 import java.util.Date;
 
 @Entity
@@ -17,7 +16,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class AdditionalCost extends Cost {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private String description;

@@ -13,7 +13,7 @@ import jakarta.persistence.*;
 @NoArgsConstructor
 public class PreventiveMaintenance extends WorkOrderBase {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private String customId;
