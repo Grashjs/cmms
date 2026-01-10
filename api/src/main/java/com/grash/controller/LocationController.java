@@ -103,7 +103,12 @@ public class LocationController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
+    public Collection<LocationMiniDTO> getMini(HttpServletRequest req) {
+        OwnUser location = userService.whoami(req);
+        return locationService.findByCompany(location.getCompany().getId()).stream().map(locationMapper::toMiniDto).collect(Collectors.toList());
+    }
+    
+    @GetMapping("/{id}")
     public LocationShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);

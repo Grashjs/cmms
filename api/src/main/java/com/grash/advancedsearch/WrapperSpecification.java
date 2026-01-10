@@ -95,16 +95,25 @@ public class WrapperSpecification<T> implements Specification<T> {
                             (Comparable) filterField.getValue());
                 }
                 break;
-            case IN:
-                CriteriaBuilder.In<Object> inClause = cb.in(root.get(filterField.getField()));
+            case IN: {
+                Path<?> path = getFieldPath(root, filterField.getField());
+                CriteriaBuilder.In<Object> inClause;
+
+                if (path.getJavaType().isAnnotationPresent(jakarta.persistence.Entity.class)) {
+                    inClause = cb.in(path.get("id"));
+                } else {
+                    inClause = cb.in(path);
+                }
                 filterField.getValues().forEach(value -> inClause.value(getRealValue(filterField.getEnumName(),
                         value)));
                 result = inClause;
                 break;
+            }
             case IN_MANY_TO_MANY:
                 Join<Object, Object> join = root.join(filterField.getField(), filterField.getJoinType());
                 CriteriaBuilder.In<Object> inClause1 = cb.in(join.get("id"));
-                filterField.getValues().forEach(inClause1::value);
+                filterField.getValues().forEach(value -> inClause1.value(getRealValue(filterField.getEnumName(),
+                        value)));
                 result = inClause1;
                 break;
         }

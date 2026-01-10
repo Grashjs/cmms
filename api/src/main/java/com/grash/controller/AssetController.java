@@ -226,6 +226,19 @@ public class AssetController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public Collection<AssetMiniDTO> getMini(@RequestParam(required = false) Long locationId, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        List<Asset> assets = new ArrayList<>();
+        if (locationId == null) {
+            assets = assetService.findByCompany(user.getCompany().getId());
+        } else {
+            assets = assetService.findByLocation(locationId);
+        }
+        return assets.stream().map(assetMapper::toMiniDto).collect(Collectors.toList());
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
