@@ -8,7 +8,7 @@ import org.hibernate.envers.RevisionEntity;
 import org.hibernate.envers.RevisionNumber;
 import org.hibernate.envers.RevisionTimestamp;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Data
@@ -30,3 +30,4 @@ public class RevInfo {
     @ManyToOne
     private OwnUser user;
 }
+

@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.PrePersist;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.NotNull;
 
 @Data
@@ -48,4 +48,5 @@ public abstract class CategoryAbstract extends Audit {
     }
 
 }
+
 

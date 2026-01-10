@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Data
@@ -56,3 +56,4 @@ public class GeneralPreferences {
 
 
 }
+

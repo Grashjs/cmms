@@ -9,7 +9,7 @@ import com.grash.utils.Helper;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -65,3 +65,4 @@ public class CompanySettings {
     }
 
 }
+

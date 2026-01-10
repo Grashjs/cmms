@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 @Entity
 @Data
@@ -25,4 +25,5 @@ public class SuperAccountRelation {
     @OneToOne(fetch = FetchType.EAGER)
     private OwnUser childUser;
 }
+
 

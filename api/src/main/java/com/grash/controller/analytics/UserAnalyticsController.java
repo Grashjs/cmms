@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -81,3 +81,4 @@ public class UserAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 }
+

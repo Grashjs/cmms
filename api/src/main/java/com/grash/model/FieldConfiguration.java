@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.enums.FieldType;
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.List;
@@ -46,4 +46,5 @@ public class FieldConfiguration {
                 .build()).collect(Collectors.toList());
     }
 }
+
 

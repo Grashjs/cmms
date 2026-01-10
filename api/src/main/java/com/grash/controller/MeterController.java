@@ -31,9 +31,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.JoinType;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -182,4 +182,6 @@ public class MeterController {
         } else throw new CustomException("Meter not found", HttpStatus.NOT_FOUND);
     }
 }
+
+
 

@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.Date;
@@ -79,3 +79,4 @@ public class LaborService {
         return save(labor);
     }
 }
+

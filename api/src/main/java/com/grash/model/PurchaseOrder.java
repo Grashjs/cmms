@@ -5,9 +5,9 @@ import com.grash.model.enums.ApprovalStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.FetchType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.FetchType;
 import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 
@@ -60,4 +60,5 @@ public class PurchaseOrder extends CompanyAudit {
 //    private Company requesterInformation;
 
 }
+
 

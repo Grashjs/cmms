@@ -25,7 +25,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -366,3 +366,4 @@ public class AssetAnalyticsController {
                 : asset.getRealCreatedAt(), dateRange.getEnd(), TimeUnit.SECONDS);
     }
 }
+

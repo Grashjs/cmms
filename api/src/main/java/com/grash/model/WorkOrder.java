@@ -16,7 +16,7 @@ import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -108,3 +108,4 @@ public class WorkOrder extends WorkOrderBase {
                 completionTimes.stream().mapToLong(value -> value).sum() / completionTimes.size();
     }
 }
+

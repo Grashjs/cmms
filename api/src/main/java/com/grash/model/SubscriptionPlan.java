@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
@@ -39,4 +39,5 @@ public class SubscriptionPlan {
     private String yearlyPaddlePriceId;
 
 }
+
 

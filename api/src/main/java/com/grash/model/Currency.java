@@ -3,7 +3,7 @@ package com.grash.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -21,4 +21,5 @@ public class Currency {
     @Column(unique = true)
     private String code;
 }
+
 

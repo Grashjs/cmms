@@ -30,8 +30,8 @@ import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.JoinType;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.JoinType;
 import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -462,3 +462,4 @@ public class WorkOrderService {
     }
 
 }
+

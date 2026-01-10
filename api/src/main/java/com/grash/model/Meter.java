@@ -9,7 +9,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.http.HttpStatus;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,4 +61,5 @@ public class Meter extends CompanyAudit {
         this.updateFrequency = updateFrequency;
     }
 }
+
 

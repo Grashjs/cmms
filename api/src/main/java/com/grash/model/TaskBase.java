@@ -10,11 +10,11 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,4 +50,5 @@ public class TaskBase extends CompanyAudit {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Meter meter;
 }
+
 

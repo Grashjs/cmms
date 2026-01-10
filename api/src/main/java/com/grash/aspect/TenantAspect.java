@@ -20,7 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -91,3 +91,4 @@ public class TenantAspect {
         }
     }
 }
+

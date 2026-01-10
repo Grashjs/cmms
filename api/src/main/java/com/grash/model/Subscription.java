@@ -10,7 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 
@@ -56,4 +56,5 @@ public class Subscription extends Audit {
         this.usersCount = usersCount;
     }
 }
+
 

@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,4 +29,5 @@ public class TaskShowDTO extends AuditShowDTO {
 
     private List<FileShowDTO> images = new ArrayList<>();
 }
+
 

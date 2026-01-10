@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.util.Comparator;
 import java.util.Date;
@@ -95,4 +95,5 @@ public class Labor extends Time {
         return totalDuration;
     }
 }
+
 

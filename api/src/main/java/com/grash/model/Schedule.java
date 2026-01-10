@@ -11,7 +11,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.http.HttpStatus;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
@@ -71,4 +71,5 @@ public class Schedule extends Audit {
         this.dueDateDelay = dueDateDelay;
     }
 }
+
 

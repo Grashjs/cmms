@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 import java.util.Date;
 
 @Entity
@@ -30,3 +30,4 @@ public class Deprecation extends CompanyAudit {
         this.rate=rate;
     }
 }
+

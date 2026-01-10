@@ -7,10 +7,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,4 +33,5 @@ public class Workflow extends CompanyAudit {
 
     private boolean enabled = true;
 }
+
 

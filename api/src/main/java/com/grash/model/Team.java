@@ -6,7 +6,7 @@ import com.grash.model.abstracts.CompanyAudit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,4 +53,5 @@ public class Team extends CompanyAudit {
             })
     private List<Location> locations = new ArrayList<>();
 }
+
 

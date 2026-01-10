@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
@@ -136,3 +136,4 @@ public class ExportController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 }
+

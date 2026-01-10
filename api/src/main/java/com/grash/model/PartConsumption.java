@@ -6,9 +6,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.FetchType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.FetchType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
@@ -39,4 +39,5 @@ public class PartConsumption extends CompanyAudit {
         return part.getCost() * quantity;
     }
 }
+
 

@@ -15,7 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
@@ -120,3 +120,4 @@ public class RelationService {
     }
 
 }
+

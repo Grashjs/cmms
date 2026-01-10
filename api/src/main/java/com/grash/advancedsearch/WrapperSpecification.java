@@ -6,7 +6,7 @@ import com.grash.model.enums.Status;
 import com.grash.utils.Helper;
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.*;
+import jakarta.persistence.criteria.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -138,3 +138,4 @@ public class WrapperSpecification<T> implements Specification<T> {
         return path;
     }
 }
+

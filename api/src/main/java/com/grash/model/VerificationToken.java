@@ -2,7 +2,7 @@ package com.grash.model;
 
 import lombok.Data;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
@@ -51,3 +51,4 @@ public class VerificationToken {
         return new Date(calendar.getTime().getTime());
     }
 }
+

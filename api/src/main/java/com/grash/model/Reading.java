@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -26,4 +26,5 @@ public class Reading extends Audit {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Meter meter;
 }
+
 

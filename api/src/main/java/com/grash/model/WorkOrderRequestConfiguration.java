@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,3 +33,4 @@ public class WorkOrderRequestConfiguration {
     }
 
 }
+

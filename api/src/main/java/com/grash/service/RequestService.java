@@ -21,8 +21,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -170,3 +170,4 @@ public class RequestService {
         return requestRepository.findByCategory_IdAndCreatedAtBetween(id, start, end);
     }
 }
+

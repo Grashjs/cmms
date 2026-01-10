@@ -8,7 +8,7 @@ import com.grash.model.enums.PlanFeatures;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
@@ -176,5 +176,6 @@ public class OwnUser extends Audit {
     }
 
 }
+
 
 

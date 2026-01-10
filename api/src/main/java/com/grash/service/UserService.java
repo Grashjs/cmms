@@ -35,8 +35,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
-import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.persistence.EntityManager;
+import jakarta.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.util.*;
 
@@ -460,3 +460,5 @@ public class UserService {
         }
     }
 }
+
+

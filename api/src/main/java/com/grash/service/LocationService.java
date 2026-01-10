@@ -22,7 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -254,3 +254,4 @@ public class LocationService {
         return locationRepository.countByParentLocation_Id(locationId) > 0;
     }
 }
+

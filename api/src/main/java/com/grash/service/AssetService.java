@@ -24,8 +24,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -458,3 +458,4 @@ public class AssetService {
         return workOrderService.getAllCost(workOrders, includeLaborCost);
     }
 }
+

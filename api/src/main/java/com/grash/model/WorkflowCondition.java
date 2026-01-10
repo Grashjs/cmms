@@ -13,9 +13,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.FetchType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.FetchType;
 import java.util.Date;
 import java.util.Objects;
 
@@ -166,3 +166,4 @@ public class WorkflowCondition extends CompanyAudit {
     }
 
 }
+

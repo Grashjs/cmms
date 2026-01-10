@@ -3,8 +3,8 @@ package com.grash.model.abstracts;
 import com.grash.model.CostCategory;
 import lombok.Data;
 
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotNull;
 
 @Data
@@ -18,4 +18,5 @@ public abstract class Cost extends Audit {
     private CostCategory category;
 
 }
+
 

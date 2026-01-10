@@ -6,9 +6,9 @@ import com.grash.model.enums.RecurrenceType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,4 +37,5 @@ public class PreventiveMaintenancePostDTO extends WorkOrderBase {
 
     private List<Integer> daysOfWeek = new ArrayList<>();
 }
+
 

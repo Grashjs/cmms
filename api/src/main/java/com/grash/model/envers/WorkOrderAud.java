@@ -9,7 +9,7 @@ import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.springframework.context.MessageSource;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Locale;
@@ -243,3 +243,4 @@ public class WorkOrderAud implements Serializable {
         return value == null ? "" : messageSource.getMessage(value ? "Yes" : "No", null, locale);
     }
 }
+

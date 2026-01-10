@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.JoinType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,3 +23,4 @@ public class FilterField {
     private List<FilterField> alternatives;
     private EnumName enumName;
 }
+

@@ -4,7 +4,7 @@ import com.grash.model.abstracts.WorkOrderBase;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Data
@@ -35,3 +35,4 @@ public class Request extends WorkOrderBase {
     }
 
 }
+

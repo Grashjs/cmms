@@ -18,7 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -88,3 +88,4 @@ public class PurchaseOrderService {
         return purchaseOrderRepository.findAll(builder.build(), page).map(purchaseOrderMapper::toShowDto);
     }
 }
+

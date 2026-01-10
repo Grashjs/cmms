@@ -2,7 +2,7 @@ package com.grash.model.abstracts;
 
 import lombok.Data;
 
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotNull;
 
 @Data
@@ -15,4 +15,5 @@ public abstract class BasicInfos extends CompanyAudit {
     private String website;
     private String email;
 }
+
 

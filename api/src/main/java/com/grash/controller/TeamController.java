@@ -25,8 +25,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.persistence.EntityManager;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
@@ -135,4 +135,6 @@ public class TeamController {
     }
 
 }
+
+
 

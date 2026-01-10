@@ -6,7 +6,7 @@ import com.grash.model.enums.PermissionEntity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Data
@@ -32,3 +32,4 @@ public class PreventiveMaintenance extends WorkOrderBase {
     }
 
 }
+

@@ -6,7 +6,7 @@ import com.grash.model.enums.NotificationType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -39,4 +39,5 @@ public class Notification extends Audit {
     }
 
 }
+
 

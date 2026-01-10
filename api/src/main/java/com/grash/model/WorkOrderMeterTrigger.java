@@ -10,7 +10,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.http.HttpStatus;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -41,5 +41,6 @@ public class WorkOrderMeterTrigger extends WorkOrderBase {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Meter meter;
 }
+
 
 

@@ -33,9 +33,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
-import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.persistence.EntityManager;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.io.ByteArrayOutputStream;
@@ -485,4 +485,6 @@ public class WorkOrderController {
     }
 
 }
+
+
 

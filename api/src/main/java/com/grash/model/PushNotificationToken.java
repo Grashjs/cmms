@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Data
@@ -24,3 +24,4 @@ public class PushNotificationToken {
     @JoinColumn(name = "user_id", nullable = false)
     private OwnUser user;
 }
+

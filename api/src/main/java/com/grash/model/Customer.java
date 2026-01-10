@@ -5,7 +5,7 @@ import com.grash.model.abstracts.BasicInfos;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,3 +69,4 @@ public class Customer extends BasicInfos {
     private List<Asset> assets = new ArrayList<>();
 
 }
+

@@ -20,7 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -149,3 +149,4 @@ public class SubscriptionController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 }
+
