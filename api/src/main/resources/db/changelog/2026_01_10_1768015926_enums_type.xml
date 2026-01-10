@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="2026_01_10_1768015926_enums_to_smallint" author="gemini">
+        <!-- Changes to convert enum columns from String to SMALLINT -->
+        <modifyDataType tableName="work_order_meter_trigger" columnName="trigger_condition" newDataType="SMALLINT"/>
+        <modifyDataType tableName="work_order" columnName="status" newDataType="SMALLINT"/>
+        <modifyDataType tableName="workflow_condition" columnName="work_order_condition" newDataType="SMALLINT"/>
+        <modifyDataType tableName="workflow_condition" columnName="request_condition" newDataType="SMALLINT"/>
+        <modifyDataType tableName="workflow_condition" columnName="purchase_order_condition" newDataType="SMALLINT"/>
+        <modifyDataType tableName="workflow_condition" columnName="part_condition" newDataType="SMALLINT"/>
+        <modifyDataType tableName="workflow_condition" columnName="task_condition" newDataType="SMALLINT"/>
+        <modifyDataType tableName="workflow_condition" columnName="priority" newDataType="SMALLINT"/>
+        <modifyDataType tableName="workflow_condition" columnName="work_order_status" newDataType="SMALLINT"/>
+        <modifyDataType tableName="workflow_condition" columnName="purchase_order_status" newDataType="SMALLINT"/>
+        <modifyDataType tableName="workflow_action" columnName="work_order_action" newDataType="SMALLINT"/>
+        <modifyDataType tableName="workflow_action" columnName="request_action" newDataType="SMALLINT"/>
+        <modifyDataType tableName="workflow_action" columnName="purchase_order_action" newDataType="SMALLINT"/>
+        <modifyDataType tableName="workflow_action" columnName="part_action" newDataType="SMALLINT"/>
+        <modifyDataType tableName="workflow_action" columnName="task_action" newDataType="SMALLINT"/>
+        <modifyDataType tableName="workflow_action" columnName="priority" newDataType="SMALLINT"/>
+        <modifyDataType tableName="workflow_action" columnName="asset_status" newDataType="SMALLINT"/>
+        <modifyDataType tableName="workflow" columnName="main_condition" newDataType="SMALLINT"/>
+        <modifyDataType tableName="subscription" columnName="scheduled_change_type" newDataType="SMALLINT"/>
+        <!--        <modifyDataType tableName="schedule" columnName="recurrence_type" newDataType="SMALLINT"/>-->
+        <!--        <modifyDataType tableName="schedule" columnName="recurrence_based_on" newDataType="SMALLINT"/>-->
+        <modifyDataType tableName="role" columnName="role_type" newDataType="SMALLINT"/>
+        <modifyDataType tableName="role" columnName="code" newDataType="SMALLINT"/>
+        <modifyDataType tableName="purchase_order" columnName="status" newDataType="SMALLINT"/>
+        <modifyDataType tableName="notification" columnName="notification_type" newDataType="SMALLINT"/>
+        <modifyDataType tableName="general_preferences" columnName="language" newDataType="SMALLINT"/>
+        <modifyDataType tableName="general_preferences" columnName="date_format" newDataType="SMALLINT"/>
+        <modifyDataType tableName="general_preferences" columnName="business_type" newDataType="SMALLINT"/>
+        <modifyDataType tableName="file" columnName="type" newDataType="SMALLINT"/>
+        <modifyDataType tableName="field_configuration" columnName="field_type" newDataType="SMALLINT"/>
+        <modifyDataType tableName="labor" columnName="status" newDataType="SMALLINT"/>
+        <modifyDataType tableName="asset" columnName="status" newDataType="SMALLINT"/>
+        <modifyDataType tableName="relation" columnName="relation_type" newDataType="SMALLINT"/>
+    </changeSet>
+    <changeSet id="1768017714227-1" author="Ibrahima (generated)">
+        <modifyDataType tableName="preventive_maintenance" columnName="priority" newDataType="smallint"/>
+    </changeSet>
+    <changeSet id="1768017752676-1" author="Ibrahima (generated)">
+        <modifyDataType tableName="request" columnName="priority" newDataType="smallint"/>
+        <modifyDataType tableName="work_order" columnName="priority" newDataType="smallint"/>
+        <modifyDataType tableName="work_order_meter_trigger" columnName="priority" newDataType="smallint"/>
+    </changeSet>
+    <changeSet id="1768017861940-1" author="Ibrahima (generated)">
+        <modifyDataType tableName="role_create_permissions" columnName="create_permissions" newDataType="smallint"/>
+        <modifyDataType tableName="role_edit_other_permissions" columnName="edit_other_permissions"
+                        newDataType="smallint"/>
+        <modifyDataType tableName="role_view_permissions" columnName="view_permissions" newDataType="smallint"/>
+        <modifyDataType tableName="role_view_other_permissions" columnName="view_other_permissions"
+                        newDataType="smallint"/>
+        <modifyDataType tableName="role_delete_other_permissions" columnName="delete_other_permissions"
+                        newDataType="smallint"/>
+    </changeSet>
+    <changeSet id="1768017980897-1" author="Ibrahima (generated)">
+        <modifyDataType tableName="subscription_plan_features" columnName="features" newDataType="smallint"/>
+    </changeSet>
+    <changeSet id="1768018060025-1" author="Ibrahima (generated)">
+        <modifyDataType tableName="task_base" columnName="task_type" newDataType="smallint"/>
+    </changeSet>
+    <changeSet id="1768018104256-1" author="Ibrahima (generated)">
+        <modifyDataType tableName="work_order_aud" columnName="priority" newDataType="smallint"/>
+        <modifyDataType tableName="work_order_aud" columnName="status" newDataType="smallint"/>
+    </changeSet>
+</databaseChangeLog>

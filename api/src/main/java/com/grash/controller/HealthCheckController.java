@@ -4,10 +4,12 @@ import com.grash.dto.SuccessResponse;
 import com.grash.service.CustomHealthIndicator;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.Status;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class HealthCheckController {
 
-    private final CustomHealthIndicator healthIndicator;
+    @Autowired
+    @Lazy
+    private CustomHealthIndicator healthIndicator;
 
     @GetMapping("")
     public ResponseEntity<SuccessResponse> healthCheck() {

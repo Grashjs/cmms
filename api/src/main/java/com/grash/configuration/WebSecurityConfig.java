@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -65,7 +67,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/webhooks/**").permitAll()
                 .requestMatchers("/paddle/create-checkout-session").permitAll()
                 .requestMatchers("/auth/reset-pwd-confirm**").permitAll()
-                .requestMatchers("/h2-console/**/**").permitAll()
+                .requestMatchers("/h2-console/**").permitAll()
                 // Disallow everything else..
                 .anyRequest().authenticated()
         );
@@ -102,13 +104,18 @@ public class WebSecurityConfig {
                 .requestMatchers("/public")
                 .requestMatchers("/images/**")
                 // Un-secure H2 Database (for testing purposes, H2 console shouldn\'t be unprotected in production)
-//                .requestMatchers("/h2-console/**/**")
+//                .requestMatchers("/h2-console/**")
                 ;
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(12);
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 
 
