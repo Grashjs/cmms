@@ -4,7 +4,6 @@ import com.grash.model.File;
 import com.grash.model.Role;
 import com.grash.model.SuperAccountRelation;
 import com.grash.model.UiConfiguration;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.ArrayList;

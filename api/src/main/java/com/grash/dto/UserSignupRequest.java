@@ -2,7 +2,6 @@ package com.grash.dto;
 
 import com.grash.model.Role;
 import com.grash.model.enums.Language;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

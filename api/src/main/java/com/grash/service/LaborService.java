@@ -15,7 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityManager;
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;

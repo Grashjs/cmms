@@ -17,6 +17,7 @@ import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.repository.WorkOrderHistoryRepository;
 import com.grash.repository.WorkOrderRepository;
 import com.grash.utils.Helper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +33,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.JoinType;
-import javax.transaction.Transactional;
+
 import java.util.*;
 import java.util.stream.Collectors;
 

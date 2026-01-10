@@ -32,8 +32,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
+
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;

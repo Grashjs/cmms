@@ -26,7 +26,8 @@ import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
+
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;

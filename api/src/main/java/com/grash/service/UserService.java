@@ -34,10 +34,12 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.mail.MessagingException;
+import jakarta.mail.MessagingException;
+
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
+
 import java.util.*;
 
 import static com.grash.utils.Consts.usageBasedLicenseLimits;

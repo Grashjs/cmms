@@ -11,13 +11,13 @@ import com.grash.service.EmailService2;
 import com.grash.service.SubscriptionService;
 import com.grash.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.mail.MessagingException;
 
 import jakarta.servlet.http.HttpServletRequest;
 

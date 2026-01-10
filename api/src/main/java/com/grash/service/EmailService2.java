@@ -19,10 +19,12 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.transaction.Transactional;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
+
+import jakarta.transaction.Transactional;
+
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.Locale;
