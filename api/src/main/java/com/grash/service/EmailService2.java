@@ -40,6 +40,8 @@ public class EmailService2 {
     private final BrandingService brandingService;
     @Value("${spring.mail.username:#{null}")
     private String smtpUsername;
+    @Value("${spring.mail.from:#{null}}")
+    private String smtpFromAddress;
 
     @Value("${mail.enable}")
     private Boolean enableEmails;
@@ -124,8 +126,8 @@ public class EmailService2 {
             MimeMessage message = emailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             try {
-                helper.setFrom(new InternetAddress(mailProperties.getUsername(),
-                        brandingService.getBrandConfig().getName()));
+                String fromAddress = smtpFromAddress != null ? smtpFromAddress : mailProperties.getUsername();
+                helper.setFrom(new InternetAddress(fromAddress, brandingService.getBrandConfig().getName()));
             } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException(e);
             }

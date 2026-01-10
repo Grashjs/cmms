@@ -62,6 +62,7 @@ spring:
     password: ${SMTP_PWD:}
     protocol: smtp
     tls: true
+    from: ${SMTP_FROM:${SMTP_USER:}}
     properties.mail.smtp:
       auth: true
       starttls.enable: true
