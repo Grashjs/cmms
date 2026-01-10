@@ -937,7 +937,7 @@ export const selfHostedPlans: {
       'Single Sign-On (SSO)',
       'Custom User Roles',
       'Automated Workflows',
-      'Webhook Integration',
+      // 'Webhook Integration',
       'API Access',
       'Priority Implementation Support'
     ]
