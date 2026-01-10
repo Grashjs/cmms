@@ -17,7 +17,7 @@ public class PurchaseOrderShowDTO extends AuditShowDTO {
 
     private String name;
 
-    private PurchaseOrderCategory category;
+    private CategoryMiniDTO category;
 
     private Date shippingDueDate;
 
@@ -49,7 +49,7 @@ public class PurchaseOrderShowDTO extends AuditShowDTO {
 
     private String additionalInfoNotes;
 
-    private Vendor vendor;
+    private VendorMiniDTO vendor;
 
     private Collection<PartQuantityShowDTO> partQuantities;
 

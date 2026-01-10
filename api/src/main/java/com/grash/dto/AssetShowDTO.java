@@ -33,7 +33,7 @@ public class AssetShowDTO extends AuditShowDTO {
 
     private String nfcId;
 
-    private AssetCategory category;
+    private CategoryMiniDTO category;
 
     private String name;
 

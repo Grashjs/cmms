@@ -15,7 +15,7 @@ public class PartShowDTO extends AuditShowDTO {
 
     private double cost;
 
-    private PartCategory category;
+    private CategoryMiniDTO category;
 
     private boolean nonStock;
 

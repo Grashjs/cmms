@@ -19,7 +19,7 @@ public class MeterShowDTO extends AuditShowDTO {
 
     private int updateFrequency;
 
-    private MeterCategory meterCategory;
+    private CategoryMiniDTO meterCategory;
 
     private FileShowDTO image;
 
