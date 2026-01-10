@@ -10,6 +10,8 @@ import com.grash.model.enums.PlanFeatures;
 import com.grash.service.AdditionalCostService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -59,8 +61,22 @@ public class AdditionalCostController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public AdditionalCost patch(@Valid @RequestBody AdditionalCostPatchDTO additionalCost
-            , @PathVariable("id") Long id,
+    public AdditionalCost create(@Valid @RequestBody AdditionalCost additionalCostReq,
+                                 HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ADDITIONAL_COST)) {
+            WorkOrder workOrder = workOrderService.findById(additionalCostReq.getWorkOrder().getId()).get();
+            if (workOrder.getFirstTimeToReact() == null) {
+                workOrder.setFirstTimeToReact(new Date());
+                workOrderService.save(workOrder);
+            }
+            return additionalCostService.create(additionalCostReq);
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public AdditionalCost patch(@Valid @RequestBody AdditionalCostPatchDTO additionalCost, @PathVariable("id") Long id,
                                 HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);

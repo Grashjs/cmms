@@ -16,6 +16,8 @@ import com.grash.service.*;
 import com.grash.utils.Helper;
 import com.grash.utils.MultipartFileImpl;
 import com.itextpdf.html2pdf.HtmlConverter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -175,6 +177,24 @@ public class WorkOrderController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public WorkOrderShowDTO create(@Valid @RequestBody WorkOrderPostDTO
+                                           workOrderReq, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
+                && (workOrderReq.getSignature() == null ||
+                user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE))) {
+            if (user.getCompany().getCompanySettings().getGeneralPreferences().isAutoAssignWorkOrders()) {
+                OwnUser primaryUser = workOrderReq.getPrimaryUser();
+                workOrderReq.setPrimaryUser(primaryUser == null ? user : primaryUser);
+            }
+            WorkOrder createdWorkOrder = workOrderService.create(workOrderReq, user.getCompany());
+
+            return workOrderMapper.toShowDto(createdWorkOrder);
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/part/{id}")
+    @PreAuthorize("permitAll()")
     public Collection<WorkOrderShowDTO> getByPart(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);

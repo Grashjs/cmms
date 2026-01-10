@@ -9,6 +9,8 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.AssetCategoryService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -56,6 +58,16 @@ public class AssetCategoryController {
     }
 
     @PostMapping("")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public AssetCategory create(@Valid @RequestBody AssetCategory assetCategoryReq,
+                                HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
+            return assetCategoryService.create(assetCategoryReq);
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public AssetCategory patch(@Valid @RequestBody CategoryPatchDTO assetCategory,
                                @PathVariable("id") Long id,

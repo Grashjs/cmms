@@ -20,6 +20,8 @@ import com.grash.security.CurrentUser;
 import com.grash.service.*;
 import com.grash.utils.Helper;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -154,6 +156,34 @@ public class AssetController {
     }
 
     @PostMapping("")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public AssetShowDTO create(@Valid @RequestBody Asset assetReq, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.ASSETS)) {
+            if (assetReq.getBarCode() != null) {
+                Optional<Asset> optionalAssetWithSameBarCode =
+                        assetService.findByBarcodeAndCompany(assetReq.getBarCode(), user.getCompany().getId());
+                if (optionalAssetWithSameBarCode.isPresent()) {
+                    throw new CustomException("Asset with same barCode exists", HttpStatus.NOT_ACCEPTABLE);
+                }
+            }
+            if (assetReq.getNfcId() != null) {
+                Optional<Asset> optionalAssetWithSameNfcId = assetService.findByNfcIdAndCompany(assetReq.getNfcId(),
+                        user.getCompany().getId());
+                if (optionalAssetWithSameNfcId.isPresent()) {
+                    throw new CustomException("Asset with same nfc code exists", HttpStatus.NOT_ACCEPTABLE);
+                }
+            }
+            Asset createdAsset = assetService.create(assetReq, user);
+            String message = messageSource.getMessage("notification_asset_assigned",
+                    new Object[]{createdAsset.getName()}, Helper.getLocale(user));
+            assetService.notify(createdAsset, messageSource.getMessage("new_assignment", null,
+                    Helper.getLocale(user)), message);
+            return assetMapper.toShowDto(createdAsset, assetService);
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public AssetShowDTO patch(@Valid @RequestBody AssetPatchDTO asset,
                               @PathVariable("id") Long id,
