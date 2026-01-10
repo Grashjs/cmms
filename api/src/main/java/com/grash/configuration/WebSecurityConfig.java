@@ -97,7 +97,9 @@ public class WebSecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
                 .requestMatchers("/v2/api-docs")//
+                .requestMatchers("/v3/api-docs/**")//
                 .requestMatchers("/swagger-resources/**")//
+                .requestMatchers("/swagger-ui/**")//
                 .requestMatchers("/swagger-ui.html")//
                 .requestMatchers("/com/grash/configuration/**")//
                 .requestMatchers("/webjars/**")//
