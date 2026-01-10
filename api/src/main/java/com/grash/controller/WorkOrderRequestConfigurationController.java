@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import java.util.Optional;
 
 @RestController
@@ -30,13 +29,15 @@ public class WorkOrderRequestConfigurationController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public WorkOrderRequestConfiguration getById(@PathVariable("id") Long id, HttpServletRequest req) {
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "WorkOrderRequestConfiguration not found")})
+    public WorkOrderRequestConfiguration getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        Optional<WorkOrderRequestConfiguration> optionalWorkOrderRequestConfiguration =
-                workOrderRequestConfigurationService.findById(id);
+        Optional<WorkOrderRequestConfiguration> optionalWorkOrderRequestConfiguration = workOrderRequestConfigurationService.findById(id);
         if (optionalWorkOrderRequestConfiguration.isPresent()) {
-            WorkOrderRequestConfiguration savedWorkOrderRequestConfiguration =
-                    optionalWorkOrderRequestConfiguration.get();
+            WorkOrderRequestConfiguration savedWorkOrderRequestConfiguration = optionalWorkOrderRequestConfiguration.get();
             return savedWorkOrderRequestConfiguration;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

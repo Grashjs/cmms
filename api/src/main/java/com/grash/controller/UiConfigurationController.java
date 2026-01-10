@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-
 import java.util.Optional;
 
 @RestController
@@ -31,7 +30,7 @@ public class UiConfigurationController {
     private final UserService userService;
 
     @PatchMapping()
-    public UiConfiguration patch(@Valid @RequestBody UiConfigurationPatchDTO uiConfiguration,
+    public UiConfiguration patch(@ApiParam("UiConfiguration") @Valid @RequestBody UiConfigurationPatchDTO uiConfiguration,
                                  HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<UiConfiguration> optionalUiConfiguration =

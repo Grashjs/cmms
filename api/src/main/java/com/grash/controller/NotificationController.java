@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
@@ -41,6 +40,10 @@ public class NotificationController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "NotificationCategory not found")})
     public Collection<Notification> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -50,8 +53,7 @@ public class NotificationController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<Notification>> search(@RequestBody SearchCriteria searchCriteria,
-                                                     HttpServletRequest req) {
+    public ResponseEntity<Page<Notification>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             searchCriteria.getFilterFields().add(FilterField.builder()
@@ -74,7 +76,11 @@ public class NotificationController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public Notification getById(@PathVariable("id") Long id, HttpServletRequest req) {
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "Notification not found")})
+    public Notification getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Notification> optionalNotification = notificationService.findById(id);
         if (optionalNotification.isPresent()) {
@@ -85,8 +91,11 @@ public class NotificationController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Notification patch(@Valid @RequestBody NotificationPatchDTO notification,
-                              @PathVariable("id") Long id,
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "Notification not found")})
+    public Notification patch(@ApiParam("Notification") @Valid @RequestBody NotificationPatchDTO notification, @ApiParam("id") @PathVariable("id") Long id,
                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Notification> optionalNotification = notificationService.findById(id);
@@ -103,8 +112,7 @@ public class NotificationController {
         OwnUser user = userService.whoami(req);
         String token = tokenPayload.getToken();
         PushNotificationToken pushNotificationToken;
-        Optional<PushNotificationToken> optionalPushNotificationToken =
-                pushNotificationTokenService.findByUser(user.getId());
+        Optional<PushNotificationToken> optionalPushNotificationToken = pushNotificationTokenService.findByUser(user.getId());
         if (optionalPushNotificationToken.isPresent()) {
             pushNotificationToken = optionalPushNotificationToken.get();
             pushNotificationToken.setToken(token);

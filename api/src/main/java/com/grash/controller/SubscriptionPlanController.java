@@ -7,8 +7,10 @@ import com.grash.model.OwnUser;
 import com.grash.model.SubscriptionPlan;
 import com.grash.service.SubscriptionPlanService;
 import com.grash.service.UserService;
-import io.swagger.v3.oas.annotations.tags.Tag;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +19,12 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-
 import java.util.Collection;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/subscription-plans")
-@Tag(name = "subscriptionPlan")
+@Api(tags = "subscriptionPlan")
 @RequiredArgsConstructor
 public class SubscriptionPlanController {
 
@@ -31,14 +32,21 @@ public class SubscriptionPlanController {
     private final UserService userService;
 
     @GetMapping("")
-
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "SubscriptionPlanCategory not found")})
     public Collection<SubscriptionPlan> getAll(HttpServletRequest req) {
         return subscriptionPlanService.getAll();
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public SubscriptionPlan getById(@PathVariable("id") Long id, HttpServletRequest req) {
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "SubscriptionPlan not found")})
+    public SubscriptionPlan getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<SubscriptionPlan> optionalSubscriptionPlan = subscriptionPlanService.findById(id);
         if (optionalSubscriptionPlan.isPresent()) {
@@ -49,7 +57,21 @@ public class SubscriptionPlanController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    public SubscriptionPlan patch(@Valid @RequestBody SubscriptionPlanPatchDTO subscriptionPlan, Long id,
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied")})
+    public SubscriptionPlan create(@ApiParam("SubscriptionPlan") @Valid @RequestBody SubscriptionPlan subscriptionPlanReq, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        return subscriptionPlanService.create(subscriptionPlanReq);
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "SubscriptionPlan not found")})
+    public SubscriptionPlan patch(@ApiParam("SubscriptionPlan") @Valid @RequestBody SubscriptionPlanPatchDTO subscriptionPlan, @ApiParam("id") @PathVariable("id") Long id,
                                   HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<SubscriptionPlan> optionalSubscriptionPlan = subscriptionPlanService.findById(id);
@@ -62,7 +84,11 @@ public class SubscriptionPlanController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "SubscriptionPlan not found")})
+    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<SubscriptionPlan> optionalSubscriptionPlan = subscriptionPlanService.findById(id);

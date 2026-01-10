@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-
 import java.util.Collection;
 import java.util.Optional;
 
@@ -33,7 +32,10 @@ public class ScheduleController {
 
 //    @GetMapping("")
 //    @PreAuthorize("permitAll()")
-//    
+//    @ApiResponses(value = {//
+//            @ApiResponse(code = 500, message = "Something went wrong"),
+//            @ApiResponse(code = 403, message = "Access denied"),
+//            @ApiResponse(code = 404, message = "ScheduleCategory not found")})
 //    public Collection<Schedule> getAll(HttpServletRequest req) {
 //        OwnUser user = userService.whoami(req);
 //        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -43,7 +45,11 @@ public class ScheduleController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public Schedule getById(@PathVariable("id") Long id, HttpServletRequest req) {
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "Schedule not found")})
+    public Schedule getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Schedule> optionalSchedule = scheduleService.findById(id);
         if (optionalSchedule.isPresent()) {
@@ -56,8 +62,12 @@ public class ScheduleController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Schedule patch(@Valid @RequestBody SchedulePatchDTO schedule,
-                          @PathVariable("id") Long id,
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "Schedule not found")})
+    public Schedule patch(@ApiParam("Schedule") @Valid @RequestBody SchedulePatchDTO schedule,
+                          @ApiParam("id") @PathVariable("id") Long id,
                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Schedule> optionalSchedule = scheduleService.findById(id);
@@ -74,7 +84,11 @@ public class ScheduleController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "Schedule not found")})
+    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Schedule> optionalSchedule = scheduleService.findById(id);

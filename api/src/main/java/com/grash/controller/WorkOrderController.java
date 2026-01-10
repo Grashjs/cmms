@@ -16,10 +16,10 @@ import com.grash.service.*;
 import com.grash.utils.Helper;
 import com.grash.utils.MultipartFileImpl;
 import com.itextpdf.html2pdf.HtmlConverter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -36,11 +36,8 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import jakarta.transaction.Transactional;
-
+import javax.transaction.Transactional;
 import jakarta.validation.Valid;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
@@ -52,7 +49,7 @@ import static java.util.stream.Collectors.toCollection;
 
 @RestController
 @RequestMapping("/work-orders")
-@Tag(name = "workOrder")
+@Api(tags = "workOrder")
 @RequiredArgsConstructor
 @Transactional
 public class WorkOrderController {
@@ -139,7 +136,7 @@ public class WorkOrderController {
 
     @GetMapping("/asset/{id}")
     @PreAuthorize("permitAll()")
-    public Collection<WorkOrderShowDTO> getByAsset(@PathVariable("id") Long id,
+    public Collection<WorkOrderShowDTO> getByAsset(@ApiParam("id") @PathVariable("id") Long id,
                                                    HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
@@ -150,7 +147,7 @@ public class WorkOrderController {
 
     @GetMapping("/location/{id}")
     @PreAuthorize("permitAll()")
-    public Collection<WorkOrderShowDTO> getByLocation(@PathVariable("id") Long id,
+    public Collection<WorkOrderShowDTO> getByLocation(@ApiParam("id") @PathVariable("id") Long id,
                                                       HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
@@ -161,7 +158,7 @@ public class WorkOrderController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public WorkOrderShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
+    public WorkOrderShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
@@ -177,7 +174,10 @@ public class WorkOrderController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public WorkOrderShowDTO create(@Valid @RequestBody WorkOrderPostDTO
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied")})
+    public WorkOrderShowDTO create(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrderPostDTO
                                            workOrderReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
@@ -195,7 +195,11 @@ public class WorkOrderController {
 
     @GetMapping("/part/{id}")
     @PreAuthorize("permitAll()")
-    public Collection<WorkOrderShowDTO> getByPart(@PathVariable("id") Long id, HttpServletRequest req) {
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "WorkOrders for this part not found")})
+    public Collection<WorkOrderShowDTO> getByPart(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
@@ -212,8 +216,12 @@ public class WorkOrderController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public WorkOrderShowDTO patch(@Valid @RequestBody WorkOrderPatchDTO
-                                          workOrder, @PathVariable("id") Long id,
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "WorkOrder not found")})
+    public WorkOrderShowDTO patch(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrderPatchDTO
+                                          workOrder, @ApiParam("id") @PathVariable("id") Long id,
                                   HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
@@ -241,8 +249,9 @@ public class WorkOrderController {
 
     @PatchMapping("/{id}/change-status")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public WorkOrderShowDTO changeStatus(@Valid @RequestBody WorkOrderChangeStatusDTO
-                                                 workOrder, @PathVariable("id") Long id,
+
+    public WorkOrderShowDTO changeStatus(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrderChangeStatusDTO
+                                                 workOrder, @ApiParam("id") @PathVariable("id") Long id,
                                          HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
@@ -324,7 +333,11 @@ public class WorkOrderController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "WorkOrder not found")})
+    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
@@ -360,7 +373,7 @@ public class WorkOrderController {
     @RequestMapping(path = "/report/{id}")
     @Transactional
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<?> getPDF(@PathVariable("id") Long id, HttpServletRequest req,
+    public ResponseEntity<?> getPDF(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req,
                                     HttpServletResponse response) throws IOException {
         OwnUser user = userService.whoami(req);
         StorageService storageService = storageServiceFactory.getStorageService();
@@ -441,7 +454,7 @@ public class WorkOrderController {
 
     @PatchMapping("/files/{id}/add")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<File> addFilesToWorkOrder(@PathVariable("id") Long id, @RequestBody List<File> files,
+    public List<File> addFilesToWorkOrder(@ApiParam("id") @PathVariable("id") Long id, @RequestBody List<File> files,
                                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
@@ -457,7 +470,7 @@ public class WorkOrderController {
 
     @DeleteMapping("/files/{id}/{fileId}/remove")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<File> removeFileFromWorkOrder(@PathVariable("id") Long id,
+    public List<File> removeFileFromWorkOrder(@ApiParam("id") @PathVariable("id") Long id,
                                               @PathVariable("fileId") Long fileId, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);

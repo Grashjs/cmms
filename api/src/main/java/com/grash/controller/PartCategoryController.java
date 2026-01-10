@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-
 import java.util.Collection;
 import java.util.Optional;
 
@@ -34,6 +33,10 @@ public class PartCategoryController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "PartCategory not found")})
     public Collection<PartCategory> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -45,7 +48,11 @@ public class PartCategoryController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public PartCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "PartCategory not found")})
+    public PartCategory getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
             Optional<PartCategory> optionalPartCategory = partCategoryService.findById(id);
@@ -57,9 +64,25 @@ public class PartCategoryController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public PartCategory patch(@Valid @RequestBody CategoryPatchDTO partCategory,
-                              @PathVariable("id") Long id,
-                              HttpServletRequest req) {
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied")})
+    public PartCategory create(@ApiParam("PartCategory") @Valid @RequestBody PartCategory partCategoryReq, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
+            return partCategoryService.create(partCategoryReq);
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "PartCategory not found")})
+    public PartCategory patch(@ApiParam("PartCategory") @Valid @RequestBody CategoryPatchDTO partCategory,
+                               @ApiParam("id") @PathVariable("id") Long id,
+                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<PartCategory> optionalPartCategory = partCategoryService.findById(id);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
@@ -73,7 +96,11 @@ public class PartCategoryController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "PartCategory not found")})
+    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<PartCategory> optionalPartCategory = partCategoryService.findById(id);

@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
@@ -39,7 +38,11 @@ public class LaborController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public Labor getById(@PathVariable("id") Long id, HttpServletRequest req) {
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "Labor not found")})
+    public Labor getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Labor> optionalLabor = laborService.findById(id);
         if (optionalLabor.isPresent()) {
@@ -51,7 +54,11 @@ public class LaborController {
 
     @GetMapping("/work-order/{id}")
     @PreAuthorize("permitAll()")
-    public Collection<Labor> getByWorkOrder(@PathVariable("id") Long id, HttpServletRequest req) {
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "Labor not found")})
+    public Collection<Labor> getByWorkOrder(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
@@ -61,13 +68,15 @@ public class LaborController {
 
     @PostMapping("/work-order/{id}")
     @PreAuthorize("permitAll()")
-    public Labor controlTimer(@PathVariable("id") Long id, HttpServletRequest req,
-                              @RequestParam(defaultValue = "true") boolean start) {
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "Labor not found")})
+    public Labor controlTimer(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req, @RequestParam(defaultValue = "true") boolean start) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent() && optionalWorkOrder.get().canBeEditedBy(user)) {
-            Optional<Labor> optionalLabor =
-                    laborService.findByWorkOrder(id).stream().filter(labor -> labor.isLogged() && labor.getAssignedTo().getId().equals(user.getId())).findFirst();
+            Optional<Labor> optionalLabor = laborService.findByWorkOrder(id).stream().filter(labor -> labor.isLogged() && labor.getAssignedTo().getId().equals(user.getId())).findFirst();
             if (start) {
                 WorkOrder workOrder = optionalWorkOrder.get();
                 if (workOrder.getFirstTimeToReact() == null) workOrder.setFirstTimeToReact(new Date());
@@ -86,8 +95,7 @@ public class LaborController {
                         return laborService.save(labor);
                     }
                 } else {
-                    Labor labor = new Labor(user, user.getRate(), new Date(), optionalWorkOrder.get(), true,
-                            TimeStatus.RUNNING);
+                    Labor labor = new Labor(user, user.getRate(), new Date(), optionalWorkOrder.get(), true, TimeStatus.RUNNING);
                     return laborService.create(labor);
                 }
             } else {
@@ -105,8 +113,28 @@ public class LaborController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Labor patch(@Valid @RequestBody LaborPatchDTO labor,
-                       @PathVariable("id") Long id,
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied")})
+    public Labor create(@ApiParam("Labor") @Valid @RequestBody Labor laborReq, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ADDITIONAL_TIME)) {
+            WorkOrder workOrder = workOrderService.findById(laborReq.getWorkOrder().getId()).get();
+            if (workOrder.getFirstTimeToReact() == null) {
+                workOrder.setFirstTimeToReact(new Date());
+                workOrderService.save(workOrder);
+            }
+            return laborService.create(laborReq);
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "Labor not found")})
+    public Labor patch(@ApiParam("Labor") @Valid @RequestBody LaborPatchDTO labor, @ApiParam("id") @PathVariable("id") Long id,
                        HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Labor> optionalLabor = laborService.findById(id);
@@ -119,7 +147,11 @@ public class LaborController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "Labor not found")})
+    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Labor> optionalLabor = laborService.findById(id);

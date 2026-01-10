@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -79,7 +78,11 @@ public class RequestController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public RequestShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "Request not found")})
+    public RequestShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Request> optionalRequest = requestService.findById(id);
         if (optionalRequest.isPresent()) {
@@ -93,8 +96,47 @@ public class RequestController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public RequestShowDTO patch(@Valid @RequestBody RequestPatchDTO request,
-                                @PathVariable("id") Long id,
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied")})
+    public RequestShowDTO create(@ApiParam("Request") @Valid @RequestBody Request requestReq, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.REQUESTS)) {
+            Request createdRequest = requestService.create(requestReq, user.getCompany());
+            String title = messageSource.getMessage("new_request", null, Helper.getLocale(user));
+            String message = messageSource.getMessage("notification_new_request", null, Helper.getLocale(user));
+            List<OwnUser> usersToNotify = userService.findByCompany(user.getCompany().getId()).stream()
+                    .filter(user1 -> user1.isEnabled() && user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
+                            || user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN)).collect(Collectors.toList());
+            notificationService.createMultiple(usersToNotify
+                    .stream().map(user1 -> new Notification(message, user1, NotificationType.REQUEST,
+                            createdRequest.getId())).collect(Collectors.toList()), true, title);
+            Map<String, Object> mailVariables = new HashMap<String, Object>() {{
+                put("requestLink", frontendUrl + "/app/requests/" + createdRequest.getId());
+                put("featuresLink", frontendUrl + "/#key-features");
+                put("requestTitle", createdRequest.getTitle());
+                put("requester", user.getFullName());
+            }};
+            emailService2.sendMessageUsingThymeleafTemplate(usersToNotify.stream().map(OwnUser::getEmail)
+                    .toArray(String[]::new), messageSource.getMessage("new_request", null,
+                    Helper.getLocale(user)), mailVariables, "new-request.html", Helper.getLocale(user));
+
+            Collection<Workflow> workflows =
+                    workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_CREATED,
+                            user.getCompany().getId());
+            workflows.forEach(workflow -> workflowService.runRequest(workflow, createdRequest));
+            return requestMapper.toShowDto(createdRequest);
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "Request not found")})
+    public RequestShowDTO patch(@ApiParam("Request") @Valid @RequestBody RequestPatchDTO request,
+                                @ApiParam("id") @PathVariable("id") Long id,
                                 HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Request> optionalRequest = requestService.findById(id);
@@ -113,7 +155,11 @@ public class RequestController {
 
     @PatchMapping("/{id}/approve")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public WorkOrderShowDTO approve(@PathVariable("id") Long id,
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "Request not found")})
+    public WorkOrderShowDTO approve(@ApiParam("id") @PathVariable("id") Long id,
                                     @RequestBody RequestApproveDTO requestApproveDTO,
                                     HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
@@ -167,7 +213,11 @@ public class RequestController {
 
     @PatchMapping("/{id}/cancel")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public RequestShowDTO cancel(@PathVariable("id") Long id,
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "Request not found")})
+    public RequestShowDTO cancel(@ApiParam("id") @PathVariable("id") Long id,
                                  @RequestParam String reason,
                                  HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
@@ -220,7 +270,11 @@ public class RequestController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "Request not found")})
+    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Request> optionalRequest = requestService.findById(id);

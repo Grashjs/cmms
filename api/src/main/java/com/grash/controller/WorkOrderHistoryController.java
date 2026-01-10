@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,7 +37,11 @@ public class WorkOrderHistoryController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public WorkOrderHistoryShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "WorkOrderHistory not found")})
+    public WorkOrderHistoryShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrderHistory> optionalWorkOrderHistory = workOrderHistoryService.findById(id);
         if (optionalWorkOrderHistory.isPresent()) {
@@ -49,8 +52,11 @@ public class WorkOrderHistoryController {
 
     @GetMapping("/work-order/{id}")
     @PreAuthorize("permitAll()")
-    public Collection<WorkOrderHistoryShowDTO> getByWorkOrder(@PathVariable("id") Long id,
-                                                              HttpServletRequest req) {
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "WorkOrderHistory not found")})
+    public Collection<WorkOrderHistoryShowDTO> getByWorkOrder(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
