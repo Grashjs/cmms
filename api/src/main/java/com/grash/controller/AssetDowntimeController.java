@@ -10,10 +10,8 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.service.AssetDowntimeService;
 import com.grash.service.AssetService;
 import com.grash.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +26,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/asset-downtimes")
-@Api(tags = "assetDowntime")
+@Tag(name = "assetDowntime")
 @RequiredArgsConstructor
 public class AssetDowntimeController {
 

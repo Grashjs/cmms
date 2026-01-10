@@ -11,10 +11,8 @@ import com.grash.model.enums.RoleType;
 import com.grash.security.CurrentUser;
 import com.grash.service.RoleService;
 import com.grash.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -34,7 +32,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
-@Api(tags = "user")
+@Tag(name = "user")
 @RequiredArgsConstructor
 public class UserController {
 

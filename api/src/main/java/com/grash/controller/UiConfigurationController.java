@@ -9,10 +9,8 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.service.UiConfigurationService;
 import com.grash.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,7 +23,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/ui-configurations")
-@Api(tags = "uiConfiguration")
+@Tag(name = "uiConfiguration")
 @RequiredArgsConstructor
 public class UiConfigurationController {
 

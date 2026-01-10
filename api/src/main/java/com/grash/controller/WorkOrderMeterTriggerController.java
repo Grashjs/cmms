@@ -11,10 +11,8 @@ import com.grash.model.WorkOrderMeterTrigger;
 import com.grash.service.MeterService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderMeterTriggerService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +28,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/work-order-meter-triggers")
-@Api(tags = "workOrderMeterTrigger")
+@Tag(name = "workOrderMeterTrigger")
 @RequiredArgsConstructor
 public class WorkOrderMeterTriggerController {
 

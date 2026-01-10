@@ -9,10 +9,8 @@ import com.grash.model.enums.WorkOrderMeterTriggerCondition;
 import com.grash.service.*;
 import com.grash.utils.AuditComparator;
 import com.grash.utils.Helper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
@@ -28,7 +26,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/readings")
-@Api(tags = "reading")
+@Tag(name = "reading")
 @RequiredArgsConstructor
 public class ReadingController {
 

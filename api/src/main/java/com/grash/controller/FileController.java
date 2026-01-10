@@ -18,10 +18,8 @@ import com.grash.service.FileService;
 import com.grash.service.LicenseService;
 import com.grash.service.TaskService;
 import com.grash.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -38,7 +36,7 @@ import java.util.stream.Collectors;
 
 
 @RestController
-@Api(tags = "file")
+@Tag(name = "file")
 @RequestMapping("/files")
 @RequiredArgsConstructor
 public class FileController {

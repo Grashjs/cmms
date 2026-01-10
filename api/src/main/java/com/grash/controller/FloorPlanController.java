@@ -11,10 +11,8 @@ import com.grash.model.OwnUser;
 import com.grash.service.FloorPlanService;
 import com.grash.service.LocationService;
 import com.grash.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +28,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/floor-plans")
-@Api(tags = "floorPlan")
+@Tag(name = "floorPlan")
 @RequiredArgsConstructor
 public class FloorPlanController {
 

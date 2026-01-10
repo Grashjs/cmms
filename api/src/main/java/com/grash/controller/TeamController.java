@@ -14,10 +14,8 @@ import com.grash.model.enums.RoleType;
 import com.grash.service.TeamService;
 import com.grash.service.UserService;
 import com.grash.utils.Helper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -35,7 +33,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/teams")
-@Api(tags = "team")
+@Tag(name = "team")
 @RequiredArgsConstructor
 public class TeamController {
 

@@ -13,10 +13,8 @@ import com.grash.model.enums.RoleType;
 import com.grash.service.NotificationService;
 import com.grash.service.PushNotificationTokenService;
 import com.grash.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -33,7 +31,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/notifications")
-@Api(tags = "notification")
+@Tag(name = "notification")
 @RequiredArgsConstructor
 public class NotificationController {
 

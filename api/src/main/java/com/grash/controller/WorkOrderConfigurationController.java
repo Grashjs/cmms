@@ -5,10 +5,8 @@ import com.grash.model.OwnUser;
 import com.grash.model.WorkOrderConfiguration;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderConfigurationService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,7 +21,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/work-order-configurations")
-@Api(tags = "workOrderConfiguration")
+@Tag(name = "workOrderConfiguration")
 @RequiredArgsConstructor
 public class WorkOrderConfigurationController {
 

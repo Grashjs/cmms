@@ -16,7 +16,7 @@ import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
 import com.grash.utils.AuditComparator;
 import com.grash.utils.Helper;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/analytics/assets")
-@Api(tags = "AssetAnalytics")
+@Tag(name = "AssetAnalytics")
 @RequiredArgsConstructor
 public class AssetAnalyticsController {
 

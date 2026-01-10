@@ -10,7 +10,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.service.ImportService;
 import com.grash.service.UserService;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
@@ -21,12 +21,13 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.io.IOException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/import")
-@Api(tags = "import")
+@Tag(name = "import")
 @RequiredArgsConstructor
 @Transactional
 public class ImportController {

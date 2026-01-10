@@ -32,7 +32,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/auth")
-@Api(tags = "auth")
+@Tag(name = "auth")
 @RequiredArgsConstructor
 public class AuthController {
 

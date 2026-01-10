@@ -13,7 +13,7 @@ import com.grash.repository.WorkOrderAudRepository;
 import com.grash.security.CurrentUser;
 import com.grash.service.*;
 import com.grash.utils.Helper;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/analytics/work-orders")
-@Api(tags = "WorkOrderAnalytics")
+@Tag(name = "WorkOrderAnalytics")
 @RequiredArgsConstructor
 public class WOAnalyticsController {
 

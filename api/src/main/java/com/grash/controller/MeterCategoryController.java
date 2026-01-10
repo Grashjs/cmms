@@ -9,10 +9,8 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.MeterCategoryService;
 import com.grash.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +25,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/meter-categories")
-@Api(tags = "meterCategory")
+@Tag(name = "meterCategory")
 @RequiredArgsConstructor
 public class MeterCategoryController {
 

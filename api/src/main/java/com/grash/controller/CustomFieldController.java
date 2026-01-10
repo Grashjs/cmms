@@ -7,10 +7,8 @@ import com.grash.model.CustomField;
 import com.grash.model.OwnUser;
 import com.grash.service.CustomFieldService;
 import com.grash.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +22,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/custom-fields")
-@Api(tags = "customField")
+@Tag(name = "customField")
 @RequiredArgsConstructor
 public class CustomFieldController {
 

@@ -19,10 +19,8 @@ import com.grash.model.enums.RoleType;
 import com.grash.security.CurrentUser;
 import com.grash.service.*;
 import com.grash.utils.Helper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -45,7 +43,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/assets")
-@Api(tags = "asset")
+@Tag(name = "asset")
 @RequiredArgsConstructor
 public class AssetController {
 

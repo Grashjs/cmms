@@ -7,10 +7,8 @@ import com.grash.model.OwnUser;
 import com.grash.model.SubscriptionPlan;
 import com.grash.service.SubscriptionPlanService;
 import com.grash.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +23,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/subscription-plans")
-@Api(tags = "subscriptionPlan")
+@Tag(name = "subscriptionPlan")
 @RequiredArgsConstructor
 public class SubscriptionPlanController {
 

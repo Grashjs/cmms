@@ -13,10 +13,8 @@ import com.grash.model.enums.RoleType;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.service.*;
 import com.grash.utils.Helper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -35,7 +33,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/requests")
-@Api(tags = "request")
+@Tag(name = "request")
 @RequiredArgsConstructor
 @Transactional
 public class RequestController {
