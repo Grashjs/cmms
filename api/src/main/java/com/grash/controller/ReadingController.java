@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,11 +41,8 @@ public class ReadingController {
 
     @GetMapping("/meter/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Reading not found")})
-    public Collection<Reading> getByMeter(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public Collection<Reading> getByMeter(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {
@@ -54,10 +52,7 @@ public class ReadingController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public Reading create(@ApiParam("Reading") @Valid @RequestBody Reading readingReq, HttpServletRequest req) {
+    Reading create(@Valid @RequestBody Reading readingReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(readingReq.getMeter().getId());
         if (optionalMeter.isPresent()) {
@@ -102,12 +97,9 @@ public class ReadingController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Reading not found")})
-    public Reading patch(@ApiParam("Reading") @Valid @RequestBody ReadingPatchDTO reading,
-                         @ApiParam("id") @PathVariable("id") Long id,
+
+    public Reading patch(@Valid @RequestBody ReadingPatchDTO reading,
+                         @PathVariable("id") Long id,
                          HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Reading> optionalReading = readingService.findById(id);
@@ -120,11 +112,8 @@ public class ReadingController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Reading not found")})
-    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Reading> optionalReading = readingService.findById(id);

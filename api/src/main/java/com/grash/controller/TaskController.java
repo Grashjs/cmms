@@ -10,10 +10,9 @@ import com.grash.model.*;
 import com.grash.model.enums.TaskType;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.service.*;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,13 +22,14 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @RestController
 @RequestMapping("/tasks")
-@Api(tags = "task")
+@Tag(name = "task")
 @RequiredArgsConstructor
 @Transactional
 public class TaskController {
@@ -44,11 +44,8 @@ public class TaskController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Task not found")})
-    public TaskShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public TaskShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         Optional<Task> optionalTask = taskService.findById(id);
         if (optionalTask.isPresent()) {
             Task savedTask = optionalTask.get();
@@ -58,11 +55,8 @@ public class TaskController {
 
     @GetMapping("/work-order/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Task not found")})
-    public Collection<TaskShowDTO> getByWorkOrder(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public Collection<TaskShowDTO> getByWorkOrder(@PathVariable("id") Long id, HttpServletRequest req) {
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
             return taskService.findByWorkOrder(id).stream().map(taskMapper::toShowDto).collect(Collectors.toList());
@@ -71,7 +65,7 @@ public class TaskController {
 
     @GetMapping("/preventive-maintenance/{id}")
     @PreAuthorize("permitAll()")
-    public Collection<Task> getByPreventiveMaintenance(@ApiParam("id") @PathVariable("id") Long id) {
+    public Collection<Task> getByPreventiveMaintenance(@PathVariable("id") Long id) {
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent()) {
             return taskService.findByPreventiveMaintenance(id);
@@ -80,7 +74,7 @@ public class TaskController {
 
     @PatchMapping("/preventive-maintenance/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<TaskShowDTO> createByPreventiveMaintenance(@ApiParam("Task") @Valid @RequestBody Collection<TaskBaseDTO> taskBasesReq, @ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public Collection<TaskShowDTO> createByPreventiveMaintenance(@Valid @RequestBody Collection<TaskBaseDTO> taskBasesReq, @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent() && optionalPreventiveMaintenance.get().canBeEditedBy(user)) {
@@ -102,11 +96,8 @@ public class TaskController {
 
     @PatchMapping("/work-order/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public List<TaskShowDTO> create(@ApiParam("Task") @Valid @RequestBody List<TaskBaseDTO> taskBasesReq,
-                                    @ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    List<TaskShowDTO> create(@Valid @RequestBody List<TaskBaseDTO> taskBasesReq,
+                             @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent() && optionalWorkOrder.get().canBeEditedBy(user)) {
@@ -190,11 +181,8 @@ public class TaskController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Task not found")})
-    public TaskShowDTO patch(@ApiParam("Task") @Valid @RequestBody TaskPatchDTO task, @ApiParam("id") @PathVariable(
+
+    public TaskShowDTO patch(@Valid @RequestBody TaskPatchDTO task, @PathVariable(
                                      "id") Long id,
                              HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
@@ -212,11 +200,8 @@ public class TaskController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Task not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Task> optionalTask = taskService.findById(id);

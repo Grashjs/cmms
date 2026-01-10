@@ -11,10 +11,10 @@ import com.grash.model.enums.RoleType;
 import com.grash.security.CurrentUser;
 import com.grash.service.RoleService;
 import com.grash.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+
+
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -23,17 +23,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
-@Api(tags = "user")
+@Tag(name = "user")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -44,7 +44,7 @@ public class UserController {
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<UserResponseDTO>> search(@RequestBody SearchCriteria searchCriteria,
-                                                        @ApiIgnore @CurrentUser OwnUser user) {
+                                                        @Parameter(hidden = true) @CurrentUser OwnUser user) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 searchCriteria.filterCompany(user);
@@ -55,11 +55,9 @@ public class UserController {
 
     @PostMapping("/invite")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "TeamCategory not found")})
-    public SuccessResponse invite(@RequestBody UserInvitationDTO invitation, @ApiIgnore @CurrentUser OwnUser user) {
+
+    public SuccessResponse invite(@RequestBody UserInvitationDTO invitation,
+                                  @Parameter(hidden = true) @CurrentUser OwnUser user) {
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
             int companyUsersCount =
                     (int) userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.isEnabled() && user1.isEnabledInSubscriptionAndPaid()).count();
@@ -80,11 +78,8 @@ public class UserController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "AssetCategory not found")})
-    public Collection<UserMiniDTO> getMini(@ApiIgnore @CurrentUser OwnUser user,
+
+    public Collection<UserMiniDTO> getMini(@Parameter(hidden = true) @CurrentUser OwnUser user,
                                            @RequestParam(required = false) Boolean withRequesters) {
         return Boolean.TRUE.equals(withRequesters) ?
                 userService.findByCompany(user.getCompany().getId()).stream()
@@ -97,24 +92,18 @@ public class UserController {
 
     @GetMapping("/mini/disabled")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "AssetCategory not found")})
-    public Collection<UserMiniDTO> getMiniDisabled(@ApiIgnore @CurrentUser OwnUser user) {
+
+    public Collection<UserMiniDTO> getMiniDisabled(@Parameter(hidden = true) @CurrentUser OwnUser user) {
         return userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> !user1.isEnabledInSubscription()).map(userMapper::toMiniDto).collect(Collectors.toList());
     }
 
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "User not found")})
-    public UserResponseDTO patch(@ApiParam("User") @Valid @RequestBody UserPatchDTO userReq,
-                                 @ApiParam("id") @PathVariable("id") Long id,
-                                 @ApiIgnore @CurrentUser OwnUser requester) {
+
+    public UserResponseDTO patch(@Valid @RequestBody UserPatchDTO userReq,
+                                 @PathVariable("id") Long id,
+                                 @Parameter(hidden = true) @CurrentUser OwnUser requester) {
         Optional<OwnUser> optionalUser = userService.findByIdAndCompany(id, requester.getCompany().getId());
 
         if (optionalUser.isPresent()) {
@@ -133,11 +122,8 @@ public class UserController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "User not found")})
-    public UserResponseDTO getById(@ApiParam("id") @PathVariable("id") Long id, @ApiIgnore @CurrentUser OwnUser user) {
+
+    public UserResponseDTO getById(@PathVariable("id") Long id, @Parameter(hidden = true) @CurrentUser OwnUser user) {
         Optional<OwnUser> optionalUser = userService.findByIdAndCompany(id, user.getCompany().getId());
         if (optionalUser.isPresent()) {
             OwnUser savedUser = optionalUser.get();
@@ -149,13 +135,10 @@ public class UserController {
 
     @PatchMapping("/{id}/role")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "User not found")})
-    public UserResponseDTO patchRole(@ApiParam("id") @PathVariable("id") Long id,
+
+    public UserResponseDTO patchRole(@PathVariable("id") Long id,
                                      @RequestParam("role") Long roleId,
-                                     @ApiIgnore @CurrentUser OwnUser requester) {
+                                     @Parameter(hidden = true) @CurrentUser OwnUser requester) {
         Optional<OwnUser> optionalUserToPatch = userService.findByIdAndCompany(id, requester.getCompany().getId());
         Optional<Role> optionalRole = roleService.findById(roleId);
 
@@ -181,12 +164,9 @@ public class UserController {
 
     @PatchMapping("/{id}/disable")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "User not found")})
-    public UserResponseDTO disable(@ApiParam("id") @PathVariable("id") Long id,
-                                   @ApiIgnore @CurrentUser OwnUser requester) {
+
+    public UserResponseDTO disable(@PathVariable("id") Long id,
+                                   @Parameter(hidden = true) @CurrentUser OwnUser requester) {
         Optional<OwnUser> optionalUserToDisable = userService.findByIdAndCompany(id, requester.getCompany().getId());
 
         if (optionalUserToDisable.isPresent()) {
@@ -206,12 +186,9 @@ public class UserController {
 
     @PatchMapping("/soft-delete/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "User not found")})
-    public UserResponseDTO softDelete(@ApiParam("id") @PathVariable("id") Long id,
-                                      @ApiIgnore @CurrentUser OwnUser requester) {
+
+    public UserResponseDTO softDelete(@PathVariable("id") Long id,
+                                      @Parameter(hidden = true) @CurrentUser OwnUser requester) {
         Optional<OwnUser> optionalUserToSoftDelete = userService.findByIdAndCompany(id, requester.getCompany().getId());
 
         if (optionalUserToSoftDelete.isPresent()) {

@@ -16,7 +16,8 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
+
 import java.util.*;
 
 import static com.grash.utils.Consts.selfHostedPlans;
@@ -159,7 +160,7 @@ public class PaddleService {
         int enabledPaidUsersCount = (int) companyUsers.stream()
                 .filter(user -> user.isEnabled() && user.isEnabledInSubscription() && user.getRole().isPaid())
                 .count();
-        
+
         if (enabledPaidUsersCount < subscriptionUsersCount) {
             savedSubscription.setDowngradeNeeded(true);
             savedSubscription.setUpgradeNeeded(false);

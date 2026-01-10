@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Optional;
 
 @RestController
@@ -30,11 +31,8 @@ public class CustomFieldController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "CustomField not found")})
-    public CustomField getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public CustomField getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<CustomField> optionalCustomField = customFieldService.findById(id);
         if (optionalCustomField.isPresent()) {
@@ -45,21 +43,16 @@ public class CustomFieldController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public CustomField create(@ApiParam("CustomField") @Valid @RequestBody CustomField customFieldReq, HttpServletRequest req) {
+    CustomField create(@Valid @RequestBody CustomField customFieldReq,
+                       HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         return customFieldService.create(customFieldReq);
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "CustomField not found")})
-    public CustomField patch(@ApiParam("CustomField") @Valid @RequestBody CustomFieldPatchDTO customField, @ApiParam("id") @PathVariable("id") Long id,
+
+    public CustomField patch(@Valid @RequestBody CustomFieldPatchDTO customField, @PathVariable("id") Long id,
                              HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<CustomField> optionalCustomField = customFieldService.findById(id);
@@ -72,11 +65,8 @@ public class CustomFieldController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "CustomField not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<CustomField> optionalCustomField = customFieldService.findById(id);

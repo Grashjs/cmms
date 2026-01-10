@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.Optional;
 
@@ -34,10 +35,7 @@ public class RoleController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "RoleCategory not found")})
+
     public Collection<Role> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -49,11 +47,8 @@ public class RoleController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Role not found")})
-    public Role getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public Role getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Role> optionalRole = roleService.findById(id);
         if (optionalRole.isPresent()) {
@@ -66,10 +61,7 @@ public class RoleController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public Role create(@ApiParam("Role") @Valid @RequestBody Role roleReq, HttpServletRequest req) {
+    Role create(@Valid @RequestBody Role roleReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         roleReq.setPaid(true);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
@@ -80,11 +72,9 @@ public class RoleController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Role not found")})
-    public Role patch(@ApiParam("Role") @Valid @RequestBody RolePatchDTO role, @ApiParam("id") @PathVariable("id") Long id,
+
+    public Role patch(@Valid @RequestBody RolePatchDTO role,
+                      @PathVariable("id") Long id,
                       HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Role> optionalRole = roleService.findById(id);
@@ -99,11 +89,8 @@ public class RoleController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Role not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Role> optionalRole = roleService.findById(id);

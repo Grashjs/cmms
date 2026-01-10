@@ -18,10 +18,9 @@ import com.grash.service.PreventiveMaintenanceService;
 import com.grash.service.ScheduleService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -33,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/preventive-maintenances")
-@Api(tags = "preventiveMaintenance")
+@Tag(name = "preventiveMaintenance")
 @RequiredArgsConstructor
 public class PreventiveMaintenanceController {
 
@@ -67,11 +67,8 @@ public class PreventiveMaintenanceController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "PreventiveMaintenance not found")})
-    public PreventiveMaintenanceShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public PreventiveMaintenanceShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent()) {
@@ -82,7 +79,7 @@ public class PreventiveMaintenanceController {
 
     @GetMapping("/{id}/recent-work-orders")
     @PreAuthorize("permitAll()")
-    public List<WorkOrderMiniDTO> getRecentWorkOrders(@ApiParam("id") @PathVariable("id") Long id,
+    public List<WorkOrderMiniDTO> getRecentWorkOrders(@PathVariable("id") Long id,
                                                       HttpServletRequest req) {
         return workOrderService.findLastByPM(id, 10).stream()
                 .map(workOrderMapper::toMiniDto)
@@ -92,10 +89,8 @@ public class PreventiveMaintenanceController {
     @Transactional
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public PreventiveMaintenanceShowDTO create(@ApiParam("PreventiveMaintenance") @Valid @RequestBody PreventiveMaintenancePostDTO preventiveMaintenancePost, HttpServletRequest req) {
+    PreventiveMaintenanceShowDTO create(@Valid @RequestBody PreventiveMaintenancePostDTO preventiveMaintenancePost,
+                                        HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         PreventiveMaintenance preventiveMaintenance = preventiveMaintenanceMapper.toModel(preventiveMaintenancePost);
         preventiveMaintenance = preventiveMaintenanceService.create(preventiveMaintenance, user);
@@ -118,11 +113,9 @@ public class PreventiveMaintenanceController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "PreventiveMaintenance not found")})
-    public PreventiveMaintenanceShowDTO patch(@ApiParam("PreventiveMaintenance") @Valid @RequestBody PreventiveMaintenancePatchDTO preventiveMaintenance, @ApiParam("id") @PathVariable("id") Long id,
+
+    public PreventiveMaintenanceShowDTO patch(@Valid @RequestBody PreventiveMaintenancePatchDTO preventiveMaintenance
+            , @PathVariable("id") Long id,
                                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
@@ -137,11 +130,8 @@ public class PreventiveMaintenanceController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "PreventiveMaintenance not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.Optional;
 
@@ -32,10 +33,7 @@ public class GeneralPreferencesController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "GeneralPreferences not found")})
+
     public Collection<GeneralPreferences> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         CompanySettings companySettings = user.getCompany().getCompanySettings();
@@ -44,11 +42,8 @@ public class GeneralPreferencesController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "GeneralPreferences not found")})
-    public GeneralPreferences getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public GeneralPreferences getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<GeneralPreferences> optionalGeneralPreferences = generalPreferencesService.findById(id);
         if (optionalGeneralPreferences.isPresent()) {
@@ -58,12 +53,9 @@ public class GeneralPreferencesController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "GeneralPreferences not found")})
-    public GeneralPreferences patch(@ApiParam("GeneralPreferences") @Valid @RequestBody GeneralPreferencesPatchDTO generalPreferences,
-                                    @ApiParam("id") @PathVariable("id") Long id,
+
+    public GeneralPreferences patch(@Valid @RequestBody GeneralPreferencesPatchDTO generalPreferences,
+                                    @PathVariable("id") Long id,
                                     HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 

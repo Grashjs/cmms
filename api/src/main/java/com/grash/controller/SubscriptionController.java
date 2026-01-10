@@ -10,23 +10,25 @@ import com.grash.service.BrandingService;
 import com.grash.service.EmailService2;
 import com.grash.service.SubscriptionService;
 import com.grash.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.mail.MessagingException;
+import jakarta.mail.MessagingException;
+
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.Collection;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/subscriptions")
-@Api(tags = "subscription")
+@Tag(name = "subscription")
 @RequiredArgsConstructor
 public class SubscriptionController {
 
@@ -40,10 +42,7 @@ public class SubscriptionController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "SubscriptionCategory not found")})
+
     public Collection<Subscription> getAll(HttpServletRequest req) {
         return subscriptionService.getAll();
     }
@@ -51,11 +50,8 @@ public class SubscriptionController {
 
     //    @DeleteMapping("/{id}")
 //    @PreAuthorize("hasRole('ROLE_CLIENT')")
-//    @ApiResponses(value = {//
-//            @ApiResponse(code = 500, message = "Something went wrong"), //
-//            @ApiResponse(code = 403, message = "Access denied"), //
-//            @ApiResponse(code = 404, message = "Subscription not found")})
-//    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+//    
+//    public ResponseEntity delete( @PathVariable("id") Long id, HttpServletRequest req) {
 //        OwnUser user = userService.whoami(req);
 //
 //        Optional<Subscription> optionalSubscription = subscriptionService.findById(id);

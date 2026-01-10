@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.Optional;
 
@@ -36,10 +37,7 @@ public class RelationController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Relation not found")})
+
     public Collection<Relation> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Long companyId = user.getCompany().getId();
@@ -48,11 +46,8 @@ public class RelationController {
 
     @GetMapping("/work-order/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Relation not found")})
-    public Collection<Relation> getByWorkOrder(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public Collection<Relation> getByWorkOrder(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
@@ -62,11 +57,8 @@ public class RelationController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Relation not found")})
-    public Relation getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public Relation getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Relation> optionalRelation = relationService.findById(id);
         if (optionalRelation.isPresent()) {
@@ -76,27 +68,22 @@ public class RelationController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public Relation create(@ApiParam("Relation") @Valid @RequestBody RelationPostDTO relationReq, HttpServletRequest req) {
+    Relation create(@Valid @RequestBody RelationPostDTO relationReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Long parentId = relationReq.getParent().getId();
         Long childId = relationReq.getChild().getId();
         if (relationService.findByParentAndChild(parentId, childId).isEmpty() && relationService.findByParentAndChild(childId, parentId).isEmpty()) {
             return relationService.createPost(relationReq);
         } else
-            throw new CustomException("There already is a relation between these 2 Work Orders", HttpStatus.NOT_ACCEPTABLE);
+            throw new CustomException("There already is a relation between these 2 Work Orders",
+                    HttpStatus.NOT_ACCEPTABLE);
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Relation not found")})
-    public Relation patch(@ApiParam("Relation") @Valid @RequestBody RelationPatchDTO relation,
-                          @ApiParam("id") @PathVariable("id") Long id,
+
+    public Relation patch(@Valid @RequestBody RelationPatchDTO relation,
+                          @PathVariable("id") Long id,
                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Relation> optionalRelation = relationService.findById(id);
@@ -113,11 +100,8 @@ public class RelationController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Relation not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Relation> optionalRelation = relationService.findById(id);

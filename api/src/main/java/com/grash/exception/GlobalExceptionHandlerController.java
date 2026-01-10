@@ -17,7 +17,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 import jakarta.servlet.http.HttpServletResponse;
-import javax.xml.bind.ValidationException;
+import jakarta.xml.bind.ValidationException;
+
 import java.util.Map;
 
 @RestControllerAdvice

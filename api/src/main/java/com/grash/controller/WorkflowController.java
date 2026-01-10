@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -42,10 +43,7 @@ public class WorkflowController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "WorkflowCategory not found")})
+
     public Collection<Workflow> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -55,11 +53,8 @@ public class WorkflowController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public Workflow create(@ApiParam("Workflow") @Valid @RequestBody WorkflowPostDTO workflowReq,
-                           HttpServletRequest req) {
+    Workflow create(@Valid @RequestBody WorkflowPostDTO workflowReq,
+                    HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
             int workflowsCount =
@@ -73,11 +68,8 @@ public class WorkflowController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Workflow not found")})
-    public Workflow getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public Workflow getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Workflow> optionalWorkflow = workflowService.findById(id);
         if (optionalWorkflow.isPresent()) {
@@ -88,12 +80,9 @@ public class WorkflowController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Workflow not found")})
-    public Workflow patch(@ApiParam("Workflow") @Valid @RequestBody WorkflowPostDTO workflow,
-                          @ApiParam("id") @PathVariable("id") Long id,
+
+    public Workflow patch(@Valid @RequestBody WorkflowPostDTO workflow,
+                          @PathVariable("id") Long id,
                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Workflow> optionalWorkflow = workflowService.findById(id);
@@ -107,11 +96,8 @@ public class WorkflowController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Workflow not found")})
-    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Workflow> optionalWorkflow = workflowService.findById(id);

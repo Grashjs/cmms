@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,11 +39,8 @@ public class FloorPlanController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "FloorPlan not found")})
-    public FloorPlanShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public FloorPlanShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<FloorPlan> optionalFloorPlan = floorPlanService.findById(id);
         if (optionalFloorPlan.isPresent()) {
@@ -53,11 +51,8 @@ public class FloorPlanController {
 
     @GetMapping("/location/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "FloorPlan not found")})
-    public Collection<FloorPlanShowDTO> getByLocation(@ApiParam("id") @PathVariable("id") Long id,
+
+    public Collection<FloorPlanShowDTO> getByLocation(@PathVariable("id") Long id,
                                                       HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
@@ -68,23 +63,16 @@ public class FloorPlanController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public FloorPlanShowDTO create(@ApiParam("FloorPlan") @Valid @RequestBody FloorPlan floorPlanReq,
-                                   HttpServletRequest req) {
+    FloorPlanShowDTO create(@Valid @RequestBody FloorPlan floorPlanReq,
+                            HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         return floorPlanMapper.toShowDto(floorPlanService.create(floorPlanReq));
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "FloorPlan not found")})
-    public FloorPlanShowDTO patch(@ApiParam("FloorPlan") @Valid @RequestBody FloorPlanPatchDTO floorPlan, @ApiParam(
-                                          "id") @PathVariable("id") Long id,
+
+    public FloorPlanShowDTO patch(@Valid @RequestBody FloorPlanPatchDTO floorPlan, @PathVariable("id") Long id,
                                   HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<FloorPlan> optionalFloorPlan = floorPlanService.findById(id);
@@ -97,11 +85,8 @@ public class FloorPlanController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "FloorPlan not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<FloorPlan> optionalFloorPlan = floorPlanService.findById(id);

@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -99,11 +100,8 @@ public class FileController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "File not found")})
-    public FileShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public FileShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<File> optionalFile = fileService.findById(id);
         if (optionalFile.isPresent()) {
@@ -117,12 +115,9 @@ public class FileController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "File not found")})
-    public FileShowDTO patch(@ApiParam("File") @Valid @RequestBody FilePatchDTO file,
-                             @ApiParam("id") @PathVariable("id") Long id,
+
+    public FileShowDTO patch(@Valid @RequestBody FilePatchDTO file,
+                             @PathVariable("id") Long id,
                              HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<File> optionalFile = fileService.findById(id);
@@ -138,11 +133,8 @@ public class FileController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "File not found")})
-    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<File> optionalFile = fileService.findById(id);
