@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,7 +19,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class SubscriptionPlan {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
@@ -34,7 +35,7 @@ public class SubscriptionPlan {
 
     @ElementCollection(targetClass = PlanFeatures.class)
     private Set<PlanFeatures> features = new HashSet<>();
-    
+
     private String monthlyPaddlePriceId;
     private String yearlyPaddlePriceId;
 

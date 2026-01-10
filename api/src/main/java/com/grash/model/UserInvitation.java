@@ -16,7 +16,7 @@ import jakarta.validation.constraints.NotNull;
 @AllArgsConstructor
 public class UserInvitation extends Audit {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull

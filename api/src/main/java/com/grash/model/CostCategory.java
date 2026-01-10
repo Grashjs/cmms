@@ -14,7 +14,7 @@ import jakarta.persistence.Id;
 @NoArgsConstructor
 public class CostCategory extends CategoryAbstract {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     public CostCategory(String name, CompanySettings companySettings) {

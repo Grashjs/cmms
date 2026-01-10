@@ -14,7 +14,7 @@ import jakarta.persistence.Id;
 @NoArgsConstructor
 public class WorkOrderCategory extends CategoryAbstract {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     public WorkOrderCategory(String name, CompanySettings companySettings) {

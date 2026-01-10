@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.Date;
 
 @Entity
@@ -21,7 +22,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class Subscription extends Audit {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull

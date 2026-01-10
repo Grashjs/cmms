@@ -13,7 +13,7 @@ import jakarta.validation.constraints.NotNull;
 @NoArgsConstructor
 public class CustomField {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull

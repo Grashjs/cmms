@@ -20,7 +20,7 @@ import jakarta.validation.constraints.NotNull;
 @AllArgsConstructor
 public class SubscriptionChangeRequest extends CompanyAudit {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull

@@ -11,7 +11,7 @@ import jakarta.persistence.*;
 @NoArgsConstructor
 public class Request extends WorkOrderBase {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String customId;

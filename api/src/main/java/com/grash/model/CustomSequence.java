@@ -10,7 +10,7 @@ import jakarta.persistence.*;
 @NoArgsConstructor
 public class CustomSequence {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     // Company reference to isolate sequences by company

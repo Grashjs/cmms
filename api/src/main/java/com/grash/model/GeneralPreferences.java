@@ -16,7 +16,7 @@ import jakarta.persistence.*;
 @EqualsAndHashCode(exclude = "companySettings")
 public class GeneralPreferences {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Language language = Language.EN;

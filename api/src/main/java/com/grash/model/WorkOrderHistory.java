@@ -19,7 +19,7 @@ import jakarta.validation.constraints.NotNull;
 @Builder
 public class WorkOrderHistory extends Audit {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull

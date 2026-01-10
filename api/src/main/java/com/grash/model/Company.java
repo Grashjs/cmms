@@ -13,7 +13,7 @@ import jakarta.persistence.*;
 @EqualsAndHashCode(exclude = "companySettings", callSuper = false)
 public class Company extends Audit {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
