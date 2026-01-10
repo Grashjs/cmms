@@ -1,10 +1,12 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.grash.dto.IdDTO;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.Status;
 import com.grash.utils.Helper;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +19,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.*;
+
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -41,6 +44,7 @@ public class WorkOrder extends WorkOrderBase {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    @Schema(implementation = IdDTO.class)
     private OwnUser completedBy;
 
     private Date completedOn;
@@ -56,6 +60,7 @@ public class WorkOrder extends WorkOrderBase {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    @Schema(implementation = IdDTO.class)
     private Request parentRequest;
 
     private String feedback;
@@ -63,6 +68,7 @@ public class WorkOrder extends WorkOrderBase {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    @Schema(implementation = IdDTO.class)
     private PreventiveMaintenance parentPreventiveMaintenance;
 
     @NotAudited

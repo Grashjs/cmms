@@ -5,7 +5,7 @@ import com.grash.dto.PreventiveMaintenancePatchDTO;
 import com.grash.dto.PreventiveMaintenancePostDTO;
 import com.grash.dto.PreventiveMaintenanceShowDTO;
 import com.grash.dto.SuccessResponse;
-import com.grash.dto.WorkOrderMiniDTO;
+import com.grash.dto.workOrder.WorkOrderMiniDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.mapper.WorkOrderMapper;

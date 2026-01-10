@@ -2,9 +2,12 @@ package com.grash.model.abstracts;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.grash.dto.IdDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.*;
 import com.grash.model.enums.Priority;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -13,6 +16,7 @@ import org.springframework.http.HttpStatus;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.*;
 
 import static java.util.Comparator.comparingLong;
@@ -40,41 +44,50 @@ public abstract class WorkOrderBase extends CompanyAudit {
 
     @OneToOne
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    @Schema(implementation = IdDTO.class)
     private File image;
 
     @ManyToOne
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    @Schema(implementation = IdDTO.class)
     private WorkOrderCategory category;
 
     @ManyToOne
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    @Schema(implementation = IdDTO.class)
     private Location location;
 
     @ManyToOne
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    @Schema(implementation = IdDTO.class)
     private Team team;
 
     @ManyToOne
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    @Schema(implementation = IdDTO.class)
     private OwnUser primaryUser;
 
     @ManyToMany
     @NotAudited
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @ArraySchema(schema = @Schema(implementation = IdDTO.class))
     private List<OwnUser> assignedTo = new ArrayList<>();
 
     @ManyToMany
     @NotAudited
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @ArraySchema(schema = @Schema(implementation = IdDTO.class))
     private List<Customer> customers = new ArrayList<>();
 
     @ManyToMany
     @NotAudited
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @ArraySchema(schema = @Schema(implementation = IdDTO.class))
     private List<File> files = new ArrayList<>();
 
     @ManyToOne
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    @Schema(implementation = IdDTO.class)
     private Asset asset;
 
     @JsonIgnore

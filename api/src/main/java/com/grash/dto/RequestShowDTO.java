@@ -1,6 +1,6 @@
 package com.grash.dto;
 
-import com.grash.model.File;
+import com.grash.dto.workOrder.WorkOrderMiniDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

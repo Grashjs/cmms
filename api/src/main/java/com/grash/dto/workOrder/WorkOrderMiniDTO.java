@@ -1,4 +1,4 @@
-package com.grash.dto;
+package com.grash.dto.workOrder;
 
 import com.grash.model.enums.Status;
 import lombok.Data;

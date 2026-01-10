@@ -1,7 +1,6 @@
-package com.grash.dto;
+package com.grash.dto.workOrder;
 
-import com.grash.dto.FileShowDTO;
-import com.grash.model.PreventiveMaintenance;
+import com.grash.dto.*;
 import com.grash.model.enums.Status;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,7 +19,7 @@ public class WorkOrderShowDTO extends WorkOrderBaseShowDTO {
 
     private RequestMiniDTO parentRequest;
 
-    private PreventiveMaintenance parentPreventiveMaintenance;
+    private PreventiveMaintenanceMiniDTO parentPreventiveMaintenance;
 
     private String signature;
 

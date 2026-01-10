@@ -19,7 +19,7 @@ public class WorkOrderBaseShowDTO extends AuditShowDTO {
     private String title;
     private boolean requiredSignature;
 
-    private WorkOrderCategory category;
+    private CategoryMiniDTO category;
 
     private LocationMiniDTO location;
 
