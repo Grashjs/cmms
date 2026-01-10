@@ -5,7 +5,7 @@ import com.grash.model.enums.RecurrenceType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,3 +29,4 @@ public class SchedulePatchDTO {
 
     private List<Integer> daysOfWeek = new ArrayList<>();
 }
+

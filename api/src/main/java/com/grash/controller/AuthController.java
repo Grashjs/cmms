@@ -26,7 +26,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.*;
 
 @RestController
@@ -221,3 +221,4 @@ public class AuthController {
         throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 }
+

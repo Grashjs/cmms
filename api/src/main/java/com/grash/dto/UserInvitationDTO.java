@@ -4,7 +4,7 @@ import com.grash.model.Role;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -16,3 +16,4 @@ public class UserInvitationDTO {
 
     private Collection<String> emails = new ArrayList<>();
 }
+

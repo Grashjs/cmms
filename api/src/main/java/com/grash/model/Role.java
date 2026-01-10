@@ -7,7 +7,7 @@ import com.grash.model.enums.RoleType;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -67,3 +67,4 @@ public class Role {
                 && company.getCompanySettings().getId().equals(this.companySettings.getId());
     }
 }
+

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
@@ -56,3 +56,4 @@ public class Subscription extends Audit {
         this.usersCount = usersCount;
     }
 }
+

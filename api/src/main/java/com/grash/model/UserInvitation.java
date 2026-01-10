@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Data
@@ -31,3 +31,4 @@ public class UserInvitation extends Audit {
         this.role = role;
     }
 }
+

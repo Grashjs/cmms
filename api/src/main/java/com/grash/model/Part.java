@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -173,3 +173,4 @@ public class Part extends CompanyAudit {
     }
 
 }
+

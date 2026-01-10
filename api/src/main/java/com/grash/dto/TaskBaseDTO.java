@@ -7,7 +7,7 @@ import com.grash.model.enums.TaskType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.List;
 
@@ -27,3 +27,4 @@ public class TaskBaseDTO {
 
     private List<String> options;
 }
+

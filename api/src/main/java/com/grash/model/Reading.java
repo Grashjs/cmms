@@ -8,7 +8,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Data
@@ -26,3 +26,4 @@ public class Reading extends Audit {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Meter meter;
 }
+

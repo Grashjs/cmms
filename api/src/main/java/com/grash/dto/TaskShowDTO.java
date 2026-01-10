@@ -14,7 +14,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,3 +29,4 @@ public class TaskShowDTO extends AuditShowDTO {
 
     private List<FileShowDTO> images = new ArrayList<>();
 }
+

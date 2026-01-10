@@ -8,7 +8,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
@@ -36,3 +36,4 @@ public class AdditionalCost extends Cost {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private WorkOrder workOrder;
 }
+

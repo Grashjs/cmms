@@ -5,7 +5,7 @@ import com.grash.model.enums.FieldType;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,3 +46,4 @@ public class FieldConfiguration {
                 .build()).collect(Collectors.toList());
     }
 }
+

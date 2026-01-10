@@ -20,7 +20,7 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
@@ -129,3 +129,4 @@ public class ImportController {
         return StreamUtils.copyToByteArray(resource.getInputStream());
     }
 }
+

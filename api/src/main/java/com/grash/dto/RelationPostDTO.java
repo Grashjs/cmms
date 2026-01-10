@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor
@@ -27,3 +27,4 @@ public class RelationPostDTO {
 
     private Company company;
 }
+

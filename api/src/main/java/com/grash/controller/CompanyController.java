@@ -19,7 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -69,3 +69,4 @@ public class CompanyController {
     }
 
 }
+

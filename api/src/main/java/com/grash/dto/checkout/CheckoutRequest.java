@@ -3,7 +3,7 @@ package com.grash.dto.checkout;
 
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 @Data
 public class CheckoutRequest {

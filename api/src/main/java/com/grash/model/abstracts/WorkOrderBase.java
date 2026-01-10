@@ -12,7 +12,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.http.HttpStatus;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.*;
 
 import static java.util.Comparator.comparingLong;
@@ -104,3 +104,4 @@ public abstract class WorkOrderBase extends CompanyAudit {
         return users.stream().anyMatch(user1 -> user1.getId().equals(user.getId()));
     }
 }
+

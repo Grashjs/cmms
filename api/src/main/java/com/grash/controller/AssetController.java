@@ -36,7 +36,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.el.ELManager;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -293,3 +293,4 @@ public class AssetController {
     }
 
 }
+

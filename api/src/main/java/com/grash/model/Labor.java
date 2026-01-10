@@ -10,7 +10,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -95,3 +95,4 @@ public class Labor extends Time {
         return totalDuration;
     }
 }
+

@@ -24,7 +24,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,3 +41,4 @@ public class LicenseController {
         return licenseService.getLicensingState();
     }
 }
+

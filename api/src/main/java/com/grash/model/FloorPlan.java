@@ -6,7 +6,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Data
@@ -29,3 +29,4 @@ public class FloorPlan {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Location location;
 }
+

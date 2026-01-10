@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -38,3 +38,4 @@ public class PreventiveMaintenanceImportDTO extends WorkOrderImportDTO {
     @Builder.Default
     private List<String> daysOfWeek = new ArrayList<>();
 }
+

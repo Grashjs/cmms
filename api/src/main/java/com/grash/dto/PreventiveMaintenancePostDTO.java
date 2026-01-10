@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.ElementCollection;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -37,3 +37,4 @@ public class PreventiveMaintenancePostDTO extends WorkOrderBase {
 
     private List<Integer> daysOfWeek = new ArrayList<>();
 }
+

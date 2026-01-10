@@ -9,8 +9,8 @@ import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.FetchType;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Data
@@ -47,3 +47,4 @@ public class PartQuantity extends CompanyAudit {
         this.quantity = quantity;
     }
 }
+
