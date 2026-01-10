@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,11 +74,7 @@ public class PurchaseOrderController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "PurchaseOrder not found")})
-    public PurchaseOrderShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public PurchaseOrderShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
         if (optionalPurchaseOrder.isPresent()) {
@@ -91,53 +88,7 @@ public class PurchaseOrderController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public PurchaseOrderShowDTO create(@ApiParam("PurchaseOrder") @Valid @RequestBody PurchaseOrder purchaseOrderReq,
-                                       HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.PURCHASE_ORDERS)
-                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PURCHASE_ORDER)) {
-            PurchaseOrder savedPurchaseOrder = purchaseOrderService.create(purchaseOrderReq);
-            Collection<Workflow> workflows =
-                    workflowService.findByMainConditionAndCompany(WFMainCondition.PURCHASE_ORDER_CREATED,
-                            user.getCompany().getId());
-            workflows.forEach(workflow -> workflowService.runPurchaseOrder(workflow, savedPurchaseOrder));
-            PurchaseOrderShowDTO result = setPartQuantities(purchaseOrderMapper.toShowDto(savedPurchaseOrder));
-            double cost =
-                    result.getPartQuantities().stream().mapToDouble(partQuantityShowDTO -> partQuantityShowDTO.getQuantity() * partQuantityShowDTO.getPart().getCost()).sum();
-            String title = messageSource.getMessage("new_po", null, Helper.getLocale(user));
-            String message = messageSource.getMessage("notification_new_po_request", new Object[]{result.getName(),
-                            cost,
-                            user.getCompany().getCompanySettings().getGeneralPreferences().getCurrency().getCode()},
-                    Helper.getLocale(user));
-            Map<String, Object> mailVariables = new HashMap<String, Object>() {{
-                put("purchaseOrderLink", frontendUrl + "/app/purchase-orders/" + result.getId());
-                put("message", message);
-            }};
-            Collection<OwnUser> usersToNotify = userService.findByCompany(user.getCompany().getId()).stream()
-                    .filter(user1 -> user1.isEnabled() && user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) ||
-                            user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN)).collect(Collectors.toList());
-            notificationService.createMultiple(usersToNotify.stream().map(user1 -> new Notification(message, user1,
-                    NotificationType.PURCHASE_ORDER, result.getId())).collect(Collectors.toList()), true, title);
-            Collection<OwnUser> usersToMail =
-                    usersToNotify.stream().filter(user1 -> user1.getUserSettings().shouldEmailUpdatesForPurchaseOrders()).collect(Collectors.toList());
-            emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_po", null, Helper.getLocale(user)), mailVariables, "new-purchase-order.html", Helper.getLocale(user));
-            return result;
-        } else throw new
-
-                CustomException("Access denied", HttpStatus.FORBIDDEN);
-
-    }
-
-    @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "PurchaseOrder not found")})
-    public PurchaseOrderShowDTO patch(@ApiParam("PurchaseOrder") @Valid @RequestBody PurchaseOrderPatchDTO purchaseOrder, @ApiParam("id") @PathVariable("id") Long id,
+    public PurchaseOrderShowDTO patch(Long id,
                                       HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
@@ -157,12 +108,7 @@ public class PurchaseOrderController {
 
     @PatchMapping("/{id}/respond")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "PurchaseOrder not found")})
-    public PurchaseOrderShowDTO respond(@ApiParam("approved") @RequestParam("approved") boolean approved, @ApiParam(
-                                                "id") @PathVariable("id") Long id,
+    public PurchaseOrderShowDTO respond(boolean approved, @PathVariable("id") Long id,
                                         HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
@@ -191,11 +137,7 @@ public class PurchaseOrderController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "PurchaseOrder not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.Optional;
 
@@ -35,10 +36,6 @@ public class PurchaseOrderCategoryController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "PurchaseOrderCategoryCategory not found")})
     public Collection<PurchaseOrderCategory> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -50,11 +47,7 @@ public class PurchaseOrderCategoryController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "PurchaseOrderCategory not found")})
-    public PurchaseOrderCategory getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public PurchaseOrderCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
             Optional<PurchaseOrderCategory> optionalPurchaseOrderCategory = PurchaseOrderCategoryService.findById(id);
@@ -68,23 +61,7 @@ public class PurchaseOrderCategoryController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public PurchaseOrderCategory create(@ApiParam("PurchaseOrderCategory") @Valid @RequestBody PurchaseOrderCategory PurchaseOrderCategoryReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
-            return PurchaseOrderCategoryService.create(PurchaseOrderCategoryReq);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-    }
-
-    @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "PurchaseOrderCategory not found")})
-    public PurchaseOrderCategory patch(@ApiParam("PurchaseOrderCategory") @Valid @RequestBody CategoryPatchDTO categoryPatchDTO, @ApiParam("id") @PathVariable("id") Long id,
+    public PurchaseOrderCategory patch(Long id,
                                        HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
@@ -99,11 +76,7 @@ public class PurchaseOrderCategoryController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "PurchaseOrderCategory not found")})
-    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<PurchaseOrderCategory> optionalPurchaseOrderCategory = PurchaseOrderCategoryService.findById(id);

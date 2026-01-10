@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Optional;
 
 @RestController
@@ -30,11 +31,7 @@ public class UserSettingsController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "UserSettings not found")})
-    public UserSettings getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public UserSettings getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<UserSettings> optionalUserSettings = userSettingsService.findById(id);
@@ -46,12 +43,8 @@ public class UserSettingsController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "UserSettings not found")})
-    public UserSettings patch(@ApiParam("UserSettings") @Valid @RequestBody UserSettings userSettings,
-                              @ApiParam("id") @PathVariable("id") Long id,
+    public UserSettings patch(@Valid @RequestBody UserSettings userSettings,
+                              @PathVariable("id") Long id,
                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 

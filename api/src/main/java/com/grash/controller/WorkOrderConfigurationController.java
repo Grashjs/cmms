@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.Optional;
 
 @RestController
@@ -31,11 +32,7 @@ public class WorkOrderConfigurationController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "WorkOrderConfiguration not found")})
-    public WorkOrderConfiguration getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public WorkOrderConfiguration getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrderConfiguration> optionalWorkOrderConfiguration = workOrderConfigurationService.findById(id);
         if (optionalWorkOrderConfiguration.isPresent()) {

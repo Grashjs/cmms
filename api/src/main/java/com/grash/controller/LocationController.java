@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -48,10 +49,6 @@ public class LocationController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "LocationCategory not found")})
     public List<LocationShowDTO> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -86,11 +83,7 @@ public class LocationController {
 
     @GetMapping("/children/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Location not found")})
-    public Collection<LocationShowDTO> getChildrenById(@ApiParam("id") @PathVariable("id") Long id,
+    public Collection<LocationShowDTO> getChildrenById(@PathVariable("id") Long id,
                                                        Pageable pageable,
                                                        HttpServletRequest req) {
         //only sort is used
@@ -110,22 +103,7 @@ public class LocationController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-    })
-    public Collection<LocationMiniDTO> getMini(HttpServletRequest req) {
-        OwnUser location = userService.whoami(req);
-        return locationService.findByCompany(location.getCompany().getId()).stream().map(locationMapper::toMiniDto).collect(Collectors.toList());
-    }
-
-    @GetMapping("/{id}")
-    @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Location not found")})
-    public LocationShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public LocationShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
@@ -139,27 +117,8 @@ public class LocationController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public LocationShowDTO create(@ApiParam("Location") @Valid @RequestBody Location locationReq,
-                                  HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.LOCATIONS)) {
-            Location savedLocation = locationService.create(locationReq, user.getCompany());
-            locationService.notify(savedLocation, Helper.getLocale(user));
-            return locationMapper.toShowDto(savedLocation, locationService);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-    }
-
-    @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Location not found")})
-    public LocationShowDTO patch(@ApiParam("Location") @Valid @RequestBody LocationPatchDTO location,
-                                 @ApiParam("id") @PathVariable("id") Long id,
+    public LocationShowDTO patch(@Valid @RequestBody LocationPatchDTO location,
+                                 @PathVariable("id") Long id,
                                  HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
@@ -179,11 +138,7 @@ public class LocationController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Location not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Location> optionalLocation = locationService.findById(id);

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.Optional;
 
@@ -35,10 +36,6 @@ public class AssetCategoryController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "AssetCategory not found")})
     public Collection<AssetCategory> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -50,11 +47,7 @@ public class AssetCategoryController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "AssetCategory not found")})
-    public AssetCategory getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public AssetCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
             Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(id);
@@ -66,24 +59,8 @@ public class AssetCategoryController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public AssetCategory create(@ApiParam("AssetCategory") @Valid @RequestBody AssetCategory assetCategoryReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
-            return assetCategoryService.create(assetCategoryReq);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-    }
-
-    @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "AssetCategory not found")})
-    public AssetCategory patch(@ApiParam("AssetCategory") @Valid @RequestBody CategoryPatchDTO assetCategory,
-                               @ApiParam("id") @PathVariable("id") Long id,
+    public AssetCategory patch(@Valid @RequestBody CategoryPatchDTO assetCategory,
+                               @PathVariable("id") Long id,
                                HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(id);
@@ -98,11 +75,7 @@ public class AssetCategoryController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "AssetCategory not found")})
-    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(id);

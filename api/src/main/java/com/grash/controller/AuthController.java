@@ -27,6 +27,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+
 import java.util.*;
 
 @RestController
@@ -51,13 +52,8 @@ public class AuthController {
                     MediaType.APPLICATION_JSON_VALUE
             }
     )
-    @ApiOperation(value = "${AuthController.signin}")
-    @ApiResponses(value = {
-            @ApiResponse(code = 400, message = "Something went wrong"),
-            @ApiResponse(code = 422, message = "Invalid credentials")
-    })
     public ResponseEntity<AuthResponse> login(
-            @ApiParam("AuthLoginRequest") @Valid @RequestBody UserLoginRequest userLoginRequest) {
+            @Valid @RequestBody UserLoginRequest userLoginRequest) {
         AuthResponse authResponse = new AuthResponse(userService.signin(userLoginRequest.getEmail().toLowerCase(),
                 userLoginRequest.getPassword(), userLoginRequest.getType()));
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
@@ -68,11 +64,6 @@ public class AuthController {
             produces = {
                     MediaType.APPLICATION_JSON_VALUE
             })
-    @ApiOperation(value = "${AuthController.signup}")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 400, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 422, message = "Username is already in use")})
     public SignupSuccessResponse<UserResponseDTO> signup(@Valid @RequestBody UserSignupRequest user) {
         SignupSuccessResponse<OwnUser> response = userService.signup(user);
         return new SignupSuccessResponse<>(response.isSuccess(), response.getMessage(),
@@ -83,12 +74,7 @@ public class AuthController {
 //            path = "/sendMail",
 //            produces = "text/html;charset=UTF-8"
 //    )
-//    @ApiOperation(value = "${AuthController.signup}")
-//    @ApiResponses(value = {//
-//            @ApiResponse(code = 400, message = "Something went wrong"), //
-//            @ApiResponse(code = 403, message = "Access denied"), //
-//            @ApiResponse(code = 422, message = "Username is already in use")})
-//    public void sendMail(@ApiParam("Signup User") @Valid @RequestBody UserSignupRequest user) {
+//    public void sendMail( @Valid @RequestBody UserSignupRequest user) {
 //        String email = "ibracool99@gmail.com";
 //        String subject = "GG";
 //        Map<String, Object> variables = new HashMap<String, Object>() {{
@@ -100,12 +86,8 @@ public class AuthController {
 //    }
 
     @GetMapping("/activate-account")
-    @ApiOperation(value = "activate account")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 400, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
     public void activateAcount(
-            @ApiParam("token") @RequestParam String token, HttpServletResponse httpServletResponse
+            @RequestParam String token, HttpServletResponse httpServletResponse
     ) {
         try {
             verificationTokenService.confirmMail(token);
@@ -132,38 +114,19 @@ public class AuthController {
 
     @DeleteMapping(value = "/{username}")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    @ApiOperation(value = "${AuthController.delete}", authorizations = {@Authorization(value = "apiKey")})
-    @ApiResponses(value = {//
-            @ApiResponse(code = 400, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "The user doesn't exist"), //
-            @ApiResponse(code = 500, message = "Expired or invalid JWT token")})
-    public String delete(@ApiParam("Username") @PathVariable String username) {
+    public String delete(@PathVariable String username) {
         userService.delete(username);
         return username;
     }
 
     @GetMapping(value = "/{username}")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    @ApiOperation(value = "${AuthController.search}", response = UserResponseDTO.class, authorizations =
-            {@Authorization(value = "apiKey")})
-    @ApiResponses(value = {//
-            @ApiResponse(code = 400, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "The user doesn't exist"), //
-            @ApiResponse(code = 500, message = "Expired or invalid JWT token")})
-    public UserResponseDTO search(@ApiParam("Username") @PathVariable String username) {
+    public UserResponseDTO search(@PathVariable String username) {
         return userMapper.toResponseDto(userService.findByEmail(username).get());
     }
 
     @GetMapping(value = "/me")
     @PreAuthorize("permitAll()")
-    @ApiOperation(value = "${AuthController.me}", response = UserResponseDTO.class, authorizations =
-            {@Authorization(value = "apiKey")})
-    @ApiResponses(value = {//
-            @ApiResponse(code = 400, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 500, message = "Expired or invalid JWT token")})
     public UserResponseDTO whoami(HttpServletRequest req) {
         return userMapper.toResponseDto(userService.whoami(req));
     }

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.Optional;
 
@@ -35,10 +36,6 @@ public class WorkOrderCategoryController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "WorkOrderCategory not found")})
     public Collection<WorkOrderCategory> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -50,11 +47,7 @@ public class WorkOrderCategoryController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "WorkOrderCategory not found")})
-    public WorkOrderCategory getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public WorkOrderCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrderCategory> optionalWorkOrderCategory = workOrderCategoryService.findById(id);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
@@ -68,23 +61,7 @@ public class WorkOrderCategoryController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public WorkOrderCategory create(@ApiParam("WorkOrderCategory") @Valid @RequestBody WorkOrderCategory workOrderCategory, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
-            return workOrderCategoryService.create(workOrderCategory);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-    }
-
-    @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "WorkOrderCategory not found")})
-    public WorkOrderCategory patch(@ApiParam("WorkOrderCategory") @Valid @RequestBody CategoryPatchDTO categoryPatchDTO, @ApiParam("id") @PathVariable("id") Long id,
+    public WorkOrderCategory patch(Long id,
                                    HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrderCategory> optionalWorkOrderCategory = workOrderCategoryService.findById(id);
@@ -100,11 +77,7 @@ public class WorkOrderCategoryController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "WorkOrderCategory not found")})
-    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<WorkOrderCategory> optionalWorkOrderCategory = workOrderCategoryService.findById(id);

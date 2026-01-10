@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Optional;
 
 @RestController
@@ -35,13 +36,9 @@ public class FieldConfigurationController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "FieldConfiguration not found")})
-    public FieldConfiguration patch(@ApiParam("FieldConfiguration") @Valid @RequestBody FieldConfigurationPatchDTO fieldConfiguration, @ApiParam("id") @PathVariable("id") Long id,
+    public FieldConfiguration patch(Long id,
                                     HttpServletRequest req) {
-        if(!licenseService.hasEntitlement(LicenseEntitlement.FIELD_CONFIGURATION))
+        if (!licenseService.hasEntitlement(LicenseEntitlement.FIELD_CONFIGURATION))
             throw new CustomException("You need a license to edit field configurations", HttpStatus.FORBIDDEN);
         OwnUser user = userService.whoami(req);
         Optional<FieldConfiguration> optionalFieldConfiguration = fieldConfigurationService.findById(id);

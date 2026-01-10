@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.Optional;
 
@@ -35,10 +36,6 @@ public class MeterCategoryController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "MeterCategoryCategory not found")})
     public Collection<MeterCategory> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -50,11 +47,7 @@ public class MeterCategoryController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "MeterCategory not found")})
-    public MeterCategory getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public MeterCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
             Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findById(id);
@@ -68,23 +61,8 @@ public class MeterCategoryController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public MeterCategory create(@ApiParam("MeterCategory") @Valid @RequestBody MeterCategory meterCategoryReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
-            return meterCategoryService.create(meterCategoryReq);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-    }
-
-    @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "MeterCategory not found")})
-    public MeterCategory patch(@ApiParam("MeterCategory") @Valid @RequestBody CategoryPatchDTO meterCategory, @ApiParam("id") @PathVariable("id") Long id,
+    public MeterCategory patch(@Valid @RequestBody CategoryPatchDTO meterCategory,
+                               @PathVariable("id") Long id,
                                HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findById(id);
@@ -100,11 +78,7 @@ public class MeterCategoryController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "MeterCategory not found")})
-    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findById(id);

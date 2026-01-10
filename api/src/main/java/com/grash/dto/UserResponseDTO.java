@@ -15,11 +15,11 @@ import java.util.List;
 public class UserResponseDTO {
 
     private Integer id;
-    @ApiModelProperty(position = 1)
+
     private String username;
-    @ApiModelProperty(position = 2)
+
     private String email;
-    @ApiModelProperty(position = 3)
+
     private Role role;
 
     private long rate;

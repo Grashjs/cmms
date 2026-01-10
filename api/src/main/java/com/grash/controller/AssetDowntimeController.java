@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.Optional;
 
@@ -38,11 +39,7 @@ public class AssetDowntimeController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "AssetDowntime not found")})
-    public AssetDowntime getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public AssetDowntime getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
             Optional<AssetDowntime> optionalAssetDowntime = assetDowntimeService.findById(id);
@@ -54,32 +51,7 @@ public class AssetDowntimeController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public AssetDowntime create(@ApiParam("AssetDowntime") @Valid @RequestBody AssetDowntime assetDowntimeReq,
-                                HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
-        Optional<Asset> optionalAsset = assetService.findById(assetDowntimeReq.getAsset().getId());
-        if (!optionalAsset.isPresent()) {
-            throw new CustomException("Asset Not found", HttpStatus.BAD_REQUEST);
-        }
-        if (optionalAsset.get().getRealCreatedAt().after(assetDowntimeReq.getStartsOn())) {
-            throw new CustomException("The downtime can't occur before the asset in service date",
-                    HttpStatus.NOT_ACCEPTABLE);
-        }
-        if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || optionalAsset.get().getCreatedBy().equals(user.getId())) {
-            return assetDowntimeService.create(assetDowntimeReq, true);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-    }
-
-    @GetMapping("/asset/{id}")
-    @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Labor not found")})
-    public Collection<AssetDowntime> getByAsset(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public Collection<AssetDowntime> getByAsset(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
@@ -89,12 +61,8 @@ public class AssetDowntimeController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "AssetDowntime not found")})
-    public AssetDowntime patch(@ApiParam("AssetDowntime") @Valid @RequestBody AssetDowntimePatchDTO assetDowntime,
-                               @ApiParam("id") @PathVariable("id") Long id,
+    public AssetDowntime patch(@Valid @RequestBody AssetDowntimePatchDTO assetDowntime,
+                               @PathVariable("id") Long id,
                                HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<AssetDowntime> optionalAssetDowntime = assetDowntimeService.findById(id);
@@ -113,11 +81,7 @@ public class AssetDowntimeController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "AssetDowntime not found")})
-    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<AssetDowntime> optionalAssetDowntime = assetDowntimeService.findById(id);

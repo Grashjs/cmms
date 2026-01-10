@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -69,11 +70,7 @@ public class PartController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Part not found")})
-    public PartShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public PartShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
@@ -87,32 +84,7 @@ public class PartController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public PartShowDTO create(@ApiParam("Part") @Valid @RequestBody Part partReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
-            if (partReq.getBarcode() != null) {
-                Optional<Part> optionalPartWithSameBarCode = partService.findByBarcodeAndCompany(partReq.getBarcode()
-                        , user.getCompany().getId());
-                if (optionalPartWithSameBarCode.isPresent()) {
-                    throw new CustomException("Part with same barcode exists", HttpStatus.NOT_ACCEPTABLE);
-                }
-            }
-            Part savedPart = partService.create(partReq, user);
-            partService.notify(savedPart, Helper.getLocale(user));
-            return partMapper.toShowDto(savedPart);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-    }
-
-    @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Part not found")})
-    public PartShowDTO patch(@ApiParam("Part") @Valid @RequestBody PartPatchDTO part, @ApiParam("id") @PathVariable(
+    public PartShowDTO patch(@Valid @RequestBody PartPatchDTO part, @PathVariable(
                                      "id") Long id,
                              HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
@@ -142,10 +114,6 @@ public class PartController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "AssetCategory not found")})
     public Collection<PartMiniDTO> getMini(HttpServletRequest req) {
         OwnUser part = userService.whoami(req);
         return partService.findByCompany(part.getCompany().getId()).stream().map(partMapper::toMiniDto).collect(Collectors.toList());
@@ -153,11 +121,7 @@ public class PartController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Part not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Part> optionalPart = partService.findById(id);

@@ -12,14 +12,14 @@ import jakarta.validation.constraints.NotNull;
 @NoArgsConstructor
 public class UserSignupRequest {
 
-    @ApiModelProperty(position = 1)
+
     @NotNull
     private String email;
-    @ApiModelProperty(position = 2)
+
     @NotNull
     private String password;
 
-    @ApiModelProperty(position = 3)
+
     private Role role;
 
     @NotNull

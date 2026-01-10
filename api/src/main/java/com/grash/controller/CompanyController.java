@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Optional;
 
 @RestController
@@ -35,11 +36,7 @@ public class CompanyController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Company not found")})
-    public CompanyShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public CompanyShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Company> companyOptional = companyService.findById(id);
@@ -50,12 +47,8 @@ public class CompanyController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Company not found")})
-    public CompanyShowDTO patch(@ApiParam("Company") @Valid @RequestBody CompanyPatchDTO company,
-                                @ApiParam("id") @PathVariable("id") Long id,
+    public CompanyShowDTO patch(@Valid @RequestBody CompanyPatchDTO company,
+                                @PathVariable("id") Long id,
                                 HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Company> optionalCompany = companyService.findById(id);

@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,7 +46,8 @@ public class TeamController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<TeamShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
+    public ResponseEntity<Page<TeamShowDTO>> search(@RequestBody SearchCriteria searchCriteria,
+                                                    HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
@@ -57,10 +59,6 @@ public class TeamController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "AssetCategory not found")})
     public Collection<TeamMiniDTO> getMini(HttpServletRequest req) {
         OwnUser team = userService.whoami(req);
         return teamService.findByCompany(team.getCompany().getId()).stream().map(teamMapper::toMiniDto).collect(Collectors.toList());
@@ -68,11 +66,7 @@ public class TeamController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Team not found")})
-    public TeamShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public TeamShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Team> optionalTeam = teamService.findById(id);
         if (optionalTeam.isPresent()) {
@@ -83,25 +77,8 @@ public class TeamController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public TeamShowDTO create(@ApiParam("Team") @Valid @RequestBody Team teamReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
-            Team savedTeam = teamService.create(teamReq);
-            teamService.notify(savedTeam, Helper.getLocale(user));
-            return teamMapper.toShowDto(savedTeam);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-    }
-
-    @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Team not found")})
-    public TeamShowDTO patch(@ApiParam("Team") @Valid @RequestBody TeamPatchDTO team, @ApiParam("id") @PathVariable("id") Long id,
+    public TeamShowDTO patch(@Valid @RequestBody TeamPatchDTO team, @PathVariable(
+                                     "id") Long id,
                              HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Team> optionalTeam = teamService.findById(id);
@@ -116,11 +93,7 @@ public class TeamController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Team not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Team> optionalTeam = teamService.findById(id);
