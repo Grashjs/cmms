@@ -415,4 +415,8 @@ public class ScheduleService {
     public Collection<Schedule> findActive() {
         return scheduleRepository.findByActive();
     }
+
+    public void disableByCompany(Long companyId) {
+        scheduleRepository.updateDisabledTrueByCompanyId(companyId);
+    }
 }

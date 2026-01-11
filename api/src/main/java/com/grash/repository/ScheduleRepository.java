@@ -2,8 +2,10 @@ package com.grash.repository;
 
 import com.grash.model.Schedule;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
@@ -33,4 +35,11 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             true)
     Collection<Schedule> findByActive();
 
+    @Modifying
+    @Query("""
+                update Schedule s
+                set s.disabled = true
+                where s.preventiveMaintenance.company.id = :companyId
+            """)
+    void updateDisabledTrueByCompanyId(@Param("companyId") Long companyId);
 }

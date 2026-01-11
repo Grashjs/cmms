@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
+
 import java.util.*;
 
 @Service
@@ -32,6 +33,7 @@ public class SubscriptionService {
     private final CompanyRepository companyRepository;
     private final UserRepository userRepository;
     private final Scheduler scheduler;
+    private final ScheduleService scheduleService;
 
     @Transactional
     public Subscription create(Subscription subscription) {
@@ -107,20 +109,22 @@ public class SubscriptionService {
 
     public void resetToFreePlan(Subscription subscription) {
         Optional<Company> optionalCompany = companyRepository.findBySubscription_Id(subscription.getId());
-        if (!optionalCompany.isPresent()) return;
+        if (optionalCompany.isEmpty()) return;
 
         subscription.setActivated(false);
         subscription.setUsersCount(3);
         subscription.setMonthly(true);
 //        subscription.setPaddleSubscriptionId(null);
+        Long companyId = optionalCompany.get().getId();
         int currentUsersCount =
-                (int) userRepository.findByCompany_Id(optionalCompany.get().getId()).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
+                (int) userRepository.findByCompany_Id(companyId).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
         if (currentUsersCount > subscription.getUsersCount()) {
             subscription.setDowngradeNeeded(true);
         }
         subscription.setScheduledChangeType(null);
         subscription.setScheduledChangeDate(null);
         subscription.setSubscriptionPlan(subscriptionPlanService.findByCode("FREE").get());
+        scheduleService.disableByCompany(companyId);
         subscription.setStartsOn(new Date());
         subscription.setEndsOn(null);
         subscriptionRepository.save(subscription);
