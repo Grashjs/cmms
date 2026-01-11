@@ -1,12 +1,11 @@
 # Build Stage
-FROM maven:3.8.6-jdk-8 AS build
+FROM maven:3.9.3-eclipse-temurin-17 AS build
 WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
 
-
 # Runtime Stage
-FROM amazoncorretto:8-alpine
+FROM amazoncorretto:17-alpine
 
 # Set the working directory in the container
 WORKDIR /app
