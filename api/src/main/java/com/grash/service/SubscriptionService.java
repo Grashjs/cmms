@@ -8,6 +8,7 @@ import com.grash.model.Company;
 import com.grash.model.OwnUser;
 import com.grash.model.Subscription;
 import com.grash.repository.CompanyRepository;
+import com.grash.repository.ScheduleRepository;
 import com.grash.repository.SubscriptionRepository;
 import com.grash.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,14 +27,13 @@ import java.util.*;
 @Slf4j
 public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
-    private final CompanyService companyService;
     private final SubscriptionPlanService subscriptionPlanService;
     private final SubscriptionMapper subscriptionMapper;
     private final EntityManager em;
     private final CompanyRepository companyRepository;
     private final UserRepository userRepository;
     private final Scheduler scheduler;
-    private final ScheduleService scheduleService;
+    private final ScheduleRepository scheduleRepository;
 
     @Transactional
     public Subscription create(Subscription subscription) {
@@ -124,7 +124,7 @@ public class SubscriptionService {
         subscription.setScheduledChangeType(null);
         subscription.setScheduledChangeDate(null);
         subscription.setSubscriptionPlan(subscriptionPlanService.findByCode("FREE").get());
-        scheduleService.disableByCompany(companyId);
+        scheduleRepository.updateDisabledTrueByCompanyId(companyId);
         subscription.setStartsOn(new Date());
         subscription.setEndsOn(null);
         subscriptionRepository.save(subscription);
