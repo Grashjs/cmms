@@ -6,6 +6,7 @@ import {
   DialogTitle,
   Drawer,
   Stack,
+  Switch,
   Typography,
   useTheme
 } from '@mui/material';
@@ -67,6 +68,7 @@ const People = ({ openModal, handleCloseModal }: PropsType) => {
   const [detailDrawerOpen, setDetailDrawerOpen] = useState(false);
   const { peopleId } = useParams();
   const { hasEditPermission, user } = useAuth();
+  const [enabledOnly, setEnabledOnly] = useState<boolean>(true);
   const { users, loadingGet, singleUser } = useSelector((state) => state.users);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
   const [criteria, setCriteria] = useState<SearchCriteria>({
@@ -242,8 +244,8 @@ const People = ({ openModal, handleCloseModal }: PropsType) => {
   }, [peopleId]);
 
   useEffect(() => {
-    dispatch(getUsers(criteria));
-  }, [criteria]);
+    dispatch(getUsers(criteria, enabledOnly));
+  }, [criteria, enabledOnly]);
 
   //see changes in ui on edit
   useEffect(() => {
@@ -432,10 +434,17 @@ const People = ({ openModal, handleCloseModal }: PropsType) => {
         p: 2
       }}
     >
-      <Stack direction="row" width="95%">
+      <Stack direction="row" width="100%" justifyContent="space-between">
         <Box sx={{ my: 0.5 }}>
           <SearchInput onChange={debouncedQueryChange} />
         </Box>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Typography>Enabled Only</Typography>
+          <Switch
+            checked={enabledOnly}
+            onChange={() => setEnabledOnly((prevState) => !prevState)}
+          />
+        </Stack>
       </Stack>
       {RenderPeopleList()}
 

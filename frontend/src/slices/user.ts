@@ -123,12 +123,12 @@ export const slice = createSlice({
 export const reducer = slice.reducer;
 
 export const getUsers =
-  (criteria: SearchCriteria): AppThunk =>
+  (criteria: SearchCriteria, enabledOnly: boolean = true): AppThunk =>
   async (dispatch) => {
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
       const users = await api.post<Page<UserResponseDTO>>(
-        `${basePath}/search`,
+        `${basePath}/search?enabledOnly=${enabledOnly}`,
         criteria
       );
       dispatch(slice.actions.getUsers({ users }));

@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.*;
 import com.grash.exception.CustomException;
@@ -44,12 +45,15 @@ public class UserController {
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<UserResponseDTO>> search(@RequestBody SearchCriteria searchCriteria,
-                                                        @Parameter(hidden = true) @CurrentUser OwnUser user) {
+                                                        @Parameter(hidden = true) @CurrentUser OwnUser user,
+                                                        @RequestParam(defaultValue = "true") boolean enabledOnly) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 searchCriteria.filterCompany(user);
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
+        if (enabledOnly) searchCriteria.getFilterFields().add(FilterField.builder()
+                .field("enabled").value(true).operation("eq").build());
         return ResponseEntity.ok(userService.findBySearchCriteria(searchCriteria).map(userMapper::toResponseDto));
     }
 
