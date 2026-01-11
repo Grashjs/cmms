@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//TODO use yaml
 public class Consts {
     public static final String TOKEN_PREFIX = "Bearer ";
 
@@ -44,7 +43,7 @@ public class Consts {
     );
 
     public static final Map<LicenseEntitlement, Integer> usageBasedLicenseLimits =
-            new HashMap<LicenseEntitlement, Integer>() {
+            new HashMap<>() {
                 {
                     put(LicenseEntitlement.UNLIMITED_CHECKLISTS, 10);
                     put(LicenseEntitlement.UNLIMITED_ASSETS, 50);
@@ -54,7 +53,6 @@ public class Consts {
                     put(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS, 30);
                     put(LicenseEntitlement.UNLIMITED_METERS, 10);
                     put(LicenseEntitlement.UNLIMITED_USERS, 5);
-                    put(LicenseEntitlement.API_ACCESS, 100000);
                 }
             };
 }

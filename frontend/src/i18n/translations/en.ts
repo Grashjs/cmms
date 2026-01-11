@@ -1443,7 +1443,8 @@ const locale = {
   days_of_week: 'Days of week',
   no_recent_work_orders: 'No recent work orders',
   recent_work_orders: 'Recent work orders',
-  subscription_will_cancel_on: 'Subscription will cancel on {{date}}'
+  subscription_will_cancel_on: 'Subscription will cancel on {{date}}',
+  open_api_docs: 'Open API docs'
 };
 
 export default locale;

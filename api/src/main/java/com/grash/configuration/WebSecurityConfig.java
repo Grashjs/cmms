@@ -68,6 +68,9 @@ public class WebSecurityConfig {
                 .requestMatchers("/paddle/create-checkout-session").permitAll()
                 .requestMatchers("/auth/reset-pwd-confirm**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
+                .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/swagger-ui.html").permitAll()
+                .requestMatchers("/v3/api-docs/**").permitAll()
                 // Disallow everything else..
                 .anyRequest().authenticated()
         );
@@ -96,11 +99,6 @@ public class WebSecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
-                .requestMatchers("/v2/api-docs")//
-                .requestMatchers("/v3/api-docs/**")//
-                .requestMatchers("/swagger-resources/**")//
-                .requestMatchers("/swagger-ui/**")//
-                .requestMatchers("/swagger-ui.html")//
                 .requestMatchers("/com/grash/configuration/**")//
                 .requestMatchers("/webjars/**")//
                 .requestMatchers("/public")
