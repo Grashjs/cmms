@@ -169,24 +169,32 @@ public class UserService {
                     "Administrator")).findFirst().get());
             checkUsageBasedLimit(1);
         } else {
-            Optional<Role> optionalRole = roleService.findById(user.getRole().getId());
-            if (!optionalRole.isPresent())
-                throw new CustomException("Role not found", HttpStatus.NOT_ACCEPTABLE);
-            if (optionalRole.get().isPaid()) checkUsageBasedLimit(1);
+            Role role = roleService.findById(user.getRole().getId()).orElseThrow(() -> new CustomException("Role not " +
+                    "found", HttpStatus.NOT_ACCEPTABLE));
+            if (role.isPaid()) {
+                checkUsageBasedLimit(1);
+            }
             List<UserInvitation> userInvitations =
-                    userInvitationService.findByRoleAndEmail(optionalRole.get().getId(), user.getEmail());
+                    userInvitationService.findByRoleAndEmail(role.getId(), user.getEmail());
             if (enableInvitationViaEmail && userInvitations.isEmpty()) {
                 throw new CustomException("You are not invited to this organization for this role",
                         HttpStatus.NOT_ACCEPTABLE);
             }
             userInvitations.sort(Comparator.comparing(UserInvitation::getCreatedAt).reversed());
-            user.setRole(optionalRole.get());
-            if (optionalRole.get().getCompanySettings() == null) {
+            user.setRole(role);
+            if (role.getCompanySettings() == null) {
                 Optional<OwnUser> optionalInviter = findById(userInvitations.get(0).getCreatedBy());
                 if (!optionalInviter.isPresent())
                     throw new CustomException("Inviter not found", HttpStatus.NOT_ACCEPTABLE);
                 user.setCompany(optionalInviter.get().getCompany());
-            } else user.setCompany(optionalRole.get().getCompanySettings().getCompany());
+            } else user.setCompany(role.getCompanySettings().getCompany());
+            if (role.isPaid()) {
+                int companyUsersCount =
+                        (int) findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.isEnabled() && user1.isEnabledInSubscriptionAndPaid()).count();
+                if (companyUsersCount + 1 > user.getCompany().getSubscription().getUsersCount())
+                    throw new CustomException("You have reached the maximum number of users for your subscription",
+                            HttpStatus.NOT_ACCEPTABLE);
+            }
             return enableAndReturnToken(user, true, userReq);
         }
         if (Helper.isLocalhost(PUBLIC_API_URL)) {
