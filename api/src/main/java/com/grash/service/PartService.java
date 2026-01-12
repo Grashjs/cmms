@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -76,6 +77,7 @@ public class PartService {
 
     public void consumePart(Long id, double quantity, WorkOrder workOrder, Locale locale) {
         Part part = findById(id).get();
+        if (part.isNonStock()) return;
         part.setQuantity(part.getQuantity() - quantity);
         if (part.getQuantity() < 0)
             throw new CustomException("There is not enough of this part", HttpStatus.NOT_ACCEPTABLE);
