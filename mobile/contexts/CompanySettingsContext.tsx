@@ -157,7 +157,9 @@ export const CompanySettingsProvider: FC<{ children: ReactNode }> = (props) => {
               yupSchema = Yup.number().required(requiredMessage);
               break;
             case 'select':
-              if (fields[fieldIndexInFields].multiple) {
+              if (fields[fieldIndexInFields].type2 === 'priority')
+                yupSchema = Yup.string().required(requiredMessage);
+              else if (fields[fieldIndexInFields].multiple) {
                 yupSchema = Yup.array().required(requiredMessage);
               } else {
                 yupSchema = Yup.object().required(requiredMessage).nullable();
