@@ -1,6 +1,6 @@
 {
   "name": "atlas",
-  "version": "1.0.35",
+  "version": "1.0.36",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
