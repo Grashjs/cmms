@@ -4,23 +4,20 @@ Effective Date: January 8, 2026
 
 This Atlas CMMS Commercial License Agreement (the "Agreement") is a legally binding contract between INTELLOOP LLC ("Licensor") and the individual or entity ("Licensee") who has purchased a license to use the Atlas CMMS software.
 
-This Agreement governs your use of the Atlas CMMS software, version 1.4 and later (the "Software"), for self-hosted deployments on Licensee's own infrastructure. By installing, copying, or otherwise using the Software, you agree to be bound by the terms of this Agreement. If you do not agree to the terms of this Agreement, do not install or use the Software.
+This Agreement governs your use of the Atlas CMMS software (the "Software"), for self-hosted deployments on Licensee's own infrastructure. By installing, copying, or otherwise using the Software, you agree to be bound by the terms of this Agreement. If you do not agree to the terms of this Agreement, do not install or use the Software.
 
 Cloud Subscription Notice: Use of Atlas CMMS via Licensor's cloud-hosted service (atlas-cmms.com) is governed by separate Terms of Service, not this Agreement.
 
-Background: Dual Licensing & Version History
+Background: Dual Licensing
 
 The Software is offered under a dual-license model. You MUST choose ONE of the following licenses for your use of the Software; you cannot combine rights from both.
 
 - The GNU Affero General Public License, version 3 (AGPLv3), which is an OSI-approved open-source license. If you choose this license, you must comply with all of its terms, including the provisions regarding source code disclosure for network use.
 - This Commercial License Agreement, which you must purchase from Licensor or an authorized reseller. If you have purchased a Commercial License, the AGPLv3 does NOT apply to your use.
 
-Version 1.3 Legacy Notice: Atlas CMMS version 1.3 and all prior versions remain licensed under the GNU General Public License v3.0 (GPLv3) and are not subject to this dual-license model. This Agreement applies only to version 1.4 and subsequent releases.
-
 1\. Definitions
 
-- "Software" refers to Atlas CMMS version 1.4 and any subsequent versions, including all source code, object code, documentation, and related materials provided by Licensor.
-- "Legacy Versions" refers to Atlas CMMS version 1.3 and all prior versions, which remain perpetually licensed under the GNU General Public License v3.0 (GPLv3). This Commercial License does NOT apply to Legacy Versions.
+- "Software" refers to Atlas CMMS, including all source code, object code, documentation, and related materials provided by Licensor.
 - "Licensee" refers to the individual or legal entity that has purchased a license under this Agreement.
 - "Authorized User" means an employee, contractor, or agent of the Licensee who is authorized to access and use the Software on behalf of the Licensee.
 - "Order Form" means the ordering document or online order process for the purchase of the license, which specifies the license type, term, number of Authorized Users, and fees.
