@@ -25,7 +25,7 @@ The Software is offered under a dual-license model. You MUST choose ONE of the f
 - "Production Use" means use of the Software in a live environment where it is accessed by Licensee's employees, customers, or end-users for actual business operations, as opposed to development, testing, or evaluation purposes.
 - "Deployment" means a single installation instance of the Software on Licensee's infrastructure, whether physical, virtual, or containerized.
 - "Third Party" means any person or entity other than Licensee and its Authorized Users.
-- "Enterprise Features" means the features and functionality designated as commercial or enterprise-only in Licensor's current Feature Matrix, available at <https://atlas-cmms.com/pricing> or as otherwise communicated by Licensor. The Feature Matrix may be updated by Licensor from time to time.
+- "Enterprise Features" means the features and functionality designated as commercial or enterprise-only in Licensor's current Feature Matrix, available in the [pricing page](https://atlas-cmms.com/pricing?type=selfhosted) or as otherwise communicated by Licensor. The Feature Matrix may be updated by Licensor from time to time.
 
 2\. License Grant
 
