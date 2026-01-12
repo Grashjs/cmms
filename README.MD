@@ -203,4 +203,5 @@ Atlas CMMS is dual-licensed:
 - [Commercial License](./COMMERCIAL_LICENSE.MD) — Required for white labeling, custom branding, and advanced features.
 
 To enable commercial features, you must set a valid `LICENSE_KEY`.  
-Contact us at [contact@atlas-cmms.com](mailto:contact@atlas-cmms.com) to purchase a commercial license.
+For commercial licenses, visit [atlas-cmms.com/pricing?type=selfhosted](https://atlas-cmms.com/pricing?type=selfhosted)
+or email us at [contact@atlas-cmms.com](mailto:contact@atlas-cmms.com).
