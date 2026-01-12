@@ -140,7 +140,12 @@ export default (props: PropsType) => {
           <Grid container spacing={2}>
             {filterRelatedFields(props.fields, formik).map((field, index) => {
               return (
-                <Grid item xs={12} lg={field.midWidth ? 6 : 12} key={index}>
+                <Grid
+                  item
+                  xs={12}
+                  lg={field.midWidth ? 6 : 12}
+                  key={field.name}
+                >
                   {field.type === 'select' ? (
                     <CustomSelect field={field} handleChange={handleChange} />
                   ) : field.type === 'checkbox' ? (

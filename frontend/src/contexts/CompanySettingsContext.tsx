@@ -152,16 +152,16 @@ export const CompanySettingsProvider: FC = ({ children }) => {
           let yupSchema;
           switch (fields[fieldIndexInFields].type) {
             case 'text':
-              yupSchema = Yup.string().required(requiredMessage);
+              yupSchema = Yup.string().required(requiredMessage).nullable();
               break;
             case 'date':
-              yupSchema = Yup.string().required(requiredMessage);
+              yupSchema = Yup.string().required(requiredMessage).nullable();
               break;
             case 'file':
               yupSchema = Yup.array().required(requiredMessage);
               break;
             case 'number':
-              yupSchema = Yup.number().required(requiredMessage);
+              yupSchema = Yup.number().required(requiredMessage).nullable();
               break;
             case 'select':
               if (fields[fieldIndexInFields].multiple) {
