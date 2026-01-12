@@ -43,7 +43,7 @@ export interface IField {
     | 'role'
     | 'currency';
   category?: CategoryType;
-  name?: string;
+  name: string;
   placeholder?: string;
   fileType?: 'file' | 'image';
   helperText?: string;
