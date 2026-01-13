@@ -9,6 +9,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.FetchType;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.Date;
 
 @Entity
@@ -55,6 +56,8 @@ public class PurchaseOrder extends CompanyAudit {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Vendor vendor;
+
+    private boolean isDemo;
 
 //    @ManyToOne
 //    private Company requesterInformation;
