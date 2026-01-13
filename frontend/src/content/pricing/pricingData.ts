@@ -17,7 +17,6 @@ export const pricingPlans: {
     popular: false,
     features: [
       'Unlimited work orders',
-      'Recurring work orders',
       'Custom tasks',
       'Unlimited Request User Licenses',
       'Asset Management'
@@ -32,7 +31,7 @@ export const pricingPlans: {
     popular: false,
     features: [
       'Everything in Basic plus:',
-      'Preventive Maintenance Optimization',
+      'Preventive Maintenance/Recurring Work Orders',
       'Custom Checklists',
       'Inventory management/Costing',
       'Time and Manpower Tracking',
@@ -77,7 +76,13 @@ export const pricingPlans: {
   }
 ];
 
-export const planFeatureCategories = [
+export const planFeatureCategories: {
+  name: string;
+  features: {
+    name: string;
+    availability: { [key: string]: boolean | string };
+  }[];
+}[] = [
   {
     name: 'Work Orders',
     features: [
@@ -96,7 +101,7 @@ export const planFeatureCategories = [
       {
         name: 'Recurring Work Orders',
         availability: {
-          basic: true,
+          basic: false,
           starter: true,
           professional: true,
           business: true,
@@ -132,7 +137,7 @@ export const planFeatureCategories = [
       {
         name: 'Preventive Maintenance',
         availability: {
-          basic: true,
+          basic: false,
           starter: true,
           professional: true,
           business: true,
@@ -180,7 +185,7 @@ export const planFeatureCategories = [
       {
         name: 'Work Order Configuration',
         availability: {
-          basic: true,
+          basic: false,
           starter: true,
           professional: true,
           business: true,
@@ -192,7 +197,7 @@ export const planFeatureCategories = [
       {
         name: 'Custom Work Order Statuses',
         availability: {
-          basic: true,
+          basic: false,
           starter: true,
           professional: true,
           business: true,
