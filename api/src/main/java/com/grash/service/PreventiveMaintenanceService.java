@@ -10,9 +10,7 @@ import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.model.*;
-import com.grash.model.enums.Priority;
-import com.grash.model.enums.RecurrenceBasedOn;
-import com.grash.model.enums.RecurrenceType;
+import com.grash.model.enums.*;
 import com.grash.repository.PreventiveMaintenanceRepository;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,6 +54,10 @@ public class PreventiveMaintenanceService {
 
     @Transactional
     public PreventiveMaintenance create(PreventiveMaintenance preventiveMaintenance, OwnUser user) {
+        if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PREVENTIVE_MAINTENANCE)) {
+            throw new CustomException("Preventive maintenance feature is not enabled for this subscription plan.",
+                    HttpStatus.FORBIDDEN);
+        }
         checkUsageBasedLimit(user.getCompany());
         Company company = user.getCompany();
         Long nextSequence = customSequenceService.getNextPreventiveMaintenanceSequence(company);
@@ -66,7 +69,11 @@ public class PreventiveMaintenanceService {
     }
 
     @Transactional
-    public PreventiveMaintenance update(Long id, PreventiveMaintenancePatchDTO preventiveMaintenance) {
+    public PreventiveMaintenance update(Long id, PreventiveMaintenancePatchDTO preventiveMaintenance, OwnUser user) {
+        if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PREVENTIVE_MAINTENANCE)) {
+            throw new CustomException("Preventive maintenance feature is not enabled for this subscription plan.",
+                    HttpStatus.FORBIDDEN);
+        }
         if (preventiveMaintenanceRepository.existsById(id)) {
             PreventiveMaintenance savedPreventiveMaintenance = preventiveMaintenanceRepository.findById(id).get();
             PreventiveMaintenance pmToSave =

@@ -123,7 +123,7 @@ public class PreventiveMaintenanceController {
         if (optionalPreventiveMaintenance.isPresent()) {
             PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
             PreventiveMaintenance patchedPreventiveMaintenance = preventiveMaintenanceService.update(id,
-                    preventiveMaintenance);
+                    preventiveMaintenance, user);
             return preventiveMaintenanceMapper.toShowDto(patchedPreventiveMaintenance);
         } else throw new CustomException("PreventiveMaintenance not found", HttpStatus.NOT_FOUND);
     }
