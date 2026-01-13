@@ -246,9 +246,10 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
       },
       {
         name: 'completeTime',
-        condition: labors
-          .filter((labor) => labor.logged)
-          .some((labor) => !labor.duration),
+        condition:
+          labors
+            .filter((labor) => labor.logged)
+            .filter((labor) => labor.duration).length === 0,
         message: 'required_labor_on_completion'
       },
       {
