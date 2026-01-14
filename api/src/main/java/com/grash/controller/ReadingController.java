@@ -5,6 +5,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.*;
 import com.grash.model.enums.NotificationType;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.WorkOrderMeterTriggerCondition;
 import com.grash.service.*;
 import com.grash.utils.AuditComparator;
@@ -54,6 +55,8 @@ public class ReadingController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     Reading create(@Valid @RequestBody Reading readingReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
+        if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.METER))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         Optional<Meter> optionalMeter = meterService.findById(readingReq.getMeter().getId());
         if (optionalMeter.isPresent()) {
             Meter meter = optionalMeter.get();
