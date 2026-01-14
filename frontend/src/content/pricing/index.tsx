@@ -245,22 +245,24 @@ function Pricing() {
                           {`/${monthly ? `month per user` : 'year per user'}`}
                         </Typography>
                       )}
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        component={RouterLink}
-                        to={
-                          '/account/register' +
-                          (plan.id !== 'basic'
-                            ? `?subscription-plan-id=${plan.id}`
-                            : '')
-                        }
-                        sx={{ mt: 1, mb: 2 }}
-                      >
-                        {plan.id === 'basic'
-                          ? t('Get started')
-                          : t('Try for free')}
-                      </Button>
+                      {type === 'cloud' && (
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          component={RouterLink}
+                          to={
+                            '/account/register' +
+                            (plan.id !== 'basic'
+                              ? `?subscription-plan-id=${plan.id}`
+                              : '')
+                          }
+                          sx={{ mt: 1, mb: 2 }}
+                        >
+                          {plan.id === 'basic'
+                            ? t('Get started')
+                            : t('Try for free')}
+                        </Button>
+                      )}
                     </Grid>
                   ))}
               </Grid>
