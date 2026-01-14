@@ -570,6 +570,12 @@ const Parts = ({ setAction }: PropsType) => {
             submitText={t('save')}
             values={{
               ...currentPart,
+              category: currentPart?.category
+                ? {
+                    label: currentPart?.category?.name,
+                    value: currentPart?.category?.id
+                  }
+                : null,
               assignedTo: currentPart?.assignedTo.map((user) => {
                 return {
                   label: `${user.firstName} ${user.lastName}`,
