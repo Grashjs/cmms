@@ -101,6 +101,10 @@ function SubscriptionPlans() {
   }, [subscriptionPlans]);
 
   const buyProduct = async () => {
+    if (company.demo) {
+      showSnackBar('Create a real account to upgrade', 'error');
+      return;
+    }
     setSubmitting(true);
     if (selectedPlan === 'BUSINESS' || selectedPlanObject.code === 'BUSINESS') {
       onUpgradeRequest();
