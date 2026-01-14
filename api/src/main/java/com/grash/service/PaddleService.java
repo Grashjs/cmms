@@ -90,7 +90,7 @@ public class PaddleService {
 
         // Set checkout settings
         PaddleCheckout checkout = new PaddleCheckout();
-//        checkout.setUrl(frontendUrl + "/payment/success?_ptxn={transaction_id}");
+        if (selfHosted) checkout.setUrl(frontendUrl + "/pricing?type=selfhosted");
         transactionRequest.setCheckout(checkout);
 
         try {
