@@ -45,7 +45,8 @@ export default function SubscriptionPlanSelector({
   const [selectedPlan, setSelectedPlan] = useState(null);
   const navigate = useNavigate();
   let paddle = useRef<Paddle | null>(null);
-
+  const queryParams = new URLSearchParams(location.search);
+  const _ptxn = queryParams.get('_ptxn');
   useEffect(() => {
     const initPaddle = async () => {
       paddle.current = await initializePaddle({
@@ -58,8 +59,8 @@ export default function SubscriptionPlanSelector({
       });
       paddle.current.Environment.set(paddleEnvironment);
     };
-    if (modalOpen) initPaddle();
-  }, [modalOpen]);
+    if (modalOpen || _ptxn) initPaddle();
+  }, [modalOpen, _ptxn]);
 
   const handleOpenModal = (plan) => {
     setSelectedPlan(plan);
