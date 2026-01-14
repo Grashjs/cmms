@@ -315,7 +315,7 @@ export const planFeatureCategories: {
       {
         name: 'Meter Readings',
         availability: {
-          basic: true,
+          basic: false,
           starter: true,
           professional: true,
           business: true,
