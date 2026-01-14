@@ -15,6 +15,8 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
     Optional<Company> findBySubscription_Id(Long id);
 
 
-    @Query(value = "SELECT EXISTS(SELECT 1 FROM company LIMIT 1 OFFSET 1)", nativeQuery = true)
-    boolean existsAtLeastTwo();
+    @Query(value = """
+            select exists(select 1 from company c join work_order wo on c.id = wo.company_id group by c.id having count(wo.id) >= 5)
+            """, nativeQuery = true)
+    boolean existsAtLeastOneWithMinWorkOrders();
 }

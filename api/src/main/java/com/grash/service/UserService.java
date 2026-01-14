@@ -149,7 +149,7 @@ public class UserService {
         user.setUsername(utils.generateStringId());
         if (user.getRole() == null) {
             //create company with default roles
-            if (!licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE) && companyService.existsAtLeastTwo())
+            if (!licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE) && companyService.existsAtLeastOneWithMinWorkOrders())
                 throw new CustomException("You need a license to create another company", HttpStatus.FORBIDDEN);
             Subscription subscription =
                     Subscription.builder().usersCount(cloudVersion ? 10 : 100).monthly(cloudVersion)
