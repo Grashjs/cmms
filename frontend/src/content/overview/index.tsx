@@ -47,7 +47,7 @@ function Overview() {
         <title>
           {brandConfig.name}
           {IS_ORIGINAL_CLOUD
-            ? ' - Open-Source Maintenance Management Software | Free EAM Solution'
+            ? ' - Open-Source Maintenance Management Software | Free CMMS'
             : ''}
         </title>
       </Helmet>
