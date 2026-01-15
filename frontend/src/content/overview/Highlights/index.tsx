@@ -724,7 +724,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
             mt: 8,
             mb: 2
           }}
-          variant="h1"
+          variant="h2"
         >
           {t('key_features')}
         </TypographyH1Primary>
@@ -802,7 +802,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
                   }}
                 >
                   <Box>
-                    <TypographyH1Primary variant="h1">
+                    <TypographyH1Primary variant="h2">
                       {t('Right-To-Left Layouts & Translation-Ready')}
                     </TypographyH1Primary>
                     <Typography
@@ -872,7 +872,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
               mt: 8,
               mb: 2
             }}
-            variant="h1"
+            variant="h2"
           >
             {t('choose_your_plan')}
           </TypographyH1Primary>
@@ -896,7 +896,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
           sx={{
             mb: 2
           }}
-          variant="h1"
+          variant="h2"
         >
           {t('leading_maintenance')}
         </TypographyH1Primary>

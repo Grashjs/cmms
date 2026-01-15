@@ -33,7 +33,7 @@ export default function SubscriptionPlans() {
   }, []);
   return (
     <Box mt={4}>
-      <Typography variant={'h1'}>{t('choose_your_plan')}</Typography>
+      <Typography variant={'h2'}>{t('choose_your_plan')}</Typography>
       <Grid container spacing={2} mt={2}>
         {subscriptionPlans.map((plan) => (
           <Grid item xs={12} md={4} key={plan.id}>
