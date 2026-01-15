@@ -106,10 +106,10 @@ function SubscriptionPlans() {
       return;
     }
     setSubmitting(true);
-    if (selectedPlan === 'BUSINESS' || selectedPlanObject.code === 'BUSINESS') {
-      onUpgradeRequest();
-      return;
-    }
+    // if (selectedPlan === 'BUSINESS' || selectedPlanObject.code === 'BUSINESS') {
+    //   onUpgradeRequest();
+    //   return;
+    // }
     let path = selectedPlanObject.code.toLowerCase();
     path = `${path}-${period === 'monthly' ? 'monthly' : 'yearly'}`;
     try {
@@ -382,23 +382,17 @@ function SubscriptionPlans() {
                                   <Typography variant="h6" fontWeight="bold">
                                     {plan.name}
                                   </Typography>
-                                  {plan.code === 'BUSINESS' ? (
-                                    <Typography variant="subtitle1">
-                                      Custom pricing
-                                    </Typography>
-                                  ) : (
-                                    <Typography variant="subtitle1">
-                                      <b>
-                                        {period == 'monthly'
-                                          ? plan.monthlyCostPerUser
-                                          : plan.yearlyCostPerUser}{' '}
-                                        USD
-                                      </b>{' '}
+                                  <Typography variant="subtitle1">
+                                    <b>
                                       {period == 'monthly'
-                                        ? t('per_user_month')
-                                        : t('per_user_year')}
-                                    </Typography>
-                                  )}
+                                        ? plan.monthlyCostPerUser
+                                        : plan.yearlyCostPerUser}{' '}
+                                      USD
+                                    </b>{' '}
+                                    {period == 'monthly'
+                                      ? t('per_user_month')
+                                      : t('per_user_year')}
+                                  </Typography>
                                 </Box>
                               }
                             />

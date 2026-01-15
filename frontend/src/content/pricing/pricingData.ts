@@ -57,7 +57,7 @@ export const pricingPlans: {
   {
     id: 'business',
     name: 'Business',
-    price: 'Custom Pricing',
+    price: '40',
     description:
       'Organizations ready to capture maintenance & operations data to manage multiple locations & system customization.',
     popular: false,

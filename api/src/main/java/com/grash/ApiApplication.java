@@ -135,12 +135,12 @@ public class ApiApplication implements SmartInitializingSingleton {
             subscriptionPlanService.create(SubscriptionPlan.builder()
                     .code("BUSINESS")
                     .name("Business")
-                    .monthlyCostPerUser(80)
+                    .monthlyCostPerUser(40)
                     .features(new HashSet<>(Arrays.asList(PlanFeatures.values())))
-                    .yearlyCostPerUser(800).build());
+                    .yearlyCostPerUser(400).build());
         }
     }
-    
+
 
     @NotNull
     private static UserSignupRequest getSuperAdminSignupRequest(Role savedSuperAdminRole) {
