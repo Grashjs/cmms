@@ -216,48 +216,50 @@ export default function SubscriptionPlanSelector({
                 </List>
 
                 <Box mt="auto" pt={3}>
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    component={
-                      selfHosted && plan.id !== 'sh-free'
-                        ? 'button'
-                        : RouterLink
-                    }
-                    onClick={async () => {
-                      if (plan.id !== 'basic') {
-                        fireGa4Event({
-                          category: 'Pricing',
-                          action: 'Plan_Selection',
-                          label: `${plan.id}_Trial`,
-                          value:
-                            plan.id === 'business' ? 100 : Number(plan.price)
-                        });
+                  {selfHosted && plan.id === 'sh-free' ? null : (
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      component={
+                        selfHosted && plan.id !== 'sh-free'
+                          ? 'button'
+                          : RouterLink
                       }
+                      onClick={async () => {
+                        if (plan.id !== 'basic') {
+                          fireGa4Event({
+                            category: 'Pricing',
+                            action: 'Plan_Selection',
+                            label: `${plan.id}_Trial`,
+                            value:
+                              plan.id === 'business' ? 100 : Number(plan.price)
+                          });
+                        }
 
-                      // Handle Stripe Checkout for self-hosted paid plans
-                      if (selfHosted && plan.id !== 'sh-free') {
-                        handleOpenModal(plan);
+                        // Handle Stripe Checkout for self-hosted paid plans
+                        if (selfHosted && plan.id !== 'sh-free') {
+                          handleOpenModal(plan);
+                        }
+                      }}
+                      to={
+                        selfHosted && plan.id !== 'sh-free'
+                          ? undefined
+                          : selfHosted
+                          ? '/account/register'
+                          : '/account/register' +
+                            (plan.id !== 'basic'
+                              ? `?subscription-plan-id=${plan.id}`
+                              : '')
                       }
-                    }}
-                    to={
-                      selfHosted && plan.id !== 'sh-free'
-                        ? undefined
+                      sx={{ mb: 1 }}
+                    >
+                      {plan.id === 'basic' || plan.id === 'sh-free'
+                        ? t('Get started')
                         : selfHosted
-                        ? '/account/register'
-                        : '/account/register' +
-                          (plan.id !== 'basic'
-                            ? `?subscription-plan-id=${plan.id}`
-                            : '')
-                    }
-                    sx={{ mb: 1 }}
-                  >
-                    {plan.id === 'basic' || plan.id === 'sh-free'
-                      ? t('Get started')
-                      : selfHosted
-                      ? 'Get your license'
-                      : t('try_for_free')}
-                  </Button>
+                        ? 'Get your license'
+                        : t('try_for_free')}
+                    </Button>
+                  )}
                   {!selfHosted && (
                     <Typography
                       variant="caption"
