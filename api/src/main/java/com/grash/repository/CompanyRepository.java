@@ -16,7 +16,8 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
 
 
     @Query(value = """
-            select exists(select 1 from company c join work_order wo on c.id = wo.company_id where wo.is_demo=false and c.demo=false group by c.id having count(wo.id) >= 5)
+            select exists(select 1 from company c join work_order wo on c.id = wo.company_id where wo.is_demo=false
+            AND wo.parent_preventive_maintenance_id is null and c.demo=false group by c.id having count(wo.id) >= 5)
             """, nativeQuery = true)
     boolean existsAtLeastOneWithMinWorkOrders();
 }
