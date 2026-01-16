@@ -128,7 +128,7 @@ export default function Faq() {
       title: 'Is there a free trial?',
       content: (
         <Typography>
-          Yes, we offer a 30-day free trial of the Professional plan so you can
+          Yes, we offer a 15-day free trial of the Business plan so you can
           experience all the features before making a decision.
         </Typography>
       )
