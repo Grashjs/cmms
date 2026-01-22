@@ -744,6 +744,7 @@ function Assets() {
 
   const groupingColDef: DataGridProProps['groupingColDef'] = {
     headerName: t('hierarchy'),
+    disableReorder: true,
     renderCell: (params) => <GroupingCellWithLazyLoading {...params} />
   };
   const CustomRow = (props: React.ComponentProps<typeof GridRow>) => {

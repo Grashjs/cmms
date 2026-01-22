@@ -513,6 +513,7 @@ function Locations() {
   );
   const groupingColDef: DataGridProProps['groupingColDef'] = {
     headerName: t('hierarchy'),
+    disableReorder: true,
     renderCell: (params) => <GroupingCellWithLazyLoading {...params} />,
     flex: 0.5
   };
