@@ -80,7 +80,7 @@ public class SubscriptionService {
 
     public void scheduleEnd(Subscription subscription) {
         boolean shouldSchedule =
-                !subscription.getSubscriptionPlan().getCode().equals("FREE") && subscription.getEndsOn() != null;
+                !subscription.getSubscriptionPlan().getCode().equals("FREE") && subscription.getEndsOn() != null && subscription.getPaddleSubscriptionId() == null;
         if (shouldSchedule) {
             try {
                 JobDetail jobDetail = JobBuilder.newJob(SubscriptionEndJob.class)
