@@ -29,7 +29,10 @@ public class SubscriptionEndJob extends QuartzJobBean {
             log.warn("Subscription not found for ID: {}", subscriptionId);
             return;
         }
-
+        if (subscription.getPaddleSubscriptionId() != null) {
+            log.info("Paddle subscription ID found for subscription. Not resetting to FREE plan.");
+            return;
+        }
         log.info("Resetting subscription to FREE plan for subscription ID: {}", subscriptionId);
         subscriptionService.resetToFreePlan(subscription);
     }
