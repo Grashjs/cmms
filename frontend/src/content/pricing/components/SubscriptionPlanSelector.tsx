@@ -119,7 +119,7 @@ export default function SubscriptionPlanSelector({
             sx={{ transform: 'scale(1.3)' }}
             size={'medium'}
           />
-          <Typography>Annually (Save 17%)</Typography>
+          <Typography>Annually (Save 2 months)</Typography>
         </Stack>
       </Box>
       <Grid container spacing={2} justifyContent="center">
