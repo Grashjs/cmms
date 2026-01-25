@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   CircularProgress,
+  debounce,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -23,7 +24,7 @@ import { IField } from '../type';
 import ReplayTwoToneIcon from '@mui/icons-material/ReplayTwoTone';
 import Location from '../../../models/owns/location';
 import * as React from 'react';
-import { ChangeEvent, useContext, useEffect, useState } from 'react';
+import { ChangeEvent, useContext, useEffect, useMemo, useState } from 'react';
 import { TitleContext } from '../../../contexts/TitleContext';
 import {
   addLocation,
@@ -65,15 +66,20 @@ import useAuth from '../../../hooks/useAuth';
 import { PermissionEntity } from '../../../models/owns/role';
 import PermissionErrorMessage from '../components/PermissionErrorMessage';
 import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
-import { getImageAndFiles } from '../../../utils/overall';
+import { getImageAndFiles, onSearchQueryChange } from '../../../utils/overall';
 import { getLocationUrl } from '../../../utils/urlPaths';
 import { exportEntity } from '../../../slices/exports';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import useGridStatePersist from '../../../hooks/useGridStatePersist';
-import { Pageable, Sort } from '../../../models/owns/page';
+import {
+  FilterField,
+  Pageable,
+  SearchCriteria,
+  Sort
+} from '../../../models/owns/page';
 import { googleMapsConfig } from '../../../config';
-import { getErrorMessage } from '../../../utils/api';
+import SearchInput from '../components/SearchInput';
 
 function Locations() {
   const { t }: { t: any } = useTranslation();
@@ -127,6 +133,24 @@ function Locations() {
     page: 0,
     size: 1000
   });
+  const [view, setView] = useState<'hierarchy' | 'list'>('hierarchy');
+  const initialCriteria: SearchCriteria = {
+    filterFields: [],
+    pageSize: 10,
+    pageNum: 0,
+    direction: 'DESC'
+  };
+  const [criteria, setCriteria] = useState<SearchCriteria>(initialCriteria);
+
+  const onQueryChange = (event) => {
+    setView(event.target.value ? 'list' : 'hierarchy');
+    onSearchQueryChange<Location>(event, criteria, setCriteria, [
+      'name',
+      'address',
+      'customId'
+    ]);
+  };
+  const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
 
   const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -154,7 +178,7 @@ function Locations() {
     showSnackBar(t('location_create_success'), 'success');
   };
   const onCreationFailure = (err) =>
-    showSnackBar(getErrorMessage(err, t('location_create_failure')), 'error');
+    showSnackBar(t('location_create_failure'), 'error');
   const onEditSuccess = () => {
     setOpenUpdateModal(false);
     showSnackBar(t('changes_saved_success'), 'success');
@@ -192,6 +216,11 @@ function Locations() {
       dispatch(getLocationChildren(0, [], pageable));
     }
   }, [pageable]);
+
+  useEffect(() => {
+    if (hasViewPermission(PermissionEntity.LOCATIONS) && view === 'list')
+      dispatch(getLocations(criteria));
+  }, [criteria]);
 
   useEffect(() => {
     if (apiRef.current.getRow) {
@@ -431,6 +460,8 @@ function Locations() {
     return fieldsClone;
   };
   const handleReset = (callApi: boolean) => {
+    setCriteria(initialCriteria);
+    setView('hierarchy');
     dispatch(resetLocationsHierarchy(pageable, callApi));
   };
   const shape = {
@@ -513,7 +544,6 @@ function Locations() {
   );
   const groupingColDef: DataGridProProps['groupingColDef'] = {
     headerName: t('hierarchy'),
-    disableReorder: true,
     renderCell: (params) => <GroupingCellWithLazyLoading {...params} />,
     flex: 0.5
   };
@@ -697,22 +727,23 @@ function Locations() {
             justifyContent="space-between"
             alignItems="center"
           >
-            {tabs.length > 1 ? (
-              <Tabs
-                onChange={handleTabsChange}
-                value={currentTab}
-                variant="scrollable"
-                scrollButtons="auto"
-                textColor="primary"
-                indicatorColor="primary"
-              >
-                {tabs.map((tab) => (
-                  <Tab key={tab.value} label={tab.label} value={tab.value} />
-                ))}
-              </Tabs>
-            ) : (
-              <Box />
-            )}
+            <Stack direction="row" spacing={2} alignItems="center">
+              <SearchInput onChange={debouncedQueryChange} />
+              {tabs.length > 1 && (
+                <Tabs
+                  onChange={handleTabsChange}
+                  value={currentTab}
+                  variant="scrollable"
+                  scrollButtons="auto"
+                  textColor="primary"
+                  indicatorColor="primary"
+                >
+                  {tabs.map((tab) => (
+                    <Tab key={tab.value} label={tab.label} value={tab.value} />
+                  ))}
+                </Tabs>
+              )}
+            </Stack>
             <Stack direction={'row'} alignItems="center" spacing={1}>
               <IconButton onClick={() => handleReset(true)} color="primary">
                 <ReplayTwoToneIcon />
@@ -745,15 +776,19 @@ function Locations() {
               <Box sx={{ width: '95%' }}>
                 <CustomDataGrid
                   pro
-                  treeData
+                  treeData={view === 'hierarchy'}
                   columns={columns}
-                  rows={locationsHierarchy}
+                  rows={view === 'hierarchy' ? locationsHierarchy : locations}
                   loading={loadingGet}
                   apiRef={apiRef}
                   getTreeDataPath={(row) =>
-                    row.hierarchy.map((id) => id.toString())
+                    view === 'hierarchy'
+                      ? row.hierarchy.map((id) => id.toString())
+                      : [row.id.toString()]
                   }
-                  groupingColDef={groupingColDef}
+                  groupingColDef={
+                    view === 'hierarchy' ? groupingColDef : undefined
+                  }
                   components={{
                     Row: CustomRow,
                     NoRowsOverlay: () => (
@@ -769,7 +804,7 @@ function Locations() {
                       columnVisibilityModel: {}
                     }
                   }}
-                  sortingMode="client"
+                  sortingMode={view === 'hierarchy' ? 'client' : 'server'}
                   onSortModelChange={(model, details) => {
                     const mapper: Record<string, string> = {
                       name: 'name',
@@ -783,12 +818,22 @@ function Locations() {
                     )
                       return;
                     //model length is at max 1
-                    setPageable((prevState) => ({
-                      ...prevState,
-                      sort: model.length
-                        ? [`${mapper[model[0].field]},${model[0].sort}` as Sort]
-                        : []
-                    }));
+                    if (view === 'hierarchy') {
+                      setPageable((prevState) => ({
+                        ...prevState,
+                        sort: model.length
+                          ? [`${mapper[model[0].field]},${model[0].sort}` as Sort]
+                          : []
+                      }));
+                    } else {
+                      setCriteria((prevState) => ({
+                        ...prevState,
+                        sortField: model.length ? mapper[model[0].field] : undefined,
+                        direction: model.length
+                          ? (model[0].sort.toUpperCase() as any)
+                          : undefined
+                      }));
+                    }
                   }}
                 />
               </Box>
