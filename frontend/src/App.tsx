@@ -162,10 +162,11 @@ function App() {
 
   useEffect(() => {
     if (isCloudVersion) {
+      if (user && !user.ownsCompany) return;
       initializePaddle({
         environment: paddleEnvironment,
         token: PADDLE_SECRET_TOKEN,
-        pwCustomer: user?.ownsCompany ? { email: user.email } : undefined
+        pwCustomer: user ? { email: user.email } : undefined
       });
     }
   }, [user]);
