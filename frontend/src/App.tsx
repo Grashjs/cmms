@@ -165,7 +165,7 @@ function App() {
       initializePaddle({
         environment: paddleEnvironment,
         token: PADDLE_SECRET_TOKEN,
-        pwCustomer: user.ownsCompany ? { email: user.email } : undefined
+        pwCustomer: user?.ownsCompany ? { email: user.email } : undefined
       });
     }
   }, [user]);
