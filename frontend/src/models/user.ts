@@ -35,6 +35,7 @@ export interface OwnUser extends Audit {
   image: File;
   lastLogin: string;
   enabled: boolean;
+  paddleUserId: string;
 }
 export interface UserMiniDTO {
   firstName: string;
