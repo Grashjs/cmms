@@ -58,7 +58,7 @@ public class DemoDataService {
     @Async
     public void handleUserCreated(CompanyCreatedEvent event) {
         createDemoData(event.getUser(), event.getUser().getCompany());
-        paddleService.createCustomer(event.getUser());
+        if (!event.getUser().getCompany().isDemo()) paddleService.createCustomer(event.getUser());
     }
 
     @Transactional
