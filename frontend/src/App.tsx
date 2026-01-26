@@ -157,12 +157,18 @@ function App() {
     if (isCloudVersion) {
       const referrer = document.referrer || '';
       localStorage.setItem('referrerData', referrer);
-      initializePaddle({
-        environment: paddleEnvironment,
-        token: PADDLE_SECRET_TOKEN
-      });
     }
   }, []);
+
+  useEffect(() => {
+    if (isCloudVersion) {
+      initializePaddle({
+        environment: paddleEnvironment,
+        token: PADDLE_SECRET_TOKEN,
+        pwCustomer: user.ownsCompany ? { email: user.email } : undefined
+      });
+    }
+  }, [user]);
 
   return (
     <UtmTrackerProvider customParams={['msclkid']}>
