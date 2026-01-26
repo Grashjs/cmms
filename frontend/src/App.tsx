@@ -16,7 +16,9 @@ import {
   googleTrackingId,
   IS_LOCALHOST,
   isCloudVersion,
-  isWhiteLabeled
+  isWhiteLabeled,
+  PADDLE_SECRET_TOKEN,
+  paddleEnvironment
 } from './config';
 import { useEffect, useState } from 'react';
 import { CompanySettingsProvider } from './contexts/CompanySettingsContext';
@@ -26,6 +28,7 @@ import { useBrand } from './hooks/useBrand';
 import { useTranslation } from 'react-i18next';
 import { UtmTrackerProvider } from '@nik0di3m/utm-tracker-hook';
 import { useLicenseEntitlement } from './hooks/useLicenseEntitlement';
+import { initializePaddle } from '@paddle/paddle-js';
 
 if (!IS_LOCALHOST && googleTrackingId) ReactGA.initialize(googleTrackingId);
 
@@ -154,6 +157,10 @@ function App() {
     if (isCloudVersion) {
       const referrer = document.referrer || '';
       localStorage.setItem('referrerData', referrer);
+      initializePaddle({
+        environment: paddleEnvironment,
+        token: PADDLE_SECRET_TOKEN
+      });
     }
   }, []);
 
