@@ -11,6 +11,7 @@ import com.grash.model.SubscriptionPlan;
 import com.grash.model.enums.PlanFeatures;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -55,7 +56,7 @@ public class PaddleService {
             throw new CustomException("Email and ID cannot be null", HttpStatus.BAD_REQUEST);
         boolean selfHosted = request.getUserId() == null;
 
-        PaddleTransactionRequest transactionRequest = new PaddleTransactionRequest();
+        CreateCheckoutRequest transactionRequest = new CreateCheckoutRequest();
 
         // Add item
         PaddleItem item = new PaddleItem();
@@ -99,7 +100,7 @@ public class PaddleService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.setBearerAuth(paddleApiKey);
 
-            HttpEntity<PaddleTransactionRequest> entity = new HttpEntity<>(transactionRequest, headers);
+            HttpEntity<CreateCheckoutRequest> entity = new HttpEntity<>(transactionRequest, headers);
 
             // Make API call
             ResponseEntity<PaddleTransactionResponse> response = restTemplate.exchange(
@@ -190,9 +191,7 @@ public class PaddleService {
     }
 
     public void pauseSubscription(String subscriptionId) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(paddleApiKey);
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpHeaders headers = getHttpHeaders();
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         restTemplate.exchange(
@@ -204,9 +203,7 @@ public class PaddleService {
     }
 
     public void resumeSubscription(String subscriptionId) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(paddleApiKey);
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpHeaders headers = getHttpHeaders();
         Map<String, String> body = new HashMap<>();
         body.put("effective_from", "immediately");
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
@@ -221,7 +218,7 @@ public class PaddleService {
 
     // Request DTOs
     @Data
-    private static class PaddleTransactionRequest {
+    private static class CreateCheckoutRequest {
         private List<PaddleItem> items;
 
         @JsonProperty("customer_email")
@@ -269,5 +266,72 @@ public class PaddleService {
 
         @JsonProperty("updated_at")
         private String updatedAt;
+    }
+
+    @Data
+    public static class PaddleCustomerData {
+        private String email;
+
+        private String name;
+    }
+
+    @Data
+    public static class PaddleCustomerResponse {
+        private Customer data;
+    }
+
+    @Data
+    static class Customer {
+        private String id;
+
+        private String status;
+
+        @JsonProperty("custom_data")
+        private Map<String, String> customData;
+
+        private String name;
+
+        private String email;
+
+        @JsonProperty("marketing_consent")
+        private boolean marketingConsent;
+
+        private String locale;
+
+        @JsonProperty("created_at")
+        private String createdAt;
+
+        @JsonProperty("updated_at")
+        private String updatedAt;
+
+        @JsonProperty("import_meta")
+        private Object importMeta;
+    }
+
+    public void createCustomer(OwnUser user) {
+        HttpHeaders headers = getHttpHeaders();
+        PaddleCustomerData body = new PaddleCustomerData();
+        body.setEmail(user.getEmail());
+        body.setName(user.getFullName());
+        HttpEntity<PaddleCustomerData> entity = new HttpEntity<>(body, headers);
+
+        ResponseEntity<PaddleCustomerResponse> response = restTemplate.exchange(
+                paddleApiUrl + "/customers",
+                HttpMethod.POST,
+                entity,
+                PaddleCustomerResponse.class
+        );
+        if (response.getBody() != null) {
+            user.setPaddleUserId(response.getBody().getData().getId());
+            userService.save(user);
+        }
+    }
+
+    @NotNull
+    private HttpHeaders getHttpHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(paddleApiKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return headers;
     }
 }

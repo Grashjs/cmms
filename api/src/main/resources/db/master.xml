@@ -174,4 +174,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_01_10_1768023821_missing_seq.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_01_26_1769462724_paddle_user_id.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

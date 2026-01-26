@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -156,6 +157,8 @@ public class OwnUser extends Audit {
     private String gclid;
     private String fbclid;
     private String referrer;
+
+    private String paddleUserId;
 
 
     public int hashCode() {

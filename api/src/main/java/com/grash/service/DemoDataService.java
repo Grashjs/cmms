@@ -50,11 +50,15 @@ public class DemoDataService {
     @Autowired
     @Lazy
     private RequestService requestService;
+    @Autowired
+    @Lazy
+    private PaddleService paddleService;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async
     public void handleUserCreated(CompanyCreatedEvent event) {
         createDemoData(event.getUser(), event.getUser().getCompany());
+        paddleService.createCustomer(event.getUser());
     }
 
     @Transactional
