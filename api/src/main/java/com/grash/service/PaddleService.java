@@ -42,6 +42,8 @@ public class PaddleService {
 
     private String paddleApiUrl;
     private final RestTemplate restTemplate = new RestTemplate();
+    @Value("${cloud-version}")
+    private boolean cloudVersion;
 
     @PostConstruct
     public void init() {
@@ -309,6 +311,7 @@ public class PaddleService {
     }
 
     public void createCustomer(OwnUser user) {
+        if (!cloudVersion) return;
         HttpHeaders headers = getHttpHeaders();
         PaddleCustomerData body = new PaddleCustomerData();
         body.setEmail(user.getEmail());
