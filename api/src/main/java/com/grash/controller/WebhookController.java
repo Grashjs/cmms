@@ -140,8 +140,10 @@ class WebhookController {
 
         OwnUser user = optionalOwnUser.get();
         Subscription savedSubscription = user.getCompany().getSubscription();
-
-        if (!savedSubscription.getPaddleSubscriptionId().equals(webhookEvent.getData().getSubscriptionId()))
+        if (isNewSubscription) {
+            if (savedSubscription.getPaddleSubscriptionId() != null)
+                paddleService.pauseSubscription(savedSubscription.getPaddleSubscriptionId());
+        } else if (!savedSubscription.getPaddleSubscriptionId().equals(webhookEvent.getData().getSubscriptionId()))
             return;
         String planCode = data.getCustomData().get("planId");
         int newUsersCount = data.getItems().get(0).getQuantity();
