@@ -141,6 +141,8 @@ class WebhookController {
         OwnUser user = optionalOwnUser.get();
         Subscription savedSubscription = user.getCompany().getSubscription();
 
+        if (!savedSubscription.getPaddleSubscriptionId().equals(webhookEvent.getData().getSubscriptionId()))
+            return;
         String planCode = data.getCustomData().get("planId");
         int newUsersCount = data.getItems().get(0).getQuantity();
 
@@ -212,6 +214,8 @@ class WebhookController {
         if (subscription == null) {
             throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
         }
+        if (!subscription.getPaddleSubscriptionId().equals(webhookEvent.getData().getSubscriptionId()))
+            return;
         if (cancelled) subscription.setPaddleSubscriptionId(null);
         subscriptionService.resetToFreePlan(subscription);
 
