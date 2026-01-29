@@ -199,7 +199,7 @@ public class SendgridService implements MailService {
         mail.setFrom(from);
         mail.setSubject(subject);
         mail.addContent(content);
-        mail.addCategory(template);
+        if (template != null) mail.addCategory(template);
         // Add recipients
         Personalization personalization = new Personalization();
         for (String recipient : to) {
