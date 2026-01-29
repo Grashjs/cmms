@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,7 +28,13 @@ public class KeygenService {
     @Value("${keygen.account-id}")
     private String keygenAccountId;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = createRestTemplate();
+
+    private RestTemplate createRestTemplate() {
+        HttpComponentsClientHttpRequestFactory factory =
+                new HttpComponentsClientHttpRequestFactory();
+        return new RestTemplate(factory);
+    }
 
     public void updateUserMetadata(String userId, Map<String, String> metadata) {
         String url = String.format("https://api.keygen.sh/v1/accounts/%s/users/%s",
