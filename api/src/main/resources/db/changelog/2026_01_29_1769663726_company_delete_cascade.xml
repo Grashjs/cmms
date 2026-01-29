@@ -307,4 +307,30 @@
                     REFERENCES own_user (id)
                     ON DELETE CASCADE;</sql>
     </changeSet>
+    <changeSet id="1769666659627-1" author="Ibrahima G. Coulibaly">
+        <dropForeignKeyConstraint
+                baseTableName="request_files"
+                constraintName="fkd3vswlusjseoo7lpwb0697w2o"/>
+
+        <dropForeignKeyConstraint
+                baseTableName="request_files"
+                constraintName="fke28fh1hvbl1e8jww275n3b1w0"/>
+
+        <addForeignKeyConstraint
+                baseTableName="request_files"
+                baseColumnNames="request_id"
+                referencedTableName="request"
+                referencedColumnNames="id"
+                constraintName="fkd3vswlusjseoo7lpwb0697w2o"
+                onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                baseTableName="request_files"
+                baseColumnNames="files_id"
+                referencedTableName="file"
+                referencedColumnNames="id"
+                constraintName="fke28fh1hvbl1e8jww275n3b1w0"
+                onDelete="CASCADE"/>
+
+    </changeSet>
 </databaseChangeLog>
