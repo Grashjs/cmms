@@ -176,4 +176,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_01_26_1769462724_paddle_user_id.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_01_29_1769663726_company_delete_cascade.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>
