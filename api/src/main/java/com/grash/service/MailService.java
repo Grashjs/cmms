@@ -9,6 +9,8 @@ import java.util.Locale;
 import java.util.Map;
 
 public interface MailService {
+    ThreadLocal<Boolean> skipMail = ThreadLocal.withInitial(() -> false);
+
     void sendSimpleMessage(String[] to, String subject, String text);
 
     void sendMessageWithAttachment(String to, String subject, String text, String attachmentName,

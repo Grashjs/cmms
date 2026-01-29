@@ -70,7 +70,7 @@ public class SendgridService implements MailService {
      */
     public void sendSimpleMessage(String[] to, String subject, String text) {
         try {
-            if (Boolean.FALSE.equals(enableEmails))
+            if (shouldSkipSendingEmail())
                 return;
             Email from = new Email(fromEmail, fromName);
             Content content = new Content("text/plain", text);
@@ -109,6 +109,10 @@ public class SendgridService implements MailService {
         }
     }
 
+    private boolean shouldSkipSendingEmail() {
+        return Boolean.FALSE.equals(enableEmails) || MailService.skipMail.get();
+    }
+
     /**
      * Send email with attachment
      */
@@ -116,7 +120,7 @@ public class SendgridService implements MailService {
                                           String attachmentName, byte[] attachmentData,
                                           String attachmentType) {
         try {
-            if (Boolean.FALSE.equals(enableEmails))
+            if (shouldSkipSendingEmail())
                 return;
             Email from = new Email(fromEmail, fromName);
             Email recipient = new Email(to);
@@ -164,9 +168,8 @@ public class SendgridService implements MailService {
     public void sendMessageUsingThymeleafTemplate(
             String[] to, String subject, Map<String, Object> templateModel,
             String template, Locale locale, List<EmailAttachmentDTO> attachmentDTOS) {
-
         if (to.length == 0) return;
-        if (Boolean.FALSE.equals(enableEmails))
+        if (shouldSkipSendingEmail())
             return;
         Context thymeleafContext = new Context();
         thymeleafContext.setLocale(locale);
@@ -190,7 +193,7 @@ public class SendgridService implements MailService {
      */
     public void sendHtmlMessage(String[] to, String subject, String htmlBody,
                                 List<EmailAttachmentDTO> attachmentDTOS, String template) throws IOException {
-        if (Boolean.FALSE.equals(enableEmails))
+        if (shouldSkipSendingEmail())
             return;
         Email from = new Email(fromEmail, fromName);
         Content content = new Content("text/html", htmlBody);

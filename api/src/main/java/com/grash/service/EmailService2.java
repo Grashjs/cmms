@@ -60,7 +60,7 @@ public class EmailService2 implements MailService {
 
     @Override
     public void sendSimpleMessage(String[] to, String subject, String text) {
-        if (Boolean.FALSE.equals(enableEmails))
+        if (shouldSkipSendingMail())
             return;
         try {
             SimpleMailMessage message = new SimpleMailMessage();
@@ -74,6 +74,10 @@ public class EmailService2 implements MailService {
         }
     }
 
+    private boolean shouldSkipSendingMail() {
+        return Boolean.FALSE.equals(enableEmails) || MailService.skipMail.get();
+    }
+
     @Override
     public void sendMessageWithAttachment(String to,
                                           String subject,
@@ -81,7 +85,7 @@ public class EmailService2 implements MailService {
                                           String attachmentName,
                                           byte[] attachmentData,
                                           String attachmentType) {
-        if (Boolean.FALSE.equals(enableEmails))
+        if (shouldSkipSendingMail())
             return;
         try {
             MimeMessage message = emailSender.createMimeMessage();
@@ -106,7 +110,7 @@ public class EmailService2 implements MailService {
     public void sendMessageUsingThymeleafTemplate(
             String[] to, String subject, Map<String, Object> templateModel, String template, Locale locale,
             List<EmailAttachmentDTO> attachmentDTOS) {
-        if (Boolean.FALSE.equals(enableEmails))
+        if (shouldSkipSendingMail())
             return;
         Context thymeleafContext = new Context();
         thymeleafContext.setLocale(locale);
@@ -127,7 +131,7 @@ public class EmailService2 implements MailService {
     @Override
     public void sendHtmlMessage(String[] to, String subject, String htmlBody,
                                 List<EmailAttachmentDTO> attachmentDTOS) throws MessagingException, IOException {
-        if (Boolean.FALSE.equals(enableEmails))
+        if (shouldSkipSendingMail())
             return;
         if (to.length > 0) {
 
