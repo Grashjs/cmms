@@ -380,7 +380,11 @@ class WebhookController {
             String email = data.getCustomData() != null ? data.getCustomData().get("email") : null;
             String planId = data.getCustomData() != null ? data.getCustomData().get("planId") : null;
             Integer quantity = data.getItems().get(0).getQuantity();
-
+            String newExpiry = data.getNextBilledAt();
+            if (newExpiry == null) {
+                log.error("next_billed_at is null for paddle subscription {}", paddleSubscriptionId);
+                return;
+            }
             String customerName = Optional.ofNullable(data.getBillingDetails())
                     .map(BillingDetails::getCustomerName)
                     .orElse(email);
@@ -404,11 +408,6 @@ class WebhookController {
             String licenseId = license.getId();
             log.info("Found license {} for renewal. Extending expiry.", licenseId);
 
-            String newExpiry = data.getNextBilledAt();
-            if (newExpiry == null) {
-                log.error("next_billed_at is null for paddle subscription {}", paddleSubscriptionId);
-                throw new RuntimeException("next_billed_at is null for paddle subscription " + paddleSubscriptionId);
-            }
 
             Map<String, Object> newMetadata = license.getAttributes().getMetadata();
             newMetadata.put("usersCount", quantity);
