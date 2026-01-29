@@ -132,4 +132,143 @@
 
         </sql>
     </changeSet>
+    <changeSet id="1769664578578-1" author="Ibrahima G. Coulibaly">
+        <sql>
+            ALTER TABLE checklist_task_bases
+            DROP
+            CONSTRAINT IF EXISTS fkd34phs94o7382otdgl82mcoua;
+
+            ALTER TABLE checklist_task_bases
+            DROP
+            CONSTRAINT IF EXISTS fkhk7924rrpw72xmw6xcnd04xtf;
+
+-- Recreate foreign keys with ON DELETE CASCADE
+            ALTER TABLE checklist_task_bases
+                ADD CONSTRAINT fkd34phs94o7382otdgl82mcoua
+                    FOREIGN KEY (checklist_id)
+                        REFERENCES checklist (id)
+                        ON DELETE CASCADE;
+
+            ALTER TABLE checklist_task_bases
+                ADD CONSTRAINT fkhk7924rrpw72xmw6xcnd04xtf
+                    FOREIGN KEY (task_bases_id)
+                        REFERENCES task_base (id)
+                        ON DELETE CASCADE;
+        </sql>
+    </changeSet>
+    <changeSet id="allow-user-deletion-constraints" author="junie">
+        <!-- CASCADE for NOT NULL references -->
+        <dropForeignKeyConstraint baseTableName="super_account_relation"
+                                  constraintName="fk_super_account_relation_super_user"/>
+        <addForeignKeyConstraint baseColumnNames="super_user_id" baseTableName="super_account_relation"
+                                 constraintName="fk_super_account_relation_super_user" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="super_account_relation"
+                                  constraintName="fk_super_account_relation_child_user"/>
+        <addForeignKeyConstraint baseColumnNames="child_user_id" baseTableName="super_account_relation"
+                                 constraintName="fk_super_account_relation_child_user" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="work_order_history" constraintName="fkggkgvrsfxoevabt4igrse99m3"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="work_order_history"
+                                 constraintName="fkggkgvrsfxoevabt4igrse99m3" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="push_notification_token" constraintName="fkrv32gwhy1ktdvrlfeg2y1pcqo"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="push_notification_token"
+                                 constraintName="fkrv32gwhy1ktdvrlfeg2y1pcqo" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="verification_token" constraintName="fk9sh6q5nyk1pmm19t235i67sxk"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="verification_token"
+                                 constraintName="fk9sh6q5nyk1pmm19t235i67sxk" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <!-- SET NULL for Nullable references -->
+        <dropForeignKeyConstraint baseTableName="additional_cost" constraintName="fkov7r0agrfyv2u9v67rd4e4hxf"/>
+        <addForeignKeyConstraint baseColumnNames="assigned_to_id" baseTableName="additional_cost"
+                                 constraintName="fkov7r0agrfyv2u9v67rd4e4hxf" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="SET NULL"/>
+
+        <dropForeignKeyConstraint baseTableName="asset" constraintName="fkmq4as1d1exvm4mg3ayokdan30"/>
+        <addForeignKeyConstraint baseColumnNames="primary_user_id" baseTableName="asset"
+                                 constraintName="fkmq4as1d1exvm4mg3ayokdan30" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="SET NULL"/>
+
+        <dropForeignKeyConstraint baseTableName="labor" constraintName="fkr5slomxbec1ob9k9npjcdad05"/>
+        <addForeignKeyConstraint baseColumnNames="assigned_to_id" baseTableName="labor"
+                                 constraintName="fkr5slomxbec1ob9k9npjcdad05" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="SET NULL"/>
+
+        <dropForeignKeyConstraint baseTableName="notification" constraintName="fk99ahq0v75lcyyue9jk2jx01xh"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="notification"
+                                 constraintName="fk99ahq0v75lcyyue9jk2jx01xh" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="SET NULL"/>
+
+        <dropForeignKeyConstraint baseTableName="task_base" constraintName="fkjuw0e6wckoo1tqast1m6baj9f"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="task_base"
+                                 constraintName="fkjuw0e6wckoo1tqast1m6baj9f" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="SET NULL"/>
+
+        <dropForeignKeyConstraint baseTableName="workflow_action" constraintName="fks2ytj9hm7fm8w9uekixsq2vip"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="workflow_action"
+                                 constraintName="fks2ytj9hm7fm8w9uekixsq2vip" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="SET NULL"/>
+
+       
+        <dropForeignKeyConstraint baseTableName="work_order" constraintName="fkac4vsg728gaycwq1w9o77uw3c"/>
+        <addForeignKeyConstraint baseColumnNames="completed_by_id" baseTableName="work_order"
+                                 constraintName="fkac4vsg728gaycwq1w9o77uw3c" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="SET NULL"/>
+
+        <dropForeignKeyConstraint baseTableName="work_order" constraintName="fknixhvhyqdk11xntyainal50tf"/>
+        <addForeignKeyConstraint baseColumnNames="primary_user_id" baseTableName="work_order"
+                                 constraintName="fknixhvhyqdk11xntyainal50tf" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="SET NULL"/>
+
+        <!-- Join Tables CASCADE -->
+        <dropForeignKeyConstraint baseTableName="t_asset_user_associations"
+                                  constraintName="fkjgn04l4eish0drw94bb50lrk3"/>
+        <addForeignKeyConstraint baseColumnNames="id_user" baseTableName="t_asset_user_associations"
+                                 constraintName="fkjgn04l4eish0drw94bb50lrk3" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="t_location_user_associations"
+                                  constraintName="fke43mw9vk8u1y3ugxjhwt19s0g"/>
+        <addForeignKeyConstraint baseColumnNames="id_user" baseTableName="t_location_user_associations"
+                                 constraintName="fke43mw9vk8u1y3ugxjhwt19s0g" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="t_meter_user_associations"
+                                  constraintName="fkctimil7gh7ea6xa1n98kea0id"/>
+        <addForeignKeyConstraint baseColumnNames="id_user" baseTableName="t_meter_user_associations"
+                                 constraintName="fkctimil7gh7ea6xa1n98kea0id" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="t_part_user_associations"
+                                  constraintName="fk82khjnm7mtmukbbuwnm5okidn"/>
+        <addForeignKeyConstraint baseColumnNames="id_user" baseTableName="t_part_user_associations"
+                                 constraintName="fk82khjnm7mtmukbbuwnm5okidn" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="t_team_user_associations"
+                                  constraintName="fk18sbate5bpyyxby399j40x7re"/>
+        <addForeignKeyConstraint baseColumnNames="id_user" baseTableName="t_team_user_associations"
+                                 constraintName="fk18sbate5bpyyxby399j40x7re" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <!-- Preventive Maintenance & Work Order assigned users join tables -->
+        <dropForeignKeyConstraint baseTableName="own_user_preventive_maintenances"
+                                  constraintName="fk9ttebk37s6yxteght7367u6hl"/>
+        <addForeignKeyConstraint baseColumnNames="own_user_id" baseTableName="own_user_preventive_maintenances"
+                                 constraintName="fk9ttebk37s6yxteght7367u6hl" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="own_user_work_orders" constraintName="fk9shb970menrny3c08rd8hqwd5"/>
+        <addForeignKeyConstraint baseColumnNames="own_user_id" baseTableName="own_user_work_orders"
+                                 constraintName="fk9shb970menrny3c08rd8hqwd5" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+    </changeSet>
 </databaseChangeLog>
