@@ -307,9 +307,4 @@
                     REFERENCES own_user (id)
                     ON DELETE CASCADE;</sql>
     </changeSet>
-    <changeSet id="1769665053004-1" author="Ibrahima G. Coulibaly">
-        <sql>
-
-        </sql>
-    </changeSet>
 </databaseChangeLog>
