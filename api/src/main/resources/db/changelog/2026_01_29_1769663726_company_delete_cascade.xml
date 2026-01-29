@@ -216,7 +216,7 @@
                                  constraintName="fks2ytj9hm7fm8w9uekixsq2vip" referencedTableName="own_user"
                                  referencedColumnNames="id" onDelete="SET NULL"/>
 
-       
+
         <dropForeignKeyConstraint baseTableName="work_order" constraintName="fkac4vsg728gaycwq1w9o77uw3c"/>
         <addForeignKeyConstraint baseColumnNames="completed_by_id" baseTableName="work_order"
                                  constraintName="fkac4vsg728gaycwq1w9o77uw3c" referencedTableName="own_user"
@@ -270,5 +270,46 @@
                                  constraintName="fk9shb970menrny3c08rd8hqwd5" referencedTableName="own_user"
                                  referencedColumnNames="id" onDelete="CASCADE"/>
 
+    </changeSet>
+    <changeSet id="1769664940012-1" author="Ibrahima G. Coulibaly">
+        <sql>
+            ALTER TABLE workflow_secondary_conditions
+            DROP
+            CONSTRAINT IF EXISTS fkghlfm1gckeadderktdefpo66s;
+
+            ALTER TABLE workflow_secondary_conditions
+            DROP
+            CONSTRAINT IF EXISTS fkshydsqbgheutdqrqsol5h9e0p;
+
+-- Recreate foreign keys with ON DELETE CASCADE
+            ALTER TABLE workflow_secondary_conditions
+                ADD CONSTRAINT fkghlfm1gckeadderktdefpo66s
+                    FOREIGN KEY (workflow_id)
+                        REFERENCES workflow (id)
+                        ON DELETE CASCADE;
+
+            ALTER TABLE workflow_secondary_conditions
+                ADD CONSTRAINT fkshydsqbgheutdqrqsol5h9e0p
+                    FOREIGN KEY (secondary_conditions_id)
+                        REFERENCES workflow_condition (id)
+                        ON DELETE CASCADE;
+        </sql>
+    </changeSet>
+    <changeSet id="1769665033608-1" author="Ibrahima G. Coulibaly">
+        <sql>ALTER TABLE push_notification_token
+        DROP
+        CONSTRAINT IF EXISTS fkrv32gwhy1ktdvrlfeg2y1pcqo;
+
+-- Recreate foreign key with ON DELETE CASCADE
+        ALTER TABLE push_notification_token
+            ADD CONSTRAINT fkrv32gwhy1ktdvrlfeg2y1pcqo
+                FOREIGN KEY (user_id)
+                    REFERENCES own_user (id)
+                    ON DELETE CASCADE;</sql>
+    </changeSet>
+    <changeSet id="1769665053004-1" author="Ibrahima G. Coulibaly">
+        <sql>
+
+        </sql>
     </changeSet>
 </databaseChangeLog>
