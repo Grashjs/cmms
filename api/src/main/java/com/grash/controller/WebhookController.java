@@ -411,7 +411,7 @@ class WebhookController {
             }
 
             Map<String, Object> newMetadata = license.getAttributes().getMetadata();
-            newMetadata.put("userCount", quantity);
+            newMetadata.put("usersCount", quantity);
             keygenService.extendLicense(licenseId, newExpiry, newMetadata);
 
             Map<String, Object> model = new HashMap<>();
