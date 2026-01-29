@@ -10,6 +10,7 @@ import com.grash.exception.CustomException;
 import com.grash.factory.StorageServiceFactory;
 import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.mapper.WorkOrderMapper;
+import com.grash.factory.MailServiceFactory;
 import com.grash.model.*;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.*;
@@ -69,7 +70,7 @@ public class WorkOrderController {
     private final FileService fileService;
     private final PartQuantityService partQuantityService;
     private final NotificationService notificationService;
-    private final EmailService2 emailService2;
+    private final MailServiceFactory mailServiceFactory;
     private final TeamService teamService;
     private final TaskService taskService;
     private final RelationService relationService;
@@ -317,9 +318,9 @@ public class WorkOrderController {
                         put("workOrderLink", frontendUrl + "/app/work-orders/" + id);
                         put("message", message);
                     }};
-                    emailService2.sendMessageUsingThymeleafTemplate(new String[]{requester.getEmail()},
+                    mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{requester.getEmail()},
                             messageSource.getMessage("request_update", null, locale), mailVariables, "requester" +
-                                    "-update.html", Helper.getLocale(user));
+                                    "-update.html", Helper.getLocale(user), null);
                 }
             }
             return workOrderMapper.toShowDto(patchedWorkOrder);
@@ -351,9 +352,9 @@ public class WorkOrderController {
                                         .getViewPermissions().contains(PermissionEntity.SETTINGS))
                                 .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
 
-                emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
+                mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
                                 .toArray(String[]::new), title, mailVariables, "deleted-work-order.html",
-                        Helper.getLocale(user));
+                        Helper.getLocale(user), null);
 
                 workOrderService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),

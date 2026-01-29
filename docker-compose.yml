@@ -60,6 +60,9 @@ services:
       PADDLE_ENVIRONMENT: ${PADDLE_ENVIRONMENT:-sandbox}
       ENABLE_CORS: ${ENABLE_CORS:-true}
       KEYGEN_PRODUCT_TOKEN: ${KEYGEN_PRODUCT_TOKEN:-}
+      MAIL_TYPE: ${MAIL_TYPE:-smtp}
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY:-}
+      SENDGRID_FROM_EMAIL: ${SENDGRID_FROM_EMAIL:-}
     ports:
       - "8080:8080"
   frontend:

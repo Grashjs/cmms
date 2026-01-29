@@ -188,7 +188,25 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-quartz</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.sendgrid</groupId>
+            <artifactId>sendgrid-java</artifactId>
+            <version>4.10.3</version>
+            <!--            <exclusions>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>com.fasterxml.jackson.core</groupId>-->
+            <!--                    <artifactId>jackson-core</artifactId>-->
+            <!--                </exclusion>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>com.fasterxml.jackson.core</groupId>-->
+            <!--                    <artifactId>jackson-annotations</artifactId>-->
+            <!--                </exclusion>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>com.fasterxml.jackson.core</groupId>-->
+            <!--                    <artifactId>jackson-databind</artifactId>-->
+            <!--                </exclusion>-->
+            <!--            </exclusions>-->
+        </dependency>
     </dependencies>
 
     <build>

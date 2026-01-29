@@ -6,6 +6,7 @@ import com.grash.dto.workOrder.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RequestMapper;
 import com.grash.mapper.WorkOrderMapper;
+import com.grash.factory.MailServiceFactory;
 import com.grash.model.*;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.PermissionEntity;
@@ -46,7 +47,7 @@ public class RequestController {
     private final NotificationService notificationService;
     private final MessageSource messageSource;
     private final WorkflowService workflowService;
-    private final EmailService2 emailService2;
+    private final MailServiceFactory mailServiceFactory;
     private final AssetService assetService;
 
     @Value("${frontend.url}")
@@ -113,9 +114,9 @@ public class RequestController {
                 put("requestTitle", createdRequest.getTitle());
                 put("requester", user.getFullName());
             }};
-            emailService2.sendMessageUsingThymeleafTemplate(usersToNotify.stream().map(OwnUser::getEmail)
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToNotify.stream().map(OwnUser::getEmail)
                     .toArray(String[]::new), messageSource.getMessage("new_request", null,
-                    Helper.getLocale(user)), mailVariables, "new-request.html", Helper.getLocale(user));
+                    Helper.getLocale(user)), mailVariables, "new-request.html", Helper.getLocale(user), null);
 
             Collection<Workflow> workflows =
                     workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_CREATED,
@@ -194,8 +195,10 @@ public class RequestController {
                     userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
                             .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
             usersToMail.add(requester);
-            emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
-                    .toArray(String[]::new), title, mailVariables, "approved-request.html", Helper.getLocale(user));
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
+                            .toArray(String[]::new), title, mailVariables, "approved-request.html",
+                    Helper.getLocale(user),
+                    null);
 
             return result;
         } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);
@@ -248,8 +251,9 @@ public class RequestController {
                     userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
                             .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
             usersToMail.add(requester);
-            emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
-                    .toArray(String[]::new), title, mailVariables, "rejected-request.html", Helper.getLocale(user));
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
+                    .toArray(String[]::new), title, mailVariables, "rejected-request.html", Helper.getLocale(user),
+                    null);
 
             return requestMapper.toShowDto(requestService.save(savedRequest));
         } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);

@@ -3,6 +3,7 @@ package com.grash.controller;
 import com.grash.dto.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
+import com.grash.factory.MailServiceFactory;
 import com.grash.model.OwnUser;
 import com.grash.model.SuperAccountRelation;
 import com.grash.repository.SuperAccountRelationRepository;
@@ -41,7 +42,7 @@ public class AuthController {
     private final UserMapper userMapper;
     private final SuperAccountRelationRepository superAccountRelationRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final EmailService2 emailService2;
+    private final MailServiceFactory mailServiceFactory;
     @Value("${frontend.url}")
     private String frontendUrl;
 
@@ -85,8 +86,9 @@ public class AuthController {
 //            put("verifyTokenLink", "gg");
 //            put("featuresLink", "s");
 //        }};
-//        emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, subject, variables, "new-work-order
-//        .html", Locale.FRENCH);
+//        mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{email}, subject,
+//        variables, "new-work-order"
+//        + ".html", Locale.FRENCH, null);
 //    }
 
     @GetMapping("/activate-account")

@@ -7,6 +7,7 @@ import com.grash.dto.paddle.BillingDetails;
 import com.grash.dto.paddle.subscription.PaddleSubscriptionData;
 import com.grash.dto.paddle.subscription.PaddleSubscriptionWebhookEvent;
 import com.grash.exception.CustomException;
+import com.grash.factory.MailServiceFactory;
 import com.grash.model.OwnUser;
 import com.grash.model.Subscription;
 import com.grash.model.enums.SubscriptionScheduledChangeType;
@@ -44,7 +45,7 @@ import java.util.stream.Collectors;
 class WebhookController {
 
     private final KeygenService keygenService;
-    private final EmailService2 emailService;
+    private final MailServiceFactory mailServiceFactory;
     private final ObjectMapper objectMapper;
     private final UserService userService;
     private final SubscriptionService subscriptionService;
@@ -344,12 +345,13 @@ class WebhookController {
             model.put("licenseKey", keygenLicenseResponse.getData().getAttributes().getKey());
             model.put("expiringAt", keygenLicenseResponse.getData().getAttributes().getExpiry());
 
-            emailService.sendMessageUsingThymeleafTemplate(
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(
                     new String[]{email},
                     "Atlas CMMS license key",
                     model,
                     "checkout-complete.html",
-                    Locale.getDefault()
+                    Locale.getDefault(),
+                    null
             );
 
             log.info("Successfully processed Paddle transaction for email: {}", email);
@@ -357,7 +359,7 @@ class WebhookController {
             log.error("Failed to process Paddle transaction", e);
 
             if (recipients != null && recipients.length > 0) {
-                emailService.sendSimpleMessage(
+                mailServiceFactory.getMailService().sendSimpleMessage(
                         recipients,
                         "Failed to process Paddle transaction",
                         "Failed to process Paddle transaction" +
@@ -417,12 +419,13 @@ class WebhookController {
             model.put("licenseKey", license.getAttributes().getKey());
             model.put("expiringAt", license.getAttributes().getExpiry());
 
-            emailService.sendMessageUsingThymeleafTemplate(
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(
                     new String[]{email},
                     "Atlas CMMS license key renewal",
                     model,
                     "checkout-complete.html",
-                    Locale.getDefault()
+                    Locale.getDefault(),
+                    null
             );
             log.info("Successfully extended license {} for Paddle subscription ID: {}", licenseId,
                     paddleSubscriptionId);
@@ -431,7 +434,7 @@ class WebhookController {
             log.error("Failed to process subscription renewal for eventId: {}", eventId, e);
 
             if (recipients != null && recipients.length > 0) {
-                emailService.sendSimpleMessage(
+                mailServiceFactory.getMailService().sendSimpleMessage(
                         recipients,
                         "Failed to process subscription renewal",
                         "Failed to process subscription renewal" +

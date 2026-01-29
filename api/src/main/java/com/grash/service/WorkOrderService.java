@@ -9,6 +9,7 @@ import com.grash.dto.license.LicenseEntitlement;
 import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
+import com.grash.factory.MailServiceFactory;
 import com.grash.model.*;
 import com.grash.model.abstracts.Cost;
 import com.grash.model.abstracts.WorkOrderBase;
@@ -56,7 +57,7 @@ public class WorkOrderService {
     private final NotificationService notificationService;
     private final WorkOrderMapper workOrderMapper;
     private final EntityManager em;
-    private final EmailService2 emailService2;
+    private final MailServiceFactory mailServiceFactory;
     private final WorkOrderCategoryService workOrderCategoryService;
     private WorkflowService workflowService;
     private final MessageSource messageSource;
@@ -169,7 +170,7 @@ public class WorkOrderService {
         Collection<OwnUser> usersToMail =
                 users.stream().filter(user -> user.isEnabled() && user.getUserSettings().shouldEmailUpdatesForWorkOrders()).collect(Collectors.toList());
         if (!usersToMail.isEmpty()) {
-            emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_wo", null, locale), mailVariables, "new-work-order.html", Helper.getLocale(users.stream().findFirst().get()));
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_wo", null, locale), mailVariables, "new-work-order.html", Helper.getLocale(users.stream().findFirst().get()));
         }
     }
 
@@ -189,7 +190,7 @@ public class WorkOrderService {
         Collection<OwnUser> usersToMail =
                 usersToNotify.stream().filter(user -> user.isEnabled() && user.getUserSettings().shouldEmailUpdatesForWorkOrders()).collect(Collectors.toList());
         if (!usersToMail.isEmpty()) {
-            emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_wo", null, locale), mailVariables, "new-work-order.html", Helper.getLocale(usersToMail.stream().findFirst().get()));
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_wo", null, locale), mailVariables, "new-work-order.html", Helper.getLocale(usersToMail.stream().findFirst().get()));
         }
     }
 

@@ -1,0 +1,253 @@
+package com.grash.service;
+
+import com.grash.dto.EmailAttachmentDTO;
+import com.grash.exception.CustomException;
+import com.sendgrid.*;
+import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.Attachments;
+import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.Email;
+import com.sendgrid.helpers.mail.objects.Personalization;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring5.SpringTemplateEngine;
+
+import jakarta.transaction.Transactional;
+
+import java.io.IOException;
+import java.util.Base64;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+@Slf4j
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class SendgridService implements MailService {
+
+    private final SpringTemplateEngine thymeleafTemplateEngine;
+    private final BrandingService brandingService;
+    private final Environment environment;
+
+    @Value("${sendgrid.api.key}")
+    private String sendGridApiKey;
+
+    @Value("${sendgrid.from.email}")
+    private String fromEmail;
+
+    private String fromName;
+
+    @Value("classpath:/static/images/logo.png")
+    private Resource resourceFile;
+
+    @Value("${api.host}")
+    private String API_HOST;
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
+
+    @Value("${mail.recipients}")
+    private String[] recipients;
+    @Value("${mail.enable}")
+    private Boolean enableEmails;
+
+    @PostConstruct
+    public void init() {
+        fromName = brandingService.getBrandConfig().getName();
+    }
+
+    /**
+     * Send simple text email
+     */
+    public void sendSimpleMessage(String[] to, String subject, String text) {
+        try {
+            if (Boolean.FALSE.equals(enableEmails))
+                return;
+            Email from = new Email(fromEmail, fromName);
+            Content content = new Content("text/plain", text);
+
+            Mail mail = new Mail();
+            mail.setFrom(from);
+            mail.setSubject(subject);
+            mail.addContent(content);
+
+            // Add recipients
+            Personalization personalization = new Personalization();
+            for (String recipient : to) {
+                personalization.addTo(new Email(recipient));
+            }
+            mail.addPersonalization(personalization);
+
+            SendGrid sg = new SendGrid(sendGridApiKey);
+            Request request = new Request();
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+
+            Response response = sg.api(request);
+
+            if (response.getStatusCode() >= 400) {
+                log.error("SendGrid error: Status={}, Body={}",
+                        response.getStatusCode(), response.getBody());
+                throw new CustomException("Failed to send email", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+            log.info("Email sent successfully. Status: {}", response.getStatusCode());
+
+        } catch (IOException e) {
+            log.error("Error sending email via SendGrid", e);
+            throw new CustomException("Failed to send email", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Send email with attachment
+     */
+    public void sendMessageWithAttachment(String to, String subject, String text,
+                                          String attachmentName, byte[] attachmentData,
+                                          String attachmentType) {
+        try {
+            if (Boolean.FALSE.equals(enableEmails))
+                return;
+            Email from = new Email(fromEmail, fromName);
+            Email recipient = new Email(to);
+            Content content = new Content("text/plain", text);
+            Mail mail = new Mail(from, subject, recipient, content);
+
+            // Add attachment
+            Attachments attachments = new Attachments();
+            String encodedAttachment = Base64.getEncoder().encodeToString(attachmentData);
+            attachments.setContent(encodedAttachment);
+            attachments.setType(attachmentType);
+            attachments.setFilename(attachmentName);
+            attachments.setDisposition("attachment");
+            mail.addAttachments(attachments);
+
+            SendGrid sg = new SendGrid(sendGridApiKey);
+            Request request = new Request();
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+
+            Response response = sg.api(request);
+
+            if (response.getStatusCode() >= 400) {
+                log.error("SendGrid error: Status={}, Body={}",
+                        response.getStatusCode(), response.getBody());
+                throw new CustomException("Failed to send email with attachment",
+                        HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+            log.info("Email with attachment sent successfully. Status: {}",
+                    response.getStatusCode());
+
+        } catch (IOException e) {
+            log.error("Error sending email with attachment via SendGrid", e);
+            throw new CustomException("Failed to send email with attachment",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Send email using Thymeleaf template
+     */
+    @Async
+    public void sendMessageUsingThymeleafTemplate(
+            String[] to, String subject, Map<String, Object> templateModel,
+            String template, Locale locale, List<EmailAttachmentDTO> attachmentDTOS) {
+
+        if (to.length == 0) return;
+        if (Boolean.FALSE.equals(enableEmails))
+            return;
+        Context thymeleafContext = new Context();
+        thymeleafContext.setLocale(locale);
+        thymeleafContext.setVariables(templateModel);
+        thymeleafContext.setVariable("environment", environment);
+        thymeleafContext.setVariable("brandConfig", brandingService.getBrandConfig());
+        thymeleafContext.setVariable("backgroundColor", brandingService.getMailBackgroundColor());
+
+        String htmlBody = thymeleafTemplateEngine.process(template, thymeleafContext);
+
+        try {
+            sendHtmlMessage(to, subject, htmlBody, attachmentDTOS);
+        } catch (IOException e) {
+            log.error("Error sending templated email", e);
+            throw new CustomException("Can't send the mail", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Send HTML email with optional attachments
+     */
+    public void sendHtmlMessage(String[] to, String subject, String htmlBody,
+                                List<EmailAttachmentDTO> attachmentDTOS) throws IOException {
+        if (Boolean.FALSE.equals(enableEmails))
+            return;
+        Email from = new Email(fromEmail, fromName);
+        Content content = new Content("text/html", htmlBody);
+
+        Mail mail = new Mail();
+        mail.setFrom(from);
+        mail.setSubject(subject);
+        mail.addContent(content);
+
+        // Add recipients
+        Personalization personalization = new Personalization();
+        for (String recipient : to) {
+            personalization.addTo(new Email(recipient));
+        }
+        mail.addPersonalization(personalization);
+
+        // Add attachments if any
+        if (attachmentDTOS != null && !attachmentDTOS.isEmpty()) {
+            for (EmailAttachmentDTO attachmentDTO : attachmentDTOS) {
+                Attachments attachment = new Attachments();
+                String encodedAttachment = Base64.getEncoder()
+                        .encodeToString(attachmentDTO.getAttachmentData());
+                attachment.setContent(encodedAttachment);
+                attachment.setType(attachmentDTO.getAttachmentType());
+                attachment.setFilename(attachmentDTO.getAttachmentName());
+                attachment.setDisposition("attachment");
+                mail.addAttachments(attachment);
+            }
+        }
+
+        SendGrid sg = new SendGrid(sendGridApiKey);
+        Request request = new Request();
+        request.setMethod(Method.POST);
+        request.setEndpoint("mail/send");
+        request.setBody(mail.build());
+
+        Response response = sg.api(request);
+
+        if (response.getStatusCode() >= 400) {
+            log.error("SendGrid error: Status={}, Body={}",
+                    response.getStatusCode(), response.getBody());
+            throw new IOException("SendGrid API error: " + response.getStatusCode());
+        }
+
+        log.info("HTML email sent successfully. Status: {}", response.getStatusCode());
+    }
+
+    /**
+     * Send email to super admins
+     */
+    public void sendMailToSuperAdmins(String subject, String text) {
+        try {
+            sendHtmlMessage(recipients, subject, text, null);
+        } catch (IOException e) {
+            log.error("Error sending email to super admins", e);
+            throw new CustomException("Failed to send email to super admins",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+}

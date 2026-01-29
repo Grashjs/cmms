@@ -86,6 +86,7 @@ frontend:
 mail:
   recipients: ${MAIL_RECIPIENTS}
   enable: ${ENABLE_EMAIL_NOTIFICATIONS}
+  type: ${MAIL_TYPE:SMTP}
 superAdmin:
   role:
     name: SuperAdministratorGrash@p;l
@@ -133,3 +134,8 @@ paddle:
 keygen:
   product-token: ${KEYGEN_PRODUCT_TOKEN}
   account-id: 1ca3e517-f3d8-473f-a45c-81069900acb7
+sendgrid:
+  api:
+    key: ${SENDGRID_API_KEY:}
+  from:
+    email: ${SENDGRID_FROM_EMAIL:}

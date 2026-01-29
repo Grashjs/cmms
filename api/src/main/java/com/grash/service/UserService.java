@@ -11,6 +11,7 @@ import com.grash.dto.license.LicensingState;
 import com.grash.event.CompanyCreatedEvent;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
+import com.grash.factory.MailServiceFactory;
 import com.grash.model.*;
 import com.grash.model.enums.RoleCode;
 import com.grash.repository.UserRepository;
@@ -40,6 +41,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 
+import java.io.IOException;
 import java.util.*;
 
 import static com.grash.utils.Consts.usageBasedLicenseLimits;
@@ -57,7 +59,7 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final Utils utils;
     private final MessageSource messageSource;
-    private final EmailService2 emailService2;
+    private final MailServiceFactory mailServiceFactory;
     private final RoleService roleService;
     private final CompanyService companyService;
     private final CurrencyService currencyService;
@@ -212,9 +214,9 @@ public class UserService {
                     user = userRepository.save(user);
                     VerificationToken newUserToken = new VerificationToken(token, user, null);
                     verificationTokenRepository.save(newUserToken);
-                    emailService2.sendMessageUsingThymeleafTemplate(new String[]{user.getEmail()},
+                    mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{user.getEmail()},
                             messageSource.getMessage("confirmation_email", null, Helper.getLocale(user)), variables,
-                            "signup.html", Helper.getLocale(user));
+                            "signup.html", Helper.getLocale(user), null);
                 } else {
                     return enableAndReturnToken(user, true, userReq);
                 }
@@ -295,9 +297,10 @@ public class UserService {
         }};
         VerificationToken newUserToken = new VerificationToken(token, user, password);
         verificationTokenRepository.save(newUserToken);
-        emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, messageSource.getMessage("password_reset"
+        mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{email},
+                messageSource.getMessage("password_reset"
                         , new String[]{brandingService.getBrandConfig().getName()}, Helper.getLocale(user)), variables,
-                "reset-password.html", Helper.getLocale(user));
+                "reset-password.html", Helper.getLocale(user), null);
         return new SuccessResponse(true, "Password changed successfully");
     }
 
@@ -330,10 +333,11 @@ public class UserService {
                 put("inviter", inviter.getFirstName() + " " + inviter.getLastName());
                 put("company", inviter.getCompany().getName());
             }};
-            emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, messageSource.getMessage(
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{email},
+                    messageSource.getMessage(
                             "invitation_to_use", new String[]{brandingService.getBrandConfig().getName()},
                             Helper.getLocale(inviter)), variables, "invite.html",
-                    Helper.getLocale(inviter));
+                    Helper.getLocale(inviter), null);
         } else throw new CustomException("Email already in use", HttpStatus.NOT_ACCEPTABLE);
     }
 
@@ -397,8 +401,8 @@ public class UserService {
         try {
             String subject = buildRegistrationEmailSubject(userSignupRequest, brandingService);
             String body = buildRegistrationEmailBody(user, userSignupRequest);
-            emailService2.sendHtmlMessage(recipients, subject, body);
-        } catch (MessagingException e) {
+            mailServiceFactory.getMailService().sendHtmlMessage(recipients, subject, body, null);
+        } catch (MessagingException | IOException e) {
             e.printStackTrace();
         }
     }
