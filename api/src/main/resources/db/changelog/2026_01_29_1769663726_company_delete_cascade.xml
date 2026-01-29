@@ -333,4 +333,37 @@
                 onDelete="CASCADE"/>
 
     </changeSet>
+    <changeSet id="1769665053006-1" author="Ibrahima G. Coulibaly">
+
+        <dropForeignKeyConstraint
+                baseTableName="work_order_customers"
+                constraintName="fk5c0105hu4penp7v2u9tmjg50w"/>
+
+        <dropForeignKeyConstraint
+                baseTableName="work_order_customers"
+                constraintName="fkglrmndromgkolt5unqykpu45u"/>
+
+        <addForeignKeyConstraint
+                baseTableName="work_order_customers"
+                baseColumnNames="work_order_id"
+                referencedTableName="work_order"
+                referencedColumnNames="id"
+                constraintName="fk5c0105hu4penp7v2u9tmjg50w"
+                onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                baseTableName="work_order_customers"
+                baseColumnNames="customers_id"
+                referencedTableName="customer"
+                referencedColumnNames="id"
+                constraintName="fkglrmndromgkolt5unqykpu45u"
+                onDelete="CASCADE"/>
+
+    </changeSet>
+    <changeSet id="1769668745339-1" author="Ibrahima G. Coulibaly">
+        <sql>
+            CREATE INDEX idx_company_demo ON company (demo);
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
