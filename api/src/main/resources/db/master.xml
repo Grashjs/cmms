@@ -178,4 +178,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_01_29_1769663726_company_delete_cascade.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_01_29_change_on_delete_set_null_to_cascade.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

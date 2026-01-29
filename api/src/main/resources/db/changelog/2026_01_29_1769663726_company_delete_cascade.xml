@@ -401,5 +401,33 @@
 
         </sql>
     </changeSet>
+    <changeSet id="1769665053007-1" author="Ibrahima G. Coulibaly">
+
+        <!-- Drop existing foreign key constraints -->
+        <dropForeignKeyConstraint
+                baseTableName="preventive_maintenance_files"
+                constraintName="fkqhoc4ma9gysgmv2445yitvs8f"/>
+        <dropForeignKeyConstraint
+                baseTableName="preventive_maintenance_files"
+                constraintName="fk8mtccux67q9rtp914y4n7jvom"/>
+
+        <!-- Recreate foreign keys with ON DELETE CASCADE -->
+        <addForeignKeyConstraint
+                baseTableName="preventive_maintenance_files"
+                baseColumnNames="preventive_maintenance_id"
+                referencedTableName="preventive_maintenance"
+                referencedColumnNames="id"
+                constraintName="fkqhoc4ma9gysgmv2445yitvs8f"
+                onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                baseTableName="preventive_maintenance_files"
+                baseColumnNames="files_id"
+                referencedTableName="file"
+                referencedColumnNames="id"
+                constraintName="fk8mtccux67q9rtp914y4n7jvom"
+                onDelete="CASCADE"/>
+
+    </changeSet>
 
 </databaseChangeLog>
