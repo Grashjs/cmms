@@ -174,6 +174,7 @@ function Hero() {
                   <CircularProgress size={'1rem'} color="primary" />
                 )
               }
+              disabled={generatingAccount}
               onClick={onSeeLiveDemo}
               size="medium"
               variant="text"
