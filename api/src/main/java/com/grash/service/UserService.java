@@ -214,9 +214,10 @@ public class UserService {
                     user = userRepository.save(user);
                     VerificationToken newUserToken = new VerificationToken(token, user, null);
                     verificationTokenRepository.save(newUserToken);
-                    mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{user.getEmail()},
-                            messageSource.getMessage("confirmation_email", null, Helper.getLocale(user)), variables,
-                            "signup.html", Helper.getLocale(user), null);
+                    if (!Boolean.TRUE.equals(userReq.getSkipMailSending()))
+                        mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{user.getEmail()},
+                                messageSource.getMessage("confirmation_email", null, Helper.getLocale(user)), variables,
+                                "signup.html", Helper.getLocale(user), null);
                 } else {
                     return enableAndReturnToken(user, true, userReq);
                 }

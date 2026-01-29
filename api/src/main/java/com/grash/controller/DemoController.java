@@ -65,6 +65,7 @@ public class DemoController {
             userSignupRequest.setCompanyName("Demo");
             userSignupRequest.setLanguage(Language.EN);
             userSignupRequest.setDemo(true);
+            userSignupRequest.setSkipMailSending(true);
             SignupSuccessResponse<OwnUser> response = userService.signup(userSignupRequest);
 
             if (response.isSuccess()) {

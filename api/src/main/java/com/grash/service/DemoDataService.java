@@ -348,6 +348,7 @@ public class DemoDataService {
         pm.setDemo(true);
 
         Schedule schedule = new Schedule(pm);
+        schedule.setDisabled(true);
         schedule.setFrequency(frequency);
         schedule.setCreatedBy(user.getId());
         schedule.setRecurrenceType(recurrenceType);
