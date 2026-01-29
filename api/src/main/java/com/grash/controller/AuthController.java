@@ -9,7 +9,6 @@ import com.grash.model.SuperAccountRelation;
 import com.grash.repository.SuperAccountRelationRepository;
 import com.grash.security.CurrentUser;
 import com.grash.security.JwtTokenProvider;
-import com.grash.service.EmailService2;
 import com.grash.service.UserService;
 import com.grash.service.VerificationTokenService;
 import io.swagger.v3.oas.annotations.Parameter;

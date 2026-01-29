@@ -178,7 +178,7 @@ public class SendgridService implements MailService {
         String htmlBody = thymeleafTemplateEngine.process(template, thymeleafContext);
 
         try {
-            sendHtmlMessage(to, subject, htmlBody, attachmentDTOS);
+            sendHtmlMessage(to, subject, htmlBody, attachmentDTOS, template);
         } catch (IOException e) {
             log.error("Error sending templated email", e);
             throw new CustomException("Can't send the mail", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -189,7 +189,7 @@ public class SendgridService implements MailService {
      * Send HTML email with optional attachments
      */
     public void sendHtmlMessage(String[] to, String subject, String htmlBody,
-                                List<EmailAttachmentDTO> attachmentDTOS) throws IOException {
+                                List<EmailAttachmentDTO> attachmentDTOS, String template) throws IOException {
         if (Boolean.FALSE.equals(enableEmails))
             return;
         Email from = new Email(fromEmail, fromName);
@@ -199,7 +199,7 @@ public class SendgridService implements MailService {
         mail.setFrom(from);
         mail.setSubject(subject);
         mail.addContent(content);
-
+        mail.addCategory(template);
         // Add recipients
         Personalization personalization = new Personalization();
         for (String recipient : to) {
@@ -236,6 +236,12 @@ public class SendgridService implements MailService {
         }
 
         log.info("HTML email sent successfully. Status: {}", response.getStatusCode());
+    }
+
+    @Override
+    public void sendHtmlMessage(String[] to, String subject, String htmlBody,
+                                List<EmailAttachmentDTO> attachmentDTOS) throws IOException {
+        sendHtmlMessage(to, subject, htmlBody, attachmentDTOS, null);
     }
 
     /**
