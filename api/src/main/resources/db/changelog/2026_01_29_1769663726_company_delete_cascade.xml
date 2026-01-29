@@ -365,5 +365,41 @@
             CREATE INDEX idx_company_demo ON company (demo);
         </sql>
     </changeSet>
+    <changeSet id="1769669767608-1" author="Ibrahima G. Coulibaly">
+        <sql>
+            CREATE INDEX idx_asset_company_id ON asset (company_id);
+            CREATE INDEX idx_asset_downtime_company_id ON asset_downtime (company_id);
+            CREATE INDEX idx_deprecation_company_id ON deprecation (company_id);
+            CREATE INDEX idx_file_company_id ON file (company_id);
+            CREATE INDEX idx_location_company_id ON location (company_id);
+            CREATE INDEX idx_meter_company_id ON meter (company_id);
+            CREATE INDEX idx_multi_parts_company_id ON multi_parts (company_id);
+            CREATE INDEX idx_part_company_id ON part (company_id);
+            CREATE INDEX idx_part_consumption_company_id ON part_consumption (company_id);
+            CREATE INDEX idx_part_quantity_company_id ON part_quantity (company_id);
+            CREATE INDEX idx_purchase_order_company_id ON purchase_order (company_id);
+            CREATE INDEX idx_relation_company_id ON relation (company_id);
+            CREATE INDEX idx_subscription_change_request_company_id ON subscription_change_request (company_id);
+            CREATE INDEX idx_task_company_id ON task (company_id);
+            CREATE INDEX idx_task_base_company_id ON task_base (company_id);
+            CREATE INDEX idx_task_option_company_id ON task_option (company_id);
+            CREATE INDEX idx_team_company_id ON team (company_id);
+            CREATE INDEX idx_workflow_company_id ON workflow (company_id);
+            CREATE INDEX idx_workflow_action_company_id ON workflow_action (company_id);
+            CREATE INDEX idx_workflow_condition_company_id ON workflow_condition (company_id);
+            CREATE INDEX idx_customer_company_id ON customer (company_id);
+            CREATE INDEX idx_vendor_company_id ON vendor (company_id);
+            CREATE INDEX idx_labor_company_id ON labor (company_id);
+            CREATE INDEX idx_preventive_maintenance_company_id ON preventive_maintenance (company_id);
+            CREATE INDEX idx_request_company_id ON request (company_id);
+            CREATE INDEX idx_work_order_company_id ON work_order (company_id);
+            CREATE INDEX idx_work_order_meter_trigger_company_id ON work_order_meter_trigger (company_id);
+
+-- Indexes for other major tables with company_id
+            CREATE INDEX idx_own_user_company_id ON own_user (company_id);
+            CREATE INDEX idx_company_settings_company_id ON company_settings (company_id);
+
+        </sql>
+    </changeSet>
 
 </databaseChangeLog>
