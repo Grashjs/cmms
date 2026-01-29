@@ -410,7 +410,9 @@ class WebhookController {
                 throw new RuntimeException("next_billed_at is null for paddle subscription " + paddleSubscriptionId);
             }
 
-            keygenService.extendLicense(licenseId, newExpiry);
+            Map<String, Object> newMetadata = license.getAttributes().getMetadata();
+            newMetadata.put("userCount", quantity);
+            keygenService.extendLicense(licenseId, newExpiry, newMetadata);
 
             Map<String, Object> model = new HashMap<>();
             model.put("name", customerName);

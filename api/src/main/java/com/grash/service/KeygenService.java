@@ -164,12 +164,13 @@ public class KeygenService {
         return response.getBody();
     }
 
-    public void extendLicense(String licenseId, String newExpiry) {
+    public void extendLicense(String licenseId, String newExpiry, Map<String, Object> metadata) {
         String url = String.format("https://api.keygen.sh/v1/accounts/%s/licenses/%s",
                 keygenAccountId, licenseId);
 
         KeygenLicenseUpdateAttributes attributes = new KeygenLicenseUpdateAttributes();
         attributes.setExpiry(newExpiry);
+        attributes.setMetadata(metadata);
 
         KeygenLicenseUpdateData data = new KeygenLicenseUpdateData("licenses", attributes);
         KeygenLicenseUpdateRequest request = new KeygenLicenseUpdateRequest(data);
