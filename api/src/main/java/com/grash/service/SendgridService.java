@@ -188,8 +188,8 @@ public class SendgridService implements MailService {
     /**
      * Send HTML email with optional attachments
      */
-    public void sendHtmlMessage(String[] to, String subject, String htmlBody,
-                                List<EmailAttachmentDTO> attachmentDTOS, String template) throws IOException {
+    private void sendHtmlMessage(String[] to, String subject, String htmlBody,
+                                 List<EmailAttachmentDTO> attachmentDTOS, String template) throws IOException {
         if (shouldSkipSendingEmail())
             return;
         if (to != null && Arrays.stream(to).allMatch(recipient -> recipient != null && recipient.toLowerCase().endsWith("@demo.com")))
