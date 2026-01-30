@@ -41,6 +41,10 @@ function Overview() {
   const navigate = useNavigate();
   const brandConfig = useBrand();
 
+  useEffect(() => {
+    if (!isCloudVersion) navigate('/account/login');
+  }, [isCloudVersion]);
+
   return (
     <OverviewWrapper>
       <Helmet>
