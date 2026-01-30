@@ -31,9 +31,11 @@ function UserProfile() {
 
   const onDeleteAccount = async () => {
     if (window.confirm('Are you sure you want to delete your account?')) {
-      await api.deletes<{ success: boolean }>(`auth`);
-      logout();
-      navigate('/');
+      const { success } = await api.deletes<{ success: boolean }>(`auth`);
+      if (success) {
+        logout();
+        navigate('/');
+      }
     }
   };
 
