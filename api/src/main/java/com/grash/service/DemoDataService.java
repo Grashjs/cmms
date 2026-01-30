@@ -361,7 +361,7 @@ public class DemoDataService {
         pm.setSchedule(schedule);
 
         pm = preventiveMaintenanceRepository.save(pm);
-        scheduleService.scheduleWorkOrder(pm.getSchedule());
+//        scheduleService.scheduleWorkOrder(pm.getSchedule());
         return pm;
     }
 
