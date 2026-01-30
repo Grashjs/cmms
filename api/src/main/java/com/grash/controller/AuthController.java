@@ -4,11 +4,14 @@ import com.grash.dto.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
 import com.grash.factory.MailServiceFactory;
+import com.grash.model.Company;
 import com.grash.model.OwnUser;
 import com.grash.model.SuperAccountRelation;
 import com.grash.repository.SuperAccountRelationRepository;
+import com.grash.repository.UserRepository;
 import com.grash.security.CurrentUser;
 import com.grash.security.JwtTokenProvider;
+import com.grash.service.CompanyService;
 import com.grash.service.UserService;
 import com.grash.service.VerificationTokenService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -42,6 +45,8 @@ public class AuthController {
     private final SuperAccountRelationRepository superAccountRelationRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final MailServiceFactory mailServiceFactory;
+    private final CompanyService companyService;
+    private final UserRepository userRepository;
     @Value("${frontend.url}")
     private String frontendUrl;
 
@@ -189,6 +194,16 @@ public class AuthController {
         }
         throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
+
+    @DeleteMapping("")
+    @PreAuthorize("permitAll()")
+    public SuccessResponse deleteAccount(@Parameter(hidden = true) @CurrentUser OwnUser user) {
+        if (user.isOwnsCompany())
+            companyService.delete(user.getCompany().getId());
+        else userRepository.delete(user);
+        return new SuccessResponse(true, "Account deleted successfully");
+    }
+
 }
 
 

@@ -1494,7 +1494,8 @@ const esJSON = {
   'schedule.monthly_one': 'Cada {{count}} mes',
   'schedule.monthly_other': 'Cada {{count}} meses',
   'schedule.yearly_one': 'Cada {{count}} año',
-  'schedule.yearly_other': 'Cada {{count}} años'
+  'schedule.yearly_other': 'Cada {{count}} años',
+  delete_account: 'Eliminar cuenta'
 };
 
 export default esJSON;

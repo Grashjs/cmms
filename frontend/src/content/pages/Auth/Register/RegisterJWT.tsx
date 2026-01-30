@@ -75,9 +75,7 @@ function RegisterJWT({
       firstName: Yup.string().max(255).required(t('required_firstName')),
       lastName: Yup.string().max(255).required(t('required_lastName')),
       companyName: Yup.string().max(255).required(t('required_company')),
-      countryCode: invitationMode
-        ? Yup.object().nullable()
-        : Yup.object().required(t('required_field')),
+      countryCode: Yup.object().nullable(),
       employeesCount: Yup.number()
         .min(0)
         .required(t('required_employeesCount')),

@@ -1444,7 +1444,8 @@ const locale = {
   no_recent_work_orders: 'No recent work orders',
   recent_work_orders: 'Recent work orders',
   subscription_will_cancel_on: 'Subscription will cancel on {{date}}',
-  open_api_docs: 'Open API docs'
+  open_api_docs: 'Open API docs',
+  delete_account: 'Delete account'
 };
 
 export default locale;
