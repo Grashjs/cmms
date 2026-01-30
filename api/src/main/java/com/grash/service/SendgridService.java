@@ -23,10 +23,7 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 import jakarta.transaction.Transactional;
 
 import java.io.IOException;
-import java.util.Base64;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -194,6 +191,8 @@ public class SendgridService implements MailService {
     public void sendHtmlMessage(String[] to, String subject, String htmlBody,
                                 List<EmailAttachmentDTO> attachmentDTOS, String template) throws IOException {
         if (shouldSkipSendingEmail())
+            return;
+        if (to != null && Arrays.stream(to).allMatch(recipient -> recipient != null && recipient.toLowerCase().endsWith("@demo.com")))
             return;
         Email from = new Email(fromEmail, fromName);
         Content content = new Content("text/html", htmlBody);
