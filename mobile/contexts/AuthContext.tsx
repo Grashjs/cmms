@@ -753,7 +753,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       return;
     }
 
-    await api.deletes<{ success: boolean }>(`auth`, state.user);
+    await api.deletes<{ success: boolean }>(`auth`);
   };
 
   const register = async (values): Promise<void> => {
