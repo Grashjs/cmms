@@ -46,4 +46,6 @@ public interface UserRepository extends JpaRepository<OwnUser, Long>, JpaSpecifi
             "role.role_type!=0 AND " +
             "company.demo=false OFFSET :threshold LIMIT 1)", nativeQuery = true)
     boolean hasMorePaidUsersThan(@Param("threshold") int threshold);
+
+    void deleteAllByCompanyDemoTrue();
 }

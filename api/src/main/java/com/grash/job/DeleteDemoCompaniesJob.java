@@ -2,6 +2,7 @@ package com.grash.job;
 
 import com.grash.model.Company;
 import com.grash.repository.CompanyRepository;
+import com.grash.repository.UserRepository;
 import com.grash.service.CompanyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,11 +18,12 @@ import java.util.List;
 public class DeleteDemoCompaniesJob implements Job {
 
     private final CompanyRepository companyRepository;
-    private final CompanyService companyService;
+    private final UserRepository userRepository;
 
     @Override
     public void execute(JobExecutionContext context) {
         log.info("Deleting demo companies");
+        userRepository.deleteAllByCompanyDemoTrue();
         companyRepository.deleteAllByDemoTrue();
         log.info("Deleted demo companies");
     }
