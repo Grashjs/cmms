@@ -18,12 +18,10 @@ import java.util.List;
 public class DeleteDemoCompaniesJob implements Job {
 
     private final CompanyRepository companyRepository;
-    private final UserRepository userRepository;
 
     @Override
     public void execute(JobExecutionContext context) {
         log.info("Deleting demo companies");
-        userRepository.deleteAllByCompanyDemoTrue();
         companyRepository.deleteAllByDemoTrue();
         log.info("Deleted demo companies");
     }
