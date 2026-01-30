@@ -54,15 +54,12 @@ public class VerificationTokenService {
         return verificationToken;
     }
 
-    public AuthResponse confirmMail(String token) throws Exception {
+    public String confirmMail(String token) throws Exception {
 
         OwnUser user = verifyToken(token).getUser();
         //valid token
         userService.enableUser(user.getEmail());
-        String message = "Account successfully activated !";
-
-        return new AuthResponse(jwtTokenProvider.createToken(user.getEmail(),
-                Arrays.asList(user.getRole().getRoleType())));
+        return user.getEmail();
     }
 
     public OwnUser confirmResetPassword(String token) throws Exception {

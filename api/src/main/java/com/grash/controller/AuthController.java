@@ -95,8 +95,9 @@ public class AuthController {
             @RequestParam String token, HttpServletResponse httpServletResponse
     ) {
         try {
-            verificationTokenService.confirmMail(token);
-            httpServletResponse.setHeader("Location", frontendUrl + "/account/login");
+            String email = verificationTokenService.confirmMail(token);
+            httpServletResponse.setHeader("Location",
+                    frontendUrl + "/account/login?email=" + email);
         } catch (Exception ex) {
             httpServletResponse.setHeader("Location", frontendUrl + "/account/register");
         }
