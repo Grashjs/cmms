@@ -84,7 +84,7 @@ import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import AssetStatusTag from './components/AssetStatusTag';
 import { getErrorMessage } from '../../../utils/api';
 
-const HIERARCHY_ZERO_PAGE_SIZE = 10;
+const HIERARCHY_ZERO_PAGE_SIZE = 40;
 
 function Assets() {
   const { t }: { t: any } = useTranslation();
