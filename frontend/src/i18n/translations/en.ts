@@ -12,6 +12,7 @@ const locale = {
   IN_PROGRESS: 'In Progress',
   ON_HOLD: 'On Hold',
   COMPLETE: 'Complete',
+  fetch_more: 'Fetch More',
   'home.built': 'Built to Make Managing Maintenance Easier',
   home_description:
     "When whiteboards and sticky notes are chaos, and you need a CMMS software that's easy enough for your team to actually use - try {{shortBrandName}}",

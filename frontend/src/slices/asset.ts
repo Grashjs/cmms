@@ -275,6 +275,6 @@ export const resetAssetsHierarchy =
   (callApi: boolean): AppThunk =>
   async (dispatch) => {
     dispatch(slice.actions.resetHierarchy({}));
-    if (callApi) dispatch(getAssetChildren(0, [], { page: 0, size: 1000 }));
+    if (callApi) dispatch(getAssetChildren(0, [], { page: 0, size: 10 }));
   };
 export default slice;

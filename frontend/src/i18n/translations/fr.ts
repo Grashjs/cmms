@@ -119,7 +119,7 @@ const frJSON = {
   IN_PROGRESS: 'En cours',
   ON_HOLD: 'En attente',
   COMPLETE: 'Terminé',
-  //home
+  fetch_more: 'Charger plus',
   'home.built': 'Conçu pour faciliter la gestion de la maintenance',
   home_description:
     "Lorsque les tableaux blancs et les notes autocollantes sont chaotiques et que vous avez besoin d'un logiciel de GMAO suffisamment facile à utiliser pour votre équipe, essayez {{shortBrandName}}",
