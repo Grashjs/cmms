@@ -22,6 +22,7 @@ interface AssetState {
   assetsByPart: { [key: number]: AssetDTO[] };
   assetsMini: AssetMiniDTO[];
   loadingGet: boolean;
+  loadingHierarchy: boolean;
 }
 
 const initialState: AssetState = {
@@ -31,7 +32,8 @@ const initialState: AssetState = {
   assetsByLocation: {},
   assetsByPart: {},
   assetsMini: [],
-  loadingGet: false
+  loadingGet: false,
+  loadingHierarchy: false
 };
 
 const slice = createSlice({
@@ -76,6 +78,13 @@ const slice = createSlice({
     ) {
       const { loading } = action.payload;
       state.loadingGet = loading;
+    },
+    setLoadingHierarchy(
+      state: AssetState,
+      action: PayloadAction<{ loading: boolean }>
+    ) {
+      const { loading } = action.payload;
+      state.loadingHierarchy = loading;
     },
     getAssetChildren(
       state: AssetState,
@@ -199,7 +208,7 @@ export const deleteAsset =
 export const getAssetChildren =
   (id: number, parents: number[], pageable: Pageable): AppThunk =>
   async (dispatch) => {
-    dispatch(slice.actions.setLoadingGet({ loading: true }));
+    dispatch(slice.actions.setLoadingHierarchy({ loading: true }));
     const assets = await api.get<AssetDTO[]>(
       `${basePath}/children/${id}?${pageableToQueryParams(pageable)}`
     );
@@ -211,7 +220,7 @@ export const getAssetChildren =
         })
       })
     );
-    dispatch(slice.actions.setLoadingGet({ loading: false }));
+    dispatch(slice.actions.setLoadingHierarchy({ loading: false }));
   };
 
 export const getAssetDetails =

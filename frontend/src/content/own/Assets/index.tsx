@@ -102,7 +102,7 @@ function Assets() {
   } = useAuth();
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
   const dispatch = useDispatch();
-  const { assetsHierarchy, loadingGet, assets } = useSelector(
+  const { assetsHierarchy, loadingGet, loadingHierarchy, assets } = useSelector(
     (state) => state.assets
   );
   const { loadingExport } = useSelector((state) => state.exports);
@@ -790,7 +790,7 @@ function Assets() {
               {view === 'hierarchy' &&
                 assetsHierarchy.length >= HIERARCHY_ZERO_PAGE_SIZE &&
                 assetsHierarchy.length % HIERARCHY_ZERO_PAGE_SIZE === 0 && (
-                  <Button onClick={fetchMore} disabled={loadingGet}>
+                  <Button onClick={fetchMore} disabled={loadingHierarchy}>
                     {t('fetch_more')}
                   </Button>
                 )}
@@ -840,7 +840,7 @@ function Assets() {
                     : [row.id.toString()]
                 }
                 disableColumnFilter
-                loading={loadingGet}
+                loading={loadingHierarchy}
                 groupingColDef={
                   view === 'hierarchy' ? groupingColDef : undefined
                 }
