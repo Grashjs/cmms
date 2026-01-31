@@ -10,6 +10,7 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,6 +25,7 @@ public class DeleteDemoCompaniesJob implements Job {
     private boolean cloudVersion;
 
     @Override
+    @Transactional
     public void execute(JobExecutionContext context) {
         if (!cloudVersion) {
             return;
