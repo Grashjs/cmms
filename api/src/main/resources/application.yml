@@ -90,9 +90,6 @@ mail:
 superAdmin:
   role:
     name: SuperAdministratorGrash@p;l
-fast-spring:
-  username: ${FASTSPRING_USER}
-  password: ${FASTSPRING_PWD}
 management:
   health:
     mail:
