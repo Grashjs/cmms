@@ -8,11 +8,22 @@ import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 
 const TabsContainerWrapper = styled(Box)(
   ({ theme }) => `
-      padding: 0 ${theme.spacing(8)};
+      padding: 0 ${theme.spacing(2)};
       margin-top: 2px;
       position: relative;
       bottom: -1px;
-      max-width: 82%;
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+
+      ${theme.breakpoints.up('sm')} {
+        padding: 0 ${theme.spacing(4)};
+      }
+
+      ${theme.breakpoints.up('md')} {
+        padding: 0 ${theme.spacing(8)};
+        max-width: 82%;
+      }
 
       .MuiTabs-root {
         height: 44px;
@@ -21,6 +32,7 @@ const TabsContainerWrapper = styled(Box)(
 
       .MuiTabs-scrollableX {
         overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
       }
 
       .MuiTabs-indicator {
@@ -56,6 +68,14 @@ const TabsContainerWrapper = styled(Box)(
               color: ${theme.colors.alpha.black[80]};
               border-bottom-left-radius: 0;
               border-bottom-right-radius: 0;
+              white-space: nowrap;
+              min-width: auto;
+              padding: ${theme.spacing(1, 2)};
+
+              ${theme.breakpoints.down('sm')} {
+                font-size: ${theme.typography.pxToRem(12)};
+                padding: ${theme.spacing(1, 1.5)};
+              }
 
               .MuiTouchRipple-root {
                 opacity: .1;
@@ -133,13 +153,19 @@ function MultipleTabsLayout(props: SettingsLayoutProps) {
       <Helmet>
         <title>{title}</title>
       </Helmet>
-      <Box display="flex" justifyContent="space-between">
+      <Box 
+        display="flex" 
+        flexDirection={{ xs: 'column', md: 'row' }}
+        justifyContent="space-between"
+        alignItems={{ xs: 'stretch', md: 'flex-start' }}
+      >
         <TabsContainerWrapper>
           <Tabs
             onChange={handleTabsChange}
             value={currentTab}
             variant="scrollable"
             scrollButtons="auto"
+            allowScrollButtonsMobile
             textColor="primary"
             indicatorColor="primary"
           >
@@ -148,12 +174,27 @@ function MultipleTabsLayout(props: SettingsLayoutProps) {
             ))}
           </Tabs>
         </TabsContainerWrapper>
-        <Stack direction="row" spacing={1} sx={{ mr: 4, my: 1 }}>
+        <Stack 
+          direction="row" 
+          spacing={1} 
+          sx={{ 
+            mr: { xs: 2, md: 4 }, 
+            ml: { xs: 2, md: 0 },
+            my: 1,
+            justifyContent: { xs: 'flex-end', md: 'flex-start' },
+            flexShrink: 0
+          }}
+        >
           {action && (
             <Button
               startIcon={editAction ? <EditTwoToneIcon /> : <AddTwoToneIcon />}
               variant="contained"
               onClick={action}
+              size="medium"
+              sx={{
+                whiteSpace: 'nowrap',
+                fontSize: { xs: '0.8125rem', md: '0.875rem' }
+              }}
             >
               {actionTitle}
             </Button>
@@ -163,6 +204,11 @@ function MultipleTabsLayout(props: SettingsLayoutProps) {
               startIcon={secondActionIcon}
               variant="outlined"
               onClick={secondAction}
+              size="medium"
+              sx={{
+                whiteSpace: 'nowrap',
+                fontSize: { xs: '0.8125rem', md: '0.875rem' }
+              }}
             >
               {secondActionTitle}
             </Button>
@@ -175,7 +221,7 @@ function MultipleTabsLayout(props: SettingsLayoutProps) {
         <Card
           variant="outlined"
           sx={{
-            mx: 4
+            mx: { xs: 1, sm: 2, md: 4 }
           }}
         >
           {children}
