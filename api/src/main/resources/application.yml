@@ -28,8 +28,8 @@ spring:
     encoding: UTF-8
   servlet:
     multipart:
-      max-request-size: 7MB
-      max-file-size: 7MB
+      max-request-size: 100MB
+      max-file-size: 35MB
   profiles:
     active: dev
   mvc:
