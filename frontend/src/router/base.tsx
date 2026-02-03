@@ -37,6 +37,10 @@ const DeletionPolicy = Loader(
   lazy(() => import('../content/own/deletionPolicy'))
 );
 const Landing = Loader(lazy(() => import('../content/landing')));
+const EnergyPage = Loader(lazy(() => import('../content/landing/Energy')));
+const FacilityManagement = Loader(
+  lazy(() => import('../content/landing/FacilityManagement'))
+);
 
 const baseRoutes = [
   {
@@ -46,6 +50,14 @@ const baseRoutes = [
   {
     path: 'free-cmms',
     element: <Landing />
+  },
+  {
+    path: '/industries/open-source-energy-utilities-maintenance-software',
+    element: <EnergyPage />
+  },
+  {
+    path: '/industries/open-source-facility-management-software',
+    element: <FacilityManagement />
   },
   {
     path: 'pricing',

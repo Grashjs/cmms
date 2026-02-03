@@ -5,7 +5,7 @@ import NavBar from '../../components/NavBar';
 import HeroFree from './HeroFree';
 import { Footer } from '../../components/Footer';
 
-const OverviewWrapper = styled(Box)(
+export const OverviewWrapper = styled(Box)(
   ({ theme }) => `
     overflow: auto;
     background: ${theme.palette.common.white};
