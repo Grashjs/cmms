@@ -49,10 +49,10 @@ function Overview() {
     <OverviewWrapper>
       <Helmet>
         <title>
-          {brandConfig.name}
           {IS_ORIGINAL_CLOUD
-            ? ' - Open-Source Maintenance Management Software | Free CMMS'
+            ? 'Free Open-Source CMMS (Maintenance Management) – '
             : ''}
+          {brandConfig.name}
         </title>
       </Helmet>
       <NavBar />
