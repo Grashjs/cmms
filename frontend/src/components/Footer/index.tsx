@@ -80,14 +80,15 @@ export function Footer() {
               <FooterLink href="/pricing">Pricing</FooterLink>
               <FooterLink href="/privacy">Privacy Policy</FooterLink>
               <FooterLink href="/terms-of-service">Terms of Service</FooterLink>
-            </Stack>
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <SectionHeading variant="h5">Social</SectionHeading>
-            <Stack direction="row" spacing={2}>
               <FooterLink href="https://www.linkedin.com/company/91710999">
                 <LinkedIn />
               </FooterLink>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <SectionHeading variant="h5">Product</SectionHeading>
+            <Stack direction="row" spacing={2}>
+              <FooterLink href="/free-cmms">Free CMMS</FooterLink>
               {/*<FooterLink href="#">*/}
               {/*  <Twitter />*/}
               {/*</FooterLink>*/}
