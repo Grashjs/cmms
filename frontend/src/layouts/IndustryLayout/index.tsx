@@ -122,7 +122,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
                 component="img"
                 src={headerImageUrl}
                 alt={headerTitle}
-                sx={{ width: '100%' }}
+                sx={{ width: '100%', borderRadius: '16px' }}
               />
             </Grid>
           </Grid>
