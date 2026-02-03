@@ -62,6 +62,14 @@ function GeneralSettings() {
     () => debounce(onDaysBeforePMNotifChange, 1300),
     []
   );
+  const onCsvSeparatorChange = (event) =>
+    patchGeneralPreferences({
+      csvSeparator: event.target.value
+    }).then(() => showSnackBar(t('changes_saved_success'), 'success'));
+  const debouncedCsvSeparatorChange = useMemo(
+    () => debounce(onCsvSeparatorChange, 1300),
+    []
+  );
   const onDeleteDemoData = async () => {
     const { success, message } = await api.deletes<{
       success: boolean;
@@ -243,6 +251,18 @@ function GeneralSettings() {
                           >{`${currency.name} - ${currency.code}`}</MenuItem>
                         ))}
                       </TextField>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="h6" sx={{ mb: 0.5 }}>
+                        {t('csv_separator')}
+                      </Typography>
+                      <TextField
+                        onChange={debouncedCsvSeparatorChange}
+                        type={'text'}
+                        defaultValue={generalPreferences.csvSeparator}
+                        name="csvSeparator"
+                        sx={{ maxWidth: '50px' }}
+                      />
                     </Grid>
                     {/*<Grid item xs={12}>
                         <Typography variant="h6" sx={{ mb: 0.5 }}>

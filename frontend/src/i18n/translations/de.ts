@@ -1509,7 +1509,8 @@ const deJSON = {
     'Upgrade-Anfrage erhalten! Wir kontaktieren Sie in Kürze mit den Zahlungsdetails',
   continue_with_sso: 'Weiter mit SSO',
   see_live_demo: 'Live-Demo ansehen',
-  delete_account: 'Konto löschen'
+  delete_account: 'Konto löschen',
+  csv_separator: 'CSV-Trennzeichen'
 };
 
 export default deJSON;

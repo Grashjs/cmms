@@ -1503,7 +1503,8 @@ const ptBRJSON = {
   'schedule.monthly_one': 'A cada {{count}} mês',
   'schedule.monthly_other': 'A cada {{count}} meses',
   'schedule.yearly_one': 'A cada {{count}} ano',
-  'schedule.yearly_other': 'A cada {{count}} anos'
+  'schedule.yearly_other': 'A cada {{count}} anos',
+  csv_separator: 'Separador CSV'
 };
 
 export default ptBRJSON;

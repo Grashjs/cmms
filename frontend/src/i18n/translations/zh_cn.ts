@@ -1198,7 +1198,8 @@ const locale = {
   settings: '设置',
   people: '人员',
   teams: '团队',
-  vendors: '供应商'
+  vendors: '供应商',
+  csv_separator: 'CSV分隔符'
 };
 
 export default locale;

@@ -1495,7 +1495,8 @@ const esJSON = {
   'schedule.monthly_other': 'Cada {{count}} meses',
   'schedule.yearly_one': 'Cada {{count}} año',
   'schedule.yearly_other': 'Cada {{count}} años',
-  delete_account: 'Eliminar cuenta'
+  delete_account: 'Eliminar cuenta',
+  csv_separator: 'Separador CSV'
 };
 
 export default esJSON;

@@ -1478,6 +1478,7 @@ const locale = {
   top_level: 'Hoofdniveau',
   no_results_found: 'Geen resultaten gevonden',
   no_sub_assets: 'Geen sub-assets',
-  no_assets_available: 'Geen assets beschikbaar'
+  no_assets_available: 'Geen assets beschikbaar',
+  csv_separator: 'CSV scheidingsteken'
 };
 export default locale;

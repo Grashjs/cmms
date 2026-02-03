@@ -180,4 +180,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_01_29_change_on_delete_set_null_to_cascade.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_02_03_1770129474_csv_sep_settings.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

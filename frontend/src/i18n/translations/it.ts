@@ -1478,7 +1478,8 @@ const locale = {
   'schedule.monthly_one': 'Ogni {{count}} mese',
   'schedule.monthly_other': 'Ogni {{count}} mesi',
   'schedule.yearly_one': 'Ogni {{count}} anno',
-  'schedule.yearly_other': 'Ogni {{count}} anni'
+  'schedule.yearly_other': 'Ogni {{count}} anni',
+  csv_separator: 'Separatore CSV'
 };
 
 export default locale;

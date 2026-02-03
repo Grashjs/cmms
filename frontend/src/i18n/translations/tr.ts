@@ -1491,7 +1491,8 @@ const trJSON = {
   'schedule.monthly_one': 'Her {{count}} ay',
   'schedule.monthly_other': 'Her {{count}} ay',
   'schedule.yearly_one': 'Her {{count}} yıl',
-  'schedule.yearly_other': 'Her {{count}} yıl'
+  'schedule.yearly_other': 'Her {{count}} yıl',
+  csv_separator: 'CSV ayırıcı'
 };
 
 export default trJSON;

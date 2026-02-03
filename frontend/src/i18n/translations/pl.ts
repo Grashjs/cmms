@@ -1480,7 +1480,8 @@ const plJSON = {
   'schedule.monthly_one': 'Co {{count}} miesiąc',
   'schedule.monthly_other': 'Co {{count}} miesięcy',
   'schedule.yearly_one': 'Co {{count}} rok',
-  'schedule.yearly_other': 'Co {{count}} lat'
+  'schedule.yearly_other': 'Co {{count}} lat',
+  csv_separator: 'Separator CSV'
 };
 
 export default plJSON;

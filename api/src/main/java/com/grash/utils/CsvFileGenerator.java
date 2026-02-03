@@ -2,6 +2,7 @@ package com.grash.utils;
 
 import com.grash.model.*;
 import com.grash.service.AssetDowntimeService;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -22,16 +23,23 @@ public class CsvFileGenerator {
     private final MessageSource messageSource;
     private final AssetDowntimeService assetDowntimeService;
 
-    public void writeWorkOrdersToCsv(Collection<WorkOrder> workOrders, Writer writer, Locale locale) {
+    public void writeWorkOrdersToCsv(Collection<WorkOrder> workOrders, Writer writer, Locale locale,
+                                     String csvSeparator) {
         try {
-            CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT);
-            List<String> headers = Arrays.asList("ID", "Title", "Status", "Priority", "Description", "Due_Date", "Estimated_Duration", "Requires_Signature", "Category", "Location_Name", "Team_Name", "Primary_User_Email", "Assigned_To_Emails", "Asset_Name", "Completed_By_Email", "Completed_On", "Archived", "Feedback", "Customers", "Created_At");
+            CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
+            CSVPrinter printer = new CSVPrinter(writer, csvFormat);
+            List<String> headers = Arrays.asList("ID", "Title", "Status", "Priority", "Description", "Due_Date",
+                    "Estimated_Duration", "Requires_Signature", "Category", "Location_Name", "Team_Name",
+                    "Primary_User_Email", "Assigned_To_Emails", "Asset_Name", "Completed_By_Email", "Completed_On",
+                    "Archived", "Feedback", "Customers", "Created_At");
             printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
             for (WorkOrder workOrder : workOrders) {
                 printer.printRecord(workOrder.getId(),
                         workOrder.getTitle(),
-                        workOrder.getStatus() == null ? null : messageSource.getMessage(workOrder.getStatus().toString(), null, locale),
-                        workOrder.getPriority() == null ? null : messageSource.getMessage(workOrder.getPriority().toString(), null, locale),
+                        workOrder.getStatus() == null ? null :
+                                messageSource.getMessage(workOrder.getStatus().toString(), null, locale),
+                        workOrder.getPriority() == null ? null :
+                                messageSource.getMessage(workOrder.getPriority().toString(), null, locale),
                         workOrder.getDescription(),
                         workOrder.getDueDate(),
                         workOrder.getEstimatedDuration(),
@@ -56,9 +64,10 @@ public class CsvFileGenerator {
         }
     }
 
-    public void writeAssetsToCsv(Collection<Asset> assets, Writer writer, Locale locale) {
+    public void writeAssetsToCsv(Collection<Asset> assets, Writer writer, Locale locale, String csvSeparator) {
         try {
-            CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT);
+            CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
+            CSVPrinter printer = new CSVPrinter(writer, csvFormat);
             List<String> headers = Arrays.asList("ID", "Name",
                     "Description",
                     "Status",
@@ -83,7 +92,7 @@ public class CsvFileGenerator {
                 Collection<AssetDowntime> downtimes = assetDowntimeService.findByAsset(asset.getId());
                 long downTimeDuration = downtimes.stream().map(AssetDowntime::getDuration)
                         .reduce(0L, Long::sum);
-                
+
                 printer.printRecord(asset.getId(),
                         asset.getName(),
                         asset.getDescription(),
@@ -112,9 +121,10 @@ public class CsvFileGenerator {
         }
     }
 
-    public void writeLocationsToCsv(Collection<Location> locations, Writer writer, Locale locale) {
+    public void writeLocationsToCsv(Collection<Location> locations, Writer writer, Locale locale, String csvSeparator) {
         try {
-            CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT);
+            CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
+            CSVPrinter printer = new CSVPrinter(writer, csvFormat);
             List<String> headers = Arrays.asList("ID", "Name",
                     "Address",
                     "Parent_Location",
@@ -140,9 +150,10 @@ public class CsvFileGenerator {
         }
     }
 
-    public void writePartsToCsv(Collection<Part> parts, Writer writer, Locale locale) {
+    public void writePartsToCsv(Collection<Part> parts, Writer writer, Locale locale, String csvSeparator) {
         try {
-            CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT);
+            CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
+            CSVPrinter printer = new CSVPrinter(writer, csvFormat);
             List<String> headers = Arrays.asList("ID", "Name",
                     "Cost",
                     "Category",
@@ -183,9 +194,10 @@ public class CsvFileGenerator {
         }
     }
 
-    public void writeMetersToCsv(Collection<Meter> meters, Writer writer, Locale locale) {
+    public void writeMetersToCsv(Collection<Meter> meters, Writer writer, Locale locale, String csvSeparator) {
         try {
-            CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT);
+            CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
+            CSVPrinter printer = new CSVPrinter(writer, csvFormat);
             List<String> headers = Arrays.asList("ID", "Name",
                     "Unit",
                     "Update_Frequency",

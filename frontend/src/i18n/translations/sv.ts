@@ -1456,7 +1456,8 @@ const locale = {
   'schedule.monthly_one': 'Var {{count}} månad',
   'schedule.monthly_other': 'Var {{count}} månader',
   'schedule.yearly_one': 'Var {{count}} år',
-  'schedule.yearly_other': 'Var {{count}} år'
+  'schedule.yearly_other': 'Var {{count}} år',
+  csv_separator: 'CSV-separator'
 };
 
 export default locale;

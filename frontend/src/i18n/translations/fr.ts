@@ -1565,7 +1565,8 @@ const frJSON = {
   'schedule.yearly_other': 'Chaque {{count}} ans',
   recent_work_orders: 'Ordres de travail récents',
   no_recent_work_orders: 'Aucun ordre de travail',
-  delete_account: 'Supprimer le compte'
+  delete_account: 'Supprimer le compte',
+  csv_separator: 'Séparateur CSV'
 };
 
 export default frJSON;

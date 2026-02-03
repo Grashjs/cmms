@@ -1327,7 +1327,8 @@ const locale = {
   settings: 'Beállítások',
   people: 'Személyek',
   teams: 'Csapatok',
-  vendors: 'Beszállítók'
+  vendors: 'Beszállítók',
+  csv_separator: 'CSV elválasztó'
 };
 
 export default locale;

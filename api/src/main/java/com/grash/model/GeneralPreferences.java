@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.enums.BusinessType;
 import com.grash.model.enums.DateFormat;
 import com.grash.model.enums.Language;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -45,6 +47,9 @@ public class GeneralPreferences {
     private boolean simplifiedWorkOrder;
 
     private int daysBeforePrevMaintNotification = 1;
+
+    @NotBlank
+    private String csvSeparator = ",";
 
     @OneToOne(fetch = FetchType.LAZY)
     @JsonIgnore
