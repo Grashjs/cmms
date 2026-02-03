@@ -1,6 +1,8 @@
-import IndustryLayout from 'src/layouts/IndustryLayout';
+import IndustryLayout, {
+  IndustryLayoutProps
+} from 'src/layouts/IndustryLayout';
 
-const facilityManagementData = {
+const facilityManagementData: IndustryLayoutProps = {
   pageTitle: 'Open Source Facility Management Software',
   headerTitle: 'Energy & Utilities Maintenance Software',
   headerSubtitle: 'Protect your critical infrastructure and services',
@@ -56,26 +58,7 @@ const facilityManagementData = {
         'Enterprise Resource Planning (ERP) is a comprehensive software solution streamlining cross-departmental operations with specific modules, while CMMS is a specialized tool focusing on maintenance management with highly customizable features. Businesses can choose to enhance their ERP by integrating it with a CMMS.'
     }
   ],
-  relatedContent: [
-    {
-      title: 'What is Utility Asset Management?',
-      imageUrl:
-        'https://limble.com/wp-content/uploads/related-content-productive-1.png',
-      url: 'https://limble.com/maintenance-definitions/utility-asset-management/'
-    },
-    {
-      title: '7 Key Trends in Utility Asset Management',
-      imageUrl:
-        'https://limble.com/wp-content/uploads/related-content-machine.png',
-      url: 'https://limble.com/blog/utility-asset-management-trends/'
-    },
-    {
-      title: 'The Basics of Oil and Gas Maintenance',
-      imageUrl:
-        'https://limble.com/wp-content/uploads/related-content-steps.png',
-      url: 'https://limble.com/blog/the-basics-of-oil-and-gas-maintenance/'
-    }
-  ]
+  relatedContent: []
 };
 
 function EnergyPage() {

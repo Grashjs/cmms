@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import NavBar from 'src/components/NavBar';
 import { Footer } from 'src/components/Footer';
+import FaqComponent from 'src/components/Faq';
 import { Helmet } from 'react-helmet-async';
 import { Link as RouterLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -43,7 +44,7 @@ interface RelatedContent {
   url: string;
 }
 
-interface IndustryLayoutProps {
+export interface IndustryLayoutProps {
   pageTitle: string;
   headerTitle: string;
   headerSubtitle: string;
@@ -181,7 +182,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
         {/* Testimonials */}
         <Box
           sx={{
-            py: 8
+            py: 4
           }}
         >
           <Container maxWidth="lg">
@@ -208,41 +209,41 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
         </Box>
 
         {/* FAQ */}
-        <Container maxWidth="lg" sx={{ py: 8 }}>
-          <Typography variant="h2" align="center" gutterBottom>
-            FAQ
-          </Typography>
-          {faqs.map((faq, index) => (
-            <Box key={index} sx={{ mb: 2 }}>
-              <Typography variant="h6">{faq.question}</Typography>
-              <Typography variant="body1">{faq.answer}</Typography>
-            </Box>
-          ))}
+        <Container maxWidth="lg">
+          <FaqComponent
+            title="FAQ"
+            items={faqs.map((faq) => ({
+              title: faq.question,
+              content: <Typography variant="body1">{faq.answer}</Typography>
+            }))}
+          />
         </Container>
 
         {/* Related Content */}
-        <Container maxWidth="lg" sx={{ py: 8 }}>
-          <Typography variant="h2" align="center" gutterBottom>
-            Related Content
-          </Typography>
-          <Grid container spacing={4}>
-            {relatedContent.map((content, index) => (
-              <Grid item xs={12} md={4} key={index}>
-                <Card>
-                  <img
-                    src={content.imageUrl}
-                    alt={content.title}
-                    style={{ width: '100%' }}
-                  />
-                  <CardContent>
-                    <Typography variant="h6">{content.title}</Typography>
-                    <Button href={content.url}>Read More</Button>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
+        {relatedContent.length > 0 && (
+          <Container maxWidth="lg" sx={{ mb: 8 }}>
+            <Typography variant="h2" align="center" mb={3}>
+              Related Content
+            </Typography>
+            <Grid container spacing={4}>
+              {relatedContent.map((content, index) => (
+                <Grid item xs={12} md={4} key={index}>
+                  <Card sx={{ height: '100%' }}>
+                    <img
+                      src={content.imageUrl}
+                      alt={content.title}
+                      style={{ width: '100%' }}
+                    />
+                    <CardContent>
+                      <Typography variant="h6">{content.title}</Typography>
+                      <Button href={content.url}>Read More</Button>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Container>
+        )}
       </Box>
       <Footer />
     </OverviewWrapper>

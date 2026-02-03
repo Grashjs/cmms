@@ -1,6 +1,8 @@
-import IndustryLayout from 'src/layouts/IndustryLayout';
+import IndustryLayout, {
+  IndustryLayoutProps
+} from 'src/layouts/IndustryLayout';
 
-const facilityManagementData = {
+const facilityManagementData: IndustryLayoutProps = {
   pageTitle: 'Best Open-source CMMS Software for Facility Maintenance',
   headerTitle: 'Facility management software you can trust',
   headerSubtitle:
@@ -97,26 +99,7 @@ const facilityManagementData = {
         'Facilities maintenance software is used by a wide range of professionals responsible for asset upkeep and facility operations. This includes facility managers, operations managers, maintenance managers, asset managers, and more. They use these powerful management tools to manage assets, schedule maintenance, handle service requests, and ensure safety and compliance.'
     }
   ],
-  relatedContent: [
-    {
-      title: '5 Types of Facilities That Need Facilities Management',
-      imageUrl:
-        'https://limble.com/wp-content/uploads/related-content-productive-1.png',
-      url: 'https://limble.com/blog/facility-definition/'
-    },
-    {
-      title: 'What is Facility Maintenance?',
-      imageUrl:
-        'https://limble.com/wp-content/uploads/related-content-machine.png',
-      url: 'https://limble.com/maintenance-definitions/facility-maintenance/'
-    },
-    {
-      title: 'Complete Guide to Facilities Management',
-      imageUrl:
-        'https://limble.com/wp-content/uploads/related-content-steps.png',
-      url: 'https://limble.com/blog/facilities-management/'
-    }
-  ]
+  relatedContent: []
 };
 
 function FacilityManagementPage() {

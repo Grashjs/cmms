@@ -1,29 +1,7 @@
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Typography
-} from '@mui/material';
-import { ExpandMore } from '@mui/icons-material';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-
-interface FaqItem {
-  id: string;
-  title: string;
-  content: React.ReactNode;
-}
+import { Box, Typography } from '@mui/material';
+import FaqComponent, { FaqItem } from 'src/components/Faq';
 
 export default function Faq() {
-  const [expanded, setExpanded] = useState<string | false>(false);
-  const { t }: { t: any } = useTranslation();
-
-  const handleChange =
-    (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
-      setExpanded(isExpanded ? panel : false);
-    };
-
   const faqItems: FaqItem[] = [
     // {
     //   id: 'panel1',
@@ -175,32 +153,5 @@ export default function Faq() {
     }
   ];
 
-  return (
-    <Box sx={{ mt: 8, mb: 8 }}>
-      <Typography variant="h2" component="h2" gutterBottom textAlign="center">
-        {t('Frequently Asked Questions')}
-      </Typography>
-
-      <Box sx={{ mt: 2 }}>
-        {faqItems.map((item) => (
-          <Accordion
-            key={item.id}
-            expanded={expanded === item.id}
-            onChange={handleChange(item.id)}
-          >
-            <AccordionSummary
-              expandIcon={<ExpandMore />}
-              aria-controls={`${item.id}-content`}
-              id={`${item.id}-header`}
-            >
-              <Typography variant="h6" fontWeight={'bold'}>
-                {item.title}
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>{item.content}</AccordionDetails>
-          </Accordion>
-        ))}
-      </Box>
-    </Box>
-  );
+  return <FaqComponent items={faqItems} title="Frequently Asked Questions" />;
 }
