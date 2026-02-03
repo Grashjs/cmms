@@ -80,8 +80,8 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
       <Box>
         {/* Header */}
         <Container maxWidth="lg">
-          <Stack direction={'row'} spacing={4} justifyContent={'space-between'}>
-            <Box>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
               <Typography component="h1" variant="h4" mb={2}>
                 {pageTitle}
               </Typography>
@@ -116,14 +116,16 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
                   {t('book_demo')}
                 </Button>
               </Stack>
-            </Box>
-            <Box
-              component="img"
-              src={headerImageUrl}
-              alt={headerTitle}
-              sx={{ width: '100%' }}
-            />
-          </Stack>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Box
+                component="img"
+                src={headerImageUrl}
+                alt={headerTitle}
+                sx={{ width: '100%' }}
+              />
+            </Grid>
+          </Grid>
         </Container>
 
         {/* Company Logos */}
