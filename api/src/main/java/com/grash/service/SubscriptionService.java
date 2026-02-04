@@ -25,6 +25,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionPlanService subscriptionPlanService;
@@ -35,7 +36,6 @@ public class SubscriptionService {
     private final Scheduler scheduler;
     private final ScheduleRepository scheduleRepository;
 
-    @Transactional
     public Subscription create(Subscription subscription) {
         Subscription savedSubscription = subscriptionRepository.saveAndFlush(subscription);
         em.refresh(savedSubscription);
@@ -43,7 +43,6 @@ public class SubscriptionService {
         return savedSubscription;
     }
 
-    @Transactional
     public Subscription update(Long id, SubscriptionPatchDTO subscriptionPatchDTO) {
         if (subscriptionRepository.existsById(id)) {
             Subscription savedSubscription = subscriptionRepository.findById(id).get();
