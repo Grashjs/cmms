@@ -146,8 +146,11 @@ class WebhookController {
         if (isNewSubscription) {
             if (savedSubscription.getPaddleSubscriptionId() != null)
                 paddleService.pauseSubscription(savedSubscription.getPaddleSubscriptionId());
-        } else if (!savedSubscription.getPaddleSubscriptionId().equals(webhookEvent.getData().getId()))
+        } else if (!savedSubscription.getPaddleSubscriptionId().equals(webhookEvent.getData().getId())) {
+            log.info("Ignoring cloud pause event for subscription with ID: {}",
+                    savedSubscription.getPaddleSubscriptionId());
             return;
+        }
         String planCode = data.getCustomData().get("planId");
         int newUsersCount = data.getItems().get(0).getQuantity();
 
@@ -219,8 +222,10 @@ class WebhookController {
         if (subscription == null) {
             throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
         }
-        if (!subscription.getPaddleSubscriptionId().equals(webhookEvent.getData().getId()))
+        if (!subscription.getPaddleSubscriptionId().equals(webhookEvent.getData().getId())) {
+            log.info("Ignoring pause event for subscription with ID: {}", subscription.getPaddleSubscriptionId());
             return;
+        }
         if (cancelled) subscription.setPaddleSubscriptionId(null);
         subscriptionService.resetToFreePlan(subscription);
 
