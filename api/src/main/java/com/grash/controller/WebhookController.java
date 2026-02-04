@@ -5,6 +5,7 @@ import com.grash.dto.keygen.KeygenLicenseResponse;
 import com.grash.dto.keygen.KeygenLicenseResponseData;
 import com.grash.dto.paddle.BillingDetails;
 import com.grash.dto.paddle.subscription.PaddleSubscriptionData;
+import com.grash.dto.paddle.subscription.PaddleSubscriptionStatus;
 import com.grash.dto.paddle.subscription.PaddleSubscriptionWebhookEvent;
 import com.grash.exception.CustomException;
 import com.grash.factory.MailServiceFactory;
@@ -132,6 +133,7 @@ class WebhookController {
                                                 boolean isNewSubscription) {
         checkIfCloudVersion();
         PaddleSubscriptionData data = webhookEvent.getData();
+        if (data.getStatus() != PaddleSubscriptionStatus.active) return;
         long userId = Long.parseLong(data.getCustomData().get("userId"));
 
         Optional<OwnUser> optionalOwnUser = userService.findById(userId);
@@ -144,7 +146,7 @@ class WebhookController {
         if (isNewSubscription) {
             if (savedSubscription.getPaddleSubscriptionId() != null)
                 paddleService.pauseSubscription(savedSubscription.getPaddleSubscriptionId());
-        } else if (!savedSubscription.getPaddleSubscriptionId().equals(webhookEvent.getData().getSubscriptionId()))
+        } else if (!savedSubscription.getPaddleSubscriptionId().equals(webhookEvent.getData().getId()))
             return;
         String planCode = data.getCustomData().get("planId");
         int newUsersCount = data.getItems().get(0).getQuantity();
@@ -217,7 +219,7 @@ class WebhookController {
         if (subscription == null) {
             throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
         }
-        if (!subscription.getPaddleSubscriptionId().equals(webhookEvent.getData().getSubscriptionId()))
+        if (!subscription.getPaddleSubscriptionId().equals(webhookEvent.getData().getId()))
             return;
         if (cancelled) subscription.setPaddleSubscriptionId(null);
         subscriptionService.resetToFreePlan(subscription);
@@ -389,7 +391,7 @@ class WebhookController {
                     .map(BillingDetails::getCustomerName)
                     .orElse(email);
 
-            if (!"active".equalsIgnoreCase(data.getStatus())) {
+            if (data.getStatus() != PaddleSubscriptionStatus.active) {
                 log.info("Subscription {} status is '{}', not an active renewal. Skipping.", paddleSubscriptionId,
                         data.getStatus());
                 return;

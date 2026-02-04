@@ -13,13 +13,10 @@ public class PaddleSubscriptionData {
     private String id;
 
     @JsonProperty("status")
-    private String status;
+    private PaddleSubscriptionStatus status;
 
     @JsonProperty("customer_id")
     private String customerId;
-
-    @JsonProperty("subscription_id")
-    private String subscriptionId;
 
     @JsonProperty("billing_details")
     private BillingDetails billingDetails;
