@@ -2,67 +2,94 @@ import IndustryLayout, {
   IndustryLayoutProps
 } from 'src/layouts/IndustryLayout';
 
-const facilityManagementData: IndustryLayoutProps = {
-  pageTitle: 'Open Source Facility Management Software',
-  headerTitle: 'Energy & Utilities Maintenance Software',
-  headerSubtitle: 'Protect your critical infrastructure and services',
-  headerImageUrl:
-    'https://limble.com/wp-content/uploads/industries_energy_and_utilities_header.webp',
-  companyLogos: [
-    'https://limblecmms.com/wp-content/uploads/client-color-energy-ecoenergy.svg',
-    'https://limblecmms.com/wp-content/uploads/client-color-energy-primagaz.svg',
-    'https://limblecmms.com/wp-content/uploads/client-color-energy-pinonmidstream.svg',
-    'https://limblecmms.com/wp-content/uploads/client-color-energy-ethosenergy.svg',
-    'https://limblecmms.com/wp-content/uploads/client-color-energy-geoquipmarine.svg'
-  ],
+const energyUtilitiesData: IndustryLayoutProps = {
+  pageTitle: 'Open Source Energy & Utilities Maintenance Software',
+  headerTitle: 'Maintenance Management for Energy & Utility Operations',
+  headerSubtitle:
+    'Monitor, maintain, and optimize critical infrastructure — from power generation to distribution networks — with a CMMS you can self-host or run in the cloud.',
+  headerImageUrl: '/static/images/industries/energy-hero.jpg',
+
+  companyLogos: [],
+
   features: [
     {
-      title: 'Modernize work orders',
+      title: 'Critical infrastructure reliability',
       description:
-        'Leave post-its and emails behind for an easy-to-adopt digital work order system accessible from wherever you happen to be.',
-      imageUrl:
-        'https://limble.com/wp-content/uploads/Industry-preventive-image.png',
-      learnMoreUrl: 'https://limblecmms.com/cmms/work-order-software/'
+        'Manage maintenance for power plants, substations, water systems, and network equipment with full visibility into assets, failures, and interventions.',
+      imageUrl: 'https://atlas-cmms.com/assets/features/assets.png',
+      learnMoreUrl: '/features/assets'
     },
     {
-      title: 'Automate PMs',
+      title: 'Preventive & compliance-driven maintenance',
       description:
-        'Streamline preventive maintenance and parts reordering so you’re never out of commission during crucial production hours.',
+        'Automate inspections, regulatory checks, and preventive maintenance schedules to reduce downtime and stay compliant with safety standards.',
       imageUrl:
-        'https://limble.com/wp-content/uploads/Industry-parts-image-2.png',
-      learnMoreUrl:
-        'https://limblecmms.com/cmms/preventive-maintenance-software/'
+        'https://atlas-cmms.com/assets/features/preventive-maintenance.png',
+      learnMoreUrl: '/features/preventive-maintenance'
+    },
+    {
+      title: 'Field-ready work order management',
+      description:
+        'Coordinate technicians across sites, track interventions in real time, and maintain a complete service history for every critical asset.',
+      imageUrl: 'https://atlas-cmms.com/assets/features/work-orders.png',
+      learnMoreUrl: '/features/work-orders'
     }
   ],
+
   testimonials: [
     {
-      text: 'The City of Lompoc’s water treatment plant transformed preventive maintenance and reduced time to resolution.',
-      author: 'City of Lompoc',
-      company: ''
+      text: 'Atlas CMMS gave us full control over maintenance for distributed energy assets without depending on expensive proprietary systems.',
+      author: 'Operations Manager',
+      company: 'Renewable Energy Provider'
     },
     {
-      text: 'Allagash Brewery used Limble’s metrics to get buy-in for a technical role they knew they needed.',
-      author: 'Allagash Brewery',
-      company: ''
+      text: 'Self-hosting Atlas CMMS helped us meet strict security and compliance requirements in the utilities sector.',
+      author: 'IT Infrastructure Lead',
+      company: 'Regional Utility Company'
+    }
+  ],
+  kpis: [
+    {
+      title:
+        'Reduction in technician time spent filing work orders and locating asset information',
+      value: '90',
+      type: 'percentage'
+    },
+    {
+      title: 'Return on Investment',
+      value: '315',
+      type: 'percentage'
+    },
+    {
+      title: 'Savings from avoided production downtime',
+      value: '450K',
+      type: 'money'
     }
   ],
   faqs: [
     {
-      question: 'What is CMMS software?',
+      question: 'Is Atlas CMMS suitable for energy and utility infrastructure?',
       answer:
-        'CMMS (Computerized Maintenance Management System) software helps businesses manage, automate, and streamline all of their maintenance operations.'
+        'Yes. Atlas CMMS supports complex asset hierarchies, preventive maintenance, inspections, and multi-site operations required in energy and utility environments.'
     },
     {
-      question: 'Is Limble the same as an ERP?',
+      question: 'Can Atlas CMMS handle compliance and safety inspections?',
       answer:
-        'Enterprise Resource Planning (ERP) is a comprehensive software solution streamlining cross-departmental operations with specific modules, while CMMS is a specialized tool focusing on maintenance management with highly customizable features. Businesses can choose to enhance their ERP by integrating it with a CMMS.'
+        'Absolutely. You can schedule recurring inspections, track maintenance history, and document interventions to support regulatory compliance and audits.'
+    },
+    {
+      question:
+        'Does Atlas CMMS support on-premise deployment for secure environments?',
+      answer:
+        'Yes. Atlas CMMS is open source and fully self-hostable using Docker, making it suitable for secure or isolated infrastructure networks.'
     }
   ],
+
   relatedContent: []
 };
 
 function EnergyPage() {
-  return <IndustryLayout {...facilityManagementData} />;
+  return <IndustryLayout {...energyUtilitiesData} />;
 }
 
 export default EnergyPage;

@@ -8,7 +8,23 @@ const facilityManagementData: IndustryLayoutProps = {
   headerSubtitle:
     'Plan, track, and optimize maintenance operations across buildings, equipment, and teams — on your own infrastructure or in the cloud.',
   headerImageUrl: '/static/images/industries/facility-hero.jpg',
-
+  kpis: [
+    {
+      title: 'Improvement in work order completion rates',
+      value: '53',
+      type: 'percentage'
+    },
+    {
+      title: 'Increase in equipment uptime',
+      value: '38',
+      type: 'percentage'
+    },
+    {
+      title: 'Increase in inspections completed on time\n',
+      value: '49',
+      type: 'percentage'
+    }
+  ],
   companyLogos: [], // keep empty or add community / open-source adopters later
 
   features: [

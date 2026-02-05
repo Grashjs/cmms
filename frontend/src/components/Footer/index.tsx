@@ -37,7 +37,16 @@ const SectionHeading = styled(Typography)(
     margin-bottom: ${theme.spacing(2)};
 `
 );
-
+const industriesLinks: { title: string; href: string }[] = [
+  {
+    title: 'Facility Management',
+    href: '/industries/open-source-facility-management-software'
+  },
+  {
+    title: 'Energy & Utilities',
+    href: '/industries/open-source-energy-utilities-maintenance-software'
+  }
+];
 export function Footer() {
   const navigate = useNavigate();
   return (
@@ -87,7 +96,7 @@ export function Footer() {
           </Grid>
           <Grid item xs={12} md={3}>
             <SectionHeading variant="h5">Product</SectionHeading>
-            <Stack direction="row" spacing={2}>
+            <Stack spacing={2}>
               <FooterLink href="/free-cmms">Free CMMS</FooterLink>
               {/*<FooterLink href="#">*/}
               {/*  <Twitter />*/}
@@ -95,6 +104,16 @@ export function Footer() {
               {/*<FooterLink href="#">*/}
               {/*  <Instagram />*/}
               {/*</FooterLink>*/}
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <SectionHeading variant="h5">Industries</SectionHeading>
+            <Stack spacing={2}>
+              {industriesLinks.map((link) => (
+                <FooterLink key={link.href} href={link.href}>
+                  {link.title}
+                </FooterLink>
+              ))}
             </Stack>
           </Grid>
           <Grid item xs={12} md={3}>

@@ -50,6 +50,7 @@ export interface IndustryLayoutProps {
   headerSubtitle: string;
   headerImageUrl: string;
   companyLogos: string[];
+  kpis: { title: string; value: string; type: 'money' | 'percentage' }[];
   features: Feature[];
   testimonials: Testimonial[];
   faqs: FAQ[];
@@ -66,7 +67,8 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
     features,
     testimonials,
     faqs,
-    relatedContent
+    relatedContent,
+    kpis
   } = props;
   const { t } = useTranslation();
   const theme = useTheme();
@@ -138,6 +140,40 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
             ))}
           </Grid>
         </Container>
+        <Container maxWidth="lg" sx={{ py: 5 }}>
+          <Grid container spacing={3}>
+            {kpis.map((kpi) => (
+              <Grid item xs={12} sm={6} md={4} key={kpi.title}>
+                <Card sx={{ p: 3, height: '100%' }}>
+                  <CardContent
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <Typography fontSize={50} fontWeight={600}>
+                      <span style={{ color: theme.palette.primary.main }}>
+                        {kpi.type === 'money' ? '$' : ''}
+                      </span>
+                      {kpi.value}
+                      <span style={{ color: theme.palette.primary.main }}>
+                        {kpi.type === 'percentage' ? '%' : ''}
+                      </span>
+                    </Typography>
+                    <Typography
+                      textAlign={'center'}
+                      fontWeight={600}
+                      gutterBottom
+                    >
+                      {kpi.title}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
 
         {/* Features */}
         <Container maxWidth="lg" sx={{ py: 8 }}>
@@ -171,11 +207,14 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
                 md={6}
                 order={{ xs: 1, md: index % 2 === 0 ? 2 : 1 }}
               >
-                <img
-                  src={feature.imageUrl}
-                  alt={feature.title}
-                  style={{ width: '100%' }}
-                />
+                {/*<img*/}
+                {/*  src={feature.imageUrl}*/}
+                {/*  alt={feature.title}*/}
+                {/*  style={{ width: '100%' }}*/}
+                {/*/>*/}
+                <Typography color={theme.palette.primary.main} fontSize={70}>
+                  {(index + 1).toString().padStart(2, '0')}
+                </Typography>
               </Grid>
             </Grid>
           ))}
