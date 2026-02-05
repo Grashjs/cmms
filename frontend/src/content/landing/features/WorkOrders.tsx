@@ -8,7 +8,7 @@ const workOrdersData: IndustryLayoutProps = {
   headerTitle: 'The #1 Open-Source CMMS for Work Order Management',
   headerSubtitle:
     'Manage maintenance requests, schedule and track work orders, and assign tasks to your team using a fully open-source platform—accessible on both mobile and desktop.',
-  headerImageUrl: '/static/images/features/work-orders-hero.jpg',
+  headerImageUrl: '/static/images/overview/work_orders_screenshot.png',
   advantages: [
     {
       title: 'Reduce downtime',
@@ -74,9 +74,9 @@ const workOrdersData: IndustryLayoutProps = {
         'Yes. Our open-source mobile app is designed for technicians on the go, making it easy to create, track, and complete work orders.'
     },
     {
-      question: 'Can I customize work order templates?',
+      question: 'Can I add checklists to work orders?',
       answer:
-        'Absolutely. Use the default templates or create your own SOP-based templates—fully customizable in our open-source platform.'
+        'Absolutely. Create your own checklists in our open-source platform.'
     }
   ],
   relatedContent: []
