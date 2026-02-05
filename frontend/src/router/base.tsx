@@ -49,6 +49,20 @@ const ManufacturingPage = Loader(
 const WorkOrdersPage = Loader(
   lazy(() => import('../content/landing/features/WorkOrders'))
 );
+const AssetManagementPage = Loader(
+  lazy(() => import('../content/landing/features/Assets'))
+);
+
+const InventoryPage = Loader(
+  lazy(() => import('../content/landing/features/Inventory'))
+);
+const AnalyticsPage = Loader(
+  lazy(() => import('../content/landing/features/Analytics'))
+);
+
+const PMFeaturePage = Loader(
+  lazy(() => import('../content/landing/features/PreventiveMaintenance'))
+);
 
 const baseRoutes = [
   {
@@ -70,6 +84,22 @@ const baseRoutes = [
   {
     path: '/industries/open-source-facility-management-software',
     element: <FacilityManagement />
+  },
+  {
+    path: '/features/assets',
+    element: <AssetManagementPage />
+  },
+  {
+    path: '/features/inventory',
+    element: <InventoryPage />
+  },
+  {
+    path: '/features/analytics',
+    element: <AnalyticsPage />
+  },
+  {
+    path: '/features/preventive-maintenance',
+    element: <PMFeaturePage />
   },
   {
     path: '/features/work-orders',

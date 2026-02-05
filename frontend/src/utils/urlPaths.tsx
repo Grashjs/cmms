@@ -86,6 +86,6 @@ export const featuresLinks: { title: string; href: string }[] = [
   },
   {
     title: 'Analytics and Reporting',
-    href: '/free-cmms'
+    href: '/features/analytics'
   }
 ];
