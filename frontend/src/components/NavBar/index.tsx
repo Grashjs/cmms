@@ -18,7 +18,8 @@ import {
   Slide,
   Menu,
   Grid,
-  Collapse
+  Collapse,
+  Link
 } from '@mui/material';
 import Logo from '../LogoSign';
 import { GitHub, ExpandLess, ExpandMore } from '@mui/icons-material';
@@ -403,7 +404,7 @@ export default function NavBar() {
                         mountOnEnter
                         unmountOnExit
                       >
-                        <>
+                        <Box>
                           <ListItem
                             button
                             onClick={handleSolutionsMobileToggle}
@@ -441,8 +442,8 @@ export default function NavBar() {
                               {useCaseLinks.map((link) => (
                                 <ListItem
                                   key={link.title}
-                                  component={RouterLink}
-                                  to={link.href}
+                                  component={Link}
+                                  href={link.href}
                                   onClick={handleMenuClose}
                                   sx={{ py: 1 }}
                                 >
@@ -462,8 +463,8 @@ export default function NavBar() {
                               {industriesLinks.map((link) => (
                                 <ListItem
                                   key={link.title}
-                                  component={RouterLink}
-                                  to={link.href}
+                                  component={Link}
+                                  href={link.href}
                                   onClick={handleMenuClose}
                                   sx={{ py: 1 }}
                                 >
@@ -475,7 +476,7 @@ export default function NavBar() {
                               ))}
                             </List>
                           </Collapse>
-                        </>
+                        </Box>
                       </Slide>
                       <Slide
                         direction="left"
