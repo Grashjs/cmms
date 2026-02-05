@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { LinkedIn, Mail, Phone, Sms } from '@mui/icons-material';
+import { industriesLinks } from '../../utils/urlPaths';
 
 const FooterWrapper = styled(Box)(
   ({ theme }) => `
@@ -37,20 +38,7 @@ const SectionHeading = styled(Typography)(
     margin-bottom: ${theme.spacing(2)};
 `
 );
-const industriesLinks: { title: string; href: string }[] = [
-  {
-    title: 'Facility Management',
-    href: '/industries/open-source-facility-management-software'
-  },
-  {
-    title: 'Energy & Utilities',
-    href: '/industries/open-source-energy-utilities-maintenance-software'
-  },
-  {
-    title: 'Manufacturing',
-    href: '/industries/open-source-manufacturing-maintenance-software'
-  }
-];
+
 export function Footer() {
   const navigate = useNavigate();
   return (

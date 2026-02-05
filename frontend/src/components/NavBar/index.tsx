@@ -15,16 +15,20 @@ import {
   Divider,
   useTheme,
   useMediaQuery,
-  Slide
+  Slide,
+  Menu,
+  Grid,
+  Collapse
 } from '@mui/material';
 import Logo from '../LogoSign';
-import { GitHub } from '@mui/icons-material';
+import { GitHub, ExpandLess, ExpandMore } from '@mui/icons-material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LanguageSwitcher from '../../layouts/ExtendedSidebarLayout/Header/Buttons/LanguageSwitcher';
 import { Link as RouterLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { demoLink, isWhiteLabeled } from '../../config';
+import { industriesLinks, useCaseLinks } from '../../utils/urlPaths';
 
 const HeaderWrapper = styled(Card)(
   ({ theme }) => `
@@ -60,7 +64,27 @@ export default function NavBar() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  // Handlers for hamburger menu
+  // State for Solutions menu (Desktop)
+  const [solutionsAnchorEl, setSolutionsAnchorEl] =
+    useState<null | HTMLElement>(null);
+  const solutionsOpen = Boolean(solutionsAnchorEl);
+
+  // State for Solutions collapse (Mobile)
+  const [solutionsMobileOpen, setSolutionsMobileOpen] = useState(false);
+
+  // Handlers for Solutions menu
+  const handleSolutionsOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setSolutionsAnchorEl(event.currentTarget);
+  };
+
+  const handleSolutionsClose = () => {
+    setSolutionsAnchorEl(null);
+  };
+
+  const handleSolutionsMobileToggle = () => {
+    setSolutionsMobileOpen(!solutionsMobileOpen);
+  };
+
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -104,6 +128,175 @@ export default function NavBar() {
                   display: { xs: 'none', md: 'flex' }
                 }}
               >
+                <Button
+                  onClick={handleSolutionsOpen}
+                  onMouseEnter={handleSolutionsOpen}
+                  endIcon={solutionsOpen ? <ExpandLess /> : <ExpandMore />}
+                >
+                  {t('Solutions')}
+                </Button>
+                <Menu
+                  id="solutions-menu"
+                  anchorEl={solutionsAnchorEl}
+                  open={solutionsOpen}
+                  onClose={handleSolutionsClose}
+                  MenuListProps={{
+                    onMouseLeave: handleSolutionsClose,
+                    sx: { p: 0 }
+                  }}
+                  PaperProps={{
+                    sx: {
+                      mt: 1.5,
+                      boxShadow: theme.shadows[5],
+                      borderRadius: 1,
+                      minWidth: 600,
+                      maxWidth: 800
+                    }
+                  }}
+                >
+                  <Box sx={{ p: 3 }}>
+                    <Grid container spacing={4}>
+                      {/* Use Cases Column */}
+                      <Grid item xs={12} md={4}>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            mb: 2,
+                            fontWeight: 'bold',
+                            color: theme.palette.primary.main,
+                            textTransform: 'uppercase',
+                            fontSize: 12,
+                            letterSpacing: 1
+                          }}
+                        >
+                          {t('Use cases')}
+                        </Typography>
+                        <List dense disablePadding>
+                          {useCaseLinks.map((link) => (
+                            <ListItem
+                              key={link.title}
+                              component={RouterLink}
+                              to={link.href}
+                              onClick={handleSolutionsClose}
+                              sx={{
+                                px: 0,
+                                py: 1,
+                                color: 'inherit',
+                                textDecoration: 'none',
+                                '&:hover': {
+                                  color: theme.palette.primary.main,
+                                  backgroundColor: 'transparent'
+                                }
+                              }}
+                            >
+                              <ListItemText
+                                primary={link.title}
+                                primaryTypographyProps={{
+                                  variant: 'body2',
+                                  sx: { fontWeight: 500 }
+                                }}
+                              />
+                            </ListItem>
+                          ))}
+                        </List>
+                      </Grid>
+
+                      {/* Industries Section (2 columns) */}
+                      <Grid item xs={12} md={8}>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            mb: 2,
+                            fontWeight: 'bold',
+                            color: theme.palette.primary.main,
+                            textTransform: 'uppercase',
+                            fontSize: 12,
+                            letterSpacing: 1
+                          }}
+                        >
+                          {t('Industries')}
+                        </Typography>
+                        <Grid container spacing={2}>
+                          {/* We want 2 columns for industries */}
+                          <Grid item xs={6}>
+                            <List dense disablePadding>
+                              {industriesLinks
+                                .slice(0, Math.ceil(industriesLinks.length / 2))
+                                .map((link) => (
+                                  <ListItem
+                                    key={link.title}
+                                    component={RouterLink}
+                                    to={link.href}
+                                    onClick={handleSolutionsClose}
+                                    sx={{
+                                      px: 0,
+                                      py: 1,
+                                      color: 'inherit',
+                                      textDecoration: 'none',
+                                      '&:hover': {
+                                        color: theme.palette.primary.main,
+                                        backgroundColor: 'transparent'
+                                      }
+                                    }}
+                                  >
+                                    <ListItemIcon
+                                      sx={{ minWidth: 36, color: 'inherit' }}
+                                    >
+                                      <link.icon fontSize="small" />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                      primary={link.title}
+                                      primaryTypographyProps={{
+                                        variant: 'body2',
+                                        sx: { fontWeight: 500 }
+                                      }}
+                                    />
+                                  </ListItem>
+                                ))}
+                            </List>
+                          </Grid>
+                          <Grid item xs={6}>
+                            <List dense disablePadding>
+                              {industriesLinks
+                                .slice(Math.ceil(industriesLinks.length / 2))
+                                .map((link) => (
+                                  <ListItem
+                                    key={link.title}
+                                    component={RouterLink}
+                                    to={link.href}
+                                    onClick={handleSolutionsClose}
+                                    sx={{
+                                      px: 0,
+                                      py: 1,
+                                      color: 'inherit',
+                                      textDecoration: 'none',
+                                      '&:hover': {
+                                        color: theme.palette.primary.main,
+                                        backgroundColor: 'transparent'
+                                      }
+                                    }}
+                                  >
+                                    <ListItemIcon
+                                      sx={{ minWidth: 36, color: 'inherit' }}
+                                    >
+                                      <link.icon fontSize="small" />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                      primary={link.title}
+                                      primaryTypographyProps={{
+                                        variant: 'body2',
+                                        sx: { fontWeight: 500 }
+                                      }}
+                                    />
+                                  </ListItem>
+                                ))}
+                            </List>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </Box>
+                </Menu>
                 <Button
                   component={RouterLink}
                   to="/pricing"
@@ -204,6 +397,86 @@ export default function NavBar() {
 
                     {/* Main menu items */}
                     <List sx={{ flexGrow: 1, pt: 2 }}>
+                      <Slide
+                        direction="left"
+                        in={open}
+                        mountOnEnter
+                        unmountOnExit
+                      >
+                        <>
+                          <ListItem
+                            button
+                            onClick={handleSolutionsMobileToggle}
+                            sx={{ py: 2 }}
+                          >
+                            <ListItemText
+                              primary={t('Solutions')}
+                              primaryTypographyProps={{
+                                variant: 'h3',
+                                sx: { fontWeight: 'bold' }
+                              }}
+                            />
+                            {solutionsMobileOpen ? (
+                              <ExpandLess />
+                            ) : (
+                              <ExpandMore />
+                            )}
+                          </ListItem>
+                          <Collapse
+                            in={solutionsMobileOpen}
+                            timeout="auto"
+                            unmountOnExit
+                          >
+                            <List component="div" disablePadding sx={{ pl: 4 }}>
+                              <Typography
+                                variant="overline"
+                                sx={{
+                                  mt: 2,
+                                  display: 'block',
+                                  color: theme.palette.text.secondary
+                                }}
+                              >
+                                {t('Use cases')}
+                              </Typography>
+                              {useCaseLinks.map((link) => (
+                                <ListItem
+                                  key={link.title}
+                                  component={RouterLink}
+                                  to={link.href}
+                                  onClick={handleMenuClose}
+                                  sx={{ py: 1 }}
+                                >
+                                  <ListItemText primary={link.title} />
+                                </ListItem>
+                              ))}
+                              <Typography
+                                variant="overline"
+                                sx={{
+                                  mt: 2,
+                                  display: 'block',
+                                  color: theme.palette.text.secondary
+                                }}
+                              >
+                                {t('Industries')}
+                              </Typography>
+                              {industriesLinks.map((link) => (
+                                <ListItem
+                                  key={link.title}
+                                  component={RouterLink}
+                                  to={link.href}
+                                  onClick={handleMenuClose}
+                                  sx={{ py: 1 }}
+                                >
+                                  <ListItemIcon sx={{ minWidth: 40 }}>
+                                    <link.icon />
+                                  </ListItemIcon>
+                                  <ListItemText primary={link.title} />
+                                </ListItem>
+                              ))}
+                            </List>
+                          </Collapse>
+                        </>
+                      </Slide>
                       <Slide
                         direction="left"
                         in={open}
