@@ -69,23 +69,23 @@ export const industriesLinks: {
 
 export const useCaseLinks: { title: string; href: string }[] = [
   {
-    title: 'Preventive Maintenance',
-    href: '/free-cmms'
+    title: 'Work Order Management',
+    href: '/features/work-orders'
   },
   {
     title: 'Asset Management',
-    href: '/free-cmms'
+    href: '/features/assets'
   },
   {
-    title: 'Work Order Management',
-    href: '/free-cmms'
+    title: 'Preventive Maintenance',
+    href: '/features/preventive-maintenance'
   },
   {
     title: 'Inventory Management',
-    href: '/free-cmms'
+    href: '/features/inventory'
   },
   {
-    title: 'Facility Management',
-    href: '/industries/open-source-facility-management-software'
+    title: 'Analytics and Reporting',
+    href: '/free-cmms'
   }
 ];

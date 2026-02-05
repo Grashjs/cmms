@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { demoLink } from '../../config';
 import { OverviewWrapper } from '../../content/landing';
 import { TypographyH2 } from '../../content/landing/HeroFree';
+import { SvgIconComponent } from '@mui/icons-material';
 
 interface Feature {
   title: string;
@@ -49,8 +50,9 @@ export interface IndustryLayoutProps {
   headerTitle: string;
   headerSubtitle: string;
   headerImageUrl: string;
-  companyLogos: string[];
-  kpis: { title: string; value: string; type: 'money' | 'percentage' }[];
+  companyLogos?: string[];
+  advantages?: { title: string; description: string; icon: SvgIconComponent }[];
+  kpis?: { title: string; value: string; type: 'money' | 'percentage' }[];
   features?: Feature[];
   testimonials: Testimonial[];
   faqs: FAQ[];
@@ -66,6 +68,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
     headerImageUrl,
     companyLogos,
     features = [],
+    advantages = [],
     testimonials,
     faqs,
     relatedContent,
@@ -133,56 +136,113 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
         </Container>
 
         {/* Company Logos */}
-        <Container maxWidth="lg" sx={{ py: 5 }}>
-          <Grid container spacing={4} justifyContent="center">
-            {companyLogos.map((logo, index) => (
-              <Grid item key={index}>
-                <img
-                  style={{
-                    filter: 'grayscale(100%)'
-                  }}
-                  src={logo}
-                  alt={`company-logo-${index}`}
-                  height="30"
-                />
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-        <Container maxWidth="lg" sx={{ py: 5 }}>
-          <Grid container spacing={3}>
-            {kpis.map((kpi) => (
-              <Grid item xs={12} sm={6} md={4} key={kpi.title}>
-                <Card sx={{ p: 3, height: '100%' }}>
-                  <CardContent
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center'
+        {companyLogos && (
+          <Container maxWidth="lg" sx={{ py: 5 }}>
+            <Grid container spacing={4} justifyContent="center">
+              {companyLogos.map((logo, index) => (
+                <Grid item key={index}>
+                  <img
+                    style={{
+                      filter: 'grayscale(100%)'
                     }}
-                  >
-                    <Typography fontSize={50} fontWeight={600}>
-                      <span style={{ color: theme.palette.primary.main }}>
-                        {kpi.type === 'money' ? '$' : ''}
-                      </span>
-                      {kpi.value}
-                      <span style={{ color: theme.palette.primary.main }}>
-                        {kpi.type === 'percentage' ? '%' : ''}
-                      </span>
-                    </Typography>
-                    <Typography
-                      textAlign={'center'}
-                      fontWeight={600}
-                      gutterBottom
+                    src={logo}
+                    alt={`company-logo-${index}`}
+                    height="30"
+                  />
+                </Grid>
+              ))}
+            </Grid>
+          </Container>
+        )}
+        {kpis && (
+          <Container maxWidth="lg" sx={{ py: 5 }}>
+            <Grid container spacing={3}>
+              {kpis.map((kpi) => (
+                <Grid item xs={12} sm={6} md={4} key={kpi.title}>
+                  <Card sx={{ p: 3, height: '100%' }}>
+                    <CardContent
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center'
+                      }}
                     >
-                      {kpi.title}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
+                      <Typography fontSize={50} fontWeight={600}>
+                        <span style={{ color: theme.palette.primary.main }}>
+                          {kpi.type === 'money' ? '$' : ''}
+                        </span>
+                        {kpi.value}
+                        <span style={{ color: theme.palette.primary.main }}>
+                          {kpi.type === 'percentage' ? '%' : ''}
+                        </span>
+                      </Typography>
+                      <Typography
+                        textAlign={'center'}
+                        fontWeight={600}
+                        gutterBottom
+                      >
+                        {kpi.title}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Container>
+        )}
+        {advantages.length > 0 && (
+          <Container maxWidth={'lg'} sx={{ mt: 2, py: 5 }}>
+            <Grid container spacing={4}>
+              {advantages.map((advantage, index) => {
+                const Icon = advantage.icon;
+                return (
+                  <Grid item xs={12} sm={6} md={4} key={index}>
+                    <Card
+                      sx={{
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        textAlign: 'center',
+                        p: 3,
+                        transition: 'transform 0.2s',
+                        '&:hover': {
+                          transform: 'translateY(-5px)',
+                          boxShadow: theme.shadows[4]
+                        }
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: 64,
+                          height: 64,
+                          borderRadius: '16px',
+                          backgroundColor: theme.palette.primary.main,
+                          color: theme.palette.primary.contrastText,
+                          mb: 3,
+                          boxShadow: `0 4px 20px 0 ${theme.palette.primary.main}40`
+                        }}
+                      >
+                        <Icon sx={{ fontSize: 32 }} />
+                      </Box>
+                      <CardContent sx={{ p: 0 }}>
+                        <Typography variant="h3" gutterBottom sx={{ mb: 2 }}>
+                          {advantage.title}
+                        </Typography>
+                        <Typography variant="body1" color="text.secondary">
+                          {advantage.description}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          </Container>
+        )}
 
         {/* Features */}
         <Container maxWidth="lg" sx={{ py: 8 }}>

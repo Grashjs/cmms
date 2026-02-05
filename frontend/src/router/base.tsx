@@ -46,6 +46,9 @@ const FacilityManagement = Loader(
 const ManufacturingPage = Loader(
   lazy(() => import('../content/landing/industries/Manufacturing'))
 );
+const WorkOrdersPage = Loader(
+  lazy(() => import('../content/landing/features/WorkOrders'))
+);
 
 const baseRoutes = [
   {
@@ -67,6 +70,10 @@ const baseRoutes = [
   {
     path: '/industries/open-source-facility-management-software',
     element: <FacilityManagement />
+  },
+  {
+    path: '/features/work-orders',
+    element: <WorkOrdersPage />
   },
   {
     path: 'pricing',

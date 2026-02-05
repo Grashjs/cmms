@@ -1448,6 +1448,7 @@ const locale = {
   open_api_docs: 'Open API docs',
   delete_account: 'Delete account',
   csv_separator: 'CSV separator',
+  Advantages: 'Advantages',
   open_source_cmms: 'Open-Source CMMS',
   'main.title': 'Free Open-Source CMMS (Maintenance Management) – '
 };
