@@ -29,7 +29,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { demoLink, isWhiteLabeled } from '../../config';
-import { industriesLinks, useCaseLinks } from '../../utils/urlPaths';
+import { industriesLinks, featuresLinks } from '../../utils/urlPaths';
 
 const HeaderWrapper = styled(Card)(
   ({ theme }) => `
@@ -170,10 +170,10 @@ export default function NavBar() {
                             letterSpacing: 1
                           }}
                         >
-                          {t('Use cases')}
+                          {t('features')}
                         </Typography>
                         <List dense disablePadding>
-                          {useCaseLinks.map((link) => (
+                          {featuresLinks.map((link) => (
                             <ListItem
                               key={link.title}
                               component={RouterLink}
@@ -437,9 +437,9 @@ export default function NavBar() {
                                   color: theme.palette.text.secondary
                                 }}
                               >
-                                {t('Use cases')}
+                                {t('features')}
                               </Typography>
-                              {useCaseLinks.map((link) => (
+                              {featuresLinks.map((link) => (
                                 <ListItem
                                   key={link.title}
                                   component={Link}

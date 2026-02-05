@@ -8,8 +8,9 @@ import {
   Typography
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { LinkedIn, Mail, Phone, Sms } from '@mui/icons-material';
-import { industriesLinks } from '../../utils/urlPaths';
+import { GitHub, LinkedIn, Mail, Phone, Sms } from '@mui/icons-material';
+import { featuresLinks, industriesLinks } from '../../utils/urlPaths';
+import { useTranslation } from 'react-i18next';
 
 const FooterWrapper = styled(Box)(
   ({ theme }) => `
@@ -41,6 +42,8 @@ const SectionHeading = styled(Typography)(
 
 export function Footer() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
   return (
     <FooterWrapper>
       <Container maxWidth="lg">
@@ -81,9 +84,26 @@ export function Footer() {
               <FooterLink href="/pricing">Pricing</FooterLink>
               <FooterLink href="/privacy">Privacy Policy</FooterLink>
               <FooterLink href="/terms-of-service">Terms of Service</FooterLink>
-              <FooterLink href="https://www.linkedin.com/company/91710999">
-                <LinkedIn />
-              </FooterLink>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <SectionHeading variant="h5">{t('features')}</SectionHeading>
+            <Stack spacing={2}>
+              {featuresLinks.map((link) => (
+                <FooterLink key={link.href} href={link.href}>
+                  {link.title}
+                </FooterLink>
+              ))}
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <SectionHeading variant="h5">Industries</SectionHeading>
+            <Stack spacing={2}>
+              {industriesLinks.map((link) => (
+                <FooterLink key={link.href} href={link.href}>
+                  {link.title}
+                </FooterLink>
+              ))}
             </Stack>
           </Grid>
           <Grid item xs={12} md={3}>
@@ -99,13 +119,14 @@ export function Footer() {
             </Stack>
           </Grid>
           <Grid item xs={12} md={3}>
-            <SectionHeading variant="h5">Industries</SectionHeading>
-            <Stack spacing={2}>
-              {industriesLinks.map((link) => (
-                <FooterLink key={link.href} href={link.href}>
-                  {link.title}
-                </FooterLink>
-              ))}
+            <SectionHeading variant="h5">Follow Us</SectionHeading>
+            <Stack direction={'row'} spacing={2}>
+              <FooterLink href="https://www.linkedin.com/company/91710999">
+                <LinkedIn />
+              </FooterLink>
+              <FooterLink href="https://github.com/Grashjs/cmms">
+                <GitHub />
+              </FooterLink>
             </Stack>
           </Grid>
           <Grid item xs={12} md={3}>

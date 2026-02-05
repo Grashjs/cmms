@@ -67,7 +67,7 @@ export const industriesLinks: {
   }
 ];
 
-export const useCaseLinks: { title: string; href: string }[] = [
+export const featuresLinks: { title: string; href: string }[] = [
   {
     title: 'Work Order Management',
     href: '/features/work-orders'
