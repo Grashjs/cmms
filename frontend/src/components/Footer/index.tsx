@@ -45,6 +45,10 @@ const industriesLinks: { title: string; href: string }[] = [
   {
     title: 'Energy & Utilities',
     href: '/industries/open-source-energy-utilities-maintenance-software'
+  },
+  {
+    title: 'Manufacturing',
+    href: '/industries/open-source-manufacturing-maintenance-software'
   }
 ];
 export function Footer() {

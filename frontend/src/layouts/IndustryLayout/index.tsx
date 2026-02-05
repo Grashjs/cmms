@@ -51,10 +51,11 @@ export interface IndustryLayoutProps {
   headerImageUrl: string;
   companyLogos: string[];
   kpis: { title: string; value: string; type: 'money' | 'percentage' }[];
-  features: Feature[];
+  features?: Feature[];
   testimonials: Testimonial[];
   faqs: FAQ[];
   relatedContent: RelatedContent[];
+  children?: ReactNode;
 }
 
 const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
@@ -64,11 +65,12 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
     headerSubtitle,
     headerImageUrl,
     companyLogos,
-    features,
+    features = [],
     testimonials,
     faqs,
     relatedContent,
-    kpis
+    kpis,
+    children
   } = props;
   const { t } = useTranslation();
   const theme = useTheme();
@@ -225,6 +227,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
               </Grid>
             </Grid>
           ))}
+          {children}
         </Container>
 
         {/* Testimonials */}

@@ -43,6 +43,9 @@ const EnergyPage = Loader(
 const FacilityManagement = Loader(
   lazy(() => import('../content/landing/industries/FacilityManagement'))
 );
+const ManufacturingPage = Loader(
+  lazy(() => import('../content/landing/industries/Manufacturing'))
+);
 
 const baseRoutes = [
   {
@@ -56,6 +59,10 @@ const baseRoutes = [
   {
     path: '/industries/open-source-energy-utilities-maintenance-software',
     element: <EnergyPage />
+  },
+  {
+    path: '/industries/open-source-manufacturing-maintenance-software',
+    element: <ManufacturingPage />
   },
   {
     path: '/industries/open-source-facility-management-software',

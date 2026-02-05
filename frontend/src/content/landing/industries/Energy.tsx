@@ -89,7 +89,11 @@ const energyUtilitiesData: IndustryLayoutProps = {
 };
 
 function EnergyPage() {
-  return <IndustryLayout {...energyUtilitiesData} />;
+  return (
+    <IndustryLayout {...energyUtilitiesData}>
+      {/* Additional custom content can be added here as children */}
+    </IndustryLayout>
+  );
 }
 
 export default EnergyPage;

@@ -94,7 +94,11 @@ const facilityManagementData: IndustryLayoutProps = {
 };
 
 function FacilityManagementPage() {
-  return <IndustryLayout {...facilityManagementData} />;
+  return (
+    <IndustryLayout {...facilityManagementData}>
+      {/* Additional custom content can be added here as children */}
+    </IndustryLayout>
+  );
 }
 
 export default FacilityManagementPage;
