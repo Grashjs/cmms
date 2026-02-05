@@ -49,9 +49,7 @@ function Overview() {
     <OverviewWrapper>
       <Helmet>
         <title>
-          {IS_ORIGINAL_CLOUD
-            ? 'Free Open-Source CMMS (Maintenance Management) – '
-            : ''}
+          {IS_ORIGINAL_CLOUD ? t('main.title') : ''}
           {brandConfig.name}
         </title>
       </Helmet>

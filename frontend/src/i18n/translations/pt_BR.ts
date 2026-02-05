@@ -1504,7 +1504,9 @@ const ptBRJSON = {
   'schedule.monthly_other': 'A cada {{count}} meses',
   'schedule.yearly_one': 'A cada {{count}} ano',
   'schedule.yearly_other': 'A cada {{count}} anos',
-  csv_separator: 'Separador CSV'
+  csv_separator: 'Separador CSV',
+  open_source_cmms: 'CMMS de código aberto',
+  'main.title': 'CMMS gratuito e open source (gestão de manutenção) – '
 };
 
 export default ptBRJSON;

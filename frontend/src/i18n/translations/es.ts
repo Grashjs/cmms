@@ -1496,7 +1496,9 @@ const esJSON = {
   'schedule.yearly_one': 'Cada {{count}} año',
   'schedule.yearly_other': 'Cada {{count}} años',
   delete_account: 'Eliminar cuenta',
-  csv_separator: 'Separador CSV'
+  csv_separator: 'Separador CSV',
+  open_source_cmms: 'CMMS de código abierto',
+  'main.title': 'CMMS gratuito de código abierto (gestión de mantenimiento) – '
 };
 
 export default esJSON;

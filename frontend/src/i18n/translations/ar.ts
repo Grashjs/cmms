@@ -1382,7 +1382,9 @@ const locale = {
     'كلمة المرور - اتركها فارغة إذا كنت لا تريد تغييرها',
   continue_with_sso: 'استمر مع تسجيل الدخول',
   see_live_demo: 'عرض العرض المباشر',
-  csv_separator: 'محدد CSV'
+  csv_separator: 'محدد CSV',
+  open_source_cmms: 'نظام صيانة مفتوح المصدر (CMMS)',
+  'main.title': 'نظام صيانة مجاني مفتوح المصدر (إدارة الصيانة) – '
 };
 
 export default locale;

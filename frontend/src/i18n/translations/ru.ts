@@ -1537,7 +1537,10 @@ const ruJSON = {
   'schedule.monthly_other': 'Каждые {{count}} месяцев',
   'schedule.yearly_one': 'Каждый {{count}} год',
   'schedule.yearly_other': 'Каждые {{count}} лет',
-  csv_separator: 'разделитель CSV'
+  csv_separator: 'разделитель CSV',
+  open_source_cmms: 'CMMS с открытым исходным кодом',
+  'main.title':
+    'Бесплатная CMMS с открытым исходным кодом (управление обслуживанием) – '
 };
 
 export default ruJSON;

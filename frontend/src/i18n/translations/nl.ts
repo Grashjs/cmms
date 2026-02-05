@@ -1479,6 +1479,8 @@ const locale = {
   no_results_found: 'Geen resultaten gevonden',
   no_sub_assets: 'Geen sub-assets',
   no_assets_available: 'Geen assets beschikbaar',
-  csv_separator: 'CSV scheidingsteken'
+  csv_separator: 'CSV scheidingsteken',
+  open_source_cmms: 'Open-source CMMS',
+  'main.title': 'Gratis open-source CMMS (onderhoudsbeheer) – '
 };
 export default locale;

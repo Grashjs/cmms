@@ -1447,7 +1447,9 @@ const locale = {
   subscription_will_cancel_on: 'Subscription will cancel on {{date}}',
   open_api_docs: 'Open API docs',
   delete_account: 'Delete account',
-  csv_separator: 'CSV separator'
+  csv_separator: 'CSV separator',
+  open_source_cmms: 'Open-Source CMMS',
+  'main.title': 'Free Open-Source CMMS (Maintenance Management) – '
 };
 
 export default locale;

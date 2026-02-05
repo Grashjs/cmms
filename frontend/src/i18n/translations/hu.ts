@@ -1328,7 +1328,9 @@ const locale = {
   people: 'Személyek',
   teams: 'Csapatok',
   vendors: 'Beszállítók',
-  csv_separator: 'CSV elválasztó'
+  csv_separator: 'CSV elválasztó',
+  open_source_cmms: 'Nyílt forráskódú CMMS',
+  'main.title': 'Ingyenes nyílt forráskódú CMMS (karbantartáskezelés) – '
 };
 
 export default locale;
