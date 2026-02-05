@@ -37,9 +37,11 @@ const DeletionPolicy = Loader(
   lazy(() => import('../content/own/deletionPolicy'))
 );
 const Landing = Loader(lazy(() => import('../content/landing')));
-const EnergyPage = Loader(lazy(() => import('../content/landing/Energy')));
+const EnergyPage = Loader(
+  lazy(() => import('../content/landing/industries/Energy'))
+);
 const FacilityManagement = Loader(
-  lazy(() => import('../content/landing/FacilityManagement'))
+  lazy(() => import('../content/landing/industries/FacilityManagement'))
 );
 
 const baseRoutes = [

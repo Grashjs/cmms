@@ -135,7 +135,14 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
           <Grid container spacing={4} justifyContent="center">
             {companyLogos.map((logo, index) => (
               <Grid item key={index}>
-                <img src={logo} alt={`company-logo-${index}`} height="40" />
+                <img
+                  style={{
+                    filter: 'grayscale(100%)'
+                  }}
+                  src={logo}
+                  alt={`company-logo-${index}`}
+                  height="30"
+                />
               </Grid>
             ))}
           </Grid>
