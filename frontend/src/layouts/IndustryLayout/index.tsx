@@ -17,7 +17,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link as RouterLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { demoLink } from '../../config';
-import { OverviewWrapper } from '../../content/landing';
+import { OverviewWrapper } from '../../content/landing/FreeCMMS';
 import { TypographyH2 } from '../../content/landing/HeroFree';
 import { SvgIconComponent } from '@mui/icons-material';
 import TwoCallToActions from '../../content/landing/components/TwoCallToActions';
