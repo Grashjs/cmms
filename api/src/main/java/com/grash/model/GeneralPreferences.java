@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import jakarta.persistence.*;
 
@@ -53,6 +54,7 @@ public class GeneralPreferences {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JsonIgnore
+    @ToString.Exclude
     private CompanySettings companySettings;
 
     public GeneralPreferences(CompanySettings companySettings) {
