@@ -6,7 +6,7 @@ const atlasHospitalityData: IndustryLayoutProps = {
   pageTitle: 'Open Source Hotel & Resort Maintenance Software',
   headerTitle: 'Host Your Own Guest-Centric Maintenance Platform',
   headerSubtitle:
-    'Eliminate recurring SaaS fees with Atlas CMMS. A self-hosted solution for hotels and resorts that prioritizes data privacy, unlimited users, and seamless room turnover.',
+    'A modern maintenance solution for hotels and resorts that protects your data, supports unlimited users, and keeps room turnover seamless—available in the cloud or self-hosted',
   headerImageUrl: '/static/images/industries/hospitality-hero.jpg',
 
   kpis: [

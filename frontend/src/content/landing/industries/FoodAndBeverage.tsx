@@ -6,7 +6,7 @@ const foodBeverageData: IndustryLayoutProps = {
   pageTitle: 'Open Source Food & Beverage Maintenance Software',
   headerTitle: 'Maintenance Management for Food & Beverage Operations',
   headerSubtitle:
-    'Ensure product quality, meet safety regulations, and keep production running with a self-hosted CMMS designed for food processing plants, factories, and distribution facilities.',
+    'Ensure product quality, meet safety regulations, and keep production running with an open-source CMMS built for food processing plants, factories, and distribution facilities—available in the cloud or self-hosted.',
   headerImageUrl: '/static/images/industries/food-hero.jpg',
 
   kpis: [

@@ -6,7 +6,7 @@ const healthcareData: IndustryLayoutProps = {
   pageTitle: 'Open Source Healthcare Maintenance Software',
   headerTitle: 'Reliable Maintenance for Hospitals and Healthcare Facilities',
   headerSubtitle:
-    'Improve patient safety, maintain regulatory compliance, and reduce equipment downtime with a fully self-hosted, open-source CMMS designed for modern healthcare environments.',
+    'Improve patient safety, maintain regulatory compliance, and reduce equipment downtime with an open-source CMMS designed for modern healthcare—available in the cloud or fully self-hosted.',
   headerImageUrl: '/static/images/industries/healthcare-hero.jpg',
 
   kpis: [

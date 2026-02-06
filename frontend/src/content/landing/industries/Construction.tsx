@@ -6,7 +6,7 @@ const constructionData: IndustryLayoutProps = {
   pageTitle: 'Open Source Construction Equipment Maintenance Software',
   headerTitle: 'Keep Heavy Iron Moving without the Heavy Fees',
   headerSubtitle:
-    'The first open-source CMMS built for the job site. Track yellow iron, manage field work orders, and maintain safety compliance across multiple projects—all on your own infrastructure.',
+    'The first open-source CMMS built for real job sites. Track heavy equipment, manage field work orders, and stay compliant—deploy in the cloud or run it on infrastructure you control.',
   headerImageUrl: '/static/images/industries/construction-hero.jpg',
 
   kpis: [

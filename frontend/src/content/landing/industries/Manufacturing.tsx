@@ -6,7 +6,7 @@ const manufacturingData: IndustryLayoutProps = {
   pageTitle: 'Open Source Manufacturing Maintenance Software',
   headerTitle: 'Maintenance Management for Manufacturing Operations',
   headerSubtitle:
-    'Reduce downtime, extend equipment life, and keep production running smoothly with a self-hosted CMMS built for modern factories.',
+    'Reduce downtime, extend equipment life, and keep production running smoothly with an open-source CMMS built for modern factories—self-hosted or in the cloud',
   headerImageUrl: '/static/images/industries/manufacturing-hero.jpg',
 
   kpis: [

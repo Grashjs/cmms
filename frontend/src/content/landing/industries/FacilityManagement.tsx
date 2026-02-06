@@ -6,7 +6,7 @@ const facilityManagementData: IndustryLayoutProps = {
   pageTitle: 'Open Source Facility Maintenance Software',
   headerTitle: 'Maintenance Management for Real-World Facilities',
   headerSubtitle:
-    'Plan, track, and optimize maintenance operations across buildings, equipment, and teams — on your own infrastructure or in the cloud.',
+    'Plan, track, and optimize maintenance across buildings, assets, and teams—deployed on your own infrastructure or instantly in the cloud',
   headerImageUrl: '/static/images/industries/facility-hero.jpg',
   kpis: [
     {
