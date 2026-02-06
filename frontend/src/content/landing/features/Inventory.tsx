@@ -9,6 +9,7 @@ const sparePartsData: IndustryLayoutProps = {
   headerSubtitle:
     'Track spare parts across assets and locations, automate reordering, and prevent costly downtime using a fully open-source and self-hosted CMMS built for real maintenance teams.',
   headerImageUrl: '/static/images/features/part-hero.png',
+  canonicalPath: 'features/inventory',
 
   advantages: [
     {

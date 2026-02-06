@@ -9,6 +9,7 @@ const preventiveMaintenanceData: IndustryLayoutProps = {
   headerSubtitle:
     'Plan recurring maintenance, reduce unexpected failures, and extend asset lifespan using a fully open-source and self-hosted preventive maintenance platform accessible anywhere.',
   headerImageUrl: '/static/images/features/pm-hero.png',
+  canonicalPath: 'features/preventive-maintenance',
 
   advantages: [
     {

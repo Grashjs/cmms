@@ -30,7 +30,14 @@ function DeletionPolicy() {
   return (
     <Box>
       <Helmet>
-        <title>{t('account_deletion', { brandName: brandConfig.name })}</title>
+        <title>
+          {t('account_deletion', { brandName: brandConfig.name })} - Atlas CMMS
+        </title>
+        <meta
+          name="description"
+          content="Information on how to delete your account in Atlas CMMS. We provide clear steps for data removal and account closure."
+        />
+        <link rel="canonical" href="https://atlas-cmms.com/deletion-policy" />
       </Helmet>
       <HeaderWrapper>
         <Container maxWidth="lg">

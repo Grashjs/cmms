@@ -8,6 +8,7 @@ const constructionData: IndustryLayoutProps = {
   headerSubtitle:
     'The first open-source CMMS built for real job sites. Track heavy equipment, manage field work orders, and stay compliant—deploy in the cloud or run it on infrastructure you control.',
   headerImageUrl: '/static/images/industries/construction-hero.jpg',
+  canonicalPath: 'industries/open-source-construction-maintenance-software',
 
   kpis: [
     {

@@ -8,6 +8,7 @@ const atlasHospitalityData: IndustryLayoutProps = {
   headerSubtitle:
     'A modern maintenance solution for hotels and resorts that protects your data, supports unlimited users, and keeps room turnover seamless—available in the cloud or self-hosted',
   headerImageUrl: '/static/images/industries/hospitality-hero.jpg',
+  canonicalPath: 'industries/open-source-hospitality-maintenance-software',
 
   kpis: [
     {

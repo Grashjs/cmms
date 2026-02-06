@@ -26,7 +26,12 @@ function Overview() {
   return (
     <Box>
       <Helmet>
-        <title>{t('privacy_policy')}</title>
+        <title>{t('privacy_policy')} - Atlas CMMS</title>
+        <meta
+          name="description"
+          content="Read the Privacy Policy for Atlas CMMS. Learn how we protect your data and ensure security in our open-source maintenance management platform."
+        />
+        <link rel="canonical" href="https://atlas-cmms.com/privacy" />
       </Helmet>
       <NavBar />
       <Container maxWidth="lg" sx={{ mt: 8 }}>

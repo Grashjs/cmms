@@ -114,6 +114,11 @@ function Pricing() {
     <PricingWrapper>
       <Helmet>
         <title>Pricing - Atlas CMMS</title>
+        <meta
+          name="description"
+          content="Flexible pricing plans for Atlas CMMS. Choose between Cloud and Self-Hosted versions of our open-source CMMS to optimize your maintenance operations."
+        />
+        <link rel="canonical" href="https://atlas-cmms.com/pricing" />
       </Helmet>
       <NavBar />
 

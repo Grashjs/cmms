@@ -8,6 +8,7 @@ const educationData: IndustryLayoutProps = {
   headerSubtitle:
     'Ensure student safety and optimize campus operations with an open-source CMMS. Track every asset—from the boiler room to the classroom—without per-user licensing fees, in the cloud or fully self-hosted',
   headerImageUrl: '/static/images/industries/school-hero.jpg',
+  canonicalPath: 'industries/open-source-education-maintenance-software',
 
   kpis: [
     {
