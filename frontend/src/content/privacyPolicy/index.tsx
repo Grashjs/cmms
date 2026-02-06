@@ -7,7 +7,8 @@ import {
   styled,
   Typography,
   List,
-  ListItem
+  ListItem,
+  Link
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
@@ -566,6 +567,9 @@ function Overview() {
                 You also have the right to lodge a complaint with the CNDP if
                 you believe that we have violated your data protection rights.
               </Typography>
+              <Link mt={2} href={'/deletion-policy'}>
+                Deletion Policy
+              </Link>
             </>
           )}
         </Card>

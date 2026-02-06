@@ -52,6 +52,14 @@ function Overview() {
           {IS_ORIGINAL_CLOUD ? t('main.title') : ''}
           {brandConfig.name}
         </title>
+        <meta
+          name="description"
+          content="Atlas CMMS is a high-performance, open-source Computerized Maintenance Management System. Streamline work orders, preventive maintenance, asset tracking, and facility management with our free CMMS software."
+        />
+        <meta
+          name="keywords"
+          content="CMMS, computerized maintenance management system, EAM, enterprise asset management, open source CMMS, free maintenance software, work order management, preventive maintenance, asset tracking, facility management, maintenance tracking software, equipment maintenance, Atlas CMMS"
+        />
       </Helmet>
       <NavBar />
       <Hero />
