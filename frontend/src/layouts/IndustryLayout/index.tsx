@@ -277,11 +277,19 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
                   {feature.description}
                 </Typography>
                 {feature.learnMoreUrl ? (
-                  <Button variant="outlined" href={feature.learnMoreUrl}>
+                  <Button
+                    component={RouterLink}
+                    variant="outlined"
+                    to={feature.learnMoreUrl}
+                  >
                     Learn More
                   </Button>
                 ) : (
-                  <Button variant={'outlined'} href={'/account/register'}>
+                  <Button
+                    component={RouterLink}
+                    variant={'outlined'}
+                    to={'/account/register'}
+                  >
                     {t('try_for_free')}
                   </Button>
                 )}
