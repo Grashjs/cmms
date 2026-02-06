@@ -93,7 +93,9 @@ const manufacturingData: IndustryLayoutProps = {
     }
   ],
 
-  relatedContent: []
+  relatedContent: [],
+  pageDescription:
+    'Open-source manufacturing maintenance that crushes downtime. Scale your production, automate PM cycles, and keep your factory floor running with a powerful, self-hosted CMMS.'
 };
 
 function ManufacturingPage() {

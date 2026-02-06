@@ -97,7 +97,9 @@ const foodBeverageData: IndustryLayoutProps = {
     }
   ],
 
-  relatedContent: []
+  relatedContent: [],
+  pageDescription:
+    'Open-source food and beverage maintenance for ultimate safety and uptime. Automate inspections, meet strict compliance standards, and own your production data with a self-hosted CMMS.'
 };
 
 function FoodBeveragePage() {

@@ -78,7 +78,9 @@ const preventiveMaintenanceData: IndustryLayoutProps = {
     }
   ],
 
-  relatedContent: []
+  relatedContent: [],
+  pageDescription:
+    'Open-source preventive maintenance built for reliability. Automate schedules, slash repair costs, and extend your equipment life with the world’s most flexible CMMS.'
 };
 
 function PreventiveMaintenancePage() {

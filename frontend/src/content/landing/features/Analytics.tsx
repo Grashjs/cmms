@@ -78,7 +78,9 @@ const reportsDashboardsData: IndustryLayoutProps = {
     }
   ],
 
-  relatedContent: []
+  relatedContent: [],
+  pageDescription:
+    'Open-source CMMS dashboards that put you in control. Stop guessing and start growing with real-time maintenance analytics, custom KPIs, and 100% data ownership.'
 };
 
 function ReportsDashboardsPage() {

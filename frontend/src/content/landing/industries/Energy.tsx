@@ -85,7 +85,9 @@ const energyUtilitiesData: IndustryLayoutProps = {
     }
   ],
 
-  relatedContent: []
+  relatedContent: [],
+  pageDescription:
+    'Open-source utility maintenance for a resilient grid. Manage critical assets, ensure regulatory compliance, and coordinate field teams with a secure, self-hosted CMMS.'
 };
 
 function EnergyPage() {

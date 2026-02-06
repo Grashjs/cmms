@@ -87,7 +87,9 @@ const educationData: IndustryLayoutProps = {
     }
   ],
 
-  relatedContent: []
+  relatedContent: [],
+  pageDescription:
+    'Open-source campus maintenance that saves your budget. Simplify school work requests, automate inspections, and manage facility assets with a self-hosted CMMS built for education.'
 };
 
 function EducationPage() {

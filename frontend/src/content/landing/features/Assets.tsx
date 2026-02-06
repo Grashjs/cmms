@@ -78,7 +78,9 @@ const assetsData: IndustryLayoutProps = {
     }
   ],
 
-  relatedContent: []
+  relatedContent: [],
+  pageDescription:
+    'Open-source asset management without the enterprise price tag. Track equipment history, reduce downtime, and manage everything from one self-hosted, powerful CMMS.'
 };
 
 function AssetsPage() {

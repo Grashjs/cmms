@@ -78,7 +78,9 @@ const sparePartsData: IndustryLayoutProps = {
     }
   ],
 
-  relatedContent: []
+  relatedContent: [],
+  pageDescription:
+    'Open-source inventory control that never sleeps. Take charge of your spare parts, automate low-stock alerts, and eliminate maintenance delays with a self-hosted CMMS.'
 };
 
 function SparePartsPage() {

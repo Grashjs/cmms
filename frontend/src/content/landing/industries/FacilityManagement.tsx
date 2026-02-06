@@ -90,7 +90,9 @@ const facilityManagementData: IndustryLayoutProps = {
     }
   ],
 
-  relatedContent: []
+  relatedContent: [],
+  pageDescription:
+    'Open-source facility management that puts you in the driver’s seat. Streamline building operations, automate PM schedules, and manage multi-site portfolios with a self-hosted CMMS.'
 };
 
 function FacilityManagementPage() {

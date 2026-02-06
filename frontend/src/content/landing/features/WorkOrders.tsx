@@ -76,7 +76,9 @@ const workOrdersData: IndustryLayoutProps = {
         'Absolutely. Create your own checklists in our open-source platform.'
     }
   ],
-  relatedContent: []
+  relatedContent: [],
+  pageDescription:
+    'Open-source work order management that just works. Simplify requests, track repairs in real-time, and empower your team with a mobile-ready, self-hosted CMMS.'
 };
 
 function WorkOrdersPage() {

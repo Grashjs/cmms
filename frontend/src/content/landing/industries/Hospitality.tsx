@@ -87,7 +87,9 @@ const atlasHospitalityData: IndustryLayoutProps = {
     }
   ],
 
-  relatedContent: []
+  relatedContent: [],
+  pageDescription:
+    'Open-source hospitality maintenance built for the modern hotelier. Empower your guests, simplify room turnover, and slash licensing fees with a self-hosted, scalable CMMS.'
 };
 
 function HospitalityAtlasPage() {

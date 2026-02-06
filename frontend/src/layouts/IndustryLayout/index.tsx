@@ -59,6 +59,7 @@ export interface IndustryLayoutProps {
   faqs: FAQ[];
   relatedContent: RelatedContent[];
   children?: ReactNode;
+  pageDescription: string;
 }
 
 const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
@@ -74,7 +75,8 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
     faqs,
     relatedContent,
     kpis,
-    children
+    children,
+    pageDescription
   } = props;
   const { t } = useTranslation();
   const theme = useTheme();
@@ -82,6 +84,9 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
   return (
     <OverviewWrapper>
       <Helmet>
+        {pageDescription && (
+          <meta name="description" content={pageDescription} />
+        )}
         <title>{pageTitle}</title>
       </Helmet>
       <NavBar />

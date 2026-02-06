@@ -88,7 +88,9 @@ const constructionData: IndustryLayoutProps = {
     }
   ],
 
-  relatedContent: []
+  relatedContent: [],
+  pageDescription:
+    'Open-source CMRS for construction that keeps your heavy iron moving. Track assets across job sites, manage field work orders offline, and own your maintenance data.'
 };
 
 function ConstructionAtlasPage() {
