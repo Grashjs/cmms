@@ -6,6 +6,7 @@ import { BarChart, DashboardCustomize, QueryStats } from '@mui/icons-material';
 const reportsDashboardsData: IndustryLayoutProps = {
   pageTitle: 'Open-Source Maintenance Reports & Dashboards',
   headerTitle: 'Turn Maintenance Data into Actionable Insights',
+  canonicalPath: 'features/analytics',
   headerSubtitle:
     'Visualize performance, track KPIs, and make smarter maintenance decisions with fully customizable dashboards and automated reporting in an open-source, self-hosted CMMS.',
   headerImageUrl: '/static/images/overview/analytics_screenshot.png',

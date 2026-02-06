@@ -60,6 +60,7 @@ export interface IndustryLayoutProps {
   relatedContent: RelatedContent[];
   children?: ReactNode;
   pageDescription: string;
+  canonicalPath: string;
 }
 
 const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
@@ -76,7 +77,8 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
     relatedContent,
     kpis,
     children,
-    pageDescription
+    pageDescription,
+    canonicalPath
   } = props;
   const { t } = useTranslation();
   const theme = useTheme();
@@ -84,10 +86,12 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
   return (
     <OverviewWrapper>
       <Helmet>
-        {pageDescription && (
-          <meta name="description" content={pageDescription} />
-        )}
+        <meta name="description" content={pageDescription} />
         <title>{pageTitle}</title>
+        <link
+          rel="canonical"
+          href={'https://atlas-cmms.com/' + canonicalPath}
+        />
       </Helmet>
       <NavBar />
       <Box>

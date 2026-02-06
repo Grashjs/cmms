@@ -39,7 +39,9 @@ const PrivacyPolicy = Loader(lazy(() => import('../content/privacyPolicy')));
 const DeletionPolicy = Loader(
   lazy(() => import('../content/own/deletionPolicy'))
 );
-const Landing = Loader(lazy(() => import('../content/landing')));
+const FreeCMMSLanding = Loader(
+  lazy(() => import('../content/landing/FreeCMMS'))
+);
 const EnergyPage = Loader(
   lazy(() => import('../content/landing/industries/Energy'))
 );
@@ -94,7 +96,7 @@ const baseRoutes = [
   },
   {
     path: 'free-cmms',
-    element: <Landing />
+    element: <FreeCMMSLanding />
   },
   {
     path: '/industries/open-source-energy-utilities-maintenance-software',
