@@ -2,6 +2,9 @@ import { lazy, Suspense } from 'react';
 import { Navigate } from 'react-router-dom';
 
 import SuspenseLoader from 'src/components/SuspenseLoader';
+import FoodAndBeverage from '../content/landing/industries/FoodAndBeverage';
+import Healthcare from '../content/landing/industries/Healthcare';
+import Education from '../content/landing/industries/Education';
 
 const Loader = (Component) => (props) =>
   (
@@ -64,6 +67,26 @@ const PMFeaturePage = Loader(
   lazy(() => import('../content/landing/features/PreventiveMaintenance'))
 );
 
+const HospitalityPage = Loader(
+  lazy(() => import('../content/landing/industries/Hospitality'))
+);
+
+const FoodAndBeveragePage = Loader(
+  lazy(() => import('../content/landing/industries/FoodAndBeverage'))
+);
+
+const HealthcarePage = Loader(
+  lazy(() => import('../content/landing/industries/Healthcare'))
+);
+
+const EducationPage = Loader(
+  lazy(() => import('../content/landing/industries/Education'))
+);
+
+const ConstructionPage = Loader(
+  lazy(() => import('../content/landing/industries/Construction'))
+);
+
 const baseRoutes = [
   {
     path: '/',
@@ -84,6 +107,26 @@ const baseRoutes = [
   {
     path: '/industries/open-source-facility-management-software',
     element: <FacilityManagement />
+  },
+  {
+    path: '/industries/open-source-hospitality-maintenance-software',
+    element: <HospitalityPage />
+  },
+  {
+    path: '/industries/open-source-construction-maintenance-software',
+    element: <ConstructionPage />
+  },
+  {
+    path: '/industries/open-source-healthcare-maintenance-software',
+    element: <HealthcarePage />
+  },
+  {
+    path: '/industries/open-source-education-maintenance-software',
+    element: <EducationPage />
+  },
+  {
+    path: '/industries/open-source-food-and-beverage-maintenance-software',
+    element: <FoodAndBeveragePage />
   },
   {
     path: '/features/assets',

@@ -1,4 +1,13 @@
-import { Business, FlashOn, PrecisionManufacturing } from '@mui/icons-material';
+import {
+  Business,
+  Construction,
+  FlashOn,
+  Hotel,
+  LocalHospital,
+  PrecisionManufacturing,
+  Restaurant,
+  School
+} from '@mui/icons-material';
 import { ElementType } from 'react';
 
 export const getAssetUrl = (id) => {
@@ -51,9 +60,24 @@ export const industriesLinks: {
   icon: ElementType;
 }[] = [
   {
+    title: 'Manufacturing',
+    href: '/industries/open-source-manufacturing-maintenance-software',
+    icon: PrecisionManufacturing
+  },
+  {
     title: 'Facility Management',
     href: '/industries/open-source-facility-management-software',
     icon: Business
+  },
+  {
+    title: 'Food & Beverage',
+    href: '/industries/open-source-food-and-beverage-maintenance-software',
+    icon: Restaurant
+  },
+  {
+    title: 'Healthcare',
+    href: '/industries/open-source-healthcare-maintenance-software',
+    icon: LocalHospital
   },
   {
     title: 'Energy & Utilities',
@@ -61,9 +85,19 @@ export const industriesLinks: {
     icon: FlashOn
   },
   {
-    title: 'Manufacturing',
-    href: '/industries/open-source-manufacturing-maintenance-software',
-    icon: PrecisionManufacturing
+    title: 'Education',
+    href: '/industries/open-source-education-maintenance-software',
+    icon: School
+  },
+  {
+    title: 'Hospitality',
+    href: '/industries/open-source-hospitality-maintenance-software',
+    icon: Hotel
+  },
+  {
+    title: 'Construction',
+    href: '/industries/open-source-construction-maintenance-software',
+    icon: Construction
   }
 ];
 
