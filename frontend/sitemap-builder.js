@@ -75,7 +75,14 @@ global.cancelAnimationFrame = global.window.cancelAnimationFrame;
 
 // Function to check if a path should be excluded
 function shouldExcludePath(path) {
-  const excludedPrefixes = ['app', 'account', 'oauth2', 'payment', 'status'];
+  const excludedPrefixes = [
+    'app',
+    'account',
+    'oauth2',
+    'payment',
+    'status',
+    'overview'
+  ];
 
   // Exclude wildcard routes or dynamic routes
   if (path.includes('*') || path.includes(':')) {
