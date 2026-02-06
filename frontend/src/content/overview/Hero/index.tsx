@@ -8,7 +8,7 @@ import {
   styled,
   Typography
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import useScrollToLocation from 'src/hooks/useScrollToLocation';
@@ -136,14 +136,19 @@ function Hero() {
         container
       >
         <Grid item md={6} pr={{ xs: 0, md: 3 }}>
-          <TypographyH1
+          <Typography component="h1" variant="h4" mb={2}>
+            {t('open_source_cmms')}
+          </Typography>
+          <Typography
             sx={{
               mb: 2
             }}
+            fontSize={50}
             variant="h1"
+            component="h2"
           >
             {t('home.built')}
-          </TypographyH1>
+          </Typography>
           <TypographyH2
             sx={{
               lineHeight: 1.5,

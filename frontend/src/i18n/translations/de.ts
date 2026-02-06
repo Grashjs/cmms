@@ -1510,7 +1510,9 @@ const deJSON = {
   continue_with_sso: 'Weiter mit SSO',
   see_live_demo: 'Live-Demo ansehen',
   delete_account: 'Konto löschen',
-  csv_separator: 'CSV-Trennzeichen'
+  csv_separator: 'CSV-Trennzeichen',
+  open_source_cmms: 'Open-Source-CMMS',
+  'main.title': 'Kostenlose Open-Source-CMMS (Instandhaltungsmanagement) – '
 };
 
 export default deJSON;

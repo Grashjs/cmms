@@ -1199,7 +1199,9 @@ const locale = {
   people: '人员',
   teams: '团队',
   vendors: '供应商',
-  csv_separator: 'CSV分隔符'
+  csv_separator: 'CSV分隔符',
+  open_source_cmms: '开源 CMMS',
+  'main.title': '免费开源 CMMS（维护管理）– '
 };
 
 export default locale;

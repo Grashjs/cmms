@@ -22,7 +22,7 @@ import { AE, CN, DE, ES, FR, US, BR } from 'country-flag-icons/react/3x2';
 import SubscriptionPlans from '../SubscriptionPlans';
 import SubscriptionPlanSelector from '../../pricing/components/SubscriptionPlanSelector';
 import { useBrand } from '../../../hooks/useBrand';
-import { demoLink } from '../../../config';
+import TwoCallToActions from '../../landing/components/TwoCallToActions';
 
 const AvatarSuccess = styled(Avatar)(
   ({ theme }) => `
@@ -67,7 +67,7 @@ const CardImg = styled(Card)(
 `
 );
 
-const TypographyH1Primary = styled(Typography)(
+export const TypographyH1Primary = styled(Typography)(
   ({ theme }) => `
     font-size: ${theme.typography.pxToRem(36)};
 `
@@ -884,50 +884,13 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
           </Box>
         </>
       )}
-      <Container
+      <TwoCallToActions
+        hidePricing={hidePricing}
         sx={{
           pt: { xs: 6, md: 12 },
           pb: { xs: 5, md: 15 }
         }}
-        maxWidth="md"
-      >
-        <TypographyH1Primary
-          textAlign="center"
-          sx={{
-            mb: 2
-          }}
-          variant="h2"
-        >
-          {t('leading_maintenance')}
-        </TypographyH1Primary>
-        <Container
-          sx={{
-            mb: 6,
-            justifyContent: 'center'
-          }}
-          maxWidth="sm"
-        >
-          <Stack
-            direction={{ xs: 'column', sm: 'row' }}
-            justifyContent={'center'}
-            spacing={2}
-          >
-            <Button
-              component={RouterLink}
-              size="large"
-              to="/account/register"
-              variant="contained"
-            >
-              {hidePricing ? 'Sign Up for Free' : t('register')}
-            </Button>
-            {!hidePricing && (
-              <Button size="large" href={demoLink} variant="outlined">
-                {t('book_demo')}
-              </Button>
-            )}
-          </Stack>
-        </Container>
-      </Container>
+      />
     </BoxHighlights>
   );
 }

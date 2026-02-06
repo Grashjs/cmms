@@ -15,7 +15,7 @@ const TypographyH1 = styled(Typography)(
 `
 );
 
-const TypographyH2 = styled(Typography)(
+export const TypographyH2 = styled(Typography)(
   ({ theme }) => `
     font-size: ${theme.typography.pxToRem(17)};
 `

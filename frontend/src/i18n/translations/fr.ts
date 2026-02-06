@@ -1566,7 +1566,9 @@ const frJSON = {
   recent_work_orders: 'Ordres de travail récents',
   no_recent_work_orders: 'Aucun ordre de travail',
   delete_account: 'Supprimer le compte',
-  csv_separator: 'Séparateur CSV'
+  csv_separator: 'Séparateur CSV',
+  open_source_cmms: 'GMAO Open Source',
+  'main.title': 'GMAO open source gratuite (gestion de la maintenance) – '
 };
 
 export default frJSON;

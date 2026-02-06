@@ -48,6 +48,7 @@ import {
   useMediaQuery
 } from '@mui/material';
 import { fireGa4Event } from '../../utils/overall';
+import { Footer } from '../../components/Footer';
 
 const PricingWrapper = styled(Box)(
   ({ theme }) => `
@@ -337,6 +338,7 @@ function Pricing() {
         </Card>
         <Faq />
       </Container>
+      <Footer />
     </PricingWrapper>
   );
 }

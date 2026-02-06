@@ -1492,7 +1492,9 @@ const trJSON = {
   'schedule.monthly_other': 'Her {{count}} ay',
   'schedule.yearly_one': 'Her {{count}} yıl',
   'schedule.yearly_other': 'Her {{count}} yıl',
-  csv_separator: 'CSV ayırıcı'
+  csv_separator: 'CSV ayırıcı',
+  open_source_cmms: 'Açık kaynaklı CMMS',
+  'main.title': 'Ücretsiz açık kaynaklı CMMS (bakım yönetimi) – '
 };
 
 export default trJSON;
