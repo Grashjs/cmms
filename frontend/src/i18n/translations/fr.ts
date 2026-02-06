@@ -1568,7 +1568,8 @@ const frJSON = {
   delete_account: 'Supprimer le compte',
   csv_separator: 'Séparateur CSV',
   open_source_cmms: 'GMAO Open Source',
-  'main.title': 'GMAO open source gratuite (gestion de la maintenance) – '
+  'main.title':
+    'GMAO open source gratuite (logiciel de gestion de la maintenance) – '
 };
 
 export default frJSON;

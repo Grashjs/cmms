@@ -1481,6 +1481,6 @@ const locale = {
   no_assets_available: 'Geen assets beschikbaar',
   csv_separator: 'CSV scheidingsteken',
   open_source_cmms: 'Open-source CMMS',
-  'main.title': 'Gratis open-source CMMS (onderhoudsbeheer) – '
+  'main.title': 'Gratis open-source CMMS (onderhoudsbeheersoftware) – '
 };
 export default locale;

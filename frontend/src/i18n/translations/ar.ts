@@ -1384,7 +1384,7 @@ const locale = {
   see_live_demo: 'عرض العرض المباشر',
   csv_separator: 'محدد CSV',
   open_source_cmms: 'نظام صيانة مفتوح المصدر (CMMS)',
-  'main.title': 'نظام صيانة مجاني مفتوح المصدر (إدارة الصيانة) – '
+  'main.title': 'نظام صيانة مجاني مفتوح المصدر (برنامج إدارة الصيانة) – '
 };
 
 export default locale;

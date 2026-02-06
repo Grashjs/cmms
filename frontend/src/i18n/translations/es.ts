@@ -1498,7 +1498,8 @@ const esJSON = {
   delete_account: 'Eliminar cuenta',
   csv_separator: 'Separador CSV',
   open_source_cmms: 'CMMS de código abierto',
-  'main.title': 'CMMS gratuito de código abierto (gestión de mantenimiento) – '
+  'main.title':
+    'CMMS gratuito de código abierto (software de gestión de mantenimiento) – '
 };
 
 export default esJSON;

@@ -1483,7 +1483,8 @@ const plJSON = {
   'schedule.yearly_other': 'Co {{count}} lat',
   csv_separator: 'Separator CSV',
   open_source_cmms: 'CMMS open source',
-  'main.title': 'Darmowy CMMS open source (zarządzanie utrzymaniem ruchu) – '
+  'main.title':
+    'Darmowy CMMS open source (oprogramowanie do zarządzania utrzymaniem ruchu) – '
 };
 
 export default plJSON;

@@ -1506,7 +1506,8 @@ const ptBRJSON = {
   'schedule.yearly_other': 'A cada {{count}} anos',
   csv_separator: 'Separador CSV',
   open_source_cmms: 'CMMS de código aberto',
-  'main.title': 'CMMS gratuito e open source (gestão de manutenção) – '
+  'main.title':
+    'CMMS gratuito e open source (software de gestão de manutenção) – '
 };
 
 export default ptBRJSON;

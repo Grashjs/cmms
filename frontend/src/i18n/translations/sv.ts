@@ -1459,7 +1459,8 @@ const locale = {
   'schedule.yearly_other': 'Var {{count}} år',
   csv_separator: 'CSV-separator',
   open_source_cmms: 'CMMS med öppen källkod',
-  'main.title': 'Gratis CMMS med öppen källkod (underhållshantering) – '
+  'main.title':
+    'Gratis CMMS med öppen källkod (programvara för underhållshantering) – '
 };
 
 export default locale;

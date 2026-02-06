@@ -1450,7 +1450,7 @@ const locale = {
   csv_separator: 'CSV separator',
   Advantages: 'Advantages',
   open_source_cmms: 'Open-Source CMMS',
-  'main.title': 'Free Open-Source CMMS (Maintenance Management) – '
+  'main.title': 'Free Open-Source CMMS (Maintenance Management Software) – '
 };
 
 export default locale;

@@ -1330,7 +1330,8 @@ const locale = {
   vendors: 'Beszállítók',
   csv_separator: 'CSV elválasztó',
   open_source_cmms: 'Nyílt forráskódú CMMS',
-  'main.title': 'Ingyenes nyílt forráskódú CMMS (karbantartáskezelés) – '
+  'main.title':
+    'Ingyenes nyílt forráskódú CMMS (karbantartáskezelő szoftver) – '
 };
 
 export default locale;

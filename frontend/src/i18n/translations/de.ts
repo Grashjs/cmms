@@ -1512,7 +1512,8 @@ const deJSON = {
   delete_account: 'Konto löschen',
   csv_separator: 'CSV-Trennzeichen',
   open_source_cmms: 'Open-Source-CMMS',
-  'main.title': 'Kostenlose Open-Source-CMMS (Instandhaltungsmanagement) – '
+  'main.title':
+    'Kostenlose Open-Source-CMMS (Instandhaltungsmanagement-Software) – '
 };
 
 export default deJSON;

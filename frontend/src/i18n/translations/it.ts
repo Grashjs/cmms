@@ -1481,7 +1481,8 @@ const locale = {
   'schedule.yearly_other': 'Ogni {{count}} anni',
   csv_separator: 'Separatore CSV',
   open_source_cmms: 'CMMS open source',
-  'main.title': 'CMMS open source gratuito (gestione della manutenzione) – '
+  'main.title':
+    'CMMS open source gratuito (software di gestione della manutenzione) – '
 };
 
 export default locale;
