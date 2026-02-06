@@ -94,6 +94,7 @@ public class PaddleService {
         // Set checkout settings
         PaddleCheckout checkout = new PaddleCheckout();
         if (selfHosted) checkout.setUrl(frontendUrl + "/pricing?type=selfhosted");
+        else checkout.setUrl(frontendUrl + "/app/subscription/plans");
         transactionRequest.setCheckout(checkout);
 
         try {
