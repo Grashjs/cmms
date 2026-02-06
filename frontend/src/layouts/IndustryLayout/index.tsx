@@ -20,12 +20,13 @@ import { demoLink } from '../../config';
 import { OverviewWrapper } from '../../content/landing';
 import { TypographyH2 } from '../../content/landing/HeroFree';
 import { SvgIconComponent } from '@mui/icons-material';
+import TwoCallToActions from '../../content/landing/components/TwoCallToActions';
 
 interface Feature {
   title: string;
   description: string;
   imageUrl: string;
-  learnMoreUrl: string;
+  learnMoreUrl?: string;
 }
 
 interface Testimonial {
@@ -266,9 +267,15 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
                 <Typography variant="body1" paragraph>
                   {feature.description}
                 </Typography>
-                <Button variant="outlined" href={feature.learnMoreUrl}>
-                  Learn More
-                </Button>
+                {feature.learnMoreUrl ? (
+                  <Button variant="outlined" href={feature.learnMoreUrl}>
+                    Learn More
+                  </Button>
+                ) : (
+                  <Button variant={'outlined'} href={'/account/register'}>
+                    {t('try_for_free')}
+                  </Button>
+                )}
               </Grid>
               <Grid
                 item
@@ -320,7 +327,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
             </Container>
           </Box>
         )}
-
+        <TwoCallToActions />
         {/* FAQ */}
         <Container maxWidth="lg">
           <FaqComponent

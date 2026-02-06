@@ -36,22 +36,19 @@ const sparePartsData: IndustryLayoutProps = {
       title: 'Centralized spare parts catalog',
       description:
         'Store detailed information for every part including quantity, location, suppliers, compatible assets, and historical usage.',
-      imageUrl: '/static/images/features/spareparts-catalog.png',
-      learnMoreUrl: '/account/register'
+      imageUrl: '/static/images/features/spareparts-catalog.png'
     },
     {
       title: 'Smart stock tracking and alerts',
       description:
         'Monitor consumption in real time and receive notifications when stock reaches critical thresholds to prevent downtime.',
-      imageUrl: '/static/images/features/spareparts-alerts.png',
-      learnMoreUrl: '/account/register'
+      imageUrl: '/static/images/features/spareparts-alerts.png'
     },
     {
       title: 'Integrated purchasing and cost control',
       description:
         'Create purchase orders, analyze spending trends, and optimize inventory levels to reduce waste and control maintenance budgets.',
-      imageUrl: '/static/images/features/spareparts-purchasing.png',
-      learnMoreUrl: '/account/register'
+      imageUrl: '/static/images/features/spareparts-purchasing.png'
     }
   ],
 

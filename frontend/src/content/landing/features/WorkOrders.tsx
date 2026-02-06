@@ -35,22 +35,19 @@ const workOrdersData: IndustryLayoutProps = {
       title: 'Create work orders with a scan or a click',
       description:
         'Start new work orders from your dashboard, asset records, or vendors. Add details and photos directly from your phone using our open-source mobile app.',
-      imageUrl: '/static/images/features/wo-creation.png',
-      learnMoreUrl: '/account/register'
+      imageUrl: '/static/images/features/wo-creation.png'
     },
     {
       title: 'Assign and follow up on tasks',
       description:
         'Automatically assign work orders and link them to assets and parts for a complete, open-source workflow management experience.',
-      imageUrl: '/static/images/features/wo-assignment.png',
-      learnMoreUrl: '/account/register'
+      imageUrl: '/static/images/features/wo-assignment.png'
     },
     {
       title: 'Search, filter, and prioritize work orders',
       description:
         'Easily sort and prioritize work orders company-wide by importance, team, location, asset, and more—all on an open-source platform.',
-      imageUrl: '/static/images/features/wo-filter.png',
-      learnMoreUrl: '/account/register'
+      imageUrl: '/static/images/features/wo-filter.png'
     }
   ],
 

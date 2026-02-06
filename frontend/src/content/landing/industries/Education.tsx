@@ -7,7 +7,7 @@ const educationData: IndustryLayoutProps = {
   headerTitle: 'Smart Maintenance for Schools, Colleges & Universities',
   headerSubtitle:
     'Ensure student safety and optimize campus operations with a self-hosted CMMS. Track every asset from the boiler room to the classroom without per-user licensing fees.',
-  headerImageUrl: '/static/images/industries/education-campus-hero.jpg',
+  headerImageUrl: '/static/images/industries/school-hero.jpg',
 
   kpis: [
     {
@@ -39,16 +39,13 @@ const educationData: IndustryLayoutProps = {
       title: 'Campus-Wide Work Request Portal',
       description:
         'Give teachers and staff a simple way to report leaks, broken fixtures, or HVAC issues. No login required for requesters, keeping your hallways safe and functional.',
-      imageUrl: 'https://atlas-cmms.com/assets/features/edu-requests.png',
-      learnMoreUrl: '/features/request-portal'
+      imageUrl: 'https://atlas-cmms.com/assets/features/edu-requests.png'
     },
     {
       title: 'Regulatory & Safety Compliance',
       description:
         'Automate inspections for fire extinguishers, playground equipment, and lab safety. Maintain a digital paper trail for state audits and insurance requirements.',
-      imageUrl:
-        'https://atlas-cmms.com/assets/features/compliance-tracking.png',
-      learnMoreUrl: '/features/compliance'
+      imageUrl: 'https://atlas-cmms.com/assets/features/compliance-tracking.png'
     },
     {
       title: 'Multi-Building Asset Mapping',

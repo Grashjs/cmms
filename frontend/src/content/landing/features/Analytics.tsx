@@ -36,22 +36,19 @@ const reportsDashboardsData: IndustryLayoutProps = {
       title: 'Automated maintenance reporting',
       description:
         'Generate and share scheduled or real-time reports on assets, work orders, costs, and performance without manual effort.',
-      imageUrl: '/static/images/features/reports-automation.png',
-      learnMoreUrl: '/account/register'
+      imageUrl: '/static/images/features/reports-automation.png'
     },
     {
       title: 'Flexible and interactive dashboards',
       description:
         'Build custom widgets, calculate KPIs, and organize visualizations to match your operational workflows and goals.',
-      imageUrl: '/static/images/features/reports-dashboards.png',
-      learnMoreUrl: '/account/register'
+      imageUrl: '/static/images/features/reports-dashboards.png'
     },
     {
       title: 'Team and asset performance analytics',
       description:
         'Track MTTR, MTBF, workload distribution, and maintenance efficiency to understand where improvements are needed most.',
-      imageUrl: '/static/images/features/reports-analytics.png',
-      learnMoreUrl: '/account/register'
+      imageUrl: '/static/images/features/reports-analytics.png'
     }
   ],
 

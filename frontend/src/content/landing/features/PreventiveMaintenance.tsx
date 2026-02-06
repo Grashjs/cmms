@@ -36,22 +36,19 @@ const preventiveMaintenanceData: IndustryLayoutProps = {
       title: 'Flexible maintenance scheduling',
       description:
         'Configure daily, weekly, monthly, or usage-based preventive maintenance tasks for any asset, location, or team.',
-      imageUrl: '/static/images/features/pm-scheduling.png',
-      learnMoreUrl: '/account/register'
+      imageUrl: '/static/images/features/pm-scheduling.png'
     },
     {
       title: 'Automatic work order generation',
       description:
         'Generate work orders instantly when preventive schedules are due so technicians always know what to do next.',
-      imageUrl: '/static/images/features/pm-workorders.png',
-      learnMoreUrl: '/account/register'
+      imageUrl: '/static/images/features/pm-workorders.png'
     },
     {
       title: 'Full maintenance history tracking',
       description:
         'Maintain a complete record of inspections, repairs, parts, and technician actions for audits and performance analysis.',
-      imageUrl: '/static/images/features/pm-history.png',
-      learnMoreUrl: '/account/register'
+      imageUrl: '/static/images/features/pm-history.png'
     }
   ],
 

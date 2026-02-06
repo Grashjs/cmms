@@ -7,7 +7,7 @@ const atlasHospitalityData: IndustryLayoutProps = {
   headerTitle: 'Host Your Own Guest-Centric Maintenance Platform',
   headerSubtitle:
     'Eliminate recurring SaaS fees with Atlas CMMS. A self-hosted solution for hotels and resorts that prioritizes data privacy, unlimited users, and seamless room turnover.',
-  headerImageUrl: '/static/images/industries/hospitality-self-hosted.jpg',
+  headerImageUrl: '/static/images/industries/hospitality-hero.jpg',
 
   kpis: [
     {
@@ -39,8 +39,7 @@ const atlasHospitalityData: IndustryLayoutProps = {
       title: 'Anonymous Guest Reporting',
       description:
         'Deploy QR codes in guest rooms that link to a lightweight web portal. Guests can report issues without creating an account, keeping your response times fast and frictionless.',
-      imageUrl: 'https://atlas-cmms.com/assets/features/guest-portal.png',
-      learnMoreUrl: '/docs/guest-portals'
+      imageUrl: 'https://atlas-cmms.com/assets/features/guest-portal.png'
     },
     {
       title: 'Preventive Housekeeping Cycles',
@@ -53,8 +52,7 @@ const atlasHospitalityData: IndustryLayoutProps = {
       title: 'Unlimited Staff & Contractor Seats',
       description:
         'Stop paying per head. Add your entire housekeeping, engineering, and third-party vendor teams to the platform without increasing your monthly overhead.',
-      imageUrl: 'https://atlas-cmms.com/assets/features/unlimited-users.png',
-      learnMoreUrl: '/docs/user-management'
+      imageUrl: 'https://atlas-cmms.com/assets/features/unlimited-users.png'
     }
   ],
 

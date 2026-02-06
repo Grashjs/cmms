@@ -36,22 +36,19 @@ const assetsData: IndustryLayoutProps = {
       title: 'Organize and track unlimited assets',
       description:
         'Create structured asset hierarchies, attach documents, scan QR codes, and instantly access asset details from the field using our open-source mobile app.',
-      imageUrl: '/static/images/features/assets-organization.png',
-      learnMoreUrl: '/account/register'
+      imageUrl: '/static/images/features/assets-organization.png'
     },
     {
       title: 'Automate preventive maintenance',
       description:
         'Schedule recurring maintenance, inspections, and part replacements to keep equipment running efficiently without manual reminders.',
-      imageUrl: '/static/images/features/assets-preventive.png',
-      learnMoreUrl: '/account/register'
+      imageUrl: '/static/images/features/assets-preventive.png'
     },
     {
       title: 'View complete asset history and performance',
       description:
         'Track work orders, downtime, maintenance costs, and lifecycle metrics to understand which assets drive productivity and which require attention.',
-      imageUrl: '/static/images/features/assets-history.png',
-      learnMoreUrl: '/account/register'
+      imageUrl: '/static/images/features/assets-history.png'
     }
   ],
 

@@ -7,7 +7,7 @@ const foodBeverageData: IndustryLayoutProps = {
   headerTitle: 'Maintenance Management for Food & Beverage Operations',
   headerSubtitle:
     'Ensure product quality, meet safety regulations, and keep production running with a self-hosted CMMS designed for food processing plants, factories, and distribution facilities.',
-  headerImageUrl: '/static/images/industries/food-beverage-hero.jpg',
+  headerImageUrl: '/static/images/industries/food-hero.jpg',
 
   kpis: [
     {

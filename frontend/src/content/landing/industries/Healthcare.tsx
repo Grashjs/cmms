@@ -54,7 +54,7 @@ const healthcareData: IndustryLayoutProps = {
       description:
         'Monitor maintenance KPIs, compliance status, and team performance in real time with dashboards tailored to hospital and facility management teams.',
       imageUrl: '/static/images/features/reports-dashboards.png',
-      learnMoreUrl: '/features/reports-dashboards'
+      learnMoreUrl: '/features/analytics'
     }
   ],
 

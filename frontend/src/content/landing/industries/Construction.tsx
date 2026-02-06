@@ -7,7 +7,7 @@ const constructionData: IndustryLayoutProps = {
   headerTitle: 'Keep Heavy Iron Moving without the Heavy Fees',
   headerSubtitle:
     'The first open-source CMMS built for the job site. Track yellow iron, manage field work orders, and maintain safety compliance across multiple projects—all on your own infrastructure.',
-  headerImageUrl: '/static/images/industries/construction-heavy-equipment.jpg',
+  headerImageUrl: '/static/images/industries/construction-hero.jpg',
 
   kpis: [
     {
@@ -40,21 +40,20 @@ const constructionData: IndustryLayoutProps = {
       description:
         'Manage everything from excavators to power tools. Use the open API to integrate with GPS telematics and track engine hours automatically for more accurate PM scheduling.',
       imageUrl: 'https://atlas-cmms.com/assets/features/heavy-equipment.png',
-      learnMoreUrl: '/docs/asset-management'
+      learnMoreUrl: '/features/assets'
     },
     {
       title: 'Offline-First Field Work Orders',
       description:
         'Construction sites don’t always have Wi-Fi. Our mobile-ready portal allows technicians to log repairs and safety inspections offline, syncing as soon as they reach a signal.',
       imageUrl: 'https://atlas-cmms.com/assets/features/offline-mode.png',
-      learnMoreUrl: '/docs/mobile-field-app'
+      learnMoreUrl: '/features/work-orders'
     },
     {
       title: 'Multi-Site Project Sync',
       description:
         'Organize your fleet by project code or geographic region. Move assets between job sites and maintain a continuous service history that stays with the machine, not the vendor.',
-      imageUrl: 'https://atlas-cmms.com/assets/features/project-sync.png',
-      learnMoreUrl: '/docs/multi-site'
+      imageUrl: 'https://atlas-cmms.com/assets/features/project-sync.png'
     }
   ],
 
