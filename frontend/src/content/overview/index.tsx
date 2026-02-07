@@ -60,6 +60,7 @@ function Overview() {
           name="keywords"
           content="CMMS, computerized maintenance management system, EAM, enterprise asset management, open source CMMS, free maintenance software, work order management, preventive maintenance, asset tracking, facility management, maintenance tracking software, equipment maintenance, Atlas CMMS"
         />
+        <link rel="canonical" href="https://atlas-cmms.com/" />
       </Helmet>
       <NavBar />
       <Hero />
