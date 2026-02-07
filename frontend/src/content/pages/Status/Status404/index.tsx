@@ -46,6 +46,7 @@ function Status404() {
     <>
       <Helmet>
         <title>Status - 404</title>
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
       <MainContent>
         <Container maxWidth="md">
