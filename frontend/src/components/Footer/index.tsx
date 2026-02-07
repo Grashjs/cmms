@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { GitHub, LinkedIn, Mail, Phone, Sms } from '@mui/icons-material';
 import { featuresLinks, industriesLinks } from '../../utils/urlPaths';
 import { useTranslation } from 'react-i18next';
+import { ReactNode } from 'react';
 
 const FooterWrapper = styled(Box)(
   ({ theme }) => `
@@ -39,12 +40,74 @@ const SectionHeading = styled(Typography)(
     margin-bottom: ${theme.spacing(2)};
 `
 );
+interface ContactItem {
+  icon: ReactNode;
+  text: string;
+  onClick?: () => void;
+}
+
+interface LinkItem {
+  href: string;
+  text: string;
+}
+
+interface DynamicLinkItem {
+  href: string;
+  title: string;
+}
+
+interface SocialItem {
+  href: string;
+  icon: ReactNode;
+}
+
+interface AppItem {
+  href: string;
+  image: string;
+  alt: string;
+}
+
+interface BaseFooterSection {
+  title: string;
+}
+
+interface ContactSection extends BaseFooterSection {
+  type: 'contact';
+  items: ContactItem[];
+}
+
+interface LinksSection extends BaseFooterSection {
+  type: 'links';
+  items: LinkItem[];
+}
+
+interface DynamicSection extends BaseFooterSection {
+  type: 'dynamic';
+  items: DynamicLinkItem[];
+}
+
+interface SocialSection extends BaseFooterSection {
+  type: 'social';
+  items: SocialItem[];
+}
+
+interface AppsSection extends BaseFooterSection {
+  type: 'apps';
+  items: AppItem[];
+}
+
+type FooterSection =
+  | ContactSection
+  | LinksSection
+  | DynamicSection
+  | SocialSection
+  | AppsSection;
 
 export function Footer() {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const footerSections = [
+  const footerSections: FooterSection[] = [
     {
       title: 'Contact',
       type: 'contact',
@@ -118,7 +181,7 @@ export function Footer() {
     }
   ];
 
-  const renderSectionContent = (section) => {
+  const renderSectionContent = (section: FooterSection) => {
     switch (section.type) {
       case 'contact':
         return (
