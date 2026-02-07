@@ -1572,7 +1572,7 @@ const frJSON = {
     'GMAO open source gratuite (logiciel de gestion de la maintenance) – ',
   'home.h1':
     'GMAO gratuite et open source que vous pouvez héberger vous-même ou utiliser dans le cloud',
-  'home.h2': 'Une GMAO puissante sans le coût élevé',
+  'home.h2': 'Une maintenance puissante à faible coût',
   'home.h3':
     'Arrêtez de compter sur les feuilles de calcul et les tableaux blancs. {{brandName}} aide les équipes de maintenance à planifier les interventions, à suivre les équipements et à rester conformes. Hébergez vous-même sur votre serveur ou commencez instantanément dans le cloud.',
   talk_to_sales: 'Parler à un expert'

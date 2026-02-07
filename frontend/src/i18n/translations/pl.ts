@@ -1487,7 +1487,7 @@ const plJSON = {
     'Darmowy CMMS open source (oprogramowanie do zarządzania utrzymaniem ruchu) – ',
   'home.h1':
     'Darmowy CMMS o otwartym kodzie źródłowym, który możesz hostować samodzielnie lub w chmurze',
-  'home.h2': 'Potężny CMMS bez wysokich kosztów',
+  'home.h2': 'Potężna konserwacja przy niskich kosztach',
   'home.h3':
     'Przestań polegać na arkuszach kalkulacyjnych i tablicach. {{brandName}} pomaga zespołom ds. utrzymania ruchu planować interwencje, śledzić sprzęt i zachować zgodność z przepisami. Hostuj na własnym serwerze lub zacznij natychmiast w chmurze.',
   talk_to_sales: 'Porozmawiaj z działem sprzedaży'

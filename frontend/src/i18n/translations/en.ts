@@ -1452,7 +1452,7 @@ const locale = {
   open_source_cmms: 'Open-Source CMMS',
   'main.title': 'Free Open-Source CMMS (Maintenance Management Software) – ',
   'home.h1': 'Free & Open-Source CMMS You Can Self-Host or Use in the Cloud',
-  'home.h2': 'Powerful CMMS Without the High Cost',
+  'home.h2': 'Powerful Maintenance at a Low Cost',
   'home.h3':
     'Stop relying on spreadsheets and whiteboards. {{brandName}} helps maintenance teams plan interventions, track equipment, and stay compliant. Self-host on your server or start instantly in the cloud.',
   talk_to_sales: 'Talk to sales'

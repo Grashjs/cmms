@@ -1203,7 +1203,7 @@ const locale = {
   open_source_cmms: '开源 CMMS',
   'main.title': '免费开源 CMMS（维护管理软件）– ',
   'home.h1': '您可以自托管或在云端使用的免费开源 CMMS',
-  'home.h2': '功能强大且成本低廉的 CMMS',
+  'home.h2': '功能强大且成本低廉的维护',
   'home.h3':
     '停止依赖电子表格和白板。{{brandName}} 帮助维护团队计划干预、跟踪设备并保持合规。在您的服务器上自托管或立即在云端开始。',
   talk_to_sales: '与销售联系'

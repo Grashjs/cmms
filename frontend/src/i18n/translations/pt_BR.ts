@@ -1507,7 +1507,13 @@ const ptBRJSON = {
   csv_separator: 'Separador CSV',
   open_source_cmms: 'CMMS de código aberto',
   'main.title':
-    'CMMS gratuito e open source (software de gestão de manutenção) – '
+    'CMMS gratuito e open source (software de gestão de manutenção) – ',
+  'home.h1':
+    'CMMS gratuito e de código aberto que você pode hospedar por conta própria ou usar na nuvem',
+  'home.h2': 'Manutenção potente a baixo custo',
+  'home.h3':
+    'Pare de depender de planilhas e quadros brancos. {{brandName}} ajuda as equipes de manutenção a planejar intervenções, rastrear equipamentos e manter a conformidade. Hospede em seu próprio servidor ou comece instantaneamente na nuvem.',
+  talk_to_sales: 'Fale com vendas'
 };
 
 export default ptBRJSON;

@@ -144,7 +144,7 @@ function Hero() {
               mb: 2
             }}
             fontSize={50}
-            variant="h5"
+            variant="h1"
             component="h2"
           >
             {t('home.h2')}

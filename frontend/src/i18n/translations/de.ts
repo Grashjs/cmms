@@ -1516,7 +1516,7 @@ const deJSON = {
     'Kostenlose Open-Source-CMMS (Instandhaltungsmanagement-Software) – ',
   'home.h1':
     'Kostenloses und Open-Source-CMMS, das Sie selbst hosten oder in der Cloud nutzen können',
-  'home.h2': 'Leistungsstarkes CMMS ohne die hohen Kosten',
+  'home.h2': 'Leistungsstarke Wartung zu geringen Kosten',
   'home.h3':
     'Verlassen Sie sich nicht mehr auf Tabellenkalkulationen und Whiteboards. {{brandName}} hilft Wartungsteams bei der Planung von Interventionen, der Verfolgung von Geräten und der Einhaltung von Vorschriften. Hosten Sie es selbst auf Ihrem Server oder starten Sie sofort in der Cloud.',
   talk_to_sales: 'Kontaktieren Sie den Vertrieb'

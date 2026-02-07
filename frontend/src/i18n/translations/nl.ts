@@ -1484,7 +1484,7 @@ const locale = {
   'main.title': 'Gratis open-source CMMS (onderhoudsbeheersoftware) – ',
   'home.h1':
     'Gratis en open-source CMMS dat u zelf kunt hosten of in de cloud kunt gebruiken',
-  'home.h2': 'Krachtig CMMS zonder de hoge kosten',
+  'home.h2': 'Krachtig onderhoud tegen lage kosten',
   'home.h3':
     'Stop met vertrouwen op spreadsheets en whiteboards. {{brandName}} helpt onderhoudsteams bij het plannen van interventies, het volgen van apparatuur en het naleven van de voorschriften. Host op uw eigen server of start direct in de cloud.',
   talk_to_sales: 'Praat met verkoop'
