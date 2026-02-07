@@ -54,7 +54,7 @@ function Overview() {
         </title>
         <meta
           name="description"
-          content="Atlas CMMS is a high-performance, open-source Computerized Maintenance Management System. Streamline work orders, preventive maintenance, asset tracking, and facility management with our free CMMS software."
+          content="Atlas CMMS is a free, open-source CMMS to manage work orders, preventive maintenance, assets, and facilities. Streamline maintenance operations today."
         />
         <meta
           name="keywords"
