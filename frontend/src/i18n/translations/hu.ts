@@ -1331,7 +1331,13 @@ const locale = {
   csv_separator: 'CSV elválasztó',
   open_source_cmms: 'Nyílt forráskódú CMMS',
   'main.title':
-    'Ingyenes nyílt forráskódú CMMS (karbantartáskezelő szoftver) – '
+    'Ingyenes nyílt forráskódú CMMS (karbantartáskezelő szoftver) – ',
+  'home.h1':
+    'Ingyenes és nyílt forráskódú CMMS, amelyet saját maga is üzemeltethet, vagy használhat a felhőben',
+  'home.h2': 'Erőteljes CMMS magas költségek nélkül',
+  'home.h3':
+    'Ne hagyatkozzon többé táblázatokra és fehértáblákra. A {{brandName}} segít a karbantartó csapatoknak a beavatkozások tervezésében, a berendezések nyomon követésében és a megfelelőség fenntartásában. Üzemeltesse saját szerverén, vagy kezdje el azonnal a felhőben.',
+  talk_to_sales: 'Beszéljen az értékesítéssel'
 };
 
 export default locale;

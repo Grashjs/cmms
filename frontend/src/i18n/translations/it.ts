@@ -1482,7 +1482,13 @@ const locale = {
   csv_separator: 'Separatore CSV',
   open_source_cmms: 'CMMS open source',
   'main.title':
-    'CMMS open source gratuito (software di gestione della manutenzione) – '
+    'CMMS open source gratuito (software di gestione della manutenzione) – ',
+  'home.h1':
+    'CMMS gratuito e open-source che puoi ospitare tu stesso o utilizzare nel cloud',
+  'home.h2': 'Potente CMMS senza i costi elevati',
+  'home.h3':
+    'Smetti di affidarti a fogli di calcolo e lavagne. {{brandName}} aiuta i team di manutenzione a pianificare interventi, tracciare attrezzature e rimanere conformi. Ospita sul tuo server o inizia istantaneamente nel cloud.',
+  talk_to_sales: 'Parla con le vendite'
 };
 
 export default locale;

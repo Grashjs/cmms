@@ -1460,7 +1460,13 @@ const locale = {
   csv_separator: 'CSV-separator',
   open_source_cmms: 'CMMS med öppen källkod',
   'main.title':
-    'Gratis CMMS med öppen källkod (programvara för underhållshantering) – '
+    'Gratis CMMS med öppen källkod (programvara för underhållshantering) – ',
+  'home.h1':
+    'Gratis och open-source CMMS som du kan vara värd för själv eller använda i molnet',
+  'home.h2': 'Kraftfullt CMMS utan de höga kostnaderna',
+  'home.h3':
+    'Sluta förlita dig på kalkylblad och whiteboards. {{brandName}} hjälper underhållsteam att planera interventioner, spåra utrustning och förbli kompatibla. Var värd på din egen server eller börja direkt i molnet.',
+  talk_to_sales: 'Prata med försäljning'
 };
 
 export default locale;

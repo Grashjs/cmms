@@ -1499,7 +1499,13 @@ const esJSON = {
   csv_separator: 'Separador CSV',
   open_source_cmms: 'CMMS de código abierto',
   'main.title':
-    'CMMS gratuito de código abierto (software de gestión de mantenimiento) – '
+    'CMMS gratuito de código abierto (software de gestión de mantenimiento) – ',
+  'home.h1':
+    'CMMS gratuito y de código abierto que puede alojar usted mismo o usar en la nube',
+  'home.h2': 'Potente CMMS sin el alto costo',
+  'home.h3':
+    'Deje de depender de hojas de cálculo y pizarras. {{brandName}} ayuda a los equipos de mantenimiento a planificar intervenciones, rastrear equipos y mantenerse en cumplimiento. Alójelo en su propio servidor o comience instantáneamente en la nube.',
+  talk_to_sales: 'Hablar con ventas'
 };
 
 export default esJSON;

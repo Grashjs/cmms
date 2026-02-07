@@ -1414,7 +1414,7 @@ const locale = {
     "Password - leave empty if you don't want to change it",
   upgrade_request_success: "Upgrade request received! We'll contact you soon",
   continue_with_sso: 'Continue with SSO',
-  see_live_demo: 'See live demo',
+  see_live_demo: 'View live demo',
   demo_warning:
     'This instance is in demo mode. Do not use this for real data! Everything will be deleted at regular intervals!',
   days: 'Days',
@@ -1450,7 +1450,12 @@ const locale = {
   csv_separator: 'CSV separator',
   Advantages: 'Advantages',
   open_source_cmms: 'Open-Source CMMS',
-  'main.title': 'Free Open-Source CMMS (Maintenance Management Software) – '
+  'main.title': 'Free Open-Source CMMS (Maintenance Management Software) – ',
+  'home.h1': 'Free & Open-Source CMMS You Can Self-Host or Use in the Cloud',
+  'home.h2': 'Powerful CMMS Without the High Cost',
+  'home.h3':
+    'Stop relying on spreadsheets and whiteboards. {{brandName}} helps maintenance teams plan interventions, track equipment, and stay compliant. Self-host on your server or start instantly in the cloud.',
+  talk_to_sales: 'Talk to sales'
 };
 
 export default locale;

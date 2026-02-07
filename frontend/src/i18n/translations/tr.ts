@@ -1494,7 +1494,13 @@ const trJSON = {
   'schedule.yearly_other': 'Her {{count}} yıl',
   csv_separator: 'CSV ayırıcı',
   open_source_cmms: 'Açık kaynaklı CMMS',
-  'main.title': 'Ücretsiz açık kaynaklı CMMS (bakım yönetimi yazılımı) – '
+  'main.title': 'Ücretsiz açık kaynaklı CMMS (bakım yönetimi yazılımı) – ',
+  'home.h1':
+    'Kendi sunucunuzda barındırabileceğiniz veya bulutta kullanabileceğiniz ücretsiz ve açık kaynaklı CMMS',
+  'home.h2': 'Yüksek maliyetler olmadan güçlü CMMS',
+  'home.h3':
+    'Elektronik tablolara ve beyaz tahtalara güvenmeyi bırakın. {{brandName}}, bakım ekiplerinin müdahaleleri planlamasına, ekipmanları takip etmesine ve uyumlu kalmasına yardımcı olur. Kendi sunucunuzda barındırın veya bulutta anında başlayın.',
+  talk_to_sales: 'Satışla konuşun'
 };
 
 export default trJSON;
