@@ -135,7 +135,7 @@ function Hero() {
         alignItems="center"
         container
       >
-        <Grid item md={6} pr={{ xs: 0, md: 3 }}>
+        <Grid item md={6} pr={{ xs: 0, md: 4 }}>
           <Typography component="h1" variant="h4" mb={2}>
             {t('home.h1')}
           </Typography>
