@@ -140,6 +140,7 @@ export function Footer() {
                 }
                 width={'150px'}
                 src={'/static/images/overview/playstore-badge.png'}
+                alt={'playstore badge'}
               />
               <img
                 style={{ cursor: 'pointer' }}
@@ -149,6 +150,7 @@ export function Footer() {
                 }
                 width={'150px'}
                 src={'/static/images/overview/app_store_badge.svg.webp'}
+                alt={'app store badge'}
               />
             </Stack>
           </Grid>
