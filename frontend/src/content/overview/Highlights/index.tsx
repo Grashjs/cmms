@@ -777,102 +777,20 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
           </Tabs>
         </Box>
         {Object.entries(featuresConfiguration).map(([feature, config]) => (
-          <>
-            {currentTab === feature && (
-              <Feature
-                title={t(config.title.key, config.title.params)}
-                descriptions={config.descriptions.map((desc) =>
-                  t(desc.key, desc.params)
-                )}
-                checks={config.checks.map((check) =>
-                  t(check.key, check.params)
-                )}
-                image={config.image}
-              />
-            )}
-          </>
-        ))}
-
-        {/*<SubscriptionPlans />*/}
-        {currentTab === 'rtl' && (
-          <BoxRtl
-            sx={{
-              pt: 10
-            }}
+          <Box
+            key={feature}
+            sx={{ display: currentTab === feature ? 'block' : 'none' }}
           >
-            <Container maxWidth="lg">
-              <Grid container spacing={8}>
-                <Grid
-                  item
-                  xs={12}
-                  md={5}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center'
-                  }}
-                >
-                  <Box>
-                    <TypographyH1Primary variant="h2">
-                      {t('Right-To-Left Layouts & Translation-Ready')}
-                    </TypographyH1Primary>
-                    <Typography
-                      variant="subtitle2"
-                      sx={{
-                        py: 2
-                      }}
-                    >
-                      {t(
-                        "Follow our documentation files to find out how to switch to a RTL layout. It's easy!"
-                      )}
-                    </Typography>
-                    <Typography
-                      variant="h4"
-                      sx={{
-                        my: 2
-                      }}
-                    >
-                      {t('Languages already integrated')}:
-                    </Typography>
-                    <Box
-                      sx={{
-                        svg: {
-                          width: 44,
-                          mr: 1
-                        }
-                      }}
-                    >
-                      <US title="USA" />
-                      <DE title="Germany" />
-                      <ES title="Spain" />
-                      <FR title="France" />
-                      <CN title="China" />
-                      <AE title="United Arab Emirates" />
-                      <BR title="Brazil" />
-                    </Box>
-                    <Typography
-                      sx={{
-                        pt: 1
-                      }}
-                      variant="subtitle1"
-                    >
-                      {t(
-                        'You can add and define translations for any language required. '
-                      )}
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid item xs={12} md={7}>
-                  <ScreenshotWrapper>
-                    <Screenshot
-                      src="/static/images/overview/rtl-preview.jpg"
-                      alt="RTL Preview"
-                    />
-                  </ScreenshotWrapper>
-                </Grid>
-              </Grid>
-            </Container>
-          </BoxRtl>
-        )}
+            <Feature
+              title={t(config.title.key, config.title.params)}
+              descriptions={config.descriptions.map((desc) =>
+                t(desc.key, desc.params)
+              )}
+              checks={config.checks.map((check) => t(check.key, check.params))}
+              image={config.image}
+            />
+          </Box>
+        ))}
       </Container>
       {!hidePricing && (
         <>
