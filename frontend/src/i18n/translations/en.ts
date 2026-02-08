@@ -1626,7 +1626,10 @@ const locale = {
   'pricing.get_your_license': 'Get your license',
   get_started: 'Get Started',
   workflow_automation: 'Workflow Automation',
-  push_notifications: 'Push Notifications'
+  push_notifications: 'Push Notifications',
+  cloud: 'Cloud',
+  self_hosted: 'Self-Hosted',
+  full: 'Full'
 };
 
 export default locale;

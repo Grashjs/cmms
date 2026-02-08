@@ -139,8 +139,8 @@ function Pricing() {
             indicatorColor="primary"
             textColor="primary"
           >
-            <Tab label="Cloud" value="cloud" />
-            <Tab label="Self-Hosted" value="selfhosted" />
+            <Tab label={t('cloud')} value="cloud" />
+            <Tab label={t('self_hosted')} value="selfhosted" />
           </Tabs>
         </Box>
 

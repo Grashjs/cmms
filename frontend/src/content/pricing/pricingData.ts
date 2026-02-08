@@ -15,7 +15,7 @@ export const getPricingPlans = (
   {
     id: 'basic',
     name: t('pricing.plan_basic_name'),
-    price: 'Free',
+    price: t('free'),
     description: t('pricing.plan_basic_description'),
     popular: false,
     features: [
@@ -485,9 +485,9 @@ export const getPlanFeatureCategories = (
           basic: true,
           starter: t('pricing.period_thirty_days'),
           professional: t('pricing.period_full'),
-          business: 'Full',
+          business: t('full'),
           'sh-free': true,
-          'sh-professional': 'Full',
+          'sh-professional': t('full'),
           'sh-business': 'Full'
         }
       },
@@ -907,7 +907,7 @@ export const getSelfHostedPlans = (
     {
       id: 'sh-free',
       name: t('pricing.sh_plan_basic_name'),
-      price: 'Free',
+      price: t('free'),
       description: t('pricing.sh_plan_basic_description'),
       popular: false,
       features: [
