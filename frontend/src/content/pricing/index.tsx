@@ -29,9 +29,9 @@ import { ExpandMore, GitHub } from '@mui/icons-material';
 import CheckCircleOutlineTwoToneIcon from '@mui/icons-material/CheckCircleOutlineTwoTone';
 import { useEffect, useState } from 'react';
 import {
-  pricingPlans,
-  planFeatureCategories,
-  selfHostedPlans
+  getPricingPlans,
+  getPlanFeatureCategories,
+  getSelfHostedPlans
 } from './pricingData';
 import NavBar from '../../components/NavBar';
 import Faq from './components/Faq';
@@ -69,7 +69,8 @@ function Pricing() {
   const type: 'selfhosted' | 'cloud' =
     queryParams.get('type') === 'selfhosted' ? 'selfhosted' : 'cloud';
   const [monthly, setMonthly] = useState<boolean>(true);
-  const typePlans = type === 'cloud' ? pricingPlans : selfHostedPlans;
+  const typePlans =
+    type === 'cloud' ? getPricingPlans(t) : getSelfHostedPlans(t);
   const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
 
   const isXs = useMediaQuery(theme.breakpoints.only('xs'));
@@ -125,12 +126,10 @@ function Pricing() {
       <Container maxWidth="lg" sx={{ mt: 8 }}>
         <Box textAlign="center" mb={6}>
           <Typography variant="h1" component="h1" gutterBottom>
-            {t('Choose your plan and get started')}
+            {t('pricing.choose_plan_and_get_started')}
           </Typography>
           <Typography variant="subtitle1">
-            {t(
-              'Our software gives Maintenance and Reliability teams the tools they need to run Operations efficiently and effectively.'
-            )}
+            {t('pricing.slogan_effective_maintenance')}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
@@ -152,10 +151,10 @@ function Pricing() {
         />
         <Box textAlign="center" my={6}>
           <Typography variant="h1" component="h1" gutterBottom>
-            {t('Compare Plans and Pricing')}
+            {t('pricing.compare_plans_and_pricing')}
           </Typography>
           <Typography variant="subtitle1">
-            {t('See which plan is right for you')}
+            {t('pricing.see_which_plan_is_right_for_you')}
           </Typography>
 
           {/* Plan selection dropdown for small/medium screens */}
@@ -170,8 +169,8 @@ function Pricing() {
             <FormControl fullWidth>
               <InputLabel id="plan-comparison-select-label">
                 {isXs
-                  ? 'Select 2 plans to compare'
-                  : 'Select 3 plans to compare'}
+                  ? t('pricing.select_two_plans_to_compare')
+                  : t('pricing.select_three_plans_to_compare')}
               </InputLabel>
               <Select
                 labelId="plan-comparison-select-label"
@@ -183,8 +182,8 @@ function Pricing() {
                   <OutlinedInput
                     label={
                       isXs
-                        ? 'Select 2 plans to compare'
-                        : 'Select 3 plans to compare'
+                        ? t('pricing.select_two_plans_to_compare')
+                        : t('pricing.select_three_plans_to_compare')
                     }
                   />
                 }
@@ -248,7 +247,11 @@ function Pricing() {
                           {monthly
                             ? plan.price
                             : parseFloat(plan.price) * PRICING_YEAR_MULTIPLIER}
-                          {`/${monthly ? `month per user` : 'year per user'}`}
+                          {`/${
+                            monthly
+                              ? t('pricing.month_per_user')
+                              : t('pricing.year_per_user')
+                          }`}
                         </Typography>
                       )}
                       {type === 'cloud' && (
@@ -265,15 +268,15 @@ function Pricing() {
                           sx={{ mt: 1, mb: 2 }}
                         >
                           {plan.id === 'basic'
-                            ? t('Get started')
-                            : t('Try for free')}
+                            ? t('get_started')
+                            : t('try_for_free')}
                         </Button>
                       )}
                     </Grid>
                   ))}
               </Grid>
 
-              {planFeatureCategories.map((category, categoryIndex) => (
+              {getPlanFeatureCategories(t).map((category, categoryIndex) => (
                 <Box key={`category-${categoryIndex}`} sx={{ mb: 4 }}>
                   <Typography
                     variant="h6"

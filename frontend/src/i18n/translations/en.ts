@@ -1455,7 +1455,134 @@ const locale = {
   'home.h2': 'Powerful Maintenance at a Low Cost',
   'home.h3':
     'Stop relying on spreadsheets and whiteboards. {{brandName}} helps maintenance teams plan interventions, track equipment, and stay compliant. Self-host on your server or start instantly in the cloud.',
-  talk_to_sales: 'Talk to sales'
+  talk_to_sales: 'Talk to sales',
+  'pricing.choose_plan_and_get_started': 'Choose your plan and get started',
+  'pricing.slogan_effective_maintenance':
+    'Our software gives Maintenance and Reliability teams the tools they need to run Operations efficiently and effectively.',
+  'pricing.compare_plans_and_pricing': 'Compare Plans and Pricing',
+  'pricing.see_which_plan_is_right_for_you': 'See which plan is right for you',
+  'pricing.select_two_plans_to_compare': 'Select 2 plans to compare',
+  'pricing.select_three_plans_to_compare': 'Select 3 plans to compare',
+  'pricing.month_per_user': 'month per user',
+  'pricing.year_per_user': 'year per user',
+  'pricing.plan_basic_name': 'Basic',
+  'pricing.plan_basic_description':
+    'Teams looking to track assets and create fundamental preventive maintenance schedules with procedures.',
+  'pricing.feature_unlimited_work_orders': 'Unlimited work orders',
+  'pricing.feature_custom_tasks': 'Custom tasks',
+  'pricing.feature_unlimited_request_user_licenses':
+    'Unlimited Request User Licenses',
+  'pricing.plan_starter_name': 'Starter',
+  'pricing.plan_starter_description':
+    'Teams looking to build efficient and strong preventive maintenance through machine status and manpower visibility.',
+  'pricing.feature_everything_in_basic_plus': 'Everything in Basic plus:',
+  'pricing.feature_preventive_maintenance_recurring_work_orders':
+    'Preventive Maintenance/Recurring Work Orders',
+  'pricing.feature_custom_checklists': 'Custom Checklists',
+  'pricing.feature_inventory_management_costing':
+    'Inventory management/Costing',
+  'pricing.feature_time_and_manpower_tracking': 'Time and Manpower Tracking',
+  'pricing.feature_thirty_day_analytics_reporting':
+    '30 day Analytics & Reporting',
+  'pricing.plan_professional_name': 'Professional',
+  'pricing.plan_professional_description':
+    'Departments that need to leverage insights and analytics to drive further maintenance growth and productivity.',
+  'pricing.feature_everything_in_starter_plus': 'Everything in Starter plus:',
+  'pricing.feature_multiple_inventory_lines': 'Multiple Inventory Lines',
+  'pricing.feature_customizable_request_portal': 'Customizable Request Portal',
+  'pricing.feature_mobile_offline_mode': 'Mobile Offline Mode',
+  'pricing.feature_advanced_analytics_reporting':
+    'Advanced Analytics & Reporting',
+  'pricing.plan_business_name': 'Business',
+  'pricing.plan_business_description':
+    'Organizations ready to capture maintenance & operations data to manage multiple locations & system customization.',
+  'pricing.feature_everything_in_professional_plus':
+    'Everything in Professional plus:',
+  'pricing.feature_purchase_order_management': 'Purchase Order Management',
+  'pricing.feature_multi_site_module_support': 'Multi-site Module Support',
+  'pricing.feature_custom_work_order_statuses': 'Custom Work Order Statuses',
+  'pricing.feature_custom_integrations_support': 'Custom Integrations Support',
+  'pricing.feature_work_order_management': 'Work Order Management',
+  'pricing.feature_recurring_work_orders': 'Recurring Work Orders',
+  'pricing.feature_custom_categories': 'Custom Categories',
+  'pricing.feature_data_importing': 'Data Importing',
+  'pricing.feature_time_and_cost_tracking': 'Time and Cost Tracking',
+  'pricing.feature_work_order_configuration': 'Work Order Configuration',
+  'pricing.feature_internal_requests': 'Internal Requests',
+  'pricing.feature_external_request_portal': 'External Request Portal',
+  'pricing.category_locations_assets_parts': 'Locations, Assets, and Parts',
+  'pricing.feature_location_management': 'Location Management',
+  'pricing.feature_barcode_scanning': 'Barcode Scanning',
+  'pricing.feature_inventory_management': 'Inventory Management',
+  'pricing.feature_custom_asset_statuses': 'Custom Asset Statuses',
+  'pricing.feature_asset_downtime_tracking': 'Asset Downtime Tracking',
+  'pricing.feature_asset_depreciation_tracking': 'Asset Depreciation Tracking',
+  'pricing.feature_asset_warranty_tracking': 'Asset Warranty Tracking',
+  'pricing.feature_purchase_orders_management': 'Purchase Orders',
+  'pricing.feature_asset_check_in_out': 'Asset Check In/Check Out',
+  'pricing.category_mobile_offline': 'Mobile Offline',
+  'pricing.feature_work_order_availability': 'Work Order Availability',
+  'pricing.feature_updating_status': 'Updating Status',
+  'pricing.feature_updating_tasks': 'Updating Tasks',
+  'pricing.feature_work_order_drafts': 'Work Order Drafts',
+  'pricing.feature_full_drill_down_reporting_history':
+    'Full Drill-Down Reporting & History',
+  'pricing.period_thirty_days': '30 Days',
+  'pricing.period_full': 'Full',
+  'pricing.feature_pdf_csv_exporting': 'PDF and CSV Exporting',
+  'pricing.feature_itemized_time_reporting': 'Itemized Time Reporting',
+  'pricing.feature_user_login_reports': 'User Log-in Reports',
+  'pricing.feature_parts_consumption_reports': 'Parts Consumption Reports',
+  'pricing.feature_asset_downtime_reports': 'Asset Downtime Reports',
+  'pricing.feature_equipment_reliability_reports':
+    'Equipment Reliability Reports',
+  'pricing.feature_multi_site_modules': 'Multi-site Modules',
+  'pricing.category_integrations': 'Integrations',
+  'pricing.feature_business_integrations':
+    'Business Integrations(SAP/Oracle/Causal AI...)',
+  'pricing.feature_custom_integrations': 'Custom Integrations',
+  'pricing.feature_unlimited_view_only_users': 'Unlimited View-Only Users',
+  'pricing.feature_unlimited_requesters': 'Unlimited Requesters',
+  'pricing.feature_unlimited_vendors': 'Unlimited Vendors',
+  'pricing.feature_unlimited_customers': 'Unlimited Customers',
+  'pricing.category_support': 'Support',
+  'pricing.feature_daily_email_digest': 'Daily Email Digest',
+  'pricing.feature_articles': 'Articles',
+  'pricing.feature_training_webinars': 'Training Webinars',
+  'pricing.feature_community_support_discord': 'Community Support (Discord)',
+  'pricing.feature_email_support': 'Email Support',
+  'pricing.feature_chat_phone_support': 'Chat/Phone Support',
+  'pricing.feature_priority_support': 'Priority Support',
+  'pricing.feature_implementation_training': 'Implementation & Training',
+  'pricing.feature_dedicated_account_manager': 'Dedicated Account Manager',
+  'pricing.category_customization': 'Customization',
+  'pricing.feature_custom_development': 'Custom development',
+  'pricing.sh_plan_basic_name': 'Basic',
+  'pricing.sh_plan_basic_description':
+    'For small teams needing full data sovereignty and basic maintenance tracking on their own infrastructure.',
+  'pricing.sh_feature_core_work_order_management': 'Core Work Order Management',
+  'pricing.sh_feature_asset_inventory_tracking': 'Asset & Inventory Tracking',
+  'pricing.sh_feature_local_data_storage': 'Local Data Storage',
+  'pricing.sh_plan_professional_name': 'Professional',
+  'pricing.sh_plan_professional_description':
+    'Ideal for growing plants that require advanced checklists, workflows, and deeper system integration.',
+  'pricing.sh_feature_everything_in_basic_plus': 'Everything in Basic plus:',
+  'pricing.sh_feature_unlimited_assets_checklists':
+    'Unlimited Assets/Checklists',
+  'pricing.sh_feature_nfc_barcode_scanning': 'NFC & Barcode Scanning',
+  'pricing.sh_feature_email_support': 'Email Support',
+  'pricing.sh_plan_business_name': 'Business',
+  'pricing.sh_plan_business_description':
+    'Full-scale operations requiring multi-instance management, custom branding, and top-tier security.',
+  'pricing.sh_feature_everything_in_professional_plus':
+    'Everything in Professional plus:',
+  'pricing.sh_feature_multi_instance_management': 'Multi-Instance Management',
+  'pricing.sh_feature_custom_user_roles': 'Custom User Roles',
+  'pricing.sh_feature_priority_implementation_support':
+    'Priority Implementation Support',
+  get_started: 'Get Started',
+  workflow_automation: 'Workflow Automation',
+  push_notifications: 'Push Notifications'
 };
 
 export default locale;
