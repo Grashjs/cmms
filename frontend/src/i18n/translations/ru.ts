@@ -1546,7 +1546,209 @@ const ruJSON = {
   'home.h2': 'Мощное обслуживание по низкой цене',
   'home.h3':
     'Хватит полагаться на таблицы и доски. {{brandName}} помогает сервисным командам планировать работы, отслеживать оборудование и соблюдать стандарты. Хостите на своём сервере или начните мгновенно в облаке.',
-  talk_to_sales: 'Связаться с отделом продаж'
+  talk_to_sales: 'Связаться с отделом продаж',
+  'pricing.choose_plan_and_get_started':
+    'Выберите свой тарифный план и начните.',
+  'pricing.slogan_effective_maintenance':
+    'Наше программное обеспечение предоставляет командам по техническому обслуживанию и обеспечению надежности инструменты, необходимые для эффективного и результативного управления производственными процессами.',
+  'pricing.compare_plans_and_pricing': 'Сравните тарифные планы и цены.',
+  'pricing.see_which_plan_is_right_for_you':
+    'Узнайте, какой план подходит именно вам.',
+  'pricing.select_two_plans_to_compare':
+    'Выберите 2 тарифных плана для сравнения.',
+  'pricing.select_three_plans_to_compare':
+    'Выберите 3 тарифных плана для сравнения.',
+  'pricing.month_per_user': 'месяц на пользователя',
+  'pricing.year_per_user': 'год на пользователя',
+  'pricing.plan_basic_name': 'Базовый',
+  'pricing.plan_basic_description':
+    'Команды, стремящиеся отслеживать активы и создавать базовые графики профилактического обслуживания с соответствующими процедурами.',
+  'pricing.feature_unlimited_work_orders':
+    'Неограниченное количество заказов на работы',
+  'pricing.feature_custom_tasks': 'Пользовательские задачи',
+  'pricing.feature_unlimited_request_user_licenses':
+    'Неограниченное количество запросов на пользовательские лицензии',
+  'pricing.plan_starter_name': 'Стартер',
+  'pricing.plan_starter_description':
+    'Команды стремятся создать эффективную и надежную систему профилактического обслуживания, обеспечивая прозрачность состояния оборудования и численности персонала.',
+  'pricing.feature_everything_in_basic_plus':
+    'Всё, что входит в базовый пакет плюс:',
+  'pricing.feature_preventive_maintenance_recurring_work_orders':
+    'Плановое техническое обслуживание/Регулярные заявки на ремонт',
+  'pricing.feature_custom_checklists': 'Пользовательские контрольные списки',
+  'pricing.feature_inventory_management_costing':
+    'Управление запасами/Расчет стоимости',
+  'pricing.feature_time_and_manpower_tracking':
+    'Учет рабочего времени и численности персонала',
+  'pricing.feature_thirty_day_analytics_reporting':
+    '30-дневная аналитика и отчетность',
+  'pricing.plan_professional_name': 'Профессиональный',
+  'pricing.plan_professional_description':
+    'Подразделениям, которым необходимо использовать аналитические данные для дальнейшего роста и повышения производительности в сфере технического обслуживания.',
+  'pricing.feature_everything_in_starter_plus':
+    'Всё, что входит в пакет Starter plus:',
+  'pricing.feature_multiple_inventory_lines': 'Несколько товарных позиций',
+  'pricing.feature_customizable_request_portal':
+    'Настраиваемый портал запросов',
+  'pricing.feature_mobile_offline_mode': 'Мобильный офлайн-режим',
+  'pricing.feature_advanced_analytics_reporting':
+    'Расширенная аналитика и отчетность',
+  'pricing.plan_business_name': 'Бизнес',
+  'pricing.plan_business_description':
+    'Организации, готовые собирать данные о техническом обслуживании и эксплуатации для управления несколькими объектами и настройки системы.',
+  'pricing.feature_everything_in_professional_plus':
+    'Все функции пакета Professional Plus:',
+  'pricing.feature_purchase_order_management': 'Управление заказами на закупку',
+  'pricing.feature_multi_site_module_support':
+    'Поддержка многосайтовых модулей',
+  'pricing.feature_custom_work_order_statuses':
+    'Настраиваемые статусы заказов на выполнение работ',
+  'pricing.feature_custom_integrations_support':
+    'Поддержка пользовательских интеграций',
+  'pricing.feature_work_order_management': 'Управление рабочими заданиями',
+  'pricing.feature_recurring_work_orders': 'Повторяющиеся заказы на работы',
+  'pricing.feature_custom_categories': 'Пользовательские категории',
+  'pricing.feature_data_importing': 'Импорт данных',
+  'pricing.feature_time_and_cost_tracking': 'Отслеживание времени и затрат',
+  'pricing.feature_work_order_configuration': 'Конфигурация рабочего задания',
+  'pricing.feature_internal_requests': 'Внутренние запросы',
+  'pricing.feature_external_request_portal': 'Портал внешних запросов',
+  'pricing.category_locations_assets_parts':
+    'Местоположения, активы и комплектующие',
+  'pricing.feature_location_management': 'Управление местоположением',
+  'pricing.feature_barcode_scanning': 'Сканирование штрихкодов',
+  'pricing.feature_inventory_management': 'Управление запасами',
+  'pricing.feature_custom_asset_statuses': 'Пользовательские статусы активов',
+  'pricing.feature_asset_downtime_tracking':
+    'Отслеживание простоев оборудования',
+  'pricing.feature_asset_depreciation_tracking':
+    'Отслеживание амортизации активов',
+  'pricing.feature_asset_warranty_tracking': 'Отслеживание гарантий на активы',
+  'pricing.feature_purchase_orders_management': 'Заказы на закупку',
+  'pricing.feature_asset_check_in_out': 'Прием/выдача активов',
+  'pricing.category_mobile_offline': 'Мобильная версия: офлайн',
+  'pricing.feature_work_order_availability':
+    'Наличие заявок на выполнение работ',
+  'pricing.feature_updating_status': 'Обновление статуса',
+  'pricing.feature_updating_tasks': 'Обновление задач',
+  'pricing.feature_work_order_drafts': 'Проекты заявок на выполнение работ',
+  'pricing.feature_full_drill_down_reporting_history':
+    'Подробная отчетность и история событий.',
+  'pricing.period_thirty_days': '30 дней',
+  'pricing.period_full': 'Полный',
+  'pricing.feature_pdf_csv_exporting': 'Экспорт в форматы PDF и CSV',
+  'pricing.feature_itemized_time_reporting': 'Детальный учет рабочего времени',
+  'pricing.feature_user_login_reports':
+    'Отчеты о входе пользователей в систему',
+  'pricing.feature_parts_consumption_reports':
+    'Отчеты об использовании комплектующих',
+  'pricing.feature_asset_downtime_reports': 'Отчеты о простоях оборудования',
+  'pricing.feature_equipment_reliability_reports':
+    'Отчеты о надежности оборудования',
+  'pricing.feature_multi_site_modules': 'Многосайтовые модули',
+  'pricing.category_integrations': 'Интеграции',
+  'pricing.feature_business_integrations':
+    'Интеграция бизнес-процессов (SAP/Oracle/Causal AI...)',
+  'pricing.feature_custom_integrations': 'Пользовательские интеграции',
+  'pricing.feature_unlimited_view_only_users':
+    'Неограниченное количество пользователей только для просмотра',
+  'pricing.feature_unlimited_requesters': 'Неограниченное количество запросов',
+  'pricing.feature_unlimited_vendors': 'Неограниченное количество продавцов',
+  'pricing.feature_unlimited_customers': 'Неограниченное количество клиентов',
+  'pricing.category_support': 'Поддерживать',
+  'pricing.feature_daily_email_digest': 'Ежедневная сводка электронных писем',
+  'pricing.feature_articles': 'Статьи',
+  'pricing.feature_training_webinars': 'Обучающие вебинары',
+  'pricing.feature_community_support_discord': 'Поддержка сообщества (Discord)',
+  'pricing.feature_email_support': 'Поддержка по электронной почте',
+  'pricing.feature_chat_phone_support': 'Поддержка в чате/по телефону',
+  'pricing.feature_priority_support': 'Приоритетная поддержка',
+  'pricing.feature_implementation_training': 'Внедрение и обучение',
+  'pricing.feature_dedicated_account_manager':
+    'Персональный менеджер по работе с клиентами',
+  'pricing.category_customization': 'Настройка',
+  'pricing.feature_custom_development': 'Разработка на заказ',
+  'pricing.sh_plan_basic_name': 'Базовый',
+  'pricing.sh_plan_basic_description':
+    'Для небольших команд, которым необходима полная независимость данных и базовое отслеживание технического обслуживания собственной инфраструктуры.',
+  'pricing.sh_feature_core_work_order_management':
+    'Управление основными рабочими заданиями',
+  'pricing.sh_feature_asset_inventory_tracking':
+    'Отслеживание активов и запасов',
+  'pricing.sh_feature_local_data_storage': 'Локальное хранилище данных',
+  'pricing.sh_plan_professional_name': 'Профессиональный',
+  'pricing.sh_plan_professional_description':
+    'Идеально подходит для выращивания растений, требующих сложных контрольных списков, рабочих процессов и более глубокой системной интеграции.',
+  'pricing.sh_feature_everything_in_basic_plus':
+    'Всё, что входит в базовый пакет плюс:',
+  'pricing.sh_feature_unlimited_assets_checklists':
+    'Неограниченное количество ресурсов/контрольных списков',
+  'pricing.sh_feature_nfc_barcode_scanning': 'NFC и сканирование штрих-кодов',
+  'pricing.sh_feature_email_support': 'Поддержка по электронной почте',
+  'pricing.sh_plan_business_name': 'Бизнес',
+  'pricing.sh_plan_business_description':
+    'Полномасштабные операции, требующие управления несколькими экземплярами, индивидуального брендинга и первоклассной безопасности.',
+  'pricing.sh_feature_everything_in_professional_plus':
+    'Все функции пакета Professional Plus:',
+  'pricing.sh_feature_multi_instance_management':
+    'Управление несколькими экземплярами',
+  'pricing.sh_feature_custom_user_roles': 'Пользовательские роли',
+  'pricing.sh_feature_priority_implementation_support':
+    'Приоритетная поддержка внедрения',
+  'pricing.faq_free_users_q': 'Какие типы пользователей считаются бесплатными?',
+  'pricing.faq_free_users_a1':
+    'Существует три типа пользователей, для которых платная лицензия не требуется:',
+  'pricing.faq_view_only_users_title': 'Только для просмотра Пользователи',
+  'pricing.faq_view_only_users_description':
+    'Как правило, это руководители, которые нечасто заходят в систему, чтобы просмотреть общую картину технического обслуживания. Они также могут отправлять заявки на выполнение работ и формировать отчеты.',
+  'pricing.faq_requester_users_title': 'Пользователи-заявители',
+  'pricing.faq_requester_users_description':
+    'Эти пользователи могут только отправлять заявки на выполнение работ и просматривать их статус. Они не могут видеть заказы на работы, активы, запчасти или любые другие данные, хранящиеся в системе CMMS.',
+  'pricing.faq_third_party_users_title': 'Сторонние пользователи',
+  'pricing.faq_third_party_users_description':
+    'Как правило, это поставщики и подрядчики. Они не могут войти в систему напрямую. Они могут только отправлять обновления по конкретному рабочему заказу, к которому привязаны, через общедоступную ссылку.',
+  'pricing.faq_paid_users_q': 'Какие типы пользователей считаются платными?',
+  'pricing.faq_paid_users_a1':
+    'Для трех типов пользователей требуется платная лицензия:',
+  'pricing.faq_admin_users_title': 'Администраторы',
+  'pricing.faq_admin_users_description':
+    'Эти пользователи могут добавлять других пользователей в учетную запись, принимать или отклонять запросы на выполнение работ, а также редактировать детали заказов. Именно они управляют учетной записью. В одной учетной записи может быть несколько администраторов.',
+  'pricing.faq_technical_users_title': 'Технические пользователи',
+  'pricing.faq_technical_users_description':
+    'Как правило, это технические специалисты, которые закрывают заказы на выполнение работ на объекте. Они могут редактировать созданные ими заказы, но не другие заказы. Они могут добавлять фотографии и обновления статуса к заказам, а также создавать новые заказы.',
+  'pricing.faq_limited_technical_users_title':
+    'Пользователи с ограниченными техническими навыками',
+  'pricing.faq_limited_technical_users_description':
+    'Эти пользователи обладают теми же привилегиями, что и технический пользователь. Единственное исключение заключается в том, что они могут видеть только назначенные им рабочие задания, а не других технических пользователей в учетной записи.',
+  'pricing.faq_change_plans_q': 'Могу ли я изменить планы позже?',
+  'pricing.faq_change_plans_a':
+    'Да, вы можете в любое время изменить свой тарифный план на более высокий или более низкий. Изменения вступят в силу с началом следующего расчетного периода.',
+  'pricing.faq_free_trial_q': 'Есть ли бесплатная пробная версия?',
+  'pricing.faq_free_trial_a':
+    'Да, мы предлагаем 15-дневную бесплатную пробную версию бизнес-плана, чтобы вы могли оценить все функции, прежде чем принимать решение.',
+  'pricing.faq_non_profit_discounts_q':
+    'Предоставляете ли вы скидки для некоммерческих организаций?',
+  'pricing.faq_non_profit_discounts_a':
+    'Да, мы предлагаем специальные цены для некоммерческих организаций. Для получения более подробной информации, пожалуйста, свяжитесь с нашим отделом продаж.',
+  'pricing.faq_payment_methods_q': 'Какие способы оплаты вы принимаете?',
+  'pricing.faq_payment_methods_a':
+    'Мы принимаем все основные кредитные карты, банковские переводы и PayPal. Для корпоративных тарифных планов мы также можем организовать выставление счетов.',
+  'pricing.faq_cancel_subscription_q': 'Могу ли я отменить подписку?',
+  'pricing.faq_cancel_subscription_a':
+    'Да, вы можете отменить подписку в любое время. Доступ к сервису сохранится до конца текущего расчетного периода.',
+  'pricing.faq_data_secure_q': 'Мои данные в безопасности?',
+  'pricing.faq_data_secure_a':
+    'Да, мы очень серьезно относимся к безопасности данных. Все данные шифруются как при передаче, так и в состоянии покоя, и мы регулярно проводим проверки безопасности.',
+  'pricing.faq_title': 'Часто задаваемые вопросы',
+  'pricing.annually_save_two_months': 'Ежегодно (экономия 2 месяцев)',
+  'pricing.most_popular': 'Самые популярные',
+  'pricing.get_your_license': 'Получите водительские права',
+  get_started: 'Начать',
+  workflow_automation: 'Автоматизация рабочих процессов',
+  push_notifications: 'Push-уведомления',
+  cloud: 'Облако',
+  self_hosted: 'Самостоятельное размещение',
+  full: 'Полный'
 };
 
 export default ruJSON;

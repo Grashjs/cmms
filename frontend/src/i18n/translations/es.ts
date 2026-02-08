@@ -1505,7 +1505,204 @@ const esJSON = {
   'home.h2': 'Mantenimiento potente a bajo coste',
   'home.h3':
     'Deje de depender de hojas de cálculo y pizarras. {{brandName}} ayuda a los equipos de mantenimiento a planificar intervenciones, rastrear equipos y mantenerse en cumplimiento. Alójelo en su propio servidor o comience instantáneamente en la nube.',
-  talk_to_sales: 'Hablar con ventas'
+  talk_to_sales: 'Hablar con ventas',
+  'pricing.choose_plan_and_get_started': 'Elige tu plan y empieza',
+  'pricing.slogan_effective_maintenance':
+    'Nuestro software brinda a los equipos de mantenimiento y confiabilidad las herramientas que necesitan para ejecutar las operaciones de manera eficiente y eficaz.',
+  'pricing.compare_plans_and_pricing': 'Comparar planes y precios',
+  'pricing.see_which_plan_is_right_for_you':
+    'Vea qué plan es adecuado para usted',
+  'pricing.select_two_plans_to_compare': 'Seleccione 2 planes para comparar',
+  'pricing.select_three_plans_to_compare': 'Seleccione 3 planes para comparar',
+  'pricing.month_per_user': 'mes por usuario',
+  'pricing.year_per_user': 'año por usuario',
+  'pricing.plan_basic_name': 'Básico',
+  'pricing.plan_basic_description':
+    'Equipos que buscan rastrear activos y crear cronogramas fundamentales de mantenimiento preventivo con procedimientos.',
+  'pricing.feature_unlimited_work_orders': 'Órdenes de trabajo ilimitadas',
+  'pricing.feature_custom_tasks': 'Tareas personalizadas',
+  'pricing.feature_unlimited_request_user_licenses':
+    'Solicitudes de licencias de usuario ilimitadas',
+  'pricing.plan_starter_name': 'Motor de arranque',
+  'pricing.plan_starter_description':
+    'Equipos que buscan construir un mantenimiento preventivo eficiente y sólido a través del estado de las máquinas y la visibilidad de la mano de obra.',
+  'pricing.feature_everything_in_basic_plus': 'Todo lo del plan Básico más:',
+  'pricing.feature_preventive_maintenance_recurring_work_orders':
+    'Mantenimiento preventivo/Órdenes de trabajo recurrentes',
+  'pricing.feature_custom_checklists': 'Listas de verificación personalizadas',
+  'pricing.feature_inventory_management_costing':
+    'Gestión de inventario/Costes',
+  'pricing.feature_time_and_manpower_tracking':
+    'Seguimiento del tiempo y la mano de obra',
+  'pricing.feature_thirty_day_analytics_reporting':
+    'Análisis e informes de 30 días',
+  'pricing.plan_professional_name': 'Profesional',
+  'pricing.plan_professional_description':
+    'Departamentos que necesitan aprovechar conocimientos y análisis para impulsar un mayor crecimiento y productividad del mantenimiento.',
+  'pricing.feature_everything_in_starter_plus':
+    'Todo lo incluido en Starter más:',
+  'pricing.feature_multiple_inventory_lines': 'Múltiples líneas de inventario',
+  'pricing.feature_customizable_request_portal':
+    'Portal de solicitudes personalizable',
+  'pricing.feature_mobile_offline_mode': 'Modo móvil sin conexión',
+  'pricing.feature_advanced_analytics_reporting':
+    'Análisis e informes avanzados',
+  'pricing.plan_business_name': 'Negocio',
+  'pricing.plan_business_description':
+    'Organizaciones listas para capturar datos de mantenimiento y operaciones para administrar múltiples ubicaciones y personalizar el sistema.',
+  'pricing.feature_everything_in_professional_plus':
+    'Todo lo del plan Profesional más:',
+  'pricing.feature_purchase_order_management': 'Gestión de órdenes de compra',
+  'pricing.feature_multi_site_module_support': 'Soporte de módulos multisitio',
+  'pricing.feature_custom_work_order_statuses':
+    'Estados de órdenes de trabajo personalizadas',
+  'pricing.feature_custom_integrations_support':
+    'Soporte para integraciones personalizadas',
+  'pricing.feature_work_order_management': 'Gestión de órdenes de trabajo',
+  'pricing.feature_recurring_work_orders': 'Órdenes de trabajo recurrentes',
+  'pricing.feature_custom_categories': 'Categorías personalizadas',
+  'pricing.feature_data_importing': 'Importación de datos',
+  'pricing.feature_time_and_cost_tracking': 'Seguimiento de tiempo y costos',
+  'pricing.feature_work_order_configuration':
+    'Configuración de órdenes de trabajo',
+  'pricing.feature_internal_requests': 'Solicitudes internas',
+  'pricing.feature_external_request_portal': 'Portal de solicitudes externas',
+  'pricing.category_locations_assets_parts': 'Ubicaciones, activos y piezas',
+  'pricing.feature_location_management': 'Gestión de ubicaciones',
+  'pricing.feature_barcode_scanning': 'Escaneo de código de barras',
+  'pricing.feature_inventory_management': 'Gestión de inventario',
+  'pricing.feature_custom_asset_statuses': 'Estados de activos personalizados',
+  'pricing.feature_asset_downtime_tracking':
+    'Seguimiento del tiempo de inactividad de los activos',
+  'pricing.feature_asset_depreciation_tracking':
+    'Seguimiento de la depreciación de activos',
+  'pricing.feature_asset_warranty_tracking':
+    'Seguimiento de la garantía de activos',
+  'pricing.feature_purchase_orders_management': 'Órdenes de compra',
+  'pricing.feature_asset_check_in_out': 'Registro de entrada/salida de activos',
+  'pricing.category_mobile_offline': 'Móvil sin conexión',
+  'pricing.feature_work_order_availability':
+    'Disponibilidad de órdenes de trabajo',
+  'pricing.feature_updating_status': 'Actualización de estado',
+  'pricing.feature_updating_tasks': 'Actualización de tareas',
+  'pricing.feature_work_order_drafts': 'Borradores de órdenes de trabajo',
+  'pricing.feature_full_drill_down_reporting_history':
+    'Informes y historial completos y detallados',
+  'pricing.period_thirty_days': '30 días',
+  'pricing.period_full': 'Lleno',
+  'pricing.feature_pdf_csv_exporting': 'Exportación de PDF y CSV',
+  'pricing.feature_itemized_time_reporting': 'Informes de tiempo detallados',
+  'pricing.feature_user_login_reports':
+    'Informes de inicio de sesión de usuario',
+  'pricing.feature_parts_consumption_reports': 'Informes de consumo de piezas',
+  'pricing.feature_asset_downtime_reports':
+    'Informes de tiempo de inactividad de activos',
+  'pricing.feature_equipment_reliability_reports':
+    'Informes de confiabilidad de equipos',
+  'pricing.feature_multi_site_modules': 'Módulos multisitio',
+  'pricing.category_integrations': 'Integraciones',
+  'pricing.feature_business_integrations':
+    'Integraciones empresariales (SAP/Oracle/Causal AI...)',
+  'pricing.feature_custom_integrations': 'Integraciones personalizadas',
+  'pricing.feature_unlimited_view_only_users':
+    'Usuarios ilimitados de solo lectura',
+  'pricing.feature_unlimited_requesters': 'Solicitantes ilimitados',
+  'pricing.feature_unlimited_vendors': 'Vendedores ilimitados',
+  'pricing.feature_unlimited_customers': 'Clientes ilimitados',
+  'pricing.category_support': 'Apoyo',
+  'pricing.feature_daily_email_digest': 'Resumen diario por correo electrónico',
+  'pricing.feature_articles': 'Artículos',
+  'pricing.feature_training_webinars': 'Seminarios web de capacitación',
+  'pricing.feature_community_support_discord': 'Soporte comunitario (Discord)',
+  'pricing.feature_email_support': 'Soporte por correo electrónico',
+  'pricing.feature_chat_phone_support': 'Soporte por chat/teléfono',
+  'pricing.feature_priority_support': 'Soporte prioritario',
+  'pricing.feature_implementation_training': 'Implementación y capacitación',
+  'pricing.feature_dedicated_account_manager': 'Gerente de cuenta dedicado',
+  'pricing.category_customization': 'Personalización',
+  'pricing.feature_custom_development': 'Desarrollo personalizado',
+  'pricing.sh_plan_basic_name': 'Básico',
+  'pricing.sh_plan_basic_description':
+    'Para equipos pequeños que necesitan soberanía total de datos y seguimiento básico del mantenimiento en su propia infraestructura.',
+  'pricing.sh_feature_core_work_order_management':
+    'Gestión de órdenes de trabajo básicas',
+  'pricing.sh_feature_asset_inventory_tracking':
+    'Seguimiento de activos e inventario',
+  'pricing.sh_feature_local_data_storage': 'Almacenamiento de datos local',
+  'pricing.sh_plan_professional_name': 'Profesional',
+  'pricing.sh_plan_professional_description':
+    'Ideal para el cultivo de plantas que requieren listas de verificación avanzadas, flujos de trabajo y una integración más profunda del sistema.',
+  'pricing.sh_feature_everything_in_basic_plus': 'Todo lo del plan Básico más:',
+  'pricing.sh_feature_unlimited_assets_checklists':
+    'Activos/Listas de verificación ilimitados',
+  'pricing.sh_feature_nfc_barcode_scanning':
+    'NFC y escaneo de códigos de barras',
+  'pricing.sh_feature_email_support': 'Soporte por correo electrónico',
+  'pricing.sh_plan_business_name': 'Negocio',
+  'pricing.sh_plan_business_description':
+    'Operaciones a gran escala que requieren gestión de múltiples instancias, marca personalizada y seguridad de primer nivel.',
+  'pricing.sh_feature_everything_in_professional_plus':
+    'Todo lo del plan Profesional más:',
+  'pricing.sh_feature_multi_instance_management':
+    'Gestión de múltiples instancias',
+  'pricing.sh_feature_custom_user_roles': 'Roles de usuario personalizados',
+  'pricing.sh_feature_priority_implementation_support':
+    'Apoyo a la implementación prioritaria',
+  'pricing.faq_free_users_q':
+    '¿Qué tipos de usuarios se consideran usuarios gratuitos?',
+  'pricing.faq_free_users_a1':
+    'Hay tres tipos de usuarios que no requieren una licencia paga:',
+  'pricing.faq_view_only_users_title': 'Ver solo usuarios',
+  'pricing.faq_view_only_users_description':
+    'Estos usuarios suelen ser supervisores que inician sesión con poca frecuencia para ver un resumen de la actividad de mantenimiento. También pueden enviar solicitudes de trabajo y generar informes.',
+  'pricing.faq_requester_users_title': 'Usuarios solicitantes',
+  'pricing.faq_requester_users_description':
+    'Estos usuarios solo pueden enviar solicitudes de trabajo y ver su estado. No pueden ver órdenes de trabajo, activos, piezas ni ningún otro dato almacenado en el CMMS.',
+  'pricing.faq_third_party_users_title': 'Usuarios de terceros',
+  'pricing.faq_third_party_users_description':
+    'Estos usuarios suelen ser proveedores y contratistas. No pueden iniciar sesión en el sistema. Solo pueden enviar actualizaciones a una orden de trabajo específica en la que están asignados a través de un enlace público.',
+  'pricing.faq_paid_users_q':
+    '¿Qué tipos de usuarios se consideran usuarios de pago?',
+  'pricing.faq_paid_users_a1':
+    'Hay tres tipos de usuarios que requieren una licencia paga:',
+  'pricing.faq_admin_users_title': 'Usuarios administradores',
+  'pricing.faq_admin_users_description':
+    'Estos usuarios pueden agregar a otros a la cuenta, aceptar o rechazar solicitudes de trabajo y editar los detalles de las órdenes de trabajo. Son los usuarios que controlan la cuenta. Puede tener varios administradores por cuenta.',
+  'pricing.faq_technical_users_title': 'Usuarios técnicos',
+  'pricing.faq_technical_users_description':
+    'Estos usuarios suelen ser técnicos que cierran órdenes de trabajo en campo. Pueden editar las órdenes de trabajo que crean, pero no otras. Pueden agregar imágenes y actualizaciones de estado a las órdenes de trabajo, así como crear nuevas.',
+  'pricing.faq_limited_technical_users_title': 'Usuarios técnicos limitados',
+  'pricing.faq_limited_technical_users_description':
+    'Estos usuarios tienen los mismos privilegios que el usuario técnico. La única excepción es que solo pueden ver las órdenes de trabajo que les han sido asignadas, no las de otros usuarios técnicos de la cuenta.',
+  'pricing.faq_change_plans_q': '¿Puedo cambiar de planes más adelante?',
+  'pricing.faq_change_plans_a':
+    'Sí, puedes cambiar a un plan superior o inferior en cualquier momento. Los cambios entran en vigor al inicio de tu próximo ciclo de facturación.',
+  'pricing.faq_free_trial_q': '¿Hay una prueba gratuita?',
+  'pricing.faq_free_trial_a':
+    'Sí, ofrecemos una prueba gratuita de 15 días del plan Business para que pueda experimentar todas las funciones antes de tomar una decisión.',
+  'pricing.faq_non_profit_discounts_q':
+    '¿Ofrecen descuentos para organizaciones sin fines de lucro?',
+  'pricing.faq_non_profit_discounts_a':
+    'Sí, ofrecemos precios especiales para organizaciones sin fines de lucro. Para más información, contacte con nuestro equipo de ventas.',
+  'pricing.faq_payment_methods_q': '¿Qué métodos de pago aceptan?',
+  'pricing.faq_payment_methods_a':
+    'Aceptamos todas las principales tarjetas de crédito, transferencias bancarias y PayPal. Para planes Enterprise, también gestionamos la facturación.',
+  'pricing.faq_cancel_subscription_q': '¿Puedo cancelar mi suscripción?',
+  'pricing.faq_cancel_subscription_a':
+    'Sí, puedes cancelar tu suscripción en cualquier momento. Seguirás teniendo acceso hasta el final de tu periodo de facturación actual.',
+  'pricing.faq_data_secure_q': '¿Están seguros mis datos?',
+  'pricing.faq_data_secure_a':
+    'Sí, nos tomamos muy en serio la seguridad de los datos. Todos los datos están cifrados, tanto en tránsito como en reposo, y realizamos auditorías de seguridad periódicas.',
+  'pricing.faq_title': 'Preguntas frecuentes',
+  'pricing.annually_save_two_months': 'Anualmente (Ahorra 2 meses)',
+  'pricing.most_popular': 'Más populares',
+  'pricing.get_your_license': 'Obtenga su licencia',
+  get_started: 'Empezar',
+  workflow_automation: 'Automatización del flujo de trabajo',
+  push_notifications: 'Notificaciones push',
+  cloud: 'Nube',
+  self_hosted: 'Autoalojado',
+  full: 'Lleno'
 };
 
 export default esJSON;

@@ -1500,7 +1500,193 @@ const trJSON = {
   'home.h2': 'Düşük Maliyetle Güçlü Bakım',
   'home.h3':
     'Elektronik tablolara ve beyaz tahtalara güvenmeyi bırakın. {{brandName}}, bakım ekiplerinin müdahaleleri planlamasına, ekipmanları takip etmesine ve uyumlu kalmasına yardımcı olur. Kendi sunucunuzda barındırın veya bulutta anında başlayın.',
-  talk_to_sales: 'Satışla konuşun'
+  talk_to_sales: 'Satışla konuşun',
+  'pricing.choose_plan_and_get_started': 'Planınızı seçin ve başlayın.',
+  'pricing.slogan_effective_maintenance':
+    'Yazılımımız, Bakım ve Güvenilirlik ekiplerine operasyonları verimli ve etkili bir şekilde yürütmek için ihtiyaç duydukları araçları sağlar.',
+  'pricing.compare_plans_and_pricing': 'Planları ve Fiyatları Karşılaştırın',
+  'pricing.see_which_plan_is_right_for_you':
+    'Hangi planın size uygun olduğunu görün.',
+  'pricing.select_two_plans_to_compare': 'Karşılaştırmak için 2 plan seçin.',
+  'pricing.select_three_plans_to_compare': 'Karşılaştırmak için 3 plan seçin.',
+  'pricing.month_per_user': 'kullanıcı başına aylık',
+  'pricing.year_per_user': 'kullanıcı başına yıl',
+  'pricing.plan_basic_name': 'Temel',
+  'pricing.plan_basic_description':
+    'Ekipler, varlıkları takip etmek ve prosedürlerle temel önleyici bakım programları oluşturmak istiyor.',
+  'pricing.feature_unlimited_work_orders': 'Sınırsız iş emri',
+  'pricing.feature_custom_tasks': 'Özel görevler',
+  'pricing.feature_unlimited_request_user_licenses':
+    'Sınırsız Kullanıcı Lisansı Talebi',
+  'pricing.plan_starter_name': 'Başlangıç',
+  'pricing.plan_starter_description':
+    'Ekipler, makine durumu ve iş gücü görünürlüğü yoluyla verimli ve güçlü önleyici bakım sistemleri kurmayı hedefliyor.',
+  'pricing.feature_everything_in_basic_plus':
+    'Temel paketin tüm özelliklerine ek olarak:',
+  'pricing.feature_preventive_maintenance_recurring_work_orders':
+    'Önleyici Bakım/Tekrarlayan İş Emirleri',
+  'pricing.feature_custom_checklists': 'Özel Kontrol Listeleri',
+  'pricing.feature_inventory_management_costing':
+    'Envanter yönetimi/Maliyetlendirme',
+  'pricing.feature_time_and_manpower_tracking': 'Zaman ve İşgücü Takibi',
+  'pricing.feature_thirty_day_analytics_reporting':
+    '30 Günlük Analiz ve Raporlama',
+  'pricing.plan_professional_name': 'Profesyonel',
+  'pricing.plan_professional_description':
+    'Bakım süreçlerinde büyüme ve verimliliği artırmak için içgörülerden ve analitik verilerden yararlanması gereken departmanlar.',
+  'pricing.feature_everything_in_starter_plus':
+    'Başlangıç paketindeki her şeye ek olarak:',
+  'pricing.feature_multiple_inventory_lines': 'Çoklu Envanter Kalemleri',
+  'pricing.feature_customizable_request_portal':
+    'Özelleştirilebilir Talep Portalı',
+  'pricing.feature_mobile_offline_mode': 'Mobil Çevrimdışı Modu',
+  'pricing.feature_advanced_analytics_reporting':
+    'Gelişmiş Analitik ve Raporlama',
+  'pricing.plan_business_name': 'İşletme',
+  'pricing.plan_business_description':
+    'Organizasyonlar, birden fazla lokasyonu yönetmek ve sistem özelleştirmesi yapmak için bakım ve operasyon verilerini toplamaya hazır.',
+  'pricing.feature_everything_in_professional_plus':
+    'Professional Plus paketindeki her şey:',
+  'pricing.feature_purchase_order_management': 'Satın Alma Siparişi Yönetimi',
+  'pricing.feature_multi_site_module_support': 'Çoklu Site Modülü Desteği',
+  'pricing.feature_custom_work_order_statuses': 'Özel İş Emri Durumları',
+  'pricing.feature_custom_integrations_support': 'Özel Entegrasyon Desteği',
+  'pricing.feature_work_order_management': 'İş Emri Yönetimi',
+  'pricing.feature_recurring_work_orders': 'Tekrarlayan İş Emirleri',
+  'pricing.feature_custom_categories': 'Özel Kategoriler',
+  'pricing.feature_data_importing': 'Veri İçe Aktarma',
+  'pricing.feature_time_and_cost_tracking': 'Zaman ve Maliyet Takibi',
+  'pricing.feature_work_order_configuration': 'İş Emri Yapılandırması',
+  'pricing.feature_internal_requests': 'Dahili Talepler',
+  'pricing.feature_external_request_portal': 'Harici Talep Portalı',
+  'pricing.category_locations_assets_parts': 'Konumlar, Varlıklar ve Parçalar',
+  'pricing.feature_location_management': 'Konum Yönetimi',
+  'pricing.feature_barcode_scanning': 'Barkod Tarama',
+  'pricing.feature_inventory_management': 'Envanter Yönetimi',
+  'pricing.feature_custom_asset_statuses': 'Özel Varlık Durumları',
+  'pricing.feature_asset_downtime_tracking': 'Varlık Arıza Süresi Takibi',
+  'pricing.feature_asset_depreciation_tracking': 'Varlık Amortisman Takibi',
+  'pricing.feature_asset_warranty_tracking': 'Varlık Garanti Takibi',
+  'pricing.feature_purchase_orders_management': 'Satın Alma Siparişleri',
+  'pricing.feature_asset_check_in_out': 'Varlık Giriş/Çıkış İşlemi',
+  'pricing.category_mobile_offline': 'Mobil Çevrimdışı',
+  'pricing.feature_work_order_availability': 'İş Emri Kullanılabilirliği',
+  'pricing.feature_updating_status': 'Durum Güncelleniyor',
+  'pricing.feature_updating_tasks': 'Güncelleme Görevleri',
+  'pricing.feature_work_order_drafts': 'İş Emri Taslakları',
+  'pricing.feature_full_drill_down_reporting_history':
+    'Detaylı Raporlama ve Geçmiş Verileri',
+  'pricing.period_thirty_days': '30 Gün',
+  'pricing.period_full': 'Tam dolu',
+  'pricing.feature_pdf_csv_exporting': 'PDF ve CSV Dışa Aktarma',
+  'pricing.feature_itemized_time_reporting': 'Ayrıntılı Zaman Raporlaması',
+  'pricing.feature_user_login_reports': 'Kullanıcı Giriş Raporları',
+  'pricing.feature_parts_consumption_reports': 'Parça Tüketim Raporları',
+  'pricing.feature_asset_downtime_reports': 'Varlık Arıza Süreleri Raporları',
+  'pricing.feature_equipment_reliability_reports':
+    'Ekipman Güvenilirlik Raporları',
+  'pricing.feature_multi_site_modules': 'Çoklu lokasyonlu modüller',
+  'pricing.category_integrations': 'Entegrasyonlar',
+  'pricing.feature_business_integrations':
+    'İş Entegrasyonları (SAP/Oracle/Nedensel Yapay Zeka...)',
+  'pricing.feature_custom_integrations': 'Özel Entegrasyonlar',
+  'pricing.feature_unlimited_view_only_users':
+    'Sınırsız Sadece Görüntüleme Kullanıcısı',
+  'pricing.feature_unlimited_requesters': 'Sınırsız Talep Edenler',
+  'pricing.feature_unlimited_vendors': 'Sınırsız Satıcı',
+  'pricing.feature_unlimited_customers': 'Sınırsız Müşteri',
+  'pricing.category_support': 'Destek',
+  'pricing.feature_daily_email_digest': 'Günlük E-posta Özeti',
+  'pricing.feature_articles': 'Makaleler',
+  'pricing.feature_training_webinars': 'Eğitim Web Seminerleri',
+  'pricing.feature_community_support_discord': 'Topluluk Desteği (Discord)',
+  'pricing.feature_email_support': 'E-posta Desteği',
+  'pricing.feature_chat_phone_support': 'Sohbet/Telefon Desteği',
+  'pricing.feature_priority_support': 'Öncelikli Destek',
+  'pricing.feature_implementation_training': 'Uygulama ve Eğitim',
+  'pricing.feature_dedicated_account_manager': 'Özel Müşteri Temsilcisi',
+  'pricing.category_customization': 'Özelleştirme',
+  'pricing.feature_custom_development': 'Özel geliştirme',
+  'pricing.sh_plan_basic_name': 'Temel',
+  'pricing.sh_plan_basic_description':
+    'Kendi altyapıları üzerinde tam veri egemenliğine ve temel bakım takibine ihtiyaç duyan küçük ekipler için.',
+  'pricing.sh_feature_core_work_order_management': 'Temel İş Emri Yönetimi',
+  'pricing.sh_feature_asset_inventory_tracking': 'Varlık ve Stok Takibi',
+  'pricing.sh_feature_local_data_storage': 'Yerel Veri Depolama',
+  'pricing.sh_plan_professional_name': 'Profesyonel',
+  'pricing.sh_plan_professional_description':
+    'Gelişmiş kontrol listeleri, iş akışları ve daha derin sistem entegrasyonu gerektiren bitkilerin yetiştirilmesi için idealdir.',
+  'pricing.sh_feature_everything_in_basic_plus':
+    'Temel paketin tüm özelliklerine ek olarak:',
+  'pricing.sh_feature_unlimited_assets_checklists':
+    'Sınırsız Varlıklar/Kontrol Listeleri',
+  'pricing.sh_feature_nfc_barcode_scanning': 'NFC ve Barkod Tarama',
+  'pricing.sh_feature_email_support': 'E-posta Desteği',
+  'pricing.sh_plan_business_name': 'İşletme',
+  'pricing.sh_plan_business_description':
+    'Çoklu örnek yönetimi, özel marka kimliği ve üst düzey güvenlik gerektiren tam ölçekli operasyonlar.',
+  'pricing.sh_feature_everything_in_professional_plus':
+    'Professional Plus paketindeki her şey:',
+  'pricing.sh_feature_multi_instance_management': 'Çoklu Örnek Yönetimi',
+  'pricing.sh_feature_custom_user_roles': 'Özel Kullanıcı Rolleri',
+  'pricing.sh_feature_priority_implementation_support':
+    'Öncelikli Uygulama Desteği',
+  'pricing.faq_free_users_q':
+    'Hangi kullanıcı türleri ücretsiz kullanıcı olarak kabul edilir?',
+  'pricing.faq_free_users_a1':
+    'Ücretli lisans gerektirmeyen üç kullanıcı türü vardır:',
+  'pricing.faq_view_only_users_title': 'Yalnızca Kullanıcıları Görüntüle',
+  'pricing.faq_view_only_users_description':
+    'Bu kullanıcılar genellikle bakım faaliyetlerinin anlık görüntüsünü görmek için nadiren giriş yapan yöneticilerdir. Ayrıca iş talepleri gönderebilir ve raporlar çalıştırabilirler.',
+  'pricing.faq_requester_users_title': 'Talep Eden Kullanıcılar',
+  'pricing.faq_requester_users_description':
+    "Bu kullanıcılar yalnızca iş talepleri gönderebilir ve bu taleplerin durumunu görüntüleyebilirler. CMMS'de depolanan iş emirlerini, varlıkları, parçaları veya diğer verileri göremezler.",
+  'pricing.faq_third_party_users_title': 'Üçüncü Taraf Kullanıcılar',
+  'pricing.faq_third_party_users_description':
+    'Bu kullanıcılar genellikle tedarikçiler ve yüklenicilerdir. Sisteme fiilen giriş yapamazlar. Sadece herkese açık bir bağlantı aracılığıyla etiketlendikleri belirli bir iş emrine güncelleme gönderebilirler.',
+  'pricing.faq_paid_users_q':
+    'Hangi kullanıcı türleri ücretli kullanıcı olarak kabul edilir?',
+  'pricing.faq_paid_users_a1':
+    'Ücretli lisans gerektiren üç kullanıcı türü vardır:',
+  'pricing.faq_admin_users_title': 'Yönetici Kullanıcılar',
+  'pricing.faq_admin_users_description':
+    'Bu kullanıcılar hesaba başkalarını ekleme, iş taleplerini kabul etme veya reddetme ve iş emri ayrıntılarını düzenleme yeteneğine sahiptir. Hesabı kontrol eden kullanıcılar onlardır. Her hesap için birden fazla yönetici olabilir.',
+  'pricing.faq_technical_users_title': 'Teknik Kullanıcılar',
+  'pricing.faq_technical_users_description':
+    'Bu kullanıcılar genellikle sahada iş emirlerini kapatan teknisyenlerdir. Oluşturdukları iş emirlerini düzenleyebilirler ancak diğer iş emirlerini düzenleyemezler. İş emirlerine resim ve durum güncellemeleri ekleyebilir ve yeni iş emirleri oluşturabilirler.',
+  'pricing.faq_limited_technical_users_title': 'Sınırlı Teknik Kullanıcılar',
+  'pricing.faq_limited_technical_users_description':
+    'Bu kullanıcılar, teknik kullanıcıyla aynı ayrıcalıklara sahiptir. Tek istisna, yalnızca kendilerine atanmış iş emirlerini görebilmeleridir; hesaptaki diğer teknik kullanıcıların iş emirlerini göremezler.',
+  'pricing.faq_change_plans_q': 'Planlarımı daha sonra değiştirebilir miyim?',
+  'pricing.faq_change_plans_a':
+    'Evet, planınızı istediğiniz zaman yükseltebilir veya düşürebilirsiniz. Değişiklikler bir sonraki faturalama döneminizin başında yürürlüğe girer.',
+  'pricing.faq_free_trial_q': 'Ücretsiz deneme sürümü var mı?',
+  'pricing.faq_free_trial_a':
+    'Evet, karar vermeden önce tüm özellikleri deneyimleyebilmeniz için İşletme planının 15 günlük ücretsiz deneme sürümünü sunuyoruz.',
+  'pricing.faq_non_profit_discounts_q':
+    'Kâr amacı gütmeyen kuruluşlara indirim uyguluyor musunuz?',
+  'pricing.faq_non_profit_discounts_a':
+    'Evet, kar amacı gütmeyen kuruluşlar için özel fiyatlandırma sunuyoruz. Daha fazla bilgi için lütfen satış ekibimizle iletişime geçin.',
+  'pricing.faq_payment_methods_q':
+    'Hangi ödeme yöntemlerini kabul ediyorsunuz?',
+  'pricing.faq_payment_methods_a':
+    "Başlıca tüm kredi kartlarını, banka havalelerini ve PayPal'ı kabul ediyoruz. Kurumsal planlar için faturalama da düzenleyebiliriz.",
+  'pricing.faq_cancel_subscription_q': 'Aboneliğimi iptal edebilir miyim?',
+  'pricing.faq_cancel_subscription_a':
+    'Evet, aboneliğinizi istediğiniz zaman iptal edebilirsiniz. Mevcut faturalama döneminizin sonuna kadar erişiminiz devam edecektir.',
+  'pricing.faq_data_secure_q': 'Verilerim güvende mi?',
+  'pricing.faq_data_secure_a':
+    'Evet, veri güvenliğini çok ciddiye alıyoruz. Tüm veriler iletim sırasında ve depolanırken şifrelenir ve düzenli güvenlik denetimleri gerçekleştiriyoruz.',
+  'pricing.faq_title': 'Sıkça Sorulan Sorular',
+  'pricing.annually_save_two_months': 'Yıllık (2 ay tasarruf edin)',
+  'pricing.most_popular': 'En Popüler',
+  'pricing.get_your_license': 'Ehliyetinizi alın',
+  get_started: 'Başlayın',
+  workflow_automation: 'İş Akışı Otomasyonu',
+  push_notifications: 'Anlık Bildirimler',
+  cloud: 'Bulut',
+  self_hosted: 'Kendi Sunucunuzda Barındırın',
+  full: 'Tam dolu'
 };
 
 export default trJSON;

@@ -1390,7 +1390,192 @@ const locale = {
   'home.h2': 'صيانة قوية بتكلفة منخفضة',
   'home.h3':
     'توقف عن الاعتماد على جداول البيانات والسبورات البيضاء. يساعد {{brandName}} فرق الصيانة على تخطيط التدخلات وتتبع المعدات والبقاء ممتثلاً. استضف ذاتيًا على خادمك الخاص أو ابدأ فورًا في السحابة.',
-  talk_to_sales: 'تحدث إلى المبيعات'
+  talk_to_sales: 'تحدث إلى المبيعات',
+  'pricing.choose_plan_and_get_started': 'اختر خطتك وابدأ.',
+  'pricing.slogan_effective_maintenance':
+    'يوفر برنامجنا لفرق الصيانة والموثوقية الأدوات التي يحتاجونها لإدارة العمليات بكفاءة وفعالية.',
+  'pricing.compare_plans_and_pricing': 'قارن بين الخطط والأسعار',
+  'pricing.see_which_plan_is_right_for_you': 'تعرف على الخطة المناسبة لك',
+  'pricing.select_two_plans_to_compare': 'اختر خطتين للمقارنة',
+  'pricing.select_three_plans_to_compare': 'اختر 3 خطط للمقارنة',
+  'pricing.month_per_user': 'شهريًا لكل مستخدم',
+  'pricing.year_per_user': 'سنة لكل مستخدم',
+  'pricing.plan_basic_name': 'أساسي',
+  'pricing.plan_basic_description':
+    'الفرق التي تتطلع إلى تتبع الأصول وإنشاء جداول صيانة وقائية أساسية مع إجراءات محددة.',
+  'pricing.feature_unlimited_work_orders': 'أوامر عمل غير محدودة',
+  'pricing.feature_custom_tasks': 'المهام المخصصة',
+  'pricing.feature_unlimited_request_user_licenses':
+    'تراخيص مستخدمين غير محدودة الطلبات',
+  'pricing.plan_starter_name': 'بداية',
+  'pricing.plan_starter_description':
+    'الفرق التي تتطلع إلى بناء صيانة وقائية فعالة وقوية من خلال حالة الآلات ورؤية القوى العاملة.',
+  'pricing.feature_everything_in_basic_plus':
+    'كل شيء في النسخة الأساسية بالإضافة إلى:',
+  'pricing.feature_preventive_maintenance_recurring_work_orders':
+    'أوامر العمل الوقائية/المتكررة',
+  'pricing.feature_custom_checklists': 'قوائم التحقق المخصصة',
+  'pricing.feature_inventory_management_costing':
+    'إدارة المخزون / حساب التكاليف',
+  'pricing.feature_time_and_manpower_tracking': 'تتبع الوقت والقوى العاملة',
+  'pricing.feature_thirty_day_analytics_reporting':
+    'التحليلات والتقارير لمدة 30 يومًا',
+  'pricing.plan_professional_name': 'احترافي',
+  'pricing.plan_professional_description':
+    'الإدارات التي تحتاج إلى الاستفادة من الرؤى والتحليلات لدفع نمو الصيانة والإنتاجية بشكل أكبر.',
+  'pricing.feature_everything_in_starter_plus':
+    'كل ما في باقة Starter بالإضافة إلى:',
+  'pricing.feature_multiple_inventory_lines': 'بنود جرد متعددة',
+  'pricing.feature_customizable_request_portal': 'بوابة طلبات قابلة للتخصيص',
+  'pricing.feature_mobile_offline_mode':
+    'وضع عدم الاتصال بالإنترنت على الهاتف المحمول',
+  'pricing.feature_advanced_analytics_reporting':
+    'التحليلات المتقدمة وإعداد التقارير',
+  'pricing.plan_business_name': 'عمل',
+  'pricing.plan_business_description':
+    'المنظمات الجاهزة لجمع بيانات الصيانة والتشغيل لإدارة مواقع متعددة وتخصيص النظام.',
+  'pricing.feature_everything_in_professional_plus':
+    'كل شيء في النسخة الاحترافية بالإضافة إلى:',
+  'pricing.feature_purchase_order_management': 'إدارة أوامر الشراء',
+  'pricing.feature_multi_site_module_support':
+    'دعم الوحدات النمطية متعددة المواقع',
+  'pricing.feature_custom_work_order_statuses': 'حالات أوامر العمل المخصصة',
+  'pricing.feature_custom_integrations_support': 'دعم عمليات التكامل المخصصة',
+  'pricing.feature_work_order_management': 'إدارة أوامر العمل',
+  'pricing.feature_recurring_work_orders': 'أوامر العمل المتكررة',
+  'pricing.feature_custom_categories': 'فئات مخصصة',
+  'pricing.feature_data_importing': 'استيراد البيانات',
+  'pricing.feature_time_and_cost_tracking': 'تتبع الوقت والتكلفة',
+  'pricing.feature_work_order_configuration': 'تكوين أمر العمل',
+  'pricing.feature_internal_requests': 'الطلبات الداخلية',
+  'pricing.feature_external_request_portal': 'بوابة الطلبات الخارجية',
+  'pricing.category_locations_assets_parts': 'المواقع والأصول والأجزاء',
+  'pricing.feature_location_management': 'إدارة المواقع',
+  'pricing.feature_barcode_scanning': 'مسح الباركود',
+  'pricing.feature_inventory_management': 'إدارة المخزون',
+  'pricing.feature_custom_asset_statuses': 'حالات الأصول المخصصة',
+  'pricing.feature_asset_downtime_tracking': 'تتبع وقت تعطل الأصول',
+  'pricing.feature_asset_depreciation_tracking': 'تتبع استهلاك الأصول',
+  'pricing.feature_asset_warranty_tracking': 'تتبع ضمان الأصول',
+  'pricing.feature_purchase_orders_management': 'أوامر الشراء',
+  'pricing.feature_asset_check_in_out': 'تسجيل دخول/خروج الأصول',
+  'pricing.category_mobile_offline':
+    'وضع عدم الاتصال بالإنترنت على الهاتف المحمول',
+  'pricing.feature_work_order_availability': 'توافر أوامر العمل',
+  'pricing.feature_updating_status': 'تحديث الحالة',
+  'pricing.feature_updating_tasks': 'تحديث المهام',
+  'pricing.feature_work_order_drafts': 'مسودات أوامر العمل',
+  'pricing.feature_full_drill_down_reporting_history': 'تقارير مفصلة وسجل كامل',
+  'pricing.period_thirty_days': '30 يومًا',
+  'pricing.period_full': 'ممتلىء',
+  'pricing.feature_pdf_csv_exporting': 'تصدير ملفات PDF و CSV',
+  'pricing.feature_itemized_time_reporting': 'تقرير الوقت المفصل',
+  'pricing.feature_user_login_reports': 'تقارير تسجيل دخول المستخدم',
+  'pricing.feature_parts_consumption_reports': 'تقارير استهلاك قطع الغيار',
+  'pricing.feature_asset_downtime_reports': 'تقارير تعطل الأصول',
+  'pricing.feature_equipment_reliability_reports': 'تقارير موثوقية المعدات',
+  'pricing.feature_multi_site_modules': 'وحدات متعددة المواقع',
+  'pricing.category_integrations': 'التكاملات',
+  'pricing.feature_business_integrations':
+    'تكامل الأعمال (SAP/Oracle/الذكاء الاصطناعي السببي...)',
+  'pricing.feature_custom_integrations': 'عمليات التكامل المخصصة',
+  'pricing.feature_unlimited_view_only_users':
+    'عدد غير محدود من المستخدمين للعرض فقط',
+  'pricing.feature_unlimited_requesters': 'عدد غير محدود من مقدمي الطلبات',
+  'pricing.feature_unlimited_vendors': 'عدد غير محدود من البائعين',
+  'pricing.feature_unlimited_customers': 'عدد غير محدود من العملاء',
+  'pricing.category_support': 'يدعم',
+  'pricing.feature_daily_email_digest': 'ملخص البريد الإلكتروني اليومي',
+  'pricing.feature_articles': 'مقالات',
+  'pricing.feature_training_webinars': 'ندوات تدريبية عبر الإنترنت',
+  'pricing.feature_community_support_discord': 'دعم المجتمع (ديسكورد)',
+  'pricing.feature_email_support': 'دعم عبر البريد الإلكتروني',
+  'pricing.feature_chat_phone_support': 'الدعم عبر الدردشة/الهاتف',
+  'pricing.feature_priority_support': 'دعم ذو أولوية',
+  'pricing.feature_implementation_training': 'التنفيذ والتدريب',
+  'pricing.feature_dedicated_account_manager': 'مدير حسابات مخصص',
+  'pricing.category_customization': 'التخصيص',
+  'pricing.feature_custom_development': 'التطوير المخصص',
+  'pricing.sh_plan_basic_name': 'أساسي',
+  'pricing.sh_plan_basic_description':
+    'للفرق الصغيرة التي تحتاج إلى سيادة كاملة على البيانات وتتبع الصيانة الأساسية على بنيتها التحتية الخاصة.',
+  'pricing.sh_feature_core_work_order_management': 'إدارة أوامر العمل الأساسية',
+  'pricing.sh_feature_asset_inventory_tracking': 'تتبع الأصول والمخزون',
+  'pricing.sh_feature_local_data_storage': 'تخزين البيانات المحلي',
+  'pricing.sh_plan_professional_name': 'احترافي',
+  'pricing.sh_plan_professional_description':
+    'مثالي لزراعة النباتات التي تتطلب قوائم مراجعة متقدمة، وسير عمل، وتكامل أعمق للنظام.',
+  'pricing.sh_feature_everything_in_basic_plus':
+    'كل شيء في النسخة الأساسية بالإضافة إلى:',
+  'pricing.sh_feature_unlimited_assets_checklists':
+    'أصول/قوائم مراجعة غير محدودة',
+  'pricing.sh_feature_nfc_barcode_scanning':
+    'تقنية الاتصال قريب المدى ومسح الباركود',
+  'pricing.sh_feature_email_support': 'دعم عبر البريد الإلكتروني',
+  'pricing.sh_plan_business_name': 'عمل',
+  'pricing.sh_plan_business_description':
+    'عمليات واسعة النطاق تتطلب إدارة متعددة النسخ، وعلامات تجارية مخصصة، وأمانًا من الدرجة الأولى.',
+  'pricing.sh_feature_everything_in_professional_plus':
+    'كل شيء في النسخة الاحترافية بالإضافة إلى:',
+  'pricing.sh_feature_multi_instance_management': 'إدارة النسخ المتعددة',
+  'pricing.sh_feature_custom_user_roles': 'أدوار المستخدم المخصصة',
+  'pricing.sh_feature_priority_implementation_support':
+    'دعم التنفيذ ذو الأولوية',
+  'pricing.faq_free_users_q':
+    'ما هي أنواع المستخدمين الذين يُعتبرون مستخدمين مجانيين؟',
+  'pricing.faq_free_users_a1':
+    'هناك ثلاثة أنواع من المستخدمين لا تتطلب ترخيصًا مدفوعًا:',
+  'pricing.faq_view_only_users_title': 'عرض المستخدمين فقط',
+  'pricing.faq_view_only_users_description':
+    'هؤلاء المستخدمون هم عادةً مشرفون يسجلون الدخول بشكل غير متكرر للاطلاع على لمحة سريعة عن أنشطة الصيانة. كما يمكنهم تقديم طلبات العمل وإعداد التقارير.',
+  'pricing.faq_requester_users_title': 'المستخدمون مقدمو الطلبات',
+  'pricing.faq_requester_users_description':
+    'يقتصر دور هؤلاء المستخدمين على تقديم طلبات العمل والاطلاع على حالة تلك الطلبات. ولا يمكنهم رؤية أوامر العمل أو الأصول أو قطع الغيار أو أي بيانات أخرى مخزنة في نظام إدارة الصيانة المحوسب.',
+  'pricing.faq_third_party_users_title': 'مستخدمو الطرف الثالث',
+  'pricing.faq_third_party_users_description':
+    'هؤلاء المستخدمون عادةً ما يكونون موردين ومقاولين. لا يمكنهم تسجيل الدخول إلى النظام فعلياً. يمكنهم فقط إرسال تحديثات لأمر عمل محدد تم وضع علامة عليهم فيه عبر رابط عام.',
+  'pricing.faq_paid_users_q':
+    'ما هي أنواع المستخدمين الذين يُعتبرون مستخدمين مدفوعين؟',
+  'pricing.faq_paid_users_a1':
+    'هناك ثلاثة أنواع من المستخدمين تتطلب ترخيصًا مدفوعًا:',
+  'pricing.faq_admin_users_title': 'المستخدمون الإداريون',
+  'pricing.faq_admin_users_description':
+    'يتمتع هؤلاء المستخدمون بصلاحية إضافة مستخدمين آخرين إلى الحساب، وقبول طلبات العمل أو رفضها، وتعديل تفاصيل أوامر العمل. وهم المستخدمون الذين يتحكمون بالحساب. يمكنك تعيين أكثر من مسؤول لكل حساب.',
+  'pricing.faq_technical_users_title': 'المستخدمون التقنيون',
+  'pricing.faq_technical_users_description':
+    'هؤلاء المستخدمون هم عادةً فنيون يقومون بإغلاق أوامر العمل ميدانياً. بإمكانهم تعديل أوامر العمل التي أنشأوها، ولكن ليس أوامر العمل الأخرى. كما يمكنهم إضافة صور وتحديثات الحالة إلى أوامر العمل، وإنشاء أوامر عمل جديدة.',
+  'pricing.faq_limited_technical_users_title': 'مستخدمون تقنيون محدودون',
+  'pricing.faq_limited_technical_users_description':
+    'يتمتع هؤلاء المستخدمون بنفس صلاحيات المستخدم التقني، باستثناء أنهم لا يستطيعون رؤية سوى أوامر العمل المخصصة لهم، وليس أوامر العمل الخاصة بالمستخدمين التقنيين الآخرين في الحساب.',
+  'pricing.faq_change_plans_q': 'هل يمكنني تغيير الخطط لاحقاً؟',
+  'pricing.faq_change_plans_a':
+    'نعم، يمكنك ترقية أو تخفيض خطتك في أي وقت. تُصبح التغييرات سارية المفعول مع بداية دورة الفوترة التالية.',
+  'pricing.faq_free_trial_q': 'هل هناك فترة تجريبية مجانية؟',
+  'pricing.faq_free_trial_a':
+    'نعم، نحن نقدم فترة تجريبية مجانية لمدة 15 يومًا لخطة الأعمال حتى تتمكن من تجربة جميع الميزات قبل اتخاذ القرار.',
+  'pricing.faq_non_profit_discounts_q':
+    'هل تقدمون خصومات للمنظمات غير الربحية؟',
+  'pricing.faq_non_profit_discounts_a':
+    'نعم، نقدم أسعاراً خاصة للمنظمات غير الربحية. يرجى التواصل مع فريق المبيعات لدينا لمزيد من المعلومات.',
+  'pricing.faq_payment_methods_q': 'ما هي طرق الدفع التي تقبلونها؟',
+  'pricing.faq_payment_methods_a':
+    'نقبل جميع بطاقات الائتمان الرئيسية، والتحويلات البنكية، وباي بال. بالنسبة لخطط المؤسسات، يمكننا أيضاً ترتيب إصدار الفواتير.',
+  'pricing.faq_cancel_subscription_q': 'هل يمكنني إلغاء اشتراكي؟',
+  'pricing.faq_cancel_subscription_a':
+    'نعم، يمكنك إلغاء اشتراكك في أي وقت. وسيظل بإمكانك الوصول إلى الخدمة حتى نهاية فترة فوترتك الحالية.',
+  'pricing.faq_data_secure_q': 'هل بياناتي آمنة؟',
+  'pricing.faq_data_secure_a':
+    'نعم، نحن نأخذ أمن البيانات على محمل الجد. يتم تشفير جميع البيانات أثناء نقلها وتخزينها، ونجري عمليات تدقيق أمنية منتظمة.',
+  'pricing.faq_title': 'الأسئلة الشائعة',
+  'pricing.annually_save_two_months': 'سنوياً (توفير شهرين)',
+  'pricing.most_popular': 'الأكثر شعبية',
+  'pricing.get_your_license': 'احصل على رخصتك',
+  get_started: 'ابدأ الآن',
+  workflow_automation: 'أتمتة سير العمل',
+  push_notifications: 'الإشعارات الفورية',
+  cloud: 'سحاب',
+  self_hosted: 'الاستضافة الذاتية',
+  full: 'ممتلىء'
 };
 
 export default locale;
