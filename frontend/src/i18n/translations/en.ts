@@ -1623,7 +1623,10 @@ const locale = {
   'pricing.faq_title': 'Frequently Asked Questions',
   'pricing.annually_save_two_months': 'Annually (Save 2 months)',
   'pricing.most_popular': 'Most Popular',
-  'pricing.get_your_license': 'Get your license'
+  'pricing.get_your_license': 'Get your license',
+  get_started: 'Get Started',
+  workflow_automation: 'Workflow Automation',
+  push_notifications: 'Push Notifications'
 };
 
 export default locale;
