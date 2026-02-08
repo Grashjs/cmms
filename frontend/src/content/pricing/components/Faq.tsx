@@ -1,7 +1,9 @@
 import { Box, Typography } from '@mui/material';
 import FaqComponent, { FaqItem } from 'src/components/Faq';
+import { useTranslation } from 'react-i18next';
 
 export default function Faq() {
+  const { t } = useTranslation();
   const faqItems: FaqItem[] = [
     // {
     //   id: 'panel1',
@@ -18,35 +20,33 @@ export default function Faq() {
     // },
     {
       id: 'panel2',
-      title: 'Which types of users are considered free users?',
+      title: t('pricing.faq_free_users_q'),
       content: (
         <>
           <Typography variant="body1" paragraph>
-            There are three user types that do not require a paid license:
+            {t('pricing.faq_free_users_a1')}
           </Typography>
           <Box component="ol" sx={{ pl: 2 }}>
             <li>
               <Typography variant="body1">
-                <strong>View Only Users</strong> — These users are typically
-                supervisors who log in infrequently to view a snapshot of
-                maintenance activity. They can also submit work requests and run
-                reports.
+                <strong>{t('pricing.faq_view_only_users_title')}</strong> —
+                These users are typically
+                {t('pricing.faq_view_only_users_description')}
               </Typography>
             </li>
             <li>
               <Typography variant="body1">
-                <strong>Requester Users</strong> — These users can only submit
-                work requests and view the status of those requests. They cannot
-                see work orders, assets, parts, or any other data stored in the
-                CMMS.
+                <strong>{t('pricing.faq_requester_users_title')}</strong> —
+                These users can only submit
+                {t('pricing.faq_requester_users_description')}
               </Typography>
             </li>
             <li>
               <Typography variant="body1">
-                <strong>Third-Party Users</strong> — These users are typically
-                vendors and contractors. They can't actually sign into the
-                system. They can only submit updates to a specific work order
-                they're tagged on through a public link.
+                <strong>{t('pricing.faq_third_party_users_title')}</strong> —
+                These users are typically vendors and contractors. They can't
+                actually sign into the
+                {t('pricing.faq_third_party_users_description')}
               </Typography>
             </li>
           </Box>
@@ -55,36 +55,34 @@ export default function Faq() {
     },
     {
       id: 'panel3',
-      title: 'Which types of users are considered paid users?',
+      title: t('pricing.faq_paid_users_q'),
       content: (
         <>
           <Typography variant="body1" paragraph>
-            There are three user types that require a paid license:
+            {t('pricing.faq_paid_users_a1')}
           </Typography>
           <Box component="ol" sx={{ pl: 2 }}>
             <li>
               <Typography variant="body1">
-                <strong>Admin Users</strong> — These users have the ability to
-                add others to the account, accept or deny work requests, and
-                edit work order details. They are the users that control the
-                account. You can have multiple admins per account.
+                <strong>{t('pricing.faq_admin_users_title')}</strong> — These
+                users have the ability to
+                {t('pricing.faq_admin_users_description')}
               </Typography>
             </li>
             <li>
               <Typography variant="body1">
-                <strong>Technical Users</strong> — These users are typically
-                technicians who close out work orders in the field. They can
-                edit work orders they create but not other work orders. They can
-                add pictures and status updates to work orders and create new
-                work orders.
+                <strong>{t('pricing.faq_technical_users_title')}</strong> —
+                These users are typically
+                {t('pricing.faq_technical_users_description')}
               </Typography>
             </li>
             <li>
               <Typography variant="body1">
-                <strong>Limited Technical Users</strong> — These users have the
-                same privileges as the technical user. The only exception is
-                that they can only see work orders assigned to them — not other
-                technical users on the account.
+                <strong>
+                  {t('pricing.faq_limited_technical_users_title')}
+                </strong>{' '}
+                — These users have the
+                {t('pricing.faq_limited_technical_users_description')}
               </Typography>
             </li>
           </Box>
@@ -93,65 +91,37 @@ export default function Faq() {
     },
     {
       id: 'panel4',
-      title: 'Can I change plans later?',
-      content: (
-        <Typography>
-          Yes, you can upgrade or downgrade your plan at any time. Changes take
-          effect at the start of your next billing cycle.
-        </Typography>
-      )
+      title: t('pricing.faq_change_plans_q'),
+      content: <Typography>{t('pricing.faq_change_plans_a')}</Typography>
     },
     {
       id: 'panel5',
-      title: 'Is there a free trial?',
-      content: (
-        <Typography>
-          Yes, we offer a 15-day free trial of the Business plan so you can
-          experience all the features before making a decision.
-        </Typography>
-      )
+      title: t('pricing.faq_free_trial_q'),
+      content: <Typography>{t('pricing.faq_free_trial_a')}</Typography>
     },
     {
       id: 'panel6',
-      title: 'Do you offer discounts for non-profits?',
+      title: t('pricing.faq_non_profit_discounts_q'),
       content: (
-        <Typography>
-          Yes, we offer special pricing for non-profit organizations. Please
-          contact our sales team for more information.
-        </Typography>
+        <Typography>{t('pricing.faq_non_profit_discounts_a')}</Typography>
       )
     },
     {
       id: 'panel7',
-      title: 'What payment methods do you accept?',
-      content: (
-        <Typography>
-          We accept all major credit cards, bank transfers, and PayPal. For
-          Enterprise plans, we can also arrange invoicing.
-        </Typography>
-      )
+      title: t('pricing.faq_payment_methods_q'),
+      content: <Typography>{t('pricing.faq_payment_methods_a')}</Typography>
     },
     {
       id: 'panel8',
-      title: 'Can I cancel my subscription?',
-      content: (
-        <Typography>
-          Yes, you can cancel your subscription at any time. You'll continue to
-          have access until the end of your current billing period.
-        </Typography>
-      )
+      title: t('pricing.faq_cancel_subscription_q'),
+      content: <Typography>{t('pricing.faq_cancel_subscription_a')}</Typography>
     },
     {
       id: 'panel9',
-      title: 'Is my data secure?',
-      content: (
-        <Typography>
-          Yes, we take data security very seriously. All data is encrypted in
-          transit and at rest, and we perform regular security audits.
-        </Typography>
-      )
+      title: t('pricing.faq_data_secure_q'),
+      content: <Typography>{t('pricing.faq_data_secure_a')}</Typography>
     }
   ];
 
-  return <FaqComponent items={faqItems} title="Frequently Asked Questions" />;
+  return <FaqComponent items={faqItems} title={t('pricing.faq_title')} />;
 }

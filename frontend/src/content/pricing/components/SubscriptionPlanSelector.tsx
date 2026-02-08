@@ -112,14 +112,14 @@ export default function SubscriptionPlanSelector({
         mb={2}
       >
         <Stack direction={'row'} spacing={2} alignItems={'center'}>
-          <Typography>Monthly</Typography>
+          <Typography>{t('monthly')}</Typography>
           <Switch
             checked={!monthly}
             onChange={(event) => setMonthly(!event.target.checked)}
             sx={{ transform: 'scale(1.3)' }}
             size={'medium'}
           />
-          <Typography>Annually (Save 2 months)</Typography>
+          <Typography>{t('pricing.annually_save_two_months')}</Typography>
         </Stack>
       </Box>
       <Grid container spacing={2} justifyContent="center">
@@ -150,7 +150,7 @@ export default function SubscriptionPlanSelector({
                       right: theme.spacing(1)
                     }}
                   >
-                    <span>✨ Most Popular</span>
+                    <span>✨ {t('pricing.most_popular')}</span>
                   </Box>
                 )}
                 <CardContent
@@ -189,7 +189,11 @@ export default function SubscriptionPlanSelector({
                             : parseFloat(plan.price) * PRICING_YEAR_MULTIPLIER}
                         </Typography>
                         <Typography variant="subtitle1" color="text.secondary">
-                          {`/${monthly ? `month per user` : 'year per user'}`}
+                          {`/${
+                            monthly
+                              ? t('pricing.month_per_user')
+                              : t('pricing.year_per_user')
+                          }`}
                         </Typography>
                       </>
                     )}
@@ -257,9 +261,9 @@ export default function SubscriptionPlanSelector({
                         sx={{ mb: 1 }}
                       >
                         {plan.id === 'basic' || plan.id === 'sh-free'
-                          ? t('Get started')
+                          ? t('get_started')
                           : selfHosted
-                          ? 'Get your license'
+                          ? t('pricing.get_your_license')
                           : t('try_for_free')}
                       </Button>
                     )}
@@ -270,7 +274,7 @@ export default function SubscriptionPlanSelector({
                         align="center"
                         display="block"
                       >
-                        {t('No Credit Card Required.')}
+                        {t('no_credit_card')}
                       </Typography>
                     )}
                   </Box>

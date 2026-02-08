@@ -1308,7 +1308,7 @@ const locale = {
   last_login: 'Last Login',
   not_enough_part: 'There is not enough of this part',
   remove_blank_meter_tasks: 'Remove tasks with type meter without a meter',
-  checklist_update_failure: "The checklist could'nt be edited",
+  checklist_update_failure: "The checklist couldn't be edited",
   contact_us: 'Contact Us',
   simplify_wo: 'Simplify Work Orders in the mobile app',
   simplify_wo_description:
@@ -1427,13 +1427,10 @@ const locale = {
   required_days_of_week: 'Required days of week',
   'schedule.daily_one': 'Every {{count}} day',
   'schedule.daily_other': 'Every {{count}} days',
-
   'schedule.weekly_one': 'Every {{count}} week on {{days}}',
   'schedule.weekly_other': 'Every {{count}} weeks on {{days}}',
-
   'schedule.monthly_one': 'Every {{count}} month',
   'schedule.monthly_other': 'Every {{count}} months',
-
   'schedule.yearly_one': 'Every {{count}} year',
   'schedule.yearly_other': 'Every {{count}} years',
   delete_demo_data: 'Delete demo data',
@@ -1580,9 +1577,53 @@ const locale = {
   'pricing.sh_feature_custom_user_roles': 'Custom User Roles',
   'pricing.sh_feature_priority_implementation_support':
     'Priority Implementation Support',
-  get_started: 'Get Started',
-  workflow_automation: 'Workflow Automation',
-  push_notifications: 'Push Notifications'
+  'pricing.faq_free_users_q': 'Which types of users are considered free users?',
+  'pricing.faq_free_users_a1':
+    'There are three user types that do not require a paid license:',
+  'pricing.faq_view_only_users_title': 'View Only Users',
+  'pricing.faq_view_only_users_description':
+    'These users are typically supervisors who log in infrequently to view a snapshot of maintenance activity. They can also submit work requests and run reports.',
+  'pricing.faq_requester_users_title': 'Requester Users',
+  'pricing.faq_requester_users_description':
+    'These users can only submit work requests and view the status of those requests. They cannot see work orders, assets, parts, or any other data stored in the CMMS.',
+  'pricing.faq_third_party_users_title': 'Third-Party Users',
+  'pricing.faq_third_party_users_description':
+    "These users are typically vendors and contractors. They can't actually sign into the system. They can only submit updates to a specific work order they're tagged on through a public link.",
+  'pricing.faq_paid_users_q': 'Which types of users are considered paid users?',
+  'pricing.faq_paid_users_a1':
+    'There are three user types that require a paid license:',
+  'pricing.faq_admin_users_title': 'Admin Users',
+  'pricing.faq_admin_users_description':
+    'These users have the ability to add others to the account, accept or deny work requests, and edit work order details. They are the users that control the account. You can have multiple admins per account.',
+  'pricing.faq_technical_users_title': 'Technical Users',
+  'pricing.faq_technical_users_description':
+    'These users are typically technicians who close out work orders in the field. They can edit work orders they create but not other work orders. They can add pictures and status updates to work orders and create new work orders.',
+  'pricing.faq_limited_technical_users_title': 'Limited Technical Users',
+  'pricing.faq_limited_technical_users_description':
+    'These users have the same privileges as the technical user. The only exception is that they can only see work orders assigned to them — not other technical users on the account.',
+  'pricing.faq_change_plans_q': 'Can I change plans later?',
+  'pricing.faq_change_plans_a':
+    'Yes, you can upgrade or downgrade your plan at any time. Changes take effect at the start of your next billing cycle.',
+  'pricing.faq_free_trial_q': 'Is there a free trial?',
+  'pricing.faq_free_trial_a':
+    'Yes, we offer a 15-day free trial of the Business plan so you can experience all the features before making a decision.',
+  'pricing.faq_non_profit_discounts_q':
+    'Do you offer discounts for non-profits?',
+  'pricing.faq_non_profit_discounts_a':
+    'Yes, we offer special pricing for non-profit organizations. Please contact our sales team for more information.',
+  'pricing.faq_payment_methods_q': 'What payment methods do you accept?',
+  'pricing.faq_payment_methods_a':
+    'We accept all major credit cards, bank transfers, and PayPal. For Enterprise plans, we can also arrange invoicing.',
+  'pricing.faq_cancel_subscription_q': 'Can I cancel my subscription?',
+  'pricing.faq_cancel_subscription_a':
+    "Yes, you can cancel your subscription at any time. You'll continue to have access until the end of your current billing period.",
+  'pricing.faq_data_secure_q': 'Is my data secure?',
+  'pricing.faq_data_secure_a':
+    'Yes, we take data security very seriously. All data is encrypted in transit and at rest, and we perform regular security audits.',
+  'pricing.faq_title': 'Frequently Asked Questions',
+  'pricing.annually_save_two_months': 'Annually (Save 2 months)',
+  'pricing.most_popular': 'Most Popular',
+  'pricing.get_your_license': 'Get your license'
 };
 
 export default locale;
