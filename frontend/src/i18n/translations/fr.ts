@@ -1773,7 +1773,20 @@ const frJSON = {
   push_notifications: 'Notifications push',
   cloud: 'Cloud',
   self_hosted: 'Auto-hébergé',
-  full: 'Complet'
+  full: 'Complet',
+  pricing: 'Tarification',
+  industries: "Secteurs d'activité",
+  work_order_management: 'Gestion des bons de travail',
+  inventory_management: 'Gestion des stocks',
+  analytics_and_reporting: 'Analyses et rapports',
+  manufacturing: 'Fabrication',
+  facility_management: 'Gestion des installations',
+  food_and_beverage: 'Alimentation et boissons',
+  healthcare: 'Santé',
+  energy_and_utilities: 'Énergie et services publics',
+  education: 'Éducation',
+  hospitality: 'Hôtellerie',
+  construction: 'Construction'
 };
 
 export default frJSON;

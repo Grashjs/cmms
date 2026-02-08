@@ -1711,7 +1711,20 @@ const deJSON = {
   push_notifications: 'Push-Benachrichtigungen',
   cloud: 'Wolke',
   self_hosted: 'Selbstgehostet',
-  full: 'Voll'
+  full: 'Voll',
+  pricing: 'Preise',
+  industries: 'Branchen',
+  work_order_management: 'Instandhaltungsmanagement',
+  inventory_management: 'Bestandsverwaltung',
+  analytics_and_reporting: 'Analysen und Berichte',
+  manufacturing: 'Fertigung',
+  facility_management: 'Facility Management',
+  food_and_beverage: 'Lebensmittel & Getränke',
+  healthcare: 'Gesundheitswesen',
+  energy_and_utilities: 'Energie & Versorgungsunternehmen',
+  education: 'Bildung',
+  hospitality: 'Gastgewerbe',
+  construction: 'Baugewerbe'
 };
 
 export default deJSON;

@@ -1748,7 +1748,20 @@ const ruJSON = {
   push_notifications: 'Push-уведомления',
   cloud: 'Облако',
   self_hosted: 'Самостоятельное размещение',
-  full: 'Полный'
+  full: 'Полный',
+  pricing: 'Цены',
+  industries: 'Отрасли',
+  work_order_management: 'Управление заказ-нарядами',
+  inventory_management: 'Управление запасами',
+  analytics_and_reporting: 'Аналитика и отчетность',
+  manufacturing: 'Производство',
+  facility_management: 'Управление инфраструктурой',
+  food_and_beverage: 'Продукты питания и напитки',
+  healthcare: 'Здравоохранение',
+  energy_and_utilities: 'Энергетика и коммунальные услуги',
+  education: 'Образование',
+  hospitality: 'Гостиничный бизнес',
+  construction: 'Строительство'
 };
 
 export default ruJSON;

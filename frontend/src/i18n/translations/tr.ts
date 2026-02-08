@@ -1686,7 +1686,20 @@ const trJSON = {
   push_notifications: 'Anlık Bildirimler',
   cloud: 'Bulut',
   self_hosted: 'Kendi Sunucunuzda Barındırın',
-  full: 'Tam dolu'
+  full: 'Tam dolu',
+  pricing: 'Fiyatlandırma',
+  industries: 'Sektörler',
+  work_order_management: 'İş Emri Yönetimi',
+  inventory_management: 'Envanter Yönetimi',
+  analytics_and_reporting: 'Analiz ve Raporlama',
+  manufacturing: 'İmalat',
+  facility_management: 'Tesis Yönetimi',
+  food_and_beverage: 'Yiyecek ve İçecek',
+  healthcare: 'Sağlık Hizmetleri',
+  energy_and_utilities: 'Enerji ve Kamu Hizmetleri',
+  education: 'Eğitim',
+  hospitality: 'Otelcilik ve Konaklama',
+  construction: 'İnşaat'
 };
 
 export default trJSON;

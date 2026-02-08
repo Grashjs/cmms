@@ -1702,7 +1702,20 @@ const esJSON = {
   push_notifications: 'Notificaciones push',
   cloud: 'Nube',
   self_hosted: 'Autoalojado',
-  full: 'Lleno'
+  full: 'Lleno',
+  pricing: 'Precios',
+  industries: 'Industrias',
+  work_order_management: 'Gestión de órdenes de trabajo',
+  inventory_management: 'Gestión de inventarios',
+  analytics_and_reporting: 'Análisis e informes',
+  manufacturing: 'Fabricación',
+  facility_management: 'Gestión de instalaciones',
+  food_and_beverage: 'Alimentos y bebidas',
+  healthcare: 'Salud',
+  energy_and_utilities: 'Energía y servicios públicos',
+  education: 'Educación',
+  hospitality: 'Hostelería',
+  construction: 'Construcción'
 };
 
 export default esJSON;

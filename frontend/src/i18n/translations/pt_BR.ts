@@ -1713,7 +1713,20 @@ const ptBRJSON = {
   push_notifications: 'Notificações Push',
   cloud: 'Nuvem',
   self_hosted: 'Autohospedado',
-  full: 'Completo'
+  full: 'Completo',
+  pricing: 'Preços',
+  industries: 'Indústrias',
+  work_order_management: 'Gestão de ordens de serviço',
+  inventory_management: 'Gestão de estoque',
+  analytics_and_reporting: 'Análises e relatórios',
+  manufacturing: 'Manufatura',
+  facility_management: 'Gestão de facilidades',
+  food_and_beverage: 'Alimentos e bebidas',
+  healthcare: 'Saúde',
+  energy_and_utilities: 'Energia e serviços públicos',
+  education: 'Educação',
+  hospitality: 'Hospitalidade',
+  construction: 'Construção'
 };
 
 export default ptBRJSON;

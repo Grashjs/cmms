@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { GitHub, LinkedIn, Mail, Phone, Sms } from '@mui/icons-material';
-import { featuresLinks, industriesLinks } from '../../utils/urlPaths';
+import { getFeaturesLinks, getIndustriesLinks } from '../../utils/urlPaths';
 import { useTranslation } from 'react-i18next';
 import { ReactNode } from 'react';
 
@@ -132,7 +132,7 @@ export function Footer() {
       title: 'Company',
       type: 'links',
       items: [
-        { href: '/pricing', text: 'Pricing' },
+        { href: '/pricing', text: t('pricing') },
         { href: '/privacy', text: 'Privacy Policy' },
         { href: '/terms-of-service', text: 'Terms of Service' }
       ]
@@ -140,12 +140,12 @@ export function Footer() {
     {
       title: t('features'),
       type: 'dynamic',
-      items: featuresLinks
+      items: getFeaturesLinks(t)
     },
     {
-      title: 'Industries',
+      title: t('industries'),
       type: 'dynamic',
-      items: industriesLinks
+      items: getIndustriesLinks(t)
     },
     {
       title: 'Product',

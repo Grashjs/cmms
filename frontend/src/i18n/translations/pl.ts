@@ -1685,7 +1685,20 @@ const plJSON = {
   push_notifications: 'Powiadomienia push',
   cloud: 'Chmura',
   self_hosted: 'Samodzielnie hostowany',
-  full: 'Pełny'
+  full: 'Pełny',
+  pricing: 'Cennik',
+  industries: 'Branże',
+  work_order_management: 'Zarządzanie zleceniami',
+  inventory_management: 'Zarządzanie zapasami',
+  analytics_and_reporting: 'Analityka i raportowanie',
+  manufacturing: 'Produkcja',
+  facility_management: 'Zarządzanie obiektami',
+  food_and_beverage: 'Żywność i napoje',
+  healthcare: 'Opieka zdrowotna',
+  energy_and_utilities: 'Energetyka i media',
+  education: 'Edukacja',
+  hospitality: 'Horeca i hotelarstwo',
+  construction: 'Budownictwo'
 };
 
 export default plJSON;

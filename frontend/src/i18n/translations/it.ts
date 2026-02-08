@@ -1689,7 +1689,20 @@ const locale = {
   push_notifications: 'Notifiche push',
   cloud: 'Nuvola',
   self_hosted: 'Auto-ospitato',
-  full: 'Pieno'
+  full: 'Pieno',
+  pricing: 'Prezzi',
+  industries: 'Settori',
+  work_order_management: 'Gestione degli ordini di lavoro',
+  inventory_management: "Gestione dell'inventario",
+  analytics_and_reporting: 'Analisi e reportistica',
+  manufacturing: 'Produzione',
+  facility_management: 'Gestione delle strutture',
+  food_and_beverage: 'Alimentare e bevande',
+  healthcare: 'Sanità',
+  energy_and_utilities: 'Energia e servizi pubblici',
+  education: 'Istruzione',
+  hospitality: 'Ospitalità',
+  construction: 'Edilizia'
 };
 
 export default locale;

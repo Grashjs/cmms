@@ -29,7 +29,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { demoLink, isWhiteLabeled } from '../../config';
-import { industriesLinks, featuresLinks } from '../../utils/urlPaths';
+import { getIndustriesLinks, getFeaturesLinks } from '../../utils/urlPaths';
 
 const HeaderWrapper = styled(Card)(
   ({ theme }) => `
@@ -60,6 +60,8 @@ export default function NavBar() {
   const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const featuresLinks = getFeaturesLinks(t);
+  const industriesLinks = getIndustriesLinks(t);
 
   // State for hamburger menu
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -226,7 +228,7 @@ export default function NavBar() {
                   onMouseEnter={handleIndustriesOpen}
                   endIcon={industriesOpen ? <ExpandLess /> : <ExpandMore />}
                 >
-                  {t('Industries')}
+                  {t('industries')}
                 </Button>
                 <Menu
                   id="industries-menu"
@@ -258,7 +260,7 @@ export default function NavBar() {
                         letterSpacing: 1
                       }}
                     >
-                      {t('Industries')}
+                      {t('industries')}
                     </Typography>
                     <Grid container spacing={2}>
                       <Grid item xs={6}>
@@ -346,7 +348,7 @@ export default function NavBar() {
                     size: { xs: 'small', md: 'medium' }
                   }}
                 >
-                  {t('Pricing')}
+                  {t('pricing')}
                 </Button>
                 {!isWhiteLabeled && (
                   <Button
@@ -498,7 +500,7 @@ export default function NavBar() {
                             sx={{ py: 2 }}
                           >
                             <ListItemText
-                              primary={t('Industries')}
+                              primary={t('industries')}
                               primaryTypographyProps={{
                                 variant: 'h3',
                                 sx: { fontWeight: 'bold' }
@@ -547,7 +549,7 @@ export default function NavBar() {
                           sx={{ py: 2 }}
                         >
                           <ListItemText
-                            primary={t('Pricing')}
+                            primary={t('pricing')}
                             primaryTypographyProps={{
                               variant: 'h3',
                               sx: { fontWeight: 'bold' }

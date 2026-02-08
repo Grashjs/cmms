@@ -1537,7 +1537,20 @@ const locale = {
   push_notifications: 'Push értesítések',
   cloud: 'Felhő',
   self_hosted: 'Saját üzemeltetésű',
-  full: 'Tele'
+  full: 'Tele',
+  pricing: 'Árazás',
+  industries: 'Iparágak',
+  work_order_management: 'Munkarend-kezelés',
+  inventory_management: 'Készletkezelés',
+  analytics_and_reporting: 'Analitika és jelentéskészítés',
+  manufacturing: 'Gyártás',
+  facility_management: 'Létesítményüzemeltetés',
+  food_and_beverage: 'Élelmiszer és ital',
+  healthcare: 'Egészségügy',
+  energy_and_utilities: 'Energia és közművek',
+  education: 'Oktatás',
+  hospitality: 'Vendéglátás',
+  construction: 'Építőipar'
 };
 
 export default locale;

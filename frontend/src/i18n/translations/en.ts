@@ -1629,7 +1629,20 @@ const locale = {
   push_notifications: 'Push Notifications',
   cloud: 'Cloud',
   self_hosted: 'Self-Hosted',
-  full: 'Full'
+  full: 'Full',
+  pricing: 'Pricing',
+  industries: 'Industries',
+  work_order_management: 'Work Order Management',
+  inventory_management: 'Inventory Management',
+  analytics_and_reporting: 'Analytics and Reporting',
+  manufacturing: 'Manufacturing',
+  facility_management: 'Facility Management',
+  food_and_beverage: 'Food & Beverage',
+  healthcare: 'Healthcare',
+  energy_and_utilities: 'Energy & Utilities',
+  education: 'Education',
+  hospitality: 'Hospitality',
+  construction: 'Construction'
 };
 
 export default locale;

@@ -1656,7 +1656,20 @@ const locale = {
   push_notifications: 'Push-meddelanden',
   cloud: 'Moln',
   self_hosted: 'Självhostad',
-  full: 'Full'
+  full: 'Full',
+  pricing: 'Prissättning',
+  industries: 'Branscher',
+  work_order_management: 'Arbetsorderhantering',
+  inventory_management: 'Lagerhantering',
+  analytics_and_reporting: 'Analys och rapportering',
+  manufacturing: 'Tillverkning',
+  facility_management: 'Fastighetsförvaltning',
+  food_and_beverage: 'Livsmedel och dryck',
+  healthcare: 'Sjukvård',
+  energy_and_utilities: 'Energi och försörjning',
+  education: 'Utbildning',
+  hospitality: 'Hotell och restaurang',
+  construction: 'Byggbranschen'
 };
 
 export default locale;

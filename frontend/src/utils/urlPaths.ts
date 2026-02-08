@@ -9,6 +9,7 @@ import {
   School
 } from '@mui/icons-material';
 import { ElementType } from 'react';
+import { TFunction } from 'react-i18next';
 
 export const getAssetUrl = (id) => {
   return `/app/assets/${id}/details`;
@@ -54,72 +55,76 @@ export const getPreventiveMaintenanceUrl = (id) => {
   return `/app/preventive-maintenances/${id}`;
 };
 
-export const industriesLinks: {
+export const getIndustriesLinks = (
+  t: TFunction
+): {
   title: string;
   href: string;
   icon: ElementType;
-}[] = [
+}[] => [
   {
-    title: 'Manufacturing',
+    title: t('manufacturing'),
     href: '/industries/open-source-manufacturing-maintenance-software',
     icon: PrecisionManufacturing
   },
   {
-    title: 'Facility Management',
+    title: t('facility_management'),
     href: '/industries/open-source-facility-management-software',
     icon: Business
   },
   {
-    title: 'Food & Beverage',
+    title: t('food_and_beverage'),
     href: '/industries/open-source-food-and-beverage-maintenance-software',
     icon: Restaurant
   },
   {
-    title: 'Healthcare',
+    title: t('healthcare'),
     href: '/industries/open-source-healthcare-maintenance-software',
     icon: LocalHospital
   },
   {
-    title: 'Energy & Utilities',
+    title: t('energy_and_utilities'),
     href: '/industries/open-source-energy-utilities-maintenance-software',
     icon: FlashOn
   },
   {
-    title: 'Education',
+    title: t('education'),
     href: '/industries/open-source-education-maintenance-software',
     icon: School
   },
   {
-    title: 'Hospitality',
+    title: t('hospitality'),
     href: '/industries/open-source-hospitality-maintenance-software',
     icon: Hotel
   },
   {
-    title: 'Construction',
+    title: t('construction'),
     href: '/industries/open-source-construction-maintenance-software',
     icon: Construction
   }
 ];
 
-export const featuresLinks: { title: string; href: string }[] = [
+export const getFeaturesLinks = (
+  t: TFunction
+): { title: string; href: string }[] => [
   {
-    title: 'Work Order Management',
+    title: t('work_order_management'),
     href: '/features/work-orders'
   },
   {
-    title: 'Asset Management',
+    title: t('asset_management'),
     href: '/features/assets'
   },
   {
-    title: 'Preventive Maintenance',
+    title: t('preventive_maintenance'),
     href: '/features/preventive-maintenance'
   },
   {
-    title: 'Inventory Management',
+    title: t('inventory_management'),
     href: '/features/inventory'
   },
   {
-    title: 'Analytics and Reporting',
+    title: t('analytics_and_reporting'),
     href: '/features/analytics'
   }
 ];

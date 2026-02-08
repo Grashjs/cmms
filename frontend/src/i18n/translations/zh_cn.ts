@@ -1374,7 +1374,20 @@ const locale = {
   push_notifications: '推送通知',
   cloud: '云',
   self_hosted: '自托管',
-  full: '满的'
+  full: '满的',
+  pricing: '定价',
+  industries: '行业',
+  work_order_management: '工单管理',
+  inventory_management: '库存管理',
+  analytics_and_reporting: '分析与报告',
+  manufacturing: '制造业',
+  facility_management: '设施管理',
+  food_and_beverage: '餐饮业',
+  healthcare: '医疗保健',
+  energy_and_utilities: '能源与公用事业',
+  education: '教育',
+  hospitality: '酒店餐饮',
+  construction: '建筑业'
 };
 
 export default locale;

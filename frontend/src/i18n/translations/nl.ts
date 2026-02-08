@@ -1681,6 +1681,19 @@ const locale = {
   push_notifications: 'Pushmeldingen',
   cloud: 'Wolk',
   self_hosted: 'Zelf gehost',
-  full: 'Vol'
+  full: 'Vol',
+  pricing: 'Prijzen',
+  industries: 'Sectoren',
+  work_order_management: 'Werkorderbeheer',
+  inventory_management: 'Voorraadbeheer',
+  analytics_and_reporting: 'Analyse en rapportage',
+  manufacturing: 'Productie',
+  facility_management: 'Facilitair management',
+  food_and_beverage: 'Voeding en dranken',
+  healthcare: 'Gezondheidszorg',
+  energy_and_utilities: 'Energie en nutsbedrijven',
+  education: 'Onderwijs',
+  hospitality: 'Gastvrijheid',
+  construction: 'Bouw'
 };
 export default locale;

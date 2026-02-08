@@ -1575,7 +1575,20 @@ const locale = {
   push_notifications: 'الإشعارات الفورية',
   cloud: 'سحاب',
   self_hosted: 'الاستضافة الذاتية',
-  full: 'ممتلىء'
+  full: 'ممتلىء',
+  pricing: 'التسعير',
+  industries: 'الصناعات',
+  work_order_management: 'إدارة أوامر العمل',
+  inventory_management: 'إدارة المخزون',
+  analytics_and_reporting: 'التحليلات والتقارير',
+  manufacturing: 'التصنيع',
+  facility_management: 'إدارة المرافق',
+  food_and_beverage: 'الأغذية والمشروبات',
+  healthcare: 'الرعاية الصحية',
+  energy_and_utilities: 'الطاقة والمرافق',
+  education: 'التعليم',
+  hospitality: 'الضيافة',
+  construction: 'البناء والتشييد'
 };
 
 export default locale;
