@@ -334,6 +334,9 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
   const brandConfig = useBrand();
   const [currentTab, setCurrentTab] = useState('work-orders');
   const [monthly, setMonthly] = useState<boolean>(true);
+  const [pricingType, setPricingType] = useState<'cloud' | 'selfhosted'>(
+    'cloud'
+  );
   const tabs = [
     { value: 'work-orders', label: t('work_orders') },
     { value: 'request', label: t('request_system') },
@@ -577,6 +580,13 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
   };
   const handleTabsChange = (_event: any, value: SetStateAction<string>) => {
     setCurrentTab(value);
+  };
+
+  const handlePricingTabChange = (
+    _event: any,
+    value: SetStateAction<'cloud' | 'selfhosted'>
+  ) => {
+    setPricingType(value);
   };
 
   return (
@@ -876,10 +886,22 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
           >
             {t('choose_your_plan')}
           </TypographyH1Primary>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+            <Tabs
+              value={pricingType}
+              onChange={handlePricingTabChange}
+              indicatorColor="primary"
+              textColor="primary"
+            >
+              <Tab label={t('cloud')} value="cloud" />
+              <Tab label={t('self_hosted')} value="selfhosted" />
+            </Tabs>
+          </Box>
           <Box px={4}>
             <SubscriptionPlanSelector
               monthly={monthly}
               setMonthly={setMonthly}
+              selfHosted={pricingType === 'selfhosted'}
             />
           </Box>
         </>
