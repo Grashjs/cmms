@@ -30,22 +30,18 @@ export default function Faq() {
             <li>
               <Typography variant="body1">
                 <strong>{t('pricing.faq_view_only_users_title')}</strong> —
-                These users are typically
                 {t('pricing.faq_view_only_users_description')}
               </Typography>
             </li>
             <li>
               <Typography variant="body1">
                 <strong>{t('pricing.faq_requester_users_title')}</strong> —
-                These users can only submit
                 {t('pricing.faq_requester_users_description')}
               </Typography>
             </li>
             <li>
               <Typography variant="body1">
                 <strong>{t('pricing.faq_third_party_users_title')}</strong> —
-                These users are typically vendors and contractors. They can't
-                actually sign into the
                 {t('pricing.faq_third_party_users_description')}
               </Typography>
             </li>
@@ -64,15 +60,13 @@ export default function Faq() {
           <Box component="ol" sx={{ pl: 2 }}>
             <li>
               <Typography variant="body1">
-                <strong>{t('pricing.faq_admin_users_title')}</strong> — These
-                users have the ability to
+                <strong>{t('pricing.faq_admin_users_title')}</strong> —{' '}
                 {t('pricing.faq_admin_users_description')}
               </Typography>
             </li>
             <li>
               <Typography variant="body1">
-                <strong>{t('pricing.faq_technical_users_title')}</strong> —
-                These users are typically
+                <strong>{t('pricing.faq_technical_users_title')}</strong> —{' '}
                 {t('pricing.faq_technical_users_description')}
               </Typography>
             </li>
@@ -81,7 +75,6 @@ export default function Faq() {
                 <strong>
                   {t('pricing.faq_limited_technical_users_title')}
                 </strong>{' '}
-                — These users have the
                 {t('pricing.faq_limited_technical_users_description')}
               </Typography>
             </li>
