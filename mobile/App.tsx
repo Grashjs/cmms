@@ -133,13 +133,13 @@ export default function App() {
                   <CustomSnackbarProvider>
                     <SheetProvider>
                       <RootLayout>
+                        <FlashMessage
+                          position="top"
+                          statusBarHeight={Constants.statusBarHeight}
+                        />
                         <Navigation colorScheme={colorScheme} />
                       </RootLayout>
                       <StatusBar />
-                      <FlashMessage
-                        position="top"
-                        statusBarHeight={Constants.statusBarHeight}
-                      />
                     </SheetProvider>
                   </CustomSnackbarProvider>
                 </PaperProvider>

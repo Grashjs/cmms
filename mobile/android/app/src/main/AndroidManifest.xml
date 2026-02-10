@@ -2,12 +2,12 @@
   <uses-permission android:name="android.permission.CAMERA"/>
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+  <uses-permission android:name="android.permission.NFC"/>
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
   <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
   <uses-permission android:name="android.permission.VIBRATE"/>
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-  <uses-permission android:name="android.permission.NFC"/>
   <uses-feature android:name="android.hardware.nfc" android:required="false"/>
   <queries>
     <intent>
@@ -35,6 +35,7 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="atlascmms"/>
         <data android:scheme="com.atlas.cmms"/>
+        <data android:scheme="exp+atlas-cmms"/>
       </intent-filter>
       <intent-filter android:autoVerify="true">
         <action android:name="android.intent.action.VIEW"/>
