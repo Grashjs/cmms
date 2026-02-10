@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="1769663726-1" author="Ibrahima G. Coulibaly">
+        <sql>
+            -- Drop existing constraints
+            ALTER TABLE workflow DROP CONSTRAINT IF EXISTS fk2yopr6sxpui8gj22yt1qlot2g;
+            ALTER TABLE meter DROP CONSTRAINT IF EXISTS fk578asjaixmqs7pn07tho2i1pc;
+            ALTER TABLE request DROP CONSTRAINT IF EXISTS fk5w6no964jn5lpg4tpeugv8xx7;
+            ALTER TABLE work_order DROP CONSTRAINT IF EXISTS fk89batrcg5n0tvewqhad27e8oa;
+            ALTER TABLE custom_sequence DROP CONSTRAINT IF EXISTS fk_custom_sequence_company;
+            ALTER TABLE subscription_change_request DROP CONSTRAINT IF EXISTS fk_subscription_change_request_company;
+            ALTER TABLE multi_parts DROP CONSTRAINT IF EXISTS fkam5yy13545on89ahiokjtb59q;
+            ALTER TABLE asset DROP CONSTRAINT IF EXISTS fkbnbckrvy4gleqsugkauihx7d7;
+            ALTER TABLE location DROP CONSTRAINT IF EXISTS fkbxoiqd2lmvk7c3r3qhfoou2py;
+            ALTER TABLE customer DROP CONSTRAINT IF EXISTS fkcc6lvs1hfb70cc5rjbyq0m8is;
+            ALTER TABLE workflow_action DROP CONSTRAINT IF EXISTS fkd1dqs6sf06v5i8jp26pax02dc;
+            ALTER TABLE task_base DROP CONSTRAINT IF EXISTS fkd4mq9o4l0yvmwa8n913k8xmei;
+            ALTER TABLE own_user DROP CONSTRAINT IF EXISTS fkedmmabpmsf25ut5ak07i1rban;
+            ALTER TABLE task_option DROP CONSTRAINT IF EXISTS fkepxf7nnly1w2n7w9c4wj9w68m;
+            ALTER TABLE deprecation DROP CONSTRAINT IF EXISTS fkfcqj01lp3ibnkgsmym76tx1hh;
+            ALTER TABLE work_order_meter_trigger DROP CONSTRAINT IF EXISTS fkmlswjhdj6yvdr0gxttjbivans;
+            ALTER TABLE purchase_order DROP CONSTRAINT IF EXISTS fknhrkwmvmqly4yq8isdbsbs6mc;
+            ALTER TABLE company_settings DROP CONSTRAINT IF EXISTS fkokimhprb4eh1c0d48brd1fdaa;
+            ALTER TABLE team DROP CONSTRAINT IF EXISTS fkq7becd703i1w0ry1jxy15qxid;
+            ALTER TABLE part_quantity DROP CONSTRAINT IF EXISTS fkqipxpeva75fa76890xnl4u0fx;
+            ALTER TABLE vendor DROP CONSTRAINT IF EXISTS fksfx6gf0an0bo7kwscuhi1hoya;
+            ALTER TABLE part DROP CONSTRAINT IF EXISTS fkthru5degka2ss0r44n7uphvoj;
+            ALTER TABLE relation DROP CONSTRAINT IF EXISTS fktka3m8kybt9riu4x4no4vwat0;
+            ALTER TABLE asset_downtime DROP CONSTRAINT IF EXISTS fktm1akp965a93k4gdxg1st9rfi;
+            ALTER TABLE labor DROP CONSTRAINT IF EXISTS fkfqjl9rhhuh45t4tyuo7i5qys9;
+            ALTER TABLE part_consumption DROP CONSTRAINT IF EXISTS fkib1h4krpiuuk1meixq7qf9g86;
+            ALTER TABLE preventive_maintenance DROP CONSTRAINT IF EXISTS fkibhc2hvq2hfbom3rwxu7pfxw0;
+            ALTER TABLE file DROP CONSTRAINT IF EXISTS fkipblk8l80i440v7n7be1gnyet;
+            ALTER TABLE workflow_condition DROP CONSTRAINT IF EXISTS fkjus3y7kh66dyo0ryefx02iqx3;
+            ALTER TABLE task DROP CONSTRAINT IF EXISTS fkkovhsjug063l45ggbgdfxp21s;
+
+-- Recreate constraints with ON DELETE CASCADE
+            ALTER TABLE workflow
+                ADD CONSTRAINT fk2yopr6sxpui8gj22yt1qlot2g FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE meter
+                ADD CONSTRAINT fk578asjaixmqs7pn07tho2i1pc FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE request
+                ADD CONSTRAINT fk5w6no964jn5lpg4tpeugv8xx7 FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE work_order
+                ADD CONSTRAINT fk89batrcg5n0tvewqhad27e8oa FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE custom_sequence
+                ADD CONSTRAINT fk_custom_sequence_company FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE subscription_change_request
+                ADD CONSTRAINT fk_subscription_change_request_company FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE multi_parts
+                ADD CONSTRAINT fkam5yy13545on89ahiokjtb59q FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE asset
+                ADD CONSTRAINT fkbnbckrvy4gleqsugkauihx7d7 FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE location
+                ADD CONSTRAINT fkbxoiqd2lmvk7c3r3qhfoou2py FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE customer
+                ADD CONSTRAINT fkcc6lvs1hfb70cc5rjbyq0m8is FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE workflow_action
+                ADD CONSTRAINT fkd1dqs6sf06v5i8jp26pax02dc FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE task_base
+                ADD CONSTRAINT fkd4mq9o4l0yvmwa8n913k8xmei FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE own_user
+                ADD CONSTRAINT fkedmmabpmsf25ut5ak07i1rban FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE task_option
+                ADD CONSTRAINT fkepxf7nnly1w2n7w9c4wj9w68m FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE deprecation
+                ADD CONSTRAINT fkfcqj01lp3ibnkgsmym76tx1hh FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE work_order_meter_trigger
+                ADD CONSTRAINT fkmlswjhdj6yvdr0gxttjbivans FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE purchase_order
+                ADD CONSTRAINT fknhrkwmvmqly4yq8isdbsbs6mc FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE company_settings
+                ADD CONSTRAINT fkokimhprb4eh1c0d48brd1fdaa FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE team
+                ADD CONSTRAINT fkq7becd703i1w0ry1jxy15qxid FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE part_quantity
+                ADD CONSTRAINT fkqipxpeva75fa76890xnl4u0fx FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE vendor
+                ADD CONSTRAINT fksfx6gf0an0bo7kwscuhi1hoya FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE part
+                ADD CONSTRAINT fkthru5degka2ss0r44n7uphvoj FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE relation
+                ADD CONSTRAINT fktka3m8kybt9riu4x4no4vwat0 FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE asset_downtime
+                ADD CONSTRAINT fktm1akp965a93k4gdxg1st9rfi FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE labor
+                ADD CONSTRAINT fkfqjl9rhhuh45t4tyuo7i5qys9 FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE part_consumption
+                ADD CONSTRAINT fkib1h4krpiuuk1meixq7qf9g86 FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE preventive_maintenance
+                ADD CONSTRAINT fkibhc2hvq2hfbom3rwxu7pfxw0 FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE file
+                ADD CONSTRAINT fkipblk8l80i440v7n7be1gnyet FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE workflow_condition
+                ADD CONSTRAINT fkjus3y7kh66dyo0ryefx02iqx3 FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+            ALTER TABLE task
+                ADD CONSTRAINT fkkovhsjug063l45ggbgdfxp21s FOREIGN KEY (company_id) REFERENCES company (id) ON DELETE CASCADE;
+
+-- Additional Cascades for objects referencing CompanySettings (to ensure full cleanup)
+            ALTER TABLE meter_category DROP CONSTRAINT IF EXISTS fk26q7jqesxesg8d65hj8c9f1gv;
+            ALTER TABLE meter_category
+                ADD CONSTRAINT fk26q7jqesxesg8d65hj8c9f1gv FOREIGN KEY (company_settings_id) REFERENCES company_settings (id) ON DELETE CASCADE;
+
+            ALTER TABLE work_order_category DROP CONSTRAINT IF EXISTS fk29i1j8j23y946usq1eth5qf6a;
+            ALTER TABLE work_order_category
+                ADD CONSTRAINT fk29i1j8j23y946usq1eth5qf6a FOREIGN KEY (company_settings_id) REFERENCES company_settings (id) ON DELETE CASCADE;
+
+            ALTER TABLE asset_category DROP CONSTRAINT IF EXISTS fklj3296bvmjcd0xlho5feip44a;
+            ALTER TABLE asset_category
+                ADD CONSTRAINT fklj3296bvmjcd0xlho5feip44a FOREIGN KEY (company_settings_id) REFERENCES company_settings (id) ON DELETE CASCADE;
+
+            ALTER TABLE part_category DROP CONSTRAINT IF EXISTS fk_part_category_company_settings;
+            ALTER TABLE part_category
+                ADD CONSTRAINT fk_part_category_company_settings FOREIGN KEY (company_settings_id) REFERENCES company_settings (id) ON DELETE CASCADE;
+
+            ALTER TABLE purchase_order_category DROP CONSTRAINT IF EXISTS fkc7wlc4jicpk0243alj8biab6v;
+            ALTER TABLE purchase_order_category
+                ADD CONSTRAINT fkc7wlc4jicpk0243alj8biab6v FOREIGN KEY (company_settings_id) REFERENCES company_settings (id) ON DELETE CASCADE;
+
+            ALTER TABLE time_category DROP CONSTRAINT IF EXISTS fk87e9ddkvokl4g0d787clik15c;
+            ALTER TABLE time_category
+                ADD CONSTRAINT fk87e9ddkvokl4g0d787clik15c FOREIGN KEY (company_settings_id) REFERENCES company_settings (id) ON DELETE CASCADE;
+
+            ALTER TABLE cost_category DROP CONSTRAINT IF EXISTS fkkbgeqfdaesfnsrbf0vxfdho6t;
+            ALTER TABLE cost_category
+                ADD CONSTRAINT fkkbgeqfdaesfnsrbf0vxfdho6t FOREIGN KEY (company_settings_id) REFERENCES company_settings (id) ON DELETE CASCADE;
+
+        </sql>
+    </changeSet>
+    <changeSet id="1769664578578-1" author="Ibrahima G. Coulibaly">
+        <sql>
+            ALTER TABLE checklist_task_bases
+            DROP
+            CONSTRAINT IF EXISTS fkd34phs94o7382otdgl82mcoua;
+
+            ALTER TABLE checklist_task_bases
+            DROP
+            CONSTRAINT IF EXISTS fkhk7924rrpw72xmw6xcnd04xtf;
+
+-- Recreate foreign keys with ON DELETE CASCADE
+            ALTER TABLE checklist_task_bases
+                ADD CONSTRAINT fkd34phs94o7382otdgl82mcoua
+                    FOREIGN KEY (checklist_id)
+                        REFERENCES checklist (id)
+                        ON DELETE CASCADE;
+
+            ALTER TABLE checklist_task_bases
+                ADD CONSTRAINT fkhk7924rrpw72xmw6xcnd04xtf
+                    FOREIGN KEY (task_bases_id)
+                        REFERENCES task_base (id)
+                        ON DELETE CASCADE;
+        </sql>
+    </changeSet>
+    <changeSet id="allow-user-deletion-constraints" author="junie">
+        <!-- CASCADE for NOT NULL references -->
+        <dropForeignKeyConstraint baseTableName="super_account_relation"
+                                  constraintName="fk_super_account_relation_super_user"/>
+        <addForeignKeyConstraint baseColumnNames="super_user_id" baseTableName="super_account_relation"
+                                 constraintName="fk_super_account_relation_super_user" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="super_account_relation"
+                                  constraintName="fk_super_account_relation_child_user"/>
+        <addForeignKeyConstraint baseColumnNames="child_user_id" baseTableName="super_account_relation"
+                                 constraintName="fk_super_account_relation_child_user" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="work_order_history" constraintName="fkggkgvrsfxoevabt4igrse99m3"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="work_order_history"
+                                 constraintName="fkggkgvrsfxoevabt4igrse99m3" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="push_notification_token" constraintName="fkrv32gwhy1ktdvrlfeg2y1pcqo"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="push_notification_token"
+                                 constraintName="fkrv32gwhy1ktdvrlfeg2y1pcqo" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="verification_token" constraintName="fk9sh6q5nyk1pmm19t235i67sxk"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="verification_token"
+                                 constraintName="fk9sh6q5nyk1pmm19t235i67sxk" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <!-- SET NULL for Nullable references -->
+        <dropForeignKeyConstraint baseTableName="additional_cost" constraintName="fkov7r0agrfyv2u9v67rd4e4hxf"/>
+        <addForeignKeyConstraint baseColumnNames="assigned_to_id" baseTableName="additional_cost"
+                                 constraintName="fkov7r0agrfyv2u9v67rd4e4hxf" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="SET NULL"/>
+
+        <dropForeignKeyConstraint baseTableName="asset" constraintName="fkmq4as1d1exvm4mg3ayokdan30"/>
+        <addForeignKeyConstraint baseColumnNames="primary_user_id" baseTableName="asset"
+                                 constraintName="fkmq4as1d1exvm4mg3ayokdan30" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="SET NULL"/>
+
+        <dropForeignKeyConstraint baseTableName="labor" constraintName="fkr5slomxbec1ob9k9npjcdad05"/>
+        <addForeignKeyConstraint baseColumnNames="assigned_to_id" baseTableName="labor"
+                                 constraintName="fkr5slomxbec1ob9k9npjcdad05" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="SET NULL"/>
+
+        <dropForeignKeyConstraint baseTableName="notification" constraintName="fk99ahq0v75lcyyue9jk2jx01xh"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="notification"
+                                 constraintName="fk99ahq0v75lcyyue9jk2jx01xh" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="SET NULL"/>
+
+        <dropForeignKeyConstraint baseTableName="task_base" constraintName="fkjuw0e6wckoo1tqast1m6baj9f"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="task_base"
+                                 constraintName="fkjuw0e6wckoo1tqast1m6baj9f" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="SET NULL"/>
+
+        <dropForeignKeyConstraint baseTableName="workflow_action" constraintName="fks2ytj9hm7fm8w9uekixsq2vip"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="workflow_action"
+                                 constraintName="fks2ytj9hm7fm8w9uekixsq2vip" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="SET NULL"/>
+
+
+        <dropForeignKeyConstraint baseTableName="work_order" constraintName="fkac4vsg728gaycwq1w9o77uw3c"/>
+        <addForeignKeyConstraint baseColumnNames="completed_by_id" baseTableName="work_order"
+                                 constraintName="fkac4vsg728gaycwq1w9o77uw3c" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="SET NULL"/>
+
+        <dropForeignKeyConstraint baseTableName="work_order" constraintName="fknixhvhyqdk11xntyainal50tf"/>
+        <addForeignKeyConstraint baseColumnNames="primary_user_id" baseTableName="work_order"
+                                 constraintName="fknixhvhyqdk11xntyainal50tf" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="SET NULL"/>
+
+        <!-- Join Tables CASCADE -->
+        <dropForeignKeyConstraint baseTableName="t_asset_user_associations"
+                                  constraintName="fkjgn04l4eish0drw94bb50lrk3"/>
+        <addForeignKeyConstraint baseColumnNames="id_user" baseTableName="t_asset_user_associations"
+                                 constraintName="fkjgn04l4eish0drw94bb50lrk3" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="t_location_user_associations"
+                                  constraintName="fke43mw9vk8u1y3ugxjhwt19s0g"/>
+        <addForeignKeyConstraint baseColumnNames="id_user" baseTableName="t_location_user_associations"
+                                 constraintName="fke43mw9vk8u1y3ugxjhwt19s0g" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="t_meter_user_associations"
+                                  constraintName="fkctimil7gh7ea6xa1n98kea0id"/>
+        <addForeignKeyConstraint baseColumnNames="id_user" baseTableName="t_meter_user_associations"
+                                 constraintName="fkctimil7gh7ea6xa1n98kea0id" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="t_part_user_associations"
+                                  constraintName="fk82khjnm7mtmukbbuwnm5okidn"/>
+        <addForeignKeyConstraint baseColumnNames="id_user" baseTableName="t_part_user_associations"
+                                 constraintName="fk82khjnm7mtmukbbuwnm5okidn" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="t_team_user_associations"
+                                  constraintName="fk18sbate5bpyyxby399j40x7re"/>
+        <addForeignKeyConstraint baseColumnNames="id_user" baseTableName="t_team_user_associations"
+                                 constraintName="fk18sbate5bpyyxby399j40x7re" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <!-- Preventive Maintenance & Work Order assigned users join tables -->
+        <dropForeignKeyConstraint baseTableName="own_user_preventive_maintenances"
+                                  constraintName="fk9ttebk37s6yxteght7367u6hl"/>
+        <addForeignKeyConstraint baseColumnNames="own_user_id" baseTableName="own_user_preventive_maintenances"
+                                 constraintName="fk9ttebk37s6yxteght7367u6hl" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <dropForeignKeyConstraint baseTableName="own_user_work_orders" constraintName="fk9shb970menrny3c08rd8hqwd5"/>
+        <addForeignKeyConstraint baseColumnNames="own_user_id" baseTableName="own_user_work_orders"
+                                 constraintName="fk9shb970menrny3c08rd8hqwd5" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+    </changeSet>
+    <changeSet id="1769664940012-1" author="Ibrahima G. Coulibaly">
+        <sql>
+            ALTER TABLE workflow_secondary_conditions
+            DROP
+            CONSTRAINT IF EXISTS fkghlfm1gckeadderktdefpo66s;
+
+            ALTER TABLE workflow_secondary_conditions
+            DROP
+            CONSTRAINT IF EXISTS fkshydsqbgheutdqrqsol5h9e0p;
+
+-- Recreate foreign keys with ON DELETE CASCADE
+            ALTER TABLE workflow_secondary_conditions
+                ADD CONSTRAINT fkghlfm1gckeadderktdefpo66s
+                    FOREIGN KEY (workflow_id)
+                        REFERENCES workflow (id)
+                        ON DELETE CASCADE;
+
+            ALTER TABLE workflow_secondary_conditions
+                ADD CONSTRAINT fkshydsqbgheutdqrqsol5h9e0p
+                    FOREIGN KEY (secondary_conditions_id)
+                        REFERENCES workflow_condition (id)
+                        ON DELETE CASCADE;
+        </sql>
+    </changeSet>
+    <changeSet id="1769665033608-1" author="Ibrahima G. Coulibaly">
+        <sql>ALTER TABLE push_notification_token
+        DROP
+        CONSTRAINT IF EXISTS fkrv32gwhy1ktdvrlfeg2y1pcqo;
+
+-- Recreate foreign key with ON DELETE CASCADE
+        ALTER TABLE push_notification_token
+            ADD CONSTRAINT fkrv32gwhy1ktdvrlfeg2y1pcqo
+                FOREIGN KEY (user_id)
+                    REFERENCES own_user (id)
+                    ON DELETE CASCADE;</sql>
+    </changeSet>
+    <changeSet id="1769666659627-1" author="Ibrahima G. Coulibaly">
+        <dropForeignKeyConstraint
+                baseTableName="request_files"
+                constraintName="fkd3vswlusjseoo7lpwb0697w2o"/>
+
+        <dropForeignKeyConstraint
+                baseTableName="request_files"
+                constraintName="fke28fh1hvbl1e8jww275n3b1w0"/>
+
+        <addForeignKeyConstraint
+                baseTableName="request_files"
+                baseColumnNames="request_id"
+                referencedTableName="request"
+                referencedColumnNames="id"
+                constraintName="fkd3vswlusjseoo7lpwb0697w2o"
+                onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                baseTableName="request_files"
+                baseColumnNames="files_id"
+                referencedTableName="file"
+                referencedColumnNames="id"
+                constraintName="fke28fh1hvbl1e8jww275n3b1w0"
+                onDelete="CASCADE"/>
+
+    </changeSet>
+    <changeSet id="1769665053006-1" author="Ibrahima G. Coulibaly">
+
+        <dropForeignKeyConstraint
+                baseTableName="work_order_customers"
+                constraintName="fk5c0105hu4penp7v2u9tmjg50w"/>
+
+        <dropForeignKeyConstraint
+                baseTableName="work_order_customers"
+                constraintName="fkglrmndromgkolt5unqykpu45u"/>
+
+        <addForeignKeyConstraint
+                baseTableName="work_order_customers"
+                baseColumnNames="work_order_id"
+                referencedTableName="work_order"
+                referencedColumnNames="id"
+                constraintName="fk5c0105hu4penp7v2u9tmjg50w"
+                onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                baseTableName="work_order_customers"
+                baseColumnNames="customers_id"
+                referencedTableName="customer"
+                referencedColumnNames="id"
+                constraintName="fkglrmndromgkolt5unqykpu45u"
+                onDelete="CASCADE"/>
+
+    </changeSet>
+    <changeSet id="1769668745339-1" author="Ibrahima G. Coulibaly">
+        <sql>
+            CREATE INDEX idx_company_demo ON company (demo);
+        </sql>
+    </changeSet>
+    <changeSet id="1769669767608-1" author="Ibrahima G. Coulibaly">
+        <sql>
+            CREATE INDEX idx_asset_company_id ON asset (company_id);
+            CREATE INDEX idx_asset_downtime_company_id ON asset_downtime (company_id);
+            CREATE INDEX idx_deprecation_company_id ON deprecation (company_id);
+            CREATE INDEX idx_file_company_id ON file (company_id);
+            CREATE INDEX idx_location_company_id ON location (company_id);
+            CREATE INDEX idx_meter_company_id ON meter (company_id);
+            CREATE INDEX idx_multi_parts_company_id ON multi_parts (company_id);
+            CREATE INDEX idx_part_company_id ON part (company_id);
+            CREATE INDEX idx_part_consumption_company_id ON part_consumption (company_id);
+            CREATE INDEX idx_part_quantity_company_id ON part_quantity (company_id);
+            CREATE INDEX idx_purchase_order_company_id ON purchase_order (company_id);
+            CREATE INDEX idx_relation_company_id ON relation (company_id);
+            CREATE INDEX idx_subscription_change_request_company_id ON subscription_change_request (company_id);
+            CREATE INDEX idx_task_company_id ON task (company_id);
+            CREATE INDEX idx_task_base_company_id ON task_base (company_id);
+            CREATE INDEX idx_task_option_company_id ON task_option (company_id);
+            CREATE INDEX idx_team_company_id ON team (company_id);
+            CREATE INDEX idx_workflow_company_id ON workflow (company_id);
+            CREATE INDEX idx_workflow_action_company_id ON workflow_action (company_id);
+            CREATE INDEX idx_workflow_condition_company_id ON workflow_condition (company_id);
+            CREATE INDEX idx_customer_company_id ON customer (company_id);
+            CREATE INDEX idx_vendor_company_id ON vendor (company_id);
+            CREATE INDEX idx_labor_company_id ON labor (company_id);
+            CREATE INDEX idx_preventive_maintenance_company_id ON preventive_maintenance (company_id);
+            CREATE INDEX idx_request_company_id ON request (company_id);
+            CREATE INDEX idx_work_order_company_id ON work_order (company_id);
+            CREATE INDEX idx_work_order_meter_trigger_company_id ON work_order_meter_trigger (company_id);
+
+-- Indexes for other major tables with company_id
+            CREATE INDEX idx_own_user_company_id ON own_user (company_id);
+            CREATE INDEX idx_company_settings_company_id ON company_settings (company_id);
+
+        </sql>
+    </changeSet>
+    <changeSet id="1769665053007-1" author="Ibrahima G. Coulibaly">
+
+        <!-- Drop existing foreign key constraints -->
+        <dropForeignKeyConstraint
+                baseTableName="preventive_maintenance_files"
+                constraintName="fkqhoc4ma9gysgmv2445yitvs8f"/>
+        <dropForeignKeyConstraint
+                baseTableName="preventive_maintenance_files"
+                constraintName="fk8mtccux67q9rtp914y4n7jvom"/>
+
+        <!-- Recreate foreign keys with ON DELETE CASCADE -->
+        <addForeignKeyConstraint
+                baseTableName="preventive_maintenance_files"
+                baseColumnNames="preventive_maintenance_id"
+                referencedTableName="preventive_maintenance"
+                referencedColumnNames="id"
+                constraintName="fkqhoc4ma9gysgmv2445yitvs8f"
+                onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                baseTableName="preventive_maintenance_files"
+                baseColumnNames="files_id"
+                referencedTableName="file"
+                referencedColumnNames="id"
+                constraintName="fk8mtccux67q9rtp914y4n7jvom"
+                onDelete="CASCADE"/>
+
+    </changeSet>
+
+</databaseChangeLog>

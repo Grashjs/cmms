@@ -15,16 +15,21 @@ import {
   Divider,
   useTheme,
   useMediaQuery,
-  Slide
+  Slide,
+  Menu,
+  Grid,
+  Collapse,
+  Link
 } from '@mui/material';
 import Logo from '../LogoSign';
-import { GitHub } from '@mui/icons-material';
+import { GitHub, ExpandLess, ExpandMore } from '@mui/icons-material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LanguageSwitcher from '../../layouts/ExtendedSidebarLayout/Header/Buttons/LanguageSwitcher';
 import { Link as RouterLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { demoLink, isWhiteLabeled } from '../../config';
+import { getIndustriesLinks, getFeaturesLinks } from '../../utils/urlPaths';
 
 const HeaderWrapper = styled(Card)(
   ({ theme }) => `
@@ -55,12 +60,56 @@ export default function NavBar() {
   const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const featuresLinks = getFeaturesLinks(t);
+  const industriesLinks = getIndustriesLinks(t);
 
   // State for hamburger menu
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  // Handlers for hamburger menu
+  // State for Features menu (Desktop)
+  const [featuresAnchorEl, setFeaturesAnchorEl] = useState<null | HTMLElement>(
+    null
+  );
+  const featuresOpen = Boolean(featuresAnchorEl);
+
+  // State for Industries menu (Desktop)
+  const [industriesAnchorEl, setIndustriesAnchorEl] =
+    useState<null | HTMLElement>(null);
+  const industriesOpen = Boolean(industriesAnchorEl);
+
+  // State for Features collapse (Mobile)
+  const [featuresMobileOpen, setFeaturesMobileOpen] = useState(false);
+
+  // State for Industries collapse (Mobile)
+  const [industriesMobileOpen, setIndustriesMobileOpen] = useState(false);
+
+  // Handlers for Features menu
+  const handleFeaturesOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setFeaturesAnchorEl(event.currentTarget);
+  };
+
+  const handleFeaturesClose = () => {
+    setFeaturesAnchorEl(null);
+  };
+
+  const handleFeaturesMobileToggle = () => {
+    setFeaturesMobileOpen(!featuresMobileOpen);
+  };
+
+  // Handlers for Industries menu
+  const handleIndustriesOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setIndustriesAnchorEl(event.currentTarget);
+  };
+
+  const handleIndustriesClose = () => {
+    setIndustriesAnchorEl(null);
+  };
+
+  const handleIndustriesMobileToggle = () => {
+    setIndustriesMobileOpen(!industriesMobileOpen);
+  };
+
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -105,6 +154,193 @@ export default function NavBar() {
                 }}
               >
                 <Button
+                  onClick={handleFeaturesOpen}
+                  onMouseEnter={handleFeaturesOpen}
+                  endIcon={featuresOpen ? <ExpandLess /> : <ExpandMore />}
+                >
+                  {t('features')}
+                </Button>
+                <Menu
+                  id="features-menu"
+                  anchorEl={featuresAnchorEl}
+                  open={featuresOpen}
+                  onClose={handleFeaturesClose}
+                  MenuListProps={{
+                    onMouseLeave: handleFeaturesClose,
+                    sx: { p: 0 }
+                  }}
+                  PaperProps={{
+                    sx: {
+                      mt: 1.5,
+                      boxShadow: theme.shadows[5],
+                      borderRadius: 1,
+                      minWidth: 250
+                    }
+                  }}
+                >
+                  <Box sx={{ p: 2 }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        mb: 2,
+                        fontWeight: 'bold',
+                        color: theme.palette.primary.main,
+                        textTransform: 'uppercase',
+                        fontSize: 12,
+                        letterSpacing: 1
+                      }}
+                    >
+                      {t('features')}
+                    </Typography>
+                    <List dense disablePadding>
+                      {featuresLinks.map((link) => (
+                        <ListItem
+                          key={link.title}
+                          component={RouterLink}
+                          to={link.href}
+                          onClick={handleFeaturesClose}
+                          sx={{
+                            px: 0,
+                            py: 1,
+                            color: 'inherit',
+                            textDecoration: 'none',
+                            '&:hover': {
+                              color: theme.palette.primary.main,
+                              backgroundColor: 'transparent'
+                            }
+                          }}
+                        >
+                          <ListItemText
+                            primary={link.title}
+                            primaryTypographyProps={{
+                              variant: 'body2',
+                              sx: { fontWeight: 500 }
+                            }}
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Box>
+                </Menu>
+
+                <Button
+                  onClick={handleIndustriesOpen}
+                  onMouseEnter={handleIndustriesOpen}
+                  endIcon={industriesOpen ? <ExpandLess /> : <ExpandMore />}
+                >
+                  {t('industries')}
+                </Button>
+                <Menu
+                  id="industries-menu"
+                  anchorEl={industriesAnchorEl}
+                  open={industriesOpen}
+                  onClose={handleIndustriesClose}
+                  MenuListProps={{
+                    onMouseLeave: handleIndustriesClose,
+                    sx: { p: 0 }
+                  }}
+                  PaperProps={{
+                    sx: {
+                      mt: 1.5,
+                      boxShadow: theme.shadows[5],
+                      borderRadius: 1,
+                      minWidth: 500
+                    }
+                  }}
+                >
+                  <Box sx={{ p: 2 }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        mb: 2,
+                        fontWeight: 'bold',
+                        color: theme.palette.primary.main,
+                        textTransform: 'uppercase',
+                        fontSize: 12,
+                        letterSpacing: 1
+                      }}
+                    >
+                      {t('industries')}
+                    </Typography>
+                    <Grid container spacing={2}>
+                      <Grid item xs={6}>
+                        <List dense disablePadding>
+                          {industriesLinks
+                            .slice(0, Math.ceil(industriesLinks.length / 2))
+                            .map((link) => (
+                              <ListItem
+                                key={link.title}
+                                component={RouterLink}
+                                to={link.href}
+                                onClick={handleIndustriesClose}
+                                sx={{
+                                  px: 0,
+                                  py: 1,
+                                  color: 'inherit',
+                                  textDecoration: 'none',
+                                  '&:hover': {
+                                    color: theme.palette.primary.main,
+                                    backgroundColor: 'transparent'
+                                  }
+                                }}
+                              >
+                                <ListItemIcon
+                                  sx={{ minWidth: 36, color: 'inherit' }}
+                                >
+                                  <link.icon fontSize="small" />
+                                </ListItemIcon>
+                                <ListItemText
+                                  primary={link.title}
+                                  primaryTypographyProps={{
+                                    variant: 'body2',
+                                    sx: { fontWeight: 500 }
+                                  }}
+                                />
+                              </ListItem>
+                            ))}
+                        </List>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <List dense disablePadding>
+                          {industriesLinks
+                            .slice(Math.ceil(industriesLinks.length / 2))
+                            .map((link) => (
+                              <ListItem
+                                key={link.title}
+                                component={RouterLink}
+                                to={link.href}
+                                onClick={handleIndustriesClose}
+                                sx={{
+                                  px: 0,
+                                  py: 1,
+                                  color: 'inherit',
+                                  textDecoration: 'none',
+                                  '&:hover': {
+                                    color: theme.palette.primary.main,
+                                    backgroundColor: 'transparent'
+                                  }
+                                }}
+                              >
+                                <ListItemIcon
+                                  sx={{ minWidth: 36, color: 'inherit' }}
+                                >
+                                  <link.icon fontSize="small" />
+                                </ListItemIcon>
+                                <ListItemText
+                                  primary={link.title}
+                                  primaryTypographyProps={{
+                                    variant: 'body2',
+                                    sx: { fontWeight: 500 }
+                                  }}
+                                />
+                              </ListItem>
+                            ))}
+                        </List>
+                      </Grid>
+                    </Grid>
+                  </Box>
+                </Menu>
+                <Button
                   component={RouterLink}
                   to="/pricing"
                   sx={{
@@ -112,7 +348,7 @@ export default function NavBar() {
                     size: { xs: 'small', md: 'medium' }
                   }}
                 >
-                  {t('Pricing')}
+                  {t('pricing')}
                 </Button>
                 {!isWhiteLabeled && (
                   <Button
@@ -210,6 +446,102 @@ export default function NavBar() {
                         mountOnEnter
                         unmountOnExit
                       >
+                        <Box>
+                          <ListItem
+                            button
+                            onClick={handleFeaturesMobileToggle}
+                            sx={{ py: 2 }}
+                          >
+                            <ListItemText
+                              primary={t('features')}
+                              primaryTypographyProps={{
+                                variant: 'h3',
+                                sx: { fontWeight: 'bold' }
+                              }}
+                            />
+                            {featuresMobileOpen ? (
+                              <ExpandLess />
+                            ) : (
+                              <ExpandMore />
+                            )}
+                          </ListItem>
+                          <Collapse
+                            in={featuresMobileOpen}
+                            timeout="auto"
+                            unmountOnExit
+                          >
+                            <List component="div" disablePadding sx={{ pl: 4 }}>
+                              {featuresLinks.map((link) => (
+                                <ListItem
+                                  key={link.title}
+                                  component={Link}
+                                  href={link.href}
+                                  onClick={handleMenuClose}
+                                  sx={{ py: 1 }}
+                                >
+                                  <ListItemText primary={link.title} />
+                                </ListItem>
+                              ))}
+                            </List>
+                          </Collapse>
+                        </Box>
+                      </Slide>
+
+                      <Slide
+                        direction="left"
+                        in={open}
+                        mountOnEnter
+                        unmountOnExit
+                      >
+                        <Box>
+                          <ListItem
+                            button
+                            onClick={handleIndustriesMobileToggle}
+                            sx={{ py: 2 }}
+                          >
+                            <ListItemText
+                              primary={t('industries')}
+                              primaryTypographyProps={{
+                                variant: 'h3',
+                                sx: { fontWeight: 'bold' }
+                              }}
+                            />
+                            {industriesMobileOpen ? (
+                              <ExpandLess />
+                            ) : (
+                              <ExpandMore />
+                            )}
+                          </ListItem>
+                          <Collapse
+                            in={industriesMobileOpen}
+                            timeout="auto"
+                            unmountOnExit
+                          >
+                            <List component="div" disablePadding sx={{ pl: 4 }}>
+                              {industriesLinks.map((link) => (
+                                <ListItem
+                                  key={link.title}
+                                  component={Link}
+                                  href={link.href}
+                                  onClick={handleMenuClose}
+                                  sx={{ py: 1 }}
+                                >
+                                  <ListItemIcon sx={{ minWidth: 40 }}>
+                                    <link.icon />
+                                  </ListItemIcon>
+                                  <ListItemText primary={link.title} />
+                                </ListItem>
+                              ))}
+                            </List>
+                          </Collapse>
+                        </Box>
+                      </Slide>
+                      <Slide
+                        direction="left"
+                        in={open}
+                        mountOnEnter
+                        unmountOnExit
+                      >
                         <ListItem
                           component={RouterLink}
                           to="/pricing"
@@ -217,7 +549,7 @@ export default function NavBar() {
                           sx={{ py: 2 }}
                         >
                           <ListItemText
-                            primary={t('Pricing')}
+                            primary={t('pricing')}
                             primaryTypographyProps={{
                               variant: 'h3',
                               sx: { fontWeight: 'bold' }

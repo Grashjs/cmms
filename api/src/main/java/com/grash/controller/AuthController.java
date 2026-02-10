@@ -3,12 +3,15 @@ package com.grash.controller;
 import com.grash.dto.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
+import com.grash.factory.MailServiceFactory;
+import com.grash.model.Company;
 import com.grash.model.OwnUser;
 import com.grash.model.SuperAccountRelation;
 import com.grash.repository.SuperAccountRelationRepository;
+import com.grash.repository.UserRepository;
 import com.grash.security.CurrentUser;
 import com.grash.security.JwtTokenProvider;
-import com.grash.service.EmailService2;
+import com.grash.service.CompanyService;
 import com.grash.service.UserService;
 import com.grash.service.VerificationTokenService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -41,7 +44,9 @@ public class AuthController {
     private final UserMapper userMapper;
     private final SuperAccountRelationRepository superAccountRelationRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final EmailService2 emailService2;
+    private final MailServiceFactory mailServiceFactory;
+    private final CompanyService companyService;
+    private final UserRepository userRepository;
     @Value("${frontend.url}")
     private String frontendUrl;
 
@@ -85,8 +90,9 @@ public class AuthController {
 //            put("verifyTokenLink", "gg");
 //            put("featuresLink", "s");
 //        }};
-//        emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, subject, variables, "new-work-order
-//        .html", Locale.FRENCH);
+//        mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{email}, subject,
+//        variables, "new-work-order"
+//        + ".html", Locale.FRENCH, null);
 //    }
 
     @GetMapping("/activate-account")
@@ -94,8 +100,9 @@ public class AuthController {
             @RequestParam String token, HttpServletResponse httpServletResponse
     ) {
         try {
-            verificationTokenService.confirmMail(token);
-            httpServletResponse.setHeader("Location", frontendUrl + "/account/login");
+            String email = verificationTokenService.confirmMail(token);
+            httpServletResponse.setHeader("Location",
+                    frontendUrl + "/account/login?email=" + email);
         } catch (Exception ex) {
             httpServletResponse.setHeader("Location", frontendUrl + "/account/register");
         }
@@ -187,6 +194,16 @@ public class AuthController {
         }
         throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
+
+    @DeleteMapping("")
+    @PreAuthorize("permitAll()")
+    public SuccessResponse deleteAccount(@Parameter(hidden = true) @CurrentUser OwnUser user) {
+        if (user.isOwnsCompany())
+            companyService.delete(user.getCompany().getId());
+        else userRepository.delete(user);
+        return new SuccessResponse(true, "Account deleted successfully");
+    }
+
 }
 
 

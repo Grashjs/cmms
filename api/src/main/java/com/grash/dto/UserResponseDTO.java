@@ -51,4 +51,6 @@ public class UserResponseDTO {
 
     private Date createdAt;
 
+    private String paddleUserId;
+
 }

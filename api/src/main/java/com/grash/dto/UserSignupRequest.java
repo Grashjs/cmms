@@ -1,5 +1,6 @@
 package com.grash.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.Role;
 import com.grash.model.enums.Language;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -42,6 +43,9 @@ public class UserSignupRequest {
 
     @Schema(hidden = true)
     private UtmParams utmParams;
+
+    @JsonIgnore
+    private Boolean skipMailSending;
 
 }
 

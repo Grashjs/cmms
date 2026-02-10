@@ -1,13 +1,16 @@
 package com.grash.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.grash.dto.EmailAttachmentDTO;
 import com.grash.exception.CustomException;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.util.ByteArrayDataSource;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.mail.MailProperties;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.MailException;
@@ -19,28 +22,23 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
-
-import jakarta.transaction.Transactional;
-
-import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class EmailService2 {
+public class EmailService2 implements MailService {
 
     private final JavaMailSender emailSender;
 
     private final SimpleMailMessage template;
     private final MailProperties mailProperties;
     private final BrandingService brandingService;
-    @Value("${spring.mail.username:#{null}")
+    @Value("${spring.mail.username:#{null}}")
     private String smtpUsername;
 
     @Value("${mail.enable}")
@@ -54,11 +52,15 @@ public class EmailService2 {
     @Value("classpath:/static/images/logo.png")
     private Resource resourceFile;
 
+    @Value("${mail.recipients}")
+    private String[] recipients;
+
     private final Environment environment;
 
 
+    @Override
     public void sendSimpleMessage(String[] to, String subject, String text) {
-        if (Boolean.FALSE.equals(enableEmails))
+        if (shouldSkipSendingMail())
             return;
         try {
             SimpleMailMessage message = new SimpleMailMessage();
@@ -72,11 +74,18 @@ public class EmailService2 {
         }
     }
 
+    private boolean shouldSkipSendingMail() {
+        return Boolean.FALSE.equals(enableEmails) || MailService.skipMail.get();
+    }
+
+    @Override
     public void sendMessageWithAttachment(String to,
                                           String subject,
                                           String text,
-                                          String pathToAttachment) {
-        if (Boolean.FALSE.equals(enableEmails))
+                                          String attachmentName,
+                                          byte[] attachmentData,
+                                          String attachmentType) {
+        if (shouldSkipSendingMail())
             return;
         try {
             MimeMessage message = emailSender.createMimeMessage();
@@ -87,8 +96,7 @@ public class EmailService2 {
             helper.setSubject(subject);
             helper.setText(text);
 
-            FileSystemResource file = new FileSystemResource(new File(pathToAttachment));
-            helper.addAttachment("Invoice", file);
+            helper.addAttachment(attachmentName, new ByteArrayDataSource(attachmentData, attachmentType));
 
             emailSender.send(message);
         } catch (MessagingException e) {
@@ -97,10 +105,12 @@ public class EmailService2 {
     }
 
 
+    @Override
     @Async
     public void sendMessageUsingThymeleafTemplate(
-            String[] to, String subject, Map<String, Object> templateModel, String template, Locale locale) {
-        if (Boolean.FALSE.equals(enableEmails))
+            String[] to, String subject, Map<String, Object> templateModel, String template, Locale locale,
+            List<EmailAttachmentDTO> attachmentDTOS) {
+        if (shouldSkipSendingMail())
             return;
         Context thymeleafContext = new Context();
         thymeleafContext.setLocale(locale);
@@ -111,15 +121,17 @@ public class EmailService2 {
         String htmlBody = thymeleafTemplateEngine.process(template, thymeleafContext);
 
         try {
-            sendHtmlMessage(to, subject, htmlBody);
-        } catch (MessagingException e) {
+            sendHtmlMessage(to, subject, htmlBody, attachmentDTOS);
+        } catch (MessagingException | IOException e) {
             throw new CustomException("Can't send the mail", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
 
-    public void sendHtmlMessage(String[] to, String subject, String htmlBody) throws MessagingException {
-        if (Boolean.FALSE.equals(enableEmails))
+    @Override
+    public void sendHtmlMessage(String[] to, String subject, String htmlBody,
+                                List<EmailAttachmentDTO> attachmentDTOS) throws MessagingException, IOException {
+        if (shouldSkipSendingMail())
             return;
         if (to.length > 0) {
 
@@ -134,9 +146,27 @@ public class EmailService2 {
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(htmlBody, true);
+
+            if (attachmentDTOS != null) {
+                for (EmailAttachmentDTO attachmentDTO : attachmentDTOS) {
+                    helper.addAttachment(attachmentDTO.getAttachmentName(),
+                            new ByteArrayDataSource(attachmentDTO.getAttachmentData(),
+                                    attachmentDTO.getAttachmentType()));
+                }
+            }
+
             //helper.addInline("attachment.png", resourceFile);
             emailSender.send(message);
         }
     }
 
+    @Override
+    public void sendMailToSuperAdmins(String subject, String text) {
+        try {
+            sendHtmlMessage(recipients, subject, text, null);
+        } catch (MessagingException | IOException e) {
+            throw new CustomException("Failed to send email to super admins",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

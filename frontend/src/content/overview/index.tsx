@@ -41,15 +41,26 @@ function Overview() {
   const navigate = useNavigate();
   const brandConfig = useBrand();
 
+  useEffect(() => {
+    if (!isCloudVersion) navigate('/account/login');
+  }, [isCloudVersion]);
+
   return (
     <OverviewWrapper>
       <Helmet>
         <title>
+          {IS_ORIGINAL_CLOUD ? t('main.title') : ''}
           {brandConfig.name}
-          {IS_ORIGINAL_CLOUD
-            ? ' - Open-Source Maintenance Management Software | Free CMMS'
-            : ''}
         </title>
+        <meta
+          name="description"
+          content="Atlas CMMS is a free, open-source CMMS to manage work orders, preventive maintenance, assets, and facilities. Streamline maintenance operations today."
+        />
+        <meta
+          name="keywords"
+          content="CMMS, computerized maintenance management system, EAM, enterprise asset management, open source CMMS, free maintenance software, work order management, preventive maintenance, asset tracking, facility management, maintenance tracking software, equipment maintenance, Atlas CMMS"
+        />
+        <link rel="canonical" href="https://atlas-cmms.com/" />
       </Helmet>
       <NavBar />
       <Hero />

@@ -1,6 +1,7 @@
 package com.grash.security;
 
 import com.grash.exception.CustomException;
+import com.grash.factory.MailServiceFactory;
 import com.grash.model.Company;
 import com.grash.model.OwnUser;
 import com.grash.model.Subscription;
@@ -24,6 +25,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -38,7 +40,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final SubscriptionService subscriptionService;
     private final SubscriptionPlanService subscriptionPlanService;
     private final CurrencyService currencyService;
-    private final EmailService2 emailService2;
+    private final MailServiceFactory mailServiceFactory;
     private final CompanyService companyService;
     @Value("${mail.recipients:#{null}}")
     private String[] recipients;
@@ -153,7 +155,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             // Send notification to super admins about new SSO account
             if (recipients != null && recipients.length > 0) {
                 try {
-                    emailService2.sendHtmlMessage(
+                    mailServiceFactory.getMailService().sendHtmlMessage(
                             recipients,
                             "New " + brandingService.getBrandConfig().getShortName() + " SSO registration",
                             user.getFirstName() + " " + user.getLastName() +

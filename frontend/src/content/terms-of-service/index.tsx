@@ -25,7 +25,12 @@ function TermsOfService() {
   return (
     <Box>
       <Helmet>
-        <title>{t('terms_of_service')}</title>
+        <title>{t('terms_of_service')} - Atlas CMMS</title>
+        <meta
+          name="description"
+          content="Terms of Service for Atlas CMMS. Review the guidelines, responsibilities, and legal agreements for using our open-source CMMS software."
+        />
+        <link rel="canonical" href="https://atlas-cmms.com/terms-of-service" />
       </Helmet>
       <NavBar />
       <Container maxWidth="lg" sx={{ mt: 8 }}>

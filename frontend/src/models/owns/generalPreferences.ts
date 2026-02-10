@@ -9,6 +9,7 @@ export interface GeneralPreferences {
   businessType: string;
   timeZone: string;
   daysBeforePrevMaintNotification: number;
+  csvSeparator: string;
 
   autoAssignWorkOrders: boolean;
 

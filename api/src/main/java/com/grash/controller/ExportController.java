@@ -51,7 +51,8 @@ public class ExportController {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
             csvFileGenerator.writeWorkOrdersToCsv(workOrderService.findByCompany(user.getCompany().getId()),
-                    outputStreamWriter, Helper.getLocale(user));
+                    outputStreamWriter, Helper.getLocale(user),
+                    user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
             byte[] bytes = target.toByteArray();
             MultipartFile file = new MultipartFileImpl(bytes, "Work Orders.csv");
             return ResponseEntity.ok()
@@ -70,7 +71,8 @@ public class ExportController {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
             csvFileGenerator.writeAssetsToCsv(assetService.findByCompany(user.getCompany().getId()),
-                    outputStreamWriter, Helper.getLocale(user));
+                    outputStreamWriter, Helper.getLocale(user),
+                    user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
             byte[] bytes = target.toByteArray();
             MultipartFile file = new MultipartFileImpl(bytes, "Assets.csv");
             return ResponseEntity.ok()
@@ -89,7 +91,8 @@ public class ExportController {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
             csvFileGenerator.writeLocationsToCsv(locationService.findByCompany(user.getCompany().getId()),
-                    outputStreamWriter, Helper.getLocale(user));
+                    outputStreamWriter, Helper.getLocale(user),
+                    user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
             byte[] bytes = target.toByteArray();
             MultipartFile file = new MultipartFileImpl(bytes, "Locations.csv");
             return ResponseEntity.ok()
@@ -108,7 +111,8 @@ public class ExportController {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
             csvFileGenerator.writePartsToCsv(partService.findByCompany(user.getCompany().getId()), outputStreamWriter
-                    , Helper.getLocale(user));
+                    , Helper.getLocale(user),
+                    user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
             byte[] bytes = target.toByteArray();
             MultipartFile file = new MultipartFileImpl(bytes, "Parts.csv");
             return ResponseEntity.ok()
@@ -127,7 +131,8 @@ public class ExportController {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
             csvFileGenerator.writeMetersToCsv(meterService.findByCompany(user.getCompany().getId()),
-                    outputStreamWriter, Helper.getLocale(user));
+                    outputStreamWriter, Helper.getLocale(user),
+                    user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
             byte[] bytes = target.toByteArray();
             MultipartFile file = new MultipartFileImpl(bytes, "Meters.csv");
             return ResponseEntity.ok()

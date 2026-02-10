@@ -9,12 +9,10 @@ import {
   DialogContent,
   DialogTitle,
   Drawer,
-  Grid,
   IconButton,
   Menu,
   MenuItem,
   Stack,
-  styled,
   Typography,
   useTheme
 } from '@mui/material';
@@ -28,10 +26,9 @@ import {
 } from '../../../slices/asset';
 import { useDispatch, useSelector } from '../../../store';
 import * as React from 'react';
-import ReplayTwoToneIcon from '@mui/icons-material/ReplayTwoTone';
 import { useContext, useEffect, useMemo, useState } from 'react';
+import ReplayTwoToneIcon from '@mui/icons-material/ReplayTwoTone';
 import { TitleContext } from '../../../contexts/TitleContext';
-import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
 import CustomDataGrid, {
   CustomDatagridColumn
 } from '../components/CustomDatagrid';
@@ -39,7 +36,6 @@ import {
   GridEventListener,
   GridRenderCellParams,
   GridRow,
-  GridToolbar,
   GridValueGetterParams
 } from '@mui/x-data-grid';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
@@ -80,17 +76,15 @@ import {
   Sort
 } from '../../../models/owns/page';
 import Filters from './Filters';
-import {
-  fireGa4Event,
-  getRandomColor,
-  onSearchQueryChange
-} from '../../../utils/overall';
+import { fireGa4Event, onSearchQueryChange } from '../../../utils/overall';
 import SearchInput from '../components/SearchInput';
 import File from '../../../models/owns/file';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import AssetStatusTag from './components/AssetStatusTag';
 import { getErrorMessage } from '../../../utils/api';
+
+const HIERARCHY_ZERO_PAGE_SIZE = 40;
 
 function Assets() {
   const { t }: { t: any } = useTranslation();
@@ -108,7 +102,7 @@ function Assets() {
   } = useAuth();
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
   const dispatch = useDispatch();
-  const { assetsHierarchy, loadingGet, assets } = useSelector(
+  const { assetsHierarchy, loadingGet, loadingHierarchy, assets } = useSelector(
     (state) => state.assets
   );
   const { loadingExport } = useSelector((state) => state.exports);
@@ -126,7 +120,7 @@ function Assets() {
   const [view, setView] = useState<ViewType>('hierarchy');
   const [pageable, setPageable] = useState<Pageable>({
     page: 0,
-    size: 1000
+    size: HIERARCHY_ZERO_PAGE_SIZE
   });
   const initialCriteria: SearchCriteria = {
     filterFields: [
@@ -202,6 +196,14 @@ function Assets() {
       dispatch(getAssets(criteria));
   }, [criteria]);
 
+  const fetchMore = () => {
+    setPageable((prevState) => {
+      return {
+        ...prevState,
+        size: prevState.size + HIERARCHY_ZERO_PAGE_SIZE
+      };
+    });
+  };
   const onCreationSuccess = () => {
     setOpenAddModal(false);
     showSnackBar(t('asset_create_success'), 'success');
@@ -785,6 +787,13 @@ function Assets() {
           >
             <SearchInput onChange={debouncedQueryChange} />
             <Stack direction="row" spacing={1}>
+              {view === 'hierarchy' &&
+                assetsHierarchy.length >= HIERARCHY_ZERO_PAGE_SIZE &&
+                assetsHierarchy.length % HIERARCHY_ZERO_PAGE_SIZE === 0 && (
+                  <Button onClick={fetchMore} disabled={loadingHierarchy}>
+                    {t('fetch_more')}
+                  </Button>
+                )}
               <IconButton onClick={() => handleReset(true)} color="primary">
                 <ReplayTwoToneIcon />
               </IconButton>
@@ -831,7 +840,7 @@ function Assets() {
                     : [row.id.toString()]
                 }
                 disableColumnFilter
-                loading={loadingGet}
+                loading={loadingHierarchy}
                 groupingColDef={
                   view === 'hierarchy' ? groupingColDef : undefined
                 }

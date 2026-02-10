@@ -62,12 +62,13 @@ function Logo({ white }: OwnProps) {
 
   return (
     <TooltipWrapper title={brandName} arrow>
-      <LogoWrapper to="/overview">
+      <LogoWrapper to="/">
         <LogoSignWrapper>
           <img
             src={white ? logo.white : logo.dark}
             width={`${width * (mobile ? 0.7 : 1)}px`}
             height={`${height * (mobile ? 0.7 : 1)}px`}
+            alt={'logo'}
           />
         </LogoSignWrapper>
       </LogoWrapper>

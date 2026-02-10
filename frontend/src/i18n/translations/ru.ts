@@ -15,7 +15,7 @@ const ruJSON = {
 
   'home.built': 'Создано, чтобы упростить управление обслуживанием',
   home_description:
-    "Когда доски и стикеры превращаются в хаос, а вам нужна CMMS-система, которую команда реально сможет использовать — попробуйте {{shortBrandName}}",
+    'Когда доски и стикеры превращаются в хаос, а вам нужна CMMS-система, которую команда реально сможет использовать — попробуйте {{shortBrandName}}',
   try_grash: 'Попробовать {{shortBrandName}}',
   login: 'Войти',
   start_trial: 'Начать бесплатный пробный период',
@@ -38,35 +38,41 @@ const ruJSON = {
   parts_inventory: 'Склад запчастей',
   custom_dashboards: 'Пользовательские панели',
 
- 'work-requests.title': 'Упрощённая система заявок',
+  'work-requests.title': 'Упрощённая система заявок',
   'work-requests.descriptions.0':
     'Устали от звонков и писем, которые теряются, создают хаос и дублируют работу?',
   'work-requests.descriptions.1':
     'Решение {{shortBrandName}} позволяет любому авторизованному пользователю отправить заявку в отдел обслуживания, просто отсканировав QR-код или перейдя по ссылке и заполнив форму на мобильном устройстве.',
   'work-requests.checks.0': 'Никогда больше не теряйте заявки.',
   'work-requests.checks.1': 'Сократите время обработки заявок до 34%.',
-  'work-requests.checks.2': 'Снизьте время общения с заявителями до 41% (звонки, письма, сообщения).',
+  'work-requests.checks.2':
+    'Снизьте время общения с заявителями до 41% (звонки, письма, сообщения).',
 
   // --- Mobile App ---
   'mobile-app.title': 'Мобильное приложение CMMS для вашей команды',
   'mobile-app.descriptions.0':
-  'С помощью Android-приложения наши клиенты повышают организацию, коммуникацию, ответственность и продуктивность до 30% во всей команде.',
+    'С помощью Android-приложения наши клиенты повышают организацию, коммуникацию, ответственность и продуктивность до 30% во всей команде.',
   'mobile-app.descriptions.1': 'С мобильного устройства любой сотрудник может:',
   'mobile-app.checks.0': 'Просматривать назначенные наряды и ТО.',
-  'mobile-app.checks.1': 'Регистрировать выполнение наряда менее чем за минуту.',
+  'mobile-app.checks.1':
+    'Регистрировать выполнение наряда менее чем за минуту.',
   'mobile-app.checks.2': 'Получать мгновенные уведомления (push и email).',
   'mobile-app.checks.3': 'Создавать новые наряды прямо в поле.',
   'mobile-app.checks.4': 'Регистрировать проблемы во время работы над ними.',
-  'mobile-app.checks.5': 'Просматривать критическую информацию об активах при диагностике.',
+  'mobile-app.checks.5':
+    'Просматривать критическую информацию об активах при диагностике.',
   'eam.title': 'Управление активами предприятия',
   'eam.description.short': 'Знайте свои активы',
   'eam.descriptions.0':
     'Устали от хаоса в учёте оборудования, не знаете, обслуживалось ли оно должным образом, сколько стоит его содержание и другие головные боли?',
   'eam.descriptions.1':
     'Модуль управления активами {{brandName}} позволяет отслеживать от 10 до 1 000 000 активов, структурируя их в удобное дерево и делая поиск простым.',
-  'eam.checks.0': 'Знайте состояние активов и их стоимость в любой момент времени',
-  'eam.checks.1': 'Просматривайте полные и детализированные журналы обслуживания',
-  'eam.checks.2': 'Отслеживайте только то, что нужно, с неограниченными кастомными полями',
+  'eam.checks.0':
+    'Знайте состояние активов и их стоимость в любой момент времени',
+  'eam.checks.1':
+    'Просматривайте полные и детализированные журналы обслуживания',
+  'eam.checks.2':
+    'Отслеживайте только то, что нужно, с неограниченными кастомными полями',
   'eam.checks.3': 'Организуйте активы в иерархию «родитель-дочерний»',
   'eam.checks.4': 'Быстро находите информацию с помощью QR-кодов',
   'eam.checks.5': 'Получайте данные в реальном времени через датчики',
@@ -77,11 +83,15 @@ const ruJSON = {
     'Хватит тратить часы на ручное распределение чек-листов ТО и контроль выполнения.',
   'pm.descriptions.1':
     '{{shortBrandName}} позволяет автоматизировать планирование ТО, чтобы работа попадала к нужному технику в нужное время для нужного актива.',
-  'pm.checks.0': 'Автоматизируйте планирование ТО: ежедневно, еженедельно, ежемесячно, ежегодно или по событиям',
-  'pm.checks.1': 'Автоматические push- и email-уведомления при создании или наступлении ТО',
-  'pm.checks.2': 'Удобный календарь для просмотра всех открытых работ и будущих ТО',
+  'pm.checks.0':
+    'Автоматизируйте планирование ТО: ежедневно, еженедельно, ежемесячно, ежегодно или по событиям',
+  'pm.checks.1':
+    'Автоматические push- и email-уведомления при создании или наступлении ТО',
+  'pm.checks.2':
+    'Удобный календарь для просмотра всех открытых работ и будущих ТО',
   'pm.checks.3': 'Перетаскивайте задачи для изменения даты выполнения',
-  'pm.checks.4': 'После завершения ТО запись автоматически добавляется в журнал актива',
+  'pm.checks.4':
+    'После завершения ТО запись автоматически добавляется в журнал актива',
   'pm.checks.5': 'Простота использования — почти не требует обучения',
   'part.title': 'Контроль склада запчастей',
   'part.description.short': 'Знайте, когда запчасти закончатся',
@@ -97,7 +107,8 @@ const ruJSON = {
     'Автоматический учёт использования запчастей. При выполнении нарядов склад обновляется автоматически.',
   'part.checks.3':
     'Просматривайте журнал использования запчастей: где применялись и кем.',
-  'part.checks.4': 'Устраняйте залежавшиеся запчасти. Знайте, когда деталь устарела.',
+  'part.checks.4':
+    'Устраняйте залежавшиеся запчасти. Знайте, когда деталь устарела.',
   'part.checks.5':
     'Отчёты в реальном времени: какие запчасти используются и сколько они стоят.',
   'part.checks.6':
@@ -111,13 +122,13 @@ const ruJSON = {
     'Первый шаг к улучшению работы — видеть сильные и слабые стороны.',
   'dashboard.descriptions.1':
     'С пользовательскими панелями {{shortBrandName}} вы сможете понять «чёрную дыру обслуживания» и начать действовать на основе данных, снижая затраты и простои.',
-  'dashboard.descriptions.2':
-    'С {{shortBrandName}} вы получите возможность:',
+  'dashboard.descriptions.2': 'С {{shortBrandName}} вы получите возможность:',
   'dashboard.checks.0': 'Знать, куда уходят деньги и почему',
   'dashboard.checks.1': 'Определять самые дорогие активы и причины',
   'dashboard.checks.2': 'Создавать собственные KPI',
   'dashboard.checks.3': 'Просматривать отчёты, обновляемые автоматически',
-  'dashboard.checks.4': 'Делиться отчётами через Excel, PDF или внутри {{shortBrandName}}',
+  'dashboard.checks.4':
+    'Делиться отчётами через Excel, PDF или внутри {{shortBrandName}}',
   'dashboard.checks.5': 'И многое другое...',
   'home.smarter': 'Умнее',
   'home.work': 'Работа',
@@ -264,14 +275,13 @@ const ruJSON = {
   save: 'Сохранить',
   customers: 'Подрядчики',
   no_labor:
-    "Затраты на труд ещё не добавлены. Они появятся здесь, когда пользователь зарегистрирует время и у него будет сохранена почасовая ставка в {{shortBrandName}}.",
+    'Затраты на труд ещё не добавлены. Они появятся здесь, когда пользователь зарегистрирует время и у него будет сохранена почасовая ставка в {{shortBrandName}}.',
   not_assigned: 'Не назначено',
   no_additional_cost: 'Дополнительные затраты ещё не добавлены',
   parts: 'Запчасти',
   links: 'Связи',
 
-  confirm_delete_file_wo:
-    'Вы уверены, что хотите удалить этот файл из наряда?',
+  confirm_delete_file_wo: 'Вы уверены, что хотите удалить этот файл из наряда?',
   archive: 'Архив',
   labors: 'Трудозатраты',
   add_additional_cost: 'Добавить дополнительные затраты',
@@ -333,7 +343,8 @@ const ruJSON = {
   schedule_wo: 'Запланировать наряд',
   schedule_wo_description: 'Заполните поля ниже, чтобы запланировать наряд',
   edit_wo_trigger: 'Редактировать триггер наряда',
-  edit_wo_trigger_description: 'Заполните поля ниже, чтобы обновить триггер наряда',
+  edit_wo_trigger_description:
+    'Заполните поля ниже, чтобы обновить триггер наряда',
   create_trigger: 'Создать триггер',
 
   'noRows.pm.message': 'Планируйте наряды с кастомными триггерами',
@@ -397,7 +408,8 @@ const ruJSON = {
   high_priority: 'Высокий',
 
   downtimes: 'Простои',
-  confirm_delete_file_asset: 'Вы уверены, что хотите удалить этот файл из актива?',
+  confirm_delete_file_asset:
+    'Вы уверены, что хотите удалить этот файл из актива?',
   actions: 'Действия',
   show: 'Показать',
   model: 'Модель',
@@ -426,7 +438,8 @@ const ruJSON = {
   add_reading: 'Добавить показание',
   select_meter: 'Выберите счётчик',
 
-  confirm_delete_part_asset: 'Вы уверены, что хотите удалить эту запчасть из актива?',
+  confirm_delete_part_asset:
+    'Вы уверены, что хотите удалить эту запчасть из актива?',
   no_due_date: 'Без срока',
   due_at_date: 'Срок {{date}}',
   no_primary_worker: 'Нет основного исполнителя',
@@ -491,7 +504,8 @@ const ruJSON = {
   upload_image: 'Загрузить изображение',
   required_floor_plan_name: 'Название плана этажа обязательно',
   add_floor_plan: 'Добавить новый план этажа',
-  add_floor_plan_description: 'Заполните поля ниже, чтобы создать новый план этажа',
+  add_floor_plan_description:
+    'Заполните поля ниже, чтобы создать новый план этажа',
   no_asset_in_location: 'Нет активов в этой локации',
   no_wo_in_location: 'Нет нарядов в этой локации',
   no_file_in_location: 'Нет файлов, прикреплённых к этой локации',
@@ -511,12 +525,10 @@ const ruJSON = {
     'У вас нет доступа к разделу Люди и Команды. Обратитесь к администратору',
   no_access_analytics:
     'У вас нет доступа к аналитике. Обратитесь к администратору',
-  no_access_assets:
-    'У вас нет доступа к активам. Обратитесь к администратору',
+  no_access_assets: 'У вас нет доступа к активам. Обратитесь к администратору',
   no_access_categories:
     'У вас нет доступа к категориям. Обратитесь к администратору',
-  no_access_files:
-    'У вас нет доступа к файлам. Обратитесь к администратору',
+  no_access_files: 'У вас нет доступа к файлам. Обратитесь к администратору',
   no_access_inventory:
     'У вас нет доступа к складу. Обратитесь к администратору',
   no_access_meters:
@@ -528,7 +540,7 @@ const ruJSON = {
   no_access_settings:
     'У вас нет доступа к настройкам. Обратитесь к администратору',
   no_access_page: 'У вас нет доступа к этой странице',
- set_create_success: 'Набор успешно создан',
+  set_create_success: 'Набор успешно создан',
   set_create_failure: 'Не удалось создать набор',
   set_edit_failure: 'Не удалось отредактировать набор',
   set_delete_success: 'Набор успешно удалён',
@@ -566,7 +578,8 @@ const ruJSON = {
   create_part: 'Создать запчасть',
   update_part: 'Обновить запчасть',
   update_part_description: 'Заполните поля ниже, чтобы обновить запчасть',
-  'noRows.part.message': 'Запчасти можно объединять в активы или использовать отдельно',
+  'noRows.part.message':
+    'Запчасти можно объединять в активы или использовать отдельно',
   'noRows.part.action': "Нажмите '+' чтобы создать запчасть",
   confirm_delete_part: 'Вы уверены, что хотите удалить эту запчасть?',
   part_details: 'Детали запчасти',
@@ -636,7 +649,8 @@ const ruJSON = {
   wo_trigger_create_success: 'Триггер наряда успешно создан',
   wo_trigger_create_failure: 'Не удалось создать триггер наряда',
   add_wo_trigger: 'Добавить триггер наряда',
-  add_wo_trigger_description: 'Заполните поля ниже, чтобы создать триггер наряда',
+  add_wo_trigger_description:
+    'Заполните поля ниже, чтобы создать триггер наряда',
   wo_trigger_edit_success: 'Триггер наряда успешно обновлён',
 
   meter_create_success: 'Счётчик успешно создан',
@@ -703,7 +717,8 @@ const ruJSON = {
   invalid_website: 'Некорректный веб-сайт',
   billing_address: 'Адрес для выставления счёта',
   add_customer: 'Добавить подрядчика',
-  add_customer_description: 'Заполните поля ниже, чтобы создать нового подрядчика',
+  add_customer_description:
+    'Заполните поля ниже, чтобы создать нового подрядчика',
   'noRows.customer.message': 'Подрядчики — это внешние работники',
   'noRows.customer.action': "Нажмите '+' чтобы создать подрядчика",
   type: 'Тип',
@@ -719,16 +734,19 @@ const ruJSON = {
   vendor_type: 'Тип поставщика',
   contact_name: 'Имя контакта',
   add_vendor: 'Добавить поставщика',
-  add_vendor_description: 'Заполните поля ниже, чтобы создать нового поставщика',
+  add_vendor_description:
+    'Заполните поля ниже, чтобы создать нового поставщика',
   confirm_delete_vendor: 'Вы уверены, что хотите удалить этого поставщика?',
-  'noRows.vendor.message': 'Поставщики — это организации, которые предоставляют активы или запчасти',
+  'noRows.vendor.message':
+    'Поставщики — это организации, которые предоставляют активы или запчасти',
   'noRows.vendor.action': "Нажмите '+' чтобы создать поставщика",
   vendor_type_description: 'например: сантехника, электрика',
 
   // --- Users ---
   role: 'Роль',
   edit_user: 'Редактировать пользователя',
-  edit_user_description: 'Заполните поля ниже, чтобы отредактировать пользователя',
+  edit_user_description:
+    'Заполните поля ниже, чтобы отредактировать пользователя',
   job_title: 'Должность',
   invite_users: 'Пригласить пользователей',
   bring_people_team: 'Добавьте новых людей в команду',
@@ -736,7 +754,8 @@ const ruJSON = {
     "Вы можете добавить до 20 пользователей за раз, нажимая 'Tab' или 'Enter' после каждого email. Дубликаты и уже зарегистрированные адреса будут удалены при регистрации.",
   enter_email: 'Введите адрес электронной почты',
   users_invite_success: 'Пользователи приглашены',
-  users_invite_failure: 'Не удалось пригласить пользователей. Проверьте количество доступных мест в подписке',
+  users_invite_failure:
+    'Не удалось пригласить пользователей. Проверьте количество доступных мест в подписке',
   please_type_emails: 'Введите email-адреса для приглашения',
   please_select_role: 'Выберите роль',
   invite: 'Пригласить',
@@ -816,11 +835,11 @@ const ruJSON = {
   add_category: 'Добавить новую категорию',
   add_category_description: 'Введите название, чтобы создать категорию',
   edit_category: 'Редактировать категорию',
-  edit_category_description: 'Введите название, чтобы отредактировать категорию',
+  edit_category_description:
+    'Введите название, чтобы отредактировать категорию',
   no_category_action: "Нажмите '+' чтобы добавить первую категорию",
   confirm_delete_category: 'Вы уверены, что хотите удалить эту категорию?',
-  no_category_message:
-    'Похоже, у вас ещё нет категорий {{categoryName}}',
+  no_category_message: 'Похоже, у вас ещё нет категорий {{categoryName}}',
 
   acquisition_cost: 'Стоимость приобретения',
 
@@ -925,7 +944,8 @@ const ruJSON = {
   use_a_checklist: 'Использовать чек-лист',
   select_checklist: 'Выберите чек-лист',
   save_checklist: 'Сохранить чек-лист',
-  assign_tasks_description: 'Назначайте кастомные задачи для заполнения техниками',
+  assign_tasks_description:
+    'Назначайте кастомные задачи для заполнения техниками',
   select_date: 'Выберите дату',
   task: 'Задача',
   checklist: 'Чек-лист',
@@ -1008,7 +1028,8 @@ const ruJSON = {
   change_cover: 'Изменить обложку',
   required_address: 'Поле адреса обязательно',
   company_details: 'Детали компании',
-  company_details_description: 'Управляйте информацией, связанной с вашей компанией',
+  company_details_description:
+    'Управляйте информацией, связанной с вашей компанией',
   learn_more: 'Подробнее',
   profile: 'Профиль',
 
@@ -1032,7 +1053,8 @@ const ruJSON = {
 
   // --- Personal Details ---
   personal_details: 'Личные данные',
-  personal_details_description: 'Управляйте информацией, связанной с вашими личными данными',
+  personal_details_description:
+    'Управляйте информацией, связанной с вашими личными данными',
   change_password: 'Изменить пароль',
   notification_settings: 'Настройки уведомлений',
   notification_settings_description: 'Управляйте параметрами уведомлений',
@@ -1130,16 +1152,12 @@ const ruJSON = {
   required_match: 'Сопоставление {{field}} обязательно',
   archived: 'Архивировано',
   // --- Import Success ---
-  import_wo_success:
-    '{{created}} нарядов создано и {{updated}} обновлено',
+  import_wo_success: '{{created}} нарядов создано и {{updated}} обновлено',
   import_location_success:
     '{{created}} локаций создано и {{updated}} обновлено',
-  import_part_success:
-    '{{created}} запчастей создано и {{updated}} обновлено',
-  import_meter_success:
-    '{{created}} счётчиков создано и {{updated}} обновлено',
-  import_asset_success:
-    '{{created}} активов создано и {{updated}} обновлено',
+  import_part_success: '{{created}} запчастей создано и {{updated}} обновлено',
+  import_meter_success: '{{created}} счётчиков создано и {{updated}} обновлено',
+  import_asset_success: '{{created}} активов создано и {{updated}} обновлено',
 
   // --- Export & Filters ---
   to_export: 'Экспорт',
@@ -1237,8 +1255,7 @@ const ruJSON = {
   // --- Subscription ---
   cancel_subscription: 'Отменить подписку',
   resume_subscription: 'Возобновить подписку',
-  confirm_cancel_subscription:
-    'Вы уверены, что хотите отменить подписку?',
+  confirm_cancel_subscription: 'Вы уверены, что хотите отменить подписку?',
   // --- Workflows ---
   workflows: 'Рабочие процессы',
   create_workflow: 'Создать рабочий процесс',
@@ -1301,7 +1318,8 @@ const ruJSON = {
   workflow_edit_failure: 'Не удалось отредактировать рабочий процесс',
   workflow_delete_success: 'Рабочий процесс успешно удалён',
   workflow_delete_failure: 'Не удалось удалить рабочий процесс',
-  confirm_delete_workflow: 'Вы уверены, что хотите удалить этот рабочий процесс?',
+  confirm_delete_workflow:
+    'Вы уверены, что хотите удалить этот рабочий процесс?',
   click_here: 'Нажмите здесь',
 
   // --- Verify Email ---
@@ -1319,7 +1337,8 @@ const ruJSON = {
   downgrade_description:
     'Вы только что понизили тариф. Вам нужно отключить некоторых пользователей, чтобы продолжить. Это можно сделать только один раз для текущей подписки. Выбирайте внимательно.',
   disable_users: 'Отключить пользователей',
-  min_users_description: 'Необходимо отключить минимум {{minUsers}} пользователей',
+  min_users_description:
+    'Необходимо отключить минимум {{minUsers}} пользователей',
   downgrade_description_no_owner:
     'Ваша компания понизила тариф. Владельцу компании нужно отключить некоторых пользователей, прежде чем вы сможете продолжить',
 
@@ -1517,7 +1536,232 @@ const ruJSON = {
   'schedule.monthly_one': 'Каждый {{count}} месяц',
   'schedule.monthly_other': 'Каждые {{count}} месяцев',
   'schedule.yearly_one': 'Каждый {{count}} год',
-  'schedule.yearly_other': 'Каждые {{count}} лет'
+  'schedule.yearly_other': 'Каждые {{count}} лет',
+  csv_separator: 'разделитель CSV',
+  open_source_cmms: 'CMMS с открытым исходным кодом',
+  'main.title':
+    'Бесплатная CMMS с открытым исходным кодом (программное обеспечение для управления обслуживанием) – ',
+  'home.h1':
+    'Бесплатная CMMS с открытым исходным кодом, которую можно хостить самостоятельно или использовать в облаке',
+  'home.h2': 'Мощное обслуживание по низкой цене',
+  'home.h3':
+    'Хватит полагаться на таблицы и доски. {{brandName}} помогает сервисным командам планировать работы, отслеживать оборудование и соблюдать стандарты. Хостите на своём сервере или начните мгновенно в облаке.',
+  talk_to_sales: 'Связаться с отделом продаж',
+  'pricing.choose_plan_and_get_started':
+    'Выберите свой тарифный план и начните.',
+  'pricing.slogan_effective_maintenance':
+    'Наше программное обеспечение предоставляет командам по техническому обслуживанию и обеспечению надежности инструменты, необходимые для эффективного и результативного управления производственными процессами.',
+  'pricing.compare_plans_and_pricing': 'Сравните тарифные планы и цены.',
+  'pricing.see_which_plan_is_right_for_you':
+    'Узнайте, какой план подходит именно вам.',
+  'pricing.select_two_plans_to_compare':
+    'Выберите 2 тарифных плана для сравнения.',
+  'pricing.select_three_plans_to_compare':
+    'Выберите 3 тарифных плана для сравнения.',
+  'pricing.month_per_user': 'месяц на пользователя',
+  'pricing.year_per_user': 'год на пользователя',
+  'pricing.plan_basic_name': 'Базовый',
+  'pricing.plan_basic_description':
+    'Команды, стремящиеся отслеживать активы и создавать базовые графики профилактического обслуживания с соответствующими процедурами.',
+  'pricing.feature_unlimited_work_orders':
+    'Неограниченное количество заказов на работы',
+  'pricing.feature_custom_tasks': 'Пользовательские задачи',
+  'pricing.feature_unlimited_request_user_licenses':
+    'Неограниченное количество запросов на пользовательские лицензии',
+  'pricing.plan_starter_name': 'Стартер',
+  'pricing.plan_starter_description':
+    'Команды стремятся создать эффективную и надежную систему профилактического обслуживания, обеспечивая прозрачность состояния оборудования и численности персонала.',
+  'pricing.feature_everything_in_basic_plus':
+    'Всё, что входит в базовый пакет плюс:',
+  'pricing.feature_preventive_maintenance_recurring_work_orders':
+    'Плановое техническое обслуживание/Регулярные заявки на ремонт',
+  'pricing.feature_custom_checklists': 'Пользовательские контрольные списки',
+  'pricing.feature_inventory_management_costing':
+    'Управление запасами/Расчет стоимости',
+  'pricing.feature_time_and_manpower_tracking':
+    'Учет рабочего времени и численности персонала',
+  'pricing.feature_thirty_day_analytics_reporting':
+    '30-дневная аналитика и отчетность',
+  'pricing.plan_professional_name': 'Профессиональный',
+  'pricing.plan_professional_description':
+    'Подразделениям, которым необходимо использовать аналитические данные для дальнейшего роста и повышения производительности в сфере технического обслуживания.',
+  'pricing.feature_everything_in_starter_plus':
+    'Всё, что входит в пакет Starter plus:',
+  'pricing.feature_multiple_inventory_lines': 'Несколько товарных позиций',
+  'pricing.feature_customizable_request_portal':
+    'Настраиваемый портал запросов',
+  'pricing.feature_mobile_offline_mode': 'Мобильный офлайн-режим',
+  'pricing.feature_advanced_analytics_reporting':
+    'Расширенная аналитика и отчетность',
+  'pricing.plan_business_name': 'Бизнес',
+  'pricing.plan_business_description':
+    'Организации, готовые собирать данные о техническом обслуживании и эксплуатации для управления несколькими объектами и настройки системы.',
+  'pricing.feature_everything_in_professional_plus':
+    'Все функции пакета Professional Plus:',
+  'pricing.feature_purchase_order_management': 'Управление заказами на закупку',
+  'pricing.feature_multi_site_module_support':
+    'Поддержка многосайтовых модулей',
+  'pricing.feature_custom_work_order_statuses':
+    'Настраиваемые статусы заказов на выполнение работ',
+  'pricing.feature_custom_integrations_support':
+    'Поддержка пользовательских интеграций',
+  'pricing.feature_work_order_management': 'Управление рабочими заданиями',
+  'pricing.feature_recurring_work_orders': 'Повторяющиеся заказы на работы',
+  'pricing.feature_custom_categories': 'Пользовательские категории',
+  'pricing.feature_data_importing': 'Импорт данных',
+  'pricing.feature_time_and_cost_tracking': 'Отслеживание времени и затрат',
+  'pricing.feature_work_order_configuration': 'Конфигурация рабочего задания',
+  'pricing.feature_internal_requests': 'Внутренние запросы',
+  'pricing.feature_external_request_portal': 'Портал внешних запросов',
+  'pricing.category_locations_assets_parts':
+    'Местоположения, активы и комплектующие',
+  'pricing.feature_location_management': 'Управление местоположением',
+  'pricing.feature_barcode_scanning': 'Сканирование штрихкодов',
+  'pricing.feature_inventory_management': 'Управление запасами',
+  'pricing.feature_custom_asset_statuses': 'Пользовательские статусы активов',
+  'pricing.feature_asset_downtime_tracking':
+    'Отслеживание простоев оборудования',
+  'pricing.feature_asset_depreciation_tracking':
+    'Отслеживание амортизации активов',
+  'pricing.feature_asset_warranty_tracking': 'Отслеживание гарантий на активы',
+  'pricing.feature_purchase_orders_management': 'Заказы на закупку',
+  'pricing.feature_asset_check_in_out': 'Прием/выдача активов',
+  'pricing.category_mobile_offline': 'Мобильная версия: офлайн',
+  'pricing.feature_work_order_availability':
+    'Наличие заявок на выполнение работ',
+  'pricing.feature_updating_status': 'Обновление статуса',
+  'pricing.feature_updating_tasks': 'Обновление задач',
+  'pricing.feature_work_order_drafts': 'Проекты заявок на выполнение работ',
+  'pricing.feature_full_drill_down_reporting_history':
+    'Подробная отчетность и история событий.',
+  'pricing.period_thirty_days': '30 дней',
+  'pricing.period_full': 'Полный',
+  'pricing.feature_pdf_csv_exporting': 'Экспорт в форматы PDF и CSV',
+  'pricing.feature_itemized_time_reporting': 'Детальный учет рабочего времени',
+  'pricing.feature_user_login_reports':
+    'Отчеты о входе пользователей в систему',
+  'pricing.feature_parts_consumption_reports':
+    'Отчеты об использовании комплектующих',
+  'pricing.feature_asset_downtime_reports': 'Отчеты о простоях оборудования',
+  'pricing.feature_equipment_reliability_reports':
+    'Отчеты о надежности оборудования',
+  'pricing.feature_multi_site_modules': 'Многосайтовые модули',
+  'pricing.category_integrations': 'Интеграции',
+  'pricing.feature_business_integrations':
+    'Интеграция бизнес-процессов (SAP/Oracle/Causal AI...)',
+  'pricing.feature_custom_integrations': 'Пользовательские интеграции',
+  'pricing.feature_unlimited_view_only_users':
+    'Неограниченное количество пользователей только для просмотра',
+  'pricing.feature_unlimited_requesters': 'Неограниченное количество запросов',
+  'pricing.feature_unlimited_vendors': 'Неограниченное количество продавцов',
+  'pricing.feature_unlimited_customers': 'Неограниченное количество клиентов',
+  'pricing.category_support': 'Поддерживать',
+  'pricing.feature_daily_email_digest': 'Ежедневная сводка электронных писем',
+  'pricing.feature_articles': 'Статьи',
+  'pricing.feature_training_webinars': 'Обучающие вебинары',
+  'pricing.feature_community_support_discord': 'Поддержка сообщества (Discord)',
+  'pricing.feature_email_support': 'Поддержка по электронной почте',
+  'pricing.feature_chat_phone_support': 'Поддержка в чате/по телефону',
+  'pricing.feature_priority_support': 'Приоритетная поддержка',
+  'pricing.feature_implementation_training': 'Внедрение и обучение',
+  'pricing.feature_dedicated_account_manager':
+    'Персональный менеджер по работе с клиентами',
+  'pricing.category_customization': 'Настройка',
+  'pricing.feature_custom_development': 'Разработка на заказ',
+  'pricing.sh_plan_basic_name': 'Базовый',
+  'pricing.sh_plan_basic_description':
+    'Для небольших команд, которым необходима полная независимость данных и базовое отслеживание технического обслуживания собственной инфраструктуры.',
+  'pricing.sh_feature_core_work_order_management':
+    'Управление основными рабочими заданиями',
+  'pricing.sh_feature_asset_inventory_tracking':
+    'Отслеживание активов и запасов',
+  'pricing.sh_feature_local_data_storage': 'Локальное хранилище данных',
+  'pricing.sh_plan_professional_name': 'Профессиональный',
+  'pricing.sh_plan_professional_description':
+    'Идеально подходит для выращивания растений, требующих сложных контрольных списков, рабочих процессов и более глубокой системной интеграции.',
+  'pricing.sh_feature_everything_in_basic_plus':
+    'Всё, что входит в базовый пакет плюс:',
+  'pricing.sh_feature_unlimited_assets_checklists':
+    'Неограниченное количество ресурсов/контрольных списков',
+  'pricing.sh_feature_nfc_barcode_scanning': 'NFC и сканирование штрих-кодов',
+  'pricing.sh_feature_email_support': 'Поддержка по электронной почте',
+  'pricing.sh_plan_business_name': 'Бизнес',
+  'pricing.sh_plan_business_description':
+    'Полномасштабные операции, требующие управления несколькими экземплярами, индивидуального брендинга и первоклассной безопасности.',
+  'pricing.sh_feature_everything_in_professional_plus':
+    'Все функции пакета Professional Plus:',
+  'pricing.sh_feature_multi_instance_management':
+    'Управление несколькими экземплярами',
+  'pricing.sh_feature_custom_user_roles': 'Пользовательские роли',
+  'pricing.sh_feature_priority_implementation_support':
+    'Приоритетная поддержка внедрения',
+  'pricing.faq_free_users_q': 'Какие типы пользователей считаются бесплатными?',
+  'pricing.faq_free_users_a1':
+    'Существует три типа пользователей, для которых платная лицензия не требуется:',
+  'pricing.faq_view_only_users_title': 'Только для просмотра Пользователи',
+  'pricing.faq_view_only_users_description':
+    'Как правило, это руководители, которые нечасто заходят в систему, чтобы просмотреть общую картину технического обслуживания. Они также могут отправлять заявки на выполнение работ и формировать отчеты.',
+  'pricing.faq_requester_users_title': 'Пользователи-заявители',
+  'pricing.faq_requester_users_description':
+    'Эти пользователи могут только отправлять заявки на выполнение работ и просматривать их статус. Они не могут видеть заказы на работы, активы, запчасти или любые другие данные, хранящиеся в системе CMMS.',
+  'pricing.faq_third_party_users_title': 'Сторонние пользователи',
+  'pricing.faq_third_party_users_description':
+    'Как правило, это поставщики и подрядчики. Они не могут войти в систему напрямую. Они могут только отправлять обновления по конкретному рабочему заказу, к которому привязаны, через общедоступную ссылку.',
+  'pricing.faq_paid_users_q': 'Какие типы пользователей считаются платными?',
+  'pricing.faq_paid_users_a1':
+    'Для трех типов пользователей требуется платная лицензия:',
+  'pricing.faq_admin_users_title': 'Администраторы',
+  'pricing.faq_admin_users_description':
+    'Эти пользователи могут добавлять других пользователей в учетную запись, принимать или отклонять запросы на выполнение работ, а также редактировать детали заказов. Именно они управляют учетной записью. В одной учетной записи может быть несколько администраторов.',
+  'pricing.faq_technical_users_title': 'Технические пользователи',
+  'pricing.faq_technical_users_description':
+    'Как правило, это технические специалисты, которые закрывают заказы на выполнение работ на объекте. Они могут редактировать созданные ими заказы, но не другие заказы. Они могут добавлять фотографии и обновления статуса к заказам, а также создавать новые заказы.',
+  'pricing.faq_limited_technical_users_title':
+    'Пользователи с ограниченными техническими навыками',
+  'pricing.faq_limited_technical_users_description':
+    'Эти пользователи обладают теми же привилегиями, что и технический пользователь. Единственное исключение заключается в том, что они могут видеть только назначенные им рабочие задания, а не других технических пользователей в учетной записи.',
+  'pricing.faq_change_plans_q': 'Могу ли я изменить планы позже?',
+  'pricing.faq_change_plans_a':
+    'Да, вы можете в любое время изменить свой тарифный план на более высокий или более низкий. Изменения вступят в силу с началом следующего расчетного периода.',
+  'pricing.faq_free_trial_q': 'Есть ли бесплатная пробная версия?',
+  'pricing.faq_free_trial_a':
+    'Да, мы предлагаем 15-дневную бесплатную пробную версию бизнес-плана, чтобы вы могли оценить все функции, прежде чем принимать решение.',
+  'pricing.faq_non_profit_discounts_q':
+    'Предоставляете ли вы скидки для некоммерческих организаций?',
+  'pricing.faq_non_profit_discounts_a':
+    'Да, мы предлагаем специальные цены для некоммерческих организаций. Для получения более подробной информации, пожалуйста, свяжитесь с нашим отделом продаж.',
+  'pricing.faq_payment_methods_q': 'Какие способы оплаты вы принимаете?',
+  'pricing.faq_payment_methods_a':
+    'Мы принимаем все основные кредитные карты, банковские переводы и PayPal. Для корпоративных тарифных планов мы также можем организовать выставление счетов.',
+  'pricing.faq_cancel_subscription_q': 'Могу ли я отменить подписку?',
+  'pricing.faq_cancel_subscription_a':
+    'Да, вы можете отменить подписку в любое время. Доступ к сервису сохранится до конца текущего расчетного периода.',
+  'pricing.faq_data_secure_q': 'Мои данные в безопасности?',
+  'pricing.faq_data_secure_a':
+    'Да, мы очень серьезно относимся к безопасности данных. Все данные шифруются как при передаче, так и в состоянии покоя, и мы регулярно проводим проверки безопасности.',
+  'pricing.faq_title': 'Часто задаваемые вопросы',
+  'pricing.annually_save_two_months': 'Ежегодно (экономия 2 месяцев)',
+  'pricing.most_popular': 'Самые популярные',
+  'pricing.get_your_license': 'Получите водительские права',
+  get_started: 'Начать',
+  workflow_automation: 'Автоматизация рабочих процессов',
+  push_notifications: 'Push-уведомления',
+  cloud: 'Облако',
+  self_hosted: 'Самостоятельное размещение',
+  full: 'Полный',
+  pricing: 'Цены',
+  industries: 'Отрасли',
+  work_order_management: 'Управление заказ-нарядами',
+  inventory_management: 'Управление запасами',
+  analytics_and_reporting: 'Аналитика и отчетность',
+  manufacturing: 'Производство',
+  facility_management: 'Управление инфраструктурой',
+  food_and_beverage: 'Продукты питания и напитки',
+  healthcare: 'Здравоохранение',
+  energy_and_utilities: 'Энергетика и коммунальные услуги',
+  education: 'Образование',
+  hospitality: 'Гостиничный бизнес',
+  construction: 'Строительство'
 };
 
 export default ruJSON;

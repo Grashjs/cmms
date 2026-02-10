@@ -33,6 +33,7 @@ public class GeneralPreferencesPatchDTO {
     private boolean woUpdateForRequesters;
     private boolean simplifiedWorkOrder;
     private int daysBeforePrevMaintNotification;
+    private String csvSeparator;
 
     public void setDaysBeforePrevMaintNotification(int daysBeforePrevMaintNotification) {
         if (daysBeforePrevMaintNotification < 0)

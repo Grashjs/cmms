@@ -46,6 +46,7 @@ function Status404() {
     <>
       <Helmet>
         <title>Status - 404</title>
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
       <MainContent>
         <Container maxWidth="md">
@@ -105,7 +106,7 @@ function Status404() {
               >
                 OR
               </Divider>
-              <Button href="/overview" variant="outlined">
+              <Button href="/" variant="outlined">
                 {t('Go to homepage')}
               </Button>
             </Card>

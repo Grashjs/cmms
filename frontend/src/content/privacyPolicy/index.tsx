@@ -7,7 +7,8 @@ import {
   styled,
   Typography,
   List,
-  ListItem
+  ListItem,
+  Link
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
@@ -26,7 +27,12 @@ function Overview() {
   return (
     <Box>
       <Helmet>
-        <title>{t('privacy_policy')}</title>
+        <title>{t('privacy_policy')} - Atlas CMMS</title>
+        <meta
+          name="description"
+          content="Read the Privacy Policy for Atlas CMMS. Learn how we protect your data and ensure security in our open-source maintenance management platform."
+        />
+        <link rel="canonical" href="https://atlas-cmms.com/privacy" />
       </Helmet>
       <NavBar />
       <Container maxWidth="lg" sx={{ mt: 8 }}>
@@ -561,6 +567,9 @@ function Overview() {
                 You also have the right to lodge a complaint with the CNDP if
                 you believe that we have violated your data protection rights.
               </Typography>
+              <Link mt={2} href={'/deletion-policy'}>
+                Deletion Policy
+              </Link>
             </>
           )}
         </Card>

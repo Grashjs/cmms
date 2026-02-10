@@ -22,7 +22,7 @@ import { AE, CN, DE, ES, FR, US, BR } from 'country-flag-icons/react/3x2';
 import SubscriptionPlans from '../SubscriptionPlans';
 import SubscriptionPlanSelector from '../../pricing/components/SubscriptionPlanSelector';
 import { useBrand } from '../../../hooks/useBrand';
-import { demoLink } from '../../../config';
+import TwoCallToActions from '../../landing/components/TwoCallToActions';
 
 const AvatarSuccess = styled(Avatar)(
   ({ theme }) => `
@@ -67,7 +67,7 @@ const CardImg = styled(Card)(
 `
 );
 
-const TypographyH1Primary = styled(Typography)(
+export const TypographyH1Primary = styled(Typography)(
   ({ theme }) => `
     font-size: ${theme.typography.pxToRem(36)};
 `
@@ -334,6 +334,9 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
   const brandConfig = useBrand();
   const [currentTab, setCurrentTab] = useState('work-orders');
   const [monthly, setMonthly] = useState<boolean>(true);
+  const [pricingType, setPricingType] = useState<'cloud' | 'selfhosted'>(
+    'cloud'
+  );
   const tabs = [
     { value: 'work-orders', label: t('work_orders') },
     { value: 'request', label: t('request_system') },
@@ -579,6 +582,13 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
     setCurrentTab(value);
   };
 
+  const handlePricingTabChange = (
+    _event: any,
+    value: SetStateAction<'cloud' | 'selfhosted'>
+  ) => {
+    setPricingType(value);
+  };
+
   return (
     <BoxHighlights>
       <BoxLayouts>
@@ -767,102 +777,20 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
           </Tabs>
         </Box>
         {Object.entries(featuresConfiguration).map(([feature, config]) => (
-          <>
-            {currentTab === feature && (
-              <Feature
-                title={t(config.title.key, config.title.params)}
-                descriptions={config.descriptions.map((desc) =>
-                  t(desc.key, desc.params)
-                )}
-                checks={config.checks.map((check) =>
-                  t(check.key, check.params)
-                )}
-                image={config.image}
-              />
-            )}
-          </>
-        ))}
-
-        {/*<SubscriptionPlans />*/}
-        {currentTab === 'rtl' && (
-          <BoxRtl
-            sx={{
-              pt: 10
-            }}
+          <Box
+            key={feature}
+            sx={{ display: currentTab === feature ? 'block' : 'none' }}
           >
-            <Container maxWidth="lg">
-              <Grid container spacing={8}>
-                <Grid
-                  item
-                  xs={12}
-                  md={5}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center'
-                  }}
-                >
-                  <Box>
-                    <TypographyH1Primary variant="h2">
-                      {t('Right-To-Left Layouts & Translation-Ready')}
-                    </TypographyH1Primary>
-                    <Typography
-                      variant="subtitle2"
-                      sx={{
-                        py: 2
-                      }}
-                    >
-                      {t(
-                        "Follow our documentation files to find out how to switch to a RTL layout. It's easy!"
-                      )}
-                    </Typography>
-                    <Typography
-                      variant="h4"
-                      sx={{
-                        my: 2
-                      }}
-                    >
-                      {t('Languages already integrated')}:
-                    </Typography>
-                    <Box
-                      sx={{
-                        svg: {
-                          width: 44,
-                          mr: 1
-                        }
-                      }}
-                    >
-                      <US title="USA" />
-                      <DE title="Germany" />
-                      <ES title="Spain" />
-                      <FR title="France" />
-                      <CN title="China" />
-                      <AE title="United Arab Emirates" />
-                      <BR title="Brazil" />
-                    </Box>
-                    <Typography
-                      sx={{
-                        pt: 1
-                      }}
-                      variant="subtitle1"
-                    >
-                      {t(
-                        'You can add and define translations for any language required. '
-                      )}
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid item xs={12} md={7}>
-                  <ScreenshotWrapper>
-                    <Screenshot
-                      src="/static/images/overview/rtl-preview.jpg"
-                      alt="RTL Preview"
-                    />
-                  </ScreenshotWrapper>
-                </Grid>
-              </Grid>
-            </Container>
-          </BoxRtl>
-        )}
+            <Feature
+              title={t(config.title.key, config.title.params)}
+              descriptions={config.descriptions.map((desc) =>
+                t(desc.key, desc.params)
+              )}
+              checks={config.checks.map((check) => t(check.key, check.params))}
+              image={config.image}
+            />
+          </Box>
+        ))}
       </Container>
       {!hidePricing && (
         <>
@@ -876,58 +804,33 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
           >
             {t('choose_your_plan')}
           </TypographyH1Primary>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+            <Tabs
+              value={pricingType}
+              onChange={handlePricingTabChange}
+              indicatorColor="primary"
+              textColor="primary"
+            >
+              <Tab label={t('cloud')} value="cloud" />
+              <Tab label={t('self_hosted')} value="selfhosted" />
+            </Tabs>
+          </Box>
           <Box px={4}>
             <SubscriptionPlanSelector
               monthly={monthly}
               setMonthly={setMonthly}
+              selfHosted={pricingType === 'selfhosted'}
             />
           </Box>
         </>
       )}
-      <Container
+      <TwoCallToActions
+        hidePricing={hidePricing}
         sx={{
           pt: { xs: 6, md: 12 },
           pb: { xs: 5, md: 15 }
         }}
-        maxWidth="md"
-      >
-        <TypographyH1Primary
-          textAlign="center"
-          sx={{
-            mb: 2
-          }}
-          variant="h2"
-        >
-          {t('leading_maintenance')}
-        </TypographyH1Primary>
-        <Container
-          sx={{
-            mb: 6,
-            justifyContent: 'center'
-          }}
-          maxWidth="sm"
-        >
-          <Stack
-            direction={{ xs: 'column', sm: 'row' }}
-            justifyContent={'center'}
-            spacing={2}
-          >
-            <Button
-              component={RouterLink}
-              size="large"
-              to="/account/register"
-              variant="contained"
-            >
-              {hidePricing ? 'Sign Up for Free' : t('register')}
-            </Button>
-            {!hidePricing && (
-              <Button size="large" href={demoLink} variant="outlined">
-                {t('book_demo')}
-              </Button>
-            )}
-          </Stack>
-        </Container>
-      </Container>
+      />
     </BoxHighlights>
   );
 }

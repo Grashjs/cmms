@@ -5,8 +5,10 @@ import com.grash.dto.keygen.KeygenLicenseResponse;
 import com.grash.dto.keygen.KeygenLicenseResponseData;
 import com.grash.dto.paddle.BillingDetails;
 import com.grash.dto.paddle.subscription.PaddleSubscriptionData;
+import com.grash.dto.paddle.subscription.PaddleSubscriptionStatus;
 import com.grash.dto.paddle.subscription.PaddleSubscriptionWebhookEvent;
 import com.grash.exception.CustomException;
+import com.grash.factory.MailServiceFactory;
 import com.grash.model.OwnUser;
 import com.grash.model.Subscription;
 import com.grash.model.enums.SubscriptionScheduledChangeType;
@@ -44,7 +46,7 @@ import java.util.stream.Collectors;
 class WebhookController {
 
     private final KeygenService keygenService;
-    private final EmailService2 emailService;
+    private final MailServiceFactory mailServiceFactory;
     private final ObjectMapper objectMapper;
     private final UserService userService;
     private final SubscriptionService subscriptionService;
@@ -131,6 +133,7 @@ class WebhookController {
                                                 boolean isNewSubscription) {
         checkIfCloudVersion();
         PaddleSubscriptionData data = webhookEvent.getData();
+        if (data.getStatus() != PaddleSubscriptionStatus.active) return;
         long userId = Long.parseLong(data.getCustomData().get("userId"));
 
         Optional<OwnUser> optionalOwnUser = userService.findById(userId);
@@ -140,7 +143,14 @@ class WebhookController {
 
         OwnUser user = optionalOwnUser.get();
         Subscription savedSubscription = user.getCompany().getSubscription();
-
+        if (isNewSubscription) {
+            if (savedSubscription.getPaddleSubscriptionId() != null)
+                paddleService.pauseSubscription(savedSubscription.getPaddleSubscriptionId());
+        } else if (!savedSubscription.getPaddleSubscriptionId().equals(webhookEvent.getData().getId())) {
+            log.info("Ignoring cloud pause event for subscription with ID: {}",
+                    savedSubscription.getPaddleSubscriptionId());
+            return;
+        }
         String planCode = data.getCustomData().get("planId");
         int newUsersCount = data.getItems().get(0).getQuantity();
 
@@ -211,6 +221,10 @@ class WebhookController {
 
         if (subscription == null) {
             throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
+        }
+        if (!subscription.getPaddleSubscriptionId().equals(webhookEvent.getData().getId())) {
+            log.info("Ignoring pause event for subscription with ID: {}", subscription.getPaddleSubscriptionId());
+            return;
         }
         if (cancelled) subscription.setPaddleSubscriptionId(null);
         subscriptionService.resetToFreePlan(subscription);
@@ -338,12 +352,13 @@ class WebhookController {
             model.put("licenseKey", keygenLicenseResponse.getData().getAttributes().getKey());
             model.put("expiringAt", keygenLicenseResponse.getData().getAttributes().getExpiry());
 
-            emailService.sendMessageUsingThymeleafTemplate(
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(
                     new String[]{email},
                     "Atlas CMMS license key",
                     model,
                     "checkout-complete.html",
-                    Locale.getDefault()
+                    Locale.getDefault(),
+                    null
             );
 
             log.info("Successfully processed Paddle transaction for email: {}", email);
@@ -351,7 +366,7 @@ class WebhookController {
             log.error("Failed to process Paddle transaction", e);
 
             if (recipients != null && recipients.length > 0) {
-                emailService.sendSimpleMessage(
+                mailServiceFactory.getMailService().sendSimpleMessage(
                         recipients,
                         "Failed to process Paddle transaction",
                         "Failed to process Paddle transaction" +
@@ -372,12 +387,16 @@ class WebhookController {
             String email = data.getCustomData() != null ? data.getCustomData().get("email") : null;
             String planId = data.getCustomData() != null ? data.getCustomData().get("planId") : null;
             Integer quantity = data.getItems().get(0).getQuantity();
-
+            String newExpiry = data.getNextBilledAt();
+            if (newExpiry == null) {
+                log.error("next_billed_at is null for paddle subscription {}", paddleSubscriptionId);
+                return;
+            }
             String customerName = Optional.ofNullable(data.getBillingDetails())
                     .map(BillingDetails::getCustomerName)
                     .orElse(email);
 
-            if (!"active".equalsIgnoreCase(data.getStatus())) {
+            if (data.getStatus() != PaddleSubscriptionStatus.active) {
                 log.info("Subscription {} status is '{}', not an active renewal. Skipping.", paddleSubscriptionId,
                         data.getStatus());
                 return;
@@ -396,13 +415,10 @@ class WebhookController {
             String licenseId = license.getId();
             log.info("Found license {} for renewal. Extending expiry.", licenseId);
 
-            String newExpiry = data.getNextBilledAt();
-            if (newExpiry == null) {
-                log.error("next_billed_at is null for paddle subscription {}", paddleSubscriptionId);
-                throw new RuntimeException("next_billed_at is null for paddle subscription " + paddleSubscriptionId);
-            }
 
-            keygenService.extendLicense(licenseId, newExpiry);
+            Map<String, Object> newMetadata = license.getAttributes().getMetadata();
+            newMetadata.put("usersCount", quantity);
+            keygenService.extendLicense(licenseId, newExpiry, newMetadata);
 
             Map<String, Object> model = new HashMap<>();
             model.put("name", customerName);
@@ -411,12 +427,13 @@ class WebhookController {
             model.put("licenseKey", license.getAttributes().getKey());
             model.put("expiringAt", license.getAttributes().getExpiry());
 
-            emailService.sendMessageUsingThymeleafTemplate(
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(
                     new String[]{email},
                     "Atlas CMMS license key renewal",
                     model,
                     "checkout-complete.html",
-                    Locale.getDefault()
+                    Locale.getDefault(),
+                    null
             );
             log.info("Successfully extended license {} for Paddle subscription ID: {}", licenseId,
                     paddleSubscriptionId);
@@ -425,7 +442,7 @@ class WebhookController {
             log.error("Failed to process subscription renewal for eventId: {}", eventId, e);
 
             if (recipients != null && recipients.length > 0) {
-                emailService.sendSimpleMessage(
+                mailServiceFactory.getMailService().sendSimpleMessage(
                         recipients,
                         "Failed to process subscription renewal",
                         "Failed to process subscription renewal" +

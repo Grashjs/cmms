@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -51,11 +52,13 @@ public class WorkOrderHistoryService {
         return workOrderAudRepository.findByIdAndRevtype(id, 1).stream().map(workOrderAud -> {
             WorkOrder workOrder = workOrderRepository.findById(id).get();
             OwnUser user = workOrderAud.getWorkOrderAudId().getRev().getUser();
-            return WorkOrderHistory.builder()
+            WorkOrderHistory workOrderHistory = WorkOrderHistory.builder()
                     .workOrder(workOrder)
                     .name(workOrderAud.getSummary(messageSource, Helper.getLocale(user)))
                     .user(user)
                     .build();
+            workOrderHistory.setCreatedAt(new Date(workOrderAud.getWorkOrderAudId().getRev().getTimestamp()));
+            return workOrderHistory;
         }).collect(Collectors.toList());
     }
 }

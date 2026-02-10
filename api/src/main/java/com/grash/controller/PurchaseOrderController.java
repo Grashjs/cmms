@@ -7,6 +7,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PartQuantityMapper;
 import com.grash.mapper.PurchaseOrderMapper;
+import com.grash.factory.MailServiceFactory;
 import com.grash.model.*;
 import com.grash.model.enums.*;
 import com.grash.model.enums.workflow.WFMainCondition;
@@ -43,9 +44,9 @@ public class PurchaseOrderController {
     private final MessageSource messageSource;
     private final PartQuantityMapper partQuantityMapper;
     private final PurchaseOrderMapper purchaseOrderMapper;
+    private final MailServiceFactory mailServiceFactory;
     private final PartService partService;
     private final NotificationService notificationService;
-    private final EmailService2 emailService2;
     private final WorkflowService workflowService;
 
     @Value("${frontend.url}")
@@ -115,7 +116,7 @@ public class PurchaseOrderController {
                     NotificationType.PURCHASE_ORDER, result.getId())).collect(Collectors.toList()), true, title);
             Collection<OwnUser> usersToMail =
                     usersToNotify.stream().filter(user1 -> user1.getUserSettings().shouldEmailUpdatesForPurchaseOrders()).collect(Collectors.toList());
-            emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_po", null, Helper.getLocale(user)), mailVariables, "new-purchase-order.html", Helper.getLocale(user));
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_po", null, Helper.getLocale(user)), mailVariables, "new-purchase-order.html", Helper.getLocale(user), null);
             return result;
         } else throw new
 

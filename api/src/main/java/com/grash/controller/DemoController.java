@@ -54,32 +54,38 @@ public class DemoController {
         if (!rateLimiterService.resolveBucket(clientIp).tryConsume(1)) {
             return new SuccessResponse(false, "Rate limit exceeded. Try again later.");
         }
-        UserSignupRequest userSignupRequest = new UserSignupRequest();
-        userSignupRequest.setFirstName("Demo");
-        userSignupRequest.setLastName("Account");
-        userSignupRequest.setEmail(UUID.randomUUID().toString().replace("-", "") + "@demo.com");
-        userSignupRequest.setPassword("demo1234");
-        userSignupRequest.setPhone(UUID.randomUUID().toString().replace("-", ""));
-        userSignupRequest.setCompanyName("Demo");
-        userSignupRequest.setLanguage(Language.EN);
-        userSignupRequest.setDemo(true);
-        SignupSuccessResponse<OwnUser> response = userService.signup(userSignupRequest);
+        try {
+            MailService.skipMail.set(true);
+            UserSignupRequest userSignupRequest = new UserSignupRequest();
+            userSignupRequest.setFirstName("Demo");
+            userSignupRequest.setLastName("Account");
+            userSignupRequest.setEmail(UUID.randomUUID().toString().replace("-", "") + "@demo.com");
+            userSignupRequest.setPassword("demo1234");
+            userSignupRequest.setPhone(UUID.randomUUID().toString().replace("-", ""));
+            userSignupRequest.setCompanyName("Demo");
+            userSignupRequest.setLanguage(Language.EN);
+            userSignupRequest.setDemo(true);
+            userSignupRequest.setSkipMailSending(true);
+            SignupSuccessResponse<OwnUser> response = userService.signup(userSignupRequest);
 
-        if (response.isSuccess()) {
-            OwnUser user = response.getUser();
-            CustomUserDetail customUserDetail =
-                    CustomUserDetail.builder().user(user).build();
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    customUserDetail,
-                    null,
-                    customUserDetail.getAuthorities()
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (response.isSuccess()) {
+                OwnUser user = response.getUser();
+                CustomUserDetail customUserDetail =
+                        CustomUserDetail.builder().user(user).build();
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                        customUserDetail,
+                        null,
+                        customUserDetail.getAuthorities()
+                );
+                SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            importDemoData(user.getCompany());
+                importDemoData(user.getCompany());
+            }
+
+            return new SuccessResponse(response.isSuccess(), response.getMessage());
+        } finally {
+            MailService.skipMail.set(false);
         }
-
-        return new SuccessResponse(response.isSuccess(), response.getMessage());
     }
 
     @DeleteMapping("/demo-data")

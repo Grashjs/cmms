@@ -8,7 +8,7 @@ import {
   styled,
   Typography
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import useScrollToLocation from 'src/hooks/useScrollToLocation';
@@ -135,15 +135,20 @@ function Hero() {
         alignItems="center"
         container
       >
-        <Grid item md={6} pr={{ xs: 0, md: 3 }}>
-          <TypographyH1
+        <Grid item md={6} pr={{ xs: 0, md: 4 }}>
+          <Typography component="h1" variant="h4" mb={2}>
+            {t('home.h1')}
+          </Typography>
+          <Typography
             sx={{
               mb: 2
             }}
+            fontSize={50}
             variant="h1"
+            component="h2"
           >
-            {t('home.built')}
-          </TypographyH1>
+            {t('home.h2')}
+          </Typography>
           <TypographyH2
             sx={{
               lineHeight: 1.5,
@@ -153,7 +158,7 @@ function Hero() {
             color="text.secondary"
             fontWeight="normal"
           >
-            {t('home_description', { shortBrandName: brandConfig.name })}
+            {t('home.h3', { brandName: brandConfig.name })}
           </TypographyH2>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={1}>
             <Button
@@ -174,6 +179,7 @@ function Hero() {
                   <CircularProgress size={'1rem'} color="primary" />
                 )
               }
+              disabled={generatingAccount}
               onClick={onSeeLiveDemo}
               size="medium"
               variant="text"
@@ -192,7 +198,7 @@ function Hero() {
                 window.location.href = `mailto:${brandConfig.mail}`;
               }}
             >
-              {t('contact_us')}
+              {t('talk_to_sales')}
             </Button>
           </Stack>
         </Grid>

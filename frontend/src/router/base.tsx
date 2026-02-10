@@ -2,6 +2,9 @@ import { lazy, Suspense } from 'react';
 import { Navigate } from 'react-router-dom';
 
 import SuspenseLoader from 'src/components/SuspenseLoader';
+import FoodAndBeverage from '../content/landing/industries/FoodAndBeverage';
+import Healthcare from '../content/landing/industries/Healthcare';
+import Education from '../content/landing/industries/Education';
 
 const Loader = (Component) => (props) =>
   (
@@ -36,7 +39,55 @@ const PrivacyPolicy = Loader(lazy(() => import('../content/privacyPolicy')));
 const DeletionPolicy = Loader(
   lazy(() => import('../content/own/deletionPolicy'))
 );
-const Landing = Loader(lazy(() => import('../content/landing')));
+const FreeCMMSLanding = Loader(
+  lazy(() => import('../content/landing/FreeCMMS'))
+);
+const EnergyPage = Loader(
+  lazy(() => import('../content/landing/industries/Energy'))
+);
+const FacilityManagement = Loader(
+  lazy(() => import('../content/landing/industries/FacilityManagement'))
+);
+const ManufacturingPage = Loader(
+  lazy(() => import('../content/landing/industries/Manufacturing'))
+);
+const WorkOrdersPage = Loader(
+  lazy(() => import('../content/landing/features/WorkOrders'))
+);
+const AssetManagementPage = Loader(
+  lazy(() => import('../content/landing/features/Assets'))
+);
+
+const InventoryPage = Loader(
+  lazy(() => import('../content/landing/features/Inventory'))
+);
+const AnalyticsPage = Loader(
+  lazy(() => import('../content/landing/features/Analytics'))
+);
+
+const PMFeaturePage = Loader(
+  lazy(() => import('../content/landing/features/PreventiveMaintenance'))
+);
+
+const HospitalityPage = Loader(
+  lazy(() => import('../content/landing/industries/Hospitality'))
+);
+
+const FoodAndBeveragePage = Loader(
+  lazy(() => import('../content/landing/industries/FoodAndBeverage'))
+);
+
+const HealthcarePage = Loader(
+  lazy(() => import('../content/landing/industries/Healthcare'))
+);
+
+const EducationPage = Loader(
+  lazy(() => import('../content/landing/industries/Education'))
+);
+
+const ConstructionPage = Loader(
+  lazy(() => import('../content/landing/industries/Construction'))
+);
 
 const baseRoutes = [
   {
@@ -45,7 +96,59 @@ const baseRoutes = [
   },
   {
     path: 'free-cmms',
-    element: <Landing />
+    element: <FreeCMMSLanding />
+  },
+  {
+    path: '/industries/open-source-energy-utilities-maintenance-software',
+    element: <EnergyPage />
+  },
+  {
+    path: '/industries/open-source-manufacturing-maintenance-software',
+    element: <ManufacturingPage />
+  },
+  {
+    path: '/industries/open-source-facility-management-software',
+    element: <FacilityManagement />
+  },
+  {
+    path: '/industries/open-source-hospitality-maintenance-software',
+    element: <HospitalityPage />
+  },
+  {
+    path: '/industries/open-source-construction-maintenance-software',
+    element: <ConstructionPage />
+  },
+  {
+    path: '/industries/open-source-healthcare-maintenance-software',
+    element: <HealthcarePage />
+  },
+  {
+    path: '/industries/open-source-education-maintenance-software',
+    element: <EducationPage />
+  },
+  {
+    path: '/industries/open-source-food-and-beverage-maintenance-software',
+    element: <FoodAndBeveragePage />
+  },
+  {
+    path: '/features/assets',
+    element: <AssetManagementPage />
+  },
+  {
+    path: '/features/inventory',
+    element: <InventoryPage />
+  },
+  {
+    path: '/features/analytics',
+    element: <AnalyticsPage />
+  },
+  {
+    path: '/features/preventive-maintenance',
+    element: <PMFeaturePage />
+  },
+  {
+    path: '/features/work-orders',
+    element: <WorkOrdersPage />
   },
   {
     path: 'pricing',

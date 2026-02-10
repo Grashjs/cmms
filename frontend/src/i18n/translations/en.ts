@@ -12,6 +12,7 @@ const locale = {
   IN_PROGRESS: 'In Progress',
   ON_HOLD: 'On Hold',
   COMPLETE: 'Complete',
+  fetch_more: 'Fetch More',
   'home.built': 'Built to Make Managing Maintenance Easier',
   home_description:
     "When whiteboards and sticky notes are chaos, and you need a CMMS software that's easy enough for your team to actually use - try {{shortBrandName}}",
@@ -1307,7 +1308,7 @@ const locale = {
   last_login: 'Last Login',
   not_enough_part: 'There is not enough of this part',
   remove_blank_meter_tasks: 'Remove tasks with type meter without a meter',
-  checklist_update_failure: "The checklist could'nt be edited",
+  checklist_update_failure: "The checklist couldn't be edited",
   contact_us: 'Contact Us',
   simplify_wo: 'Simplify Work Orders in the mobile app',
   simplify_wo_description:
@@ -1413,7 +1414,7 @@ const locale = {
     "Password - leave empty if you don't want to change it",
   upgrade_request_success: "Upgrade request received! We'll contact you soon",
   continue_with_sso: 'Continue with SSO',
-  see_live_demo: 'See live demo',
+  see_live_demo: 'View live demo',
   demo_warning:
     'This instance is in demo mode. Do not use this for real data! Everything will be deleted at regular intervals!',
   days: 'Days',
@@ -1426,13 +1427,10 @@ const locale = {
   required_days_of_week: 'Required days of week',
   'schedule.daily_one': 'Every {{count}} day',
   'schedule.daily_other': 'Every {{count}} days',
-
   'schedule.weekly_one': 'Every {{count}} week on {{days}}',
   'schedule.weekly_other': 'Every {{count}} weeks on {{days}}',
-
   'schedule.monthly_one': 'Every {{count}} month',
   'schedule.monthly_other': 'Every {{count}} months',
-
   'schedule.yearly_one': 'Every {{count}} year',
   'schedule.yearly_other': 'Every {{count}} years',
   delete_demo_data: 'Delete demo data',
@@ -1444,7 +1442,207 @@ const locale = {
   no_recent_work_orders: 'No recent work orders',
   recent_work_orders: 'Recent work orders',
   subscription_will_cancel_on: 'Subscription will cancel on {{date}}',
-  open_api_docs: 'Open API docs'
+  open_api_docs: 'Open API docs',
+  delete_account: 'Delete account',
+  csv_separator: 'CSV separator',
+  Advantages: 'Advantages',
+  open_source_cmms: 'Open-Source CMMS',
+  'main.title': 'Free Open-Source CMMS (Maintenance Management Software) – ',
+  'home.h1': 'Free & Open-Source CMMS You Can Self-Host or Use in the Cloud',
+  'home.h2': 'Powerful Maintenance at a Low Cost',
+  'home.h3':
+    'Stop relying on spreadsheets and whiteboards. {{brandName}} helps maintenance teams plan interventions, track equipment, and stay compliant. Self-host on your server or start instantly in the cloud.',
+  talk_to_sales: 'Talk to sales',
+  'pricing.choose_plan_and_get_started': 'Choose your plan and get started',
+  'pricing.slogan_effective_maintenance':
+    'Our software gives Maintenance and Reliability teams the tools they need to run Operations efficiently and effectively.',
+  'pricing.compare_plans_and_pricing': 'Compare Plans and Pricing',
+  'pricing.see_which_plan_is_right_for_you': 'See which plan is right for you',
+  'pricing.select_two_plans_to_compare': 'Select 2 plans to compare',
+  'pricing.select_three_plans_to_compare': 'Select 3 plans to compare',
+  'pricing.month_per_user': 'month per user',
+  'pricing.year_per_user': 'year per user',
+  'pricing.plan_basic_name': 'Basic',
+  'pricing.plan_basic_description':
+    'Teams looking to track assets and create fundamental preventive maintenance schedules with procedures.',
+  'pricing.feature_unlimited_work_orders': 'Unlimited work orders',
+  'pricing.feature_custom_tasks': 'Custom tasks',
+  'pricing.feature_unlimited_request_user_licenses':
+    'Unlimited Request User Licenses',
+  'pricing.plan_starter_name': 'Starter',
+  'pricing.plan_starter_description':
+    'Teams looking to build efficient and strong preventive maintenance through machine status and manpower visibility.',
+  'pricing.feature_everything_in_basic_plus': 'Everything in Basic plus:',
+  'pricing.feature_preventive_maintenance_recurring_work_orders':
+    'Preventive Maintenance/Recurring Work Orders',
+  'pricing.feature_custom_checklists': 'Custom Checklists',
+  'pricing.feature_inventory_management_costing':
+    'Inventory management/Costing',
+  'pricing.feature_time_and_manpower_tracking': 'Time and Manpower Tracking',
+  'pricing.feature_thirty_day_analytics_reporting':
+    '30 day Analytics & Reporting',
+  'pricing.plan_professional_name': 'Professional',
+  'pricing.plan_professional_description':
+    'Departments that need to leverage insights and analytics to drive further maintenance growth and productivity.',
+  'pricing.feature_everything_in_starter_plus': 'Everything in Starter plus:',
+  'pricing.feature_multiple_inventory_lines': 'Multiple Inventory Lines',
+  'pricing.feature_customizable_request_portal': 'Customizable Request Portal',
+  'pricing.feature_mobile_offline_mode': 'Mobile Offline Mode',
+  'pricing.feature_advanced_analytics_reporting':
+    'Advanced Analytics & Reporting',
+  'pricing.plan_business_name': 'Business',
+  'pricing.plan_business_description':
+    'Organizations ready to capture maintenance & operations data to manage multiple locations & system customization.',
+  'pricing.feature_everything_in_professional_plus':
+    'Everything in Professional plus:',
+  'pricing.feature_purchase_order_management': 'Purchase Order Management',
+  'pricing.feature_multi_site_module_support': 'Multi-site Module Support',
+  'pricing.feature_custom_work_order_statuses': 'Custom Work Order Statuses',
+  'pricing.feature_custom_integrations_support': 'Custom Integrations Support',
+  'pricing.feature_work_order_management': 'Work Order Management',
+  'pricing.feature_recurring_work_orders': 'Recurring Work Orders',
+  'pricing.feature_custom_categories': 'Custom Categories',
+  'pricing.feature_data_importing': 'Data Importing',
+  'pricing.feature_time_and_cost_tracking': 'Time and Cost Tracking',
+  'pricing.feature_work_order_configuration': 'Work Order Configuration',
+  'pricing.feature_internal_requests': 'Internal Requests',
+  'pricing.feature_external_request_portal': 'External Request Portal',
+  'pricing.category_locations_assets_parts': 'Locations, Assets, and Parts',
+  'pricing.feature_location_management': 'Location Management',
+  'pricing.feature_barcode_scanning': 'Barcode Scanning',
+  'pricing.feature_inventory_management': 'Inventory Management',
+  'pricing.feature_custom_asset_statuses': 'Custom Asset Statuses',
+  'pricing.feature_asset_downtime_tracking': 'Asset Downtime Tracking',
+  'pricing.feature_asset_depreciation_tracking': 'Asset Depreciation Tracking',
+  'pricing.feature_asset_warranty_tracking': 'Asset Warranty Tracking',
+  'pricing.feature_purchase_orders_management': 'Purchase Orders',
+  'pricing.feature_asset_check_in_out': 'Asset Check In/Check Out',
+  'pricing.category_mobile_offline': 'Mobile Offline',
+  'pricing.feature_work_order_availability': 'Work Order Availability',
+  'pricing.feature_updating_status': 'Updating Status',
+  'pricing.feature_updating_tasks': 'Updating Tasks',
+  'pricing.feature_work_order_drafts': 'Work Order Drafts',
+  'pricing.feature_full_drill_down_reporting_history':
+    'Full Drill-Down Reporting & History',
+  'pricing.period_thirty_days': '30 Days',
+  'pricing.period_full': 'Full',
+  'pricing.feature_pdf_csv_exporting': 'PDF and CSV Exporting',
+  'pricing.feature_itemized_time_reporting': 'Itemized Time Reporting',
+  'pricing.feature_user_login_reports': 'User Log-in Reports',
+  'pricing.feature_parts_consumption_reports': 'Parts Consumption Reports',
+  'pricing.feature_asset_downtime_reports': 'Asset Downtime Reports',
+  'pricing.feature_equipment_reliability_reports':
+    'Equipment Reliability Reports',
+  'pricing.feature_multi_site_modules': 'Multi-site Modules',
+  'pricing.category_integrations': 'Integrations',
+  'pricing.feature_business_integrations':
+    'Business Integrations(SAP/Oracle/Causal AI...)',
+  'pricing.feature_custom_integrations': 'Custom Integrations',
+  'pricing.feature_unlimited_view_only_users': 'Unlimited View-Only Users',
+  'pricing.feature_unlimited_requesters': 'Unlimited Requesters',
+  'pricing.feature_unlimited_vendors': 'Unlimited Vendors',
+  'pricing.feature_unlimited_customers': 'Unlimited Customers',
+  'pricing.category_support': 'Support',
+  'pricing.feature_daily_email_digest': 'Daily Email Digest',
+  'pricing.feature_articles': 'Articles',
+  'pricing.feature_training_webinars': 'Training Webinars',
+  'pricing.feature_community_support_discord': 'Community Support (Discord)',
+  'pricing.feature_email_support': 'Email Support',
+  'pricing.feature_chat_phone_support': 'Chat/Phone Support',
+  'pricing.feature_priority_support': 'Priority Support',
+  'pricing.feature_implementation_training': 'Implementation & Training',
+  'pricing.feature_dedicated_account_manager': 'Dedicated Account Manager',
+  'pricing.category_customization': 'Customization',
+  'pricing.feature_custom_development': 'Custom development',
+  'pricing.sh_plan_basic_name': 'Basic',
+  'pricing.sh_plan_basic_description':
+    'For small teams needing full data sovereignty and basic maintenance tracking on their own infrastructure.',
+  'pricing.sh_feature_core_work_order_management': 'Core Work Order Management',
+  'pricing.sh_feature_asset_inventory_tracking': 'Asset & Inventory Tracking',
+  'pricing.sh_feature_local_data_storage': 'Local Data Storage',
+  'pricing.sh_plan_professional_name': 'Professional',
+  'pricing.sh_plan_professional_description':
+    'Ideal for growing plants that require advanced checklists, workflows, and deeper system integration.',
+  'pricing.sh_feature_everything_in_basic_plus': 'Everything in Basic plus:',
+  'pricing.sh_feature_unlimited_assets_checklists':
+    'Unlimited Assets/Checklists',
+  'pricing.sh_feature_nfc_barcode_scanning': 'NFC & Barcode Scanning',
+  'pricing.sh_feature_email_support': 'Email Support',
+  'pricing.sh_plan_business_name': 'Business',
+  'pricing.sh_plan_business_description':
+    'Full-scale operations requiring multi-instance management, custom branding, and top-tier security.',
+  'pricing.sh_feature_everything_in_professional_plus':
+    'Everything in Professional plus:',
+  'pricing.sh_feature_multi_instance_management': 'Multi-Instance Management',
+  'pricing.sh_feature_custom_user_roles': 'Custom User Roles',
+  'pricing.sh_feature_priority_implementation_support':
+    'Priority Implementation Support',
+  'pricing.faq_free_users_q': 'Which types of users are considered free users?',
+  'pricing.faq_free_users_a1':
+    'There are three user types that do not require a paid license:',
+  'pricing.faq_view_only_users_title': 'View Only Users',
+  'pricing.faq_view_only_users_description':
+    'These users are typically supervisors who log in infrequently to view a snapshot of maintenance activity. They can also submit work requests and run reports.',
+  'pricing.faq_requester_users_title': 'Requester Users',
+  'pricing.faq_requester_users_description':
+    'These users can only submit work requests and view the status of those requests. They cannot see work orders, assets, parts, or any other data stored in the CMMS.',
+  'pricing.faq_third_party_users_title': 'Third-Party Users',
+  'pricing.faq_third_party_users_description':
+    "These users are typically vendors and contractors. They can't actually sign into the system. They can only submit updates to a specific work order they're tagged on through a public link.",
+  'pricing.faq_paid_users_q': 'Which types of users are considered paid users?',
+  'pricing.faq_paid_users_a1':
+    'There are three user types that require a paid license:',
+  'pricing.faq_admin_users_title': 'Admin Users',
+  'pricing.faq_admin_users_description':
+    'These users have the ability to add others to the account, accept or deny work requests, and edit work order details. They are the users that control the account. You can have multiple admins per account.',
+  'pricing.faq_technical_users_title': 'Technical Users',
+  'pricing.faq_technical_users_description':
+    'These users are typically technicians who close out work orders in the field. They can edit work orders they create but not other work orders. They can add pictures and status updates to work orders and create new work orders.',
+  'pricing.faq_limited_technical_users_title': 'Limited Technical Users',
+  'pricing.faq_limited_technical_users_description':
+    'These users have the same privileges as the technical user. The only exception is that they can only see work orders assigned to them — not other technical users on the account.',
+  'pricing.faq_change_plans_q': 'Can I change plans later?',
+  'pricing.faq_change_plans_a':
+    'Yes, you can upgrade or downgrade your plan at any time. Changes take effect at the start of your next billing cycle.',
+  'pricing.faq_free_trial_q': 'Is there a free trial?',
+  'pricing.faq_free_trial_a':
+    'Yes, we offer a 15-day free trial of the Business plan so you can experience all the features before making a decision.',
+  'pricing.faq_non_profit_discounts_q':
+    'Do you offer discounts for non-profits?',
+  'pricing.faq_non_profit_discounts_a':
+    'Yes, we offer special pricing for non-profit organizations. Please contact our sales team for more information.',
+  'pricing.faq_payment_methods_q': 'What payment methods do you accept?',
+  'pricing.faq_payment_methods_a':
+    'We accept all major credit cards, bank transfers, and PayPal. For Enterprise plans, we can also arrange invoicing.',
+  'pricing.faq_cancel_subscription_q': 'Can I cancel my subscription?',
+  'pricing.faq_cancel_subscription_a':
+    "Yes, you can cancel your subscription at any time. You'll continue to have access until the end of your current billing period.",
+  'pricing.faq_data_secure_q': 'Is my data secure?',
+  'pricing.faq_data_secure_a':
+    'Yes, we take data security very seriously. All data is encrypted in transit and at rest, and we perform regular security audits.',
+  'pricing.faq_title': 'Frequently Asked Questions',
+  'pricing.annually_save_two_months': 'Annually (Save 2 months)',
+  'pricing.most_popular': 'Most Popular',
+  'pricing.get_your_license': 'Get your license',
+  get_started: 'Get Started',
+  workflow_automation: 'Workflow Automation',
+  push_notifications: 'Push Notifications',
+  cloud: 'Cloud',
+  self_hosted: 'Self-Hosted',
+  full: 'Full',
+  pricing: 'Pricing',
+  industries: 'Industries',
+  work_order_management: 'Work Order Management',
+  inventory_management: 'Inventory Management',
+  analytics_and_reporting: 'Analytics and Reporting',
+  manufacturing: 'Manufacturing',
+  facility_management: 'Facility Management',
+  food_and_beverage: 'Food & Beverage',
+  healthcare: 'Healthcare',
+  energy_and_utilities: 'Energy & Utilities',
+  education: 'Education',
+  hospitality: 'Hospitality',
+  construction: 'Construction'
 };
 
 export default locale;

@@ -2,7 +2,7 @@ import { useContext, useEffect } from 'react';
 
 import { Helmet } from 'react-helmet-async';
 
-import { Grid } from '@mui/material';
+import { Button, Grid } from '@mui/material';
 import useRefMounted from 'src/hooks/useRefMounted';
 import { useTranslation } from 'react-i18next';
 import ProfileCover from './ProfileCover';
@@ -10,10 +10,14 @@ import RecentActivity from './RecentActivity';
 import ProfileDetails from './ProfileDetails';
 import { TitleContext } from '../../../contexts/TitleContext';
 import useAuth from '../../../hooks/useAuth';
+import api from '../../../utils/api';
+import WorkOrder from '../../../models/owns/workOrder';
+import { useNavigate } from 'react-router-dom';
 
 function UserProfile() {
   const isMountedRef = useRefMounted();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   // @ts-ignore
   const { t }: { t: any } = useTranslation();
   const { setTitle } = useContext(TitleContext);
@@ -24,6 +28,16 @@ function UserProfile() {
   if (!user) {
     return null;
   }
+
+  const onDeleteAccount = async () => {
+    if (window.confirm('Are you sure you want to delete your account?')) {
+      const { success } = await api.deletes<{ success: boolean }>(`auth`);
+      if (success) {
+        logout();
+        navigate('/');
+      }
+    }
+  };
 
   return (
     <>
@@ -48,6 +62,16 @@ function UserProfile() {
         </Grid>
         <Grid item xs={12}>
           <ProfileDetails />
+        </Grid>
+        <Grid item xs={12}>
+          <Button
+            sx={{ mb: 2 }}
+            onClick={onDeleteAccount}
+            variant="contained"
+            color="error"
+          >
+            {t('delete_account')}
+          </Button>
         </Grid>
         {/*<Grid item xs={12} md={12}>*/}
         {/*  <MyCards />*/}

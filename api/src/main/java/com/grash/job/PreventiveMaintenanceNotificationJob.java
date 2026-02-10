@@ -1,12 +1,11 @@
 package com.grash.job;
 
+import com.grash.factory.MailServiceFactory;
 import com.grash.model.OwnUser;
 import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
 import com.grash.model.enums.PermissionEntity;
-import com.grash.model.enums.RecurrenceType;
 import com.grash.repository.ScheduleRepository;
-import com.grash.service.EmailService2;
 import com.grash.service.ScheduleService;
 import com.grash.service.UserService;
 import com.grash.utils.Helper;
@@ -20,7 +19,6 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -33,7 +31,7 @@ public class PreventiveMaintenanceNotificationJob extends QuartzJobBean {
 
     private final ScheduleRepository scheduleRepository;
     private final UserService userService;
-    private final EmailService2 emailService2;
+    private final MailServiceFactory mailServiceFactory;
     private final MessageSource messageSource;
     private final ScheduleService scheduleService;
 
@@ -77,7 +75,7 @@ public class PreventiveMaintenanceNotificationJob extends QuartzJobBean {
             put("pmTitle", preventiveMaintenance.getTitle());
         }};
 
-        emailService2.sendMessageUsingThymeleafTemplate(
+        mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(
                 usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new),
                 title,
                 mailVariables,

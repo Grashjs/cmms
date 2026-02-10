@@ -50,11 +50,15 @@ public class DemoDataService {
     @Autowired
     @Lazy
     private RequestService requestService;
+    @Autowired
+    @Lazy
+    private PaddleService paddleService;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async
     public void handleUserCreated(CompanyCreatedEvent event) {
         createDemoData(event.getUser(), event.getUser().getCompany());
+        if (!event.getUser().getCompany().isDemo()) paddleService.createCustomer(event.getUser());
     }
 
     @Transactional
@@ -344,6 +348,7 @@ public class DemoDataService {
         pm.setDemo(true);
 
         Schedule schedule = new Schedule(pm);
+        schedule.setDisabled(true);
         schedule.setFrequency(frequency);
         schedule.setCreatedBy(user.getId());
         schedule.setRecurrenceType(recurrenceType);
@@ -356,7 +361,7 @@ public class DemoDataService {
         pm.setSchedule(schedule);
 
         pm = preventiveMaintenanceRepository.save(pm);
-        scheduleService.scheduleWorkOrder(pm.getSchedule());
+//        scheduleService.scheduleWorkOrder(pm.getSchedule());
         return pm;
     }
 

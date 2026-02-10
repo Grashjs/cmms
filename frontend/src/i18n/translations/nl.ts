@@ -1478,6 +1478,222 @@ const locale = {
   top_level: 'Hoofdniveau',
   no_results_found: 'Geen resultaten gevonden',
   no_sub_assets: 'Geen sub-assets',
-  no_assets_available: 'Geen assets beschikbaar'
+  no_assets_available: 'Geen assets beschikbaar',
+  csv_separator: 'CSV scheidingsteken',
+  open_source_cmms: 'Open-source CMMS',
+  'main.title': 'Gratis open-source CMMS (onderhoudsbeheersoftware) – ',
+  'home.h1':
+    'Gratis en open-source CMMS dat u zelf kunt hosten of in de cloud kunt gebruiken',
+  'home.h2': 'Krachtig onderhoud tegen lage kosten',
+  'home.h3':
+    'Stop met vertrouwen op spreadsheets en whiteboards. {{brandName}} helpt onderhoudsteams bij het plannen van interventies, het volgen van apparatuur en het naleven van de voorschriften. Host op uw eigen server of start direct in de cloud.',
+  talk_to_sales: 'Praat met verkoop',
+  'pricing.choose_plan_and_get_started':
+    'Kies je abonnement en ga aan de slag.',
+  'pricing.slogan_effective_maintenance':
+    'Onze software biedt onderhouds- en betrouwbaarheidsteams de tools die ze nodig hebben om de bedrijfsvoering efficiënt en effectief te laten verlopen.',
+  'pricing.compare_plans_and_pricing': 'Vergelijk abonnementen en prijzen',
+  'pricing.see_which_plan_is_right_for_you':
+    'Ontdek welk abonnement het beste bij u past.',
+  'pricing.select_two_plans_to_compare':
+    'Selecteer 2 abonnementen om te vergelijken.',
+  'pricing.select_three_plans_to_compare':
+    'Selecteer 3 abonnementen om te vergelijken.',
+  'pricing.month_per_user': 'maand per gebruiker',
+  'pricing.year_per_user': 'jaar per gebruiker',
+  'pricing.plan_basic_name': 'Basis',
+  'pricing.plan_basic_description':
+    "Teams die activa willen volgen en fundamentele preventieve onderhoudsschema's met bijbehorende procedures willen opstellen.",
+  'pricing.feature_unlimited_work_orders': 'Onbeperkt aantal werkorders',
+  'pricing.feature_custom_tasks': 'Aangepaste taken',
+  'pricing.feature_unlimited_request_user_licenses':
+    'Onbeperkt aantal gebruikerslicenties aanvragen',
+  'pricing.plan_starter_name': 'Starter',
+  'pricing.plan_starter_description':
+    'Teams die efficiënt en sterk preventief onderhoud willen opzetten door inzicht te krijgen in de machinestatus en de personeelsbezetting.',
+  'pricing.feature_everything_in_basic_plus': 'Alles in Basic plus:',
+  'pricing.feature_preventive_maintenance_recurring_work_orders':
+    'Preventief onderhoud/Terugkerende werkorders',
+  'pricing.feature_custom_checklists': 'Aangepaste checklists',
+  'pricing.feature_inventory_management_costing':
+    'Voorraadbeheer/Kostenberekening',
+  'pricing.feature_time_and_manpower_tracking':
+    'Tijd- en personeelsregistratie',
+  'pricing.feature_thirty_day_analytics_reporting':
+    'Analyse en rapportage over 30 dagen',
+  'pricing.plan_professional_name': 'Professioneel',
+  'pricing.plan_professional_description':
+    'Afdelingen die inzichten en analyses moeten benutten om de groei en productiviteit van het onderhoud verder te stimuleren.',
+  'pricing.feature_everything_in_starter_plus': 'Alles in Starter plus:',
+  'pricing.feature_multiple_inventory_lines': 'Meerdere voorraadregels',
+  'pricing.feature_customizable_request_portal': 'Aanpasbaar aanvraagportaal',
+  'pricing.feature_mobile_offline_mode': 'Mobiele offline modus',
+  'pricing.feature_advanced_analytics_reporting':
+    'Geavanceerde analyses en rapportage',
+  'pricing.plan_business_name': 'Bedrijf',
+  'pricing.plan_business_description':
+    'Organisaties die klaar zijn om onderhouds- en operationele gegevens vast te leggen voor het beheer van meerdere locaties en systeemaanpassingen.',
+  'pricing.feature_everything_in_professional_plus':
+    'Alles in Professional plus:',
+  'pricing.feature_purchase_order_management': 'Inkooporderbeheer',
+  'pricing.feature_multi_site_module_support':
+    'Moduleondersteuning voor meerdere locaties',
+  'pricing.feature_custom_work_order_statuses':
+    'Status van aangepaste werkorders',
+  'pricing.feature_custom_integrations_support':
+    'Ondersteuning voor maatwerkintegraties',
+  'pricing.feature_work_order_management': 'Werkorderbeheer',
+  'pricing.feature_recurring_work_orders': 'Terugkerende werkorders',
+  'pricing.feature_custom_categories': 'Aangepaste categorieën',
+  'pricing.feature_data_importing': 'Gegevens importeren',
+  'pricing.feature_time_and_cost_tracking': 'Tijd- en kostenregistratie',
+  'pricing.feature_work_order_configuration': 'Werkorderconfiguratie',
+  'pricing.feature_internal_requests': 'Interne verzoeken',
+  'pricing.feature_external_request_portal': 'Extern aanvraagportaal',
+  'pricing.category_locations_assets_parts': 'Locaties, activa en onderdelen',
+  'pricing.feature_location_management': 'Locatiebeheer',
+  'pricing.feature_barcode_scanning': 'Barcode scannen',
+  'pricing.feature_inventory_management': 'Voorraadbeheer',
+  'pricing.feature_custom_asset_statuses': 'Aangepaste activastatussen',
+  'pricing.feature_asset_downtime_tracking':
+    'Registratie van uitval van activa',
+  'pricing.feature_asset_depreciation_tracking':
+    'Het bijhouden van de afschrijving van activa',
+  'pricing.feature_asset_warranty_tracking': 'Garantiebewaking van activa',
+  'pricing.feature_purchase_orders_management': 'Inkooporders',
+  'pricing.feature_asset_check_in_out': 'In- en uitchecken van activa',
+  'pricing.category_mobile_offline': 'Mobiel offline',
+  'pricing.feature_work_order_availability': 'Beschikbaarheid van werkorders',
+  'pricing.feature_updating_status': 'Status bijwerken',
+  'pricing.feature_updating_tasks': 'Taken bijwerken',
+  'pricing.feature_work_order_drafts': 'Werkorderconcepten',
+  'pricing.feature_full_drill_down_reporting_history':
+    'Gedetailleerde rapportage en geschiedenis',
+  'pricing.period_thirty_days': '30 dagen',
+  'pricing.period_full': 'Vol',
+  'pricing.feature_pdf_csv_exporting': 'PDF- en CSV-export',
+  'pricing.feature_itemized_time_reporting': 'Gedetailleerde urenregistratie',
+  'pricing.feature_user_login_reports': 'Gebruikersaanmeldingsrapporten',
+  'pricing.feature_parts_consumption_reports':
+    'Rapporten over onderdelenverbruik',
+  'pricing.feature_asset_downtime_reports': 'Rapporten over uitval van activa',
+  'pricing.feature_equipment_reliability_reports':
+    'Rapporten over de betrouwbaarheid van apparatuur',
+  'pricing.feature_multi_site_modules': 'Modules voor meerdere locaties',
+  'pricing.category_integrations': 'Integraties',
+  'pricing.feature_business_integrations':
+    'Bedrijfsintegraties (SAP/Oracle/Causal AI...)',
+  'pricing.feature_custom_integrations': 'Maatwerkintegraties',
+  'pricing.feature_unlimited_view_only_users':
+    'Onbeperkt aantal gebruikers met alleen-leestoegang',
+  'pricing.feature_unlimited_requesters': 'Onbeperkt aantal aanvragers',
+  'pricing.feature_unlimited_vendors': 'Onbeperkt aantal leveranciers',
+  'pricing.feature_unlimited_customers': 'Onbeperkt aantal klanten',
+  'pricing.category_support': 'Steun',
+  'pricing.feature_daily_email_digest': 'Dagelijkse e-mailsamenvatting',
+  'pricing.feature_articles': 'Artikelen',
+  'pricing.feature_training_webinars': 'Trainingswebinars',
+  'pricing.feature_community_support_discord':
+    'Communityondersteuning (Discord)',
+  'pricing.feature_email_support': 'E-mailondersteuning',
+  'pricing.feature_chat_phone_support': 'Chat-/telefoonondersteuning',
+  'pricing.feature_priority_support': 'Prioriteitsondersteuning',
+  'pricing.feature_implementation_training': 'Implementatie en training',
+  'pricing.feature_dedicated_account_manager': 'Toegewijde accountmanager',
+  'pricing.category_customization': 'Aanpassing',
+  'pricing.feature_custom_development': 'Maatwerkontwikkeling',
+  'pricing.sh_plan_basic_name': 'Basis',
+  'pricing.sh_plan_basic_description':
+    'Voor kleine teams die volledige datasoevereiniteit en basisonderhoudsregistratie op hun eigen infrastructuur nodig hebben.',
+  'pricing.sh_feature_core_work_order_management': 'Kernwerkorderbeheer',
+  'pricing.sh_feature_asset_inventory_tracking': 'Activa- en voorraadbeheer',
+  'pricing.sh_feature_local_data_storage': 'Lokale gegevensopslag',
+  'pricing.sh_plan_professional_name': 'Professioneel',
+  'pricing.sh_plan_professional_description':
+    'Ideaal voor het kweken van planten die geavanceerde checklists, workflows en een diepere systeemintegratie vereisen.',
+  'pricing.sh_feature_everything_in_basic_plus': 'Alles in Basic plus:',
+  'pricing.sh_feature_unlimited_assets_checklists':
+    'Onbeperkt aantal items/checklists',
+  'pricing.sh_feature_nfc_barcode_scanning': 'NFC- en barcodescanning',
+  'pricing.sh_feature_email_support': 'E-mailondersteuning',
+  'pricing.sh_plan_business_name': 'Bedrijf',
+  'pricing.sh_plan_business_description':
+    'Grootschalige operaties die beheer van meerdere instanties, aangepaste branding en eersteklas beveiliging vereisen.',
+  'pricing.sh_feature_everything_in_professional_plus':
+    'Alles in Professional plus:',
+  'pricing.sh_feature_multi_instance_management':
+    'Beheer van meerdere instanties',
+  'pricing.sh_feature_custom_user_roles': 'Aangepaste gebruikersrollen',
+  'pricing.sh_feature_priority_implementation_support':
+    'Prioritaire implementatieondersteuning',
+  'pricing.faq_free_users_q':
+    'Welke soorten gebruikers worden beschouwd als gratis gebruikers?',
+  'pricing.faq_free_users_a1':
+    'Er zijn drie gebruikerstypen die geen betaalde licentie nodig hebben:',
+  'pricing.faq_view_only_users_title': 'Gebruikers met alleen-leestoegang',
+  'pricing.faq_view_only_users_description':
+    'Deze gebruikers zijn doorgaans supervisors die slechts af en toe inloggen om een overzicht van de onderhoudsactiviteiten te bekijken. Ze kunnen ook werkverzoeken indienen en rapporten genereren.',
+  'pricing.faq_requester_users_title': 'Aanvragers Gebruikers',
+  'pricing.faq_requester_users_description':
+    'Deze gebruikers kunnen alleen werkverzoeken indienen en de status van die verzoeken bekijken. Ze kunnen geen werkorders, activa, onderdelen of andere gegevens die in het CMMS zijn opgeslagen, inzien.',
+  'pricing.faq_third_party_users_title': 'Gebruikers van derden',
+  'pricing.faq_third_party_users_description':
+    'Deze gebruikers zijn doorgaans leveranciers en aannemers. Ze kunnen niet rechtstreeks inloggen op het systeem. Ze kunnen alleen updates indienen voor een specifieke werkorder waaraan ze zijn gekoppeld via een openbare link.',
+  'pricing.faq_paid_users_q':
+    'Welke soorten gebruikers worden beschouwd als betalende gebruikers?',
+  'pricing.faq_paid_users_a1':
+    'Er zijn drie gebruikerstypen waarvoor een betaalde licentie vereist is:',
+  'pricing.faq_admin_users_title': 'Beheerders',
+  'pricing.faq_admin_users_description':
+    'Deze gebruikers kunnen anderen aan het account toevoegen, werkverzoeken accepteren of afwijzen en details van werkorders bewerken. Zij zijn de gebruikers die het account beheren. Je kunt meerdere beheerders per account hebben.',
+  'pricing.faq_technical_users_title': 'Technische gebruikers',
+  'pricing.faq_technical_users_description':
+    "Deze gebruikers zijn doorgaans technici die werkorders in het veld afronden. Ze kunnen werkorders die ze zelf hebben aangemaakt bewerken, maar niet die van anderen. Ze kunnen foto's en statusupdates aan werkorders toevoegen en nieuwe werkorders aanmaken.",
+  'pricing.faq_limited_technical_users_title':
+    'Beperkt aantal technische gebruikers',
+  'pricing.faq_limited_technical_users_description':
+    'Deze gebruikers hebben dezelfde rechten als de technische gebruiker. Het enige verschil is dat ze alleen de aan hen toegewezen werkorders kunnen zien, en niet die van andere technische gebruikers op het account.',
+  'pricing.faq_change_plans_q': 'Kan ik mijn plannen later nog wijzigen?',
+  'pricing.faq_change_plans_a':
+    'Ja, u kunt uw abonnement op elk moment upgraden of downgraden. Wijzigingen gaan in aan het begin van uw volgende factureringscyclus.',
+  'pricing.faq_free_trial_q': 'Is er een gratis proefperiode?',
+  'pricing.faq_free_trial_a':
+    'Ja, we bieden een gratis proefperiode van 15 dagen voor het Business-abonnement, zodat u alle functies kunt uitproberen voordat u een beslissing neemt.',
+  'pricing.faq_non_profit_discounts_q':
+    'Bieden jullie kortingen aan non-profitorganisaties?',
+  'pricing.faq_non_profit_discounts_a':
+    'Ja, we bieden speciale tarieven voor non-profitorganisaties. Neem contact op met ons verkoopteam voor meer informatie.',
+  'pricing.faq_payment_methods_q': 'Welke betaalmethoden accepteert u?',
+  'pricing.faq_payment_methods_a':
+    'Wij accepteren alle gangbare creditcards, bankoverschrijvingen en PayPal. Voor zakelijke abonnementen kunnen wij ook de facturering verzorgen.',
+  'pricing.faq_cancel_subscription_q': 'Kan ik mijn abonnement opzeggen?',
+  'pricing.faq_cancel_subscription_a':
+    'Ja, u kunt uw abonnement op elk moment opzeggen. U behoudt toegang tot het einde van uw huidige factureringsperiode.',
+  'pricing.faq_data_secure_q': 'Zijn mijn gegevens veilig?',
+  'pricing.faq_data_secure_a':
+    'Ja, we nemen gegevensbeveiliging zeer serieus. Alle gegevens worden zowel tijdens de overdracht als in rust versleuteld en we voeren regelmatig beveiligingsaudits uit.',
+  'pricing.faq_title': 'Veelgestelde vragen',
+  'pricing.annually_save_two_months': 'Jaarlijks (Bespaar 2 maanden)',
+  'pricing.most_popular': 'Meest populair',
+  'pricing.get_your_license': 'Haal je rijbewijs',
+  get_started: 'Aan de slag',
+  workflow_automation: 'Werkstroomautomatisering',
+  push_notifications: 'Pushmeldingen',
+  cloud: 'Wolk',
+  self_hosted: 'Zelf gehost',
+  full: 'Vol',
+  pricing: 'Prijzen',
+  industries: 'Sectoren',
+  work_order_management: 'Werkorderbeheer',
+  inventory_management: 'Voorraadbeheer',
+  analytics_and_reporting: 'Analyse en rapportage',
+  manufacturing: 'Productie',
+  facility_management: 'Facilitair management',
+  food_and_beverage: 'Voeding en dranken',
+  healthcare: 'Gezondheidszorg',
+  energy_and_utilities: 'Energie en nutsbedrijven',
+  education: 'Onderwijs',
+  hospitality: 'Gastvrijheid',
+  construction: 'Bouw'
 };
 export default locale;
