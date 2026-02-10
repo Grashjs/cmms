@@ -42,6 +42,10 @@ function CompanyPlan(props: CompanyPlanProps) {
     ? company.subscription.endsOn
     : licensingState.expirationDate;
 
+  useEffect(() => {
+    dispatch(getLicenseValidity());
+  }, []);
+
   return (
     <Card
       sx={{
