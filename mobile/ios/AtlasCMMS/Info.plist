@@ -42,8 +42,12 @@
     <string>9</string>
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>
+    <key>LSMinimumSystemVersion</key>
+    <string>12.0</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
+    <key>NFCReaderUsageDescription</key>
+    <string>Interact with nearby NFC devices</string>
     <key>NSAppTransportSecurity</key>
     <dict>
       <key>NSAllowsArbitraryLoads</key>
@@ -75,13 +79,6 @@
     <array>
       <string>UIInterfaceOrientationPortrait</string>
       <string>UIInterfaceOrientationPortraitUpsideDown</string>
-    </array>
-    <key>UISupportedInterfaceOrientations~ipad</key>
-    <array>
-      <string>UIInterfaceOrientationPortrait</string>
-      <string>UIInterfaceOrientationPortraitUpsideDown</string>
-      <string>UIInterfaceOrientationLandscapeLeft</string>
-      <string>UIInterfaceOrientationLandscapeRight</string>
     </array>
     <key>UIUserInterfaceStyle</key>
     <string>Automatic</string>

@@ -60,12 +60,7 @@ import PartQuantities from '../../components/PartQuantities';
 import { SheetManager } from 'react-native-actions-sheet';
 import LoadingDialog from '../../components/LoadingDialog';
 import WorkOrder from '../../models/workOrder';
-import {
-  DocumentDirectoryPath,
-  DownloadDirectoryPath,
-  downloadFile,
-  DownloadFileOptions
-} from 'react-native-fs';
+import * as FileSystem from 'expo-file-system';
 import Labor from '../../models/labor';
 import { AudioPlayer } from '../../components/AudioPlayer';
 import { Task } from '../../models/tasks';
@@ -293,23 +288,17 @@ export default function WODetailsScreen({
   const actualDownload = async (uri: string): Promise<void> => {
     const rawFileName = workOrder?.title ?? `work-order-${id}`;
     const fileName = rawFileName.replace(/[\\/:*?"<>|]/g, '_');
-    const directoryPath =
-      Platform.OS === 'ios' ? DocumentDirectoryPath : DownloadDirectoryPath;
-    if (!directoryPath) {
+    const directoryUri =
+      FileSystem.documentDirectory ?? FileSystem.cacheDirectory;
+    if (!directoryUri) {
       throw new Error('Missing download directory path');
     }
-    const path = `${directoryPath}/${fileName}.pdf`;
-    const options: DownloadFileOptions = {
-      fromUrl: uri,
-      toFile: path
-    };
-    const response = downloadFile(options);
-    const res = await response.promise;
+    const fileUri = `${directoryUri}${fileName}.pdf`;
+    const res = await FileSystem.downloadAsync(uri, fileUri);
 
-    if (res && res.statusCode === 200 && res.bytesWritten > 0) {
-      const localFilePath = `file://${path}`;
+    if (res && res.status === 200) {
       try {
-        await Linking.openURL(localFilePath);
+        await Linking.openURL(res.uri);
       } catch (error) {
         console.error(
           'Failed to open local file, falling back to remote URL',
