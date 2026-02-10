@@ -662,6 +662,7 @@ export default function WODetailsScreen({
       </Portal>
     );
   };
+
   if (workOrder)
     return (
       <View style={styles.container}>

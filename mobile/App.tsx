@@ -32,6 +32,7 @@ import { navigate } from './navigation/RootNavigation';
 import subscriptionPlan from './slices/subscriptionPlan';
 import { isNumeric } from './utils/validators';
 import { customTheme } from './custom-theme';
+import { RootLayout } from './components/RootLayout';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -131,7 +132,9 @@ export default function App() {
                 <PaperProvider theme={customTheme}>
                   <CustomSnackbarProvider>
                     <SheetProvider>
-                      <Navigation colorScheme={colorScheme} />
+                      <RootLayout>
+                        <Navigation colorScheme={colorScheme} />
+                      </RootLayout>
                       <StatusBar />
                       <FlashMessage
                         position="top"
