@@ -46,64 +46,7 @@ export default function FileUpload({
   const { t } = useTranslation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const maxFileSize: number = 7;
-  const checkAndroidStoragePermission = async () => {
-    // For Android 13+ (API level 33+), we need to use the newer permissions
-    const permissionName =
-      (typeof Platform.Version === 'number'
-        ? Platform.Version
-        : Number(Platform.Version)) >= 33
-        ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
-        : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
 
-    try {
-      // Check if permission is already granted
-      const hasPermission = await PermissionsAndroid.check(permissionName);
-
-      if (hasPermission) {
-        return true;
-      }
-
-      // Request permission
-      const granted = await PermissionsAndroid.request(permissionName, {
-        title: 'Storage Permission Required',
-        message:
-          'This app needs access to your storage to download and save files',
-        buttonNeutral: 'Ask Me Later',
-        buttonNegative: 'Cancel',
-        buttonPositive: 'OK'
-      });
-
-      if (granted === 'granted') {
-        console.log('Storage permission granted');
-        return true;
-      } else if (granted === 'never_ask_again') {
-        // Handle "Never ask again" state by directing user to app settings
-        Alert.alert(
-          'Permission Required',
-          'Storage access is required to download files. Please enable it in app settings.',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            {
-              text: 'Open Settings',
-              onPress: () => Linking.openSettings()
-            }
-          ]
-        );
-        return false;
-      } else {
-        // Permission denied
-        Alert.alert(
-          'Permission Denied',
-          'Storage access is required to download files.',
-          [{ text: 'OK' }]
-        );
-        return false;
-      }
-    } catch (err) {
-      console.warn('Permission check error:', err);
-      return false;
-    }
-  };
   const onChangeInternal = (files: IFile[], type: 'file' | 'image') => {
     if (type === 'file') {
       setFiles(files);
@@ -264,11 +207,6 @@ export default function FileUpload({
     }
   };
   const pickFile = async () => {
-    const hasPermissions =
-      Platform.OS === 'android' ? await checkAndroidStoragePermission() : true;
-    if (!hasPermissions) {
-      return;
-    }
     try {
       // Pass the 'multiple' prop to enable multi-file selection if needed
       const options: DocumentPickerOptions = {
