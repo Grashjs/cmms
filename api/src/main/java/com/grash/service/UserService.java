@@ -323,7 +323,7 @@ public class UserService {
                     HttpStatus.NOT_ACCEPTABLE);
     }
 
-    public void invite(String email, Role role, OwnUser inviter) {
+    public void invite(String email, Role role, OwnUser inviter, Boolean disableSendingMails) {
         if (!userRepository.existsByEmailIgnoreCase(email) && Helper.isValidEmailAddress(email)) {
             if (role.isPaid()) checkUsageBasedLimit(1);
             userInvitationService.create(new UserInvitation(email, role));
@@ -334,11 +334,12 @@ public class UserService {
                 put("inviter", inviter.getFirstName() + " " + inviter.getLastName());
                 put("company", inviter.getCompany().getName());
             }};
-            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{email},
-                    messageSource.getMessage(
-                            "invitation_to_use", new String[]{brandingService.getBrandConfig().getName()},
-                            Helper.getLocale(inviter)), variables, "invite.html",
-                    Helper.getLocale(inviter), null);
+            if (!Boolean.TRUE.equals(disableSendingMails))
+                mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{email},
+                        messageSource.getMessage(
+                                "invitation_to_use", new String[]{brandingService.getBrandConfig().getName()},
+                                Helper.getLocale(inviter)), variables, "invite.html",
+                        Helper.getLocale(inviter), null);
         } else throw new CustomException("Email already in use", HttpStatus.NOT_ACCEPTABLE);
     }
 

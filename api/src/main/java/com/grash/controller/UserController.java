@@ -69,7 +69,7 @@ public class UserController {
             if (optionalRole.isPresent() && optionalRole.get().belongsToCompany(user.getCompany())) {
                 if (companyUsersCount + invitation.getEmails().size() <= user.getCompany().getSubscription().getUsersCount() || !optionalRole.get().isPaid()) {
                     invitation.getEmails().forEach(email ->
-                            userService.invite(email, optionalRole.get(), user)
+                            userService.invite(email, optionalRole.get(), user, invitation.getDisableSendingEmail())
                     );
                     return new SuccessResponse(true, "Users have been invited");
                 } else

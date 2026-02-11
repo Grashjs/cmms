@@ -214,13 +214,14 @@ export const deleteUser =
   };
 
 export const inviteUsers =
-  (roleId: number, emails: string[]): AppThunk =>
+  (roleId: number, emails: string[], disableSendingEmail: boolean): AppThunk =>
   async (dispatch) => {
     const successResponse = await api.post<{ success: boolean }>(
       'users/invite',
       {
         role: { id: roleId },
-        emails
+        emails,
+        disableSendingEmail
       }
     );
   };

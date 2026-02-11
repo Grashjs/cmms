@@ -105,7 +105,7 @@ function RegisterJWT({
           (values.countryCode ? `+${values.countryCode.phone}` : '') +
           `${values.phone}`;
         if (invitationMode)
-          await dispatch(inviteUsers(role, [valuesClone.email]));
+          await dispatch(inviteUsers(role, [valuesClone.email], true));
         return register(
           role ? { ...valuesClone, role: { id: role } } : valuesClone,
           invitationMode

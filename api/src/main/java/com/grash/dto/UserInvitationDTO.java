@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import jakarta.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -15,5 +16,7 @@ public class UserInvitationDTO {
     private Role role;
 
     private Collection<String> emails = new ArrayList<>();
+
+    private Boolean disableSendingEmail;
 }
 
