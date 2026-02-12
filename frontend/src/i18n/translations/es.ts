@@ -1715,7 +1715,8 @@ const esJSON = {
   energy_and_utilities: 'Energía y servicios públicos',
   education: 'Educación',
   hospitality: 'Hostelería',
-  construction: 'Construcción'
+  construction: 'Construcción',
+  installation_docs: 'Documentación de instalación'
 };
 
 export default esJSON;

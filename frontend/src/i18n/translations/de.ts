@@ -1724,7 +1724,8 @@ const deJSON = {
   energy_and_utilities: 'Energie & Versorgungsunternehmen',
   education: 'Bildung',
   hospitality: 'Gastgewerbe',
-  construction: 'Baugewerbe'
+  construction: 'Baugewerbe',
+  installation_docs: 'Installationsdokumentation'
 };
 
 export default deJSON;

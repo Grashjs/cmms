@@ -1642,7 +1642,8 @@ const locale = {
   energy_and_utilities: 'Energy & Utilities',
   education: 'Education',
   hospitality: 'Hospitality',
-  construction: 'Construction'
+  construction: 'Construction',
+  installation_docs: 'Installation docs'
 };
 
 export default locale;

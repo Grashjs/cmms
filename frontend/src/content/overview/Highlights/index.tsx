@@ -8,6 +8,7 @@ import {
   Card,
   Container,
   Grid,
+  Link,
   List,
   ListItem,
   ListItemText,
@@ -804,7 +805,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
           >
             {t('choose_your_plan')}
           </TypographyH1Primary>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
             <Tabs
               value={pricingType}
               onChange={handlePricingTabChange}
@@ -815,6 +816,17 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
               <Tab label={t('self_hosted')} value="selfhosted" />
             </Tabs>
           </Box>
+          {pricingType === 'selfhosted' && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+              <Link
+                href={
+                  'https://github.com/Grashjs/cmms?tab=readme-ov-file#self-host--run-locally'
+                }
+              >
+                {t('installation_docs')}
+              </Link>
+            </Box>
+          )}
           <Box px={4}>
             <SubscriptionPlanSelector
               monthly={monthly}

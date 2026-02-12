@@ -1588,7 +1588,8 @@ const locale = {
   energy_and_utilities: 'الطاقة والمرافق',
   education: 'التعليم',
   hospitality: 'الضيافة',
-  construction: 'البناء والتشييد'
+  construction: 'البناء والتشييد',
+  installation_docs: 'وثائق التثبيت'
 };
 
 export default locale;
