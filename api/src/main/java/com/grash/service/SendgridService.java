@@ -27,6 +27,7 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 import jakarta.transaction.Transactional;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Slf4j
@@ -87,11 +88,18 @@ public class SendgridService implements MailService {
             request.setMethod(Method.PUT);
             request.setEndpoint("marketing/contacts");
 
+            // Calculate trial end date (15 days from now)
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_MONTH, 15);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+            String trialEndDate = dateFormat.format(calendar.getTime());
+
             // Prepare request body
             Map<String, Object> contact = new HashMap<>();
             contact.put("email", userEmail);
             contact.put("first_name", event.getUser().getFirstName());
             contact.put("last_name", event.getUser().getLastName());
+            contact.put("trial_end_date", trialEndDate); // Add the calculated date
 
             Map<String, Object> body = new HashMap<>();
             body.put("contacts", Collections.singletonList(contact));
@@ -118,7 +126,6 @@ public class SendgridService implements MailService {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     public void sendSimpleMessage(String[] to, String subject, String text) {
         try {
