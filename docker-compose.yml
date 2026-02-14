@@ -63,6 +63,7 @@ services:
       MAIL_TYPE: ${MAIL_TYPE:-smtp}
       SENDGRID_API_KEY: ${SENDGRID_API_KEY:-}
       SENDGRID_FROM_EMAIL: ${SENDGRID_FROM_EMAIL:-}
+      SENDGRID_CONTACT_LIST_ID: ${SENDGRID_CONTACT_LIST_ID:-}
     ports:
       - "8080:8080"
   frontend:

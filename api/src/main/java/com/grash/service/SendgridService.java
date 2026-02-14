@@ -1,6 +1,8 @@
 package com.grash.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grash.dto.EmailAttachmentDTO;
+import com.grash.event.CompanyCreatedEvent;
 import com.grash.exception.CustomException;
 import com.sendgrid.*;
 import com.sendgrid.helpers.mail.Mail;
@@ -17,6 +19,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
@@ -57,6 +61,9 @@ public class SendgridService implements MailService {
     @Value("${mail.enable}")
     private Boolean enableEmails;
 
+    @Value("${sendgrid.contact-list-id}")
+    private String contactListId;
+
     @PostConstruct
     public void init() {
         fromName = brandingService.getBrandConfig().getName();
@@ -65,6 +72,53 @@ public class SendgridService implements MailService {
     /**
      * Send simple text email
      */
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Async
+    public void handleUserCreated(CompanyCreatedEvent event) {
+        if (shouldSkipSendingEmail()) {
+            return;
+        }
+        try {
+            String userEmail = event.getUser().getEmail();
+            SendGrid sg = new SendGrid(sendGridApiKey);
+            Request request = new Request();
+            request.setMethod(Method.PUT);
+            request.setEndpoint("marketing/contacts");
+
+            // Prepare request body
+            Map<String, Object> contact = new HashMap<>();
+            contact.put("email", userEmail);
+            contact.put("first_name", event.getUser().getFirstName());
+            contact.put("last_name", event.getUser().getLastName());
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("contacts", Collections.singletonList(contact));
+            body.put("list_ids", Collections.singletonList(contactListId));
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonBody = objectMapper.writeValueAsString(body);
+
+            request.setBody(jsonBody);
+            Response response = sg.api(request);
+
+            if (response.getStatusCode() >= 400) {
+                log.error("SendGrid Marketing API error: Status={}, Body={}",
+                        response.getStatusCode(), response.getBody());
+                throw new CustomException("Failed to add user to SendGrid contacts",
+                        HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+            log.info("User added to SendGrid contact list successfully: {}", userEmail);
+
+        } catch (IOException e) {
+            log.error("Error adding user to SendGrid contacts", e);
+            throw new CustomException("Failed to add user to SendGrid contacts",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
     public void sendSimpleMessage(String[] to, String subject, String text) {
         try {
             if (shouldSkipSendingEmail())

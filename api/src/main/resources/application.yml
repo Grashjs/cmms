@@ -134,5 +134,6 @@ keygen:
 sendgrid:
   api:
     key: ${SENDGRID_API_KEY:}
+  contact-list-id: ${SENDGRID_CONTACT_LIST_ID:}
   from:
     email: ${SENDGRID_FROM_EMAIL:}
