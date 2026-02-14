@@ -60,7 +60,8 @@ public class SendgridService implements MailService {
     private String[] recipients;
     @Value("${mail.enable}")
     private Boolean enableEmails;
-
+    @Value("${cloud-version}")
+    private boolean cloudVersion;
     @Value("${sendgrid.contact-list-id}")
     private String contactListId;
 
@@ -76,7 +77,7 @@ public class SendgridService implements MailService {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async
     public void handleUserCreated(CompanyCreatedEvent event) {
-        if (shouldSkipSendingEmail()) {
+        if (shouldSkipSendingEmail() || !cloudVersion) {
             return;
         }
         try {
