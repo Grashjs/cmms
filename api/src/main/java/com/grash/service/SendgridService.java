@@ -78,7 +78,7 @@ public class SendgridService implements MailService {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async
     public void handleUserCreated(CompanyCreatedEvent event) {
-        if (shouldSkipSendingEmail() || !cloudVersion) {
+        if (shouldSkipSendingEmail() || !cloudVersion || event.getUser().getCompany().isDemo()) {
             return;
         }
         try {
