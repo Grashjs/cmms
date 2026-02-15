@@ -169,4 +169,9 @@ public class EmailService2 implements MailService {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @Async
+    public void removeUserFromContactList(String userEmail) {
+        throw new RuntimeException("Not implemented");
+    }
 }

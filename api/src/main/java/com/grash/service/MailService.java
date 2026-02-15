@@ -31,4 +31,6 @@ public interface MailService {
     }
 
     void sendMailToSuperAdmins(String subject, String text);
+
+    void removeUserFromContactList(String email);
 }

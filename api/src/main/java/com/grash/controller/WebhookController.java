@@ -191,6 +191,7 @@ class WebhookController {
         );
 
         subscriptionService.save(savedSubscription);
+        if (isNewSubscription) mailServiceFactory.getMailService().removeUserFromContactList(user.getEmail());
         log.info("Successfully updated cloud subscription for user ID: {}, eventId: {}", userId, eventId);
     }
 

@@ -178,6 +178,9 @@ public class OwnUser extends Audit {
         return enabledInSubscription && this.getRole().isPaid();
     }
 
+    public void setEmail(String email) {
+        this.email = email == null ? null : email.trim().toLowerCase();
+    }
 }
 
 
