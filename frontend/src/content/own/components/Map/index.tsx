@@ -55,7 +55,7 @@ function LocalMap({ locations, select, onSelect, selected }) {
         }
       }}
       defaultCenter={selected ?? defaultCenter}
-      defaultZoom={locations.length ? 6 : 2}
+      defaultZoom={locations?.length ? 6 : 2}
       defaultOptions={{ styles: mapStyle }}
       options={{ streetViewControl: false }}
     >
