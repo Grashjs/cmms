@@ -40,7 +40,7 @@ function LocalMap({ locations, select, onSelect, selected }) {
     }
   }, [mapRef]);
 
-  const defaultCenter = { lat: 31.1728205, lng: -7.3362482 };
+  const defaultCenter = { lat: 0, lng: 0 };
   return (
     <GoogleMap
       ref={mapRef}
@@ -55,7 +55,7 @@ function LocalMap({ locations, select, onSelect, selected }) {
         }
       }}
       defaultCenter={selected ?? defaultCenter}
-      defaultZoom={6}
+      defaultZoom={locations.length ? 6 : 2}
       defaultOptions={{ styles: mapStyle }}
       options={{ streetViewControl: false }}
     >
