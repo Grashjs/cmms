@@ -68,13 +68,19 @@ You can check out the [complete list of features](api/Current%20features.pdf).
 We'd love to have **new contributors**, so feel free to join us!  
 ⭐ **Star this repo to support us!**
 
-## Self Host / Run locally
+## Self-Host / Run locally
+### ⚡ Quick Start (2 minutes)
+1. Download:
+  - [docker-compose.yml](./docker-compose.yml)
+  - [.env.example](.env.example) → rename to `.env` 
+2. Run:
+   ```bash
+   docker-compose up -d
+   ```
+Go to http://localhost:3000 to access Atlas CMMS. 
 
+Need customization or production setup? Continue reading below ↓
 ### Set environment variables
-
-Download this file [.env.example](.env.example), rename it to `.env` and configure the environment variables inside it.
-Do not delete the .env file
-
 | Name                        | Required | Description                                                                                                                                                                                                                                                                                                 | Default Value         |
 |-----------------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------|
 | POSTGRES_USER               | Yes      | Postgres user                                                                                                                                                                                                                                                                                               | rootUser              |
@@ -122,20 +128,7 @@ For production deployments, it’s strongly recommended to use unique credential
 - Open ports if necessary: make sure to open `PUBLIC_API_URL`, `PUBLIC_FRONT_URL` ports numbers by default
   8080, and 3000. Same for `PUBLIC_MINIO_ENDPOINT` port 9000 if you use Minio.
 - Make sure the backend and frontend use the same protocol: https or http
-
-### Run
-
-Download this [docker-compose.yml file](./docker-compose.yml). At this point you should have 2 files `.env` and
-`docker-compose.yml`.
-Now run
-
-```sh
-docker-compose up -d
-```
-
-Go to http://localhost:3000 or your custom `PUBLIC_FRONT_URL`
-
-Celebrate on how easy this was
+- Open your configured `PUBLIC_FRONT_URL` in the browser to access Atlas CMMS.
 
 ### Mobile app
 
