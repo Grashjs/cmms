@@ -44,8 +44,6 @@ export default function RegisterScreen({
       phone: '',
       password: '',
       companyName: '',
-      employeesCount: 5,
-      terms: false,
       submit: null
     };
     let shape = {
@@ -56,12 +54,8 @@ export default function RegisterScreen({
       firstName: Yup.string().max(255).required(t('required_firstName')),
       lastName: Yup.string().max(255).required(t('required_lastName')),
       companyName: Yup.string().max(255).required(t('required_company')),
-      employeesCount: Yup.number()
-        .min(0)
-        .required(t('required_employeesCount')),
       phone: Yup.string().matches(phoneRegExp, t('invalid_phone')),
-      password: Yup.string().min(8).max(255).required(t('required_password')),
-      terms: Yup.boolean().oneOf([true], t('required_terms'))
+      password: Yup.string().min(8).max(255).required(t('required_password'))
     };
     // if (role) {
     //   const keysToDelete = ['companyName', 'employeesCount'];
@@ -209,43 +203,18 @@ export default function RegisterScreen({
               >
                 {errors.companyName?.toString()}
               </HelperText>
-              <TextInput
-                error={Boolean(touched.employeesCount && errors.employeesCount)}
-                label={`${t('employeesCount')}`}
-                onBlur={handleBlur('employeesCount')}
-                onChangeText={handleChange('employeesCount')}
-                value={values.employeesCount}
-                mode="outlined"
-              />
-              <HelperText
-                type="error"
-                visible={Boolean(
-                  touched.employeesCount && errors.employeesCount
-                )}
+              <Button
+                color={theme.colors.primary}
+                onPress={() => handleSubmit()}
+                loading={isSubmitting}
+                disabled={isSubmitting}
+                mode="contained"
               >
-                {errors.employeesCount?.toString()}
-              </HelperText>
+                {t('create_your_account')}
+              </Button>
               <View style={styles.checkboxContainer}>
-                <View
-                  style={[
-                    styles.checkboxWrapper,
-                    !values.terms && {
-                      borderColor: theme.colors.outline,
-                      borderWidth: 1,
-                      width: 24,
-                      height: 24
-                    }
-                  ]}
-                >
-                  <Checkbox
-                    status={values.terms ? 'checked' : 'unchecked'}
-                    color={theme.colors.primary}
-                    uncheckedColor={theme.colors.outline}
-                    onPress={(event) => setFieldValue('terms', !values.terms)}
-                  />
-                </View>
                 <View style={styles.row}>
-                  <Text>{`* ${t('i_accept').trim()}`}</Text>
+                  <Text>{`${t('i_accept').trim()}`}</Text>
                   <TouchableOpacity
                     onPress={() => {
                       Linking.canOpenURL(termsOfServiceUrl).then(
@@ -267,18 +236,6 @@ export default function RegisterScreen({
                   </TouchableOpacity>
                 </View>
               </View>
-              <HelperText type="error" visible={!!errors.terms}>
-                {errors.terms?.toString()}
-              </HelperText>
-              <Button
-                color={theme.colors.primary}
-                onPress={() => handleSubmit()}
-                loading={isSubmitting}
-                disabled={isSubmitting}
-                mode="contained"
-              >
-                {t('create_your_account')}
-              </Button>
             </View>
           )}
         </Formik>
@@ -311,7 +268,8 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginTop: 10
   },
   checkboxWrapper: {
     borderRadius: 4,
