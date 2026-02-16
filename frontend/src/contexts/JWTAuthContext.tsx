@@ -630,6 +630,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       },
       conversionKey
     );
+    if (!values.role) fireGa4Event('company_signup');
     // @ts-ignore
     if (window.lintrk) {
       // @ts-ignore
