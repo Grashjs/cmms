@@ -21,6 +21,8 @@ import { OverviewWrapper } from '../../content/landing/FreeCMMS';
 import { TypographyH2 } from '../../content/landing/HeroFree';
 import { SvgIconComponent } from '@mui/icons-material';
 import TwoCallToActions from '../../content/landing/components/TwoCallToActions';
+import { companyLogosAssets } from '../../utils/overall';
+import CompanyLogos from '../../content/landing/components/CompanyLogos';
 
 interface Feature {
   title: string;
@@ -51,7 +53,7 @@ export interface IndustryLayoutProps {
   headerTitle: string;
   headerSubtitle: string;
   headerImageUrl: string;
-  companyLogos?: string[];
+  companyLogos?: boolean;
   advantages?: { title: string; description: string; icon: SvgIconComponent }[];
   kpis?: { title: string; value: string; type: 'money' | 'percentage' }[];
   features?: Feature[];
@@ -146,24 +148,6 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
         </Container>
 
         {/* Company Logos */}
-        {false && companyLogos && (
-          <Container maxWidth="lg" sx={{ py: 5 }}>
-            <Grid container spacing={4} justifyContent="center">
-              {companyLogos.map((logo, index) => (
-                <Grid item key={index}>
-                  <img
-                    style={{
-                      filter: 'grayscale(100%)'
-                    }}
-                    src={logo}
-                    alt={`company-logo-${index}`}
-                    height="30"
-                  />
-                </Grid>
-              ))}
-            </Grid>
-          </Container>
-        )}
         {kpis && (
           <Container maxWidth="lg" sx={{ py: 5 }}>
             <Grid container spacing={3}>
@@ -200,6 +184,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
             </Grid>
           </Container>
         )}
+        {companyLogos && <CompanyLogos />}
         {advantages.length > 0 && (
           <Container maxWidth={'lg'} sx={{ mt: 2, py: 5 }}>
             <Grid container spacing={4}>

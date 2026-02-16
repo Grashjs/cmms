@@ -28,12 +28,7 @@ const atlasHospitalityData: IndustryLayoutProps = {
     }
   ],
 
-  companyLogos: [
-    // Use generic or community-contributed partner styles
-    '/static/images/logos/independent-hotels-assoc.svg',
-    '/static/images/logos/boutique-stay-group.svg',
-    '/static/images/logos/eco-resort-collective.svg'
-  ],
+  companyLogos: true,
 
   features: [
     {

@@ -10,7 +10,7 @@ const energyUtilitiesData: IndustryLayoutProps = {
   headerImageUrl: '/static/images/industries/energy-hero.jpg',
   canonicalPath: 'industries/open-source-energy-utilities-maintenance-software',
 
-  companyLogos: [],
+  companyLogos: true,
 
   features: [
     {

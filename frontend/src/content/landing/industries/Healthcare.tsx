@@ -96,6 +96,7 @@ const healthcareData: IndustryLayoutProps = {
   ],
 
   relatedContent: [],
+  companyLogos: true,
   pageDescription:
     'Open-source healthcare maintenance that prioritizes patient safety. Keep critical medical equipment running, simplify audits, and maintain total data privacy with a self-hosted CMMS.'
 };

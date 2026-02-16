@@ -223,7 +223,7 @@ const BoxLayouts = styled(Box)(
   ({ theme }) => `
       background: ${theme.colors.gradients.blue1};
       padding: ${theme.spacing(16, 0)};
-      margin: ${theme.spacing(10, 0, 0)};
+      margin: ${theme.spacing(0, 0, 0)};
       position: relative;
 
       .typo-heading,

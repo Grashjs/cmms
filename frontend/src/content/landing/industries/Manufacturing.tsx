@@ -28,15 +28,7 @@ const manufacturingData: IndustryLayoutProps = {
     }
   ],
 
-  companyLogos: [
-    'https://www.datocms-assets.com/38028/1606253591-yamahalogo.svg',
-    'https://www.datocms-assets.com/38028/1624813847-unilever-dark-blue.svg',
-    'https://www.datocms-assets.com/38028/1606253522-marriottinternational.svg',
-    'https://www.datocms-assets.com/38028/1624814616-mccormick-icon.svg',
-    'https://www.datocms-assets.com/38028/1761261081-pepsi-logo.svg',
-    'https://www.datocms-assets.com/38028/1624814005-aramark-logo.svg',
-    'https://www.datocms-assets.com/38028/1624814104-subway-logo.svg'
-  ],
+  companyLogos: true,
 
   features: [
     {

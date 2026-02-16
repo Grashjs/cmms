@@ -155,3 +155,13 @@ export const fireGa4Event = (
     if (conversionKey) sessionStorage.setItem(conversionKey, 'true');
   }
 };
+
+export const companyLogosAssets: string[] = [
+  '/static/images/industries/logos/adventure-mechanical.png',
+  '/static/images/industries/logos/adventure-mechanical.png',
+  '/static/images/industries/logos/adventure-mechanical.png',
+  '/static/images/industries/logos/adventure-mechanical.png',
+  '/static/images/industries/logos/adventure-mechanical.png',
+  '/static/images/industries/logos/adventure-mechanical.png',
+  '/static/images/industries/logos/adventure-mechanical.png'
+];

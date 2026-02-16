@@ -28,12 +28,7 @@ const educationData: IndustryLayoutProps = {
     }
   ],
 
-  companyLogos: [
-    // Use academic-style placeholders or actual EDU partners
-    'https://www.datocms-assets.com/38028/1606253591-university-logo-1.svg',
-    'https://www.datocms-assets.com/38028/1624813847-district-logo-2.svg',
-    'https://www.datocms-assets.com/38028/1606253522-academy-logo-3.svg'
-  ],
+  companyLogos: true,
 
   features: [
     {

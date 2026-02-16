@@ -28,12 +28,7 @@ const constructionData: IndustryLayoutProps = {
     }
   ],
 
-  companyLogos: [
-    // Representing independent contractors and heavy equipment collectives
-    '/static/images/logos/contractor-alliance.svg',
-    '/static/images/logos/heavy-iron-rentals.svg',
-    '/static/images/logos/infrastructure-builders.svg'
-  ],
+  companyLogos: true,
 
   features: [
     {

@@ -27,6 +27,7 @@ import {
   LinkedIn
 } from '@mui/icons-material';
 import { Footer } from 'src/components/Footer';
+import CompanyLogos from '../landing/components/CompanyLogos';
 
 const OverviewWrapper = styled(Box)(
   ({ theme }) => `
@@ -64,6 +65,7 @@ function Overview() {
       </Helmet>
       <NavBar />
       <Hero />
+      <CompanyLogos sx={{ mt: '100px' }} />
       <Highlights />
       <Footer />
     </OverviewWrapper>
