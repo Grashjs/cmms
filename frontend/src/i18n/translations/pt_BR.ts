@@ -1507,7 +1507,7 @@ const ptBRJSON = {
   csv_separator: 'Separador CSV',
   open_source_cmms: 'CMMS de código aberto',
   'main.title':
-    'CMMS gratuito e open source (software de gestão de manutenção) – ',
+    'CMMS gratuito e open source (software de gestão de manutenção)',
   'home.h1':
     'CMMS gratuito e de código aberto que você pode hospedar por conta própria ou usar na nuvem',
   'home.h2': 'Manutenção potente a baixo custo',

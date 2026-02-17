@@ -1569,7 +1569,7 @@ const frJSON = {
   csv_separator: 'Séparateur CSV',
   open_source_cmms: 'GMAO Open Source',
   'main.title':
-    'GMAO open source gratuite (logiciel de gestion de la maintenance) – ',
+    'GMAO open source gratuite (logiciel de gestion de la maintenance)',
   'home.h1':
     'GMAO gratuite et open source que vous pouvez héberger vous-même ou utiliser dans le cloud',
   'home.h2': 'Une maintenance puissante à faible coût',

@@ -1494,7 +1494,7 @@ const trJSON = {
   'schedule.yearly_other': 'Her {{count}} yıl',
   csv_separator: 'CSV ayırıcı',
   open_source_cmms: 'Açık kaynaklı CMMS',
-  'main.title': 'Ücretsiz açık kaynaklı CMMS (bakım yönetimi yazılımı) – ',
+  'main.title': 'Ücretsiz açık kaynaklı CMMS (bakım yönetimi yazılımı)',
   'home.h1':
     'Kendi sunucunuzda barındırabileceğiniz veya bulutta kullanabileceğiniz ücretsiz ve açık kaynaklı CMMS',
   'home.h2': 'Düşük Maliyetle Güçlü Bakım',

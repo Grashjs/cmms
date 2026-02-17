@@ -1499,7 +1499,7 @@ const esJSON = {
   csv_separator: 'Separador CSV',
   open_source_cmms: 'CMMS de código abierto',
   'main.title':
-    'CMMS gratuito de código abierto (software de gestión de mantenimiento) – ',
+    'CMMS gratuito de código abierto (software de gestión de mantenimiento)',
   'home.h1':
     'CMMS gratuito y de código abierto que puede alojar usted mismo o usar en la nube',
   'home.h2': 'Mantenimiento potente a bajo coste',

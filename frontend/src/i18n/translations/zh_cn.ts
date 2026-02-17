@@ -1201,7 +1201,7 @@ const locale = {
   vendors: '供应商',
   csv_separator: 'CSV分隔符',
   open_source_cmms: '开源 CMMS',
-  'main.title': '免费开源 CMMS（维护管理软件）– ',
+  'main.title': '免费开源 CMMS（维护管理软件）',
   'home.h1': '您可以自托管或在云端使用的免费开源 CMMS',
   'home.h2': '功能强大且成本低廉的维护',
   'home.h3':

@@ -1482,7 +1482,7 @@ const locale = {
   csv_separator: 'Separatore CSV',
   open_source_cmms: 'CMMS open source',
   'main.title':
-    'CMMS open source gratuito (software di gestione della manutenzione) – ',
+    'CMMS open source gratuito (software di gestione della manutenzione)',
   'home.h1':
     'CMMS gratuito e open-source che puoi ospitare tu stesso o utilizzare nel cloud',
   'home.h2': 'Manutenzione potente a basso costo',

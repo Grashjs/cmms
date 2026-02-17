@@ -1460,7 +1460,7 @@ const locale = {
   csv_separator: 'CSV-separator',
   open_source_cmms: 'CMMS med öppen källkod',
   'main.title':
-    'Gratis CMMS med öppen källkod (programvara för underhållshantering) – ',
+    'Gratis CMMS med öppen källkod (programvara för underhållshantering)',
   'home.h1':
     'Gratis och open-source CMMS som du kan vara värd för själv eller använda i molnet',
   'home.h2': 'Kraftfullt underhåll till låg kostnad',

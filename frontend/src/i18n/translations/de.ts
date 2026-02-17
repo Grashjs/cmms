@@ -1513,7 +1513,7 @@ const deJSON = {
   csv_separator: 'CSV-Trennzeichen',
   open_source_cmms: 'Open-Source-CMMS',
   'main.title':
-    'Kostenlose Open-Source-CMMS (Instandhaltungsmanagement-Software) – ',
+    'Kostenlose Open-Source-CMMS (Instandhaltungsmanagement-Software)',
   'home.h1':
     'Kostenloses und Open-Source-CMMS, das Sie selbst hosten oder in der Cloud nutzen können',
   'home.h2': 'Leistungsstarke Wartung zu geringen Kosten',
