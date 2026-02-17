@@ -48,10 +48,7 @@ function Overview() {
   return (
     <OverviewWrapper>
       <Helmet>
-        <title>
-          {IS_ORIGINAL_CLOUD ? t('main.title') : ''}
-          {brandConfig.name}
-        </title>
+        <title>{IS_ORIGINAL_CLOUD ? t('main.title') : brandConfig.name}</title>
         <meta
           name="description"
           content="Atlas CMMS is a free, open-source CMMS to manage work orders, preventive maintenance, assets, and facilities. Streamline maintenance operations today."
