@@ -164,7 +164,7 @@ public class PartService {
                 partCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
         optionalPartCategory.ifPresent(part::setCategory);
         part.setNonStock(Helper.getBooleanFromString(dto.getCategory()));
-        if (dto.getBarcode() != null) {
+        if (dto.getBarcode() != null && !dto.getBarcode().trim().isEmpty()) {
             Optional<Part> optionalPartWithSameBarCode = findByBarcodeAndCompany(dto.getBarcode(), company.getId());
             if (optionalPartWithSameBarCode.isPresent()) {
                 boolean hasError = false;
