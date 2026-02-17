@@ -50,7 +50,7 @@ public class DemoController {
     @Hidden
     @GetMapping("/generate-account")
     public SuccessResponse generateAccount(HttpServletRequest req) {
-        String clientIp = req.getRemoteAddr(); // use IP as the key
+        String clientIp = extractClientIp(req);
         if (!rateLimiterService.resolveBucket(clientIp).tryConsume(1)) {
             return new SuccessResponse(false, "Rate limit exceeded. Try again later.");
         }
@@ -86,6 +86,26 @@ public class DemoController {
         } finally {
             MailService.skipMail.set(false);
         }
+    }
+
+    private String extractClientIp(HttpServletRequest req) {
+        String[] headerCandidates = {
+                "X-Forwarded-For",
+                "X-Real-IP",
+                "CF-Connecting-IP",   // Cloudflare
+                "True-Client-IP"
+        };
+
+        for (String header : headerCandidates) {
+            String ip = req.getHeader(header);
+            if (ip != null && !ip.isBlank() && !"unknown".equalsIgnoreCase(ip)) {
+                // X-Forwarded-For can be a comma-separated chain: "clientIp, proxy1, proxy2"
+                return ip.split(",")[0].trim();
+            }
+        }
+
+        String remoteAddr = req.getRemoteAddr();
+        return (remoteAddr != null && !remoteAddr.isBlank()) ? remoteAddr : "unknown";
     }
 
     @DeleteMapping("/demo-data")
