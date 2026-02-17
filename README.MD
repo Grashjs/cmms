@@ -136,6 +136,10 @@ You can use the [Android app](https://play.google.com/store/apps/details?id=com.
 or [iOS App](https://apps.apple.com/fr/app/atlas-cmms/id6751547284) and configure it with
 your custom backend server url
 
+### Reverse Proxy
+
+If you are using a reverse proxy for HTTPS and add `/api` to `PUBLIC_API_URL` or `API_URL` for proper rule-matched proxying, ensure that you strip the `/api` prefix before the request is sent to the Atlas CMMS backend. The backend application's Spring Security configuration is designed to accept these specific endpoints without the /api prefix, and will reject any URL including the prefix /api, resulting in `Error 403 - Forbidden`.
+
 ## Getting help
 
 ### Docs
