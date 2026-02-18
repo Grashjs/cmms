@@ -395,6 +395,8 @@ public class WorkOrderController {
                 Map<String, Object> variables = new HashMap<String, Object>() {{
                     put("companyName", user.getCompany().getName());
                     put("companyPhone", user.getCompany().getPhone());
+                    put("companyLogo", user.getCompany().getLogo() == null ? null :
+                            storageService.generateSignedUrl(user.getCompany().getLogo(), 5));
                     put("currency",
                             user.getCompany().getCompanySettings().getGeneralPreferences().getCurrency().getCode());
                     put("assignedTo",
