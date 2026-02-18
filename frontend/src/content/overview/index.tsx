@@ -59,7 +59,6 @@ function Overview() {
         />
         <link rel="canonical" href="https://atlas-cmms.com/" />
         <script type="application/ld+json">
-          {/*language=JSON*/}
           {`
             {
               "@context": "https://schema.org",
