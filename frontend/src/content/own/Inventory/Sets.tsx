@@ -394,7 +394,7 @@ const Sets = ({ setAction }: PropsType) => {
         open={openDrawer}
         onClose={handleCloseDetails}
         PaperProps={{
-          sx: { width: '50%' }
+          sx: { width: { xs: '90%', sm: '70%', md: '50%' } }
         }}
       >
         <SetDetails
