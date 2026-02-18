@@ -120,6 +120,51 @@ function Pricing() {
           content="Flexible pricing plans for Atlas CMMS. Choose between Cloud and Self-Hosted versions of our open-source CMMS to optimize your maintenance operations."
         />
         <link rel="canonical" href="https://atlas-cmms.com/pricing" />
+        <script type="application/ld+json">
+          {`
+            {
+              "@context": "https://schema.org",
+              "@type": "Product",
+              "name": "Atlas CMMS",
+              "description": "Flexible pricing plans for Atlas CMMS. Choose between Cloud and Self-Hosted versions of our open-source CMMS to optimize your maintenance operations.",
+              "url": "https://atlas-cmms.com/pricing",
+              "offers": [
+                {
+                  "@type": "Offer",
+                  "name": "Basic",
+                  "price": "0",
+                  "priceCurrency": "USD",
+                  "description": "For small teams getting started with maintenance management."
+                },
+                {
+                  "@type": "Offer",
+                  "name": "Starter",
+                  "price": "10",
+                  "priceCurrency": "USD",
+                  "description": "For growing teams that need more advanced features."
+                },
+                {
+                  "@type": "Offer",
+                  "name": "Professional",
+                  "price": "15",
+                  "priceCurrency": "USD",
+                  "description": "For established teams that require more customization and support."
+                },
+                {
+                  "@type": "Offer",
+                  "name": "Business",
+                  "price": "40",
+                  "priceCurrency": "USD",
+                  "description": "For large organizations with complex needs and integrations."
+                }
+              ],
+              "publisher": {
+                "@type": "Organization",
+                "name": "Atlas CMMS"
+              }
+            }
+          `}
+        </script>
       </Helmet>
       <NavBar />
 
