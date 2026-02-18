@@ -9,6 +9,7 @@ import * as Yup from 'yup';
 import { useTranslation } from 'react-i18next';
 import PropTypes from 'prop-types';
 import { getWOBaseFields } from '../utils/woBase';
+import moment from 'moment-timezone';
 
 type CompanySettingsContext = {
   getFormattedDate: (dateString: string, hideTime?: boolean) => string;
@@ -37,7 +38,8 @@ export const CompanySettingsProvider: FC<{ children: ReactNode }> = (props) => {
   const { generalPreferences, workOrderRequestConfiguration } =
     companySettings ?? {
       dateFormat: 'DDMMYY',
-      currency: { code: '$' }
+      currency: { code: '$' },
+      timeZone: moment.tz.guess()
     };
   const { allUsersMini } = useSelector((state) => state.users);
   const { workOrderConfiguration } = companySettings ?? {
@@ -48,18 +50,20 @@ export const CompanySettingsProvider: FC<{ children: ReactNode }> = (props) => {
 
   const getFormattedDate = (dateString: string, hideTime?: boolean) => {
     if (!dateString) return '';
-    const date = new Date(dateString);
-    const month = ('0' + (date.getMonth() + 1).toString()).substr(-2);
-    const day = ('0' + date.getDate().toString()).substr(-2);
-    const year = date.getFullYear().toString().substr(2);
-    const time = hideTime
-      ? ''
-      : (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) +
-        ':' +
-        (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
+
+    const tz = generalPreferences.timeZone;
+    const date = moment.tz(dateString, tz);
+
+    const month = date.format('MM');
+    const day = date.format('DD');
+    const year = date.format('YY');
+    const time = hideTime ? '' : date.format('HH:mm');
+
     if (generalPreferences.dateFormat === 'MMDDYY') {
-      return month + '/' + day + '/' + year + ' ' + time;
-    } else return day + '/' + month + '/' + year + ' ' + time;
+      return `${month}/${day}/${year} ${time}`.trim();
+    } else {
+      return `${day}/${month}/${year} ${time}`.trim();
+    }
   };
   const getFormattedCurrency = (amount: number): string => {
     const code = generalPreferences.currency.code;

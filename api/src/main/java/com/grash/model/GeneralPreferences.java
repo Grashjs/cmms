@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 
+import java.time.ZoneId;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -30,7 +32,8 @@ public class GeneralPreferences {
 
     private BusinessType businessType = BusinessType.GENERAL_ASSET_MANAGEMENT;
 
-    private String timeZone;
+    @NotNull
+    private String timeZone = ZoneId.systemDefault().getId();
 
     private boolean autoAssignWorkOrders;
 
