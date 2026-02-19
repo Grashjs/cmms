@@ -1,6 +1,7 @@
 package com.grash.service;
 
 import com.grash.dto.AuthResponse;
+import com.grash.factory.MailServiceFactory;
 import com.grash.model.OwnUser;
 import com.grash.model.VerificationToken;
 import com.grash.repository.UserRepository;
@@ -23,6 +24,7 @@ public class VerificationTokenService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final MailServiceFactory mailServiceFactory;
 
 
     public VerificationToken getVerificationTokenEntity(String token) {
@@ -59,6 +61,7 @@ public class VerificationTokenService {
         OwnUser user = verifyToken(token).getUser();
         //valid token
         userService.enableUser(user.getEmail());
+        mailServiceFactory.getMailService().addToContactList(user);
         return user.getEmail();
     }
 
