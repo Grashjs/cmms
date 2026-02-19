@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -74,7 +75,8 @@ public class ScheduleService {
         int limit = 5;
         PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
         Page<WorkOrder> workOrdersPage = workOrderService.findLastByPM(preventiveMaintenance.getId(), limit);
-
+        TimeZone timeZone = TimeZone.getTimeZone(preventiveMaintenance.getCompany()
+                .getCompanySettings().getGeneralPreferences().getTimeZone());
         boolean isStale = false;
         if (workOrdersPage.getTotalElements() >= limit && workOrdersPage.getContent().stream().allMatch(workOrder -> workOrder.getFirstTimeToReact() == null)) {
             isStale = true;
@@ -134,7 +136,7 @@ public class ScheduleService {
                             String cronExpression = String.format("0 %d %d ? * %s", minute, hour, daysOfWeekCron);
                             scheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression)
                                     .withMisfireHandlingInstructionDoNothing()
-                                    .inTimeZone(TimeZone.getDefault());
+                                    .inTimeZone(timeZone);
 
                             // Store the frequency in the job data so the job can handle it
                             // The cron will fire every week on specified days, but the job will check frequency
@@ -201,7 +203,8 @@ public class ScheduleService {
                             trueStartsOnForNotif, // Pass the date the WO is scheduled to run
                             scheduleBuilder,
                             schedule,
-                            daysBeforePMNotification
+                            daysBeforePMNotification,
+                            timeZone
                     );
                 }
 
@@ -237,7 +240,7 @@ public class ScheduleService {
             Date woStartOn,
             ScheduleBuilder<?> woScheduleBuilder,
             Schedule schedule,
-            int daysBeforeNotification) throws SchedulerException {
+            int daysBeforeNotification, TimeZone timeZone) throws SchedulerException {
         Long scheduleId = schedule.getId();
         Date endsOn = schedule.getEndsOn();
         // 1. Calculate the actual start date for the FIRST notification
@@ -293,7 +296,7 @@ public class ScheduleService {
             String cronExpression = String.format("0 %d %d ? * %s", notifMinute, notifHour, notifDaysOfWeekCron);
             notificationScheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression)
                     .withMisfireHandlingInstructionDoNothing()
-                    .inTimeZone(TimeZone.getDefault());
+                    .inTimeZone(timeZone);
         } else {
             // For DAILY, MONTHLY, YEARLY: use the same recurrence pattern as the WO
             // The different startAt() date will handle the offset
@@ -378,7 +381,9 @@ public class ScheduleService {
                         nextRunDate, // The calculated WO start date
                         oneShotSchedule,
                         schedule,
-                        daysBeforePMNotification
+                        daysBeforePMNotification,
+                        TimeZone.getTimeZone(pm.getCompany()
+                                .getCompanySettings().getGeneralPreferences().getTimeZone())
                 );
             }
 
