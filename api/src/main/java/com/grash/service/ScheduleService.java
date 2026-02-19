@@ -108,7 +108,7 @@ public class ScheduleService {
                         return; // Exit after scheduling completion-based job
                     }
                 } else { // SCHEDULED_DATE
-                    Calendar cal = Calendar.getInstance();
+                    Calendar cal = Calendar.getInstance(timeZone);
                     cal.setTime(startsOn);
                     int hour = cal.get(Calendar.HOUR_OF_DAY);
                     int minute = cal.get(Calendar.MINUTE);
@@ -244,7 +244,7 @@ public class ScheduleService {
         Long scheduleId = schedule.getId();
         Date endsOn = schedule.getEndsOn();
         // 1. Calculate the actual start date for the FIRST notification
-        Calendar notifCal = Calendar.getInstance();
+        Calendar notifCal = Calendar.getInstance(timeZone);
         notifCal.setTime(woStartOn);
         notifCal.add(Calendar.DATE, -daysBeforeNotification);
         Date notificationStart = notifCal.getTime();
@@ -269,7 +269,7 @@ public class ScheduleService {
             }
 
             // Extract hour and minute from the notification start date
-            Calendar notifTimeCal = Calendar.getInstance();
+            Calendar notifTimeCal = Calendar.getInstance(timeZone);
             notifTimeCal.setTime(notificationStart);
             int notifHour = notifTimeCal.get(Calendar.HOUR_OF_DAY);
             int notifMinute = notifTimeCal.get(Calendar.MINUTE);
@@ -327,12 +327,15 @@ public class ScheduleService {
         if (!scheduleOpt.isPresent()) return;
 
         Schedule schedule = scheduleOpt.get();
+        PreventiveMaintenance pm = schedule.getPreventiveMaintenance();
+        TimeZone timeZone = TimeZone.getTimeZone(pm.getCompany()
+                .getCompanySettings().getGeneralPreferences().getTimeZone());
 
         // Only applies to COMPLETED_DATE schedules
         if (schedule.getRecurrenceBasedOn() != RecurrenceBasedOn.COMPLETED_DATE) return;
 
         // 1. Calculate the next run date based on Frequency
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance(timeZone);
         cal.setTime(completedDate);
 
         switch (schedule.getRecurrenceType()) {
@@ -372,7 +375,6 @@ public class ScheduleService {
             scheduler.scheduleJob(woJob, woTrigger);
             log.info("Chained next schedule for Schedule ID {} at {}", schedule.getId(), nextRunDate);
 
-            PreventiveMaintenance pm = schedule.getPreventiveMaintenance();
             int daysBeforePMNotification = pm.getCompany()
                     .getCompanySettings().getGeneralPreferences().getDaysBeforePrevMaintNotification();
 
@@ -382,9 +384,7 @@ public class ScheduleService {
                         oneShotSchedule,
                         schedule,
                         daysBeforePMNotification,
-                        TimeZone.getTimeZone(pm.getCompany()
-                                .getCompanySettings().getGeneralPreferences().getTimeZone())
-                );
+                        timeZone);
             }
 
         } catch (SchedulerException e) {
@@ -402,14 +402,17 @@ public class ScheduleService {
 
     public void checkIfWeeklyShouldRun(Schedule schedule) {
         if (schedule.getRecurrenceType() == RecurrenceType.WEEKLY && schedule.getFrequency() > 1) {
-            // Calculate weeks since startsOn
+            String tzId = schedule.getPreventiveMaintenance()
+                    .getCompany().getCompanySettings()
+                    .getGeneralPreferences().getTimeZone();
+            ZoneId zoneId = ZoneId.of(tzId);
+
             long daysSinceStart = ChronoUnit.DAYS.between(
-                    schedule.getStartsOn().toInstant(),
-                    new Date().toInstant()
+                    schedule.getStartsOn().toInstant().atZone(zoneId).toLocalDate(),
+                    new Date().toInstant().atZone(zoneId).toLocalDate()
             );
             long weeksSinceStart = daysSinceStart / 7;
 
-            // Only execute if we're on the correct week interval
             if (weeksSinceStart % schedule.getFrequency() != 0) {
                 log.info("Skipping execution - not on correct week interval for schedule {}", schedule.getId());
                 return;
