@@ -47,6 +47,7 @@ import { AssetDTO } from '../models/asset';
 import Location from '../models/location';
 import { UiConfiguration } from '../models/uiConfiguration';
 import Constants from 'expo-constants';
+import moment from 'moment-timezone';
 
 interface AuthState {
   isInitialized: boolean;
@@ -759,7 +760,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   const register = async (values): Promise<void> => {
     const response = await api.post<{ message: string; success: boolean }>(
       'auth/signup',
-      values,
+      { ...values, timeZone: moment.tz.guess() },
       { headers: await authHeader(true) }
     );
     const { message, success } = response;
