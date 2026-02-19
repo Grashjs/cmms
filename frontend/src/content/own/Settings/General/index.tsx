@@ -125,6 +125,14 @@ function GeneralSettings() {
     _values,
     { resetForm, setErrors, setStatus, setSubmitting }
   ) => {};
+
+  const timezones = useMemo(() => {
+    const supported = (Intl as any).supportedValuesOf('timeZone');
+    const current = generalPreferences.timeZone;
+    return current && !supported.includes(current)
+      ? [current, ...supported]
+      : supported;
+  }, [generalPreferences.timeZone]);
   return (
     <Grid item xs={12}>
       <Box p={4}>
@@ -217,13 +225,11 @@ function GeneralSettings() {
                         as={Select}
                         name="timeZone"
                       >
-                        {(Intl as any)
-                          .supportedValuesOf('timeZone')
-                          .map((timezone) => (
-                            <MenuItem key={timezone} value={timezone}>
-                              {timezone}
-                            </MenuItem>
-                          ))}
+                        {timezones.map((timezone) => (
+                          <MenuItem key={timezone} value={timezone}>
+                            {timezone}
+                          </MenuItem>
+                        ))}
                       </Field>
                     </Grid>
                     <Grid item xs={12}>
