@@ -154,7 +154,7 @@ public class UserService {
             if (!licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE) && companyService.existsAtLeastOneWithMinWorkOrders())
                 throw new CustomException("You need a license to create another company", HttpStatus.FORBIDDEN);
             Subscription subscription =
-                    Subscription.builder().usersCount(cloudVersion ? 50 : 100).monthly(cloudVersion)
+                    Subscription.builder().usersCount(300).monthly(cloudVersion)
                             .startsOn(new Date())
                             .endsOn(cloudVersion ? Helper.incrementDays(new Date(), 15) : null)
                             .subscriptionPlan(subscriptionPlanService.findByCode("BUSINESS").get()).build();
