@@ -1,11 +1,17 @@
 package com.grash.utils;
 
+import com.grash.model.enums.DateFormat;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Random;
 
 @Component
@@ -34,5 +40,16 @@ public class Utils {
             e.printStackTrace();
         }
         return contentBuilder.toString();
+    }
+
+    public String getFormattedDate(Object date, DateFormat dateFormat, String timeZone) {
+        if (date == null) return null;
+        String pattern = dateFormat == DateFormat.MMDDYY ? "MM/dd/yy" : "dd/MM/yy";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern)
+                .withZone(ZoneId.of(timeZone));
+        if (date instanceof Date) return formatter.format(((Date) date).toInstant());
+        if (date instanceof Instant) return formatter.format((Instant) date);
+        if (date instanceof LocalDateTime) return formatter.format(((LocalDateTime) date).atZone(ZoneId.of(timeZone)));
+        return date.toString();
     }
 }
