@@ -1022,6 +1022,7 @@ const frJSON = {
     "Les utilisateurs reçoivent des mises à jour pour les ordres de travail qu'ils ont demandés",
   language: 'Langue',
   date_format: 'Format de date',
+  time_zone: 'Fuseau horaire',
   business_type: "Type d'entreprise",
   general_asset_management: 'Gestion générale des équipements',
   physical_asset_management: 'Gestion des équipements physiques',

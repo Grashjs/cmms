@@ -885,6 +885,7 @@ const locale = {
     'Användare får uppdateringar för de arbetsordrar de begärt',
   language: 'Språk',
   date_format: 'Datumformat',
+  time_zone: 'Tidszon',
   business_type: 'Företagstyp',
   general_asset_management: 'Allmän kapitalförvaltning',
   physical_asset_management: 'Förvaltning av fysiska tillgångar',

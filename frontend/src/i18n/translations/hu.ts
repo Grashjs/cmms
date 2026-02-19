@@ -761,6 +761,9 @@ const locale = {
   acquisition_cost: 'Beszerzési költség',
   //settings
   general_settings: 'Általános Beállítások',
+  language: 'Nyelv',
+  date_format: 'Dátumformátum',
+  time_zone: 'Időzóna',
   request_form_configuration: 'Kéreleműrlap konfiguráció',
   roles: 'Szerepek',
   checklists: 'Ellenőrzőlisták',

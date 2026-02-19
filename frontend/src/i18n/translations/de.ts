@@ -940,6 +940,7 @@ const deJSON = {
     'Benutzer erhalten Aktualisierungen für die von ihnen angeforderten Arbeitsaufträge',
   language: 'Sprache',
   date_format: 'Datumsformat',
+  time_zone: 'Zeitzone',
   business_type: 'Geschäftstyp',
   general_asset_management: 'Allgemeine Anlagenverwaltung',
   physical_asset_management: 'Physische Anlagenverwaltung',

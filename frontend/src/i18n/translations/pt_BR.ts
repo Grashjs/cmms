@@ -923,6 +923,7 @@ const ptBRJSON = {
     'Os usuários recebem atualizações para as ordens de serviço que solicitaram',
   language: 'Idioma',
   date_format: 'Formato de data',
+  time_zone: 'Fuso horário',
   business_type: 'Tipo de negócio',
   general_asset_management: 'Gestão geral de ativos',
   physical_asset_management: 'Gestão de ativos físicos',

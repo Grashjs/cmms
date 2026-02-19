@@ -164,6 +164,8 @@ public class UserService {
             company.getCompanySettings().getGeneralPreferences().setCurrency(currencyService.findByCode("$").get());
             if (userReq.getLanguage() != null)
                 company.getCompanySettings().getGeneralPreferences().setLanguage(userReq.getLanguage());
+            if (userReq.getTimeZone() != null)
+                company.getCompanySettings().getGeneralPreferences().setTimeZone(userReq.getTimeZone());
             companyService.create(company);
             user.setOwnsCompany(true);
             user.setCompany(company);

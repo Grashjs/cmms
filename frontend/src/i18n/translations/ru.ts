@@ -910,6 +910,7 @@ const ruJSON = {
   // --- General Settings ---
   language: 'Язык',
   date_format: 'Формат даты',
+  time_zone: 'Часовой пояс',
   business_type: 'Тип бизнеса',
   general_asset_management: 'Общее управление активами',
   physical_asset_management: 'Управление физическими активами',

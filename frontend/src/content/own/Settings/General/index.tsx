@@ -133,6 +133,7 @@ function GeneralSettings() {
           validationSchema={Yup.object().shape({
             language: Yup.string(),
             dateFormat: Yup.string(),
+            timeZone: Yup.string(),
             currency: Yup.string(),
             businessType: Yup.string(),
             autoAssignWorkOrders: Yup.bool(),
@@ -200,6 +201,29 @@ function GeneralSettings() {
                       >
                         <MenuItem value="MMDDYY">MM/DD/YY</MenuItem>
                         <MenuItem value="DDMMYY">DD/MM/YY</MenuItem>
+                      </Field>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="h6" sx={{ mb: 0.5 }}>
+                        {t('time_zone')}
+                      </Typography>
+                      <Field
+                        onChange={(event) =>
+                          patchGeneralPreferences({
+                            timeZone: event.target.value
+                          })
+                        }
+                        value={generalPreferences.timeZone}
+                        as={Select}
+                        name="timeZone"
+                      >
+                        {(Intl as any)
+                          .supportedValuesOf('timeZone')
+                          .map((timezone) => (
+                            <MenuItem key={timezone} value={timezone}>
+                              {timezone}
+                            </MenuItem>
+                          ))}
                       </Field>
                     </Grid>
                     <Grid item xs={12}>

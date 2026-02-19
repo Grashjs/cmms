@@ -840,6 +840,7 @@ const locale = {
     'يحصل المستخدمون على تحديثات لأوامر العمل التي طلبوها',
   language: 'لغة',
   date_format: 'تنسيق التاريخ',
+  time_zone: 'المنطقة الزمنية',
   business_type: 'نوع العمل',
   general_asset_management: 'إدارة الأصول العامة',
   physical_asset_management: 'إدارة الأصول المادية',

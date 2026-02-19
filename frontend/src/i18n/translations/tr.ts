@@ -858,6 +858,7 @@ const trJSON = {
     'Kullanıcılar talep ettikleri iş emirlerine ilişkin güncellemeleri alır',
   language: 'Dil',
   date_format: 'Tarih formatı',
+  time_zone: 'Saat dilimi',
   business_type: 'İş Tipi',
   general_asset_management: 'Genel varlık yönetimi',
   physical_asset_management: 'Fiziksel varlık yönetimi',

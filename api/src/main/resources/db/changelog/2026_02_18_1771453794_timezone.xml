@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="1771453794-1" author="Ibrahima G. Coulibaly">
+        <addColumn tableName="general_preferences">
+            <column name="timezone" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="1771453794-2" author="Ibrahima G. Coulibaly">
+        <update tableName="general_preferences">
+            <column name="timezone" value="MY_RANDOM_ZONE"/>
+            <where>timezone IS NULL</where>
+        </update>
+    </changeSet>
+
+    <changeSet id="1771453794-3" author="Ibrahima G. Coulibaly">
+        <addNotNullConstraint
+                tableName="general_preferences"
+                columnName="timezone"
+        />
+    </changeSet>
+    <changeSet id="1771454985514-1" author="Ibrahima G. Coulibaly">
+        <dropColumn tableName="general_preferences" columnName="timezone"/>
+    </changeSet>
+    <changeSet id="1771455013881-1" author="Ibrahima G. Coulibaly">
+        <update tableName="general_preferences">
+            <column name="time_zone" value="MY_RANDOM_ZONE"/>
+            <where>time_zone IS NULL</where>
+        </update>
+    </changeSet>
+    <changeSet id="1771455160409-1" author="Ibrahima G. Coulibaly">
+        <addNotNullConstraint tableName="general_preferences" columnName="time_zone"/>
+    </changeSet>
+</databaseChangeLog>

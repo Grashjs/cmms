@@ -673,6 +673,9 @@ const locale = {
   acquisition_cost: '采购成本',
   //settings
   general_settings: '常规设置',
+  language: '语言',
+  date_format: '日期格式',
+  time_zone: '时区',
   request_form_configuration: '请求表单配置',
   roles: '角色',
   checklists: '检查清单',

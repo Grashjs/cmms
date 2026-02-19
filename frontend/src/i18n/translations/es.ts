@@ -911,6 +911,7 @@ const esJSON = {
     'Los usuarios obtienen actualizaciones de las Órdenes de Trabajo que solicitaron.',
   language: 'Idioma',
   date_format: 'Formato de fecha',
+  time_zone: 'Zona horaria',
   business_type: 'Tipo de negocio',
   general_asset_management: 'Gestión general de activos',
   physical_asset_management: 'Gestión de activos físicos',

@@ -904,6 +904,7 @@ const locale = {
     'Gli utenti ricevono aggiornamenti per gli ordini di lavoro richiesti',
   language: 'Lingua',
   date_format: 'Formato data',
+  time_zone: 'Fuso orario',
   business_type: 'Tipo di attività',
   general_asset_management: 'Gestione patrimoniale generale',
   physical_asset_management: 'Gestione delle risorse fisiche',

@@ -898,6 +898,7 @@ const locale = {
     'Gebruikers ontvangen updates voor de werkorders die zij hebben aangevraagd',
   language: 'Taal',
   date_format: 'Datumformaat',
+  time_zone: 'Tijdzone',
   business_type: 'Bedrijfstype',
   general_asset_management: 'Algemeen assetbeheer',
   physical_asset_management: 'Fysiek assetbeheer',

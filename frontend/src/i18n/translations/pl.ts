@@ -900,6 +900,7 @@ const plJSON = {
     'Użytkownicy otrzymują aktualizacje dotyczące zleceń pracy, które zgłosili',
   language: 'Język',
   date_format: 'Format daty',
+  time_zone: 'Strefa czasowa',
   business_type: 'Rodzaj działalności',
   general_asset_management: 'Ogólne zarządzanie zasobami',
   physical_asset_management: 'Fizyczne zarządzanie zasobami',

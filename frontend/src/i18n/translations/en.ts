@@ -862,6 +862,7 @@ const locale = {
     'Users get updates for the work orders they requested',
   language: 'Language',
   date_format: 'Date format',
+  time_zone: 'Time zone',
   business_type: 'Business type',
   general_asset_management: 'General asset management',
   physical_asset_management: 'Physical asset management',
