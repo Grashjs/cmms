@@ -134,11 +134,13 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
               </Stack>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Box
-                component="img"
+              <img
                 src={headerImageUrl}
                 alt={headerTitle}
-                sx={{ width: '100%', borderRadius: '16px' }}
+                style={{ width: '100%', borderRadius: '16px' }}
+                loading="eager"
+                // @ts-ignore
+                fetchpriority="high"
               />
             </Grid>
           </Grid>

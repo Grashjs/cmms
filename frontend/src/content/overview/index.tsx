@@ -123,14 +123,14 @@ function Overview() {
           as="image"
           href="/static/mobile_app.jpeg"
           //@ts-ignore
-          fetchPriority="high"
+          fetchpriority="high"
         />
         <link
           rel="preload"
           as="image"
           href="/static/images/overview/work_orders_screenshot.png"
           //@ts-ignore
-          fetchPriority="high"
+          fetchpriority="high"
         />
         <script
           type="application/ld+json"
