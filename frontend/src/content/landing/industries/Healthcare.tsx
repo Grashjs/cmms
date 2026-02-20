@@ -59,18 +59,7 @@ const healthcareData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Atlas CMMS helped us keep critical medical equipment operational while simplifying compliance and audit preparation.',
-      author: 'Biomedical Engineering Manager',
-      company: 'Regional Hospital Network'
-    },
-    {
-      text: 'Because Atlas CMMS is self-hosted, we maintain full control of sensitive operational data while improving maintenance efficiency across facilities.',
-      author: 'Healthcare Facilities Director',
-      company: 'Private Medical Center'
-    }
-  ],
+  testimonials: [],
 
   faqs: [
     {

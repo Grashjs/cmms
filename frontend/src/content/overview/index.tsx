@@ -65,7 +65,7 @@ function Overview() {
       </Helmet>
       <NavBar />
       <Hero />
-      <CompanyLogos sx={{ mt: '100px' }} />
+      <CompanyLogos sx={{ mt: { xs: '150px', md: '100px' } }} />
       <Highlights />
       <Footer />
     </OverviewWrapper>

@@ -1,15 +1,30 @@
-import { Container, Box, SxProps, Theme } from '@mui/material';
+import { Container, Box, Typography, SxProps, Theme } from '@mui/material';
 import { companyLogosAssets } from '../../../utils/overall';
 import React from 'react';
 
 export default function CompanyLogos({ sx }: { sx?: SxProps<Theme> }) {
   return (
     <Container maxWidth="lg" sx={sx}>
+      <Typography
+        variant="body2"
+        align="center"
+        sx={{
+          color: 'text.secondary',
+          mb: 1,
+          fontWeight: 500,
+          letterSpacing: '0.05em',
+          textTransform: 'uppercase',
+          fontSize: '0.75rem'
+        }}
+      >
+        Used by maintenance teams across multiple industries
+      </Typography>
+
       <Box
         sx={{
           overflow: 'hidden',
           position: 'relative',
-          py: 2, // Add vertical padding
+          py: 2,
           '&::before, &::after': {
             content: '""',
             position: 'absolute',
@@ -33,8 +48,8 @@ export default function CompanyLogos({ sx }: { sx?: SxProps<Theme> }) {
           sx={{
             display: 'flex',
             gap: 6,
-            alignItems: 'center', // Vertically center items
-            height: '60px', // Set explicit height
+            alignItems: 'center',
+            height: '60px',
             animation: 'scroll 30s linear infinite',
             '@keyframes scroll': {
               '0%': { transform: 'translateX(0)' },
@@ -42,7 +57,6 @@ export default function CompanyLogos({ sx }: { sx?: SxProps<Theme> }) {
             }
           }}
         >
-          {/* Render logos twice for seamless loop */}
           {[...companyLogosAssets, ...companyLogosAssets].map((logo, index) => (
             <Box
               key={index}
@@ -50,13 +64,13 @@ export default function CompanyLogos({ sx }: { sx?: SxProps<Theme> }) {
                 flexShrink: 0,
                 display: 'flex',
                 alignItems: 'center',
-                height: '100%' // Take full height
+                height: '100%'
               }}
             >
               <img
                 style={{
                   filter: 'grayscale(100%)',
-                  maxHeight: '40px', // Use maxHeight instead of height
+                  maxHeight: '40px',
                   width: 'auto',
                   objectFit: 'contain'
                 }}

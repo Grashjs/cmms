@@ -52,18 +52,7 @@ const educationData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Switching to an open-source model allowed our school district to scale maintenance tracking to 12 campuses without the heavy burden of SaaS subscription fees.',
-      author: 'Director of Facilities',
-      company: 'Public School District'
-    },
-    {
-      text: 'The ability to self-host ensures our student and faculty data stays within our private network, meeting our strict privacy protocols.',
-      author: 'IT Administrator',
-      company: 'State University'
-    }
-  ],
+  testimonials: [],
 
   faqs: [
     {

@@ -55,18 +55,7 @@ const manufacturingData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Atlas CMMS helped us significantly reduce machine downtime while keeping full control of our data on-premise.',
-      author: 'Plant Maintenance Manager',
-      company: 'Industrial Manufacturing Company'
-    },
-    {
-      text: 'The preventive maintenance automation alone saved hours of manual planning every week.',
-      author: 'Operations Engineer',
-      company: 'Production Facility'
-    }
-  ],
+  testimonials: [],
 
   faqs: [
     {

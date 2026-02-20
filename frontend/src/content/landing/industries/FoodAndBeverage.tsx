@@ -56,18 +56,7 @@ const foodBeverageData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Atlas CMMS helped us maintain strict food safety standards while significantly reducing unexpected equipment downtime.',
-      author: 'Quality & Maintenance Manager',
-      company: 'Food Processing Company'
-    },
-    {
-      text: 'Self-hosting Atlas CMMS allowed us to keep full control of operational data while improving preventive maintenance execution.',
-      author: 'Plant Operations Director',
-      company: 'Beverage Manufacturing Facility'
-    }
-  ],
+  testimonials: [],
 
   faqs: [
     {

@@ -52,18 +52,7 @@ const atlasHospitalityData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Moving to Atlas allowed us to keep our guest maintenance records on-site. We saved enough on licensing to hire an additional technician.',
-      author: 'VP of Engineering',
-      company: 'Heritage Hotel Collection'
-    },
-    {
-      text: 'The open-source nature meant we could build a custom integration with our smart-lock system that no other CMMS supported.',
-      author: 'Lead Developer',
-      company: 'Urban Stay Apartments'
-    }
-  ],
+  testimonials: [],
 
   faqs: [
     {

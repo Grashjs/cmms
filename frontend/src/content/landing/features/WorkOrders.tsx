@@ -52,13 +52,7 @@ const workOrdersData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'The open-source CMMS has allowed us to fully customize our maintenance workflow and schedule, keeping all tasks under control week by week.',
-      author: 'Sam Livingstone',
-      company: 'Maintenance Mechanic'
-    }
-  ],
+  testimonials: [],
 
   faqs: [
     {

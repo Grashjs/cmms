@@ -53,13 +53,7 @@ const reportsDashboardsData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Atlas CMMS dashboards gave us immediate visibility into maintenance performance and helped leadership make faster, better decisions.',
-      author: 'Laura Benali',
-      company: 'Technical Director'
-    }
-  ],
+  testimonials: [],
 
   faqs: [
     {

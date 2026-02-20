@@ -37,18 +37,7 @@ const energyUtilitiesData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Atlas CMMS gave us full control over maintenance for distributed energy assets without depending on expensive proprietary systems.',
-      author: 'Operations Manager',
-      company: 'Renewable Energy Provider'
-    },
-    {
-      text: 'Self-hosting Atlas CMMS helped us meet strict security and compliance requirements in the utilities sector.',
-      author: 'IT Infrastructure Lead',
-      company: 'Regional Utility Company'
-    }
-  ],
+  testimonials: [],
   kpis: [
     {
       title:

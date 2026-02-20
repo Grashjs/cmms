@@ -53,18 +53,7 @@ const constructionData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Proprietary CMMS costs were eating into our project margins. Switching to Atlas gave us full enterprise features with zero per-user licensing costs.',
-      author: 'Fleet Manager',
-      company: 'General Contractors Inc.'
-    },
-    {
-      text: 'Having the source code allowed our IT team to build a custom inspection module that mirrors our specific OSHA safety requirements perfectly.',
-      author: 'Safety Director',
-      company: 'Civil Works Group'
-    }
-  ],
+  testimonials: [],
 
   faqs: [
     {

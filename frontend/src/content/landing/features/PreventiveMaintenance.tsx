@@ -53,14 +53,7 @@ const preventiveMaintenanceData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Since implementing Atlas CMMS preventive maintenance, unexpected equipment failures dropped dramatically and our team works far more efficiently.',
-      author: 'Sophie Martin',
-      company: 'Operations Manager'
-    }
-  ],
-
+  testimonials: [],
   faqs: [
     {
       question: 'What is preventive maintenance software?',

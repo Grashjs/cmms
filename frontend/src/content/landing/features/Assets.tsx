@@ -53,14 +53,7 @@ const assetsData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'With Atlas CMMS, we finally have full visibility into our equipment and maintenance history. Preventive maintenance is now simple and reliable.',
-      author: 'Daniel Moreau',
-      company: 'Maintenance Manager'
-    }
-  ],
-
+  testimonials: [],
   faqs: [
     {
       question: 'What is asset maintenance management?',
@@ -78,7 +71,6 @@ const assetsData: IndustryLayoutProps = {
         'Absolutely. Atlas CMMS is an open-source, self-hosted platform that gives you full control over your data, customization, and infrastructure.'
     }
   ],
-
   relatedContent: [],
   pageDescription:
     'Open-source asset management without the enterprise price tag. Track equipment history, reduce downtime, and manage everything from one self-hosted, powerful CMMS.'

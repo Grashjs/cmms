@@ -53,14 +53,7 @@ const sparePartsData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Atlas CMMS gave us full visibility into spare parts usage and eliminated unexpected stock shortages across our facilities.',
-      author: 'Karim El Mansouri',
-      company: 'Maintenance Supervisor'
-    }
-  ],
-
+  testimonials: [],
   faqs: [
     {
       question: 'What is spare parts inventory management software?',
