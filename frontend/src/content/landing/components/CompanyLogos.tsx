@@ -3,7 +3,13 @@ import { companyLogosAssets } from '../../../utils/overall';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-export default function CompanyLogos({ sx }: { sx?: SxProps<Theme> }) {
+export default function CompanyLogos({
+  sx,
+  white
+}: {
+  sx?: SxProps<Theme>;
+  white?: boolean;
+}) {
   const { t } = useTranslation();
 
   return (
@@ -12,12 +18,12 @@ export default function CompanyLogos({ sx }: { sx?: SxProps<Theme> }) {
         variant="body2"
         align="center"
         sx={{
-          color: 'text.secondary',
+          color: white ? 'common.white' : 'text.secondary',
           mb: 1,
           fontWeight: 500,
           letterSpacing: '0.05em',
           textTransform: 'uppercase',
-          fontSize: '0.75rem'
+          fontSize: white ? '0.55rem' : '0.75rem'
         }}
       >
         {t('trusted_by_maintenance_teams')}
@@ -37,14 +43,18 @@ export default function CompanyLogos({ sx }: { sx?: SxProps<Theme> }) {
             zIndex: 2,
             pointerEvents: 'none'
           },
-          '&::before': {
-            left: 0,
-            background: 'linear-gradient(to right, white, transparent)'
-          },
-          '&::after': {
-            right: 0,
-            background: 'linear-gradient(to left, white, transparent)'
-          }
+          '&::before': white
+            ? undefined
+            : {
+                left: 0,
+                background: 'linear-gradient(to right, white, transparent)'
+              },
+          '&::after': white
+            ? undefined
+            : {
+                right: 0,
+                background: 'linear-gradient(to left, white, transparent)'
+              }
         }}
       >
         <Box
@@ -72,7 +82,9 @@ export default function CompanyLogos({ sx }: { sx?: SxProps<Theme> }) {
             >
               <img
                 style={{
-                  filter: 'grayscale(100%)',
+                  filter: white
+                    ? 'brightness(0) invert(1) opacity(0.8)'
+                    : 'grayscale(100%)',
                   maxHeight: '40px',
                   width: 'auto',
                   objectFit: 'contain'
