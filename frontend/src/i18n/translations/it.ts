@@ -1703,7 +1703,9 @@ const locale = {
   energy_and_utilities: 'Energia e servizi pubblici',
   education: 'Istruzione',
   hospitality: 'Ospitalità',
-  construction: 'Edilizia'
+  construction: 'Edilizia',
+  trusted_by_maintenance_teams:
+    'Approvato da squadre di manutenzione in vari settori'
 };
 
 export default locale;

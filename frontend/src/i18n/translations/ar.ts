@@ -1590,7 +1590,9 @@ const locale = {
   education: 'التعليم',
   hospitality: 'الضيافة',
   construction: 'البناء والتشييد',
-  installation_docs: 'وثائق التثبيت'
+  installation_docs: 'وثائق التثبيت',
+  trusted_by_maintenance_teams:
+    'استخدامه من قبل فرق الصيانة في العديد من الصناعات'
 };
 
 export default locale;

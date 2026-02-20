@@ -1788,7 +1788,9 @@ const frJSON = {
   education: 'Éducation',
   hospitality: 'Hôtellerie',
   construction: 'Construction',
-  installation_docs: 'Documentation d’installation'
+  installation_docs: 'Documentation d’installation',
+  trusted_by_maintenance_teams:
+    'Approuvé par les équipes de maintenance dans plusieurs secteurs'
 };
 
 export default frJSON;

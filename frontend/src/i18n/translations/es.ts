@@ -1717,7 +1717,9 @@ const esJSON = {
   education: 'Educación',
   hospitality: 'Hostelería',
   construction: 'Construcción',
-  installation_docs: 'Documentación de instalación'
+  installation_docs: 'Documentación de instalación',
+  trusted_by_maintenance_teams:
+    'Aprobado por equipos de mantenimiento en varios sectores'
 };
 
 export default esJSON;

@@ -1726,7 +1726,9 @@ const deJSON = {
   education: 'Bildung',
   hospitality: 'Gastgewerbe',
   construction: 'Baugewerbe',
-  installation_docs: 'Installationsdokumentation'
+  installation_docs: 'Installationsdokumentation',
+  trusted_by_maintenance_teams:
+    'Verwendet von Wartungsteams in verschiedenen Branchen'
 };
 
 export default deJSON;

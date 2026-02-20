@@ -1699,7 +1699,9 @@ const plJSON = {
   energy_and_utilities: 'Energetyka i media',
   education: 'Edukacja',
   hospitality: 'Horeca i hotelarstwo',
-  construction: 'Budownictwo'
+  construction: 'Budownictwo',
+  trusted_by_maintenance_teams:
+    'Aangewezen door onderhoudsteam in verschillende sectoren'
 };
 
 export default plJSON;

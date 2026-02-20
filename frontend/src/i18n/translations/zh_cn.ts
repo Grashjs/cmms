@@ -1390,7 +1390,8 @@ const locale = {
   energy_and_utilities: '能源与公用事业',
   education: '教育',
   hospitality: '酒店餐饮',
-  construction: '建筑业'
+  construction: '建筑业',
+  trusted_by_maintenance_teams: '在多个行业中用于维护团队'
 };
 
 export default locale;

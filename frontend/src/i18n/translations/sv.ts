@@ -1670,7 +1670,9 @@ const locale = {
   energy_and_utilities: 'Energi och försörjning',
   education: 'Utbildning',
   hospitality: 'Hotell och restaurang',
-  construction: 'Byggbranschen'
+  construction: 'Byggbranschen',
+  trusted_by_maintenance_teams:
+    'Aangewezen door onderhoudsteam in verschillende sectoren'
 };
 
 export default locale;

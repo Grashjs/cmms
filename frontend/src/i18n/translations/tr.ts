@@ -1700,7 +1700,9 @@ const trJSON = {
   energy_and_utilities: 'Enerji ve Kamu Hizmetleri',
   education: 'Eğitim',
   hospitality: 'Otelcilik ve Konaklama',
-  construction: 'İnşaat'
+  construction: 'İnşaat',
+  trusted_by_maintenance_teams:
+    'Aangewezen door onderhoudsteam in verschillende sectoren'
 };
 
 export default trJSON;

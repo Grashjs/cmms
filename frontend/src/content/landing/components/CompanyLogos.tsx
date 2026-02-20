@@ -1,8 +1,11 @@
 import { Container, Box, Typography, SxProps, Theme } from '@mui/material';
 import { companyLogosAssets } from '../../../utils/overall';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function CompanyLogos({ sx }: { sx?: SxProps<Theme> }) {
+  const { t } = useTranslation();
+
   return (
     <Container maxWidth="lg" sx={sx}>
       <Typography
@@ -17,7 +20,7 @@ export default function CompanyLogos({ sx }: { sx?: SxProps<Theme> }) {
           fontSize: '0.75rem'
         }}
       >
-        Used by maintenance teams across multiple industries
+        {t('trusted_by_maintenance_teams')}
       </Typography>
 
       <Box

@@ -1695,6 +1695,8 @@ const locale = {
   energy_and_utilities: 'Energie en nutsbedrijven',
   education: 'Onderwijs',
   hospitality: 'Gastvrijheid',
-  construction: 'Bouw'
+  construction: 'Bouw',
+  trusted_by_maintenance_teams:
+    'Aangewezen door onderhoudsteam in verschillende sectoren'
 };
 export default locale;

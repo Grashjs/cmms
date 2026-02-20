@@ -1644,7 +1644,9 @@ const locale = {
   education: 'Education',
   hospitality: 'Hospitality',
   construction: 'Construction',
-  installation_docs: 'Installation docs'
+  installation_docs: 'Installation docs',
+  trusted_by_maintenance_teams:
+    'Trusted by maintenance teams across multiple industries'
 };
 
 export default locale;

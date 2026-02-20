@@ -1728,7 +1728,9 @@ const ptBRJSON = {
   education: 'Educação',
   hospitality: 'Hospitalidade',
   construction: 'Construção',
-  installation_docs: 'Documentação de instalação'
+  installation_docs: 'Documentação de instalação',
+  trusted_by_maintenance_teams:
+    'Aprovado por equipes de manutenção em várias indústrias'
 };
 
 export default ptBRJSON;

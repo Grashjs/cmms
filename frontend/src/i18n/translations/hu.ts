@@ -1552,7 +1552,9 @@ const locale = {
   energy_and_utilities: 'Energia és közművek',
   education: 'Oktatás',
   hospitality: 'Vendéglátás',
-  construction: 'Építőipar'
+  construction: 'Építőipar',
+  trusted_by_maintenance_teams:
+    'Aztánként használtak többi iparágban a karbantartási csapatok számára'
 };
 
 export default locale;

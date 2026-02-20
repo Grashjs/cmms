@@ -1762,7 +1762,9 @@ const ruJSON = {
   energy_and_utilities: 'Энергетика и коммунальные услуги',
   education: 'Образование',
   hospitality: 'Гостиничный бизнес',
-  construction: 'Строительство'
+  construction: 'Строительство',
+  trusted_by_maintenance_teams:
+    'Используется в различных отраслях для обслуживания'
 };
 
 export default ruJSON;
