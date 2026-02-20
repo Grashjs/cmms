@@ -201,3 +201,5 @@ Atlas CMMS is dual-licensed:
 To enable commercial features, you must set a valid `LICENSE_KEY`.  
 For commercial licenses, visit [atlas-cmms.com/pricing?type=selfhosted](https://atlas-cmms.com/pricing?type=selfhosted)
 or email us at [contact@atlas-cmms.com](mailto:contact@atlas-cmms.com).
+
+<img src="https://api.star-history.com/svg?repos=grashjs/cmms&type=Date"/>
