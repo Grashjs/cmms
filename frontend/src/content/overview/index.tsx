@@ -118,6 +118,20 @@ function Overview() {
           content="CMMS, computerized maintenance management system, EAM, enterprise asset management, open source CMMS, free maintenance software, work order management, preventive maintenance, asset tracking, facility management, maintenance tracking software, equipment maintenance, Atlas CMMS"
         />
         <link rel="canonical" href="https://atlas-cmms.com/" />
+        <link
+          rel="preload"
+          as="image"
+          href="/static/mobile_app.jpeg"
+          //@ts-ignore
+          fetchPriority="high"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href="/static/images/overview/work_orders_screenshot.png"
+          //@ts-ignore
+          fetchPriority="high"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
