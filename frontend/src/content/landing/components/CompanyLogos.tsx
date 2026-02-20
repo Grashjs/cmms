@@ -5,10 +5,12 @@ import { useTranslation } from 'react-i18next';
 
 export default function CompanyLogos({
   sx,
-  white
+  white,
+  compact
 }: {
   sx?: SxProps<Theme>;
   white?: boolean;
+  compact?: boolean;
 }) {
   const { t } = useTranslation();
 
@@ -33,7 +35,7 @@ export default function CompanyLogos({
         sx={{
           overflow: 'hidden',
           position: 'relative',
-          py: 2,
+          py: compact ? 1 : 2,
           '&::before, &::after': {
             content: '""',
             position: 'absolute',
@@ -60,9 +62,9 @@ export default function CompanyLogos({
         <Box
           sx={{
             display: 'flex',
-            gap: 6,
+            gap: compact ? 3 : 6,
             alignItems: 'center',
-            height: '60px',
+            height: compact ? '40px' : '60px',
             animation: 'scroll 30s linear infinite',
             '@keyframes scroll': {
               '0%': { transform: 'translateX(0)' },
@@ -85,7 +87,7 @@ export default function CompanyLogos({
                   filter: white
                     ? 'brightness(0) invert(1) opacity(0.8)'
                     : 'grayscale(100%)',
-                  maxHeight: '40px',
+                  maxHeight: compact ? '24px' : '40px',
                   width: 'auto',
                   objectFit: 'contain'
                 }}

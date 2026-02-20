@@ -278,7 +278,7 @@ function RegisterCover() {
               </SwiperWrapper>
               {isCloudVersion && (
                 <>
-                  <CompanyLogos white sx={{ mt: 2 }} />
+                  <CompanyLogos white sx={{ mt: 2 }} compact />
                   <DividerWrapper
                     sx={{
                       my: 1
