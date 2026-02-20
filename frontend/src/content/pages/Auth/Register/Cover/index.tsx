@@ -278,7 +278,6 @@ function RegisterCover() {
               </SwiperWrapper>
               {isCloudVersion && (
                 <>
-                  <CompanyLogos white sx={{ mt: 2 }} compact />
                   <DividerWrapper
                     sx={{
                       my: 1
@@ -311,6 +310,7 @@ function RegisterCover() {
                       </ListItem>
                     </List>
                   </Box>
+                  <CompanyLogos white sx={{ mt: 2 }} compact />
                 </>
               )}
             </SidebarContent>
