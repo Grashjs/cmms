@@ -911,6 +911,7 @@ const esJSON = {
     'Los usuarios obtienen actualizaciones de las Órdenes de Trabajo que solicitaron.',
   language: 'Idioma',
   date_format: 'Formato de fecha',
+  time_zone: 'Zona horaria',
   business_type: 'Tipo de negocio',
   general_asset_management: 'Gestión general de activos',
   physical_asset_management: 'Gestión de activos físicos',
@@ -1499,7 +1500,7 @@ const esJSON = {
   csv_separator: 'Separador CSV',
   open_source_cmms: 'CMMS de código abierto',
   'main.title':
-    'CMMS gratuito de código abierto (software de gestión de mantenimiento) – ',
+    'CMMS gratuito de código abierto (software de gestión de mantenimiento)',
   'home.h1':
     'CMMS gratuito y de código abierto que puede alojar usted mismo o usar en la nube',
   'home.h2': 'Mantenimiento potente a bajo coste',

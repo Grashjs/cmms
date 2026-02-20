@@ -18,6 +18,7 @@ import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.service.*;
 import com.grash.utils.Helper;
 import com.grash.utils.MultipartFileImpl;
+import com.grash.utils.Utils;
 import com.itextpdf.html2pdf.HtmlConverter;
 
 
@@ -71,7 +72,7 @@ public class WorkOrderController {
     private final PartQuantityService partQuantityService;
     private final NotificationService notificationService;
     private final MailServiceFactory mailServiceFactory;
-    private final TeamService teamService;
+    private final Utils utils;
     private final TaskService taskService;
     private final RelationService relationService;
     private final AdditionalCostService additionalCostService;
@@ -395,8 +396,13 @@ public class WorkOrderController {
                 Map<String, Object> variables = new HashMap<String, Object>() {{
                     put("companyName", user.getCompany().getName());
                     put("companyPhone", user.getCompany().getPhone());
+                    put("companyLogo", user.getCompany().getLogo() == null ? null :
+                            storageService.generateSignedUrl(user.getCompany().getLogo(), 5));
                     put("currency",
                             user.getCompany().getCompanySettings().getGeneralPreferences().getCurrency().getCode());
+                    put("utils", utils);
+                    put("dateFormat", user.getCompany().getCompanySettings().getGeneralPreferences().getDateFormat());
+                    put("timeZone", user.getCompany().getCompanySettings().getGeneralPreferences().getTimeZone());
                     put("assignedTo",
                             Helper.enumerate(savedWorkOrder.getAssignedTo().stream().map(OwnUser::getFullName).collect(Collectors.toList())));
                     put("customers",

@@ -1022,6 +1022,7 @@ const frJSON = {
     "Les utilisateurs reçoivent des mises à jour pour les ordres de travail qu'ils ont demandés",
   language: 'Langue',
   date_format: 'Format de date',
+  time_zone: 'Fuseau horaire',
   business_type: "Type d'entreprise",
   general_asset_management: 'Gestion générale des équipements',
   physical_asset_management: 'Gestion des équipements physiques',
@@ -1569,7 +1570,7 @@ const frJSON = {
   csv_separator: 'Séparateur CSV',
   open_source_cmms: 'GMAO Open Source',
   'main.title':
-    'GMAO open source gratuite (logiciel de gestion de la maintenance) – ',
+    'GMAO open source gratuite (logiciel de gestion de la maintenance)',
   'home.h1':
     'GMAO gratuite et open source que vous pouvez héberger vous-même ou utiliser dans le cloud',
   'home.h2': 'Une maintenance puissante à faible coût',

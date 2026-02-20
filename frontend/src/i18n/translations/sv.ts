@@ -885,6 +885,7 @@ const locale = {
     'Användare får uppdateringar för de arbetsordrar de begärt',
   language: 'Språk',
   date_format: 'Datumformat',
+  time_zone: 'Tidszon',
   business_type: 'Företagstyp',
   general_asset_management: 'Allmän kapitalförvaltning',
   physical_asset_management: 'Förvaltning av fysiska tillgångar',
@@ -1460,7 +1461,7 @@ const locale = {
   csv_separator: 'CSV-separator',
   open_source_cmms: 'CMMS med öppen källkod',
   'main.title':
-    'Gratis CMMS med öppen källkod (programvara för underhållshantering) – ',
+    'Gratis CMMS med öppen källkod (programvara för underhållshantering)',
   'home.h1':
     'Gratis och open-source CMMS som du kan vara värd för själv eller använda i molnet',
   'home.h2': 'Kraftfullt underhåll till låg kostnad',

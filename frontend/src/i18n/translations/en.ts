@@ -862,6 +862,7 @@ const locale = {
     'Users get updates for the work orders they requested',
   language: 'Language',
   date_format: 'Date format',
+  time_zone: 'Time zone',
   business_type: 'Business type',
   general_asset_management: 'General asset management',
   physical_asset_management: 'Physical asset management',
@@ -1447,7 +1448,7 @@ const locale = {
   csv_separator: 'CSV separator',
   Advantages: 'Advantages',
   open_source_cmms: 'Open-Source CMMS',
-  'main.title': 'Free Open-Source CMMS (Maintenance Management Software) – ',
+  'main.title': 'Free Open-Source CMMS (Maintenance Management Software)',
   'home.h1': 'Free & Open-Source CMMS You Can Self-Host or Use in the Cloud',
   'home.h2': 'Powerful Maintenance at a Low Cost',
   'home.h3':

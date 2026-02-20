@@ -31,24 +31,42 @@ const facilityManagementData: IndustryLayoutProps = {
     {
       title: 'Centralized maintenance operations',
       description:
-        'Manage work orders, assets, locations, and technicians from a single CMMS designed for day-to-day maintenance reality.',
+        'Manage work orders, assets, locations, and technicians from a single CMMS designed for real-world facility workflows and multi-site coordination.',
       imageUrl: 'https://atlas-cmms.com/assets/features/work-orders.png',
       learnMoreUrl: '/features/work-orders'
     },
     {
       title: 'Preventive maintenance that actually runs',
       description:
-        'Schedule recurring maintenance based on time, usage, or custom rules to reduce breakdowns and extend asset lifespan.',
+        'Automate recurring maintenance using time, usage, meter readings, or custom rules to reduce unexpected breakdowns and extend equipment lifespan.',
       imageUrl:
         'https://atlas-cmms.com/assets/features/preventive-maintenance.png',
       learnMoreUrl: '/features/preventive-maintenance'
     },
     {
-      title: 'Asset-first structure',
+      title: 'Complete asset lifecycle tracking',
       description:
-        'Track equipment history, costs, documents, and relationships between assets without ERP-level complexity.',
+        'Monitor asset history, maintenance costs, documents, warranties, and performance trends to make smarter repair-vs-replace decisions.',
       imageUrl: 'https://atlas-cmms.com/assets/features/assets.png',
       learnMoreUrl: '/features/assets'
+    },
+    {
+      title: 'Mobile maintenance in the field',
+      description:
+        'Technicians can receive work orders, update tasks, scan QR codes, attach photos, and close jobs directly from their mobile device—even offline.',
+      imageUrl: 'https://atlas-cmms.com/assets/features/mobile.png'
+    },
+    {
+      title: 'Inspections, checklists, and compliance',
+      description:
+        'Standardize safety inspections, regulatory checks, and routine walkthroughs with digital forms, audit trails, and automated reminders.',
+      imageUrl: 'https://atlas-cmms.com/assets/features/inspections.png'
+    },
+    {
+      title: 'Self-hosted, secure, and fully customizable',
+      description:
+        'Deploy on-premise or in your private cloud with full control over data, integrations, and workflows—without vendor lock-in or per-asset pricing.',
+      imageUrl: 'https://atlas-cmms.com/assets/features/self-hosted.png'
     }
   ],
 

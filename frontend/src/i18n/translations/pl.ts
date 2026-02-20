@@ -900,6 +900,7 @@ const plJSON = {
     'Użytkownicy otrzymują aktualizacje dotyczące zleceń pracy, które zgłosili',
   language: 'Język',
   date_format: 'Format daty',
+  time_zone: 'Strefa czasowa',
   business_type: 'Rodzaj działalności',
   general_asset_management: 'Ogólne zarządzanie zasobami',
   physical_asset_management: 'Fizyczne zarządzanie zasobami',
@@ -1484,7 +1485,7 @@ const plJSON = {
   csv_separator: 'Separator CSV',
   open_source_cmms: 'CMMS open source',
   'main.title':
-    'Darmowy CMMS open source (oprogramowanie do zarządzania utrzymaniem ruchu) – ',
+    'Darmowy CMMS open source (oprogramowanie do zarządzania utrzymaniem ruchu)',
   'home.h1':
     'Darmowy CMMS o otwartym kodzie źródłowym, który możesz hostować samodzielnie lub w chmurze',
   'home.h2': 'Potężna konserwacja przy niskich kosztach',

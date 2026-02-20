@@ -1,10 +1,9 @@
 package com.grash;
 
 import com.grash.dto.UserSignupRequest;
-import com.grash.dto.license.LicensingState;
 import com.grash.model.*;
 import com.grash.model.enums.*;
-import com.grash.repository.UserRepository;
+import com.grash.repository.GeneralPreferencesRepository;
 import com.grash.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +14,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 
+import java.time.ZoneId;
 import java.util.*;
 
 @SpringBootApplication
@@ -25,7 +25,7 @@ public class ApiApplication implements SmartInitializingSingleton {
 
     private final UserService userService;
     private final UserInvitationService userInvitationService;
-    private final UserRepository userRepository;
+    private final GeneralPreferencesRepository generalPreferencesRepository;
     @Value("${superAdmin.role.name}")
     private String superAdminRole;
     private final RoleService roleService;
@@ -52,6 +52,7 @@ public class ApiApplication implements SmartInitializingSingleton {
 
             userService.checkUsageBasedLimit(0);
 
+            generalPreferencesRepository.updateTemporaryTimeZones(ZoneId.systemDefault().getId());
             log.info("Application initialization completed successfully");
         } catch (Exception e) {
             log.error("Application initialization failed", e);

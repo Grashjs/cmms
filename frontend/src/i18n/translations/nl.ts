@@ -898,6 +898,7 @@ const locale = {
     'Gebruikers ontvangen updates voor de werkorders die zij hebben aangevraagd',
   language: 'Taal',
   date_format: 'Datumformaat',
+  time_zone: 'Tijdzone',
   business_type: 'Bedrijfstype',
   general_asset_management: 'Algemeen assetbeheer',
   physical_asset_management: 'Fysiek assetbeheer',
@@ -1481,7 +1482,7 @@ const locale = {
   no_assets_available: 'Geen assets beschikbaar',
   csv_separator: 'CSV scheidingsteken',
   open_source_cmms: 'Open-source CMMS',
-  'main.title': 'Gratis open-source CMMS (onderhoudsbeheersoftware) – ',
+  'main.title': 'Gratis open-source CMMS (onderhoudsbeheersoftware)',
   'home.h1':
     'Gratis en open-source CMMS dat u zelf kunt hosten of in de cloud kunt gebruiken',
   'home.h2': 'Krachtig onderhoud tegen lage kosten',

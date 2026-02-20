@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grash.dto.EmailAttachmentDTO;
 import com.grash.event.CompanyCreatedEvent;
 import com.grash.exception.CustomException;
+import com.grash.model.OwnUser;
 import com.sendgrid.*;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Attachments;
@@ -77,14 +78,15 @@ public class SendgridService implements MailService {
      * Send simple text email
      */
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+
+    @Override
     @Async
-    public void handleUserCreated(CompanyCreatedEvent event) {
-        if (shouldSkipSendingEmail() || !cloudVersion || event.getUser().getCompany().isDemo()) {
+    public void addToContactList(OwnUser user) {
+        if (shouldSkipSendingEmail() || !cloudVersion || user.getCompany().isDemo()) {
             return;
         }
         try {
-            String userEmail = event.getUser().getEmail();
+            String userEmail = user.getEmail();
             SendGrid sg = new SendGrid(sendGridApiKey);
             Request request = new Request();
             request.setMethod(Method.PUT);
@@ -99,8 +101,8 @@ public class SendgridService implements MailService {
             // Prepare request body
             Map<String, Object> contact = new HashMap<>();
             contact.put("email", userEmail);
-            contact.put("first_name", event.getUser().getFirstName());
-            contact.put("last_name", event.getUser().getLastName());
+            contact.put("first_name", user.getFirstName());
+            contact.put("last_name", user.getLastName());
             contact.put("trial_end_date", trialEndDate); // Add the calculated date
 
             Map<String, Object> body = new HashMap<>();

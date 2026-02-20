@@ -182,4 +182,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_02_03_1770129474_csv_sep_settings.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_02_18_1771453794_timezone.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -673,6 +673,9 @@ const locale = {
   acquisition_cost: '采购成本',
   //settings
   general_settings: '常规设置',
+  language: '语言',
+  date_format: '日期格式',
+  time_zone: '时区',
   request_form_configuration: '请求表单配置',
   roles: '角色',
   checklists: '检查清单',
@@ -1201,7 +1204,7 @@ const locale = {
   vendors: '供应商',
   csv_separator: 'CSV分隔符',
   open_source_cmms: '开源 CMMS',
-  'main.title': '免费开源 CMMS（维护管理软件）– ',
+  'main.title': '免费开源 CMMS（维护管理软件）',
   'home.h1': '您可以自托管或在云端使用的免费开源 CMMS',
   'home.h2': '功能强大且成本低廉的维护',
   'home.h3':

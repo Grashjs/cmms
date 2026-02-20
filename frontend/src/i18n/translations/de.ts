@@ -940,6 +940,7 @@ const deJSON = {
     'Benutzer erhalten Aktualisierungen für die von ihnen angeforderten Arbeitsaufträge',
   language: 'Sprache',
   date_format: 'Datumsformat',
+  time_zone: 'Zeitzone',
   business_type: 'Geschäftstyp',
   general_asset_management: 'Allgemeine Anlagenverwaltung',
   physical_asset_management: 'Physische Anlagenverwaltung',
@@ -1513,7 +1514,7 @@ const deJSON = {
   csv_separator: 'CSV-Trennzeichen',
   open_source_cmms: 'Open-Source-CMMS',
   'main.title':
-    'Kostenlose Open-Source-CMMS (Instandhaltungsmanagement-Software) – ',
+    'Kostenlose Open-Source-CMMS (Instandhaltungsmanagement-Software)',
   'home.h1':
     'Kostenloses und Open-Source-CMMS, das Sie selbst hosten oder in der Cloud nutzen können',
   'home.h2': 'Leistungsstarke Wartung zu geringen Kosten',

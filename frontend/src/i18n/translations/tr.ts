@@ -858,6 +858,7 @@ const trJSON = {
     'Kullanıcılar talep ettikleri iş emirlerine ilişkin güncellemeleri alır',
   language: 'Dil',
   date_format: 'Tarih formatı',
+  time_zone: 'Saat dilimi',
   business_type: 'İş Tipi',
   general_asset_management: 'Genel varlık yönetimi',
   physical_asset_management: 'Fiziksel varlık yönetimi',
@@ -1494,7 +1495,7 @@ const trJSON = {
   'schedule.yearly_other': 'Her {{count}} yıl',
   csv_separator: 'CSV ayırıcı',
   open_source_cmms: 'Açık kaynaklı CMMS',
-  'main.title': 'Ücretsiz açık kaynaklı CMMS (bakım yönetimi yazılımı) – ',
+  'main.title': 'Ücretsiz açık kaynaklı CMMS (bakım yönetimi yazılımı)',
   'home.h1':
     'Kendi sunucunuzda barındırabileceğiniz veya bulutta kullanabileceğiniz ücretsiz ve açık kaynaklı CMMS',
   'home.h2': 'Düşük Maliyetle Güçlü Bakım',

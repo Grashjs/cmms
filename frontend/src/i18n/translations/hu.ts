@@ -761,6 +761,9 @@ const locale = {
   acquisition_cost: 'Beszerzési költség',
   //settings
   general_settings: 'Általános Beállítások',
+  language: 'Nyelv',
+  date_format: 'Dátumformátum',
+  time_zone: 'Időzóna',
   request_form_configuration: 'Kéreleműrlap konfiguráció',
   roles: 'Szerepek',
   checklists: 'Ellenőrzőlisták',
@@ -1330,8 +1333,7 @@ const locale = {
   vendors: 'Beszállítók',
   csv_separator: 'CSV elválasztó',
   open_source_cmms: 'Nyílt forráskódú CMMS',
-  'main.title':
-    'Ingyenes nyílt forráskódú CMMS (karbantartáskezelő szoftver) – ',
+  'main.title': 'Ingyenes nyílt forráskódú CMMS (karbantartáskezelő szoftver)',
   'home.h1':
     'Ingyenes és nyílt forráskódú CMMS, amelyet saját maga is üzemeltethet, vagy használhat a felhőben',
   'home.h2': 'Erőteljes karbantartás alacsony költséggel',

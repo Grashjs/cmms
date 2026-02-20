@@ -904,6 +904,7 @@ const locale = {
     'Gli utenti ricevono aggiornamenti per gli ordini di lavoro richiesti',
   language: 'Lingua',
   date_format: 'Formato data',
+  time_zone: 'Fuso orario',
   business_type: 'Tipo di attività',
   general_asset_management: 'Gestione patrimoniale generale',
   physical_asset_management: 'Gestione delle risorse fisiche',
@@ -1482,7 +1483,7 @@ const locale = {
   csv_separator: 'Separatore CSV',
   open_source_cmms: 'CMMS open source',
   'main.title':
-    'CMMS open source gratuito (software di gestione della manutenzione) – ',
+    'CMMS open source gratuito (software di gestione della manutenzione)',
   'home.h1':
     'CMMS gratuito e open-source che puoi ospitare tu stesso o utilizzare nel cloud',
   'home.h2': 'Manutenzione potente a basso costo',
