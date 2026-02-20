@@ -49,6 +49,7 @@ import {
 } from '@mui/material';
 import { fireGa4Event } from '../../utils/overall';
 import { Footer } from '../../components/Footer';
+import CompanyLogos from '../landing/components/CompanyLogos';
 
 const PricingWrapper = styled(Box)(
   ({ theme }) => `
@@ -194,6 +195,7 @@ function Pricing() {
           setMonthly={setMonthly}
           selfHosted={type === 'selfhosted'}
         />
+        <CompanyLogos sx={{ mt: 4 }} />
         <Box textAlign="center" my={6}>
           <Typography variant="h1" component="h1" gutterBottom>
             {t('pricing.compare_plans_and_pricing')}
