@@ -54,9 +54,9 @@ const facilityManagementData: IndustryLayoutProps = {
 
   testimonials: [
     {
-      text: 'Atlas CMMS helped us move from spreadsheets to a structured maintenance workflow without locking us into a vendor.',
-      author: 'Maintenance Supervisor',
-      company: 'Manufacturing Facility'
+      text: 'Atlas CMMS has been a game-changer for bridging my operations between Canada and the Philippines, keeping my teams synchronized regardless of the distance. It’s an incredibly reliable tool that has brought a new level of organization and professional consistency to my international workflow',
+      author: 'Grant Forsyth',
+      company: 'Adventure Mechanical'
     },
     {
       text: 'Being able to self-host Atlas CMMS was a decisive factor for our IT and compliance requirements.',

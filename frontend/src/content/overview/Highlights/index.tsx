@@ -692,7 +692,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
       <Container
         maxWidth="lg"
         sx={{
-          py: { xs: 8, md: 10 }
+          py: { xs: 8 }
         }}
       >
         <Grid
