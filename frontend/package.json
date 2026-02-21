@@ -2,7 +2,7 @@
   "name": "grash",
   "version": "0.1.0",
   "title": "Atlas CMMS",
-  "description": "High performance CMMS.",
+  "description": "Free Open Source CMMS.",
   "private": true,
   "dependencies": {
     "@auth0/auth0-spa-js": "1.22.0",
