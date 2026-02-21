@@ -8,6 +8,10 @@ const manufacturingData: IndustryLayoutProps = {
   headerSubtitle:
     'Reduce downtime, extend equipment life, and keep production running smoothly with an open-source CMMS built for modern factories—self-hosted or in the cloud',
   headerImageUrl: '/static/images/industries/manufacturing-hero.jpg',
+  headerImageSizes: {
+    width: 1200,
+    height: 628
+  },
   canonicalPath: 'industries/open-source-manufacturing-maintenance-software',
 
   kpis: [

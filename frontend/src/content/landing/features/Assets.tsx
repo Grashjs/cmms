@@ -9,6 +9,10 @@ const assetsData: IndustryLayoutProps = {
   headerSubtitle:
     'Track equipment, monitor performance, and schedule preventive maintenance across your organization using a fully open-source and self-hosted CMMS—accessible on mobile and desktop.',
   headerImageUrl: '/static/images/features/asset-hero.png',
+  headerImageSizes: {
+    width: 1920,
+    height: 912
+  },
   canonicalPath: 'features/assets',
 
   advantages: [

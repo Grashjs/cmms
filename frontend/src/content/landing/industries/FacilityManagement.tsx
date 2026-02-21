@@ -8,6 +8,10 @@ const facilityManagementData: IndustryLayoutProps = {
   headerSubtitle:
     'Plan, track, and optimize maintenance across buildings, assets, and teams—deployed on your own infrastructure or instantly in the cloud',
   headerImageUrl: '/static/images/industries/facility-hero.jpg',
+  headerImageSizes: {
+    width: 1800,
+    height: 1200
+  },
   canonicalPath: 'industries/open-source-facility-management-software',
   kpis: [
     {

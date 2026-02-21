@@ -50,6 +50,7 @@ export interface IndustryLayoutProps {
   headerTitle: string;
   headerSubtitle: string;
   headerImageUrl: string;
+  headerImageSizes: { width: number; height: number };
   companyLogos?: boolean;
   advantages?: { title: string; description: string; icon: SvgIconComponent }[];
   kpis?: { title: string; value: string; type: 'money' | 'percentage' }[];
@@ -68,6 +69,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
     headerTitle,
     headerSubtitle,
     headerImageUrl,
+    headerImageSizes,
     companyLogos,
     features = [],
     advantages = [],
@@ -137,7 +139,9 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
               <img
                 src={headerImageUrl}
                 alt={headerTitle}
-                style={{ width: '100%', borderRadius: '16px' }}
+                width={headerImageSizes.width}
+                height={headerImageSizes.height}
+                style={{ width: '100%', borderRadius: '16px', height: 'auto' }}
                 loading="eager"
                 // @ts-ignore
                 fetchpriority="high"

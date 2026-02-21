@@ -8,6 +8,10 @@ const foodBeverageData: IndustryLayoutProps = {
   headerSubtitle:
     'Ensure product quality, meet safety regulations, and keep production running with an open-source CMMS built for food processing plants, factories, and distribution facilities—available in the cloud or self-hosted.',
   headerImageUrl: '/static/images/industries/food-hero.jpg',
+  headerImageSizes: {
+    width: 1871,
+    height: 1250
+  },
   canonicalPath:
     'industries/open-source-food-and-beverage-maintenance-software',
 

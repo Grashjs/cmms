@@ -8,6 +8,10 @@ const energyUtilitiesData: IndustryLayoutProps = {
   headerSubtitle:
     'Monitor, maintain, and optimize critical infrastructure — from power generation to distribution networks — with a CMMS you can self-host or run in the cloud.',
   headerImageUrl: '/static/images/industries/energy-hero.jpg',
+  headerImageSizes: {
+    width: 1800,
+    height: 1350
+  },
   canonicalPath: 'industries/open-source-energy-utilities-maintenance-software',
 
   companyLogos: true,
