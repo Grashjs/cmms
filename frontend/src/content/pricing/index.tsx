@@ -50,6 +50,7 @@ import {
 import { fireGa4Event } from '../../utils/overall';
 import { Footer } from '../../components/Footer';
 import CompanyLogos from '../landing/components/CompanyLogos';
+import { useBrand } from 'src/hooks/useBrand';
 
 const PricingWrapper = styled(Box)(
   ({ theme }) => `
@@ -77,6 +78,7 @@ function Pricing() {
   const isXs = useMediaQuery(theme.breakpoints.only('xs'));
   const isSm = useMediaQuery(theme.breakpoints.only('sm'));
   const isMdDown = useMediaQuery(theme.breakpoints.down('md'));
+  const brandConfig = useBrand();
 
   const handleTabsChange = (
     _event: React.ChangeEvent<{}>,
@@ -392,6 +394,39 @@ function Pricing() {
             </Box>
           </CardContent>
         </Card>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            mt: 8,
+            mb: 4
+          }}
+        >
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+            <Button
+              component={RouterLink}
+              to="/account/register"
+              size="large"
+              variant="contained"
+              sx={{ px: 4 }}
+            >
+              {t('get_started')}
+            </Button>
+            <Button
+              href={`mailto:${brandConfig.mail}`}
+              size="large"
+              variant="outlined"
+              onClick={() => {
+                fireGa4Event('contact_us_click');
+                window.location.href = `mailto:${brandConfig.mail}`;
+              }}
+              sx={{ px: 4 }}
+            >
+              {t('talk_to_sales')}
+            </Button>
+          </Stack>
+        </Box>
         <Faq />
       </Container>
       <Footer />
