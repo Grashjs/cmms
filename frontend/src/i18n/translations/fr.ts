@@ -1790,7 +1790,9 @@ const frJSON = {
   construction: 'Construction',
   installation_docs: 'Documentation d’installation',
   trusted_by_maintenance_teams:
-    'Approuvé par les équipes de maintenance dans plusieurs secteurs'
+    'Approuvé par les équipes de maintenance dans plusieurs secteurs',
+  cut_costs_performance:
+    'Réduisez les coûts de logiciel de maintenance sans sacrifier la performance'
 };
 
 export default frJSON;

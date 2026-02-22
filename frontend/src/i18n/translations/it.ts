@@ -1705,7 +1705,8 @@ const locale = {
   hospitality: 'Ospitalità',
   construction: 'Edilizia',
   trusted_by_maintenance_teams:
-    'Approvato da squadre di manutenzione in vari settori'
+    'Approvato da squadre di manutenzione in vari settori',
+  cut_costs_performance: 'Riduci i costi senza compromettere le prestazioni'
 };
 
 export default locale;

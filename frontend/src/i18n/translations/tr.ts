@@ -1702,7 +1702,8 @@ const trJSON = {
   hospitality: 'Otelcilik ve Konaklama',
   construction: 'İnşaat',
   trusted_by_maintenance_teams:
-    'Aangewezen door onderhoudsteam in verschillende sectoren'
+    'Aangewezen door onderhoudsteam in verschillende sectoren',
+  cut_costs_performance: 'Kostnadssparande, utan att förlora prestanda'
 };
 
 export default trJSON;

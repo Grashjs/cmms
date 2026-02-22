@@ -1697,6 +1697,7 @@ const locale = {
   hospitality: 'Gastvrijheid',
   construction: 'Bouw',
   trusted_by_maintenance_teams:
-    'Aangewezen door onderhoudsteam in verschillende sectoren'
+    'Aangewezen door onderhoudsteam in verschillende sectoren',
+  cut_costs_performance: 'Kosten sparen, zonder leistung zu verlieren'
 };
 export default locale;

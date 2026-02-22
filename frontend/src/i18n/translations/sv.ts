@@ -1672,7 +1672,8 @@ const locale = {
   hospitality: 'Hotell och restaurang',
   construction: 'Byggbranschen',
   trusted_by_maintenance_teams:
-    'Aangewezen door onderhoudsteam in verschillende sectoren'
+    'Aangewezen door onderhoudsteam in verschillende sectoren',
+  cut_costs_performance: 'Kostnadssparande, utan att förlora prestanda'
 };
 
 export default locale;

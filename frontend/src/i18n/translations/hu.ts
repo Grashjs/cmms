@@ -1554,7 +1554,9 @@ const locale = {
   hospitality: 'Vendéglátás',
   construction: 'Építőipar',
   trusted_by_maintenance_teams:
-    'Aztánként használtak többi iparágban a karbantartási csapatok számára'
+    'Aztánként használtak többi iparágban a karbantartási csapatok számára',
+  cut_costs_performance:
+    'Költségek csökkentése, míg a teljesítmény megtartásra kerül'
 };
 
 export default locale;

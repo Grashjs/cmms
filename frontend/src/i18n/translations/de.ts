@@ -1728,7 +1728,8 @@ const deJSON = {
   construction: 'Baugewerbe',
   installation_docs: 'Installationsdokumentation',
   trusted_by_maintenance_teams:
-    'Verwendet von Wartungsteams in verschiedenen Branchen'
+    'Verwendet von Wartungsteams in verschiedenen Branchen',
+  cut_costs_performance: 'Kosten sparen, ohne Leistung zu verlieren'
 };
 
 export default deJSON;

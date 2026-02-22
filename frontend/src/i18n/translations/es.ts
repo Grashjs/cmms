@@ -1719,7 +1719,9 @@ const esJSON = {
   construction: 'Construcción',
   installation_docs: 'Documentación de instalación',
   trusted_by_maintenance_teams:
-    'Aprobado por equipos de mantenimiento en varios sectores'
+    'Aprobado por equipos de mantenimiento en varios sectores',
+  cut_costs_performance:
+    'Reduce los costos de software de mantenimiento sin sacrificar el rendimiento'
 };
 
 export default esJSON;

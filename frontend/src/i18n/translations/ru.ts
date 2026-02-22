@@ -1764,7 +1764,9 @@ const ruJSON = {
   hospitality: 'Гостиничный бизнес',
   construction: 'Строительство',
   trusted_by_maintenance_teams:
-    'Используется в различных отраслях для обслуживания'
+    'Используется в различных отраслях для обслуживания',
+  cut_costs_performance:
+    'Сократите расходы на обслуживание, не теряя производительности'
 };
 
 export default ruJSON;

@@ -1391,7 +1391,8 @@ const locale = {
   education: '教育',
   hospitality: '酒店餐饮',
   construction: '建筑业',
-  trusted_by_maintenance_teams: '在多个行业中用于维护团队'
+  trusted_by_maintenance_teams: '在多个行业中用于维护团队',
+  cut_costs_performance: '节省成本，不牺牲性能'
 };
 
 export default locale;

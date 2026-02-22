@@ -1701,7 +1701,8 @@ const plJSON = {
   hospitality: 'Horeca i hotelarstwo',
   construction: 'Budownictwo',
   trusted_by_maintenance_teams:
-    'Aangewezen door onderhoudsteam in verschillende sectoren'
+    'Aangewezen door onderhoudsteam in verschillende sectoren',
+  cut_costs_performance: 'Kosten sparen, ohne Leistung zu verlieren'
 };
 
 export default plJSON;

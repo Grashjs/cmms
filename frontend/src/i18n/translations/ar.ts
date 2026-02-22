@@ -1592,7 +1592,8 @@ const locale = {
   construction: 'البناء والتشييد',
   installation_docs: 'وثائق التثبيت',
   trusted_by_maintenance_teams:
-    'استخدامه من قبل فرق الصيانة في العديد من الصناعات'
+    'استخدامه من قبل فرق الصيانة في العديد من الصناعات',
+  cut_costs_performance: 'تقليل تكاليف برامج الصيانة دون تنازل عن الأداء'
 };
 
 export default locale;
