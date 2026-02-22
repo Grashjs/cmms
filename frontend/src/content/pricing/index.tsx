@@ -129,6 +129,7 @@ function Pricing() {
               "name": "Atlas CMMS",
               "description": "Flexible pricing plans for Atlas CMMS. Choose between Cloud and Self-Hosted versions of our open-source CMMS to optimize your maintenance operations.",
               "url": "https://atlas-cmms.com/pricing",
+              "image": "https://atlas-cmms.com/static/images/logo/logo.png",
               "offers": [
                 {
                   "@type": "Offer",
