@@ -28,6 +28,38 @@ import {
 } from '@mui/icons-material';
 import { Footer } from 'src/components/Footer';
 import CompanyLogos from '../landing/components/CompanyLogos';
+import { motion, useAnimation } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+import { ReactNode } from 'react';
+
+const ScrollAnimate = ({ children, delay = 0 }: { children: ReactNode; delay?: number }) => {
+  const controls = useAnimation();
+  const [ref, inView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1
+  });
+
+  useEffect(() => {
+    if (inView) {
+      controls.start('visible');
+    }
+  }, [controls, inView]);
+
+  return (
+    <motion.div
+      ref={ref}
+      animate={controls}
+      initial="hidden"
+      transition={{ duration: 0.8, delay }}
+      variants={{
+        visible: { opacity: 1, y: 0 },
+        hidden: { opacity: 0, y: 50 }
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 const OverviewWrapper = styled(Box)(
   ({ theme }) => `
@@ -140,9 +172,15 @@ function Overview() {
         />
       </Helmet>
       <NavBar />
-      <Hero />
-      <CompanyLogos sx={{ mt: { xs: '150px', md: '100px' } }} />
-      <Highlights />
+      <ScrollAnimate>
+        <Hero />
+      </ScrollAnimate>
+      <ScrollAnimate delay={0.2}>
+        <CompanyLogos sx={{ mt: { xs: '150px', md: '100px' } }} />
+      </ScrollAnimate>
+      <ScrollAnimate delay={0.4}>
+        <Highlights />
+      </ScrollAnimate>
       <Footer />
     </OverviewWrapper>
   );

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { SetStateAction, useState } from 'react';
+import { SetStateAction, useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Avatar,
@@ -23,6 +23,40 @@ import { useBrand } from '../../../hooks/useBrand';
 import TwoCallToActions from '../../landing/components/TwoCallToActions';
 import useAuth from '../../../hooks/useAuth';
 import ArrowForwardTwoToneIcon from '@mui/icons-material/ArrowForwardTwoTone';
+import { motion, useAnimation } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+
+// ─── Reusable scroll-triggered fade-in wrapper ───────────────────────────────
+
+const FadeInWhenVisible = ({
+                             children,
+                             duration = 0.6
+                           }: {
+  children: React.ReactNode;
+  duration?: number;
+}) => {
+  const controls = useAnimation();
+  const [ref, inView] = useInView({ triggerOnce: true });
+
+  useEffect(() => {
+    if (inView) {
+      controls.start({ opacity: 1, y: 0 });
+    }
+  }, [controls, inView]);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 50 }}
+      animate={controls}
+      transition={{ duration }}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// ─── Styled components ────────────────────────────────────────────────────────
 
 const AvatarSuccess = styled(Avatar)(
   ({ theme }) => `
@@ -165,6 +199,7 @@ const AvatarWrapperSuccess = styled(Avatar)(
       color:  ${theme.colors.success.main};
 `
 );
+
 const TabsContainerWrapper = styled(Box)(
   ({ theme }) => `
 
@@ -329,6 +364,8 @@ const icons = {
   Amplify: '/static/images/logo/amplify.svg'
 };
 
+// ─── Main component ───────────────────────────────────────────────────────────
+
 function Highlights({ hidePricing }: { hidePricing?: boolean }) {
   const { t }: { t: any } = useTranslation();
   const brandConfig = useBrand();
@@ -337,6 +374,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
   const [pricingType, setPricingType] = useState<'cloud' | 'selfhosted'>(
     'cloud'
   );
+
   const tabs = [
     { value: 'work-orders', label: t('work_orders') },
     { value: 'request', label: t('request_system') },
@@ -356,9 +394,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
     };
   } = {
     'work-orders': {
-      title: {
-        key: 'work-orders.title'
-      },
+      title: { key: 'work-orders.title' },
       descriptions: [
         { key: 'work-orders.descriptions.0' },
         {
@@ -378,11 +414,8 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
       ],
       image: '/static/images/overview/work_order_screenshot.png'
     },
-
     request: {
-      title: {
-        key: 'work-requests.title'
-      },
+      title: { key: 'work-requests.title' },
       descriptions: [
         { key: 'work-requests.descriptions.0' },
         {
@@ -397,7 +430,6 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
       ],
       image: '/static/images/overview/request.png'
     },
-
     mobile: {
       title: { key: 'mobile-app.title' },
       descriptions: [
@@ -414,7 +446,6 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
       ],
       image: '/static/images/overview/mobile_home.png'
     },
-
     asset: {
       title: { key: 'eam.title' },
       descriptions: [
@@ -434,11 +465,8 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
       ],
       image: '/static/images/overview/assets.png'
     },
-
     preventative: {
-      title: {
-        key: 'pm.title'
-      },
+      title: { key: 'pm.title' },
       descriptions: [
         { key: 'pm.descriptions.0' },
         {
@@ -456,11 +484,8 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
       ],
       image: '/static/images/overview/pm.png'
     },
-
     part: {
-      title: {
-        key: 'part.title'
-      },
+      title: { key: 'part.title' },
       descriptions: [
         { key: 'part.descriptions.0' },
         {
@@ -480,11 +505,8 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
       ],
       image: '/static/images/overview/inventory_screenshot.png'
     },
-
     dashboard: {
-      title: {
-        key: 'dashboard.title'
-      },
+      title: { key: 'dashboard.title' },
       descriptions: [
         { key: 'dashboard.descriptions.0' },
         {
@@ -514,11 +536,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
   const CheckItem = ({ description }: { description: string }) => {
     return (
       <ListItem>
-        <AvatarSuccess
-          sx={{
-            mr: 2
-          }}
-        >
+        <AvatarSuccess sx={{ mr: 2 }}>
           <CheckTwoToneIcon />
         </AvatarSuccess>
         <ListItemText primary={t(description)} />
@@ -527,11 +545,11 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
   };
 
   const Feature = ({
-    title,
-    descriptions,
-    checks,
-    image
-  }: {
+                     title,
+                     descriptions,
+                     checks,
+                     image
+                   }: {
     title: string;
     descriptions: string[];
     checks: string[];
@@ -540,55 +558,46 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
     const { isAuthenticated } = useAuth();
 
     return (
-      <Grid
-        sx={{
-          mt: 8
-        }}
-        container
-        spacing={4}
-      >
-        <Grid item xs={12} md={6}>
-          <Typography sx={{ mb: 1 }} variant="h2">
-            {title}
-          </Typography>
-          {descriptions.map((description, index) => (
-            <Box key={index}>
-              <Typography variant="subtitle2">{description}</Typography>
-              <br />
-            </Box>
-          ))}
-          <List
-            disablePadding
-            sx={{
-              mt: 2,
-              mb: 1
-            }}
-          >
-            {checks.map((desc, index) => (
-              <CheckItem key={index} description={desc} />
+      <FadeInWhenVisible duration={0.6}>
+        <Grid sx={{ mt: 8 }} container spacing={4}>
+          <Grid item xs={12} md={6}>
+            <Typography sx={{ mb: 1 }} variant="h2">
+              {title}
+            </Typography>
+            {descriptions.map((description, index) => (
+              <Box key={index}>
+                <Typography variant="subtitle2">{description}</Typography>
+                <br />
+              </Box>
             ))}
-          </List>
-          <Button
-            component={RouterLink}
-            to={isAuthenticated ? '/app/work-orders' : '/account/register'}
-            size="large"
-            endIcon={<ArrowForwardTwoToneIcon />}
-          >
-            {t('try_for_free')}
-          </Button>
+            <List disablePadding sx={{ mt: 2, mb: 1 }}>
+              {checks.map((desc, index) => (
+                <CheckItem key={index} description={desc} />
+              ))}
+            </List>
+            <Button
+              component={RouterLink}
+              to={isAuthenticated ? '/app/work-orders' : '/account/register'}
+              size="large"
+              endIcon={<ArrowForwardTwoToneIcon />}
+            >
+              {t('try_for_free')}
+            </Button>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <BlowWrapper>
+              <Blob1 />
+              <Blob2 />
+              <CardImageWrapper>
+                <img src={image} alt={brandConfig.shortName} />
+              </CardImageWrapper>
+            </BlowWrapper>
+          </Grid>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <BlowWrapper>
-            <Blob1 />
-            <Blob2 />
-            <CardImageWrapper>
-              <img src={image} alt={brandConfig.shortName} />
-            </CardImageWrapper>
-          </BlowWrapper>
-        </Grid>
-      </Grid>
+      </FadeInWhenVisible>
     );
   };
+
   const handleTabsChange = (_event: any, value: SetStateAction<string>) => {
     setCurrentTab(value);
   };
@@ -621,70 +630,71 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
           }}
         />
         <BoxLayoutsContent maxWidth="lg">
-          <Grid
-            justifyContent="center"
-            alignItems="center"
-            spacing={6}
-            container
+          {/* Hero section — already on screen, so plain animate is correct */}
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
           >
-            <Grid item xs={12} md={6}>
-              <TypographyFeature
-                className="typo-feature"
-                sx={{
-                  mt: { lg: 10 }
-                }}
-              >
-                {t('home.what')}
-              </TypographyFeature>
-              <TypographyHeading
-                className="typo-heading"
-                sx={{
-                  mb: 1
-                }}
-                variant="h3"
-              >
-                {t('home.you_will_have')}
-              </TypographyHeading>
-              <TypographySubHeading
-                className="typo-subheading"
-                sx={{
-                  lineHeight: 1.5
-                }}
-                variant="h4"
-                color="text.secondary"
-                fontWeight="normal"
-              >
-                {t('home.you_will_have_description')}
-              </TypographySubHeading>
+            <Grid
+              justifyContent="center"
+              alignItems="center"
+              spacing={6}
+              container
+            >
+              <Grid item xs={12} md={6}>
+                <TypographyFeature
+                  className="typo-feature"
+                  sx={{ mt: { lg: 10 } }}
+                >
+                  {t('home.what')}
+                </TypographyFeature>
+                <TypographyHeading
+                  className="typo-heading"
+                  sx={{ mb: 1 }}
+                  variant="h3"
+                >
+                  {t('home.you_will_have')}
+                </TypographyHeading>
+                <TypographySubHeading
+                  className="typo-subheading"
+                  sx={{ lineHeight: 1.5 }}
+                  variant="h4"
+                  color="text.secondary"
+                  fontWeight="normal"
+                >
+                  {t('home.you_will_have_description')}
+                </TypographySubHeading>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <LayoutImgButton>
+                  <Typography variant="h4">{t('work_orders')}</Typography>
+                  <img
+                    src="/static/images/overview/work_order_screenshot.png"
+                    alt={t('work_orders')}
+                  />
+                </LayoutImgButton>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <LayoutImgButton>
+                  <Typography variant="h4">{t('custom_dashboards')}</Typography>
+                  <img
+                    src="/static/images/overview/analytics_screenshot.png"
+                    alt={t('custom_dashboards')}
+                  />
+                </LayoutImgButton>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <LayoutImgButton>
+                  <Typography variant="h4">{t('asset_management')}</Typography>
+                  <img
+                    src="/static/images/overview/assets.png"
+                    alt={t('asset_management')}
+                  />
+                </LayoutImgButton>
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={6}>
-              <LayoutImgButton>
-                <Typography variant="h4">{t('work_orders')}</Typography>
-                <img
-                  src="/static/images/overview/work_order_screenshot.png"
-                  alt={t('work_orders')}
-                />
-              </LayoutImgButton>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <LayoutImgButton>
-                <Typography variant="h4">{t('custom_dashboards')}</Typography>
-                <img
-                  src="/static/images/overview/analytics_screenshot.png"
-                  alt={t('custom_dashboards')}
-                />
-              </LayoutImgButton>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <LayoutImgButton>
-                <Typography variant="h4">{t('asset_management')}</Typography>
-                <img
-                  src="/static/images/overview/assets.png"
-                  alt={t('asset_management')}
-                />
-              </LayoutImgButton>
-            </Grid>
-          </Grid>
+          </motion.div>
         </BoxLayoutsContent>
         <BoxWaveAlt>
           <svg
@@ -699,78 +709,64 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
           </svg>
         </BoxWaveAlt>
       </BoxLayouts>
-      <Container
-        maxWidth="lg"
-        sx={{
-          py: { xs: 8 }
-        }}
-      >
-        <Grid
-          spacing={0}
-          direction={{ xs: 'column-reverse', md: 'row' }}
-          justifyContent="center"
-          container
-        >
-          <Grid item xs={12} md={6}>
-            <Box>
-              <TypographyHeading
-                sx={{
-                  mb: 1
-                }}
-                variant="h3"
-              >
-                {t('home.work')}
-              </TypographyHeading>
-              <TypographyFeature>{t('home.smarter')}</TypographyFeature>
-              <TypographySubHeading
-                sx={{
-                  lineHeight: 1.5,
-                  pr: 8
-                }}
-                variant="h4"
-                color="text.secondary"
-                fontWeight="normal"
-              >
-                {t('home.smarter_description', {
-                  shortBrandName: brandConfig.name
-                })}
-              </TypographySubHeading>
-            </Box>
-          </Grid>
-        </Grid>
-        <TypographyH1Primary
-          id="key-features"
-          textAlign="center"
-          sx={{
-            mt: 8,
-            mb: 2
-          }}
-          variant="h2"
-        >
-          {t('key_features')}
-        </TypographyH1Primary>
-        <Container maxWidth="sm">
-          <TypographyH2
-            sx={{
-              pb: 4,
-              lineHeight: 1.5
-            }}
-            textAlign="center"
-            variant="h4"
-            color="text.secondary"
-            fontWeight="normal"
+
+      <Container maxWidth="lg" sx={{ py: { xs: 8 } }}>
+        <FadeInWhenVisible duration={0.6}>
+          <Grid
+            spacing={0}
+            direction={{ xs: 'column-reverse', md: 'row' }}
+            justifyContent="center"
+            container
           >
-            {t('key_features_description', {
-              shortBrandName: brandConfig.name
-            })}
-          </TypographyH2>
-        </Container>
+            <Grid item xs={12} md={6}>
+              <Box>
+                <TypographyHeading sx={{ mb: 1 }} variant="h3">
+                  {t('home.work')}
+                </TypographyHeading>
+                <TypographyFeature>{t('home.smarter')}</TypographyFeature>
+                <TypographySubHeading
+                  sx={{ lineHeight: 1.5, pr: 8 }}
+                  variant="h4"
+                  color="text.secondary"
+                  fontWeight="normal"
+                >
+                  {t('home.smarter_description', {
+                    shortBrandName: brandConfig.name
+                  })}
+                </TypographySubHeading>
+              </Box>
+            </Grid>
+          </Grid>
+        </FadeInWhenVisible>
+
+        <FadeInWhenVisible duration={0.6}>
+          <TypographyH1Primary
+            id="key-features"
+            textAlign="center"
+            sx={{ mt: 8, mb: 2 }}
+            variant="h2"
+          >
+            {t('key_features')}
+          </TypographyH1Primary>
+          <Container maxWidth="sm">
+            <TypographyH2
+              sx={{ pb: 4, lineHeight: 1.5 }}
+              textAlign="center"
+              variant="h4"
+              color="text.secondary"
+              fontWeight="normal"
+            >
+              {t('key_features_description', {
+                shortBrandName: brandConfig.name
+              })}
+            </TypographyH2>
+          </Container>
+        </FadeInWhenVisible>
+
         <Box
           sx={{
             justifyContent: 'flex-start',
-            '.MuiTabs-scrollableX': {
-              overflow: 'auto !important'
-            }
+            '.MuiTabs-scrollableX': { overflow: 'auto !important' }
           }}
         >
           <Tabs
@@ -787,6 +783,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
             ))}
           </Tabs>
         </Box>
+
         {Object.entries(featuresConfiguration).map(([feature, config]) => (
           <Box
             key={feature}
@@ -803,14 +800,12 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
           </Box>
         ))}
       </Container>
+
       {!hidePricing && (
-        <>
+        <FadeInWhenVisible duration={0.6}>
           <TypographyH1Primary
             textAlign="center"
-            sx={{
-              mt: 8,
-              mb: 2
-            }}
+            sx={{ mt: 8, mb: 2 }}
             variant="h2"
           >
             {t('choose_your_plan')}
@@ -844,15 +839,18 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
               selfHosted={pricingType === 'selfhosted'}
             />
           </Box>
-        </>
+        </FadeInWhenVisible>
       )}
-      <TwoCallToActions
-        hidePricing={hidePricing}
-        sx={{
-          pt: { xs: 6, md: 12 },
-          pb: { xs: 5, md: 15 }
-        }}
-      />
+
+      <FadeInWhenVisible duration={0.6}>
+        <TwoCallToActions
+          hidePricing={hidePricing}
+          sx={{
+            pt: { xs: 6, md: 12 },
+            pb: { xs: 5, md: 15 }
+          }}
+        />
+      </FadeInWhenVisible>
     </BoxHighlights>
   );
 }
