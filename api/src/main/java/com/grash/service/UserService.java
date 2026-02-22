@@ -72,6 +72,7 @@ public class UserService {
     private final DemoDataService demoDataService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final LicenseService licenseService;
+    private final CacheService cacheService;
 
     @Value("${api.host}")
     private String PUBLIC_API_URL;
@@ -91,6 +92,7 @@ public class UserService {
 
     public String signin(String email, String password, String type) {
         try {
+            cacheService.evictUserFromCache(email);
             Authentication authentication =
                     authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
             if (authentication.getAuthorities().stream().noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_" + type.toUpperCase()))) {
@@ -227,6 +229,7 @@ public class UserService {
             if (Boolean.TRUE.equals(userReq.getDemo()))
                 return enableAndReturnToken(user, false, userReq);
             userRepository.save(user);
+            cacheService.putUserInCache(user);
             onCompanyAndUserCreation(user);
             sendRegistrationMailToSuperAdmins(user, userReq);
             return new SignupSuccessResponse<>(true, "Successful registration. Check your mailbox to activate your " +
@@ -252,7 +255,30 @@ public class UserService {
     }
 
     public OwnUser whoami(HttpServletRequest req) {
-        return userRepository.findByEmailIgnoreCase(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(req))).get();
+        return whoami(req, true);
+    }
+
+    public OwnUser whoami(HttpServletRequest req, boolean cached) {
+        String username = jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(req));
+        return whoami(username, cached);
+    }
+
+    public OwnUser whoami(String username, boolean cached) {
+        return cached ? findByEmailWithRolesCached(username).get() :
+                findByEmail(username).get();
+    }
+
+    public Optional<OwnUser> findByEmailWithRolesCached(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return Optional.empty();
+        }
+        Optional<OwnUser> cachedUser = cacheService.getUserFromCache(email);
+        if (cachedUser.isPresent()) return cachedUser;
+
+        Optional<OwnUser> userOptional = userRepository.findByEmailIgnoreCase(email.toLowerCase().trim());
+        userOptional.ifPresent(cacheService::putUserInCache);
+
+        return userOptional;
     }
 
     public String refresh(String username) {
@@ -283,6 +309,7 @@ public class UserService {
         }
         user.setEnabled(true);
         userRepository.save(user);
+        cacheService.putUserInCache(user);
     }
 
     public SuccessResponse resetPasswordRequest(String email) {
@@ -359,6 +386,7 @@ public class UserService {
             }
             OwnUser updatedUser = userRepository.saveAndFlush(userMapper.updateUser(savedUser, userReq));
             em.refresh(updatedUser);
+            cacheService.putUserInCache(updatedUser);
             return updatedUser;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

@@ -2,7 +2,10 @@ package com.grash.security;
 
 import com.grash.model.OwnUser;
 import com.grash.repository.UserRepository;
+import com.grash.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -12,16 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    @Autowired
+    @Lazy
+    private UserService userService;
 
     @Override
     @Transactional(readOnly = true)
     public CustomUserDetail loadUserByUsername(String username) throws UsernameNotFoundException {
-        final OwnUser user = userRepository.findByEmailIgnoreCase(username).orElse(null);
-        if (user == null) {
-            throw new UsernameNotFoundException("User '" + username + "' not found");
-        }
-
+        OwnUser user = userService.whoami(username, true);
         return CustomUserDetail.builder()//
                 .user(user)//
                 .build();

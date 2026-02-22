@@ -68,8 +68,6 @@ spring:
       ssl.trust: ${SMTP_HOST:smtp.gmail.com}
   cache:
     type: caffeine
-    caffeine:
-      spec: maximumSize=1000,expireAfterWrite=20m
 server:
   port: 8080 # This is the default port anyway, but you can change it here
 
