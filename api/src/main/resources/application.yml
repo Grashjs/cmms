@@ -5,6 +5,8 @@ spring:
     username: ${DB_USER}
     password: ${DB_PWD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      leak-detection-threshold: 60000
   #    init:
   #      data-locations: classpath:data-preprod.sql
   #    tomcat:
