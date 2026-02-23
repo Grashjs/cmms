@@ -32,7 +32,7 @@ import { getTasksByPreventiveMaintenance } from '../../../slices/task';
 import Tasks from '../WorkOrders/Details/Tasks';
 import { Task } from '../../../models/owns/tasks';
 import { getScheduleDescription } from '../../../utils/dates';
-import { supportedLanguages } from '../../../i18n/i18n';
+import { getSupportedLanguage, supportedLanguages } from '../../../i18n/i18n';
 import i18n from 'i18next';
 import RecentWorkOrders from './RecentWorkOrders';
 import { useNavigate } from 'react-router-dom';
@@ -237,9 +237,7 @@ export default function PMDetails({
                   <Typography variant="h6">
                     {getScheduleDescription(
                       preventiveMaintenance.schedule,
-                      supportedLanguages.find(
-                        ({ code }) => code === getLanguage
-                      ).dateLocale,
+                      getSupportedLanguage(getLanguage).dateLocale,
                       t
                     )}
                   </Typography>

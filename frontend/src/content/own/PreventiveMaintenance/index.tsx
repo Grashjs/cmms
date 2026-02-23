@@ -77,7 +77,7 @@ import SignalCellularAltTwoToneIcon from '@mui/icons-material/SignalCellularAltT
 import SearchInput from '../components/SearchInput';
 import WorkOrder from '../../../models/owns/workOrder';
 import { getWeekdays } from '../../../utils/dates';
-import { supportedLanguages } from '../../../i18n/i18n';
+import { getSupportedLanguage, supportedLanguages } from '../../../i18n/i18n';
 import i18n from 'i18next';
 import Schedule from '../../../models/owns/schedule';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
@@ -451,9 +451,12 @@ function PMs() {
       type: 'select',
       multiple: true,
       label: t('on'),
-      items: getWeekdays(
-        supportedLanguages.find(({ code }) => code === getLanguage).dateLocale
-      ).map((day, index) => ({ label: day, value: index }))
+      items: getWeekdays(getSupportedLanguage(getLanguage).dateLocale).map(
+        (day, index) => ({
+          label: day,
+          value: index
+        })
+      )
     },
     {
       name: 'titleGroup',
@@ -610,8 +613,7 @@ function PMs() {
                 : null,
               daysOfWeek: currentPM?.schedule.daysOfWeek?.map((dayOfWeek) => ({
                 label: getWeekdays(
-                  supportedLanguages.find(({ code }) => code === getLanguage)
-                    .dateLocale
+                  getSupportedLanguage(getLanguage).dateLocale
                 ).find((day, index) => index === dayOfWeek),
                 value: dayOfWeek
               })),

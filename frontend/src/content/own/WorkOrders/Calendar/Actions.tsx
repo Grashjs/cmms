@@ -14,7 +14,10 @@ import TodayTwoToneIcon from '@mui/icons-material/TodayTwoTone';
 import ArrowForwardTwoToneIcon from '@mui/icons-material/ArrowForwardTwoTone';
 import ArrowBackTwoToneIcon from '@mui/icons-material/ArrowBackTwoTone';
 import i18n from 'i18next';
-import { supportedLanguages } from '../../../../i18n/i18n';
+import {
+  getSupportedLanguage,
+  supportedLanguages
+} from '../../../../i18n/i18n';
 
 interface ActionsProps {
   children?: ReactNode;
@@ -106,8 +109,7 @@ const Actions: FC<ActionsProps> = ({
       >
         <Typography variant="h3" color="text.primary">
           {format(date, 'MMMM yyyy', {
-            locale: supportedLanguages.find(({ code }) => code === getLanguage)
-              .dateLocale
+            locale: getSupportedLanguage(getLanguage).dateLocale
           })}
         </Typography>
       </Grid>

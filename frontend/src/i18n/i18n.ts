@@ -227,3 +227,9 @@ export const supportedLanguages: {
 ];
 
 export default i18n;
+
+export const getSupportedLanguage = (lang: string) => {
+  const found = supportedLanguages.find(({ code }) => code === lang);
+  if (!found) return supportedLanguages.find(({ code }) => code === 'en');
+  return found;
+};
