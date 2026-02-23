@@ -27,7 +27,10 @@ import Actions from './Actions';
 import i18n from 'i18next';
 import PreventiveMaintenance from 'src/models/owns/preventiveMaintenance';
 import { usePrevious } from '../../../../hooks/usePrevious';
-import { supportedLanguages } from '../../../../i18n/i18n';
+import {
+  getSupportedLanguage,
+  supportedLanguages
+} from '../../../../i18n/i18n';
 
 const FullCalendarWrapper = styled(Box)(
   ({ theme }) => `
@@ -263,10 +266,7 @@ function ApplicationsCalendar({
           allDayMaintainDuration
           initialDate={date}
           initialView={view}
-          locale={
-            supportedLanguages.find(({ code }) => code === getLanguage)
-              .calendarLocale
-          }
+          locale={getSupportedLanguage(getLanguage).calendarLocale}
           droppable
           eventDisplay="block"
           eventClick={(arg) =>
