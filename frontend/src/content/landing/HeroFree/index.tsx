@@ -117,7 +117,7 @@ function HeroFree() {
             variant="h2"
             component="h2"
           >
-            Manage Work Orders and Assets — Free Forever
+            Manage Work Orders and Assets - Free Forever
           </Typography>
           <TypographyH2
             sx={{
@@ -129,7 +129,7 @@ function HeroFree() {
             fontWeight="normal"
           >
             Stop juggling spreadsheets and outdated tools. Upgrade to a modern
-            CMMS software — for free.
+            CMMS software - for free.
           </TypographyH2>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={1}>
             <Button
