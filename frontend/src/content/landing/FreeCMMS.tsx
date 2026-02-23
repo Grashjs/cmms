@@ -1,6 +1,6 @@
 import { Box, styled } from '@mui/material';
 import { Helmet } from 'react-helmet-async';
-import Highlights from '../overview/Highlights';
+import FeaturesAlternating from './FeaturesAlternating';
 import NavBar from '../../components/NavBar';
 import HeroFree from './HeroFree';
 import { Footer } from '../../components/Footer';
@@ -19,18 +19,20 @@ function FreeCMMSPage() {
   return (
     <OverviewWrapper>
       <Helmet>
-        <title>Free CMMS - Stop Fighting Fires, Start Preventing Them!</title>
+        <title>Atlas Free CMMS Software | No credit card required</title>
         <meta
           name="description"
-          content={
-            'Enterprise-grade asset management and work order software with no credit card or payment information required.'
-          }
+          content="Free CMMS software — not a trial. Manage maintenance, assets and work orders instantly. No credit card required."
+        />
+        <meta
+          name="keywords"
+          content="free cmms, maintenance management software, free work order software, asset tracking, preventive maintenance"
         />
         <link rel={'canonical'} href={'https://atlas-cmms.com/free-cmms'} />
       </Helmet>
       <NavBar />
       <HeroFree />
-      <Highlights hidePricing />
+      <FeaturesAlternating />
       <Footer />
     </OverviewWrapper>
   );
