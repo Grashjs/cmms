@@ -11,6 +11,7 @@ interface HreflangHelmetProps {
   keywords?: string;
   children?: React.ReactNode;
 }
+const baseUrl = 'https://atlas-cmms.com';
 
 function SharedHelmet({
   path,
@@ -20,7 +21,7 @@ function SharedHelmet({
   children
 }: HreflangHelmetProps) {
   const { t, i18n }: { t: any; i18n: any } = useTranslation();
-  const { website } = useBrand();
+  // const { website } = useBrand();
   const langPrefix =
     i18n.language && i18n.language !== 'en' ? `/${i18n.language}` : '';
 
@@ -31,8 +32,8 @@ function SharedHelmet({
       <title>{title}</title>
       <meta name="description" content={description} />
       {keywords && <meta name="keywords" content={keywords} />}
-      <link rel="canonical" href={`${website}${langPrefix}${slug}`} />
-      <link rel="alternate" hrefLang="x-default" href={`${website}${slug}`} />
+      <link rel="canonical" href={`${baseUrl}${langPrefix}${slug}`} />
+      <link rel="alternate" hrefLang="x-default" href={`${baseUrl}${slug}`} />
       {supportedLanguages.map((supportedLanguage) => {
         const code = supportedLanguage.code.split('_')[0];
         const prefix = code !== 'en' ? `${code}` : '';
@@ -41,7 +42,7 @@ function SharedHelmet({
             key={supportedLanguage.code}
             rel="alternate"
             hrefLang={code}
-            href={`${website}${prefix ? `/${prefix}` : ''}${slug}`}
+            href={`${baseUrl}${prefix ? `/${prefix}` : ''}${slug}`}
           />
         );
       })}
