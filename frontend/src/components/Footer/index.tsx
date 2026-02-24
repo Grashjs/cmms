@@ -1,17 +1,10 @@
-import {
-  Box,
-  Container,
-  Grid,
-  Link,
-  Stack,
-  styled,
-  Typography
-} from '@mui/material';
+import { Box, Container, Grid, Stack, styled, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { GitHub, LinkedIn, Mail, Phone, Sms } from '@mui/icons-material';
 import { getFeaturesLinks, getIndustriesLinks } from '../../utils/urlPaths';
 import { useTranslation } from 'react-i18next';
 import { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 
 const FooterWrapper = styled(Box)(
   ({ theme }) => `
@@ -206,7 +199,7 @@ export function Footer() {
         return (
           <Stack spacing={2}>
             {section.items.map((item, index) => (
-              <FooterLink key={index} href={item.href}>
+              <FooterLink key={index} to={item.href}>
                 {item.text}
               </FooterLink>
             ))}
@@ -216,7 +209,7 @@ export function Footer() {
         return (
           <Stack spacing={2}>
             {section.items.map((link) => (
-              <FooterLink key={link.href} href={link.href}>
+              <FooterLink key={link.href} to={link.href}>
                 {link.title}
               </FooterLink>
             ))}
@@ -226,7 +219,7 @@ export function Footer() {
         return (
           <Stack direction="row" spacing={2}>
             {section.items.map((item, index) => (
-              <FooterLink key={index} href={item.href}>
+              <FooterLink key={index} to={item.href}>
                 {item.icon}
               </FooterLink>
             ))}

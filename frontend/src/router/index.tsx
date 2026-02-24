@@ -32,11 +32,6 @@ const router: RouteObject[] = [
     element: <PaymentSuccess />
   },
   {
-    path: '',
-    element: <BaseLayout />,
-    children: baseRoutes
-  },
-  {
     path: 'app',
     element: (
       <Authenticated>
@@ -44,6 +39,16 @@ const router: RouteObject[] = [
       </Authenticated>
     ),
     children: appRoutes
+  },
+  {
+    path: '',
+    element: <BaseLayout />,
+    children: baseRoutes.filter((route) => route.path !== '*')
+  },
+  {
+    path: ':lang',
+    element: <BaseLayout />,
+    children: baseRoutes
   }
 ];
 

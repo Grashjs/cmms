@@ -15,6 +15,7 @@ import { AuthProvider } from 'src/contexts/JWTAuthContext';
 import { muiLicense, zendeskKey } from './config';
 import { ZendeskProvider } from 'react-use-zendesk';
 import { LicenseInfo } from '@mui/x-data-grid-pro';
+import i18n, { supportedLanguages } from 'src/i18n/i18n';
 
 LicenseInfo.setLicenseKey(muiLicense);
 

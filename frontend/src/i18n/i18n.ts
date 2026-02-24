@@ -97,6 +97,8 @@ i18n
       escapeValue: false
     },
     detection: {
+      order: ['path', 'localStorage', 'navigator'],
+      lookupFromPathIndex: 0,
       lookupLocalStorage: 'lang',
       caches: ['localStorage'],
       convertDetectedLanguage: (lng) => lng.split('-')[0].toLowerCase()

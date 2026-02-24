@@ -41,6 +41,34 @@ function LanguageSwitcher({ onSwitch }: { onSwitch?: () => void }) {
 
   const switchLanguage = ({ lng }: { lng: any }) => {
     internationalization.changeLanguage(lng);
+    const currentPath = window.location.pathname;
+    const pathParts = currentPath.split('/');
+    const firstPart = pathParts[1];
+    const isPrefixed = supportedLanguages.some((l) => l.code === firstPart);
+
+    if (isPrefixed) {
+      pathParts[1] = lng;
+      window.location.replace(pathParts.join('/') + window.location.search);
+    } else {
+      const landingPaths = [
+        '/',
+        '/free-cmms',
+        '/pricing',
+        '/privacy',
+        '/deletion-policy',
+        '/terms-of-service',
+        '/overview'
+      ];
+      const isLandingPath =
+        landingPaths.includes(currentPath) ||
+        currentPath.startsWith('/industries/') ||
+        currentPath.startsWith('/features/');
+
+      if (isLandingPath) {
+        const newPath = `/${lng}${currentPath === '/' ? '' : currentPath}`;
+        window.location.replace(newPath + window.location.search);
+      }
+    }
   };
   const ref = useRef<any>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
@@ -53,7 +81,9 @@ function LanguageSwitcher({ onSwitch }: { onSwitch?: () => void }) {
     setOpen(false);
   };
   const currentSupportedLanguage = supportedLanguages.find(
-    (supportedLanguage) => supportedLanguage.code === getLanguage
+    (supportedLanguage) =>
+      supportedLanguage.code === getLanguage ||
+      supportedLanguage.code.split('_')[0] === getLanguage
   );
   return (
     <>

@@ -18,8 +18,7 @@ import {
   Slide,
   Menu,
   Grid,
-  Collapse,
-  Link
+  Collapse
 } from '@mui/material';
 import Logo from '../LogoSign';
 import { GitHub, ExpandLess, ExpandMore } from '@mui/icons-material';
@@ -474,8 +473,8 @@ export default function NavBar() {
                               {featuresLinks.map((link) => (
                                 <ListItem
                                   key={link.title}
-                                  component={Link}
-                                  href={link.href}
+                                  component={RouterLink}
+                                  to={link.href}
                                   onClick={handleMenuClose}
                                   sx={{ py: 1 }}
                                 >
@@ -521,8 +520,8 @@ export default function NavBar() {
                               {industriesLinks.map((link) => (
                                 <ListItem
                                   key={link.title}
-                                  component={Link}
-                                  href={link.href}
+                                  component={RouterLink}
+                                  to={link.href}
                                   onClick={handleMenuClose}
                                   sx={{ py: 1 }}
                                 >
