@@ -61,7 +61,7 @@ public class VerificationTokenService {
         OwnUser user = verifyToken(token).getUser();
         //valid token
         userService.enableUser(user.getEmail());
-        mailServiceFactory.getMailService().addToContactList(user);
+        if (!user.getCompany().isDemo()) mailServiceFactory.getMailService().addToContactList(user);
         return user.getEmail();
     }
 

@@ -82,7 +82,7 @@ public class SendgridService implements MailService {
     @Override
     @Async
     public void addToContactList(OwnUser user) {
-        if (shouldSkipSendingEmail() || !cloudVersion || user.getCompany().isDemo()) {
+        if (shouldSkipSendingEmail() || !cloudVersion) {
             return;
         }
         try {
