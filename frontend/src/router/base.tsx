@@ -166,31 +166,6 @@ const baseRoutes = [
   {
     path: 'overview',
     element: <Navigate to="/" replace />
-  },
-  {
-    path: '*',
-    element: <Status404 />
-  },
-  {
-    path: 'status',
-    children: [
-      {
-        path: '500',
-        element: <Status500 />
-      },
-      {
-        path: 'maintenance',
-        element: <StatusMaintenance />
-      },
-      {
-        path: 'coming-soon',
-        element: <StatusComingSoon />
-      }
-    ]
-  },
-  {
-    path: '*',
-    element: <Status404 />
   }
 ];
 
