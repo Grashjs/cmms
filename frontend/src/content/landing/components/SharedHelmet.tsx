@@ -26,13 +26,15 @@ function SharedHelmet({
     i18n.language && i18n.language !== 'en' ? `/${i18n.language}` : '';
 
   const slug = path ? `/${path}` : '';
-
+  const canonicalLink = `${baseUrl}${langPrefix}${slug}`;
   return (
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={description} />
       {keywords && <meta name="keywords" content={keywords} />}
-      <link rel="canonical" href={`${baseUrl}${langPrefix}${slug}`} />
+      <link rel="canonical" href={canonicalLink} />
+      <meta property="og:url" content={canonicalLink} />
+      <meta property="og:description" content={description} />
       {/* x-default + all hreflang alternates */}
       <link rel="alternate" hrefLang="x-default" href={`${baseUrl}${slug}`} />
       {supportedLanguages.map((supportedLanguage) => {
