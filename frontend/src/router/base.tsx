@@ -162,11 +162,7 @@ const baseRoutes = [
     path: 'deletion-policy',
     element: <DeletionPolicy />
   },
-  { path: 'terms-of-service', element: <TermsOfService /> },
-  {
-    path: 'overview',
-    element: <Navigate to="/" replace />
-  }
+  { path: 'terms-of-service', element: <TermsOfService /> }
 ];
 
 export default baseRoutes;

@@ -38,7 +38,6 @@
 <url> <loc>https://atlas-cmms.com/fr/privacy</loc> </url>
 <url> <loc>https://atlas-cmms.com/fr/deletion-policy</loc> </url>
 <url> <loc>https://atlas-cmms.com/fr/terms-of-service</loc> </url>
-<url> <loc>https://atlas-cmms.com/fr/overview</loc> </url>
 <url> <loc>https://atlas-cmms.com/es</loc> </url>
 <url> <loc>https://atlas-cmms.com/es/free-cmms</loc> </url>
 <url> <loc>https://atlas-cmms.com/es/industries/open-source-energy-utilities-maintenance-software</loc> </url>
@@ -58,7 +57,6 @@
 <url> <loc>https://atlas-cmms.com/es/privacy</loc> </url>
 <url> <loc>https://atlas-cmms.com/es/deletion-policy</loc> </url>
 <url> <loc>https://atlas-cmms.com/es/terms-of-service</loc> </url>
-<url> <loc>https://atlas-cmms.com/es/overview</loc> </url>
 <url> <loc>https://atlas-cmms.com/de</loc> </url>
 <url> <loc>https://atlas-cmms.com/de/free-cmms</loc> </url>
 <url> <loc>https://atlas-cmms.com/de/industries/open-source-energy-utilities-maintenance-software</loc> </url>
@@ -78,7 +76,6 @@
 <url> <loc>https://atlas-cmms.com/de/privacy</loc> </url>
 <url> <loc>https://atlas-cmms.com/de/deletion-policy</loc> </url>
 <url> <loc>https://atlas-cmms.com/de/terms-of-service</loc> </url>
-<url> <loc>https://atlas-cmms.com/de/overview</loc> </url>
 <url> <loc>https://atlas-cmms.com/tr</loc> </url>
 <url> <loc>https://atlas-cmms.com/tr/free-cmms</loc> </url>
 <url> <loc>https://atlas-cmms.com/tr/industries/open-source-energy-utilities-maintenance-software</loc> </url>
@@ -98,7 +95,6 @@
 <url> <loc>https://atlas-cmms.com/tr/privacy</loc> </url>
 <url> <loc>https://atlas-cmms.com/tr/deletion-policy</loc> </url>
 <url> <loc>https://atlas-cmms.com/tr/terms-of-service</loc> </url>
-<url> <loc>https://atlas-cmms.com/tr/overview</loc> </url>
 <url> <loc>https://atlas-cmms.com/pt_br</loc> </url>
 <url> <loc>https://atlas-cmms.com/pt_br/free-cmms</loc> </url>
 <url> <loc>https://atlas-cmms.com/pt_br/industries/open-source-energy-utilities-maintenance-software</loc> </url>
@@ -118,7 +114,6 @@
 <url> <loc>https://atlas-cmms.com/pt_br/privacy</loc> </url>
 <url> <loc>https://atlas-cmms.com/pt_br/deletion-policy</loc> </url>
 <url> <loc>https://atlas-cmms.com/pt_br/terms-of-service</loc> </url>
-<url> <loc>https://atlas-cmms.com/pt_br/overview</loc> </url>
 <url> <loc>https://atlas-cmms.com/pl</loc> </url>
 <url> <loc>https://atlas-cmms.com/pl/free-cmms</loc> </url>
 <url> <loc>https://atlas-cmms.com/pl/industries/open-source-energy-utilities-maintenance-software</loc> </url>
@@ -138,7 +133,6 @@
 <url> <loc>https://atlas-cmms.com/pl/privacy</loc> </url>
 <url> <loc>https://atlas-cmms.com/pl/deletion-policy</loc> </url>
 <url> <loc>https://atlas-cmms.com/pl/terms-of-service</loc> </url>
-<url> <loc>https://atlas-cmms.com/pl/overview</loc> </url>
 <url> <loc>https://atlas-cmms.com/ar</loc> </url>
 <url> <loc>https://atlas-cmms.com/ar/free-cmms</loc> </url>
 <url> <loc>https://atlas-cmms.com/ar/industries/open-source-energy-utilities-maintenance-software</loc> </url>
@@ -158,7 +152,6 @@
 <url> <loc>https://atlas-cmms.com/ar/privacy</loc> </url>
 <url> <loc>https://atlas-cmms.com/ar/deletion-policy</loc> </url>
 <url> <loc>https://atlas-cmms.com/ar/terms-of-service</loc> </url>
-<url> <loc>https://atlas-cmms.com/ar/overview</loc> </url>
 <url> <loc>https://atlas-cmms.com/it</loc> </url>
 <url> <loc>https://atlas-cmms.com/it/free-cmms</loc> </url>
 <url> <loc>https://atlas-cmms.com/it/industries/open-source-energy-utilities-maintenance-software</loc> </url>
@@ -178,7 +171,6 @@
 <url> <loc>https://atlas-cmms.com/it/privacy</loc> </url>
 <url> <loc>https://atlas-cmms.com/it/deletion-policy</loc> </url>
 <url> <loc>https://atlas-cmms.com/it/terms-of-service</loc> </url>
-<url> <loc>https://atlas-cmms.com/it/overview</loc> </url>
 <url> <loc>https://atlas-cmms.com/sv</loc> </url>
 <url> <loc>https://atlas-cmms.com/sv/free-cmms</loc> </url>
 <url> <loc>https://atlas-cmms.com/sv/industries/open-source-energy-utilities-maintenance-software</loc> </url>
@@ -198,7 +190,6 @@
 <url> <loc>https://atlas-cmms.com/sv/privacy</loc> </url>
 <url> <loc>https://atlas-cmms.com/sv/deletion-policy</loc> </url>
 <url> <loc>https://atlas-cmms.com/sv/terms-of-service</loc> </url>
-<url> <loc>https://atlas-cmms.com/sv/overview</loc> </url>
 <url> <loc>https://atlas-cmms.com/ru</loc> </url>
 <url> <loc>https://atlas-cmms.com/ru/free-cmms</loc> </url>
 <url> <loc>https://atlas-cmms.com/ru/industries/open-source-energy-utilities-maintenance-software</loc> </url>
@@ -218,7 +209,6 @@
 <url> <loc>https://atlas-cmms.com/ru/privacy</loc> </url>
 <url> <loc>https://atlas-cmms.com/ru/deletion-policy</loc> </url>
 <url> <loc>https://atlas-cmms.com/ru/terms-of-service</loc> </url>
-<url> <loc>https://atlas-cmms.com/ru/overview</loc> </url>
 <url> <loc>https://atlas-cmms.com/hu</loc> </url>
 <url> <loc>https://atlas-cmms.com/hu/free-cmms</loc> </url>
 <url> <loc>https://atlas-cmms.com/hu/industries/open-source-energy-utilities-maintenance-software</loc> </url>
@@ -238,7 +228,6 @@
 <url> <loc>https://atlas-cmms.com/hu/privacy</loc> </url>
 <url> <loc>https://atlas-cmms.com/hu/deletion-policy</loc> </url>
 <url> <loc>https://atlas-cmms.com/hu/terms-of-service</loc> </url>
-<url> <loc>https://atlas-cmms.com/hu/overview</loc> </url>
 <url> <loc>https://atlas-cmms.com/nl</loc> </url>
 <url> <loc>https://atlas-cmms.com/nl/free-cmms</loc> </url>
 <url> <loc>https://atlas-cmms.com/nl/industries/open-source-energy-utilities-maintenance-software</loc> </url>
@@ -258,7 +247,6 @@
 <url> <loc>https://atlas-cmms.com/nl/privacy</loc> </url>
 <url> <loc>https://atlas-cmms.com/nl/deletion-policy</loc> </url>
 <url> <loc>https://atlas-cmms.com/nl/terms-of-service</loc> </url>
-<url> <loc>https://atlas-cmms.com/nl/overview</loc> </url>
 <url> <loc>https://atlas-cmms.com/zh_cn</loc> </url>
 <url> <loc>https://atlas-cmms.com/zh_cn/free-cmms</loc> </url>
 <url> <loc>https://atlas-cmms.com/zh_cn/industries/open-source-energy-utilities-maintenance-software</loc> </url>
@@ -278,5 +266,4 @@
 <url> <loc>https://atlas-cmms.com/zh_cn/privacy</loc> </url>
 <url> <loc>https://atlas-cmms.com/zh_cn/deletion-policy</loc> </url>
 <url> <loc>https://atlas-cmms.com/zh_cn/terms-of-service</loc> </url>
-<url> <loc>https://atlas-cmms.com/zh_cn/overview</loc> </url>
 </urlset>
