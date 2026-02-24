@@ -103,8 +103,10 @@ i18n
       caches: ['localStorage'],
       convertDetectedLanguage: (lng) => {
         const lower = lng.toLowerCase();
-        if (lower === 'pt-br' || lower === 'pt_br') return 'pt_br';
-        if (lower === 'zh-cn' || lower === 'zh_cn') return 'zh_cn';
+        if (lower === 'pt' || lower === 'pt-br' || lower === 'pt_br')
+          return 'pt_br';
+        if (lower === 'zh' || lower === 'zh-cn' || lower === 'zh_cn')
+          return 'zh_cn';
         return lower.split('-')[0].split('_')[0];
       }
     }
