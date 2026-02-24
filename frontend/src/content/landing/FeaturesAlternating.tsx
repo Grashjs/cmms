@@ -186,20 +186,11 @@ const FeaturesAlternating = () => {
                   height={feature.imageSizes.height}
                   style={{
                     borderRadius: '16px',
-                    ...(portrait
-                      ? {
-                          // Portrait (mobile screenshot): let height drive sizing
-                          width: 'auto',
-                          height: 'auto',
-                          maxHeight: '500px',
-                          maxWidth: '100%'
-                        }
-                      : {
-                          // Landscape (desktop screenshots): fill width
-                          width: '100%',
-                          height: 'auto',
-                          maxHeight: '300px'
-                        })
+                    // Portrait (mobile screenshot): let height drive sizing
+                    width: 'auto',
+                    height: 'auto',
+                    maxHeight: '500px',
+                    maxWidth: '100%'
                   }}
                 />
               </ImageWrapper>
