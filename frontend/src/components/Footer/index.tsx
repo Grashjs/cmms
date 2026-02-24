@@ -26,6 +26,18 @@ const FooterLink = styled(Link)(
 `
 );
 
+const FooterALink = styled('a')(
+  ({ theme }) => `
+    color: ${theme.colors.alpha.white[70]};
+    text-decoration: none;
+
+    &:hover {
+      color: ${theme.colors.alpha.white[100]};
+      text-decoration: underline;
+    }
+`
+);
+
 const SectionHeading = styled(Typography)(
   ({ theme }) => `
     font-weight: ${theme.typography.fontWeightBold};
@@ -219,9 +231,14 @@ export function Footer() {
         return (
           <Stack direction="row" spacing={2}>
             {section.items.map((item, index) => (
-              <FooterLink key={index} to={item.href}>
+              <FooterALink
+                key={index}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {item.icon}
-              </FooterLink>
+              </FooterALink>
             ))}
           </Stack>
         );
