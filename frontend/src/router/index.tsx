@@ -21,6 +21,15 @@ import oauthRoutes from './oauth';
 import { lazy, Suspense } from 'react';
 import SuspenseLoader from '../components/SuspenseLoader';
 
+import { supportedLanguages } from '../i18n/i18n';
+import Status404 from '../content/pages/Status/Status404';
+
+const languageRoutes = supportedLanguages.map((lang) => ({
+  path: lang.code,
+  element: <BaseLayout />,
+  children: baseRoutes
+}));
+
 const router: RouteObject[] = [
   {
     path: 'account',
@@ -45,10 +54,10 @@ const router: RouteObject[] = [
     element: <BaseLayout />,
     children: baseRoutes.filter((route) => route.path !== '*')
   },
+  ...languageRoutes,
   {
-    path: ':lang',
-    element: <BaseLayout />,
-    children: baseRoutes
+    path: '*',
+    element: <Status404 />
   }
 ];
 

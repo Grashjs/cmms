@@ -87,7 +87,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    // supportedLngs: Object.keys(resources),
+    supportedLngs: Object.keys(resources),
     keySeparator: false,
     fallbackLng: 'en',
     react: {
@@ -101,7 +101,12 @@ i18n
       lookupFromPathIndex: 0,
       lookupLocalStorage: 'lang',
       caches: ['localStorage'],
-      convertDetectedLanguage: (lng) => lng.split('-')[0].toLowerCase()
+      convertDetectedLanguage: (lng) => {
+        const lower = lng.toLowerCase();
+        if (lower === 'pt-br' || lower === 'pt_br') return 'pt_br';
+        if (lower === 'zh-cn' || lower === 'zh_cn') return 'zh_cn';
+        return lower.split('-')[0].split('_')[0];
+      }
     }
   });
 
