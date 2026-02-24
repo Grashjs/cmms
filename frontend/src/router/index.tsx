@@ -24,11 +24,13 @@ import SuspenseLoader from '../components/SuspenseLoader';
 import { supportedLanguages } from '../i18n/i18n';
 import Status404 from '../content/pages/Status/Status404';
 
-const languageRoutes = supportedLanguages.map((lang) => ({
-  path: lang.code,
-  element: <BaseLayout />,
-  children: baseRoutes
-}));
+const languageRoutes = supportedLanguages
+  .filter((lang) => lang.code !== 'en')
+  .map((lang) => ({
+    path: lang.code,
+    element: <BaseLayout />,
+    children: baseRoutes
+  }));
 
 const router: RouteObject[] = [
   {

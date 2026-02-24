@@ -128,10 +128,12 @@ function App() {
 
       if (isLandingPath) {
         const currentLang = i18n.language || 'en';
-        const newPath = `/${currentLang}${
-          location.pathname === '/' ? '' : location.pathname
-        }`;
-        navigate(newPath + location.search, { replace: true });
+        if (currentLang !== 'en') {
+          const newPath = `/${currentLang}${
+            location.pathname === '/' ? '' : location.pathname
+          }`;
+          navigate(newPath + location.search, { replace: true });
+        }
       }
     }
   }, [location, navigate, i18n.language]);

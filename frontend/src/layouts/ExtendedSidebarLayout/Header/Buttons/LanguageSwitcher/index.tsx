@@ -47,8 +47,14 @@ function LanguageSwitcher({ onSwitch }: { onSwitch?: () => void }) {
     const isPrefixed = supportedLanguages.some((l) => l.code === firstPart);
 
     if (isPrefixed) {
-      pathParts[1] = lng;
-      window.location.replace(pathParts.join('/') + window.location.search);
+      if (lng === 'en') {
+        pathParts.splice(1, 1);
+        const newPath = pathParts.join('/') || '/';
+        window.location.replace(newPath + window.location.search);
+      } else {
+        pathParts[1] = lng;
+        window.location.replace(pathParts.join('/') + window.location.search);
+      }
     } else {
       const landingPaths = [
         '/',
@@ -64,7 +70,7 @@ function LanguageSwitcher({ onSwitch }: { onSwitch?: () => void }) {
         currentPath.startsWith('/industries/') ||
         currentPath.startsWith('/features/');
 
-      if (isLandingPath) {
+      if (isLandingPath && lng !== 'en') {
         const newPath = `/${lng}${currentPath === '/' ? '' : currentPath}`;
         window.location.replace(newPath + window.location.search);
       }
