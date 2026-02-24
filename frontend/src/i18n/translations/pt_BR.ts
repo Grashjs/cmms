@@ -1730,8 +1730,66 @@ const ptBRJSON = {
   construction: 'Construção',
   installation_docs: 'Documentação de instalação',
   trusted_by_maintenance_teams:
-    'Aprovado por equipes de manutenção em várias indústrias',
-  cut_costs_performance: 'Corte os custos sem sacrificar a performance'
+    'Confiado por equipes de manutenção em vários setores',
+  cut_costs_performance:
+    'Reduza os custos de software de manutenção sem sacrificar o desempenho',
+  'free_cmms.title': 'Software CMMS Grátis Atlas | Sem necessidade de cartão de crédito',
+  'free_cmms.description':
+    'Software CMMS gratuito — não é uma versão de teste. Gerencie manutenção, ativos e ordens de serviço instantaneamente. Sem necessidade de cartão de crédito.',
+  'free_cmms.keywords':
+    'cmms grátis, software de gestão de manutenção, software de ordens de serviço grátis, rastreamento de ativos, manutenção preventiva',
+  'overview.description':
+    'O Atlas CMMS é um CMMS gratuito e de código aberto para gerenciar ordens de serviço, manutenção preventiva, ativos e instalações. Simplifique suas operações de manutenção hoje mesmo.',
+  'overview.keywords':
+    'CMMS, sistema informatizado de gestão de manutenção, EAM, gestão de ativos empresariais, cmms de código aberto, software de manutenção gratuito, gestão de ordens de serviço, manutenção preventiva, rastreamento de ativos, gestão de instalações, software de rastreamento de manutenção, manutenção de equipamentos, Atlas CMMS',
+  'pricing.title': 'Preços - Atlas CMMS',
+  'pricing.description':
+    'Planos de preços flexíveis para o Atlas CMMS. Escolha entre as versões Cloud e Self-Hosted do nosso CMMS de código aberto para otimizar suas operações de manutenção.',
+  'free_cmms.hero.subtitle': 'Software CMMS Grátis',
+  'free_cmms.hero.title': 'Gerencie Ordens de Serviço e Ativos - Grátis para Sempre',
+  'free_cmms.hero.description':
+    'Pare de fazer malabarismos com planilhas e ferramentas desatualizadas. Atualize para um software CMMS moderno - de graça.',
+  'free_cmms.hero.start_free': 'Comece Grátis Agora',
+  'free_cmms.hero.work_orders_alt': 'Ordens de Serviço',
+  'free_cmms.hero.mobile_app_alt': 'Aplicativo Móvel',
+  'free_cmms.features.work_orders.title': 'Ordens de Serviço Sem Esforço',
+  'free_cmms.features.work_orders.p1':
+    'Crie, atribua e rastreie ordens de serviço em segundos.',
+  'free_cmms.features.work_orders.p2':
+    'Anexe fotos, manuais e listas de verificação a qualquer tarefa.',
+  'free_cmms.features.work_orders.p3':
+    'Monitore o progresso em tempo real com atualizações de status instantâneas.',
+  'free_cmms.features.work_orders.alt': 'Gestão de Ordens de Serviço',
+  'free_cmms.features.asset_tracking.title': 'Rastreamento do Ciclo de Vida dos Ativos',
+  'free_cmms.features.asset_tracking.p1':
+    'Mantenha um histórico digital completo de cada ativo.',
+  'free_cmms.features.asset_tracking.p2':
+    'Tome decisões baseadas em dados sobre reparo vs. substituição.',
+  'free_cmms.features.asset_tracking.p3':
+    'Esteja pronto para auditorias com registros de conformidade automatizados.',
+  'free_cmms.features.asset_tracking.alt': 'Gestão de Ativos',
+  'free_cmms.features.inventory.title': 'Estoque e Peças',
+  'free_cmms.features.inventory.p1':
+    'Rastreie níveis de estoque em vários locais em tempo real.',
+  'free_cmms.features.inventory.p2':
+    'Escaneie códigos QR para busca e uso instantâneo de peças.',
+  'free_cmms.features.inventory.p3':
+    'Receba alertas automáticos de estoque baixo e reabasteça instantaneamente.',
+  'free_cmms.features.inventory.alt': 'Gestão de Estoque',
+  'free_cmms.features.mobile.title': 'Manutenção em Movimento',
+  'free_cmms.features.mobile.p1':
+    'Funcionalidade completa do aplicativo móvel para iOS e Android.',
+  'free_cmms.features.mobile.p2':
+    'Capture fotos e escaneie códigos de barras diretamente do campo.',
+  'free_cmms.features.mobile.p3':
+    'Sincronize dados instantaneamente e trabalhe offline quando necessário.',
+  'free_cmms.features.mobile.alt': 'Aplicativo CMMS Móvel',
+  'free_cmms.features.get_started_free': 'Comece de graça',
+  'free_cmms.features.ready_to_optimize': 'Pronto para otimizar sua manutenção?',
+  'free_cmms.features.join_thousands':
+    'Junte-se a milhares de profissionais de manutenção que usam o CMMS gratuito mais intuitivo do mundo.',
+  'free_cmms.features.get_started_no_card':
+    'Comece de graça - Sem necessidade de cartão de crédito'
 };
 
 export default ptBRJSON;

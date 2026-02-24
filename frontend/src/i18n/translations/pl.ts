@@ -1701,8 +1701,65 @@ const plJSON = {
   hospitality: 'Horeca i hotelarstwo',
   construction: 'Budownictwo',
   trusted_by_maintenance_teams:
-    'Aangewezen door onderhoudsteam in verschillende sectoren',
-  cut_costs_performance: 'Kosten sparen, ohne Leistung zu verlieren'
+    'Zaufany przez zespoły ds. utrzymania ruchu w różnych branżach',
+  cut_costs_performance: 'Zredukuj koszty bez utraty wydajności',
+  'free_cmms.title': 'Atlas Darmowe Oprogramowanie CMMS | Karta kredytowa nie jest wymagana',
+  'free_cmms.description':
+    'Darmowe oprogramowanie CMMS — to nie jest wersja próbna. Zarządzaj konserwacją, zasobami i zleceniami pracy błyskawicznie. Nie wymagamy karty kredytowej.',
+  'free_cmms.keywords':
+    'darmowy cmms, oprogramowanie do zarządzania konserwacją, darmowe oprogramowanie do zleceń pracy, śledzenie zasobów, konserwacja zapobiegawcza',
+  'overview.description':
+    'Atlas CMMS to darmowy system CMMS o otwartym kodzie źródłowym do zarządzania zleceniami pracy, konserwacją zapobiegawczą, zasobami i obiektami. Usprawnij swoje operacje konserwacyjne już dziś.',
+  'overview.keywords':
+    'CMMS, komputerowy system zarządzania konserwacją, EAM, zarządzanie majątkiem przedsiębiorstwa, cmms open source, darmowe oprogramowanie do konserwacji, zarządzanie zleceniami pracy, konserwacja zapobiegawcza, śledzenie zasobów, zarządzanie obiektami, oprogramowanie do śledzenia konserwacji, konserwacja sprzętu, Atlas CMMS',
+  'pricing.title': 'Cennik - Atlas CMMS',
+  'pricing.description':
+    'Elastyczne plany cenowe dla Atlas CMMS. Wybierz między wersją w chmurze a wersją samodzielnie hostowaną naszego CMMS typu open source, aby zoptymalizować swoje operacje konserwacyjne.',
+  'free_cmms.hero.subtitle': 'Darmowe Oprogramowanie CMMS',
+  'free_cmms.hero.title': 'Zarządzaj Zleceniami Pracy i Zasobami - Zawsze Za Darmo',
+  'free_cmms.hero.description':
+    'Przestań żonglować arkuszami kalkulacyjnymi i przestarzałymi narzędziami. Przejdź na nowoczesne oprogramowanie CMMS - za darmo.',
+  'free_cmms.hero.start_free': 'Rozpocznij Za Darmo Teraz',
+  'free_cmms.hero.work_orders_alt': 'Zlecenia Pracy',
+  'free_cmms.hero.mobile_app_alt': 'Aplikacja Mobilna',
+  'free_cmms.features.work_orders.title': 'Zlecenia Pracy Bez Wysiłku',
+  'free_cmms.features.work_orders.p1':
+    'Twórz, przypisuj i śledź zlecenia pracy w kilka sekund.',
+  'free_cmms.features.work_orders.p2':
+    'Dołączaj zdjęcia, instrukcje i listy kontrolne do każdego zadania.',
+  'free_cmms.features.work_orders.p3':
+    'Monitoruj postępy w czasie rzeczywistym dzięki błyskawicznym aktualizacjom statusu.',
+  'free_cmms.features.work_orders.alt': 'Zarządzanie Zleceniami Pracy',
+  'free_cmms.features.asset_tracking.title': 'Śledzenie Cyklu Życia Zasobów',
+  'free_cmms.features.asset_tracking.p1':
+    'Utrzymuj kompletną cyfrową historię każdego zasobu.',
+  'free_cmms.features.asset_tracking.p2':
+    'Podejmuj oparte na danych decyzje dotyczące naprawy lub wymiany.',
+  'free_cmms.features.asset_tracking.p3':
+    'Bądź gotowy na audyty dzięki automatycznym dziennikom zgodności.',
+  'free_cmms.features.asset_tracking.alt': 'Zarządzanie Zasobami',
+  'free_cmms.features.inventory.title': 'Zapasy i Części',
+  'free_cmms.features.inventory.p1':
+    'Śledź poziomy zapasów w wielu lokalizacjach w czasie rzeczywistym.',
+  'free_cmms.features.inventory.p2':
+    'Skanuj kody QR w celu natychmiastowego wyszukiwania i użycia części.',
+  'free_cmms.features.inventory.p3':
+    'Otrzymuj zautomatyzowane alerty o niskim poziomie zapasów i zamawiaj natychmiast.',
+  'free_cmms.features.inventory.alt': 'Zarządzanie Zapasami',
+  'free_cmms.features.mobile.title': 'Konserwacja w Terenie',
+  'free_cmms.features.mobile.p1':
+    'Pełna funkcjonalność aplikacji mobilnej na iOS i Android.',
+  'free_cmms.features.mobile.p2':
+    'Rób zdjęcia i skanuj kody kreskowe bezpośrednio w terenie.',
+  'free_cmms.features.mobile.p3':
+    'Synchronizuj dane natychmiastowo i pracuj offline w razie potrzeby.',
+  'free_cmms.features.mobile.alt': 'Mobilna Aplikacja CMMS',
+  'free_cmms.features.get_started_free': 'Rozpocznij za darmo',
+  'free_cmms.features.ready_to_optimize': 'Gotowy na optymalizację konserwacji?',
+  'free_cmms.features.join_thousands':
+    'Dołącz do tysięcy profesjonalistów ds. utrzymania ruchu, którzy korzystają z najbardziej intuicyjnego darmowego CMMS na świecie.',
+  'free_cmms.features.get_started_no_card':
+    'Rozpocznij za darmo - Bez podawania karty kredytowej'
 };
 
 export default plJSON;

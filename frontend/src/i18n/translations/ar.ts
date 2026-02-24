@@ -1593,7 +1593,64 @@ const locale = {
   installation_docs: 'وثائق التثبيت',
   trusted_by_maintenance_teams:
     'استخدامه من قبل فرق الصيانة في العديد من الصناعات',
-  cut_costs_performance: 'تقليل تكاليف برامج الصيانة دون تنازل عن الأداء'
+  cut_costs_performance: 'تقليل تكاليف برامج الصيانة دون تنازل عن الأداء',
+  'free_cmms.title': 'برنامج أطلس CMMS المجاني | لا حاجة لبطاقة ائتمان',
+  'free_cmms.description':
+    'برنامج CMMS مجاني — وليس نسخة تجريبية. قم بإدارة الصيانة والأصول وأوامر العمل على الفور. لا حاجة لبطاقة ائتمان.',
+  'free_cmms.keywords':
+    'cmms مجاني, برنامج إدارة الصيانة, برنامج أوامر العمل المجاني, تتبع الأصول, صيانة وقائية',
+  'overview.description':
+    'أطلس CMMS هو برنامج مجاني ومفتوح المصدر لإدارة الصيانة لإدارة أوامر العمل والصيانة الوقائية والأصول والمرافق. قم بتبسيط عمليات الصيانة الخاصة بك اليوم.',
+  'overview.keywords':
+    'CMMS, نظام إدارة الصيانة المحوسب, EAM, إدارة أصول المؤسسات, cmms مفتوح المصدر, برنامج صيانة مجاني, إدارة أوامر العمل, صيانة وقائية, تتبع الأصول, إدارة المرافق, برنامج تتبع الصيانة, صيانة المعدات, أطلس CMMS',
+  'pricing.title': 'التسعير - أطلس CMMS',
+  'pricing.description':
+    'خطط تسعير مرنة لبرنامج أطلس CMMS. اختر بين الإصدارات السحابية والمستضافة ذاتياً لبرنامجنا مفتوح المصدر لتحسين عمليات الصيانة الخاصة بك.',
+  'free_cmms.hero.subtitle': 'برنامج CMMS مجاني',
+  'free_cmms.hero.title': 'إدارة أوامر العمل والأصول - مجاناً للأبد',
+  'free_cmms.hero.description':
+    'توقف عن التوفيق بين جداول البيانات والأدوات القديمة. قم بالترقية إلى برنامج CMMS حديث - مجاناً.',
+  'free_cmms.hero.start_free': 'ابدأ مجاناً الآن',
+  'free_cmms.hero.work_orders_alt': 'أوامر العمل',
+  'free_cmms.hero.mobile_app_alt': 'تطبيق الجوال',
+  'free_cmms.features.work_orders.title': 'أوامر عمل بدون عناء',
+  'free_cmms.features.work_orders.p1':
+    'قم بإنشاء وتعيين وتتبع أوامر العمل في ثوانٍ.',
+  'free_cmms.features.work_orders.p2':
+    'أرفق الصور والكتيبات وقوائم التحقق بأي مهمة.',
+  'free_cmms.features.work_orders.p3':
+    'تتبع التقدم في الوقت الفعلي مع تحديثات الحالة الفورية.',
+  'free_cmms.features.work_orders.alt': 'إدارة أوامر العمل',
+  'free_cmms.features.asset_tracking.title': 'تتبع دورة حياة الأصول',
+  'free_cmms.features.asset_tracking.p1':
+    'احتفظ بسجل رقمي كامل لكل أصل.',
+  'free_cmms.features.asset_tracking.p2':
+    'اتخذ قرارات مدعومة بالبيانات بشأن الإصلاح أو الاستبدال.',
+  'free_cmms.features.asset_tracking.p3':
+    'ابق جاهزاً للتدقيق بفضل سجلات الامتثال الآلية.',
+  'free_cmms.features.asset_tracking.alt': 'إدارة الأصول',
+  'free_cmms.features.inventory.title': 'المخزون وقطع الغيار',
+  'free_cmms.features.inventory.p1':
+    'تتبع مستويات المخزون عبر مواقع متعددة في الوقت الفعلي.',
+  'free_cmms.features.inventory.p2':
+    'امسح رموز QR للبحث السريع عن القطع واستخدامها.',
+  'free_cmms.features.inventory.p3':
+    'احصل على تنبيهات تلقائية عند انخفاض المخزون وأعد الطلب على الفور.',
+  'free_cmms.features.inventory.alt': 'إدارة المخزون',
+  'free_cmms.features.mobile.title': 'الصيانة أثناء التنقل',
+  'free_cmms.features.mobile.p1':
+    'وظائف التطبيق المحمول كاملة لنظامي التشغيل iOS و Android.',
+  'free_cmms.features.mobile.p2':
+    'التقط الصور وامسح الباركود مباشرة من الميدان.',
+  'free_cmms.features.mobile.p3':
+    'قم بمزامنة البيانات فوراً واعمل دون اتصال بالإنترنت عند الحاجة.',
+  'free_cmms.features.mobile.alt': 'تطبيق CMMS للجوال',
+  'free_cmms.features.get_started_free': 'ابدأ مجاناً',
+  'free_cmms.features.ready_to_optimize': 'هل أنت مستعد لتحسين صيانتك؟',
+  'free_cmms.features.join_thousands':
+    'انضم إلى آلاف متخصصي الصيانة الذين يستخدمون برنامج CMMS المجاني الأكثر سهولة في العالم.',
+  'free_cmms.features.get_started_no_card':
+    'ابدأ مجاناً - لا حاجة لبطاقة ائتمان'
 };
 
 export default locale;
