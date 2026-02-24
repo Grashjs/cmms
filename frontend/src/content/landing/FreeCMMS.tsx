@@ -5,6 +5,7 @@ import NavBar from '../../components/NavBar';
 import HeroFree from './HeroFree';
 import { Footer } from '../../components/Footer';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const OverviewWrapper = styled(Box)(
   ({ theme }) => `
@@ -16,17 +17,18 @@ export const OverviewWrapper = styled(Box)(
 );
 
 function FreeCMMSPage() {
+  const { t }: { t: any } = useTranslation();
   return (
     <OverviewWrapper>
       <Helmet>
-        <title>Atlas Free CMMS Software | No credit card required</title>
+        <title>{t('free_cmms.title')}</title>
         <meta
           name="description"
-          content="Free CMMS software — not a trial. Manage maintenance, assets and work orders instantly. No credit card required."
+          content={t('free_cmms.description')}
         />
         <meta
           name="keywords"
-          content="free cmms, maintenance management software, free work order software, asset tracking, preventive maintenance"
+          content={t('free_cmms.keywords')}
         />
         <link rel={'canonical'} href={'https://atlas-cmms.com/free-cmms'} />
       </Helmet>

@@ -111,11 +111,11 @@ function Overview() {
         <title>{IS_ORIGINAL_CLOUD ? t('main.title') : brandConfig.name}</title>
         <meta
           name="description"
-          content="Atlas CMMS is a free, open-source CMMS to manage work orders, preventive maintenance, assets, and facilities. Streamline maintenance operations today."
+          content={t('overview.description')}
         />
         <meta
           name="keywords"
-          content="CMMS, computerized maintenance management system, EAM, enterprise asset management, open source CMMS, free maintenance software, work order management, preventive maintenance, asset tracking, facility management, maintenance tracking software, equipment maintenance, Atlas CMMS"
+          content={t('overview.keywords')}
         />
         <link rel="canonical" href="https://atlas-cmms.com/" />
         <link

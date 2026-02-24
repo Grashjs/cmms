@@ -29,6 +29,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import RuleIcon from '@mui/icons-material/Rule';
 import CompanyLogos from './components/CompanyLogos';
+import { useTranslation } from 'react-i18next';
 
 const FeatureRow = styled(Grid)(
   ({ theme }) => `
@@ -71,86 +72,87 @@ interface Feature {
 
 const FeaturesAlternating = () => {
   const theme = useTheme();
+  const { t }: { t: any } = useTranslation();
 
   const features: Feature[] = [
     {
-      title: 'Effortless Work Orders',
+      title: t('free_cmms.features.work_orders.title'),
       points: [
         {
           icon: <AddTaskIcon color="primary" />,
-          text: 'Create, assign, and track work orders in seconds.'
+          text: t('free_cmms.features.work_orders.p1')
         },
         {
           icon: <CollectionsIcon color="primary" />,
-          text: 'Attach photos, manuals, and checklists to any task.'
+          text: t('free_cmms.features.work_orders.p2')
         },
         {
           icon: <SpeedIcon color="primary" />,
-          text: 'Monitor progress in real-time with instant status updates.'
+          text: t('free_cmms.features.work_orders.p3')
         }
       ],
       image: '/static/images/overview/work_order_screenshot.png',
-      imageAlt: 'Work Order Management',
+      imageAlt: t('free_cmms.features.work_orders.alt'),
       imageSizes: { width: 1920, height: 922 }
     },
     {
-      title: 'Asset Lifecycle Tracking',
+      title: t('free_cmms.features.asset_tracking.title'),
       points: [
         {
           icon: <HistoryIcon color="primary" />,
-          text: 'Maintain a complete digital history of every asset.'
+          text: t('free_cmms.features.asset_tracking.p1')
         },
         {
           icon: <QueryStatsIcon color="primary" />,
-          text: 'Make data-driven decisions on repair vs. replace.'
+          text: t('free_cmms.features.asset_tracking.p2')
         },
         {
           icon: <RuleIcon color="primary" />,
-          text: 'Stay audit-ready with automated compliance logs.'
+          text: t('free_cmms.features.asset_tracking.p3')
         }
       ],
       image: '/static/images/features/asset-hero.png',
-      imageAlt: 'Asset Management',
+      imageAlt: t('free_cmms.features.asset_tracking.alt'),
       imageSizes: { width: 1920, height: 912 }
     },
     {
-      title: 'Inventory & Parts',
+      title: t('free_cmms.features.inventory.title'),
       points: [
         {
           icon: <InventoryIcon color="primary" />,
-          text: 'Track stock levels across multiple locations in real-time.'
+          text: t('free_cmms.features.inventory.p1')
         },
         {
           icon: <QrCodeScannerIcon color="primary" />,
-          text: 'Scan QR codes for instant part lookup and usage.'
+          text: t('free_cmms.features.inventory.p2')
         },
         {
           icon: <NotificationsActiveIcon color="primary" />,
-          text: 'Get automated low-stock alerts and reorder instantly.'
+          text: t('free_cmms.features.inventory.p3')
         }
       ],
       image: '/static/images/overview/inventory_screenshot.png',
-      imageAlt: 'Inventory Management',
+      imageAlt: t('free_cmms.features.inventory.alt'),
       imageSizes: { width: 1920, height: 912 }
     },
     {
-      title: 'Maintenance on the Go',
+      title: t('free_cmms.features.mobile.title'),
       points: [
         {
           icon: <SmartphoneIcon color="primary" />,
-          text: 'Full mobile app functionality for iOS and Android.'
+          text: t('free_cmms.features.mobile.p1')
         },
         {
           icon: <CameraAltIcon color="primary" />,
-          text: 'Capture photos and scan barcodes directly from the field.'
+          text: t('free_cmms.features.mobile.p2')
         },
         {
           icon: <CloudDoneIcon color="primary" />,
-          text: 'Sync data instantly and work offline when needed.'
+          text: t('free_cmms.features.mobile.p3')
         }
       ],
       image: '/static/mobile_app.jpeg',
-      imageAlt: 'Mobile CMMS App',
+      imageAlt: t('free_cmms.features.mobile.alt'),
       imageSizes: { width: 720, height: 1600 }
     }
   ];
@@ -256,7 +258,7 @@ const FeaturesAlternating = () => {
                     fontWeight: 'bold'
                   }}
                 >
-                  Get started for free
+                  {t('free_cmms.features.get_started_free')}
                 </Button>
               </FeatureContent>
             </Grid>
@@ -275,11 +277,10 @@ const FeaturesAlternating = () => {
         }}
       >
         <Typography variant="h2" gutterBottom sx={{ fontWeight: 800 }}>
-          Ready to optimize your maintenance?
+          {t('free_cmms.features.ready_to_optimize')}
         </Typography>
         <Typography variant="h5" sx={{ mb: 4, opacity: 0.9 }}>
-          Join thousands of maintenance professionals using the world's most
-          intuitive free CMMS.
+          {t('free_cmms.features.join_thousands')}
         </Typography>
         <Button
           component={RouterLink}
@@ -296,7 +297,7 @@ const FeaturesAlternating = () => {
             boxShadow: '0 10px 20px rgba(0,0,0,0.2)'
           }}
         >
-          Get started for free - No credit card required
+          {t('free_cmms.features.get_started_no_card')}
         </Button>
       </Box>
     </Container>

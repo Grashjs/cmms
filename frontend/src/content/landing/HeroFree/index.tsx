@@ -107,7 +107,7 @@ function HeroFree() {
       >
         <Grid item md={6} pr={{ xs: 0, md: 4 }}>
           <Typography component="h1" variant="h4" mb={2}>
-            Free CMMS Software
+            {t('free_cmms.hero.subtitle')}
           </Typography>
           <Typography
             sx={{
@@ -117,7 +117,7 @@ function HeroFree() {
             variant="h2"
             component="h2"
           >
-            Manage Work Orders and Assets - Free Forever
+            {t('free_cmms.hero.title')}
           </Typography>
           <TypographyH2
             sx={{
@@ -128,8 +128,7 @@ function HeroFree() {
             color="text.secondary"
             fontWeight="normal"
           >
-            Stop juggling spreadsheets and outdated tools. Upgrade to a modern
-            CMMS software - for free.
+            {t('free_cmms.hero.description')}
           </TypographyH2>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={1}>
             <Button
@@ -138,7 +137,7 @@ function HeroFree() {
               size="large"
               variant="contained"
             >
-              Start Free Now
+              {t('free_cmms.hero.start_free')}
             </Button>
           </Stack>
         </Grid>
@@ -147,13 +146,13 @@ function HeroFree() {
             <RouterLink to="/account/register">
               <ImgWrapper>
                 <img
-                  alt="Work Orders"
+                  alt={t('free_cmms.hero.work_orders_alt')}
                   src="/static/images/overview/work_orders_screenshot.png"
                 />
               </ImgWrapper>
             </RouterLink>
             <MobileImgWrapper>
-              <img alt="Mobile App" src="/static/mobile_app.jpeg" />
+              <img alt={t('free_cmms.hero.mobile_app_alt')} src="/static/mobile_app.jpeg" />
             </MobileImgWrapper>
             <BoxAccent
               sx={{

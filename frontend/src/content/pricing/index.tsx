@@ -117,10 +117,10 @@ function Pricing() {
   return (
     <PricingWrapper>
       <Helmet>
-        <title>Pricing - Atlas CMMS</title>
+        <title>{t('pricing.title')}</title>
         <meta
           name="description"
-          content="Flexible pricing plans for Atlas CMMS. Choose between Cloud and Self-Hosted versions of our open-source CMMS to optimize your maintenance operations."
+          content={t('pricing.description')}
         />
         <link rel="canonical" href="https://atlas-cmms.com/pricing" />
         <script type="application/ld+json">
