@@ -20,10 +20,10 @@ import {
   AccordionSummary,
   Switch
 } from '@mui/material';
-import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import Logo from 'src/components/LogoSign';
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
+import SharedHelmet from '../landing/components/SharedHelmet';
 import LanguageSwitcher from 'src/layouts/ExtendedSidebarLayout/Header/Buttons/LanguageSwitcher';
 import { ExpandMore, GitHub } from '@mui/icons-material';
 import CheckCircleOutlineTwoToneIcon from '@mui/icons-material/CheckCircleOutlineTwoTone';
@@ -66,7 +66,6 @@ function Pricing() {
   const theme = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
-  const langPrefix = i18n.language && i18n.language !== 'en' ? `${i18n.language}/` : '';
 
   const queryParams = new URLSearchParams(location.search);
   const type: 'selfhosted' | 'cloud' =
@@ -117,13 +116,11 @@ function Pricing() {
   }, []);
   return (
     <PricingWrapper>
-      <Helmet>
-        <title>{t('pricing.title')}</title>
-        <meta
-          name="description"
-          content={t('pricing.description')}
-        />
-        <link rel="canonical" href={`https://atlas-cmms.com/${langPrefix}pricing`} />
+      <SharedHelmet
+        path="pricing"
+        title={t('pricing.title')}
+        description={t('pricing.description')}
+      >
         <script type="application/ld+json">
           {`
             {
@@ -170,7 +167,7 @@ function Pricing() {
             }
           `}
         </script>
-      </Helmet>
+      </SharedHelmet>
       <NavBar />
 
       <Container maxWidth="lg" sx={{ mt: 8 }}>

@@ -10,7 +10,7 @@ import {
   ListItem
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import SharedHelmet from '../landing/components/SharedHelmet';
 import { useTranslation } from 'react-i18next';
 import Logo from 'src/components/LogoSign';
 import LanguageSwitcher from 'src/layouts/ExtendedSidebarLayout/Header/Buttons/LanguageSwitcher';
@@ -21,18 +21,14 @@ import { IS_ORIGINAL_CLOUD } from '../../config';
 function TermsOfService() {
   const { t, i18n }: { t: any; i18n: any } = useTranslation();
   const brandConfig = useBrand();
-  const langPrefix = i18n.language && i18n.language !== 'en' ? `${i18n.language}/` : '';
 
   return (
     <Box>
-      <Helmet>
-        <title>{t('terms_of_service')} - Atlas CMMS</title>
-        <meta
-          name="description"
-          content="Terms of Service for Atlas CMMS. Review the guidelines, responsibilities, and legal agreements for using our open-source CMMS software."
-        />
-        <link rel="canonical" href={`https://atlas-cmms.com/${langPrefix}terms-of-service`} />
-      </Helmet>
+      <SharedHelmet
+        path="terms-of-service"
+        title={`${t('terms_of_service')} - Atlas CMMS`}
+        description="Terms of Service for Atlas CMMS. Review the guidelines, responsibilities, and legal agreements for using our open-source CMMS software."
+      />
       <NavBar />
       <Container maxWidth="lg" sx={{ mt: 8 }}>
         <Box textAlign="center" mb={6}>

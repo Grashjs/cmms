@@ -13,7 +13,7 @@ import {
 import NavBar from 'src/components/NavBar';
 import { Footer } from 'src/components/Footer';
 import FaqComponent from 'src/components/Faq';
-import { Helmet } from 'react-helmet-async';
+import SharedHelmet from '../../content/landing/components/SharedHelmet';
 import { Link as RouterLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { demoLink } from '../../config';
@@ -83,18 +83,14 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
   } = props;
   const { t, i18n } = useTranslation();
   const theme = useTheme();
-  const langPrefix = i18n.language && i18n.language !== 'en' ? `${i18n.language}/` : '';
 
   return (
     <OverviewWrapper>
-      <Helmet>
-        <meta name="description" content={pageDescription} />
-        <title>{pageTitle}</title>
-        <link
-          rel="canonical"
-          href={`https://atlas-cmms.com/${langPrefix}${canonicalPath}`}
-        />
-      </Helmet>
+      <SharedHelmet
+        path={canonicalPath}
+        title={pageTitle}
+        description={pageDescription}
+      />
       <NavBar />
       <Box>
         {/* Header */}

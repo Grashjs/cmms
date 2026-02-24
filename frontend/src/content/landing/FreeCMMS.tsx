@@ -1,11 +1,11 @@
 import { Box, styled } from '@mui/material';
-import { Helmet } from 'react-helmet-async';
 import FeaturesAlternating from './FeaturesAlternating';
 import NavBar from '../../components/NavBar';
 import HeroFree from './HeroFree';
 import { Footer } from '../../components/Footer';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import SharedHelmet from './components/SharedHelmet';
 
 export const OverviewWrapper = styled(Box)(
   ({ theme }) => `
@@ -17,21 +17,15 @@ export const OverviewWrapper = styled(Box)(
 );
 
 function FreeCMMSPage() {
-  const { t }: { t: any } = useTranslation();
+  const { t } = useTranslation();
   return (
     <OverviewWrapper>
-      <Helmet>
-        <title>{t('free_cmms.title')}</title>
-        <meta
-          name="description"
-          content={t('free_cmms.description')}
-        />
-        <meta
-          name="keywords"
-          content={t('free_cmms.keywords')}
-        />
-        <link rel={'canonical'} href={'https://atlas-cmms.com/free-cmms'} />
-      </Helmet>
+      <SharedHelmet
+        path="free-cmms"
+        title={t('free_cmms.title')}
+        description={t('free_cmms.description')}
+        keywords={t('free_cmms.keywords')}
+      />
       <NavBar />
       <HeroFree />
       <FeaturesAlternating />

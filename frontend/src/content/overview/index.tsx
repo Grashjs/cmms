@@ -8,7 +8,7 @@ import {
   Stack
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import SharedHelmet from '../landing/components/SharedHelmet';
 import { useTranslation } from 'react-i18next';
 import Hero from './Hero';
 import Highlights from './Highlights';
@@ -100,7 +100,6 @@ function Overview() {
   const { t, i18n }: { t: any; i18n: any } = useTranslation();
   const navigate = useNavigate();
   const brandConfig = useBrand();
-  const langPrefix = i18n.language && i18n.language !== 'en' ? `${i18n.language}/` : '';
 
   useEffect(() => {
     if (!isCloudVersion) navigate('/account/login');
@@ -108,17 +107,12 @@ function Overview() {
 
   return (
     <OverviewWrapper>
-      <Helmet>
-        <title>{IS_ORIGINAL_CLOUD ? t('main.title') : brandConfig.name}</title>
-        <meta
-          name="description"
-          content={t('overview.description')}
-        />
-        <meta
-          name="keywords"
-          content={t('overview.keywords')}
-        />
-        <link rel="canonical" href={`https://atlas-cmms.com/${langPrefix}`} />
+      <SharedHelmet
+        path=""
+        title={IS_ORIGINAL_CLOUD ? t('main.title') : brandConfig.name}
+        description={t('overview.description')}
+        keywords={t('overview.keywords')}
+      >
         <link
           rel="preload"
           as="image"
@@ -139,7 +133,7 @@ function Overview() {
             __html: JSON.stringify(ldJson)
           }}
         />
-      </Helmet>
+      </SharedHelmet>
       <NavBar />
       <Hero />
       <CompanyLogos sx={{ mt: { xs: '150px', md: '100px' } }} />

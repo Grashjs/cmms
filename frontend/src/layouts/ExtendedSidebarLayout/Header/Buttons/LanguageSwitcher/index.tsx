@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import internationalization, { supportedLanguages } from 'src/i18n/i18n';
 import { useTranslation } from 'react-i18next';
+import { Link, useLocation } from 'react-router-dom';
 
 const SectionHeading = styled(Typography)(
   ({ theme }) => `
@@ -34,48 +35,53 @@ const IconButtonWrapper = styled(IconButton)(
 `
 );
 
+const landingPaths = [
+  '/',
+  '/free-cmms',
+  '/pricing',
+  '/privacy',
+  '/deletion-policy',
+  '/terms-of-service',
+  '/overview'
+];
+
+function getLocalizedPath(currentPath: string, lng: string): string {
+  const pathParts = currentPath.split('/');
+  const firstPart = pathParts[1];
+  const isPrefixed = supportedLanguages.some((l) => l.code === firstPart);
+
+  if (isPrefixed) {
+    if (lng === 'en') {
+      pathParts.splice(1, 1);
+      return pathParts.join('/') || '/';
+    } else {
+      pathParts[1] = lng;
+      return pathParts.join('/');
+    }
+  } else {
+    const isLandingPath =
+      landingPaths.includes(currentPath) ||
+      currentPath.startsWith('/industries/') ||
+      currentPath.startsWith('/features/');
+
+    if (isLandingPath && lng !== 'en') {
+      return `/${lng}${currentPath === '/' ? '' : currentPath}`;
+    }
+  }
+
+  return currentPath;
+}
+
 function LanguageSwitcher({ onSwitch }: { onSwitch?: () => void }) {
   const { i18n } = useTranslation();
   const { t }: { t: any } = useTranslation();
   const getLanguage = i18n.language;
+  const location = useLocation();
 
-  const switchLanguage = ({ lng }: { lng: any }) => {
+  const switchLanguage = (lng: string) => {
     internationalization.changeLanguage(lng);
-    const currentPath = window.location.pathname;
-    const pathParts = currentPath.split('/');
-    const firstPart = pathParts[1];
-    const isPrefixed = supportedLanguages.some((l) => l.code === firstPart);
-
-    if (isPrefixed) {
-      if (lng === 'en') {
-        pathParts.splice(1, 1);
-        const newPath = pathParts.join('/') || '/';
-        window.location.replace(newPath + window.location.search);
-      } else {
-        pathParts[1] = lng;
-        window.location.replace(pathParts.join('/') + window.location.search);
-      }
-    } else {
-      const landingPaths = [
-        '/',
-        '/free-cmms',
-        '/pricing',
-        '/privacy',
-        '/deletion-policy',
-        '/terms-of-service',
-        '/overview'
-      ];
-      const isLandingPath =
-        landingPaths.includes(currentPath) ||
-        currentPath.startsWith('/industries/') ||
-        currentPath.startsWith('/features/');
-
-      if (isLandingPath && lng !== 'en') {
-        const newPath = `/${lng}${currentPath === '/' ? '' : currentPath}`;
-        window.location.replace(newPath + window.location.search);
-      }
-    }
   };
+
   const ref = useRef<any>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
 
@@ -86,11 +92,13 @@ function LanguageSwitcher({ onSwitch }: { onSwitch?: () => void }) {
   const handleClose = (): void => {
     setOpen(false);
   };
+
   const currentSupportedLanguage = supportedLanguages.find(
     (supportedLanguage) =>
       supportedLanguage.code === getLanguage ||
       supportedLanguage.code.split('_')[0] === getLanguage
   );
+
   return (
     <>
       <Tooltip arrow title={t('Language Switcher')}>
@@ -116,11 +124,7 @@ function LanguageSwitcher({ onSwitch }: { onSwitch?: () => void }) {
           horizontal: 'right'
         }}
       >
-        <Box
-          sx={{
-            maxWidth: 240
-          }}
-        >
+        <Box sx={{ maxWidth: 240 }}>
           <SectionHeading variant="body2" color="text.primary">
             {t('Language Switcher')}
           </SectionHeading>
@@ -134,26 +138,33 @@ function LanguageSwitcher({ onSwitch }: { onSwitch?: () => void }) {
             }}
             component="nav"
           >
-            {supportedLanguages.map(({ code, label, Icon }) => (
-              <ListItem
-                key={code}
-                className={
-                  getLanguage === code ||
-                  (code === 'en' && getLanguage === 'en-US')
-                    ? 'active'
-                    : ''
-                }
-                button
-                onClick={() => {
-                  switchLanguage({ lng: code });
-                  onSwitch?.();
-                  handleClose();
-                }}
-              >
-                <Icon title={label} />
-                <ListItemText sx={{ pl: 1 }} primary={label} />
-              </ListItem>
-            ))}
+            {supportedLanguages.map(({ code, label, Icon }) => {
+              const href =
+                getLocalizedPath(location.pathname, code) + location.search;
+
+              return (
+                <ListItem
+                  key={code}
+                  className={
+                    getLanguage === code ||
+                    (code === 'en' && getLanguage === 'en-US')
+                      ? 'active'
+                      : ''
+                  }
+                  button
+                  component={Link}
+                  to={href}
+                  onClick={() => {
+                    switchLanguage(code);
+                    onSwitch?.();
+                    handleClose();
+                  }}
+                >
+                  <Icon title={label} />
+                  <ListItemText sx={{ pl: 1 }} primary={label} />
+                </ListItem>
+              );
+            })}
           </List>
         </Box>
       </Popover>
