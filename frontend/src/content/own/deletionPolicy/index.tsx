@@ -24,8 +24,9 @@ const HeaderWrapper = styled(Card)(
 );
 
 function DeletionPolicy() {
-  const { t }: { t: any } = useTranslation();
+  const { t, i18n }: { t: any; i18n: any } = useTranslation();
   const brandConfig = useBrand();
+  const langPrefix = i18n.language && i18n.language !== 'en' ? `${i18n.language}/` : '';
 
   return (
     <Box>
@@ -37,7 +38,7 @@ function DeletionPolicy() {
           name="description"
           content="Information on how to delete your account in Atlas CMMS. We provide clear steps for data removal and account closure."
         />
-        <link rel="canonical" href="https://atlas-cmms.com/deletion-policy" />
+        <link rel="canonical" href={`https://atlas-cmms.com/${langPrefix}deletion-policy`} />
       </Helmet>
       <HeaderWrapper>
         <Container maxWidth="lg">

@@ -97,9 +97,10 @@ const ldJson = [
 ];
 
 function Overview() {
-  const { t }: { t: any } = useTranslation();
+  const { t, i18n }: { t: any; i18n: any } = useTranslation();
   const navigate = useNavigate();
   const brandConfig = useBrand();
+  const langPrefix = i18n.language && i18n.language !== 'en' ? `${i18n.language}/` : '';
 
   useEffect(() => {
     if (!isCloudVersion) navigate('/account/login');
@@ -117,7 +118,7 @@ function Overview() {
           name="keywords"
           content={t('overview.keywords')}
         />
-        <link rel="canonical" href="https://atlas-cmms.com/" />
+        <link rel="canonical" href={`https://atlas-cmms.com/${langPrefix}`} />
         <link
           rel="preload"
           as="image"

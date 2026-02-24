@@ -20,8 +20,9 @@ import { useBrand } from '../../hooks/useBrand';
 import { isCloudVersion, isWhiteLabeled } from '../../config';
 
 function Overview() {
-  const { t }: { t: any } = useTranslation();
+  const { t, i18n }: { t: any; i18n: any } = useTranslation();
   const brandConfig = useBrand();
+  const langPrefix = i18n.language && i18n.language !== 'en' ? `${i18n.language}/` : '';
   const IS_ORIGINAL_CLOUD = !isWhiteLabeled && isCloudVersion;
 
   return (
@@ -32,7 +33,7 @@ function Overview() {
           name="description"
           content="Read the Privacy Policy for Atlas CMMS. Learn how we protect your data and ensure security in our open-source maintenance management platform."
         />
-        <link rel="canonical" href="https://atlas-cmms.com/privacy" />
+        <link rel="canonical" href={`https://atlas-cmms.com/${langPrefix}privacy`} />
       </Helmet>
       <NavBar />
       <Container maxWidth="lg" sx={{ mt: 8 }}>

@@ -19,8 +19,9 @@ import { useBrand } from '../../hooks/useBrand';
 import { IS_ORIGINAL_CLOUD } from '../../config';
 
 function TermsOfService() {
-  const { t }: { t: any } = useTranslation();
+  const { t, i18n }: { t: any; i18n: any } = useTranslation();
   const brandConfig = useBrand();
+  const langPrefix = i18n.language && i18n.language !== 'en' ? `${i18n.language}/` : '';
 
   return (
     <Box>
@@ -30,7 +31,7 @@ function TermsOfService() {
           name="description"
           content="Terms of Service for Atlas CMMS. Review the guidelines, responsibilities, and legal agreements for using our open-source CMMS software."
         />
-        <link rel="canonical" href="https://atlas-cmms.com/terms-of-service" />
+        <link rel="canonical" href={`https://atlas-cmms.com/${langPrefix}terms-of-service`} />
       </Helmet>
       <NavBar />
       <Container maxWidth="lg" sx={{ mt: 8 }}>

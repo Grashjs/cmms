@@ -62,10 +62,11 @@ const PricingWrapper = styled(Box)(
 );
 
 function Pricing() {
-  const { t }: { t: any } = useTranslation();
+  const { t, i18n }: { t: any; i18n: any } = useTranslation();
   const theme = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
+  const langPrefix = i18n.language && i18n.language !== 'en' ? `${i18n.language}/` : '';
 
   const queryParams = new URLSearchParams(location.search);
   const type: 'selfhosted' | 'cloud' =
@@ -122,7 +123,7 @@ function Pricing() {
           name="description"
           content={t('pricing.description')}
         />
-        <link rel="canonical" href="https://atlas-cmms.com/pricing" />
+        <link rel="canonical" href={`https://atlas-cmms.com/${langPrefix}pricing`} />
         <script type="application/ld+json">
           {`
             {

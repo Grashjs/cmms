@@ -81,8 +81,9 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
     pageDescription,
     canonicalPath
   } = props;
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
+  const langPrefix = i18n.language && i18n.language !== 'en' ? `${i18n.language}/` : '';
 
   return (
     <OverviewWrapper>
@@ -91,7 +92,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
         <title>{pageTitle}</title>
         <link
           rel="canonical"
-          href={'https://atlas-cmms.com/' + canonicalPath}
+          href={`https://atlas-cmms.com/${langPrefix}${canonicalPath}`}
         />
       </Helmet>
       <NavBar />
