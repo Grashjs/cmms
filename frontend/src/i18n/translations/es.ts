@@ -1498,11 +1498,11 @@ const esJSON = {
   'schedule.yearly_other': 'Cada {{count}} años',
   delete_account: 'Eliminar cuenta',
   csv_separator: 'Separador CSV',
-  open_source_cmms: 'CMMS de código abierto',
+  open_source_cmms: 'GMAO de código abierto',
   'main.title':
-    'CMMS gratuito de código abierto (software de gestión de mantenimiento)',
+    'GMAO gratuito de código abierto (software de gestión de mantenimiento)',
   'home.h1':
-    'CMMS gratuito y de código abierto que puede alojar usted mismo o usar en la nube',
+    'GMAO gratuito y de código abierto que puede alojar usted mismo o usar en la nube',
   'home.h2': 'Mantenimiento potente a bajo coste',
   'home.h3':
     'Deje de depender de hojas de cálculo y pizarras. {{brandName}} ayuda a los equipos de mantenimiento a planificar intervenciones, rastrear equipos y mantenerse en cumplimiento. Alójelo en su propio servidor o comience instantáneamente en la nube.',
@@ -1658,7 +1658,7 @@ const esJSON = {
     'Estos usuarios suelen ser supervisores que inician sesión con poca frecuencia para ver un resumen de la actividad de mantenimiento. También pueden enviar solicitudes de trabajo y generar informes.',
   'pricing.faq_requester_users_title': 'Usuarios solicitantes',
   'pricing.faq_requester_users_description':
-    'Estos usuarios solo pueden enviar solicitudes de trabajo y ver su estado. No pueden ver órdenes de trabajo, activos, piezas ni ningún otro dato almacenado en el CMMS.',
+    'Estos usuarios solo pueden enviar solicitudes de trabajo y ver su estado. No pueden ver órdenes de trabajo, activos, piezas ni ningún otro dato almacenado en el GMAO.',
   'pricing.faq_third_party_users_title': 'Usuarios de terceros',
   'pricing.faq_third_party_users_description':
     'Estos usuarios suelen ser proveedores y contratistas. No pueden iniciar sesión en el sistema. Solo pueden enviar actualizaciones a una orden de trabajo específica en la que están asignados a través de un enlace público.',
@@ -1722,7 +1722,8 @@ const esJSON = {
     'Aprobado por equipos de mantenimiento en varios sectores',
   cut_costs_performance:
     'Reduce los costos de software de mantenimiento sin sacrificar el rendimiento',
-  'free_cmms.title': 'Software GMAO Gratis Atlas | No se requiere tarjeta de crédito',
+  'free_cmms.title':
+    'Software GMAO Gratis Atlas | No se requiere tarjeta de crédito',
   'free_cmms.description':
     'Software GMAO gratuito — no es una versión de prueba. Gestione el mantenimiento, los activos y las órdenes de trabajo al instante. No se requiere tarjeta de crédito.',
   'free_cmms.keywords':
@@ -1735,7 +1736,8 @@ const esJSON = {
   'pricing.description':
     'Planes de precios flexibles para Atlas CMMS. Elija entre las versiones en la nube y autoalojadas de nuestro GMAO de código abierto para optimizar sus operaciones de mantenimiento.',
   'free_cmms.hero.subtitle': 'Software GMAO Gratuito',
-  'free_cmms.hero.title': 'Gestione Órdenes de Trabajo y Activos - Gratis para siempre',
+  'free_cmms.hero.title':
+    'Gestione Órdenes de Trabajo y Activos - Gratis para siempre',
   'free_cmms.hero.description':
     'Deje de hacer malabares con hojas de cálculo y herramientas obsoletas. Actualice a un moderno software GMAO - gratis.',
   'free_cmms.hero.start_free': 'Comience Gratis Ahora',
@@ -1749,7 +1751,8 @@ const esJSON = {
   'free_cmms.features.work_orders.p3':
     'Supervise el progreso en tiempo real con actualizaciones de estado instantáneas.',
   'free_cmms.features.work_orders.alt': 'Gestión de Órdenes de Trabajo',
-  'free_cmms.features.asset_tracking.title': 'Seguimiento del Ciclo de Vida de los Activos',
+  'free_cmms.features.asset_tracking.title':
+    'Seguimiento del Ciclo de Vida de los Activos',
   'free_cmms.features.asset_tracking.p1':
     'Mantenga un historial digital completo de cada activo.',
   'free_cmms.features.asset_tracking.p2':
@@ -1774,7 +1777,8 @@ const esJSON = {
     'Sincronice datos al instante y trabaje sin conexión cuando sea necesario.',
   'free_cmms.features.mobile.alt': 'Aplicación GMAO Móvil',
   'free_cmms.features.get_started_free': 'Comience gratis',
-  'free_cmms.features.ready_to_optimize': '¿Listo para optimizar su mantenimiento?',
+  'free_cmms.features.ready_to_optimize':
+    '¿Listo para optimizar su mantenimiento?',
   'free_cmms.features.join_thousands':
     'Únase a miles de profesionales del mantenimiento que utilizan el GMAO gratuito más intuitivo del mundo.',
   'free_cmms.features.get_started_no_card':
