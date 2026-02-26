@@ -11,7 +11,10 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import internationalization, { supportedLanguages } from 'src/i18n/i18n';
+import internationalization, {
+  loadLanguage,
+  supportedLanguages
+} from 'src/i18n/i18n';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -78,7 +81,8 @@ function LanguageSwitcher({ onSwitch }: { onSwitch?: () => void }) {
   const getLanguage = i18n.language;
   const location = useLocation();
 
-  const switchLanguage = (lng: string) => {
+  const switchLanguage = async (lng: string) => {
+    await loadLanguage(lng);
     internationalization.changeLanguage(lng);
   };
 

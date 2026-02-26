@@ -16,6 +16,7 @@ import * as Yup from 'yup';
 import CustomSwitch from '../../components/form/CustomSwitch';
 import useAuth from '../../../../hooks/useAuth';
 import internationalization, {
+  loadLanguage,
   supportedLanguages
 } from '../../../../i18n/i18n';
 import { useDispatch, useSelector } from '../../../../store';
@@ -40,7 +41,8 @@ const onOpenApiDocs = async () => {
 function GeneralSettings() {
   const { t }: { t: any } = useTranslation();
   const [openDeleteDemo, setOpenDeleteDemo] = useState<boolean>(false);
-  const switchLanguage = ({ lng }: { lng: any }) => {
+  const switchLanguage = async ({ lng }: { lng: any }) => {
+    await loadLanguage(lng);
     internationalization.changeLanguage(lng);
   };
   const { showSnackBar } = useContext(CustomSnackBarContext);

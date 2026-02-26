@@ -1,10 +1,11 @@
 import type { ElementType, FC, ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
+import { Locale as DateLocale } from 'date-fns';
 import PropTypes from 'prop-types';
 import { Grid, IconButton, Tooltip, Typography } from '@mui/material';
 
 import ViewAgendaTwoToneIcon from '@mui/icons-material/ViewAgendaTwoTone';
-
 import ViewDayTwoToneIcon from '@mui/icons-material/ViewDayTwoTone';
 import CalendarViewMonthTwoToneIcon from '@mui/icons-material/CalendarViewMonthTwoTone';
 import ViewWeekTwoToneIcon from '@mui/icons-material/ViewWeekTwoTone';
@@ -14,10 +15,7 @@ import TodayTwoToneIcon from '@mui/icons-material/TodayTwoTone';
 import ArrowForwardTwoToneIcon from '@mui/icons-material/ArrowForwardTwoTone';
 import ArrowBackTwoToneIcon from '@mui/icons-material/ArrowBackTwoTone';
 import i18n from 'i18next';
-import {
-  getSupportedLanguage,
-  supportedLanguages
-} from '../../../../i18n/i18n';
+import useDateLocale from '../../../../hooks/useDateLocale';
 
 interface ActionsProps {
   children?: ReactNode;
@@ -69,7 +67,7 @@ const Actions: FC<ActionsProps> = ({
   view
 }) => {
   const { t }: { t: any } = useTranslation();
-  const getLanguage = i18n.language;
+  const dateLocale = useDateLocale();
 
   return (
     <Grid
@@ -85,13 +83,7 @@ const Actions: FC<ActionsProps> = ({
           </IconButton>
         </Tooltip>
         <Tooltip arrow placement="top" title={t('today')}>
-          <IconButton
-            color="primary"
-            sx={{
-              mx: 1
-            }}
-            onClick={onToday}
-          >
+          <IconButton color="primary" sx={{ mx: 1 }} onClick={onToday}>
             <TodayTwoToneIcon />
           </IconButton>
         </Tooltip>
@@ -101,27 +93,14 @@ const Actions: FC<ActionsProps> = ({
           </IconButton>
         </Tooltip>
       </Grid>
-      <Grid
-        item
-        sx={{
-          display: { xs: 'none', sm: 'inline-block' }
-        }}
-      >
+      <Grid item sx={{ display: { xs: 'none', sm: 'inline-block' } }}>
         <Typography variant="h3" color="text.primary">
-          {format(date, 'MMMM yyyy', {
-            locale: getSupportedLanguage(getLanguage).dateLocale
-          })}
+          {format(date, 'MMMM yyyy', { locale: dateLocale })}
         </Typography>
       </Grid>
-      <Grid
-        item
-        sx={{
-          display: { xs: 'none', sm: 'inline-block' }
-        }}
-      >
+      <Grid item sx={{ display: { xs: 'none', sm: 'inline-block' } }}>
         {viewOptions.map((viewOption) => {
           const Icon = viewOption.icon;
-
           return (
             <Tooltip
               key={viewOption.value}

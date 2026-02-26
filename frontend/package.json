@@ -61,6 +61,7 @@
     "history": "5.3.0",
     "i18next": "^25.7.1",
     "i18next-browser-languagedetector": "^8.2.0",
+    "i18next-http-backend": "^3.0.2",
     "jose": "^5.2.3",
     "jsonwebtoken": "8.5.1",
     "lodash": "^4.17.21",
@@ -160,7 +161,8 @@
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
     "prettier": "2.6.2",
-    "react-router-sitemap": "^1.2.0"
+    "react-router-sitemap": "^1.2.0",
+    "source-map-explorer": "^2.5.3"
   },
   "husky": {
     "hooks": {

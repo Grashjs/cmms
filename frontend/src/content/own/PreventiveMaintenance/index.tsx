@@ -77,13 +77,18 @@ import SignalCellularAltTwoToneIcon from '@mui/icons-material/SignalCellularAltT
 import SearchInput from '../components/SearchInput';
 import WorkOrder from '../../../models/owns/workOrder';
 import { getWeekdays } from '../../../utils/dates';
-import { getSupportedLanguage, supportedLanguages } from '../../../i18n/i18n';
+import {
+  getDateLocale,
+  getSupportedLanguage,
+  supportedLanguages
+} from '../../../i18n/i18n';
 import i18n from 'i18next';
 import Schedule from '../../../models/owns/schedule';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import { exportEntity } from '../../../slices/exports';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import { getErrorMessage } from '../../../utils/api';
+import useDateLocale from '../../../hooks/useDateLocale';
 
 function PMs() {
   const { t }: { t: any } = useTranslation();
@@ -92,6 +97,7 @@ function PMs() {
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const getLanguage = i18n.language;
+  const dateLocale = useDateLocale();
   const {
     companySettings,
     hasViewPermission,
@@ -451,12 +457,10 @@ function PMs() {
       type: 'select',
       multiple: true,
       label: t('on'),
-      items: getWeekdays(getSupportedLanguage(getLanguage).dateLocale).map(
-        (day, index) => ({
-          label: day,
-          value: index
-        })
-      )
+      items: getWeekdays(dateLocale).map((day, index) => ({
+        label: day,
+        value: index
+      }))
     },
     {
       name: 'titleGroup',
@@ -612,9 +616,9 @@ function PMs() {
                   )
                 : null,
               daysOfWeek: currentPM?.schedule.daysOfWeek?.map((dayOfWeek) => ({
-                label: getWeekdays(
-                  getSupportedLanguage(getLanguage).dateLocale
-                ).find((day, index) => index === dayOfWeek),
+                label: getWeekdays(dateLocale).find(
+                  (day, index) => index === dayOfWeek
+                ),
                 value: dayOfWeek
               })),
               frequency: Number(currentPM?.schedule.frequency),
