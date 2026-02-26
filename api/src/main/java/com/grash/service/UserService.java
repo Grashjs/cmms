@@ -135,7 +135,9 @@ public class UserService {
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)
                 && userRepository.hasMorePaidUsersThan(threshold - newUsersCount
         ))
-            throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount() + ". Refer to https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
+            throw new RuntimeException("Cannot create more users than the free license allows: " + threshold + ". " +
+                    "Refer to" +
+                    " https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
     }
 
     public SignupSuccessResponse<OwnUser> signup(UserSignupRequest userReq) {

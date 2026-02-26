@@ -151,7 +151,7 @@ console.log('Sitemap generated successfully!');
 console.log(`Total URLs: ${uniqueRoutes.length}`);
 const fs = require('fs');
 fs.writeFileSync(
-  './public/index-now.js',
+  './index-now.js',
   `export default ${JSON.stringify(
     uniqueRoutes.map((r) => {
       const { path } = r;
