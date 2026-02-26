@@ -11,7 +11,7 @@ import {
 import UserSettings from 'src/models/owns/userSettings';
 import CompanySettings from 'src/models/owns/companySettings';
 import { GeneralPreferences } from '../models/owns/generalPreferences';
-import internationalization from '../i18n/i18n';
+import internationalization, { loadLanguage } from '../i18n/i18n';
 import {
   FieldConfiguration,
   FieldType
@@ -505,7 +505,8 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   const [state, dispatch] = useReducer(reducer, initialAuthState);
   const { loginUser: loginZendesk, logoutUser: logoutZendesk } = useZendesk();
   const utmParams = useUtmTracker();
-  const switchLanguage = ({ lng }: { lng: any }) => {
+  const switchLanguage = async ({ lng }: { lng: any }) => {
+    await loadLanguage(lng);
     internationalization.changeLanguage(lng);
   };
   const updateUserInfos = async () => {

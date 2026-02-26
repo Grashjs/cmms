@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next';
 import { UtmTrackerProvider } from '@nik0di3m/utm-tracker-hook';
 import { useLicenseEntitlement } from './hooks/useLicenseEntitlement';
 import { initializePaddle } from '@paddle/paddle-js';
-import { supportedLanguages } from './i18n/i18n';
+import { loadLanguage, supportedLanguages } from './i18n/i18n';
 
 if (!IS_LOCALHOST && googleTrackingId) ReactGA.initialize(googleTrackingId);
 
@@ -137,6 +137,10 @@ function App() {
       }
     }
   }, [location, navigate, i18n.language]);
+
+  useEffect(() => {
+    loadLanguage(i18n.language);
+  }, []);
 
   useEffect(() => {
     if (!IS_LOCALHOST && googleTrackingId)
