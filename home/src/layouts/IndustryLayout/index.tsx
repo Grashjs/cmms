@@ -115,8 +115,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
                 height={headerImageSizes.height}
                 style={{ width: "100%", borderRadius: "16px", height: "auto" }}
                 loading="eager"
-                // @ts-expect-error
-                fetchpriority="high"
+                fetchPriority="high"
               />
             </Grid>
           </Grid>
