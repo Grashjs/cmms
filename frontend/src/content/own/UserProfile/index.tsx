@@ -13,6 +13,7 @@ import useAuth from '../../../hooks/useAuth';
 import api from '../../../utils/api';
 import WorkOrder from '../../../models/owns/workOrder';
 import { useNavigate } from 'react-router-dom';
+import { homeUrl } from '../../../config';
 
 function UserProfile() {
   const isMountedRef = useRefMounted();
@@ -34,7 +35,7 @@ function UserProfile() {
       const { success } = await api.deletes<{ success: boolean }>(`auth`);
       if (success) {
         logout();
-        navigate('/');
+        window.location.href = homeUrl;
       }
     }
   };

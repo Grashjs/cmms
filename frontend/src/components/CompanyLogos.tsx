@@ -1,5 +1,5 @@
 import { Container, Box, Typography, SxProps, Theme } from '@mui/material';
-import { companyLogosAssets } from '../../../utils/overall';
+import { companyLogosAssets } from 'src/utils/overall';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 

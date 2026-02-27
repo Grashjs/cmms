@@ -29,6 +29,8 @@ import { verify } from '../../../../utils/jwt';
 import { useUtmTracker } from '@nik0di3m/utm-tracker-hook';
 import { inviteUsers } from '../../../../slices/user';
 import { useDispatch } from '../../../../store';
+import { homeUrl } from '../../../../config';
+import { getLocalizedHomeUrl } from '../../../../utils/urlPaths';
 
 function RegisterJWT({
   email,
@@ -45,7 +47,7 @@ function RegisterJWT({
 }) {
   const { register, loginInternal, user } = useAuth();
   const isMountedRef = useRefMounted();
-  const { t }: { t: any } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const navigate = useNavigate();
   const getLanguage = i18n.language;
@@ -268,7 +270,8 @@ function RegisterJWT({
               {t('i_accept')}{' '}
               <Typography
                 color={'primary'}
-                onClick={() => navigate('/terms-of-service')}
+                href={getLocalizedHomeUrl('terms-of-service', i18n.language)}
+                target={'_blank'}
                 component="a"
                 style={{ cursor: 'pointer' }}
               >

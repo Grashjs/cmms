@@ -15,7 +15,7 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import useAuth from 'src/hooks/useAuth';
 import UpgradeTwoToneIcon from '@mui/icons-material/UpgradeTwoTone';
 import QuestionMarkTwoToneIcon from '@mui/icons-material/QuestionMarkTwoTone';
-import { isCloudVersion } from '../../../../config';
+import { homeUrl, isCloudVersion } from '../../../../config';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
 
@@ -44,7 +44,7 @@ function SidebarFooter() {
   const handleLogout = async (): Promise<void> => {
     try {
       await logout();
-      navigate('/');
+      window.location.href = homeUrl;
     } catch (err) {
       console.error(err);
     }

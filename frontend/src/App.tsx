@@ -107,38 +107,6 @@ function App() {
   let location = useLocation();
 
   useEffect(() => {
-    const pathParts = location.pathname.split('/');
-    const firstPart = pathParts[1];
-    const isPrefixed = supportedLanguages.some((l) => l.code === firstPart);
-
-    if (!isPrefixed) {
-      const landingPaths = [
-        '/',
-        '/free-cmms',
-        '/pricing',
-        '/privacy',
-        '/deletion-policy',
-        '/terms-of-service',
-        '/overview'
-      ];
-      const isLandingPath =
-        landingPaths.includes(location.pathname) ||
-        location.pathname.startsWith('/industries/') ||
-        location.pathname.startsWith('/features/');
-
-      if (isLandingPath) {
-        const currentLang = i18n.language || 'en';
-        if (currentLang !== 'en') {
-          const newPath = `/${currentLang}${
-            location.pathname === '/' ? '' : location.pathname
-          }`;
-          navigate(newPath + location.search, { replace: true });
-        }
-      }
-    }
-  }, [location, navigate, i18n.language]);
-
-  useEffect(() => {
     loadLanguage(i18n.language || 'en');
   }, []);
 
