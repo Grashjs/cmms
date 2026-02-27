@@ -1,4 +1,3 @@
-"use client";
 import {
   Box,
   Button,
@@ -30,7 +29,7 @@ import NavBar from "src/components/NavBar";
 import Faq from "./components/Faq";
 import SubscriptionPlanSelector, { PRICING_YEAR_MULTIPLIER } from "./components/SubscriptionPlanSelector";
 import { fireGa4Event } from "src/utils/overall";
-import { Footer } from "src/components/Footer";
+import Footer from "src/components/Footer";
 
 const PricingWrapper = styled(Box)(
   ({ theme }) => `

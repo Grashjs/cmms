@@ -1,11 +1,11 @@
 "use client";
-import { Box, styled } from '@mui/material';
-import { Helmet } from 'react-helmet-async';
-import Highlights from '../overview/Highlights';
-import NavBar from 'src/components/NavBar';
-import HeroFree from './HeroFree';
-import { Footer } from 'src/components/Footer';
-import React from 'react';
+import { Box, styled } from "@mui/material";
+import { Helmet } from "react-helmet-async";
+import Highlights from "../overview/Highlights";
+import NavBar from "src/components/NavBar";
+import HeroFree from "./HeroFree";
+import Footer from "src/components/Footer";
+import React from "react";
 
 export const OverviewWrapper = styled(Box)(
   ({ theme }) => `
@@ -13,7 +13,7 @@ export const OverviewWrapper = styled(Box)(
     background: ${theme.palette.common.white};
     flex: 1;
     overflow-x: hidden;
-`
+`,
 );
 
 function FreeCMMSPage() {
@@ -24,10 +24,10 @@ function FreeCMMSPage() {
         <meta
           name="description"
           content={
-            'Enterprise-grade asset management and work order software with no credit card or payment information required.'
+            "Enterprise-grade asset management and work order software with no credit card or payment information required."
           }
         />
-        <link rel={'canonical'} href={'https://atlas-cmms.com/free-cmms'} />
+        <link rel={"canonical"} href={"https://atlas-cmms.com/free-cmms"} />
       </Helmet>
       <NavBar />
       <HeroFree />
@@ -38,4 +38,3 @@ function FreeCMMSPage() {
 }
 
 export default FreeCMMSPage;
-

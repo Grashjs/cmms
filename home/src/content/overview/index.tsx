@@ -1,7 +1,7 @@
 import Hero from "./Hero";
 import Highlights from "./Highlights";
 import NavBar from "src/components/NavBar";
-import { Footer } from "src/components/Footer";
+import Footer from "src/components/Footer";
 import CompanyLogos from "src/components/CompanyLogos";
 import { OverviewWrapper } from "./styles";
 

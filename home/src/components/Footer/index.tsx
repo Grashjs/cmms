@@ -1,44 +1,14 @@
-"use client";
-import { Box, Container, Grid, Link as MuiLink, Stack, styled, Typography } from "@mui/material";
-import { useRouter } from "src/i18n/routing";
+import { Box, Container, Grid, Stack, Typography } from "@mui/material";
 import { GitHub, LinkedIn, Mail, Phone, Sms } from "@mui/icons-material";
 import { getFeaturesLinks, getIndustriesLinks } from "src/utils/urlPaths";
-import { useTranslations } from "next-intl";
-import { ReactNode, useMemo } from "react";
-import { Link } from "src/i18n/routing";
-
-const FooterWrapper = styled(Box)(
-  ({ theme }) => `
-    background: ${theme.colors.alpha.black[100]};
-    color: ${theme.colors.alpha.white[70]};
-    padding: ${theme.spacing(4)} 0;
-`,
-);
-
-const FooterLink = styled(Link)(
-  ({ theme }) => `
-    color: ${theme.colors.alpha.white[70]};
-    text-decoration: none;
-
-    &:hover {
-      color: ${theme.colors.alpha.white[100]};
-      text-decoration: underline;
-    }
-`,
-);
-
-const SectionHeading = styled(Typography)(
-  ({ theme }) => `
-    font-weight: ${theme.typography.fontWeightBold};
-    color: ${theme.colors.alpha.white[100]};
-    margin-bottom: ${theme.spacing(2)};
-`,
-);
+import { getTranslations } from "next-intl/server";
+import { ReactNode } from "react";
+import { FooterAnchor, FooterLink, FooterWrapper, SectionHeading } from "./styles";
 
 interface ContactItem {
   icon: ReactNode;
   text: string;
-  onClick?: () => void;
+  href?: string;
 }
 
 interface LinkItem {
@@ -93,105 +63,113 @@ interface AppsSection extends BaseFooterSection {
 
 type FooterSection = ContactSection | LinksSection | DynamicSection | SocialSection | AppsSection;
 
-export function Footer() {
-  const router = useRouter();
-  const t = useTranslations();
+export default async function Footer() {
+  const t = await getTranslations();
 
-  const footerSections: FooterSection[] = useMemo(
-    () => [
-      {
-        title: "Contact",
-        type: "contact",
-        items: [
-          {
-            icon: <Mail fontSize="small" />,
-            text: "contact@atlas-cmms.com",
-            onClick: () => (window.location.href = "mailto:contact@atlas-cmms.com"),
-          },
-          {
-            icon: <Phone fontSize="small" />,
-            text: "+212630690050",
-          },
-          {
-            icon: <Sms fontSize="small" />,
-            text: "+212630690050",
-          },
-        ],
-      },
-      {
-        title: "Company",
-        type: "links",
-        items: [
-          { href: "/pricing", text: t("pricing") },
-          { href: "/privacy", text: "Privacy Policy" },
-          { href: "/terms-of-service", text: "Terms of Service" },
-        ],
-      },
-      {
-        title: t("features"),
-        type: "dynamic",
-        items: getFeaturesLinks(t),
-      },
-      {
-        title: t("industries"),
-        type: "dynamic",
-        items: getIndustriesLinks(t),
-      },
-      {
-        title: "Product",
-        type: "links",
-        items: [{ href: "/free-cmms", text: "Free CMMS" }],
-      },
-      {
-        title: "Follow Us",
-        type: "social",
-        items: [
-          {
-            href: "https://www.linkedin.com/company/91710999",
-            icon: <LinkedIn />,
-          },
-          { href: "https://github.com/Grashjs/cmms", icon: <GitHub /> },
-        ],
-      },
-      {
-        title: "Mobile apps",
-        type: "apps",
-        items: [
-          {
-            href: "https://play.google.com/store/apps/details?id=com.atlas.cmms",
-            image: "/static/images/overview/playstore-badge.png",
-            alt: "playstore badge",
-          },
-          {
-            href: "https://apps.apple.com/us/app/atlas-cmms/id6751547284",
-            image: "/static/images/overview/app_store_badge.svg.webp",
-            alt: "app store badge",
-          },
-        ],
-      },
-    ],
-    [t],
-  );
+  const footerSections: FooterSection[] = [
+    {
+      title: "Contact",
+      type: "contact",
+      items: [
+        {
+          icon: <Mail fontSize="small" />,
+          text: "contact@atlas-cmms.com",
+          href: "mailto:contact@atlas-cmms.com",
+        },
+        {
+          icon: <Phone fontSize="small" />,
+          text: "+212630690050",
+          href: "tel:+212630690050",
+        },
+        {
+          icon: <Sms fontSize="small" />,
+          text: "+212630690050",
+          href: "sms:+212630690050",
+        },
+      ],
+    },
+    {
+      title: "Company",
+      type: "links",
+      items: [
+        { href: "/pricing", text: t("pricing") },
+        { href: "/privacy", text: "Privacy Policy" },
+        { href: "/terms-of-service", text: "Terms of Service" },
+      ],
+    },
+    {
+      title: t("features"),
+      type: "dynamic",
+      items: getFeaturesLinks(t),
+    },
+    {
+      title: t("industries"),
+      type: "dynamic",
+      items: getIndustriesLinks(t),
+    },
+    {
+      title: "Product",
+      type: "links",
+      items: [{ href: "/free-cmms", text: "Free CMMS" }],
+    },
+    {
+      title: "Follow Us",
+      type: "social",
+      items: [
+        {
+          href: "https://www.linkedin.com/company/91710999",
+          icon: <LinkedIn />,
+        },
+        { href: "https://github.com/Grashjs/cmms", icon: <GitHub /> },
+      ],
+    },
+    {
+      title: "Mobile apps",
+      type: "apps",
+      items: [
+        {
+          href: "https://play.google.com/store/apps/details?id=com.atlas.cmms",
+          image: "/static/images/overview/playstore-badge.png",
+          alt: "playstore badge",
+        },
+        {
+          href: "https://apps.apple.com/us/app/atlas-cmms/id6751547284",
+          image: "/static/images/overview/app_store_badge.svg.webp",
+          alt: "app store badge",
+        },
+      ],
+    },
+  ];
 
   const renderSectionContent = (section: FooterSection) => {
     switch (section.type) {
       case "contact":
         return (
           <Stack spacing={2}>
-            {section.items.map((item, index) => (
-              <Box
-                key={index}
-                sx={{ cursor: item.onClick ? "pointer" : "default" }}
-                onClick={item.onClick}
-                display="flex"
-                alignItems="center"
-              >
-                {item.icon}
-                <Typography variant="body2" sx={{ ml: 1 }}>
-                  {item.text}
-                </Typography>
-              </Box>
-            ))}
+            {section.items.map((item, index) => {
+              const content = (
+                <>
+                  {item.icon}
+                  <Typography variant="body2" sx={{ ml: 1 }}>
+                    {item.text}
+                  </Typography>
+                </>
+              );
+
+              if (item.href) {
+                return (
+                  <FooterAnchor key={index} href={item.href} sx={{ display: "flex", alignItems: "center" }}>
+                    {content}
+                  </FooterAnchor>
+                );
+              }
+
+              return (
+                <Box key={index} display="flex" alignItems="center">
+                  {content}
+                </Box>
+              );
+            })}
           </Stack>
         );
       case "links":
@@ -218,9 +196,9 @@ export function Footer() {
         return (
           <Stack direction="row" spacing={2}>
             {section.items.map((item, index) => (
-              <FooterLink key={index} href={item.href}>
+              <FooterAnchor key={index} href={item.href} target="_blank" rel="noopener noreferrer">
                 {item.icon}
-              </FooterLink>
+              </FooterAnchor>
             ))}
           </Stack>
         );

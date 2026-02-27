@@ -2,7 +2,7 @@
 import React, { FC, ReactNode } from "react";
 import { Box, Button, Card, CardContent, Container, Grid, Stack, Typography, useTheme } from "@mui/material";
 import NavBar from "src/components/NavBar";
-import { Footer } from "src/components/Footer";
+import Footer from "src/components/Footer";
 import FaqComponent from "src/components/Faq";
 import { demoLink } from "src/config";
 import { OverviewWrapper } from "src/content/landing/FreeCMMS";
