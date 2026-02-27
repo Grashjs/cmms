@@ -1,7 +1,6 @@
 "use client";
-import { useTranslations } from 'next-intl';
-import { SetStateAction, useState } from 'react';
-import Link from 'next/link';
+import { useTranslations } from "next-intl";
+import { SetStateAction, useState } from "react";
 import {
   Avatar,
   Box,
@@ -16,27 +15,29 @@ import {
   styled,
   Tab,
   Tabs,
-  Typography
-} from '@mui/material';
-import CheckTwoToneIcon from '@mui/icons-material/CheckTwoTone';
-import { AE, CN, DE, ES, FR, US, BR } from 'country-flag-icons/react/3x2';
-import SubscriptionPlans from '../SubscriptionPlans';
-import SubscriptionPlanSelector from 'src/content/pricing/components/SubscriptionPlanSelector';
-import { useBrand } from 'src/hooks/useBrand';
-import TwoCallToActions from 'src/content/landing/components/TwoCallToActions';
+  Typography,
+  useTheme,
+  Link,
+} from "@mui/material";
+import CheckTwoToneIcon from "@mui/icons-material/CheckTwoTone";
+import { AE, CN, DE, ES, FR, US, BR } from "country-flag-icons/react/3x2";
+import SubscriptionPlans from "../SubscriptionPlans";
+import SubscriptionPlanSelector from "src/content/pricing/components/SubscriptionPlanSelector";
+import { useBrand } from "src/hooks/useBrand";
+import TwoCallToActions from "src/content/landing/components/TwoCallToActions";
 
 const AvatarSuccess = styled(Avatar)(
   ({ theme }) => `
     background: ${theme.colors.success.light};
     width: ${theme.spacing(4)};
     height: ${theme.spacing(4)};
-`
+`,
 );
 
 const BoxRtl = styled(Box)(
   ({ theme }) => `
     background: ${theme.colors.alpha.white[100]};
-`
+`,
 );
 
 const CardImageWrapper = styled(Card)(
@@ -49,7 +50,7 @@ const CardImageWrapper = styled(Card)(
       width: 100%;
       height: auto;
     }
-`
+`,
 );
 
 const CardImg = styled(Card)(
@@ -60,38 +61,38 @@ const CardImg = styled(Card)(
     align-items: center;
     justify-content: center;
     border: 1px solid ${theme.colors.alpha.black[10]};
-    transition: ${theme.transitions.create(['border'])};
+    transition: ${theme.transitions.create(["border"])};
 
     &:hover {
       border-color: ${theme.colors.primary.main};
     }
-`
+`,
 );
 
 export const TypographyH1Primary = styled(Typography)(
   ({ theme }) => `
     font-size: ${theme.typography.pxToRem(36)};
-`
+`,
 );
 
 const TypographyH2 = styled(Typography)(
   ({ theme }) => `
     font-size: ${theme.typography.pxToRem(17)};
-`
+`,
 );
 
 const BoxHighlights = styled(Box)(
   () => `
     position: relative;
     z-index: 5;
-`
+`,
 );
 
 const BlowWrapper = styled(Box)(
   ({ theme }) => `
     position: relative;
     margin-top: ${theme.spacing(5)};
-`
+`,
 );
 
 const Blob1 = styled(Box)(
@@ -104,7 +105,7 @@ const Blob1 = styled(Box)(
     top: -${theme.spacing(9)};
     right: -${theme.spacing(7)};
     border-radius: 30% 70% 82% / 26% 22% 78% 74%;
-`
+`,
 );
 
 const Blob2 = styled(Box)(
@@ -117,7 +118,7 @@ const Blob2 = styled(Box)(
     z-index: 5;
     height: 140px;
     border-radius: 77% 23% 30% / 81% 47% 53% 19% ;
-`
+`,
 );
 
 const ScreenshotWrapper = styled(Card)(
@@ -126,28 +127,28 @@ const ScreenshotWrapper = styled(Card)(
     display: flex;
     overflow: visible;
     background: ${theme.palette.background.default};
-`
+`,
 );
 
-const Screenshot = styled('img')(
+const Screenshot = styled("img")(
   ({ theme }) => `
     width: 100%;
     height: auto;
     transform: rotateY(-35deg);
     border-radius: ${theme.general.borderRadius};
-`
+`,
 );
 
 const TypographyHeading = styled(Typography)(
   ({ theme }) => `
     font-size: ${theme.typography.pxToRem(36)};
-`
+`,
 );
 
 const TypographySubHeading = styled(Typography)(
   ({ theme }) => `
     font-size: ${theme.typography.pxToRem(17)};
-`
+`,
 );
 
 const TypographyFeature = styled(Typography)(
@@ -157,14 +158,14 @@ const TypographyFeature = styled(Typography)(
     font-weight: bold;
     margin-bottom: -${theme.spacing(1)};
     display: block;
-`
+`,
 );
 
 const AvatarWrapperSuccess = styled(Avatar)(
   ({ theme }) => `
       background-color: ${theme.colors.success.lighter};
       color:  ${theme.colors.success.main};
-`
+`,
 );
 const TabsContainerWrapper = styled(Box)(
   ({ theme }) => `
@@ -216,7 +217,7 @@ const TabsContainerWrapper = styled(Box)(
         }
     }
 }
-`
+`,
 );
 
 const BoxLayouts = styled(Box)(
@@ -234,7 +235,7 @@ const BoxLayouts = styled(Box)(
       .typo-subheading {
         color: ${theme.colors.alpha.trueWhite[70]};
       }
-`
+`,
 );
 
 const BoxLayoutsImage = styled(Box)(
@@ -246,7 +247,7 @@ const BoxLayoutsImage = styled(Box)(
     width: 100%;
     height: 100%;
     opacity: .5;
-`
+`,
 );
 
 const BoxLayoutsContent = styled(Container)(
@@ -254,7 +255,7 @@ const BoxLayoutsContent = styled(Container)(
       z-index: 5;
       position: relative;
       color: ${theme.colors.alpha.trueWhite[100]};
-`
+`,
 );
 
 const BoxWave = styled(Box)(
@@ -268,7 +269,7 @@ const BoxWave = styled(Box)(
     svg path {
 	    fill: ${theme.colors.alpha.white[100]};
 	}
-`
+`,
 );
 
 const BoxWaveAlt = styled(Box)(
@@ -282,7 +283,7 @@ const BoxWaveAlt = styled(Box)(
     svg path {
 	    fill: ${theme.colors.alpha.white[100]};
 	}
-`
+`,
 );
 
 const LayoutImgButton = styled(Box)(
@@ -302,7 +303,7 @@ const LayoutImgButton = styled(Box)(
       padding: ${theme.spacing(1, 2)};
       border-radius: ${theme.general.borderRadiusXl};
       z-index: 5;
-     ${theme.breakpoints.down('md')} {
+     ${theme.breakpoints.down("md")} {
     font-size: 12px;
   }
     }
@@ -320,32 +321,31 @@ const LayoutImgButton = styled(Box)(
         opacity: .8;
       }
     }
-`
+`,
 );
 
 const icons = {
-  Auth0: '/static/images/logo/auth0.svg',
-  FirebaseAuth: '/static/images/logo/firebase.svg',
-  JWT: '/static/images/logo/jwt.svg',
-  Amplify: '/static/images/logo/amplify.svg'
+  Auth0: "/static/images/logo/auth0.svg",
+  FirebaseAuth: "/static/images/logo/firebase.svg",
+  JWT: "/static/images/logo/jwt.svg",
+  Amplify: "/static/images/logo/amplify.svg",
 };
 
 function Highlights({ hidePricing }: { hidePricing?: boolean }) {
   const t = useTranslations();
+  const theme = useTheme();
   const brandConfig = useBrand();
-  const [currentTab, setCurrentTab] = useState('work-orders');
+  const [currentTab, setCurrentTab] = useState("work-orders");
   const [monthly, setMonthly] = useState<boolean>(true);
-  const [pricingType, setPricingType] = useState<'cloud' | 'selfhosted'>(
-    'cloud'
-  );
+  const [pricingType, setPricingType] = useState<"cloud" | "selfhosted">("cloud");
   const tabs = [
-    { value: 'work-orders', label: t('work_orders') },
-    { value: 'request', label: t('request_system') },
-    { value: 'mobile', label: t('mobile_app') },
-    { value: 'asset', label: t('asset_management') },
-    { value: 'preventative', label: t('preventive_maintenance') },
-    { value: 'part', label: t('parts_inventory') },
-    { value: 'dashboard', label: t('custom_dashboards') }
+    { value: "work-orders", label: t("work_orders") },
+    { value: "request", label: t("request_system") },
+    { value: "mobile", label: t("mobile_app") },
+    { value: "asset", label: t("asset_management") },
+    { value: "preventative", label: t("preventive_maintenance") },
+    { value: "part", label: t("parts_inventory") },
+    { value: "dashboard", label: t("custom_dashboards") },
   ];
 
   const featuresConfiguration: {
@@ -356,160 +356,153 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
       image: string;
     };
   } = {
-    'work-orders': {
+    "work-orders": {
       title: {
-        key: 'work-orders.title'
+        key: "work-orders.title",
       },
       descriptions: [
-        { key: 'work-orders.descriptions.0' },
+        { key: "work-orders.descriptions.0" },
         {
-          key: 'work-orders.descriptions.1',
-          params: { shortBrandName: brandConfig.name }
-        }
+          key: "work-orders.descriptions.1",
+          params: { shortBrandName: brandConfig.name },
+        },
       ],
       checks: [
-        { key: 'work-orders.checks.0' },
-        { key: 'work-orders.checks.1' },
-        { key: 'work-orders.checks.2' },
-        { key: 'work-orders.checks.3' },
+        { key: "work-orders.checks.0" },
+        { key: "work-orders.checks.1" },
+        { key: "work-orders.checks.2" },
+        { key: "work-orders.checks.3" },
         {
-          key: 'work-orders.checks.4',
-          params: { shortBrandName: brandConfig.name }
-        }
+          key: "work-orders.checks.4",
+          params: { shortBrandName: brandConfig.name },
+        },
       ],
-      image: '/static/images/overview/work_order_screenshot.png'
+      image: "/static/images/overview/work_order_screenshot.png",
     },
 
     request: {
       title: {
-        key: 'work-requests.title'
+        key: "work-requests.title",
       },
       descriptions: [
-        { key: 'work-requests.descriptions.0' },
+        { key: "work-requests.descriptions.0" },
         {
-          key: 'work-requests.descriptions.1',
-          params: { shortBrandName: brandConfig.shortName }
-        }
+          key: "work-requests.descriptions.1",
+          params: { shortBrandName: brandConfig.shortName },
+        },
       ],
-      checks: [
-        { key: 'work-requests.checks.0' },
-        { key: 'work-requests.checks.1' },
-        { key: 'work-requests.checks.2' }
-      ],
-      image: '/static/images/overview/request.png'
+      checks: [{ key: "work-requests.checks.0" }, { key: "work-requests.checks.1" }, { key: "work-requests.checks.2" }],
+      image: "/static/images/overview/request.png",
     },
 
     mobile: {
-      title: { key: 'mobile-app.title' },
-      descriptions: [
-        { key: 'mobile-app.descriptions.0' },
-        { key: 'mobile-app.descriptions.1' }
-      ],
+      title: { key: "mobile-app.title" },
+      descriptions: [{ key: "mobile-app.descriptions.0" }, { key: "mobile-app.descriptions.1" }],
       checks: [
-        { key: 'mobile-app.checks.0' },
-        { key: 'mobile-app.checks.1' },
-        { key: 'mobile-app.checks.2' },
-        { key: 'mobile-app.checks.3' },
-        { key: 'mobile-app.checks.4' },
-        { key: 'mobile-app.checks.5' }
+        { key: "mobile-app.checks.0" },
+        { key: "mobile-app.checks.1" },
+        { key: "mobile-app.checks.2" },
+        { key: "mobile-app.checks.3" },
+        { key: "mobile-app.checks.4" },
+        { key: "mobile-app.checks.5" },
       ],
-      image: '/static/images/overview/mobile_home.png'
+      image: "/static/images/overview/mobile_home.png",
     },
 
     asset: {
-      title: { key: 'eam.title' },
+      title: { key: "eam.title" },
       descriptions: [
-        { key: 'eam.descriptions.0' },
+        { key: "eam.descriptions.0" },
         {
-          key: 'eam.descriptions.1',
-          params: { brandName: brandConfig.shortName }
-        }
+          key: "eam.descriptions.1",
+          params: { brandName: brandConfig.shortName },
+        },
       ],
       checks: [
-        { key: 'eam.checks.0' },
-        { key: 'eam.checks.1' },
-        { key: 'eam.checks.2' },
-        { key: 'eam.checks.3' },
-        { key: 'eam.checks.4' },
-        { key: 'eam.checks.5' }
+        { key: "eam.checks.0" },
+        { key: "eam.checks.1" },
+        { key: "eam.checks.2" },
+        { key: "eam.checks.3" },
+        { key: "eam.checks.4" },
+        { key: "eam.checks.5" },
       ],
-      image: '/static/images/overview/assets.png'
+      image: "/static/images/overview/assets.png",
     },
 
     preventative: {
       title: {
-        key: 'pm.title'
+        key: "pm.title",
       },
       descriptions: [
-        { key: 'pm.descriptions.0' },
+        { key: "pm.descriptions.0" },
         {
-          key: 'pm.descriptions.1',
-          params: { shortBrandName: brandConfig.shortName }
-        }
+          key: "pm.descriptions.1",
+          params: { shortBrandName: brandConfig.shortName },
+        },
       ],
       checks: [
-        { key: 'pm.checks.0' },
-        { key: 'pm.checks.1' },
-        { key: 'pm.checks.2' },
-        { key: 'pm.checks.3' },
-        { key: 'pm.checks.4' },
-        { key: 'pm.checks.5' }
+        { key: "pm.checks.0" },
+        { key: "pm.checks.1" },
+        { key: "pm.checks.2" },
+        { key: "pm.checks.3" },
+        { key: "pm.checks.4" },
+        { key: "pm.checks.5" },
       ],
-      image: '/static/images/overview/pm.png'
+      image: "/static/images/overview/pm.png",
     },
 
     part: {
       title: {
-        key: 'part_1.title'
+        key: "part_1.title",
       },
       descriptions: [
-        { key: 'part_1.descriptions.0' },
+        { key: "part_1.descriptions.0" },
         {
-          key: 'part_1.descriptions.1',
-          params: { shortBrandName: brandConfig.shortName }
-        }
+          key: "part_1.descriptions.1",
+          params: { shortBrandName: brandConfig.shortName },
+        },
       ],
       checks: [
-        { key: 'part_1.checks.0' },
-        { key: 'part_1.checks.1' },
-        { key: 'part_1.checks.2' },
-        { key: 'part_1.checks.3' },
-        { key: 'part_1.checks.4' },
-        { key: 'part_1.checks.5' },
-        { key: 'part_1.checks.6' },
-        { key: 'part_1.checks.7' }
+        { key: "part_1.checks.0" },
+        { key: "part_1.checks.1" },
+        { key: "part_1.checks.2" },
+        { key: "part_1.checks.3" },
+        { key: "part_1.checks.4" },
+        { key: "part_1.checks.5" },
+        { key: "part_1.checks.6" },
+        { key: "part_1.checks.7" },
       ],
-      image: '/static/images/overview/inventory_screenshot.png'
+      image: "/static/images/overview/inventory_screenshot.png",
     },
 
     dashboard: {
       title: {
-        key: 'dashboard.title'
+        key: "dashboard.title",
       },
       descriptions: [
-        { key: 'dashboard.descriptions.0' },
+        { key: "dashboard.descriptions.0" },
         {
-          key: 'dashboard.descriptions.1',
-          params: { shortBrandName: brandConfig.shortName }
+          key: "dashboard.descriptions.1",
+          params: { shortBrandName: brandConfig.shortName },
         },
         {
-          key: 'dashboard.descriptions.2',
-          params: { shortBrandName: brandConfig.shortName }
-        }
+          key: "dashboard.descriptions.2",
+          params: { shortBrandName: brandConfig.shortName },
+        },
       ],
       checks: [
-        { key: 'dashboard.checks.0' },
-        { key: 'dashboard.checks.1' },
-        { key: 'dashboard.checks.2' },
-        { key: 'dashboard.checks.3' },
+        { key: "dashboard.checks.0" },
+        { key: "dashboard.checks.1" },
+        { key: "dashboard.checks.2" },
+        { key: "dashboard.checks.3" },
         {
-          key: 'dashboard.checks.4',
-          params: { shortBrandName: brandConfig.shortName }
+          key: "dashboard.checks.4",
+          params: { shortBrandName: brandConfig.shortName },
         },
-        { key: 'dashboard.checks.5' }
+        { key: "dashboard.checks.5" },
       ],
-      image: '/static/images/overview/analytics_screenshot.png'
-    }
+      image: "/static/images/overview/analytics_screenshot.png",
+    },
   };
 
   const CheckItem = ({ description }: { description: string }) => {
@@ -517,7 +510,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
       <ListItem>
         <AvatarSuccess
           sx={{
-            mr: 2
+            mr: 2,
           }}
         >
           <CheckTwoToneIcon />
@@ -531,7 +524,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
     title,
     descriptions,
     checks,
-    image
+    image,
   }: {
     title: string;
     descriptions: string[];
@@ -541,7 +534,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
     return (
       <Grid
         sx={{
-          mt: 8
+          mt: 8,
         }}
         container
         spacing={4}
@@ -559,7 +552,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
           <List
             disablePadding
             sx={{
-              mt: 2
+              mt: 2,
             }}
           >
             {checks.map((desc, index) => (
@@ -583,10 +576,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
     setCurrentTab(value);
   };
 
-  const handlePricingTabChange = (
-    _event: any,
-    value: SetStateAction<'cloud' | 'selfhosted'>
-  ) => {
+  const handlePricingTabChange = (_event: any, value: SetStateAction<"cloud" | "selfhosted">) => {
     setPricingType(value);
   };
 
@@ -594,135 +584,102 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
     <BoxHighlights>
       <BoxLayouts>
         <BoxWave>
-          <svg
-            viewBox="0 0 1440 172"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M0 0H1440V52.1874C1440 52.1874 873.5 172 720 172C566.5 172 0 52.1874 0 52.1874V0Z"
-              fill="white"
-            />
+          <svg viewBox="0 0 1440 172" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 0H1440V52.1874C1440 52.1874 873.5 172 720 172C566.5 172 0 52.1874 0 52.1874V0Z" fill="white" />
           </svg>
         </BoxWave>
         <BoxLayoutsImage
           sx={{
-            backgroundImage: 'url("/static/images/placeholders/covers/7.jpg")'
+            backgroundImage: 'url("/static/images/placeholders/covers/7.jpg")',
           }}
         />
         <BoxLayoutsContent maxWidth="lg">
-          <Grid
-            justifyContent="center"
-            alignItems="center"
-            spacing={6}
-            container
-          >
+          <Grid justifyContent="center" alignItems="center" spacing={6} container>
             <Grid item xs={12} md={6}>
               <TypographyFeature
                 className="typo-feature"
                 sx={{
-                  mt: { lg: 10 }
+                  mt: { lg: 10 },
                 }}
               >
-                {t('home.what')}
+                {t("home.what")}
               </TypographyFeature>
               <TypographyHeading
                 className="typo-heading"
                 sx={{
-                  mb: 1
+                  mb: 1,
                 }}
                 variant="h3"
               >
-                {t('home.you_will_have')}
+                {t("home.you_will_have")}
               </TypographyHeading>
               <TypographySubHeading
                 className="typo-subheading"
                 sx={{
-                  lineHeight: 1.5
+                  lineHeight: 1.5,
                 }}
                 variant="h4"
                 color="text.secondary"
                 fontWeight="normal"
               >
-                {t('home.you_will_have_description')}
+                {t("home.you_will_have_description")}
               </TypographySubHeading>
             </Grid>
             <Grid item xs={12} md={6}>
               <LayoutImgButton>
-                <Typography variant="h4">{t('work_orders')}</Typography>
-                <img
-                  src="/static/images/overview/work_order_screenshot.png"
-                  alt={t('work_orders')}
-                />
+                <Typography variant="h4">{t("work_orders")}</Typography>
+                <img src="/static/images/overview/work_order_screenshot.png" alt={t("work_orders")} />
               </LayoutImgButton>
             </Grid>
             <Grid item xs={12} md={6}>
               <LayoutImgButton>
-                <Typography variant="h4">{t('custom_dashboards')}</Typography>
-                <img
-                  src="/static/images/overview/analytics_screenshot.png"
-                  alt={t('custom_dashboards')}
-                />
+                <Typography variant="h4">{t("custom_dashboards")}</Typography>
+                <img src="/static/images/overview/analytics_screenshot.png" alt={t("custom_dashboards")} />
               </LayoutImgButton>
             </Grid>
             <Grid item xs={12} md={6}>
               <LayoutImgButton>
-                <Typography variant="h4">{t('asset_management')}</Typography>
-                <img
-                  src="/static/images/overview/assets.png"
-                  alt={t('asset_management')}
-                />
+                <Typography variant="h4">{t("asset_management")}</Typography>
+                <img src="/static/images/overview/assets.png" alt={t("asset_management")} />
               </LayoutImgButton>
             </Grid>
           </Grid>
         </BoxLayoutsContent>
         <BoxWaveAlt>
-          <svg
-            viewBox="0 0 1440 172"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M1440 172H0V119.813C0 119.813 566.5 0 720 0C873.5 0 1440 119.813 1440 119.813V172Z"
-              fill="white"
-            />
+          <svg viewBox="0 0 1440 172" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1440 172H0V119.813C0 119.813 566.5 0 720 0C873.5 0 1440 119.813 1440 119.813V172Z" fill="white" />
           </svg>
         </BoxWaveAlt>
       </BoxLayouts>
       <Container
         maxWidth="lg"
         sx={{
-          py: { xs: 8, md: 10 }
+          py: { xs: 8, md: 10 },
         }}
       >
-        <Grid
-          spacing={0}
-          direction={{ xs: 'column-reverse', md: 'row' }}
-          justifyContent="center"
-          container
-        >
+        <Grid spacing={0} direction={{ xs: "column-reverse", md: "row" }} justifyContent="center" container>
           <Grid item xs={12} md={6}>
             <Box>
               <TypographyHeading
                 sx={{
-                  mb: 1
+                  mb: 1,
                 }}
                 variant="h3"
               >
-                {t('home.work')}
+                {t("home.work")}
               </TypographyHeading>
-              <TypographyFeature>{t('home.smarter')}</TypographyFeature>
+              <TypographyFeature>{t("home.smarter")}</TypographyFeature>
               <TypographySubHeading
                 sx={{
                   lineHeight: 1.5,
-                  pr: 8
+                  pr: 8,
                 }}
                 variant="h4"
                 color="text.secondary"
                 fontWeight="normal"
               >
-                {t('home.smarter_description', {
-                  shortBrandName: brandConfig.name
+                {t("home.smarter_description", {
+                  shortBrandName: brandConfig.name,
                 })}
               </TypographySubHeading>
             </Box>
@@ -733,34 +690,34 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
           textAlign="center"
           sx={{
             mt: 8,
-            mb: 2
+            mb: 2,
           }}
           variant="h2"
         >
-          {t('key_features')}
+          {t("key_features")}
         </TypographyH1Primary>
         <Container maxWidth="sm">
           <TypographyH2
             sx={{
               pb: 4,
-              lineHeight: 1.5
+              lineHeight: 1.5,
             }}
             textAlign="center"
             variant="h4"
             color="text.secondary"
             fontWeight="normal"
           >
-            {t('key_features_description', {
-              shortBrandName: brandConfig.name
+            {t("key_features_description", {
+              shortBrandName: brandConfig.name,
             })}
           </TypographyH2>
         </Container>
         <Box
           sx={{
-            justifyContent: 'flex-start',
-            '.MuiTabs-scrollableX': {
-              overflow: 'auto !important'
-            }
+            justifyContent: "flex-start",
+            ".MuiTabs-scrollableX": {
+              overflow: "auto !important",
+            },
           }}
         >
           <Tabs
@@ -778,15 +735,10 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
           </Tabs>
         </Box>
         {Object.entries(featuresConfiguration).map(([feature, config]) => (
-          <Box
-            key={feature}
-            sx={{ display: currentTab === feature ? 'block' : 'none' }}
-          >
+          <Box key={feature} sx={{ display: currentTab === feature ? "block" : "none" }}>
             <Feature
               title={t(config.title.key, config.title.params)}
-              descriptions={config.descriptions.map((desc) =>
-                t(desc.key, desc.params)
-              )}
+              descriptions={config.descriptions.map((desc) => t(desc.key, desc.params))}
               checks={config.checks.map((check) => t(check.key, check.params))}
               image={config.image}
             />
@@ -799,28 +751,33 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
             textAlign="center"
             sx={{
               mt: 8,
-              mb: 2
+              mb: 2,
             }}
             variant="h2"
           >
-            {t('choose_your_plan')}
+            {t("choose_your_plan")}
           </TypographyH1Primary>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
-            <Tabs
-              value={pricingType}
-              onChange={handlePricingTabChange}
-              indicatorColor="primary"
-              textColor="primary"
-            >
-              <Tab label={t('cloud')} value="cloud" />
-              <Tab label={t('self_hosted')} value="selfhosted" />
+          <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+            <Tabs value={pricingType} onChange={handlePricingTabChange} indicatorColor="primary" textColor="primary">
+              <Tab label={t("cloud")} value="cloud" />
+              <Tab label={t("self_hosted")} value="selfhosted" />
             </Tabs>
           </Box>
+          {pricingType === "selfhosted" && (
+            <Box sx={{ display: "flex", justifyContent: "center", mb: 1 }}>
+              <Link
+                style={{ color: theme.palette.primary.main }}
+                href={"https://github.com/Grashjs/cmms?tab=readme-ov-file#self-host--run-locally"}
+              >
+                {t("installation_docs")}
+              </Link>
+            </Box>
+          )}
           <Box px={4}>
             <SubscriptionPlanSelector
               monthly={monthly}
               setMonthly={setMonthly}
-              selfHosted={pricingType === 'selfhosted'}
+              selfHosted={pricingType === "selfhosted"}
             />
           </Box>
         </>
@@ -829,7 +786,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
         hidePricing={hidePricing}
         sx={{
           pt: { xs: 6, md: 12 },
-          pb: { xs: 5, md: 15 }
+          pb: { xs: 5, md: 15 },
         }}
       />
     </BoxHighlights>
@@ -837,4 +794,3 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
 }
 
 export default Highlights;
-

@@ -1666,6 +1666,7 @@ const locale = {
     keywords:
       "CMMS, computerized maintenance management system, EAM, enterprise asset management, open source CMMS, free maintenance software, work order management, preventive maintenance, asset tracking, facility management, maintenance tracking software, equipment maintenance, Atlas CMMS",
   },
+  SSO: "SSO",
 };
 
 export default locale;

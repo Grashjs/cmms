@@ -12,6 +12,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  ListItemButton,
   ListItemIcon,
   Divider,
   useTheme,
@@ -20,17 +21,17 @@ import {
   Menu,
   Grid,
   Collapse,
-  Link as MuiLink
-} from '@mui/material';
-import Logo from '../LogoSign';
-import { GitHub, ExpandLess, ExpandMore } from '@mui/icons-material';
-import MenuIcon from '@mui/icons-material/Menu';
-import LanguageSwitcher from 'src/components/LanguageSwitcher';
-import Link from 'next/link';
-import { useTranslations } from 'next-intl';
-import { useState } from 'react';
-import { demoLink, isWhiteLabeled } from 'src/config';
-import { getIndustriesLinks, getFeaturesLinks } from 'src/utils/urlPaths';
+  Link as MuiLink,
+} from "@mui/material";
+import Logo from "../LogoSign";
+import { GitHub, ExpandLess, ExpandMore } from "@mui/icons-material";
+import MenuIcon from "@mui/icons-material/Menu";
+import LanguageSwitcher from "src/components/LanguageSwitcher";
+import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { demoLink, isWhiteLabeled } from "src/config";
+import { getIndustriesLinks, getFeaturesLinks } from "src/utils/urlPaths";
 
 const HeaderWrapper = styled(Card)(
   ({ theme }) => `
@@ -46,7 +47,7 @@ const HeaderWrapper = styled(Card)(
     margin-bottom: 0;
     box-shadow: ${theme.shadows[2]};
     border-radius: 0;
-  `
+  `,
 );
 
 // Spacer to prevent content from going under fixed navbar
@@ -54,13 +55,13 @@ const NavbarSpacer = styled(Box)(
   ({ theme }) => `
     height: ${theme.spacing(10)};
     margin-bottom: ${theme.spacing(10)};
-  `
+  `,
 );
 
 export default function NavBar() {
   const t = useTranslations();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const featuresLinks = getFeaturesLinks(t);
   const industriesLinks = getIndustriesLinks(t);
 
@@ -69,14 +70,11 @@ export default function NavBar() {
   const open = Boolean(anchorEl);
 
   // State for Features menu (Desktop)
-  const [featuresAnchorEl, setFeaturesAnchorEl] = useState<null | HTMLElement>(
-    null
-  );
+  const [featuresAnchorEl, setFeaturesAnchorEl] = useState<null | HTMLElement>(null);
   const featuresOpen = Boolean(featuresAnchorEl);
 
   // State for Industries menu (Desktop)
-  const [industriesAnchorEl, setIndustriesAnchorEl] =
-    useState<null | HTMLElement>(null);
+  const [industriesAnchorEl, setIndustriesAnchorEl] = useState<null | HTMLElement>(null);
   const industriesOpen = Boolean(industriesAnchorEl);
 
   // State for Features collapse (Mobile)
@@ -124,34 +122,29 @@ export default function NavBar() {
       <HeaderWrapper>
         <Container maxWidth="lg">
           <Stack direction="row" alignItems="center">
-            <Box alignItems={'center'}>
+            <Box alignItems={"center"}>
               <Logo />
               {!isWhiteLabeled && (
                 <Typography
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: "pointer" }}
                   fontSize={13}
                   onClick={() => {
-                    window.open('https://www.intel-loop.com/', '_blank');
+                    window.open("https://www.intel-loop.com/", "_blank");
                   }}
                 >
                   Powered by Intelloop
                 </Typography>
               )}
             </Box>
-            <Stack
-              direction="row"
-              alignItems="center"
-              justifyContent="space-between"
-              flex={1}
-            >
+            <Stack direction="row" alignItems="center" justifyContent="space-between" flex={1}>
               <Box />
               {/* Desktop Menu */}
               <Stack
                 direction="row"
                 spacing={{ xs: 1, md: 2 }}
-                alignItems={'center'}
+                alignItems={"center"}
                 sx={{
-                  display: { xs: 'none', md: 'flex' }
+                  display: { xs: "none", md: "flex" },
                 }}
               >
                 <Button
@@ -159,7 +152,7 @@ export default function NavBar() {
                   onMouseEnter={handleFeaturesOpen}
                   endIcon={featuresOpen ? <ExpandLess /> : <ExpandMore />}
                 >
-                  {t('features')}
+                  {t("features")}
                 </Button>
                 <Menu
                   id="features-menu"
@@ -168,56 +161,55 @@ export default function NavBar() {
                   onClose={handleFeaturesClose}
                   MenuListProps={{
                     onMouseLeave: handleFeaturesClose,
-                    sx: { p: 0 }
+                    sx: { p: 0 },
                   }}
                   PaperProps={{
                     sx: {
                       mt: 1.5,
                       boxShadow: theme.shadows[5],
                       borderRadius: 1,
-                      minWidth: 250
-                    }
+                      minWidth: 250,
+                    },
                   }}
                 >
-                  <Box sx={{ p: 2 }}>
+                  <Box sx={{ p: 0 }}>
                     <Typography
                       variant="h6"
                       sx={{
-                        mb: 2,
-                        fontWeight: 'bold',
+                        mb: 1,
+                        ml: 2,
+                        fontWeight: "bold",
                         color: theme.palette.primary.main,
-                        textTransform: 'uppercase',
+                        textTransform: "uppercase",
                         fontSize: 12,
-                        letterSpacing: 1
+                        letterSpacing: 1,
                       }}
                     >
-                      {t('features')}
+                      {t("features")}
                     </Typography>
-                    <List dense disablePadding>
+                    <List dense>
                       {featuresLinks.map((link) => (
-                        <ListItem
-                          key={link.title}
-                          component={Link}
-                          href={link.href}
-                          onClick={handleFeaturesClose}
-                          sx={{
-                            px: 0,
-                            py: 1,
-                            color: 'inherit',
-                            textDecoration: 'none',
-                            '&:hover': {
-                              color: theme.palette.primary.main,
-                              backgroundColor: 'transparent'
-                            }
-                          }}
-                        >
-                          <ListItemText
-                            primary={link.title}
-                            primaryTypographyProps={{
-                              variant: 'body2',
-                              sx: { fontWeight: 500 }
+                        <ListItem key={link.title} disablePadding>
+                          <ListItemButton
+                            component={Link}
+                            href={link.href}
+                            onClick={handleFeaturesClose}
+                            disableRipple
+                            sx={{
+                              px: 1,
+                              py: 1,
+                              color: "inherit",
+                              textDecoration: "none",
                             }}
-                          />
+                          >
+                            <ListItemText
+                              primary={link.title}
+                              primaryTypographyProps={{
+                                variant: "body2",
+                                sx: { fontWeight: 500 },
+                              }}
+                            />
+                          </ListItemButton>
                         </ListItem>
                       ))}
                     </List>
@@ -229,7 +221,7 @@ export default function NavBar() {
                   onMouseEnter={handleIndustriesOpen}
                   endIcon={industriesOpen ? <ExpandLess /> : <ExpandMore />}
                 >
-                  {t('industries')}
+                  {t("industries")}
                 </Button>
                 <Menu
                   id="industries-menu"
@@ -238,15 +230,15 @@ export default function NavBar() {
                   onClose={handleIndustriesClose}
                   MenuListProps={{
                     onMouseLeave: handleIndustriesClose,
-                    sx: { p: 0 }
+                    sx: { p: 0 },
                   }}
                   PaperProps={{
                     sx: {
                       mt: 1.5,
                       boxShadow: theme.shadows[5],
                       borderRadius: 1,
-                      minWidth: 500
-                    }
+                      minWidth: 500,
+                    },
                   }}
                 >
                   <Box sx={{ p: 2 }}>
@@ -254,88 +246,82 @@ export default function NavBar() {
                       variant="h6"
                       sx={{
                         mb: 2,
-                        fontWeight: 'bold',
+                        fontWeight: "bold",
                         color: theme.palette.primary.main,
-                        textTransform: 'uppercase',
+                        textTransform: "uppercase",
                         fontSize: 12,
-                        letterSpacing: 1
+                        letterSpacing: 1,
                       }}
                     >
-                      {t('industries')}
+                      {t("industries")}
                     </Typography>
                     <Grid container spacing={2}>
                       <Grid item xs={6}>
                         <List dense disablePadding>
-                          {industriesLinks
-                            .slice(0, Math.ceil(industriesLinks.length / 2))
-                            .map((link) => (
-                              <ListItem
-                                key={link.title}
+                          {industriesLinks.slice(0, Math.ceil(industriesLinks.length / 2)).map((link) => (
+                            <ListItem key={link.title} disablePadding>
+                              <ListItemButton
                                 component={Link}
                                 href={link.href}
                                 onClick={handleIndustriesClose}
                                 sx={{
                                   px: 0,
                                   py: 1,
-                                  color: 'inherit',
-                                  textDecoration: 'none',
-                                  '&:hover': {
+                                  color: "inherit",
+                                  textDecoration: "none",
+                                  "&:hover": {
                                     color: theme.palette.primary.main,
-                                    backgroundColor: 'transparent'
-                                  }
+                                    backgroundColor: "transparent",
+                                  },
                                 }}
                               >
-                                <ListItemIcon
-                                  sx={{ minWidth: 36, color: 'inherit' }}
-                                >
+                                <ListItemIcon sx={{ minWidth: 36, color: "inherit" }}>
                                   <link.icon fontSize="small" />
                                 </ListItemIcon>
+
                                 <ListItemText
                                   primary={link.title}
                                   primaryTypographyProps={{
-                                    variant: 'body2',
-                                    sx: { fontWeight: 500 }
+                                    variant: "body2",
+                                    sx: { fontWeight: 500 },
                                   }}
                                 />
-                              </ListItem>
-                            ))}
+                              </ListItemButton>
+                            </ListItem>
+                          ))}
                         </List>
                       </Grid>
                       <Grid item xs={6}>
                         <List dense disablePadding>
-                          {industriesLinks
-                            .slice(Math.ceil(industriesLinks.length / 2))
-                            .map((link) => (
-                              <ListItem
-                                key={link.title}
-                                component={Link}
-                                href={link.href}
-                                onClick={handleIndustriesClose}
-                                sx={{
-                                  px: 0,
-                                  py: 1,
-                                  color: 'inherit',
-                                  textDecoration: 'none',
-                                  '&:hover': {
-                                    color: theme.palette.primary.main,
-                                    backgroundColor: 'transparent'
-                                  }
+                          {industriesLinks.slice(Math.ceil(industriesLinks.length / 2)).map((link) => (
+                            <ListItem
+                              key={link.title}
+                              component={Link}
+                              href={link.href}
+                              onClick={handleIndustriesClose}
+                              sx={{
+                                px: 0,
+                                py: 1,
+                                color: "inherit",
+                                textDecoration: "none",
+                                "&:hover": {
+                                  color: theme.palette.primary.main,
+                                  backgroundColor: "transparent",
+                                },
+                              }}
+                            >
+                              <ListItemIcon sx={{ minWidth: 36, color: "inherit" }}>
+                                <link.icon fontSize="small" />
+                              </ListItemIcon>
+                              <ListItemText
+                                primary={link.title}
+                                primaryTypographyProps={{
+                                  variant: "body2",
+                                  sx: { fontWeight: 500 },
                                 }}
-                              >
-                                <ListItemIcon
-                                  sx={{ minWidth: 36, color: 'inherit' }}
-                                >
-                                  <link.icon fontSize="small" />
-                                </ListItemIcon>
-                                <ListItemText
-                                  primary={link.title}
-                                  primaryTypographyProps={{
-                                    variant: 'body2',
-                                    sx: { fontWeight: 500 }
-                                  }}
-                                />
-                              </ListItem>
-                            ))}
+                              />
+                            </ListItem>
+                          ))}
                         </List>
                       </Grid>
                     </Grid>
@@ -346,16 +332,16 @@ export default function NavBar() {
                   href="/pricing"
                   sx={{
                     ml: 2,
-                    size: { xs: 'small', md: 'medium' }
+                    size: { xs: "small", md: "medium" },
                   }}
                 >
-                  {t('pricing')}
+                  {t("pricing")}
                 </Button>
                 {!isWhiteLabeled && (
                   <Button
-                    component={'a'}
-                    target={'_blank'}
-                    href={'https://github.com/Grashjs/cmms'}
+                    component={"a"}
+                    target={"_blank"}
+                    href={"https://github.com/Grashjs/cmms"}
                     startIcon={<GitHub />}
                   >
                     GitHub
@@ -368,10 +354,10 @@ export default function NavBar() {
                   variant="text"
                   sx={{
                     ml: 2,
-                    size: { xs: 'small', md: 'medium' }
+                    size: { xs: "small", md: "medium" },
                   }}
                 >
-                  {t('login')}
+                  {t("login")}
                 </Button>
                 <Button
                   component={Link}
@@ -379,31 +365,31 @@ export default function NavBar() {
                   variant="contained"
                   sx={{
                     ml: 2,
-                    size: { xs: 'small', md: 'medium' }
+                    size: { xs: "small", md: "medium" },
                   }}
                 >
-                  {t('register')}
+                  {t("register")}
                 </Button>
                 <Button
                   href={demoLink}
                   variant="outlined"
                   sx={{
                     ml: 2,
-                    size: { xs: 'small', md: 'medium' }
+                    size: { xs: "small", md: "medium" },
                   }}
                 >
-                  {t('book_demo')}
+                  {t("book_demo")}
                 </Button>
               </Stack>
 
               {/* Mobile Menu Icon */}
-              <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+              <Box sx={{ display: { xs: "block", md: "none" } }}>
                 <IconButton
                   onClick={handleMenuOpen}
                   size="large"
-                  aria-controls={open ? 'mobile-menu' : undefined}
+                  aria-controls={open ? "mobile-menu" : undefined}
                   aria-haspopup="true"
-                  aria-expanded={open ? 'true' : undefined}
+                  aria-expanded={open ? "true" : undefined}
                 >
                   <MenuIcon />
                 </IconButton>
@@ -412,26 +398,26 @@ export default function NavBar() {
                   open={open}
                   onClose={handleMenuClose}
                   sx={{
-                    '& .MuiDrawer-paper': {
-                      width: '100%',
-                      background: theme.palette.background.default
-                    }
+                    "& .MuiDrawer-paper": {
+                      width: "100%",
+                      background: theme.palette.background.default,
+                    },
                   }}
                   transitionDuration={300}
                 >
                   <Box
                     sx={{
-                      height: '100%',
-                      display: 'flex',
-                      flexDirection: 'column'
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
                     }}
                   >
                     {/* Close button at top */}
                     <Box
                       sx={{
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                        p: 2
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        p: 2,
                       }}
                     >
                       <IconButton onClick={handleMenuClose}>
@@ -441,45 +427,33 @@ export default function NavBar() {
 
                     {/* Main menu items */}
                     <List sx={{ flexGrow: 1, pt: 2 }}>
-                      <Slide
-                        direction="left"
-                        in={open}
-                        mountOnEnter
-                        unmountOnExit
-                      >
+                      <Slide direction="left" in={open} mountOnEnter unmountOnExit>
                         <Box>
-                          <ListItem
-                            onClick={handleFeaturesMobileToggle}
-                            sx={{ py: 2, cursor: 'pointer' }}
-                          >
+                          <ListItem onClick={handleFeaturesMobileToggle} sx={{ py: 2, cursor: "pointer" }}>
                             <ListItemText
-                              primary={t('features')}
+                              primary={t("features")}
                               primaryTypographyProps={{
-                                variant: 'h3',
-                                sx: { fontWeight: 'bold' }
+                                variant: "h3",
+                                sx: { fontWeight: "bold" },
                               }}
                             />
-                            {featuresMobileOpen ? (
-                              <ExpandLess />
-                            ) : (
-                              <ExpandMore />
-                            )}
+                            {featuresMobileOpen ? <ExpandLess /> : <ExpandMore />}
                           </ListItem>
-                          <Collapse
-                            in={featuresMobileOpen}
-                            timeout="auto"
-                            unmountOnExit
-                          >
+                          <Collapse in={featuresMobileOpen} timeout="auto" unmountOnExit>
                             <List component="div" disablePadding sx={{ pl: 4 }}>
                               {featuresLinks.map((link) => (
-                                <ListItem
-                                  key={link.title}
-                                  component={Link}
-                                  href={link.href}
-                                  onClick={handleMenuClose}
-                                  sx={{ py: 1 }}
-                                >
-                                  <ListItemText primary={link.title} />
+                                <ListItem key={link.title} disablePadding>
+                                  <ListItemButton
+                                    component={Link}
+                                    href={link.href}
+                                    onClick={handleMenuClose}
+                                    disableRipple
+                                    sx={{
+                                      py: 1,
+                                    }}
+                                  >
+                                    <ListItemText primary={link.title} />
+                                  </ListItemButton>
                                 </ListItem>
                               ))}
                             </List>
@@ -487,83 +461,56 @@ export default function NavBar() {
                         </Box>
                       </Slide>
 
-                      <Slide
-                        direction="left"
-                        in={open}
-                        mountOnEnter
-                        unmountOnExit
-                      >
+                      <Slide direction="left" in={open} mountOnEnter unmountOnExit>
                         <Box>
-                          <ListItem
-                            onClick={handleIndustriesMobileToggle}
-                            sx={{ py: 2, cursor: 'pointer' }}
-                          >
+                          <ListItem onClick={handleIndustriesMobileToggle} sx={{ py: 2, cursor: "pointer" }}>
                             <ListItemText
-                              primary={t('industries')}
+                              primary={t("industries")}
                               primaryTypographyProps={{
-                                variant: 'h3',
-                                sx: { fontWeight: 'bold' }
+                                variant: "h3",
+                                sx: { fontWeight: "bold" },
                               }}
                             />
-                            {industriesMobileOpen ? (
-                              <ExpandLess />
-                            ) : (
-                              <ExpandMore />
-                            )}
+                            {industriesMobileOpen ? <ExpandLess /> : <ExpandMore />}
                           </ListItem>
-                          <Collapse
-                            in={industriesMobileOpen}
-                            timeout="auto"
-                            unmountOnExit
-                          >
+                          <Collapse in={industriesMobileOpen} timeout="auto" unmountOnExit>
                             <List component="div" disablePadding sx={{ pl: 4 }}>
                               {industriesLinks.map((link) => (
-                                <ListItem
-                                  key={link.title}
-                                  component={Link}
-                                  href={link.href}
-                                  onClick={handleMenuClose}
-                                  sx={{ py: 1 }}
-                                >
-                                  <ListItemIcon sx={{ minWidth: 40 }}>
-                                    <link.icon />
-                                  </ListItemIcon>
-                                  <ListItemText primary={link.title} />
+                                <ListItem key={link.title} disablePadding>
+                                  <ListItemButton
+                                    component={Link}
+                                    href={link.href}
+                                    onClick={handleMenuClose}
+                                    disableRipple
+                                    sx={{
+                                      py: 1,
+                                    }}
+                                  >
+                                    <ListItemIcon sx={{ minWidth: 40, color: "inherit" }}>
+                                      <link.icon />
+                                    </ListItemIcon>
+
+                                    <ListItemText primary={link.title} />
+                                  </ListItemButton>
                                 </ListItem>
                               ))}
                             </List>
                           </Collapse>
                         </Box>
                       </Slide>
-                      <Slide
-                        direction="left"
-                        in={open}
-                        mountOnEnter
-                        unmountOnExit
-                      >
-                        <ListItem
-                          component={Link}
-                          href="/pricing"
-                          onClick={handleMenuClose}
-                          sx={{ py: 2 }}
-                        >
+                      <Slide direction="left" in={open} mountOnEnter unmountOnExit>
+                        <ListItem component={Link} href="/pricing" onClick={handleMenuClose} sx={{ py: 2 }}>
                           <ListItemText
-                            primary={t('pricing')}
+                            primary={t("pricing")}
                             primaryTypographyProps={{
-                              variant: 'h3',
-                              sx: { fontWeight: 'bold' }
+                              variant: "h3",
+                              sx: { fontWeight: "bold" },
                             }}
                           />
                         </ListItem>
                       </Slide>
 
-                      <Slide
-                        direction="left"
-                        in={open}
-                        mountOnEnter
-                        unmountOnExit
-                        timeout={{ enter: 400 }}
-                      >
+                      <Slide direction="left" in={open} mountOnEnter unmountOnExit timeout={{ enter: 400 }}>
                         <ListItem
                           component="a"
                           href="https://github.com/Grashjs/cmms"
@@ -577,24 +524,16 @@ export default function NavBar() {
                           <ListItemText
                             primary="GitHub"
                             primaryTypographyProps={{
-                              variant: 'h3',
-                              sx: { fontWeight: 'bold' }
+                              variant: "h3",
+                              sx: { fontWeight: "bold" },
                             }}
                           />
                         </ListItem>
                       </Slide>
-                      
-                      <Slide
-                        direction="left"
-                        in={open}
-                        mountOnEnter
-                        unmountOnExit
-                        timeout={{ enter: 500 }}
-                      >
+
+                      <Slide direction="left" in={open} mountOnEnter unmountOnExit timeout={{ enter: 500 }}>
                         <ListItem sx={{ py: 2 }}>
-                          <LanguageSwitcher
-                            onSwitch={() => setAnchorEl(null)}
-                          />
+                          <LanguageSwitcher onSwitch={() => setAnchorEl(null)} />
                         </ListItem>
                       </Slide>
                     </List>
@@ -611,7 +550,7 @@ export default function NavBar() {
                           size="large"
                           onClick={handleMenuClose}
                         >
-                          {t('login')}
+                          {t("login")}
                         </Button>
                         <Button
                           component={Link}
@@ -621,15 +560,10 @@ export default function NavBar() {
                           size="large"
                           onClick={handleMenuClose}
                         >
-                          {t('register')}
+                          {t("register")}
                         </Button>
-                        <Button
-                          href={demoLink}
-                          variant="outlined"
-                          fullWidth
-                          size="large"
-                        >
-                          {t('book_demo')}
+                        <Button href={demoLink} variant="outlined" fullWidth size="large">
+                          {t("book_demo")}
                         </Button>
                       </Stack>
                     </Box>
@@ -644,4 +578,3 @@ export default function NavBar() {
     </>
   );
 }
-
