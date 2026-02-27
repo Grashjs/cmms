@@ -11,7 +11,7 @@ import {
 import { Helmet } from 'react-helmet-async';
 import Logo from 'src/components/LogoSign';
 
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import InstagramIcon from '@mui/icons-material/Instagram';
@@ -29,7 +29,7 @@ const MainContent = styled(Box)(
 );
 
 function StatusMaintenance() {
-  const { t }: { t: any } = useTranslation();
+  const t = useTranslations();
 
   return (
     <>
@@ -114,3 +114,4 @@ function StatusMaintenance() {
 }
 
 export default StatusMaintenance;
+

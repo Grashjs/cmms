@@ -330,7 +330,7 @@ const locale = {
   starts_on: 'Start op',
   ends_on: 'Eindigt op',
   frequency: 'Frequentie',
-  every_frequency_days: 'Elke {{frequency}} dagen',
+  every_frequency_days: 'Elke {frequency} dagen',
   wo_details: 'Werkorderdetails',
   confirm_delete_file: 'Weet u zeker dat u dit bestand wilt verwijderen?',
   wo_schedule_success: 'Werkorder succesvol ingepland',
@@ -444,7 +444,7 @@ const locale = {
   confirm_delete_part_asset:
     'Weet u zeker dat u dit onderdeel van dit asset wilt verwijderen?',
   no_due_date: 'Geen vervaldatum',
-  due_at_date: 'Vervalt op {{date}}',
+  due_at_date: 'Vervalt op {date}',
   no_primary_worker: 'Geen primaire medewerker',
   no_wo_linked_asset: 'Er is geen werkorder gekoppeld aan dit asset',
   asset_remove_success: 'Het asset is succesvol verwijderd',
@@ -476,7 +476,7 @@ const locale = {
   edit_asset: 'Asset bewerken',
   edit_asset_description: 'Vul onderstaande velden in om dit asset te bewerken',
   confirm_delete_asset: 'Weet u zeker dat u dit asset wilt verwijderen?',
-  loading_assets: 'Assets laden onder {{name}} #{{id}}',
+  loading_assets: 'Assets laden onder {name} #{id}',
   no_content: 'Geen inhoud',
   no_result_criteria: 'Geen resultaten die aan uw zoekcriteria voldoen',
   //location
@@ -835,7 +835,7 @@ const locale = {
   confirm_delete_category:
     'Weet u zeker dat u deze categorie wilt verwijderen?',
   no_category_message:
-    'Het lijkt erop dat u nog geen {{categoryName}} categorieën heeft.',
+    'Het lijkt erop dat u nog geen {categoryName} categorieën heeft.',
   acquisition_cost: 'Aanschafkosten',
   general_settings: 'Algemene instellingen',
   request_form_configuration: 'Configuratie aanvraagformulier',
@@ -866,7 +866,7 @@ const locale = {
   role_create_success: 'De rol is succesvol aangemaakt',
   role_create_failure: 'De rol kon niet worden aangemaakt',
   roles_management: 'Rollenbeheer',
-  roles_number: '{{count}} rollen',
+  roles_number: '{count} rollen',
   create_role: 'Rol aanmaken',
   upgrade_role: 'Upgrade om rol aan te maken',
   add_role: 'Nieuwe rol toevoegen',
@@ -1046,7 +1046,7 @@ const locale = {
   my_account: 'Mijn account',
   my_company: 'Mijn bedrijf',
   you_are_using_plan:
-    'U gebruikt momenteel het {{planName}}-plan. Het verloopt op {{expiration}}. Upgrade nu om toegang te krijgen tot meer functies.',
+    'U gebruikt momenteel het {planName}-plan. Het verloopt op {expiration}. Upgrade nu om toegang te krijgen tot meer functies.',
   upgrade_plan: 'Plan upgraden',
   plans: 'Plannen',
   monthly: 'Maandelijks',
@@ -1088,7 +1088,7 @@ const locale = {
   checkout_our: 'Bekijk onze',
   pricing_page: 'Prijs pagina',
   for_more_details: 'voor meer details',
-  users_count_display: '{{count}} gebruikers',
+  users_count_display: '{count} gebruikers',
   monthly_adverb: 'maandelijks',
   yearly_adverb: 'jaarlijks',
   features: 'Functies',
@@ -1115,18 +1115,18 @@ const locale = {
   done: 'Klaar',
   no_match_yet: 'Nog geen koppeling',
   select: 'Selecteer...',
-  matched_to_field: 'Gekoppeld aan {{field}}',
+  matched_to_field: 'Gekoppeld aan {field}',
   next: 'Volgende',
   not_enough_rows: 'Niet genoeg rijen in het bestand',
-  there_are_duplicates: 'Er zijn duplicaten: {{duplicates}}',
+  there_are_duplicates: 'Er zijn duplicaten: {duplicates}',
   assigned_by: 'Toegewezen door',
-  percent_rows_have_value: '{{percent}}% van de rijen heeft waarde',
+  percent_rows_have_value: '{percent}% van de rijen heeft waarde',
   match_at_least_column: 'Koppel ten minste één kolom',
   to_import: 'Importeren',
-  required_match: '{{field}} koppeling is verplicht',
+  required_match: '{field} koppeling is verplicht',
   archived: 'Gearchiveerd',
   import_wo_success:
-    '{{created}} werkorders zijn aangemaakt en {{updated}} zijn bijgewerkt',
+    '{created} werkorders zijn aangemaakt en {updated} zijn bijgewerkt',
   to_export: 'Exporteren',
   filters: 'Filters',
   more_filters: 'Meer filters',
@@ -1141,13 +1141,13 @@ const locale = {
   REACTIVE: 'Reactief',
   REPEATING: 'Preventief',
   import_location_success:
-    '{{created}} locaties zijn aangemaakt en {{updated}} zijn bijgewerkt',
+    '{created} locaties zijn aangemaakt en {updated} zijn bijgewerkt',
   import_part_success:
-    '{{created}} onderdelen zijn aangemaakt en {{updated}} zijn bijgewerkt',
+    '{created} onderdelen zijn aangemaakt en {updated} zijn bijgewerkt',
   import_meter_success:
-    '{{created}} meters zijn aangemaakt en {{updated}} zijn bijgewerkt',
+    '{created} meters zijn aangemaakt en {updated} zijn bijgewerkt',
   import_asset_success:
-    '{{created}} assets zijn aangemaakt en {{updated}} zijn bijgewerkt',
+    '{created} assets zijn aangemaakt en {updated} zijn bijgewerkt',
   wo_calendar: 'Werkorders Kalender',
   month: 'Maand',
   week: 'Week',
@@ -1298,17 +1298,17 @@ const locale = {
   upgrade_description:
     'U heeft zojuist uw abonnementsplan geüpgraded. U moet de uitgeschakelde gebruikers inschakelen die mogelijk Atlas gebruiken. Dit kunt u slechts één keer doen voor het huidige abonnement. Kies zorgvuldig',
   enable_users: 'Gebruikers inschakelen',
-  max_users_description: 'U kunt maximaal {{maxUsers}} gebruikers inschakelen',
+  max_users_description: 'U kunt maximaal {maxUsers} gebruikers inschakelen',
   downgrade_description:
     'U heeft zojuist uw abonnementsplan gedowngraded. U moet enkele gebruikers uitschakelen om door te gaan. Dit kunt u slechts één keer doen voor het huidige abonnement. Kies zorgvuldig',
   disable_users: 'Gebruikers uitschakelen',
-  min_users_description: 'U moet minimaal {{minUsers}} gebruikers uitschakelen',
+  min_users_description: 'U moet minimaal {minUsers} gebruikers uitschakelen',
   downgrade_description_no_owner:
     'Uw bedrijf heeft zojuist het abonnementsplan gedowngraded. De eigenaar van het bedrijf moet enkele gebruikers uitschakelen voordat u verder kunt',
   past_due: 'Verlopen',
   due_date_delay: 'Vertraging vervaldatum',
   due_date_delay_description: 'Vertraging vervaldatum in dagen',
-  days_count: '{{days}} dagen',
+  days_count: '{days} dagen',
   trigger_configuration: 'Triggerconfiguratie',
   WORK_ORDER_feature: 'Werkorders',
   REQUEST_feature: 'Werkverzoeken',
@@ -1340,7 +1340,7 @@ const locale = {
   home: 'Home',
   user: 'Gebruiker',
   start_work_order: 'Werkorder starten',
-  priority_label: '{{priority}} prioriteit',
+  priority_label: '{priority} prioriteit',
   stop_work_order: 'Timer stoppen',
   required_files_on_completion:
     'Bestanden zijn vereist bij afronding van de werkorder',
@@ -1353,8 +1353,8 @@ const locale = {
   complete_work_order: 'Werkorder voltooien',
   no_parts: 'Geen onderdelen',
   edit_quantity: 'Aantal bewerken',
-  remaining_tasks: '{{count}} resterende taken',
-  complete_tasks_percent: '{{percent}}% voltooid',
+  remaining_tasks: '{count} resterende taken',
+  complete_tasks_percent: '{percent}% voltooid',
   create_work_order: 'Werkorder aanmaken',
   select_customers: 'Selecteer klanten',
   select_vendors: 'Selecteer leveranciers',
@@ -1363,7 +1363,7 @@ const locale = {
   select_locations: 'Selecteer locaties',
   select_assets: 'Selecteer activa',
   select_categories: 'Selecteer categorieën',
-  estimated_hours_in_text: '{{hours}} geschatte uren',
+  estimated_hours_in_text: '{hours} geschatte uren',
   create_meter: 'Meter aanmaken',
   create_location: 'Locatie aanmaken',
   create_request: 'Verzoek aanmaken',
@@ -1422,8 +1422,8 @@ const locale = {
   error: 'Fout',
   tag_not_found: 'Tag niet gevonden',
   'no nfc support': 'Geen NFC-ondersteuning',
-  remaining_parts: '{{quantity}} resterend',
-  team_members_count: '{{count}} leden',
+  remaining_parts: '{quantity} resterend',
+  team_members_count: '{count} leden',
   no_asset_found_nfc:
     'Geen activum gevonden met deze NFC-tag. Wilt u het aanmaken?',
   no_access_to_camera: 'Geen toegang tot camera',
@@ -1447,7 +1447,7 @@ const locale = {
   camera: 'Camera',
   CANCELLED: 'Geweigerd',
   max_file_size_error:
-    'De bestandsgrootte mag niet groter zijn dan {{size}} MB',
+    'De bestandsgrootte mag niet groter zijn dan {size} MB',
   assignedToUser: 'Mijn werk',
   mark_all_as_seen: 'Alles als gezien markeren',
   estimated_start_date: 'Verwachte startdatum',
@@ -1486,7 +1486,7 @@ const locale = {
     'Gratis en open-source CMMS dat u zelf kunt hosten of in de cloud kunt gebruiken',
   'home.h2': 'Krachtig onderhoud tegen lage kosten',
   'home.h3':
-    'Stop met vertrouwen op spreadsheets en whiteboards. {{brandName}} helpt onderhoudsteams bij het plannen van interventies, het volgen van apparatuur en het naleven van de voorschriften. Host op uw eigen server of start direct in de cloud.',
+    'Stop met vertrouwen op spreadsheets en whiteboards. {brandName} helpt onderhoudsteams bij het plannen van interventies, het volgen van apparatuur en het naleven van de voorschriften. Host op uw eigen server of start direct in de cloud.',
   talk_to_sales: 'Praat met verkoop',
   'pricing.choose_plan_and_get_started':
     'Kies je abonnement en ga aan de slag.',
@@ -1697,3 +1697,4 @@ const locale = {
   construction: 'Bouw'
 };
 export default locale;
+

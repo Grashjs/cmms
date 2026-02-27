@@ -1,5 +1,5 @@
 "use client";
-import { createContext, FC } from 'react';
+import React, { createContext, FC } from 'react';
 import { Zoom } from '@mui/material';
 import { useSnackbar } from 'notistack';
 
@@ -12,7 +12,7 @@ export const CustomSnackBarContext = createContext<CustomSnackBarContext>(
   {} as CustomSnackBarContext
 );
 
-export const CustomSnackBarProvider: FC = ({ children }) => {
+export const CustomSnackBarProvider: FC<{children?: React.ReactNode}> = ({ children }) => {
   const { enqueueSnackbar } = useSnackbar();
   const showSnackBar = (message: string, type: 'error' | 'success') => {
     enqueueSnackbar(message, {
@@ -30,3 +30,4 @@ export const CustomSnackBarProvider: FC = ({ children }) => {
     </CustomSnackBarContext.Provider>
   );
 };
+

@@ -27,3 +27,4 @@ BaseLayout.propTypes = {
 };
 
 export default BaseLayout;
+

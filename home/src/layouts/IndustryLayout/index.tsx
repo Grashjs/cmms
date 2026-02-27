@@ -16,7 +16,7 @@ import { Footer } from 'src/components/Footer';
 import FaqComponent from 'src/components/Faq';
 import { Helmet } from 'react-helmet-async';
 import Link from 'next/link';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { demoLink } from 'src/config';
 import { OverviewWrapper } from 'src/content/landing/FreeCMMS';
 import { TypographyH2 } from 'src/content/landing/HeroFree';
@@ -81,7 +81,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
     pageDescription,
     canonicalPath
   } = props;
-  const { t } = useTranslation();
+  const t = useTranslations();
   const theme = useTheme();
 
   return (
@@ -389,3 +389,4 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
 };
 
 export default IndustryLayout;
+

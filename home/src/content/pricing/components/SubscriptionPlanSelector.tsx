@@ -18,7 +18,7 @@ import {
 import CheckCircleOutlineTwoToneIcon from '@mui/icons-material/CheckCircleOutlineTwoTone';
 import {useRouter, useSearchParams} from 'next/navigation';
 import Link from 'next/link';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { fireGa4Event } from 'src/utils/overall';
 import {
   apiUrl,
@@ -42,7 +42,7 @@ export default function SubscriptionPlanSelector({
   selfHosted
 }: SubscriptionPlanSelectorProps) {
   const theme = useTheme();
-  const { t }: { t: any } = useTranslation();
+  const t = useTranslations();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const router = useRouter();
@@ -294,3 +294,4 @@ export default function SubscriptionPlanSelector({
     </Box>
   );
 }
+

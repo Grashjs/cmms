@@ -1,5 +1,5 @@
 "use client";
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { SetStateAction, useState } from 'react';
 import Link from 'next/link';
 import {
@@ -331,7 +331,7 @@ const icons = {
 };
 
 function Highlights({ hidePricing }: { hidePricing?: boolean }) {
-  const { t }: { t: any } = useTranslation();
+  const t = useTranslations();
   const brandConfig = useBrand();
   const [currentTab, setCurrentTab] = useState('work-orders');
   const [monthly, setMonthly] = useState<boolean>(true);
@@ -837,3 +837,4 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
 }
 
 export default Highlights;
+

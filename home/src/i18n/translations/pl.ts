@@ -14,8 +14,8 @@ const plJSON = {
   COMPLETE: 'Zakończone',
   'home.built': 'Stworzony, aby ułatwić zarządzanie konserwacją',
   home_description:
-    'Gdy tablice i karteczki samoprzylepne są chaosem, a potrzebujesz oprogramowania CMMS, które jest wystarczająco proste, aby twój zespół mógł z niego korzystać – wypróbuj {{shortBrandName}}',
-  try_grash: 'Wypróbuj {{shortBrandName}}',
+    'Gdy tablice i karteczki samoprzylepne są chaosem, a potrzebujesz oprogramowania CMMS, które jest wystarczająco proste, aby twój zespół mógł z niego korzystać – wypróbuj {shortBrandName}',
+  try_grash: 'Wypróbuj {shortBrandName}',
   login: 'Zaloguj się',
   start_trial: 'Rozpocznij darmowy okres próbny',
   'home.what': 'Co',
@@ -24,7 +24,7 @@ const plJSON = {
     'Buduj efektywne, niezawodne procesy, które dadzą ci kontrolę nad konserwacją. Generuj, przydzielaj i śledź zlecenia pracy. Zarządzaj zapasami. Otrzymuj wiarygodne automatyczne raporty, które zwiększają przejrzystość i wprowadzają odpowiedzialność.',
   key_features: 'Kluczowe funkcje',
   key_features_description:
-    'Niektóre funkcje, które sprawiają, że {{shortBrandName}} jest jednym z najlepszych systemów CMMS dostępnych obecnie',
+    'Niektóre funkcje, które sprawiają, że {shortBrandName} jest jednym z najlepszych systemów CMMS dostępnych obecnie',
   contribute: 'Współpracuj',
   work_orders: 'Zlecenia pracy',
   request_system: 'System zgłoszeń pracy',
@@ -39,7 +39,7 @@ const plJSON = {
   'work-orders.descriptions.0':
     'Masz dość stosów papierkowej roboty i zagubionych zleceń? Wszystkie te stracone elementy bezpośrednio wpływają na wynik finansowy oraz twoją reputację.',
   'work-orders.descriptions.1':
-    'Dzięki {{shortBrandName}} możesz łatwo i szybko uporządkować wszystkie swoje zlecenia pracy, konserwacje zapobiegawcze i inne zadania w ramach zespołu w scentralizowanej bazie danych dostępnej z dowolnego urządzenia.',
+    'Dzięki {shortBrandName} możesz łatwo i szybko uporządkować wszystkie swoje zlecenia pracy, konserwacje zapobiegawcze i inne zadania w ramach zespołu w scentralizowanej bazie danych dostępnej z dowolnego urządzenia.',
   'work-orders.checks.0':
     'Wyświetl wszystkie swoje zadania, w tym zlecenia pracy, konserwacje oraz zgłoszenia pracy',
   'work-orders.checks.1':
@@ -53,7 +53,7 @@ const plJSON = {
   'work-requests.descriptions.0':
     'Masz dość korzystania ze starego systemu opartego na telefonie i e-mailach, który skutkuje zagubionymi zgłoszeniami, ciągłymi przerwami i powieloną pracą?',
   'work-requests.descriptions.1':
-    'Rozwiązanie {{shortBrandName}} do zarządzania konserwacją pozwala każdemu, kogo upoważnisz, zgłosić problem do działu utrzymania ruchu, wystarczy zeskanować kod QR (kod kreskowy) lub odwiedzić stronę i wpisać zgłoszenie za pomocą urządzenia mobilnego.',
+    'Rozwiązanie {shortBrandName} do zarządzania konserwacją pozwala każdemu, kogo upoważnisz, zgłosić problem do działu utrzymania ruchu, wystarczy zeskanować kod QR (kod kreskowy) lub odwiedzić stronę i wpisać zgłoszenie za pomocą urządzenia mobilnego.',
   'work-requests.checks.0': 'Nigdy więcej nie zgubisz zlecenia pracy',
   'work-requests.checks.1': 'Skróć czas obsługi zgłoszeń pracy nawet o 34%',
   'work-requests.checks.2':
@@ -79,7 +79,7 @@ const plJSON = {
   'eam.descriptions.0':
     'Zmęczony próbami uporządkowania chaotycznego bałaganu sprzętu w firmie, zastanawiając się, czy sprzęt jest właściwie utrzymywany, nie znając kosztów jego obsługi i innych problemów związanych z zarządzaniem zasobami?',
   'eam.descriptions.1':
-    'Moduł Zarządzania Aktywami w {{brandName}} można wykorzystać do zarządzania od 10 do 1 000 000 zasobów, umożliwiając śledzenie dokładnie tego, czego potrzebujesz, w łatwy sposób i z możliwością wyszukiwania w strukturze drzewiastej.',
+    'Moduł Zarządzania Aktywami w {brandName} można wykorzystać do zarządzania od 10 do 1 000 000 zasobów, umożliwiając śledzenie dokładnie tego, czego potrzebujesz, w łatwy sposób i z możliwością wyszukiwania w strukturze drzewiastej.',
   'eam.checks.0': 'Znaj status swoich zasobów w każdej chwili oraz ich koszty',
   'eam.checks.1': 'Wyświetl pełne i szczegółowe logi konserwacji',
   'eam.checks.2':
@@ -94,7 +94,7 @@ const plJSON = {
   'pm.descriptions.0':
     'Przestań tracić cenne godziny na ręczne rozsyłanie list kontrolnych konserwacji oraz monitorowanie postępów zespołu w realizacji zadań.',
   'pm.descriptions.1':
-    '{{shortBrandName}} umożliwia łatwą automatyzację harmonogramu konserwacji, dzięki czemu odpowiednia praca trafia automatycznie do właściwego technika w odpowiednim czasie dla odpowiedniego zasobu.',
+    '{shortBrandName} umożliwia łatwą automatyzację harmonogramu konserwacji, dzięki czemu odpowiednia praca trafia automatycznie do właściwego technika w odpowiednim czasie dla odpowiedniego zasobu.',
   'pm.checks.0':
     'Automatyzuj harmonogram konserwacji: codziennie, tygodniowo, miesięcznie, rocznie lub na podstawie zdarzeń czy odczytów liczników',
   'pm.checks.1':
@@ -110,7 +110,7 @@ const plJSON = {
   'part.descriptions.0':
     'Nie jesteś pewien, jakie części masz na stanie lub gdzie są używane? Nie wiesz, kiedy zabraknie części lub czy technicy będą mieli niezbędne elementy do wykonania swoich zadań?',
   'part.descriptions.1':
-    'Stworzyliśmy system zarządzania częściami w {{shortBrandName}}, aby rozwiązać te problemy i więcej:',
+    'Stworzyliśmy system zarządzania częściami w {shortBrandName}, aby rozwiązać te problemy i więcej:',
   'part.checks.0':
     'Otrzymuj natychmiastowe powiadomienia push i e-mail, gdy ilość danej części jest niska. Utrzymuj odpowiedni stan magazynowy, otrzymując automatyczne powiadomienia, gdy ilość spadnie poniżej ustalonego progu',
   'part.checks.1':
@@ -132,9 +132,9 @@ const plJSON = {
   'dashboard.descriptions.0':
     'Przyznajmy, pierwszym krokiem do poprawy operacji jest poznanie dobrych, złych i niepokojących aspektów.',
   'dashboard.descriptions.1':
-    'Dzięki spersonalizowanym pulpitom {{shortBrandName}} wreszcie możesz zrozumieć tę mroczną „czarną dziurę konserwacji” i rozpocząć wdrażanie planów opartych na danych, co prowadzi do obniżenia kosztów pracy, zmniejszenia przestojów i innych korzyści.',
+    'Dzięki spersonalizowanym pulpitom {shortBrandName} wreszcie możesz zrozumieć tę mroczną „czarną dziurę konserwacji” i rozpocząć wdrażanie planów opartych na danych, co prowadzi do obniżenia kosztów pracy, zmniejszenia przestojów i innych korzyści.',
   'dashboard.descriptions.2':
-    'Dzięki spersonalizowanym pulpitom {{shortBrandName}} otrzymasz możliwość...',
+    'Dzięki spersonalizowanym pulpitom {shortBrandName} otrzymasz możliwość...',
   'dashboard.checks.0':
     'Dowiedz się, gdzie są wydawane twoje pieniądze i dlaczego',
   'dashboard.checks.1':
@@ -143,12 +143,12 @@ const plJSON = {
   'dashboard.checks.3':
     'Przeglądaj raporty, które są automatycznie generowane i aktualizowane na podstawie twoich metryk',
   'dashboard.checks.4':
-    'Przeglądaj raporty, które można łatwo udostępniać przez arkusze Excel, PDF lub w {{shortBrandName}}',
+    'Przeglądaj raporty, które można łatwo udostępniać przez arkusze Excel, PDF lub w {shortBrandName}',
   'dashboard.checks.5': 'I wiele więcej...',
   'home.smarter': 'Inteligentniej',
   'home.work': 'Praca',
   'home.smarter_description':
-    '{{shortBrandName}} umożliwia technikom pracę na wysokim poziomie dzięki dostępowi do narzędzi i danych niezbędnych do wykonania zadania – wszystko z poziomu ich urządzenia.',
+    '{shortBrandName} umożliwia technikom pracę na wysokim poziomie dzięki dostępowi do narzędzi i danych niezbędnych do wykonania zadania – wszystko z poziomu ich urządzenia.',
   leading_maintenance:
     'Wyznaczamy kierunek dla lepszej przyszłości w zakresie konserwacji i niezawodności',
   premium_included: 'W zestawie funkcje premium',
@@ -280,7 +280,7 @@ const plJSON = {
   save: 'Zapisz',
   customers: 'Kontrahenci',
   no_labor:
-    'Koszty pracy nie zostały jeszcze dodane. Pojawią się tutaj, gdy użytkownik zarejestruje czas i posiada ustawioną stawkę godzinową w {{shortBrandName}}.',
+    'Koszty pracy nie zostały jeszcze dodane. Pojawią się tutaj, gdy użytkownik zarejestruje czas i posiada ustawioną stawkę godzinową w {shortBrandName}.',
   not_assigned: 'Nie przypisano',
   no_additional_cost: 'Dodatkowe koszty nie zostały jeszcze dodane',
   parts: 'Części',
@@ -324,7 +324,7 @@ const plJSON = {
   starts_on: 'Rozpoczyna się',
   ends_on: 'Kończy się',
   frequency: 'Częstotliwość',
-  every_frequency_days: 'Co {{frequency}} dni',
+  every_frequency_days: 'Co {frequency} dni',
   wo_details: 'Szczegóły zlecenia pracy',
   confirm_delete_file: 'Czy na pewno chcesz usunąć ten plik?',
   wo_schedule_success: 'Zlecenie pracy zostało pomyślnie zaplanowane',
@@ -435,7 +435,7 @@ const plJSON = {
   confirm_delete_part_asset:
     'Czy na pewno chcesz usunąć tę część z tego zasobu?',
   no_due_date: 'Bez terminu',
-  due_at_date: 'Termin: {{date}}',
+  due_at_date: 'Termin: {date}',
   no_primary_worker: 'Brak głównego pracownika',
   no_wo_linked_asset: 'Brak zlecenia pracy powiązanego z tym zasobem',
   asset_remove_success: 'Zasób został pomyślnie usunięty',
@@ -467,7 +467,7 @@ const plJSON = {
   edit_asset: 'Edytuj zasób',
   edit_asset_description: 'Wypełnij poniższe pola, aby edytować ten zasób',
   confirm_delete_asset: 'Czy na pewno chcesz usunąć ten zasób?',
-  loading_assets: 'Ładowanie zasobów pod {{name}} #{{id}}',
+  loading_assets: 'Ładowanie zasobów pod {name} #{id}',
   no_content: 'Brak zawartości',
   no_result_criteria: 'Żaden wynik nie odpowiada kryteriom wyszukiwania',
   map_view: 'Widok mapy',
@@ -833,7 +833,7 @@ const plJSON = {
   no_category_action: "Naciśnij przycisk '+' aby dodać pierwszą kategorię",
   confirm_delete_category: 'Czy na pewno chcesz usunąć tę kategorię?',
   no_category_message:
-    'Wygląda na to, że nie masz jeszcze żadnych kategorii {{categoryName}}.',
+    'Wygląda na to, że nie masz jeszcze żadnych kategorii {categoryName}.',
   acquisition_cost: 'Koszt nabycia',
 
   //settings
@@ -854,7 +854,7 @@ const plJSON = {
   external_id: 'ID zewnętrzne',
   permissions: 'Uprawnienia',
   create_role_description:
-    'Ta rola ma takie same uprawnienia jak administrator w {{shortBrandName}}, ale możesz dostosować niektóre istotne uprawnienia poniżej.',
+    'Ta rola ma takie same uprawnienia jak administrator w {shortBrandName}, ale możesz dostosować niektóre istotne uprawnienia poniżej.',
   create_and_edit: 'Tworzenie/Edytowanie',
   to_access: 'Dostęp',
   role_delete_success: 'Rola została pomyślnie usunięta',
@@ -866,7 +866,7 @@ const plJSON = {
   role_create_success: 'Rola została pomyślnie utworzona',
   role_create_failure: 'Nie udało się utworzyć roli',
   roles_management: 'Zarządzanie rolami',
-  roles_number: '{{count}} role',
+  roles_number: '{count} role',
   create_role: 'Utwórz rolę',
   upgrade_role: 'Upgrade, aby tworzyć role',
   add_role: 'Dodaj nową rolę',
@@ -1051,7 +1051,7 @@ const plJSON = {
   my_account: 'Moje konto',
   my_company: 'Moja firma',
   you_are_using_plan:
-    'Obecnie korzystasz z planu {{planName}}. Wygaśnie on dnia {{expiration}}. Ulepsz teraz, aby uzyskać dostęp do większej liczby funkcji.',
+    'Obecnie korzystasz z planu {planName}. Wygaśnie on dnia {expiration}. Ulepsz teraz, aby uzyskać dostęp do większej liczby funkcji.',
   upgrade_plan: 'Ulepsz plan',
 
   //subscription
@@ -1078,7 +1078,7 @@ const plJSON = {
   plan: 'Plan',
   current_plan: 'Obecny plan',
   number_users_who_will_use_grash:
-    'Liczba użytkowników korzystających z {{shortBrandName}}',
+    'Liczba użytkowników korzystających z {shortBrandName}',
   admin_role: 'Administrator',
   technical_role: 'Techniczny',
   limited_technical_role: 'Ograniczony techniczny',
@@ -1095,7 +1095,7 @@ const plJSON = {
   checkout_our: 'Sprawdź naszą',
   pricing_page: 'Stronę z cennikiem',
   for_more_details: 'aby uzyskać więcej informacji',
-  users_count_display: '{{count}} użytkowników',
+  users_count_display: '{count} użytkowników',
   monthly_adverb: 'miesięcznie',
   yearly_adverb: 'rocznie',
   features: 'Funkcje',
@@ -1123,18 +1123,18 @@ const plJSON = {
   done: 'Gotowe',
   no_match_yet: 'Brak dopasowania',
   select: 'Wybierz...',
-  matched_to_field: 'Dopasowano do {{field}}',
+  matched_to_field: 'Dopasowano do {field}',
   next: 'Dalej',
   not_enough_rows: 'Plik zawiera zbyt mało wierszy',
-  there_are_duplicates: 'W pliku występują duplikaty: {{duplicates}}',
+  there_are_duplicates: 'W pliku występują duplikaty: {duplicates}',
   assigned_by: 'Przydzielone przez',
-  percent_rows_have_value: '{{percent}}% wierszy zawiera wartość',
+  percent_rows_have_value: '{percent}% wierszy zawiera wartość',
   match_at_least_column: 'Dopasuj przynajmniej jedną kolumnę',
   to_import: 'Importuj',
-  required_match: 'Dopasowanie pola {{field}} jest wymagane',
+  required_match: 'Dopasowanie pola {field} jest wymagane',
   archived: 'Zarchiwizowane',
   import_wo_success:
-    '{{created}} zleceń pracy zostało utworzonych, a {{updated}} zostało zaktualizowanych',
+    '{created} zleceń pracy zostało utworzonych, a {updated} zostało zaktualizowanych',
   to_export: 'Eksportuj',
   filters: 'Filtry',
   more_filters: 'Więcej filtrów',
@@ -1149,13 +1149,13 @@ const plJSON = {
   REACTIVE: 'Reaktywny',
   REPEATING: 'Konserwacja zapobiegawcza',
   import_location_success:
-    '{{created}} lokalizacji zostało utworzonych, a {{updated}} zostało zaktualizowanych',
+    '{created} lokalizacji zostało utworzonych, a {updated} zostało zaktualizowanych',
   import_part_success:
-    '{{created}} części zostało utworzonych, a {{updated}} zostało zaktualizowanych',
+    '{created} części zostało utworzonych, a {updated} zostało zaktualizowanych',
   import_meter_success:
-    '{{created}} liczników zostało utworzonych, a {{updated}} zostało zaktualizowanych',
+    '{created} liczników zostało utworzonych, a {updated} zostało zaktualizowanych',
   import_asset_success:
-    '{{created}} zasobów zostało utworzonych, a {{updated}} zostało zaktualizowanych',
+    '{created} zasobów zostało utworzonych, a {updated} zostało zaktualizowanych',
   wo_calendar: 'Kalendarz zleceń pracy',
   month: 'Miesiąc',
   week: 'Tydzień',
@@ -1238,7 +1238,7 @@ const plJSON = {
   and_optional: 'oraz (opcjonalnie)',
   then: 'wtedy',
   workflow_description:
-    'Twórz niestandardowe przepływy pracy tak łatwo, jak: Jeśli, oraz, wtedy. Oszczędzaj czas i automatycznie przypisuj zlecenia pracy za pomocą przepływów, aby dostosować {{shortBrandName}} do działania twojego zespołu.\nWszystkie plany umożliwiają utworzenie do 1 niestandardowego przepływu pracy. Aby dodać więcej przepływów, przejdź na plan biznesowy',
+    'Twórz niestandardowe przepływy pracy tak łatwo, jak: Jeśli, oraz, wtedy. Oszczędzaj czas i automatycznie przypisuj zlecenia pracy za pomocą przepływów, aby dostosować {shortBrandName} do działania twojego zespołu.\nWszystkie plany umożliwiają utworzenie do 1 niestandardowego przepływu pracy. Aby dodać więcej przepływów, przejdź na plan biznesowy',
   CREATE_PURCHASE_ORDER: 'Utwórz zamówienie',
   PART_IS: 'Część to',
   QUANTITY_INFERIOR: 'Ilość jest mniejsza niż',
@@ -1301,20 +1301,20 @@ const plJSON = {
   upgrade: 'Ulepsz',
   downgrade: 'Obniż',
   upgrade_description:
-    'Właśnie ulepszyłeś swój plan subskrypcyjny. Musisz włączyć nieaktywowanych użytkowników, którzy mogą korzystać z {{shortBrandName}}. Możesz to zrobić tylko raz w ramach obecnej subskrypcji. Wybierz mądrze',
+    'Właśnie ulepszyłeś swój plan subskrypcyjny. Musisz włączyć nieaktywowanych użytkowników, którzy mogą korzystać z {shortBrandName}. Możesz to zrobić tylko raz w ramach obecnej subskrypcji. Wybierz mądrze',
   enable_users: 'Włącz użytkowników',
-  max_users_description: 'Możesz włączyć do {{maxUsers}} użytkowników',
+  max_users_description: 'Możesz włączyć do {maxUsers} użytkowników',
   downgrade_description:
     'Właśnie obniżyłeś swój plan subskrypcyjny. Musisz wyłączyć niektórych użytkowników, aby kontynuować. Możesz to zrobić tylko raz w ramach obecnej subskrypcji. Wybierz mądrze',
   disable_users: 'Wyłącz użytkowników',
   min_users_description:
-    'Musisz wyłączyć przynajmniej {{minUsers}} użytkowników',
+    'Musisz wyłączyć przynajmniej {minUsers} użytkowników',
   downgrade_description_no_owner:
     'Twoja firma właśnie obniżyła swój plan subskrypcyjny. Właściciel firmy musi wyłączyć niektórych użytkowników, zanim będziesz mógł kontynuować',
   past_due: 'Przekroczony termin',
   due_date_delay: 'Opóźnienie terminu',
   due_date_delay_description: 'Opóźnienie terminu w dniach',
-  days_count: '{{days}} dni',
+  days_count: '{days} dni',
   trigger_configuration: 'Konfiguracja wyzwalacza',
   WORK_ORDER_feature: 'Zlecenia pracy',
   REQUEST_feature: 'Zgłoszenia pracy',
@@ -1350,7 +1350,7 @@ const plJSON = {
   required_labor_on_completion: 'Musisz zarejestrować czas pracy',
   required_part_on_completion: 'W tym zleceniu pracy nie użyto żadnej części',
   required_cost_on_completion: 'Brak informacji o koszcie w tym zleceniu pracy',
-  estimated_hours_in_text: '{{hours}} szacowanych godzin',
+  estimated_hours_in_text: '{hours} szacowanych godzin',
   required_part_name: 'Nazwa części jest wymagana',
   asset_update_failure: 'Nie udało się zaktualizować zasobu',
   terms_of_service: 'Warunki korzystania',
@@ -1363,13 +1363,13 @@ const plJSON = {
   simplify_wo: 'Uprość zlecenia pracy w aplikacji mobilnej',
   simplify_wo_description:
     'Ukryj kontrolki czasu, koszty i części w szczegółach zlecenia pracy podczas korzystania z aplikacji mobilnej',
-  account_deletion: 'Usunięcie konta {{brandName}}',
+  account_deletion: 'Usunięcie konta {brandName}',
   switch_account: 'Zmień konto',
   switch_to_super_user: 'Przełącz na super administratora',
   switch_account_description: 'Wybierz konto, aby kontynuować',
   put_location_in_map: 'Umieść lokalizację na mapie',
   confirm_disable_user:
-    'Czy na pewno chcesz wyłączyć {{user}}? Będziesz mógł go włączyć dopiero po miesiącu',
+    'Czy na pewno chcesz wyłączyć {user}? Będziesz mógł go włączyć dopiero po miesiącu',
   user_disabled_success: 'Użytkownik został pomyślnie wyłączony',
   disable: 'Wyłącz',
   manufacturer: 'Producent',
@@ -1473,14 +1473,14 @@ const plJSON = {
   scheduled_date: 'Zaplanowana data',
   on: 'W dniu',
   required_days_of_week: 'Wymagane dni tygodnia',
-  'schedule.daily_one': 'Co {{count}} dzień',
-  'schedule.daily_other': 'Co {{count}} dni',
-  'schedule.weekly_one': 'Co {{count}} tydzień w {{days}}',
-  'schedule.weekly_other': 'Co {{count}} tygodni w {{days}}',
-  'schedule.monthly_one': 'Co {{count}} miesiąc',
-  'schedule.monthly_other': 'Co {{count}} miesięcy',
-  'schedule.yearly_one': 'Co {{count}} rok',
-  'schedule.yearly_other': 'Co {{count}} lat',
+  'schedule.daily_one': 'Co {count} dzień',
+  'schedule.daily_other': 'Co {count} dni',
+  'schedule.weekly_one': 'Co {count} tydzień w {days}',
+  'schedule.weekly_other': 'Co {count} tygodni w {days}',
+  'schedule.monthly_one': 'Co {count} miesiąc',
+  'schedule.monthly_other': 'Co {count} miesięcy',
+  'schedule.yearly_one': 'Co {count} rok',
+  'schedule.yearly_other': 'Co {count} lat',
   csv_separator: 'Separator CSV',
   open_source_cmms: 'CMMS open source',
   'main.title':
@@ -1489,7 +1489,7 @@ const plJSON = {
     'Darmowy CMMS o otwartym kodzie źródłowym, który możesz hostować samodzielnie lub w chmurze',
   'home.h2': 'Potężna konserwacja przy niskich kosztach',
   'home.h3':
-    'Przestań polegać na arkuszach kalkulacyjnych i tablicach. {{brandName}} pomaga zespołom ds. utrzymania ruchu planować interwencje, śledzić sprzęt i zachować zgodność z przepisami. Hostuj na własnym serwerze lub zacznij natychmiast w chmurze.',
+    'Przestań polegać na arkuszach kalkulacyjnych i tablicach. {brandName} pomaga zespołom ds. utrzymania ruchu planować interwencje, śledzić sprzęt i zachować zgodność z przepisami. Hostuj na własnym serwerze lub zacznij natychmiast w chmurze.',
   talk_to_sales: 'Porozmawiaj z działem sprzedaży',
   'pricing.choose_plan_and_get_started': 'Wybierz swój plan i zacznij',
   'pricing.slogan_effective_maintenance':
@@ -1702,3 +1702,4 @@ const plJSON = {
 };
 
 export default plJSON;
+

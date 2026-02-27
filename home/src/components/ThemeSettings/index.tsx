@@ -16,7 +16,7 @@ import { ThemeContext } from 'src/theme/ThemeProvider';
 import CheckTwoToneIcon from '@mui/icons-material/CheckTwoTone';
 import SettingsTwoToneIcon from '@mui/icons-material/SettingsTwoTone';
 import Fab from '@mui/material/Fab';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import UnfoldMoreTwoToneIcon from '@mui/icons-material/UnfoldMoreTwoTone';
 import Link from 'next/link';
 
@@ -167,7 +167,7 @@ const CheckSelected = styled(Box)(
 );
 
 const ThemeSettings: FC = () => {
-  const { t }: { t: any } = useTranslation();
+  const t = useTranslations();
 
   const ref = useRef<any>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
@@ -185,7 +185,7 @@ const ThemeSettings: FC = () => {
 
   const [theme, setTheme] = useState(curThemeName);
 
-  const changeTheme = (theme): void => {
+  const changeTheme = (theme: string): void => {
     setTheme(theme);
     setThemeName(theme);
   };
@@ -263,7 +263,7 @@ const ThemeSettings: FC = () => {
                 sx={{
                   fontWeight: 'bold'
                 }}
-                component={NavLink}
+                component={Link}
                 href="/extended-sidebar/dashboards"
               >
                 Extended Sidebar
@@ -272,7 +272,7 @@ const ThemeSettings: FC = () => {
                 sx={{
                   fontWeight: 'bold'
                 }}
-                component={NavLink}
+                component={Link}
                 href="/accent-header/dashboards"
               >
                 Accent Header
@@ -281,7 +281,7 @@ const ThemeSettings: FC = () => {
                 sx={{
                   fontWeight: 'bold'
                 }}
-                component={NavLink}
+                component={Link}
                 href="/accent-sidebar/dashboards"
               >
                 Accent Sidebar
@@ -290,7 +290,7 @@ const ThemeSettings: FC = () => {
                 sx={{
                   fontWeight: 'bold'
                 }}
-                component={NavLink}
+                component={Link}
                 href="/boxed-sidebar/dashboards"
               >
                 Boxed Sidebar
@@ -299,7 +299,7 @@ const ThemeSettings: FC = () => {
                 sx={{
                   fontWeight: 'bold'
                 }}
-                component={NavLink}
+                component={Link}
                 href="/collapsed-sidebar/dashboards"
               >
                 Collapsed Sidebar
@@ -308,7 +308,7 @@ const ThemeSettings: FC = () => {
                 sx={{
                   fontWeight: 'bold'
                 }}
-                component={NavLink}
+                component={Link}
                 href="/bottom-navigation/dashboards"
               >
                 Bottom Navigation
@@ -317,7 +317,7 @@ const ThemeSettings: FC = () => {
                 sx={{
                   fontWeight: 'bold'
                 }}
-                component={NavLink}
+                component={Link}
                 href="/top-navigation/dashboards"
               >
                 Top Navigation
@@ -402,3 +402,4 @@ const ThemeSettings: FC = () => {
 };
 
 export default ThemeSettings;
+

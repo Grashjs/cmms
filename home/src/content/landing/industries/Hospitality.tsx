@@ -98,3 +98,4 @@ function HospitalityAtlasPage() {
 }
 
 export default HospitalityAtlasPage;
+

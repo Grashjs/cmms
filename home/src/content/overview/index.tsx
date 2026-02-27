@@ -2,7 +2,7 @@
 
 import {Box, styled} from '@mui/material';
 import {useRouter} from 'next/navigation';
-import {useTranslation} from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import Hero from './Hero';
 import Highlights from './Highlights';
 import NavBar from 'src/components/NavBar';
@@ -18,7 +18,7 @@ const OverviewWrapper = styled(Box)(
 `
 );
 function Overview() {
-  const { t }: { t: any } = useTranslation();
+  const t = useTranslations();
   const router = useRouter();
   const brandConfig = useBrand();
 
@@ -33,3 +33,4 @@ function Overview() {
 }
 
 export default Overview;
+

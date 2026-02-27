@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import Link from 'next/link';
 import { Helmet } from 'react-helmet-async';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import Logo from 'src/components/LogoSign';
 import LanguageSwitcher from 'src/layouts/ExtendedSidebarLayout/Header/Buttons/LanguageSwitcher';
 import NavBar from 'src/components/NavBar';
@@ -20,7 +20,7 @@ import { useBrand } from 'src/hooks/useBrand';
 import { IS_ORIGINAL_CLOUD } from 'src/config';
 
 function TermsOfService() {
-  const { t }: { t: any } = useTranslation();
+  const t = useTranslations();
   const brandConfig = useBrand();
 
   return (
@@ -756,3 +756,4 @@ function TermsOfService() {
 }
 
 export default TermsOfService;
+

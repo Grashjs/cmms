@@ -122,8 +122,8 @@ const frJSON = {
   fetch_more: 'Charger plus',
   'home.built': 'Conçu pour faciliter la gestion de la maintenance',
   home_description:
-    "Lorsque les tableaux blancs et les notes autocollantes sont chaotiques et que vous avez besoin d'un logiciel de GMAO suffisamment facile à utiliser pour votre équipe, essayez {{shortBrandName}}",
-  try_grash: 'Essayer {{shortBrandName}}',
+    "Lorsque les tableaux blancs et les notes autocollantes sont chaotiques et que vous avez besoin d'un logiciel de GMAO suffisamment facile à utiliser pour votre équipe, essayez {shortBrandName}",
+  try_grash: 'Essayer {shortBrandName}',
   login: 'Se connecter',
   start_trial: 'Commencez un essai gratuit',
   'home.what': 'Ce que',
@@ -132,7 +132,7 @@ const frJSON = {
     'Créez des flux de travail efficaces et fiables qui vous permettent de contrôler la maintenance. ',
   key_features: 'Principales fonctionnalités',
   key_features_description:
-    "Certaines des fonctionnalités qui font de {{shortBrandName}} l'une des meilleures GMAO disponibles aujourd'hui",
+    "Certaines des fonctionnalités qui font de {shortBrandName} l'une des meilleures GMAO disponibles aujourd'hui",
   contribute: 'Contribuer',
   work_orders: 'Ordres de travail',
   request_system: "Demandes d'intervention",
@@ -146,7 +146,7 @@ const frJSON = {
   'work-orders.descriptions.0':
     'Vous en avez assez des rames de paperasse et des ordres de travail perdus? ',
   'work-orders.descriptions.1':
-    "Avec {{shortBrandName}}, vous pouvez facilement et rapidement organiser tous vos ordres de travail, Maintenances Préventives et autres tâches au sein de votre équipe dans une base de données centralisée accessible n'importe où, sur n'importe quel appareil.",
+    "Avec {shortBrandName}, vous pouvez facilement et rapidement organiser tous vos ordres de travail, Maintenances Préventives et autres tâches au sein de votre équipe dans une base de données centralisée accessible n'importe où, sur n'importe quel appareil.",
   'work-orders.checks.0':
     'Affichez toutes vos tâches, y compris les interventions, les Maintenances préventives et les demandes de travail',
   'work-orders.checks.1':
@@ -161,7 +161,7 @@ const frJSON = {
   'work-requests.descriptions.0':
     "Vous en avez assez d'utiliser l'ancien système de téléphone et de messagerie électronique qui entraîne des tickets PERDUS, des interruptions quotidiennes constantes et un travail en double?",
   'work-requests.descriptions.1':
-    'La solution de gestion de la maintenance de {{shortBrandName}} permet à toute personne que vous autorisez de soumettre un problème à votre service de maintenance en scannant simplement un code QR (code à barres) ou en visitant une URL et en saisissant sa demande via ses appareils mobiles.',
+    'La solution de gestion de la maintenance de {shortBrandName} permet à toute personne que vous autorisez de soumettre un problème à votre service de maintenance en scannant simplement un code QR (code à barres) ou en visitant une URL et en saisissant sa demande via ses appareils mobiles.',
   'work-requests.checks.0': 'Ne perdez plus jamais de travail.',
   'work-requests.checks.1':
     "Réduisez jusqu'à 34% le temps consacré au traitement des demandes de travail.",
@@ -190,7 +190,7 @@ const frJSON = {
   'eam.descriptions.0':
     "Frustré d'essayer d'organiser le désordre chaotique de l'équipement de l'entreprise, vous vous demandez si l'équipement a été correctement entretenu, vous ne savez pas ce qu'il en coûte pour l'entretenir et tous les autres maux de tête qui accompagnent la gestion des équipements ?",
   'eam.descriptions.1':
-    'Le module de gestion des équipements de {{brandName}}, vous permet de suivre exactement ce que vous voulez, comme vous le souhaitez, dans une arborescence facile à utiliser et interrogeable.',
+    'Le module de gestion des équipements de {brandName}, vous permet de suivre exactement ce que vous voulez, comme vous le souhaitez, dans une arborescence facile à utiliser et interrogeable.',
   'eam.checks.0':
     "Connaîssez la santé de vos équipements à tout moment et ce qu'ils vous coûtent",
   'eam.checks.1': 'Affichez les journaux de maintenance complets et détaillés.',
@@ -206,7 +206,7 @@ const frJSON = {
   'pm.descriptions.0':
     'Arrêtez de perdre de précieuses heures à distribuer manuellement des checklists et à faire un suivi avec votre équipe pour vous assurer que le travail est fait.',
   'pm.descriptions.1':
-    "{{shortBrandName}} vous permet d'automatiser facilement la planification des interventions afin que le bon travail soit automatiquement livré au bon moment au bon technicien pour le bon équipement.",
+    "{shortBrandName} vous permet d'automatiser facilement la planification des interventions afin que le bon travail soit automatiquement livré au bon moment au bon technicien pour le bon équipement.",
   'pm.checks.0':
     "Automatisez la planification des interventions préventives pour qu'elle soit quotidienne, hebdomadaire, mensuelle, annuelle ou basée sur des événements ou des relevés de compteurs.",
   'pm.checks.1':
@@ -222,7 +222,7 @@ const frJSON = {
   'part.descriptions.0':
     'Vous ne savez pas quelles pièces vous avez en stock ou où elles sont utilisées ? ',
   'part.descriptions.1':
-    'Nous avons conçu la gestion des pièces de {{shortBrandName}} pour résoudre ces problèmes et plus encore :',
+    'Nous avons conçu la gestion des pièces de {shortBrandName} pour résoudre ces problèmes et plus encore :',
   'part.checks.0':
     "Recevez des notifications push et par e-mail instantanées lorsque la quantité d'une pièce est faible. ",
   'part.checks.1':
@@ -238,21 +238,21 @@ const frJSON = {
   'dashboard.descriptions.0':
     'Avouons-le, la première étape pour améliorer vos opérations est de connaître le bon, le mauvais et le laid.',
   'dashboard.descriptions.1':
-    "Avec les tableaux de bord personnalisés de {{shortBrandName}}, vous pouvez enfin commencer à comprendre cet infâme « trou noir de la maintenance » et commencer à mettre en œuvre des plans basés sur des données, ce qui entraîne une réduction des coûts de main-d'œuvre, une diminution des temps d'arrêt et plus encore.",
+    "Avec les tableaux de bord personnalisés de {shortBrandName}, vous pouvez enfin commencer à comprendre cet infâme « trou noir de la maintenance » et commencer à mettre en œuvre des plans basés sur des données, ce qui entraîne une réduction des coûts de main-d'œuvre, une diminution des temps d'arrêt et plus encore.",
   'dashboard.descriptions.2':
-    'Avec les tableaux de bord personnalisés de {{shortBrandName}}, vous pourrez…',
+    'Avec les tableaux de bord personnalisés de {shortBrandName}, vous pourrez…',
   'dashboard.checks.0': 'Savoir où votre argent est dépensé et pourquoi',
   'dashboard.checks.1': 'Savoir quel équipement coûte le plus cher et pourquoi',
   'dashboard.checks.2': 'Créer vos propres KPI personnalisés.',
   'dashboard.checks.3':
     'Afficher des rapports générés et mis à jour automatiquement en fonction de votre métrique',
   'dashboard.checks.4':
-    'Afficher des rapports facilement partageables via des feuilles Excel, des PDF ou dans {{shortBrandName}}',
+    'Afficher des rapports facilement partageables via des feuilles Excel, des PDF ou dans {shortBrandName}',
   'dashboard.checks.5': 'Et bien plus ...',
   'home.smarter': 'Plus intelligent',
   'home.work': 'Travail',
   'home.smarter_description':
-    '{{shortBrandName}} permet aux techniciens de travailler efficacement en toute simplicité en leur donnant accès aux outils et aux données dont ils ont besoin pour accomplir leur travail, le tout depuis la paume de leur main.',
+    '{shortBrandName} permet aux techniciens de travailler efficacement en toute simplicité en leur donnant accès aux outils et aux données dont ils ont besoin pour accomplir leur travail, le tout depuis la paume de leur main.',
   leading_maintenance:
     'Ouvrir la voie à un avenir meilleur pour la maintenance et la fiabilité',
   //register
@@ -432,7 +432,7 @@ const frJSON = {
   starts_on: 'Commence le',
   ends_on: 'Se termine le',
   frequency: 'Fréquence',
-  every_frequency_days: 'Tous les {{frequency}} jours',
+  every_frequency_days: 'Tous les {frequency} jours',
   wo_details: 'Détails du bon de travail',
   confirm_delete_file: 'Voulez-vous vraiment supprimer ce fichier ?',
   wo_schedule_success: 'Ordre de travail planifié avec succès',
@@ -551,7 +551,7 @@ const frJSON = {
   confirm_delete_part_asset:
     'Voulez-vous vraiment supprimer cette pièce de cet équipement ?',
   no_due_date: "Pas de date d'échéance",
-  due_at_date: 'Dû le {{date}}',
+  due_at_date: 'Dû le {date}',
   no_primary_worker: 'Aucun assigné',
   no_wo_linked_asset: "Il n'y a pas de bon de travail lié à cet équipement",
   asset_remove_success: "L'équipement a été supprimé avec succès",
@@ -587,7 +587,7 @@ const frJSON = {
   confirm_delete_asset: 'Etes-vous sûrs de vouloir supprimer cet équipement ?',
   no_content: 'Pas de contenu',
   no_result_criteria: 'Aucun résultat pour vos critères de recherche',
-  loading_assets: 'Chargement des équipements enfants de {{name}} #{{id}}',
+  loading_assets: 'Chargement des équipements enfants de {name} #{id}',
   //location
   map_view: 'Vue carte',
   location_create_success: "L'emplacement a été créé avec succès",
@@ -952,7 +952,7 @@ const frJSON = {
     "Appuyez sur le bouton '+' pour ajouter votre première catégorie.",
   confirm_delete_category: 'Voulez-vous vraiment supprimer cette catégorie ?',
   no_category_message:
-    "Il semble que vous n'ayez pas encore de catégories sur les {{categoryName}}.",
+    "Il semble que vous n'ayez pas encore de catégories sur les {categoryName}.",
   acquisition_cost: "Coût d'acquisition",
   //settings
   general_settings: 'Paramètres généraux',
@@ -973,7 +973,7 @@ const frJSON = {
   external_id: 'ID externe',
   permissions: 'Permissions',
   create_role_description:
-    "Ce rôle peut faire tout ce qu'un administrateur peut faire dans {{brandName}}, mais vous pouvez personnaliser certaines permissions importantes ci-dessous.",
+    "Ce rôle peut faire tout ce qu'un administrateur peut faire dans {brandName}, mais vous pouvez personnaliser certaines permissions importantes ci-dessous.",
   create_and_edit: 'Créer/Modifier',
   to_access: 'Accéder',
   role_delete_success: 'Le rôle a été supprimé avec succès',
@@ -986,7 +986,7 @@ const frJSON = {
   role_create_success: 'Le rôle a été créé avec succès',
   role_create_failure: "Le rôle n'a pas pu être créé",
   roles_management: 'Gestion des rôles',
-  roles_number: '{{count}} rôles',
+  roles_number: '{count} rôles',
   create_role: 'Créer un rôle',
   upgrade_role: 'Mettez à niveau pour créer un rôle',
   add_role: 'Ajouter un nouveau rôle',
@@ -1165,7 +1165,7 @@ const frJSON = {
   my_account: 'Mon compte',
   my_company: 'Mon entreprise',
   you_are_using_plan:
-    'Vous utilisez actuellement le plan {{planName}}. Il expirera le {{expiration}}. Mettez à niveau maintenant pour accéder à plus de fonctionnalités.',
+    'Vous utilisez actuellement le plan {planName}. Il expirera le {expiration}. Mettez à niveau maintenant pour accéder à plus de fonctionnalités.',
   upgrade_plan: 'Changer de plan',
   plans: 'Plans',
   monthly: 'Mensuel',
@@ -1190,7 +1190,7 @@ const frJSON = {
   plan: 'Plan',
   current_plan: 'Plan actuel',
   number_users_who_will_use_grash:
-    "Nombre d'utilisateurs qui utiliseront {{shortBrandName}}",
+    "Nombre d'utilisateurs qui utiliseront {shortBrandName}",
   admin_role: 'Administrateur',
   technical_role: 'Technique',
   limited_technical_role: 'Technique limitée',
@@ -1207,7 +1207,7 @@ const frJSON = {
   checkout_our: 'Regardez notre',
   pricing_page: 'Page des tarifs',
   for_more_details: 'pour plus de détails',
-  users_count_display: '{{count}} Utilisateurs',
+  users_count_display: '{count} Utilisateurs',
   monthly_adverb: 'mensuellement',
   yearly_adverb: 'annuellement',
   features: 'Fonctionnalités',
@@ -1235,18 +1235,18 @@ const frJSON = {
   done: 'Finaliser',
   no_match_yet: 'Aucune correspondance pour le moment',
   select: 'Sélectionnez...',
-  matched_to_field: 'Correspond à {{field}}',
+  matched_to_field: 'Correspond à {field}',
   next: 'Suivant',
   not_enough_rows: 'Pas assez de lignes dans le fichier',
-  there_are_duplicates: 'Il y a des doublons: {{duplicates}}',
+  there_are_duplicates: 'Il y a des doublons: {duplicates}',
   assigned_by: 'Assigné Par',
-  percent_rows_have_value: '{{percent}}% des lignes ont une valeur',
+  percent_rows_have_value: '{percent}% des lignes ont une valeur',
   select_at_least_column: 'Faites correspondre au moins une colonne',
   to_import: 'Importer',
-  required_match: 'La correspondance à {{field}} est requise',
+  required_match: 'La correspondance à {field} est requise',
   archived: 'Archivé',
   import_wo_success:
-    '{{created}} bons de travail ont été créés et {{updated}} ont été mis à jour',
+    '{created} bons de travail ont été créés et {updated} ont été mis à jour',
   to_export: 'Exporter',
   filters: 'Filtres',
   more_filters: 'Plus de Filtres',
@@ -1261,13 +1261,13 @@ const frJSON = {
   REACTIVE: 'Réactif',
   REPEATING: 'Préventif',
   import_location_success:
-    '{{created}} emplacements ont été créés et {{updated}} ont été mis à jour',
+    '{created} emplacements ont été créés et {updated} ont été mis à jour',
   import_part_success:
-    '{{created}} Pièces ont été créées et {{updated}} ont été mises à jour',
+    '{created} Pièces ont été créées et {updated} ont été mises à jour',
   import_meter_success:
-    '{{created}} Compteurs ont été créés et {{updated}} ont été mis à jour',
+    '{created} Compteurs ont été créés et {updated} ont été mis à jour',
   import_asset_success:
-    '{{created}} Equipements ont été créés et {{updated}} ont été mis à jour',
+    '{created} Equipements ont été créés et {updated} ont été mis à jour',
   wo_calendar: 'Calendrier des ordres de travail',
   month: 'Mois',
   week: 'Semaine',
@@ -1352,7 +1352,7 @@ const frJSON = {
   and_optional: 'Et(Optionnel)',
   then: 'Alors',
   workflow_description:
-    "Créez des flux de travail personnalisés aussi simples que Si, Et, Alors. Gagnez du temps et attribuez facilement vos ordres de travail automatiquement via des flux de travail pour personnaliser {{shortBrandName}} en fonction du fonctionnement de votre équipe.\nTous les plans peuvent créer jusqu'à 1 flux de travail personnalisé. Pour ajouter des flux de travail supplémentaires, passez à notre plan Business",
+    "Créez des flux de travail personnalisés aussi simples que Si, Et, Alors. Gagnez du temps et attribuez facilement vos ordres de travail automatiquement via des flux de travail pour personnaliser {shortBrandName} en fonction du fonctionnement de votre équipe.\nTous les plans peuvent créer jusqu'à 1 flux de travail personnalisé. Pour ajouter des flux de travail supplémentaires, passez à notre plan Business",
   CREATE_PURCHASE_ORDER: 'Créer un bon de commande',
   PART_IS: 'La pièce est',
   QUANTITY_INFERIOR: 'La quantité est inférieure à',
@@ -1418,22 +1418,22 @@ const frJSON = {
   upgrade: 'Mise à niveau',
   downgrade: 'Rétrograder',
   upgrade_description:
-    "Vous venez de mettre à jour votre plan d'abonnement. Vous devez activer les utilisateurs désactivés susceptibles d'utiliser {{shortBrandName}}. Vous ne pouvez le faire qu'une seule fois pour l'abonnement en cours. Veuillez choisir avec soin",
+    "Vous venez de mettre à jour votre plan d'abonnement. Vous devez activer les utilisateurs désactivés susceptibles d'utiliser {shortBrandName}. Vous ne pouvez le faire qu'une seule fois pour l'abonnement en cours. Veuillez choisir avec soin",
   enable_users: 'Activer les utilisateurs',
   max_users_description:
-    "Vous pouvez activer jusqu'à {{maxUsers}} utilisateurs",
+    "Vous pouvez activer jusqu'à {maxUsers} utilisateurs",
   downgrade_description:
     "Vous venez de rétrograder votre plan d'abonnement. Vous devez désactiver certains utilisateurs pour continuer. Vous ne pouvez le faire qu'une seule fois pour l'abonnement en cours. Veuillez choisir avec soin",
   disable_users: 'Désactiver les utilisateurs',
   min_users_description:
-    'Vous devez désactiver un minimum de {{minUsers}} utilisateurs',
+    'Vous devez désactiver un minimum de {minUsers} utilisateurs',
   downgrade_description_no_owner:
     "Votre entreprise vient de diminuer le nombre d'utilisateurs dans son plan d'abonnement. Le propriétaire de l'entreprise doit désactiver certains utilisateurs avant que vous puissiez continuer",
   past_due: 'En retard',
   already_read: 'Relevé',
   due_date_delay: "Jours avant l'échéance",
   due_date_delay_description: 'Nombre de jours',
-  days_count: '{{days}} jours',
+  days_count: '{days} jours',
   trigger_configuration: 'Configuration du déclencheur',
   WORK_ORDER_feature: 'Bons de travail',
   REQUEST_feature: 'Demandes de travail',
@@ -1473,7 +1473,7 @@ const frJSON = {
     "Aucune pièce n'a été utilisée dans ce bon de travail",
   required_cost_on_completion:
     'Aucune information de coût fournie dans ce bon de travail',
-  estimated_hours_in_text: '{{hours}} heures estimées',
+  estimated_hours_in_text: '{hours} heures estimées',
   required_part_name: 'Le nom de la pièce est requis',
   asset_update_failure:
     "La modification de l'équipement ne s'est pas bien passée",
@@ -1493,7 +1493,7 @@ const frJSON = {
   switch_account_description: 'Veuillez choisir un compte pour continuer',
   put_location_in_map: "Placer l'emplacement sur une carte",
   confirm_disable_user:
-    "Etes-vous sûr de désactiver {{user}}? Vous ne pourrez l'activer que dans un mois",
+    "Etes-vous sûr de désactiver {user}? Vous ne pourrez l'activer que dans un mois",
   user_disabled_success: 'Utilisateur désactivé',
   disable: 'Désactiver',
   manufacturer: 'Fabriquant',
@@ -1555,14 +1555,14 @@ const frJSON = {
   scheduled_date: 'Date prévue',
   on: 'Sur',
   required_days_of_week: 'Jours de la semaine requis',
-  'schedule.daily_one': 'Chaque {{count}} jour',
-  'schedule.daily_other': 'Chaque {{count}} jours',
-  'schedule.weekly_one': 'Chaque {{count}} semaine le {{days}}',
-  'schedule.weekly_other': 'Chaque {{count}} semaines le {{days}}',
-  'schedule.monthly_one': 'Chaque {{count}} mois',
-  'schedule.monthly_other': 'Chaque {{count}} mois',
-  'schedule.yearly_one': 'Chaque {{count}} an',
-  'schedule.yearly_other': 'Chaque {{count}} ans',
+  'schedule.daily_one': 'Chaque {count} jour',
+  'schedule.daily_other': 'Chaque {count} jours',
+  'schedule.weekly_one': 'Chaque {count} semaine le {days}',
+  'schedule.weekly_other': 'Chaque {count} semaines le {days}',
+  'schedule.monthly_one': 'Chaque {count} mois',
+  'schedule.monthly_other': 'Chaque {count} mois',
+  'schedule.yearly_one': 'Chaque {count} an',
+  'schedule.yearly_other': 'Chaque {count} ans',
   recent_work_orders: 'Ordres de travail récents',
   no_recent_work_orders: 'Aucun ordre de travail',
   delete_account: 'Supprimer le compte',
@@ -1574,7 +1574,7 @@ const frJSON = {
     'GMAO gratuite et open source que vous pouvez héberger vous-même ou utiliser dans le cloud',
   'home.h2': 'Une maintenance puissante à faible coût',
   'home.h3':
-    'Arrêtez de compter sur les feuilles de calcul et les tableaux blancs. {{brandName}} aide les équipes de maintenance à planifier les interventions, à suivre les équipements et à rester conformes. Hébergez vous-même sur votre serveur ou commencez instantanément dans le cloud.',
+    'Arrêtez de compter sur les feuilles de calcul et les tableaux blancs. {brandName} aide les équipes de maintenance à planifier les interventions, à suivre les équipements et à rester conformes. Hébergez vous-même sur votre serveur ou commencez instantanément dans le cloud.',
   talk_to_sales: 'Parler à un expert',
   'pricing.choose_plan_and_get_started': 'Choisissez votre plan et commencez',
   'pricing.slogan_effective_maintenance':
@@ -1790,3 +1790,4 @@ const frJSON = {
 };
 
 export default frJSON;
+

@@ -12,8 +12,8 @@ import { Helmet } from 'react-helmet-async';
 import RefreshTwoToneIcon from '@mui/icons-material/RefreshTwoTone';
 import LoadingButton from '@mui/lab/LoadingButton';
 
-import { useTranslation } from 'react-i18next';
-import { useBrand } from 'src/../hooks/useBrand';
+import { useTranslations } from 'next-intl';
+import { useBrand } from 'src/hooks/useBrand';
 
 const GridWrapper = styled(Grid)(
   ({ theme }) => `
@@ -46,7 +46,7 @@ const TypographySecondary = styled(Typography)(
 );
 
 function Status500() {
-  const { t }: { t: any } = useTranslation();
+  const t = useTranslations();
   const { name: brandName } = useBrand();
   const [pending, setPending] = useState(false);
   function handleClick() {
@@ -166,3 +166,4 @@ function Status500() {
 }
 
 export default Status500;
+

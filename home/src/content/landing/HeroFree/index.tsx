@@ -7,7 +7,7 @@ import {
   styled,
   Typography
 } from '@mui/material';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 const TypographyH1 = styled(Typography)(
@@ -83,7 +83,7 @@ const MobileImgWrapper = styled(Box)(
 );
 
 function HeroFree() {
-  const { t }: { t: any } = useTranslation();
+  const t = useTranslations();
 
   return (
     <Container maxWidth="lg">
@@ -150,3 +150,4 @@ function HeroFree() {
 }
 
 export default HeroFree;
+

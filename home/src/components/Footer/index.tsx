@@ -9,14 +9,13 @@ import {
   Typography
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { GitHub, LinkedIn, Mail, Phone, Sms } from '@mui/icons-material';
 import { getFeaturesLinks, getIndustriesLinks } from 'src/utils/urlPaths';
-import { useTranslation } from 'react-i18next';
-import { ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
+import { ReactNode, useMemo } from 'react';
 
 const FooterWrapper = styled(Box)(
-  ({ theme }) => `
+    ({ theme }) => `
     background: ${theme.colors.alpha.black[100]};
     color: ${theme.colors.alpha.white[70]};
     padding: ${theme.spacing(4)} 0;
@@ -24,7 +23,7 @@ const FooterWrapper = styled(Box)(
 );
 
 const FooterLink = styled(MuiLink)(
-  ({ theme }) => `
+    ({ theme }) => `
     color: ${theme.colors.alpha.white[70]};
     text-decoration: none;
 
@@ -36,12 +35,13 @@ const FooterLink = styled(MuiLink)(
 );
 
 const SectionHeading = styled(Typography)(
-  ({ theme }) => `
+    ({ theme }) => `
     font-weight: ${theme.typography.fontWeightBold};
     color: ${theme.colors.alpha.white[100]};
     margin-bottom: ${theme.spacing(2)};
 `
 );
+
 interface ContactItem {
   icon: ReactNode;
   text: string;
@@ -99,17 +99,17 @@ interface AppsSection extends BaseFooterSection {
 }
 
 type FooterSection =
-  | ContactSection
-  | LinksSection
-  | DynamicSection
-  | SocialSection
-  | AppsSection;
+    | ContactSection
+    | LinksSection
+    | DynamicSection
+    | SocialSection
+    | AppsSection;
 
 export function Footer() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const t = useTranslations();
 
-  const footerSections: FooterSection[] = [
+  const footerSections: FooterSection[] = useMemo(() => [
     {
       title: 'Contact',
       type: 'contact',
@@ -118,7 +118,7 @@ export function Footer() {
           icon: <Mail fontSize="small" />,
           text: 'contact@atlas-cmms.com',
           onClick: () =>
-            (window.location.href = 'mailto:contact@atlas-cmms.com')
+              (window.location.href = 'mailto:contact@atlas-cmms.com')
         },
         {
           icon: <Phone fontSize="small" />,
@@ -181,73 +181,73 @@ export function Footer() {
         }
       ]
     }
-  ];
+  ], [t]);
 
   const renderSectionContent = (section: FooterSection) => {
     switch (section.type) {
       case 'contact':
         return (
-          <Stack spacing={2}>
-            {section.items.map((item, index) => (
-              <Box
-                key={index}
-                sx={{ cursor: item.onClick ? 'pointer' : 'default' }}
-                onClick={item.onClick}
-                display="flex"
-                alignItems="center"
-              >
-                {item.icon}
-                <Typography variant="body2" sx={{ ml: 1 }}>
-                  {item.text}
-                </Typography>
-              </Box>
-            ))}
-          </Stack>
+            <Stack spacing={2}>
+              {section.items.map((item, index) => (
+                  <Box
+                      key={index}
+                      sx={{ cursor: item.onClick ? 'pointer' : 'default' }}
+                      onClick={item.onClick}
+                      display="flex"
+                      alignItems="center"
+                  >
+                    {item.icon}
+                    <Typography variant="body2" sx={{ ml: 1 }}>
+                      {item.text}
+                    </Typography>
+                  </Box>
+              ))}
+            </Stack>
         );
       case 'links':
         return (
-          <Stack spacing={2}>
-            {section.items.map((item, index) => (
-              <FooterLink key={index} href={item.href}>
-                {item.text}
-              </FooterLink>
-            ))}
-          </Stack>
+            <Stack spacing={2}>
+              {section.items.map((item, index) => (
+                  <FooterLink key={index} href={item.href}>
+                    {item.text}
+                  </FooterLink>
+              ))}
+            </Stack>
         );
       case 'dynamic':
         return (
-          <Stack spacing={2}>
-            {section.items.map((link) => (
-              <FooterLink key={link.href} href={link.href}>
-                {link.title}
-              </FooterLink>
-            ))}
-          </Stack>
+            <Stack spacing={2}>
+              {section.items.map((link) => (
+                  <FooterLink key={link.href} href={link.href}>
+                    {link.title}
+                  </FooterLink>
+              ))}
+            </Stack>
         );
       case 'social':
         return (
-          <Stack direction="row" spacing={2}>
-            {section.items.map((item, index) => (
-              <FooterLink key={index} href={item.href}>
-                {item.icon}
-              </FooterLink>
-            ))}
-          </Stack>
+            <Stack direction="row" spacing={2}>
+              {section.items.map((item, index) => (
+                  <FooterLink key={index} href={item.href}>
+                    {item.icon}
+                  </FooterLink>
+              ))}
+            </Stack>
         );
       case 'apps':
         return (
-          <Stack spacing={1} direction={{ xs: 'column', lg: 'row' }}>
-            {section.items.map((item, index) => (
-              <img
-                key={index}
-                style={{ cursor: 'pointer' }}
-                onClick={() => (window.location.href = item.href)}
-                width="150px"
-                src={item.image}
-                alt={item.alt}
-              />
-            ))}
-          </Stack>
+            <Stack spacing={1} direction={{ xs: 'column', lg: 'row' }}>
+              {section.items.map((item, index) => (
+                  <img
+                      key={index}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => (window.location.href = item.href)}
+                      width="150px"
+                      src={item.image}
+                      alt={item.alt}
+                  />
+              ))}
+            </Stack>
         );
       default:
         return null;
@@ -255,22 +255,22 @@ export function Footer() {
   };
 
   return (
-    <FooterWrapper>
-      <Container maxWidth="lg">
-        <Grid container spacing={4}>
-          {footerSections.map((section, index) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-              <SectionHeading variant="h5">{section.title}</SectionHeading>
-              {renderSectionContent(section)}
-            </Grid>
-          ))}
-        </Grid>
-        <Box mt={4} textAlign="center">
-          <Typography variant="body2">
-            © {new Date().getFullYear()} Intelloop. All rights reserved.
-          </Typography>
-        </Box>
-      </Container>
-    </FooterWrapper>
+      <FooterWrapper>
+        <Container maxWidth="lg">
+          <Grid container spacing={4}>
+            {footerSections.map((section, index) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+                  <SectionHeading variant="h5">{section.title}</SectionHeading>
+                  {renderSectionContent(section)}
+                </Grid>
+            ))}
+          </Grid>
+          <Box mt={4} textAlign="center">
+            <Typography variant="body2" suppressHydrationWarning>
+              © {new Date().getFullYear()} Intelloop. All rights reserved.
+            </Typography>
+          </Box>
+        </Container>
+      </FooterWrapper>
   );
 }

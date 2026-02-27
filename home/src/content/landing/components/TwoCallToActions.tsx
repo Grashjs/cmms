@@ -1,7 +1,7 @@
 "use client";
 import { Button, Container, Stack, SxProps, Theme } from '@mui/material';
 import { TypographyH1Primary } from 'src/content/overview/Highlights';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { demoLink } from 'src/config';
 
@@ -12,7 +12,7 @@ export default function TwoCallToActions({
   hidePricing?: boolean;
   sx?: SxProps<Theme>;
 }) {
-  const { t } = useTranslation();
+  const t = useTranslations();
   return (
     <Container sx={sx} maxWidth="md">
       <TypographyH1Primary
@@ -54,3 +54,4 @@ export default function TwoCallToActions({
     </Container>
   );
 }
+

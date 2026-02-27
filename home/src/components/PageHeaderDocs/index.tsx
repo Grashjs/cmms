@@ -2,7 +2,7 @@
 import { FC } from 'react';
 import PropTypes from 'prop-types';
 
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { styled, Typography, Box, Divider } from '@mui/material';
 
 interface PageHeaderProps {
@@ -17,7 +17,7 @@ const RootWrapper = styled(Box)(
 );
 
 const PageHeader: FC<PageHeaderProps> = ({ heading, subheading, ...rest }) => {
-  const { t }: { t: any } = useTranslation();
+  const t = useTranslations();
 
   return (
     <RootWrapper {...rest}>
@@ -40,3 +40,4 @@ PageHeader.propTypes = {
 };
 
 export default PageHeader;
+

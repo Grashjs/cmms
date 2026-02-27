@@ -6,7 +6,7 @@ import { StylesProvider } from '@mui/styles';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import stylisRTLPlugin from 'stylis-plugin-rtl';
-import { useTranslation } from 'react-i18next';
+import { useLocale } from 'next-intl'; // 👈 replace useTranslation
 
 const cacheRtl = createCache({
   key: 'bloom-ui',
@@ -16,21 +16,23 @@ const cacheRtl = createCache({
 });
 
 export const ThemeContext = React.createContext(
-  (themeName: string): void => {}
+    (themeName: string): void => {}
 );
+
+const RTL_LOCALES = ['ar', 'he', 'fa', 'ur']; // 👈 define your RTL locales
 
 const ThemeProviderWrapper: React.FC<{children?: React.ReactNode}> = (props) => {
   const [themeName, _setThemeName] = useState('PureLightTheme');
-  
+
   useEffect(() => {
     const curThemeName = localStorage.getItem('appTheme') || 'PureLightTheme';
     _setThemeName(curThemeName);
   }, []);
 
   const theme = themeCreator(themeName);
-  const { i18n } = useTranslation();
-  const rtl = i18n.dir() === 'rtl';
-  
+  const locale = useLocale(); // 👈 get current locale
+  const rtl = RTL_LOCALES.includes(locale); // 👈 derive direction
+
   const setThemeName = (themeName: string): void => {
     localStorage.setItem('appTheme', themeName);
     _setThemeName(themeName);
@@ -42,18 +44,18 @@ const ThemeProviderWrapper: React.FC<{children?: React.ReactNode}> = (props) => 
   }, [rtl]);
 
   const providers = (
-    <ThemeContext.Provider value={setThemeName}>
-      <ThemeProvider theme={theme}>{props.children}</ThemeProvider>
-    </ThemeContext.Provider>
+      <ThemeContext.Provider value={setThemeName}>
+        <ThemeProvider theme={theme}>{props.children}</ThemeProvider>
+      </ThemeContext.Provider>
   );
   return (
-    <StylesProvider injectFirst>
-      {rtl ? (
-        <CacheProvider value={cacheRtl}>{providers}</CacheProvider>
-      ) : (
-        providers
-      )}
-    </StylesProvider>
+      <StylesProvider injectFirst>
+        {rtl ? (
+            <CacheProvider value={cacheRtl}>{providers}</CacheProvider>
+        ) : (
+            providers
+        )}
+      </StylesProvider>
   );
 };
 

@@ -94,3 +94,4 @@ Label.propTypes = {
 };
 
 export default Label;
+

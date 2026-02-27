@@ -2,7 +2,7 @@
 import { Box, Card, Container, styled, Typography } from '@mui/material';
 import { Helmet } from 'react-helmet-async';
 
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import Logo from 'src/components/LogoSign';
 
 const MainContent = styled(Box)(
@@ -17,7 +17,7 @@ const MainContent = styled(Box)(
 );
 
 function PaymentSuccess() {
-  const { t }: { t: any } = useTranslation();
+  const t = useTranslations();
   return (
     <>
       <Helmet>
@@ -60,3 +60,4 @@ function PaymentSuccess() {
 }
 
 export default PaymentSuccess;
+

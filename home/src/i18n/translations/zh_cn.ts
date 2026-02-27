@@ -14,8 +14,8 @@ const locale = {
   COMPLETE: '完成',
   'home.built': '为简化维护管理而构建',
   home_description:
-    '当白板和便利贴变成混乱，而您需要一个足够简单让团队真正使用的CMMS软件时 - 试试{{shortBrandName}}',
-  try_grash: '试用{{shortBrandName}}',
+    '当白板和便利贴变成混乱，而您需要一个足够简单让团队真正使用的CMMS软件时 - 试试{shortBrandName}',
+  try_grash: '试用{shortBrandName}',
   login: '登录',
   start_trial: '开始免费试用',
   'home.what': '什么',
@@ -24,7 +24,7 @@ const locale = {
     '构建高效、可靠的工作流程，让您掌控维护工作。生成、分配和跟踪工单。控制库存。获得可靠的自动化报告，提高可见性并创建问责制。',
   key_features: '主要功能',
   key_features_description:
-    '一些使{{shortBrandName}}成为当今最佳CMMS之一的功能',
+    '一些使{shortBrandName}成为当今最佳CMMS之一的功能',
   contribute: '贡献',
   work_orders: '工单',
   request_system: '工作请求系统',
@@ -38,7 +38,7 @@ const locale = {
   'work-orders.descriptions.0':
     '厌倦了大量的文书工作和丢失的工单？所有这些丢失的项目直接影响底线和您的声誉。',
   'work-orders.descriptions.1':
-    '使用{{shortBrandName}}，您可以轻松快速地在集中式数据库中组织团队的所有工单、PM和其他任务，该数据库可在任何设备上的任何地方访问。',
+    '使用{shortBrandName}，您可以轻松快速地在集中式数据库中组织团队的所有工单、PM和其他任务，该数据库可在任何设备上的任何地方访问。',
   'work-orders.checks.0': '查看您的所有任务，包括工单、PM和工作请求',
   'work-orders.checks.1': '设置任务优先级，以便首先完成正确的工作。',
   'work-orders.checks.2': '查看当前和即将到来的任务日历。',
@@ -51,7 +51,7 @@ const locale = {
   'work-requests.descriptions.0':
     '厌倦了使用导致丢失工单、持续日常中断和重复工作的旧电话和电子邮件系统？',
   'work-requests.descriptions.1':
-    '{{shortBrandName}}的维护管理解决方案允许您授权的任何人通过简单扫描二维码（条形码）或访问URL并通过移动设备输入请求来向您的维护部门提交问题。',
+    '{shortBrandName}的维护管理解决方案允许您授权的任何人通过简单扫描二维码（条形码）或访问URL并通过移动设备输入请求来向您的维护部门提交问题。',
   'work-requests.checks.0': '永远不会丢失工作。',
   'work-requests.checks.1': '减少处理工作请求的时间高达34%。',
   'work-requests.checks.2':
@@ -73,7 +73,7 @@ const locale = {
   'eam.descriptions.0':
     '对试图组织公司设备的混乱状况感到沮丧，想知道设备是否得到适当维护，不知道维护成本以及管理资产带来的所有其他头痛问题？',
   'eam.descriptions.1':
-    '{{brandName}}的企业资产管理模块可用于10到1,000,000个资产，让您以易于使用和可搜索的树形结构准确跟踪您想要的内容。',
+    '{brandName}的企业资产管理模块可用于10到1,000,000个资产，让您以易于使用和可搜索的树形结构准确跟踪您想要的内容。',
   'eam.checks.0': '随时了解资产的健康状况以及它们的成本',
   'eam.checks.1': '查看完整详细的维护日志。',
   'eam.checks.2': '使用无限自定义字段仅跟踪您想要的内容',
@@ -85,7 +85,7 @@ const locale = {
   'pm.descriptions.0':
     '停止浪费宝贵时间手动分发PM检查清单并跟进团队以确保工作完成。',
   'pm.descriptions.1':
-    '{{shortBrandName}}允许您轻松自动化PM调度，以便在正确的时间将正确的工作自动交付给正确的技术人员处理正确的资产。',
+    '{shortBrandName}允许您轻松自动化PM调度，以便在正确的时间将正确的工作自动交付给正确的技术人员处理正确的资产。',
   'pm.checks.0': '自动化PM调度为每日、每周、每月、每年，或基于事件或仪表读数。',
   'pm.checks.1': '创建或到期PM时的自动推送和电子邮件通知。',
   'pm.checks.2': '我们易于使用的日历允许您查看所有开放工作和即将到来的PM计划。',
@@ -98,7 +98,7 @@ const locale = {
   'part.descriptions.0':
     '不确定您有哪些零件库存或在哪里使用？不知道零件何时用完或技术人员是否有必要的零件来完成工作？',
   'part.descriptions.1':
-    '我们设计{{shortBrandName}}的零件管理来解决这些问题等等：',
+    '我们设计{shortBrandName}的零件管理来解决这些问题等等：',
   'part.checks.0':
     '当零件数量不足时获得即时推送和电子邮件通知。通过在零件数量低于自定义设置阈值时接收即时和自动推送/电子邮件通知来保持正确数量的零件库存。',
   'part.checks.1':
@@ -116,20 +116,20 @@ const locale = {
   'dashboard.descriptions.0':
     '面对现实，改善运营的第一步是了解好的、坏的和丑陋的。',
   'dashboard.descriptions.1':
-    '使用{{shortBrandName}}的自定义仪表板，您终于可以开始理解那个臭名昭著的"维护黑洞"，并开始实施数据支持的计划，从而降低劳动成本、减少停机时间等。',
+    '使用{shortBrandName}的自定义仪表板，您终于可以开始理解那个臭名昭著的"维护黑洞"，并开始实施数据支持的计划，从而降低劳动成本、减少停机时间等。',
   'dashboard.descriptions.2':
-    '使用{{shortBrandName}}的自定义仪表板，您将获得...',
+    '使用{shortBrandName}的自定义仪表板，您将获得...',
   'dashboard.checks.0': '知道您的钱花在哪里以及为什么',
   'dashboard.checks.1': '知道哪个资产成本最高以及为什么',
   'dashboard.checks.2': '创建您自己的自定义KPI。',
   'dashboard.checks.3': '查看根据您的指标自动生成和更新的报告',
   'dashboard.checks.4':
-    '查看通过Excel表格、PDF或在{{shortBrandName}}内轻松共享的报告',
+    '查看通过Excel表格、PDF或在{shortBrandName}内轻松共享的报告',
   'dashboard.checks.5': '还有更多...',
   'home.smarter': '更智能',
   'home.work': '工作',
   'home.smarter_description':
-    '{{shortBrandName}}通过为技术人员提供完成工作所需的工具和数据访问权限，使他们能够高效工作变得异常简单 — 所有这些都来自他们的手掌。',
+    '{shortBrandName}通过为技术人员提供完成工作所需的工具和数据访问权限，使他们能够高效工作变得异常简单 — 所有这些都来自他们的手掌。',
   leading_maintenance: '引领维护和可靠性更美好未来的道路',
   //register
   premium_included: '包含高级功能',
@@ -260,7 +260,7 @@ const locale = {
   save: '保存',
   customers: '承包商',
   no_labor:
-    '尚未添加劳动成本。当用户记录时间并在{{brandName}}中保存小时费率时，它们将出现在这里。',
+    '尚未添加劳动成本。当用户记录时间并在{brandName}中保存小时费率时，它们将出现在这里。',
   not_assigned: '未分配',
   no_additional_cost: '尚未添加额外成本',
   parts: '零件',
@@ -300,7 +300,7 @@ const locale = {
   starts_on: '开始于',
   ends_on: '结束于',
   frequency: '频率',
-  every_frequency_days: '每{{frequency}}天',
+  every_frequency_days: '每{frequency}天',
   wo_details: '工单详细信息',
   confirm_delete_file: '您确定要删除此文件吗？',
   wo_schedule_success: '工单安排成功',
@@ -669,7 +669,7 @@ const locale = {
   edit_category_description: '填写名称以编辑类别',
   no_category_action: "按'+'按钮添加您的第一个类别。",
   confirm_delete_category: '您确定要删除此类别吗？',
-  no_category_message: '看起来您还没有{{categoryName}}类别。',
+  no_category_message: '看起来您还没有{categoryName}类别。',
   acquisition_cost: '采购成本',
   //settings
   general_settings: '常规设置',
@@ -688,7 +688,7 @@ const locale = {
   external_id: '外部ID',
   permissions: '权限',
   create_role_description:
-    '此角色可以执行管理员在{{brandName}}中可以执行的所有操作，但您可以在下面自定义一些重要权限。',
+    '此角色可以执行管理员在{brandName}中可以执行的所有操作，但您可以在下面自定义一些重要权限。',
   create_and_edit: '创建/编辑',
   to_access: '访问',
   to_create_edit: '创建/编辑',
@@ -750,7 +750,7 @@ const locale = {
   my_account: '我的账户',
   my_company: '我的公司',
   you_are_using_plan:
-    '您当前使用的是{{planName}}计划。它将在{{expiration}}到期。立即升级以获得更多功能。',
+    '您当前使用的是{planName}计划。它将在{expiration}到期。立即升级以获得更多功能。',
   upgrade_plan: '升级计划',
   //subscription
   plans: '计划',
@@ -775,7 +775,7 @@ const locale = {
   your_payment_secure: '您的付款数据已加密且安全。',
   plan: '计划',
   current_plan: '当前计划',
-  number_users_who_will_use_grash: '将使用{{shortBrandName}}的用户数量',
+  number_users_who_will_use_grash: '将使用{shortBrandName}的用户数量',
   admin_role: '管理员',
   technical_role: '技术',
   limited_technical_role: '有限技术',
@@ -792,7 +792,7 @@ const locale = {
   checkout_our: '查看我们的',
   pricing_page: '定价页面',
   for_more_details: '了解更多详情',
-  users_count_display: '{{count}}个用户',
+  users_count_display: '{count}个用户',
   monthly_adverb: '每月',
   yearly_adverb: '每年',
   features: '功能',
@@ -818,17 +818,17 @@ const locale = {
   done: '完成',
   no_match_yet: '尚未匹配',
   select: '选择...',
-  matched_to_field: '匹配到{{field}}',
+  matched_to_field: '匹配到{field}',
   next: '下一步',
   not_enough_rows: '文件中行数不足',
-  there_are_duplicates: '存在重复项：{{duplicates}}',
+  there_are_duplicates: '存在重复项：{duplicates}',
   assigned_by: '分配者',
-  percent_rows_have_value: '{{percent}}%的行有值',
+  percent_rows_have_value: '{percent}%的行有值',
   match_at_least_column: '至少匹配一列',
   to_import: '导入',
-  required_match: '{{field}}匹配是必需的',
+  required_match: '{field}匹配是必需的',
   archived: '已存档',
-  import_wo_success: '{{created}}个工单已创建，{{updated}}个已更新',
+  import_wo_success: '{created}个工单已创建，{updated}个已更新',
   to_export: '导出',
   filters: '过滤器',
   more_filters: '更多过滤器',
@@ -842,10 +842,10 @@ const locale = {
   ALL: '全部',
   REACTIVE: '反应性',
   REPEATING: '预防性',
-  import_location_success: '{{created}}个位置已创建，{{updated}}个已更新',
-  import_part_success: '{{created}}个零件已创建，{{updated}}个已更新',
-  import_meter_success: '{{created}}个仪表已创建，{{updated}}个已更新',
-  import_asset_success: '{{created}}个资产已创建，{{updated}}个已更新',
+  import_location_success: '{created}个位置已创建，{updated}个已更新',
+  import_part_success: '{created}个零件已创建，{updated}个已更新',
+  import_meter_success: '{created}个仪表已创建，{updated}个已更新',
+  import_asset_success: '{created}个资产已创建，{updated}个已更新',
   wo_calendar: '工单日历',
   month: '月',
   week: '周',
@@ -927,7 +927,7 @@ const locale = {
   and_optional: '和（可选）',
   then: '那么',
   workflow_description:
-    '创建自定义工作流就像如果、和、那么一样简单。节省时间并通过工作流自动分配您的工单，以自定义{{shortBrandName}}适应您团队的工作方式。\n所有计划都可以创建最多1个自定义工作流。要添加其他工作流，请升级到我们的商业计划',
+    '创建自定义工作流就像如果、和、那么一样简单。节省时间并通过工作流自动分配您的工单，以自定义{shortBrandName}适应您团队的工作方式。\n所有计划都可以创建最多1个自定义工作流。要添加其他工作流，请升级到我们的商业计划',
   CREATE_PURCHASE_ORDER: '创建采购订单',
   PART_IS: '零件是',
   QUANTITY_INFERIOR: '数量少于',
@@ -990,19 +990,19 @@ const locale = {
   upgrade: '升级',
   downgrade: '降级',
   upgrade_description:
-    '您刚刚升级了订阅计划。您需要启用可能使用{{shortBrandName}}的禁用用户。您只能为当前订阅执行一次此操作。请仔细选择',
+    '您刚刚升级了订阅计划。您需要启用可能使用{shortBrandName}的禁用用户。您只能为当前订阅执行一次此操作。请仔细选择',
   enable_users: '启用用户',
-  max_users_description: '您最多可以启用{{maxUsers}}个用户',
+  max_users_description: '您最多可以启用{maxUsers}个用户',
   downgrade_description:
     '您刚刚降级了订阅计划。您需要禁用一些用户才能继续。您只能为当前订阅执行一次此操作。请仔细选择',
   disable_users: '禁用用户',
-  min_users_description: '您必须至少禁用{{minUsers}}个用户',
+  min_users_description: '您必须至少禁用{minUsers}个用户',
   downgrade_description_no_owner:
     '您的公司刚刚降级了订阅计划。公司所有者需要在您继续之前禁用一些用户',
   past_due: '逾期',
   due_date_delay: '截止日期延迟',
   due_date_delay_description: '截止日期延迟天数',
-  days_count: '{{days}}天',
+  days_count: '{days}天',
   trigger_configuration: '触发器配置',
   WORK_ORDER_feature: '工单',
   REQUEST_feature: '工作请求',
@@ -1033,7 +1033,7 @@ const locale = {
   home: '首页',
   user: '用户',
   start_work_order: '开始工单',
-  priority_label: '{{priority}}优先级',
+  priority_label: '{priority}优先级',
   stop_work_order: '停止计时器',
   required_files_on_completion: '工单完成时需要文件',
   required_tasks_on_completion: '任务必须完成',
@@ -1043,8 +1043,8 @@ const locale = {
   complete_work_order: '完成工单',
   no_parts: '无零件',
   edit_quantity: '编辑数量',
-  remaining_tasks: '{{count}}个剩余任务',
-  complete_tasks_percent: '{{percent}}%完成',
+  remaining_tasks: '{count}个剩余任务',
+  complete_tasks_percent: '{percent}%完成',
   create_work_order: '创建工单',
   select_customers: '选择客户',
   select_vendors: '选择供应商',
@@ -1053,7 +1053,7 @@ const locale = {
   select_locations: '选择位置',
   select_assets: '选择资产',
   select_categories: '选择类别',
-  estimated_hours_in_text: '{{hours}}预计小时',
+  estimated_hours_in_text: '{hours}预计小时',
   create_meter: '创建仪表',
   create_location: '创建位置',
   create_request: '创建请求',
@@ -1107,8 +1107,8 @@ const locale = {
   error: '错误',
   tag_not_found: '未找到标签',
   'no nfc support': '不支持NFC',
-  remaining_parts: '剩余{{quantity}}',
-  team_members_count: '{{count}}名成员',
+  remaining_parts: '剩余{quantity}',
+  team_members_count: '{count}名成员',
   no_asset_found_nfc: '未找到具有此NFC标签的资产。您想创建一个吗？',
   no_access_to_camera: '无法访问相机',
   no_asset_found_barcode: '未找到具有此条形码的资产。您想创建一个吗？',
@@ -1132,54 +1132,54 @@ const locale = {
   set_asset_status_description: '设置资产的状态',
   asset_status_history: '资产状态历史',
   no_asset_status_history: '无资产状态历史',
-  asset_status_changed_to: '资产状态已更改为{{status}}',
-  asset_status_changed_by: '资产状态由{{user}}更改',
-  asset_status_changed_on: '资产状态在{{date}}更改',
-  asset_status_changed_from_to: '资产状态从{{from}}更改为{{to}}',
-  asset_status_changed_from_to_by: '资产状态由{{user}}从{{from}}更改为{{to}}',
-  asset_status_changed_from_to_on: '资产状态在{{date}}从{{from}}更改为{{to}}',
+  asset_status_changed_to: '资产状态已更改为{status}',
+  asset_status_changed_by: '资产状态由{user}更改',
+  asset_status_changed_on: '资产状态在{date}更改',
+  asset_status_changed_from_to: '资产状态从{from}更改为{to}',
+  asset_status_changed_from_to_by: '资产状态由{user}从{from}更改为{to}',
+  asset_status_changed_from_to_on: '资产状态在{date}从{from}更改为{to}',
   asset_status_changed_from_to_by_on:
-    '资产状态由{{user}}在{{date}}从{{from}}更改为{{to}}',
+    '资产状态由{user}在{date}从{from}更改为{to}',
   asset_status_changed_from_to_by_on_with_downtime:
-    '资产状态由{{user}}在{{date}}从{{from}}更改为{{to}}，停机时间为{{downtime}}',
+    '资产状态由{user}在{date}从{from}更改为{to}，停机时间为{downtime}',
   asset_status_changed_from_to_on_with_downtime:
-    '资产状态在{{date}}从{{from}}更改为{{to}}，停机时间为{{downtime}}',
+    '资产状态在{date}从{from}更改为{to}，停机时间为{downtime}',
   asset_status_changed_from_to_by_with_downtime:
-    '资产状态由{{user}}从{{from}}更改为{{to}}，停机时间为{{downtime}}',
+    '资产状态由{user}从{from}更改为{to}，停机时间为{downtime}',
   asset_status_changed_from_to_with_downtime:
-    '资产状态从{{from}}更改为{{to}}，停机时间为{{downtime}}',
-  asset_status_changed_to_by: '资产状态由{{user}}更改为{{status}}',
-  asset_status_changed_to_on: '资产状态在{{date}}更改为{{status}}',
-  asset_status_changed_to_by_on: '资产状态由{{user}}在{{date}}更改为{{status}}',
+    '资产状态从{from}更改为{to}，停机时间为{downtime}',
+  asset_status_changed_to_by: '资产状态由{user}更改为{status}',
+  asset_status_changed_to_on: '资产状态在{date}更改为{status}',
+  asset_status_changed_to_by_on: '资产状态由{user}在{date}更改为{status}',
   asset_status_changed_to_with_downtime:
-    '资产状态更改为{{status}}，停机时间为{{downtime}}',
+    '资产状态更改为{status}，停机时间为{downtime}',
   asset_status_changed_to_by_with_downtime:
-    '资产状态由{{user}}更改为{{status}}，停机时间为{{downtime}}',
+    '资产状态由{user}更改为{status}，停机时间为{downtime}',
   asset_status_changed_to_on_with_downtime:
-    '资产状态在{{date}}更改为{{status}}，停机时间为{{downtime}}',
+    '资产状态在{date}更改为{status}，停机时间为{downtime}',
   asset_status_changed_to_by_on_with_downtime:
-    '资产状态由{{user}}在{{date}}更改为{{status}}，停机时间为{{downtime}}',
-  asset_status_changed_by_on: '资产状态由{{user}}在{{date}}更改',
+    '资产状态由{user}在{date}更改为{status}，停机时间为{downtime}',
+  asset_status_changed_by_on: '资产状态由{user}在{date}更改',
   asset_status_changed_by_with_downtime:
-    '资产状态由{{user}}更改，停机时间为{{downtime}}',
+    '资产状态由{user}更改，停机时间为{downtime}',
   asset_status_changed_on_with_downtime:
-    '资产状态在{{date}}更改，停机时间为{{downtime}}',
+    '资产状态在{date}更改，停机时间为{downtime}',
   asset_status_changed_by_on_with_downtime:
-    '资产状态由{{user}}在{{date}}更改，停机时间为{{downtime}}',
-  asset_status_changed_with_downtime: '资产状态已更改，停机时间为{{downtime}}',
+    '资产状态由{user}在{date}更改，停机时间为{downtime}',
+  asset_status_changed_with_downtime: '资产状态已更改，停机时间为{downtime}',
   asset_status_changed: '资产状态已更改',
-  asset_status_changed_from: '资产状态从{{from}}更改',
-  asset_status_changed_from_by: '资产状态由{{user}}从{{from}}更改',
-  asset_status_changed_from_on: '资产状态在{{date}}从{{from}}更改',
-  asset_status_changed_from_by_on: '资产状态由{{user}}在{{date}}从{{from}}更改',
+  asset_status_changed_from: '资产状态从{from}更改',
+  asset_status_changed_from_by: '资产状态由{user}从{from}更改',
+  asset_status_changed_from_on: '资产状态在{date}从{from}更改',
+  asset_status_changed_from_by_on: '资产状态由{user}在{date}从{from}更改',
   asset_status_changed_from_with_downtime:
-    '资产状态从{{from}}更改，停机时间为{{downtime}}',
+    '资产状态从{from}更改，停机时间为{downtime}',
   asset_status_changed_from_by_with_downtime:
-    '资产状态由{{user}}从{{from}}更改，停机时间为{{downtime}}',
+    '资产状态由{user}从{from}更改，停机时间为{downtime}',
   asset_status_changed_from_on_with_downtime:
-    '资产状态在{{date}}从{{from}}更改，停机时间为{{downtime}}',
+    '资产状态在{date}从{from}更改，停机时间为{downtime}',
   asset_status_changed_from_by_on_with_downtime:
-    '资产状态由{{user}}在{{date}}从{{from}}更改，停机时间为{{downtime}}',
+    '资产状态由{user}在{date}从{from}更改，停机时间为{downtime}',
   upgrade_request_received: '升级请求已收到！我们将很快与您联系提供付款详情',
   continue_with_sso: '使用SSO继续',
   see_live_demo: '查看实时演示',
@@ -1205,7 +1205,7 @@ const locale = {
   'home.h1': '您可以自托管或在云端使用的免费开源 CMMS',
   'home.h2': '功能强大且成本低廉的维护',
   'home.h3':
-    '停止依赖电子表格和白板。{{brandName}} 帮助维护团队计划干预、跟踪设备并保持合规。在您的服务器上自托管或立即在云端开始。',
+    '停止依赖电子表格和白板。{brandName} 帮助维护团队计划干预、跟踪设备并保持合规。在您的服务器上自托管或立即在云端开始。',
   talk_to_sales: '与销售联系',
   'pricing.choose_plan_and_get_started': '选择您的套餐并开始使用',
   'pricing.slogan_effective_maintenance':
@@ -1391,3 +1391,4 @@ const locale = {
 };
 
 export default locale;
+

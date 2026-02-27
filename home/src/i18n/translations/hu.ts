@@ -14,8 +14,8 @@ const locale = {
   COMPLETE: 'Befejezett',
   'home.built': 'Karbantartás-kezelés Egyszerűsítésére Építve',
   home_description:
-    'Amikor a táblák és ragacsos jegyzetek káoszt okoznak, és szükséged van egy CMMS szoftverre, amely elég egyszerű ahhoz, hogy a csapatod ténylegesen használja - próbáld ki a {{shortBrandName}}-t',
-  try_grash: '{{shortBrandName}} Kipróbálása',
+    'Amikor a táblák és ragacsos jegyzetek káoszt okoznak, és szükséged van egy CMMS szoftverre, amely elég egyszerű ahhoz, hogy a csapatod ténylegesen használja - próbáld ki a {shortBrandName}-t',
+  try_grash: '{shortBrandName} Kipróbálása',
   login: 'Bejelentkezés',
   start_trial: 'Ingyenes Próbaidőszak Indítása',
   'home.what': 'Mit',
@@ -24,7 +24,7 @@ const locale = {
     'Építs hatékony, megbízható munkafolyamatokat, amelyek irányítást adnak a karbantartás felett. Generálj, rendelj ki és kövesd nyomon a munkarendeléseket. Irányítsd a készletet. És kapj megbízható automatizált jelentéseket, amelyek javítják a láthatóságot és felelősségvállalást teremtenek.',
   key_features: 'Főbb Funkciók',
   key_features_description:
-    'Néhány olyan funkció, amely a {{shortBrandName}}-t az egyik legjobb ma elérhető CMMS-sé teszi',
+    'Néhány olyan funkció, amely a {shortBrandName}-t az egyik legjobb ma elérhető CMMS-sé teszi',
   contribute: 'Hozzájárulás',
   work_orders: 'Munkarendelések',
   request_system: 'Munkakérelem Rendszer',
@@ -39,7 +39,7 @@ const locale = {
   'work-orders.descriptions.0':
     'Elegendő a papírmunkák tömegéből és az elveszett Munkarendelésekből? Mindezek az elveszett tételek közvetlenül befolyásolják a nyereséget és a hírnevedet.',
   'work-orders.descriptions.1':
-    'A {{shortBrandName}} segítségével könnyedén és gyorsan szervezheted az összes Munkarendelésedet, PM-jeidet és egyéb Feladataidat a csapatodban egy központosított adatbázisban, amely bárhol, bármilyen eszközön elérhető.',
+    'A {shortBrandName} segítségével könnyedén és gyorsan szervezheted az összes Munkarendelésedet, PM-jeidet és egyéb Feladataidat a csapatodban egy központosított adatbázisban, amely bárhol, bármilyen eszközön elérhető.',
   'work-orders.checks.0':
     'Tekintsd meg az összes Feladatodat, beleértve a WO-kat, PM-eket és Munkakérelmeket',
   'work-orders.checks.1':
@@ -55,7 +55,7 @@ const locale = {
   'work-requests.descriptions.0':
     'Elegendő a régi telefon és e-mail rendszer használatából, amely ELVESZETT jegyeket, állandó napi megszakításokat és duplikált munkát eredményez?',
   'work-requests.descriptions.1':
-    'A {{shortBrandName}} karbantartás-kezelési megoldása lehetővé teszi bárki számára, akit feljogosítasz, hogy problémát jelentsen a karbantartási részlegnek egyszerűen egy QR-kód (vonalkód) beolvasásával vagy egy URL meglátogatásával és kérésük beírásával mobil eszközeiken keresztül.',
+    'A {shortBrandName} karbantartás-kezelési megoldása lehetővé teszi bárki számára, akit feljogosítasz, hogy problémát jelentsen a karbantartási részlegnek egyszerűen egy QR-kód (vonalkód) beolvasásával vagy egy URL meglátogatásával és kérésük beírásával mobil eszközeiken keresztül.',
   'work-requests.checks.0': 'Soha ne veszíts el Munkát.',
   'work-requests.checks.1':
     'Csökkentsd a Munkakérelmek kezelésére fordított időt akár 34%-kal.',
@@ -85,7 +85,7 @@ const locale = {
   'eam.descriptions.0':
     'Frusztrált vagy a vállalati berendezések kaotikus rendetlenségének szervezésével, azon töprengve, hogy a berendezést megfelelően karbantartották-e, nem tudva, mennyibe kerül a karbantartásuk és minden egyéb fejfájással, ami az eszközök kezelésével jár?',
   'eam.descriptions.1':
-    'A {{brandName}} Vállalati Eszközkezelési modulja 10-től 1.000.000 Eszközig használható, lehetővé téve, hogy pontosan azt kövesd nyomon, amit akarsz, ahogy akarod, egy könnyen használható és kereshető fastruktúrában.',
+    'A {brandName} Vállalati Eszközkezelési modulja 10-től 1.000.000 Eszközig használható, lehetővé téve, hogy pontosan azt kövesd nyomon, amit akarsz, ahogy akarod, egy könnyen használható és kereshető fastruktúrában.',
   'eam.checks.0':
     'Ismerd az eszközeid állapotát minden időpontban és azt, hogy mennyibe kerülnek',
   'eam.checks.1': 'Tekintsd meg a teljes és részletes Karbantartási Naplókat.',
@@ -100,7 +100,7 @@ const locale = {
   'pm.descriptions.0':
     'Hagyd abba az értékes órák pazarlását a PM ellenőrzőlisták kézi terjesztésével és a csapatoddal való utánkövetéssel, hogy megbizonyosodj a munka elvégzéséről.',
   'pm.descriptions.1':
-    'A {{shortBrandName}} lehetővé teszi a PM ütemezés egyszerű automatizálását, így a megfelelő munka automatikusan a megfelelő időben kerül kiszállításra a megfelelő technikushoz a megfelelő Eszközhöz.',
+    'A {shortBrandName} lehetővé teszi a PM ütemezés egyszerű automatizálását, így a megfelelő munka automatikusan a megfelelő időben kerül kiszállításra a megfelelő technikushoz a megfelelő Eszközhöz.',
   'pm.checks.0':
     'Automatizáld a PM ütemezést napi, heti, havi, éves alapon, vagy események vagy mérőleolvasások alapján.',
   'pm.checks.1':
@@ -117,7 +117,7 @@ const locale = {
   'part.descriptions.0':
     'Nem vagy biztos benne, milyen alkatrészeid vannak raktáron vagy hol használják őket? Nem tudod, mikor fogynak el az alkatrészeid, vagy hogy a technikusaidnak megvannak-e a szükséges alkatrészek a munkájuk elvégzéséhez?',
   'part.descriptions.1':
-    'A {{shortBrandName}} alkatrészkezelését úgy terveztük, hogy megoldja ezeket a problémákat és még többet:',
+    'A {shortBrandName} alkatrészkezelését úgy terveztük, hogy megoldja ezeket a problémákat és még többet:',
   'part.checks.0':
     'Kapj azonnali push és e-mail értesítéseket, amikor egy alkatrész mennyisége alacsony. Tartsd a megfelelő számú alkatrészt raktáron azonnali és automatikus push/e-mail értesítések kapásával, amikor egy alkatrész mennyisége egy egyedileg beállított küszöb alatt van.',
   'part.checks.1':
@@ -139,20 +139,20 @@ const locale = {
   'dashboard.descriptions.0':
     'Nézzünk szembe vele, az első lépés a működésed javításához az, hogy ismerd a jót, a rosszat és a csúnyát.',
   'dashboard.descriptions.1':
-    'A {{shortBrandName}} Egyedi Műszerfaljaival végre elkezdheted megérteni azt a hírhedt "karbantartás fekete lyukát" és elkezdheted adatokkal alátámasztott tervek végrehajtását, ami csökkentett munkaerőköltségeket, csökkentett állásidőt és még többet eredményez.',
-  'dashboard.descriptions.2': 'A {{shortBrandName}} Egyedi Műszerfaljaival ...',
+    'A {shortBrandName} Egyedi Műszerfaljaival végre elkezdheted megérteni azt a hírhedt "karbantartás fekete lyukát" és elkezdheted adatokkal alátámasztott tervek végrehajtását, ami csökkentett munkaerőköltségeket, csökkentett állásidőt és még többet eredményez.',
+  'dashboard.descriptions.2': 'A {shortBrandName} Egyedi Műszerfaljaival ...',
   'dashboard.checks.0': 'Tudd, hova költik a pénzedet és miért',
   'dashboard.checks.1': 'Tudd, melyik eszköz kerül a legtöbbe és miért',
   'dashboard.checks.2': 'Hozz létre saját egyedi KPI-kat.',
   'dashboard.checks.3':
     'Tekintsd meg a jelentéseket, amelyek automatikusan generálódnak és frissülnek a metrikáid alapján',
   'dashboard.checks.4':
-    'Tekintsd meg a jelentéseket, amelyek könnyen megoszthatók Excel táblázatokon, PDF-eken vagy a {{shortBrandName}}-n belül',
+    'Tekintsd meg a jelentéseket, amelyek könnyen megoszthatók Excel táblázatokon, PDF-eken vagy a {shortBrandName}-n belül',
   'dashboard.checks.5': 'És még sok más ...',
   'home.smarter': 'Okosabb',
   'home.work': 'Munka',
   'home.smarter_description':
-    'A {{shortBrandName}} hihetetlenül egyszerűvé teszi a technikusok számára a hatékony munkát azáltal, hogy hozzáférést biztosít számukra az eszközökhöz és adatokhoz, amelyekre szükségük van a munka elvégzéséhez — mindezt a tenyerükből.',
+    'A {shortBrandName} hihetetlenül egyszerűvé teszi a technikusok számára a hatékony munkát azáltal, hogy hozzáférést biztosít számukra az eszközökhöz és adatokhoz, amelyekre szükségük van a munka elvégzéséhez — mindezt a tenyerükből.',
   leading_maintenance:
     'Vezető Út a Jobb Jövő Felé a Karbantartás és Megbízhatóság Terén',
   //register
@@ -290,7 +290,7 @@ const locale = {
   save: 'Mentés',
   customers: 'Vállalkozók',
   no_labor:
-    'Még nincsenek munkaerőköltségek hozzáadva. Itt fognak megjelenni, amikor egy felhasználó időt naplóz és órabére van mentve a {{brandName}}-ben.',
+    'Még nincsenek munkaerőköltségek hozzáadva. Itt fognak megjelenni, amikor egy felhasználó időt naplóz és órabére van mentve a {brandName}-ben.',
   not_assigned: 'Nincs Hozzárendelve',
   no_additional_cost: 'Még nincsenek Extra költségek hozzáadva',
   parts: 'Alkatrészek',
@@ -336,7 +336,7 @@ const locale = {
   starts_on: 'Kezdődik',
   ends_on: 'Végződik',
   frequency: 'Gyakoriság',
-  every_frequency_days: 'Minden {{frequency}} nap',
+  every_frequency_days: 'Minden {frequency} nap',
   wo_details: 'Munkarendelés Részletek',
   confirm_delete_file: 'Biztos vagy benne, hogy törölni akarod ezt a fájlt?',
   wo_schedule_success: 'Munkarendelés sikeresen ütemezve',
@@ -757,7 +757,7 @@ const locale = {
     "Nyomd meg a '+' gombot az első kategóriád hozzáadásához.",
   confirm_delete_category:
     'Biztos vagy benne, hogy törölni akarod ezt a Kategóriát?',
-  no_category_message: 'Úgy tűnik, még nincsenek {{categoryName}} Kategóriáid.',
+  no_category_message: 'Úgy tűnik, még nincsenek {categoryName} Kategóriáid.',
   acquisition_cost: 'Beszerzési költség',
   //settings
   general_settings: 'Általános Beállítások',
@@ -777,7 +777,7 @@ const locale = {
   external_id: 'Külső ID',
   permissions: 'Engedélyek',
   create_role_description:
-    'Ez a szerep mindent megtehet, amit egy Adminisztrátor megtehet a {{brandName}}-ben, de néhány fontos engedélyt alább testreszabhatsz.',
+    'Ez a szerep mindent megtehet, amit egy Adminisztrátor megtehet a {brandName}-ben, de néhány fontos engedélyt alább testreszabhatsz.',
   create_and_edit: 'Létrehozás/Szerkesztés',
   to_access: 'Hozzáféréshez',
   to_create_edit: 'Létrehozáshoz/szerkesztéshez',
@@ -846,7 +846,7 @@ const locale = {
   my_account: 'Fiókom',
   my_company: 'Cégem',
   you_are_using_plan:
-    'Jelenleg a {{planName}} csomagot használod. {{expiration}} napon jár le. Frissíts most, hogy több funkcióhoz férj hozzá.',
+    'Jelenleg a {planName} csomagot használod. {expiration} napon jár le. Frissíts most, hogy több funkcióhoz férj hozzá.',
   upgrade_plan: 'Csomag Frissítése',
   //subscription
   plans: 'Csomagok',
@@ -872,7 +872,7 @@ const locale = {
   plan: 'Csomag',
   current_plan: 'Jelenlegi Csomag',
   number_users_who_will_use_grash:
-    'A {{shortBrandName}}-t használó felhasználók száma',
+    'A {shortBrandName}-t használó felhasználók száma',
   admin_role: 'Admin',
   technical_role: 'Technikai',
   limited_technical_role: 'Korlátozott Technikai',
@@ -889,7 +889,7 @@ const locale = {
   checkout_our: 'Nézd meg a',
   pricing_page: 'Árképzési Oldalt',
   for_more_details: 'további részletekért',
-  users_count_display: '{{count}} Felhasználó',
+  users_count_display: '{count} Felhasználó',
   monthly_adverb: 'havonta',
   yearly_adverb: 'évente',
   features: 'Funkciók',
@@ -917,18 +917,18 @@ const locale = {
   done: 'Kész',
   no_match_yet: 'Még Nincs Egyezés',
   select: 'Kiválasztás...',
-  matched_to_field: 'Egyeztetve a {{field}} mezővel',
+  matched_to_field: 'Egyeztetve a {field} mezővel',
   next: 'Következő',
   not_enough_rows: 'Nincs elég sor a fájlban',
-  there_are_duplicates: 'Duplikátumok vannak: {{duplicates}}',
+  there_are_duplicates: 'Duplikátumok vannak: {duplicates}',
   assigned_by: 'Hozzárendelte',
-  percent_rows_have_value: 'A sorok {{percent}}%-ának van értéke',
+  percent_rows_have_value: 'A sorok {percent}%-ának van értéke',
   match_at_least_column: 'Legalább egy oszlopot egyeztess',
   to_import: 'Importálás',
-  required_match: '{{field}} egyeztetése kötelező',
+  required_match: '{field} egyeztetése kötelező',
   archived: 'Archiválva',
   import_wo_success:
-    '{{created}} Munkarendelés létrehozva és {{updated}} frissítve',
+    '{created} Munkarendelés létrehozva és {updated} frissítve',
   to_export: 'Exportálás',
   filters: 'Szűrők',
   more_filters: 'További Szűrők',
@@ -943,12 +943,12 @@ const locale = {
   REACTIVE: 'Reaktív',
   REPEATING: 'Megelőző',
   import_location_success:
-    '{{created}} Helyszín létrehozva és {{updated}} frissítve',
+    '{created} Helyszín létrehozva és {updated} frissítve',
   import_part_success:
-    '{{created}} Alkatrész létrehozva és {{updated}} frissítve',
-  import_meter_success: '{{created}} Mérő létrehozva és {{updated}} frissítve',
+    '{created} Alkatrész létrehozva és {updated} frissítve',
+  import_meter_success: '{created} Mérő létrehozva és {updated} frissítve',
   import_asset_success:
-    '{{created}} Eszköz létrehozva és {{updated}} frissítve',
+    '{created} Eszköz létrehozva és {updated} frissítve',
   wo_calendar: 'Munkarendelések Naptára',
   month: 'Hónap',
   week: 'Hét',
@@ -1032,7 +1032,7 @@ const locale = {
   and_optional: 'És(Opcionális)',
   then: 'Akkor',
   workflow_description:
-    'Hozz létre egyedi munkafolyamatokat olyan egyszerűen, mint Ha, És, Akkor. Takarítsd meg az időt és rendeld hozzá automatikusan a munkarendeléseidet munkafolyamatokon keresztül, hogy testreszabd a {{shortBrandName}}-t a csapatod működési módjához.\nMinden csomag létrehozhat 1 egyedi munkafolyamatot. További munkafolyamatok hozzáadásához frissíts az Üzleti csomagunkra',
+    'Hozz létre egyedi munkafolyamatokat olyan egyszerűen, mint Ha, És, Akkor. Takarítsd meg az időt és rendeld hozzá automatikusan a munkarendeléseidet munkafolyamatokon keresztül, hogy testreszabd a {shortBrandName}-t a csapatod működési módjához.\nMinden csomag létrehozhat 1 egyedi munkafolyamatot. További munkafolyamatok hozzáadásához frissíts az Üzleti csomagunkra',
   CREATE_PURCHASE_ORDER: 'Beszerzési Rendelés létrehozása',
   PART_IS: 'Az Alkatrész',
   QUANTITY_INFERIOR: 'A mennyiség kevesebb mint',
@@ -1096,19 +1096,19 @@ const locale = {
   upgrade: 'Frissítés',
   downgrade: 'Visszaminősítés',
   upgrade_description:
-    'Éppen frissítetted az előfizetési csomagodat. Engedélyezned kell a letiltott felhasználókat, akik használhatják a {{shortBrandName}}-t. Ezt csak egyszer teheted meg a jelenlegi előfizetéshez. Válassz gondosan',
+    'Éppen frissítetted az előfizetési csomagodat. Engedélyezned kell a letiltott felhasználókat, akik használhatják a {shortBrandName}-t. Ezt csak egyszer teheted meg a jelenlegi előfizetéshez. Válassz gondosan',
   enable_users: 'Felhasználók engedélyezése',
-  max_users_description: 'Legfeljebb {{maxUsers}} felhasználót engedélyezhetsz',
+  max_users_description: 'Legfeljebb {maxUsers} felhasználót engedélyezhetsz',
   downgrade_description:
     'Éppen visszaminősítetted az előfizetési csomagodat. Le kell tiltanod néhány felhasználót a folytatáshoz. Ezt csak egyszer teheted meg a jelenlegi előfizetéshez. Válassz gondosan',
   disable_users: 'Felhasználók letiltása',
-  min_users_description: 'Legalább {{minUsers}} felhasználót le kell tiltanod',
+  min_users_description: 'Legalább {minUsers} felhasználót le kell tiltanod',
   downgrade_description_no_owner:
     'A céged éppen visszaminősítette az előfizetési csomagját. A cégtulajdonosnak le kell tiltania néhány felhasználót, mielőtt folytathatnád',
   past_due: 'Lejárt',
   due_date_delay: 'Határidő késleltetés',
   due_date_delay_description: 'Határidő késleltetés napokban',
-  days_count: '{{days}} nap',
+  days_count: '{days} nap',
   trigger_configuration: 'Trigger Konfiguráció',
   WORK_ORDER_feature: 'Munkarendelések',
   REQUEST_feature: 'Munkakérelmek',
@@ -1140,7 +1140,7 @@ const locale = {
   home: 'Kezdőlap',
   user: 'Felhasználó',
   start_work_order: 'Munkarendelés Indítása',
-  priority_label: '{{priority}} prioritás',
+  priority_label: '{priority} prioritás',
   stop_work_order: 'Időmérő leállítása',
   required_files_on_completion:
     'Fájlok szükségesek a Munkarendelés Befejezéséhez',
@@ -1153,8 +1153,8 @@ const locale = {
   complete_work_order: 'Munkarendelés Befejezése',
   no_parts: 'Nincs alkatrész',
   edit_quantity: 'Mennyiség szerkesztése',
-  remaining_tasks: '{{count}} fennmaradó feladat',
-  complete_tasks_percent: '{{percent}}% befejezve',
+  remaining_tasks: '{count} fennmaradó feladat',
+  complete_tasks_percent: '{percent}% befejezve',
   create_work_order: 'Munkarendelés Létrehozása',
   select_customers: 'Ügyfelek Kiválasztása',
   select_vendors: 'Szállítók Kiválasztása',
@@ -1163,7 +1163,7 @@ const locale = {
   select_locations: 'Helyszínek Kiválasztása',
   select_assets: 'Eszközök Kiválasztása',
   select_categories: 'Kategóriák Kiválasztása',
-  estimated_hours_in_text: '{{hours}} becsült óra',
+  estimated_hours_in_text: '{hours} becsült óra',
   create_meter: 'Mérő Létrehozása',
   create_location: 'Helyszín Létrehozása',
   create_request: 'Kérelem Létrehozása',
@@ -1222,8 +1222,8 @@ const locale = {
   error: 'Hiba',
   tag_not_found: 'Címke nem található',
   'no nfc support': 'Nincs NFC támogatás',
-  remaining_parts: '{{quantity}} maradt',
-  team_members_count: '{{count}} tag',
+  remaining_parts: '{quantity} maradt',
+  team_members_count: '{count} tag',
   no_asset_found_nfc:
     'Nincs Eszköz találva ezzel az NFC címkével. Szeretnéd létrehozni?',
   no_access_to_camera: 'Nincs hozzáférés a kamerához',
@@ -1249,65 +1249,65 @@ const locale = {
   set_asset_status_description: 'Állítsd be az eszköz állapotát',
   asset_status_history: 'Eszköz Állapot Történet',
   no_asset_status_history: 'Nincs eszköz állapot történet',
-  asset_status_changed_to: 'Eszköz állapot módosítva erre: {{status}}',
-  asset_status_changed_by: 'Eszköz állapot módosítva általa: {{user}}',
-  asset_status_changed_on: 'Eszköz állapot módosítva ekkor: {{date}}',
+  asset_status_changed_to: 'Eszköz állapot módosítva erre: {status}',
+  asset_status_changed_by: 'Eszköz állapot módosítva általa: {user}',
+  asset_status_changed_on: 'Eszköz állapot módosítva ekkor: {date}',
   asset_status_changed_from_to:
-    'Eszköz állapot módosítva erről: {{from}} erre: {{to}}',
+    'Eszköz állapot módosítva erről: {from} erre: {to}',
   asset_status_changed_from_to_by:
-    'Eszköz állapot módosítva erről: {{from}} erre: {{to}} általa: {{user}}',
+    'Eszköz állapot módosítva erről: {from} erre: {to} általa: {user}',
   asset_status_changed_from_to_on:
-    'Eszköz állapot módosítva erről: {{from}} erre: {{to}} ekkor: {{date}}',
+    'Eszköz állapot módosítva erről: {from} erre: {to} ekkor: {date}',
   asset_status_changed_from_to_by_on:
-    'Eszköz állapot módosítva erről: {{from}} erre: {{to}} általa: {{user}} ekkor: {{date}}',
+    'Eszköz állapot módosítva erről: {from} erre: {to} általa: {user} ekkor: {date}',
   asset_status_changed_from_to_by_on_with_downtime:
-    'Eszköz állapot módosítva erről: {{from}} erre: {{to}} általa: {{user}} ekkor: {{date}} állásidővel: {{downtime}}',
+    'Eszköz állapot módosítva erről: {from} erre: {to} általa: {user} ekkor: {date} állásidővel: {downtime}',
   asset_status_changed_from_to_on_with_downtime:
-    'Eszköz állapot módosítva erről: {{from}} erre: {{to}} ekkor: {{date}} állásidővel: {{downtime}}',
+    'Eszköz állapot módosítva erről: {from} erre: {to} ekkor: {date} állásidővel: {downtime}',
   asset_status_changed_from_to_by_with_downtime:
-    'Eszköz állapot módosítva erről: {{from}} erre: {{to}} általa: {{user}} állásidővel: {{downtime}}',
+    'Eszköz állapot módosítva erről: {from} erre: {to} általa: {user} állásidővel: {downtime}',
   asset_status_changed_from_to_with_downtime:
-    'Eszköz állapot módosítva erről: {{from}} erre: {{to}} állásidővel: {{downtime}}',
+    'Eszköz állapot módosítva erről: {from} erre: {to} állásidővel: {downtime}',
   asset_status_changed_to_by:
-    'Eszköz állapot módosítva erre: {{status}} általa: {{user}}',
+    'Eszköz állapot módosítva erre: {status} általa: {user}',
   asset_status_changed_to_on:
-    'Eszköz állapot módosítva erre: {{status}} ekkor: {{date}}',
+    'Eszköz állapot módosítva erre: {status} ekkor: {date}',
   asset_status_changed_to_by_on:
-    'Eszköz állapot módosítva erre: {{status}} általa: {{user}} ekkor: {{date}}',
+    'Eszköz állapot módosítva erre: {status} általa: {user} ekkor: {date}',
   asset_status_changed_to_with_downtime:
-    'Eszköz állapot módosítva erre: {{status}} állásidővel: {{downtime}}',
+    'Eszköz állapot módosítva erre: {status} állásidővel: {downtime}',
   asset_status_changed_to_by_with_downtime:
-    'Eszköz állapot módosítva erre: {{status}} általa: {{user}} állásidővel: {{downtime}}',
+    'Eszköz állapot módosítva erre: {status} általa: {user} állásidővel: {downtime}',
   asset_status_changed_to_on_with_downtime:
-    'Eszköz állapot módosítva erre: {{status}} ekkor: {{date}} állásidővel: {{downtime}}',
+    'Eszköz állapot módosítva erre: {status} ekkor: {date} állásidővel: {downtime}',
   asset_status_changed_to_by_on_with_downtime:
-    'Eszköz állapot módosítva erre: {{status}} általa: {{user}} ekkor: {{date}} állásidővel: {{downtime}}',
+    'Eszköz állapot módosítva erre: {status} általa: {user} ekkor: {date} állásidővel: {downtime}',
   asset_status_changed_by_on:
-    'Eszköz állapot módosítva általa: {{user}} ekkor: {{date}}',
+    'Eszköz állapot módosítva általa: {user} ekkor: {date}',
   asset_status_changed_by_with_downtime:
-    'Eszköz állapot módosítva általa: {{user}} állásidővel: {{downtime}}',
+    'Eszköz állapot módosítva általa: {user} állásidővel: {downtime}',
   asset_status_changed_on_with_downtime:
-    'Eszköz állapot módosítva ekkor: {{date}} állásidővel: {{downtime}}',
+    'Eszköz állapot módosítva ekkor: {date} állásidővel: {downtime}',
   asset_status_changed_by_on_with_downtime:
-    'Eszköz állapot módosítva általa: {{user}} ekkor: {{date}} állásidővel: {{downtime}}',
+    'Eszköz állapot módosítva általa: {user} ekkor: {date} állásidővel: {downtime}',
   asset_status_changed_with_downtime:
-    'Eszköz állapot módosítva állásidővel: {{downtime}}',
+    'Eszköz állapot módosítva állásidővel: {downtime}',
   asset_status_changed: 'Eszköz állapot módosítva',
-  asset_status_changed_from: 'Eszköz állapot módosítva erről: {{from}}',
+  asset_status_changed_from: 'Eszköz állapot módosítva erről: {from}',
   asset_status_changed_from_by:
-    'Eszköz állapot módosítva erről: {{from}} általa: {{user}}',
+    'Eszköz állapot módosítva erről: {from} általa: {user}',
   asset_status_changed_from_on:
-    'Eszköz állapot módosítva erről: {{from}} ekkor: {{date}}',
+    'Eszköz állapot módosítva erről: {from} ekkor: {date}',
   asset_status_changed_from_by_on:
-    'Eszköz állapot módosítva erről: {{from}} általa: {{user}} ekkor: {{date}}',
+    'Eszköz állapot módosítva erről: {from} általa: {user} ekkor: {date}',
   asset_status_changed_from_with_downtime:
-    'Eszköz állapot módosítva erről: {{from}} állásidővel: {{downtime}}',
+    'Eszköz állapot módosítva erről: {from} állásidővel: {downtime}',
   asset_status_changed_from_by_with_downtime:
-    'Eszköz állapot módosítva erről: {{from}} általa: {{user}} állásidővel: {{downtime}}',
+    'Eszköz állapot módosítva erről: {from} általa: {user} állásidővel: {downtime}',
   asset_status_changed_from_on_with_downtime:
-    'Eszköz állapot módosítva erről: {{from}} ekkor: {{date}} állásidővel: {{downtime}}',
+    'Eszköz állapot módosítva erről: {from} ekkor: {date} állásidővel: {downtime}',
   asset_status_changed_from_by_on_with_downtime:
-    'Eszköz állapot módosítva erről: {{from}} általa: {{user}} ekkor: {{date}} állásidővel: {{downtime}}',
+    'Eszköz állapot módosítva erről: {from} általa: {user} ekkor: {date} állásidővel: {downtime}',
   upgrade_request_received:
     'Frissítési kérelem érkezett! Hamarosan felvesszük veled a kapcsolatot a fizetési részletekkel',
   continue_with_sso: 'Folytatás SSO-val',
@@ -1336,7 +1336,7 @@ const locale = {
     'Ingyenes és nyílt forráskódú CMMS, amelyet saját maga is üzemeltethet, vagy használhat a felhőben',
   'home.h2': 'Erőteljes karbantartás alacsony költséggel',
   'home.h3':
-    'Ne hagyatkozzon többé táblázatokra és fehértáblákra. A {{brandName}} segít a karbantartó csapatoknak a beavatkozások tervezésében, a berendezések nyomon követésében és a megfelelőség fenntartásában. Üzemeltesse saját szerverén, vagy kezdje el azonnal a felhőben.',
+    'Ne hagyatkozzon többé táblázatokra és fehértáblákra. A {brandName} segít a karbantartó csapatoknak a beavatkozások tervezésében, a berendezések nyomon követésében és a megfelelőség fenntartásában. Üzemeltesse saját szerverén, vagy kezdje el azonnal a felhőben.',
   talk_to_sales: 'Beszéljen az értékesítéssel',
   'pricing.choose_plan_and_get_started':
     'Válaszd ki a csomagodat, és kezdj bele',
@@ -1554,3 +1554,4 @@ const locale = {
 };
 
 export default locale;
+

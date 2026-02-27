@@ -9,7 +9,7 @@ import {
   useTheme
 } from '@mui/material';
 import Link from 'next/link';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { customLogoPaths } from 'src/config';
 import { useEffect, useState } from 'react';
 import { useBrand } from 'src/hooks/useBrand';
@@ -54,7 +54,7 @@ interface OwnProps {
 }
 
 function Logo({ white }: OwnProps) {
-  const { t }: { t: any } = useTranslation();
+  const t = useTranslations();
   const theme = useTheme();
   const width = 60;
   const height = 60;
@@ -78,3 +78,4 @@ function Logo({ white }: OwnProps) {
 }
 
 export default Logo;
+

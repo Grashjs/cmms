@@ -2,7 +2,7 @@ const isBrowser = typeof window !== 'undefined';
 
 const getRuntimeValue = (key: string, defaultValue = ''): string => {
   const runtimeValue = isBrowser
-      ? window.__RUNTIME_CONFIG__?.[key]?.trim()
+      ? (window as any).__RUNTIME_CONFIG__?.[key]?.trim()
       : undefined;
   return runtimeValue || defaultValue;
 };

@@ -14,8 +14,8 @@ const locale = {
   COMPLETE: 'Completare',
   'home.built': 'Progettato per semplificare la gestione della manutenzione',
   home_description:
-    'Quando lavagne e post-it creano caos e hai bisogno di un software CMMS abbastanza semplice da utilizzare per il tuo team, prova {{shortBrandName}}',
-  try_grash: 'Prova {{shortBrandName}}',
+    'Quando lavagne e post-it creano caos e hai bisogno di un software CMMS abbastanza semplice da utilizzare per il tuo team, prova {shortBrandName}',
+  try_grash: 'Prova {shortBrandName}',
   login: 'Login',
   start_trial: 'Inizia una prova gratuita',
   'home.what': 'Che cosa',
@@ -24,7 +24,7 @@ const locale = {
     "Crea flussi di lavoro efficienti e affidabili che ti consentono di avere il controllo della manutenzione. Genera, assegna e monitora gli ordini di lavoro. Controlla l'inventario. E ottieni report automatizzati affidabili che migliorano la visibilità e creano responsabilità.",
   key_features: 'Caratteristiche principali',
   key_features_description:
-    'Alcune delle caratteristiche che rendono {{shortBrandName}} uno dei migliori CMMS disponibili oggi',
+    'Alcune delle caratteristiche che rendono {shortBrandName} uno dei migliori CMMS disponibili oggi',
   contribute: 'Contribuire',
   work_orders: 'Ordini di lavoro',
   request_system: 'Sistema di richiesta di lavoro',
@@ -39,7 +39,7 @@ const locale = {
   'work-orders.descriptions.0':
     'Stanco di montagne di scartoffie e ordini di lavoro persi? Tutti questi elementi persi incidono direttamente sui profitti e sulla tua reputazione.',
   'work-orders.descriptions.1':
-    'Con {{shortBrandName}} puoi organizzare facilmente e rapidamente tutti i tuoi ordini di lavoro, i tuoi PM e le altre attività del tuo team in un database centralizzato accessibile ovunque e su qualsiasi dispositivo.',
+    'Con {shortBrandName} puoi organizzare facilmente e rapidamente tutti i tuoi ordini di lavoro, i tuoi PM e le altre attività del tuo team in un database centralizzato accessibile ovunque e su qualsiasi dispositivo.',
   'work-orders.checks.0':
     'Visualizza tutte le tue attività, inclusi WO, PM e richieste di lavoro',
   'work-orders.checks.1':
@@ -55,7 +55,7 @@ const locale = {
   'work-requests.descriptions.0':
     'Stanco di utilizzare il vecchio sistema telefonico ed e-mail che si traduce in biglietti PERSI, continue interruzioni giornaliere e lavoro duplicato?',
   'work-requests.descriptions.1':
-    'La soluzione di gestione della manutenzione di {{shortBrandName}} consente a chiunque tu autorizzi di segnalare un problema al tuo reparto di manutenzione semplicemente scansionando un codice QR (codice a barre) o visitando un URL e digitando la propria richiesta tramite i propri dispositivi mobili.',
+    'La soluzione di gestione della manutenzione di {shortBrandName} consente a chiunque tu autorizzi di segnalare un problema al tuo reparto di manutenzione semplicemente scansionando un codice QR (codice a barre) o visitando un URL e digitando la propria richiesta tramite i propri dispositivi mobili.',
   'work-requests.checks.0': 'Non perdere mai più il lavoro.',
   'work-requests.checks.1':
     'Riduci fino al 34% il tempo impiegato per gestire le richieste di lavoro.',
@@ -82,7 +82,7 @@ const locale = {
   'eam.descriptions.0':
     'Frustrato nel tentativo di organizzare il disordine caotico delle attrezzature aziendali, chiedendoti se le attrezzature sono state adeguatamente mantenute, non sapendo quanto costa la loro manutenzione e tutti gli altri grattacapi che derivano dalla gestione delle risorse?',
   'eam.descriptions.1':
-    'Il modulo Enterprise Asset Management di {{brandName}} può essere utilizzato per un numero di asset compreso tra 10 e 1.000.000, consentendoti di monitorare esattamente ciò che desideri, nel modo desiderato, in una struttura ad albero facile da usare e ricercabile.',
+    'Il modulo Enterprise Asset Management di {brandName} può essere utilizzato per un numero di asset compreso tra 10 e 1.000.000, consentendoti di monitorare esattamente ciò che desideri, nel modo desiderato, in una struttura ad albero facile da usare e ricercabile.',
   'eam.checks.0':
     'Conosci lo stato di salute dei tuoi beni in ogni momento e quanto ti costano',
   'eam.checks.1': 'Visualizza registri di manutenzione completi e dettagliati.',
@@ -98,7 +98,7 @@ const locale = {
   'pm.descriptions.0':
     'Smetti di sprecare ore preziose distribuendo manualmente le checklist di Project Management e monitorando il tuo team per assicurarti che il lavoro venga svolto.',
   'pm.descriptions.1':
-    '{{shortBrandName}} ti consente di automatizzare facilmente la pianificazione della manutenzione preventiva, in modo che il lavoro giusto venga automaticamente consegnato al momento giusto, al tecnico giusto per la risorsa giusta.',
+    '{shortBrandName} ti consente di automatizzare facilmente la pianificazione della manutenzione preventiva, in modo che il lavoro giusto venga automaticamente consegnato al momento giusto, al tecnico giusto per la risorsa giusta.',
   'pm.checks.0':
     'Automatizza la programmazione della manutenzione preventiva su base giornaliera, settimanale, mensile, annuale o in base a eventi o letture dei contatori.',
   'pm.checks.1':
@@ -114,7 +114,7 @@ const locale = {
   'part.descriptions.0':
     'Non sai quali ricambi hai in magazzino o dove vengono utilizzati? Non sai quando i tuoi ricambi si esauriranno o se i tuoi tecnici avranno quelli necessari per svolgere il loro lavoro?',
   'part.descriptions.1':
-    'Abbiamo progettato la gestione dei componenti di {{shortBrandName}} per risolvere questi problemi e molto altro ancora:',
+    'Abbiamo progettato la gestione dei componenti di {shortBrandName} per risolvere questi problemi e molto altro ancora:',
   'part.checks.0':
     'Ricevi notifiche push ed e-mail immediate quando la quantità di un componente è bassa. Mantieni il numero corretto di componenti in magazzino ricevendo notifiche push/e-mail immediate e automatiche quando la quantità di un componente è inferiore a una soglia personalizzata.',
   'part.checks.1':
@@ -135,21 +135,21 @@ const locale = {
   'dashboard.descriptions.0':
     'Ammettiamolo, il primo passo per migliorare le proprie operazioni è conoscere il buono, il cattivo e il brutto.',
   'dashboard.descriptions.1':
-    'Con le dashboard personalizzate di {{shortBrandName}} puoi finalmente iniziare a comprendere quel nefasto "buco nero della manutenzione" e iniziare a mettere in atto piani basati sui dati, con conseguente riduzione dei costi di manodopera, diminuzione dei tempi di inattività e altro ancora.',
+    'Con le dashboard personalizzate di {shortBrandName} puoi finalmente iniziare a comprendere quel nefasto "buco nero della manutenzione" e iniziare a mettere in atto piani basati sui dati, con conseguente riduzione dei costi di manodopera, diminuzione dei tempi di inattività e altro ancora.',
   'dashboard.descriptions.2':
-    'Con le dashboard personalizzate di {{shortBrandName}} potrai...',
+    'Con le dashboard personalizzate di {shortBrandName} potrai...',
   'dashboard.checks.0': 'Scopri dove vengono spesi i tuoi soldi e perché',
   'dashboard.checks.1': 'Scopri quale risorsa costa di più e perché',
   'dashboard.checks.2': 'Crea i tuoi KPI personalizzati.',
   'dashboard.checks.3':
     'Visualizza report generati e aggiornati automaticamente in base alle tue metriche',
   'dashboard.checks.4':
-    "Visualizza report facilmente condivisibili tramite fogli Excel, PDF o all'interno di {{shortBrandName}}",
+    "Visualizza report facilmente condivisibili tramite fogli Excel, PDF o all'interno di {shortBrandName}",
   'dashboard.checks.5': 'E molto altro ancora...',
   'home.smarter': 'Più intelligente',
   'home.work': 'Lavoro',
   'home.smarter_description':
-    '{{shortBrandName}} semplifica notevolmente il lavoro efficiente dei tecnici, consentendo loro di accedere agli strumenti e ai dati necessari per svolgere il proprio lavoro, il tutto dal palmo della loro mano.',
+    '{shortBrandName} semplifica notevolmente il lavoro efficiente dei tecnici, consentendo loro di accedere agli strumenti e ai dati necessari per svolgere il proprio lavoro, il tutto dal palmo della loro mano.',
   leading_maintenance:
     "Aprire la strada a un futuro migliore per la manutenzione e l'affidabilità",
   premium_included: 'Funzionalità premium incluse',
@@ -283,7 +283,7 @@ const locale = {
   save: 'Salva',
   customers: 'Appaltatori',
   no_labor:
-    'Non sono ancora stati aggiunti costi di manodopera. Verranno visualizzati qui quando un utente registra il tempo e ha una tariffa oraria memorizzata in {{shortBrandName}}.',
+    'Non sono ancora stati aggiunti costi di manodopera. Verranno visualizzati qui quando un utente registra il tempo e ha una tariffa oraria memorizzata in {shortBrandName}.',
   not_assigned: 'Non assegnato',
   no_additional_cost: 'Non sono stati ancora aggiunti costi aggiuntivi',
   parts: 'Parti',
@@ -327,7 +327,7 @@ const locale = {
   starts_on: 'Inizia su',
   ends_on: 'Termina il',
   frequency: 'Frequenza',
-  every_frequency_days: 'Ogni {{frequenza}} giorni',
+  every_frequency_days: 'Ogni {frequenza} giorni',
   wo_details: "Dettagli dell'ordine di lavoro",
   confirm_delete_file: 'Sei sicuro di voler rimuovere questo file?',
   wo_schedule_success: 'Ordine di lavoro pianificato con successo',
@@ -447,7 +447,7 @@ const locale = {
   confirm_delete_part_asset:
     'Sei sicuro di voler rimuovere questa parte da questa risorsa?',
   no_due_date: 'No Due Date',
-  due_at_date: 'Due {{date}}',
+  due_at_date: 'Due {date}',
   no_primary_worker: 'Nessun lavoratore primario',
   no_wo_linked_asset:
     'Non esiste alcun ordine di lavoro collegato a questa risorsa',
@@ -481,7 +481,7 @@ const locale = {
   edit_asset_description:
     'Compila i campi sottostanti per modificare questa risorsa',
   confirm_delete_asset: 'Sei sicuro di voler eliminare questa risorsa?',
-  loading_assets: 'Caricamento delle risorse in {{name}} #{{id}}',
+  loading_assets: 'Caricamento delle risorse in {name} #{id}',
   no_content: 'Nessun contenuto',
   no_result_criteria: 'Nessun risultato corrisponde ai tuoi criteri di ricerca',
   map_view: 'Vista mappa',
@@ -837,7 +837,7 @@ const locale = {
     "Premi il pulsante '+' per aggiungere la tua prima categoria.",
   confirm_delete_category: 'Sei sicuro di voler eliminare questa categoria?',
   no_category_message:
-    'Sembra che non ci siano ancora categorie {{categoryName}}.',
+    'Sembra che non ci siano ancora categorie {categoryName}.',
   acquisition_cost: 'Costo di acquisizione',
   general_settings: 'Impostazioni generali',
   request_form_configuration: 'Configurazione del modulo di richiesta',
@@ -856,7 +856,7 @@ const locale = {
   external_id: 'ID esterno',
   permissions: 'Permessi',
   create_role_description:
-    'Questo ruolo può svolgere tutte le funzioni di un amministratore in {{brandName}}, ma puoi personalizzare alcune autorizzazioni importanti di seguito.',
+    'Questo ruolo può svolgere tutte le funzioni di un amministratore in {brandName}, ma puoi personalizzare alcune autorizzazioni importanti di seguito.',
   create_and_edit: 'Crea/Modifica',
   to_access: 'Accesso',
   role_delete_success: 'Il ruolo è stato eliminato correttamente',
@@ -869,7 +869,7 @@ const locale = {
   role_create_success: 'Il ruolo è stato creato con successo',
   role_create_failure: 'Il ruolo non può essere creato',
   roles_management: 'Gestione dei ruoli',
-  roles_number: '{{count}} ruoli',
+  roles_number: '{count} ruoli',
   create_role: 'Crea ruolo',
   upgrade_role: 'Aggiorna per creare un ruolo',
   add_role: 'Aggiungi nuovo ruolo',
@@ -1047,7 +1047,7 @@ const locale = {
   my_account: 'Il mio conto',
   my_company: 'La mia azienda',
   you_are_using_plan:
-    "Al momento stai utilizzando il piano {{planName}}. Scadrà il giorno {{expiration}}. Esegui l'upgrade ora per accedere a più funzionalità.",
+    "Al momento stai utilizzando il piano {planName}. Scadrà il giorno {expiration}. Esegui l'upgrade ora per accedere a più funzionalità.",
   upgrade_plan: 'Piano di aggiornamento',
   plans: 'Piani',
   monthly: 'Mensile',
@@ -1072,7 +1072,7 @@ const locale = {
   plan: 'Piano',
   current_plan: 'Piano attuale',
   number_users_who_will_use_grash:
-    'Numero di utenti che utilizzeranno {{shortBrandName}}',
+    'Numero di utenti che utilizzeranno {shortBrandName}',
   admin_role: 'Amministratore',
   technical_role: 'Tecnico',
   limited_technical_role: 'Tecnico limitato',
@@ -1089,7 +1089,7 @@ const locale = {
   checkout_our: "Dai un'occhiata al nostro",
   pricing_page: 'Pagina dei prezzi',
   for_more_details: 'per maggiori dettagli',
-  users_count_display: '{{count}} utenti',
+  users_count_display: '{count} utenti',
   monthly_adverb: 'mensile',
   yearly_adverb: 'annuale',
   features: 'Caratteristiche',
@@ -1117,18 +1117,18 @@ const locale = {
   done: 'Fatto',
   no_match_yet: 'Nessuna corrispondenza ancora',
   select: 'Selezionare...',
-  matched_to_field: 'Corrisponde a {{field}}',
+  matched_to_field: 'Corrisponde a {field}',
   next: 'Prossimo',
   not_enough_rows: 'Non ci sono abbastanza righe nel file',
-  there_are_duplicates: 'Ci sono duplicati: {{duplicates}}',
+  there_are_duplicates: 'Ci sono duplicati: {duplicates}',
   assigned_by: 'Assegnato da',
-  percent_rows_have_value: '{{percent}}% delle righe hanno valore',
+  percent_rows_have_value: '{percent}% delle righe hanno valore',
   match_at_least_column: 'Corrisponde almeno a una colonna',
   to_import: 'Importare',
-  required_match: 'È richiesta la corrispondenza {{field}}',
+  required_match: 'È richiesta la corrispondenza {field}',
   archived: 'Archiviato',
   import_wo_success:
-    '{{created}} Ordini di lavoro sono stati creati e {{updated}} sono stati aggiornati',
+    '{created} Ordini di lavoro sono stati creati e {updated} sono stati aggiornati',
   to_export: 'Esportare',
   filters: 'Filtri',
   more_filters: 'Altri filtri',
@@ -1143,13 +1143,13 @@ const locale = {
   REACTIVE: 'Reattivo',
   REPEATING: 'Preventivo',
   import_location_success:
-    '{{created}} Le posizioni sono state create e {{updated}} sono state aggiornate',
+    '{created} Le posizioni sono state create e {updated} sono state aggiornate',
   import_part_success:
-    '{{created}} Le parti sono state create e {{updated}} sono state aggiornate',
+    '{created} Le parti sono state create e {updated} sono state aggiornate',
   import_meter_success:
-    'I contatori {{created}} sono stati creati e {{updated}} sono stati aggiornati',
+    'I contatori {created} sono stati creati e {updated} sono stati aggiornati',
   import_asset_success:
-    '{{created}} Le risorse sono state create e {{updated}} sono state aggiornate',
+    '{created} Le risorse sono state create e {updated} sono state aggiornate',
   wo_calendar: 'Calendario degli ordini di lavoro',
   month: 'Mese',
   week: 'Settimana',
@@ -1232,7 +1232,7 @@ const locale = {
   and_optional: 'E (facoltativo)',
   then: 'Poi',
   workflow_description:
-    'Crea flussi di lavoro personalizzati con la stessa facilità di "Se", "E", "Allora". Risparmia tempo e assegna automaticamente i tuoi ordini di lavoro tramite flussi di lavoro per personalizzare {{shortBrandName}} in base alle esigenze del tuo team.\nTutti i piani consentono di creare fino a 1 flusso di lavoro personalizzato. Per aggiungere altri flussi di lavoro, esegui l\'upgrade al nostro piano Business.',
+    'Crea flussi di lavoro personalizzati con la stessa facilità di "Se", "E", "Allora". Risparmia tempo e assegna automaticamente i tuoi ordini di lavoro tramite flussi di lavoro per personalizzare {shortBrandName} in base alle esigenze del tuo team.\nTutti i piani consentono di creare fino a 1 flusso di lavoro personalizzato. Per aggiungere altri flussi di lavoro, esegui l\'upgrade al nostro piano Business.',
   CREATE_PURCHASE_ORDER: 'Crea un ordine di acquisto',
   PART_IS: 'La parte è',
   QUANTITY_INFERIOR: 'La quantità è inferiore a',
@@ -1297,19 +1297,19 @@ const locale = {
   upgrade: 'Aggiornamento',
   downgrade: 'Declassare',
   upgrade_description:
-    "Hai appena aggiornato il tuo piano di abbonamento. Devi abilitare gli utenti disabilitati che potrebbero utilizzare {{shortBrandName}}. Puoi farlo solo una volta per l'abbonamento corrente. Scegli con attenzione.",
+    "Hai appena aggiornato il tuo piano di abbonamento. Devi abilitare gli utenti disabilitati che potrebbero utilizzare {shortBrandName}. Puoi farlo solo una volta per l'abbonamento corrente. Scegli con attenzione.",
   enable_users: 'Abilita gli utenti',
-  max_users_description: 'Puoi abilitare fino a {{maxUsers}} utenti',
+  max_users_description: 'Puoi abilitare fino a {maxUsers} utenti',
   downgrade_description:
     "Hai appena effettuato il downgrade del tuo piano di abbonamento. Devi disabilitare alcuni utenti per procedere. Puoi farlo solo una volta per l'abbonamento corrente. Scegli con attenzione.",
   disable_users: 'Disabilitare gli utenti',
-  min_users_description: 'Devi disabilitare almeno {{minUsers}} utenti',
+  min_users_description: 'Devi disabilitare almeno {minUsers} utenti',
   downgrade_description_no_owner:
     "La tua azienda ha appena effettuato il downgrade del suo piano di abbonamento. Il proprietario dell'azienda deve disabilitare alcuni utenti prima che tu possa procedere.",
   past_due: 'Scaduto',
   due_date_delay: 'Ritardo della data di scadenza',
   due_date_delay_description: 'Ritardo della data di scadenza in giorni',
-  days_count: '{{giorni}} giorni',
+  days_count: '{giorni} giorni',
   trigger_configuration: 'Configurazione del trigger',
   WORK_ORDER_feature: 'Ordini di lavoro',
   REQUEST_feature: 'Richieste di lavoro',
@@ -1347,7 +1347,7 @@ const locale = {
     'Nessuna parte è stata utilizzata in questo ordine di lavoro',
   required_cost_on_completion:
     'Nessuna informazione sui costi fornita in questo ordine di lavoro',
-  estimated_hours_in_text: '{{hours}} ore stimate',
+  estimated_hours_in_text: '{hours} ore stimate',
   required_part_name: 'Il nome della parte è obbligatorio',
   asset_update_failure: 'La risorsa non può essere modificata',
   terms_of_service: 'Termini di servizio',
@@ -1361,13 +1361,13 @@ const locale = {
   simplify_wo: "Semplifica gli ordini di lavoro nell'app mobile",
   simplify_wo_description:
     "Nascondi i controlli del tempo, i costi e le parti nei dettagli dell'ordine di lavoro durante l'utilizzo dell'app mobile",
-  account_deletion: "Eliminazione dell'account {{brandName}}",
+  account_deletion: "Eliminazione dell'account {brandName}",
   switch_account: 'Cambia account',
   switch_to_super_user: 'Passa a super amministratore',
   switch_account_description: 'Si prega di scegliere un account per procedere',
   put_location_in_map: 'Inserisci la posizione sulla mappa',
   confirm_disable_user:
-    'Sei sicuro di voler disattivare {{user}}? Potrai abilitarlo solo dopo un mese.',
+    'Sei sicuro di voler disattivare {user}? Potrai abilitarlo solo dopo un mese.',
   user_disabled_success: 'Utente disabilitato con successo',
   disable: 'Disabilitare',
   manufacturer: 'Produttore',
@@ -1471,14 +1471,14 @@ const locale = {
   scheduled_date: 'Data pianificata',
   on: 'Su',
   required_days_of_week: 'Giorni della settimana richiesti',
-  'schedule.daily_one': 'Ogni {{count}} giorno',
-  'schedule.daily_other': 'Ogni {{count}} giorni',
-  'schedule.weekly_one': 'Ogni {{count}} settimana il {{days}}',
-  'schedule.weekly_other': 'Ogni {{count}} settimane il {{days}}',
-  'schedule.monthly_one': 'Ogni {{count}} mese',
-  'schedule.monthly_other': 'Ogni {{count}} mesi',
-  'schedule.yearly_one': 'Ogni {{count}} anno',
-  'schedule.yearly_other': 'Ogni {{count}} anni',
+  'schedule.daily_one': 'Ogni {count} giorno',
+  'schedule.daily_other': 'Ogni {count} giorni',
+  'schedule.weekly_one': 'Ogni {count} settimana il {days}',
+  'schedule.weekly_other': 'Ogni {count} settimane il {days}',
+  'schedule.monthly_one': 'Ogni {count} mese',
+  'schedule.monthly_other': 'Ogni {count} mesi',
+  'schedule.yearly_one': 'Ogni {count} anno',
+  'schedule.yearly_other': 'Ogni {count} anni',
   csv_separator: 'Separatore CSV',
   open_source_cmms: 'CMMS open source',
   'main.title':
@@ -1487,7 +1487,7 @@ const locale = {
     'CMMS gratuito e open-source che puoi ospitare tu stesso o utilizzare nel cloud',
   'home.h2': 'Manutenzione potente a basso costo',
   'home.h3':
-    'Smetti di affidarti a fogli di calcolo e lavagne. {{brandName}} aiuta i team di manutenzione a pianificare interventi, tracciare attrezzature e rimanere conformi. Ospita sul tuo server o inizia istantaneamente nel cloud.',
+    'Smetti di affidarti a fogli di calcolo e lavagne. {brandName} aiuta i team di manutenzione a pianificare interventi, tracciare attrezzature e rimanere conformi. Ospita sul tuo server o inizia istantaneamente nel cloud.',
   talk_to_sales: 'Parla con le vendite',
   'pricing.choose_plan_and_get_started': 'Scegli il tuo piano e inizia',
   'pricing.slogan_effective_maintenance':
@@ -1706,3 +1706,4 @@ const locale = {
 };
 
 export default locale;
+

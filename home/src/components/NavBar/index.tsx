@@ -27,7 +27,7 @@ import { GitHub, ExpandLess, ExpandMore } from '@mui/icons-material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LanguageSwitcher from 'src/components/LanguageSwitcher';
 import Link from 'next/link';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { demoLink, isWhiteLabeled } from 'src/config';
 import { getIndustriesLinks, getFeaturesLinks } from 'src/utils/urlPaths';
@@ -58,7 +58,7 @@ const NavbarSpacer = styled(Box)(
 );
 
 export default function NavBar() {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const featuresLinks = getFeaturesLinks(t);
@@ -644,3 +644,4 @@ export default function NavBar() {
     </>
   );
 }
+

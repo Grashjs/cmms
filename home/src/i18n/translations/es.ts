@@ -14,8 +14,8 @@ const esJSON = {
   COMPLETE: 'Completa',
   'home.built': 'Diseñado para facilitar la gestión del mantenimiento',
   home_description:
-    'Cuando las pizarras y las notas adhesivas son un caos y necesitas un CMMS que sea fácil de usar por tu equipo, prueba {{shortBrandName}} ',
-  try_grash: 'Prueba {{shortBrandName}}',
+    'Cuando las pizarras y las notas adhesivas son un caos y necesitas un CMMS que sea fácil de usar por tu equipo, prueba {shortBrandName} ',
+  try_grash: 'Prueba {shortBrandName}',
   login: 'Iniciar sesión',
   start_trial: 'Comienza una prueba gratis',
   'home.what': 'Que',
@@ -24,7 +24,7 @@ const esJSON = {
     'Cree flujos de trabajo eficientes y confiables que le permitan controlar el mantenimiento. Genere, asigne y realice un seguimiento de órdenes de trabajo. Controlar el inventario. Y obtenga informes automatizados confiables que mejoren la visibilidad y generen responsabilidad.',
   key_features: 'Características clave',
   key_features_description:
-    'Algunas de las características que hacen de {{shortBrandName}} uno de los mejores CMMS disponibles en la actualidad',
+    'Algunas de las características que hacen de {shortBrandName} uno de los mejores CMMS disponibles en la actualidad',
   contribute: 'Contribuir',
   work_orders: 'Órdenes de trabajo',
   request_system: 'Sistema de solicitud de trabajo',
@@ -38,7 +38,7 @@ const esJSON = {
   'work-orders.descriptions.0':
     '¿Está cansado de la gran cantidad de papeles y de las órdenes de trabajo perdidas? Todo esto afecta directamente la obtención de resultados y su reputación.',
   'work-orders.descriptions.1':
-    'Con {{shortBrandName}} puede organizar fácil y rápidamente todas sus órdenes de trabajo, el mantenimiento preventivo y otras tareas de su equipo en una base de datos centralizada a la que se puede acceder desde cualquier lugar y cualquier dispositivo.',
+    'Con {shortBrandName} puede organizar fácil y rápidamente todas sus órdenes de trabajo, el mantenimiento preventivo y otras tareas de su equipo en una base de datos centralizada a la que se puede acceder desde cualquier lugar y cualquier dispositivo.',
   'work-orders.checks.0':
     'Ver todas sus tareas, incluidas las órdenes y solicitudes de trabajo y el mantenimiento preventivo',
   'work-orders.checks.1':
@@ -53,7 +53,7 @@ const esJSON = {
   'work-requests.descriptions.0':
     '¿Está cansado de usar el antiguo sistema de teléfono y correos electrónicos que resulta en solicitudes PERDIDAS, constantes interrupciones diarias y trabajo duplicado?',
   'work-requests.descriptions.1':
-    'La de gestión de mantenimiento a través de {{shortBrandName}} permite a cualquier persona que esté autorizada a enviar un problema a su departamento de mantenimiento simplemente escaneando un código QR o visitando una URL y escribiendo su solicitud a través de sus dispositivos móviles.',
+    'La de gestión de mantenimiento a través de {shortBrandName} permite a cualquier persona que esté autorizada a enviar un problema a su departamento de mantenimiento simplemente escaneando un código QR o visitando una URL y escribiendo su solicitud a través de sus dispositivos móviles.',
   'work-requests.checks.0': 'Nunca pierdas un trabajo de nuevo.',
   'work-requests.checks.1':
     'Reduzca el tiempo dedicado a gestionar solicitudes de trabajo hasta en un 34 %.',
@@ -81,7 +81,7 @@ const esJSON = {
   'eam.descriptions.0':
     '¿Frustrado por tratar de organizar el desorden de los equipos de la empresa, preguntándose si los equipos han sido cuidados adecuadamente, sin saber cuánto cuesta su mantenimiento y todos los demás dolores de cabeza que conlleva la gestión de activos?',
   'eam.descriptions.1':
-    'El software para la gestión de activos empresariales {{brandName}} se puede utilizar para entre 10 y 1.000.000 de activos, lo que le permite realizar un seguimiento exactamente de lo que desea, de la manera que desee, en una estructura de árbol fácil de usar y con capacidad de búsqueda.',
+    'El software para la gestión de activos empresariales {brandName} se puede utilizar para entre 10 y 1.000.000 de activos, lo que le permite realizar un seguimiento exactamente de lo que desea, de la manera que desee, en una estructura de árbol fácil de usar y con capacidad de búsqueda.',
   'eam.checks.0':
     'Conozca el estado de sus activos en cada momento y lo que le están costando',
   'eam.checks.1': 'Vea registros de mantenimiento completos y detallados.',
@@ -96,7 +96,7 @@ const esJSON = {
   'pm.descriptions.0':
     'Deje de perder horas preciosas distribuyendo manualmente listas de verificación de MP y haciendo un seguimiento con su equipo para asegurarse de que el trabajo esté terminado.',
   'pm.descriptions.1':
-    '{{shortBrandName}} le permite automatizar fácilmente la programación de MP para que el trabajo correcto se entregue automáticamente en el momento adecuado al técnico adecuado para el activo adecuado.',
+    '{shortBrandName} le permite automatizar fácilmente la programación de MP para que el trabajo correcto se entregue automáticamente en el momento adecuado al técnico adecuado para el activo adecuado.',
   'pm.checks.0':
     'Automatice la programación de MP para que sea diaria, semanal, mensual, anual o basada en eventos o lecturas de medidores.',
   'pm.checks.1':
@@ -112,7 +112,7 @@ const esJSON = {
   'part.descriptions.0':
     '¿No está seguro de qué repuestos tiene en stock o dónde se utilizan? ¿No sabes cuándo se acabarán tus repuestos o si tus técnicos tendrán los repuestos necesarios para hacer su trabajo?',
   'part.descriptions.1':
-    'Diseñamos la gestión de repuestos de {{shortBrandName}} para resolver esos problemas y más:',
+    'Diseñamos la gestión de repuestos de {shortBrandName} para resolver esos problemas y más:',
   'part.checks.0':
     'Reciba notificaciones instantáneas y por correo electrónico cuando la cantidad de un repuesto sea baja. Mantenga la cantidad correcta de repuestos en stock recibiendo notificaciones automáticas e instantáneas por correo electrónico cuando la cantidad esté por debajo de un umbral establecido.',
   'part.checks.1':
@@ -134,21 +134,21 @@ const esJSON = {
   'dashboard.descriptions.0':
     'Seamos realistas, el primer paso para mejorar tus operaciones es conocer lo bueno, lo malo y lo feo.',
   'dashboard.descriptions.1':
-    'Con los tableros personalizados de {{shortBrandName}}, finalmente puede comenzar a comprender ese infame "agujero negro del mantenimiento" y comenzar a poner en práctica planes respaldados por datos, lo que resulta en menores costos laborales, menor tiempo de inactividad y más.',
+    'Con los tableros personalizados de {shortBrandName}, finalmente puede comenzar a comprender ese infame "agujero negro del mantenimiento" y comenzar a poner en práctica planes respaldados por datos, lo que resulta en menores costos laborales, menor tiempo de inactividad y más.',
   'dashboard.descriptions.2':
-    'Con los tableros personalizados de {{shortBrandName}} podrá...',
+    'Con los tableros personalizados de {shortBrandName} podrá...',
   'dashboard.checks.0': 'Sepa dónde se gasta su dinero y en qué',
   'dashboard.checks.1': 'Sepa qué activo cuesta más y por qué',
   'dashboard.checks.2': 'Cree indicadores personalizados.',
   'dashboard.checks.3':
     'Vea informes que se generan y actualizan automáticamente según sus mediciones',
   'dashboard.checks.4':
-    'Vea informes que se pueden compartir fácilmente a través de hojas de Excel, PDF o dentro de {{shortBrandName}}',
+    'Vea informes que se pueden compartir fácilmente a través de hojas de Excel, PDF o dentro de {shortBrandName}',
   'dashboard.checks.5': 'Y mucho más...',
   'home.smarter': 'Más inteligente',
   'home.work': 'Trabajo',
   'home.smarter_description':
-    '{{shortBrandName}} hace que sea increíblemente fácil para los técnicos trabajar de manera eficiente al brindarles acceso a las herramientas y los datos que necesitan para realizar el trabajo, todo desde la palma de su mano.',
+    '{shortBrandName} hace que sea increíblemente fácil para los técnicos trabajar de manera eficiente al brindarles acceso a las herramientas y los datos que necesitan para realizar el trabajo, todo desde la palma de su mano.',
   leading_maintenance:
     'Liderando el camino hacia un futuro mejor para el mantenimiento y la confiabilidad',
   premium_included: 'Funciones premium incluidas',
@@ -286,7 +286,7 @@ const esJSON = {
   save: 'Guardar',
   customers: 'Contratista',
   no_labor:
-    'Aún no se han agregado costos. Aparecerán aquí cuando un usuario registre su tiempo y tenga una tarifa por hora almacenada en {{shortBrandName}}.',
+    'Aún no se han agregado costos. Aparecerán aquí cuando un usuario registre su tiempo y tenga una tarifa por hora almacenada en {shortBrandName}.',
   not_assigned: 'No asignado',
   no_additional_cost: 'Costos adicionales no han sido agregados aún',
   parts: 'Repuestos',
@@ -331,7 +331,7 @@ const esJSON = {
   starts_on: 'Comienza el',
   ends_on: 'Finaliza el',
   frequency: 'Frecuencia',
-  every_frequency_days: 'Cada {{frequency}} días',
+  every_frequency_days: 'Cada {frequency} días',
   wo_details: 'Detalles de la Orden de Trabajo',
   confirm_delete_file: '¿Estás seguro de que quieres eliminar este archivo?',
   wo_schedule_success: 'Orden de Trabajo programada exitosamente',
@@ -450,7 +450,7 @@ const esJSON = {
   confirm_delete_part_asset:
     '¿Está seguro de que desea eliminar este repuesto de este activo?',
   no_due_date: 'Sin fecha de vencimiento',
-  due_at_date: 'Pendiente {{date}}',
+  due_at_date: 'Pendiente {date}',
   no_primary_worker: 'Sin trabajador principal asignado',
   no_wo_linked_asset: 'No hay ninguna Orden de Trabajo vinculada a este activo',
   asset_remove_success: 'El activo ha sido borrado',
@@ -483,7 +483,7 @@ const esJSON = {
   edit_asset_description:
     'Complete los campos a continuación para editar este activo',
   confirm_delete_asset: '¿Está seguro de que desea eliminar este activo?',
-  loading_assets: 'Cargando activo número {{name}} #{{id}}',
+  loading_assets: 'Cargando activo número {name} #{id}',
   no_content: 'Sin contenido',
   no_result_criteria: 'Ningún resultado coincide con sus criterios de búsqueda',
   map_view: 'Vista del mapa',
@@ -842,7 +842,7 @@ const esJSON = {
     "Presione el botón '+' para agregar la primera categoría.",
   confirm_delete_category: '¿Está seguro de que desea eliminar esta categoría?',
   no_category_message:
-    'Parece que no tienes ninguna categoría {{categoryName}} aún.',
+    'Parece que no tienes ninguna categoría {categoryName} aún.',
   acquisition_cost: 'Costo de adquisición',
   general_settings: 'Configuraciones generales',
   request_form_configuration: 'Ajustes del formulario de solicitud',
@@ -862,7 +862,7 @@ const esJSON = {
   external_id: 'ID externo',
   permissions: 'Permisos',
   create_role_description:
-    'Esta función puede hacer todo lo que un administrador puede hacer en {{brandName}}, pero puede personalizar algunos permisos importantes a continuación.',
+    'Esta función puede hacer todo lo que un administrador puede hacer en {brandName}, pero puede personalizar algunos permisos importantes a continuación.',
   create_and_edit: 'Crear/Editar',
   to_access: 'Accesso',
   role_delete_success: 'El rol ha sido eliminado',
@@ -875,7 +875,7 @@ const esJSON = {
   role_create_success: 'El rol ha sido creado exitosamente',
   role_create_failure: 'El rol no pudo ser creado',
   roles_management: 'Gestión de roles',
-  roles_number: '{{count}} roles',
+  roles_number: '{count} roles',
   create_role: 'Create rol',
   upgrade_role: 'Actualice para crear roles',
   add_role: 'Agregar un nuevo rol',
@@ -1056,7 +1056,7 @@ const esJSON = {
   my_account: 'Mi cuenta',
   my_company: 'Mi Empresa',
   you_are_using_plan:
-    'Actualmente estás utilizando el plan {{planName}}. Caducará el {{expiration}}. Actualice ahora para obtener acceso a más funciones.',
+    'Actualmente estás utilizando el plan {planName}. Caducará el {expiration}. Actualice ahora para obtener acceso a más funciones.',
   upgrade_plan: 'Actualizar plan',
   plans: 'Planes',
   monthly: 'Mensual',
@@ -1082,7 +1082,7 @@ const esJSON = {
   plan: 'Plan',
   current_plan: 'Plan actual',
   number_users_who_will_use_grash:
-    'Número de usuarios que utilizarán {{shortBrandName}}',
+    'Número de usuarios que utilizarán {shortBrandName}',
   admin_role: 'Administrador',
   technical_role: 'Técnico',
   limited_technical_role: 'Técnico limitado',
@@ -1099,7 +1099,7 @@ const esJSON = {
   checkout_our: 'Echa un vistazo a nuestra',
   pricing_page: 'página de precios',
   for_more_details: 'para más detalles',
-  users_count_display: '{{count}} usuarios',
+  users_count_display: '{count} usuarios',
   monthly_adverb: 'Mensual',
   yearly_adverb: 'Anual',
   features: 'Características',
@@ -1127,18 +1127,18 @@ const esJSON = {
   done: 'Hecho',
   no_match_yet: 'No hay coincidencia todavía',
   select: 'Seleccionar...',
-  matched_to_field: 'Coincidencia en {{field}}',
+  matched_to_field: 'Coincidencia en {field}',
   next: 'Siguiente',
   not_enough_rows: 'No hay suficientes filas en el archivo',
-  there_are_duplicates: 'Hay {{duplicates}} duplicados',
+  there_are_duplicates: 'Hay {duplicates} duplicados',
   assigned_by: 'Asignado a',
-  percent_rows_have_value: '{{percent}}% de filas tienen valor',
+  percent_rows_have_value: '{percent}% de filas tienen valor',
   match_at_least_column: 'Coincide al menos con una columna',
   to_import: 'Importar',
-  required_match: '{{field}} se requiere coincidencia',
+  required_match: '{field} se requiere coincidencia',
   archived: 'Archivado',
   import_wo_success:
-    '{{created}} Órdenes de Trabajo han sido creadas y {{updated}} han sido actualizadas',
+    '{created} Órdenes de Trabajo han sido creadas y {updated} han sido actualizadas',
   to_export: 'Exportar',
   filters: 'Filtros',
   more_filters: 'Más filtros',
@@ -1153,13 +1153,13 @@ const esJSON = {
   REACTIVE: 'Reactivo',
   REPEATING: 'Preventivo',
   import_location_success:
-    '{{created}} ubicaciones han sido creadas y {{updated}} ubicaciones han sido actualizadas',
+    '{created} ubicaciones han sido creadas y {updated} ubicaciones han sido actualizadas',
   import_part_success:
-    '{{created}} repuestos han sido creados y {{updated}} repuestos han sido actualizados',
+    '{created} repuestos han sido creados y {updated} repuestos han sido actualizados',
   import_meter_success:
-    '{{created}} lecturas han sido creados y {{updated}} lecturas han sido actualizadas',
+    '{created} lecturas han sido creados y {updated} lecturas han sido actualizadas',
   import_asset_success:
-    '{{created}} activos han sido creados y {{updated}} activos han sido actualizados',
+    '{created} activos han sido creados y {updated} activos han sido actualizados',
   wo_calendar: 'Calendario de órdenes de trabajo',
   month: 'Mes',
   week: 'Semana',
@@ -1243,7 +1243,7 @@ const esJSON = {
   and_optional: 'y (opcional)',
   then: 'entonces',
   workflow_description:
-    'Cree flujos de trabajo personalizados con la misma facilidad que If, And, Then. Ahorre tiempo y asigne fácilmente sus Órdenes de Trabajo automáticamente a través de flujos de trabajo para personalizar {{shortBrandName}} de acuerdo con la forma en que opera su equipo. Todos los planes pueden crear hasta 1 flujo de trabajo personalizado. Para agregar flujos de trabajo adicionales, actualice a nuestro plan Business',
+    'Cree flujos de trabajo personalizados con la misma facilidad que If, And, Then. Ahorre tiempo y asigne fácilmente sus Órdenes de Trabajo automáticamente a través de flujos de trabajo para personalizar {shortBrandName} de acuerdo con la forma en que opera su equipo. Todos los planes pueden crear hasta 1 flujo de trabajo personalizado. Para agregar flujos de trabajo adicionales, actualice a nuestro plan Business',
   CREATE_PURCHASE_ORDER: 'Crear orden de compra',
   PART_IS: 'El repuesto es',
   QUANTITY_INFERIOR: 'La cantidad es inferior a',
@@ -1307,19 +1307,19 @@ const esJSON = {
   upgrade: 'Upgrade',
   downgrade: 'Downgrade',
   upgrade_description:
-    'Acaba de actualizar su plan de suscripción. Debe habilitar a los usuarios deshabilitados que podrían usar {{shortBrandName}}. Solo puede hacer esto una vez para la suscripción actual. Elija con cuidado',
+    'Acaba de actualizar su plan de suscripción. Debe habilitar a los usuarios deshabilitados que podrían usar {shortBrandName}. Solo puede hacer esto una vez para la suscripción actual. Elija con cuidado',
   enable_users: 'Habilitar usuarios',
-  max_users_description: 'Puede habilitar hasta {{maxUsers}} usuarios',
+  max_users_description: 'Puede habilitar hasta {maxUsers} usuarios',
   downgrade_description:
     'Acabas de cambiar a una versión inferior de tu plan de suscripción. Debes desactivar algunos usuarios para continuar. Solo puedes hacerlo una vez para la suscripción actual. Elija con cuidado.',
   disable_users: 'Deshabilitar usuarios',
-  min_users_description: 'Debes desactivar un mìnimo de {{minUsers}} usuarios',
+  min_users_description: 'Debes desactivar un mìnimo de {minUsers} usuarios',
   downgrade_description_no_owner:
     'Su empresa acaba de reducir su plan de suscripción. El propietario de la empresa debe deshabilitar algunos usuarios antes de poder continuar.',
   past_due: 'Vencido',
   due_date_delay: 'Retraso en la fecha de vencimiento',
   due_date_delay_description: 'Retraso de fecha de vencimiento en días',
-  days_count: '{{days}} días',
+  days_count: '{days} días',
   trigger_configuration: 'Configuración de los diparadores',
   WORK_ORDER_feature: 'Órdenes de Trabajo',
   REQUEST_feature: 'Solicitudes de trabajo',
@@ -1358,7 +1358,7 @@ const esJSON = {
     'No se ha utilizado ningún repuesto en esta Orden de Trabajo',
   required_cost_on_completion:
     'No se proporciona información de costos en esta Orden de Trabajo',
-  estimated_hours_in_text: '{{hours}} horas estimadas',
+  estimated_hours_in_text: '{hours} horas estimadas',
   required_part_name: 'Nombre del repuesto es obligatorio',
   asset_update_failure: 'No se pudo editar el activo',
   terms_of_service: 'Términos del servicio',
@@ -1377,7 +1377,7 @@ const esJSON = {
   switch_account_description: 'Seleccione una cuenta para continuar',
   put_location_in_map: 'Poner ubicación en el mapa',
   confirm_disable_user:
-    '¿Estás seguro de que deseas desactivar {{user}}? Solo podrás habilitarlo después de un mes',
+    '¿Estás seguro de que deseas desactivar {user}? Solo podrás habilitarlo después de un mes',
   user_disabled_success: 'Usuario deshabilitado exitosamente',
   disable: 'Desactivado',
   manufacturer: 'Fabricante',
@@ -1487,14 +1487,14 @@ const esJSON = {
   scheduled_date: 'Fecha programada',
   on: 'En',
   required_days_of_week: 'Días de la semana requeridos',
-  'schedule.daily_one': 'Cada {{count}} día',
-  'schedule.daily_other': 'Cada {{count}} días',
-  'schedule.weekly_one': 'Cada {{count}} semana en {{days}}',
-  'schedule.weekly_other': 'Cada {{count}} semanas en {{days}}',
-  'schedule.monthly_one': 'Cada {{count}} mes',
-  'schedule.monthly_other': 'Cada {{count}} meses',
-  'schedule.yearly_one': 'Cada {{count}} año',
-  'schedule.yearly_other': 'Cada {{count}} años',
+  'schedule.daily_one': 'Cada {count} día',
+  'schedule.daily_other': 'Cada {count} días',
+  'schedule.weekly_one': 'Cada {count} semana en {days}',
+  'schedule.weekly_other': 'Cada {count} semanas en {days}',
+  'schedule.monthly_one': 'Cada {count} mes',
+  'schedule.monthly_other': 'Cada {count} meses',
+  'schedule.yearly_one': 'Cada {count} año',
+  'schedule.yearly_other': 'Cada {count} años',
   delete_account: 'Eliminar cuenta',
   csv_separator: 'Separador CSV',
   open_source_cmms: 'CMMS de código abierto',
@@ -1504,7 +1504,7 @@ const esJSON = {
     'CMMS gratuito y de código abierto que puede alojar usted mismo o usar en la nube',
   'home.h2': 'Mantenimiento potente a bajo coste',
   'home.h3':
-    'Deje de depender de hojas de cálculo y pizarras. {{brandName}} ayuda a los equipos de mantenimiento a planificar intervenciones, rastrear equipos y mantenerse en cumplimiento. Alójelo en su propio servidor o comience instantáneamente en la nube.',
+    'Deje de depender de hojas de cálculo y pizarras. {brandName} ayuda a los equipos de mantenimiento a planificar intervenciones, rastrear equipos y mantenerse en cumplimiento. Alójelo en su propio servidor o comience instantáneamente en la nube.',
   talk_to_sales: 'Hablar con ventas',
   'pricing.choose_plan_and_get_started': 'Elige tu plan y empieza',
   'pricing.slogan_effective_maintenance':
@@ -1719,3 +1719,4 @@ const esJSON = {
 };
 
 export default esJSON;
+

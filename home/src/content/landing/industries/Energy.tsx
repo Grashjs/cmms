@@ -100,3 +100,4 @@ function EnergyPage() {
 }
 
 export default EnergyPage;
+

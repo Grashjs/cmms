@@ -17,7 +17,7 @@ import {
 import { Helmet } from 'react-helmet-async';
 import Logo from 'src/components/LogoSign';
 
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import InstagramIcon from '@mui/icons-material/Instagram';
@@ -60,7 +60,7 @@ const ButtonNotify = styled(Button)(
 );
 
 function StatusComingSoon() {
-  const { t }: { t: any } = useTranslation();
+  const t = useTranslations();
 
   const calculateTimeLeft = () => {
     const difference = +new Date(`2023`) - +new Date();
@@ -95,7 +95,7 @@ function StatusComingSoon() {
 
     timerComponents.push(
       <Box textAlign="center" px={3}>
-        <TypographyH1 variant="h1">{timeLeft[interval]}</TypographyH1>
+        <TypographyH1 variant="h1">{(timeLeft as any)[interval]}</TypographyH1>
         <TypographyH3 variant="h3">{interval}</TypographyH3>
       </Box>
     );
@@ -207,3 +207,4 @@ function StatusComingSoon() {
 }
 
 export default StatusComingSoon;
+

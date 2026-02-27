@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import { ExpandMore } from '@mui/icons-material';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 export interface FaqItem {
   id?: string;
@@ -23,7 +23,7 @@ interface FaqProps {
 
 export default function Faq({ items, title }: FaqProps) {
   const [expanded, setExpanded] = useState<string | false>(false);
-  const { t }: { t: any } = useTranslation();
+  const t = useTranslations();
 
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -64,3 +64,4 @@ export default function Faq({ items, title }: FaqProps) {
     </Box>
   );
 }
+

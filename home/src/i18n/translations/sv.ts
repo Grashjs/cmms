@@ -14,8 +14,8 @@ const locale = {
   COMPLETE: 'Komplett',
   'home.built': 'Byggd för att göra underhållshantering enklare',
   home_description:
-    'När whiteboardtavlor och post-it-lappar är kaos, och du behöver en CMMS-programvara som är tillräckligt enkel för ditt team att faktiskt använda – prova {{shortBrandName}}',
-  try_grash: 'Prova {{shortBrandName}}',
+    'När whiteboardtavlor och post-it-lappar är kaos, och du behöver en CMMS-programvara som är tillräckligt enkel för ditt team att faktiskt använda – prova {shortBrandName}',
+  try_grash: 'Prova {shortBrandName}',
   login: 'Logga in',
   start_trial: 'Starta en gratis provperiod',
   'home.what': 'Vad',
@@ -24,7 +24,7 @@ const locale = {
     'Bygg effektiva och tillförlitliga arbetsflöden som ger dig kontroll över underhållet. Generera, tilldela och spåra arbetsordrar. Kontrollera lagerhållning. Och få tillförlitliga automatiserade rapporter som förbättrar synligheten och skapar ansvarsskyldighet.',
   key_features: 'Viktiga funktioner',
   key_features_description:
-    'Några av de funktioner som gör {{shortBrandName}} till ett av de bästa CMMS-systemen som finns tillgängliga idag',
+    'Några av de funktioner som gör {shortBrandName} till ett av de bästa CMMS-systemen som finns tillgängliga idag',
   contribute: 'Medverka',
   work_orders: 'Arbetsordrar',
   request_system: 'System för arbetsförfrågningar',
@@ -38,7 +38,7 @@ const locale = {
   'work-orders.descriptions.0':
     'Trött på massor av pappersarbete och borttappade arbetsordrar? Alla dessa borttappade saker påverkar direkt resultatet och ditt rykte.',
   'work-orders.descriptions.1':
-    'Med {{shortBrandName}} kan du enkelt och snabbt organisera alla dina arbetsordrar, projektledningar och andra uppgifter i hela teamet i en centraliserad databas som kan nås var som helst på vilken enhet som helst.',
+    'Med {shortBrandName} kan du enkelt och snabbt organisera alla dina arbetsordrar, projektledningar och andra uppgifter i hela teamet i en centraliserad databas som kan nås var som helst på vilken enhet som helst.',
   'work-orders.checks.0':
     'Visa alla dina uppgifter inklusive arbetsuppgifter, projektledningar och arbetsförfrågningar',
   'work-orders.checks.1':
@@ -54,7 +54,7 @@ const locale = {
   'work-requests.descriptions.0':
     'Trött på att använda det gamla telefon- och e-postsystemet som resulterar i FÖRLORADE ärenden, ständiga dagliga avbrott och dubbelarbete?',
   'work-requests.descriptions.1':
-    '{{shortBrandName}}s lösning för underhållshantering gör det möjligt för alla du godkänner att rapportera ett problem till din underhållsavdelning genom att helt enkelt skanna en QR-kod (streckkod) eller besöka en URL och skriva in sin begäran via sina mobila enheter.',
+    '{shortBrandName}s lösning för underhållshantering gör det möjligt för alla du godkänner att rapportera ett problem till din underhållsavdelning genom att helt enkelt skanna en QR-kod (streckkod) eller besöka en URL och skriva in sin begäran via sina mobila enheter.',
   'work-requests.checks.0': 'Förlora aldrig jobbet igen.',
   'work-requests.checks.1':
     'Minska tiden som läggs på att hantera arbetsförfrågningar med upp till 34 %.',
@@ -80,7 +80,7 @@ const locale = {
   'eam.descriptions.0':
     'Frustrerad över att försöka organisera den kaotiska röran av företagets utrustning, undra om utrustningen har tagits om ordentligt, inte veta vad den kostar att underhålla och alla andra huvudvärk som följer med att hantera tillgångar?',
   'eam.descriptions.1':
-    '{{brandName}}s modul för Enterprise Asset Management kan användas för allt mellan 10 och 1 000 000 tillgångar, vilket gör att du kan spåra exakt vad du vill, på det sätt du vill, i en lättanvänd och sökbar trädstruktur.',
+    '{brandName}s modul för Enterprise Asset Management kan användas för allt mellan 10 och 1 000 000 tillgångar, vilket gör att du kan spåra exakt vad du vill, på det sätt du vill, i en lättanvänd och sökbar trädstruktur.',
   'eam.checks.0':
     'Känn till dina tillgångars tillstånd vid varje tidpunkt och vad de kostar dig',
   'eam.checks.1': 'Visa kompletta och detaljerade underhållsloggar.',
@@ -94,7 +94,7 @@ const locale = {
   'pm.descriptions.0':
     'Sluta slösa värdefulla timmar på att manuellt distribuera PM-checklistor och följa upp med ditt team för att säkerställa att arbetet är klart.',
   'pm.descriptions.1':
-    'Med {{shortBrandName}} kan du enkelt automatisera PM-schemaläggning så att rätt arbete automatiskt levereras vid rätt tidpunkt till rätt tekniker för rätt tillgång.',
+    'Med {shortBrandName} kan du enkelt automatisera PM-schemaläggning så att rätt arbete automatiskt levereras vid rätt tidpunkt till rätt tekniker för rätt tillgång.',
   'pm.checks.0':
     'Automatisera PM-schemaläggning så att den är daglig, veckovis, månadsvis, årlig eller baserad på händelser eller mätaravläsningar.',
   'pm.checks.1':
@@ -110,7 +110,7 @@ const locale = {
   'part.descriptions.0':
     'Är du osäker på vilka delar du har i lager eller var de används? Vet du inte när dina delar kommer att ta slut eller om dina tekniker kommer att ha de delar som behövs för att utföra sina jobb?',
   'part.descriptions.1':
-    'Vi utformade {{shortBrandName}}s reservdelshantering för att lösa dessa problem och mer:',
+    'Vi utformade {shortBrandName}s reservdelshantering för att lösa dessa problem och mer:',
   'part.checks.0':
     'Få omedelbara push- och e-postmeddelanden när en dels kvantitet är låg. Håll rätt antal delar i lager genom att få omedelbara och automatiska push-/e-postmeddelanden när kvantiteten av en del understiger ett anpassat tröskelvärde.',
   'part.checks.1':
@@ -131,21 +131,21 @@ const locale = {
   'dashboard.descriptions.0':
     'Låt oss inse det, det första steget för att förbättra din verksamhet är att känna till det goda, det dåliga och det fula.',
   'dashboard.descriptions.1':
-    'Med {{shortBrandName}}s anpassade dashboards kan du äntligen börja förstå det där skändliga "svarta hålet av underhåll" och börja omsätta databaserade planer i praktiken, vilket resulterar i minskade arbetskostnader, minskad driftstopp och mer.',
+    'Med {shortBrandName}s anpassade dashboards kan du äntligen börja förstå det där skändliga "svarta hålet av underhåll" och börja omsätta databaserade planer i praktiken, vilket resulterar i minskade arbetskostnader, minskad driftstopp och mer.',
   'dashboard.descriptions.2':
-    'Med {{shortBrandName}}s anpassade dashboards får du tillgång till …',
+    'Med {shortBrandName}s anpassade dashboards får du tillgång till …',
   'dashboard.checks.0': 'Vet var dina pengar spenderas och varför',
   'dashboard.checks.1': 'Vet vilken tillgång som kostar mest och varför',
   'dashboard.checks.2': 'Skapa dina egna anpassade KPI:er.',
   'dashboard.checks.3':
     'Visa rapporter som genereras och uppdateras automatiskt baserat på ditt mätvärde',
   'dashboard.checks.4':
-    'Visa rapporter som enkelt kan delas via Excel-ark, PDF-filer eller inom {{shortBrandName}}',
+    'Visa rapporter som enkelt kan delas via Excel-ark, PDF-filer eller inom {shortBrandName}',
   'dashboard.checks.5': 'Och så mycket mer ...',
   'home.smarter': 'Smartare',
   'home.work': 'Arbete',
   'home.smarter_description':
-    '{{shortBrandName}} gör det otroligt enkelt för tekniker att arbeta effektivt genom att ge dem tillgång till de verktyg och data de behöver för att få jobbet gjort – allt direkt från deras handflata.',
+    '{shortBrandName} gör det otroligt enkelt för tekniker att arbeta effektivt genom att ge dem tillgång till de verktyg och data de behöver för att få jobbet gjort – allt direkt från deras handflata.',
   leading_maintenance:
     'Vi banar väg för en bättre framtid för underhåll och tillförlitlighet',
   premium_included: 'Premiumfunktioner ingår',
@@ -278,7 +278,7 @@ const locale = {
   save: 'Spara',
   customers: 'Entreprenörer',
   no_labor:
-    'Inga arbetskostnader har lagts till ännu. De visas här när en användare loggar tid och har en timpris lagrad i {{shortBrandName}}.',
+    'Inga arbetskostnader har lagts till ännu. De visas här när en användare loggar tid och har en timpris lagrad i {shortBrandName}.',
   not_assigned: 'Inte tilldelad',
   no_additional_cost: 'Inga extra kostnader har ännu lagts till',
   parts: 'Delar',
@@ -321,7 +321,7 @@ const locale = {
   starts_on: 'Börjar på',
   ends_on: 'Slutar den',
   frequency: 'Frekvens',
-  every_frequency_days: 'Var {{frequency}} dag',
+  every_frequency_days: 'Var {frequency} dag',
   wo_details: 'Detaljer om arbetsordern',
   confirm_delete_file: 'Är du säker på att du vill ta bort den här filen?',
   wo_schedule_success: 'Arbetsuppdraget har schemalagts',
@@ -433,7 +433,7 @@ const locale = {
   confirm_delete_part_asset:
     'Är du säker på att du vill ta bort den här delen från den här tillgången?',
   no_due_date: 'Inget förfallodatum',
-  due_at_date: 'Två {{datum}}',
+  due_at_date: 'Två {datum}',
   no_primary_worker: 'Ingen primärarbetare',
   no_wo_linked_asset: 'Det finns ingen arbetsorder kopplad till denna tillgång',
   asset_remove_success: 'Resursen har raderats',
@@ -467,7 +467,7 @@ const locale = {
     'Fyll i fälten nedan för att redigera den här tillgången',
   confirm_delete_asset:
     'Är du säker på att du vill ta bort den här tillgången?',
-  loading_assets: 'Laddar resurser under {{name}} #{{id}}',
+  loading_assets: 'Laddar resurser under {name} #{id}',
   no_content: 'Inget innehåll',
   no_result_criteria: 'Inget resultat matchar dina sökkriterier',
   map_view: 'Kartvy',
@@ -818,7 +818,7 @@ const locale = {
   confirm_delete_category:
     'Är du säker på att du vill ta bort den här kategorin?',
   no_category_message:
-    'Det verkar som att du inte har några {{categoryName}}-kategorier ännu.',
+    'Det verkar som att du inte har några {categoryName}-kategorier ännu.',
   acquisition_cost: 'Anskaffningskostnad',
   general_settings: 'Allmänna inställningar',
   request_form_configuration: 'Konfiguration av begäran om formulär',
@@ -837,7 +837,7 @@ const locale = {
   external_id: 'Externt ID',
   permissions: 'Behörigheter',
   create_role_description:
-    'Den här rollen kan göra allt en administratör kan göra i {{brandName}}, men du kan anpassa några viktiga behörigheter nedan.',
+    'Den här rollen kan göra allt en administratör kan göra i {brandName}, men du kan anpassa några viktiga behörigheter nedan.',
   create_and_edit: 'Skapa/Redigera',
   to_access: 'Tillträde',
   role_delete_success: 'Rollen har raderats',
@@ -850,7 +850,7 @@ const locale = {
   role_create_success: 'Rollen har skapats',
   role_create_failure: 'Rollen kunde inte skapas',
   roles_management: 'Rollhantering',
-  roles_number: '{{count}} roller',
+  roles_number: '{count} roller',
   create_role: 'Skapa roll',
   upgrade_role: 'Uppgradera för att skapa roll',
   add_role: 'Lägg till ny roll',
@@ -1027,7 +1027,7 @@ const locale = {
   my_account: 'Mitt konto',
   my_company: 'Mitt företag',
   you_are_using_plan:
-    'Du använder för närvarande planen {{planName}}. Den upphör att gälla den {{expiration}}. Uppgradera nu för att få tillgång till fler funktioner.',
+    'Du använder för närvarande planen {planName}. Den upphör att gälla den {expiration}. Uppgradera nu för att få tillgång till fler funktioner.',
   upgrade_plan: 'Uppgraderingsplan',
   plans: 'Planer',
   monthly: 'Månatlig',
@@ -1052,7 +1052,7 @@ const locale = {
   plan: 'Planera',
   current_plan: 'Nuvarande plan',
   number_users_who_will_use_grash:
-    'Antal användare som kommer att använda {{shortBrandName}}',
+    'Antal användare som kommer att använda {shortBrandName}',
   admin_role: 'Administration',
   technical_role: 'Teknisk',
   limited_technical_role: 'Begränsad teknisk',
@@ -1069,7 +1069,7 @@ const locale = {
   checkout_our: 'Kolla in vår',
   pricing_page: 'Prissida',
   for_more_details: 'för mer information',
-  users_count_display: '{{count}} användare',
+  users_count_display: '{count} användare',
   monthly_adverb: 'månatlig',
   yearly_adverb: 'årlig',
   features: 'Drag',
@@ -1097,18 +1097,18 @@ const locale = {
   done: 'Gjort',
   no_match_yet: 'Ingen matchning ännu',
   select: 'Välja...',
-  matched_to_field: 'Matchade med {{field}}',
+  matched_to_field: 'Matchade med {field}',
   next: 'Nästa',
   not_enough_rows: 'Inte tillräckligt med rader i filen',
-  there_are_duplicates: 'Det finns dubbletter: {{duplicates}}',
+  there_are_duplicates: 'Det finns dubbletter: {duplicates}',
   assigned_by: 'Tilldelad av',
-  percent_rows_have_value: '{{percent}}% av raderna har värde',
+  percent_rows_have_value: '{percent}% av raderna har värde',
   match_at_least_column: 'Matcha minst en kolumn',
   to_import: 'Importera',
-  required_match: '{{field}}-matchning krävs',
+  required_match: '{field}-matchning krävs',
   archived: 'Arkiverad',
   import_wo_success:
-    '{{created}} Arbetsordrar har skapats och {{update}} har uppdaterats',
+    '{created} Arbetsordrar har skapats och {update} har uppdaterats',
   to_export: 'Exportera',
   filters: 'Filter',
   more_filters: 'Fler filter',
@@ -1123,12 +1123,12 @@ const locale = {
   REACTIVE: 'Reaktiv',
   REPEATING: 'Förebyggande',
   import_location_success:
-    '{{created}} Platser har skapats och {{updated}} har uppdaterats',
+    '{created} Platser har skapats och {updated} har uppdaterats',
   import_part_success: 'Delar har skapats och uppdaterats.',
   import_meter_success:
-    '{{created}} Mätare har skapats och {{updated}} har uppdaterats',
+    '{created} Mätare har skapats och {updated} har uppdaterats',
   import_asset_success:
-    '{{created}} Tillgångar har skapats och {{updated}} har uppdaterats',
+    '{created} Tillgångar har skapats och {updated} har uppdaterats',
   wo_calendar: 'Kalender för arbetsordrar',
   month: 'Månad',
   week: 'Vecka',
@@ -1212,7 +1212,7 @@ const locale = {
   and_optional: 'Och (valfritt)',
   then: 'Sedan',
   workflow_description:
-    'Skapa anpassade arbetsflöden lika enkelt som Om, Och, Sedan. Spara tid och tilldela enkelt dina arbetsordrar automatiskt via arbetsflöden för att anpassa {{shortBrandName}} efter hur ditt team arbetar.\n\nAlla abonnemang kan skapa upp till ett anpassat arbetsflöde. För att lägga till ytterligare arbetsflöden, uppgradera till vårt företagsabonnemang.',
+    'Skapa anpassade arbetsflöden lika enkelt som Om, Och, Sedan. Spara tid och tilldela enkelt dina arbetsordrar automatiskt via arbetsflöden för att anpassa {shortBrandName} efter hur ditt team arbetar.\n\nAlla abonnemang kan skapa upp till ett anpassat arbetsflöde. För att lägga till ytterligare arbetsflöden, uppgradera till vårt företagsabonnemang.',
   CREATE_PURCHASE_ORDER: 'Skapa en inköpsorder',
   PART_IS: 'Delen är',
   QUANTITY_INFERIOR: 'Mängden är sämre än',
@@ -1276,19 +1276,19 @@ const locale = {
   upgrade: 'Uppgradera',
   downgrade: 'Nedvärdera',
   upgrade_description:
-    'Du har precis uppgraderat din prenumeration. Du måste aktivera de inaktiverade användare som kan komma att använda {{shortBrandName}}. Du kan bara göra detta en gång för den aktuella prenumerationen. Välj noggrant.',
+    'Du har precis uppgraderat din prenumeration. Du måste aktivera de inaktiverade användare som kan komma att använda {shortBrandName}. Du kan bara göra detta en gång för den aktuella prenumerationen. Välj noggrant.',
   enable_users: 'Aktivera användare',
-  max_users_description: 'Du kan aktivera upp till {{maxUsers}} användare',
+  max_users_description: 'Du kan aktivera upp till {maxUsers} användare',
   downgrade_description:
     'Du har just nedgraderat din prenumeration. Du måste inaktivera vissa användare för att kunna fortsätta. Du kan bara göra detta en gång för den aktuella prenumerationen. Välj noggrant.',
   disable_users: 'Inaktivera användare',
-  min_users_description: 'Du måste inaktivera minst {{minUsers}} användare',
+  min_users_description: 'Du måste inaktivera minst {minUsers} användare',
   downgrade_description_no_owner:
     'Ditt företag har just nedgraderat sin prenumerationsplan. Företagsägaren måste inaktivera vissa användare innan du kan fortsätta.',
   past_due: 'Förfallna',
   due_date_delay: 'Försening av förfallodatum',
   due_date_delay_description: 'Försening av förfallodatum i dagar',
-  days_count: '{{dagar}} dagar',
+  days_count: '{dagar} dagar',
   trigger_configuration: 'Triggerkonfiguration',
   WORK_ORDER_feature: 'Arbetsordrar',
   REQUEST_feature: 'Arbetsförfrågningar',
@@ -1325,7 +1325,7 @@ const locale = {
   required_part_on_completion: 'Ingen del har använts i denna arbetsorder',
   required_cost_on_completion:
     'Ingen kostnadsinformation finns i denna arbetsorder',
-  estimated_hours_in_text: '{{hours}} uppskattade timmar',
+  estimated_hours_in_text: '{hours} uppskattade timmar',
   required_part_name: 'Delnamn krävs',
   asset_update_failure: 'Det gick inte att redigera tillgången',
   terms_of_service: 'Användarvillkor',
@@ -1338,13 +1338,13 @@ const locale = {
   simplify_wo: 'Förenkla arbetsordrar i mobilappen',
   simplify_wo_description:
     'Dölj tidskontroller, kostnader och artiklar i arbetsorderinformationen när du använder mobilappen',
-  account_deletion: 'Borttagning av konto på {{brandName}}',
+  account_deletion: 'Borttagning av konto på {brandName}',
   switch_account: 'Byt konto',
   switch_to_super_user: 'Byt till superadministratör',
   switch_account_description: 'Välj ett konto för att fortsätta',
   put_location_in_map: 'Lägg plats på kartan',
   confirm_disable_user:
-    'Är du säker på att du vill inaktivera {{user}}? Du kommer bara att kunna aktivera det efter en månad.',
+    'Är du säker på att du vill inaktivera {user}? Du kommer bara att kunna aktivera det efter en månad.',
   user_disabled_success: 'Användaren har inaktiverats',
   disable: 'Inaktivera',
   manufacturer: 'Tillverkare',
@@ -1449,14 +1449,14 @@ const locale = {
   scheduled_date: 'Schemalagt datum',
   on: 'På',
   required_days_of_week: 'Obligatoriska veckodagar',
-  'schedule.daily_one': 'Var {{count}} dag',
-  'schedule.daily_other': 'Var {{count}} dagar',
-  'schedule.weekly_one': 'Var {{count}} vecka på {{days}}',
-  'schedule.weekly_other': 'Var {{count}} veckor på {{days}}',
-  'schedule.monthly_one': 'Var {{count}} månad',
-  'schedule.monthly_other': 'Var {{count}} månader',
-  'schedule.yearly_one': 'Var {{count}} år',
-  'schedule.yearly_other': 'Var {{count}} år',
+  'schedule.daily_one': 'Var {count} dag',
+  'schedule.daily_other': 'Var {count} dagar',
+  'schedule.weekly_one': 'Var {count} vecka på {days}',
+  'schedule.weekly_other': 'Var {count} veckor på {days}',
+  'schedule.monthly_one': 'Var {count} månad',
+  'schedule.monthly_other': 'Var {count} månader',
+  'schedule.yearly_one': 'Var {count} år',
+  'schedule.yearly_other': 'Var {count} år',
   csv_separator: 'CSV-separator',
   open_source_cmms: 'CMMS med öppen källkod',
   'main.title':
@@ -1465,7 +1465,7 @@ const locale = {
     'Gratis och open-source CMMS som du kan vara värd för själv eller använda i molnet',
   'home.h2': 'Kraftfullt underhåll till låg kostnad',
   'home.h3':
-    'Sluta förlita dig på kalkylblad och whiteboards. {{brandName}} hjälper underhållsteam att planera interventioner, spåra utrustning och förbli kompatibla. Var värd på din egen server eller börja direkt i molnet.',
+    'Sluta förlita dig på kalkylblad och whiteboards. {brandName} hjälper underhållsteam att planera interventioner, spåra utrustning och förbli kompatibla. Var värd på din egen server eller börja direkt i molnet.',
   talk_to_sales: 'Prata med försäljning',
   'pricing.choose_plan_and_get_started': 'Välj din plan och kom igång',
   'pricing.slogan_effective_maintenance':
@@ -1673,3 +1673,4 @@ const locale = {
 };
 
 export default locale;
+

@@ -15,8 +15,8 @@ const locale = {
   fetch_more: 'Fetch More',
   'home.built': 'Built to Make Managing Maintenance Easier',
   home_description:
-    "When whiteboards and sticky notes are chaos, and you need a CMMS software that's easy enough for your team to actually use - try {{shortBrandName}}",
-  try_grash: 'Try {{shortBrandName}}',
+    "When whiteboards and sticky notes are chaos, and you need a CMMS software that's easy enough for your team to actually use - try {shortBrandName}",
+  try_grash: 'Try {shortBrandName}',
   login: 'Log In',
   start_trial: 'Start a Free trial',
   'home.what': 'What',
@@ -25,7 +25,7 @@ const locale = {
     'Build efficient, reliable workflows that put you in control of maintenance. Generate, assign, and track work orders. Control inventory. And get reliable automated reports that improve visibility and create accountability.',
   key_features: 'Key Features',
   key_features_description:
-    'Some of the features that make {{shortBrandName}} one of the best CMMS available today',
+    'Some of the features that make {shortBrandName} one of the best CMMS available today',
   contribute: 'Contribute',
   work_orders: 'Work Orders',
   request_system: 'Work Request System',
@@ -39,7 +39,7 @@ const locale = {
   'work-orders.descriptions.0':
     'Sick of the reams of paperwork and lost Work Orders? All of those lost items directly affect the bottom line and your reputation.',
   'work-orders.descriptions.1':
-    'With {{shortBrandName}} you can easily and quickly organize all of your Work Orders, PMs and other Tasks throughout your team in a centralized database that can be accessed anywhere on any device.',
+    'With {shortBrandName} you can easily and quickly organize all of your Work Orders, PMs and other Tasks throughout your team in a centralized database that can be accessed anywhere on any device.',
   'work-orders.checks.0':
     'View all of your Tasks including WOs, PMs, and Work Requests',
   'work-orders.checks.1':
@@ -53,7 +53,7 @@ const locale = {
   'work-requests.descriptions.0':
     'Sick of using the old phone and email system that result in LOST tickets, constant daily interruptions, and duplicated work?',
   'work-requests.descriptions.1':
-    '{{shortBrandName}}’s maintenance management solution allows anyone you authorize to submit a problem to your maintenance department by simply scanning a QR code (bar code) or visiting a URL and typing in their request through their mobile devices.',
+    '{shortBrandName}’s maintenance management solution allows anyone you authorize to submit a problem to your maintenance department by simply scanning a QR code (bar code) or visiting a URL and typing in their request through their mobile devices.',
   'work-requests.checks.0': 'Never lose Work again.',
   'work-requests.checks.1':
     'Reduce time spent handling Work Requests by up to 34%.',
@@ -78,7 +78,7 @@ const locale = {
   'eam.descriptions.0':
     'Frustrated with trying to organize the chaotic mess of company’s equipment, wondering if the equipment has been properly taken care of, not knowing what they cost to maintain and all the other headaches that come with managing assets?',
   'eam.descriptions.1':
-    '{{brandName}}’s Enterprise Asset Management module can be used for anywhere between 10 to 1,000,000 Assets, allowing you to track exactly what you want, the way you want to, in an easy-to-use and searchable tree structure.',
+    '{brandName}’s Enterprise Asset Management module can be used for anywhere between 10 to 1,000,000 Assets, allowing you to track exactly what you want, the way you want to, in an easy-to-use and searchable tree structure.',
   'eam.checks.0':
     'Know the health of your assets at every point of time and what they are costing you',
   'eam.checks.1': 'View complete and detailed Maintenance Logs.',
@@ -91,7 +91,7 @@ const locale = {
   'pm.descriptions.0':
     'Stop wasting precious hours manually distributing PM checklists and following up with your team to make sure the work is done.',
   'pm.descriptions.1':
-    '{{shortBrandName}} allows you to easily automate PM scheduling so the right work is automatically delivered at the right time to the right technician for the right Asset.',
+    '{shortBrandName} allows you to easily automate PM scheduling so the right work is automatically delivered at the right time to the right technician for the right Asset.',
   'pm.checks.0':
     'Automate PM scheduling to be daily, weekly, monthly, yearly, or based on events or meter readings.',
   'pm.checks.1':
@@ -107,7 +107,7 @@ const locale = {
   'part.descriptions.0':
     'Not sure what parts you have in stock or where they are being used? Don’t know when your parts will run out or if your technicians will have the necessary parts to do their jobs?',
   'part.descriptions.1':
-    'We designed {{shortBrandName}}’s parts management to solve those problems and more:',
+    'We designed {shortBrandName}’s parts management to solve those problems and more:',
   'part.checks.0':
     'Get instant push and email notifications when a part’s quantity is low. Keep the right number of parts in stock by receiving instant and automatic push/email notifications when the quantity of a part is below a custom set threshold.',
   'part.checks.1':
@@ -127,21 +127,21 @@ const locale = {
   'dashboard.descriptions.0':
     'Let’s face it, the first step to improving your operations is to know the good, the bad and the ugly.',
   'dashboard.descriptions.1':
-    'With {{shortBrandName}}’s Custom Dashboards you can finally start to understand that nefarious “black hole of maintenance” and begin putting data-backed plans into action, resulting in reduced labor costs, decreased downtime and more.',
+    'With {shortBrandName}’s Custom Dashboards you can finally start to understand that nefarious “black hole of maintenance” and begin putting data-backed plans into action, resulting in reduced labor costs, decreased downtime and more.',
   'dashboard.descriptions.2':
-    'With {{shortBrandName}}’s Custom Dashboards you’ll get to …',
+    'With {shortBrandName}’s Custom Dashboards you’ll get to …',
   'dashboard.checks.0': 'Know where your money is being spent and why',
   'dashboard.checks.1': 'Know which asset is costing the most and why',
   'dashboard.checks.2': 'Create your own custom KPIs.',
   'dashboard.checks.3':
     'View reports that are automatically generated and updated based on your metric',
   'dashboard.checks.4':
-    'View reports that are easily shared via Excel sheets, PDFs or within {{shortBrandName}}',
+    'View reports that are easily shared via Excel sheets, PDFs or within {shortBrandName}',
   'dashboard.checks.5': 'And so much more ...',
   'home.smarter': 'Smarter',
   'home.work': 'Work',
   'home.smarter_description':
-    '{{shortBrandName}} makes it incredibly easy for technicians to work efficiently by giving them access to the tools and data they need to get work done — all from the palm of their hand.',
+    '{shortBrandName} makes it incredibly easy for technicians to work efficiently by giving them access to the tools and data they need to get work done — all from the palm of their hand.',
   leading_maintenance:
     'Leading the Way to a Better Future for Maintenance and Reliability',
   premium_included: 'Premium features included',
@@ -273,7 +273,7 @@ const locale = {
   save: 'Save',
   customers: 'Contractors',
   no_labor:
-    "No labor costs have been added yet. They'll show up here when a user logs time and has an hourly rate stored in {{shortBrandName}}.",
+    "No labor costs have been added yet. They'll show up here when a user logs time and has an hourly rate stored in {shortBrandName}.",
   not_assigned: 'Not Assigned',
   no_additional_cost: 'No Additional costs have been added yet',
   parts: 'Parts',
@@ -316,7 +316,7 @@ const locale = {
   starts_on: 'Starts On',
   ends_on: 'Ends On',
   frequency: 'Frequency',
-  every_frequency_days: 'Every {{frequency}} days',
+  every_frequency_days: 'Every {frequency} days',
   wo_details: 'Work Order details',
   confirm_delete_file: 'Are you sure you want to remove this file?',
   wo_schedule_success: 'Work Order successfully scheduled',
@@ -426,7 +426,7 @@ const locale = {
   confirm_delete_part_asset:
     'Are you sure you want to remove this Part from this asset?',
   no_due_date: 'No Due Date',
-  due_at_date: 'Due {{date}}',
+  due_at_date: 'Due {date}',
   no_primary_worker: 'No primary Worker',
   no_wo_linked_asset: 'There is no Work Order linked to this Asset',
   asset_remove_success: 'The Asset has been deleted successfully',
@@ -458,7 +458,7 @@ const locale = {
   edit_asset: 'Edit Asset',
   edit_asset_description: 'Fill in the fields below to edit this asset',
   confirm_delete_asset: 'Are you sure you want to delete this Asset?',
-  loading_assets: 'Loading assets under {{name}} #{{id}}',
+  loading_assets: 'Loading assets under {name} #{id}',
   no_content: 'No Content',
   no_result_criteria: 'No result matches your search criteria',
   map_view: 'Map View',
@@ -800,7 +800,7 @@ const locale = {
   no_category_action: "Press the '+' button to add your first category.",
   confirm_delete_category: 'Are you sure you want to delete this Category?',
   no_category_message:
-    "Looks like you don't have any {{categoryName}} Categories yet.",
+    "Looks like you don't have any {categoryName} Categories yet.",
   acquisition_cost: 'Acquisition Cost',
   general_settings: 'General Settings',
   request_form_configuration: 'Request form configuration',
@@ -819,7 +819,7 @@ const locale = {
   external_id: 'External ID',
   permissions: 'Permissions',
   create_role_description:
-    'This role can do everything an Administrator can do in {{brandName}}, but you can customize some important permissions below.',
+    'This role can do everything an Administrator can do in {brandName}, but you can customize some important permissions below.',
   create_and_edit: 'Create/Edit',
   to_access: 'Access',
   role_delete_success: 'The Role has been deleted successfully',
@@ -831,7 +831,7 @@ const locale = {
   role_create_success: 'The Role has been created successfully',
   role_create_failure: "The Role couldn't be created",
   roles_management: 'Roles Management',
-  roles_number: '{{count}} roles',
+  roles_number: '{count} roles',
   create_role: 'Create Role',
   upgrade_role: 'Upgrade to create role',
   add_role: 'Add new role',
@@ -1001,7 +1001,7 @@ const locale = {
   my_account: 'My account',
   my_company: 'My company',
   you_are_using_plan:
-    'You are currently using {{planName}} plan. It will expire on {{expiration}}. Upgrade now to get access to more features.',
+    'You are currently using {planName} plan. It will expire on {expiration}. Upgrade now to get access to more features.',
   upgrade_plan: 'Upgrade Plan',
   plans: 'Plans',
   monthly: 'Monthly',
@@ -1026,7 +1026,7 @@ const locale = {
   plan: 'Plan',
   current_plan: 'Current Plan',
   number_users_who_will_use_grash:
-    'Number of users who will use {{shortBrandName}}',
+    'Number of users who will use {shortBrandName}',
   admin_role: 'Admin',
   technical_role: 'Technical',
   limited_technical_role: 'Limited Technical',
@@ -1043,7 +1043,7 @@ const locale = {
   checkout_our: 'Check out our',
   pricing_page: 'Pricing Page',
   for_more_details: 'for more details',
-  users_count_display: '{{count}} Users',
+  users_count_display: '{count} Users',
   monthly_adverb: 'monthly',
   yearly_adverb: 'yearly',
   features: 'Features',
@@ -1070,18 +1070,18 @@ const locale = {
   done: 'Done',
   no_match_yet: 'No Match Yet',
   select: 'Select...',
-  matched_to_field: 'Matched to {{field}}',
+  matched_to_field: 'Matched to {field}',
   next: 'Next',
   not_enough_rows: 'Not enough rows in the file',
-  there_are_duplicates: 'There are duplicates: {{duplicates}}',
+  there_are_duplicates: 'There are duplicates: {duplicates}',
   assigned_by: 'Assigned By',
-  percent_rows_have_value: '{{percent}}% of rows have value',
+  percent_rows_have_value: '{percent}% of rows have value',
   match_at_least_column: 'Match at least a column',
   to_import: 'Import',
-  required_match: '{{field}} matching is required',
+  required_match: '{field} matching is required',
   archived: 'Archived',
   import_wo_success:
-    '{{created}} Work Orders have been created and {{updated}} have been updated',
+    '{created} Work Orders have been created and {updated} have been updated',
   to_export: 'Export',
   filters: 'Filters',
   more_filters: 'More Filters',
@@ -1096,13 +1096,13 @@ const locale = {
   REACTIVE: 'Reactive',
   REPEATING: 'Preventive',
   import_location_success:
-    '{{created}} Locations have been created and {{updated}} have been updated',
+    '{created} Locations have been created and {updated} have been updated',
   import_part_success:
-    '{{created}} Parts have been created and {{updated}} have been updated',
+    '{created} Parts have been created and {updated} have been updated',
   import_meter_success:
-    '{{created}} Meters have been created and {{updated}} have been updated',
+    '{created} Meters have been created and {updated} have been updated',
   import_asset_success:
-    '{{created}} Assets have been created and {{updated}} have been updated',
+    '{created} Assets have been created and {updated} have been updated',
   wo_calendar: 'Work Orders Calendar',
   month: 'Month',
   week: 'Week',
@@ -1186,7 +1186,7 @@ const locale = {
   and_optional: 'And(Optional)',
   then: 'Then',
   workflow_description:
-    'Create custom workflows as easy as If, And, Then. Save time and easily assign your work orders automatically through workflows to customize {{shortBrandName}} for the way your team operates.\nAll plans can create up to 1 custom workflow. To add additional workflows, upgrade to our Business plan',
+    'Create custom workflows as easy as If, And, Then. Save time and easily assign your work orders automatically through workflows to customize {shortBrandName} for the way your team operates.\nAll plans can create up to 1 custom workflow. To add additional workflows, upgrade to our Business plan',
   CREATE_PURCHASE_ORDER: 'Create a Purchase Request',
   PART_IS: 'The Part is',
   QUANTITY_INFERIOR: 'The quantity is inferior to',
@@ -1252,19 +1252,19 @@ const locale = {
   upgrade: 'Upgrade',
   downgrade: 'Downgrade',
   upgrade_description:
-    'You just upgraded your subscription plan. You need to enable the disabled users who might use {{shortBrandName}}. You can only do this once for the current subscription. Please choose carefully',
+    'You just upgraded your subscription plan. You need to enable the disabled users who might use {shortBrandName}. You can only do this once for the current subscription. Please choose carefully',
   enable_users: 'Enable users',
-  max_users_description: 'You can enable up to {{maxUsers}} users',
+  max_users_description: 'You can enable up to {maxUsers} users',
   downgrade_description:
     'You just downgraded your subscription plan. You need to disable some users in order to proceed. You can only do this once for the current subscription. Please choose carefully',
   disable_users: 'Disable users',
-  min_users_description: 'You must disable a minimum of {{minUsers}} users',
+  min_users_description: 'You must disable a minimum of {minUsers} users',
   downgrade_description_no_owner:
     'Your company just downgraded its subscription plan. The company owner needs to disable some users before you can proceed',
   past_due: 'Past due',
   due_date_delay: 'Due Date delay',
   due_date_delay_description: 'Due Date delay in days',
-  days_count: '{{days}} days',
+  days_count: '{days} days',
   trigger_configuration: 'Trigger Configuration',
   WORK_ORDER_feature: 'Work Orders',
   REQUEST_feature: 'Work Requests',
@@ -1300,7 +1300,7 @@ const locale = {
   required_part_on_completion: 'No Part has been used in this Work Order',
   required_cost_on_completion:
     'No Cost information provided in this Work Order',
-  estimated_hours_in_text: '{{hours}} estimated hours',
+  estimated_hours_in_text: '{hours} estimated hours',
   required_part_name: 'Part name is required',
   asset_update_failure: "The Asset couldn't be edited",
   terms_of_service: 'Terms of service',
@@ -1313,13 +1313,13 @@ const locale = {
   simplify_wo: 'Simplify Work Orders in the mobile app',
   simplify_wo_description:
     'Hide time controls, costs and parts in the Work Order details while using the mobile app',
-  account_deletion: '{{brandName}} Account deletion',
+  account_deletion: '{brandName} Account deletion',
   switch_account: 'Switch account',
   switch_to_super_user: 'Switch to super admin',
   switch_account_description: 'Please choose an account to proceed',
   put_location_in_map: 'Put location in map',
   confirm_disable_user:
-    'Are you sure you want to disable {{user}}? You will only be able to enable it after one month',
+    'Are you sure you want to disable {user}? You will only be able to enable it after one month',
   user_disabled_success: 'User disabled successfully',
   disable: 'Disable',
   manufacturer: 'Manufacturer',
@@ -1425,23 +1425,23 @@ const locale = {
   scheduled_date: 'Scheduled date',
   on: 'On',
   required_days_of_week: 'Required days of week',
-  'schedule.daily_one': 'Every {{count}} day',
-  'schedule.daily_other': 'Every {{count}} days',
-  'schedule.weekly_one': 'Every {{count}} week on {{days}}',
-  'schedule.weekly_other': 'Every {{count}} weeks on {{days}}',
-  'schedule.monthly_one': 'Every {{count}} month',
-  'schedule.monthly_other': 'Every {{count}} months',
-  'schedule.yearly_one': 'Every {{count}} year',
-  'schedule.yearly_other': 'Every {{count}} years',
+  'schedule.daily_one': 'Every {count} day',
+  'schedule.daily_other': 'Every {count} days',
+  'schedule.weekly_one': 'Every {count} week on {days}',
+  'schedule.weekly_other': 'Every {count} weeks on {days}',
+  'schedule.monthly_one': 'Every {count} month',
+  'schedule.monthly_other': 'Every {count} months',
+  'schedule.yearly_one': 'Every {count} year',
+  'schedule.yearly_other': 'Every {count} years',
   delete_demo_data: 'Delete demo data',
   import_pm_success:
-    '{{created}} Work Order schedules have been created and {{updated}} have been updated',
+    '{created} Work Order schedules have been created and {updated} have been updated',
   recurrence_type: 'Recurrence type',
   recurrence_based_on: 'Recurrence based on',
   days_of_week: 'Days of week',
   no_recent_work_orders: 'No recent work orders',
   recent_work_orders: 'Recent work orders',
-  subscription_will_cancel_on: 'Subscription will cancel on {{date}}',
+  subscription_will_cancel_on: 'Subscription will cancel on {date}',
   open_api_docs: 'Open API docs',
   delete_account: 'Delete account',
   csv_separator: 'CSV separator',
@@ -1451,7 +1451,7 @@ const locale = {
   'home.h1': 'Free & Open-Source CMMS You Can Self-Host or Use in the Cloud',
   'home.h2': 'Powerful Maintenance at a Low Cost',
   'home.h3':
-    'Stop relying on spreadsheets and whiteboards. {{brandName}} helps maintenance teams plan interventions, track equipment, and stay compliant. Self-host on your server or start instantly in the cloud.',
+    'Stop relying on spreadsheets and whiteboards. {brandName} helps maintenance teams plan interventions, track equipment, and stay compliant. Self-host on your server or start instantly in the cloud.',
   talk_to_sales: 'Talk to sales',
   'pricing.choose_plan_and_get_started': 'Choose your plan and get started',
   'pricing.slogan_effective_maintenance':
@@ -1646,3 +1646,4 @@ const locale = {
 };
 
 export default locale;
+

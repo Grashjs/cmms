@@ -1,5 +1,5 @@
 "use client";
-import { FC, useState, createContext } from 'react';
+import React, { FC, useState, createContext } from 'react';
 type SidebarContext = {
   sidebarToggle: any;
   toggleSidebar: () => void;
@@ -11,7 +11,7 @@ export const SidebarContext = createContext<SidebarContext>(
   {} as SidebarContext
 );
 
-export const SidebarProvider: FC = ({ children }) => {
+export const SidebarProvider: FC<{children?: React.ReactNode}> = ({ children }) => {
   const [sidebarToggle, setSidebarToggle] = useState(false);
   const toggleSidebar = () => {
     setSidebarToggle(!sidebarToggle);
@@ -28,3 +28,4 @@ export const SidebarProvider: FC = ({ children }) => {
     </SidebarContext.Provider>
   );
 };
+

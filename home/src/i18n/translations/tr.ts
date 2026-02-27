@@ -14,8 +14,8 @@ const trJSON = {
   COMPLETE: 'Tamamlanmış',
   'home.built': 'Bakım Yönetimini Kolaylaştırmak için Tasarlandı',
   home_description:
-    "Beyaz tahtalar ve yapışkan notlar kaosa dönüştüğünde ve ekibinizin gerçekten kullanabileceği kadar kolay bir CMMS yazılımına ihtiyaç duyduğunuzda {{shortBrandName}}'ı deneyin",
-  try_grash: "{{shortBrandName}}'ı deneyin",
+    "Beyaz tahtalar ve yapışkan notlar kaosa dönüştüğünde ve ekibinizin gerçekten kullanabileceği kadar kolay bir CMMS yazılımına ihtiyaç duyduğunuzda {shortBrandName}'ı deneyin",
+  try_grash: "{shortBrandName}'ı deneyin",
   login: 'Giriş',
   start_trial: 'Ücretsiz denemeyi başlatın',
   'home.what': 'Ne',
@@ -24,7 +24,7 @@ const trJSON = {
     'Bakımın kontrolünü size veren verimli, güvenilir iş akışları oluşturun. ',
   key_features: 'Ana Özellikler',
   key_features_description:
-    "{{shortBrandName}}'ı günümüzün en iyi CMMS'lerinden biri yapan özelliklerden bazıları",
+    "{shortBrandName}'ı günümüzün en iyi CMMS'lerinden biri yapan özelliklerden bazıları",
   contribute: 'Katkıda bulun',
   work_orders: 'İş Emirleri',
   request_system: 'İş Talep Sistemi',
@@ -38,7 +38,7 @@ const trJSON = {
   'work-orders.descriptions.0':
     'Bir yığın evraktan ve kayıp İş Emirlerinden bıktınız mı? ',
   'work-orders.descriptions.1':
-    "{{shortBrandName}} ile ekibinizdeki tüm İş Emirlerinizi, PM'lerinizi ve diğer Görevlerinizi, herhangi bir cihazdan herhangi bir yerden erişilebilen merkezi bir veritabanında kolayca ve hızlı bir şekilde düzenleyebilirsiniz.",
+    "{shortBrandName} ile ekibinizdeki tüm İş Emirlerinizi, PM'lerinizi ve diğer Görevlerinizi, herhangi bir cihazdan herhangi bir yerden erişilebilen merkezi bir veritabanında kolayca ve hızlı bir şekilde düzenleyebilirsiniz.",
   'work-orders.checks.0':
     "WO'lar, PM'ler ve İş Talepleri dahil tüm Görevlerinizi görüntüleyin",
   'work-orders.checks.1':
@@ -53,7 +53,7 @@ const trJSON = {
   'work-requests.descriptions.0':
     'KAYIP biletlere, sürekli günlük kesintilere ve mükerrer işlere yol açan eski telefon ve e-posta sistemini kullanmaktan bıktınız mı?',
   'work-requests.descriptions.1':
-    "{{shortBrandName}}'ın bakım yönetimi çözümü, yetkilendirdiğiniz herkesin, yalnızca bir QR kodunu (barkod) tarayarak veya bir URL'yi ziyaret edip mobil cihazları aracılığıyla isteklerini yazarak bakım departmanınıza sorun göndermesine olanak tanır.",
+    "{shortBrandName}'ın bakım yönetimi çözümü, yetkilendirdiğiniz herkesin, yalnızca bir QR kodunu (barkod) tarayarak veya bir URL'yi ziyaret edip mobil cihazları aracılığıyla isteklerini yazarak bakım departmanınıza sorun göndermesine olanak tanır.",
   'work-requests.checks.0': "İş'i bir daha asla kaybetmeyin.",
   'work-requests.checks.1':
     "İş Taleplerini işlemeye harcanan zamanı %34'e kadar azaltın.",
@@ -78,7 +78,7 @@ const trJSON = {
   'eam.descriptions.0':
     'Şirketin ekipmanlarının kaotik karmaşasını organize etmeye çalışmaktan, ekipmana gereken bakımın yapılıp yapılmadığını merak etmekten, bakımının ne kadara mal olacağını bilmemekten ve varlık yönetiminin getirdiği tüm diğer baş ağrılarından bıktınız mı?',
   'eam.descriptions.1':
-    "{{brandName}}'nin Kurumsal Varlık Yönetimi modülü, 10 ila 1.000.000 Varlık arasında herhangi bir yerde kullanılabilir ve kullanımı kolay ve aranabilir bir ağaç yapısında tam olarak ne istediğinizi, istediğiniz şekilde izlemenize olanak tanır.",
+    "{brandName}'nin Kurumsal Varlık Yönetimi modülü, 10 ila 1.000.000 Varlık arasında herhangi bir yerde kullanılabilir ve kullanımı kolay ve aranabilir bir ağaç yapısında tam olarak ne istediğinizi, istediğiniz şekilde izlemenize olanak tanır.",
   'eam.checks.0':
     'Varlıklarınızın sağlığını ve size ne kadara mal olduklarını her zaman öğrenin',
   'eam.checks.1': 'Tam ve ayrıntılı Bakım Günlüklerini görüntüleyin.',
@@ -92,7 +92,7 @@ const trJSON = {
   'pm.descriptions.0':
     'Değerli saatlerinizi PM kontrol listelerini manuel olarak dağıtarak ve işin tamamlandığından emin olmak için ekibinizle takip ederek boşa harcamayı bırakın.',
   'pm.descriptions.1':
-    '{{shortBrandName}}, PM planlamasını kolaylıkla otomatikleştirmenize olanak tanır; böylece doğru iş, doğru Varlık için doğru zamanda, doğru teknisyene otomatik olarak teslim edilir.',
+    '{shortBrandName}, PM planlamasını kolaylıkla otomatikleştirmenize olanak tanır; böylece doğru iş, doğru Varlık için doğru zamanda, doğru teknisyene otomatik olarak teslim edilir.',
   'pm.checks.0':
     'PM planlamasını günlük, haftalık, aylık, yıllık veya olaylara veya Ölçer okumalarına dayalı olacak şekilde otomatikleştirin.',
   'pm.checks.1':
@@ -108,7 +108,7 @@ const trJSON = {
   'part.descriptions.0':
     'Stokta hangi parçaların bulunduğundan veya bunların nerede kullanıldığından emin değil misiniz? ',
   'part.descriptions.1':
-    "{{shortBrandName}}'ın parça yönetimini bu sorunları ve daha fazlasını çözmek için tasarladık:",
+    "{shortBrandName}'ın parça yönetimini bu sorunları ve daha fazlasını çözmek için tasarladık:",
   'part.checks.0':
     'Bir parçanın miktarı azaldığında anında push ve e-posta bildirimleri alın. ',
   'part.checks.1':
@@ -123,9 +123,9 @@ const trJSON = {
   'dashboard.descriptions.0':
     'Kabul edelim ki operasyonlarınızı iyileştirmenin ilk adımı iyiyi, kötüyü ve çirkini bilmektir.',
   'dashboard.descriptions.1':
-    '{{shortBrandName}}\'ın Özel Kontrol Panelleri ile nihayet bu kötü niyetli "bakım kara deliğini" anlamaya başlayabilir ve veri destekli planları eyleme geçirmeye başlayabilirsiniz, bu da işçilik maliyetlerinin azalmasına, arıza sürelerinin azalmasına ve daha fazlasına yol açabilir.',
+    '{shortBrandName}\'ın Özel Kontrol Panelleri ile nihayet bu kötü niyetli "bakım kara deliğini" anlamaya başlayabilir ve veri destekli planları eyleme geçirmeye başlayabilirsiniz, bu da işçilik maliyetlerinin azalmasına, arıza sürelerinin azalmasına ve daha fazlasına yol açabilir.',
   'dashboard.descriptions.2':
-    "{{shortBrandName}}'ın Özel Kontrol Panelleri ile şunları elde edeceksiniz:",
+    "{shortBrandName}'ın Özel Kontrol Panelleri ile şunları elde edeceksiniz:",
   'dashboard.checks.0': 'Paranızın nereye ve neden harcandığını bilin',
   'dashboard.checks.1':
     'Hangi varlığın en çok maliyetli olduğunu ve nedenini öğrenin',
@@ -133,12 +133,12 @@ const trJSON = {
   'dashboard.checks.3':
     'Metriğinize göre otomatik olarak oluşturulan ve güncellenen raporları görüntüleyin',
   'dashboard.checks.4':
-    "Excel sayfaları, PDF'ler veya {{shortBrandName}} aracılığıyla kolayca paylaşılan raporları görüntüleyin",
+    "Excel sayfaları, PDF'ler veya {shortBrandName} aracılığıyla kolayca paylaşılan raporları görüntüleyin",
   'dashboard.checks.5': 'Ve çok daha fazlası...',
   'home.smarter': 'Daha akıllı',
   'home.work': 'İş',
   'home.smarter_description':
-    '{{shortBrandName}}, teknisyenlerin işlerini yapmak için ihtiyaç duydukları araçlara ve verilere avuçlarının içinden erişmelerini sağlayarak verimli çalışmalarını inanılmaz derecede kolaylaştırıyor.',
+    '{shortBrandName}, teknisyenlerin işlerini yapmak için ihtiyaç duydukları araçlara ve verilere avuçlarının içinden erişmelerini sağlayarak verimli çalışmalarını inanılmaz derecede kolaylaştırıyor.',
   leading_maintenance:
     'Bakım ve Güvenilirlik Konusunda Daha İyi Bir Geleceğe Yol Açıyoruz',
   premium_included: 'Premium özellikler dahil',
@@ -315,7 +315,7 @@ const trJSON = {
   starts_on: 'Başlangıç ​​Tarihi',
   ends_on: 'Bitiş Tarihi',
   frequency: 'Sıklık',
-  every_frequency_days: 'Her {{frequency}} gün',
+  every_frequency_days: 'Her {frequency} gün',
   wo_details: 'İş Emri ayrıntıları',
   confirm_delete_file: 'Bu dosyayı kaldırmak istediğinizden emin misiniz?',
   wo_schedule_success: 'İş Emri başarıyla planlandı',
@@ -425,7 +425,7 @@ const trJSON = {
   confirm_delete_part_asset:
     'Bu Parçayı bu varlıktan kaldırmak istediğinizden emin misiniz?',
   no_due_date: 'Son tarih yok',
-  due_at_date: 'Bitiş Tarihi{{date}}',
+  due_at_date: 'Bitiş Tarihi{date}',
   no_primary_worker: 'Birincil Çalışan yok',
   no_wo_linked_asset: 'Bu Varlığa bağlı İş Emri yok',
   asset_remove_success: 'Varlık başarıyla silindi',
@@ -458,7 +458,7 @@ const trJSON = {
   edit_asset_description:
     'Bu varlığı düzenlemek için aşağıdaki alanları doldurun',
   confirm_delete_asset: 'Bu varlığı silmek istediğinizden emin misiniz?',
-  loading_assets: '{{name}} #{{id}} altındaki varlıklar yükleniyor',
+  loading_assets: '{name} #{id} altındaki varlıklar yükleniyor',
   no_content: 'İçerik yok',
   no_result_criteria: 'Arama kriterlerinizle eşleşen sonuç yok',
   map_view: 'Harita Görünümü',
@@ -792,7 +792,7 @@ const trJSON = {
   no_category_action: "İlk kategorinizi eklemek için '' butonuna basın.",
   confirm_delete_category: 'Bu Kategoriyi silmek istediğinizden emin misiniz?',
   no_category_message:
-    'Görünüşe göre sende henüz hiç {{categoryName}} kategorisi yok.',
+    'Görünüşe göre sende henüz hiç {categoryName} kategorisi yok.',
   acquisition_cost: 'Elde etme maliyeti',
   general_settings: 'Genel Ayarlar',
   request_form_configuration: 'Talep formu yapılandırması',
@@ -811,7 +811,7 @@ const trJSON = {
   external_id: 'Harici Kimlik',
   permissions: 'İzinler',
   create_role_description:
-    "Bu rol, bir Yöneticinin {{brandName}}'ta yapabileceği her şeyi yapabilir ancak bazı önemli izinleri aşağıda özelleştirebilirsiniz.",
+    "Bu rol, bir Yöneticinin {brandName}'ta yapabileceği her şeyi yapabilir ancak bazı önemli izinleri aşağıda özelleştirebilirsiniz.",
   create_and_edit: 'Oluştur/Düzenle',
   to_access: 'Erişim',
   role_delete_success: 'Rol başarıyla silindi',
@@ -824,7 +824,7 @@ const trJSON = {
   role_create_success: 'Rol başarıyla oluşturuldu',
   role_create_failure: 'Rol oluşturulamadı',
   roles_management: 'Roller Yönetimi',
-  roles_number: '{{count}} roller',
+  roles_number: '{count} roller',
   create_role: 'Rol Oluştur',
   upgrade_role: 'Rol oluşturmak için yükseltme yapın',
   add_role: 'Yeni rol ekle',
@@ -1002,7 +1002,7 @@ const trJSON = {
   my_account: 'Hesabım',
   my_company: 'Benim şirketim',
   you_are_using_plan:
-    'Şu anda {{planName}} planını kullanıyorsunuz. Süresi {{expiration}} tarihinde sona erecek. Daha fazla özelliğe erişmek için şimdi yükseltin. ',
+    'Şu anda {planName} planını kullanıyorsunuz. Süresi {expiration} tarihinde sona erecek. Daha fazla özelliğe erişmek için şimdi yükseltin. ',
   upgrade_plan: 'Yükseltme Planı',
   plans: 'Planlar',
   monthly: 'Aylık',
@@ -1027,7 +1027,7 @@ const trJSON = {
   plan: 'Plan',
   current_plan: 'Mevcut Plan',
   number_users_who_will_use_grash:
-    "{{shortBrandName}}'ı kullanacak kullanıcı sayısı",
+    "{shortBrandName}'ı kullanacak kullanıcı sayısı",
   admin_role: 'Yönetici',
   technical_role: 'Teknik',
   limited_technical_role: 'Sınırlı Teknik',
@@ -1044,7 +1044,7 @@ const trJSON = {
   checkout_our: 'Bizim göz atın',
   pricing_page: 'Fiyatlandırma Sayfası',
   for_more_details: 'daha fazla ayrıntı için',
-  users_count_display: '{{count}} Kullanıcılar',
+  users_count_display: '{count} Kullanıcılar',
   monthly_adverb: 'aylık',
   yearly_adverb: 'yıllık',
   features: 'Özellikler',
@@ -1072,18 +1072,18 @@ const trJSON = {
   done: 'Tamamlandı',
   no_match_yet: 'Henüz Eşleşen Yok',
   select: 'Seçme...',
-  matched_to_field: 'Şununla eşleşti: {{field}}',
+  matched_to_field: 'Şununla eşleşti: {field}',
   next: 'Sonraki',
   not_enough_rows: 'Dosyada yeterli satır yok',
-  there_are_duplicates: 'Kopyalar var: {{duplicates}}',
+  there_are_duplicates: 'Kopyalar var: {duplicates}',
   assigned_by: 'Atayan',
-  percent_rows_have_value: 'Satırların %{{percent}} kadarı değere sahip',
+  percent_rows_have_value: 'Satırların %{percent} kadarı değere sahip',
   match_at_least_column: 'En az bir sütunla eşleşin',
   to_import: 'İçe aktar',
-  required_match: '{{field}} eşleşmesi gerekli',
+  required_match: '{field} eşleşmesi gerekli',
   archived: 'Arşivlendi',
   import_wo_success:
-    '{{created}} İş Emirleri oluşturuldu ve {{updated}} Güncellendi',
+    '{created} İş Emirleri oluşturuldu ve {updated} Güncellendi',
   to_export: 'Dışa aktar',
   filters: 'Filtreler',
   more_filters: 'Daha Fazla Filtre',
@@ -1098,13 +1098,13 @@ const trJSON = {
   REACTIVE: 'Reaktif',
   REPEATING: 'Önleyici',
   import_location_success:
-    '{{created}} Konumlar oluşturuldu ve {{updated}} Güncellendi',
+    '{created} Konumlar oluşturuldu ve {updated} Güncellendi',
   import_part_success:
-    '{{created}} Parçalar oluşturuldu ve {{updated}} Güncellendi',
+    '{created} Parçalar oluşturuldu ve {updated} Güncellendi',
   import_meter_success:
-    '{{created}} Ölçerler oluşturuldu ve {{updated}} Güncellendi',
+    '{created} Ölçerler oluşturuldu ve {updated} Güncellendi',
   import_asset_success:
-    '{{created}} Varlıklar oluşturuldu ve {{updated}} Güncellendi',
+    '{created} Varlıklar oluşturuldu ve {updated} Güncellendi',
   wo_calendar: 'İş Emirleri Takvimi',
   month: 'Ay',
   week: 'Hafta',
@@ -1252,17 +1252,17 @@ const trJSON = {
   upgrade_description: 'Abonelik planınızı yeni yükselttiniz. ',
   enable_users: 'Kullanıcıları etkinleştir',
   max_users_description:
-    'En fazla {{maxUsers}} kullanıcıyı etkinleştirebilirsiniz',
+    'En fazla {maxUsers} kullanıcıyı etkinleştirebilirsiniz',
   downgrade_description: 'Az önce abonelik planınızın düzeyini düşürdünüz. ',
   disable_users: 'Kullanıcıları devre dışı bırak',
   min_users_description:
-    'Minimum {{minUsers}} kullanıcıyı devre dışı bırakmalısınız',
+    'Minimum {minUsers} kullanıcıyı devre dışı bırakmalısınız',
   downgrade_description_no_owner:
     'Şirketiniz abonelik planının düzeyini düşürdü. ',
   past_due: 'Vadesi geçmiş',
   due_date_delay: 'Son Tarih gecikmesi',
   due_date_delay_description: 'Gün olarak Son Tarih gecikmesi',
-  days_count: '{{days}} gün',
+  days_count: '{days} gün',
   trigger_configuration: 'Tetikleyici Yapılandırması',
   WORK_ORDER_feature: 'İş Emirleri',
   REQUEST_feature: 'İş Talepleri',
@@ -1298,7 +1298,7 @@ const trJSON = {
   required_labor_on_completion: 'Zamanı kaydetmeniz gerekir',
   required_part_on_completion: "Bu İş Emri'nde Hiçbir Parça Kullanılmadı",
   required_cost_on_completion: "Bu İş Emri'nde Maliyet bilgisi sağlanmadı",
-  estimated_hours_in_text: 'Tahmini {{hours}} saat',
+  estimated_hours_in_text: 'Tahmini {hours} saat',
   required_part_name: 'Parça adı gerekli',
   asset_update_failure: 'Varlık düzenlenemedi',
   terms_of_service: 'Kullanım Şartları',
@@ -1423,7 +1423,7 @@ const trJSON = {
     'Gösterim amacıyla modelin yalnızca küçük bir kısmını tercüme ettik.',
   put_location_in_map: 'konumu haritaya koy',
   confirm_disable_user:
-    '{{user}} ı devre dışı bırakmak istediğinizden emin misiniz? Yalnızca bir ay sonra etkinleştirebileceksiniz',
+    '{user} ı devre dışı bırakmak istediğinizden emin misiniz? Yalnızca bir ay sonra etkinleştirebileceksiniz',
   user_disabled_success: 'Kullanıcı başarıyla devre dışı bırakıldı',
   disable: 'Devre dışı bırakmak',
   manufacturer: 'Üretici',
@@ -1484,14 +1484,14 @@ const trJSON = {
   scheduled_date: 'Planlanan tarih',
   on: 'Açık',
   required_days_of_week: 'Haftanın gerekli günleri',
-  'schedule.daily_one': 'Her {{count}} gün',
-  'schedule.daily_other': 'Her {{count}} gün',
-  'schedule.weekly_one': 'Her {{count}} hafta {{days}} üzerinde',
-  'schedule.weekly_other': 'Her {{count}} hafta {{days}} üzerinde',
-  'schedule.monthly_one': 'Her {{count}} ay',
-  'schedule.monthly_other': 'Her {{count}} ay',
-  'schedule.yearly_one': 'Her {{count}} yıl',
-  'schedule.yearly_other': 'Her {{count}} yıl',
+  'schedule.daily_one': 'Her {count} gün',
+  'schedule.daily_other': 'Her {count} gün',
+  'schedule.weekly_one': 'Her {count} hafta {days} üzerinde',
+  'schedule.weekly_other': 'Her {count} hafta {days} üzerinde',
+  'schedule.monthly_one': 'Her {count} ay',
+  'schedule.monthly_other': 'Her {count} ay',
+  'schedule.yearly_one': 'Her {count} yıl',
+  'schedule.yearly_other': 'Her {count} yıl',
   csv_separator: 'CSV ayırıcı',
   open_source_cmms: 'Açık kaynaklı CMMS',
   'main.title': 'Ücretsiz açık kaynaklı CMMS (bakım yönetimi yazılımı) – ',
@@ -1499,7 +1499,7 @@ const trJSON = {
     'Kendi sunucunuzda barındırabileceğiniz veya bulutta kullanabileceğiniz ücretsiz ve açık kaynaklı CMMS',
   'home.h2': 'Düşük Maliyetle Güçlü Bakım',
   'home.h3':
-    'Elektronik tablolara ve beyaz tahtalara güvenmeyi bırakın. {{brandName}}, bakım ekiplerinin müdahaleleri planlamasına, ekipmanları takip etmesine ve uyumlu kalmasına yardımcı olur. Kendi sunucunuzda barındırın veya bulutta anında başlayın.',
+    'Elektronik tablolara ve beyaz tahtalara güvenmeyi bırakın. {brandName}, bakım ekiplerinin müdahaleleri planlamasına, ekipmanları takip etmesine ve uyumlu kalmasına yardımcı olur. Kendi sunucunuzda barındırın veya bulutta anında başlayın.',
   talk_to_sales: 'Satışla konuşun',
   'pricing.choose_plan_and_get_started': 'Planınızı seçin ve başlayın.',
   'pricing.slogan_effective_maintenance':
@@ -1703,3 +1703,4 @@ const trJSON = {
 };
 
 export default trJSON;
+

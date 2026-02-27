@@ -12,7 +12,7 @@ import {
   Typography,
   useTheme
 } from '@mui/material';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useBrand } from 'src/hooks/useBrand';
 
@@ -20,8 +20,8 @@ export default function SubscriptionPlans() {
   const { subscriptionPlans: unorderedSubscriptionPlans } = useSelector(
     (state) => state.subscriptionPlans
   );
-  const dispatch = useDispatch();
-  const { t }: { t: any } = useTranslation();
+  const dispatch = useDispatch() as any;
+  const t = useTranslations();
   const brandConfig = useBrand();
   const theme = useTheme();
   const subscriptionPlans = unorderedSubscriptionPlans.slice();
@@ -110,3 +110,4 @@ export default function SubscriptionPlans() {
     </Box>
   );
 }
+

@@ -1,5 +1,5 @@
 "use client";
-import { FC, useState, createContext, Dispatch, SetStateAction } from 'react';
+import React, { FC, useState, createContext, Dispatch, SetStateAction } from 'react';
 type TitleContext = {
   title: string;
   setTitle: Dispatch<SetStateAction<string>>;
@@ -8,7 +8,7 @@ type TitleContext = {
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const TitleContext = createContext<TitleContext>({} as TitleContext);
 
-export const TitleProvider: FC = ({ children }) => {
+export const TitleProvider: FC<{children?: React.ReactNode}> = ({ children }) => {
   const [title, setTitle] = useState<string>('');
 
   return (
@@ -17,3 +17,4 @@ export const TitleProvider: FC = ({ children }) => {
     </TitleContext.Provider>
   );
 };
+

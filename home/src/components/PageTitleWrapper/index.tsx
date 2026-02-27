@@ -26,3 +26,4 @@ PageTitleWrapper.propTypes = {
 };
 
 export default PageTitleWrapper;
+

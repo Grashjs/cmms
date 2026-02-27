@@ -11,7 +11,7 @@ import {
   Typography
 } from '@mui/material';
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import useScrollToLocation from 'src/hooks/useScrollToLocation';
 import { useBrand } from 'src/hooks/useBrand';
@@ -93,7 +93,7 @@ const MobileImgWrapper = styled(Box)(
 );
 
 function Hero() {
-  const { t }: { t: any } = useTranslation();
+  const t = useTranslations();
   const brandConfig = useBrand();
   const [generatingAccount, setGeneratingAccount] = useState<boolean>(false);
   useScrollToLocation();

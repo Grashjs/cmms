@@ -22,7 +22,7 @@ import {
   Switch
 } from '@mui/material';
 import { Helmet } from 'react-helmet-async';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 import Logo from 'src/components/LogoSign';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -62,7 +62,7 @@ const PricingWrapper = styled(Box)(
 );
 
 function Pricing() {
-  const { t }: { t: any } = useTranslation();
+  const t = useTranslations();
   const theme = useTheme();
   const location = useLocation();
   const router = useRouter();
@@ -354,3 +354,4 @@ function Pricing() {
 }
 
 export default Pricing;
+

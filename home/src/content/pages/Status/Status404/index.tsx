@@ -14,7 +14,7 @@ import {
 import { Helmet } from 'react-helmet-async';
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 const MainContent = styled(Box)(
   () => `
@@ -41,7 +41,7 @@ const ButtonSearch = styled(Button)(
 );
 
 function Status404() {
-  const { t }: { t: any } = useTranslation();
+  const t = useTranslations();
 
   return (
     <>
@@ -119,3 +119,4 @@ function Status404() {
 }
 
 export default Status404;
+

@@ -1,3 +1,5 @@
+"use client";
+
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
@@ -65,7 +67,7 @@ import {
   zhCN
 } from 'date-fns/locale';
 
-const resources = {
+export const resources = {
   de: { translation: deJSON },
   en: { translation: locale },
   es: { translation: esJSON },
@@ -82,26 +84,34 @@ const resources = {
   zh_cn: { translation: zhCNJSON }
 };
 
-i18n
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init({
-    resources,
-    // supportedLngs: Object.keys(resources),
-    keySeparator: false,
-    fallbackLng: 'en',
-    react: {
-      useSuspense: true
-    },
-    interpolation: {
-      escapeValue: false
-    },
-    detection: {
-      lookupLocalStorage: 'lang',
-      caches: ['localStorage'],
-      convertDetectedLanguage: (lng) => lng.split('-')[0].toLowerCase()
-    }
-  });
+export function initI18n(lang?: string) {
+  if (i18n.isInitialized) return i18n;
+
+  i18n
+      .use(LanguageDetector)
+      .use(initReactI18next)
+      .init({
+        resources,
+        lng: lang,
+        fallbackLng: 'en',
+        keySeparator: false,
+        react: {
+          useSuspense: false
+        },
+        interpolation: {
+          escapeValue: false
+        },
+        detection: {
+          order: ['cookie', 'localStorage', 'navigator'],
+          lookupLocalStorage: 'lang',
+          lookupCookie: 'lang',
+          caches: ['localStorage', 'cookie'],             // ← write to both
+          convertDetectedLanguage: (lng) => lng.split('-')[0].toLowerCase()
+        }
+      });
+    
+  return i18n;
+}
 
 export type SupportedLanguage =
   | 'DE'

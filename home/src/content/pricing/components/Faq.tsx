@@ -1,10 +1,10 @@
 "use client";
 import { Box, Typography } from '@mui/material';
 import FaqComponent, { FaqItem } from 'src/components/Faq';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 export default function Faq() {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const faqItems: FaqItem[] = [
     // {
     //   id: 'panel1',
@@ -126,3 +126,4 @@ export default function Faq() {
 
   return <FaqComponent items={faqItems} title={t('pricing.faq_title')} />;
 }
+
