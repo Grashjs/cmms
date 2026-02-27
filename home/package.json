@@ -57,6 +57,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "code-inspector-plugin": "^1.4.2"
   }
 }
