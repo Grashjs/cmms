@@ -228,14 +228,9 @@ export function Footer() {
         return (
           <Stack spacing={1} direction={{ xs: "column", lg: "row" }}>
             {section.items.map((item, index) => (
-              <img
-                key={index}
-                style={{ cursor: "pointer" }}
-                onClick={() => (window.location.href = item.href)}
-                width="150px"
-                src={item.image}
-                alt={item.alt}
-              />
+              <a key={index} href={item.href} target="_blank" rel="noopener noreferrer">
+                <img width="150" src={item.image} alt={item.alt} />
+              </a>
             ))}
           </Stack>
         );
