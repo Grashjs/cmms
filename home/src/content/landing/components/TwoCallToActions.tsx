@@ -1,6 +1,6 @@
 "use client";
 import { Button, Container, Stack, SxProps, Theme } from "@mui/material";
-import { TypographyH1Primary } from "src/content/overview/Highlights";
+import { TypographyH1Primary } from "src/content/overview/Highlights/styles";
 import { useTranslations } from "next-intl";
 import { Link } from "src/i18n/routing";
 import { demoLink } from "src/config";

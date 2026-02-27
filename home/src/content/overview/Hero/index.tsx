@@ -1,112 +1,14 @@
-"use client";
-
-import { Box, Button, CircularProgress, Container, Grid, Stack, styled, Typography } from "@mui/material";
-import React, { useState } from "react";
-import { useTranslations } from "next-intl";
+import { Button, Container, Grid, Stack, Typography } from "@mui/material";
+import React from "react";
+import { getTranslations } from "next-intl/server";
 import { Link } from "src/i18n/routing";
-import useScrollToLocation from "src/hooks/useScrollToLocation";
-import api from "src/utils/api";
-import { fireGa4Event } from "src/utils/overall";
-import { useBrand } from "src/contexts/BrandContext";
+import { getBrandServer as getBrandConfig } from "src/utils/serverBrand";
+import LiveDemoButton from "./LiveDemoButton";
+import { BoxAccent, BoxContent, ImgWrapper, MobileImgWrapper, TypographyH2 } from "./styles";
 
-const TypographyH1 = styled(Typography)(
-  ({ theme }) => `
-    font-size: ${theme.typography.pxToRem(50)};
-`,
-);
-
-const TypographyH2 = styled(Typography)(
-  ({ theme }) => `
-    font-size: ${theme.typography.pxToRem(17)};
-`,
-);
-
-const ImgWrapper = styled(Box)(
-  ({ theme }) => `
-    position: relative;
-    z-index: 5;
-    width: 100%;
-    overflow: hidden;
-    border-radius: ${theme.general.borderRadiusLg};
-    box-shadow: 0 0rem 14rem 0 rgb(255 255 255 / 20%), 0 0.8rem 2.3rem rgb(111 130 156 / 3%), 0 0.2rem 0.7rem rgb(17 29 57 / 15%);
-    aspect-ratio: 1920 / 922;
-
-    img {
-      display: block;
-      width: 100%;
-    }
-  `,
-);
-
-const BoxAccent = styled(Box)(
-  ({ theme }) => `
-    border-radius: ${theme.general.borderRadiusLg};
-    background: ${theme.palette.background.default};
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    left: -40px;
-    bottom: -40px;
-    display: block;
-    z-index: 4;
-  `,
-);
-
-const BoxContent = styled(Box)(
-  () => `
-  width: 150%;
-  position: relative;
-`,
-);
-
-const MobileImgWrapper = styled(Box)(
-  ({ theme }) => `
-    position: absolute;
-    z-index: 6;
-    width: 15%;
-    left: -14%;
-    bottom: -25%;
-         ${theme.breakpoints.down("md")} {
-    left: 45%;
-    bottom: -50%;
-  }
-    transform: translateY(-50%);
-    overflow: hidden;
-    border-radius: ${theme.general.borderRadiusLg};
-    box-shadow: 0 0rem 14rem 0 rgb(0 0 0 / 20%), 0 0.8rem 2.3rem rgb(0 0 0 / 3%), 0 0.2rem 0.7rem rgb(0 0 0 / 15%);
-    aspect-ratio: 720 / 1600;
-
-    img {
-      display: block;
-      width: 100%;
-    }
-  `,
-);
-
-function Hero() {
-  const t = useTranslations();
-  const brandConfig = useBrand();
-  const [generatingAccount, setGeneratingAccount] = useState<boolean>(false);
-  useScrollToLocation();
-
-  const onSeeLiveDemo = async () => {
-    setGeneratingAccount(true);
-    try {
-      fireGa4Event("live_demo_view");
-      const { success, message } = await api.get<{
-        success: boolean;
-        message: string;
-      }>("demo/generate-account");
-
-      if (success) {
-        window.location.href = `/account/login?token=${message}`;
-      } else {
-        setGeneratingAccount(false);
-      }
-    } catch (error) {
-      setGeneratingAccount(false);
-    }
-  };
+async function Hero() {
+  const t = await getTranslations();
+  const brandConfig = await getBrandConfig();
 
   return (
     <Container maxWidth="lg">
@@ -137,22 +39,12 @@ function Hero() {
             {t("home.h3", { brandName: brandConfig.name })}
           </TypographyH2>
           <Stack direction={{ xs: "column", md: "row" }} spacing={1}>
-            <Button component={Link} href={"/account/register"} size="large" variant="contained">
-              {t("try_for_free")}
-            </Button>
-            <Button
-              sx={{
-                ml: 2,
-              }}
-              component="a"
-              startIcon={generatingAccount && <CircularProgress size={"1rem"} color="primary" />}
-              disabled={generatingAccount}
-              onClick={onSeeLiveDemo}
-              size="medium"
-              variant="text"
-            >
-              {t("see_live_demo")}
-            </Button>
+            <Link href="/account/register">
+              <Button size="large" variant="contained">
+                {t("try_for_free")}
+              </Button>
+            </Link>
+            <LiveDemoButton />
             <Button
               sx={{
                 ml: 2,
@@ -160,10 +52,6 @@ function Hero() {
               href={`mailto:${brandConfig.mail}`}
               size="medium"
               variant="text"
-              onClick={() => {
-                fireGa4Event("contact_us_click");
-                window.location.href = `mailto:${brandConfig.mail}`;
-              }}
             >
               {t("talk_to_sales")}
             </Button>

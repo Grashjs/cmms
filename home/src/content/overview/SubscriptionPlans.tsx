@@ -1,23 +1,20 @@
-"use client";
-import React, { useEffect } from "react";
-import { Box, Button, Card, CardContent, Grid, Stack, Typography, useTheme } from "@mui/material";
-import { useTranslations } from "next-intl";
+import React from "react";
+import { Box, Button, Card, CardContent, Grid, Stack, Typography } from "@mui/material";
+import { getTranslations } from "next-intl/server";
 import { Link } from "src/i18n/routing";
-import { useBrand } from "@/src/contexts/BrandContext";
+import { getBrandServer as getBrandConfig } from "src/utils/serverBrand";
+import { fetchSubscriptionPlans } from "src/lib/subscriptions";
 
-export default function SubscriptionPlans() {
-  const unorderedSubscriptionPlans = []; //TODO urgent
-  const t = useTranslations();
-  const brandConfig = useBrand();
-  const theme = useTheme();
+export default async function SubscriptionPlans() {
+  const unorderedSubscriptionPlans = await fetchSubscriptionPlans();
+  const t = await getTranslations();
+  const brandConfig = await getBrandConfig();
   const subscriptionPlans = unorderedSubscriptionPlans.slice();
 
   subscriptionPlans.sort(function (a, b) {
     return a.monthlyCostPerUser - b.monthlyCostPerUser;
   });
-  useEffect(() => {
-    // dispatch(getSubscriptionPlans());
-  }, []);
+
   return (
     <Box mt={4}>
       <Typography variant={"h2"}>{t("choose_your_plan")}</Typography>
@@ -48,12 +45,9 @@ export default function SubscriptionPlans() {
                 {plan.code === "BUSINESS" ? (
                   <Button
                     sx={{ mt: 2 }}
-                    onClick={() =>
-                      window.open(
-                        `mailto:${brandConfig.mail}?subject=Business%20plan&body=Hi.%0D%0AI%20would%20like%20to%20have%20access%20to%20the%20Business%20plan.%20I%20need%20...`,
-                        "_blank",
-                      )
-                    }
+                    component="a"
+                    href={`mailto:${brandConfig.mail}?subject=Business%20plan&body=Hi.%0D%0AI%20would%20like%20to%20have%20access%20to%20the%20Business%20plan.%20I%20need%20...`}
+                    target="_blank"
                     fullWidth
                     variant={"contained"}
                   >
