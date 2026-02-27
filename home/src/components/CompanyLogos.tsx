@@ -1,10 +1,9 @@
-"use client";
 import { Container, Box, Typography, SxProps, Theme } from "@mui/material";
 import React from "react";
 import { companyLogosAssets } from "../utils/overall";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
-export default function CompanyLogos({
+export default async function CompanyLogos({
   sx,
   white,
   compact,
@@ -13,7 +12,7 @@ export default function CompanyLogos({
   white?: boolean;
   compact?: boolean;
 }) {
-  const t = useTranslations();
+  const t = await getTranslations();
 
   return (
     <Container maxWidth="lg" sx={sx}>
