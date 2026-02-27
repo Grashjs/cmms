@@ -265,7 +265,6 @@ function Pricing() {
         </Card>
         <Faq />
       </Container>
-      <Footer />
     </PricingWrapper>
   );
 }

@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Pricing from "src/content/pricing";
 import { getTranslations } from "next-intl/server";
+import Footer from "@/src/components/Footer";
 
 const ldJson = {
   "@context": "https://schema.org",
@@ -60,6 +61,7 @@ export default function Home() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ldJson) }} />
       <Pricing />
+      <Footer />
     </>
   );
 }

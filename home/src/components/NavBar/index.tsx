@@ -150,7 +150,14 @@ export default function NavBar() {
                 <Button
                   onClick={handleFeaturesOpen}
                   onMouseEnter={handleFeaturesOpen}
-                  endIcon={featuresOpen ? <ExpandLess /> : <ExpandMore />}
+                  endIcon={
+                    <ExpandMore
+                      sx={{
+                        transition: "transform 0.2s",
+                        transform: featuresOpen ? "rotate(180deg)" : "rotate(0deg)",
+                      }}
+                    />
+                  }
                 >
                   {t("features")}
                 </Button>
