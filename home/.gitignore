@@ -42,3 +42,5 @@ next-env.d.ts
 
 /.open-next
 output.html
+
+!/public/static/images/logo
