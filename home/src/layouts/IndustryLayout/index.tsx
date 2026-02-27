@@ -15,6 +15,7 @@ import { Link } from "src/i18n/routing";
 import CompanyLogos from "@/src/components/CompanyLogos";
 
 import { getTranslations } from "next-intl/server";
+import { signupUrl } from "@/src/utils/urlPaths";
 
 interface Feature {
   title: string;
