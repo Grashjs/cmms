@@ -31,7 +31,7 @@ import { Link } from "src/i18n/routing";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { demoLink, isWhiteLabeled } from "src/config";
-import { getIndustriesLinks, getFeaturesLinks } from "src/utils/urlPaths";
+import { getIndustriesLinks, getFeaturesLinks, signupUrl, workOrdersUrl } from "src/utils/urlPaths";
 
 const HeaderWrapper = styled(Card)(
   ({ theme }) => `
@@ -357,7 +357,7 @@ export default function NavBar() {
                 <LanguageSwitcher />
                 <Button
                   component={Link}
-                  href="/app/work-orders"
+                  href={workOrdersUrl}
                   variant="text"
                   sx={{
                     ml: 2,
@@ -368,7 +368,7 @@ export default function NavBar() {
                 </Button>
                 <Button
                   component={Link}
-                  href="/account/register"
+                  href={signupUrl}
                   variant="contained"
                   sx={{
                     ml: 2,
@@ -551,7 +551,7 @@ export default function NavBar() {
                       <Stack spacing={2}>
                         <Button
                           component={Link}
-                          href="/app/work-orders"
+                          href={workOrdersUrl}
                           variant="text"
                           fullWidth
                           size="large"
@@ -561,7 +561,7 @@ export default function NavBar() {
                         </Button>
                         <Button
                           component={Link}
-                          href="/account/register"
+                          href={signupUrl}
                           variant="contained"
                           fullWidth
                           size="large"

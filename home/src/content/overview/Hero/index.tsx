@@ -5,6 +5,7 @@ import { Link } from "src/i18n/routing";
 import { getBrandServer as getBrandConfig } from "src/utils/serverBrand";
 import LiveDemoButton from "./LiveDemoButton";
 import { BoxAccent, BoxContent, ImgWrapper, MobileImgWrapper, TypographyH2 } from "./styles";
+import { signupUrl, workOrdersUrl } from "src/utils/urlPaths";
 
 async function Hero() {
   const t = await getTranslations();
@@ -39,7 +40,7 @@ async function Hero() {
             {t("home.h3", { brandName: brandConfig.name })}
           </TypographyH2>
           <Stack direction={{ xs: "column", md: "row" }} spacing={1}>
-            <Link href="/account/register">
+            <Link href={signupUrl}>
               <Button size="large" variant="contained">
                 {t("try_for_free")}
               </Button>
@@ -59,7 +60,7 @@ async function Hero() {
         </Grid>
         <Grid item md={6}>
           <BoxContent>
-            <Link href="/app/work-orders">
+            <Link href={workOrdersUrl}>
               <ImgWrapper>
                 <img
                   alt={brandConfig.name}

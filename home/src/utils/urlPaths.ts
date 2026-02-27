@@ -10,6 +10,7 @@ import {
 } from "@mui/icons-material";
 import { ElementType } from "react";
 import type { useTranslations } from "next-intl";
+import { mainAppUrl } from "src/config";
 
 export type TFunction = ReturnType<typeof useTranslations>;
 
@@ -84,3 +85,6 @@ export const getFeaturesLinks = (t: TFunction): { title: string; href: string }[
     href: "/features/analytics",
   },
 ];
+
+export const signupUrl = mainAppUrl + "account/register";
+export const workOrdersUrl = mainAppUrl + "app/work-orders";

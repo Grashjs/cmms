@@ -4,6 +4,7 @@ import { TypographyH1Primary } from "src/content/overview/Highlights/styles";
 import { useTranslations } from "next-intl";
 import { Link } from "src/i18n/routing";
 import { demoLink } from "src/config";
+import { signupUrl } from "src/utils/urlPaths";
 
 export default function TwoCallToActions({ hidePricing, sx }: { hidePricing?: boolean; sx?: SxProps<Theme> }) {
   const t = useTranslations();
@@ -26,7 +27,7 @@ export default function TwoCallToActions({ hidePricing, sx }: { hidePricing?: bo
         maxWidth="sm"
       >
         <Stack direction={{ xs: "column", sm: "row" }} justifyContent={"center"} spacing={2}>
-          <Button component={Link} size="large" href="/account/register" variant="contained">
+          <Button component={Link} size="large" href={signupUrl} variant="contained">
             {hidePricing ? "Sign Up for Free" : t("register")}
           </Button>
           {!hidePricing && (

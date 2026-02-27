@@ -6,6 +6,7 @@ import api from "src/utils/api";
 import { fireGa4Event } from "src/utils/overall";
 import { useTranslations } from "next-intl";
 import useScrollToLocation from "src/hooks/useScrollToLocation";
+import { mainAppUrl } from "src/config";
 
 export default function LiveDemoButton() {
   const t = useTranslations();
@@ -22,7 +23,7 @@ export default function LiveDemoButton() {
       }>("demo/generate-account");
 
       if (success) {
-        window.location.href = `/account/login?token=${message}`;
+        window.location.href = mainAppUrl + `account/login?token=${message}`;
       } else {
         setGeneratingAccount(false);
       }
@@ -37,7 +38,9 @@ export default function LiveDemoButton() {
         ml: 2,
       }}
       component="a"
-      startIcon={generatingAccount && <CircularProgress size={"1rem"} color="primary" />}
+      startIcon={
+        <CircularProgress size={"1rem"} color="primary" sx={{ visibility: generatingAccount ? "visible" : "hidden" }} />
+      }
       disabled={generatingAccount}
       onClick={onSeeLiveDemo}
       size="medium"

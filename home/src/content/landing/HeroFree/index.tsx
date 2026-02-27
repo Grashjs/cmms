@@ -1,25 +1,20 @@
 "use client";
-import {
-  Box,
-  Button,
-  Container,
-  Grid,
-  styled,
-  Typography
-} from '@mui/material';
-import { useTranslations } from 'next-intl';
-import { Link } from 'src/i18n/routing';
+import { Box, Button, Container, Grid, styled, Typography } from "@mui/material";
+import { useTranslations } from "next-intl";
+import { Link } from "src/i18n/routing";
+import { mainAppUrl } from "src/config";
+import { signupUrl } from "src/utils/urlPaths";
 
 const TypographyH1 = styled(Typography)(
   ({ theme }) => `
     font-size: ${theme.typography.pxToRem(50)};
-`
+`,
 );
 
 export const TypographyH2 = styled(Typography)(
   ({ theme }) => `
     font-size: ${theme.typography.pxToRem(17)};
-`
+`,
 );
 
 const ImgWrapper = styled(Box)(
@@ -35,7 +30,7 @@ const ImgWrapper = styled(Box)(
       display: block;
       width: 100%;
     }
-  `
+  `,
 );
 
 const BoxAccent = styled(Box)(
@@ -49,14 +44,14 @@ const BoxAccent = styled(Box)(
     bottom: -40px;
     display: block;
     z-index: 4;
-  `
+  `,
 );
 
 const BoxContent = styled(Box)(
   () => `
   width: 150%;
   position: relative;
-`
+`,
 );
 
 const MobileImgWrapper = styled(Box)(
@@ -66,7 +61,7 @@ const MobileImgWrapper = styled(Box)(
     width: 15%;
     left: -14%;
     bottom: -25%;
-         ${theme.breakpoints.down('md')} {
+         ${theme.breakpoints.down("md")} {
     left: 45%;
     bottom: -50%;
   }
@@ -79,7 +74,7 @@ const MobileImgWrapper = styled(Box)(
       display: block;
       width: 100%;
     }
-  `
+  `,
 );
 
 function HeroFree() {
@@ -87,16 +82,11 @@ function HeroFree() {
 
   return (
     <Container maxWidth="lg">
-      <Grid
-        spacing={{ xs: 6, md: 10 }}
-        justifyContent="center"
-        alignItems="center"
-        container
-      >
+      <Grid spacing={{ xs: 6, md: 10 }} justifyContent="center" alignItems="center" container>
         <Grid item md={6} pr={{ xs: 0, md: 3 }}>
           <TypographyH1
             sx={{
-              mb: 2
+              mb: 2,
             }}
             variant="h1"
           >
@@ -105,33 +95,24 @@ function HeroFree() {
           <TypographyH2
             sx={{
               lineHeight: 1.5,
-              pb: 4
+              pb: 4,
             }}
             variant="h4"
             color="text.secondary"
             fontWeight="normal"
           >
-            A Free CMMS to manage work orders at your factory, shop floor,
-            building, car fleet, restaurant chain, solar and wind sites or just
-            about any industry.
+            A Free CMMS to manage work orders at your factory, shop floor, building, car fleet, restaurant chain, solar
+            and wind sites or just about any industry.
           </TypographyH2>
-          <Button
-            component={Link}
-            href={'/account/register'}
-            size="large"
-            variant="contained"
-          >
+          <Button component={Link} href={mainAppUrl + "account/register"} size="large" variant="contained">
             Get Started for Free - No Credit Card Required!
           </Button>
         </Grid>
         <Grid item md={6}>
           <BoxContent>
-            <Link href="/account/register">
+            <Link href={signupUrl}>
               <ImgWrapper>
-                <img
-                  alt="Work Orders"
-                  src="/static/images/overview/work_orders_screenshot.png"
-                />
+                <img alt="Work Orders" src="/static/images/overview/work_orders_screenshot.png" />
               </ImgWrapper>
             </Link>
             <MobileImgWrapper>
@@ -139,7 +120,7 @@ function HeroFree() {
             </MobileImgWrapper>
             <BoxAccent
               sx={{
-                display: { xs: 'none', md: 'block' }
+                display: { xs: "none", md: "block" },
               }}
             />
           </BoxContent>
@@ -150,4 +131,3 @@ function HeroFree() {
 }
 
 export default HeroFree;
-

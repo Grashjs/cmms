@@ -99,7 +99,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = async (props) => {
                 {headerSubtitle}
               </TypographyH2>
               <Stack direction="row" spacing={2}>
-                <Link href="/account/register">
+                <Link href={signupUrl}>
                   <Button size={"large"} variant={"contained"}>
                     {t("try_for_free")}
                   </Button>
