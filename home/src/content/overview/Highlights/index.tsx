@@ -460,24 +460,24 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
 
     part: {
       title: {
-        key: 'part.title'
+        key: 'part_1.title'
       },
       descriptions: [
-        { key: 'part.descriptions.0' },
+        { key: 'part_1.descriptions.0' },
         {
-          key: 'part.descriptions.1',
+          key: 'part_1.descriptions.1',
           params: { shortBrandName: brandConfig.shortName }
         }
       ],
       checks: [
-        { key: 'part.checks.0' },
-        { key: 'part.checks.1' },
-        { key: 'part.checks.2' },
-        { key: 'part.checks.3' },
-        { key: 'part.checks.4' },
-        { key: 'part.checks.5' },
-        { key: 'part.checks.6' },
-        { key: 'part.checks.7' }
+        { key: 'part_1.checks.0' },
+        { key: 'part_1.checks.1' },
+        { key: 'part_1.checks.2' },
+        { key: 'part_1.checks.3' },
+        { key: 'part_1.checks.4' },
+        { key: 'part_1.checks.5' },
+        { key: 'part_1.checks.6' },
+        { key: 'part_1.checks.7' }
       ],
       image: '/static/images/overview/inventory_screenshot.png'
     },
@@ -522,7 +522,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
         >
           <CheckTwoToneIcon />
         </AvatarSuccess>
-        <ListItemText primary={t(description)} />
+        <ListItemText primary={description} />
       </ListItem>
     );
   };

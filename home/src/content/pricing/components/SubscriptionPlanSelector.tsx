@@ -121,7 +121,7 @@ export default function SubscriptionPlanSelector({
             sx={{ transform: 'scale(1.3)' }}
             size={'medium'}
           />
-          <Typography>{t('pricing.annually_save_two_months')}</Typography>
+          <Typography>{t('pricing_1.annually_save_two_months')}</Typography>
         </Stack>
       </Box>
       <Grid container spacing={2} justifyContent="center">
@@ -152,7 +152,7 @@ export default function SubscriptionPlanSelector({
                       right: theme.spacing(1)
                     }}
                   >
-                    <span>✨ {t('pricing.most_popular')}</span>
+                    <span>✨ {t('pricing_1.most_popular')}</span>
                   </Box>
                 )}
                 <CardContent
@@ -193,8 +193,8 @@ export default function SubscriptionPlanSelector({
                         <Typography variant="subtitle1" color="text.secondary">
                           {`/${
                             monthly
-                              ? t('pricing.month_per_user')
-                              : t('pricing.year_per_user')
+                              ? t('pricing_1.month_per_user')
+                              : t('pricing_1.year_per_user')
                           }`}
                         </Typography>
                       </>
@@ -265,7 +265,7 @@ export default function SubscriptionPlanSelector({
                         {plan.id === 'basic' || plan.id === 'sh-free'
                           ? t('get_started')
                           : selfHosted
-                          ? t('pricing.get_your_license')
+                          ? t('pricing_1.get_your_license')
                           : t('try_for_free')}
                       </Button>
                     )}

@@ -116,6 +116,7 @@ function Hero() {
       setGeneratingAccount(false);
     }
   };
+  console.log("byyy",brandConfig.name)
   return (
     <Container maxWidth="lg">
       <Grid

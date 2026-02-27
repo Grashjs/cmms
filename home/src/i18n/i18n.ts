@@ -10,13 +10,13 @@ import esJSON from './translations/es';
 import frJSON from './translations/fr';
 import trJSON from './translations/tr';
 import plJSON from './translations/pl';
-import ptBRJSON from './translations/pt_BR';
 import itJSON from './translations/it';
 import svJSON from './translations/sv';
 import ruJSON from './translations/ru';
 import huJSON from './translations/hu';
 import nlJSON from './translations/nl';
-import zhCNJSON from './translations/zh_cn';
+import zhCNJSON from './translations/zh-cn';
+import ptBr from './translations/pt-br';
 import { FlagComponent } from 'country-flag-icons/react/1x1';
 import {
   BR,
@@ -74,7 +74,7 @@ export const resources = {
   fr: { translation: frJSON },
   pl: { translation: plJSON },
   tr: { translation: trJSON },
-  pt_br: { translation: ptBRJSON },
+  pt_br: { translation: ptBr },
   ar: { translation: arJSON },
   it: { translation: itJSON },
   sv: { translation: svJSON },

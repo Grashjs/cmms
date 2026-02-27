@@ -128,10 +128,10 @@ function Pricing() {
       <Container maxWidth="lg" sx={{ mt: 8 }}>
         <Box textAlign="center" mb={6}>
           <Typography variant="h1" component="h1" gutterBottom>
-            {t('pricing.choose_plan_and_get_started')}
+            {t('pricing_1.choose_plan_and_get_started')}
           </Typography>
           <Typography variant="subtitle1">
-            {t('pricing.slogan_effective_maintenance')}
+            {t('pricing_1.slogan_effective_maintenance')}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
@@ -153,10 +153,10 @@ function Pricing() {
         />
         <Box textAlign="center" my={6}>
           <Typography variant="h1" component="h1" gutterBottom>
-            {t('pricing.compare_plans_and_pricing')}
+            {t('pricing_1.compare_plans_and_pricing')}
           </Typography>
           <Typography variant="subtitle1">
-            {t('pricing.see_which_plan_is_right_for_you')}
+            {t('pricing_1.see_which_plan_is_right_for_you')}
           </Typography>
 
           {/* Plan selection dropdown for small/medium screens */}
@@ -171,8 +171,8 @@ function Pricing() {
             <FormControl fullWidth>
               <InputLabel id="plan-comparison-select-label">
                 {isXs
-                  ? t('pricing.select_two_plans_to_compare')
-                  : t('pricing.select_three_plans_to_compare')}
+                  ? t('pricing_1.select_two_plans_to_compare')
+                  : t('pricing_1.select_three_plans_to_compare')}
               </InputLabel>
               <Select
                 labelId="plan-comparison-select-label"
@@ -184,8 +184,8 @@ function Pricing() {
                   <OutlinedInput
                     label={
                       isXs
-                        ? t('pricing.select_two_plans_to_compare')
-                        : t('pricing.select_three_plans_to_compare')
+                        ? t('pricing_1.select_two_plans_to_compare')
+                        : t('pricing_1.select_three_plans_to_compare')
                     }
                   />
                 }
@@ -251,8 +251,8 @@ function Pricing() {
                             : parseFloat(plan.price) * PRICING_YEAR_MULTIPLIER}
                           {`/${
                             monthly
-                              ? t('pricing.month_per_user')
-                              : t('pricing.year_per_user')
+                              ? t('pricing_1.month_per_user')
+                              : t('pricing_1.year_per_user')
                           }`}
                         </Typography>
                       )}

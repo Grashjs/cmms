@@ -1,6 +1,6 @@
 import createMiddleware from 'next-intl/middleware';
 
-export const locales = ['en', 'es', 'fr', 'de', 'tr', 'pt_br', 'pl', 'ar', 'it', 'sv', 'ru', 'hu', 'nl', 'zh_cn'];
+export const locales = ['en', 'es', 'fr', 'de', 'tr', 'pt-br', 'pl', 'ar', 'it', 'sv', 'ru', 'hu', 'nl', 'zh-cn'];
 
 export default createMiddleware({
   locales,
@@ -10,5 +10,5 @@ export default createMiddleware({
 
 export const config = {
   // Match only internationalized pathnames
-  matcher: ['/', '/(en|es|fr|de|tr|pt_br|pl|ar|it|sv|ru|hu|nl|zh_cn)/:path*']
+  matcher: ['/', '/(en|es|fr|de|tr|pt-br|pl|ar|it|sv|ru|hu|nl|zh-cn)/:path*']
 };

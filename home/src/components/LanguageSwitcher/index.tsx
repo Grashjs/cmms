@@ -46,7 +46,7 @@ function LanguageSwitcher({ onSwitch }: { onSwitch?: () => void }) {
     // next-intl middleware handles the locale prefix
     // We just need to replace the locale part of the pathname
     const segments = pathname.split('/');
-    segments[1] = newLocale;
+    segments[1] = newLocale.replace("_","-");
     const newPath = segments.join('/');
     router.push(newPath);
   };
@@ -63,7 +63,7 @@ function LanguageSwitcher({ onSwitch }: { onSwitch?: () => void }) {
   };
 
   const currentSupportedLanguage = supportedLanguages.find(
-    (supportedLanguage) => supportedLanguage.code === locale
+    (supportedLanguage) => supportedLanguage.code.replace('_',"-") === locale
   );
 
   return (
