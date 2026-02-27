@@ -898,6 +898,7 @@ const locale = {
     'Gebruikers ontvangen updates voor de werkorders die zij hebben aangevraagd',
   language: 'Taal',
   date_format: 'Datumformaat',
+  time_zone: 'Tijdzone',
   business_type: 'Bedrijfstype',
   general_asset_management: 'Algemeen assetbeheer',
   physical_asset_management: 'Fysiek assetbeheer',
@@ -1481,7 +1482,7 @@ const locale = {
   no_assets_available: 'Geen assets beschikbaar',
   csv_separator: 'CSV scheidingsteken',
   open_source_cmms: 'Open-source CMMS',
-  'main.title': 'Gratis open-source CMMS (onderhoudsbeheersoftware) – ',
+  'main.title': 'Gratis open-source CMMS (onderhoudsbeheersoftware)',
   'home.h1':
     'Gratis en open-source CMMS dat u zelf kunt hosten of in de cloud kunt gebruiken',
   'home.h2': 'Krachtig onderhoud tegen lage kosten',
@@ -1694,6 +1695,66 @@ const locale = {
   energy_and_utilities: 'Energie en nutsbedrijven',
   education: 'Onderwijs',
   hospitality: 'Gastvrijheid',
-  construction: 'Bouw'
+  construction: 'Bouw',
+  trusted_by_maintenance_teams:
+    'Aangewezen door onderhoudsteam in verschillende sectoren',
+  cut_costs_performance: 'Kosten sparen, zonder leistung zu verlieren',
+  'free_cmms.title': 'Atlas Gratis CMMS Software | Geen creditcard nodig',
+  'free_cmms.description':
+    'Gratis CMMS-software — geen proefperiode. Beheer direct onderhoud, activa en werkorders. Geen creditcard nodig.',
+  'free_cmms.keywords':
+    'gratis cmms, onderhoudsbeheersoftware, gratis werkordersoftware, activa volgen, preventief onderhoud',
+  'overview.description':
+    'Atlas CMMS is een gratis, open-source CMMS om werkorders, preventief onderhoud, activa en faciliteiten te beheren. Stroomlijn uw onderhoudsactiviteiten vandaag nog.',
+  'overview.keywords':
+    'CMMS, geautomatiseerd onderhoudsbeheersysteem, EAM, enterprise asset management, open source cmms, gratis onderhoudssoftware, werkorderbeheer, preventief onderhoud, activa volgen, facilitair beheer, software voor onderhoudstracking, apparatuuronderhoud, Atlas CMMS',
+  'pricing.title': 'Prijzen - Atlas CMMS',
+  'pricing.description':
+    'Flexibele prijsplannen voor Atlas CMMS. Kies tussen Cloud- en Self-Hosted versies van ons open-source CMMS om uw onderhoudsactiviteiten te optimaliseren.',
+  'free_cmms.hero.subtitle': 'Gratis CMMS Software',
+  'free_cmms.hero.title': 'Beheer Werkorders en Activa - Voor Altijd Gratis',
+  'free_cmms.hero.description':
+    'Stop met het jongleren met spreadsheets en verouderde tools. Upgrade naar een moderne CMMS-software - gratis.',
+  'free_cmms.hero.start_free': 'Start Nu Gratis',
+  'free_cmms.hero.work_orders_alt': 'Werkorders',
+  'free_cmms.hero.mobile_app_alt': 'Mobiele App',
+  'free_cmms.features.work_orders.title': 'Moeiteloze Werkorders',
+  'free_cmms.features.work_orders.p1':
+    'Maak, wijs toe en volg werkorders in enkele seconden.',
+  'free_cmms.features.work_orders.p2':
+    "Voeg foto's, handleidingen en checklists toe aan elke taak.",
+  'free_cmms.features.work_orders.p3':
+    'Volg de voortgang in real-time met directe statusupdates.',
+  'free_cmms.features.work_orders.alt': 'Werkorderbeheer',
+  'free_cmms.features.asset_tracking.title': 'Volgen van de Levenscyclus van Activa',
+  'free_cmms.features.asset_tracking.p1':
+    'Onderhoud een complete digitale geschiedenis van elk activum.',
+  'free_cmms.features.asset_tracking.p2':
+    'Neem datagestuurde beslissingen over repareren of vervangen.',
+  'free_cmms.features.asset_tracking.p3':
+    'Blijf klaar voor audits met geautomatiseerde nalevingslogboeken.',
+  'free_cmms.features.asset_tracking.alt': 'Activabeheer',
+  'free_cmms.features.inventory.title': 'Voorraad & Onderdelen',
+  'free_cmms.features.inventory.p1':
+    'Volg voorraadniveaus op meerdere locaties in real-time.',
+  'free_cmms.features.inventory.p2':
+    'Scan QR-codes voor direct zoeken en gebruiken van onderdelen.',
+  'free_cmms.features.inventory.p3':
+    'Ontvang automatische meldingen bij lage voorraad en bestel direct opnieuw.',
+  'free_cmms.features.inventory.alt': 'Voorraadbeheer',
+  'free_cmms.features.mobile.title': 'Onderhoud Onderweg',
+  'free_cmms.features.mobile.p1':
+    'Volledige functionaliteit van de mobiele app voor iOS en Android.',
+  'free_cmms.features.mobile.p2':
+    "Maak foto's en scan barcodes direct in het veld.",
+  'free_cmms.features.mobile.p3':
+    'Synchroniseer gegevens direct en werk offline wanneer dat nodig is.',
+  'free_cmms.features.mobile.alt': 'Mobiele CMMS App',
+  'free_cmms.features.get_started_free': 'Start gratis',
+  'free_cmms.features.ready_to_optimize': 'Klaar om uw onderhoud te optimaliseren?',
+  'free_cmms.features.join_thousands':
+    'Sluit u aan bij duizenden onderhoudsprofessionals die het meest intuïtieve gratis CMMS ter wereld gebruiken.',
+  'free_cmms.features.get_started_no_card':
+    'Start gratis - Geen creditcard nodig'
 };
 export default locale;

@@ -11,7 +11,7 @@ import {
   Link
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import SharedHelmet from '../landing/components/SharedHelmet';
 import { useTranslation } from 'react-i18next';
 import Logo from 'src/components/LogoSign';
 import LanguageSwitcher from 'src/layouts/ExtendedSidebarLayout/Header/Buttons/LanguageSwitcher';
@@ -20,20 +20,17 @@ import { useBrand } from '../../hooks/useBrand';
 import { isCloudVersion, isWhiteLabeled } from '../../config';
 
 function Overview() {
-  const { t }: { t: any } = useTranslation();
+  const { t, i18n }: { t: any; i18n: any } = useTranslation();
   const brandConfig = useBrand();
   const IS_ORIGINAL_CLOUD = !isWhiteLabeled && isCloudVersion;
 
   return (
     <Box>
-      <Helmet>
-        <title>{t('privacy_policy')} - Atlas CMMS</title>
-        <meta
-          name="description"
-          content="Read the Privacy Policy for Atlas CMMS. Learn how we protect your data and ensure security in our open-source maintenance management platform."
-        />
-        <link rel="canonical" href="https://atlas-cmms.com/privacy" />
-      </Helmet>
+      <SharedHelmet
+        path="privacy"
+        title={`${t('privacy_policy')} - Atlas CMMS`}
+        description="Read the Privacy Policy for Atlas CMMS. Learn how we protect your data and ensure security in our open-source maintenance management platform."
+      />
       <NavBar />
       <Container maxWidth="lg" sx={{ mt: 8 }}>
         <Box textAlign="center" mb={6}>

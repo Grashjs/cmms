@@ -42,6 +42,10 @@ function CompanyPlan(props: CompanyPlanProps) {
     ? company.subscription.endsOn
     : licensingState.expirationDate;
 
+  useEffect(() => {
+    dispatch(getLicenseValidity());
+  }, []);
+
   return (
     <Card
       sx={{
@@ -159,7 +163,8 @@ function CompanyPlan(props: CompanyPlanProps) {
               !(
                 company.subscription.scheduledChangeDate &&
                 company.subscription.scheduledChangeType === 'RESET_TO_FREE'
-              ) && (
+              ) &&
+              false && (
                 <Button
                   onClick={() => {
                     if (window.confirm(t('confirm_cancel_subscription'))) {

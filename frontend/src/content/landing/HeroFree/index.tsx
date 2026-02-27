@@ -1,23 +1,36 @@
 import {
   Box,
   Button,
+  CircularProgress,
   Container,
   Grid,
+  Stack,
   styled,
   Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { Link as RouterLink } from 'react-router-dom';
+import { fireGa4Event } from '../../../utils/overall';
+import React from 'react';
 
 const TypographyH1 = styled(Typography)(
   ({ theme }) => `
-    font-size: ${theme.typography.pxToRem(50)};
+    font-size: ${theme.typography.pxToRem(60)};
+    font-weight: 800;
+    line-height: 1.1;
+    @media (max-width: ${theme.breakpoints.values.md}px) {
+      font-size: ${theme.typography.pxToRem(40)};
+    }
 `
 );
 
 export const TypographyH2 = styled(Typography)(
   ({ theme }) => `
-    font-size: ${theme.typography.pxToRem(17)};
+    font-size: ${theme.typography.pxToRem(20)};
+    line-height: 1.6;
+    @media (max-width: ${theme.breakpoints.values.md}px) {
+      font-size: ${theme.typography.pxToRem(18)};
+    }
 `
 );
 
@@ -92,15 +105,20 @@ function HeroFree() {
         alignItems="center"
         container
       >
-        <Grid item md={6} pr={{ xs: 0, md: 3 }}>
-          <TypographyH1
+        <Grid item md={6} pr={{ xs: 0, md: 4 }}>
+          <Typography component="h1" variant="h4" mb={2}>
+            {t('free_cmms.hero.subtitle')}
+          </Typography>
+          <Typography
             sx={{
               mb: 2
             }}
-            variant="h1"
+            fontSize={45}
+            variant="h2"
+            component="h2"
           >
-            Free CMMS for Work Order Management
-          </TypographyH1>
+            {t('free_cmms.hero.title')}
+          </Typography>
           <TypographyH2
             sx={{
               lineHeight: 1.5,
@@ -110,31 +128,31 @@ function HeroFree() {
             color="text.secondary"
             fontWeight="normal"
           >
-            A Free CMMS to manage work orders at your factory, shop floor,
-            building, car fleet, restaurant chain, solar and wind sites or just
-            about any industry.
+            {t('free_cmms.hero.description')}
           </TypographyH2>
-          <Button
-            component={RouterLink}
-            to={'/account/register'}
-            size="large"
-            variant="contained"
-          >
-            Get Started for Free - No Credit Card Required!
-          </Button>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={1}>
+            <Button
+              component={RouterLink}
+              to={'/account/register'}
+              size="large"
+              variant="contained"
+            >
+              {t('free_cmms.hero.start_free')}
+            </Button>
+          </Stack>
         </Grid>
         <Grid item md={6}>
           <BoxContent>
             <RouterLink to="/account/register">
               <ImgWrapper>
                 <img
-                  alt="Work Orders"
+                  alt={t('free_cmms.hero.work_orders_alt')}
                   src="/static/images/overview/work_orders_screenshot.png"
                 />
               </ImgWrapper>
             </RouterLink>
             <MobileImgWrapper>
-              <img alt="Mobile App" src="/static/mobile_app.jpeg" />
+              <img alt={t('free_cmms.hero.mobile_app_alt')} src="/static/mobile_app.jpeg" />
             </MobileImgWrapper>
             <BoxAccent
               sx={{

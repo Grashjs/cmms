@@ -862,6 +862,7 @@ const locale = {
     'Users get updates for the work orders they requested',
   language: 'Language',
   date_format: 'Date format',
+  time_zone: 'Time zone',
   business_type: 'Business type',
   general_asset_management: 'General asset management',
   physical_asset_management: 'Physical asset management',
@@ -1447,7 +1448,7 @@ const locale = {
   csv_separator: 'CSV separator',
   Advantages: 'Advantages',
   open_source_cmms: 'Open-Source CMMS',
-  'main.title': 'Free Open-Source CMMS (Maintenance Management Software) – ',
+  'main.title': 'Free Open-Source CMMS (Maintenance Management Software)',
   'home.h1': 'Free & Open-Source CMMS You Can Self-Host or Use in the Cloud',
   'home.h2': 'Powerful Maintenance at a Low Cost',
   'home.h3':
@@ -1642,7 +1643,69 @@ const locale = {
   energy_and_utilities: 'Energy & Utilities',
   education: 'Education',
   hospitality: 'Hospitality',
-  construction: 'Construction'
+  construction: 'Construction',
+  installation_docs: 'Installation docs',
+  trusted_by_maintenance_teams:
+    'Trusted by maintenance teams across multiple industries',
+  cut_costs_performance:
+    'Cut maintenance software costs without sacrificing performance',
+  'free_cmms.title': 'Atlas Free CMMS Software | No credit card required',
+  'free_cmms.description':
+    'Free CMMS software — not a trial. Manage maintenance, assets and work orders instantly. No credit card required.',
+  'free_cmms.keywords':
+    'free cmms, maintenance management software, free work order software, asset tracking, preventive maintenance',
+  'overview.description':
+    'Atlas CMMS is a free, open-source CMMS to manage work orders, preventive maintenance, assets, and facilities. Streamline maintenance operations today.',
+  'overview.keywords':
+    'CMMS, computerized maintenance management system, EAM, enterprise asset management, open source CMMS, free maintenance software, work order management, preventive maintenance, asset tracking, facility management, maintenance tracking software, equipment maintenance, Atlas CMMS',
+  'pricing.title': 'Pricing - Atlas CMMS',
+  'pricing.description':
+    'Flexible pricing plans for Atlas CMMS. Choose between Cloud and Self-Hosted versions of our open-source CMMS to optimize your maintenance operations.',
+  'free_cmms.hero.subtitle': 'Free CMMS Software',
+  'free_cmms.hero.title': 'Manage Work Orders and Assets - Free Forever',
+  'free_cmms.hero.description':
+    'Stop juggling spreadsheets and outdated tools. Upgrade to a modern CMMS software - for free.',
+  'free_cmms.hero.start_free': 'Start Free Now',
+  'free_cmms.hero.work_orders_alt': 'Work Orders',
+  'free_cmms.hero.mobile_app_alt': 'Mobile App',
+  'free_cmms.features.work_orders.title': 'Effortless Work Orders',
+  'free_cmms.features.work_orders.p1':
+    'Create, assign, and track work orders in seconds.',
+  'free_cmms.features.work_orders.p2':
+    'Attach photos, manuals, and checklists to any task.',
+  'free_cmms.features.work_orders.p3':
+    'Monitor progress in real-time with instant status updates.',
+  'free_cmms.features.work_orders.alt': 'Work Order Management',
+  'free_cmms.features.asset_tracking.title': 'Asset Lifecycle Tracking',
+  'free_cmms.features.asset_tracking.p1':
+    'Maintain a complete digital history of every asset.',
+  'free_cmms.features.asset_tracking.p2':
+    'Make data-driven decisions on repair vs. replace.',
+  'free_cmms.features.asset_tracking.p3':
+    'Stay audit-ready with automated compliance logs.',
+  'free_cmms.features.asset_tracking.alt': 'Asset Management',
+  'free_cmms.features.inventory.title': 'Inventory & Parts',
+  'free_cmms.features.inventory.p1':
+    'Track stock levels across multiple locations in real-time.',
+  'free_cmms.features.inventory.p2':
+    'Scan QR codes for instant part lookup and usage.',
+  'free_cmms.features.inventory.p3':
+    'Get automated low-stock alerts and reorder instantly.',
+  'free_cmms.features.inventory.alt': 'Inventory Management',
+  'free_cmms.features.mobile.title': 'Maintenance on the Go',
+  'free_cmms.features.mobile.p1':
+    'Full mobile app functionality for iOS and Android.',
+  'free_cmms.features.mobile.p2':
+    'Capture photos and scan barcodes directly from the field.',
+  'free_cmms.features.mobile.p3':
+    'Sync data instantly and work offline when needed.',
+  'free_cmms.features.mobile.alt': 'Mobile CMMS App',
+  'free_cmms.features.get_started_free': 'Get started for free',
+  'free_cmms.features.ready_to_optimize': 'Ready to optimize your maintenance?',
+  'free_cmms.features.join_thousands':
+    "Join thousands of maintenance professionals using the world's most intuitive free CMMS.",
+  'free_cmms.features.get_started_no_card':
+    'Get started for free - No credit card required'
 };
 
 export default locale;

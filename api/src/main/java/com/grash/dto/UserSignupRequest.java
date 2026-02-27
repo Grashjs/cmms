@@ -47,5 +47,7 @@ public class UserSignupRequest {
     @JsonIgnore
     private Boolean skipMailSending;
 
+    private String timeZone;
+
 }
 

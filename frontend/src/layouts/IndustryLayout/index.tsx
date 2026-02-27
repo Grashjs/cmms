@@ -13,7 +13,7 @@ import {
 import NavBar from 'src/components/NavBar';
 import { Footer } from 'src/components/Footer';
 import FaqComponent from 'src/components/Faq';
-import { Helmet } from 'react-helmet-async';
+import SharedHelmet from '../../content/landing/components/SharedHelmet';
 import { Link as RouterLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { demoLink } from '../../config';
@@ -21,18 +21,17 @@ import { OverviewWrapper } from '../../content/landing/FreeCMMS';
 import { TypographyH2 } from '../../content/landing/HeroFree';
 import { SvgIconComponent } from '@mui/icons-material';
 import TwoCallToActions from '../../content/landing/components/TwoCallToActions';
+import { companyLogosAssets } from '../../utils/overall';
+import CompanyLogos from '../../content/landing/components/CompanyLogos';
+import Testimonials, {
+  Testimonial
+} from '../../content/landing/components/Testimonials';
 
 interface Feature {
   title: string;
   description: string;
   imageUrl: string;
   learnMoreUrl?: string;
-}
-
-interface Testimonial {
-  text: string;
-  author: string;
-  company: string;
 }
 
 interface FAQ {
@@ -51,7 +50,8 @@ export interface IndustryLayoutProps {
   headerTitle: string;
   headerSubtitle: string;
   headerImageUrl: string;
-  companyLogos?: string[];
+  headerImageSizes: { width: number; height: number };
+  companyLogos?: boolean;
   advantages?: { title: string; description: string; icon: SvgIconComponent }[];
   kpis?: { title: string; value: string; type: 'money' | 'percentage' }[];
   features?: Feature[];
@@ -69,6 +69,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
     headerTitle,
     headerSubtitle,
     headerImageUrl,
+    headerImageSizes,
     companyLogos,
     features = [],
     advantages = [],
@@ -80,19 +81,16 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
     pageDescription,
     canonicalPath
   } = props;
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
 
   return (
     <OverviewWrapper>
-      <Helmet>
-        <meta name="description" content={pageDescription} />
-        <title>{pageTitle}</title>
-        <link
-          rel="canonical"
-          href={'https://atlas-cmms.com/' + canonicalPath}
-        />
-      </Helmet>
+      <SharedHelmet
+        path={canonicalPath}
+        title={pageTitle}
+        description={pageDescription}
+      />
       <NavBar />
       <Box>
         {/* Header */}
@@ -135,35 +133,21 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
               </Stack>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Box
-                component="img"
+              <img
                 src={headerImageUrl}
                 alt={headerTitle}
-                sx={{ width: '100%', borderRadius: '16px' }}
+                width={headerImageSizes.width}
+                height={headerImageSizes.height}
+                style={{ width: '100%', borderRadius: '16px', height: 'auto' }}
+                loading="eager"
+                // @ts-ignore
+                fetchpriority="high"
               />
             </Grid>
           </Grid>
         </Container>
 
         {/* Company Logos */}
-        {false && companyLogos && (
-          <Container maxWidth="lg" sx={{ py: 5 }}>
-            <Grid container spacing={4} justifyContent="center">
-              {companyLogos.map((logo, index) => (
-                <Grid item key={index}>
-                  <img
-                    style={{
-                      filter: 'grayscale(100%)'
-                    }}
-                    src={logo}
-                    alt={`company-logo-${index}`}
-                    height="30"
-                  />
-                </Grid>
-              ))}
-            </Grid>
-          </Container>
-        )}
         {kpis && (
           <Container maxWidth="lg" sx={{ py: 5 }}>
             <Grid container spacing={3}>
@@ -200,6 +184,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
             </Grid>
           </Container>
         )}
+        {companyLogos && <CompanyLogos />}
         {advantages.length > 0 && (
           <Container maxWidth={'lg'} sx={{ mt: 2, py: 5 }}>
             <Grid container spacing={4}>
@@ -315,34 +300,8 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
         </Container>
 
         {/* Testimonials */}
-        {false && (
-          <Box
-            sx={{
-              py: 4
-            }}
-          >
-            <Container maxWidth="lg">
-              <Typography variant="h2" align="center" mb={3}>
-                Hear it from our customers
-              </Typography>
-              <Grid container spacing={4}>
-                {testimonials.map((testimonial, index) => (
-                  <Grid item xs={12} md={6} key={index}>
-                    <Card>
-                      <CardContent>
-                        <Typography variant="body1" paragraph>
-                          "{testimonial.text}"
-                        </Typography>
-                        <Typography variant="subtitle1" align="right">
-                          - {testimonial.author}, {testimonial.company}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
-            </Container>
-          </Box>
+        {testimonials?.length > 0 && (
+          <Testimonials testimonials={testimonials} />
         )}
         <TwoCallToActions />
         {/* FAQ */}

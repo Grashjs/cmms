@@ -20,10 +20,10 @@ import {
   AccordionSummary,
   Switch
 } from '@mui/material';
-import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import Logo from 'src/components/LogoSign';
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
+import SharedHelmet from '../landing/components/SharedHelmet';
 import LanguageSwitcher from 'src/layouts/ExtendedSidebarLayout/Header/Buttons/LanguageSwitcher';
 import { ExpandMore, GitHub } from '@mui/icons-material';
 import CheckCircleOutlineTwoToneIcon from '@mui/icons-material/CheckCircleOutlineTwoTone';
@@ -49,6 +49,8 @@ import {
 } from '@mui/material';
 import { fireGa4Event } from '../../utils/overall';
 import { Footer } from '../../components/Footer';
+import CompanyLogos from '../landing/components/CompanyLogos';
+import { useBrand } from 'src/hooks/useBrand';
 
 const PricingWrapper = styled(Box)(
   ({ theme }) => `
@@ -60,7 +62,7 @@ const PricingWrapper = styled(Box)(
 );
 
 function Pricing() {
-  const { t }: { t: any } = useTranslation();
+  const { t, i18n }: { t: any; i18n: any } = useTranslation();
   const theme = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
@@ -76,6 +78,7 @@ function Pricing() {
   const isXs = useMediaQuery(theme.breakpoints.only('xs'));
   const isSm = useMediaQuery(theme.breakpoints.only('sm'));
   const isMdDown = useMediaQuery(theme.breakpoints.down('md'));
+  const brandConfig = useBrand();
 
   const handleTabsChange = (
     _event: React.ChangeEvent<{}>,
@@ -113,14 +116,58 @@ function Pricing() {
   }, []);
   return (
     <PricingWrapper>
-      <Helmet>
-        <title>Pricing - Atlas CMMS</title>
-        <meta
-          name="description"
-          content="Flexible pricing plans for Atlas CMMS. Choose between Cloud and Self-Hosted versions of our open-source CMMS to optimize your maintenance operations."
-        />
-        <link rel="canonical" href="https://atlas-cmms.com/pricing" />
-      </Helmet>
+      <SharedHelmet
+        path="pricing"
+        title={t('pricing.title')}
+        description={t('pricing.description')}
+      >
+        <script type="application/ld+json">
+          {`
+            {
+              "@context": "https://schema.org",
+              "@type": "Product",
+              "name": "Atlas CMMS",
+              "description": "Flexible pricing plans for Atlas CMMS. Choose between Cloud and Self-Hosted versions of our open-source CMMS to optimize your maintenance operations.",
+              "url": "https://atlas-cmms.com/pricing",
+              "image": "https://atlas-cmms.com/static/images/logo/logo.png",
+              "offers": [
+                {
+                  "@type": "Offer",
+                  "name": "Basic",
+                  "price": "0",
+                  "priceCurrency": "USD",
+                  "description": "For small teams getting started with maintenance management."
+                },
+                {
+                  "@type": "Offer",
+                  "name": "Starter",
+                  "price": "10",
+                  "priceCurrency": "USD",
+                  "description": "For growing teams that need more advanced features."
+                },
+                {
+                  "@type": "Offer",
+                  "name": "Professional",
+                  "price": "15",
+                  "priceCurrency": "USD",
+                  "description": "For established teams that require more customization and support."
+                },
+                {
+                  "@type": "Offer",
+                  "name": "Business",
+                  "price": "40",
+                  "priceCurrency": "USD",
+                  "description": "For large organizations with complex needs and integrations."
+                }
+              ],
+              "publisher": {
+                "@type": "Organization",
+                "name": "Atlas CMMS"
+              }
+            }
+          `}
+        </script>
+      </SharedHelmet>
       <NavBar />
 
       <Container maxWidth="lg" sx={{ mt: 8 }}>
@@ -149,6 +196,7 @@ function Pricing() {
           setMonthly={setMonthly}
           selfHosted={type === 'selfhosted'}
         />
+        <CompanyLogos sx={{ mt: 4 }} />
         <Box textAlign="center" my={6}>
           <Typography variant="h1" component="h1" gutterBottom>
             {t('pricing.compare_plans_and_pricing')}
@@ -344,6 +392,39 @@ function Pricing() {
             </Box>
           </CardContent>
         </Card>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            mt: 8,
+            mb: 4
+          }}
+        >
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+            <Button
+              component={RouterLink}
+              to="/account/register"
+              size="large"
+              variant="contained"
+              sx={{ px: 4 }}
+            >
+              {t('get_started')}
+            </Button>
+            <Button
+              href={`mailto:${brandConfig.mail}`}
+              size="large"
+              variant="outlined"
+              onClick={() => {
+                fireGa4Event('contact_us_click');
+                window.location.href = `mailto:${brandConfig.mail}`;
+              }}
+              sx={{ px: 4 }}
+            >
+              {t('talk_to_sales')}
+            </Button>
+          </Stack>
+        </Box>
         <Faq />
       </Container>
       <Footer />

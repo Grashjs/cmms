@@ -29,6 +29,7 @@ import { useTranslation } from 'react-i18next';
 import { UtmTrackerProvider } from '@nik0di3m/utm-tracker-hook';
 import { useLicenseEntitlement } from './hooks/useLicenseEntitlement';
 import { initializePaddle } from '@paddle/paddle-js';
+import { loadLanguage, supportedLanguages } from './i18n/i18n';
 
 if (!IS_LOCALHOST && googleTrackingId) ReactGA.initialize(googleTrackingId);
 
@@ -102,7 +103,44 @@ function App() {
   const { isInitialized, company, isAuthenticated, user } = useAuth();
   const { state: licensingState } = useSelector((state) => state.license);
   const hasBrandingEntitlement = useLicenseEntitlement('BRANDING');
+  const { i18n } = useTranslation();
   let location = useLocation();
+
+  useEffect(() => {
+    const pathParts = location.pathname.split('/');
+    const firstPart = pathParts[1];
+    const isPrefixed = supportedLanguages.some((l) => l.code === firstPart);
+
+    if (!isPrefixed) {
+      const landingPaths = [
+        '/',
+        '/free-cmms',
+        '/pricing',
+        '/privacy',
+        '/deletion-policy',
+        '/terms-of-service',
+        '/overview'
+      ];
+      const isLandingPath =
+        landingPaths.includes(location.pathname) ||
+        location.pathname.startsWith('/industries/') ||
+        location.pathname.startsWith('/features/');
+
+      if (isLandingPath) {
+        const currentLang = i18n.language || 'en';
+        if (currentLang !== 'en') {
+          const newPath = `/${currentLang}${
+            location.pathname === '/' ? '' : location.pathname
+          }`;
+          navigate(newPath + location.search, { replace: true });
+        }
+      }
+    }
+  }, [location, navigate, i18n.language]);
+
+  useEffect(() => {
+    loadLanguage(i18n.language);
+  }, []);
 
   useEffect(() => {
     if (!IS_LOCALHOST && googleTrackingId)

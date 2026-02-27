@@ -1,17 +1,10 @@
-import {
-  Box,
-  Container,
-  Grid,
-  Link,
-  Stack,
-  styled,
-  Typography
-} from '@mui/material';
+import { Box, Container, Grid, Stack, styled, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { GitHub, LinkedIn, Mail, Phone, Sms } from '@mui/icons-material';
 import { getFeaturesLinks, getIndustriesLinks } from '../../utils/urlPaths';
 import { useTranslation } from 'react-i18next';
 import { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 
 const FooterWrapper = styled(Box)(
   ({ theme }) => `
@@ -22,6 +15,18 @@ const FooterWrapper = styled(Box)(
 );
 
 const FooterLink = styled(Link)(
+  ({ theme }) => `
+    color: ${theme.colors.alpha.white[70]};
+    text-decoration: none;
+
+    &:hover {
+      color: ${theme.colors.alpha.white[100]};
+      text-decoration: underline;
+    }
+`
+);
+
+const FooterALink = styled('a')(
   ({ theme }) => `
     color: ${theme.colors.alpha.white[70]};
     text-decoration: none;
@@ -206,7 +211,7 @@ export function Footer() {
         return (
           <Stack spacing={2}>
             {section.items.map((item, index) => (
-              <FooterLink key={index} href={item.href}>
+              <FooterLink key={index} to={item.href}>
                 {item.text}
               </FooterLink>
             ))}
@@ -216,7 +221,7 @@ export function Footer() {
         return (
           <Stack spacing={2}>
             {section.items.map((link) => (
-              <FooterLink key={link.href} href={link.href}>
+              <FooterLink key={link.href} to={link.href}>
                 {link.title}
               </FooterLink>
             ))}
@@ -226,9 +231,14 @@ export function Footer() {
         return (
           <Stack direction="row" spacing={2}>
             {section.items.map((item, index) => (
-              <FooterLink key={index} href={item.href}>
+              <FooterALink
+                key={index}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {item.icon}
-              </FooterLink>
+              </FooterALink>
             ))}
           </Stack>
         );
@@ -236,14 +246,14 @@ export function Footer() {
         return (
           <Stack spacing={1} direction={{ xs: 'column', lg: 'row' }}>
             {section.items.map((item, index) => (
-              <img
+              <a
                 key={index}
-                style={{ cursor: 'pointer' }}
-                onClick={() => (window.location.href = item.href)}
-                width="150px"
-                src={item.image}
-                alt={item.alt}
-              />
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img width="150" src={item.image} alt={item.alt} />
+              </a>
             ))}
           </Stack>
         );

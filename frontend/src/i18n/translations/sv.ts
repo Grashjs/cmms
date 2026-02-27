@@ -885,6 +885,7 @@ const locale = {
     'Användare får uppdateringar för de arbetsordrar de begärt',
   language: 'Språk',
   date_format: 'Datumformat',
+  time_zone: 'Tidszon',
   business_type: 'Företagstyp',
   general_asset_management: 'Allmän kapitalförvaltning',
   physical_asset_management: 'Förvaltning av fysiska tillgångar',
@@ -1460,7 +1461,7 @@ const locale = {
   csv_separator: 'CSV-separator',
   open_source_cmms: 'CMMS med öppen källkod',
   'main.title':
-    'Gratis CMMS med öppen källkod (programvara för underhållshantering) – ',
+    'Gratis CMMS med öppen källkod (programvara för underhållshantering)',
   'home.h1':
     'Gratis och open-source CMMS som du kan vara värd för själv eller använda i molnet',
   'home.h2': 'Kraftfullt underhåll till låg kostnad',
@@ -1669,7 +1670,67 @@ const locale = {
   energy_and_utilities: 'Energi och försörjning',
   education: 'Utbildning',
   hospitality: 'Hotell och restaurang',
-  construction: 'Byggbranschen'
+  construction: 'Byggbranschen',
+  trusted_by_maintenance_teams:
+    'Betrodd av underhållsteam i flera branscher',
+  cut_costs_performance: 'Sänk kostnaderna för underhållsprogramvara utan att offra prestanda',
+  'free_cmms.title': 'Atlas Gratis CMMS-programvara | Inget kreditkort krävs',
+  'free_cmms.description':
+    'Gratis CMMS-programvara — inte en testversion. Hantera underhåll, tillgångar och arbetsordrar omedelbart. Inget kreditkort krävs.',
+  'free_cmms.keywords':
+    'gratis cmms, programvara för underhållshantering, gratis arbetsorderprogramvara, tillgångsspårning, förebyggande underhåll',
+  'overview.description':
+    'Atlas CMMS är ett gratis, open-source CMMS för att hantera arbetsordrar, förebyggande underhåll, tillgångar och anläggningar. Effektivisera din underhållsverksamhet idag.',
+  'overview.keywords':
+    'CMMS, datoriserat underhållssystem, EAM, enterprise asset management, open source cmms, gratis underhållsprogramvara, arbetsorderhantering, förebyggande underhåll, tillgångsspårning, fastighetsförvaltning, programvara för underhållsspårning, utrustningsunderhåll, Atlas CMMS',
+  'pricing.title': 'Prissättning - Atlas CMMS',
+  'pricing.description':
+    'Flexibla prisplaner för Atlas CMMS. Välj mellan Cloud- och Self-Hosted-versioner av vårt open-source CMMS för att optimera din underhållsverksamhet.',
+  'free_cmms.hero.subtitle': 'Gratis CMMS-programvara',
+  'free_cmms.hero.title': 'Hantera Arbetsordrar och Tillgångar - Gratis för alltid',
+  'free_cmms.hero.description':
+    'Sluta jonglera med kalkylblad och föråldrade verktyg. Uppgradera till en modern CMMS-programvara - gratis.',
+  'free_cmms.hero.start_free': 'Starta Gratis Nu',
+  'free_cmms.hero.work_orders_alt': 'Arbetsordrar',
+  'free_cmms.hero.mobile_app_alt': 'Mobilapp',
+  'free_cmms.features.work_orders.title': 'Enkla Arbetsordrar',
+  'free_cmms.features.work_orders.p1':
+    'Skapa, tilldela och spåra arbetsordrar på några sekunder.',
+  'free_cmms.features.work_orders.p2':
+    'Bifoga foton, manualer och checklistor till alla uppgifter.',
+  'free_cmms.features.work_orders.p3':
+    'Övervaka framsteg i realtid med omedelbara statusupdates.',
+  'free_cmms.features.work_orders.alt': 'Arbetsorderhantering',
+  'free_cmms.features.asset_tracking.title': 'Spårning av Tillgångars Livscykel',
+  'free_cmms.features.asset_tracking.p1':
+    'Håll en komplett digital historik för varje tillgång.',
+  'free_cmms.features.asset_tracking.p2':
+    'Fatta datadrivna beslut om reparation kontra byte.',
+  'free_cmms.features.asset_tracking.p3':
+    'Håll dig redo för revisioner med automatiserade efterlevnadsloggar.',
+  'free_cmms.features.asset_tracking.alt': 'Tillgångshantering',
+  'free_cmms.features.inventory.title': 'Lager & Delar',
+  'free_cmms.features.inventory.p1':
+    'Spåra lagernivåer på flera platser i realtid.',
+  'free_cmms.features.inventory.p2':
+    'Skanna QR-koder för omedelbar sökning och användning av delar.',
+  'free_cmms.features.inventory.p3':
+    'Få automatiska varningar om lågt lager och beställ omedelbart.',
+  'free_cmms.features.inventory.alt': 'Lagerhantering',
+  'free_cmms.features.mobile.title': 'Underhåll på Språng',
+  'free_cmms.features.mobile.p1':
+    'Fullständig mobilapp-funktionalitet för iOS och Android.',
+  'free_cmms.features.mobile.p2':
+    'Ta bilder och skanna streckkoder direkt ute på fältet.',
+  'free_cmms.features.mobile.p3':
+    'Synkronisera data omedelbart och arbeta offline vid behov.',
+  'free_cmms.features.mobile.alt': 'Mobil CMMS-app',
+  'free_cmms.features.get_started_free': 'Kom igång gratis',
+  'free_cmms.features.ready_to_optimize': 'Redo att optimera ditt underhåll?',
+  'free_cmms.features.join_thousands':
+    'Gå med i tusentals underhållsproffs som använder världens mest intuitiva gratis CMMS.',
+  'free_cmms.features.get_started_no_card':
+    'Kom igång gratis - Inget kreditkort krävs'
 };
 
 export default locale;

@@ -408,6 +408,11 @@ function Locations() {
             name: 'mapTitle',
             type: 'titleGroupField',
             label: t('map_coordinates')
+          },
+          {
+            name: 'coordinates',
+            type: 'coordinates',
+            label: t('map_coordinates')
           }
         ] as IField[])
       : []),

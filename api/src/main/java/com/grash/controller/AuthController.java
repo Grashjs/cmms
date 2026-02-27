@@ -139,7 +139,7 @@ public class AuthController {
     @GetMapping(value = "/me")
     @PreAuthorize("permitAll()")
     public UserResponseDTO whoami(HttpServletRequest req) {
-        return userMapper.toResponseDto(userService.whoami(req));
+        return userMapper.toResponseDto(userService.whoami(req, false));
     }
 
     @GetMapping("/refresh")

@@ -210,6 +210,8 @@ function Hero() {
                   alt={brandConfig.name}
                   src="/static/images/overview/work_orders_screenshot.png"
                   loading={'eager'}
+                  //@ts-ignore
+                  fetchpriority="high"
                 />
               </ImgWrapper>
             </RouterLink>
@@ -217,6 +219,8 @@ function Hero() {
               <img
                 alt="Mobile App"
                 src="/static/mobile_app.jpeg"
+                //@ts-ignore
+                fetchpriority="high"
                 loading={'eager'}
               />
             </MobileImgWrapper>

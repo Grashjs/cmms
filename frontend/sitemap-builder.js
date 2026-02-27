@@ -144,10 +144,22 @@ console.log(
   'Routes to include in sitemap:',
   uniqueRoutes.map((r) => r.path)
 );
-
-new Sitemap(uniqueRoutes)
-  .build('https://atlas-cmms.com')
-  .save('./public/sitemap.xml');
+const baseUrl = 'https://atlas-cmms.com';
+new Sitemap(uniqueRoutes).build(baseUrl).save('./public/sitemap.xml');
 
 console.log('Sitemap generated successfully!');
 console.log(`Total URLs: ${uniqueRoutes.length}`);
+const fs = require('fs');
+fs.writeFileSync(
+  './index-now.js',
+  `export default ${JSON.stringify(
+    uniqueRoutes.map((r) => {
+      const { path } = r;
+      if (path.startsWith('/')) {
+        return baseUrl + path;
+      } else return baseUrl + '/' + path;
+    }),
+    null,
+    2
+  )}`
+);

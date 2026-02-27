@@ -761,6 +761,9 @@ const locale = {
   acquisition_cost: 'Beszerzési költség',
   //settings
   general_settings: 'Általános Beállítások',
+  language: 'Nyelv',
+  date_format: 'Dátumformátum',
+  time_zone: 'Időzóna',
   request_form_configuration: 'Kéreleműrlap konfiguráció',
   roles: 'Szerepek',
   checklists: 'Ellenőrzőlisták',
@@ -1330,8 +1333,7 @@ const locale = {
   vendors: 'Beszállítók',
   csv_separator: 'CSV elválasztó',
   open_source_cmms: 'Nyílt forráskódú CMMS',
-  'main.title':
-    'Ingyenes nyílt forráskódú CMMS (karbantartáskezelő szoftver) – ',
+  'main.title': 'Ingyenes nyílt forráskódú CMMS (karbantartáskezelő szoftver)',
   'home.h1':
     'Ingyenes és nyílt forráskódú CMMS, amelyet saját maga is üzemeltethet, vagy használhat a felhőben',
   'home.h2': 'Erőteljes karbantartás alacsony költséggel',
@@ -1550,7 +1552,67 @@ const locale = {
   energy_and_utilities: 'Energia és közművek',
   education: 'Oktatás',
   hospitality: 'Vendéglátás',
-  construction: 'Építőipar'
+  construction: 'Építőipar',
+  trusted_by_maintenance_teams: 'A karbantartási csapatok bizalmát élvezve számos iparágban',
+  cut_costs_performance:
+    'Csökkentse a karbantartási szoftverköltségeket a teljesítmény feláldozása nélkül',
+  'free_cmms.title': 'Atlas Ingyenes GMAO Szoftver | Nincs szükség hitelkártyára',
+  'free_cmms.description':
+    'Ingyenes GMAO szoftver — nem próbaverzió. Karbantartás, eszközök és munkarendelések kezelése azonnal. Nincs szükség hitelkártyára.',
+  'free_cmms.keywords':
+    'ingyenes gmao, karbantartás-kezelő szoftver, ingyenes munkarendelés szoftver, eszköz-követés, megelőző karbantartás',
+  'overview.description':
+    'Az Atlas CMMS egy ingyenes, nyílt forráskódú GMAO a munkarendelések, a megelőző karbantartás, az eszközök és a létesítmények kezelésére. Egyszerűsítse karbantartási folyamatait még ma.',
+  'overview.keywords':
+    'GMAO, számítógépes karbantartás-kezelő rendszer, EAM, vállalati eszközkezelés, nyílt forráskódú GMAO, ingyenes karbantartási szoftver, munkarendelés-kezelés, megelőző karbantartás, eszköz-követés, létesítménykezelés, karbantartás-követő szoftver, berendezés-karbantartás, Atlas CMMS',
+  'pricing.title': 'Árazás - Atlas CMMS',
+  'pricing.description':
+    'Rugalmas árazási tervek az Atlas CMMS-hez. Válasszon nyílt forráskódú GMAO rendszerünk Cloud és Self-Hosted verziói közül a karbantartási folyamatok optimalizálásához.',
+  'free_cmms.hero.subtitle': 'Ingyenes GMAO Szoftver',
+  'free_cmms.hero.title': 'Munkarendelések és eszközök kezelése - Örökké ingyenes',
+  'free_cmms.hero.description':
+    'Hagyja abba a táblázatokkal és elavult eszközökkel való zsonglőrködést. Váltson egy modern GMAO szoftverre - ingyen.',
+  'free_cmms.hero.start_free': 'Kezdje el ingyen most',
+  'free_cmms.hero.work_orders_alt': 'Munkarendelések',
+  'free_cmms.hero.mobile_app_alt': 'Mobilalkalmazás',
+  'free_cmms.features.work_orders.title': 'Munkarendelések könnyedén',
+  'free_cmms.features.work_orders.p1':
+    'Munkarendelések létrehozása, kiosztása és nyomon követése másodpercek alatt.',
+  'free_cmms.features.work_orders.p2':
+    'Fotók, kézikönyvek és ellenőrzőlisták csatolása bármilyen feladathoz.',
+  'free_cmms.features.work_orders.p3':
+    'A folyamatok valós idejű nyomon követése azonnali állapotfrissítésekkel.',
+  'free_cmms.features.work_orders.alt': 'Munkarendelés-kezelés',
+  'free_cmms.features.asset_tracking.title': 'Eszköz életciklus követése',
+  'free_cmms.features.asset_tracking.p1':
+    'Vezessen teljes digitális előzményt minden eszközről.',
+  'free_cmms.features.asset_tracking.p2':
+    'Hozzon adatvezérelt döntéseket a javítás vagy csere kérdésében.',
+  'free_cmms.features.asset_tracking.p3':
+    'Maradjon audit-kész az automatizált megfelelőségi naplókkal.',
+  'free_cmms.features.asset_tracking.alt': 'Eszközkezelés',
+  'free_cmms.features.inventory.title': 'Készlet és alkatrészek',
+  'free_cmms.features.inventory.p1':
+    'A készletszintek valós idejű nyomon követése több helyszínen.',
+  'free_cmms.features.inventory.p2':
+    'QR-kódok beolvasása az azonnali alkatrész-kereséshez és felhasználáshoz.',
+  'free_cmms.features.inventory.p3':
+    'Automatikus értesítések alacsony készletszint esetén és azonnali utánrendelés.',
+  'free_cmms.features.inventory.alt': 'Készletkezelés',
+  'free_cmms.features.mobile.title': 'Karbantartás útközben',
+  'free_cmms.features.mobile.p1':
+    'Teljes mobilalkalmazás-funkcionalitás iOS és Android rendszerekre.',
+  'free_cmms.features.mobile.p2':
+    'Fotók készítése és vonalkódok beolvasása közvetlenül a terepen.',
+  'free_cmms.features.mobile.p3':
+    'Azonnali adatszinkronizálás és offline munkavégzés, ha szükséges.',
+  'free_cmms.features.mobile.alt': 'Mobil GMAO alkalmazás',
+  'free_cmms.features.get_started_free': 'Kezdés ingyenesen',
+  'free_cmms.features.ready_to_optimize': 'Készen áll a karbantartás optimalizálására?',
+  'free_cmms.features.join_thousands':
+    'Csatlakozzon a világ legintuitívabb ingyenes GMAO-ját használó karbantartási szakemberek ezreihez.',
+  'free_cmms.features.get_started_no_card':
+    'Kezdés ingyenesen - Nincs szükség hitelkártyára'
 };
 
 export default locale;

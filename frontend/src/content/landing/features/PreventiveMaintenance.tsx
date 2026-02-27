@@ -9,6 +9,10 @@ const preventiveMaintenanceData: IndustryLayoutProps = {
   headerSubtitle:
     'Plan recurring maintenance, reduce unexpected failures, and extend asset lifespan using a fully open-source and self-hosted preventive maintenance platform accessible anywhere.',
   headerImageUrl: '/static/images/features/pm-hero.png',
+  headerImageSizes: {
+    width: 1181,
+    height: 830
+  },
   canonicalPath: 'features/preventive-maintenance',
 
   advantages: [
@@ -53,14 +57,7 @@ const preventiveMaintenanceData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Since implementing Atlas CMMS preventive maintenance, unexpected equipment failures dropped dramatically and our team works far more efficiently.',
-      author: 'Sophie Martin',
-      company: 'Operations Manager'
-    }
-  ],
-
+  testimonials: [],
   faqs: [
     {
       question: 'What is preventive maintenance software?',

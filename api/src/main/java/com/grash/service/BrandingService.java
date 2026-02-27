@@ -21,7 +21,7 @@ public class BrandingService {
     private String brandRawConfig;
 
     public String getMailBackgroundColor() {
-        String backgroundColor = "#00A0E3";
+        String backgroundColor = "#5569ff";
         if (customColors != null && !customColors.isEmpty()) {
             ObjectMapper mapper = new ObjectMapper();
             try {

@@ -5,6 +5,9 @@ spring:
     username: ${DB_USER}
     password: ${DB_PWD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      leak-detection-threshold: 60000
+      maximum-pool-size: 20
   #    init:
   #      data-locations: classpath:data-preprod.sql
   #    tomcat:
@@ -68,8 +71,6 @@ spring:
       ssl.trust: ${SMTP_HOST:smtp.gmail.com}
   cache:
     type: caffeine
-    caffeine:
-      spec: maximumSize=1000,expireAfterWrite=20m
 server:
   port: 8080 # This is the default port anyway, but you can change it here
 
@@ -134,5 +135,6 @@ keygen:
 sendgrid:
   api:
     key: ${SENDGRID_API_KEY:}
+  contact-list-id: ${SENDGRID_CONTACT_LIST_ID:}
   from:
     email: ${SENDGRID_FROM_EMAIL:}

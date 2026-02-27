@@ -858,6 +858,7 @@ const trJSON = {
     'Kullanıcılar talep ettikleri iş emirlerine ilişkin güncellemeleri alır',
   language: 'Dil',
   date_format: 'Tarih formatı',
+  time_zone: 'Saat dilimi',
   business_type: 'İş Tipi',
   general_asset_management: 'Genel varlık yönetimi',
   physical_asset_management: 'Fiziksel varlık yönetimi',
@@ -1494,7 +1495,7 @@ const trJSON = {
   'schedule.yearly_other': 'Her {{count}} yıl',
   csv_separator: 'CSV ayırıcı',
   open_source_cmms: 'Açık kaynaklı CMMS',
-  'main.title': 'Ücretsiz açık kaynaklı CMMS (bakım yönetimi yazılımı) – ',
+  'main.title': 'Ücretsiz açık kaynaklı CMMS (bakım yönetimi yazılımı)',
   'home.h1':
     'Kendi sunucunuzda barındırabileceğiniz veya bulutta kullanabileceğiniz ücretsiz ve açık kaynaklı CMMS',
   'home.h2': 'Düşük Maliyetle Güçlü Bakım',
@@ -1699,7 +1700,68 @@ const trJSON = {
   energy_and_utilities: 'Enerji ve Kamu Hizmetleri',
   education: 'Eğitim',
   hospitality: 'Otelcilik ve Konaklama',
-  construction: 'İnşaat'
+  construction: 'İnşaat',
+  trusted_by_maintenance_teams:
+    'Birden fazla sektörde bakım ekipleri tarafından güvenilmektedir',
+  cut_costs_performance:
+    'Performanstan ödün vermeden bakım yazılımı maliyetlerini düşürün',
+  'free_cmms.title': 'Atlas Ücretsiz CMMS Yazılımı | Kredi kartı gerekmez',
+  'free_cmms.description':
+    'Ücretsiz CMMS yazılımı — deneme sürümü değil. Bakım, varlık ve iş emirlerini anında yönetin. Kredi kartı gerekmez.',
+  'free_cmms.keywords':
+    'ücretsiz cmms, bakım yönetim yazılımı, ücretsiz iş emri yazılımı, varlık takibi, önleyici bakım',
+  'overview.description':
+    'Atlas CMMS, iş emirlerini, önleyici bakımı, varlıkları ve tesisleri yönetmek için ücretsiz, açık kaynaklı bir CMMS\'dir. Bakım operasyonlarınızı bugün kolaylaştırın.',
+  'overview.keywords':
+    'CMMS, bilgisayarlı bakım yönetim sistemi, EAM, kurumsal varlık yönetimi, açık kaynaklı CMMS, ücretsiz bakım yazılımı, iş emri yönetimi, önleyici bakım, varlık takibi, tesis yönetimi, bakım takip yazılımı, ekipman bakımı, Atlas CMMS',
+  'pricing.title': 'Fiyatlandırma - Atlas CMMS',
+  'pricing.description':
+    'Atlas CMMS için esnek fiyatlandırma planları. Bakım operasyonlarınızı optimize etmek için açık kaynaklı CMMS\'mizin Bulut ve Kendi Sunucunuzda Barındırılan sürümleri arasından seçim yapın.',
+  'free_cmms.hero.subtitle': 'Ücretsiz CMMS Yazılımı',
+  'free_cmms.hero.title': 'İş Emirlerini ve Varlıkları Yönetin - Sonsuza Kadar Ücretsiz',
+  'free_cmms.hero.description':
+    'Elektronik tablolar ve güncelliğini yitirmiş araçlarla uğraşmayı bırakın. Modern bir CMMS yazılımına ücretsiz geçin.',
+  'free_cmms.hero.start_free': 'Şimdi Ücretsiz Başlayın',
+  'free_cmms.hero.work_orders_alt': 'İş Emirleri',
+  'free_cmms.hero.mobile_app_alt': 'Mobil Uygulama',
+  'free_cmms.features.work_orders.title': 'Zahmetsiz İş Emirleri',
+  'free_cmms.features.work_orders.p1':
+    'Saniyeler içinde iş emirleri oluşturun, atayın ve takip edin.',
+  'free_cmms.features.work_orders.p2':
+    'Herhangi bir göreve fotoğraf, kılavuz ve kontrol listesi ekleyin.',
+  'free_cmms.features.work_orders.p3':
+    'Anlık durum güncellemeleriyle ilerlemeyi gerçek zamanlı olarak izleyin.',
+  'free_cmms.features.work_orders.alt': 'İş Emri Yönetimi',
+  'free_cmms.features.asset_tracking.title': 'Varlık Yaşam Döngüsü Takibi',
+  'free_cmms.features.asset_tracking.p1':
+    'Her varlığın eksiksiz bir dijital geçmişini tutun.',
+  'free_cmms.features.asset_tracking.p2':
+    'Onarım veya değiştirme konusunda veriye dayalı kararlar verin.',
+  'free_cmms.features.asset_tracking.p3':
+    'Otomatik uyumluluk günlükleriyle denetime hazır kalın.',
+  'free_cmms.features.asset_tracking.alt': 'Varlık Yönetimi',
+  'free_cmms.features.inventory.title': 'Envanter ve Parçalar',
+  'free_cmms.features.inventory.p1':
+    'Birden fazla konumdaki stok seviyelerini gerçek zamanlı olarak takip edin.',
+  'free_cmms.features.inventory.p2':
+    'Anında parça sorgulama ve kullanım için QR kodlarını tarayın.',
+  'free_cmms.features.inventory.p3':
+    'Otomatik düşük stok uyarıları alın ve anında yeniden sipariş verin.',
+  'free_cmms.features.inventory.alt': 'Envanter Yönetimi',
+  'free_cmms.features.mobile.title': 'Hareket Halinde Bakım',
+  'free_cmms.features.mobile.p1':
+    'iOS ve Android için tam mobil uygulama işlevselliği.',
+  'free_cmms.features.mobile.p2':
+    'Doğrudan sahadan fotoğraf çekin ve barkodları tarayın.',
+  'free_cmms.features.mobile.p3':
+    'Verileri anında senkronize edin ve gerektiğinde çevrimdışı çalışın.',
+  'free_cmms.features.mobile.alt': 'Mobil CMMS Uygulaması',
+  'free_cmms.features.get_started_free': 'Ücretsiz başlayın',
+  'free_cmms.features.ready_to_optimize': 'Bakımınızı optimize etmeye hazır mısınız?',
+  'free_cmms.features.join_thousands':
+    'Dünyanın en sezgisel ücretsiz CMMS\'sini kullanan binlerce bakım uzmanına katılın.',
+  'free_cmms.features.get_started_no_card':
+    'Ücretsiz başlayın - Kredi kartı gerekmez'
 };
 
 export default trJSON;

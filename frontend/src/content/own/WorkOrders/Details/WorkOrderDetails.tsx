@@ -562,7 +562,17 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
               >
                 <Box>
                   {changingStatus ? (
-                    <CircularProgress size={'2rem'} />
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        width: 100,
+                        height: 30
+                      }}
+                    >
+                      <CircularProgress size={'1rem'} />
+                    </Box>
                   ) : (
                     <Select
                       onChange={(event) => {

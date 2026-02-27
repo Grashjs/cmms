@@ -1,7 +1,13 @@
 import * as React from 'react';
 import { ReactNode } from 'react';
 import { enumerate } from '../../../../utils/displayers';
-import { Button, Checkbox, ListItemText, Menu, MenuItem } from '@mui/material';
+import {
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Menu,
+  MenuItem
+} from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { FilterField } from '../../../../models/owns/page';
 import { pushOrRemove } from '../../../../utils/overall';
@@ -56,33 +62,37 @@ function EnumFilter({
           'aria-labelledby': 'basic-button'
         }}
       >
-        {completeOptions.map((option, index) => (
-          <MenuItem key={index}>
-            <Checkbox
-              onChange={(event) => {
-                const newFilterFields = [...filterFields];
-                const filterFieldIndex = newFilterFields.findIndex(
-                  (filterField) => filterField.field === fieldName
-                );
-                newFilterFields[filterFieldIndex] = {
-                  ...newFilterFields[filterFieldIndex],
-                  values: pushOrRemove(
-                    newFilterFields[filterFieldIndex].values,
-                    event.target.checked,
-                    option
-                  )
-                };
-                onChange(newFilterFields);
-              }}
-              checked={filterFields.some(
-                (filterField) =>
-                  filterField.field === fieldName &&
-                  filterField.values.includes(option)
-              )}
-            />
-            <ListItemText primary={t(option)} />
-          </MenuItem>
-        ))}
+        {completeOptions.map((option, index) => {
+          const isChecked = filterFields.some(
+            (filterField) =>
+              filterField.field === fieldName &&
+              filterField.values.includes(option)
+          );
+          const handleChange = () => {
+            const newFilterFields = [...filterFields];
+            const filterFieldIndex = newFilterFields.findIndex(
+              (filterField) => filterField.field === fieldName
+            );
+            newFilterFields[filterFieldIndex] = {
+              ...newFilterFields[filterFieldIndex],
+              values: pushOrRemove(
+                newFilterFields[filterFieldIndex].values,
+                !isChecked,
+                option
+              )
+            };
+            onChange(newFilterFields);
+          };
+          return (
+            <MenuItem key={index} onClick={handleChange}>
+              <FormControlLabel
+                control={<Checkbox checked={isChecked} />}
+                label={t(option)}
+                onClick={(e) => e.preventDefault()}
+              />
+            </MenuItem>
+          );
+        })}
       </Menu>
     </>
   );

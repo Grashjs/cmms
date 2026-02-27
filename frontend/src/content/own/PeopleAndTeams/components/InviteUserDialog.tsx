@@ -176,7 +176,7 @@ export default function InviteUserDialog({
                 onClick={async () => {
                   setIsInviteSubmitting(true);
                   const invite = (emails: string[]) =>
-                    dispatch(inviteUsers(roleId, emails))
+                    dispatch(inviteUsers(roleId, emails, false))
                       .then(() => {
                         onClose();
                         setEmails([]);

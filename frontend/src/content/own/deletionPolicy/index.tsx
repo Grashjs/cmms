@@ -8,7 +8,7 @@ import {
   Typography
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import SharedHelmet from '../../landing/components/SharedHelmet';
 import { useTranslation } from 'react-i18next';
 import Logo from 'src/components/LogoSign';
 import LanguageSwitcher from 'src/layouts/ExtendedSidebarLayout/Header/Buttons/LanguageSwitcher';
@@ -24,21 +24,18 @@ const HeaderWrapper = styled(Card)(
 );
 
 function DeletionPolicy() {
-  const { t }: { t: any } = useTranslation();
+  const { t, i18n }: { t: any; i18n: any } = useTranslation();
   const brandConfig = useBrand();
 
   return (
     <Box>
-      <Helmet>
-        <title>
-          {t('account_deletion', { brandName: brandConfig.name })} - Atlas CMMS
-        </title>
-        <meta
-          name="description"
-          content="Information on how to delete your account in Atlas CMMS. We provide clear steps for data removal and account closure."
-        />
-        <link rel="canonical" href="https://atlas-cmms.com/deletion-policy" />
-      </Helmet>
+      <SharedHelmet
+        path="deletion-policy"
+        title={`${t('account_deletion', {
+          brandName: brandConfig.name
+        })} - Atlas CMMS`}
+        description="Information on how to delete your account in Atlas CMMS. We provide clear steps for data removal and account closure."
+      />
       <HeaderWrapper>
         <Container maxWidth="lg">
           <Stack direction="row" alignItems="center">

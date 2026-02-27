@@ -72,6 +72,7 @@ public class UserService {
     private final DemoDataService demoDataService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final LicenseService licenseService;
+    private final CacheService cacheService;
 
     @Value("${api.host}")
     private String PUBLIC_API_URL;
@@ -91,6 +92,7 @@ public class UserService {
 
     public String signin(String email, String password, String type) {
         try {
+            cacheService.evictUserFromCache(email);
             Authentication authentication =
                     authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
             if (authentication.getAuthorities().stream().noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_" + type.toUpperCase()))) {
@@ -133,7 +135,9 @@ public class UserService {
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)
                 && userRepository.hasMorePaidUsersThan(threshold - newUsersCount
         ))
-            throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount() + ". Refer to https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
+            throw new RuntimeException("Cannot create more users than the free license allows: " + threshold + ". " +
+                    "Refer to" +
+                    " https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
     }
 
     public SignupSuccessResponse<OwnUser> signup(UserSignupRequest userReq) {
@@ -154,7 +158,7 @@ public class UserService {
             if (!licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE) && companyService.existsAtLeastOneWithMinWorkOrders())
                 throw new CustomException("You need a license to create another company", HttpStatus.FORBIDDEN);
             Subscription subscription =
-                    Subscription.builder().usersCount(cloudVersion ? 10 : 100).monthly(cloudVersion)
+                    Subscription.builder().usersCount(300).monthly(cloudVersion)
                             .startsOn(new Date())
                             .endsOn(cloudVersion ? Helper.incrementDays(new Date(), 15) : null)
                             .subscriptionPlan(subscriptionPlanService.findByCode("BUSINESS").get()).build();
@@ -164,6 +168,8 @@ public class UserService {
             company.getCompanySettings().getGeneralPreferences().setCurrency(currencyService.findByCode("$").get());
             if (userReq.getLanguage() != null)
                 company.getCompanySettings().getGeneralPreferences().setLanguage(userReq.getLanguage());
+            if (userReq.getTimeZone() != null)
+                company.getCompanySettings().getGeneralPreferences().setTimeZone(userReq.getTimeZone());
             companyService.create(company);
             user.setOwnsCompany(true);
             user.setCompany(company);
@@ -225,6 +231,7 @@ public class UserService {
             if (Boolean.TRUE.equals(userReq.getDemo()))
                 return enableAndReturnToken(user, false, userReq);
             userRepository.save(user);
+            cacheService.putUserInCache(user);
             onCompanyAndUserCreation(user);
             sendRegistrationMailToSuperAdmins(user, userReq);
             return new SignupSuccessResponse<>(true, "Successful registration. Check your mailbox to activate your " +
@@ -250,7 +257,30 @@ public class UserService {
     }
 
     public OwnUser whoami(HttpServletRequest req) {
-        return userRepository.findByEmailIgnoreCase(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(req))).get();
+        return whoami(req, true);
+    }
+
+    public OwnUser whoami(HttpServletRequest req, boolean cached) {
+        String username = jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(req));
+        return whoami(username, cached);
+    }
+
+    public OwnUser whoami(String username, boolean cached) {
+        return cached ? findByEmailWithRolesCached(username).get() :
+                findByEmail(username).get();
+    }
+
+    public Optional<OwnUser> findByEmailWithRolesCached(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return Optional.empty();
+        }
+        Optional<OwnUser> cachedUser = cacheService.getUserFromCache(email);
+        if (cachedUser.isPresent()) return cachedUser;
+
+        Optional<OwnUser> userOptional = userRepository.findByEmailIgnoreCase(email.toLowerCase().trim());
+        userOptional.ifPresent(cacheService::putUserInCache);
+
+        return userOptional;
     }
 
     public String refresh(String username) {
@@ -281,6 +311,7 @@ public class UserService {
         }
         user.setEnabled(true);
         userRepository.save(user);
+        cacheService.putUserInCache(user);
     }
 
     public SuccessResponse resetPasswordRequest(String email) {
@@ -323,7 +354,7 @@ public class UserService {
                     HttpStatus.NOT_ACCEPTABLE);
     }
 
-    public void invite(String email, Role role, OwnUser inviter) {
+    public void invite(String email, Role role, OwnUser inviter, Boolean disableSendingMails) {
         if (!userRepository.existsByEmailIgnoreCase(email) && Helper.isValidEmailAddress(email)) {
             if (role.isPaid()) checkUsageBasedLimit(1);
             userInvitationService.create(new UserInvitation(email, role));
@@ -334,11 +365,12 @@ public class UserService {
                 put("inviter", inviter.getFirstName() + " " + inviter.getLastName());
                 put("company", inviter.getCompany().getName());
             }};
-            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{email},
-                    messageSource.getMessage(
-                            "invitation_to_use", new String[]{brandingService.getBrandConfig().getName()},
-                            Helper.getLocale(inviter)), variables, "invite.html",
-                    Helper.getLocale(inviter), null);
+            if (!Boolean.TRUE.equals(disableSendingMails))
+                mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{email},
+                        messageSource.getMessage(
+                                "invitation_to_use", new String[]{brandingService.getBrandConfig().getName()},
+                                Helper.getLocale(inviter)), variables, "invite.html",
+                        Helper.getLocale(inviter), null);
         } else throw new CustomException("Email already in use", HttpStatus.NOT_ACCEPTABLE);
     }
 
@@ -356,6 +388,7 @@ public class UserService {
             }
             OwnUser updatedUser = userRepository.saveAndFlush(userMapper.updateUser(savedUser, userReq));
             em.refresh(updatedUser);
+            cacheService.putUserInCache(updatedUser);
             return updatedUser;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

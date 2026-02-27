@@ -21,7 +21,7 @@ export default function TwoCallToActions({
         }}
         variant="h2"
       >
-        {t('leading_maintenance')}
+        {t('cut_costs_performance')}
       </TypographyH1Primary>
       <Container
         sx={{

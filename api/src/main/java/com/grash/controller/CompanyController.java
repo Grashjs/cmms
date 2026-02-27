@@ -7,6 +7,7 @@ import com.grash.mapper.CompanyMapper;
 import com.grash.model.Company;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.PermissionEntity;
+import com.grash.service.CacheService;
 import com.grash.service.CompanyService;
 import com.grash.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,6 +33,7 @@ public class CompanyController {
 
     private final UserService userService;
     private final CompanyMapper companyMapper;
+    private final CacheService cacheService;
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
@@ -58,7 +60,10 @@ public class CompanyController {
             Company savedCompany = optionalCompany.get();
             if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            return companyMapper.toShowDto(companyService.update(id, company));
+            Company newCompany = companyService.update(id, company);
+            user.setCompany(newCompany);
+            cacheService.putUserInCache(user);
+            return companyMapper.toShowDto(newCompany);
         } else throw new CustomException("Company not found", HttpStatus.NOT_FOUND);
     }
 

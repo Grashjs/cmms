@@ -91,7 +91,7 @@ const ConstructionPage = Loader(
 
 const baseRoutes = [
   {
-    path: '/',
+    path: '',
     element: <Overview />
   },
   {
@@ -99,55 +99,55 @@ const baseRoutes = [
     element: <FreeCMMSLanding />
   },
   {
-    path: '/industries/open-source-energy-utilities-maintenance-software',
+    path: 'industries/open-source-energy-utilities-maintenance-software',
     element: <EnergyPage />
   },
   {
-    path: '/industries/open-source-manufacturing-maintenance-software',
+    path: 'industries/open-source-manufacturing-maintenance-software',
     element: <ManufacturingPage />
   },
   {
-    path: '/industries/open-source-facility-management-software',
+    path: 'industries/open-source-facility-management-software',
     element: <FacilityManagement />
   },
   {
-    path: '/industries/open-source-hospitality-maintenance-software',
+    path: 'industries/open-source-hospitality-maintenance-software',
     element: <HospitalityPage />
   },
   {
-    path: '/industries/open-source-construction-maintenance-software',
+    path: 'industries/open-source-construction-maintenance-software',
     element: <ConstructionPage />
   },
   {
-    path: '/industries/open-source-healthcare-maintenance-software',
+    path: 'industries/open-source-healthcare-maintenance-software',
     element: <HealthcarePage />
   },
   {
-    path: '/industries/open-source-education-maintenance-software',
+    path: 'industries/open-source-education-maintenance-software',
     element: <EducationPage />
   },
   {
-    path: '/industries/open-source-food-and-beverage-maintenance-software',
+    path: 'industries/open-source-food-and-beverage-maintenance-software',
     element: <FoodAndBeveragePage />
   },
   {
-    path: '/features/assets',
+    path: 'features/assets',
     element: <AssetManagementPage />
   },
   {
-    path: '/features/inventory',
+    path: 'features/inventory',
     element: <InventoryPage />
   },
   {
-    path: '/features/analytics',
+    path: 'features/analytics',
     element: <AnalyticsPage />
   },
   {
-    path: '/features/preventive-maintenance',
+    path: 'features/preventive-maintenance',
     element: <PMFeaturePage />
   },
   {
-    path: '/features/work-orders',
+    path: 'features/work-orders',
     element: <WorkOrdersPage />
   },
   {
@@ -162,36 +162,7 @@ const baseRoutes = [
     path: 'deletion-policy',
     element: <DeletionPolicy />
   },
-  { path: 'terms-of-service', element: <TermsOfService /> },
-  {
-    path: 'overview',
-    element: <Navigate to="/" replace />
-  },
-  {
-    path: '*',
-    element: <Status404 />
-  },
-  {
-    path: 'status',
-    children: [
-      {
-        path: '500',
-        element: <Status500 />
-      },
-      {
-        path: 'maintenance',
-        element: <StatusMaintenance />
-      },
-      {
-        path: 'coming-soon',
-        element: <StatusComingSoon />
-      }
-    ]
-  },
-  {
-    path: '*',
-    element: <Status404 />
-  }
+  { path: 'terms-of-service', element: <TermsOfService /> }
 ];
 
 export default baseRoutes;

@@ -53,6 +53,7 @@ export default function SubscriptionPlanSelector({
         token: PADDLE_SECRET_TOKEN,
         eventCallback: function (data) {
           if (data.name == 'checkout.completed') {
+            fireGa4Event('checkout_completed');
             navigate('/payment/success');
           }
         }
@@ -74,7 +75,7 @@ export default function SubscriptionPlanSelector({
 
   const handleCheckout = async (email: string) => {
     if (!selectedPlan) return;
-
+    fireGa4Event('checkout_started');
     try {
       // Create Checkout Session on backend
       const response = await fetch(`${apiUrl}paddle/create-checkout-session`, {

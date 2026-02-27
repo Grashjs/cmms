@@ -69,6 +69,7 @@ function SubscriptionPlans() {
         eventCallback: function (data) {
           if (data.name == 'checkout.completed') {
             checkoutComplete.current = true;
+            fireGa4Event('checkout_completed');
           } else if (
             data.name == 'checkout.closed' &&
             checkoutComplete.current
@@ -105,6 +106,7 @@ function SubscriptionPlans() {
       showSnackBar('Create a real account to upgrade', 'error');
       return;
     }
+    fireGa4Event('checkout_started');
     setSubmitting(true);
     // if (selectedPlan === 'BUSINESS' || selectedPlanObject.code === 'BUSINESS') {
     //   onUpgradeRequest();

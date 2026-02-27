@@ -8,6 +8,10 @@ const educationData: IndustryLayoutProps = {
   headerSubtitle:
     'Ensure student safety and optimize campus operations with an open-source CMMS. Track every asset—from the boiler room to the classroom—without per-user licensing fees, in the cloud or fully self-hosted',
   headerImageUrl: '/static/images/industries/school-hero.jpg',
+  headerImageSizes: {
+    width: 1000,
+    height: 750
+  },
   canonicalPath: 'industries/open-source-education-maintenance-software',
 
   kpis: [
@@ -28,12 +32,7 @@ const educationData: IndustryLayoutProps = {
     }
   ],
 
-  companyLogos: [
-    // Use academic-style placeholders or actual EDU partners
-    'https://www.datocms-assets.com/38028/1606253591-university-logo-1.svg',
-    'https://www.datocms-assets.com/38028/1624813847-district-logo-2.svg',
-    'https://www.datocms-assets.com/38028/1606253522-academy-logo-3.svg'
-  ],
+  companyLogos: true,
 
   features: [
     {
@@ -57,18 +56,7 @@ const educationData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Switching to an open-source model allowed our school district to scale maintenance tracking to 12 campuses without the heavy burden of SaaS subscription fees.',
-      author: 'Director of Facilities',
-      company: 'Public School District'
-    },
-    {
-      text: 'The ability to self-host ensures our student and faculty data stays within our private network, meeting our strict privacy protocols.',
-      author: 'IT Administrator',
-      company: 'State University'
-    }
-  ],
+  testimonials: [],
 
   faqs: [
     {

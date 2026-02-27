@@ -8,21 +8,21 @@ import {
   Card,
   Container,
   Grid,
+  Link,
   List,
   ListItem,
   ListItemText,
-  Stack,
   styled,
   Tab,
   Tabs,
   Typography
 } from '@mui/material';
 import CheckTwoToneIcon from '@mui/icons-material/CheckTwoTone';
-import { AE, CN, DE, ES, FR, US, BR } from 'country-flag-icons/react/3x2';
-import SubscriptionPlans from '../SubscriptionPlans';
 import SubscriptionPlanSelector from '../../pricing/components/SubscriptionPlanSelector';
 import { useBrand } from '../../../hooks/useBrand';
 import TwoCallToActions from '../../landing/components/TwoCallToActions';
+import useAuth from '../../../hooks/useAuth';
+import ArrowForwardTwoToneIcon from '@mui/icons-material/ArrowForwardTwoTone';
 
 const AvatarSuccess = styled(Avatar)(
   ({ theme }) => `
@@ -222,7 +222,7 @@ const BoxLayouts = styled(Box)(
   ({ theme }) => `
       background: ${theme.colors.gradients.blue1};
       padding: ${theme.spacing(16, 0)};
-      margin: ${theme.spacing(10, 0, 0)};
+      margin: ${theme.spacing(0, 0, 0)};
       position: relative;
 
       .typo-heading,
@@ -537,6 +537,8 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
     checks: string[];
     image: string;
   }) => {
+    const { isAuthenticated } = useAuth();
+
     return (
       <Grid
         sx={{
@@ -547,7 +549,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
       >
         <Grid item xs={12} md={6}>
           <Typography sx={{ mb: 1 }} variant="h2">
-            {title}.
+            {title}
           </Typography>
           {descriptions.map((description, index) => (
             <Box key={index}>
@@ -558,13 +560,22 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
           <List
             disablePadding
             sx={{
-              mt: 2
+              mt: 2,
+              mb: 1
             }}
           >
             {checks.map((desc, index) => (
               <CheckItem key={index} description={desc} />
             ))}
           </List>
+          <Button
+            component={RouterLink}
+            to={isAuthenticated ? '/app/work-orders' : '/account/register'}
+            size="large"
+            endIcon={<ArrowForwardTwoToneIcon />}
+          >
+            {t('try_for_free')}
+          </Button>
         </Grid>
         <Grid item xs={12} md={6}>
           <BlowWrapper>
@@ -691,7 +702,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
       <Container
         maxWidth="lg"
         sx={{
-          py: { xs: 8, md: 10 }
+          py: { xs: 8 }
         }}
       >
         <Grid
@@ -804,7 +815,7 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
           >
             {t('choose_your_plan')}
           </TypographyH1Primary>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
             <Tabs
               value={pricingType}
               onChange={handlePricingTabChange}
@@ -815,6 +826,17 @@ function Highlights({ hidePricing }: { hidePricing?: boolean }) {
               <Tab label={t('self_hosted')} value="selfhosted" />
             </Tabs>
           </Box>
+          {pricingType === 'selfhosted' && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+              <Link
+                href={
+                  'https://github.com/Grashjs/cmms?tab=readme-ov-file#self-host--run-locally'
+                }
+              >
+                {t('installation_docs')}
+              </Link>
+            </Box>
+          )}
           <Box px={4}>
             <SubscriptionPlanSelector
               monthly={monthly}

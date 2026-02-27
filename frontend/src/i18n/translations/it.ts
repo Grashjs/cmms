@@ -904,6 +904,7 @@ const locale = {
     'Gli utenti ricevono aggiornamenti per gli ordini di lavoro richiesti',
   language: 'Lingua',
   date_format: 'Formato data',
+  time_zone: 'Fuso orario',
   business_type: 'Tipo di attività',
   general_asset_management: 'Gestione patrimoniale generale',
   physical_asset_management: 'Gestione delle risorse fisiche',
@@ -1482,7 +1483,7 @@ const locale = {
   csv_separator: 'Separatore CSV',
   open_source_cmms: 'CMMS open source',
   'main.title':
-    'CMMS open source gratuito (software di gestione della manutenzione) – ',
+    'CMMS open source gratuito (software di gestione della manutenzione)',
   'home.h1':
     'CMMS gratuito e open-source che puoi ospitare tu stesso o utilizzare nel cloud',
   'home.h2': 'Manutenzione potente a basso costo',
@@ -1702,7 +1703,67 @@ const locale = {
   energy_and_utilities: 'Energia e servizi pubblici',
   education: 'Istruzione',
   hospitality: 'Ospitalità',
-  construction: 'Edilizia'
+  construction: 'Edilizia',
+  trusted_by_maintenance_teams:
+    'Approvato da squadre di manutenzione in vari settori',
+  cut_costs_performance: 'Riduci i costi senza compromettere le prestazioni',
+  'free_cmms.title': 'Software CMMS Gratuito Atlas | Nessuna carta di credito richiesta',
+  'free_cmms.description':
+    "Software CMMS gratuito — non è una versione di prova. Gestisci manutenzione, risorse e ordini di lavoro all'istante. Nessuna carta di credito richiesta.",
+  'free_cmms.keywords':
+    'cmms gratuito, software gestione manutenzione, software ordini di lavoro gratuito, tracciamento risorse, manutenzione preventiva',
+  'overview.description':
+    'Atlas CMMS è un CMMS gratuito e open source per gestire ordini di lavoro, manutenzione preventiva, risorse e strutture. Semplifica le tue operazioni di manutenzione oggi stesso.',
+  'overview.keywords':
+    'CMMS, sistema di gestione della manutenzione computerizzato, EAM, gestione delle risorse aziendali, cmms open source, software di manutenzione gratuito, gestione degli ordini di lavoro, manutenzione preventiva, tracciamento delle risorse, gestione delle strutture, software di tracciamento della manutenzione, manutenzione delle apparecchiature, Atlas CMMS',
+  'pricing.title': 'Prezzi - Atlas CMMS',
+  'pricing.description':
+    'Piani tariffari flessibili per Atlas CMMS. Scegli tra le versioni Cloud e Self-Hosted del nostro CMMS open source per ottimizzare le tue operazioni di manutenzione.',
+  'free_cmms.hero.subtitle': 'Software CMMS Gratuito',
+  'free_cmms.hero.title': 'Gestisci Ordini di Lavoro e Risorse - Gratis per sempre',
+  'free_cmms.hero.description':
+    'Smetti di destreggiarti tra fogli di calcolo e strumenti obsoleti. Passa a un software CMMS moderno - gratis.',
+  'free_cmms.hero.start_free': 'Inizia Gratis Ora',
+  'free_cmms.hero.work_orders_alt': 'Ordini di Lavoro',
+  'free_cmms.hero.mobile_app_alt': 'App Mobile',
+  'free_cmms.features.work_orders.title': 'Ordini di Lavoro senza Sforzo',
+  'free_cmms.features.work_orders.p1':
+    'Crea, assegna e traccia gli ordini di lavoro in pochi secondi.',
+  'free_cmms.features.work_orders.p2':
+    'Allega foto, manuali e liste di controllo a qualsiasi attività.',
+  'free_cmms.features.work_orders.p3':
+    'Monitora i progressi in tempo reale con aggiornamenti di stato istantanei.',
+  'free_cmms.features.work_orders.alt': 'Gestione degli Ordini di Lavoro',
+  'free_cmms.features.asset_tracking.title': 'Tracciamento del Ciclo di Vita delle Risorse',
+  'free_cmms.features.asset_tracking.p1':
+    'Mantieni una cronologia digitale completa di ogni risorsa.',
+  'free_cmms.features.asset_tracking.p2':
+    'Prendi decisioni basate sui dati se riparare o sostituire.',
+  'free_cmms.features.asset_tracking.p3':
+    'Rimani pronto per gli audit con registri di conformità automatizzati.',
+  'free_cmms.features.asset_tracking.alt': 'Gestione delle Risorse',
+  'free_cmms.features.inventory.title': 'Inventario e Ricambi',
+  'free_cmms.features.inventory.p1':
+    'Traccia i livelli delle scorte in più sedi in tempo reale.',
+  'free_cmms.features.inventory.p2':
+    "Scansiona i codici QR per la ricerca e l'utilizzo istantaneo dei componenti.",
+  'free_cmms.features.inventory.p3':
+    "Ricevi avvisi automatici di scorte in esaurimento e riordina all'istante.",
+  'free_cmms.features.inventory.alt': "Gestione dell'Inventario",
+  'free_cmms.features.mobile.title': 'Manutenzione in Movimento',
+  'free_cmms.features.mobile.p1':
+    "Funzionalità completa dell'app mobile per iOS e Android.",
+  'free_cmms.features.mobile.p2':
+    'Scatta foto e scansiona codici a barre direttamente sul campo.',
+  'free_cmms.features.mobile.p3':
+    'Sincronizza i dati all\'istante e lavora offline quando necessario.',
+  'free_cmms.features.mobile.alt': 'App CMMS Mobile',
+  'free_cmms.features.get_started_free': 'Inizia gratis',
+  'free_cmms.features.ready_to_optimize': 'Pronto a ottimizzare la tua manutenzione?',
+  'free_cmms.features.join_thousands':
+    'Unisciti a migliaia di professionisti della manutenzione che utilizzano il CMMS gratuito più intuitivo al mondo.',
+  'free_cmms.features.get_started_no_card':
+    'Inizia gratis - Nessuna carta di credito richiesta'
 };
 
 export default locale;

@@ -911,6 +911,7 @@ const esJSON = {
     'Los usuarios obtienen actualizaciones de las Órdenes de Trabajo que solicitaron.',
   language: 'Idioma',
   date_format: 'Formato de fecha',
+  time_zone: 'Zona horaria',
   business_type: 'Tipo de negocio',
   general_asset_management: 'Gestión general de activos',
   physical_asset_management: 'Gestión de activos físicos',
@@ -1497,11 +1498,11 @@ const esJSON = {
   'schedule.yearly_other': 'Cada {{count}} años',
   delete_account: 'Eliminar cuenta',
   csv_separator: 'Separador CSV',
-  open_source_cmms: 'CMMS de código abierto',
+  open_source_cmms: 'GMAO de código abierto',
   'main.title':
-    'CMMS gratuito de código abierto (software de gestión de mantenimiento) – ',
+    'GMAO gratuito de código abierto (software de gestión de mantenimiento)',
   'home.h1':
-    'CMMS gratuito y de código abierto que puede alojar usted mismo o usar en la nube',
+    'GMAO gratuito y de código abierto que puede alojar usted mismo o usar en la nube',
   'home.h2': 'Mantenimiento potente a bajo coste',
   'home.h3':
     'Deje de depender de hojas de cálculo y pizarras. {{brandName}} ayuda a los equipos de mantenimiento a planificar intervenciones, rastrear equipos y mantenerse en cumplimiento. Alójelo en su propio servidor o comience instantáneamente en la nube.',
@@ -1657,7 +1658,7 @@ const esJSON = {
     'Estos usuarios suelen ser supervisores que inician sesión con poca frecuencia para ver un resumen de la actividad de mantenimiento. También pueden enviar solicitudes de trabajo y generar informes.',
   'pricing.faq_requester_users_title': 'Usuarios solicitantes',
   'pricing.faq_requester_users_description':
-    'Estos usuarios solo pueden enviar solicitudes de trabajo y ver su estado. No pueden ver órdenes de trabajo, activos, piezas ni ningún otro dato almacenado en el CMMS.',
+    'Estos usuarios solo pueden enviar solicitudes de trabajo y ver su estado. No pueden ver órdenes de trabajo, activos, piezas ni ningún otro dato almacenado en el GMAO.',
   'pricing.faq_third_party_users_title': 'Usuarios de terceros',
   'pricing.faq_third_party_users_description':
     'Estos usuarios suelen ser proveedores y contratistas. No pueden iniciar sesión en el sistema. Solo pueden enviar actualizaciones a una orden de trabajo específica en la que están asignados a través de un enlace público.',
@@ -1715,7 +1716,73 @@ const esJSON = {
   energy_and_utilities: 'Energía y servicios públicos',
   education: 'Educación',
   hospitality: 'Hostelería',
-  construction: 'Construcción'
+  construction: 'Construcción',
+  installation_docs: 'Documentación de instalación',
+  trusted_by_maintenance_teams:
+    'Aprobado por equipos de mantenimiento en varios sectores',
+  cut_costs_performance:
+    'Reduce los costos de software de mantenimiento sin sacrificar el rendimiento',
+  'free_cmms.title':
+    'Software GMAO Gratis Atlas | No se requiere tarjeta de crédito',
+  'free_cmms.description':
+    'Software GMAO gratuito — no es una versión de prueba. Gestione el mantenimiento, los activos y las órdenes de trabajo al instante. No se requiere tarjeta de crédito.',
+  'free_cmms.keywords':
+    'gmao gratis, software de gestión de mantenimiento, software de órdenes de trabajo gratis, seguimiento de activos, mantenimiento preventivo',
+  'overview.description':
+    'Atlas CMMS es un GMAO gratuito y de código abierto para gestionar órdenes de trabajo, mantenimiento preventivo, activos e instalaciones. Optimice sus operaciones de mantenimiento hoy.',
+  'overview.keywords':
+    'GMAO, sistema de gestión de mantenimiento computarizado, EAM, gestión de activos empresariales, gmao de código abierto, software de mantenimiento gratis, gestión de órdenes de trabajo, mantenimiento preventivo, seguimiento de activos, gestión de instalaciones, software de seguimiento de mantenimiento, mantenimiento de equipos, Atlas CMMS',
+  'pricing.title': 'Precios - Atlas CMMS',
+  'pricing.description':
+    'Planes de precios flexibles para Atlas CMMS. Elija entre las versiones en la nube y autoalojadas de nuestro GMAO de código abierto para optimizar sus operaciones de mantenimiento.',
+  'free_cmms.hero.subtitle': 'Software GMAO Gratuito',
+  'free_cmms.hero.title':
+    'Gestione Órdenes de Trabajo y Activos - Gratis para siempre',
+  'free_cmms.hero.description':
+    'Deje de hacer malabares con hojas de cálculo y herramientas obsoletas. Actualice a un moderno software GMAO - gratis.',
+  'free_cmms.hero.start_free': 'Comience Gratis Ahora',
+  'free_cmms.hero.work_orders_alt': 'Órdenes de Trabajo',
+  'free_cmms.hero.mobile_app_alt': 'Aplicación Móvil',
+  'free_cmms.features.work_orders.title': 'Órdenes de Trabajo sin Esfuerzo',
+  'free_cmms.features.work_orders.p1':
+    'Cree, asigne y realice un seguimiento de las órdenes de trabajo en segundos.',
+  'free_cmms.features.work_orders.p2':
+    'Adjunte fotos, manuales y listas de verificación a cualquier tarea.',
+  'free_cmms.features.work_orders.p3':
+    'Supervise el progreso en tiempo real con actualizaciones de estado instantáneas.',
+  'free_cmms.features.work_orders.alt': 'Gestión de Órdenes de Trabajo',
+  'free_cmms.features.asset_tracking.title':
+    'Seguimiento del Ciclo de Vida de los Activos',
+  'free_cmms.features.asset_tracking.p1':
+    'Mantenga un historial digital completo de cada activo.',
+  'free_cmms.features.asset_tracking.p2':
+    'Tome decisiones basadas en datos sobre reparar o reemplazar.',
+  'free_cmms.features.asset_tracking.p3':
+    'Manténgase listo para auditorías con registros de cumplimiento automatizados.',
+  'free_cmms.features.asset_tracking.alt': 'Gestión de Activos',
+  'free_cmms.features.inventory.title': 'Inventario y Piezas',
+  'free_cmms.features.inventory.p1':
+    'Rastree los niveles de stock en múltiples ubicaciones en tiempo real.',
+  'free_cmms.features.inventory.p2':
+    'Escanee códigos QR para buscar y usar piezas instantáneamente.',
+  'free_cmms.features.inventory.p3':
+    'Reciba alertas automáticas de bajo stock y reordene al instante.',
+  'free_cmms.features.inventory.alt': 'Gestión de Inventario',
+  'free_cmms.features.mobile.title': 'Mantenimiento en Movimiento',
+  'free_cmms.features.mobile.p1':
+    'Funcionalidad completa de la aplicación móvil para iOS y Android.',
+  'free_cmms.features.mobile.p2':
+    'Capture fotos y escanee códigos de barras directamente en el campo.',
+  'free_cmms.features.mobile.p3':
+    'Sincronice datos al instante y trabaje sin conexión cuando sea necesario.',
+  'free_cmms.features.mobile.alt': 'Aplicación GMAO Móvil',
+  'free_cmms.features.get_started_free': 'Comience gratis',
+  'free_cmms.features.ready_to_optimize':
+    '¿Listo para optimizar su mantenimiento?',
+  'free_cmms.features.join_thousands':
+    'Únase a miles de profesionales del mantenimiento que utilizan el GMAO gratuito más intuitivo del mundo.',
+  'free_cmms.features.get_started_no_card':
+    'Comience gratis - No se requiere tarjeta de crédito'
 };
 
 export default esJSON;

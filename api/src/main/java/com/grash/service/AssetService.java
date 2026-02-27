@@ -257,7 +257,7 @@ public class AssetService {
         Long companySettingsId = company.getCompanySettings().getId();
         Long companyId = company.getId();
         asset.setArea(dto.getArea());
-        if (dto.getBarCode() != null) {
+        if (dto.getBarCode() != null && !dto.getBarCode().trim().isEmpty()) {
             Optional<Asset> optionalAssetWithSameBarCode = findByBarcodeAndCompany(dto.getBarCode(), company.getId());
             if (optionalAssetWithSameBarCode.isPresent()) {
                 boolean hasError = false;

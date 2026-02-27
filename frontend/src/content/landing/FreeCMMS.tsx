@@ -1,10 +1,11 @@
 import { Box, styled } from '@mui/material';
-import { Helmet } from 'react-helmet-async';
-import Highlights from '../overview/Highlights';
+import FeaturesAlternating from './FeaturesAlternating';
 import NavBar from '../../components/NavBar';
 import HeroFree from './HeroFree';
 import { Footer } from '../../components/Footer';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import SharedHelmet from './components/SharedHelmet';
 
 export const OverviewWrapper = styled(Box)(
   ({ theme }) => `
@@ -16,21 +17,18 @@ export const OverviewWrapper = styled(Box)(
 );
 
 function FreeCMMSPage() {
+  const { t } = useTranslation();
   return (
     <OverviewWrapper>
-      <Helmet>
-        <title>Free CMMS - Stop Fighting Fires, Start Preventing Them!</title>
-        <meta
-          name="description"
-          content={
-            'Enterprise-grade asset management and work order software with no credit card or payment information required.'
-          }
-        />
-        <link rel={'canonical'} href={'https://atlas-cmms.com/free-cmms'} />
-      </Helmet>
+      <SharedHelmet
+        path="free-cmms"
+        title={t('free_cmms.title')}
+        description={t('free_cmms.description')}
+        keywords={t('free_cmms.keywords')}
+      />
       <NavBar />
       <HeroFree />
-      <Highlights hidePricing />
+      <FeaturesAlternating />
       <Footer />
     </OverviewWrapper>
   );

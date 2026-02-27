@@ -10,6 +10,10 @@ const reportsDashboardsData: IndustryLayoutProps = {
   headerSubtitle:
     'Visualize performance, track KPIs, and make smarter maintenance decisions with fully customizable dashboards and automated reporting in an open-source, self-hosted CMMS.',
   headerImageUrl: '/static/images/overview/analytics_screenshot.png',
+  headerImageSizes: {
+    width: 1920,
+    height: 922
+  },
 
   advantages: [
     {
@@ -53,13 +57,7 @@ const reportsDashboardsData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Atlas CMMS dashboards gave us immediate visibility into maintenance performance and helped leadership make faster, better decisions.',
-      author: 'Laura Benali',
-      company: 'Technical Director'
-    }
-  ],
+  testimonials: [],
 
   faqs: [
     {
@@ -78,7 +76,6 @@ const reportsDashboardsData: IndustryLayoutProps = {
         'Absolutely. Because Atlas CMMS is open source and self-hosted, you can customize dashboards, metrics, and visualizations to match your exact operational needs.'
     }
   ],
-
   relatedContent: [],
   pageDescription:
     'Open-source CMMS dashboards that put you in control. Stop guessing and start growing with real-time maintenance analytics, custom KPIs, and 100% data ownership.'

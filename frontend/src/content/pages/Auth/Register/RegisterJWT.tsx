@@ -59,12 +59,9 @@ function RegisterJWT({
       email: email ?? '',
       firstName: '',
       lastName: '',
-      countryCode: null,
       phone: '',
       password: '',
       companyName: '',
-      employeesCount: invitationMode ? 0 : 5,
-      terms: !!invitationMode,
       submit: null
     };
     let shape = {
@@ -75,16 +72,11 @@ function RegisterJWT({
       firstName: Yup.string().max(255).required(t('required_firstName')),
       lastName: Yup.string().max(255).required(t('required_lastName')),
       companyName: Yup.string().max(255).required(t('required_company')),
-      countryCode: Yup.object().nullable(),
-      employeesCount: Yup.number()
-        .min(0)
-        .required(t('required_employeesCount')),
       phone: Yup.string().matches(phoneRegExp, t('invalid_phone')),
-      password: Yup.string().min(8).max(255).required(t('required_password')),
-      terms: Yup.boolean().oneOf([true], t('required_terms'))
+      password: Yup.string().min(8).max(255).required(t('required_password'))
     };
     if (role) {
-      const keysToDelete = ['companyName', 'employeesCount'];
+      const keysToDelete = ['companyName'];
       keysToDelete.forEach((key) => {
         delete fields[key];
         delete shape[key];
@@ -105,7 +97,7 @@ function RegisterJWT({
           (values.countryCode ? `+${values.countryCode.phone}` : '') +
           `${values.phone}`;
         if (invitationMode)
-          await dispatch(inviteUsers(role, [valuesClone.email]));
+          await dispatch(inviteUsers(role, [valuesClone.email], true));
         return register(
           role ? { ...valuesClone, role: { id: role } } : valuesClone,
           invitationMode
@@ -205,58 +197,18 @@ function RegisterJWT({
             value={values.email}
             variant="outlined"
           />
-          <Stack direction={'row'} spacing={1}>
-            <Autocomplete
-              id="country-select-demo"
-              sx={{ width: 275 }}
-              options={countries}
-              autoHighlight
-              value={values.countryCode}
-              onChange={(event: any, newValue: string | null) => {
-                setFieldValue('countryCode', newValue);
-              }}
-              getOptionLabel={(option) => option.label}
-              renderOption={(props, option) => (
-                <Box
-                  component="li"
-                  sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
-                  {...props}
-                >
-                  <img
-                    loading="lazy"
-                    width="20"
-                    srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
-                    src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
-                    alt=""
-                  />
-                  {option.label} ({option.code}) +{option.phone}
-                </Box>
-              )}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Choose a country"
-                  error={Boolean(touched.countryCode && errors.countryCode)}
-                  inputProps={{
-                    ...params.inputProps,
-                    autoComplete: 'new-password' // disable autocomplete and autofill
-                  }}
-                />
-              )}
-            />
-            <TextField
-              error={Boolean(touched.phone && errors.phone)}
-              fullWidth
-              margin="normal"
-              helperText={touched.phone && errors.phone}
-              label={t('phone')}
-              name="phone"
-              onBlur={handleBlur}
-              onChange={handleChange}
-              value={values.phone}
-              variant="outlined"
-            />
-          </Stack>
+          <TextField
+            error={Boolean(touched.phone && errors.phone)}
+            fullWidth
+            margin="normal"
+            helperText={touched.phone && errors.phone}
+            label={t('phone')}
+            name="phone"
+            onBlur={handleBlur}
+            onChange={handleChange}
+            value={values.phone}
+            variant="outlined"
+          />
           <TextField
             error={Boolean(touched.password && errors.password)}
             fullWidth
@@ -295,62 +247,6 @@ function RegisterJWT({
                   variant="outlined"
                 />
               </Grid>
-              <Grid item xs={12} lg={6}>
-                <TextField
-                  error={Boolean(
-                    touched.employeesCount && errors.employeesCount
-                  )}
-                  fullWidth
-                  margin="normal"
-                  type="number"
-                  helperText={touched.employeesCount && errors.employeesCount}
-                  label={t('employeesCount')}
-                  name="employeesCount"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.employeesCount}
-                  variant="outlined"
-                />
-              </Grid>
-            </>
-          )}
-          {!invitationMode && (
-            <>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={values.terms}
-                    name="terms"
-                    color="primary"
-                    onChange={handleChange}
-                  />
-                }
-                label={
-                  <>
-                    <Typography variant="body2">
-                      {t('i_accept')}{' '}
-                      <Typography
-                        color={'primary'}
-                        onClick={() => navigate('/terms-of-service')}
-                        component="a"
-                      >
-                        {t('terms_conditions')}
-                      </Typography>
-                      .
-                    </Typography>
-                  </>
-                }
-              />
-              {Boolean(touched.terms && errors.terms) && (
-                <FormHelperText error>{errors.terms}</FormHelperText>
-              )}
-              <Typography
-                color={'primary'}
-                onClick={() => navigate('/privacy')}
-                sx={{ cursor: 'pointer' }}
-              >
-                {t('privacy_policy')}
-              </Typography>
             </>
           )}
           <Button
@@ -367,6 +263,20 @@ function RegisterJWT({
           >
             {t(invitationMode ? 'invite' : 'create_your_account')}
           </Button>
+          {!invitationMode && (
+            <Typography mt={2} variant="body2">
+              {t('i_accept')}{' '}
+              <Typography
+                color={'primary'}
+                onClick={() => navigate('/terms-of-service')}
+                component="a"
+                style={{ cursor: 'pointer' }}
+              >
+                {t('terms_conditions')}
+              </Typography>
+              .
+            </Typography>
+          )}
         </form>
       )}
     </Formik>

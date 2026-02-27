@@ -420,9 +420,13 @@ const Import = ({}: OwnProps) => {
                   var reader = new FileReader();
                   reader.onload = function (e) {
                     const data = e.target.result;
-                    const file = read(data, {
-                      type: 'string'
-                    });
+                    // Detect file type based on extension
+                    const fileType = files[0].name
+                      .toLowerCase()
+                      .endsWith('.csv')
+                      ? 'string'
+                      : 'binary';
+                    const file = read(data, { type: fileType });
                     const sheet = file.Sheets[file.SheetNames[0]];
                     const localJsonArray: string[][] = utils.sheet_to_json(
                       sheet,
@@ -440,9 +444,14 @@ const Import = ({}: OwnProps) => {
                     } else {
                       showSnackBar(t('not_enough_rows'), 'error');
                     }
-                    /* DO SOMETHING WITH workbook HERE */
                   };
-                  reader.readAsText(files[0]);
+
+                  // Use appropriate reader method based on file type
+                  if (files[0].name.toLowerCase().endsWith('.csv')) {
+                    reader.readAsText(files[0]);
+                  } else {
+                    reader.readAsBinaryString(files[0]);
+                  }
                 }}
               />
             )

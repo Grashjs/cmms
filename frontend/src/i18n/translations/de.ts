@@ -940,6 +940,7 @@ const deJSON = {
     'Benutzer erhalten Aktualisierungen für die von ihnen angeforderten Arbeitsaufträge',
   language: 'Sprache',
   date_format: 'Datumsformat',
+  time_zone: 'Zeitzone',
   business_type: 'Geschäftstyp',
   general_asset_management: 'Allgemeine Anlagenverwaltung',
   physical_asset_management: 'Physische Anlagenverwaltung',
@@ -1513,7 +1514,7 @@ const deJSON = {
   csv_separator: 'CSV-Trennzeichen',
   open_source_cmms: 'Open-Source-CMMS',
   'main.title':
-    'Kostenlose Open-Source-CMMS (Instandhaltungsmanagement-Software) – ',
+    'Kostenlose Open-Source-CMMS (Instandhaltungsmanagement-Software)',
   'home.h1':
     'Kostenloses und Open-Source-CMMS, das Sie selbst hosten oder in der Cloud nutzen können',
   'home.h2': 'Leistungsstarke Wartung zu geringen Kosten',
@@ -1724,7 +1725,68 @@ const deJSON = {
   energy_and_utilities: 'Energie & Versorgungsunternehmen',
   education: 'Bildung',
   hospitality: 'Gastgewerbe',
-  construction: 'Baugewerbe'
+  construction: 'Baugewerbe',
+  installation_docs: 'Installationsdokumentation',
+  trusted_by_maintenance_teams:
+    'Verwendet von Wartungsteams in verschiedenen Branchen',
+  cut_costs_performance: 'Kosten sparen, ohne Leistung zu verlieren',
+  'free_cmms.title': 'Atlas Kostenlose CMMS-Software | Keine Kreditkarte erforderlich',
+  'free_cmms.description':
+    'Kostenlose CMMS-Software — keine Testversion. Verwalten Sie Wartung, Anlagen und Arbeitsaufträge sofort. Keine Kreditkarte erforderlich.',
+  'free_cmms.keywords':
+    'kostenloses cmms, wartungsmanagement-software, kostenlose arbeitsauftrag-software, anlagenverfolgung, vorbeugende wartung',
+  'overview.description':
+    'Atlas CMMS ist ein kostenloses Open-Source-CMMS zur Verwaltung von Arbeitsaufträgen, vorbeugender Wartung, Anlagen und Einrichtungen. Optimieren Sie noch heute Ihre Wartungsarbeiten.',
+  'overview.keywords':
+    'CMMS, computergestütztes wartungsmanagementsystem, EAM, enterprise asset management, open-source-cmms, kostenlose wartungssoftware, arbeitsauftragsverwaltung, vorbeugende wartung, anlagenverfolgung, facility management, wartungsverfolgungssoftware, gerätewartung, Atlas CMMS',
+  'pricing.title': 'Preise - Atlas CMMS',
+  'pricing.description':
+    'Flexible Preispläne für Atlas CMMS. Wählen Sie zwischen Cloud- und selbstgehosteten Versionen unseres Open-Source-CMMS, um Ihre Wartungsarbeiten zu optimieren.',
+  'free_cmms.hero.subtitle': 'Kostenlose CMMS-Software',
+  'free_cmms.hero.title': 'Verwalten Sie Arbeitsaufträge und Anlagen - Für immer kostenlos',
+  'free_cmms.hero.description':
+    'Hören Sie auf, mit Tabellenkalkulationen und veralteten Tools zu jonglieren. Wechseln Sie zu einer modernen CMMS-Software - kostenlos.',
+  'free_cmms.hero.start_free': 'Jetzt kostenlos starten',
+  'free_cmms.hero.work_orders_alt': 'Arbeitsaufträge',
+  'free_cmms.hero.mobile_app_alt': 'Mobile App',
+  'free_cmms.features.work_orders.title': 'Mühelose Arbeitsaufträge',
+  'free_cmms.features.work_orders.p1':
+    'Erstellen, zuweisen und verfolgen Sie Arbeitsaufträge in Sekundenschnelle.',
+  'free_cmms.features.work_orders.p2':
+    'Hängen Sie Fotos, Handbücher und Checklisten an jede Aufgabe an.',
+  'free_cmms.features.work_orders.p3':
+    'Verfolgen Sie den Fortschritt in Echtzeit mit sofortigen Statusaktualisierungen.',
+  'free_cmms.features.work_orders.alt': 'Arbeitsauftragsverwaltung',
+  'free_cmms.features.asset_tracking.title': 'Anlagenlebenszyklus-Verfolgung',
+  'free_cmms.features.asset_tracking.p1':
+    'Führen Sie eine vollständige digitale Historie für jede Anlage.',
+  'free_cmms.features.asset_tracking.p2':
+    'Treffen Sie datengestützte Entscheidungen bezüglich Reparatur oder Austausch.',
+  'free_cmms.features.asset_tracking.p3':
+    'Bleiben Sie prüfbereit mit automatisierten Compliance-Protokollen.',
+  'free_cmms.features.asset_tracking.alt': 'Anlagenverwaltung',
+  'free_cmms.features.inventory.title': 'Inventar & Ersatzteile',
+  'free_cmms.features.inventory.p1':
+    'Verfolgen Sie die Lagerbestände über mehrere Standorte in Echtzeit.',
+  'free_cmms.features.inventory.p2':
+    'Scannen Sie QR-Codes für eine sofortige Teilesuche und -nutzung.',
+  'free_cmms.features.inventory.p3':
+    'Erhalten Sie automatische Warnungen bei niedrigem Lagerbestand und bestellen Sie sofort nach.',
+  'free_cmms.features.inventory.alt': 'Bestandsverwaltung',
+  'free_cmms.features.mobile.title': 'Wartung von unterwegs',
+  'free_cmms.features.mobile.p1':
+    'Volle Mobile-App-Funktionalität für iOS und Android.',
+  'free_cmms.features.mobile.p2':
+    'Nehmen Sie Fotos auf und scannen Sie Barcodes direkt vor Ort.',
+  'free_cmms.features.mobile.p3':
+    'Synchronisieren Sie Daten sofort und arbeiten Sie bei Bedarf offline.',
+  'free_cmms.features.mobile.alt': 'Mobile CMMS App',
+  'free_cmms.features.get_started_free': 'Kostenlos starten',
+  'free_cmms.features.ready_to_optimize': 'Bereit, Ihre Wartung zu optimieren?',
+  'free_cmms.features.join_thousands':
+    'Schließen Sie sich Tausenden von Wartungsprofis an, die das intuitivste kostenlose CMMS der Welt nutzen.',
+  'free_cmms.features.get_started_no_card':
+    'Kostenlos starten - Keine Kreditkarte erforderlich'
 };
 
 export default deJSON;

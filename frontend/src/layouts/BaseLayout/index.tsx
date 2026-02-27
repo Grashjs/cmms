@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Outlet } from 'react-router-dom';
 
 import { Box } from '@mui/material';
+import HtmlLanguage from '../../content/landing/components/HtmlLanguage';
 
 interface BaseLayoutProps {
   children?: ReactNode;
@@ -16,6 +17,7 @@ const BaseLayout: FC<BaseLayoutProps> = ({ children }) => {
         height: '100%'
       }}
     >
+      <HtmlLanguage />
       {children || <Outlet />}
     </Box>
   );
