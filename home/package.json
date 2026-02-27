@@ -6,7 +6,10 @@
     "dev": "next dev -p 4000",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -23,6 +26,7 @@
     "@mui/styles": "^6.3.0",
     "@mui/x-data-grid-pro": "^8.27.3",
     "@nik0di3m/utm-tracker-hook": "^1.3.0",
+    "@opennextjs/cloudflare": "^1.17.1",
     "@paddle/paddle-js": "^1.6.2",
     "@reduxjs/toolkit": "^2.11.2",
     "@types/nprogress": "^0.2.3",
@@ -65,6 +69,7 @@
     "eslint-plugin-prettier": "^5.5.5",
     "prettier": "^3.8.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.69.0"
   }
 }
