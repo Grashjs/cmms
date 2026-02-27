@@ -1,19 +1,19 @@
-'use client';
-import { Container, Box, Typography, SxProps, Theme } from '@mui/material';
-import React from 'react';
-import { useTranslation } from 'react-i18next';
+"use client";
+import { Container, Box, Typography, SxProps, Theme } from "@mui/material";
+import React from "react";
 import { companyLogosAssets } from "../utils/overall";
+import { useTranslations } from "next-intl";
 
 export default function CompanyLogos({
   sx,
   white,
-  compact
+  compact,
 }: {
   sx?: SxProps<Theme>;
   white?: boolean;
   compact?: boolean;
 }) {
-  const { t } = useTranslation();
+  const t = useTranslations();
 
   return (
     <Container maxWidth="lg" sx={sx}>
@@ -21,56 +21,56 @@ export default function CompanyLogos({
         variant="body2"
         align="center"
         sx={{
-          color: white ? 'common.white' : 'text.secondary',
+          color: white ? "common.white" : "text.secondary",
           mb: 1,
           fontWeight: 500,
-          letterSpacing: '0.05em',
-          textTransform: 'uppercase',
-          fontSize: white ? '0.55rem' : '0.75rem'
+          letterSpacing: "0.05em",
+          textTransform: "uppercase",
+          fontSize: white ? "0.55rem" : "0.75rem",
         }}
       >
-        {t('trusted_by_maintenance_teams')}
+        {t("trusted_by_maintenance_teams")}
       </Typography>
 
       <Box
         sx={{
-          overflow: 'hidden',
-          position: 'relative',
+          overflow: "hidden",
+          position: "relative",
           py: compact ? 1 : 2,
-          '&::before, &::after': {
+          "&::before, &::after": {
             content: '""',
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             bottom: 0,
-            width: '100px',
+            width: "100px",
             zIndex: 2,
-            pointerEvents: 'none'
+            pointerEvents: "none",
           },
-          '&::before': white
+          "&::before": white
             ? undefined
             : {
                 left: 0,
-                background: 'linear-gradient(to right, white, transparent)'
+                background: "linear-gradient(to right, white, transparent)",
               },
-          '&::after': white
+          "&::after": white
             ? undefined
             : {
                 right: 0,
-                background: 'linear-gradient(to left, white, transparent)'
-              }
+                background: "linear-gradient(to left, white, transparent)",
+              },
         }}
       >
         <Box
           sx={{
-            display: 'flex',
+            display: "flex",
             gap: compact ? 3 : 6,
-            alignItems: 'center',
-            height: compact ? '40px' : '60px',
-            animation: 'scroll 30s linear infinite',
-            '@keyframes scroll': {
-              '0%': { transform: 'translateX(0)' },
-              '100%': { transform: 'translateX(-50%)' }
-            }
+            alignItems: "center",
+            height: compact ? "40px" : "60px",
+            animation: "scroll 30s linear infinite",
+            "@keyframes scroll": {
+              "0%": { transform: "translateX(0)" },
+              "100%": { transform: "translateX(-50%)" },
+            },
           }}
         >
           {[...companyLogosAssets, ...companyLogosAssets].map((logo, index) => (
@@ -78,19 +78,17 @@ export default function CompanyLogos({
               key={index}
               sx={{
                 flexShrink: 0,
-                display: 'flex',
-                alignItems: 'center',
-                height: '100%'
+                display: "flex",
+                alignItems: "center",
+                height: "100%",
               }}
             >
               <img
                 style={{
-                  filter: white
-                    ? 'brightness(0) invert(1) opacity(0.8)'
-                    : 'grayscale(100%)',
-                  maxHeight: compact ? '24px' : '40px',
-                  width: 'auto',
-                  objectFit: 'contain'
+                  filter: white ? "brightness(0) invert(1) opacity(0.8)" : "grayscale(100%)",
+                  maxHeight: compact ? "24px" : "40px",
+                  width: "auto",
+                  objectFit: "contain",
                 }}
                 src={logo}
                 alt={`company-logo-${index}`}

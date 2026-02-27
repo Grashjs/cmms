@@ -1,33 +1,24 @@
 "use client";
 
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Container,
-  Grid,
-  Stack,
-  styled,
-  Typography
-} from '@mui/material';
-import React, { useState } from 'react';
-import { useTranslations } from 'next-intl';
-import Link from 'next/link';
-import useScrollToLocation from 'src/hooks/useScrollToLocation';
-import { useBrand } from 'src/hooks/useBrand';
-import api from 'src/utils/api';
-import { fireGa4Event } from 'src/utils/overall';
+import { Box, Button, CircularProgress, Container, Grid, Stack, styled, Typography } from "@mui/material";
+import React, { useState } from "react";
+import { useTranslations } from "next-intl";
+import Link from "next/link";
+import useScrollToLocation from "src/hooks/useScrollToLocation";
+import { useBrand } from "src/hooks/useBrand";
+import api from "src/utils/api";
+import { fireGa4Event } from "src/utils/overall";
 
 const TypographyH1 = styled(Typography)(
   ({ theme }) => `
     font-size: ${theme.typography.pxToRem(50)};
-`
+`,
 );
 
 const TypographyH2 = styled(Typography)(
   ({ theme }) => `
     font-size: ${theme.typography.pxToRem(17)};
-`
+`,
 );
 
 const ImgWrapper = styled(Box)(
@@ -44,7 +35,7 @@ const ImgWrapper = styled(Box)(
       display: block;
       width: 100%;
     }
-  `
+  `,
 );
 
 const BoxAccent = styled(Box)(
@@ -58,14 +49,14 @@ const BoxAccent = styled(Box)(
     bottom: -40px;
     display: block;
     z-index: 4;
-  `
+  `,
 );
 
 const BoxContent = styled(Box)(
   () => `
   width: 150%;
   position: relative;
-`
+`,
 );
 
 const MobileImgWrapper = styled(Box)(
@@ -75,7 +66,7 @@ const MobileImgWrapper = styled(Box)(
     width: 15%;
     left: -14%;
     bottom: -25%;
-         ${theme.breakpoints.down('md')} {
+         ${theme.breakpoints.down("md")} {
     left: 45%;
     bottom: -50%;
   }
@@ -89,7 +80,7 @@ const MobileImgWrapper = styled(Box)(
       display: block;
       width: 100%;
     }
-  `
+  `,
 );
 
 function Hero() {
@@ -101,11 +92,11 @@ function Hero() {
   const onSeeLiveDemo = async () => {
     setGeneratingAccount(true);
     try {
-      fireGa4Event('live_demo_view');
+      fireGa4Event("live_demo_view");
       const { success, message } = await api.get<{
         success: boolean;
         message: string;
-      }>('demo/generate-account');
+      }>("demo/generate-account");
 
       if (success) {
         window.location.href = `/account/login?token=${message}`;
@@ -116,79 +107,65 @@ function Hero() {
       setGeneratingAccount(false);
     }
   };
-  console.log("byyy",brandConfig.name)
+
   return (
     <Container maxWidth="lg">
-      <Grid
-        spacing={{ xs: 6, md: 10 }}
-        justifyContent="center"
-        alignItems="center"
-        container
-      >
+      <Grid spacing={{ xs: 6, md: 10 }} justifyContent="center" alignItems="center" container>
         <Grid item md={6} pr={{ xs: 0, md: 4 }}>
           <Typography component="h1" variant="h4" mb={2}>
-            {t('home.h1')}
+            {t("home.h1")}
           </Typography>
           <Typography
             sx={{
-              mb: 2
+              mb: 2,
             }}
             fontSize={50}
             variant="h1"
             component="h2"
           >
-            {t('home.h2')}
+            {t("home.h2")}
           </Typography>
           <TypographyH2
             sx={{
               lineHeight: 1.5,
-              pb: 4
+              pb: 4,
             }}
             variant="h4"
             color="text.secondary"
             fontWeight="normal"
           >
-            {t('home.h3', { brandName: brandConfig.name })}
+            {t("home.h3", { brandName: brandConfig.name })}
           </TypographyH2>
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={1}>
-            <Button
-              component={Link}
-              href={'/account/register'}
-              size="large"
-              variant="contained"
-            >
-              {t('try_for_free')}
+          <Stack direction={{ xs: "column", md: "row" }} spacing={1}>
+            <Button component={Link} href={"/account/register"} size="large" variant="contained">
+              {t("try_for_free")}
             </Button>
             <Button
               sx={{
-                ml: 2
+                ml: 2,
               }}
               component="a"
-              startIcon={
-                generatingAccount && (
-                  <CircularProgress size={'1rem'} color="primary" />
-                )
-              }
+              startIcon={generatingAccount && <CircularProgress size={"1rem"} color="primary" />}
               disabled={generatingAccount}
               onClick={onSeeLiveDemo}
               size="medium"
               variant="text"
             >
-              {t('see_live_demo')}
+              {t("see_live_demo")}
             </Button>
             <Button
               sx={{
-                ml: 2
+                ml: 2,
               }}
               href={`mailto:${brandConfig.mail}`}
               size="medium"
               variant="text"
               onClick={() => {
-                fireGa4Event('contact_us_click');
+                fireGa4Event("contact_us_click");
                 window.location.href = `mailto:${brandConfig.mail}`;
               }}
             >
-              {t('talk_to_sales')}
+              {t("talk_to_sales")}
             </Button>
           </Stack>
         </Grid>
@@ -199,20 +176,16 @@ function Hero() {
                 <img
                   alt={brandConfig.name}
                   src="/static/images/overview/work_orders_screenshot.png"
-                  loading={'eager'}
+                  loading={"eager"}
                 />
               </ImgWrapper>
             </Link>
             <MobileImgWrapper>
-              <img
-                alt="Mobile App"
-                src="/static/mobile_app.jpeg"
-                loading={'eager'}
-              />
+              <img alt="Mobile App" src="/static/mobile_app.jpeg" loading={"eager"} />
             </MobileImgWrapper>
             <BoxAccent
               sx={{
-                display: { xs: 'none', md: 'block' }
+                display: { xs: "none", md: "block" },
               }}
             />
           </BoxContent>

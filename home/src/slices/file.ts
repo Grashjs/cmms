@@ -1,14 +1,12 @@
-import type { PayloadAction } from '@reduxjs/toolkit';
-import { createSlice } from '@reduxjs/toolkit';
-import type { AppThunk } from 'src/store';
-import File, { FileType } from '../models/owns/file';
-import api, { authHeader } from '../utils/api';
-import { getInitialPage, Page, SearchCriteria } from '../models/owns/page';
-import { revertAll } from 'src/utils/redux';
-import i18n from 'i18next';
-import downloadFile from 'downloadjs';
+import type { PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
+import type { AppThunk } from "src/store";
+import File, { FileType } from "../models/owns/file";
+import api, { authHeader } from "../utils/api";
+import { getInitialPage, Page, SearchCriteria } from "../models/owns/page";
+import { revertAll } from "src/utils/redux";
 
-const basePath = 'files';
+const basePath = "files";
 
 interface FileState {
   files: Page<File>;
@@ -19,11 +17,11 @@ interface FileState {
 const initialState: FileState = {
   files: getInitialPage<File>(),
   singleFile: null,
-  loadingGet: false
+  loadingGet: false,
 };
 
 const slice = createSlice({
-  name: 'files',
+  name: "files",
   initialState,
   extraReducers: (builder) => builder.addCase(revertAll, () => initialState),
   reducers: {
@@ -37,9 +35,7 @@ const slice = createSlice({
     },
     editFile(state: FileState, action: PayloadAction<{ file: File }>) {
       const { file } = action.payload;
-      const inContent = state.files.content.some(
-        (file1) => file1.id === file.id
-      );
+      const inContent = state.files.content.some((file1) => file1.id === file.id);
       if (inContent) {
         state.files.content = state.files.content.map((file1) => {
           if (file1.id === file.id) {
@@ -65,17 +61,14 @@ const slice = createSlice({
       const fileIndex = state.files.content.findIndex((file) => file.id === id);
       state.files.content.splice(fileIndex, 1);
     },
-    setLoadingGet(
-      state: FileState,
-      action: PayloadAction<{ loading: boolean }>
-    ) {
+    setLoadingGet(state: FileState, action: PayloadAction<{ loading: boolean }>) {
       const { loading } = action.payload;
       state.loadingGet = loading;
     },
     clearSingleFile(state: FileState, action: PayloadAction<{}>) {
       state.singleFile = null;
-    }
-  }
+    },
+  },
 });
 
 export const reducer = slice.reducer;
@@ -109,29 +102,24 @@ export const editFile =
   };
 
 export const addFiles =
-  (
-    files: any[],
-    fileType: FileType = 'OTHER',
-    taskId?: number,
-    hidden?: 'true' | 'false'
-  ): AppThunk =>
+  (files: any[], fileType: FileType = "OTHER", taskId?: number, hidden?: "true" | "false"): AppThunk =>
   async (dispatch) => {
     let formData = new FormData();
-    const companyId = localStorage.getItem('companyId');
+    const companyId = localStorage.getItem("companyId");
     const headers = authHeader(false);
-    delete headers['Content-Type'];
-    files.forEach((file) => formData.append('files', file));
-    formData.append('folder', `company ${companyId}`);
-    formData.append('type', fileType);
-    formData.append('hidden', hidden);
+    delete headers["Content-Type"];
+    files.forEach((file) => formData.append("files", file));
+    formData.append("folder", `company ${companyId}`);
+    formData.append("type", fileType);
+    formData.append("hidden", hidden);
     const baseRoute = `${basePath}/upload`;
     const filesResponse = await api.post<File[]>(
       taskId ? `${baseRoute}?taskId=${taskId}` : baseRoute,
       formData,
       {
-        headers
+        headers,
       },
-      true
+      true,
     );
     dispatch(slice.actions.addFiles({ files: filesResponse }));
     return filesResponse.map((file) => file.id);
@@ -139,9 +127,7 @@ export const addFiles =
 export const deleteFile =
   (id: number): AppThunk =>
   async (dispatch) => {
-    const fileResponse = await api.deletes<{ success: boolean }>(
-      `${basePath}/${id}`
-    );
+    const fileResponse = await api.deletes<{ success: boolean }>(`${basePath}/${id}`);
     const { success } = fileResponse;
     if (success) {
       dispatch(slice.actions.deleteFile({ id }));
