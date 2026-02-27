@@ -16,8 +16,8 @@ import {
   useTheme
 } from '@mui/material';
 import CheckCircleOutlineTwoToneIcon from '@mui/icons-material/CheckCircleOutlineTwoTone';
-import {useRouter, useSearchParams} from 'next/navigation';
-import Link from 'next/link';
+import {useSearchParams} from 'next/navigation';
+import { useRouter, Link } from 'src/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { fireGa4Event } from 'src/utils/overall';
 import {

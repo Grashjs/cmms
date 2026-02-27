@@ -15,7 +15,7 @@ import NavBar from 'src/components/NavBar';
 import { Footer } from 'src/components/Footer';
 import FaqComponent from 'src/components/Faq';
 import { Helmet } from 'react-helmet-async';
-import Link from 'next/link';
+import { Link } from 'src/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { demoLink } from 'src/config';
 import { OverviewWrapper } from 'src/content/landing/FreeCMMS';

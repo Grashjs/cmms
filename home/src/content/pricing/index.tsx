@@ -4,37 +4,31 @@ import {
   Button,
   Card,
   CardContent,
+  Chip,
   Container,
+  FormControl,
   Grid,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Stack,
+  InputLabel,
+  MenuItem,
+  OutlinedInput,
+  Select,
+  styled,
   Tab,
   Tabs,
   Typography,
-  styled,
+  useMediaQuery,
   useTheme,
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Switch,
 } from "@mui/material";
 import { Helmet } from "react-helmet-async";
 import { useTranslations } from "next-intl";
-import Logo from "src/components/LogoSign";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import LanguageSwitcher from "src/layouts/ExtendedSidebarLayout/Header/Buttons/LanguageSwitcher";
-import { ExpandMore, GitHub } from "@mui/icons-material";
+import { useSearchParams } from "next/navigation";
+import { Link, usePathname, useRouter } from "src/i18n/routing";
 import CheckCircleOutlineTwoToneIcon from "@mui/icons-material/CheckCircleOutlineTwoTone";
 import { useEffect, useState } from "react";
-import { getPricingPlans, getPlanFeatureCategories, getSelfHostedPlans } from "./pricingData";
+import { getPlanFeatureCategories, getPricingPlans, getSelfHostedPlans } from "./pricingData";
 import NavBar from "src/components/NavBar";
 import Faq from "./components/Faq";
 import SubscriptionPlanSelector, { PRICING_YEAR_MULTIPLIER } from "./components/SubscriptionPlanSelector";
-import { FormControl, InputLabel, Select, MenuItem, OutlinedInput, Chip, useMediaQuery } from "@mui/material";
 import { fireGa4Event } from "src/utils/overall";
 import { Footer } from "src/components/Footer";
 
@@ -61,9 +55,10 @@ function Pricing() {
   const isXs = useMediaQuery(theme.breakpoints.only("xs"));
   const isSm = useMediaQuery(theme.breakpoints.only("sm"));
   const isMdDown = useMediaQuery(theme.breakpoints.down("md"));
+  const pathname = usePathname(); // returns path WITHOUT locale prefix
 
   const handleTabsChange = (_event: React.ChangeEvent<{}>, value: string): void => {
-    router.push(`${location.pathname}?type=${value}`);
+    router.push(`${pathname}?type=${value}`);
   };
 
   // Set default selected plans based on screen size

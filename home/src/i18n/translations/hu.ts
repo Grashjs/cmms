@@ -12,7 +12,7 @@ const locale = {
   IN_PROGRESS: "Folyamatban",
   ON_HOLD: "Várakozik",
   COMPLETE: "Befejezett",
-  home_1: {
+  home: {
     built: "Karbantartás-kezelés Egyszerűsítésére Építve",
     what: "Mit",
     you_will_have: "Lesz neked",
@@ -1080,7 +1080,6 @@ const locale = {
   IMPORT_CSV_feature: "CSV importálás",
   no_import_access: "Frissítsd a csomagodat CSV, Excel fájlokból való importáláshoz",
   register_here: "Regisztrálj itt",
-  home: "Kezdőlap",
   user: "Felhasználó",
   start_work_order: "Munkarendelés Indítása",
   priority_label: "{priority} prioritás",

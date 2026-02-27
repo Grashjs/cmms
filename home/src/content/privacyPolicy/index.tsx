@@ -9,9 +9,9 @@ import {
   Typography,
   List,
   ListItem,
-  Link
+  Link as MuiLink
 } from '@mui/material';
-import Link from 'next/link';
+import { Link } from 'src/i18n/routing';
 import { Helmet } from 'react-helmet-async';
 import { useTranslations } from 'next-intl';
 import Logo from 'src/components/LogoSign';

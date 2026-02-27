@@ -12,7 +12,7 @@ const locale = {
   IN_PROGRESS: "Bezig",
   ON_HOLD: "In wacht",
   COMPLETE: "Voltooid",
-  home_1: {
+  home: {
     built: "Ontworpen om onderhoud eenvoudiger te beheren",
     what: "Wat",
     you_will_have: "Je krijgt",
@@ -1286,7 +1286,6 @@ const locale = {
   IMPORT_CSV_feature: "CSV-import",
   no_import_access: "Upgrade uw plan om te importeren vanuit CSV- en Excel-bestanden",
   register_here: "Hier registreren",
-  home: "Home",
   user: "Gebruiker",
   start_work_order: "Werkorder starten",
   priority_label: "{priority} prioriteit",

@@ -27,7 +27,7 @@ import Logo from "../LogoSign";
 import { GitHub, ExpandLess, ExpandMore } from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
 import LanguageSwitcher from "src/components/LanguageSwitcher";
-import Link from "next/link";
+import { Link } from "src/i18n/routing";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { demoLink, isWhiteLabeled } from "src/config";

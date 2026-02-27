@@ -8,7 +8,7 @@ import {
   useMediaQuery,
   useTheme
 } from '@mui/material';
-import Link from 'next/link';
+import { Link } from 'src/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { customLogoPaths } from 'src/config';
 import { useEffect, useState } from 'react';

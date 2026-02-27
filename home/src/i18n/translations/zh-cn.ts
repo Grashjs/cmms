@@ -12,7 +12,7 @@ const locale = {
   IN_PROGRESS: "进行中",
   ON_HOLD: "暂停",
   COMPLETE: "完成",
-  home_1: {
+  home: {
     built: "为简化维护管理而构建",
     what: "什么",
     you_will_have: "您将拥有",
@@ -1054,7 +1054,6 @@ const locale = {
   IMPORT_CSV_feature: "CSV导入",
   no_import_access: "升级您的计划以从CSV、Excel文件导入",
   register_here: "在此注册",
-  home: "首页",
   user: "用户",
   start_work_order: "开始工单",
   priority_label: "{priority}优先级",

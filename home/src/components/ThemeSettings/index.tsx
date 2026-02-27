@@ -18,7 +18,7 @@ import SettingsTwoToneIcon from '@mui/icons-material/SettingsTwoTone';
 import Fab from '@mui/material/Fab';
 import { useTranslations } from 'next-intl';
 import UnfoldMoreTwoToneIcon from '@mui/icons-material/UnfoldMoreTwoTone';
-import Link from 'next/link';
+import { Link } from 'src/i18n/routing';
 
 const ThemeSettingsButton = styled(Box)(
   ({ theme }) => `

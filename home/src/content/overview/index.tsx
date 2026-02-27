@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, styled } from "@mui/material";
-import { useRouter } from "next/navigation";
+import { useRouter } from "src/i18n/routing";
 import { useTranslations } from "next-intl";
 import Hero from "./Hero";
 import Highlights from "./Highlights";

@@ -10,7 +10,7 @@ import {
   List,
   ListItem
 } from '@mui/material';
-import Link from 'next/link';
+import { Link } from 'src/i18n/routing';
 import { Helmet } from 'react-helmet-async';
 import { useTranslations } from 'next-intl';
 import Logo from 'src/components/LogoSign';

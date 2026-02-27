@@ -8,7 +8,7 @@ import {
   Typography
 } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
+import { Link } from 'src/i18n/routing';
 
 const TypographyH1 = styled(Typography)(
   ({ theme }) => `

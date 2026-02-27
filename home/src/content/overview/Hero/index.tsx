@@ -3,7 +3,7 @@
 import { Box, Button, CircularProgress, Container, Grid, Stack, styled, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
+import { Link } from "src/i18n/routing";
 import useScrollToLocation from "src/hooks/useScrollToLocation";
 import { useBrand } from "src/hooks/useBrand";
 import api from "src/utils/api";

@@ -13,7 +13,7 @@ import {
   useTheme
 } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
+import { Link } from 'src/i18n/routing';
 import { useBrand } from 'src/hooks/useBrand';
 
 export default function SubscriptionPlans() {

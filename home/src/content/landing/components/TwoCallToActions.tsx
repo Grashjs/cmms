@@ -2,7 +2,7 @@
 import { Button, Container, Stack, SxProps, Theme } from "@mui/material";
 import { TypographyH1Primary } from "src/content/overview/Highlights";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
+import { Link } from "src/i18n/routing";
 import { demoLink } from "src/config";
 
 export default function TwoCallToActions({ hidePricing, sx }: { hidePricing?: boolean; sx?: SxProps<Theme> }) {

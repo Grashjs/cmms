@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { supportedLanguages } from "src/i18n/i18n";
 import { useTranslations, useLocale } from "next-intl";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname } from "src/i18n/routing";
 
 const SectionHeading = styled(Typography)(
   ({ theme }) => `
@@ -43,15 +43,9 @@ function LanguageSwitcher({ onSwitch }: { onSwitch?: () => void }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const switchLanguage = (newLocale: string) => {
-    // next-intl middleware handles the locale prefix
-    // We just need to replace the locale part of the pathname
-    const segments = pathname.split("/");
-    segments[1] = newLocale.replace("_", "-");
-    const newPath = segments.join("/");
-    router.push(newPath);
-  };
-
+  function switchLanguage(locale: string) {
+    router.replace(pathname, { locale: locale.replace("_", "-") });
+  }
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const isOpen = Boolean(anchorEl);
 
