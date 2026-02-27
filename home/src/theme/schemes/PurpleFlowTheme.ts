@@ -686,6 +686,9 @@ export const PurpleFlowTheme = createTheme({
       styleOverrides: {
         root: {
           margin: 0
+        },
+        primary: {
+          color: colors.alpha.black[100]
         }
       }
     },
@@ -1170,11 +1173,13 @@ export const PurpleFlowTheme = createTheme({
       'var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
     h1: {
       fontWeight: 700,
-      fontSize: 35
+      fontSize: 35,
+      color: colors.alpha.black[100]
     },
     h2: {
       fontWeight: 700,
-      fontSize: 30
+      fontSize: 30,
+      color: colors.alpha.black[100]
     },
     h3: {
       fontWeight: 700,
@@ -1184,20 +1189,25 @@ export const PurpleFlowTheme = createTheme({
     },
     h4: {
       fontWeight: 700,
-      fontSize: 16
+      fontSize: 16,
+      color: colors.alpha.black[100]
     },
     h5: {
       fontWeight: 700,
-      fontSize: 14
+      fontSize: 14,
+      color: colors.alpha.black[100]
     },
     h6: {
-      fontSize: 15
+      fontSize: 15,
+      color: colors.alpha.black[100]
     },
     body1: {
-      fontSize: 14
+      fontSize: 14,
+      color: colors.alpha.black[100]
     },
     body2: {
-      fontSize: 14
+      fontSize: 14,
+      color: colors.alpha.black[100]
     },
     button: {
       fontWeight: 600
@@ -1219,7 +1229,8 @@ export const PurpleFlowTheme = createTheme({
     overline: {
       fontSize: 13,
       fontWeight: 700,
-      textTransform: 'uppercase'
+      textTransform: 'uppercase',
+      color: colors.alpha.black[100]
     }
   },
   shadows: [

@@ -114,14 +114,14 @@ export default function SubscriptionPlanSelector({
         mb={2}
       >
         <Stack direction={'row'} spacing={2} alignItems={'center'}>
-          <Typography>{t('monthly')}</Typography>
+          <Typography color={'text.primary'}>{t('monthly')}</Typography>
           <Switch
             checked={!monthly}
             onChange={(event) => setMonthly(!event.target.checked)}
             sx={{ transform: 'scale(1.3)' }}
             size={'medium'}
           />
-          <Typography>{t('pricing_1.annually_save_two_months')}</Typography>
+          <Typography color={'text.primary'}>{t('pricing_1.annually_save_two_months')}</Typography>
         </Stack>
       </Box>
       <Grid container spacing={2} justifyContent="center">

@@ -126,11 +126,10 @@ function Hero() {
         container
       >
         <Grid item md={6} pr={{ xs: 0, md: 4 }}>
-          <Typography color="text.primary" component="h1" variant="h4" mb={2}>
+          <Typography component="h1" variant="h4" mb={2}>
             {t('home.h1')}
           </Typography>
           <Typography
-            color="text.primary"
             sx={{
               mb: 2
             }}
