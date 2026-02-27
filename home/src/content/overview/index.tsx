@@ -6,7 +6,6 @@ import { useTranslations } from "next-intl";
 import Hero from "./Hero";
 import Highlights from "./Highlights";
 import NavBar from "src/components/NavBar";
-import { useBrand } from "src/hooks/useBrand";
 import { Footer } from "src/components/Footer";
 import CompanyLogos from "src/components/CompanyLogos";
 
@@ -19,10 +18,6 @@ const OverviewWrapper = styled(Box)(
 `,
 );
 function Overview() {
-  const t = useTranslations();
-  const router = useRouter();
-  const brandConfig = useBrand();
-
   return (
     <OverviewWrapper>
       <NavBar />

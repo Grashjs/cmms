@@ -23,8 +23,8 @@ import CheckTwoToneIcon from "@mui/icons-material/CheckTwoTone";
 import { AE, CN, DE, ES, FR, US, BR } from "country-flag-icons/react/3x2";
 import SubscriptionPlans from "../SubscriptionPlans";
 import SubscriptionPlanSelector from "src/content/pricing/components/SubscriptionPlanSelector";
-import { useBrand } from "src/hooks/useBrand";
 import TwoCallToActions from "src/content/landing/components/TwoCallToActions";
+import { useBrand } from "@/src/contexts/BrandContext";
 
 const AvatarSuccess = styled(Avatar)(
   ({ theme }) => `

@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import Pricing from "src/content/pricing";
 import { getTranslations } from "next-intl/server";
-import { getBrandServer } from "src/utils/serverBrand";
 
 const ldJson = {
   "@context": "https://schema.org",

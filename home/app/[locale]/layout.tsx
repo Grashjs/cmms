@@ -6,6 +6,8 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { locales } from "src/i18n/request";
+import { BrandProvider } from "src/contexts/BrandContext";
+import { getBrandServer } from "src/utils/serverBrand";
 
 const inter = Inter({
   weight: "400",
@@ -30,6 +32,7 @@ export default async function RootLayout({
   if (!locales.includes(locale)) {
     notFound();
   }
+  const brand = await getBrandServer();
 
   const messages = await getMessages();
 
@@ -37,9 +40,11 @@ export default async function RootLayout({
     <html lang={locale} suppressHydrationWarning>
       <body className={`${inter.variable} antialiased`} suppressHydrationWarning>
         <NextIntlClientProvider messages={messages} locale={locale}>
-          <EmotionRegistry>
-            <Providers>{children}</Providers>
-          </EmotionRegistry>
+          <BrandProvider brand={brand}>
+            <EmotionRegistry>
+              <Providers>{children}</Providers>
+            </EmotionRegistry>
+          </BrandProvider>
         </NextIntlClientProvider>
       </body>
     </html>

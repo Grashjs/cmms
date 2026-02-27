@@ -5,9 +5,9 @@ import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "src/i18n/routing";
 import useScrollToLocation from "src/hooks/useScrollToLocation";
-import { useBrand } from "src/hooks/useBrand";
 import api from "src/utils/api";
 import { fireGa4Event } from "src/utils/overall";
+import { useBrand } from "src/contexts/BrandContext";
 
 const TypographyH1 = styled(Typography)(
   ({ theme }) => `
