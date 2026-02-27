@@ -139,7 +139,7 @@ function App() {
   }, [location, navigate, i18n.language]);
 
   useEffect(() => {
-    loadLanguage(i18n.language);
+    loadLanguage(i18n.language || 'en');
   }, []);
 
   useEffect(() => {
