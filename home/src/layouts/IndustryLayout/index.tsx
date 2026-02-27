@@ -1,19 +1,20 @@
-"use client";
 import React, { FC, ReactNode } from "react";
-import { Box, Button, Card, CardContent, Container, Grid, Stack, Typography, useTheme } from "@mui/material";
+import { Box, Button, Card, CardContent, Container, Grid, Stack, Typography } from "@mui/material";
+
+import { StyledAdvantageCard, StyledAdvantageIconWrapper, StyledFeatureNumber, StyledKpiValue } from "./styles";
 import NavBar from "src/components/NavBar";
 import Footer from "src/components/Footer";
 import FaqComponent from "src/components/Faq";
 import { demoLink } from "src/config";
 import { OverviewWrapper } from "src/content/landing/FreeCMMS";
-import { TypographyH2 } from "../../content/landing/HeroFree";
+import { TypographyH2 } from "src/content/landing/HeroFree";
 import { SvgIconComponent } from "@mui/icons-material";
 import TwoCallToActions from "../../content/landing/components/TwoCallToActions";
 import Testimonials, { Testimonial } from "../../content/landing/components/Testimonials";
 import { Link } from "src/i18n/routing";
 import CompanyLogos from "@/src/components/CompanyLogos";
-import SharedHelmet from "@/src/content/landing/components/SharedHelmet";
-import { useTranslations } from "next-intl";
+
+import { getTranslations } from "next-intl/server";
 
 interface Feature {
   title: string;
@@ -51,7 +52,7 @@ export interface IndustryLayoutProps {
   canonicalPath: string;
 }
 
-const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
+const IndustryLayout: FC<IndustryLayoutProps> = async (props) => {
   const {
     pageTitle,
     headerTitle,
@@ -69,13 +70,12 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
     pageDescription,
     canonicalPath,
   } = props;
-  const t = useTranslations();
-  const theme = useTheme();
+  const t = await getTranslations();
 
   return (
     <OverviewWrapper>
-      <SharedHelmet path={canonicalPath} title={pageTitle} description={pageDescription} />
       <NavBar />
+
       <Box>
         {/* Header */}
         <Container maxWidth="lg">
@@ -99,9 +99,11 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
                 {headerSubtitle}
               </TypographyH2>
               <Stack direction="row" spacing={2}>
-                <Button variant={"contained"} component={Link} href="/account/register">
-                  {t("try_for_free")}
-                </Button>
+                <Link href="/account/register">
+                  <Button size={"large"} variant={"contained"}>
+                    {t("try_for_free")}
+                  </Button>
+                </Link>
                 <Button size="large" href={demoLink} variant="outlined">
                   {t("book_demo")}
                 </Button>
@@ -135,13 +137,11 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
                         alignItems: "center",
                       }}
                     >
-                      <Typography fontSize={50} fontWeight={600}>
-                        <span style={{ color: theme.palette.primary.main }}>{kpi.type === "money" ? "$" : ""}</span>
+                      <StyledKpiValue>
+                        <span className="money-icon">{kpi.type === "money" ? "$" : ""}</span>
                         {kpi.value}
-                        <span style={{ color: theme.palette.primary.main }}>
-                          {kpi.type === "percentage" ? "%" : ""}
-                        </span>
-                      </Typography>
+                        <span className="percentage-icon">{kpi.type === "percentage" ? "%" : ""}</span>
+                      </StyledKpiValue>
                       <Typography textAlign={"center"} fontWeight={600} gutterBottom>
                         {kpi.title}
                       </Typography>
@@ -160,37 +160,10 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
                 const Icon = advantage.icon;
                 return (
                   <Grid item xs={12} sm={6} md={4} key={index}>
-                    <Card
-                      sx={{
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        textAlign: "center",
-                        p: 3,
-                        transition: "transform 0.2s",
-                        "&:hover": {
-                          transform: "translateY(-5px)",
-                          boxShadow: theme.shadows[4],
-                        },
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          width: 64,
-                          height: 64,
-                          borderRadius: "16px",
-                          backgroundColor: theme.palette.primary.main,
-                          color: theme.palette.primary.contrastText,
-                          mb: 3,
-                          boxShadow: `0 4px 20px 0 ${theme.palette.primary.main}40`,
-                        }}
-                      >
+                    <StyledAdvantageCard>
+                      <StyledAdvantageIconWrapper>
                         <Icon sx={{ fontSize: 32 }} />
-                      </Box>
+                      </StyledAdvantageIconWrapper>
                       <CardContent sx={{ p: 0 }}>
                         <Typography variant="h3" gutterBottom sx={{ mb: 2 }}>
                           {advantage.title}
@@ -199,7 +172,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
                           {advantage.description}
                         </Typography>
                       </CardContent>
-                    </Card>
+                    </StyledAdvantageCard>
                   </Grid>
                 );
               })}
@@ -219,13 +192,13 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
                   {feature.description}
                 </Typography>
                 {feature.learnMoreUrl ? (
-                  <Button component={Link} variant="outlined" href={feature.learnMoreUrl}>
-                    Learn More
-                  </Button>
+                  <Link href={feature.learnMoreUrl}>
+                    <Button variant="outlined">Learn More</Button>
+                  </Link>
                 ) : (
-                  <Button component={Link} variant={"outlined"} href={"/account/register"}>
-                    {t("try_for_free")}
-                  </Button>
+                  <Link href={"/account/register"}>
+                    <Button variant={"outlined"}>{t("try_for_free")}</Button>
+                  </Link>
                 )}
               </Grid>
               <Grid item xs={12} md={6} order={{ xs: 1, md: index % 2 === 0 ? 2 : 1 }}>
@@ -234,9 +207,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
                 {/*  alt={feature.title}*/}
                 {/*  style={{ width: '100%' }}*/}
                 {/*/>*/}
-                <Typography color={theme.palette.primary.main} fontSize={70}>
-                  {(index + 1).toString().padStart(2, "0")}
-                </Typography>
+                <StyledFeatureNumber>{(index + 1).toString().padStart(2, "0")}</StyledFeatureNumber>
               </Grid>
             </Grid>
           ))}

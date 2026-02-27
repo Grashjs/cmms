@@ -26,6 +26,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const t = await getTranslations({ locale });
 
   return {
+    title: {
+      default: "Atlas CMMS",
+      template: "%s | Atlas CMMS", // page title fills %s
+    },
     metadataBase: new URL("https://atlas-cmms.com"),
     icons: {
       icon: [
