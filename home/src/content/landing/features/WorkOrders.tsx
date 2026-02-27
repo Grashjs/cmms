@@ -1,7 +1,6 @@
-"use client";
 import IndustryLayout, {
   IndustryLayoutProps
-} from 'src/layouts/IndustryLayout';
+} from '../../../layouts/IndustryLayout';
 import { AccessTime, Edit, TrendingUp } from '@mui/icons-material';
 
 const workOrdersData: IndustryLayoutProps = {
@@ -10,6 +9,10 @@ const workOrdersData: IndustryLayoutProps = {
   headerSubtitle:
     'Manage maintenance requests, schedule and track work orders, and assign tasks to your team using a fully open-source platform—accessible on both mobile and desktop.',
   headerImageUrl: '/static/images/overview/work_orders_screenshot.png',
+  headerImageSizes: {
+    width: 1920,
+    height: 922
+  },
   canonicalPath: 'features/work-orders',
   advantages: [
     {
@@ -53,13 +56,7 @@ const workOrdersData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'The open-source CMMS has allowed us to fully customize our maintenance workflow and schedule, keeping all tasks under control week by week.',
-      author: 'Sam Livingstone',
-      company: 'Maintenance Mechanic'
-    }
-  ],
+  testimonials: [],
 
   faqs: [
     {
@@ -88,4 +85,3 @@ function WorkOrdersPage() {
 }
 
 export default WorkOrdersPage;
-

@@ -8,6 +8,10 @@ const atlasHospitalityData: IndustryLayoutProps = {
   headerSubtitle:
     'A modern maintenance solution for hotels and resorts that protects your data, supports unlimited users, and keeps room turnover seamless—available in the cloud or self-hosted',
   headerImageUrl: '/static/images/industries/hospitality-hero.jpg',
+  headerImageSizes: {
+    width: 720,
+    height: 427
+  },
   canonicalPath: 'industries/open-source-hospitality-maintenance-software',
 
   kpis: [
@@ -28,12 +32,7 @@ const atlasHospitalityData: IndustryLayoutProps = {
     }
   ],
 
-  companyLogos: [
-    // Use generic or community-contributed partner styles
-    '/static/images/logos/independent-hotels-assoc.svg',
-    '/static/images/logos/boutique-stay-group.svg',
-    '/static/images/logos/eco-resort-collective.svg'
-  ],
+  companyLogos: true,
 
   features: [
     {
@@ -57,18 +56,7 @@ const atlasHospitalityData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Moving to Atlas allowed us to keep our guest maintenance records on-site. We saved enough on licensing to hire an additional technician.',
-      author: 'VP of Engineering',
-      company: 'Heritage Hotel Collection'
-    },
-    {
-      text: 'The open-source nature meant we could build a custom integration with our smart-lock system that no other CMMS supported.',
-      author: 'Lead Developer',
-      company: 'Urban Stay Apartments'
-    }
-  ],
+  testimonials: [],
 
   faqs: [
     {
@@ -98,4 +86,3 @@ function HospitalityAtlasPage() {
 }
 
 export default HospitalityAtlasPage;
-

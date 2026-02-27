@@ -8,6 +8,10 @@ const constructionData: IndustryLayoutProps = {
   headerSubtitle:
     'The first open-source CMMS built for real job sites. Track heavy equipment, manage field work orders, and stay compliant—deploy in the cloud or run it on infrastructure you control.',
   headerImageUrl: '/static/images/industries/construction-hero.jpg',
+  headerImageSizes: {
+    width: 1920,
+    height: 1280
+  },
   canonicalPath: 'industries/open-source-construction-maintenance-software',
 
   kpis: [
@@ -28,12 +32,7 @@ const constructionData: IndustryLayoutProps = {
     }
   ],
 
-  companyLogos: [
-    // Representing independent contractors and heavy equipment collectives
-    '/static/images/logos/contractor-alliance.svg',
-    '/static/images/logos/heavy-iron-rentals.svg',
-    '/static/images/logos/infrastructure-builders.svg'
-  ],
+  companyLogos: true,
 
   features: [
     {
@@ -58,18 +57,7 @@ const constructionData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Proprietary CMMS costs were eating into our project margins. Switching to Atlas gave us full enterprise features with zero per-user licensing costs.',
-      author: 'Fleet Manager',
-      company: 'General Contractors Inc.'
-    },
-    {
-      text: 'Having the source code allowed our IT team to build a custom inspection module that mirrors our specific OSHA safety requirements perfectly.',
-      author: 'Safety Director',
-      company: 'Civil Works Group'
-    }
-  ],
+  testimonials: [],
 
   faqs: [
     {
@@ -99,4 +87,3 @@ function ConstructionAtlasPage() {
 }
 
 export default ConstructionAtlasPage;
-

@@ -8,9 +8,13 @@ const energyUtilitiesData: IndustryLayoutProps = {
   headerSubtitle:
     'Monitor, maintain, and optimize critical infrastructure — from power generation to distribution networks — with a CMMS you can self-host or run in the cloud.',
   headerImageUrl: '/static/images/industries/energy-hero.jpg',
+  headerImageSizes: {
+    width: 1800,
+    height: 1350
+  },
   canonicalPath: 'industries/open-source-energy-utilities-maintenance-software',
 
-  companyLogos: [],
+  companyLogos: true,
 
   features: [
     {
@@ -37,18 +41,7 @@ const energyUtilitiesData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Atlas CMMS gave us full control over maintenance for distributed energy assets without depending on expensive proprietary systems.',
-      author: 'Operations Manager',
-      company: 'Renewable Energy Provider'
-    },
-    {
-      text: 'Self-hosting Atlas CMMS helped us meet strict security and compliance requirements in the utilities sector.',
-      author: 'IT Infrastructure Lead',
-      company: 'Regional Utility Company'
-    }
-  ],
+  testimonials: [],
   kpis: [
     {
       title:
@@ -100,4 +93,3 @@ function EnergyPage() {
 }
 
 export default EnergyPage;
-

@@ -1,7 +1,6 @@
-"use client";
 import IndustryLayout, {
   IndustryLayoutProps
-} from 'src/layouts/IndustryLayout';
+} from '../../../layouts/IndustryLayout';
 import { Inventory2, Timeline, FactCheck } from '@mui/icons-material';
 
 const assetsData: IndustryLayoutProps = {
@@ -10,6 +9,10 @@ const assetsData: IndustryLayoutProps = {
   headerSubtitle:
     'Track equipment, monitor performance, and schedule preventive maintenance across your organization using a fully open-source and self-hosted CMMS—accessible on mobile and desktop.',
   headerImageUrl: '/static/images/features/asset-hero.png',
+  headerImageSizes: {
+    width: 1920,
+    height: 912
+  },
   canonicalPath: 'features/assets',
 
   advantages: [
@@ -54,14 +57,7 @@ const assetsData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'With Atlas CMMS, we finally have full visibility into our equipment and maintenance history. Preventive maintenance is now simple and reliable.',
-      author: 'Daniel Moreau',
-      company: 'Maintenance Manager'
-    }
-  ],
-
+  testimonials: [],
   faqs: [
     {
       question: 'What is asset maintenance management?',
@@ -79,7 +75,6 @@ const assetsData: IndustryLayoutProps = {
         'Absolutely. Atlas CMMS is an open-source, self-hosted platform that gives you full control over your data, customization, and infrastructure.'
     }
   ],
-
   relatedContent: [],
   pageDescription:
     'Open-source asset management without the enterprise price tag. Track equipment history, reduce downtime, and manage everything from one self-hosted, powerful CMMS.'
@@ -90,4 +85,3 @@ function AssetsPage() {
 }
 
 export default AssetsPage;
-

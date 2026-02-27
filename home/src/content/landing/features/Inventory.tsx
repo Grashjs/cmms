@@ -1,7 +1,6 @@
-"use client";
 import IndustryLayout, {
   IndustryLayoutProps
-} from 'src/layouts/IndustryLayout';
+} from '../../../layouts/IndustryLayout';
 import { Inventory, Link, ShoppingCart } from '@mui/icons-material';
 
 const sparePartsData: IndustryLayoutProps = {
@@ -10,6 +9,10 @@ const sparePartsData: IndustryLayoutProps = {
   headerSubtitle:
     'Track spare parts across assets and locations, automate reordering, and prevent costly downtime using a fully open-source and self-hosted CMMS built for real maintenance teams.',
   headerImageUrl: '/static/images/features/part-hero.png',
+  headerImageSizes: {
+    width: 927,
+    height: 505
+  },
   canonicalPath: 'features/inventory',
 
   advantages: [
@@ -54,14 +57,7 @@ const sparePartsData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Atlas CMMS gave us full visibility into spare parts usage and eliminated unexpected stock shortages across our facilities.',
-      author: 'Karim El Mansouri',
-      company: 'Maintenance Supervisor'
-    }
-  ],
-
+  testimonials: [],
   faqs: [
     {
       question: 'What is spare parts inventory management software?',
@@ -90,4 +86,3 @@ function SparePartsPage() {
 }
 
 export default SparePartsPage;
-

@@ -8,6 +8,10 @@ const manufacturingData: IndustryLayoutProps = {
   headerSubtitle:
     'Reduce downtime, extend equipment life, and keep production running smoothly with an open-source CMMS built for modern factories—self-hosted or in the cloud',
   headerImageUrl: '/static/images/industries/manufacturing-hero.jpg',
+  headerImageSizes: {
+    width: 1200,
+    height: 628
+  },
   canonicalPath: 'industries/open-source-manufacturing-maintenance-software',
 
   kpis: [
@@ -28,15 +32,7 @@ const manufacturingData: IndustryLayoutProps = {
     }
   ],
 
-  companyLogos: [
-    'https://www.datocms-assets.com/38028/1606253591-yamahalogo.svg',
-    'https://www.datocms-assets.com/38028/1624813847-unilever-dark-blue.svg',
-    'https://www.datocms-assets.com/38028/1606253522-marriottinternational.svg',
-    'https://www.datocms-assets.com/38028/1624814616-mccormick-icon.svg',
-    'https://www.datocms-assets.com/38028/1761261081-pepsi-logo.svg',
-    'https://www.datocms-assets.com/38028/1624814005-aramark-logo.svg',
-    'https://www.datocms-assets.com/38028/1624814104-subway-logo.svg'
-  ],
+  companyLogos: true,
 
   features: [
     {
@@ -63,18 +59,7 @@ const manufacturingData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Atlas CMMS helped us significantly reduce machine downtime while keeping full control of our data on-premise.',
-      author: 'Plant Maintenance Manager',
-      company: 'Industrial Manufacturing Company'
-    },
-    {
-      text: 'The preventive maintenance automation alone saved hours of manual planning every week.',
-      author: 'Operations Engineer',
-      company: 'Production Facility'
-    }
-  ],
+  testimonials: [],
 
   faqs: [
     {
@@ -108,4 +93,3 @@ function ManufacturingPage() {
 }
 
 export default ManufacturingPage;
-

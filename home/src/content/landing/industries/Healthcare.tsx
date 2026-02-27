@@ -8,6 +8,10 @@ const healthcareData: IndustryLayoutProps = {
   headerSubtitle:
     'Improve patient safety, maintain regulatory compliance, and reduce equipment downtime with an open-source CMMS designed for modern healthcare—available in the cloud or fully self-hosted.',
   headerImageUrl: '/static/images/industries/healthcare-hero.jpg',
+  headerImageSizes: {
+    width: 960,
+    height: 640
+  },
   canonicalPath: 'industries/open-source-healthcare-maintenance-software',
 
   kpis: [
@@ -59,18 +63,7 @@ const healthcareData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Atlas CMMS helped us keep critical medical equipment operational while simplifying compliance and audit preparation.',
-      author: 'Biomedical Engineering Manager',
-      company: 'Regional Hospital Network'
-    },
-    {
-      text: 'Because Atlas CMMS is self-hosted, we maintain full control of sensitive operational data while improving maintenance efficiency across facilities.',
-      author: 'Healthcare Facilities Director',
-      company: 'Private Medical Center'
-    }
-  ],
+  testimonials: [],
 
   faqs: [
     {
@@ -96,6 +89,7 @@ const healthcareData: IndustryLayoutProps = {
   ],
 
   relatedContent: [],
+  companyLogos: true,
   pageDescription:
     'Open-source healthcare maintenance that prioritizes patient safety. Keep critical medical equipment running, simplify audits, and maintain total data privacy with a self-hosted CMMS.'
 };
@@ -105,4 +99,3 @@ function HealthcarePage() {
 }
 
 export default HealthcarePage;
-

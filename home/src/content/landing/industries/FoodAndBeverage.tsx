@@ -8,6 +8,10 @@ const foodBeverageData: IndustryLayoutProps = {
   headerSubtitle:
     'Ensure product quality, meet safety regulations, and keep production running with an open-source CMMS built for food processing plants, factories, and distribution facilities—available in the cloud or self-hosted.',
   headerImageUrl: '/static/images/industries/food-hero.jpg',
+  headerImageSizes: {
+    width: 1871,
+    height: 1250
+  },
   canonicalPath:
     'industries/open-source-food-and-beverage-maintenance-software',
 
@@ -29,13 +33,7 @@ const foodBeverageData: IndustryLayoutProps = {
     }
   ],
 
-  companyLogos: [
-    'https://www.datocms-assets.com/38028/1624813847-unilever-dark-blue.svg',
-    'https://www.datocms-assets.com/38028/1761261081-pepsi-logo.svg',
-    'https://www.datocms-assets.com/38028/1624814005-aramark-logo.svg',
-    'https://www.datocms-assets.com/38028/1624814104-subway-logo.svg',
-    'https://www.datocms-assets.com/38028/1606253522-marriottinternational.svg'
-  ],
+  companyLogos: true,
 
   features: [
     {
@@ -62,18 +60,7 @@ const foodBeverageData: IndustryLayoutProps = {
     }
   ],
 
-  testimonials: [
-    {
-      text: 'Atlas CMMS helped us maintain strict food safety standards while significantly reducing unexpected equipment downtime.',
-      author: 'Quality & Maintenance Manager',
-      company: 'Food Processing Company'
-    },
-    {
-      text: 'Self-hosting Atlas CMMS allowed us to keep full control of operational data while improving preventive maintenance execution.',
-      author: 'Plant Operations Director',
-      company: 'Beverage Manufacturing Facility'
-    }
-  ],
+  testimonials: [],
 
   faqs: [
     {
@@ -109,4 +96,3 @@ function FoodBeveragePage() {
 }
 
 export default FoodBeveragePage;
-
