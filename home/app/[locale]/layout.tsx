@@ -3,11 +3,12 @@ import "../globals.css";
 import Providers from "src/components/Providers";
 import EmotionRegistry from "src/lib/EmotionRegistry";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
+import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { locales } from "src/i18n/request";
 import { BrandProvider } from "src/contexts/BrandContext";
 import { getBrandServer } from "src/utils/serverBrand";
+import { Metadata } from "next";
 
 const inter = Inter({
   weight: "400",
@@ -18,6 +19,22 @@ const inter = Inter({
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale });
+
+  return {
+    metadataBase: new URL("https://atlas-cmms.com"),
+    icons: {
+      icon: [
+        { url: "/favicon.ico" },
+        { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+        { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      ],
+    },
+  };
 }
 
 export default async function RootLayout({
