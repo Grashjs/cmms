@@ -216,7 +216,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = (props) => {
                 <Typography variant="h3" gutterBottom>
                   {feature.title}
                 </Typography>
-                <Typography variant="body1" paragraph>
+                <Typography color={"text.primary"} variant="body1" paragraph>
                   {feature.description}
                 </Typography>
                 {feature.learnMoreUrl ? (
