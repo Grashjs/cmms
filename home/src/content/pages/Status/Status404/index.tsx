@@ -10,7 +10,7 @@ function Status404() {
       <MainContent>
         <Container maxWidth="md">
           <Box textAlign="center" sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <Image alt="404" height={180} src="/static/images/status/404.svg" />
+            <Image alt="404" width={457} height={248} src="/static/images/status/404.svg" />
             <Typography
               variant="h2"
               sx={{
