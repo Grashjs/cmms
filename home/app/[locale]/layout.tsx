@@ -9,6 +9,8 @@ import { locales } from "src/i18n/request";
 import { BrandProvider } from "src/contexts/BrandContext";
 import { getBrandServer } from "src/utils/serverBrand";
 import { Metadata } from "next";
+import { GoogleAnalytics } from "@next/third-parties/google";
+import { googleTrackingId } from "src/config";
 
 const inter = Inter({
   weight: "400",
@@ -60,6 +62,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={`${inter.variable} antialiased`} suppressHydrationWarning>
+        {googleTrackingId && <GoogleAnalytics gaId={googleTrackingId} />}
         <NextIntlClientProvider messages={messages} locale={locale}>
           <BrandProvider brand={brand}>
             <EmotionRegistry>
