@@ -34,7 +34,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
       title: { key: string; params?: Record<string, any> };
       descriptions: { key: string; params?: Record<string, any> }[];
       checks: { key: string; params?: Record<string, any> }[];
-      image: string;
+      image: { src: string; width: number; height: number };
     };
   } = {
     "work-orders": {
@@ -58,7 +58,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
           params: { shortBrandName: brandConfig.name },
         },
       ],
-      image: "/static/images/overview/work_order_screenshot.png",
+      image: { src: "/static/images/overview/work_order_screenshot.png", width: 1920, height: 922 },
     },
 
     request: {
@@ -73,7 +73,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
         },
       ],
       checks: [{ key: "work-requests.checks.0" }, { key: "work-requests.checks.1" }, { key: "work-requests.checks.2" }],
-      image: "/static/images/overview/request.png",
+      image: { src: "/static/images/overview/request.png", width: 1920, height: 869 },
     },
 
     mobile: {
@@ -87,7 +87,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
         { key: "mobile-app.checks.4" },
         { key: "mobile-app.checks.5" },
       ],
-      image: "/static/images/overview/mobile_home.png",
+      image: { src: "/static/images/overview/mobile_home.png", width: 736, height: 736 },
     },
 
     asset: {
@@ -107,7 +107,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
         { key: "eam.checks.4" },
         { key: "eam.checks.5" },
       ],
-      image: "/static/images/overview/assets.png",
+      image: { src: "/static/images/overview/assets.png", width: 1920, height: 869 },
     },
 
     preventative: {
@@ -129,7 +129,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
         { key: "pm.checks.4" },
         { key: "pm.checks.5" },
       ],
-      image: "/static/images/overview/pm.png",
+      image: { src: "/static/images/overview/pm.png", width: 1920, height: 869 },
     },
 
     part: {
@@ -153,7 +153,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
         { key: "part_1.checks.6" },
         { key: "part_1.checks.7" },
       ],
-      image: "/static/images/overview/inventory_screenshot.png",
+      image: { src: "/static/images/overview/inventory_screenshot.png", width: 1882, height: 936 },
     },
 
     dashboard: {
@@ -182,7 +182,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
         },
         { key: "dashboard.checks.5" },
       ],
-      image: "/static/images/overview/analytics_screenshot.png",
+      image: { src: "/static/images/overview/analytics_screenshot.png", width: 1920, height: 922 },
     },
   };
 
@@ -210,7 +210,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
     title: string;
     descriptions: string[];
     checks: string[];
-    image: string;
+    image: { src: string; width: number; height: number };
   }) => {
     return (
       <Grid
@@ -246,7 +246,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
             <Blob1 />
             <Blob2 />
             <CardImageWrapper>
-              <Image src={image} alt={brandConfig.shortName} />
+              <Image src={image.src} width={image.width} height={image.height} alt={brandConfig.shortName} />
             </CardImageWrapper>
           </BlowWrapper>
         </Grid>

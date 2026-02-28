@@ -68,11 +68,13 @@ async function Hero() {
                   alt={brandConfig.name}
                   src="/static/images/overview/work_orders_screenshot.png"
                   loading={"eager"}
+                  width={1920}
+                  height={922}
                 />
               </ImgWrapper>
             </Link>
             <MobileImgWrapper>
-              <Image alt="Mobile App" src="/static/mobile_app.jpeg" loading={"eager"} />
+              <Image alt="Mobile App" src="/static/mobile_app.jpeg" width={720} height={1600} loading={"eager"} />
             </MobileImgWrapper>
             <BoxAccent
               sx={{

@@ -69,19 +69,19 @@ async function Highlights({ hidePricing }: { hidePricing?: boolean }) {
             <Grid item xs={12} md={6}>
               <LayoutImgButton>
                 <Typography variant="h4">{t("work_orders")}</Typography>
-                <Image src="/static/images/overview/work_order_screenshot.png" alt={t("work_orders")} />
+                <Image src="/static/images/overview/work_order_screenshot.png" alt={t("work_orders")} width={1920} height={922} />
               </LayoutImgButton>
             </Grid>
             <Grid item xs={12} md={6}>
               <LayoutImgButton>
                 <Typography variant="h4">{t("custom_dashboards")}</Typography>
-                <Image src="/static/images/overview/analytics_screenshot.png" alt={t("custom_dashboards")} />
+                <Image src="/static/images/overview/analytics_screenshot.png" alt={t("custom_dashboards")} width={1920} height={922} />
               </LayoutImgButton>
             </Grid>
             <Grid item xs={12} md={6}>
               <LayoutImgButton>
                 <Typography variant="h4">{t("asset_management")}</Typography>
-                <Image src="/static/images/overview/assets.png" alt={t("asset_management")} />
+                <Image src="/static/images/overview/assets.png" alt={t("asset_management")} width={1920} height={869} />
               </LayoutImgButton>
             </Grid>
           </Grid>

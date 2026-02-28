@@ -41,12 +41,12 @@ export const fireGa4Event = (
   }
 };
 
-export const companyLogosAssets: string[] = [
-  '/static/images/industries/logos/adventure-mechanical.png',
-  '/static/images/industries/logos/sertec.png',
-  '/static/images/industries/logos/complete-am.png',
-  '/static/images/industries/logos/kwdc.png',
-  '/static/images/industries/logos/henalux.png',
-  '/static/images/industries/logos/penflex.png',
-  '/static/images/industries/logos/mfwaterwork.png'
+export const companyLogosAssets: { src: string; width: number; height: number }[] = [
+  { src: '/static/images/industries/logos/adventure-mechanical.png', width: 350, height: 100 },
+  { src: '/static/images/industries/logos/sertec.png', width: 326, height: 100 },
+  { src: '/static/images/industries/logos/complete-am.png', width: 400, height: 100 },
+  { src: '/static/images/industries/logos/kwdc.png', width: 90, height: 100 },
+  { src: '/static/images/industries/logos/henalux.png', width: 86, height: 100 },
+  { src: '/static/images/industries/logos/penflex.png', width: 150, height: 100 },
+  { src: '/static/images/industries/logos/mfwaterwork.png', width: 144, height: 100 }
 ];
