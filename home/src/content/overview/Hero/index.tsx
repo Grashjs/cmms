@@ -42,7 +42,7 @@ async function Hero() {
           </TypographyH2>
           <Stack direction={{ xs: "column", md: "row" }} spacing={1}>
             <Link href={getSignupUrl(locale)}>
-              <Button size="large" variant="contained">
+              <Button fullWidth size="large" variant="contained">
                 {t("try_for_free")}
               </Button>
             </Link>

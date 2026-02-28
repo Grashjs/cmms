@@ -4,7 +4,15 @@ import { SetStateAction, useState } from "react";
 import { Box, Grid, List, ListItem, ListItemText, Tab, Tabs, Typography, Container } from "@mui/material";
 import CheckTwoToneIcon from "@mui/icons-material/CheckTwoTone";
 import { BrandConfig } from "src/utils/serverBrand";
-import { AvatarSuccess, Blob1, Blob2, BlowWrapper, CardImageWrapper, TypographyH1Primary, TypographyH2 } from "./styles";
+import {
+  AvatarSuccess,
+  Blob1,
+  Blob2,
+  BlowWrapper,
+  CardImageWrapper,
+  TypographyH1Primary,
+  TypographyH2,
+} from "./styles";
 
 export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig }) {
   const t = useTranslations();
@@ -293,6 +301,15 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
           allowScrollButtonsMobile
           textColor="primary"
           indicatorColor="primary"
+          sx={{
+            "& .MuiTabs-scrollButtons": {
+              color: "black", // arrow color
+            },
+            "& .MuiTabs-scrollButtons.Mui-disabled": {
+              opacity: 0.3, // optional: style disabled state
+              color: "black",
+            },
+          }}
         >
           {tabs.map((tab) => (
             <Tab key={tab.value} label={tab.label} value={tab.value} />
