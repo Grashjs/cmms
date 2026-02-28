@@ -31,6 +31,8 @@ interface AppItem {
   href: string;
   image: string;
   alt: string;
+  width: number;
+  height: number;
 }
 
 interface BaseFooterSection {
@@ -132,11 +134,15 @@ export default async function Footer() {
           href: "https://play.google.com/store/apps/details?id=com.atlas.cmms",
           image: "/static/images/overview/playstore-badge.png",
           alt: "playstore badge",
+          width: 270,
+          height: 80,
         },
         {
           href: "https://apps.apple.com/us/app/atlas-cmms/id6751547284",
           image: "/static/images/overview/app_store_badge.svg.webp",
           alt: "app store badge",
+          width: 2560,
+          height: 759,
         },
       ],
     },
@@ -208,7 +214,16 @@ export default async function Footer() {
           <Stack spacing={1} direction={{ xs: "column", lg: "row" }}>
             {section.items.map((item, index) => (
               <a key={index} href={item.href} target="_blank" rel="noopener noreferrer">
-                <Image width="150" src={item.image} alt={item.alt} />
+                <Image
+                  width={item.width}
+                  height={item.height}
+                  src={item.image}
+                  alt={item.alt}
+                  style={{
+                    width: "150px",
+                    height: "auto",
+                  }}
+                />
               </a>
             ))}
           </Stack>

@@ -90,7 +90,9 @@ export default async function CompanyLogos({
                   width: "auto",
                   objectFit: "contain",
                 }}
-                src={logo}
+                src={logo.src}
+                width={logo.width}
+                height={logo.height}
                 alt={`company-logo-${index}`}
               />
             </Box>
