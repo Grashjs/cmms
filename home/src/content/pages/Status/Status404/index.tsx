@@ -2,6 +2,7 @@ import { Box, Card, Typography, Container, Divider, Button, FormControl, InputAd
 import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
 import { useTranslations } from "next-intl";
 import { MainContent, OutlinedInputWrapper, ButtonSearch } from "./styled";
+import Image from "next/image";
 
 function Status404() {
   return (
@@ -9,7 +10,7 @@ function Status404() {
       <MainContent>
         <Container maxWidth="md">
           <Box textAlign="center" sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <img alt="404" height={180} src="/static/images/status/404.svg" />
+            <Image alt="404" height={180} src="/static/images/status/404.svg" />
             <Typography
               variant="h2"
               sx={{
