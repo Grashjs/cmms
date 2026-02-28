@@ -2,7 +2,7 @@
 
 import { Button, CircularProgress } from "@mui/material";
 import React, { useState } from "react";
-import api from "src/utils/api";
+import api, { authHeader } from "src/utils/api";
 import { fireGa4Event } from "src/utils/overall";
 import { useLocale, useTranslations } from "next-intl";
 import useScrollToLocation from "src/hooks/useScrollToLocation";
@@ -21,10 +21,11 @@ export default function LiveDemoButton() {
       const { success, message } = await api.get<{
         success: boolean;
         message: string;
-      }>("demo/generate-account");
+      }>("demo/generate-account", { headers: authHeader(true) });
 
       if (success) {
-        window.location.href = mainAppUrl + `account/login?token=${message}&lang=${locale.replace("-", "_")}`;
+        // loginInternal(message);
+        // setShouldNavigate(true);
       } else {
         setGeneratingAccount(false);
       }

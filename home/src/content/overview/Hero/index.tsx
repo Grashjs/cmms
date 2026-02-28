@@ -46,7 +46,7 @@ async function Hero() {
                 {t("try_for_free")}
               </Button>
             </Link>
-            <LiveDemoButton />
+            {/*<LiveDemoButton />*/}
             <Button
               sx={{
                 ml: 2,

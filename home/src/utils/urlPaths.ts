@@ -86,9 +86,17 @@ export const getFeaturesLinks = (t: TFunction): { title: string; href: string }[
   },
 ];
 
-export const getSignupUrl = (lang: string) => getLocalizedMainAppUrl("account/register", lang);
+export const getSignupUrl = (lang: string, params?: Record<string, string>) =>
+  getLocalizedMainAppUrl("account/register", lang, params);
 export const getWorkOrdersUrl = (lang: string) => getLocalizedMainAppUrl("app/work-orders", lang);
 
-export const getLocalizedMainAppUrl = (url: string, lang: string) => {
-  return mainAppUrl + url + "?lang=" + lang.replace("-", "_").toLowerCase();
+export const getLocalizedMainAppUrl = (path: string, lang: string, params?: Record<string, string>) => {
+  const url = new URL(path, mainAppUrl);
+  url.searchParams.set("lang", lang.replace("-", "_").toLowerCase());
+
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
+  }
+
+  return url.toString();
 };

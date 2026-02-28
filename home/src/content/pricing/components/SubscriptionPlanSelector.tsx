@@ -18,7 +18,7 @@ import {
 import CheckCircleOutlineTwoToneIcon from "@mui/icons-material/CheckCircleOutlineTwoTone";
 import { useSearchParams } from "next/navigation";
 import { useRouter, Link } from "src/i18n/routing";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { fireGa4Event } from "src/utils/overall";
 import { apiUrl, mainAppUrl, PADDLE_SECRET_TOKEN, paddleEnvironment } from "src/config";
 import { useEffect, useRef, useState } from "react";
@@ -38,6 +38,7 @@ export default function SubscriptionPlanSelector({ monthly, setMonthly, selfHost
   const t = useTranslations();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const locale = useLocale();
   const router = useRouter();
   let paddle = useRef<Paddle | null>(null);
   const searchParams = useSearchParams();
@@ -196,7 +197,7 @@ export default function SubscriptionPlanSelector({ monthly, setMonthly, selfHost
                     <Button
                       fullWidth
                       variant="contained"
-                      component={selfHosted && plan.id !== "sh-free" ? "button" : Link}
+                      component={selfHosted && plan.id !== "sh-free" ? "button" : "a"}
                       onClick={async () => {
                         if (plan.id !== "basic") {
                           fireGa4Event({
@@ -216,8 +217,8 @@ export default function SubscriptionPlanSelector({ monthly, setMonthly, selfHost
                         selfHosted && plan.id !== "sh-free"
                           ? undefined
                           : selfHosted
-                            ? getSignupUrl
-                            : getSignupUrl + (plan.id !== "basic" ? `?subscription-plan-id=${plan.id}` : "")
+                            ? getSignupUrl(locale)
+                            : getSignupUrl(locale, plan.id !== "basic" ? { "subscription-plan-id": plan.id } : {})
                       }
                       sx={{ mb: 1 }}
                     >
