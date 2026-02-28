@@ -2,6 +2,7 @@ import { Container, Box, Typography, SxProps, Theme } from "@mui/material";
 import React from "react";
 import { companyLogosAssets } from "../utils/overall";
 import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 
 export default async function CompanyLogos({
   sx,
@@ -82,7 +83,7 @@ export default async function CompanyLogos({
                 height: "100%",
               }}
             >
-              <img
+              <Image
                 style={{
                   filter: white ? "brightness(0) invert(1) opacity(0.8)" : "grayscale(100%)",
                   maxHeight: compact ? "24px" : "40px",

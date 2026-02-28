@@ -8,7 +8,6 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import { Helmet } from 'react-helmet-async';
 import Logo from 'src/components/LogoSign';
 
 import { useTranslations } from 'next-intl';
@@ -33,9 +32,6 @@ function StatusMaintenance() {
 
   return (
     <>
-      <Helmet>
-        <title>Status - Maintenance</title>
-      </Helmet>
       <MainContent>
         <Container maxWidth="md">
           <Logo />

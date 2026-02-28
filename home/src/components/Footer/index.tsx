@@ -4,6 +4,7 @@ import { getFeaturesLinks, getIndustriesLinks } from "src/utils/urlPaths";
 import { getTranslations } from "next-intl/server";
 import { ReactNode } from "react";
 import { FooterAnchor, FooterLink, FooterWrapper, SectionHeading } from "./styles";
+import Image from "next/image";
 
 interface ContactItem {
   icon: ReactNode;
@@ -207,7 +208,7 @@ export default async function Footer() {
           <Stack spacing={1} direction={{ xs: "column", lg: "row" }}>
             {section.items.map((item, index) => (
               <a key={index} href={item.href} target="_blank" rel="noopener noreferrer">
-                <img width="150" src={item.image} alt={item.alt} />
+                <Image width="150" src={item.image} alt={item.alt} />
               </a>
             ))}
           </Stack>

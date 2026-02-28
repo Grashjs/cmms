@@ -6,6 +6,7 @@ import { getBrandServer as getBrandConfig } from "src/utils/serverBrand";
 import LiveDemoButton from "./LiveDemoButton";
 import { BoxAccent, BoxContent, ImgWrapper, MobileImgWrapper, TypographyH2 } from "./styles";
 import { getSignupUrl, getWorkOrdersUrl } from "src/utils/urlPaths";
+import Image from "next/image";
 
 async function Hero() {
   const t = await getTranslations();
@@ -63,7 +64,7 @@ async function Hero() {
           <BoxContent>
             <Link href={getWorkOrdersUrl(locale)}>
               <ImgWrapper>
-                <img
+                <Image
                   alt={brandConfig.name}
                   src="/static/images/overview/work_orders_screenshot.png"
                   loading={"eager"}
@@ -71,7 +72,7 @@ async function Hero() {
               </ImgWrapper>
             </Link>
             <MobileImgWrapper>
-              <img alt="Mobile App" src="/static/mobile_app.jpeg" loading={"eager"} />
+              <Image alt="Mobile App" src="/static/mobile_app.jpeg" loading={"eager"} />
             </MobileImgWrapper>
             <BoxAccent
               sx={{

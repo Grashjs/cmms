@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { customLogoPaths } from "src/config";
 import { useEffect, useState } from "react";
 import { useBrand } from "src/contexts/BrandContext";
+import Image from "next/image";
 
 const LogoWrapper = styled(Link)(
   ({ theme }) => `
@@ -56,10 +57,10 @@ function Logo({ white }: OwnProps) {
     <TooltipWrapper title={brandName} arrow>
       <LogoWrapper href="/">
         <LogoSignWrapper>
-          <img
+          <Image
             src={white ? logo.white : logo.dark}
-            width={`${width * (mobile ? 0.7 : 1)}px`}
-            height={`${height * (mobile ? 0.7 : 1)}px`}
+            width={width * (mobile ? 0.7 : 1)}
+            height={height * (mobile ? 0.7 : 1)}
             alt={"logo"}
           />
         </LogoSignWrapper>

@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { Box, Button, Container, Grid, styled, Typography } from "@mui/material";
-import { Helmet } from "react-helmet-async";
 import RefreshTwoToneIcon from "@mui/icons-material/RefreshTwoTone";
 import LoadingButton from "@mui/lab/LoadingButton";
 
@@ -48,9 +47,6 @@ function Status500() {
 
   return (
     <>
-      <Helmet>
-        <title>Status - 500</title>
-      </Helmet>
       <MainContent>
         <Grid
           container

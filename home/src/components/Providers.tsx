@@ -1,7 +1,6 @@
 "use client";
 
 import React, { ReactNode } from "react";
-import { HelmetProvider } from "react-helmet-async";
 import { SnackbarProvider } from "notistack";
 import { SidebarProvider } from "src/contexts/SidebarContext";
 import { TitleProvider } from "src/contexts/TitleContext";

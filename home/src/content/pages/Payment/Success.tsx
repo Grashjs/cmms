@@ -1,6 +1,5 @@
 "use client";
 import { Box, Card, Container, styled, Typography } from '@mui/material';
-import { Helmet } from 'react-helmet-async';
 
 import { useTranslations } from 'next-intl';
 import Logo from 'src/components/LogoSign';
@@ -20,9 +19,6 @@ function PaymentSuccess() {
   const t = useTranslations();
   return (
     <>
-      <Helmet>
-        <title>{t('payment_success_title')}</title>
-      </Helmet>
       <MainContent>
         <Container maxWidth="sm">
           <Logo />
