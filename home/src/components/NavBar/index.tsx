@@ -28,10 +28,10 @@ import { GitHub, ExpandLess, ExpandMore } from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
 import LanguageSwitcher from "src/components/LanguageSwitcher";
 import { Link } from "src/i18n/routing";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useState } from "react";
 import { demoLink, isWhiteLabeled } from "src/config";
-import { getIndustriesLinks, getFeaturesLinks, signupUrl, workOrdersUrl } from "src/utils/urlPaths";
+import { getIndustriesLinks, getFeaturesLinks, getSignupUrl, getWorkOrdersUrl } from "src/utils/urlPaths";
 
 const HeaderWrapper = styled(Card)(
   ({ theme }) => `
@@ -60,6 +60,7 @@ const NavbarSpacer = styled(Box)(
 
 export default function NavBar() {
   const t = useTranslations();
+  const locale = useLocale();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const featuresLinks = getFeaturesLinks(t);
@@ -357,7 +358,7 @@ export default function NavBar() {
                 <LanguageSwitcher />
                 <Button
                   component={Link}
-                  href={workOrdersUrl}
+                  href={getWorkOrdersUrl(locale)}
                   variant="text"
                   sx={{
                     ml: 2,
@@ -368,7 +369,7 @@ export default function NavBar() {
                 </Button>
                 <Button
                   component={Link}
-                  href={signupUrl}
+                  href={getSignupUrl(locale)}
                   variant="contained"
                   sx={{
                     ml: 2,
@@ -551,7 +552,7 @@ export default function NavBar() {
                       <Stack spacing={2}>
                         <Button
                           component={Link}
-                          href={workOrdersUrl}
+                          href={getWorkOrdersUrl(locale)}
                           variant="text"
                           fullWidth
                           size="large"
@@ -561,7 +562,7 @@ export default function NavBar() {
                         </Button>
                         <Button
                           component={Link}
-                          href={signupUrl}
+                          href={getSignupUrl(locale)}
                           variant="contained"
                           fullWidth
                           size="large"

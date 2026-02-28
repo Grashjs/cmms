@@ -86,5 +86,9 @@ export const getFeaturesLinks = (t: TFunction): { title: string; href: string }[
   },
 ];
 
-export const signupUrl = mainAppUrl + "account/register";
-export const workOrdersUrl = mainAppUrl + "app/work-orders";
+export const getSignupUrl = (lang: string) => getLocalizedMainAppUrl("account/register", lang);
+export const getWorkOrdersUrl = (lang: string) => getLocalizedMainAppUrl("app/work-orders", lang);
+
+export const getLocalizedMainAppUrl = (url: string, lang: string) => {
+  return mainAppUrl + url + "?lang=" + lang.replace("-", "_").toLowerCase();
+};

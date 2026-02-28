@@ -4,7 +4,7 @@ import { Button, CircularProgress } from "@mui/material";
 import React, { useState } from "react";
 import api from "src/utils/api";
 import { fireGa4Event } from "src/utils/overall";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import useScrollToLocation from "src/hooks/useScrollToLocation";
 import { mainAppUrl } from "src/config";
 
@@ -12,6 +12,7 @@ export default function LiveDemoButton() {
   const t = useTranslations();
   const [generatingAccount, setGeneratingAccount] = useState<boolean>(false);
   useScrollToLocation();
+  const locale = useLocale();
 
   const onSeeLiveDemo = async () => {
     setGeneratingAccount(true);
@@ -23,7 +24,7 @@ export default function LiveDemoButton() {
       }>("demo/generate-account");
 
       if (success) {
-        window.location.href = mainAppUrl + `account/login?token=${message}`;
+        window.location.href = mainAppUrl + `account/login?token=${message}&lang=${locale.replace("-", "_")}`;
       } else {
         setGeneratingAccount(false);
       }

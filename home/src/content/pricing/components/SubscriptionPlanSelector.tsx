@@ -24,7 +24,7 @@ import { apiUrl, mainAppUrl, PADDLE_SECRET_TOKEN, paddleEnvironment } from "src/
 import { useEffect, useRef, useState } from "react";
 import EmailModal from "./EmailModal";
 import { initializePaddle, Paddle } from "@paddle/paddle-js";
-import { signupUrl } from "src/utils/urlPaths";
+import { getSignupUrl } from "src/utils/urlPaths";
 
 interface SubscriptionPlanSelectorProps {
   monthly: boolean;
@@ -216,8 +216,8 @@ export default function SubscriptionPlanSelector({ monthly, setMonthly, selfHost
                         selfHosted && plan.id !== "sh-free"
                           ? undefined
                           : selfHosted
-                            ? signupUrl
-                            : signupUrl + (plan.id !== "basic" ? `?subscription-plan-id=${plan.id}` : "")
+                            ? getSignupUrl
+                            : getSignupUrl + (plan.id !== "basic" ? `?subscription-plan-id=${plan.id}` : "")
                       }
                       sx={{ mb: 1 }}
                     >

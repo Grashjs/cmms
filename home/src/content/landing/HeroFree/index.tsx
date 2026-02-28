@@ -1,9 +1,9 @@
 "use client";
 import { Box, Button, Container, Grid, styled, Typography } from "@mui/material";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "src/i18n/routing";
 import { mainAppUrl } from "src/config";
-import { signupUrl } from "src/utils/urlPaths";
+import { getLocalizedMainAppUrl, getSignupUrl } from "src/utils/urlPaths";
 
 const TypographyH1 = styled(Typography)(
   ({ theme }) => `
@@ -79,6 +79,7 @@ const MobileImgWrapper = styled(Box)(
 
 function HeroFree() {
   const t = useTranslations();
+  const locale = useLocale();
 
   return (
     <Container maxWidth="lg">
@@ -104,13 +105,18 @@ function HeroFree() {
             A Free CMMS to manage work orders at your factory, shop floor, building, car fleet, restaurant chain, solar
             and wind sites or just about any industry.
           </TypographyH2>
-          <Button component={Link} href={mainAppUrl + "account/register"} size="large" variant="contained">
+          <Button
+            component={Link}
+            href={getLocalizedMainAppUrl("account/register", locale)}
+            size="large"
+            variant="contained"
+          >
             Get Started for Free - No Credit Card Required!
           </Button>
         </Grid>
         <Grid item md={6}>
           <BoxContent>
-            <Link href={signupUrl}>
+            <Link href={getSignupUrl(locale)}>
               <ImgWrapper>
                 <img alt="Work Orders" src="/static/images/overview/work_orders_screenshot.png" />
               </ImgWrapper>

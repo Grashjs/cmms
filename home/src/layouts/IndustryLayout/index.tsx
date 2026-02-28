@@ -14,8 +14,8 @@ import Testimonials, { Testimonial } from "../../content/landing/components/Test
 import { Link } from "src/i18n/routing";
 import CompanyLogos from "@/src/components/CompanyLogos";
 
-import { getTranslations } from "next-intl/server";
-import { signupUrl } from "@/src/utils/urlPaths";
+import { getLocale, getTranslations } from "next-intl/server";
+import { getSignupUrl } from "@/src/utils/urlPaths";
 
 interface Feature {
   title: string;
@@ -72,6 +72,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = async (props) => {
     canonicalPath,
   } = props;
   const t = await getTranslations();
+  const locale = await getLocale();
 
   return (
     <OverviewWrapper>
@@ -100,7 +101,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = async (props) => {
                 {headerSubtitle}
               </TypographyH2>
               <Stack direction="row" spacing={2}>
-                <Link href={signupUrl}>
+                <Link href={getSignupUrl(locale)}>
                   <Button size={"large"} variant={"contained"}>
                     {t("try_for_free")}
                   </Button>

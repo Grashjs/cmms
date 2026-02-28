@@ -108,7 +108,7 @@ function App() {
 
   useEffect(() => {
     loadLanguage(i18n.language || 'en');
-  }, []);
+  }, [i18n.language]);
 
   useEffect(() => {
     if (!IS_LOCALHOST && googleTrackingId)
