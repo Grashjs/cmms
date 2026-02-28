@@ -20,6 +20,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private final CurrentUserResolver currentUserResolver;
     @Value("${frontend.url}")
     private String frontendUrl;
+    @Value("${frontend.home-url}")
+    private String frontendHomeUrl;
     @Value("${security.cors.enabled}")
     private boolean enableCors;
 
@@ -27,7 +29,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         if (enableCors) {
             registry.addMapping("/**")
-                    .allowedOrigins(frontendUrl)
+                    .allowedOrigins(frontendUrl, frontendHomeUrl)
                     .allowedMethods("HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE")
                     .allowCredentials(true)
                     .maxAge(MAX_AGE_SECS);

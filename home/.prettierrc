@@ -1,0 +1,12 @@
+{
+  "endOfLine": "auto",
+  "arrowParens": "always",
+  "bracketSpacing": true,
+  "jsxBracketSameLine": false,
+  "printWidth": 120,
+  "proseWrap": "preserve",
+  "requirePragma": false,
+  "semi": true,
+  "trailingComma": "all",
+  "singleAttributePerLine": false
+}

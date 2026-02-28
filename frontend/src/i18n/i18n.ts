@@ -95,8 +95,8 @@ i18n
       escapeValue: false
     },
     detection: {
-      order: ['path', 'localStorage', 'navigator'],
-      lookupFromPathIndex: 0,
+      order: ['querystring', 'localStorage', 'navigator'],
+      lookupQuerystring: 'lang',
       lookupLocalStorage: 'lang',
       caches: ['localStorage'],
       convertDetectedLanguage: (lng) => {
@@ -135,6 +135,7 @@ export const loadLanguage = async (lang: string): Promise<void> => {
   if (!i18n.hasResourceBundle(lang, 'translation')) {
     const module = await loader();
     i18n.addResourceBundle(lang, 'translation', module.default, true, true);
+    await i18n.changeLanguage(lang); // this triggers the re-render
   }
 };
 

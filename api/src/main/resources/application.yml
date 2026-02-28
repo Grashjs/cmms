@@ -84,6 +84,7 @@ security:
     enabled: ${ENABLE_CORS:true}
 frontend:
   url: ${PUBLIC_FRONT_URL}
+  home-url: ${PUBLIC_HOME_URL:}
 mail:
   recipients: ${MAIL_RECIPIENTS}
   enable: ${ENABLE_EMAIL_NOTIFICATIONS}

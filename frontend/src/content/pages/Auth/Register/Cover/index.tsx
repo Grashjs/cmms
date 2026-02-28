@@ -26,7 +26,7 @@ import 'swiper/css/pagination';
 import ChevronRightTwoToneIcon from '@mui/icons-material/ChevronRightTwoTone';
 import ChevronLeftTwoToneIcon from '@mui/icons-material/ChevronLeftTwoTone';
 import { useBrand } from '../../../../../hooks/useBrand';
-import CompanyLogos from '../../../../landing/components/CompanyLogos';
+import CompanyLogos from 'src/components/CompanyLogos';
 import { isCloudVersion } from '../../../../../config';
 
 const Content = styled(Box)(
