@@ -1,21 +1,20 @@
 import React, { FC, ReactNode } from "react";
-import { Box, Button, Card, CardContent, Container, Grid, Stack, Typography } from "@mui/material";
-
-import { StyledAdvantageCard, StyledAdvantageIconWrapper, StyledFeatureNumber, StyledKpiValue } from "./styles";
+import { Box, Container, Typography, Button, Grid, Card, CardContent, Stack, useTheme } from "@mui/material";
 import NavBar from "src/components/NavBar";
 import Footer from "src/components/Footer";
 import FaqComponent from "src/components/Faq";
-import { demoLink } from "src/config";
-import { OverviewWrapper } from "src/content/landing/FreeCMMS";
-import { TypographyH2 } from "src/content/landing/HeroFree";
+import { Link } from "src/i18n/routing";
+import { StyledAdvantageCard, StyledAdvantageIconWrapper, StyledFeatureNumber, StyledKpiValue } from "./styles";
+import { demoLink } from "../../config";
 import { SvgIconComponent } from "@mui/icons-material";
 import TwoCallToActions from "../../content/landing/components/TwoCallToActions";
 import Testimonials, { Testimonial } from "../../content/landing/components/Testimonials";
-import { Link } from "src/i18n/routing";
-import CompanyLogos from "@/src/components/CompanyLogos";
-
+import { OverviewWrapper } from "src/content/overview/styles";
+import { TypographyH2 } from "src/content/overview/Hero/styles";
+import { getSignupUrl } from "src/utils/urlPaths";
+import Image from "next/image";
+import CompanyLogos from "src/components/CompanyLogos";
 import { getLocale, getTranslations } from "next-intl/server";
-import { getSignupUrl } from "@/src/utils/urlPaths";
 
 interface Feature {
   title: string;
@@ -77,7 +76,6 @@ const IndustryLayout: FC<IndustryLayoutProps> = async (props) => {
   return (
     <OverviewWrapper>
       <NavBar />
-
       <Box>
         {/* Header */}
         <Container maxWidth="lg">
@@ -100,19 +98,17 @@ const IndustryLayout: FC<IndustryLayoutProps> = async (props) => {
               >
                 {headerSubtitle}
               </TypographyH2>
-              <Stack direction="row" spacing={2}>
-                <Link href={getSignupUrl(locale)}>
-                  <Button size={"large"} variant={"contained"}>
-                    {t("try_for_free")}
-                  </Button>
-                </Link>
-                <Button size="large" href={demoLink} variant="outlined">
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                <Button variant={"contained"} component={"a"} href={getSignupUrl(locale)}>
+                  {t("try_for_free")}
+                </Button>
+                <Button component={"a"} size="large" href={demoLink} variant="outlined">
                   {t("book_demo")}
                 </Button>
               </Stack>
             </Grid>
             <Grid item xs={12} md={6}>
-              <img
+              <Image
                 src={headerImageUrl}
                 alt={headerTitle}
                 width={headerImageSizes.width}
@@ -194,13 +190,13 @@ const IndustryLayout: FC<IndustryLayoutProps> = async (props) => {
                   {feature.description}
                 </Typography>
                 {feature.learnMoreUrl ? (
-                  <Link href={feature.learnMoreUrl}>
-                    <Button variant="outlined">Learn More</Button>
-                  </Link>
+                  <Button component={"a"} variant="outlined" href={feature.learnMoreUrl}>
+                    Learn More
+                  </Button>
                 ) : (
-                  <Link href={"/account/register"}>
-                    <Button variant={"outlined"}>{t("try_for_free")}</Button>
-                  </Link>
+                  <Button component={"a"} variant={"outlined"} href={getSignupUrl(locale)}>
+                    {t("try_for_free")}
+                  </Button>
                 )}
               </Grid>
               <Grid item xs={12} md={6} order={{ xs: 1, md: index % 2 === 0 ? 2 : 1 }}>
@@ -231,26 +227,26 @@ const IndustryLayout: FC<IndustryLayoutProps> = async (props) => {
         </Container>
 
         {/* Related Content */}
-        {relatedContent.length > 0 && (
-          <Container maxWidth="lg" sx={{ mb: 8 }}>
-            <Typography variant="h2" align="center" mb={3}>
-              Related Content
-            </Typography>
-            <Grid container spacing={4}>
-              {relatedContent.map((content, index) => (
-                <Grid item xs={12} md={4} key={index}>
-                  <Card sx={{ height: "100%" }}>
-                    <img src={content.imageUrl} alt={content.title} style={{ width: "100%" }} />
-                    <CardContent>
-                      <Typography variant="h6">{content.title}</Typography>
-                      <Button href={content.url}>Read More</Button>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </Container>
-        )}
+        {/*{relatedContent.length > 0 && (*/}
+        {/*  <Container maxWidth="lg" sx={{ mb: 8 }}>*/}
+        {/*    <Typography variant="h2" align="center" mb={3}>*/}
+        {/*      Related Content*/}
+        {/*    </Typography>*/}
+        {/*    <Grid container spacing={4}>*/}
+        {/*      {relatedContent.map((content, index) => (*/}
+        {/*        <Grid item xs={12} md={4} key={index}>*/}
+        {/*          <Card sx={{ height: "100%" }}>*/}
+        {/*            <Image src={content.imageUrl} alt={content.title} style={{ width: "100%" }} />*/}
+        {/*            <CardContent>*/}
+        {/*              <Typography variant="h6">{content.title}</Typography>*/}
+        {/*              <Button href={content.url}>Read More</Button>*/}
+        {/*            </CardContent>*/}
+        {/*          </Card>*/}
+        {/*        </Grid>*/}
+        {/*      ))}*/}
+        {/*    </Grid>*/}
+        {/*  </Container>*/}
+        {/*)}*/}
       </Box>
       <Footer />
     </OverviewWrapper>

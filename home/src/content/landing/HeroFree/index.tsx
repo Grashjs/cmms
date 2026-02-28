@@ -1,98 +1,31 @@
-"use client";
-import { Box, Button, Container, Grid, styled, Typography } from "@mui/material";
-import { useLocale, useTranslations } from "next-intl";
-import { Link } from "src/i18n/routing";
-import { mainAppUrl } from "src/config";
-import { getLocalizedMainAppUrl, getSignupUrl } from "src/utils/urlPaths";
+import { Button, Container, Grid, Stack, Typography } from "@mui/material";
+import { getLocale, getTranslations } from "next-intl/server";
+import { getSignupUrl } from "src/utils/urlPaths";
+import { BoxAccent, BoxContent, MobileImgWrapper, TypographyH2 } from "../styled";
+import { ImgWrapper } from "src/content/overview/Hero/styles";
+import Image from "next/image";
 
-const TypographyH1 = styled(Typography)(
-  ({ theme }) => `
-    font-size: ${theme.typography.pxToRem(50)};
-`,
-);
-
-export const TypographyH2 = styled(Typography)(
-  ({ theme }) => `
-    font-size: ${theme.typography.pxToRem(17)};
-`,
-);
-
-const ImgWrapper = styled(Box)(
-  ({ theme }) => `
-    position: relative;
-    z-index: 5;
-    width: 100%;
-    overflow: hidden;
-    border-radius: ${theme.general.borderRadiusLg};
-    box-shadow: 0 0rem 14rem 0 rgb(255 255 255 / 20%), 0 0.8rem 2.3rem rgb(111 130 156 / 3%), 0 0.2rem 0.7rem rgb(17 29 57 / 15%);
-
-    img {
-      display: block;
-      width: 100%;
-    }
-  `,
-);
-
-const BoxAccent = styled(Box)(
-  ({ theme }) => `
-    border-radius: ${theme.general.borderRadiusLg};
-    background: ${theme.palette.background.default};
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    left: -40px;
-    bottom: -40px;
-    display: block;
-    z-index: 4;
-  `,
-);
-
-const BoxContent = styled(Box)(
-  () => `
-  width: 150%;
-  position: relative;
-`,
-);
-
-const MobileImgWrapper = styled(Box)(
-  ({ theme }) => `
-    position: absolute;
-    z-index: 6;
-    width: 15%;
-    left: -14%;
-    bottom: -25%;
-         ${theme.breakpoints.down("md")} {
-    left: 45%;
-    bottom: -50%;
-  }
-    transform: translateY(-50%);
-    overflow: hidden;
-    border-radius: ${theme.general.borderRadiusLg};
-    box-shadow: 0 0rem 14rem 0 rgb(0 0 0 / 20%), 0 0.8rem 2.3rem rgb(0 0 0 / 3%), 0 0.2rem 0.7rem rgb(0 0 0 / 15%);
-
-    img {
-      display: block;
-      width: 100%;
-    }
-  `,
-);
-
-function HeroFree() {
-  const t = useTranslations();
-  const locale = useLocale();
+async function HeroFree() {
+  const t = await getTranslations();
+  const locale = await getLocale();
 
   return (
     <Container maxWidth="lg">
       <Grid spacing={{ xs: 6, md: 10 }} justifyContent="center" alignItems="center" container>
-        <Grid item md={6} pr={{ xs: 0, md: 3 }}>
-          <TypographyH1
+        <Grid item md={6} pr={{ xs: 0, md: 4 }}>
+          <Typography component="h1" variant="h4" mb={2}>
+            {t("free_cmms.hero.subtitle")}
+          </Typography>
+          <Typography
             sx={{
               mb: 2,
             }}
-            variant="h1"
+            fontSize={45}
+            variant="h2"
+            component="h2"
           >
-            Free CMMS for Work Order Management
-          </TypographyH1>
+            {t("free_cmms.hero.title")}
+          </Typography>
           <TypographyH2
             sx={{
               lineHeight: 1.5,
@@ -102,27 +35,34 @@ function HeroFree() {
             color="text.secondary"
             fontWeight="normal"
           >
-            A Free CMMS to manage work orders at your factory, shop floor, building, car fleet, restaurant chain, solar
-            and wind sites or just about any industry.
+            {t("free_cmms.hero.description")}
           </TypographyH2>
-          <Button
-            component={Link}
-            href={getLocalizedMainAppUrl("account/register", locale)}
-            size="large"
-            variant="contained"
-          >
-            Get Started for Free - No Credit Card Required!
-          </Button>
+          <Stack direction={{ xs: "column", md: "row" }} spacing={1}>
+            <Button
+              size="large"
+              variant="contained"
+              href={getSignupUrl(locale)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t("free_cmms.hero.start_free")}
+            </Button>
+          </Stack>
         </Grid>
         <Grid item md={6}>
           <BoxContent>
-            <Link href={getSignupUrl(locale)}>
+            <a href={getSignupUrl(locale)}>
               <ImgWrapper>
-                <img alt="Work Orders" src="/static/images/overview/work_orders_screenshot.png" />
+                <Image
+                  alt={t("free_cmms.hero.work_orders_alt")}
+                  src="/static/images/overview/work_orders_screenshot.png"
+                  width={1920}
+                  height={922}
+                />
               </ImgWrapper>
-            </Link>
+            </a>
             <MobileImgWrapper>
-              <img alt="Mobile App" src="/static/mobile_app.jpeg" />
+              <Image height={1600} width={720} alt={t("free_cmms.hero.mobile_app_alt")} src="/static/mobile_app.jpeg" />
             </MobileImgWrapper>
             <BoxAccent
               sx={{

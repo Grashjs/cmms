@@ -19,7 +19,6 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { Helmet } from "react-helmet-async";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link, usePathname, useRouter } from "src/i18n/routing";
@@ -30,7 +29,6 @@ import NavBar from "src/components/NavBar";
 import Faq from "./components/Faq";
 import SubscriptionPlanSelector, { PRICING_YEAR_MULTIPLIER } from "./components/SubscriptionPlanSelector";
 import { fireGa4Event } from "src/utils/overall";
-import Footer from "src/components/Footer";
 
 const PricingWrapper = styled(Box)(
   ({ theme }) => `
@@ -88,14 +86,6 @@ function Pricing() {
   }, []);
   return (
     <PricingWrapper>
-      <Helmet>
-        <title>Pricing - Atlas CMMS</title>
-        <meta
-          name="description"
-          content="Flexible pricing plans for Atlas CMMS. Choose between Cloud and Self-Hosted versions of our open-source CMMS to optimize your maintenance operations."
-        />
-        <link rel="canonical" href="https://atlas-cmms.com/pricing" />
-      </Helmet>
       <NavBar />
 
       <Container maxWidth="lg" sx={{ mt: 8 }}>

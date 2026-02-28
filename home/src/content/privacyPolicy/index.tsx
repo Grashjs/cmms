@@ -1,27 +1,17 @@
-"use client";
 import { Box, Card, Container, List, ListItem, Typography } from "@mui/material";
 import { Link } from "src/i18n/routing";
-import { Helmet } from "react-helmet-async";
-import { useTranslations } from "next-intl";
 import NavBar from "src/components/NavBar";
 import { isCloudVersion, isWhiteLabeled } from "src/config";
-import { useBrand } from "@/src/contexts/BrandContext";
+import { getTranslations } from "next-intl/server";
+import { getBrandServer } from "src/utils/serverBrand";
 
-function Overview() {
-  const t = useTranslations();
-  const brandConfig = useBrand();
+async function Overview() {
+  const t = await getTranslations();
+  const brandConfig = await getBrandServer();
   const IS_ORIGINAL_CLOUD = !isWhiteLabeled && isCloudVersion;
 
   return (
-    <Box>
-      <Helmet>
-        <title>{t("privacy_policy")} - Atlas CMMS</title>
-        <meta
-          name="description"
-          content="Read the Privacy Policy for Atlas CMMS. Learn how we protect your data and ensure security in our open-source maintenance management platform."
-        />
-        <link rel="canonical" href="https://atlas-cmms.com/privacy" />
-      </Helmet>
+    <Box sx={{ backgroundColor: "#F2F5F9", pb: 6 }}>
       <NavBar />
       <Container maxWidth="lg" sx={{ mt: 8 }}>
         <Box textAlign="center" mb={6}>
@@ -41,16 +31,16 @@ function Overview() {
             Welcome to {brandConfig.name}{" "}
             {IS_ORIGINAL_CLOUD && (
               <>
-                , a solution developed and provided by Intelloop s.a.r.l ("Intelloop", "we", "us", or "our"), located at
-                410, Boulevard Zerktouni, Hamad, №1- Casablanca-Morocco 20040 (Trade Register: 585917, Tax ID: 53800712,
-                ICE: 003298628000019). Intelloop s.a.r.l Au
+                , a solution developed and provided by Intelloop s.a.r.l (&#34;Intelloop&#34;, &#34;we&#34;,
+                &#34;us&#34;, or &#34;our&#34;), located at 410, Boulevard Zerktouni, Hamad, №1- Casablanca-Morocco
+                20040 (Trade Register: 585917, Tax ID: 53800712, ICE: 003298628000019). Intelloop s.a.r.l Au
               </>
             )}
           </Typography>
           <Typography paragraph>
             Our commitment is to your privacy and the protection of your information. This Privacy Policy outlines how
             we collect, use, disclose, and safeguard your information when you visit our website {brandConfig.website}{" "}
-            (the "Site") or use our {brandConfig.name} software and services (collectively, "Services").
+            (the &#34;Site&#34;) or use our {brandConfig.name} software and services (collectively, &#34;Services&#34;).
           </Typography>
           <Typography paragraph>
             By accessing or using our Services, you signify your agreement to this Privacy Policy. If you do not agree
@@ -62,7 +52,7 @@ function Overview() {
           </Typography>
           <Typography paragraph>
             We may collect personal information that identifies you as an individual or relates to an identifiable
-            individual ("Personal Information"), including but not limited to:
+            individual (&#34;Personal Information&#34;), including but not limited to:
           </Typography>
           <List sx={{ pl: 4, listStyleType: "disc" }}>
             <ListItem sx={{ display: "list-item" }}>
@@ -398,7 +388,7 @@ function Overview() {
           </Typography>
 
           <Typography variant="h3" sx={{ mt: 3, mb: 2, fontWeight: "bold" }}>
-            11. Children's Privacy
+            11. Children&#39;s Privacy
           </Typography>
           <Typography paragraph>
             Our Services are not intended for children under the age of 16. We do not knowingly collect personal

@@ -15,22 +15,20 @@ interface ProvidersProps {
 
 export default function Providers({ children }: ProvidersProps) {
   return (
-    <HelmetProvider>
-      <UtmTrackerProvider customParams={["msclkid"]}>
-        <TitleProvider>
-          <ThemeProvider>
-            <SnackbarProvider
-              maxSnack={6}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right",
-              }}
-            >
-              <CustomSnackBarProvider>{children}</CustomSnackBarProvider>
-            </SnackbarProvider>
-          </ThemeProvider>
-        </TitleProvider>
-      </UtmTrackerProvider>
-    </HelmetProvider>
+    <UtmTrackerProvider customParams={["msclkid"]}>
+      <TitleProvider>
+        <ThemeProvider>
+          <SnackbarProvider
+            maxSnack={6}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+          >
+            <CustomSnackBarProvider>{children}</CustomSnackBarProvider>
+          </SnackbarProvider>
+        </ThemeProvider>
+      </TitleProvider>
+    </UtmTrackerProvider>
   );
 }

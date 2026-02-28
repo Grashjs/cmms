@@ -1,25 +1,15 @@
-"use client";
 import { Box, Card, Container, List, ListItem, Typography } from "@mui/material";
-import { Helmet } from "react-helmet-async";
-import { useTranslations } from "next-intl";
 import NavBar from "src/components/NavBar";
 import { IS_ORIGINAL_CLOUD } from "src/config";
-import { useBrand } from "src/contexts/BrandContext";
+import { getTranslations } from "next-intl/server";
+import { getBrandServer } from "src/utils/serverBrand";
 
-function TermsOfService() {
-  const t = useTranslations();
-  const brandConfig = useBrand();
+async function TermsOfService() {
+  const t = await getTranslations();
+  const brandConfig = await getBrandServer();
 
   return (
-    <Box>
-      <Helmet>
-        <title>{t("terms_of_service")} - Atlas CMMS</title>
-        <meta
-          name="description"
-          content="Terms of Service for Atlas CMMS. Review the guidelines, responsibilities, and legal agreements for using our open-source CMMS software."
-        />
-        <link rel="canonical" href="https://atlas-cmms.com/terms-of-service" />
-      </Helmet>
+    <Box sx={{ backgroundColor: "#F2F5F9", pb: 6 }}>
       <NavBar />
       <Container maxWidth="lg" sx={{ mt: 8 }}>
         <Box textAlign="center" mb={6}>
@@ -38,12 +28,12 @@ function TermsOfService() {
           </Typography>
           {IS_ORIGINAL_CLOUD && (
             <Typography paragraph>
-              This Terms of Service Agreement ("Agreement") is a legal agreement between you as an individual or entity
-              ("You" or "Customer") and Intelloop s.a.r.l located at 410, Boulevard Zerktouni, Hamad, N°1-
-              Casablanca-Morocco 20040, Trade Register: 585917, Tax Id: 53800712, ICE: 003298628000019 ("Company", "we",
-              "us" or "our"), a Morocco-based management consultancy specializing in industrial Projects launch,
-              Maintenance and Reliability, governing your use of the {brandConfig.name} software and services (the
-              "Software").
+              This Terms of Service Agreement (&#34;Agreement&#34;) is a legal agreement between you as an individual or
+              entity (&#34;You&#34; or &#34;Customer&#34;) and Intelloop s.a.r.l located at 410, Boulevard Zerktouni,
+              Hamad, N°1- Casablanca-Morocco 20040, Trade Register: 585917, Tax Id: 53800712, ICE: 003298628000019
+              (&#34;Company&#34;, &#34;we&#34;, &#34;us&#34; or &#34;our&#34;), a Morocco-based management consultancy
+              specializing in industrial Projects launch, Maintenance and Reliability, governing your use of the{" "}
+              {brandConfig.name} software and services (the &#34;Software&#34;).
             </Typography>
           )}
           <Typography paragraph sx={{ fontWeight: "bold" }}>
@@ -75,7 +65,7 @@ function TermsOfService() {
           </Typography>
           <Typography paragraph>
             Company grants you a limited, non-exclusive, non-transferable right to access and use the Software for a
-            period of 15 days from acceptance of this Agreement (the "Trial Period") solely for the purpose of
+            period of 15 days from acceptance of this Agreement (the &#34;Trial Period&#34;) solely for the purpose of
             internally evaluating the suitability of the Software for your business needs.
           </Typography>
 
@@ -282,9 +272,9 @@ function TermsOfService() {
             8.1 Definition
           </Typography>
           <Typography paragraph>
-            "Confidential Information" means all non-public information disclosed by either party to the other, whether
-            orally or in writing, that is designated as confidential or that reasonably should be understood to be
-            confidential given the nature of the information and the circumstances of disclosure.
+            &#34;Confidential Information&#34; means all non-public information disclosed by either party to the other,
+            whether orally or in writing, that is designated as confidential or that reasonably should be understood to
+            be confidential given the nature of the information and the circumstances of disclosure.
           </Typography>
 
           <Typography variant="h4" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>
@@ -293,12 +283,13 @@ function TermsOfService() {
           <Typography paragraph>Each party agrees to:</Typography>
           <List sx={{ pl: 4, listStyleType: "disc" }}>
             <ListItem sx={{ display: "list-item" }}>
-              <Typography>Maintain the confidentiality of the other party's Confidential Information</Typography>
+              <Typography>Maintain the confidentiality of the other party&#39;s Confidential Information</Typography>
             </ListItem>
             <ListItem sx={{ display: "list-item" }}>
               <Typography>
-                Use the same degree of care to protect the confidentiality of the other party's Confidential Information
-                that it uses to protect its own Confidential Information, but in no event less than reasonable care
+                Use the same degree of care to protect the confidentiality of the other party&#39;s Confidential
+                Information that it uses to protect its own Confidential Information, but in no event less than
+                reasonable care
               </Typography>
             </ListItem>
             <ListItem sx={{ display: "list-item" }}>
@@ -327,8 +318,8 @@ function TermsOfService() {
             </ListItem>
             <ListItem sx={{ display: "list-item" }}>
               <Typography>
-                Was independently developed by the receiving party without use of the disclosing party's Confidential
-                Information
+                Was independently developed by the receiving party without use of the disclosing party&#39;s
+                Confidential Information
               </Typography>
             </ListItem>
           </List>
@@ -387,9 +378,9 @@ function TermsOfService() {
             10.2 Disclaimer
           </Typography>
           <Typography paragraph>
-            EXCEPT AS EXPRESSLY PROVIDED HEREIN, THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE." COMPANY DISCLAIMS
-            ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY,
-            FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+            EXCEPT AS EXPRESSLY PROVIDED HEREIN, THE SOFTWARE IS PROVIDED &#34;AS IS&#34; AND &#34;AS AVAILABLE.&#34;
+            COMPANY DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF
+            MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
           </Typography>
 
           <Typography variant="h4" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>
@@ -418,8 +409,8 @@ function TermsOfService() {
             11.2 Limitation of Liability
           </Typography>
           <Typography paragraph>
-            COMPANY'S TOTAL LIABILITY ARISING OUT OF OR RELATED TO THIS AGREEMENT SHALL NOT EXCEED THE AMOUNT PAID BY
-            YOU FOR THE SOFTWARE DURING THE TWELVE (12) MONTHS PRECEDING THE EVENT GIVING RISE TO THE LIABILITY.
+            COMPANY&#39;S TOTAL LIABILITY ARISING OUT OF OR RELATED TO THIS AGREEMENT SHALL NOT EXCEED THE AMOUNT PAID
+            BY YOU FOR THE SOFTWARE DURING THE TWELVE (12) MONTHS PRECEDING THE EVENT GIVING RISE TO THE LIABILITY.
           </Typography>
 
           <Typography variant="h4" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>
@@ -439,7 +430,7 @@ function TermsOfService() {
           </Typography>
           <Typography paragraph>
             You agree to indemnify and hold Company harmless from any claim, demand, loss, liability, damage or expense
-            (including reasonable attorneys' fees) arising out of your use of the Software or violation of this
+            (including reasonable attorneys&#39; fees) arising out of your use of the Software or violation of this
             Agreement.
           </Typography>
 
@@ -510,7 +501,7 @@ function TermsOfService() {
           </Typography>
           <Typography paragraph>
             Company reserves the right to modify or discontinue the Software at any time. For material changes, we will
-            provide at least 90 days' notice via email and in-app notification.
+            provide at least 90 days&#39; notice via email and in-app notification.
           </Typography>
 
           <Typography variant="h4" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>
