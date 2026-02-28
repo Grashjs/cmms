@@ -3,7 +3,19 @@ import { Box, Container, Grid, Typography } from "@mui/material";
 import { getBrandServer as getBrandConfig } from "src/utils/serverBrand";
 import FeatureTabs from "./FeatureTabs";
 import PricingSection from "./PricingSection";
-import { BoxHighlights, BoxLayouts, BoxLayoutsContent, BoxLayoutsImage, BoxWave, BoxWaveAlt, LayoutImgButton, TypographyFeature, TypographyHeading, TypographySubHeading } from "./styles";
+import {
+  BoxHighlights,
+  BoxLayouts,
+  BoxLayoutsContent,
+  BoxLayoutsImage,
+  BoxWave,
+  BoxWaveAlt,
+  LayoutImgButton,
+  TypographyFeature,
+  TypographyHeading,
+  TypographySubHeading,
+} from "./styles";
+import Image from "next/image";
 
 async function Highlights({ hidePricing }: { hidePricing?: boolean }) {
   const t = await getTranslations();
@@ -57,19 +69,19 @@ async function Highlights({ hidePricing }: { hidePricing?: boolean }) {
             <Grid item xs={12} md={6}>
               <LayoutImgButton>
                 <Typography variant="h4">{t("work_orders")}</Typography>
-                <img src="/static/images/overview/work_order_screenshot.png" alt={t("work_orders")} />
+                <Image src="/static/images/overview/work_order_screenshot.png" alt={t("work_orders")} />
               </LayoutImgButton>
             </Grid>
             <Grid item xs={12} md={6}>
               <LayoutImgButton>
                 <Typography variant="h4">{t("custom_dashboards")}</Typography>
-                <img src="/static/images/overview/analytics_screenshot.png" alt={t("custom_dashboards")} />
+                <Image src="/static/images/overview/analytics_screenshot.png" alt={t("custom_dashboards")} />
               </LayoutImgButton>
             </Grid>
             <Grid item xs={12} md={6}>
               <LayoutImgButton>
                 <Typography variant="h4">{t("asset_management")}</Typography>
-                <img src="/static/images/overview/assets.png" alt={t("asset_management")} />
+                <Image src="/static/images/overview/assets.png" alt={t("asset_management")} />
               </LayoutImgButton>
             </Grid>
           </Grid>

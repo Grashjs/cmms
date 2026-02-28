@@ -13,6 +13,7 @@ import {
   TypographyH1Primary,
   TypographyH2,
 } from "./styles";
+import Image from "next/image";
 
 export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig }) {
   const t = useTranslations();
@@ -245,7 +246,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
             <Blob1 />
             <Blob2 />
             <CardImageWrapper>
-              <img src={image} alt={brandConfig.shortName} />
+              <Image src={image} alt={brandConfig.shortName} />
             </CardImageWrapper>
           </BlowWrapper>
         </Grid>
