@@ -1,0 +1,16 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.atlas.cmms",
+      "sha256_cert_fingerprints": [
+        "D6:E9:67:64:B3:CA:2D:7C:78:63:71:F5:CF:36:AB:D3:B7:61:4C:78:2D:3D:D8:67:1B:99:CB:50:99:17:CD:E6",
+        "BF:B0:47:67:46:FA:25:06:23:38:3E:8B:B7:AB:5F:9F:05:89:89:32:12:61:70:6E:A1:50:8A:8A:F0:88:DD:DA"
+      ]
+    }
+  }
+]
