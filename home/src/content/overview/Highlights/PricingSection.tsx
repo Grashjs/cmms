@@ -39,7 +39,7 @@ export default function PricingSection({ hidePricing }: { hidePricing?: boolean 
           {pricingType === "selfhosted" && (
             <Box sx={{ display: "flex", justifyContent: "center", mb: 1 }}>
               <Link
-                style={{ color: theme.palette.primary.main, fontFamily: "Inter" }}
+                style={{ color: theme.palette.primary.main, fontFamily: "Inter", fontSize: "13px" }}
                 href={"https://github.com/Grashjs/cmms?tab=readme-ov-file#self-host--run-locally"}
               >
                 {t("installation_docs")}
