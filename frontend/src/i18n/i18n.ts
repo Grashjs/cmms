@@ -125,6 +125,7 @@ export const loadLanguage = async (lang: string): Promise<void> => {
   if (!i18n.hasResourceBundle('en', 'translation')) {
     const enModule = await translationLoaders['en']();
     i18n.addResourceBundle('en', 'translation', enModule.default, true, true);
+    await i18n.changeLanguage(lang); // this triggers the re-render
   }
 
   if (lang === 'en') return;
