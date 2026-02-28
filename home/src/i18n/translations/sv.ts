@@ -1570,7 +1570,7 @@ const locale = {
     annually_save_two_months: "Årligen (spara 2 månader)",
     most_popular: "Mest populära",
     get_your_license: "Få din licens",
-    title: "Prissättning - Atlas CMMS",
+    title: "Prissättning",
     description:
       "Flexibla prisplaner för Atlas CMMS. Välj mellan Cloud- och Self-Hosted-versioner av vårt open-source CMMS för att optimera din underhållsverksamhet.",
   },

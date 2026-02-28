@@ -1572,7 +1572,7 @@ const locale = {
     annually_save_two_months: "Annualmente (Risparmia 2 mesi)",
     most_popular: "I più popolari",
     get_your_license: "Ottieni la tua licenza",
-    title: "Prezzi - Atlas CMMS",
+    title: "Prezzi",
     description:
       "Piani tariffari flessibili per Atlas CMMS. Scegli tra le versioni Cloud e Self-Hosted del nostro CMMS open source per ottimizzare le tue operazioni di manutenzione.",
   },

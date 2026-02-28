@@ -1407,7 +1407,7 @@ const locale = {
     annually_save_two_months: "Évente (2 hónap megtakarítás)",
     most_popular: "Legnépszerűbb",
     get_your_license: "Szerezd meg a jogosítványodat",
-    title: "Árazás - Atlas CMMS",
+    title: "Árazás",
     description:
       "Rugalmas árazási tervek az Atlas CMMS-hez. Válasszon nyílt forráskódú GMAO rendszerünk Cloud és Self-Hosted verziói közül a karbantartási folyamatok optimalizálásához.",
   },

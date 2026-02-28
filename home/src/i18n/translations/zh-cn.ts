@@ -1354,7 +1354,7 @@ const locale = {
     annually_save_two_months: "每年（节省 2 个月）",
     most_popular: "最受欢迎",
     get_your_license: "获得驾照",
-    title: "价格 - Atlas CMMS",
+    title: "价格",
     description:
       "Atlas CMMS 灵活的定价计划。在我们的开源 CMMS 的云端版本和自托管版本之间进行选择，以优化您的维护业务。",
   },

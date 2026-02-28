@@ -1584,7 +1584,7 @@ const esJSON = {
     annually_save_two_months: "Anualmente (Ahorra 2 meses)",
     most_popular: "Más populares",
     get_your_license: "Obtenga su licencia",
-    title: "Precios - Atlas CMMS",
+    title: "Precios",
     description:
       "Planes de precios flexibles para Atlas CMMS. Elija entre las versiones en la nube y autoalojadas de nuestro GMAO de código abierto para optimizar sus operaciones de mantenimiento.",
   },

@@ -1577,7 +1577,7 @@ const deJSON = {
     annually_save_two_months: "Jährlich (Sparen Sie 2 Monate)",
     most_popular: "Am beliebtesten",
     get_your_license: "Hol dir deinen Führerschein",
-    title: "Preise - Atlas CMMS",
+    title: "Preise",
     description:
       "Flexible Preispläne für Atlas CMMS. Wählen Sie zwischen Cloud- und selbstgehosteten Versionen unseres Open-Source-CMMS, um Ihre Wartungsarbeiten zu optimieren.",
   },

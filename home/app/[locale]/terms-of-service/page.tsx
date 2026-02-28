@@ -8,7 +8,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const t = await getTranslations({ locale });
 
   return {
-    title: `${t("terms_of_service")} - Atlas CMMS`,
+    title: `${t("terms_of_service")}`,
     description:
       "Terms of Service for Atlas CMMS. Review the guidelines, responsibilities, and legal agreements for using our open-source CMMS software.",
     alternates: {

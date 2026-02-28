@@ -1578,7 +1578,7 @@ const locale = {
     annually_save_two_months: "Jaarlijks (Bespaar 2 maanden)",
     most_popular: "Meest populair",
     get_your_license: "Haal je rijbewijs",
-    title: "Prijzen - Atlas CMMS",
+    title: "Prijzen",
     description:
       "Flexibele prijsplannen voor Atlas CMMS. Kies tussen Cloud- en Self-Hosted versies van ons open-source CMMS om uw onderhoudsactiviteiten te optimaliseren.",
   },

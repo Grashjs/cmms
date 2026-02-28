@@ -1616,7 +1616,7 @@ const trJSON = {
     annually_save_two_months: "Yıllık (2 ay tasarruf edin)",
     most_popular: "En Popüler",
     get_your_license: "Ehliyetinizi alın",
-    title: "Fiyatlandırma - Atlas CMMS",
+    title: "Fiyatlandırma",
     description:
       "Atlas CMMS için esnek fiyatlandırma planları. Bakım operasyonlarınızı optimize etmek için açık kaynaklı CMMS'mizin Bulut ve Kendi Sunucunuzda Barındırılan sürümleri arasından seçim yapın.",
   },

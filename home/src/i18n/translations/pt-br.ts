@@ -1575,7 +1575,7 @@ const ptBRJSON = {
     annually_save_two_months: "Anualmente (Economize 2 meses)",
     most_popular: "Mais populares",
     get_your_license: "Obtenha sua licença",
-    title: "Preços - Atlas CMMS",
+    title: "Preços",
     description:
       "Planos de preços flexíveis para o Atlas CMMS. Escolha entre as versões Cloud e Self-Hosted do nosso CMMS de código aberto para otimizar suas operações de manutenção.",
   },

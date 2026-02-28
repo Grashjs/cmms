@@ -1585,7 +1585,7 @@ const locale = {
     annually_save_two_months: "Annually (Save 2 months)",
     most_popular: "Most Popular",
     get_your_license: "Get your license",
-    title: "Pricing - Atlas CMMS",
+    title: "Pricing",
     description:
       "Flexible pricing plans for Atlas CMMS. Choose between Cloud and Self-Hosted versions of our open-source CMMS to optimize your maintenance operations.",
   },

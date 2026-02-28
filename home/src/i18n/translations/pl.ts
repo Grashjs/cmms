@@ -1570,7 +1570,7 @@ const plJSON = {
     annually_save_two_months: "Rocznie (oszczędzasz 2 miesiące)",
     most_popular: "Najpopularniejsze",
     get_your_license: "Zdobądź licencję",
-    title: "Cennik - Atlas CMMS",
+    title: "Cennik",
     description:
       "Elastyczne plany cenowe dla Atlas CMMS. Wybierz między wersją w chmurze a wersją samodzielnie hostowaną naszego CMMS typu open source, aby zoptymalizować swoje operacje konserwacyjne.",
   },
