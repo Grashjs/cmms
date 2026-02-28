@@ -1,11 +1,9 @@
 <!--/*@thymesVar id="requestTitle" type="java.lang.String"*/-->
 <!--/*@thymesVar id="requestLink" type="java.lang.String"*/-->
-<!--/*@thymesVar id="featuresLink" type="java.lang.String"*/-->
 <div th:replace="fragments/main-layout :: emailTemplate(
     #{rejectedRequest},
     #{rejectedRequest},
     #{rejectedRequestMessage(${requestTitle})},
     #{seeDetails},
-    ${requestLink},
-    ${featuresLink}
-)"></div>
+    ${requestLink}
+    )"></div>

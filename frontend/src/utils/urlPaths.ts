@@ -57,5 +57,10 @@ export const getPreventiveMaintenanceUrl = (id) => {
 };
 
 export const getLocalizedHomeUrl = (url: string, lang: string) => {
-  return homeUrl + lang.replace('_', '-').toLowerCase() + '/' + url;
+  return (
+    (homeUrl ? homeUrl : 'https://atlas-cmms.com') +
+    lang.replace('_', '-').toLowerCase() +
+    '/' +
+    url
+  );
 };

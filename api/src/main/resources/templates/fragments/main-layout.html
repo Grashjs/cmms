@@ -12,7 +12,7 @@
 <body style="background-color: #f4f4f4; margin: 0 !important; padding: 0 !important;">
 
 <!-- Email Template Fragment -->
-<div th:fragment="emailTemplate(headerText, preheaderText, messageText, buttonText, buttonLink, featuresLink)">
+<div th:fragment="emailTemplate(headerText, preheaderText, messageText, buttonText, buttonLink)">
     <!-- HIDDEN PREHEADER TEXT -->
     <div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: 'Lato', Helvetica, Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;"
          th:text="${preheaderText}">
@@ -92,26 +92,7 @@
                 </table>
             </td>
         </tr>
-
-        <!-- HELP SECTION -->
-        <tr>
-            <td bgcolor="#f4f4f4" align="center" style="padding: 30px 10px 0px 10px;">
-                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
-                    <tr>
-                        <td bgcolor="white" align="center"
-                            style="padding: 30px 30px 30px 30px; border-radius: 8px 8px 8px 8px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
-                            <h2 style="font-size: 20px; font-weight: 400; color: #111111; margin: 0;"
-                                th:text="#{needHelp}"></h2>
-                            <p style="margin: 0;">
-                                <a th:href="${featuresLink}" target="_blank"
-                                   th:style="'color:' + ${backgroundColor} + ';'"
-                                   th:text="#{hereToHelp}"></a>
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
+        
 
         <!-- FOOTER SPACING -->
         <tr>

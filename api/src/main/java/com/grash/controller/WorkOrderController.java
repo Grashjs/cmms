@@ -341,7 +341,6 @@ public class WorkOrderController {
                     user.getId().equals(savedWorkOrder.getCreatedBy()) ||
                             user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.WORK_ORDERS)) {
                 Map<String, Object> mailVariables = new HashMap<String, Object>() {{
-                    put("featuresLink", frontendUrl + "/#key-features");
                     put("workOrdersLink", frontendUrl + "/app/work-orders");
                     put("workOrderTitle", savedWorkOrder.getTitle());
                     put("deleter", user.getFullName());

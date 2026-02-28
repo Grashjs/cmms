@@ -1,11 +1,9 @@
 <!--/*@thymesVar id="workOrderTitle" type="java.lang.String"*/-->
 <!--/*@thymesVar id="workOrderLink" type="java.lang.String"*/-->
-<!--/*@thymesVar id="featuresLink" type="java.lang.String"*/-->
 <div th:replace="fragments/main-layout :: emailTemplate(
     #{newWorkOrder},
     #{newWorkOrderHeader},
     #{newWorkOrderMessage(${workOrderTitle})},
     #{seeDetails},
-    ${workOrderLink},
-    ${featuresLink}
-)"></div>
+    ${workOrderLink}
+    )"></div>

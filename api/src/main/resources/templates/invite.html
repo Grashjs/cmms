@@ -1,12 +1,10 @@
 <!--/*@thymesVar id="inviter" type="java.lang.String"*/-->
 <!--/*@thymesVar id="company" type="java.lang.String"*/-->
 <!--/*@thymesVar id="joinLink" type="java.lang.String"*/-->
-<!--/*@thymesVar id="featuresLink" type="java.lang.String"*/-->
 <div th:replace="fragments/main-layout :: emailTemplate(
     #{inviteTitle(${brandConfig.getName()})},
     #{inviteHeader(${brandConfig.getName()})},
     #{inviteMessage(${inviter},${company}, ${brandConfig.getShortName()})},
     #{joinCompany},
-    ${joinLink},
-    ${featuresLink}
-)"></div>
+    ${joinLink}
+    )"></div>

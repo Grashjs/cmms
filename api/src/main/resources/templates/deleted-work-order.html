@@ -1,12 +1,10 @@
 <!--/*@thymesVar id="workOrderTitle" type="java.lang.String"*/-->
 <!--/*@thymesVar id="deleter" type="java.lang.String"*/-->
 <!--/*@thymesVar id="workOrdersLink" type="java.lang.String"*/-->
-<!--/*@thymesVar id="featuresLink" type="java.lang.String"*/-->
 <div th:replace="fragments/main-layout :: emailTemplate(
     #{deleted_wo},
     #{deleted_wo},
     #{deleted_wo_message(${workOrderTitle},${deleter})},
     #{seeDetails},
-    ${workOrdersLink},
-    ${featuresLink}
-)"></div>
+    ${workOrdersLink}
+    )"></div>

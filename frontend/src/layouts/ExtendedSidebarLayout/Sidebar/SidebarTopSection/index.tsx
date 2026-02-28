@@ -84,7 +84,7 @@ function SidebarTopSection() {
     try {
       handleClose();
       await logout();
-      window.location.href = homeUrl;
+      navigate('/');
     } catch (err) {
       console.error(err);
     }

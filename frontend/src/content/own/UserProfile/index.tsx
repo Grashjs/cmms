@@ -35,7 +35,7 @@ function UserProfile() {
       const { success } = await api.deletes<{ success: boolean }>(`auth`);
       if (success) {
         logout();
-        window.location.href = homeUrl;
+        navigate('/');
       }
     }
   };
