@@ -1596,7 +1596,7 @@ const locale = {
   trusted_by_maintenance_teams: "Betrodd av underhållsteam i flera branscher",
   cut_costs_performance: "Sänk kostnaderna för underhållsprogramvara utan att offra prestanda",
   free_cmms: {
-    title: "Atlas Gratis CMMS-programvara | Inget kreditkort krävs",
+    title: "Gratis CMMS-programvara | Inget kreditkort krävs",
     description:
       "Gratis CMMS-programvara — inte en testversion. Hantera underhåll, tillgångar och arbetsordrar omedelbart. Inget kreditkort krävs.",
     keywords:

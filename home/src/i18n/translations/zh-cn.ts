@@ -1380,7 +1380,7 @@ const locale = {
   trusted_by_maintenance_teams: "深受各行业维护团队的信赖",
   cut_costs_performance: "在不牺牲性能的情况下降低维护软件成本",
   free_cmms: {
-    title: "Atlas 免费 CMMS 软件 | 无需信用卡",
+    title: "免费 CMMS 软件 | 无需信用卡",
     description: "免费 CMMS 软件 —— 并非试用版。立即管理维护、资产和工单。无需信用卡。",
     keywords: "免费 cmms, 维护管理软件, 免费工单软件, 资产跟踪, 预防性维护",
     hero: {

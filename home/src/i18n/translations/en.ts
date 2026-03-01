@@ -1612,7 +1612,7 @@ const locale = {
   trusted_by_maintenance_teams: "Trusted by maintenance teams across multiple industries",
   cut_costs_performance: "Cut maintenance software costs without sacrificing performance",
   free_cmms: {
-    title: "Atlas Free CMMS Software | No credit card required",
+    title: "Free CMMS Software | No credit card required",
     description:
       "Free CMMS software — not a trial. Manage maintenance, assets and work orders instantly. No credit card required.",
     keywords:

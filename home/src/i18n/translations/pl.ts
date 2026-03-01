@@ -1596,7 +1596,7 @@ const plJSON = {
   trusted_by_maintenance_teams: "Zaufany przez zespoły ds. utrzymania ruchu w różnych branżach",
   cut_costs_performance: "Zredukuj koszty bez utraty wydajności",
   free_cmms: {
-    title: "Atlas Darmowe Oprogramowanie CMMS | Karta kredytowa nie jest wymagana",
+    title: "Darmowe Oprogramowanie CMMS | Karta kredytowa nie jest wymagana",
     description:
       "Darmowe oprogramowanie CMMS — to nie jest wersja próbna. Zarządzaj konserwacją, zasobami i zleceniami pracy błyskawicznie. Nie wymagamy karty kredytowej.",
     keywords:

@@ -1611,7 +1611,7 @@ const esJSON = {
   trusted_by_maintenance_teams: "Aprobado por equipos de mantenimiento en varios sectores",
   cut_costs_performance: "Reduce los costos de software de mantenimiento sin sacrificar el rendimiento",
   free_cmms: {
-    title: "Software GMAO Gratis Atlas | No se requiere tarjeta de crédito",
+    title: "Software GMAO Gratis | No se requiere tarjeta de crédito",
     description:
       "Software GMAO gratuito — no es una versión de prueba. Gestione el mantenimiento, los activos y las órdenes de trabajo al instante. No se requiere tarjeta de crédito.",
     keywords:

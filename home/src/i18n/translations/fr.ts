@@ -1683,7 +1683,7 @@ const frJSON = {
   trusted_by_maintenance_teams: "Approuvé par les équipes de maintenance dans plusieurs secteurs",
   cut_costs_performance: "Réduisez les coûts de logiciel de maintenance sans sacrifier la performance",
   free_cmms: {
-    title: "Logiciel de GMAO gratuit Atlas | Aucune carte de crédit requise",
+    title: "Logiciel de GMAO gratuit | Aucune carte de crédit requise",
     description:
       "Logiciel de GMAO gratuit — pas une version d'essai. Gérez la maintenance, les actifs et les bons de travail instantanément. Aucune carte de crédit requise.",
     keywords:

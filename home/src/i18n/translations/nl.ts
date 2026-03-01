@@ -1604,7 +1604,7 @@ const locale = {
   trusted_by_maintenance_teams: "Aangewezen door onderhoudsteam in verschillende sectoren",
   cut_costs_performance: "Kosten sparen, zonder leistung zu verlieren",
   free_cmms: {
-    title: "Atlas Gratis CMMS Software | Geen creditcard nodig",
+    title: "Gratis CMMS Software | Geen creditcard nodig",
     description:
       "Gratis CMMS-software — geen proefperiode. Beheer direct onderhoud, activa en werkorders. Geen creditcard nodig.",
     keywords: "gratis cmms, onderhoudsbeheersoftware, gratis werkordersoftware, activa volgen, preventief onderhoud",

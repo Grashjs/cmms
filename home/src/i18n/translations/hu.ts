@@ -1433,7 +1433,7 @@ const locale = {
   trusted_by_maintenance_teams: "A karbantartási csapatok bizalmát élvezve számos iparágban",
   cut_costs_performance: "Csökkentse a karbantartási szoftverköltségeket a teljesítmény feláldozása nélkül",
   free_cmms: {
-    title: "Atlas Ingyenes GMAO Szoftver | Nincs szükség hitelkártyára",
+    title: "Ingyenes GMAO Szoftver | Nincs szükség hitelkártyára",
     description:
       "Ingyenes GMAO szoftver — nem próbaverzió. Karbantartás, eszközök és munkarendelések kezelése azonnal. Nincs szükség hitelkártyára.",
     keywords:

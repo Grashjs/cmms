@@ -1598,7 +1598,7 @@ const locale = {
   trusted_by_maintenance_teams: "Approvato da squadre di manutenzione in vari settori",
   cut_costs_performance: "Riduci i costi senza compromettere le prestazioni",
   free_cmms: {
-    title: "Software CMMS Gratuito Atlas | Nessuna carta di credito richiesta",
+    title: "Software CMMS Gratuito | Nessuna carta di credito richiesta",
     description:
       "Software CMMS gratuito — non è una versione di prova. Gestisci manutenzione, risorse e ordini di lavoro all'istante. Nessuna carta di credito richiesta.",
     keywords:

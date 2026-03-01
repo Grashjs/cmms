@@ -1602,7 +1602,7 @@ const ptBRJSON = {
   trusted_by_maintenance_teams: "Confiado por equipes de manutenção em vários setores",
   cut_costs_performance: "Reduza os custos de software de manutenção sem sacrificar o desempenho",
   free_cmms: {
-    title: "Software CMMS Grátis Atlas | Sem necessidade de cartão de crédito",
+    title: "Software CMMS Grátis | Sem necessidade de cartão de crédito",
     description:
       "Software CMMS gratuito — não é uma versão de teste. Gerencie manutenção, ativos e ordens de serviço instantaneamente. Sem necessidade de cartão de crédito.",
     keywords:

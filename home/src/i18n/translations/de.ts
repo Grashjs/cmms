@@ -1604,7 +1604,7 @@ const deJSON = {
   trusted_by_maintenance_teams: "Verwendet von Wartungsteams in verschiedenen Branchen",
   cut_costs_performance: "Kosten sparen, ohne Leistung zu verlieren",
   free_cmms: {
-    title: "Atlas Kostenlose CMMS-Software | Keine Kreditkarte erforderlich",
+    title: "Kostenlose CMMS-Software | Keine Kreditkarte erforderlich",
     description:
       "Kostenlose CMMS-Software — keine Testversion. Verwalten Sie Wartung, Anlagen und Arbeitsaufträge sofort. Keine Kreditkarte erforderlich.",
     keywords:

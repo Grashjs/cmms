@@ -1642,7 +1642,7 @@ const trJSON = {
   trusted_by_maintenance_teams: "Birden fazla sektörde bakım ekipleri tarafından güvenilmektedir",
   cut_costs_performance: "Performanstan ödün vermeden bakım yazılımı maliyetlerini düşürün",
   free_cmms: {
-    title: "Atlas Ücretsiz CMMS Yazılımı | Kredi kartı gerekmez",
+    title: "Ücretsiz CMMS Yazılımı | Kredi kartı gerekmez",
     description:
       "Ücretsiz CMMS yazılımı — deneme sürümü değil. Bakım, varlık ve iş emirlerini anında yönetin. Kredi kartı gerekmez.",
     keywords: "ücretsiz cmms, bakım yönetim yazılımı, ücretsiz iş emri yazılımı, varlık takibi, önleyici bakım",
