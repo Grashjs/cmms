@@ -25,14 +25,29 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale });
+
+  const baseUrl = "https://atlas-cmms.com";
+
+  const path = locale === "en" ? "" : `/${locale}`;
+
+  const languages = Object.fromEntries(locales.map((l) => [l, l === "en" ? "/" : `/${l}`]));
 
   return {
+    metadataBase: new URL(baseUrl),
+
     title: {
       default: "Atlas CMMS",
-      template: "%s | Atlas CMMS", // page title fills %s
+      template: "%s | Atlas CMMS",
     },
-    metadataBase: new URL("https://atlas-cmms.com"),
+
+    alternates: {
+      canonical: path || "/",
+      languages: {
+        ...languages,
+        "x-default": "/",
+      },
+    },
+
     icons: {
       icon: [
         { url: "/favicon.ico" },

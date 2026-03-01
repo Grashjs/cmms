@@ -11,9 +11,6 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: t("privacy_policy"),
     description:
       "Read the Privacy Policy for Atlas CMMS. Learn how we protect your data and ensure security in our open-source maintenance management platform.",
-    alternates: {
-      canonical: "privacy",
-    },
   };
 }
 

@@ -120,9 +120,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: facilityManagementData.pageTitle,
     description: facilityManagementData.pageDescription,
-    alternates: {
-      canonical: facilityManagementData.canonicalPath,
-    },
   };
 }
 

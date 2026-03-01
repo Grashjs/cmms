@@ -84,9 +84,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: preventiveMaintenanceData.pageTitle,
     description: preventiveMaintenanceData.pageDescription,
-    alternates: {
-      canonical: preventiveMaintenanceData.canonicalPath,
-    },
   };
 }
 

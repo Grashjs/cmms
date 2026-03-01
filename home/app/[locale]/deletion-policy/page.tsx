@@ -11,9 +11,6 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: "Account deletion",
     description:
       "Information on how to delete your account in Atlas CMMS. We provide clear steps for data removal and account closure.",
-    alternates: {
-      canonical: "privacy",
-    },
   };
 }
 

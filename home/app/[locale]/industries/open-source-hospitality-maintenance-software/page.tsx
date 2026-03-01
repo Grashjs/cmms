@@ -88,9 +88,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: atlasHospitalityData.pageTitle,
     description: atlasHospitalityData.pageDescription,
-    alternates: {
-      canonical: atlasHospitalityData.canonicalPath,
-    },
   };
 }
 
