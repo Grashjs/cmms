@@ -6,7 +6,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://atlas-cmms.com";
 
   const staticPaths = [
-    "/",
+    "",
     "/free-cmms",
     "/pricing",
     "/privacy",
@@ -31,22 +31,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const getUrl = (path: string, locale: string) => {
     const prefix = locale === defaultLocale ? "" : `/${locale}`;
-    const urlPath = path === "/" ? prefix : `${prefix}${path}`;
-    return `${baseUrl}${urlPath || "/"}`;
+    return `${baseUrl}${prefix}${path}` || `${baseUrl}/`;
   };
 
-  return staticPaths.map((path) => {
-    const languages: Record<string, string> = {};
+  const entries: MetadataRoute.Sitemap = [];
 
-    locales.forEach((locale) => {
-      languages[locale] = getUrl(path, locale);
-    });
+  for (const path of staticPaths) {
+    for (const locale of locales) {
+      const languages: Record<string, string> = {};
+      locales.forEach((l) => {
+        languages[l] = getUrl(path, l);
+      });
+      languages["x-default"] = getUrl(path, defaultLocale);
 
-    return {
-      url: getUrl(path, defaultLocale),
-      alternates: {
-        languages,
-      },
-    };
-  });
+      entries.push({
+        url: getUrl(path, locale),
+        alternates: { languages },
+      });
+    }
+  }
+
+  return entries;
 }
