@@ -66,6 +66,11 @@ const PartsRoute = ({
             >
               <View style={styles.card}>
                 <View style={styles.cardRow}>
+                  <Checkbox
+                    status={
+                      selectedIds.includes(part.id) ? 'checked' : 'unchecked'
+                    }
+                  />
                   <Avatar.Icon
                     size={50}
                     icon="archive-outline"
@@ -94,13 +99,6 @@ const PartsRoute = ({
                         >
                           {t('details')}
                         </Button>
-                        <Checkbox
-                          status={
-                            selectedIds.includes(part.id)
-                              ? 'checked'
-                              : 'unchecked'
-                          }
-                        />
                       </View>
                     </View>
                   </View>
