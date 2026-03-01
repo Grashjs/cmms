@@ -72,7 +72,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     description,
     keywords: t("overview_1.keywords"),
     openGraph: { title, description },
-    alternates: getLocalizedMetadata(locale, "/"),
+    alternates: getLocalizedMetadata(locale, ""),
   };
 }
 
