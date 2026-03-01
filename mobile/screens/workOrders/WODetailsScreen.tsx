@@ -672,6 +672,7 @@ export default function WODetailsScreen({
           {renderConfirmDelete()}
           {renderConfirmArchive()}
           <ScrollView
+            contentContainerStyle={{ paddingBottom: 100 }}
             onScroll={onScroll}
             style={{
               paddingHorizontal: 20
@@ -683,7 +684,9 @@ export default function WODetailsScreen({
               />
             }
           >
-            <Text variant="displaySmall">{workOrder.title}</Text>
+            <Text style={{ marginTop: 5 }} variant="displaySmall">
+              {workOrder.title}
+            </Text>
             <View style={styles.row}>
               <Text
                 variant="titleMedium"

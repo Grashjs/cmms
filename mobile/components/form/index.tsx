@@ -150,7 +150,10 @@ export default function Form(props: OwnProps) {
             }}
           >
             <Text>{field.label}</Text>
-            <IconButton icon={selectedValue ? 'check-circle' : 'plus-circle'} />
+            <IconButton
+              iconColor={theme.colors.primary}
+              icon={selectedValue ? 'check-circle' : 'plus-circle'}
+            />
           </View>
           {selectedValue && (
             <Text style={{ color: theme.colors.primary }}>
@@ -357,7 +360,12 @@ export default function Form(props: OwnProps) {
             }}
           >
             <Text>{field.label}</Text>
-            {!values && <IconButton icon={'plus-circle'} />}
+            {!values && (
+              <IconButton
+                iconColor={theme.colors.primary}
+                icon={'plus-circle'}
+              />
+            )}
           </View>
           {field.multiple
             ? Array.isArray(values) &&
@@ -391,7 +399,12 @@ export default function Form(props: OwnProps) {
             }}
           >
             <Text>{field.label}</Text>
-            {!values && <IconButton icon={'plus-circle'} />}
+            {!values && (
+              <IconButton
+                iconColor={theme.colors.primary}
+                icon={'plus-circle'}
+              />
+            )}
           </View>
           {/*@ts-ignore*/}
           {values &&

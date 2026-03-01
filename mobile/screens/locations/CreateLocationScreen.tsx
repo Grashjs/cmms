@@ -12,6 +12,8 @@ import { getImageAndFiles } from '../../utils/overall';
 import useAuth from '../../hooks/useAuth';
 import { addLocation, getLocationChildren } from '../../slices/location';
 import { getErrorMessage } from '../../utils/api';
+import { formatLocationValues, getLocationFields } from '../../utils/fields';
+
 
 export default function CreateLocationScreen({
   navigation,
