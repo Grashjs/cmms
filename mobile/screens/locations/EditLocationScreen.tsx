@@ -84,34 +84,32 @@ export default function EditLocationScreen({
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           let formattedValues = formatLocationValues(values);
-          //differentiate files from api and formattedValues
-          const files = formattedValues.files.find((file) => file.id)
-            ? []
-            : formattedValues.files;
-          return new Promise<void>((resolve, rej) => {
-            uploadFiles(files, formattedValues.image)
-              .then((files) => {
-                const imageAndFiles = getImageAndFiles(files, location.image);
-                formattedValues = {
-                  ...formattedValues,
-                  image: imageAndFiles.image,
-                  files: [...location.files, ...imageAndFiles.files]
-                };
-                dispatch(editLocation(location.id, formattedValues))
-                  .then(() => {
-                    resolve();
-                    onEditSuccess();
-                  })
-                  .catch((err) => {
-                    onEditFailure(err);
-                    rej(err);
-                  });
-              })
-              .catch((err) => {
-                onEditFailure(err);
-                rej(err);
-              });
-          });
+          try {
+            const filesToUpload = formattedValues.files.filter(
+              (file) => !file.id
+            );
+            const existingFiles = formattedValues.files.filter(
+              (file) => file.id
+            );
+            const uploadedFiles = await uploadFiles(
+              filesToUpload,
+              formattedValues.image
+            );
+            const imageAndFiles = getImageAndFiles([
+              ...existingFiles,
+              ...uploadedFiles
+            ]);
+            formattedValues = {
+              ...formattedValues,
+              image: imageAndFiles.image,
+              files: imageAndFiles.files
+            };
+            await dispatch(editLocation(location.id, formattedValues));
+            onEditSuccess();
+          } catch (err) {
+            onEditFailure(err);
+            throw err;
+          }
         }}
       />
     </View>

@@ -14,9 +14,9 @@ import useAuth from '../../hooks/useAuth';
 import { addRequest } from '../../slices/request';
 
 export default function CreateRequestScreen({
-                                              navigation,
-                                              route
-                                            }: RootStackScreenProps<'AddRequest'>) {
+  navigation,
+  route
+}: RootStackScreenProps<'AddRequest'>) {
   const { t } = useTranslation();
   const { uploadFiles, getRequestFieldsAndShapes } = useContext(
     CompanySettingsContext
@@ -39,17 +39,22 @@ export default function CreateRequestScreen({
         navigation={navigation}
         submitText={t('save')}
         values={{ dueDate: null }}
-        onChange={({ field, e }) => {
-        }}
+        onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           try {
             let formattedValues = formatRequestValues(values);
-            const files = await uploadFiles(formattedValues.files, formattedValues.image);
-            const imageAndFiles = getImageAndFiles(files);
+            const uploadedFiles = await uploadFiles(
+              formattedValues.files,
+              formattedValues.image
+            );
+            const imageAndFiles = getImageAndFiles(uploadedFiles);
             if (values.audioDescription) {
-              const audioFiles = await uploadFiles([values.audioDescription], []);
-              const imageAndFiles = getImageAndFiles(audioFiles);
-              formattedValues.audioDescription = imageAndFiles.files[0];
+              const audioFiles = await uploadFiles(
+                [values.audioDescription],
+                []
+              );
+              const audioImageAndFiles = getImageAndFiles(audioFiles);
+              formattedValues.audioDescription = audioImageAndFiles.files[0];
             }
             formattedValues = {
               ...formattedValues,
@@ -60,6 +65,7 @@ export default function CreateRequestScreen({
             onCreationSuccess();
           } catch (err) {
             onCreationFailure(err);
+            throw err;
           }
         }}
       />

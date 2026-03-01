@@ -31,18 +31,20 @@ interface OwnProps {
   multiple: boolean;
   description: string;
   onChange: (files: IFile[]) => void;
+  files?: IFile[];
 }
 
 export default function FileUpload({
   title,
   type,
   multiple,
-  onChange
+  onChange,
+  files: defaultFiles
 }: OwnProps) {
   const theme = useTheme();
   const actionSheetRef = useRef<ActionSheetRef>(null);
-  const [images, setImages] = useState<IFile[]>([]);
-  const [files, setFiles] = useState<IFile[]>([]);
+  const [images, setImages] = useState<IFile[]>(defaultFiles || []);
+  const [files, setFiles] = useState<IFile[]>(defaultFiles || []);
   const { t } = useTranslation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const maxFileSize: number = 7;
@@ -192,16 +194,16 @@ export default function FileUpload({
         const { uri } = asset;
         await checkSize(uri);
       }
+      const newImages = result.assets.map((asset) => {
+        const fileName = asset.uri.split('/')[asset.uri.split('/').length - 1];
+        return {
+          uri: asset.uri,
+          name: fileName,
+          type: mime.getType(fileName)
+        };
+      });
       onChangeInternal(
-        result.assets.map((asset) => {
-          const fileName =
-            asset.uri.split('/')[asset.uri.split('/').length - 1];
-          return {
-            uri: asset.uri,
-            name: fileName,
-            type: mime.getType(fileName)
-          };
-        }),
+        multiple ? [...images, ...newImages] : newImages,
         'image'
       );
     }
@@ -255,7 +257,10 @@ export default function FileUpload({
       }
 
       // Pass the selected file(s) to the internal change handler
-      onChangeInternal(filesToUpload, 'file');
+      onChangeInternal(
+        multiple ? [...files, ...filesToUpload] : filesToUpload,
+        'file'
+      );
     } catch (error) {
       console.error('Error picking document:', error);
     }
@@ -270,6 +275,7 @@ export default function FileUpload({
       });
     else pickFile();
   };
+
   return (
     <View style={{ display: 'flex', flexDirection: 'column' }}>
       <TouchableOpacity onPress={onPress}>
@@ -279,7 +285,7 @@ export default function FileUpload({
         {type === 'image' &&
           !!images.length &&
           images.map((image) => (
-            <View>
+            <View key={image.uri}>
               <Image source={{ uri: image.uri }} style={{ height: 200 }} />
               <IconButton
                 style={{ position: 'absolute', top: 10, right: 10 }}
