@@ -15,13 +15,14 @@ import { useDispatch, useSelector } from '../../store';
 import { AssetMiniDTO } from '../../models/asset';
 import { getAssetsMini } from '../../slices/asset';
 import {
+  Avatar,
   Checkbox,
+  IconButton,
   Searchbar,
-  Text,
-  useTheme,
   SegmentedButtons,
-  IconButton
+  Text
 } from 'react-native-paper';
+import { useAppTheme } from '../../custom-theme';
 
 // Interface extending AssetMiniDTO to explicitly include derived 'hasChildren'
 interface AssetHierarchyNode extends AssetMiniDTO {
@@ -33,7 +34,7 @@ export default function SelectAssetsModal({
   route
 }: RootStackScreenProps<'SelectAssets'>) {
   const { onChange, selected, multiple, locationId } = route.params;
-  const theme = useTheme();
+  const theme = useAppTheme();
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { assetsMini, loadingGet } = useSelector((state) => state.assets);
@@ -207,30 +208,54 @@ export default function SelectAssetsModal({
         toggle(asset.id);
       }}
       key={asset.id}
-      style={styles.itemContainer}
     >
-      <View style={styles.itemContent}>
-        {multiple && (
-          <Checkbox
-            status={selectedIds.includes(asset.id) ? 'checked' : 'unchecked'}
-            onPress={() => toggle(asset.id)} // Checkbox also toggles selection
+      <View style={styles.card}>
+        <View style={styles.cardRow}>
+          <Avatar.Icon
+            style={{
+              backgroundColor: theme.colors.background
+            }}
+            color={'white'}
+            icon={'package-variant-closed'}
+            size={50}
           />
-        )}
-        <Text style={styles.itemText} variant={'titleMedium'}>
-          {asset.name}
-        </Text>
+          <View style={{ flex: 1 }}>
+            <View style={styles.cardHeader}>
+              <View style={{ flex: 1 }}>
+                <Text variant="titleMedium" style={styles.cardTitle}>
+                  {asset.name}
+                </Text>
+                <Text
+                  variant={'bodySmall'}
+                  style={{ color: 'grey' }}
+                >{`#${asset.customId}`}</Text>
+              </View>
+              {multiple && (
+                <Checkbox
+                  status={
+                    selectedIds.includes(asset.id) ? 'checked' : 'unchecked'
+                  }
+                  onPress={() => toggle(asset.id)} // Checkbox also toggles selection
+                />
+              )}
+            </View>
+            {isHierarchyView && asset.hasChildren && (
+              <View style={styles.cardFooter}>
+                <View style={{ flex: 1 }} />
+                <IconButton
+                  icon="chevron-right"
+                  size={24}
+                  style={{ margin: 0 }}
+                  onPress={(e) => {
+                    e.stopPropagation(); // Prevent triggering the main TouchableOpacity onPress
+                    navigateHierarchyDown(asset); // Navigate down when chevron is pressed
+                  }}
+                />
+              </View>
+            )}
+          </View>
+        </View>
       </View>
-      {/* Show drill-down icon only in hierarchy view if the item has children */}
-      {isHierarchyView && asset.hasChildren && (
-        <IconButton
-          icon="chevron-right"
-          size={24}
-          onPress={(e) => {
-            e.stopPropagation(); // Prevent triggering the main TouchableOpacity onPress
-            navigateHierarchyDown(asset); // Navigate down when chevron is pressed
-          }}
-        />
-      )}
     </TouchableOpacity>
   );
 
@@ -333,26 +358,31 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1
   },
-  itemContainer: {
-    marginHorizontal: 10,
-    marginVertical: 4,
-    borderRadius: 5,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
+  card: {
     backgroundColor: 'white',
+    marginBottom: 1,
+    padding: 10
+  },
+  cardRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 6
+  },
+  cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    elevation: 2
+    alignItems: 'flex-start'
   },
-  itemContent: {
+  cardTitle: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+    flexShrink: 1
+  },
+  cardFooter: {
     flexDirection: 'row',
+    justifyContent: 'flex-end',
     alignItems: 'center',
-    flexShrink: 1
-  },
-  itemText: {
-    marginLeft: 10,
-    flexShrink: 1
+    marginTop: 5
   },
   backButton: {
     flexDirection: 'row',
