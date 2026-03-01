@@ -544,25 +544,25 @@ function PMs() {
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
-              return new Promise<void>((resolve, rej) => {
-                uploadFiles(formattedValues.files, formattedValues.image)
-                  .then((files) => {
-                    const imageAndFiles = getImageAndFiles(files);
-                    formattedValues = {
-                      ...formattedValues,
-                      image: imageAndFiles.image,
-                      files: imageAndFiles.files
-                    };
-                    dispatch(addPreventiveMaintenance(formattedValues))
-                      .then(onCreationSuccess)
-                      .catch(onCreationFailure)
-                      .finally(resolve);
-                  })
-                  .catch((err) => {
-                    onCreationFailure(err);
-                    rej(err);
-                  });
-              });
+              try {
+                const uploadedFiles = await uploadFiles(
+                  formattedValues.files,
+                  formattedValues.image
+                );
+
+                const imageAndFiles = getImageAndFiles(uploadedFiles);
+                formattedValues = {
+                  ...formattedValues,
+                  image: imageAndFiles.image,
+                  files: imageAndFiles.files
+                };
+
+                await dispatch(addPreventiveMaintenance(formattedValues));
+                onCreationSuccess();
+              } catch (err) {
+                onCreationFailure(err);
+                throw err;
+              }
             }}
           />
         </Box>
@@ -630,24 +630,26 @@ function PMs() {
               try {
                 let formattedValues = formatValues(values);
 
-                const files = formattedValues.files.find((file) => file.id)
-                  ? []
-                  : formattedValues.files;
-
+                const filesToUpload = formattedValues.files.filter(
+                  (file) => !file.id
+                );
+                const existingFiles = formattedValues.files.filter(
+                  (file) => file.id
+                );
                 const uploadedFiles = await uploadFiles(
-                  files,
+                  filesToUpload,
                   formattedValues.image
                 );
 
-                const imageAndFiles = getImageAndFiles(
-                  uploadedFiles,
-                  currentPM.image
-                );
+                const imageAndFiles = getImageAndFiles([
+                  ...existingFiles,
+                  ...uploadedFiles
+                ]);
 
                 formattedValues = {
                   ...formattedValues,
                   image: imageAndFiles.image,
-                  files: [...currentPM.files, ...imageAndFiles.files]
+                  files: imageAndFiles.files
                 };
 
                 await dispatch(

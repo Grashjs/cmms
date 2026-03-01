@@ -725,30 +725,25 @@ function WorkOrders() {
               if (workOrders.totalElements === 0)
                 fireGa4Event('first_wo_creation');
               let formattedValues = formatValues(values);
-              return new Promise<void>((resolve, rej) => {
-                uploadFiles(formattedValues.files, formattedValues.image)
-                  .then((files) => {
-                    const imageAndFiles = getImageAndFiles(files);
-                    formattedValues = {
-                      ...formattedValues,
-                      image: imageAndFiles.image,
-                      files: imageAndFiles.files
-                    };
-                    dispatch(addWorkOrder(formattedValues))
-                      .then(() => {
-                        onCreationSuccess();
-                        resolve();
-                      })
-                      .catch((err) => {
-                        onCreationFailure(err);
-                        rej();
-                      });
-                  })
-                  .catch((err) => {
-                    onCreationFailure(err);
-                    rej();
-                  });
-              });
+              try {
+                const uploadedFiles = await uploadFiles(
+                  formattedValues.files,
+                  formattedValues.image
+                );
+
+                const imageAndFiles = getImageAndFiles(uploadedFiles);
+                formattedValues = {
+                  ...formattedValues,
+                  image: imageAndFiles.image,
+                  files: imageAndFiles.files
+                };
+
+                await dispatch(addWorkOrder(formattedValues));
+                onCreationSuccess();
+              } catch (err) {
+                onCreationFailure(err);
+                throw err;
+              }
             }}
           />
         </Box>
@@ -794,7 +789,6 @@ function WorkOrders() {
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
               try {
-                // Differentiate files from api and formattedValues
                 const filesToUpload = formattedValues.files.filter(
                   (file) => !file.id
                 );

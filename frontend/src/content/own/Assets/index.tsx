@@ -76,7 +76,11 @@ import {
   Sort
 } from '../../../models/owns/page';
 import Filters from './Filters';
-import { fireGa4Event, onSearchQueryChange } from '../../../utils/overall';
+import {
+  fireGa4Event,
+  getImageAndFiles,
+  onSearchQueryChange
+} from '../../../utils/overall';
 import SearchInput from '../components/SearchInput';
 import File from '../../../models/owns/file';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
@@ -706,37 +710,34 @@ function Assets() {
               if (assetsHierarchy.length === 0)
                 fireGa4Event('first_asset_creation');
               let formattedValues = formatAssetValues(values);
-              return new Promise<void>((resolve, rej) => {
-                uploadFiles(formattedValues.files, formattedValues.image)
-                  .then((files) => {
-                    formattedValues = {
-                      ...formattedValues,
-                      image: files.length ? { id: files[0].id } : null,
-                      files: files.map((file) => {
-                        return { id: file.id };
-                      })
-                    };
-                    dispatch(addAsset(formattedValues))
-                      .then(onCreationSuccess)
-                      .then(() => {
-                        deployedAssets.forEach((deployedAsset) =>
-                          dispatch(
-                            getAssetChildren(
-                              deployedAsset.id,
-                              deployedAsset.hierarchy,
-                              pageable
-                            )
-                          )
-                        );
-                      })
-                      .catch(onCreationFailure)
-                      .finally(resolve);
-                  })
-                  .catch((err) => {
-                    onCreationFailure(err);
-                    rej(err);
-                  });
-              });
+              try {
+                const uploadedFiles = await uploadFiles(
+                  formattedValues.files,
+                  formattedValues.image
+                );
+
+                const imageAndFiles = getImageAndFiles(uploadedFiles);
+                formattedValues = {
+                  ...formattedValues,
+                  image: imageAndFiles.image,
+                  files: imageAndFiles.files
+                };
+
+                await dispatch(addAsset(formattedValues));
+                onCreationSuccess();
+                deployedAssets.forEach((deployedAsset) =>
+                  dispatch(
+                    getAssetChildren(
+                      deployedAsset.id,
+                      deployedAsset.hierarchy,
+                      pageable
+                    )
+                  )
+                );
+              } catch (err) {
+                onCreationFailure(err);
+                throw err;
+              }
             }}
           />
         </Box>
