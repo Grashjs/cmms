@@ -3,6 +3,7 @@ import {
   RefreshControl,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   View
 } from 'react-native';
 import { useDispatch, useSelector } from '../../store';
@@ -13,12 +14,23 @@ import useAuth from '../../hooks/useAuth';
 import { PermissionEntity } from '../../models/role';
 import { getMoreParts, getParts } from '../../slices/part';
 import { FilterField, SearchCriteria } from '../../models/page';
-import { Card, List, Searchbar, Text, useTheme } from 'react-native-paper';
+import {
+  Card,
+  IconButton,
+  List,
+  Searchbar,
+  Text,
+  Avatar,
+  TouchableRipple
+} from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Part from '../../models/part';
 import { isCloseToBottom, onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
+import { useAppTheme } from '../../custom-theme';
+import _ from 'lodash';
+import { IconWithLabel } from '../../components/IconWithLabel';
 import { Asset } from 'expo-asset';
 export const getFormattedQuantityWithUnit = (
   quantity: number,
@@ -35,7 +47,7 @@ export default function PartsScreen({
   const { parts, loadingGet, currentPageNum, lastPage } = useSelector(
     (state) => state.parts
   );
-  const theme = useTheme();
+  const theme = useAppTheme();
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
   const { getFormattedDate, getUserNameById } = useContext(
@@ -105,6 +117,7 @@ export default function PartsScreen({
         style={{ backgroundColor: theme.colors.background }}
       />
       <ScrollView
+        contentContainerStyle={{ paddingBottom: 100 }}
         style={styles.scrollView}
         onScroll={({ nativeEvent }) => {
           if (isCloseToBottom(nativeEvent)) {
@@ -123,46 +136,60 @@ export default function PartsScreen({
       >
         {!!parts.content.length ? (
           parts.content.map((part) => (
-            <Card
-              style={{
-                marginVertical: 5,
-                backgroundColor: 'white'
-              }}
-              key={part.id}
+            <TouchableOpacity
               onPress={() =>
                 navigation.push('PartDetails', { id: part.id, partProp: part })
               }
+              key={part.id}
             >
-              <Card.Content>
-                <List.Item
-                  left={(props) => (
-                    <Image
-                      style={{ height: 40, width: 40, borderRadius: 20 }}
-                      source={
-                        part.image
-                          ? {
-                              uri: part.image.url
-                            }
-                          : require('../../assets/images/no-image.png')
-                      }
+              <View style={styles.card}>
+                <View
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: 6
+                  }}
+                >
+                  {part.image ? (
+                    <Avatar.Image size={50} source={{ uri: part.image.url }} />
+                  ) : (
+                    <Avatar.Icon
+                      style={{
+                        backgroundColor: theme.colors.background
+                      }}
+                      color={'white'}
+                      icon={'archive-outline'}
+                      size={50}
                     />
                   )}
-                  title={part.name}
-                  descriptionStyle={{
-                    color:
-                      part.quantity < part.minQuantity
-                        ? theme.colors.error
-                        : 'black'
-                  }}
-                  description={t('remaining_parts', {
-                    quantity: getFormattedQuantityWithUnit(
-                      part.quantity,
-                      part.unit
-                    )
-                  })}
-                />
-              </Card.Content>
-            </Card>
+                  <View style={{ flex: 1 }}>
+                    <View style={styles.cardHeader}>
+                      <View>
+                        <Text variant="titleMedium" style={styles.cardTitle}>
+                          {part.name}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.cardBody}>
+                      <IconWithLabel
+                        label={t('remaining_parts', {
+                          quantity: getFormattedQuantityWithUnit(
+                            part.quantity,
+                            part.unit
+                          )
+                        })}
+                        icon="toolbox-outline"
+                        color={
+                          part.quantity < part.minQuantity
+                            ? theme.colors.error
+                            : theme.colors.grey
+                        }
+                      />
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
           ))
         ) : loadingGet ? null : (
           <View
@@ -188,12 +215,36 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     width: '100%',
-    height: '100%',
-    padding: 5
+    height: '100%'
   },
   row: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center'
+  },
+  card: {
+    backgroundColor: 'white',
+    marginBottom: 1,
+    padding: 10
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8
+  },
+  cardTitle: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+    flexShrink: 1
+  },
+  cardBody: {
+    gap: 10
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10
   }
 });
