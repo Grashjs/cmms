@@ -19,7 +19,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link, usePathname, useRouter } from "src/i18n/routing";
 import CheckCircleOutlineTwoToneIcon from "@mui/icons-material/CheckCircleOutlineTwoTone";
@@ -29,6 +29,7 @@ import NavBar from "src/components/NavBar";
 import Faq from "./components/Faq";
 import SubscriptionPlanSelector, { PRICING_YEAR_MULTIPLIER } from "./components/SubscriptionPlanSelector";
 import { fireGa4Event } from "src/utils/overall";
+import { getLocalizedMainAppUrl } from "src/utils/urlPaths";
 
 const PricingWrapper = styled(Box)(
   ({ theme }) => `
@@ -43,6 +44,7 @@ function Pricing() {
   const t = useTranslations();
   const theme = useTheme();
   const router = useRouter();
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const typeParam = searchParams.get("type");
   const type = typeParam === "selfhosted" ? "selfhosted" : "cloud";
@@ -187,8 +189,12 @@ function Pricing() {
                         <Button
                           size="small"
                           variant="outlined"
-                          component={Link}
-                          href={"/account/register" + (plan.id !== "basic" ? `?subscription-plan-id=${plan.id}` : "")}
+                          component={"a"}
+                          href={getLocalizedMainAppUrl(
+                            "/account/register",
+                            locale,
+                            plan.id !== "basic" ? { "subscription-plan-id": plan.id } : {},
+                          )}
                           sx={{ mt: 1, mb: 2 }}
                         >
                           {plan.id === "basic" ? t("get_started") : t("try_for_free")}
