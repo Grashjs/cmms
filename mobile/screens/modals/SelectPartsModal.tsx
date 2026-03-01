@@ -2,6 +2,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   useWindowDimensions
 } from 'react-native';
 import { View } from '../../components/Themed';
@@ -84,7 +85,7 @@ const PartsRoute = ({
                         style={{ flexDirection: 'row', alignItems: 'center' }}
                       >
                         <Button
-                          mode="outlined"
+                          mode="text"
                           buttonColor={'white'}
                           onPress={() =>
                             navigation.navigate('PartDetails', { id: part.id })
@@ -99,9 +100,6 @@ const PartsRoute = ({
                               ? 'checked'
                               : 'unchecked'
                           }
-                          onPress={() => {
-                            toggle(part.id);
-                          }}
                         />
                       </View>
                     </View>
@@ -129,8 +127,10 @@ const SetsRoute = ({
   const theme = useTheme();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const selectedMultiParts = multiParts
-    .filter((multiPart) =>
-      multiPart.parts.every((part) => selectedIds.includes(part.id))
+    .filter(
+      (multiPart) =>
+        multiPart.parts.length > 0 &&
+        multiPart.parts.every((part) => selectedIds.includes(part.id))
     )
     .map((multiPart) => multiPart.id);
   return (
@@ -149,7 +149,7 @@ const SetsRoute = ({
               .includes(searchQuery.toLowerCase().trim())
           )
           .map((multiPart) => (
-            <Pressable
+            <TouchableOpacity
               key={multiPart.id}
               onPress={() => {
                 toggle(multiPart, selectedMultiParts.includes(multiPart.id));
@@ -172,32 +172,19 @@ const SetsRoute = ({
                       <View
                         style={{ flexDirection: 'row', alignItems: 'center' }}
                       >
-                        <Button
-                          mode="outlined"
-                          buttonColor={'white'}
-                          style={{ marginRight: 8 }}
-                        >
-                          {t('details')}
-                        </Button>
                         <Checkbox
                           status={
                             selectedMultiParts.includes(multiPart.id)
                               ? 'checked'
                               : 'unchecked'
                           }
-                          onPress={() => {
-                            toggle(
-                              multiPart,
-                              selectedMultiParts.includes(multiPart.id)
-                            );
-                          }}
                         />
                       </View>
                     </View>
                   </View>
                 </View>
               </View>
-            </Pressable>
+            </TouchableOpacity>
           ))}
       </ScrollView>
     </View>
