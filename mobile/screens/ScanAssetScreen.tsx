@@ -64,7 +64,7 @@ export default function ScanAssetScreen({
           </>
         )}
         <List.Item
-          title={t('barcode')}
+          title={t('barcode') + '/QR code'}
           onPress={() => {
             if (hasBarcodeNfcEntitlement)
               navigation.navigate('SelectBarcode', {

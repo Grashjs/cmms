@@ -1,4 +1,4 @@
-import { ScrollView, TouchableOpacity } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import * as React from 'react';
 import { Fragment, useContext, useEffect, useState } from 'react';
 import { RootStackScreenProps } from '../../types';
@@ -12,11 +12,9 @@ import {
   Portal,
   Switch,
   Text,
-  TextInput,
-  useTheme
+  TextInput
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { View } from '../../components/Themed';
 import { Formik } from 'formik';
 import useAuth from '../../hooks/useAuth';
 import UserSettings from '../../models/userSettings';
@@ -27,6 +25,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import { OwnUser } from '../../models/user';
 import { formatImages } from '../../utils/overall';
+import { useAppTheme } from '../../custom-theme';
+import { IconWithLabel } from '../../components/IconWithLabel';
 
 export default function UserProfile({
   navigation,
@@ -42,7 +42,7 @@ export default function UserProfile({
     deleteAccount,
     logout
   } = useAuth();
-  const theme = useTheme();
+  const theme = useAppTheme();
   const { t } = useTranslation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const [changingPicture, setChangingPicture] = useState<boolean>(false);
@@ -51,44 +51,6 @@ export default function UserProfile({
     useState<boolean>(false);
   const [deletingAccount, setDeletingAccount] = useState<boolean>(false);
   const { uploadFiles } = useContext(CompanySettingsContext);
-  const fieldsToRender = [
-    {
-      label: t('id'),
-      value: user?.id
-    },
-    {
-      label: t('first_name'),
-      value: user?.firstName
-    },
-    {
-      label: t('last_name'),
-      value: user?.lastName
-    },
-    {
-      label: t('email'),
-      value: user?.email
-    },
-    {
-      label: t('phone'),
-      value: user?.phone
-    },
-    {
-      label: t('job_title'),
-      value: user?.jobTitle
-    },
-    ...(user?.role.code === 'REQUESTER'
-      ? []
-      : [
-          {
-            label: t('role'),
-            value: user?.role.name
-          },
-          {
-            label: t('hourly_rate'),
-            value: user?.rate
-          }
-        ])
-  ];
   const switches: {
     value: boolean;
     title: string;
@@ -139,29 +101,6 @@ export default function UserProfile({
       }
     }
   };
-
-  function BasicField({
-    label,
-    value
-  }: {
-    label: string;
-    value: string | number;
-  }) {
-    if (value)
-      return (
-        <View
-          key={label}
-          style={{ paddingHorizontal: 20, paddingVertical: 10 }}
-        >
-          <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
-            {label}
-          </Text>
-          <Text variant="bodyLarge">{value}</Text>
-          <Divider style={{ marginTop: 5 }} />
-        </View>
-      );
-    else return null;
-  }
 
   const renderChangePassword = () => {
     return (
@@ -350,57 +289,135 @@ export default function UserProfile({
     >
       {renderChangePassword()}
       {renderDeleteAccountDialog()}
-      <View style={{ alignItems: 'center', paddingTop: 20 }}>
+      <View
+        style={{
+          alignItems: 'center',
+          paddingVertical: 30,
+          backgroundColor: 'white'
+        }}
+      >
         {changingPicture ? (
           <ActivityIndicator size="large" />
         ) : (
           <TouchableOpacity onPress={onPictureChange}>
             {user.image ? (
-              <Avatar.Image source={{ uri: user.image.url }} />
+              <Avatar.Image size={100} source={{ uri: user.image.url }} />
             ) : (
-              <Avatar.Text size={50} label={getUserInitials(user)} />
+              <Avatar.Text
+                size={100}
+                label={getUserInitials(user)}
+                style={{ backgroundColor: theme.colors.background }}
+              />
             )}
-          </TouchableOpacity>
-        )}
-      </View>
-      {fieldsToRender.map((field) => (
-        <BasicField key={field.label} label={field.label} value={field.value} />
-      ))}
-      {user?.role.code !== 'REQUESTER' &&
-        switches.map(({ title, value, accessor }) => (
-          <View style={{ paddingHorizontal: 20, paddingVertical: 10 }}>
             <View
               style={{
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center'
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                backgroundColor: theme.colors.primary,
+                borderRadius: 20,
+                padding: 4,
+                borderWidth: 2,
+                borderColor: 'white'
               }}
             >
-              <Text style={{ flexShrink: 1 }}>{title}</Text>
-              <Switch
-                value={Boolean(userSettings ? userSettings[accessor] : false)}
-                onValueChange={(checked) => {
-                  patchUserSettings({
-                    ...userSettings,
-                    [accessor]: checked
-                  });
-                }}
+              <Avatar.Icon
+                size={20}
+                icon="camera"
+                color="white"
+                style={{ backgroundColor: 'transparent' }}
               />
             </View>
-            <Divider />
+          </TouchableOpacity>
+        )}
+        <Text
+          variant="headlineSmall"
+          style={{ marginTop: 15, fontWeight: 'bold' }}
+        >
+          {`${user.firstName} ${user.lastName}`}
+        </Text>
+        <Text variant="bodyLarge" style={{ color: theme.colors.grey }}>
+          {user.jobTitle}
+        </Text>
+      </View>
+
+      <View style={styles.section}>
+        <Text variant="titleMedium" style={styles.sectionTitle}>
+          {t('informations')}
+        </Text>
+        <View style={styles.sectionContent}>
+          {user.email && (
+            <IconWithLabel
+              label={user.email}
+              icon="email-outline"
+              color={theme.colors.grey}
+              style={styles.infoRow}
+            />
+          )}
+          {user.phone && (
+            <IconWithLabel
+              label={user.phone}
+              icon="phone-outline"
+              color={theme.colors.grey}
+              style={styles.infoRow}
+            />
+          )}
+          {user.role && (
+            <IconWithLabel
+              label={user.role.name}
+              icon="shield-account-outline"
+              color={theme.colors.grey}
+              style={styles.infoRow}
+            />
+          )}
+          {user.rate > 0 && (
+            <IconWithLabel
+              label={`${user.rate} / ${t('hour')}`}
+              icon="currency-usd"
+              color={theme.colors.grey}
+              style={styles.infoRow}
+            />
+          )}
+        </View>
+      </View>
+
+      {user?.role.code !== 'REQUESTER' && (
+        <View style={styles.section}>
+          <Text variant="titleMedium" style={styles.sectionTitle}>
+            {t('notifications')}
+          </Text>
+          <View style={styles.sectionContent}>
+            {switches.map(({ title, value, accessor }, index) => (
+              <Fragment key={accessor}>
+                <View style={styles.switchRow}>
+                  <Text style={{ flexShrink: 1, fontSize: 16 }}>{title}</Text>
+                  <Switch
+                    value={Boolean(
+                      userSettings ? userSettings[accessor] : false
+                    )}
+                    onValueChange={(checked) => {
+                      patchUserSettings({
+                        ...userSettings,
+                        [accessor]: checked
+                      });
+                    }}
+                  />
+                </View>
+              </Fragment>
+            ))}
           </View>
-        ))}
-      <View>
+        </View>
+      )}
+
+      <View style={{ padding: 20 }}>
         <Button
-          style={{ marginHorizontal: 20, marginBottom: 20 }}
+          style={{ marginBottom: 12 }}
           mode={'outlined'}
           onPress={() => setOpenChangePassword(true)}
         >
           {t('change_password')}
         </Button>
         <Button
-          style={{ marginHorizontal: 20, marginBottom: 20 }}
           mode="contained"
           buttonColor={theme.colors.error}
           textColor={theme.colors.onError}
@@ -412,3 +429,26 @@ export default function UserProfile({
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  section: {},
+  sectionTitle: {
+    marginHorizontal: 20,
+    marginVertical: 8,
+    color: '#666',
+    textTransform: 'uppercase',
+    fontSize: 12,
+    fontWeight: 'bold'
+  },
+  sectionContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    gap: 10
+  },
+  infoRow: {},
+  switchRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  }
+});
