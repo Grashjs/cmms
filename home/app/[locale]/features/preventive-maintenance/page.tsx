@@ -13,7 +13,7 @@ const preventiveMaintenanceData: IndustryLayoutProps = {
     width: 1181,
     height: 830,
   },
-  canonicalPath: "features/preventive-maintenance",
+  canonicalPath: "/features/preventive-maintenance",
 
   advantages: [
     {
@@ -89,7 +89,6 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     alternates: getLocalizedMetadata(locale, preventiveMaintenanceData.canonicalPath),
   };
 }
-
 
 function PreventiveMaintenancePage() {
   return <IndustryLayout {...preventiveMaintenanceData} />;

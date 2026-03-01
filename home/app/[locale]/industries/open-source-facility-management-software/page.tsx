@@ -12,7 +12,7 @@ const facilityManagementData: IndustryLayoutProps = {
     width: 1800,
     height: 1200,
   },
-  canonicalPath: "industries/open-source-facility-management-software",
+  canonicalPath: "/industries/open-source-facility-management-software",
   kpis: [
     {
       title: "Improvement in work order completion rates",
