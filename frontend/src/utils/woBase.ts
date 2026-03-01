@@ -110,21 +110,21 @@ export const getWOBaseValues = <T extends WorkOrderBase>(t: any, entity: T) => {
   return {
     priority: entity?.priority
       ? {
-        label: getPriorityLabel(entity?.priority, t),
-        value: entity?.priority
-      }
+          label: getPriorityLabel(entity?.priority, t),
+          value: entity?.priority
+        }
       : null,
     category: entity?.category
       ? {
-        label: entity?.category?.name,
-        value: entity?.category?.id
-      }
+          label: entity?.category?.name,
+          value: entity?.category?.id
+        }
       : null,
     primaryUser: entity?.primaryUser
       ? {
-        label: `${entity.primaryUser.firstName} ${entity.primaryUser.lastName}`,
-        value: entity.primaryUser.id.toString()
-      }
+          label: `${entity.primaryUser.firstName} ${entity.primaryUser.lastName}`,
+          value: entity.primaryUser.id.toString()
+        }
       : null,
     assignedTo: entity?.assignedTo.map((worker) => {
       return {
@@ -140,21 +140,23 @@ export const getWOBaseValues = <T extends WorkOrderBase>(t: any, entity: T) => {
     }),
     team: entity?.team
       ? {
-        label: entity.team?.name,
-        value: entity.team?.id.toString()
-      }
+          label: entity.team?.name,
+          value: entity.team?.id.toString()
+        }
       : null,
     location: entity?.location
       ? {
-        label: entity.location.name,
-        value: entity.location.id.toString()
-      }
+          label: entity.location.name,
+          value: entity.location.id.toString()
+        }
       : null,
     asset: entity?.asset
       ? {
-        label: entity.asset?.name,
-        value: entity.asset?.id.toString()
-      }
-      : null
+          label: entity.asset?.name,
+          value: entity.asset?.id.toString()
+        }
+      : null,
+    image: entity?.image,
+    files: entity?.files
   };
 };

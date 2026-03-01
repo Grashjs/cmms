@@ -795,24 +795,26 @@ function WorkOrders() {
               let formattedValues = formatValues(values);
               try {
                 // Differentiate files from api and formattedValues
-                const files = formattedValues.files.find((file) => file.id)
-                  ? []
-                  : formattedValues.files;
-
+                const filesToUpload = formattedValues.files.filter(
+                  (file) => !file.id
+                );
+                const existingFiles = formattedValues.files.filter(
+                  (file) => file.id
+                );
                 const uploadedFiles = await uploadFiles(
-                  files,
+                  filesToUpload,
                   formattedValues.image
                 );
 
-                const imageAndFiles = getImageAndFiles(
-                  uploadedFiles,
-                  currentWorkOrder.image
-                );
+                const imageAndFiles = getImageAndFiles([
+                  ...existingFiles,
+                  ...uploadedFiles
+                ]);
 
                 formattedValues = {
                   ...formattedValues,
                   image: imageAndFiles.image,
-                  files: [...currentWorkOrder.files, ...imageAndFiles.files]
+                  files: imageAndFiles.files
                 };
 
                 await dispatch(
