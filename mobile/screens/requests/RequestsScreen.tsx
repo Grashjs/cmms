@@ -310,7 +310,7 @@ export default function RequestsScreen({
                       )}
                       <View style={{ flex: 1 }}>
                         <View style={styles.cardHeader}>
-                          <View>
+                          <View style={{ flex: 1 }}>
                             <Text
                               variant="titleMedium"
                               style={styles.cardTitle}

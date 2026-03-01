@@ -304,7 +304,7 @@ export default function WorkOrdersScreen({
                             backgroundColor: theme.colors.background
                           }}
                           color={'white'}
-                          icon={'clipboard-outline'}
+                          icon={'clipboard-text-outline'}
                           size={50}
                         />
                       )}
