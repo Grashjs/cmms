@@ -1,5 +1,6 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { Metadata } from "next";
+import { getLocalizedMetadata } from "src/utils/metadata";
 
 const atlasHospitalityData: IndustryLayoutProps = {
   pageTitle: "Open Source Hotel & Resort Maintenance Software",
@@ -84,11 +85,14 @@ function HospitalityAtlasPage() {
   return <IndustryLayout {...atlasHospitalityData}></IndustryLayout>;
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
   return {
     title: atlasHospitalityData.pageTitle,
     description: atlasHospitalityData.pageDescription,
+    alternates: getLocalizedMetadata(locale, atlasHospitalityData.canonicalPath),
   };
 }
+
 
 export default HospitalityAtlasPage;

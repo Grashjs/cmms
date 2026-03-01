@@ -82,10 +82,12 @@ function WorkOrdersPage() {
   return <IndustryLayout {...workOrdersData} />;
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
   return {
     title: workOrdersData.pageTitle,
     description: workOrdersData.pageDescription,
+    alternates: getLocalizedMetadata(locale, workOrdersData.canonicalPath),
   };
 }
 

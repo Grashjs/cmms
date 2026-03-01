@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Pricing from "src/content/pricing";
 import { getTranslations } from "next-intl/server";
 import Footer from "@/src/components/Footer";
+import { getLocalizedMetadata } from "src/utils/metadata";
 
 const ldJson = {
   "@context": "https://schema.org",
@@ -53,6 +54,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return {
     title: t("pricing_1.title"),
     description: t("pricing_1.description"),
+    alternates: getLocalizedMetadata(locale, "/pricing"),
   };
 }
 

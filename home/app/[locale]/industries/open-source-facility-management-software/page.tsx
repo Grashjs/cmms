@@ -1,5 +1,6 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { Metadata } from "next";
+import { getLocalizedMetadata } from "src/utils/metadata";
 
 const facilityManagementData: IndustryLayoutProps = {
   pageTitle: "Open Source Facility Management Software",
@@ -116,10 +117,12 @@ function FacilityManagementPage() {
   );
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
   return {
     title: facilityManagementData.pageTitle,
     description: facilityManagementData.pageDescription,
+    alternates: getLocalizedMetadata(locale, facilityManagementData.canonicalPath),
   };
 }
 

@@ -1,6 +1,7 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { Schedule, BuildCircle, Insights } from "@mui/icons-material";
 import { Metadata } from "next";
+import { getLocalizedMetadata } from "src/utils/metadata";
 
 const preventiveMaintenanceData: IndustryLayoutProps = {
   pageTitle: "Open-Source Preventive Maintenance Software",
@@ -80,12 +81,15 @@ const preventiveMaintenanceData: IndustryLayoutProps = {
     "Open-source preventive maintenance built for reliability. Automate schedules, slash repair costs, and extend your equipment life with the world’s most flexible CMMS.",
 };
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
   return {
     title: preventiveMaintenanceData.pageTitle,
     description: preventiveMaintenanceData.pageDescription,
+    alternates: getLocalizedMetadata(locale, preventiveMaintenanceData.canonicalPath),
   };
 }
+
 
 function PreventiveMaintenancePage() {
   return <IndustryLayout {...preventiveMaintenanceData} />;

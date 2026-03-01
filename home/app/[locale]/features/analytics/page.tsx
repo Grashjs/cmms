@@ -1,6 +1,7 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { BarChart, DashboardCustomize, QueryStats } from "@mui/icons-material";
 import { Metadata } from "next";
+import { getLocalizedMetadata } from "src/utils/metadata";
 
 const reportsDashboardsData: IndustryLayoutProps = {
   pageTitle: "Open-Source Maintenance Reports & Dashboards",
@@ -84,10 +85,12 @@ function ReportsDashboardsPage() {
   return <IndustryLayout {...reportsDashboardsData} />;
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
   return {
     title: reportsDashboardsData.pageTitle,
     description: reportsDashboardsData.pageDescription,
+    alternates: getLocalizedMetadata(locale, reportsDashboardsData.canonicalPath),
   };
 }
 

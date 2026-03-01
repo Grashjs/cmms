@@ -1,5 +1,6 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { Metadata } from "next";
+import { getLocalizedMetadata } from "src/utils/metadata";
 
 const healthcareData: IndustryLayoutProps = {
   pageTitle: "Open Source Healthcare Maintenance Software",
@@ -97,10 +98,12 @@ function HealthcarePage() {
   return <IndustryLayout {...healthcareData} />;
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
   return {
     title: healthcareData.pageTitle,
     description: healthcareData.pageDescription,
+    alternates: getLocalizedMetadata(locale, healthcareData.canonicalPath),
   };
 }
 

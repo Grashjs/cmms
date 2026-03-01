@@ -1,5 +1,6 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { Metadata } from "next";
+import { getLocalizedMetadata } from "src/utils/metadata";
 
 const energyUtilitiesData: IndustryLayoutProps = {
   pageTitle: "Open Source Energy & Utilities Maintenance Software",
@@ -88,10 +89,12 @@ function EnergyPage() {
   );
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
   return {
     title: energyUtilitiesData.pageTitle,
     description: energyUtilitiesData.pageDescription,
+    alternates: getLocalizedMetadata(locale, energyUtilitiesData.canonicalPath),
   };
 }
 

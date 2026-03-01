@@ -1,6 +1,7 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { Inventory2, Timeline, FactCheck } from "@mui/icons-material";
 import { Metadata } from "next";
+import { getLocalizedMetadata } from "src/utils/metadata";
 
 const assetsData: IndustryLayoutProps = {
   pageTitle: "Open-Source Asset Management Software",
@@ -83,10 +84,12 @@ function AssetsPage() {
   return <IndustryLayout {...assetsData} />;
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
   return {
     title: assetsData.pageTitle,
     description: assetsData.pageDescription,
+    alternates: getLocalizedMetadata(locale, assetsData.canonicalPath),
   };
 }
 

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { getLocalizedMetadata } from "src/utils/metadata";
 import Overview from "src/content/overview";
 import { getTranslations } from "next-intl/server";
 import { getBrandServer } from "src/utils/serverBrand";
@@ -64,10 +65,14 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const t = await getTranslations({ locale });
   const brand = await getBrandServer();
 
+  const title = IS_ORIGINAL_CLOUD ? t("main.title") : brand.name;
+  const description = t("overview_1.description");
   return {
-    title: IS_ORIGINAL_CLOUD ? t("main.title") : brand.name,
-    description: t("overview_1.description"),
+    title,
+    description,
     keywords: t("overview_1.keywords"),
+    openGraph: { title, description },
+    alternates: getLocalizedMetadata(locale, "/"),
   };
 }
 

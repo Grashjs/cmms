@@ -1,5 +1,6 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { Metadata } from "next";
+import { getLocalizedMetadata } from "src/utils/metadata";
 
 const manufacturingData: IndustryLayoutProps = {
   pageTitle: "Open Source Manufacturing Maintenance Software",
@@ -90,10 +91,12 @@ function ManufacturingPage() {
   );
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
   return {
     title: manufacturingData.pageTitle,
     description: manufacturingData.pageDescription,
+    alternates: getLocalizedMetadata(locale, manufacturingData.canonicalPath),
   };
 }
 

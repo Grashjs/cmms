@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { getLocalizedMetadata } from "src/utils/metadata";
 import TermsOfService from "src/content/terms-of-service";
 import { getTranslations } from "next-intl/server";
 import Footer from "@/src/components/Footer";
@@ -11,6 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: `${t("terms_of_service")}`,
     description:
       "Terms of Service for Atlas CMMS. Review the guidelines, responsibilities, and legal agreements for using our open-source CMMS software.",
+    alternates: getLocalizedMetadata(locale, "/terms-of-service"),
   };
 }
 

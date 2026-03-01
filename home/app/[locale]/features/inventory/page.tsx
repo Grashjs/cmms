@@ -1,6 +1,7 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { Inventory, Link, ShoppingCart } from "@mui/icons-material";
 import { Metadata } from "next";
+import { getLocalizedMetadata } from "src/utils/metadata";
 
 const sparePartsData: IndustryLayoutProps = {
   pageTitle: "Open-Source Spare Parts Inventory Management",
@@ -83,10 +84,12 @@ function SparePartsPage() {
   return <IndustryLayout {...sparePartsData} />;
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
   return {
     title: sparePartsData.pageTitle,
     description: sparePartsData.pageDescription,
+    alternates: getLocalizedMetadata(locale, sparePartsData.canonicalPath),
   };
 }
 
