@@ -1,6 +1,7 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { AccessTime, Edit, TrendingUp } from "@mui/icons-material";
 import { Metadata } from "next";
+import { getLocalizedMetadata } from "src/utils/metadata";
 
 const workOrdersData: IndustryLayoutProps = {
   pageTitle: "Open-Source Work Order Management Software",
