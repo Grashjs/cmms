@@ -13,12 +13,12 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from '../../store';
 import { VendorMiniDTO } from '../../models/vendor';
 import { getVendorsMini } from '../../slices/vendor';
-import { Checkbox, Divider, Text, useTheme } from 'react-native-paper';
+import { Avatar, Checkbox, Text, useTheme } from 'react-native-paper';
 
 export default function SelectVendorsModal({
-                                             navigation,
-                                             route
-                                           }: RootStackScreenProps<'SelectVendors'>) {
+  navigation,
+  route
+}: RootStackScreenProps<'SelectVendors'>) {
   const { onChange, selected, multiple } = route.params;
   const theme = useTheme();
   const { t }: { t: any } = useTranslation();
@@ -53,7 +53,7 @@ export default function SelectVendorsModal({
               navigation.goBack();
             }}
           >
-            <Text variant='titleMedium'>{t('add')}</Text>
+            <Text variant="titleMedium">{t('add')}</Text>
           </Pressable>
         )
       });
@@ -102,28 +102,41 @@ export default function SelectVendorsModal({
               toggle(vendor.id);
             }}
             key={vendor.id}
-            style={{
-              borderRadius: 5,
-              padding: 15,
-              backgroundColor: 'white',
-              display: 'flex',
-              flexDirection: 'row',
-              elevation: 2,
-              alignItems: 'center'
-            }}
           >
-            {multiple && (
-              <Checkbox
-                status={
-                  selectedIds.includes(vendor.id) ? 'checked' : 'unchecked'
-                }
-                onPress={() => {
-                  toggle(vendor.id);
-                }}
-              />
-            )}
-            <Text style={{ flexShrink: 1 }} variant={'titleMedium'}>{vendor.companyName}</Text>
-            <Divider />
+            <View style={styles.card}>
+              <View style={styles.cardRow}>
+                <Avatar.Icon
+                  size={50}
+                  icon="truck-outline"
+                  style={{ backgroundColor: theme.colors.primaryContainer }}
+                />
+                <View style={{ flex: 1 }}>
+                  <View style={styles.cardHeader}>
+                    <View style={{ flex: 1 }}>
+                      <Text variant="titleMedium" style={styles.cardTitle}>
+                        {vendor.companyName}
+                      </Text>
+                      <Text
+                        variant={'bodySmall'}
+                        style={{ color: 'grey' }}
+                      >{`#${vendor.id}`}</Text>
+                    </View>
+                    {multiple && (
+                      <Checkbox
+                        status={
+                          selectedIds.includes(vendor.id)
+                            ? 'checked'
+                            : 'unchecked'
+                        }
+                        onPress={() => {
+                          toggle(vendor.id);
+                        }}
+                      />
+                    )}
+                  </View>
+                </View>
+              </View>
+            </View>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -134,5 +147,25 @@ export default function SelectVendorsModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1
+  },
+  card: {
+    backgroundColor: 'white',
+    marginBottom: 1,
+    padding: 10
+  },
+  cardRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 6,
+    alignItems: 'center'
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  cardTitle: {
+    fontWeight: 'bold',
+    flexShrink: 1
   }
 });

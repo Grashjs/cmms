@@ -12,12 +12,12 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from '../../store';
 import Category from '../../models/category';
 import { getCategories } from '../../slices/category';
-import { Checkbox, Divider, Text, useTheme } from 'react-native-paper';
+import { Checkbox, Avatar, Text, useTheme } from 'react-native-paper';
 
 export default function SelectCategoriesModal({
-                                                navigation,
-                                                route
-                                              }: RootStackScreenProps<'SelectCategories'>) {
+  navigation,
+  route
+}: RootStackScreenProps<'SelectCategories'>) {
   const { onChange, selected, multiple, type } = route.params;
   const theme = useTheme();
   const { t }: { t: any } = useTranslation();
@@ -52,7 +52,7 @@ export default function SelectCategoriesModal({
               navigation.goBack();
             }}
           >
-            <Text variant='titleMedium'>{t('add')}</Text>
+            <Text variant="titleMedium">{t('add')}</Text>
           </Pressable>
         )
       });
@@ -97,28 +97,41 @@ export default function SelectCategoriesModal({
               toggle(category.id);
             }}
             key={category.id}
-            style={{
-              borderRadius: 5,
-              padding: 15,
-              backgroundColor: 'white',
-              display: 'flex',
-              flexDirection: 'row',
-              elevation: 2,
-              alignItems: 'center'
-            }}
           >
-            {multiple && (
-              <Checkbox
-                status={
-                  selectedIds.includes(category.id) ? 'checked' : 'unchecked'
-                }
-                onPress={() => {
-                  toggle(category.id);
-                }}
-              />
-            )}
-            <Text variant={'titleMedium'}>{category.name}</Text>
-            <Divider />
+            <View style={styles.card}>
+              <View style={styles.cardRow}>
+                <Avatar.Icon
+                  size={50}
+                  icon="shape-outline"
+                  style={{ backgroundColor: theme.colors.primaryContainer }}
+                />
+                <View style={{ flex: 1 }}>
+                  <View style={styles.cardHeader}>
+                    <View style={{ flex: 1 }}>
+                      <Text variant="titleMedium" style={styles.cardTitle}>
+                        {category.name}
+                      </Text>
+                      <Text
+                        variant={'bodySmall'}
+                        style={{ color: 'grey' }}
+                      >{`#${category.id}`}</Text>
+                    </View>
+                    {multiple && (
+                      <Checkbox
+                        status={
+                          selectedIds.includes(category.id)
+                            ? 'checked'
+                            : 'unchecked'
+                        }
+                        onPress={() => {
+                          toggle(category.id);
+                        }}
+                      />
+                    )}
+                  </View>
+                </View>
+              </View>
+            </View>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -129,5 +142,25 @@ export default function SelectCategoriesModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1
+  },
+  card: {
+    backgroundColor: 'white',
+    marginBottom: 1,
+    padding: 10
+  },
+  cardRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 6,
+    alignItems: 'center'
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  cardTitle: {
+    fontWeight: 'bold',
+    flexShrink: 1
   }
 });

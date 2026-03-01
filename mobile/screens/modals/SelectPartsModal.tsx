@@ -15,6 +15,7 @@ import { PartMiniDTO } from '../../models/part';
 import { getPartsMini } from '../../slices/part';
 import {
   ActivityIndicator,
+  Avatar,
   Button,
   Checkbox,
   Searchbar,
@@ -61,53 +62,52 @@ const PartsRoute = ({
               onPress={() => {
                 toggle(part.id);
               }}
-              style={{
-                padding: 10,
-                display: 'flex',
-                borderRadius: 5,
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
             >
-              <View
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  flex: 1
-                }}
-              >
-                <Checkbox
-                  status={
-                    selectedIds.includes(part.id) ? 'checked' : 'unchecked'
-                  }
-                  onPress={() => {
-                    toggle(part.id);
-                  }}
-                />
-                <View
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column'
-                  }}
-                >
-                  <Text variant={'labelMedium'}>{part.name}</Text>
-                  <Text variant={'bodyMedium'}>
-                    {getFormattedCurrency(part.cost)}
-                  </Text>
+              <View style={styles.card}>
+                <View style={styles.cardRow}>
+                  <Avatar.Icon
+                    size={50}
+                    icon="archive-outline"
+                    style={{ backgroundColor: theme.colors.primaryContainer }}
+                  />
+                  <View style={{ flex: 1 }}>
+                    <View style={styles.cardHeader}>
+                      <View style={{ flex: 1 }}>
+                        <Text variant="titleMedium" style={styles.cardTitle}>
+                          {part.name}
+                        </Text>
+                        <Text variant={'bodyMedium'} style={{ color: 'grey' }}>
+                          {getFormattedCurrency(part.cost)}
+                        </Text>
+                      </View>
+                      <View
+                        style={{ flexDirection: 'row', alignItems: 'center' }}
+                      >
+                        <Button
+                          mode="outlined"
+                          buttonColor={'white'}
+                          onPress={() =>
+                            navigation.navigate('PartDetails', { id: part.id })
+                          }
+                          style={{ marginRight: 8 }}
+                        >
+                          {t('details')}
+                        </Button>
+                        <Checkbox
+                          status={
+                            selectedIds.includes(part.id)
+                              ? 'checked'
+                              : 'unchecked'
+                          }
+                          onPress={() => {
+                            toggle(part.id);
+                          }}
+                        />
+                      </View>
+                    </View>
+                  </View>
                 </View>
               </View>
-              <Button
-                style={{ width: '40%' }}
-                mode="outlined"
-                buttonColor={'white'}
-                onPress={() =>
-                  navigation.navigate('PartDetails', { id: part.id })
-                }
-              >
-                {t('details')}
-              </Button>
             </Pressable>
           ))}
       </ScrollView>
@@ -154,47 +154,49 @@ const SetsRoute = ({
               onPress={() => {
                 toggle(multiPart, selectedMultiParts.includes(multiPart.id));
               }}
-              style={{
-                padding: 10,
-                display: 'flex',
-                flexDirection: 'row',
-                elevation: 2,
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
             >
-              <View
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  flex: 1
-                }}
-              >
-                <Checkbox
-                  status={
-                    selectedMultiParts.includes(multiPart.id)
-                      ? 'checked'
-                      : 'unchecked'
-                  }
-                  onPress={() => {
-                    toggle(
-                      multiPart,
-                      selectedMultiParts.includes(multiPart.id)
-                    );
-                  }}
-                />
-                <Text style={{ flexShrink: 1 }} variant={'labelMedium'}>
-                  {multiPart.name}
-                </Text>
+              <View style={styles.card}>
+                <View style={styles.cardRow}>
+                  <Avatar.Icon
+                    size={50}
+                    icon="archive-outline"
+                    style={{ backgroundColor: theme.colors.primaryContainer }}
+                  />
+                  <View style={{ flex: 1 }}>
+                    <View style={styles.cardHeader}>
+                      <View style={{ flex: 1 }}>
+                        <Text variant="titleMedium" style={styles.cardTitle}>
+                          {multiPart.name}
+                        </Text>
+                      </View>
+                      <View
+                        style={{ flexDirection: 'row', alignItems: 'center' }}
+                      >
+                        <Button
+                          mode="outlined"
+                          buttonColor={'white'}
+                          style={{ marginRight: 8 }}
+                        >
+                          {t('details')}
+                        </Button>
+                        <Checkbox
+                          status={
+                            selectedMultiParts.includes(multiPart.id)
+                              ? 'checked'
+                              : 'unchecked'
+                          }
+                          onPress={() => {
+                            toggle(
+                              multiPart,
+                              selectedMultiParts.includes(multiPart.id)
+                            );
+                          }}
+                        />
+                      </View>
+                    </View>
+                  </View>
+                </View>
               </View>
-              <Button
-                style={{ width: '40%' }}
-                mode="outlined"
-                buttonColor={'white'}
-              >
-                {t('details')}
-              </Button>
             </Pressable>
           ))}
       </ScrollView>
@@ -330,5 +332,25 @@ export default function SelectParts({
 const styles = StyleSheet.create({
   container: {
     flex: 1
+  },
+  card: {
+    backgroundColor: 'white',
+    marginBottom: 1,
+    padding: 10
+  },
+  cardRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 6,
+    alignItems: 'center'
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  cardTitle: {
+    fontWeight: 'bold',
+    flexShrink: 1
   }
 });

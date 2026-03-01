@@ -1,5 +1,6 @@
 import {
-  Pressable, RefreshControl,
+  Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   TouchableOpacity
@@ -11,11 +12,14 @@ import * as React from 'react';
 import { Fragment, useContext, useEffect, useState } from 'react';
 import { AssetMiniDTO } from '../../models/asset';
 import {
-  Button, Checkbox,
+  Avatar,
+  Button,
+  Checkbox,
   Divider,
   IconButton,
   List,
-  RadioButton, Searchbar,
+  RadioButton,
+  Searchbar,
   Text,
   TextInput,
   useTheme
@@ -32,12 +36,12 @@ import { getChecklists } from '../../slices/checklist';
 import { useDispatch, useSelector } from '../../store';
 
 export default function SelectChecklistsModal({
-                                                navigation,
-                                                route
-                                              }: RootStackScreenProps<'SelectChecklists'>) {
+  navigation,
+  route
+}: RootStackScreenProps<'SelectChecklists'>) {
   const { onChange, selected } = route.params;
   const theme = useTheme();
-  const { loadingGet, checklists } = useSelector(state => state.checklists);
+  const { loadingGet, checklists } = useSelector((state) => state.checklists);
   const { t }: { t: any } = useTranslation();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const dispatch = useDispatch();
@@ -46,7 +50,9 @@ export default function SelectChecklistsModal({
     dispatch(getChecklists());
   }, []);
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <Searchbar
         placeholder={t('search')}
         onChangeText={setSearchQuery}
@@ -62,32 +68,50 @@ export default function SelectChecklistsModal({
           <RefreshControl
             refreshing={loadingGet}
             onRefresh={() => dispatch(getChecklists())}
-          />}
+          />
+        }
       >
-        {checklists.filter(mini => mini.name.toLowerCase().includes(searchQuery.toLowerCase().trim())).map((checklist) => (
-          <TouchableOpacity
-            onPress={() => {
-              onChange([
-                ...selected,
-                ...checklist.taskBases.map(taskBase => getTaskFromTaskBase(taskBase))
-              ]);
-              navigation.pop(2);
-            }}
-            key={checklist.id}
-            style={{
-              borderRadius: 5,
-              padding: 15,
-              backgroundColor: 'white',
-              display: 'flex',
-              flexDirection: 'row',
-              elevation: 2,
-              alignItems: 'center'
-            }}
-          >
-            <Text style={{ flexShrink: 1 }} variant={'titleMedium'}>{checklist.name}</Text>
-            <Divider />
-          </TouchableOpacity>
-        ))}
+        {checklists
+          .filter((mini) =>
+            mini.name.toLowerCase().includes(searchQuery.toLowerCase().trim())
+          )
+          .map((checklist) => (
+            <TouchableOpacity
+              onPress={() => {
+                onChange([
+                  ...selected,
+                  ...checklist.taskBases.map((taskBase) =>
+                    getTaskFromTaskBase(taskBase)
+                  )
+                ]);
+                navigation.pop(2);
+              }}
+              key={checklist.id}
+            >
+              <View style={styles.card}>
+                <View style={styles.cardRow}>
+                  <Avatar.Icon
+                    size={50}
+                    icon="format-list-checks"
+                    style={{ backgroundColor: theme.colors.primaryContainer }}
+                  />
+                  <View style={{ flex: 1 }}>
+                    <View style={styles.cardHeader}>
+                      <View style={{ flex: 1 }}>
+                        <Text variant="titleMedium" style={styles.cardTitle}>
+                          {checklist.name}
+                        </Text>
+                        <Text
+                          variant={'bodySmall'}
+                          style={{ color: 'grey' }}
+                        >{`#${checklist.id}`}</Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
       </ScrollView>
     </View>
   );
@@ -96,5 +120,25 @@ export default function SelectChecklistsModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1
+  },
+  card: {
+    backgroundColor: 'white',
+    marginBottom: 1,
+    padding: 10
+  },
+  cardRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 6,
+    alignItems: 'center'
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  cardTitle: {
+    fontWeight: 'bold',
+    flexShrink: 1
   }
 });

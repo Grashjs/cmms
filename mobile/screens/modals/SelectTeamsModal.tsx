@@ -13,12 +13,12 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from '../../store';
 import { TeamMiniDTO } from '../../models/team';
 import { getTeamsMini } from '../../slices/team';
-import { Checkbox, Divider, Text, useTheme } from 'react-native-paper';
+import { Avatar, Checkbox, Text, useTheme } from 'react-native-paper';
 
 export default function SelectTeamsModal({
-                                           navigation,
-                                           route
-                                         }: RootStackScreenProps<'SelectTeams'>) {
+  navigation,
+  route
+}: RootStackScreenProps<'SelectTeams'>) {
   const { onChange, selected, multiple } = route.params;
   const theme = useTheme();
   const { t }: { t: any } = useTranslation();
@@ -53,7 +53,7 @@ export default function SelectTeamsModal({
               navigation.goBack();
             }}
           >
-            <Text variant='titleMedium'>{t('add')}</Text>
+            <Text variant="titleMedium">{t('add')}</Text>
           </Pressable>
         )
       });
@@ -102,26 +102,41 @@ export default function SelectTeamsModal({
               toggle(team.id);
             }}
             key={team.id}
-            style={{
-              borderRadius: 5,
-              padding: 15,
-              backgroundColor: 'white',
-              display: 'flex',
-              flexDirection: 'row',
-              elevation: 2,
-              alignItems: 'center'
-            }}
           >
-            {multiple && (
-              <Checkbox
-                status={selectedIds.includes(team.id) ? 'checked' : 'unchecked'}
-                onPress={() => {
-                  toggle(team.id);
-                }}
-              />
-            )}
-            <Text style={{ flexShrink: 1 }} variant={'titleMedium'}>{team.name}</Text>
-            <Divider />
+            <View style={styles.card}>
+              <View style={styles.cardRow}>
+                <Avatar.Icon
+                  size={50}
+                  icon="account-group-outline"
+                  style={{ backgroundColor: theme.colors.primaryContainer }}
+                />
+                <View style={{ flex: 1 }}>
+                  <View style={styles.cardHeader}>
+                    <View style={{ flex: 1 }}>
+                      <Text variant="titleMedium" style={styles.cardTitle}>
+                        {team.name}
+                      </Text>
+                      <Text
+                        variant={'bodySmall'}
+                        style={{ color: 'grey' }}
+                      >{`#${team.id}`}</Text>
+                    </View>
+                    {multiple && (
+                      <Checkbox
+                        status={
+                          selectedIds.includes(team.id)
+                            ? 'checked'
+                            : 'unchecked'
+                        }
+                        onPress={() => {
+                          toggle(team.id);
+                        }}
+                      />
+                    )}
+                  </View>
+                </View>
+              </View>
+            </View>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -132,5 +147,25 @@ export default function SelectTeamsModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1
+  },
+  card: {
+    backgroundColor: 'white',
+    marginBottom: 1,
+    padding: 10
+  },
+  cardRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 6,
+    alignItems: 'center'
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  cardTitle: {
+    fontWeight: 'bold',
+    flexShrink: 1
   }
 });
