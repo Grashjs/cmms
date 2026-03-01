@@ -12,7 +12,7 @@ import { getWOBaseFields } from '../utils/woBase';
 import moment from 'moment-timezone';
 
 type CompanySettingsContext = {
-  getFormattedDate: (dateString: string, hideTime?: boolean) => string;
+  getFormattedDate: (dateString: string | Date, hideTime?: boolean) => string;
   uploadFiles: (
     files: { uri: string; name: string; type: string }[],
     images: { uri: string; name: string; type: string }[],
@@ -48,12 +48,11 @@ export const CompanySettingsProvider: FC<{ children: ReactNode }> = (props) => {
   const { children } = props;
   const { t }: { t: any } = useTranslation();
 
-  const getFormattedDate = (dateString: string, hideTime?: boolean) => {
+  const getFormattedDate = (dateString: string | Date, hideTime?: boolean) => {
     if (!dateString) return '';
 
     const tz = generalPreferences.timeZone;
     const date = moment.tz(dateString, tz);
-
     const month = date.format('MM');
     const day = date.format('DD');
     const year = date.format('YY');

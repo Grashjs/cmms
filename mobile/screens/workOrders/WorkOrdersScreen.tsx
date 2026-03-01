@@ -1,4 +1,12 @@
-import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  Image,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  TouchableHighlight,
+  TouchableOpacity,
+  View
+} from 'react-native';
 import { useDispatch, useSelector } from '../../store';
 import * as React from 'react';
 import { Fragment, useContext, useEffect, useRef, useState } from 'react';
@@ -13,7 +21,8 @@ import {
   Searchbar,
   Text,
   useTheme,
-  Avatar
+  Avatar,
+  TouchableRipple
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import WorkOrder from '../../models/workOrder';
@@ -174,7 +183,11 @@ export default function WorkOrdersScreen({
         >
           <ScrollView
             horizontal
-            style={{ backgroundColor: 'white', borderRadius: 5 }}
+            style={{
+              backgroundColor: 'white',
+              borderRadius: 5,
+              marginBottom: 2
+            }}
             showsHorizontalScrollIndicator={false}
           >
             <IconButton
@@ -262,110 +275,144 @@ export default function WorkOrdersScreen({
               }
 
               return (
-                <Card
-                  style={[
-                    styles.card,
-                    {
-                      borderLeftColor: getPriorityColor(
-                        workOrder.priority,
-                        theme
-                      )
-                    }
-                  ]}
-                  key={workOrder.id}
+                <TouchableOpacity
                   onPress={() =>
                     navigation.push('WODetails', {
                       id: workOrder.id,
                       workOrderProp: workOrder
                     })
                   }
+                  key={workOrder.id}
                 >
-                  <Card.Content>
+                  <View style={styles.card}>
                     {/* Header: Title, ID, and Status */}
-                    <View style={styles.cardHeader}>
-                      <View>
-                        <Text variant="titleMedium" style={styles.cardTitle}>
-                          {workOrder.title}
-                        </Text>
-                        <Text
-                          variant={'bodySmall'}
-                          style={{ color: 'grey' }}
-                        >{`#${workOrder.customId}`}</Text>
-                      </View>
-                      <Tag
-                        text={t(workOrder.status)}
-                        color="white"
-                        backgroundColor={getStatusColor(
-                          workOrder.status,
-                          theme
-                        )}
-                      />
-                    </View>
-                    {/* Body: Asset and Location */}
-                    <View style={styles.cardBody}>
-                      {workOrder.asset && (
-                        <IconWithLabel
-                          label={workOrder.asset.name}
-                          icon="package-variant-closed"
-                          color={theme.colors.grey}
+                    <View
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        gap: 6
+                      }}
+                    >
+                      {workOrder.image ? (
+                        <Avatar.Image
+                          size={50}
+                          source={{ uri: workOrder.image?.url }}
+                        />
+                      ) : (
+                        <Avatar.Icon
+                          style={{
+                            backgroundColor: theme.colors.background
+                          }}
+                          color={'white'}
+                          icon={'clipboard-outline'}
+                          size={50}
                         />
                       )}
-                      {workOrder.location && (
-                        <IconWithLabel
-                          label={workOrder.location.name}
-                          icon="map-marker-outline"
-                          color={theme.colors.grey}
-                        />
-                      )}
-                    </View>
-
-                    {/* Footer: Due Date and Assignees */}
-                    <View style={styles.cardFooter}>
-                      {workOrder.dueDate && (
-                        <IconWithLabel
-                          color={
-                            (dayDiff(new Date(workOrder.dueDate), new Date()) <=
-                              2 ||
-                              new Date() > new Date(workOrder.dueDate)) &&
-                            workOrder.status !== 'COMPLETE'
-                              ? theme.colors.error
-                              : theme.colors.grey
-                          }
-                          label={getFormattedDate(workOrder.dueDate)}
-                          icon="clock-alert-outline"
-                        />
-                      )}
-                      <View style={{ flex: 1 }} />
-                      {allUsers.length > 0 && (
-                        <View style={styles.assigneeContainer}>
-                          {allUsers.slice(0, 3).map((user, index) => (
-                            <View
-                              key={user.id}
-                              style={{ marginLeft: index > 0 ? -8 : 0 }}
+                      <View style={{ flex: 1 }}>
+                        <View style={styles.cardHeader}>
+                          <View>
+                            <Text
+                              variant="titleMedium"
+                              style={styles.cardTitle}
                             >
-                              {user.image ? (
-                                <Avatar.Image
-                                  source={{ uri: user.image.url }}
-                                  size={24}
-                                />
-                              ) : (
-                                <Avatar.Text
-                                  size={24}
-                                  label={getUserInitials(user)}
-                                />
+                              {workOrder.title}
+                            </Text>
+                            <Text
+                              variant={'bodySmall'}
+                              style={{ color: 'grey' }}
+                            >{`#${workOrder.customId}`}</Text>
+                          </View>
+                          <Tag
+                            text={t(workOrder.status)}
+                            color="white"
+                            backgroundColor={getStatusColor(
+                              workOrder.status,
+                              theme
+                            )}
+                          />
+                        </View>
+                        {/* Body: Asset and Location */}
+                        <View style={styles.cardBody}>
+                          {workOrder.asset && (
+                            <IconWithLabel
+                              label={workOrder.asset.name}
+                              icon="package-variant-closed"
+                              color={theme.colors.grey}
+                            />
+                          )}
+                          {workOrder.location && (
+                            <IconWithLabel
+                              label={workOrder.location.name}
+                              icon="map-marker-outline"
+                              color={theme.colors.grey}
+                            />
+                          )}
+                          {workOrder.priority &&
+                            workOrder.priority !== 'NONE' && (
+                              <Tag
+                                text={t(workOrder.priority)}
+                                color={getPriorityColor(
+                                  workOrder.priority,
+                                  theme
+                                )}
+                                backgroundColor={'transparent'}
+                              />
+                            )}
+                        </View>
+                        {/* Footer: Due Date and Assignees */}
+                        <View style={styles.cardFooter}>
+                          {workOrder.dueDate && (
+                            <IconWithLabel
+                              color={
+                                (dayDiff(
+                                  new Date(workOrder.dueDate),
+                                  new Date()
+                                ) <= 2 ||
+                                  new Date() > new Date(workOrder.dueDate)) &&
+                                workOrder.status !== 'COMPLETE'
+                                  ? theme.colors.error
+                                  : theme.colors.grey
+                              }
+                              label={getFormattedDate(workOrder.dueDate)}
+                              icon="clock-alert-outline"
+                            />
+                          )}
+                          <View style={{ flex: 1 }} />
+                          {allUsers.length > 0 && (
+                            <View style={styles.assigneeContainer}>
+                              {allUsers.slice(0, 3).map((user, index) => (
+                                <View
+                                  key={user.id}
+                                  style={{ marginLeft: index > 0 ? -8 : 0 }}
+                                >
+                                  {user.image ? (
+                                    <Avatar.Image
+                                      source={{ uri: user.image.url }}
+                                      size={24}
+                                    />
+                                  ) : (
+                                    <Avatar.Text
+                                      size={24}
+                                      label={getUserInitials(user)}
+                                    />
+                                  )}
+                                </View>
+                              ))}
+                              {allUsers.length > 3 && (
+                                <Text
+                                  variant="bodySmall"
+                                  style={{ marginLeft: 8 }}
+                                >
+                                  +{allUsers.length - 3}
+                                </Text>
                               )}
                             </View>
-                          ))}
-                          {allUsers.length > 3 && (
-                            <Text variant="bodySmall" style={{ marginLeft: 8 }}>
-                              +{allUsers.length - 3}
-                            </Text>
                           )}
                         </View>
-                      )}
+                      </View>
                     </View>
-                  </Card.Content>
-                </Card>
+                  </View>
+                </TouchableOpacity>
               );
             })
           ) : loadingGet ? null : (
@@ -399,8 +446,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     width: '100%',
-    height: '100%',
-    padding: 5
+    height: '100%'
   },
   row: {
     display: 'flex',
@@ -408,15 +454,9 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   card: {
-    marginVertical: 8,
     backgroundColor: 'white',
-    borderRadius: 8,
-    borderLeftWidth: 5,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22
+    marginBottom: 1,
+    padding: 10
   },
   cardHeader: {
     flexDirection: 'row',

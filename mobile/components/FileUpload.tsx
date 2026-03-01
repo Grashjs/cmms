@@ -279,7 +279,7 @@ export default function FileUpload({
   return (
     <View style={{ display: 'flex', flexDirection: 'column' }}>
       <TouchableOpacity onPress={onPress}>
-        <Text>{title}</Text>
+        <Text style={{ color: 'black' }}>{title}</Text>
       </TouchableOpacity>
       <ScrollView>
         {type === 'image' &&

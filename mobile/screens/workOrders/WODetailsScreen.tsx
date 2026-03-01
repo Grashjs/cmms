@@ -30,7 +30,7 @@ import * as React from 'react';
 import { Fragment, useContext, useEffect, useState } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import Tag from '../../components/Tag';
-import { getPriorityColor } from '../../utils/overall';
+import { getPriorityColor, getStatusColor } from '../../utils/overall';
 import { PermissionEntity } from '../../models/role';
 import useAuth from '../../hooks/useAuth';
 import { controlTimer, getLabors } from '../../slices/labor';
@@ -662,7 +662,9 @@ export default function WODetailsScreen({
       </Portal>
     );
   };
-
+  const statusColor = workOrder
+    ? getStatusColor(workOrder.status, theme)
+    : null;
   if (workOrder)
     return (
       <View style={styles.container}>
@@ -714,7 +716,7 @@ export default function WODetailsScreen({
                   justifyContent: 'space-between',
                   padding: 12,
                   borderWidth: 1,
-                  borderColor: theme.colors.onSurfaceVariant,
+                  borderColor: statusColor,
                   borderRadius: 4
                 }}
                 onPress={() =>
@@ -727,10 +729,15 @@ export default function WODetailsScreen({
                   })
                 }
               >
-                <Text>
+                <Text style={{ color: statusColor }}>
                   {statuses.find((s) => s.value === workOrder.status)?.label}
                 </Text>
-                <IconButton icon="menu-down" size={24} style={{ margin: -5 }} />
+                <IconButton
+                  iconColor={statusColor}
+                  icon="menu-down"
+                  size={24}
+                  style={{ margin: -5 }}
+                />
               </TouchableOpacity>
               {workOrder.audioDescription && (
                 <View style={{ backgroundColor: 'white', paddingVertical: 20 }}>
