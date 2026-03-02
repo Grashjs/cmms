@@ -760,7 +760,11 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   const register = async (values): Promise<void> => {
     const response = await api.post<{ message: string; success: boolean }>(
       'auth/signup',
-      { ...values, timeZone: moment.tz.guess() },
+      {
+        ...values,
+        timeZone: moment.tz.guess(),
+        utmParams: { referrer: `${Platform.OS}_app` }
+      },
       { headers: await authHeader(true) }
     );
     const { message, success } = response;
