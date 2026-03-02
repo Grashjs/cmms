@@ -166,6 +166,7 @@ email at [contact@atlas-cmms.com](mailto:contact@atlas-cmms.com).
 - Dutch
 - Chinese
 - Hungarian
+- Bosnian
 
 ## 🏗️ **Tech Stack**
 
