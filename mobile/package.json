@@ -28,7 +28,7 @@
     "@stomp/stompjs": "^7.0.0",
     "base-64": "^1.0.0",
     "dotenv": "^16.4.5",
-    "expo": "^53.0.26",
+    "expo": "~53.0.27",
     "expo-asset": "~11.1.7",
     "expo-audio": "~0.4.9",
     "expo-camera": "~16.1.11",
