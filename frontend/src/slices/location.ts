@@ -7,7 +7,7 @@ import Location, {
 } from '../models/owns/location';
 import api from '../utils/api';
 import { revertAll } from 'src/utils/redux';
-import { Pageable, pageableToQueryParams } from '../models/owns/page';
+import { Pageable, pageableToQueryParams, SearchCriteria } from '../models/owns/page';
 
 interface LocationState {
   locations: Location[];
@@ -29,6 +29,13 @@ const slice = createSlice({
   extraReducers: (builder) => builder.addCase(revertAll, () => initialState),
   reducers: {
     getLocations(
+      state: LocationState,
+      action: PayloadAction<{ locations: Location[] }>
+    ) {
+      const { locations } = action.payload;
+      state.locations = locations;
+    },
+    getLocationsSearch(
       state: LocationState,
       action: PayloadAction<{ locations: Location[] }>
     ) {
@@ -111,10 +118,24 @@ const slice = createSlice({
 
 export const reducer = slice.reducer;
 
-export const getLocations = (): AppThunk => async (dispatch) => {
-  const locations = await api.get<Location[]>('locations');
-  dispatch(slice.actions.getLocations({ locations }));
-};
+export const getLocations =
+  (criteria?: SearchCriteria): AppThunk =>
+  async (dispatch) => {
+    if (criteria) {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      try {
+        const response = await api.post<any>('locations/search', criteria);
+        dispatch(
+          slice.actions.getLocationsSearch({ locations: response.content })
+        );
+      } finally {
+        dispatch(slice.actions.setLoadingGet({ loading: false }));
+      }
+    } else {
+      const locations = await api.get<Location[]>('locations');
+      dispatch(slice.actions.getLocations({ locations }));
+    }
+  };
 export const getLocationsMini = (): AppThunk => async (dispatch) => {
   try {
     dispatch(slice.actions.setLoadingGet({ loading: true }));
