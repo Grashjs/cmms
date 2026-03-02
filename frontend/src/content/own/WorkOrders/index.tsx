@@ -104,6 +104,7 @@ import { useGridApiRef } from '@mui/x-data-grid-pro';
 import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import Request from '../../../models/owns/request';
 import { getErrorMessage } from '../../../utils/api';
+import SplitButton from '../components/SplitButton';
 
 function WorkOrders() {
   const { t }: { t: any } = useTranslation();
@@ -866,14 +867,6 @@ function WorkOrders() {
           </Stack>
         </MenuItem>
       )}
-      {hasViewPermission(PermissionEntity.SETTINGS) && (
-        <MenuItem
-          onClick={() => navigate('/app/imports/work-orders')}
-          disabled={!hasFeature(PlanFeature.IMPORT_CSV)}
-        >
-          {t('to_import')}
-        </MenuItem>
-      )}
     </Menu>
   );
   return (
@@ -919,14 +912,23 @@ function WorkOrders() {
               <MoreVertTwoToneIcon />
             </IconButton>
             {hasCreatePermission(PermissionEntity.WORK_ORDERS) && (
-              <Button
-                onClick={() => setOpenAddModal(true)}
+              <SplitButton
+                onMainClick={() => setOpenAddModal(true)}
                 startIcon={<AddTwoToneIcon />}
                 sx={{ mx: 6, my: 1 }}
-                variant="contained"
-              >
-                {t('work_order')}
-              </Button>
+                label={t('work_order')}
+                menuItems={
+                  hasViewPermission(PermissionEntity.SETTINGS) &&
+                  hasFeature(PlanFeature.IMPORT_CSV)
+                    ? [
+                        {
+                          label: t('to_import'),
+                          onClick: () => navigate('/app/imports/work-orders')
+                        }
+                      ]
+                    : []
+                }
+              />
             )}
           </Stack>
         </Box>
