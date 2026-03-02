@@ -56,20 +56,22 @@ const SplitButton: React.FC<SplitButtonProps> = ({
         <Button onClick={onMainClick} startIcon={startIcon}>
           {label}
         </Button>
-        <Button
-          size="small"
-          aria-controls={open ? 'split-button-menu' : undefined}
-          aria-expanded={open ? 'true' : undefined}
-          aria-label="select merge strategy"
-          aria-haspopup="menu"
-          onClick={handleArrowClick}
-          style={{
-            maxWidth: '35px',
-            minWidth: '35px'
-          }}
-        >
-          <ArrowDropDownIcon />
-        </Button>
+        {menuItems.length > 0 && (
+          <Button
+            size="small"
+            aria-controls={open ? 'split-button-menu' : undefined}
+            aria-expanded={open ? 'true' : undefined}
+            aria-label="select merge strategy"
+            aria-haspopup="menu"
+            onClick={handleArrowClick}
+            style={{
+              maxWidth: '35px',
+              minWidth: '35px'
+            }}
+          >
+            <ArrowDropDownIcon />
+          </Button>
+        )}
       </ButtonGroup>
       <Menu
         id="split-button-menu"

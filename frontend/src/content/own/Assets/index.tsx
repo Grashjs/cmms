@@ -87,6 +87,7 @@ import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import AssetStatusTag from './components/AssetStatusTag';
 import { getErrorMessage } from '../../../utils/api';
+import SplitButton from '../components/SplitButton';
 
 const HIERARCHY_ZERO_PAGE_SIZE = 40;
 
@@ -244,14 +245,6 @@ function Assets() {
             {loadingExport['assets'] && <CircularProgress size="1rem" />}
             <Typography>{t('to_export')}</Typography>
           </Stack>
-        </MenuItem>
-      )}
-      {hasViewPermission(PermissionEntity.SETTINGS) && (
-        <MenuItem
-          onClick={() => navigate('/app/imports/assets')}
-          disabled={!hasFeature(PlanFeature.IMPORT_CSV)}
-        >
-          {t('to_import')}
         </MenuItem>
       )}
       <MenuItem
@@ -807,14 +800,23 @@ function Assets() {
                 </Button>
               )}
               {hasCreatePermission(PermissionEntity.ASSETS) && (
-                <Button
-                  onClick={() => setOpenAddModal(true)}
+                <SplitButton
+                  onMainClick={() => setOpenAddModal(true)}
                   startIcon={<AddTwoToneIcon />}
                   sx={{ mx: 6, my: 1 }}
-                  variant="contained"
-                >
-                  {t('asset')}
-                </Button>
+                  label={t('asset')}
+                  menuItems={
+                    hasViewPermission(PermissionEntity.SETTINGS) &&
+                    hasFeature(PlanFeature.IMPORT_CSV)
+                      ? [
+                          {
+                            label: t('to_import'),
+                            onClick: () => navigate('/app/imports/assets')
+                          }
+                        ]
+                      : []
+                  }
+                />
               )}
             </Stack>
           </Box>

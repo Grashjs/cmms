@@ -70,6 +70,7 @@ import SearchInput from '../components/SearchInput';
 import { useGridApiRef } from '@mui/x-data-grid-pro';
 import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import { getErrorMessage } from '../../../utils/api';
+import SplitButton from '../components/SplitButton';
 
 const LabelWrapper = styled(Box)(
   ({ theme }) => `
@@ -563,13 +564,22 @@ function Meters() {
                   <MoreVertTwoToneIcon />
                 </IconButton>
                 {hasCreatePermission(PermissionEntity.METERS) && (
-                  <Button
+                  <SplitButton
+                    onMainClick={() => setOpenAddModal(true)}
                     startIcon={<AddTwoToneIcon />}
-                    variant="contained"
-                    onClick={() => setOpenAddModal(true)}
-                  >
-                    {t('meter')}
-                  </Button>
+                    label={t('meter')}
+                    menuItems={
+                      hasViewPermission(PermissionEntity.SETTINGS) &&
+                      hasFeature(PlanFeature.IMPORT_CSV)
+                        ? [
+                            {
+                              label: t('to_import'),
+                              onClick: () => navigate('/app/imports/meters')
+                            }
+                          ]
+                        : []
+                    }
+                  />
                 )}
               </Stack>
             </Stack>

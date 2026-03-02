@@ -74,6 +74,7 @@ import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import { Pageable, Sort } from '../../../models/owns/page';
 import { googleMapsConfig } from '../../../config';
 import { getErrorMessage } from '../../../utils/api';
+import SplitButton from '../components/SplitButton';
 
 function Locations() {
   const { t }: { t: any } = useTranslation();
@@ -563,14 +564,6 @@ function Locations() {
           </Stack>
         </MenuItem>
       )}
-      {hasViewPermission(PermissionEntity.SETTINGS) && (
-        <MenuItem
-          onClick={() => navigate('/app/imports/locations')}
-          disabled={!hasFeature(PlanFeature.IMPORT_CSV)}
-        >
-          {t('to_import')}
-        </MenuItem>
-      )}
     </Menu>
   );
   const renderLocationUpdateModal = () => (
@@ -721,14 +714,23 @@ function Locations() {
                 <MoreVertTwoToneIcon />
               </IconButton>
               {hasCreatePermission(PermissionEntity.LOCATIONS) && (
-                <Button
-                  onClick={() => setOpenAddModal(true)}
+                <SplitButton
+                  onMainClick={() => setOpenAddModal(true)}
                   startIcon={<AddTwoToneIcon />}
                   sx={{ mx: 6, my: 1 }}
-                  variant="contained"
-                >
-                  {t('location')}
-                </Button>
+                  label={t('location')}
+                  menuItems={
+                    hasViewPermission(PermissionEntity.SETTINGS) &&
+                    hasFeature(PlanFeature.IMPORT_CSV)
+                      ? [
+                          {
+                            label: t('to_import'),
+                            onClick: () => navigate('/app/imports/locations')
+                          }
+                        ]
+                      : []
+                  }
+                />
               )}
             </Stack>
           </Box>
