@@ -321,7 +321,7 @@ const Import = ({}: OwnProps) => {
                     <em>{t('select')}</em>
                   </MenuItem>
                   {headerKeysConfig[entity].map((header, index) => (
-                    <MenuItem key={index} value={header.keyName}>
+                    <MenuItem key={header.keyName} value={header.keyName}>
                       {header.label}
                     </MenuItem>
                   ))}
