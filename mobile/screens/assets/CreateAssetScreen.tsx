@@ -12,6 +12,7 @@ import { formatAssetValues, getAssetFields } from '../../utils/fields';
 import { getErrorMessage } from '../../utils/api';
 import useAuth from '../../hooks/useAuth';
 import { addAsset, getAssetChildren } from '../../slices/asset';
+import { getImageAndFiles } from '../../utils/overall';
 
 export default function CreateAssetScreen({
   navigation,

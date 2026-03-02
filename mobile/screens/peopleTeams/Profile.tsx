@@ -351,7 +351,6 @@ export default function UserProfile({
               label={user.email}
               icon="email-outline"
               color={theme.colors.grey}
-              style={styles.infoRow}
             />
           )}
           {user.phone && (
@@ -359,7 +358,6 @@ export default function UserProfile({
               label={user.phone}
               icon="phone-outline"
               color={theme.colors.grey}
-              style={styles.infoRow}
             />
           )}
           {user.role && (
@@ -367,7 +365,6 @@ export default function UserProfile({
               label={user.role.name}
               icon="shield-account-outline"
               color={theme.colors.grey}
-              style={styles.infoRow}
             />
           )}
           {user.rate > 0 && (
@@ -375,7 +372,6 @@ export default function UserProfile({
               label={`${user.rate} / ${t('hour')}`}
               icon="currency-usd"
               color={theme.colors.grey}
-              style={styles.infoRow}
             />
           )}
         </View>
