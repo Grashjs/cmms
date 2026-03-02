@@ -45,7 +45,7 @@ const Inventory = ({}: PropsType) => {
         basePath={`/app/inventory`}
         tabs={tabs}
         tabIndex={tabIndex}
-        title={`Inventory`}
+        title={t('parts_and_inventory')}
         rawAction={
           <SplitButton
             onMainClick={
