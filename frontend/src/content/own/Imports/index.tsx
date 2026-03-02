@@ -320,8 +320,8 @@ const Import = ({}: OwnProps) => {
                   <MenuItem disabled value={''}>
                     <em>{t('select')}</em>
                   </MenuItem>
-                  {headerKeysConfig[entity].map((header) => (
-                    <MenuItem key={header.keyName} value={header.keyName}>
+                  {headerKeysConfig[entity].map((header, index) => (
+                    <MenuItem key={index} value={header.keyName}>
                       {header.label}
                     </MenuItem>
                   ))}
@@ -416,42 +416,42 @@ const Import = ({}: OwnProps) => {
                 type={'spreadsheet'}
                 description={t('upload')}
                 onDrop={(files: any) => {
+                  const file = files[0];
+                  if (!file) return;
+
                   setLoading(true);
-                  var reader = new FileReader();
-                  reader.onload = function (e) {
-                    const data = e.target.result;
-                    // Detect file type based on extension
-                    const fileType = files[0].name
-                      .toLowerCase()
-                      .endsWith('.csv')
-                      ? 'string'
-                      : 'binary';
-                    const file = read(data, { type: fileType });
-                    const sheet = file.Sheets[file.SheetNames[0]];
-                    const localJsonArray: string[][] = utils.sheet_to_json(
-                      sheet,
-                      { header: 1 }
-                    );
+                  const reader = new FileReader();
+
+                  reader.onload = (e: any) => {
+                    const data = new Uint8Array(e.target.result);
+
+                    const workbook = read(data, { type: 'array' });
+
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+
+                    /* 3. Convert to JSON */
+                    const localJsonArray: any[][] = utils.sheet_to_json(sheet, {
+                      header: 1
+                    });
                     const localJson = utils.sheet_to_json(sheet);
-                    setJsonData(localJson);
+
                     if (localJsonArray.length > 1) {
+                      setJsonData(localJson);
                       setUserHeaders(localJsonArray[0]);
+
                       const localObjectOfArrayOfArrays =
                         arrayToAoA(localJsonArray);
                       setSpreadSheetsConfig(localObjectOfArrayOfArrays);
                       setLoading(false);
                       handleNext();
                     } else {
+                      setLoading(false);
                       showSnackBar(t('not_enough_rows'), 'error');
                     }
                   };
 
-                  // Use appropriate reader method based on file type
-                  if (files[0].name.toLowerCase().endsWith('.csv')) {
-                    reader.readAsText(files[0]);
-                  } else {
-                    reader.readAsBinaryString(files[0]);
-                  }
+                  reader.readAsArrayBuffer(file);
                 }}
               />
             )
