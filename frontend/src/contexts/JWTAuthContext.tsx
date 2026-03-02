@@ -643,7 +643,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         ...values,
         utmParams: {
           ...utmParams,
-          referrer: localStorage.getItem('referrerData')
+          referrer: utmParams.ref || localStorage.getItem('referrerData')
         },
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
       },

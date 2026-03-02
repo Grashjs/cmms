@@ -178,7 +178,7 @@ function App() {
   }, [user]);
 
   return (
-    <UtmTrackerProvider customParams={['msclkid']}>
+    <UtmTrackerProvider customParams={['msclkid', 'ref']}>
       <ThemeProvider>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <SnackbarProvider
