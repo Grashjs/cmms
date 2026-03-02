@@ -93,7 +93,9 @@ export const getWorkOrdersUrl = (lang: string) => getLocalizedMainAppUrl("app/wo
 export const getLocalizedMainAppUrl = (path: string, lang: string, params?: Record<string, string>) => {
   const url = new URL(path, mainAppUrl);
   url.searchParams.set("lang", lang.replace("-", "_").toLowerCase());
-  url.searchParams.set("ref", document.referrer);
+  if (typeof window !== "undefined") {
+    url.searchParams.set("ref", document.referrer || "");
+  }
 
   if (params) {
     Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
