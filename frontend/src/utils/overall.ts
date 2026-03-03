@@ -39,7 +39,7 @@ export const getImageAndFiles = (
 };
 
 export interface FileUploadInput {
-  files: Array<{ id: number; type: FileType }>;
+  files: { id: number; type: FileType }[];
   image: { id: number; type: FileType } | File[];
 }
 
@@ -51,8 +51,8 @@ export interface FileUploadOutput {
 export const handleFileUpload = async (
   formattedValues: FileUploadInput,
   uploadFiles: (
-    files: Array<{ id?: number }>,
-    images: Array<File> | { id: number }
+    files: any[],
+    images: any[]
   ) => Promise<{ id: number; type: FileType }[]>
 ): Promise<FileUploadOutput> => {
   const filesToUpload = formattedValues.files.filter((file) => !file.id);
@@ -63,7 +63,7 @@ export const handleFileUpload = async (
 
   const uploadedFiles = await uploadFiles(
     filesToUpload,
-    existingImage ? [] : formattedValues.image
+    existingImage ? [] : (formattedValues.image as File[])
   );
 
   const imageAndFiles = getImageAndFiles([...existingFiles, ...uploadedFiles]);
