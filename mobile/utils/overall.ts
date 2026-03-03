@@ -185,3 +185,38 @@ export const isCloseToBottom = ({
     layoutMeasurement.height + contentOffset.y >= contentSize.height - threshold
   );
 };
+
+export interface FileUploadInput {
+  files: { id: number; type: FileType }[];
+  image: { id: number; type: FileType } | File[];
+}
+
+export interface FileUploadOutput {
+  image?: { id: number } | null;
+  files: Array<{ id: number }>;
+}
+export const handleFileUpload = async (
+  formattedValues: FileUploadInput,
+  uploadFiles: (
+    files: any[],
+    images: any[]
+  ) => Promise<{ id: number; type: FileType }[]>
+): Promise<FileUploadOutput> => {
+  const filesToUpload = formattedValues.files.filter((file) => !file.id);
+  const existingFiles = formattedValues.files.filter((file) => file.id);
+
+  const existingImage =
+    'id' in formattedValues.image ? formattedValues.image : null;
+
+  const uploadedFiles = await uploadFiles(
+    filesToUpload,
+    existingImage ? [] : (formattedValues.image as File[])
+  );
+
+  const imageAndFiles = getImageAndFiles([...existingFiles, ...uploadedFiles]);
+
+  return {
+    image: existingImage || imageAndFiles.image,
+    files: imageAndFiles.files
+  };
+};
