@@ -2,7 +2,7 @@
   "name": "grash",
   "version": "0.1.0",
   "title": "Atlas CMMS",
-  "description": "High performance CMMS.",
+  "description": "Free Open Source CMMS.",
   "private": true,
   "dependencies": {
     "@auth0/auth0-spa-js": "1.22.0",
@@ -61,6 +61,7 @@
     "history": "5.3.0",
     "i18next": "^25.7.1",
     "i18next-browser-languagedetector": "^8.2.0",
+    "i18next-http-backend": "^3.0.2",
     "jose": "^5.2.3",
     "jsonwebtoken": "8.5.1",
     "lodash": "^4.17.21",
@@ -73,7 +74,6 @@
     "prop-types": "15.8.1",
     "react": "17.0.2",
     "react-apexcharts": "1.4.0",
-    "react-app-rewired": "^2.2.1",
     "react-beautiful-dnd": "13.1.0",
     "react-circular-progressbar": "2.0.4",
     "react-countup": "6.2.0",
@@ -118,8 +118,8 @@
     "yup": "0.32.11"
   },
   "scripts": {
-    "start": "cross-env NODE_ENV=development runtime-env-cra --config-name=./public/runtime-env.js && react-scripts start --max_old_space_size=6096",
-    "build": "react-scripts build",
+    "start": "cross-env NODE_ENV=development runtime-env-cra --config-name=./public/runtime-env.js && react-app-rewired start --max_old_space_size=6096",
+    "build": "react-app-rewired build",
     "eject": "react-scripts eject",
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
@@ -149,6 +149,7 @@
     "@typescript-eslint/eslint-plugin": "5.27.0",
     "@typescript-eslint/parser": "5.27.0",
     "babel-plugin-module-resolver": "^5.0.2",
+    "code-inspector-plugin": "^1.4.2",
     "eslint": "8.17.0",
     "eslint-config-airbnb-typescript": "17.0.0",
     "eslint-config-prettier": "8.5.0",
@@ -160,7 +161,9 @@
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
     "prettier": "2.6.2",
-    "react-router-sitemap": "^1.2.0"
+    "react-app-rewired": "^2.2.1",
+    "react-router-sitemap": "^1.2.0",
+    "source-map-explorer": "^2.5.3"
   },
   "husky": {
     "hooks": {

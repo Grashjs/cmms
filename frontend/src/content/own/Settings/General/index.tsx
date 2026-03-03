@@ -16,6 +16,7 @@ import * as Yup from 'yup';
 import CustomSwitch from '../../components/form/CustomSwitch';
 import useAuth from '../../../../hooks/useAuth';
 import internationalization, {
+  loadLanguage,
   supportedLanguages
 } from '../../../../i18n/i18n';
 import { useDispatch, useSelector } from '../../../../store';
@@ -40,7 +41,8 @@ const onOpenApiDocs = async () => {
 function GeneralSettings() {
   const { t }: { t: any } = useTranslation();
   const [openDeleteDemo, setOpenDeleteDemo] = useState<boolean>(false);
-  const switchLanguage = ({ lng }: { lng: any }) => {
+  const switchLanguage = async ({ lng }: { lng: any }) => {
+    await loadLanguage(lng);
     internationalization.changeLanguage(lng);
   };
   const { showSnackBar } = useContext(CustomSnackBarContext);
@@ -125,6 +127,14 @@ function GeneralSettings() {
     _values,
     { resetForm, setErrors, setStatus, setSubmitting }
   ) => {};
+
+  const timezones = useMemo(() => {
+    const supported = (Intl as any).supportedValuesOf('timeZone');
+    const current = generalPreferences.timeZone;
+    return current && !supported.includes(current)
+      ? [current, ...supported]
+      : supported;
+  }, [generalPreferences.timeZone]);
   return (
     <Grid item xs={12}>
       <Box p={4}>
@@ -217,13 +227,11 @@ function GeneralSettings() {
                         as={Select}
                         name="timeZone"
                       >
-                        {(Intl as any)
-                          .supportedValuesOf('timeZone')
-                          .map((timezone) => (
-                            <MenuItem key={timezone} value={timezone}>
-                              {timezone}
-                            </MenuItem>
-                          ))}
+                        {timezones.map((timezone) => (
+                          <MenuItem key={timezone} value={timezone}>
+                            {timezone}
+                          </MenuItem>
+                        ))}
                       </Field>
                     </Grid>
                     <Grid item xs={12}>

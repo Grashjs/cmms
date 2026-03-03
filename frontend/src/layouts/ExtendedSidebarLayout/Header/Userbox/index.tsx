@@ -16,7 +16,8 @@ import {
   styled,
   Typography,
   useTheme,
-  CircularProgress, ListItemIcon
+  CircularProgress,
+  ListItemIcon
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import LockOpenTwoToneIcon from '@mui/icons-material/LockOpenTwoTone';
@@ -26,6 +27,7 @@ import PersonOutlineTwoToneIcon from '@mui/icons-material/PersonOutlineTwoTone';
 import BusinessTwoToneIcon from '@mui/icons-material/BusinessTwoTone';
 import SwitchLeftTwoToneIcon from '@mui/icons-material/SwitchLeftTwoTone';
 import HelpTwoToneIcon from '@mui/icons-material/HelpTwoTone';
+import { homeUrl } from '../../../../config';
 
 const DotLegend = styled('span')(
   ({ theme }) => `
@@ -193,7 +195,7 @@ function HeaderUserbox() {
       },
       y: {
         title: {
-          formatter: function() {
+          formatter: function () {
             return 'Orders:';
           }
         }
@@ -277,34 +279,40 @@ function HeaderUserbox() {
                 opacity: 0.8
               }}
             />
-          </MenuItem>{
-          user.parentSuperAccount && (<MenuItem
-            onClick={() => {
-              setSwitchingAccount(true);
-              switchAccount(user.parentSuperAccount.superUserId).then(() => {
-                handleClose();
-                navigate('/app/switch-account');
-              })
-                .finally(() => setSwitchingAccount(false));
-            }}
-          >
-            <ListItemIcon>
-              <SwitchLeftTwoToneIcon />
-            </ListItemIcon>
-            <ListItemText
-              primaryTypographyProps={{
-                variant: 'h5'
+          </MenuItem>
+          {user.parentSuperAccount && (
+            <MenuItem
+              onClick={() => {
+                setSwitchingAccount(true);
+                switchAccount(user.parentSuperAccount.superUserId)
+                  .then(() => {
+                    handleClose();
+                    navigate('/app/switch-account');
+                  })
+                  .finally(() => setSwitchingAccount(false));
               }}
-              primary={t('switch_to_super_user')}
-            />
-            {switchingAccount ? <CircularProgress size="1rem" /> : <ChevronRightTwoToneIcon
-              sx={{
-                color: `${theme.colors.alpha.black[30]}`,
-                opacity: 0.8
-              }}
-            />}
-          </MenuItem>)
-        }
+            >
+              <ListItemIcon>
+                <SwitchLeftTwoToneIcon />
+              </ListItemIcon>
+              <ListItemText
+                primaryTypographyProps={{
+                  variant: 'h5'
+                }}
+                primary={t('switch_to_super_user')}
+              />
+              {switchingAccount ? (
+                <CircularProgress size="1rem" />
+              ) : (
+                <ChevronRightTwoToneIcon
+                  sx={{
+                    color: `${theme.colors.alpha.black[30]}`,
+                    opacity: 0.8
+                  }}
+                />
+              )}
+            </MenuItem>
+          )}
           <MenuItem
             onClick={() => {
               handleClose();

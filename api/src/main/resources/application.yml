@@ -5,6 +5,9 @@ spring:
     username: ${DB_USER}
     password: ${DB_PWD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      leak-detection-threshold: 60000
+      maximum-pool-size: 20
   #    init:
   #      data-locations: classpath:data-preprod.sql
   #    tomcat:
@@ -68,8 +71,6 @@ spring:
       ssl.trust: ${SMTP_HOST:smtp.gmail.com}
   cache:
     type: caffeine
-    caffeine:
-      spec: maximumSize=1000,expireAfterWrite=20m
 server:
   port: 8080 # This is the default port anyway, but you can change it here
 
@@ -83,6 +84,7 @@ security:
     enabled: ${ENABLE_CORS:true}
 frontend:
   url: ${PUBLIC_FRONT_URL}
+  home-url: ${PUBLIC_HOME_URL:}
 mail:
   recipients: ${MAIL_RECIPIENTS}
   enable: ${ENABLE_EMAIL_NOTIFICATIONS}

@@ -375,25 +375,25 @@ function Files() {
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
-              return new Promise<void>((resolve, rej) => {
-                uploadFiles(formattedValues.files, formattedValues.image)
-                  .then((files) => {
-                    const imageAndFiles = getImageAndFiles(files);
-                    formattedValues = {
-                      ...formattedValues,
-                      image: imageAndFiles.image,
-                      files: imageAndFiles.files
-                    };
-                    dispatch(addRequest(formattedValues))
-                      .then(onCreationSuccess)
-                      .catch(onCreationFailure)
-                      .finally(resolve);
-                  })
-                  .catch((err) => {
-                    onCreationFailure(err);
-                    rej(err);
-                  });
-              });
+              try {
+                const uploadedFiles = await uploadFiles(
+                  formattedValues.files,
+                  formattedValues.image
+                );
+
+                const imageAndFiles = getImageAndFiles(uploadedFiles);
+                formattedValues = {
+                  ...formattedValues,
+                  image: imageAndFiles.image,
+                  files: imageAndFiles.files
+                };
+
+                await dispatch(addRequest(formattedValues));
+                onCreationSuccess();
+              } catch (err) {
+                onCreationFailure(err);
+                throw err;
+              }
             }}
           />
         </Box>
@@ -437,31 +437,37 @@ function Files() {
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
-              return new Promise<void>((resolve, rej) => {
-                const files = formattedValues.files.find((file) => file.id)
-                  ? []
-                  : formattedValues.files;
-                uploadFiles(files, formattedValues.image)
-                  .then((files) => {
-                    const imageAndFiles = getImageAndFiles(
-                      files,
-                      currentRequest.image
-                    );
-                    formattedValues = {
-                      ...formattedValues,
-                      image: imageAndFiles.image,
-                      files: [...currentRequest.files, ...imageAndFiles.files]
-                    };
-                    dispatch(editRequest(currentRequest?.id, formattedValues))
-                      .then(onEditSuccess)
-                      .catch(onEditFailure)
-                      .finally(resolve);
-                  })
-                  .catch((err) => {
-                    onEditFailure(err);
-                    rej(err);
-                  });
-              });
+              try {
+                const filesToUpload = formattedValues.files.filter(
+                  (file) => !file.id
+                );
+                const existingFiles = formattedValues.files.filter(
+                  (file) => file.id
+                );
+                const uploadedFiles = await uploadFiles(
+                  filesToUpload,
+                  formattedValues.image
+                );
+
+                const imageAndFiles = getImageAndFiles([
+                  ...existingFiles,
+                  ...uploadedFiles
+                ]);
+
+                formattedValues = {
+                  ...formattedValues,
+                  image: imageAndFiles.image,
+                  files: imageAndFiles.files
+                };
+
+                await dispatch(
+                  editRequest(currentRequest?.id, formattedValues)
+                );
+                await onEditSuccess();
+              } catch (err) {
+                onEditFailure(err);
+                throw err;
+              }
             }}
           />
         </Box>

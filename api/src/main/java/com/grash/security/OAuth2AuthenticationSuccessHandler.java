@@ -130,7 +130,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         try {
             Subscription subscription = Subscription.builder()
-                    .usersCount(cloudVersion ? 10 : 100)
+                    .usersCount(300)
                     .monthly(cloudVersion)
                     .startsOn(new Date())
                     .endsOn(cloudVersion ? Helper.incrementDays(new Date(), 15) : null)

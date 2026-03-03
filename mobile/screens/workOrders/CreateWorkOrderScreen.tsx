@@ -81,30 +81,23 @@ export default function CreateWorkOrderScreen({
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           let formattedValues = formatWorkOrderValues(values);
-          return new Promise<void>((resolve, rej) => {
-            uploadFiles(formattedValues.files, formattedValues.image)
-              .then((files) => {
-                const imageAndFiles = getImageAndFiles(files);
-                formattedValues = {
-                  ...formattedValues,
-                  image: imageAndFiles.image,
-                  files: imageAndFiles.files
-                };
-                dispatch(addWorkOrder(formattedValues))
-                  .then(() => {
-                    onCreationSuccess();
-                    resolve();
-                  })
-                  .catch((err) => {
-                    onCreationFailure(err);
-                    rej();
-                  });
-              })
-              .catch((err) => {
-                onCreationFailure(err);
-                rej();
-              });
-          });
+          try {
+            const uploadedFiles = await uploadFiles(
+              formattedValues.files,
+              formattedValues.image
+            );
+            const imageAndFiles = getImageAndFiles(uploadedFiles);
+            formattedValues = {
+              ...formattedValues,
+              image: imageAndFiles.image,
+              files: imageAndFiles.files
+            };
+            await dispatch(addWorkOrder(formattedValues));
+            onCreationSuccess();
+          } catch (err) {
+            onCreationFailure(err);
+            throw err;
+          }
         }}
       />
     </View>

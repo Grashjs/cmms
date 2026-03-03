@@ -32,17 +32,19 @@ interface OwnProps {
   multiple: boolean;
   description: string;
   onChange: (files: IFile[]) => void;
+  files?: IFile[];
 }
 
 export default function FileUpload({
   title,
   type,
   multiple,
-  onChange
+  onChange,
+  files: defaultFiles
 }: OwnProps) {
   const theme = useTheme();
-  const [images, setImages] = useState<IFile[]>([]);
-  const [files, setFiles] = useState<IFile[]>([]);
+  const [images, setImages] = useState<IFile[]>(defaultFiles || []);
+  const [files, setFiles] = useState<IFile[]>(defaultFiles || []);
   const { t } = useTranslation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const maxFileSize: number = 7;
@@ -186,7 +188,10 @@ export default function FileUpload({
       }
 
       // Pass the selected file(s) to the internal change handler
-      onChangeInternal(filesToUpload, 'file');
+      onChangeInternal(
+        multiple ? [...files, ...filesToUpload] : filesToUpload,
+        'file'
+      );
     } catch (error) {
       console.error('Error picking document:', error);
     }
@@ -201,6 +206,7 @@ export default function FileUpload({
       });
     else pickFile();
   };
+
   return (
     <View style={{ display: 'flex', flexDirection: 'column' }}>
       <TouchableOpacity onPress={onPress}>
@@ -211,8 +217,8 @@ export default function FileUpload({
             alignItems: 'center'
           }}
         >
-          <Text>{title}</Text>
-          <IconButton icon={'plus-circle'} />
+          <Text style={{color:'black'}}>{title}</Text>
+          <IconButton iconColor={theme.colors.primary} icon={'plus-circle'} />
         </View>
       </TouchableOpacity>
       <View>

@@ -164,7 +164,6 @@ public class WorkOrderService {
 
         Map<String, Object> mailVariables = new HashMap<String, Object>() {{
             put("workOrderLink", frontendUrl + "/app/work-orders/" + workOrder.getId());
-            put("featuresLink", frontendUrl + "/#key-features");
             put("workOrderTitle", workOrder.getTitle());
         }};
         Collection<OwnUser> usersToMail =
@@ -184,7 +183,6 @@ public class WorkOrderService {
 
         Map<String, Object> mailVariables = new HashMap<String, Object>() {{
             put("workOrderLink", frontendUrl + "/app/work-orders/" + newWorkOrder.getId());
-            put("featuresLink", frontendUrl + "/#key-features");
             put("workOrderTitle", newWorkOrder.getTitle());
         }};
         Collection<OwnUser> usersToMail =

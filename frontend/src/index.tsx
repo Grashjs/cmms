@@ -1,5 +1,5 @@
 import ReactDOM from 'react-dom';
-import { HelmetProvider } from 'react-helmet-async';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter } from 'react-router-dom';
 import ScrollTop from 'src/hooks/useScrollTop';
 
@@ -15,11 +15,15 @@ import { AuthProvider } from 'src/contexts/JWTAuthContext';
 import { muiLicense, zendeskKey } from './config';
 import { ZendeskProvider } from 'react-use-zendesk';
 import { LicenseInfo } from '@mui/x-data-grid-pro';
+import i18n, { supportedLanguages } from 'src/i18n/i18n';
 
 LicenseInfo.setLicenseKey(muiLicense);
 
 ReactDOM.render(
   <HelmetProvider>
+    <Helmet>
+      <meta name="robots" content="noindex, nofollow" />
+    </Helmet>
     <Provider store={store}>
       <SidebarProvider>
         <TitleProvider>

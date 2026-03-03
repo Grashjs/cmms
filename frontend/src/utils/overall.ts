@@ -31,7 +31,7 @@ export const getImageAndFiles = (
       ? { id: files.find((file) => file.type === 'IMAGE').id }
       : imageFallback ?? null,
     files: files
-      .filter((file) => file.type === 'OTHER')
+      .filter((file) => file.type !== 'IMAGE')
       .map((file) => {
         return { id: file.id };
       })
@@ -155,3 +155,13 @@ export const fireGa4Event = (
     if (conversionKey) sessionStorage.setItem(conversionKey, 'true');
   }
 };
+
+export const companyLogosAssets: string[] = [
+  '/static/images/industries/logos/adventure-mechanical.png',
+  '/static/images/industries/logos/sertec.png',
+  '/static/images/industries/logos/complete-am.png',
+  '/static/images/industries/logos/kwdc.png',
+  '/static/images/industries/logos/henalux.png',
+  '/static/images/industries/logos/penflex.png',
+  '/static/images/industries/logos/mfwaterwork.png'
+];

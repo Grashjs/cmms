@@ -71,7 +71,6 @@ public class PreventiveMaintenanceNotificationJob extends QuartzJobBean {
 
         Map<String, Object> mailVariables = new HashMap<String, Object>() {{
             put("pmLink", frontendUrl + "/app/preventive-maintenances/" + preventiveMaintenance.getId());
-            put("featuresLink", frontendUrl + "/#key-features");
             put("pmTitle", preventiveMaintenance.getTitle());
         }};
 

@@ -11,6 +11,7 @@ import { editMeter } from '../../slices/meter';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { formatMeterValues, getMeterFields } from '../../utils/fields';
 import useAuth from '../../hooks/useAuth';
+import { getImageAndFiles } from '../../utils/overall';
 
 export default function EditMeterScreen({
   navigation,
@@ -67,23 +68,19 @@ export default function EditMeterScreen({
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           let formattedValues = formatMeterValues(values);
-          return new Promise<void>((resolve, rej) => {
-            uploadFiles([], values.image)
-              .then((files) => {
-                formattedValues = {
-                  ...formattedValues,
-                  image: files.length ? { id: files[0].id } : meter.image
-                };
-                dispatch(editMeter(meter.id, formattedValues))
-                  .then(onEditSuccess)
-                  .catch(onEditFailure)
-                  .finally(resolve);
-              })
-              .catch((err) => {
-                rej(err);
-                onEditFailure(err);
-              });
-          });
+          try {
+            const uploadedFiles = await uploadFiles([], values.image);
+            const imageAndFiles = getImageAndFiles(uploadedFiles, meter.image);
+            formattedValues = {
+              ...formattedValues,
+              image: imageAndFiles.image
+            };
+            await dispatch(editMeter(meter.id, formattedValues));
+            onEditSuccess();
+          } catch (err) {
+            onEditFailure(err);
+            throw err;
+          }
         }}
       />
     </View>

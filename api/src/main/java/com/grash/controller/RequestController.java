@@ -110,7 +110,6 @@ public class RequestController {
                             createdRequest.getId())).collect(Collectors.toList()), true, title);
             Map<String, Object> mailVariables = new HashMap<String, Object>() {{
                 put("requestLink", frontendUrl + "/app/requests/" + createdRequest.getId());
-                put("featuresLink", frontendUrl + "/#key-features");
                 put("requestTitle", createdRequest.getTitle());
                 put("requester", user.getFullName());
             }};
@@ -188,7 +187,6 @@ public class RequestController {
 
             Map<String, Object> mailVariables = new HashMap<String, Object>() {{
                 put("workOrderLink", frontendUrl + "/app/work-orders/" + result.getId());
-                put("featuresLink", frontendUrl + "/#key-features");
                 put("workOrderTitle", result.getTitle());
             }};
             List<OwnUser> usersToMail =
@@ -244,7 +242,6 @@ public class RequestController {
 
             Map<String, Object> mailVariables = new HashMap<String, Object>() {{
                 put("requestLink", frontendUrl + "/app/requests/" + savedRequest.getId());
-                put("featuresLink", frontendUrl + "/#key-features");
                 put("requestTitle", savedRequest.getTitle());
             }};
             List<OwnUser> usersToMail =
@@ -252,7 +249,8 @@ public class RequestController {
                             .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
             usersToMail.add(requester);
             mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
-                    .toArray(String[]::new), title, mailVariables, "rejected-request.html", Helper.getLocale(user),
+                            .toArray(String[]::new), title, mailVariables, "rejected-request.html",
+                    Helper.getLocale(user),
                     null);
 
             return requestMapper.toShowDto(requestService.save(savedRequest));

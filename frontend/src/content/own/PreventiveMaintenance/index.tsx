@@ -1,3 +1,4 @@
+import SplitButton from '../components/SplitButton';
 import { Helmet } from 'react-helmet-async';
 import {
   Box,
@@ -77,13 +78,18 @@ import SignalCellularAltTwoToneIcon from '@mui/icons-material/SignalCellularAltT
 import SearchInput from '../components/SearchInput';
 import WorkOrder from '../../../models/owns/workOrder';
 import { getWeekdays } from '../../../utils/dates';
-import { supportedLanguages } from '../../../i18n/i18n';
+import {
+  getDateLocale,
+  getSupportedLanguage,
+  supportedLanguages
+} from '../../../i18n/i18n';
 import i18n from 'i18next';
 import Schedule from '../../../models/owns/schedule';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import { exportEntity } from '../../../slices/exports';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import { getErrorMessage } from '../../../utils/api';
+import useDateLocale from '../../../hooks/useDateLocale';
 
 function PMs() {
   const { t }: { t: any } = useTranslation();
@@ -92,6 +98,7 @@ function PMs() {
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const getLanguage = i18n.language;
+  const dateLocale = useDateLocale();
   const {
     companySettings,
     hasViewPermission,
@@ -112,14 +119,6 @@ function PMs() {
   const { preventiveMaintenances, loadingGet, singlePreventiveMaintenance } =
     useSelector((state) => state.preventiveMaintenances);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const openMenu = Boolean(anchorEl);
-  const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
-  };
   const [criteria, setCriteria] = useState<SearchCriteria>({
     filterFields: [
       {
@@ -451,9 +450,10 @@ function PMs() {
       type: 'select',
       multiple: true,
       label: t('on'),
-      items: getWeekdays(
-        supportedLanguages.find(({ code }) => code === getLanguage).dateLocale
-      ).map((day, index) => ({ label: day, value: index }))
+      items: getWeekdays(dateLocale).map((day, index) => ({
+        label: day,
+        value: index
+      }))
     },
     {
       name: 'titleGroup',
@@ -537,25 +537,25 @@ function PMs() {
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
-              return new Promise<void>((resolve, rej) => {
-                uploadFiles(formattedValues.files, formattedValues.image)
-                  .then((files) => {
-                    const imageAndFiles = getImageAndFiles(files);
-                    formattedValues = {
-                      ...formattedValues,
-                      image: imageAndFiles.image,
-                      files: imageAndFiles.files
-                    };
-                    dispatch(addPreventiveMaintenance(formattedValues))
-                      .then(onCreationSuccess)
-                      .catch(onCreationFailure)
-                      .finally(resolve);
-                  })
-                  .catch((err) => {
-                    onCreationFailure(err);
-                    rej(err);
-                  });
-              });
+              try {
+                const uploadedFiles = await uploadFiles(
+                  formattedValues.files,
+                  formattedValues.image
+                );
+
+                const imageAndFiles = getImageAndFiles(uploadedFiles);
+                formattedValues = {
+                  ...formattedValues,
+                  image: imageAndFiles.image,
+                  files: imageAndFiles.files
+                };
+
+                await dispatch(addPreventiveMaintenance(formattedValues));
+                onCreationSuccess();
+              } catch (err) {
+                onCreationFailure(err);
+                throw err;
+              }
             }}
           />
         </Box>
@@ -609,10 +609,9 @@ function PMs() {
                   )
                 : null,
               daysOfWeek: currentPM?.schedule.daysOfWeek?.map((dayOfWeek) => ({
-                label: getWeekdays(
-                  supportedLanguages.find(({ code }) => code === getLanguage)
-                    .dateLocale
-                ).find((day, index) => index === dayOfWeek),
+                label: getWeekdays(dateLocale).find(
+                  (day, index) => index === dayOfWeek
+                ),
                 value: dayOfWeek
               })),
               frequency: Number(currentPM?.schedule.frequency),
@@ -624,24 +623,26 @@ function PMs() {
               try {
                 let formattedValues = formatValues(values);
 
-                const files = formattedValues.files.find((file) => file.id)
-                  ? []
-                  : formattedValues.files;
-
+                const filesToUpload = formattedValues.files.filter(
+                  (file) => !file.id
+                );
+                const existingFiles = formattedValues.files.filter(
+                  (file) => file.id
+                );
                 const uploadedFiles = await uploadFiles(
-                  files,
+                  filesToUpload,
                   formattedValues.image
                 );
 
-                const imageAndFiles = getImageAndFiles(
-                  uploadedFiles,
-                  currentPM.image
-                );
+                const imageAndFiles = getImageAndFiles([
+                  ...existingFiles,
+                  ...uploadedFiles
+                ]);
 
                 formattedValues = {
                   ...formattedValues,
                   image: imageAndFiles.image,
-                  files: [...currentPM.files, ...imageAndFiles.files]
+                  files: imageAndFiles.files
                 };
 
                 await dispatch(
@@ -679,26 +680,6 @@ function PMs() {
       </DialogContent>
     </Dialog>
   );
-  const renderMenu = () => (
-    <Menu
-      id="basic-menu"
-      anchorEl={anchorEl}
-      open={openMenu}
-      onClose={handleCloseMenu}
-      MenuListProps={{
-        'aria-labelledby': 'basic-button'
-      }}
-    >
-      {hasViewPermission(PermissionEntity.SETTINGS) && (
-        <MenuItem
-          onClick={() => navigate('/app/imports/preventive-maintenances')}
-          disabled={!hasFeature(PlanFeature.IMPORT_CSV)}
-        >
-          {t('to_import')}
-        </MenuItem>
-      )}
-    </Menu>
-  );
   if (hasViewPermission(PermissionEntity.PREVENTIVE_MAINTENANCES))
     return (
       <>
@@ -707,7 +688,6 @@ function PMs() {
         </Helmet>
         {renderAddModal()}
         {renderUpdateModal()}
-        {renderMenu()}
         <Stack
           justifyContent="center"
           alignItems="stretch"
@@ -715,18 +695,25 @@ function PMs() {
           paddingX={4}
         >
           <Stack direction={'row'} alignSelf={'flex-end'} spacing={2} mt={1}>
-            <IconButton onClick={handleOpenMenu} color="primary">
-              <MoreVertTwoToneIcon />
-            </IconButton>
             {hasCreatePermission(PermissionEntity.PREVENTIVE_MAINTENANCES) && (
-              <Button
+              <SplitButton
+                label={t('create_trigger')}
                 startIcon={<AddTwoToneIcon />}
+                onMainClick={() => setOpenAddModal(true)}
                 sx={{ mt: 1, alignSelf: 'flex-end' }}
-                variant="contained"
-                onClick={() => setOpenAddModal(true)}
-              >
-                {t('create_trigger')}
-              </Button>
+                menuItems={
+                  hasViewPermission(PermissionEntity.SETTINGS) &&
+                  hasFeature(PlanFeature.IMPORT_CSV)
+                    ? [
+                        {
+                          label: t('to_import'),
+                          onClick: () =>
+                            navigate('/app/imports/preventive-maintenances')
+                        }
+                      ]
+                    : []
+                }
+              />
             )}
           </Stack>
           <Box>

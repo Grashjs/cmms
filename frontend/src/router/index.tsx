@@ -1,8 +1,14 @@
 import { RouteObject } from 'react-router';
 
 import Authenticated from 'src/components/Authenticated';
-import BaseLayout from 'src/layouts/BaseLayout';
 import ExtendedSidebarLayout from 'src/layouts/ExtendedSidebarLayout';
+import appRoutes from './app';
+import accountRoutes from './account';
+import oauthRoutes from './oauth';
+import { lazy, Suspense } from 'react';
+import SuspenseLoader from '../components/SuspenseLoader';
+import Status404 from '../content/pages/Status/Status404';
+import { Navigate } from 'react-router-dom';
 
 const Loader = (Component) => (props) =>
   (
@@ -14,12 +20,6 @@ const Loader = (Component) => (props) =>
 const PaymentSuccess = Loader(
   lazy(() => import('../content/pages/Payment/Success'))
 );
-import appRoutes from './app';
-import accountRoutes from './account';
-import baseRoutes from './base';
-import oauthRoutes from './oauth';
-import { lazy, Suspense } from 'react';
-import SuspenseLoader from '../components/SuspenseLoader';
 
 const router: RouteObject[] = [
   {
@@ -32,11 +32,6 @@ const router: RouteObject[] = [
     element: <PaymentSuccess />
   },
   {
-    path: '',
-    element: <BaseLayout />,
-    children: baseRoutes
-  },
-  {
     path: 'app',
     element: (
       <Authenticated>
@@ -44,6 +39,14 @@ const router: RouteObject[] = [
       </Authenticated>
     ),
     children: appRoutes
+  },
+  {
+    path: '',
+    element: <Navigate to={'/app/work-orders'} />
+  },
+  {
+    path: '*',
+    element: <Status404 />
   }
 ];
 

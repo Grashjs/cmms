@@ -29,6 +29,7 @@ import { useTranslation } from 'react-i18next';
 import { UtmTrackerProvider } from '@nik0di3m/utm-tracker-hook';
 import { useLicenseEntitlement } from './hooks/useLicenseEntitlement';
 import { initializePaddle } from '@paddle/paddle-js';
+import { loadLanguage, supportedLanguages } from './i18n/i18n';
 
 if (!IS_LOCALHOST && googleTrackingId) ReactGA.initialize(googleTrackingId);
 
@@ -102,7 +103,12 @@ function App() {
   const { isInitialized, company, isAuthenticated, user } = useAuth();
   const { state: licensingState } = useSelector((state) => state.license);
   const hasBrandingEntitlement = useLicenseEntitlement('BRANDING');
+  const { i18n } = useTranslation();
   let location = useLocation();
+
+  useEffect(() => {
+    loadLanguage(i18n.language || 'en');
+  }, [i18n.language]);
 
   useEffect(() => {
     if (!IS_LOCALHOST && googleTrackingId)
@@ -172,7 +178,7 @@ function App() {
   }, [user]);
 
   return (
-    <UtmTrackerProvider customParams={['msclkid']}>
+    <UtmTrackerProvider customParams={['msclkid', 'ref']}>
       <ThemeProvider>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <SnackbarProvider

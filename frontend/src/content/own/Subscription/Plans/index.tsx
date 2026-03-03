@@ -34,12 +34,14 @@ import { fireGa4Event } from '../../../../utils/overall';
 import { initializePaddle, Paddle } from '@paddle/paddle-js';
 import {
   apiUrl,
+  homeUrl,
   PADDLE_SECRET_TOKEN,
   paddleEnvironment
 } from '../../../../config';
+import { getLocalizedHomeUrl } from '../../../../utils/urlPaths';
 
 function SubscriptionPlans() {
-  const { t }: { t: any } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { company, user, patchSubscription } = useAuth();
   const brandConfig = useBrand();
   const subscription = company.subscription;
@@ -346,7 +348,12 @@ function SubscriptionPlans() {
                   </Typography>
                   <Typography variant="h6">
                     {t('checkout_our')}{' '}
-                    <Link href="/pricing">{t('pricing_page')}</Link>{' '}
+                    <Link
+                      target={'_blank'}
+                      href={getLocalizedHomeUrl('pricing', i18n.language)}
+                    >
+                      {t('pricing_page')}
+                    </Link>{' '}
                     {t('for_more_details')}
                   </Typography>
                   <RadioGroup

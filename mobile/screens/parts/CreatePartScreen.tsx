@@ -45,25 +45,23 @@ export default function CreatePartScreen({
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           let formattedValues = formatPartValues(values);
-          return new Promise<void>((resolve, rej) => {
-            uploadFiles(formattedValues.files, formattedValues.image)
-              .then((files) => {
-                const imageAndFiles = getImageAndFiles(files);
-                formattedValues = {
-                  ...formattedValues,
-                  image: imageAndFiles.image,
-                  files: imageAndFiles.files
-                };
-                dispatch(addPart(formattedValues))
-                  .then(onCreationSuccess)
-                  .catch(onCreationFailure)
-                  .finally(resolve);
-              })
-              .catch((err) => {
-                onCreationFailure(err);
-                rej(err);
-              });
-          });
+          try {
+            const uploadedFiles = await uploadFiles(
+              formattedValues.files,
+              formattedValues.image
+            );
+            const imageAndFiles = getImageAndFiles(uploadedFiles);
+            formattedValues = {
+              ...formattedValues,
+              image: imageAndFiles.image,
+              files: imageAndFiles.files
+            };
+            await dispatch(addPart(formattedValues));
+            onCreationSuccess();
+          } catch (err) {
+            onCreationFailure(err);
+            throw err;
+          }
         }}
       />
     </View>

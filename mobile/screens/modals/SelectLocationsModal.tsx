@@ -13,14 +13,15 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from '../../store';
 import { LocationMiniDTO } from '../../models/location';
 import { getLocationsMini } from '../../slices/location';
-import { Checkbox, Divider, Searchbar, Text, useTheme } from 'react-native-paper';
+import { Avatar, Checkbox, Divider, Searchbar, Text } from 'react-native-paper';
+import { useAppTheme } from '../../custom-theme';
 
 export default function SelectLocationsModal({
-                                               navigation,
-                                               route
-                                             }: RootStackScreenProps<'SelectLocations'>) {
+  navigation,
+  route
+}: RootStackScreenProps<'SelectLocations'>) {
   const { onChange, selected, multiple } = route.params;
-  const theme = useTheme();
+  const theme = useAppTheme();
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { locationsMini, loadingGet } = useSelector((state) => state.locations);
@@ -56,7 +57,7 @@ export default function SelectLocationsModal({
               navigation.goBack();
             }}
           >
-            <Text variant='titleMedium'>{t('add')}</Text>
+            <Text variant="titleMedium">{t('add')}</Text>
           </Pressable>
         )
       });
@@ -86,7 +87,9 @@ export default function SelectLocationsModal({
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <Searchbar
         placeholder={t('search')}
         onChangeText={setSearchQuery}
@@ -105,36 +108,56 @@ export default function SelectLocationsModal({
           backgroundColor: theme.colors.background
         }}
       >
-        {locationsMini.filter(mini => mini.name.toLowerCase().includes(searchQuery.toLowerCase().trim())).map((location) => (
-          <TouchableOpacity
-            onPress={() => {
-              toggle(location.id);
-            }}
-            key={location.id}
-            style={{
-              borderRadius: 5,
-              padding: 15,
-              backgroundColor: 'white',
-              display: 'flex',
-              flexDirection: 'row',
-              elevation: 2,
-              alignItems: 'center'
-            }}
-          >
-            {multiple && (
-              <Checkbox
-                status={
-                  selectedIds.includes(location.id) ? 'checked' : 'unchecked'
-                }
-                onPress={() => {
-                  toggle(location.id);
-                }}
-              />
-            )}
-            <Text style={{ flexShrink: 1 }} variant={'titleMedium'}>{location.name}</Text>
-            <Divider />
-          </TouchableOpacity>
-        ))}
+        {locationsMini
+          .filter((mini) =>
+            mini.name.toLowerCase().includes(searchQuery.toLowerCase().trim())
+          )
+          .map((location) => (
+            <TouchableOpacity
+              onPress={() => {
+                toggle(location.id);
+              }}
+              key={location.id}
+            >
+              <View style={styles.card}>
+                <View style={styles.cardRow}>
+                  <Avatar.Icon
+                    style={{
+                      backgroundColor: theme.colors.background
+                    }}
+                    color={'white'}
+                    icon={'map-marker-outline'}
+                    size={50}
+                  />
+                  <View style={{ flex: 1 }}>
+                    <View style={styles.cardHeader}>
+                      <View style={{ flex: 1 }}>
+                        <Text variant="titleMedium" style={styles.cardTitle}>
+                          {location.name}
+                        </Text>
+                        <Text
+                          variant={'bodySmall'}
+                          style={{ color: 'grey' }}
+                        >{`#${location.customId}`}</Text>
+                      </View>
+                      {multiple && (
+                        <Checkbox
+                          status={
+                            selectedIds.includes(location.id)
+                              ? 'checked'
+                              : 'unchecked'
+                          }
+                          onPress={() => {
+                            toggle(location.id);
+                          }}
+                        />
+                      )}
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
       </ScrollView>
     </View>
   );
@@ -143,5 +166,25 @@ export default function SelectLocationsModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1
+  },
+  card: {
+    backgroundColor: 'white',
+    marginBottom: 1,
+    padding: 10
+  },
+  cardRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 6
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start'
+  },
+  cardTitle: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+    flexShrink: 1
   }
 });
