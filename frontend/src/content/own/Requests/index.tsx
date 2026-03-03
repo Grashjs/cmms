@@ -50,7 +50,11 @@ import { getWOBaseFields, getWOBaseValues } from '../../../utils/woBase';
 import { PermissionEntity } from '../../../models/owns/role';
 import PermissionErrorMessage from '../components/PermissionErrorMessage';
 import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
-import { getImageAndFiles, onSearchQueryChange } from '../../../utils/overall';
+import {
+  handleFileUpload,
+  getImageAndFiles,
+  onSearchQueryChange
+} from '../../../utils/overall';
 import {
   FilterField,
   SearchCriteria,
@@ -438,21 +442,13 @@ function Files() {
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
               try {
-                const filesToUpload = formattedValues.files.filter(
-                  (file) => !file.id
+                const imageAndFiles = await handleFileUpload(
+                  {
+                    files: formattedValues.files,
+                    image: formattedValues.image
+                  },
+                  uploadFiles
                 );
-                const existingFiles = formattedValues.files.filter(
-                  (file) => file.id
-                );
-                const uploadedFiles = await uploadFiles(
-                  filesToUpload,
-                  formattedValues.image
-                );
-
-                const imageAndFiles = getImageAndFiles([
-                  ...existingFiles,
-                  ...uploadedFiles
-                ]);
 
                 formattedValues = {
                   ...formattedValues,

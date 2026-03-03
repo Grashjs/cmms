@@ -12,7 +12,7 @@ import WorkOrderMeterTrigger from '../../../models/owns/workOrderMeterTrigger';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
-import { getImageAndFiles } from '../../../utils/overall';
+import { handleFileUpload } from '../../../utils/overall';
 
 interface EditTriggerProps {
   open: boolean;
@@ -123,21 +123,13 @@ export default function EditTriggerModal({
           onSubmit={async (values) => {
             let formattedValues = formatValues(values);
             try {
-              const filesToUpload = formattedValues.files.filter(
-                (file) => !file.id
+              const imageAndFiles = await handleFileUpload(
+                {
+                  files: formattedValues.files,
+                  image: formattedValues.image
+                },
+                uploadFiles
               );
-              const existingFiles = formattedValues.files.filter(
-                (file) => file.id
-              );
-              const uploadedFiles = await uploadFiles(
-                filesToUpload,
-                formattedValues.image
-              );
-
-              const imageAndFiles = getImageAndFiles([
-                ...existingFiles,
-                ...uploadedFiles
-              ]);
 
               formattedValues = {
                 ...formattedValues,

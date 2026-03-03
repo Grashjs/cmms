@@ -61,6 +61,7 @@ import PermissionErrorMessage from '../components/PermissionErrorMessage';
 import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
 import {
   getImageAndFiles,
+  handleFileUpload,
   getNextOccurence,
   onSearchQueryChange
 } from '../../../utils/overall';
@@ -623,21 +624,13 @@ function PMs() {
               try {
                 let formattedValues = formatValues(values);
 
-                const filesToUpload = formattedValues.files.filter(
-                  (file) => !file.id
+                const imageAndFiles = await handleFileUpload(
+                  {
+                    files: formattedValues.files,
+                    image: formattedValues.image
+                  },
+                  uploadFiles
                 );
-                const existingFiles = formattedValues.files.filter(
-                  (file) => file.id
-                );
-                const uploadedFiles = await uploadFiles(
-                  filesToUpload,
-                  formattedValues.image
-                );
-
-                const imageAndFiles = getImageAndFiles([
-                  ...existingFiles,
-                  ...uploadedFiles
-                ]);
 
                 formattedValues = {
                   ...formattedValues,

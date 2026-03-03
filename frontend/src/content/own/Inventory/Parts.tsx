@@ -56,7 +56,11 @@ import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import useAuth from '../../../hooks/useAuth';
 import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
-import { getImageAndFiles, onSearchQueryChange } from '../../../utils/overall';
+import {
+  getImageAndFiles,
+  handleFileUpload,
+  onSearchQueryChange
+} from '../../../utils/overall';
 import { SearchCriteria, SortDirection } from '../../../models/owns/page';
 import { exportEntity } from '../../../slices/exports';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
@@ -605,21 +609,13 @@ const Parts = ({ setAction }: PropsType) => {
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
               try {
-                const filesToUpload = formattedValues.files.filter(
-                  (file) => !file.id
+                const imageAndFiles = await handleFileUpload(
+                  {
+                    files: formattedValues.files,
+                    image: formattedValues.image
+                  },
+                  uploadFiles
                 );
-                const existingFiles = formattedValues.files.filter(
-                  (file) => file.id
-                );
-                const uploadedFiles = await uploadFiles(
-                  filesToUpload,
-                  formattedValues.image
-                );
-
-                const imageAndFiles = getImageAndFiles([
-                  ...existingFiles,
-                  ...uploadedFiles
-                ]);
 
                 formattedValues = {
                   ...formattedValues,
