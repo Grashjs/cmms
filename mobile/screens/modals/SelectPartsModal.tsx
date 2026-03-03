@@ -92,11 +92,9 @@ const PartsRoute = ({
                         <Button
                           mode="text"
                           buttonColor={'white'}
-                          onPress={() =>
-                          {
-                            navigation.goBack()
-                            navigation.navigate('PartDetails', { id: part.id })}
-                          }
+                          onPress={() => {
+                            navigation.navigate('PartDetails', { id: part.id });
+                          }}
                           style={{ marginRight: 8 }}
                         >
                           {t('details')}
