@@ -1505,6 +1505,17 @@ const deJSON = {
   power: 'Leistung ',
   library: 'Bibliothek ',
   camera: 'Kamera ',
+  media_library: 'Mediathek',
+  permission_required_title: 'Berechtigung erforderlich',
+  permission_required_message:
+    'Der Zugriff auf {{permission}} ist erforderlich. Bitte aktiviere ihn in den App-Einstellungen.',
+  permission_denied_title: 'Berechtigung verweigert',
+  permission_denied_message:
+    'Der Zugriff auf {{permission}} ist erforderlich, um fortzufahren.',
+  unable_to_request_permission:
+    'Die Berechtigung für {{permission}} konnte nicht angefordert werden.',
+  open_settings: 'Einstellungen öffnen',
+  ok: 'OK',
   CANCELLED: 'Abgelehnt ',
   max_file_size_error:
     'Die Dateigröße sollte nicht größer als {{size}} MB sein ',

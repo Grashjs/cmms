@@ -1429,6 +1429,16 @@ const locale = {
   power: 'Power',
   library: 'Library',
   camera: 'Camera',
+  media_library: 'Media Library',
+  permission_required_title: 'Permission Required',
+  permission_required_message:
+    '{{permission}} access is needed. Please enable it in app settings.',
+  permission_denied_title: 'Permission Denied',
+  permission_denied_message: '{{permission}} access is needed to continue.',
+  unable_to_request_permission:
+    'Unable to request {{permission}} permission.',
+  open_settings: 'Open Settings',
+  ok: 'OK',
   CANCELLED: 'Rejected',
   max_file_size_error: 'The file size should not be greater than {{size}} MB',
   assignedToUser: 'My Work',

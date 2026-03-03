@@ -66,6 +66,7 @@ export default function CompleteWorkOrderModal({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    marginTop: 'auto'
   }
 });

@@ -102,9 +102,10 @@ const PartsRoute = ({
                 style={{ width: '40%' }}
                 mode="outlined"
                 buttonColor={'white'}
-                onPress={() =>
+                onPress={() => {
+                  navigation.goBack()
                   navigation.navigate('PartDetails', { id: part.id })
-                }
+                }}
               >
                 {t('details')}
               </Button>

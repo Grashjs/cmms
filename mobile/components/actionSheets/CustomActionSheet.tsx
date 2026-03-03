@@ -36,9 +36,11 @@ export default function CustomActionSheet({ options }: CustomActionSheetProps) {
                 left={() => (
                   <List.Icon icon={entity.icon} color={entity.color} />
                 )}
-                onPress={() => {
-                  actionSheetRef.current.hide();
-                  entity.onPress();
+                onPress={async () => {
+                  await actionSheetRef.current?.hide();
+                  setTimeout(() => {
+                    entity.onPress();
+                  }, 250);
                 }}
               />
             ))}

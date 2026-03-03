@@ -37,7 +37,7 @@ export default function CustomDateTimePicker({
         <Text>{label}</Text>
         {value && (
           <Text style={{ color: theme.colors.primary }}>
-            {getFormattedDate(value.toString())}
+            {getFormattedDate(value.toISOString())}
           </Text>
         )}
       </TouchableOpacity>

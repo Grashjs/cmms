@@ -29,7 +29,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   ios: {
     bundleIdentifier: 'com.cmms.atlas',
-    buildNumber: '9',
+    buildNumber: '3',
     jsEngine: 'hermes',
     supportsTablet: false,
     runtimeVersion: '1.0.37',

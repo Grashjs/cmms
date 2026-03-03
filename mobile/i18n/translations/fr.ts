@@ -1580,6 +1580,17 @@ const frJSON = {
   power: 'Puissance',
   library: 'Bibliothèque photo',
   camera: 'Caméra',
+  media_library: 'Photothèque',
+  permission_required_title: 'Permission requise',
+  permission_required_message:
+    "L'accès à {{permission}} est nécessaire. Veuillez l'activer dans les paramètres de l'application.",
+  permission_denied_title: 'Permission refusée',
+  permission_denied_message:
+    "L'accès à {{permission}} est nécessaire pour continuer.",
+  unable_to_request_permission:
+    "Impossible de demander la permission {{permission}}.",
+  open_settings: 'Ouvrir les paramètres',
+  ok: 'OK',
   CANCELLED: 'Rejeté',
   max_file_size_error: 'La taille du fichier ne doit pas dépasser {{size}} Mo',
   assignedToUser: 'Mon travail',

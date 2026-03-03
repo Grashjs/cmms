@@ -193,7 +193,7 @@ export default function SelectTasksModal({
       ) : type === 'METER' ? (
         <View style={{ paddingVertical: 10, paddingHorizontal: 15 }}>
           <List.Item
-            title={t('select_meter')}
+            title={`${t('select_meter')} *`}
             descriptionStyle={{ color: theme.colors.primary }}
             description={meter ? meter.name : null}
             left={() => <List.Icon icon={'gauge'} />}
