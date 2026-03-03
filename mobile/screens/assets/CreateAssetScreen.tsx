@@ -12,6 +12,7 @@ import { formatAssetValues, getAssetFields } from '../../utils/fields';
 import { getErrorMessage } from '../../utils/api';
 import useAuth from '../../hooks/useAuth';
 import { addAsset, getAssetChildren } from '../../slices/asset';
+import { getImageAndFiles } from '../../utils/overall';
 
 export default function CreateAssetScreen({
   navigation,
@@ -62,16 +63,15 @@ export default function CreateAssetScreen({
         onSubmit={async (values) => {
           let formattedValues = formatAssetValues(values);
           try {
-            const files = await uploadFiles(
+            const uploadedFiles = await uploadFiles(
               formattedValues.files,
               formattedValues.image
             );
+            const imageAndFiles = getImageAndFiles(uploadedFiles);
             formattedValues = {
               ...formattedValues,
-              image: files.length ? { id: files[0].id } : null,
-              files: files.map((file) => {
-                return { id: file.id };
-              })
+              image: imageAndFiles.image,
+              files: imageAndFiles.files
             };
             try {
               await dispatch(addAsset(formattedValues));

@@ -214,6 +214,17 @@ const ruJSON = {
   images: 'Изображения',
   required_images: 'Загрузите хотя бы одно изображение',
   add_images: 'Добавить изображения',
+  media_library: 'Медиатека',
+  permission_required_title: 'Требуется разрешение',
+  permission_required_message:
+    'Для продолжения нужен доступ к {{permission}}. Включите его в настройках приложения.',
+  permission_denied_title: 'Доступ запрещён',
+  permission_denied_message:
+    'Для продолжения нужен доступ к {{permission}}.',
+  unable_to_request_permission:
+    'Не удалось запросить разрешение для {{permission}}.',
+  open_settings: 'Открыть настройки',
+  ok: 'OK',
 
   tasks: 'Задачи',
   wo_archive_success: 'Наряд успешно архивирован',

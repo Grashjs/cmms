@@ -1,5 +1,5 @@
 import ReactDOM from 'react-dom';
-import { HelmetProvider } from 'react-helmet-async';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter } from 'react-router-dom';
 import ScrollTop from 'src/hooks/useScrollTop';
 
@@ -21,6 +21,9 @@ LicenseInfo.setLicenseKey(muiLicense);
 
 ReactDOM.render(
   <HelmetProvider>
+    <Helmet>
+      <meta name="robots" content="noindex, nofollow" />
+    </Helmet>
     <Provider store={store}>
       <SidebarProvider>
         <TitleProvider>

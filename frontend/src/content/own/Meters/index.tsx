@@ -61,11 +61,16 @@ import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
 import { exportEntity } from '../../../slices/exports';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
-import { canAddReading, onSearchQueryChange } from '../../../utils/overall';
+import {
+  canAddReading,
+  getImageAndFiles,
+  onSearchQueryChange
+} from '../../../utils/overall';
 import SearchInput from '../components/SearchInput';
 import { useGridApiRef } from '@mui/x-data-grid-pro';
 import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import { getErrorMessage } from '../../../utils/api';
+import SplitButton from '../components/SplitButton';
 
 const LabelWrapper = styled(Box)(
   ({ theme }) => `
@@ -401,22 +406,20 @@ function Meters() {
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
-              return new Promise<void>((resolve, rej) => {
-                uploadFiles([], values.image)
-                  .then((files) => {
-                    formattedValues = {
-                      ...formattedValues,
-                      image: files.length ? { id: files[0].id } : null
-                    };
-                    dispatch(addMeter(formattedValues))
-                      .then(onCreationSuccess)
-                      .catch(onCreationFailure)
-                      .finally(resolve);
-                  })
-                  .catch((err) => {
-                    rej(err);
-                  });
-              });
+              try {
+                const uploadedFiles = await uploadFiles([], values.image);
+                formattedValues = {
+                  ...formattedValues,
+                  image: uploadedFiles.length
+                    ? { id: uploadedFiles[0].id }
+                    : null
+                };
+                await dispatch(addMeter(formattedValues));
+                onCreationSuccess();
+              } catch (err) {
+                onCreationFailure(err);
+                throw err;
+              }
             }}
           />
         </Box>
@@ -481,25 +484,22 @@ function Meters() {
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
-              return new Promise<void>((resolve, rej) => {
-                uploadFiles([], values.image)
-                  .then((files) => {
-                    formattedValues = {
-                      ...formattedValues,
-                      image: files.length
-                        ? { id: files[0].id }
-                        : currentMeter.image
-                    };
-                    dispatch(editMeter(currentMeter.id, formattedValues))
-                      .then(onEditSuccess)
-                      .catch(onEditFailure)
-                      .finally(resolve);
-                  })
-                  .catch((err) => {
-                    rej(err);
-                    onEditFailure(err);
-                  });
-              });
+              try {
+                const uploadedFiles = await uploadFiles([], values.image);
+                formattedValues = {
+                  ...formattedValues,
+                  image: values.image
+                    ? uploadedFiles.length
+                      ? { id: uploadedFiles[0].id }
+                      : null
+                    : null
+                };
+                await dispatch(editMeter(currentMeter.id, formattedValues));
+                onEditSuccess();
+              } catch (err) {
+                onEditFailure(err);
+                throw err;
+              }
             }}
           />
         </Box>
@@ -564,13 +564,22 @@ function Meters() {
                   <MoreVertTwoToneIcon />
                 </IconButton>
                 {hasCreatePermission(PermissionEntity.METERS) && (
-                  <Button
+                  <SplitButton
+                    onMainClick={() => setOpenAddModal(true)}
                     startIcon={<AddTwoToneIcon />}
-                    variant="contained"
-                    onClick={() => setOpenAddModal(true)}
-                  >
-                    {t('meter')}
-                  </Button>
+                    label={t('meter')}
+                    menuItems={
+                      hasViewPermission(PermissionEntity.SETTINGS) &&
+                      hasFeature(PlanFeature.IMPORT_CSV)
+                        ? [
+                            {
+                              label: t('to_import'),
+                              onClick: () => navigate('/app/imports/meters')
+                            }
+                          ]
+                        : []
+                    }
+                  />
                 )}
               </Stack>
             </Stack>

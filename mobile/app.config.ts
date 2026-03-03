@@ -8,7 +8,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Atlas CMMS',
   slug: 'atlas-cmms',
-  version: '1.0.37',
+  version: '1.0.38',
   orientation: 'portrait',
   icon: './assets/images/icon.png',
   scheme: 'atlascmms',
@@ -29,10 +29,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   ios: {
     bundleIdentifier: 'com.cmms.atlas',
-    buildNumber: '9',
+    buildNumber: '3',
     jsEngine: 'hermes',
     supportsTablet: false,
-    runtimeVersion: '1.0.37',
+    runtimeVersion: '1.0.38',
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false
     }
@@ -47,7 +47,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     jsEngine: 'hermes',
     googleServicesFile:
       googleServicesJson ?? './android/app/google-services.json',
-    runtimeVersion: '1.0.37' // Changed from policy object to fixed string
+    runtimeVersion: '1.0.38' // Changed from policy object to fixed string
   },
   web: {
     favicon: './assets/images/favicon.png'

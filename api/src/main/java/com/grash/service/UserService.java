@@ -215,7 +215,6 @@ public class UserService {
                     String link = PUBLIC_API_URL + "/auth/activate-account?token=" + token;
                     Map<String, Object> variables = new HashMap<String, Object>() {{
                         put("verifyTokenLink", link);
-                        put("featuresLink", frontendUrl + "/#key-features");
                     }};
                     user = userRepository.save(user);
                     VerificationToken newUserToken = new VerificationToken(token, user, null);
@@ -323,7 +322,6 @@ public class UserService {
 
         String token = UUID.randomUUID().toString();
         Map<String, Object> variables = new HashMap<String, Object>() {{
-            put("featuresLink", frontendUrl + "/#key-features");
             put("resetConfirmLink", PUBLIC_API_URL + "/auth/reset-pwd-confirm?token=" + token);
             put("password", password);
         }};
@@ -361,7 +359,6 @@ public class UserService {
             if (!enableInvitationViaEmail || !enableMails) return;
             Map<String, Object> variables = new HashMap<String, Object>() {{
                 put("joinLink", frontendUrl + "/account/register?" + "email=" + email + "&role=" + role.getId());
-                put("featuresLink", frontendUrl + "/#key-features");
                 put("inviter", inviter.getFirstName() + " " + inviter.getLastName());
                 put("company", inviter.getCompany().getName());
             }};

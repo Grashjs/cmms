@@ -30,7 +30,7 @@ import * as React from 'react';
 import { Fragment, useContext, useEffect, useState } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import Tag from '../../components/Tag';
-import { getPriorityColor } from '../../utils/overall';
+import { getPriorityColor, getStatusColor } from '../../utils/overall';
 import { PermissionEntity } from '../../models/role';
 import useAuth from '../../hooks/useAuth';
 import { controlTimer, getLabors } from '../../slices/labor';
@@ -65,6 +65,7 @@ import Labor from '../../models/labor';
 import { AudioPlayer } from '../../components/AudioPlayer';
 import { Task } from '../../models/tasks';
 import { getErrorMessage } from '../../utils/api';
+import ImageView from 'react-native-image-viewing';
 
 const getRemainingTasksLength = (tasks: Task[]): number => {
   const SECONDS_MS = 5_000;
@@ -110,6 +111,7 @@ export default function WODetailsScreen({
   const { workOrderConfiguration, generalPreferences } = companySettings;
   const [loading, setLoading] = useState<boolean>(false);
   const theme = useTheme();
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState<boolean>(false);
   const dispatch = useDispatch();
   const { partQuantitiesByWorkOrder, loadingPartQuantities } = useSelector(
     (state) => state.partQuantities
@@ -662,7 +664,9 @@ export default function WODetailsScreen({
       </Portal>
     );
   };
-
+  const statusColor = workOrder
+    ? getStatusColor(workOrder.status, theme)
+    : null;
   if (workOrder)
     return (
       <View style={styles.container}>
@@ -670,6 +674,7 @@ export default function WODetailsScreen({
           {renderConfirmDelete()}
           {renderConfirmArchive()}
           <ScrollView
+            contentContainerStyle={{ paddingBottom: 100 }}
             onScroll={onScroll}
             style={{
               paddingHorizontal: 20
@@ -681,7 +686,9 @@ export default function WODetailsScreen({
               />
             }
           >
-            <Text variant="displaySmall">{workOrder.title}</Text>
+            <Text style={{ marginTop: 5 }} variant="displaySmall">
+              {workOrder.title}
+            </Text>
             <View style={styles.row}>
               <Text
                 variant="titleMedium"
@@ -698,10 +705,12 @@ export default function WODetailsScreen({
               )}
             </View>
             {workOrder.image && (
-              <Image
-                style={{ height: 200, marginTop: 20 }}
-                source={{ uri: workOrder.image.url }}
-              />
+              <TouchableOpacity onPress={() => setIsImageViewerOpen(true)}>
+                <Image
+                  style={{ height: 200, marginTop: 20 }}
+                  source={{ uri: workOrder.image.url }}
+                />
+              </TouchableOpacity>
             )}
             <View style={{ marginTop: 20 }}>
               <TouchableOpacity
@@ -714,7 +723,7 @@ export default function WODetailsScreen({
                   justifyContent: 'space-between',
                   padding: 12,
                   borderWidth: 1,
-                  borderColor: theme.colors.onSurfaceVariant,
+                  borderColor: statusColor,
                   borderRadius: 4
                 }}
                 onPress={() =>
@@ -727,10 +736,15 @@ export default function WODetailsScreen({
                   })
                 }
               >
-                <Text>
+                <Text style={{ color: statusColor }}>
                   {statuses.find((s) => s.value === workOrder.status)?.label}
                 </Text>
-                <IconButton icon="menu-down" size={24} style={{ margin: -5 }} />
+                <IconButton
+                  iconColor={statusColor}
+                  icon="menu-down"
+                  size={24}
+                  style={{ margin: -5 }}
+                />
               </TouchableOpacity>
               {workOrder.audioDescription && (
                 <View style={{ backgroundColor: 'white', paddingVertical: 20 }}>
@@ -1180,6 +1194,14 @@ export default function WODetailsScreen({
                 style={[styles.fabStyle]}
               />
             )}
+          {workOrder.image && (
+            <ImageView
+              images={[{ uri: workOrder.image.url }]}
+              imageIndex={0}
+              visible={isImageViewerOpen}
+              onRequestClose={() => setIsImageViewerOpen(false)}
+            />
+          )}
         </Provider>
       </View>
     );

@@ -29,9 +29,9 @@ import { getTaskTypes } from '../../utils/displayers';
 import { MeterMiniDTO } from '../../models/meter';
 
 export default function SelectTasksModal({
-                                           navigation,
-                                           route
-                                         }: RootStackScreenProps<'SelectTasks'>) {
+  navigation,
+  route
+}: RootStackScreenProps<'SelectTasks'>) {
   const { onChange, selected } = route.params;
   const theme = useTheme();
   const [type, setType] = useState<TaskType>('SUBTASK');
@@ -94,7 +94,7 @@ export default function SelectTasksModal({
             navigation.pop(2);
           }}
         >
-          <Text variant='titleMedium'>{t('add')}</Text>
+          <Text variant="titleMedium">{t('add')}</Text>
         </Pressable>
       )
     });
@@ -124,7 +124,7 @@ export default function SelectTasksModal({
             }}
           >
             <RadioButton
-              value='first'
+              value="first"
               status={type === taskType.value ? 'checked' : 'unchecked'}
               onPress={() => setType(taskType.value)}
             />
@@ -163,7 +163,8 @@ export default function SelectTasksModal({
                 style={{
                   display: 'flex',
                   flexDirection: 'row',
-                  justifyContent: 'space-between'
+                  justifyContent: 'space-between',
+                  marginBottom: 10
                 }}
               >
                 <TextInput
@@ -193,7 +194,7 @@ export default function SelectTasksModal({
       ) : type === 'METER' ? (
         <View style={{ paddingVertical: 10, paddingHorizontal: 15 }}>
           <List.Item
-            title={t('select_meter')}
+            title={`${t('select_meter')} *`}
             descriptionStyle={{ color: theme.colors.primary }}
             description={meter ? meter.name : null}
             left={() => <List.Icon icon={'gauge'} />}

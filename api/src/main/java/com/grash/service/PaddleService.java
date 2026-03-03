@@ -40,6 +40,9 @@ public class PaddleService {
     @Value("${frontend.url}")
     private String frontendUrl;
 
+    @Value("${frontend.home-url}")
+    private String frontendHomeUrl;
+
     private String paddleApiUrl;
     private final RestTemplate restTemplate = new RestTemplate();
     @Value("${cloud-version}")
@@ -93,7 +96,7 @@ public class PaddleService {
 
         // Set checkout settings
         PaddleCheckout checkout = new PaddleCheckout();
-        if (selfHosted) checkout.setUrl(frontendUrl + "/pricing?type=selfhosted");
+        if (selfHosted) checkout.setUrl(frontendHomeUrl + "/pricing?type=selfhosted");
         else checkout.setUrl(frontendUrl + "/app/subscription/plans");
         transactionRequest.setCheckout(checkout);
 

@@ -182,6 +182,13 @@ export default (props: PropsType) => {
                         title={field.label}
                         type={field.fileType || 'file'}
                         description={t('upload')}
+                        files={
+                          Array.isArray(formik.values[field.name])
+                            ? formik.values[field.name]
+                            : formik.values[field.name]
+                            ? [formik.values[field.name]]
+                            : []
+                        }
                         onDrop={(files) => {
                           formik.setFieldValue(field.name, files);
                         }}

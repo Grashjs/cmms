@@ -12,6 +12,10 @@ import * as ImagePicker from 'expo-image-picker';
 import { formatImages } from '../../utils/overall';
 import ImageView from 'react-native-image-viewing';
 import { SheetManager } from 'react-native-actions-sheet';
+import {
+  openCameraWithPermission,
+  openLibraryWithPermission
+} from '../../utils/mediaPermissions';
 
 export default function TasksScreen({
   navigation,
@@ -88,31 +92,39 @@ export default function TasksScreen({
   };
 
   const uploadImage = async (taskId: number) => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status === 'granted') {
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsMultipleSelection: true,
-        quality: 1
-      });
-      await onImagePicked(result, taskId);
+    console.warn('[TasksScreen] Tap -> library', JSON.stringify({ taskId }));
+    const result = await openLibraryWithPermission('TasksScreen', {
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      quality: 1
+    });
+
+    if (!result || result.canceled) {
+      console.warn('[TasksScreen] Library picker canceled or unavailable');
+      return;
     }
+
+    await onImagePicked(result, taskId);
   };
   const takePhoto = async (taskId: number) => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status === 'granted') {
-      try {
-        const result = await ImagePicker.launchCameraAsync({
-          allowsEditing: true,
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsMultipleSelection: true,
-          selectionLimit: 10,
-          quality: 1
-        });
-        await onImagePicked(result, taskId);
-      } catch (e) {
-        console.error(e);
+    console.warn('[TasksScreen] Tap -> camera', JSON.stringify({ taskId }));
+    try {
+      const result = await openCameraWithPermission('TasksScreen', {
+        allowsEditing: true,
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: true,
+        selectionLimit: 10,
+        quality: 1
+      });
+
+      if (!result || result.canceled) {
+        console.warn('[TasksScreen] Camera canceled or unavailable');
+        return;
       }
+
+      await onImagePicked(result, taskId);
+    } catch (e) {
+      console.error(e);
     }
   };
   const onImagePicked = async (
@@ -120,6 +132,7 @@ export default function TasksScreen({
     taskId: number
   ) => {
     if (!result.canceled) {
+      console.warn('[TasksScreen] Picker result -> upload', JSON.stringify({ taskId, assets: result.assets.length }));
       return dispatch(addFiles(formatImages(result), 'IMAGE', taskId))
         .then(onImageUploadSuccess)
         .then(() => dispatch(getTasks(workOrderId)))

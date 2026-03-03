@@ -74,6 +74,7 @@ import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import { Pageable, Sort } from '../../../models/owns/page';
 import { googleMapsConfig } from '../../../config';
 import { getErrorMessage } from '../../../utils/api';
+import SplitButton from '../components/SplitButton';
 
 function Locations() {
   const { t }: { t: any } = useTranslation();
@@ -477,39 +478,34 @@ function Locations() {
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
-              return new Promise<void>((resolve, rej) => {
-                uploadFiles(formattedValues.files, formattedValues.image)
-                  .then((files) => {
-                    const imageAndFiles = getImageAndFiles(files);
-                    formattedValues = {
-                      ...formattedValues,
-                      image: imageAndFiles.image,
-                      files: imageAndFiles.files
-                    };
-                    dispatch(addLocation(formattedValues))
-                      .then(onCreationSuccess)
-                      .then(() => {
-                        resolve();
-                        deployedLocations.forEach((deployedLocation) =>
-                          dispatch(
-                            getLocationChildren(
-                              deployedLocation.id,
-                              deployedLocation.hierarchy,
-                              pageable
-                            )
-                          )
-                        );
-                      })
-                      .catch((err) => {
-                        onCreationFailure(err);
-                        rej(err);
-                      });
-                  })
-                  .catch((err) => {
-                    onCreationFailure(err);
-                    rej(err);
-                  });
-              });
+              try {
+                const uploadedFiles = await uploadFiles(
+                  formattedValues.files,
+                  formattedValues.image
+                );
+
+                const imageAndFiles = getImageAndFiles(uploadedFiles);
+                formattedValues = {
+                  ...formattedValues,
+                  image: imageAndFiles.image,
+                  files: imageAndFiles.files
+                };
+
+                await dispatch(addLocation(formattedValues));
+                onCreationSuccess();
+                deployedLocations.forEach((deployedLocation) =>
+                  dispatch(
+                    getLocationChildren(
+                      deployedLocation.id,
+                      deployedLocation.hierarchy,
+                      pageable
+                    )
+                  )
+                );
+              } catch (err) {
+                onCreationFailure(err);
+                throw err;
+              }
             }}
           />
         </Box>
@@ -566,14 +562,6 @@ function Locations() {
             {loadingExport['locations'] && <CircularProgress size="1rem" />}
             <Typography>{t('to_export')}</Typography>
           </Stack>
-        </MenuItem>
-      )}
-      {hasViewPermission(PermissionEntity.SETTINGS) && (
-        <MenuItem
-          onClick={() => navigate('/app/imports/locations')}
-          disabled={!hasFeature(PlanFeature.IMPORT_CSV)}
-        >
-          {t('to_import')}
         </MenuItem>
       )}
     </Menu>
@@ -651,37 +639,37 @@ function Locations() {
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
-              //differentiate files from api and formattedValues
-              const files = formattedValues.files.find((file) => file.id)
-                ? []
-                : formattedValues.files;
-              return new Promise<void>((resolve, rej) => {
-                uploadFiles(files, formattedValues.image)
-                  .then((files) => {
-                    const imageAndFiles = getImageAndFiles(
-                      files,
-                      currentLocation.image
-                    );
-                    formattedValues = {
-                      ...formattedValues,
-                      image: imageAndFiles.image,
-                      files: [...currentLocation.files, ...imageAndFiles.files]
-                    };
-                    dispatch(editLocation(currentLocation.id, formattedValues))
-                      .then(() => {
-                        resolve();
-                        onEditSuccess();
-                      })
-                      .catch((err) => {
-                        onEditFailure(err);
-                        rej(err);
-                      });
-                  })
-                  .catch((err) => {
-                    onEditFailure(err);
-                    rej(err);
-                  });
-              });
+              try {
+                const filesToUpload = formattedValues.files.filter(
+                  (file) => !file.id
+                );
+                const existingFiles = formattedValues.files.filter(
+                  (file) => file.id
+                );
+                const uploadedFiles = await uploadFiles(
+                  filesToUpload,
+                  formattedValues.image
+                );
+
+                const imageAndFiles = getImageAndFiles([
+                  ...existingFiles,
+                  ...uploadedFiles
+                ]);
+
+                formattedValues = {
+                  ...formattedValues,
+                  image: imageAndFiles.image,
+                  files: imageAndFiles.files
+                };
+
+                await dispatch(
+                  editLocation(currentLocation.id, formattedValues)
+                );
+                await onEditSuccess();
+              } catch (err) {
+                onEditFailure(err);
+                throw err;
+              }
             }}
           />
         </Box>
@@ -726,14 +714,23 @@ function Locations() {
                 <MoreVertTwoToneIcon />
               </IconButton>
               {hasCreatePermission(PermissionEntity.LOCATIONS) && (
-                <Button
-                  onClick={() => setOpenAddModal(true)}
+                <SplitButton
+                  onMainClick={() => setOpenAddModal(true)}
                   startIcon={<AddTwoToneIcon />}
                   sx={{ mx: 6, my: 1 }}
-                  variant="contained"
-                >
-                  {t('location')}
-                </Button>
+                  label={t('location')}
+                  menuItems={
+                    hasViewPermission(PermissionEntity.SETTINGS) &&
+                    hasFeature(PlanFeature.IMPORT_CSV)
+                      ? [
+                          {
+                            label: t('to_import'),
+                            onClick: () => navigate('/app/imports/locations')
+                          }
+                        ]
+                      : []
+                  }
+                />
               )}
             </Stack>
           </Box>

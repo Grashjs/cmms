@@ -38,6 +38,8 @@ import DateRangePicker from './DateRangePicker';
 import AudioRecorder from './AudioRecorder';
 import SignaturePad from './SignaturePad';
 import { SheetManager } from 'react-native-actions-sheet';
+import File, { IFile } from '../../models/file';
+import mime from 'mime';
 
 interface OwnProps {
   fields: Array<IField>;
@@ -148,7 +150,10 @@ export default function Form(props: OwnProps) {
             }}
           >
             <Text>{field.label}</Text>
-            <IconButton icon={selectedValue ? 'check-circle' : 'plus-circle'} />
+            <IconButton
+              iconColor={theme.colors.primary}
+              icon={selectedValue ? 'check-circle' : 'plus-circle'}
+            />
           </View>
           {selectedValue && (
             <Text style={{ color: theme.colors.primary }}>
@@ -355,7 +360,12 @@ export default function Form(props: OwnProps) {
             }}
           >
             <Text>{field.label}</Text>
-            {!values && <IconButton icon={'plus-circle'} />}
+            {!values && (
+              <IconButton
+                iconColor={theme.colors.primary}
+                icon={'plus-circle'}
+              />
+            )}
           </View>
           {field.multiple
             ? Array.isArray(values) &&
@@ -389,7 +399,12 @@ export default function Form(props: OwnProps) {
             }}
           >
             <Text>{field.label}</Text>
-            {!values && <IconButton icon={'plus-circle'} />}
+            {!values && (
+              <IconButton
+                iconColor={theme.colors.primary}
+                icon={'plus-circle'}
+              />
+            )}
           </View>
           {/*@ts-ignore*/}
           {values &&
@@ -531,6 +546,21 @@ export default function Form(props: OwnProps) {
                       title={field.label}
                       type={field.fileType || 'file'}
                       description={t('upload')}
+                      files={
+                        (Array.isArray(formik.values[field.name])
+                          ? formik.values[field.name]
+                          : formik.values[field.name]
+                          ? [formik.values[field.name]]
+                          : []
+                        ).map(
+                          (file: File) =>
+                            ({
+                              uri: file.url,
+                              type: mime.getType(file.name),
+                              name: file.name
+                            } as IFile)
+                        ) ?? []
+                      }
                       onChange={(files) => {
                         formik.setFieldValue(field.name, files);
                       }}

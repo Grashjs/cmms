@@ -1,3 +1,4 @@
+import SplitButton from '../components/SplitButton';
 import { Helmet } from 'react-helmet-async';
 import {
   Box,
@@ -118,14 +119,6 @@ function PMs() {
   const { preventiveMaintenances, loadingGet, singlePreventiveMaintenance } =
     useSelector((state) => state.preventiveMaintenances);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const openMenu = Boolean(anchorEl);
-  const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
-  };
   const [criteria, setCriteria] = useState<SearchCriteria>({
     filterFields: [
       {
@@ -544,25 +537,25 @@ function PMs() {
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
-              return new Promise<void>((resolve, rej) => {
-                uploadFiles(formattedValues.files, formattedValues.image)
-                  .then((files) => {
-                    const imageAndFiles = getImageAndFiles(files);
-                    formattedValues = {
-                      ...formattedValues,
-                      image: imageAndFiles.image,
-                      files: imageAndFiles.files
-                    };
-                    dispatch(addPreventiveMaintenance(formattedValues))
-                      .then(onCreationSuccess)
-                      .catch(onCreationFailure)
-                      .finally(resolve);
-                  })
-                  .catch((err) => {
-                    onCreationFailure(err);
-                    rej(err);
-                  });
-              });
+              try {
+                const uploadedFiles = await uploadFiles(
+                  formattedValues.files,
+                  formattedValues.image
+                );
+
+                const imageAndFiles = getImageAndFiles(uploadedFiles);
+                formattedValues = {
+                  ...formattedValues,
+                  image: imageAndFiles.image,
+                  files: imageAndFiles.files
+                };
+
+                await dispatch(addPreventiveMaintenance(formattedValues));
+                onCreationSuccess();
+              } catch (err) {
+                onCreationFailure(err);
+                throw err;
+              }
             }}
           />
         </Box>
@@ -630,24 +623,26 @@ function PMs() {
               try {
                 let formattedValues = formatValues(values);
 
-                const files = formattedValues.files.find((file) => file.id)
-                  ? []
-                  : formattedValues.files;
-
+                const filesToUpload = formattedValues.files.filter(
+                  (file) => !file.id
+                );
+                const existingFiles = formattedValues.files.filter(
+                  (file) => file.id
+                );
                 const uploadedFiles = await uploadFiles(
-                  files,
+                  filesToUpload,
                   formattedValues.image
                 );
 
-                const imageAndFiles = getImageAndFiles(
-                  uploadedFiles,
-                  currentPM.image
-                );
+                const imageAndFiles = getImageAndFiles([
+                  ...existingFiles,
+                  ...uploadedFiles
+                ]);
 
                 formattedValues = {
                   ...formattedValues,
                   image: imageAndFiles.image,
-                  files: [...currentPM.files, ...imageAndFiles.files]
+                  files: imageAndFiles.files
                 };
 
                 await dispatch(
@@ -685,26 +680,6 @@ function PMs() {
       </DialogContent>
     </Dialog>
   );
-  const renderMenu = () => (
-    <Menu
-      id="basic-menu"
-      anchorEl={anchorEl}
-      open={openMenu}
-      onClose={handleCloseMenu}
-      MenuListProps={{
-        'aria-labelledby': 'basic-button'
-      }}
-    >
-      {hasViewPermission(PermissionEntity.SETTINGS) && (
-        <MenuItem
-          onClick={() => navigate('/app/imports/preventive-maintenances')}
-          disabled={!hasFeature(PlanFeature.IMPORT_CSV)}
-        >
-          {t('to_import')}
-        </MenuItem>
-      )}
-    </Menu>
-  );
   if (hasViewPermission(PermissionEntity.PREVENTIVE_MAINTENANCES))
     return (
       <>
@@ -713,7 +688,6 @@ function PMs() {
         </Helmet>
         {renderAddModal()}
         {renderUpdateModal()}
-        {renderMenu()}
         <Stack
           justifyContent="center"
           alignItems="stretch"
@@ -721,18 +695,25 @@ function PMs() {
           paddingX={4}
         >
           <Stack direction={'row'} alignSelf={'flex-end'} spacing={2} mt={1}>
-            <IconButton onClick={handleOpenMenu} color="primary">
-              <MoreVertTwoToneIcon />
-            </IconButton>
             {hasCreatePermission(PermissionEntity.PREVENTIVE_MAINTENANCES) && (
-              <Button
+              <SplitButton
+                label={t('create_trigger')}
                 startIcon={<AddTwoToneIcon />}
+                onMainClick={() => setOpenAddModal(true)}
                 sx={{ mt: 1, alignSelf: 'flex-end' }}
-                variant="contained"
-                onClick={() => setOpenAddModal(true)}
-              >
-                {t('create_trigger')}
-              </Button>
+                menuItems={
+                  hasViewPermission(PermissionEntity.SETTINGS) &&
+                  hasFeature(PlanFeature.IMPORT_CSV)
+                    ? [
+                        {
+                          label: t('to_import'),
+                          onClick: () =>
+                            navigate('/app/imports/preventive-maintenances')
+                        }
+                      ]
+                    : []
+                }
+              />
             )}
           </Stack>
           <Box>

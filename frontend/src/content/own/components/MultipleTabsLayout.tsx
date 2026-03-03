@@ -102,6 +102,7 @@ interface SettingsLayoutProps {
   secondActionTitle?: string;
   secondActionIcon?: ReactNode;
   editAction?: boolean;
+  rawAction?: ReactNode;
   withoutCard?: boolean;
 }
 
@@ -118,7 +119,8 @@ function MultipleTabsLayout(props: SettingsLayoutProps) {
     editAction,
     secondAction,
     secondActionTitle,
-    secondActionIcon
+    secondActionIcon,
+    rawAction
   } = props;
   const { t }: { t: any } = useTranslation();
   const navigate = useNavigate();
@@ -167,6 +169,7 @@ function MultipleTabsLayout(props: SettingsLayoutProps) {
               {secondActionTitle}
             </Button>
           )}
+          {rawAction}
         </Stack>
       </Box>
       {withoutCard ? (

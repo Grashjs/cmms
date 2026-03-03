@@ -72,28 +72,32 @@ export default function EditPartScreen({
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           let formattedValues = formatPartValues(values);
-          return new Promise<void>((resolve, rej) => {
-            const files = formattedValues.files.find((file) => file.id)
-              ? []
-              : formattedValues.files;
-            uploadFiles(files, formattedValues.image)
-              .then((files) => {
-                const imageAndFiles = getImageAndFiles(files, part.image);
-                formattedValues = {
-                  ...formattedValues,
-                  image: imageAndFiles.image,
-                  files: [...part.files, ...imageAndFiles.files]
-                };
-                dispatch(editPart(part.id, formattedValues))
-                  .then(onEditSuccess)
-                  .catch(onEditFailure)
-                  .finally(resolve);
-              })
-              .catch((err) => {
-                onEditFailure(err);
-                rej(err);
-              });
-          });
+          try {
+            const filesToUpload = formattedValues.files.filter(
+              (file) => !file.id
+            );
+            const existingFiles = formattedValues.files.filter(
+              (file) => file.id
+            );
+            const uploadedFiles = await uploadFiles(
+              filesToUpload,
+              formattedValues.image
+            );
+            const imageAndFiles = getImageAndFiles([
+              ...existingFiles,
+              ...uploadedFiles
+            ]);
+            formattedValues = {
+              ...formattedValues,
+              image: imageAndFiles.image,
+              files: imageAndFiles.files
+            };
+            await dispatch(editPart(part.id, formattedValues));
+            onEditSuccess();
+          } catch (err) {
+            onEditFailure(err);
+            throw err;
+          }
         }}
       />
     </View>

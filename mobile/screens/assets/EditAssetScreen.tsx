@@ -104,28 +104,32 @@ export default function EditAssetScreen({
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           let formattedValues = formatAssetValues(values);
-          const files = formattedValues.files.find((file) => file.id)
-            ? []
-            : formattedValues.files;
-          return new Promise<void>((resolve, rej) => {
-            uploadFiles(files, formattedValues.image)
-              .then((files) => {
-                const imageAndFiles = getImageAndFiles(files, asset.image);
-                formattedValues = {
-                  ...formattedValues,
-                  image: imageAndFiles.image,
-                  files: [...asset.files, ...imageAndFiles.files]
-                };
-                dispatch(editAsset(asset.id, formattedValues))
-                  .then(onEditSuccess)
-                  .catch(onEditFailure)
-                  .finally(resolve);
-              })
-              .catch((err) => {
-                onEditFailure(err);
-                rej(err);
-              });
-          });
+          try {
+            const filesToUpload = formattedValues.files.filter(
+              (file) => !file.id
+            );
+            const existingFiles = formattedValues.files.filter(
+              (file) => file.id
+            );
+            const uploadedFiles = await uploadFiles(
+              filesToUpload,
+              formattedValues.image
+            );
+            const imageAndFiles = getImageAndFiles([
+              ...existingFiles,
+              ...uploadedFiles
+            ]);
+            formattedValues = {
+              ...formattedValues,
+              image: imageAndFiles.image,
+              files: imageAndFiles.files
+            };
+            await dispatch(editAsset(asset.id, formattedValues));
+            onEditSuccess();
+          } catch (err) {
+            onEditFailure(err);
+            throw err;
+          }
         }}
       />
     </View>

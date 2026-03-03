@@ -1,8 +1,14 @@
 import { RouteObject } from 'react-router';
 
 import Authenticated from 'src/components/Authenticated';
-import BaseLayout from 'src/layouts/BaseLayout';
 import ExtendedSidebarLayout from 'src/layouts/ExtendedSidebarLayout';
+import appRoutes from './app';
+import accountRoutes from './account';
+import oauthRoutes from './oauth';
+import { lazy, Suspense } from 'react';
+import SuspenseLoader from '../components/SuspenseLoader';
+import Status404 from '../content/pages/Status/Status404';
+import { Navigate } from 'react-router-dom';
 
 const Loader = (Component) => (props) =>
   (
@@ -14,23 +20,6 @@ const Loader = (Component) => (props) =>
 const PaymentSuccess = Loader(
   lazy(() => import('../content/pages/Payment/Success'))
 );
-import appRoutes from './app';
-import accountRoutes from './account';
-import baseRoutes from './base';
-import oauthRoutes from './oauth';
-import { lazy, Suspense } from 'react';
-import SuspenseLoader from '../components/SuspenseLoader';
-
-import { supportedLanguages } from '../i18n/i18n';
-import Status404 from '../content/pages/Status/Status404';
-
-const languageRoutes = supportedLanguages
-  .filter((lang) => lang.code !== 'en')
-  .map((lang) => ({
-    path: lang.code,
-    element: <BaseLayout />,
-    children: baseRoutes
-  }));
 
 const router: RouteObject[] = [
   {
@@ -53,10 +42,8 @@ const router: RouteObject[] = [
   },
   {
     path: '',
-    element: <BaseLayout />,
-    children: baseRoutes.filter((route) => route.path !== '*')
+    element: <Navigate to={'/app/work-orders'} />
   },
-  ...languageRoutes,
   {
     path: '*',
     element: <Status404 />

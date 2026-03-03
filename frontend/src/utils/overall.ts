@@ -31,7 +31,7 @@ export const getImageAndFiles = (
       ? { id: files.find((file) => file.type === 'IMAGE').id }
       : imageFallback ?? null,
     files: files
-      .filter((file) => file.type === 'OTHER')
+      .filter((file) => file.type !== 'IMAGE')
       .map((file) => {
         return { id: file.id };
       })

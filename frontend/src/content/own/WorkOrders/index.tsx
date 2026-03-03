@@ -104,6 +104,7 @@ import { useGridApiRef } from '@mui/x-data-grid-pro';
 import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import Request from '../../../models/owns/request';
 import { getErrorMessage } from '../../../utils/api';
+import SplitButton from '../components/SplitButton';
 
 function WorkOrders() {
   const { t }: { t: any } = useTranslation();
@@ -725,30 +726,25 @@ function WorkOrders() {
               if (workOrders.totalElements === 0)
                 fireGa4Event('first_wo_creation');
               let formattedValues = formatValues(values);
-              return new Promise<void>((resolve, rej) => {
-                uploadFiles(formattedValues.files, formattedValues.image)
-                  .then((files) => {
-                    const imageAndFiles = getImageAndFiles(files);
-                    formattedValues = {
-                      ...formattedValues,
-                      image: imageAndFiles.image,
-                      files: imageAndFiles.files
-                    };
-                    dispatch(addWorkOrder(formattedValues))
-                      .then(() => {
-                        onCreationSuccess();
-                        resolve();
-                      })
-                      .catch((err) => {
-                        onCreationFailure(err);
-                        rej();
-                      });
-                  })
-                  .catch((err) => {
-                    onCreationFailure(err);
-                    rej();
-                  });
-              });
+              try {
+                const uploadedFiles = await uploadFiles(
+                  formattedValues.files,
+                  formattedValues.image
+                );
+
+                const imageAndFiles = getImageAndFiles(uploadedFiles);
+                formattedValues = {
+                  ...formattedValues,
+                  image: imageAndFiles.image,
+                  files: imageAndFiles.files
+                };
+
+                await dispatch(addWorkOrder(formattedValues));
+                onCreationSuccess();
+              } catch (err) {
+                onCreationFailure(err);
+                throw err;
+              }
             }}
           />
         </Box>
@@ -794,25 +790,26 @@ function WorkOrders() {
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
               try {
-                // Differentiate files from api and formattedValues
-                const files = formattedValues.files.find((file) => file.id)
-                  ? []
-                  : formattedValues.files;
-
+                const filesToUpload = formattedValues.files.filter(
+                  (file) => !file.id
+                );
+                const existingFiles = formattedValues.files.filter(
+                  (file) => file.id
+                );
                 const uploadedFiles = await uploadFiles(
-                  files,
+                  filesToUpload,
                   formattedValues.image
                 );
 
-                const imageAndFiles = getImageAndFiles(
-                  uploadedFiles,
-                  currentWorkOrder.image
-                );
+                const imageAndFiles = getImageAndFiles([
+                  ...existingFiles,
+                  ...uploadedFiles
+                ]);
 
                 formattedValues = {
                   ...formattedValues,
                   image: imageAndFiles.image,
-                  files: [...currentWorkOrder.files, ...imageAndFiles.files]
+                  files: imageAndFiles.files
                 };
 
                 await dispatch(
@@ -870,14 +867,6 @@ function WorkOrders() {
           </Stack>
         </MenuItem>
       )}
-      {hasViewPermission(PermissionEntity.SETTINGS) && (
-        <MenuItem
-          onClick={() => navigate('/app/imports/work-orders')}
-          disabled={!hasFeature(PlanFeature.IMPORT_CSV)}
-        >
-          {t('to_import')}
-        </MenuItem>
-      )}
     </Menu>
   );
   return (
@@ -923,14 +912,23 @@ function WorkOrders() {
               <MoreVertTwoToneIcon />
             </IconButton>
             {hasCreatePermission(PermissionEntity.WORK_ORDERS) && (
-              <Button
-                onClick={() => setOpenAddModal(true)}
+              <SplitButton
+                onMainClick={() => setOpenAddModal(true)}
                 startIcon={<AddTwoToneIcon />}
                 sx={{ mx: 6, my: 1 }}
-                variant="contained"
-              >
-                {t('work_order')}
-              </Button>
+                label={t('work_order')}
+                menuItems={
+                  hasViewPermission(PermissionEntity.SETTINGS) &&
+                  hasFeature(PlanFeature.IMPORT_CSV)
+                    ? [
+                        {
+                          label: t('to_import'),
+                          onClick: () => navigate('/app/imports/work-orders')
+                        }
+                      ]
+                    : []
+                }
+              />
             )}
           </Stack>
         </Box>

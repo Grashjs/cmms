@@ -122,45 +122,41 @@ export default function EditTriggerModal({
           onChange={({ field, e }) => {}}
           onSubmit={async (values) => {
             let formattedValues = formatValues(values);
-            const files = formattedValues.files.find((file) => file.id)
-              ? []
-              : formattedValues.files;
-            return new Promise<void>((resolve, rej) => {
-              uploadFiles(files, formattedValues.image)
-                .then((files) => {
-                  const imageAndFiles = getImageAndFiles(
-                    files,
-                    workOrderMeterTrigger.image
-                  );
-                  formattedValues = {
-                    ...formattedValues,
-                    image: imageAndFiles.image,
-                    files: [
-                      ...workOrderMeterTrigger.files,
-                      ...imageAndFiles.files
-                    ]
-                  };
-                  dispatch(
-                    editWorkOrderMeterTrigger(
-                      meter.id,
-                      workOrderMeterTrigger.id,
-                      formattedValues
-                    )
-                  )
-                    .then(() => {
-                      onEditSuccess();
-                      resolve();
-                    })
-                    .catch((err) => {
-                      onEditFailure(err);
-                      rej();
-                    });
-                })
-                .catch((err) => {
-                  onEditFailure(err);
-                  rej();
-                });
-            });
+            try {
+              const filesToUpload = formattedValues.files.filter(
+                (file) => !file.id
+              );
+              const existingFiles = formattedValues.files.filter(
+                (file) => file.id
+              );
+              const uploadedFiles = await uploadFiles(
+                filesToUpload,
+                formattedValues.image
+              );
+
+              const imageAndFiles = getImageAndFiles([
+                ...existingFiles,
+                ...uploadedFiles
+              ]);
+
+              formattedValues = {
+                ...formattedValues,
+                image: imageAndFiles.image,
+                files: imageAndFiles.files
+              };
+
+              await dispatch(
+                editWorkOrderMeterTrigger(
+                  meter.id,
+                  workOrderMeterTrigger.id,
+                  formattedValues
+                )
+              );
+              onEditSuccess();
+            } catch (err) {
+              onEditFailure(err);
+              throw err;
+            }
           }}
         />
       </DialogContent>

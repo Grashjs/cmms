@@ -1,11 +1,9 @@
 <!--/*@thymesVar id="message" type="java.lang.String"*/-->
 <!--/*@thymesVar id="purchaseOrderLink" type="java.lang.String"*/-->
-<!--/*@thymesVar id="featuresLink" type="java.lang.String"*/-->
 <div th:replace="fragments/main-layout :: emailTemplate(
     #{newPurchaseOrder},
     #{newPurchaseOrderHeader},
     ${message},
     #{seeDetails},
-    ${purchaseOrderLink},
-    ${featuresLink}
-)"></div>
+    ${purchaseOrderLink}
+    )"></div>
