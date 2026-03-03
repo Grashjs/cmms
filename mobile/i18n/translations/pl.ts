@@ -1440,6 +1440,17 @@ const plJSON = {
   power: 'Moc',
   library: 'Biblioteka',
   camera: 'Kamera',
+  media_library: 'Biblioteka zdjęć',
+  permission_required_title: 'Wymagane uprawnienie',
+  permission_required_message:
+    'Dostęp do {{permission}} jest wymagany. Włącz go w ustawieniach aplikacji.',
+  permission_denied_title: 'Odmowa uprawnienia',
+  permission_denied_message:
+    'Dostęp do {{permission}} jest wymagany, aby kontynuować.',
+  unable_to_request_permission:
+    'Nie udało się poprosić o uprawnienie do {{permission}}.',
+  open_settings: 'Otwórz ustawienia',
+  ok: 'OK',
   CANCELLED: 'Odrzucony',
   max_file_size_error: 'Rozmiar pliku nie powinien być większy niż {{size}} MB',
   assignedToUser: 'Moja praca',

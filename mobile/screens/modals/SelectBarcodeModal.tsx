@@ -1,22 +1,45 @@
-import { StyleSheet, TouchableOpacity, useWindowDimensions } from 'react-native';
+import {
+  Linking,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions
+} from 'react-native';
 
 import { View } from '../../components/Themed';
 import * as React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { RootStackScreenProps } from '../../types';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'react-native-paper';
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { CameraView } from 'expo-camera';
+import { ensureScannerCameraPermission } from '../../utils/mediaPermissions';
 
 export default function SelectBarcodeModal({
-  navigation,
   route
 }: RootStackScreenProps<'SelectBarcode'>) {
   const { onChange } = route.params;
   const { t } = useTranslation();
   const [scanned, setScanned] = useState<boolean>(false);
-  const [permission, requestPermission] = useCameraPermissions();
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const layout = useWindowDimensions();
+
+  useEffect(() => {
+    let mounted = true;
+
+    const requestPermission = async () => {
+      console.warn('[SelectBarcodeModal] Tap/screen open -> request camera permission');
+      const granted = await ensureScannerCameraPermission('SelectBarcodeModal');
+      if (mounted) {
+        setHasPermission(granted);
+      }
+    };
+
+    requestPermission();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const handleBarCodeScanned = ({
     type,
@@ -26,16 +49,13 @@ export default function SelectBarcodeModal({
     data: string;
   }) => {
     if (!scanned) {
+      console.warn('[SelectBarcodeModal] Barcode scanned', JSON.stringify({ type }));
       setScanned(true);
       onChange(data);
     }
   };
 
-  if (!permission) {
-    return null;
-  }
-
-  if (!permission.granted) {
+  if (!hasPermission) {
     return (
       <View
         style={{
@@ -46,10 +66,20 @@ export default function SelectBarcodeModal({
       >
         <Text variant={'titleLarge'}>{t('no_access_to_camera')}</Text>
         <TouchableOpacity
-          onPress={requestPermission}
+          onPress={async () => {
+            console.warn('[SelectBarcodeModal] Retry permission');
+            const granted = await ensureScannerCameraPermission('SelectBarcodeModal');
+            setHasPermission(granted);
+          }}
           style={styles.permissionButton}
         >
           <Text variant="titleMedium">{t('camera')}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => Linking.openSettings()}
+          style={styles.permissionButton}
+        >
+          <Text variant="titleMedium">{t('open_settings')}</Text>
         </TouchableOpacity>
       </View>
     );
