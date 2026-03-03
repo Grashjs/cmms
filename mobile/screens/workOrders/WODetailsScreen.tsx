@@ -65,6 +65,7 @@ import Labor from '../../models/labor';
 import { AudioPlayer } from '../../components/AudioPlayer';
 import { Task } from '../../models/tasks';
 import { getErrorMessage } from '../../utils/api';
+import ImageView from 'react-native-image-viewing';
 
 const getRemainingTasksLength = (tasks: Task[]): number => {
   const SECONDS_MS = 5_000;
@@ -110,6 +111,7 @@ export default function WODetailsScreen({
   const { workOrderConfiguration, generalPreferences } = companySettings;
   const [loading, setLoading] = useState<boolean>(false);
   const theme = useTheme();
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState<boolean>(false);
   const dispatch = useDispatch();
   const { partQuantitiesByWorkOrder, loadingPartQuantities } = useSelector(
     (state) => state.partQuantities
@@ -703,10 +705,12 @@ export default function WODetailsScreen({
               )}
             </View>
             {workOrder.image && (
-              <Image
-                style={{ height: 200, marginTop: 20 }}
-                source={{ uri: workOrder.image.url }}
-              />
+              <TouchableOpacity onPress={() => setIsImageViewerOpen(true)}>
+                <Image
+                  style={{ height: 200, marginTop: 20 }}
+                  source={{ uri: workOrder.image.url }}
+                />
+              </TouchableOpacity>
             )}
             <View style={{ marginTop: 20 }}>
               <TouchableOpacity
@@ -1190,6 +1194,14 @@ export default function WODetailsScreen({
                 style={[styles.fabStyle]}
               />
             )}
+          {workOrder.image && (
+            <ImageView
+              images={[{ uri: workOrder.image.url }]}
+              imageIndex={0}
+              visible={isImageViewerOpen}
+              onRequestClose={() => setIsImageViewerOpen(false)}
+            />
+          )}
         </Provider>
       </View>
     );
