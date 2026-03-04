@@ -26,6 +26,7 @@ import RequestPortalModal from './RequestPortalModal';
 import PermissionErrorMessage from '../../../components/PermissionErrorMessage';
 import CustomDataGrid from '../../../components/CustomDatagrid';
 import NoRowsMessageWrapper from '../../../components/NoRowsMessageWrapper';
+import { CompanySettingsContext } from '../../../../../contexts/CompanySettingsContext';
 
 interface RequestPortalTableProps {
   openModal: boolean;
@@ -46,6 +47,7 @@ export default function RequestPortalTable({
   const { requestPortals, loadingGet } = useSelector(
     (state) => state.requestPortals
   );
+  const { getFormattedDate } = useContext(CompanySettingsContext);
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
 
@@ -90,8 +92,6 @@ export default function RequestPortalTable({
     ]);
   };
 
-  const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
-
   const columns: GridEnrichedColDef<RequestPortal>[] = [
     {
       field: 'title',
@@ -118,19 +118,12 @@ export default function RequestPortalTable({
           ?.name
     },
     {
-      field: 'uuid',
-      headerName: t('uuid'),
-      description: t('uuid'),
-      width: 150
-    },
-    {
       field: 'createdAt',
       headerName: t('created_at'),
       description: t('created_at'),
       width: 150,
-      valueGetter: (params: GridValueGetterParams<null, RequestPortal>) => {
-        const date = new Date(params.value);
-        return date.toLocaleDateString();
+      valueGetter: (params) => {
+        return getFormattedDate(params.row.createdAt);
       }
     }
   ];

@@ -1793,7 +1793,8 @@ const frJSON = {
     'Approuvé par les équipes de maintenance dans plusieurs secteurs',
   cut_costs_performance:
     'Réduisez les coûts de logiciel de maintenance sans sacrifier la performance',
-  'free_cmms.title': 'Logiciel de GMAO gratuit Atlas | Aucune carte de crédit requise',
+  'free_cmms.title':
+    'Logiciel de GMAO gratuit Atlas | Aucune carte de crédit requise',
   'free_cmms.description':
     "Logiciel de GMAO gratuit — pas une version d'essai. Gérez la maintenance, les actifs et les bons de travail instantanément. Aucune carte de crédit requise.",
   'free_cmms.keywords':
@@ -1806,7 +1807,8 @@ const frJSON = {
   'pricing.description':
     'Plans tarifaires flexibles pour Atlas CMMS. Choisissez entre les versions Cloud et Auto-hébergée de notre GMAO open-source pour optimiser vos opérations de maintenance.',
   'free_cmms.hero.subtitle': 'Logiciel de GMAO gratuit',
-  'free_cmms.hero.title': 'Gérez vos bons de travail et actifs - Gratuit pour toujours',
+  'free_cmms.hero.title':
+    'Gérez vos bons de travail et actifs - Gratuit pour toujours',
   'free_cmms.hero.description':
     'Arrêtez de jongler avec des feuilles de calcul et des outils obsolètes. Passez à un logiciel de GMAO moderne - gratuitement.',
   'free_cmms.hero.start_free': 'Commencez gratuitement maintenant',
@@ -1845,11 +1847,16 @@ const frJSON = {
     'Synchronisez les données instantanément et travaillez hors ligne si nécessaire.',
   'free_cmms.features.mobile.alt': 'Application GMAO mobile',
   'free_cmms.features.get_started_free': 'Commencez gratuitement',
-  'free_cmms.features.ready_to_optimize': 'Prêt à optimiser votre maintenance ?',
+  'free_cmms.features.ready_to_optimize':
+    'Prêt à optimiser votre maintenance ?',
   'free_cmms.features.join_thousands':
     'Rejoignez des milliers de professionnels de la maintenance utilisant la GMAO gratuite la plus intuitive au monde.',
   'free_cmms.features.get_started_no_card':
-    'Commencez gratuitement - Aucune carte de crédit requise'
+    'Commencez gratuitement - Aucune carte de crédit requise',
+  portal_public_asset_warning:
+    'Ce portail est public et ne nécessite pas d’authentification. Les Équipements listés seront visibles par toute personne possédant le lien.',
+  portal_public_location_warning:
+    'Ce portail est public et ne nécessite pas d’authentification. Les Emplacements listés seront visibles par toute personne possédant le lien.'
 };
 
 export default frJSON;

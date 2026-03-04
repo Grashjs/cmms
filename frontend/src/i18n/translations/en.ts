@@ -1717,7 +1717,6 @@ const locale = {
   required_title: 'Title is required',
   untitled_portal: 'Untitled Portal',
   no_welcome_message: 'No welcome message',
-  no_fields_added: 'No fields added yet',
   request_portal_create_success: 'Request Portal created successfully',
   request_portal_edit_success: 'Request Portal updated successfully',
   request_portal_delete_success: 'Request Portal deleted successfully',
@@ -1738,9 +1737,9 @@ const locale = {
   restrict_to_a_specific_location: 'Restrict to a specific location',
   restrict_to_a_specific_asset: 'Restrict to a specific asset',
   portal_public_asset_warning:
-    'Ce portail est public et ne nécessite pas d’authentification. Les Équipements listés seront visibles par toute personne possédant le lien.',
+    'This portal is public and does not require authentication. The listed assets will be visible to anyone with the link.',
   portal_public_location_warning:
-    'Ce portail est public et ne nécessite pas d’authentification. Les Emplacements listés seront visibles par toute personne possédant le lien.',
+    'This portal is public and does not require authentication. The listed locations will be visible to anyone with the link.',
   submit_request: 'Submit request'
 };
 

@@ -24,10 +24,10 @@ import {
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  PortalFieldType,
   RequestPortal,
   RequestPortalField,
-  RequestPortalPostDTO
+  RequestPortalPostDTO,
+  PortalFieldType
 } from '../../../../../models/owns/requestPortal';
 
 import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined';
@@ -68,13 +68,6 @@ interface RequestPortalModalProps {
 }
 
 type AllFieldType = PortalFieldType | 'TITLE';
-
-interface FieldConfig {
-  type: AllFieldType;
-  enabled: boolean;
-  required: boolean;
-  selectionMode: SelectionMode;
-}
 
 // ---------------------------------------------------------------------------
 // Field definitions
@@ -143,13 +136,17 @@ function FieldRow({
   onToggleEnabled,
   onToggleRequired,
   onSelectionModeChange,
+  onAssetSelect,
+  onLocationSelect,
   t
 }: {
   def: FieldDef;
-  config: FieldConfig;
+  config: PreviewFieldConfig;
   onToggleEnabled: () => void;
   onToggleRequired: () => void;
   onSelectionModeChange: (m: SelectionMode) => void;
+  onAssetSelect?: (asset: AssetMiniDTO | null) => void;
+  onLocationSelect?: (location: LocationMiniDTO | null) => void;
   t: (k: string) => string;
 }) {
   const theme = useTheme();
@@ -322,6 +319,28 @@ function FieldRow({
               />
             </RadioGroup>
 
+            {/* Specific selection autocomplete */}
+            {config.selectionMode === 'specific' && config.enabled && (
+              <Box sx={{ mt: 1.5 }}>
+                <AssetLocationClause
+                  field={{
+                    name: def.type.toLowerCase(),
+                    type: def.type === 'ASSET' ? 'asset' : 'location',
+                    value:
+                      def.type === 'ASSET' ? config.asset : config.location,
+                    required: false
+                  }}
+                  onChange={(value) => {
+                    if (def.type === 'ASSET') {
+                      onAssetSelect?.(value as AssetMiniDTO | null);
+                    } else {
+                      onLocationSelect?.(value as LocationMiniDTO | null);
+                    }
+                  }}
+                />
+              </Box>
+            )}
+
             {/* Public-portal warning for LOCATION */}
             {def.publicWarningKey && config.selectionMode === 'all' && (
               <Alert
@@ -414,7 +433,7 @@ export default function RequestPortalModal({
   return (
     <Dialog
       fullWidth
-      maxWidth="sm"
+      maxWidth="md"
       open={open}
       onClose={onClose}
       PaperProps={{ sx: { borderRadius: 2 } }}
@@ -515,6 +534,10 @@ export default function RequestPortalModal({
                     onSelectionModeChange={(m) =>
                       updateConfig(i, { selectionMode: m })
                     }
+                    onAssetSelect={(asset) => updateConfig(i, { asset })}
+                    onLocationSelect={(location) =>
+                      updateConfig(i, { location })
+                    }
                     t={t}
                   />
                 ))}
@@ -532,6 +555,7 @@ export default function RequestPortalModal({
             onFieldChange={updateConfig}
             onLocationSelect={handleLocationSelect}
             onAssetSelect={handleAssetSelect}
+            preview
           />
         )}
       </DialogContent>

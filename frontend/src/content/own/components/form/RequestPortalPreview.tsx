@@ -1,18 +1,17 @@
 import {
-  Alert,
   Autocomplete,
   Box,
-  Button,
   IconButton,
   InputAdornment,
   Stack,
   TextField,
   Typography,
   alpha,
-  useTheme
+  useTheme,
+  Button
 } from '@mui/material';
 import { FormikProvider, useFormik } from 'formik';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
@@ -31,7 +30,11 @@ import { AssetMiniDTO } from '../../../../models/owns/asset';
 import SelectLocationModal from './SelectLocationModal';
 import SelectAssetModal from './SelectAssetModal';
 import FileUpload from '../FileUpload';
-import { FIELD_DEFS } from '../../Settings/RequestPortal/components/RequestPortalModal';
+import { useDispatch, useSelector } from '../../../../store';
+import { getLocationsMini } from '../../../../slices/location';
+import { getAssetsMini } from '../../../../slices/asset';
+import debounce from 'lodash.debounce';
+import { boolean, number, string } from 'yup';
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -70,6 +73,50 @@ interface FieldDef {
   hasSelectionPanel?: boolean;
   publicWarningKey?: string;
 }
+
+const FIELD_DEFS: FieldDef[] = [
+  {
+    type: 'TITLE',
+    icon: <></>,
+    labelKey: 'request_title',
+    alwaysEnabled: true,
+    alwaysRequired: true
+  },
+  {
+    type: 'LOCATION',
+    icon: <></>,
+    labelKey: 'location',
+    hasSelectionPanel: true,
+    publicWarningKey: 'portal_public_location_warning'
+  },
+  {
+    type: 'ASSET',
+    icon: <></>,
+    labelKey: 'asset',
+    hasSelectionPanel: true,
+    publicWarningKey: 'portal_public_asset_warning'
+  },
+  {
+    type: 'DESCRIPTION',
+    icon: <></>,
+    labelKey: 'description'
+  },
+  {
+    type: 'CONTACT',
+    icon: <></>,
+    labelKey: 'contact'
+  },
+  {
+    type: 'IMAGE',
+    icon: <></>,
+    labelKey: 'image'
+  },
+  {
+    type: 'FILES',
+    icon: <></>,
+    labelKey: 'files'
+  }
+];
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -136,18 +183,51 @@ interface AssetLocationClauseProps {
   onChange: (value: AssetMiniDTO | LocationMiniDTO | null) => void;
   locationId?: number | null;
   excludedIds?: number[];
+  disabled?: boolean;
 }
 
 export function AssetLocationClause({
   field,
   onChange,
   locationId,
-  excludedIds
+  excludedIds,
+  disabled
 }: AssetLocationClauseProps) {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
   const [modalOpen, setModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [open, setOpen] = useState(false);
 
   const isLocation = field.type === 'location';
+
+  // Get data from Redux store
+  const { locationsMini } = useSelector((state: any) => state.locations);
+  const { assetsMini } = useSelector((state: any) => state.assets);
+
+  // Fetch options when autocomplete opens
+  const fetchOptions = useCallback(() => {
+    if (isLocation) {
+      dispatch(getLocationsMini());
+    } else {
+      dispatch(getAssetsMini(locationId || null));
+    }
+  }, [dispatch, isLocation, locationId]);
+
+  // Filter options based on search term
+  const options = useMemo(() => {
+    const items = isLocation ? locationsMini : assetsMini;
+    return items
+      .filter((item: any) => item.id !== excludedIds?.[0])
+      .map((item: any) => ({
+        label: item.name,
+        value: item.id,
+        dto: item
+      }))
+      .filter((option: any) =>
+        option.label.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+  }, [isLocation, locationsMini, assetsMini, searchTerm, excludedIds]);
 
   const valueOption = field.value
     ? {
@@ -161,15 +241,28 @@ export function AssetLocationClause({
     <>
       <Autocomplete
         fullWidth
+        open={open}
+        onOpen={() => {
+          setOpen(true);
+          fetchOptions();
+        }}
+        disabled={disabled}
+        onClose={() => {
+          setOpen(false);
+        }}
         value={valueOption}
         onChange={(_, newValue) => {
           onChange(newValue ? (newValue.dto as any) : null);
         }}
-        options={valueOption ? [valueOption] : []}
+        options={options}
         getOptionLabel={(option) => option.label}
         isOptionEqualToValue={(option, value) =>
           !value || option.value === value.value
         }
+        loading={
+          isLocation ? locationsMini.length === 0 : assetsMini.length === 0
+        }
+        noOptionsText={searchTerm ? 'No results found' : 'Type to search...'}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -183,6 +276,7 @@ export function AssetLocationClause({
                 <>
                   <InputAdornment position="end">
                     <IconButton
+                      style={{ marginRight: 10 }}
                       size="small"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -243,6 +337,7 @@ interface PreviewFieldRenderProps {
   t: (k: string) => string;
   onLocationSelect?: (location: LocationMiniDTO | null) => void;
   onAssetSelect?: (asset: AssetMiniDTO | null) => void;
+  disabled?: boolean;
 }
 
 function PreviewFieldRender({
@@ -250,7 +345,8 @@ function PreviewFieldRender({
   def,
   t,
   onLocationSelect,
-  onAssetSelect
+  onAssetSelect,
+  disabled
 }: PreviewFieldRenderProps) {
   const getLabel = (str: string, required: boolean) => {
     return `${str} ${required ? '(' + t('required') + ')' : ''}`;
@@ -262,7 +358,7 @@ function PreviewFieldRender({
         return (
           <TextField
             fullWidth
-            disabled
+            disabled={disabled}
             label={getLabel(t('request_title'), config.required)}
             required={config.required}
           />
@@ -273,80 +369,48 @@ function PreviewFieldRender({
             fullWidth
             multiline
             rows={3}
-            disabled
+            disabled={disabled}
             label={getLabel(t('description'), config.required)}
             required={config.required}
           />
         );
       case 'ASSET':
-        if (config.selectionMode === 'specific') {
+        if (config.selectionMode === 'all' || !config.asset) {
           return (
             <AssetLocationClause
               field={{
                 name: 'asset',
                 type: 'asset',
-                value: config.asset || null,
+                value: disabled ? null : config.asset || null,
                 required: config.required,
                 disabled: true
               }}
               onChange={onAssetSelect || (() => {})}
+              disabled={disabled}
             />
           );
-        }
-        return (
-          <TextField
-            fullWidth
-            disabled
-            label={getLabel(t('asset'), config.required)}
-            placeholder={t('select_asset')}
-            required={config.required}
-            InputProps={{
-              endAdornment: (
-                <BuildOutlinedIcon
-                  fontSize="small"
-                  sx={{ color: 'text.disabled' }}
-                />
-              )
-            }}
-          />
-        );
+        } else return null;
       case 'LOCATION':
-        if (config.selectionMode === 'specific') {
+        if (config.selectionMode === 'all' || !config.location) {
           return (
             <AssetLocationClause
               field={{
                 name: 'location',
                 type: 'location',
-                value: config.location || null,
+                value: disabled ? null : config.location || null,
                 required: config.required,
                 disabled: true
               }}
               onChange={onLocationSelect || (() => {})}
+              disabled={disabled}
             />
           );
-        }
-        return (
-          <TextField
-            fullWidth
-            disabled
-            label={getLabel(t('location'), config.required)}
-            placeholder={t('select_location')}
-            required={config.required}
-            InputProps={{
-              endAdornment: (
-                <LocationOnOutlinedIcon
-                  fontSize="small"
-                  sx={{ color: 'text.disabled' }}
-                />
-              )
-            }}
-          />
-        );
+        } else return null;
       case 'CONTACT':
         return (
           <TextField
             fullWidth
-            disabled
+            disabled={disabled}
             label={getLabel(t('contact'), config.required)}
             required={config.required}
             InputProps={{
@@ -369,7 +433,7 @@ function PreviewFieldRender({
             multiple={!isImage}
             description={''}
             onDrop={() => {}}
-            disabled
+            disabled={disabled}
           />
         );
       }
@@ -378,7 +442,7 @@ function PreviewFieldRender({
     }
   };
 
-  return <Box>{renderInput()}</Box>;
+  return renderInput();
 }
 
 // ---------------------------------------------------------------------------
@@ -411,69 +475,28 @@ export default function RequestPortalPreview({
   return (
     <FormikProvider value={formik}>
       <Box>
-        {/* Portal header card */}
-        <Box
-          sx={{
-            p: 2.5,
-            mb: 3,
-            borderRadius: 1.5,
-            bgcolor: alpha(theme.palette.primary.main, 0.05),
-            borderLeft: '4px solid',
-            borderColor: 'primary.main'
-          }}
-        >
-          <Typography variant="h6" fontWeight={700} gutterBottom>
-            {title || t('untitled_portal')}
-          </Typography>
-          {welcomeMessage ? (
-            <Typography variant="body2" color="text.secondary">
-              {welcomeMessage}
-            </Typography>
-          ) : (
-            <Typography
-              variant="body2"
-              color="text.disabled"
-              fontStyle="italic"
-            >
-              {t('no_welcome_message')}
-            </Typography>
-          )}
-        </Box>
+        <Stack spacing={2}>
+          {enabledConfigs.map((config, index) => {
+            const def = FIELD_DEFS.find((d) => d.type === config.type)!;
+            const originalIndex = fieldConfigs.findIndex(
+              (c) => c.type === config.type
+            );
 
-        {enabledConfigs.length === 0 ? (
-          <Typography
-            variant="body2"
-            color="text.disabled"
-            textAlign="center"
-            py={4}
-          >
-            {t('no_fields_enabled')}
-          </Typography>
-        ) : (
-          <Stack spacing={2}>
-            {enabledConfigs.map((config, index) => {
-              const def = FIELD_DEFS.find((d) => d.type === config.type)!;
-              const originalIndex = fieldConfigs.findIndex(
-                (c) => c.type === config.type
-              );
-
-              return (
-                <PreviewFieldRender
-                  key={config.type}
-                  config={config}
-                  def={def}
-                  t={t}
-                  onLocationSelect={(location) =>
-                    onLocationSelect?.(originalIndex, location)
-                  }
-                  onAssetSelect={(asset) =>
-                    onAssetSelect?.(originalIndex, asset)
-                  }
-                />
-              );
-            })}
-          </Stack>
-        )}
+            return (
+              <PreviewFieldRender
+                key={config.type}
+                config={config}
+                def={def}
+                t={t}
+                onLocationSelect={(location) =>
+                  onLocationSelect?.(originalIndex, location)
+                }
+                onAssetSelect={(asset) => onAssetSelect?.(originalIndex, asset)}
+                disabled
+              />
+            );
+          })}
+        </Stack>
 
         {enabledConfigs.length > 0 && (
           <Button fullWidth variant="contained" disabled sx={{ mt: 1 }}>

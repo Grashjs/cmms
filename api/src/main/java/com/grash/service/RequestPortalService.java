@@ -35,6 +35,8 @@ public class RequestPortalService {
         RequestPortal requestPortal =
                 requestPortalMapper.fromPostDto(requestPortalReq);
         requestPortal.setUuid(UUID.randomUUID().toString());
+        requestPortal.getFields().forEach(field -> field.setRequestPortal(requestPortal));
+
         return requestPortalRepository.save(requestPortal);
     }
 
