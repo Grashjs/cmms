@@ -804,6 +804,7 @@ const locale = {
   acquisition_cost: 'Acquisition Cost',
   general_settings: 'General Settings',
   request_form_configuration: 'Request form configuration',
+  request_portals: 'Request Portals',
   roles: 'Roles',
   checklists: 'Checklists',
   field_configuration_description:
@@ -1705,7 +1706,31 @@ const locale = {
   'free_cmms.features.join_thousands':
     "Join thousands of maintenance professionals using the world's most intuitive free CMMS.",
   'free_cmms.features.get_started_no_card':
-    'Get started for free - No credit card required'
+    'Get started for free - No credit card required',
+  create_request_portal: 'Create Request Portal',
+  edit_request_portal: 'Edit Request Portal',
+  welcome_message: 'Welcome Message',
+  uuid: 'UUID',
+  fields: 'Fields',
+  field_settings: 'Field Settings',
+  contact: 'Contact',
+  required_title: 'Title is required',
+  untitled_portal: 'Untitled Portal',
+  no_welcome_message: 'No welcome message',
+  no_fields_added: 'No fields added yet',
+  request_portal_create_success: 'Request Portal created successfully',
+  request_portal_edit_success: 'Request Portal updated successfully',
+  request_portal_delete_success: 'Request Portal deleted successfully',
+  request_portal_create_failure: 'Failed to create Request Portal',
+  request_portal_edit_failure: 'Failed to update Request Portal',
+  request_portal_delete_failure: 'Failed to delete Request Portal',
+  no_access_request_portals: 'You do not have access to Request Portals',
+  noRows: {
+    request_portal: {
+      message: "Looks like you don't have any Request Portals yet.",
+      action: 'Create your first Request Portal'
+    }
+  }
 };
 
 export default locale;

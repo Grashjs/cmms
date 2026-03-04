@@ -34,6 +34,9 @@ const WorkflowsSettings = Loader(
 const UIConfigurationSettings = Loader(
   lazy(() => import('../content/own/Settings/UiConfiguration'))
 );
+const RequestPortalSettings = Loader(
+  lazy(() => import('../content/own/Settings/RequestPortal'))
+);
 
 const UserProfile = Loader(lazy(() => import('../content/own/UserProfile')));
 const CompanyProfile = Loader(
@@ -116,6 +119,10 @@ const appRoutes = [
       {
         path: 'request',
         element: <RequestSettings />
+      },
+      {
+        path: 'request-portals',
+        element: <RequestPortalSettings />
       },
       {
         path: 'roles',
