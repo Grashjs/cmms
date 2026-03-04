@@ -1,6 +1,7 @@
 package com.grash.model;
 
 import com.grash.model.abstracts.CompanyAudit;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
@@ -20,6 +21,6 @@ public class RequestPortal extends CompanyAudit {
     @NotNull
     private String uuid;
 
-    @OneToMany(mappedBy = "requestPortal")
+    @OneToMany(mappedBy = "requestPortal", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RequestPortalField> fields;
 }

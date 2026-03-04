@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.PortalFieldType;
 import jakarta.persistence.*;
@@ -25,5 +26,6 @@ public class RequestPortalField extends CompanyAudit {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
+    @JsonIgnore
     private RequestPortal requestPortal;
 }

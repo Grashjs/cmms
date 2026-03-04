@@ -158,18 +158,6 @@ export default function RequestPortalTable({
             alignItems: 'center'
           }}
         >
-          <Stack
-            sx={{ ml: 1 }}
-            direction="row"
-            spacing={1}
-            justifyContent={'flex-start'}
-            width={'95%'}
-          >
-            <Box sx={{ flexGrow: 1 }}>
-              <GridToolbar />
-            </Box>
-          </Stack>
-          <Divider sx={{ mt: 1 }} />
           <Box sx={{ width: '95%' }}>
             <CustomDataGrid
               columns={columns}

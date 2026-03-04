@@ -9,7 +9,7 @@ import api from '../utils/api';
 import { getInitialPage, Page, SearchCriteria } from '../models/owns/page';
 import { revertAll } from 'src/utils/redux';
 
-const basePath = 'requestPortals';
+const basePath = 'request-portals';
 
 interface RequestPortalState {
   requestPortals: Page<RequestPortal>;
@@ -51,12 +51,14 @@ const slice = createSlice({
         (requestPortal1) => requestPortal1.id === requestPortal.id
       );
       if (inContent) {
-        state.requestPortals.content = state.requestPortals.content.map((requestPortal1) => {
-          if (requestPortal1.id === requestPortal.id) {
-            return requestPortal;
+        state.requestPortals.content = state.requestPortals.content.map(
+          (requestPortal1) => {
+            if (requestPortal1.id === requestPortal.id) {
+              return requestPortal;
+            }
+            return requestPortal1;
           }
-          return requestPortal1;
-        });
+        );
       } else {
         state.singleRequestPortal = requestPortal;
       }
@@ -66,7 +68,10 @@ const slice = createSlice({
       action: PayloadAction<{ requestPortal: RequestPortal }>
     ) {
       const { requestPortal } = action.payload;
-      state.requestPortals.content = [requestPortal, ...state.requestPortals.content];
+      state.requestPortals.content = [
+        requestPortal,
+        ...state.requestPortals.content
+      ];
     },
     deleteRequestPortal(
       state: RequestPortalState,
@@ -85,7 +90,10 @@ const slice = createSlice({
       const { loading } = action.payload;
       state.loadingGet = loading;
     },
-    clearSingleRequestPortal(state: RequestPortalState, action: PayloadAction<{}>) {
+    clearSingleRequestPortal(
+      state: RequestPortalState,
+      action: PayloadAction<{}>
+    ) {
       state.singleRequestPortal = null;
     }
   }
@@ -95,55 +103,62 @@ export const reducer = slice.reducer;
 
 export const getRequestPortals =
   (criteria: {}): AppThunk =>
-    async (dispatch) => {
-      try {
-        dispatch(slice.actions.setLoadingGet({ loading: true }));
-        const requestPortals = await api.post<Page<RequestPortal>>(
-          `${basePath}/search`,
-          criteria
-        );
-        dispatch(slice.actions.getRequestPortals({ requestPortals }));
-      } finally {
-        dispatch(slice.actions.setLoadingGet({ loading: false }));
-      }
-    };
+  async (dispatch) => {
+    try {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      const requestPortals = await api.post<Page<RequestPortal>>(
+        `${basePath}/search`,
+        criteria
+      );
+      dispatch(slice.actions.getRequestPortals({ requestPortals }));
+    } finally {
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    }
+  };
 
 export const getSingleRequestPortal =
   (id: number): AppThunk =>
-    async (dispatch) => {
-      dispatch(slice.actions.setLoadingGet({ loading: true }));
-      const requestPortal = await api.get<RequestPortal>(`${basePath}/${id}`);
-      dispatch(slice.actions.getSingleRequestPortal({ requestPortal }));
-      dispatch(slice.actions.setLoadingGet({ loading: false }));
-    };
+  async (dispatch) => {
+    dispatch(slice.actions.setLoadingGet({ loading: true }));
+    const requestPortal = await api.get<RequestPortal>(`${basePath}/${id}`);
+    dispatch(slice.actions.getSingleRequestPortal({ requestPortal }));
+    dispatch(slice.actions.setLoadingGet({ loading: false }));
+  };
 
 export const editRequestPortal =
-  (id: number, requestPortal): AppThunk =>
-    async (dispatch) => {
-      const requestPortalResponse = await api.patch<RequestPortal>(
-        `${basePath}/${id}`,
-        requestPortal
-      );
-      dispatch(slice.actions.editRequestPortal({ requestPortal: requestPortalResponse }));
-    };
+  (id: number, requestPortal: RequestPortalPostDTO): AppThunk =>
+  async (dispatch) => {
+    const requestPortalResponse = await api.patch<RequestPortal>(
+      `${basePath}/${id}`,
+      requestPortal
+    );
+    dispatch(
+      slice.actions.editRequestPortal({ requestPortal: requestPortalResponse })
+    );
+  };
 
 export const addRequestPortal =
   (requestPortal: RequestPortalPostDTO): AppThunk =>
-    async (dispatch) => {
-      const requestPortalResponse = await api.post<RequestPortal>('requestPortals', requestPortal);
-      dispatch(slice.actions.addRequestPortal({ requestPortal: requestPortalResponse }));
-    };
+  async (dispatch) => {
+    const requestPortalResponse = await api.post<RequestPortal>(
+      basePath,
+      requestPortal
+    );
+    dispatch(
+      slice.actions.addRequestPortal({ requestPortal: requestPortalResponse })
+    );
+  };
 export const deleteRequestPortal =
   (id: number): AppThunk =>
-    async (dispatch) => {
-      const requestPortalResponse = await api.deletes<{ success: boolean }>(
-        `requestPortals/${id}`
-      );
-      const { success } = requestPortalResponse;
-      if (success) {
-        dispatch(slice.actions.deleteRequestPortal({ id }));
-      }
-    };
+  async (dispatch) => {
+    const requestPortalResponse = await api.deletes<{ success: boolean }>(
+      `${basePath}/${id}`
+    );
+    const { success } = requestPortalResponse;
+    if (success) {
+      dispatch(slice.actions.deleteRequestPortal({ id }));
+    }
+  };
 export const clearSingleRequestPortal = (): AppThunk => async (dispatch) => {
   dispatch(slice.actions.clearSingleRequestPortal({}));
 };

@@ -55,8 +55,10 @@ public class RequestPortalService {
         RequestPortal savedRequestPortal =
                 requestPortalRepository.findById(id).orElseThrow(() -> new CustomException("Not found",
                         HttpStatus.NOT_FOUND));
-        return requestPortalRepository.save(requestPortalMapper.updateRequestPortal(savedRequestPortal,
-                requestPortalPatchDTO));
+        RequestPortal newRequestPortal = requestPortalMapper.updateRequestPortal(savedRequestPortal,
+                requestPortalPatchDTO);
+        newRequestPortal.getFields().forEach(field -> field.setRequestPortal(savedRequestPortal));
+        return requestPortalRepository.save(newRequestPortal);
     }
 
     public Page<RequestPortal> findByCriteria(RequestPortalCriteria criteria, Pageable pageable, OwnUser user) {
