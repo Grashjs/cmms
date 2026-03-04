@@ -206,7 +206,9 @@ export const handleFileUpload = async (
   const existingFiles = formattedValues.files.filter((file) => file.id);
 
   const existingImage =
-    'id' in formattedValues.image ? formattedValues.image : null;
+    formattedValues.image && 'id' in formattedValues.image
+      ? formattedValues.image
+      : null;
 
   const uploadedFiles = await uploadFiles(
     filesToUpload,
