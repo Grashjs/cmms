@@ -1,57 +1,39 @@
 import {
-  Autocomplete,
   Box,
   Button,
-  Card,
   CircularProgress,
   Grid,
-  IconButton,
-  Link,
   TextField,
   Typography
 } from '@mui/material';
-import { ErrorMessage, Formik, FormikProps, useFormikContext } from 'formik';
+import { Formik, FormikProps } from 'formik';
 import { useTranslation } from 'react-i18next';
 import FormikErrorFocus from 'formik-error-focus';
 import * as Yup from 'yup';
 import { ObjectSchema } from 'yup';
 import { IField, IHash } from '../../type';
-import { InputAdornment } from '@mui/material'; // Added InputAdornment
-import SearchIcon from '@mui/icons-material/Search'; // Added SearchIcon
 import CheckBoxForm from './CheckBoxForm';
 import Field from './Field';
-import SelectForm from './SelectForm';
 import FileUpload from '../FileUpload';
 import DateTimePicker from '@mui/lab/DateTimePicker';
-import SelectParts from './SelectParts';
-import { useDispatch, useSelector } from '../../../../store';
 import CustomSwitch from './CustomSwitch';
-import SelectTasksModal from './SelectTasks';
 import SelectMapCoordinates from './SelectMapCoordinates';
-import SelectAssetModal from './SelectAssetModal'; // Import the new modal
-import { getCustomersMini } from '../../../../slices/customer';
-import { getVendorsMini } from '../../../../slices/vendor';
-import { getLocationChildren, getLocationsMini } from 'src/slices/location';
-import { getUsersMini } from '../../../../slices/user';
-import { getAssetsMini } from '../../../../slices/asset';
-import { getTeamsMini } from '../../../../slices/team';
-import AssignmentTwoToneIcon from '@mui/icons-material/AssignmentTwoTone';
-import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
-import { useState } from 'react';
-import { getPriorityLabel } from '../../../../utils/formatters';
-import { getCategories } from '../../../../slices/category';
 import SelectPartQuantities from './SelectPartQuantities';
-import { getRoles } from '../../../../slices/role';
-import { getCurrencies } from '../../../../slices/currency';
 import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers-pro';
 import { AdapterDayjs } from '@mui/x-date-pickers-pro/AdapterDayjs';
 import useAuth from '../../../../hooks/useAuth';
-import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
-import ClearTwoToneIcon from '@mui/icons-material/ClearTwoTone';
 import { CustomSelect } from './CustomSelect2';
 import SignaturePad from './SignaturePad';
+
+export { AssetLocationClause } from './RequestPortalPreview';
+export { buildDefaultConfigs, configsToFields } from './RequestPortalPreview';
+export type {
+  PreviewFieldConfig,
+  SelectionMode,
+  RequestPortalPreviewProps
+} from './RequestPortalPreview';
+export { default as RequestPortalPreview } from './RequestPortalPreview';
 
 interface PropsType {
   fields: Array<IField>;

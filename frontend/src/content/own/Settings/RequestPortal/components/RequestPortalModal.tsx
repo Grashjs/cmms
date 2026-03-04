@@ -42,7 +42,16 @@ import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import TitleOutlinedIcon from '@mui/icons-material/TitleOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
-import FileUpload from '../../../components/FileUpload';
+import {
+  AssetLocationClause,
+  buildDefaultConfigs,
+  configsToFields,
+  PreviewFieldConfig,
+  SelectionMode
+} from '../../../components/form/RequestPortalPreview';
+import { AssetMiniDTO } from '../../../../../models/owns/asset';
+import { LocationMiniDTO } from '../../../../../models/owns/location';
+import RequestPortalPreview from '../../../components/form/RequestPortalPreview';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -58,9 +67,6 @@ interface RequestPortalModalProps {
   ) => Promise<void>;
 }
 
-type SelectionMode = 'all' | 'specific';
-
-/** Extended field type to include LOCATION in the UI */
 type AllFieldType = PortalFieldType | 'TITLE';
 
 interface FieldConfig {
@@ -71,25 +77,20 @@ interface FieldConfig {
 }
 
 // ---------------------------------------------------------------------------
-// Field definitions — fixed ordered list
+// Field definitions
 // ---------------------------------------------------------------------------
 
 interface FieldDef {
   type: AllFieldType;
   icon: React.ReactNode;
-  /** i18n key for display name */
   labelKey: string;
-  /** Always enabled, cannot be toggled */
   alwaysEnabled?: boolean;
-  /** Always required, cannot be toggled */
   alwaysRequired?: boolean;
-  /** Show selection-mode radios */
   hasSelectionPanel?: boolean;
-  /** Show the public-link warning */
   publicWarningKey?: string;
 }
 
-const FIELD_DEFS: FieldDef[] = [
+export const FIELD_DEFS: FieldDef[] = [
   {
     type: 'TITLE',
     icon: <TitleOutlinedIcon fontSize="small" />,
@@ -132,52 +133,6 @@ const FIELD_DEFS: FieldDef[] = [
     labelKey: 'files'
   }
 ];
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-const buildDefaultConfigs = (
-  existingFields?: RequestPortalField[]
-): FieldConfig[] => {
-  const defaultEnabledFields: AllFieldType[] = [
-    'DESCRIPTION',
-    'CONTACT',
-    'IMAGE',
-    'FILES'
-  ];
-  return FIELD_DEFS.map((def) => {
-    const existing = existingFields?.find(
-      (f) => (f.type as string) === def.type
-    );
-    const selectionMode =
-      def.type === 'ASSET' || def.type === 'LOCATION'
-        ? existing?.[def.type.toLowerCase()]
-          ? 'specific'
-          : 'all'
-        : 'all';
-    return {
-      type: def.type,
-      enabled: def.alwaysEnabled
-        ? true
-        : !!existing ||
-          (!existingFields?.length && defaultEnabledFields.includes(def.type)),
-      required: def.alwaysRequired ? true : existing?.required ?? false,
-      selectionMode
-    };
-  });
-};
-
-const configsToFields = (configs: FieldConfig[]): RequestPortalField[] =>
-  configs
-    .filter((c) => c.enabled && c.type !== 'TITLE')
-    .map((c) => ({
-      type: c.type as PortalFieldType,
-      location: null,
-      asset: null,
-      required: c.required
-    }));
-
 // ---------------------------------------------------------------------------
 // FieldRow
 // ---------------------------------------------------------------------------
@@ -198,11 +153,11 @@ function FieldRow({
   t: (k: string) => string;
 }) {
   const theme = useTheme();
-  const disabled = !config.enabled && !def.alwaysEnabled;
   const color = config.enabled ? '#000000' : theme.palette.text.disabled;
   const [showCollapse, setShowCollapse] = useState<boolean>(
     config.enabled && def.hasSelectionPanel
   );
+
   return (
     <Box
       sx={{
@@ -210,11 +165,7 @@ function FieldRow({
         borderColor: config.enabled ? alpha(color, 0.25) : 'divider',
         borderRadius: 1.5,
         overflow: 'hidden',
-        transition: 'border-color 0.2s, box-shadow 0.2s',
-        ...(config.enabled &&
-          {
-            // boxShadow: `0 0 0 1px ${alpha(color, 0.07)}`
-          })
+        transition: 'border-color 0.2s, box-shadow 0.2s'
       }}
     >
       {/* ── Main row ── */}
@@ -389,119 +340,6 @@ function FieldRow({
 }
 
 // ---------------------------------------------------------------------------
-// PreviewField
-// ---------------------------------------------------------------------------
-
-function PreviewField({
-  config,
-  def,
-  t
-}: {
-  config: FieldConfig;
-  def: FieldDef;
-  t: (k: string) => string;
-}) {
-  const getLabel = (str: string, required: boolean) => {
-    return `${str} ${required ? '(' + t('required') + ')' : ''}`;
-  };
-  const renderInput = () => {
-    switch (def.type) {
-      case 'TITLE':
-        return (
-          <TextField
-            fullWidth
-            disabled
-            label={getLabel(t('request_title'), config.required)}
-            required={config.required}
-          />
-        );
-      case 'DESCRIPTION':
-        return (
-          <TextField
-            fullWidth
-            multiline
-            rows={3}
-            disabled
-            label={getLabel(t('description'), config.required)}
-            required={config.required}
-          />
-        );
-      case 'ASSET':
-        return config.selectionMode === 'all' ? (
-          <TextField
-            fullWidth
-            disabled
-            label={getLabel(t('asset'), config.required)}
-            placeholder={t('select_asset')}
-            required={config.required}
-            InputProps={{
-              endAdornment: (
-                <BuildOutlinedIcon
-                  fontSize="small"
-                  sx={{ color: 'text.disabled' }}
-                />
-              )
-            }}
-          />
-        ) : null;
-      case 'LOCATION':
-        return config.selectionMode === 'all' ? (
-          <TextField
-            fullWidth
-            disabled
-            label={getLabel(t('location'), config.required)}
-            placeholder={t('select_location')}
-            required={config.required}
-            InputProps={{
-              endAdornment: (
-                <LocationOnOutlinedIcon
-                  fontSize="small"
-                  sx={{ color: 'text.disabled' }}
-                />
-              )
-            }}
-          />
-        ) : null;
-      case 'CONTACT':
-        return (
-          <TextField
-            fullWidth
-            disabled
-            label={getLabel(t('contact'), config.required)}
-            required={config.required}
-            InputProps={{
-              endAdornment: (
-                <PersonOutlineIcon
-                  fontSize="small"
-                  sx={{ color: 'text.disabled' }}
-                />
-              )
-            }}
-          />
-        );
-      case 'IMAGE':
-      case 'FILES': {
-        const isImage = def.type === 'IMAGE';
-        return (
-          <FileUpload
-            title={isImage ? t('image') : t('files')}
-            type={isImage ? 'image' : 'file'}
-            multiple={!isImage}
-            description={''}
-            onDrop={() => {}}
-            disabled
-          />
-        );
-      }
-      default:
-        return null;
-    }
-  };
-
-  return <Box sx={{ mb: 2 }}>{renderInput()}</Box>;
-}
-
-// ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
 
@@ -518,7 +356,7 @@ export default function RequestPortalModal({
   const [submitting, setSubmitting] = useState(false);
   const [title, setTitle] = useState('');
   const [welcomeMessage, setWelcomeMessage] = useState('');
-  const [fieldConfigs, setFieldConfigs] = useState<FieldConfig[]>(() =>
+  const [fieldConfigs, setFieldConfigs] = useState<PreviewFieldConfig[]>(() =>
     buildDefaultConfigs()
   );
   const [titleTouched, setTitleTouched] = useState(false);
@@ -536,7 +374,7 @@ export default function RequestPortalModal({
 
   // ── Mutators ──────────────────────────────────────────────────────────────
 
-  const updateConfig = (index: number, patch: Partial<FieldConfig>) =>
+  const updateConfig = (index: number, patch: Partial<PreviewFieldConfig>) =>
     setFieldConfigs((prev) =>
       prev.map((c, i) => (i === index ? { ...c, ...patch } : c))
     );
@@ -546,6 +384,17 @@ export default function RequestPortalModal({
     updateConfig(index, {
       enabled: next
     });
+  };
+
+  const handleLocationSelect = (
+    index: number,
+    location: LocationMiniDTO | null
+  ) => {
+    updateConfig(index, { location });
+  };
+
+  const handleAssetSelect = (index: number, asset: AssetMiniDTO | null) => {
+    updateConfig(index, { asset });
   };
 
   // ── Save ──────────────────────────────────────────────────────────────────
@@ -559,10 +408,6 @@ export default function RequestPortalModal({
       portal ? 'edit' : 'create'
     ).finally(() => setSubmitting(false));
   };
-
-  // ── Preview: only enabled fields ─────────────────────────────────────────
-
-  const enabledConfigs = fieldConfigs.filter((c) => c.enabled);
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -680,58 +525,14 @@ export default function RequestPortalModal({
 
         {/* ═══════════════════════ PREVIEW TAB ═══════════════════════ */}
         {activeTab === 'preview' && (
-          <Box>
-            {/* Portal header card */}
-            <Box
-              sx={{
-                p: 2.5,
-                mb: 3,
-                borderRadius: 1.5,
-                bgcolor: alpha(theme.palette.primary.main, 0.05),
-                borderLeft: '4px solid',
-                borderColor: 'primary.main'
-              }}
-            >
-              <Typography variant="h6" fontWeight={700} gutterBottom>
-                {title || t('untitled_portal')}
-              </Typography>
-              {welcomeMessage ? (
-                <Typography variant="body2" color="text.secondary">
-                  {welcomeMessage}
-                </Typography>
-              ) : (
-                <Typography
-                  variant="body2"
-                  color="text.disabled"
-                  fontStyle="italic"
-                >
-                  {t('no_welcome_message')}
-                </Typography>
-              )}
-            </Box>
-
-            {enabledConfigs.length === 0 ? (
-              <Typography
-                variant="body2"
-                color="text.disabled"
-                textAlign="center"
-                py={4}
-              >
-                {t('no_fields_enabled')}
-              </Typography>
-            ) : (
-              enabledConfigs.map((config, i) => {
-                const def = FIELD_DEFS.find((d) => d.type === config.type)!;
-                return <PreviewField key={i} config={config} def={def} t={t} />;
-              })
-            )}
-
-            {enabledConfigs.length > 0 && (
-              <Button fullWidth variant="contained" disabled sx={{ mt: 1 }}>
-                {t('submit_request')}
-              </Button>
-            )}
-          </Box>
+          <RequestPortalPreview
+            title={title}
+            welcomeMessage={welcomeMessage}
+            fieldConfigs={fieldConfigs}
+            onFieldChange={updateConfig}
+            onLocationSelect={handleLocationSelect}
+            onAssetSelect={handleAssetSelect}
+          />
         )}
       </DialogContent>
 
