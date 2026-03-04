@@ -1730,7 +1730,17 @@ const locale = {
       message: "Looks like you don't have any Request Portals yet.",
       action: 'Create your first Request Portal'
     }
-  }
+  },
+  request_title: 'Request title',
+  configure_form_fields: 'Configure form fields',
+  allow_selection_from_all_locations: 'Allow selection from all locations',
+  allow_selection_from_all_assets: 'Allow selection from all assets',
+  restrict_to_a_specific_location: 'Restrict to a specific location',
+  restrict_to_a_specific_asset: 'Restrict to a specific asset',
+  portal_public_asset_warning:
+    'Ce portail est public et ne nécessite pas d’authentification. Les Équipements listés seront visibles par toute personne possédant le lien.',
+  portal_public_location_warning:
+    'Ce portail est public et ne nécessite pas d’authentification. Les Emplacements listés seront visibles par toute personne possédant le lien.'
 };
 
 export default locale;

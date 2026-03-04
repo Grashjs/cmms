@@ -60,15 +60,13 @@ interface RequestPortalModalProps {
 type SelectionMode = 'all' | 'specific';
 
 /** Extended field type to include LOCATION in the UI */
-type AllFieldType = PortalFieldType | 'LOCATION' | 'TITLE';
+type AllFieldType = PortalFieldType | 'TITLE';
 
 interface FieldConfig {
   type: AllFieldType;
   enabled: boolean;
   required: boolean;
   selectionMode: SelectionMode;
-  /** Whether the options collapse is open */
-  optionsOpen: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -78,7 +76,6 @@ interface FieldConfig {
 interface FieldDef {
   type: AllFieldType;
   icon: React.ReactNode;
-  color: string;
   /** i18n key for display name */
   labelKey: string;
   /** Always enabled, cannot be toggled */
@@ -88,14 +85,13 @@ interface FieldDef {
   /** Show selection-mode radios */
   hasSelectionPanel?: boolean;
   /** Show the public-link warning */
-  hasPublicWarning?: boolean;
+  publicWarningKey?: string;
 }
 
 const FIELD_DEFS: FieldDef[] = [
   {
     type: 'TITLE',
     icon: <TitleOutlinedIcon fontSize="small" />,
-    color: '#374151',
     labelKey: 'request_title',
     alwaysEnabled: true,
     alwaysRequired: true
@@ -103,40 +99,35 @@ const FIELD_DEFS: FieldDef[] = [
   {
     type: 'LOCATION',
     icon: <LocationOnOutlinedIcon fontSize="small" />,
-    color: '#0891b2',
     labelKey: 'location',
     hasSelectionPanel: true,
-    hasPublicWarning: true
+    publicWarningKey: 'portal_public_location_warning'
   },
   {
     type: 'ASSET',
     icon: <BuildOutlinedIcon fontSize="small" />,
-    color: '#2563eb',
     labelKey: 'asset',
-    hasSelectionPanel: true
+    hasSelectionPanel: true,
+    publicWarningKey: 'portal_public_asset_warning'
   },
   {
     type: 'DESCRIPTION',
     icon: <DescriptionOutlinedIcon fontSize="small" />,
-    color: '#7c3aed',
     labelKey: 'description'
   },
   {
     type: 'CONTACT',
     icon: <PersonOutlineIcon fontSize="small" />,
-    color: '#059669',
     labelKey: 'contact'
   },
   {
     type: 'IMAGE',
     icon: <ImageOutlinedIcon fontSize="small" />,
-    color: '#d97706',
-    labelKey: 'images'
+    labelKey: 'image'
   },
   {
     type: 'FILES',
     icon: <AttachFileOutlinedIcon fontSize="small" />,
-    color: '#dc2626',
     labelKey: 'files'
   }
 ];
@@ -152,12 +143,17 @@ const buildDefaultConfigs = (
     const existing = existingFields?.find(
       (f) => (f.type as string) === def.type
     );
+    const selectionMode =
+      def.type === 'ASSET' || def.type === 'LOCATION'
+        ? existing?.[def.type.toLowerCase()]
+          ? 'specific'
+          : 'all'
+        : 'specific';
     return {
       type: def.type,
       enabled: def.alwaysEnabled ? true : !!existing,
       required: def.alwaysRequired ? true : existing?.required ?? false,
-      selectionMode: 'all',
-      optionsOpen: false
+      selectionMode
     };
   });
 
@@ -180,7 +176,6 @@ function FieldRow({
   config,
   onToggleEnabled,
   onToggleRequired,
-  onToggleOptions,
   onSelectionModeChange,
   t
 }: {
@@ -188,25 +183,27 @@ function FieldRow({
   config: FieldConfig;
   onToggleEnabled: () => void;
   onToggleRequired: () => void;
-  onToggleOptions: () => void;
   onSelectionModeChange: (m: SelectionMode) => void;
   t: (k: string) => string;
 }) {
   const theme = useTheme();
   const disabled = !config.enabled && !def.alwaysEnabled;
-  const color = config.enabled ? def.color : theme.palette.text.disabled;
-
+  const color = config.enabled ? '#000000' : theme.palette.text.disabled;
+  const [showCollapse, setShowCollapse] = useState<boolean>(
+    config.enabled && def.hasSelectionPanel
+  );
   return (
     <Box
       sx={{
         border: '1px solid',
-        borderColor: config.enabled ? alpha(def.color, 0.25) : 'divider',
+        borderColor: config.enabled ? alpha(color, 0.25) : 'divider',
         borderRadius: 1.5,
         overflow: 'hidden',
         transition: 'border-color 0.2s, box-shadow 0.2s',
-        ...(config.enabled && {
-          boxShadow: `0 0 0 3px ${alpha(def.color, 0.07)}`
-        })
+        ...(config.enabled &&
+          {
+            // boxShadow: `0 0 0 1px ${alpha(color, 0.07)}`
+          })
       }}
     >
       {/* ── Main row ── */}
@@ -216,10 +213,28 @@ function FieldRow({
           alignItems: 'center',
           gap: 1.5,
           px: 2,
-          py: 1.25,
-          bgcolor: config.enabled ? alpha(def.color, 0.04) : 'transparent'
+          py: 1.25
         }}
       >
+        <Switch
+          disabled={def.alwaysEnabled}
+          checked={config.enabled}
+          sx={{
+            '& .MuiSwitch-switchBase.Mui-checked.Mui-disabled .MuiSwitch-thumb':
+              {
+                color: '#bdbdbd !important'
+              },
+            '& .MuiSwitch-switchBase.Mui-checked.Mui-disabled + .MuiSwitch-track':
+              {
+                backgroundColor: '#bdbdbd !important',
+                opacity: '1 !important'
+              }
+          }}
+          onChange={() => {
+            if (def.hasSelectionPanel) setShowCollapse(!config.enabled);
+            onToggleEnabled();
+          }}
+        />
         {/* Icon */}
         <Box
           sx={{
@@ -230,7 +245,7 @@ function FieldRow({
             height: 32,
             borderRadius: '50%',
             bgcolor: config.enabled
-              ? alpha(def.color, 0.12)
+              ? alpha(theme.palette.primary.main, 0.12)
               : alpha('#9ca3af', 0.1),
             color,
             flexShrink: 0,
@@ -254,86 +269,55 @@ function FieldRow({
         </Typography>
 
         {/* Required toggle — only visible when enabled */}
-        {config.enabled && !def.alwaysRequired && (
-          <FormControlLabel
-            control={
-              <Switch
-                size="small"
-                checked={config.required}
-                onChange={onToggleRequired}
-                sx={{
-                  '& .MuiSwitch-switchBase.Mui-checked': { color: def.color },
-                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                    bgcolor: def.color
-                  }
-                }}
-              />
-            }
-            label={
-              <Typography variant="caption" color="text.secondary">
-                {t('required')}
-              </Typography>
-            }
-            labelPlacement="start"
-            sx={{ mr: 0, ml: 0 }}
-          />
-        )}
-
-        {/* Always-required badge */}
-        {def.alwaysRequired && (
-          <Typography
-            variant="caption"
-            sx={{
-              px: 1,
-              py: 0.25,
-              borderRadius: 1,
-              bgcolor: alpha(def.color, 0.1),
-              color: def.color,
-              fontWeight: 600
-            }}
-          >
-            {t('required')}
-          </Typography>
-        )}
+        <FormControlLabel
+          style={{
+            visibility: config.enabled ? 'visible' : 'hidden'
+          }}
+          control={
+            <Switch
+              checked={config.required}
+              onChange={onToggleRequired}
+              style={{
+                visibility: def.alwaysRequired ? 'hidden' : 'visible'
+              }}
+            />
+          }
+          label={
+            <Typography color="text.secondary">{t('required')}</Typography>
+          }
+          labelPlacement="start"
+          sx={{ mr: 0, ml: 0 }}
+        />
 
         {/* Options expand (ASSET / LOCATION) */}
-        {def.hasSelectionPanel && config.enabled && (
+        <Box>
           <Tooltip
-            title={config.optionsOpen ? t('hide_options') : t('show_options')}
+            style={{
+              visibility:
+                def.hasSelectionPanel && config.enabled ? 'visible' : 'hidden'
+            }}
+            title={showCollapse ? t('hide_options') : t('show_options')}
           >
             <IconButton
               size="small"
-              onClick={onToggleOptions}
-              sx={{ color: def.color }}
+              onClick={() => {
+                setShowCollapse((prevState) => !prevState);
+              }}
+              sx={{ color: color }}
             >
-              {config.optionsOpen ? (
+              {showCollapse ? (
                 <ExpandLessIcon fontSize="small" />
               ) : (
                 <ExpandMoreIcon fontSize="small" />
               )}
             </IconButton>
           </Tooltip>
-        )}
-
-        {/* Enable/disable switch */}
-        {!def.alwaysEnabled && (
-          <Switch
-            size="small"
-            checked={config.enabled}
-            onChange={onToggleEnabled}
-            sx={{
-              '& .MuiSwitch-switchBase.Mui-checked': { color: def.color },
-              '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                bgcolor: def.color
-              }
-            }}
-          />
-        )}
+        </Box>
       </Box>
 
       {/* ── Options panel ── */}
       {def.hasSelectionPanel && (
-        <Collapse in={config.enabled && config.optionsOpen}>
+        <Collapse in={showCollapse}>
           <Divider />
           <Box sx={{ px: 2.5, py: 1.5 }}>
             <RadioGroup
@@ -348,8 +332,8 @@ function FieldRow({
                 label={
                   <Typography variant="body2" color="text.secondary">
                     {def.type === 'ASSET'
-                      ? t('allow_selection_from_all_assets_at_general')
-                      : t('allow_selection_from_all_locations_at_general')}
+                      ? t('allow_selection_from_all_assets')
+                      : t('allow_selection_from_all_locations')}
                   </Typography>
                 }
                 sx={{ mb: 0.5 }}
@@ -368,13 +352,13 @@ function FieldRow({
             </RadioGroup>
 
             {/* Public-portal warning for LOCATION */}
-            {def.hasPublicWarning && config.selectionMode === 'all' && (
+            {def.publicWarningKey && config.selectionMode === 'all' && (
               <Alert
-                severity="info"
+                severity="warning"
                 icon={<InfoOutlinedIcon fontSize="small" />}
                 sx={{ mt: 1.5, fontSize: '0.75rem', py: 0.5 }}
               >
-                {t('portal_public_location_warning')}
+                {t(def.publicWarningKey)}
               </Alert>
             )}
           </Box>
@@ -404,7 +388,6 @@ function PreviewField({
           <TextField
             fullWidth
             disabled
-            size="small"
             label={t('request_title')}
             required={config.required}
           />
@@ -416,7 +399,6 @@ function PreviewField({
             multiline
             rows={3}
             disabled
-            size="small"
             label={t('description')}
             required={config.required}
           />
@@ -426,7 +408,6 @@ function PreviewField({
           <TextField
             fullWidth
             disabled
-            size="small"
             label={t('asset')}
             placeholder={t('select_asset')}
             required={config.required}
@@ -445,7 +426,6 @@ function PreviewField({
           <TextField
             fullWidth
             disabled
-            size="small"
             label={t('location')}
             placeholder={t('select_location')}
             required={config.required}
@@ -464,7 +444,6 @@ function PreviewField({
           <TextField
             fullWidth
             disabled
-            size="small"
             label={t('contact')}
             required={config.required}
             InputProps={{
@@ -568,9 +547,7 @@ export default function RequestPortalModal({
   const toggleEnabled = (index: number) => {
     const next = !fieldConfigs[index].enabled;
     updateConfig(index, {
-      enabled: next,
-      // close options panel when disabling
-      optionsOpen: next ? fieldConfigs[index].optionsOpen : false
+      enabled: next
     });
   };
 
@@ -658,7 +635,6 @@ export default function RequestPortalModal({
             {/* Portal meta */}
             <TextField
               fullWidth
-              size="small"
               label={t('title')}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -673,7 +649,6 @@ export default function RequestPortalModal({
               fullWidth
               multiline
               rows={2}
-              size="small"
               label={t('welcome_message')}
               value={welcomeMessage}
               onChange={(e) => setWelcomeMessage(e.target.value)}
@@ -683,9 +658,6 @@ export default function RequestPortalModal({
             <Box>
               <Typography variant="subtitle1" fontWeight={700} gutterBottom>
                 {t('configure_form_fields')}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                {t('configure_form_fields_description')}
               </Typography>
 
               <Stack spacing={1.5}>
@@ -697,11 +669,6 @@ export default function RequestPortalModal({
                     onToggleEnabled={() => toggleEnabled(i)}
                     onToggleRequired={() =>
                       updateConfig(i, { required: !fieldConfigs[i].required })
-                    }
-                    onToggleOptions={() =>
-                      updateConfig(i, {
-                        optionsOpen: !fieldConfigs[i].optionsOpen
-                      })
                     }
                     onSelectionModeChange={(m) =>
                       updateConfig(i, { selectionMode: m })

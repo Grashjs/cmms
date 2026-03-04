@@ -18,6 +18,7 @@ export type PortalFieldType =
   | 'DESCRIPTION'
   | 'CONTACT'
   | 'IMAGE'
+  | 'LOCATION'
   | 'FILES';
 
 export interface RequestPortalPostDTO {
