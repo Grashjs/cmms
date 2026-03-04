@@ -1,8 +1,11 @@
-import { Box, Button, Card, debounce, Divider, Stack } from '@mui/material';
+import { Box, Button, IconButton, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import * as React from 'react';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
+import ShareTwoToneIcon from '@mui/icons-material/ShareTwoTone';
+import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
+import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import { useDispatch, useSelector } from '../../../../../store';
 import {
   addRequestPortal,
@@ -11,11 +14,7 @@ import {
   getRequestPortals
 } from '../../../../../slices/requestPortal';
 import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import {
-  GridRenderCellParams,
-  GridToolbar,
-  GridValueGetterParams
-} from '@mui/x-data-grid';
+import { GridRenderCellParams } from '@mui/x-data-grid';
 import { RequestPortal } from '../../../../../models/owns/requestPortal';
 import { CustomSnackBarContext } from '../../../../../contexts/CustomSnackBarContext';
 import useAuth from '../../../../../hooks/useAuth';
@@ -23,6 +22,8 @@ import { PermissionEntity } from '../../../../../models/owns/role';
 import { onSearchQueryChange } from '../../../../../utils/overall';
 import { SearchCriteria, SortDirection } from '../../../../../models/owns/page';
 import RequestPortalModal from './RequestPortalModal';
+import SharePortalModal from './SharePortalModal';
+import ConfirmDialog from '../../../components/ConfirmDialog';
 import PermissionErrorMessage from '../../../components/PermissionErrorMessage';
 import CustomDataGrid from '../../../components/CustomDatagrid';
 import NoRowsMessageWrapper from '../../../components/NoRowsMessageWrapper';
@@ -58,6 +59,13 @@ export default function RequestPortalTable({
     direction: 'DESC'
   });
 
+  // Dialog states
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [selectedPortal, setSelectedPortal] = useState<RequestPortal | null>(
+    null
+  );
+
   useEffect(() => {
     if (hasViewPermission(PermissionEntity.SETTINGS)) {
       dispatch(getRequestPortals(criteria));
@@ -76,13 +84,35 @@ export default function RequestPortalTable({
     onOpenModal(portal);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async () => {
+    if (!selectedPortal) return;
     try {
-      await dispatch(deleteRequestPortal(id));
+      await dispatch(deleteRequestPortal(selectedPortal.id));
       showSnackBar(t('request_portal_delete_success'), 'success');
+      setConfirmDeleteOpen(false);
+      setSelectedPortal(null);
     } catch (err) {
       showSnackBar(t('request_portal_delete_failure'), 'error');
     }
+  };
+
+  const handleShare = (portal: RequestPortal) => {
+    setSelectedPortal(portal);
+    setShareModalOpen(true);
+  };
+
+  const openDeleteConfirm = (
+    portal: RequestPortal,
+    event: React.MouseEvent
+  ) => {
+    event.stopPropagation();
+    setSelectedPortal(portal);
+    setConfirmDeleteOpen(true);
+  };
+
+  const openShareDialog = (portal: RequestPortal, event: React.MouseEvent) => {
+    event.stopPropagation();
+    handleShare(portal);
   };
 
   const onQueryChange = (event) => {
@@ -125,6 +155,34 @@ export default function RequestPortalTable({
       valueGetter: (params) => {
         return getFormattedDate(params.row.createdAt);
       }
+    },
+    {
+      field: 'actions',
+      headerName: t('actions'),
+      width: 150,
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+      renderCell: (params: GridRenderCellParams<RequestPortal>) => (
+        <Box sx={{ display: 'flex', gap: 0.5 }}>
+          <IconButton
+            size="small"
+            color="primary"
+            onClick={(e) => openShareDialog(params.row, e)}
+            title={t('share')}
+          >
+            <ShareTwoToneIcon />
+          </IconButton>
+          <IconButton
+            size="small"
+            color="error"
+            onClick={(e) => openDeleteConfirm(params.row, e)}
+            title={t('delete')}
+          >
+            <DeleteTwoToneIcon />
+          </IconButton>
+        </Box>
+      )
     }
   ];
 
@@ -159,7 +217,13 @@ export default function RequestPortalTable({
             onPageSizeChange={onPageSizeChange}
             onPageChange={onPageChange}
             rowsPerPageOptions={[10, 20, 50]}
-            onRowClick={({ row }) => handleEdit(row)}
+            onRowClick={(row, event) => {
+              const target = event.target as HTMLElement;
+              if (target.closest('.MuiIconButton-root')) {
+                return;
+              }
+              handleEdit(row);
+            }}
             components={{
               NoRowsOverlay: () => (
                 <NoRowsMessageWrapper
@@ -220,6 +284,27 @@ export default function RequestPortalTable({
           }
           onCloseModal();
         }}
+      />
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        open={confirmDeleteOpen}
+        onCancel={() => {
+          setConfirmDeleteOpen(false);
+          setSelectedPortal(null);
+        }}
+        onConfirm={handleDelete}
+        confirmText={t('delete')}
+        question={t('confirm_delete_request_portal')}
+      />
+
+      <SharePortalModal
+        open={shareModalOpen}
+        onClose={() => {
+          setShareModalOpen(false);
+          setSelectedPortal(null);
+        }}
+        portal={selectedPortal}
       />
     </>
   );

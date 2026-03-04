@@ -1740,7 +1740,18 @@ const locale = {
     'This portal is public and does not require authentication. The listed assets will be visible to anyone with the link.',
   portal_public_location_warning:
     'This portal is public and does not require authentication. The listed locations will be visible to anyone with the link.',
-  submit_request: 'Submit request'
+  submit_request: 'Submit request',
+  share_portal: 'Share Portal',
+  get_portal_link: 'Get Portal Link',
+  portal_link_description: 'Only people with this link can access the portal.',
+  print_qr_code: 'Print QR Code',
+  qr_code_description:
+    'Download the QR code and stick it on the installation, so users can scan it and access the portal.',
+  copied: 'Copied!',
+  copy: 'Copy',
+  download: 'Download',
+  share: 'Share',
+  delete: 'Delete'
 };
 
 export default locale;

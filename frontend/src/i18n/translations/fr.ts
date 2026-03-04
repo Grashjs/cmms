@@ -1856,7 +1856,34 @@ const frJSON = {
   portal_public_asset_warning:
     'Ce portail est public et ne nécessite pas d’authentification. Les Équipements listés seront visibles par toute personne possédant le lien.',
   portal_public_location_warning:
-    'Ce portail est public et ne nécessite pas d’authentification. Les Emplacements listés seront visibles par toute personne possédant le lien.'
+    'Ce portail est public et ne nécessite pas d’authentification. Les Emplacements listés seront visibles par toute personne possédant le lien.',
+  create_request_portal: 'Créer un portail de demande',
+  edit_request_portal: 'Modifier le portail de demande',
+  request_portal_create_success: 'Portail de demande créé avec succès',
+  request_portal_edit_success: 'Portail de demande modifié avec succès',
+  request_portal_delete_success: 'Portail de demande supprimé avec succès',
+  request_portal_delete_failure:
+    'Échec de la suppression du portail de demande',
+  confirm_delete_request_portal:
+    'Voulez-vous vraiment supprimer ce portail de demande ?',
+  share_portal: 'Partager le portail',
+  get_portal_link: 'Obtenir le lien du portail',
+  portal_link_description:
+    'Seules les personnes disposant de ce lien pourront accéder au portail.',
+  print_qr_code: 'Imprimer le QR code',
+  qr_code_description:
+    "Téléchargez le QR code et collez-le sur l'installation, afin que les utilisateurs puissent le scanner et accéder au portail.",
+  copied: 'Copié !',
+  copy: 'Copier',
+  download: 'Télécharger',
+  share: 'Partager',
+  noRows: {
+    request_portal: {
+      message: 'Aucun portail de demande trouvé',
+      action: 'Créer un portail'
+    }
+  },
+  delete: 'Supprimer'
 };
 
 export default frJSON;
