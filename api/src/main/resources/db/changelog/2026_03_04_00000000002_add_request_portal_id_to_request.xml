@@ -1,0 +1,14 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="2026_03_04_add_request_portal_id_to_request" author="Ibrahima">
+        <addColumn tableName="request">
+            <column name="request_portal_id" type="bigint">
+                <constraints nullable="true" foreignKeyName="fk_request_request_portal" references="request_portal(id)"/>
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

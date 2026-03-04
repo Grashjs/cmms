@@ -1,6 +1,7 @@
 import {
   Autocomplete,
   Box,
+  CircularProgress,
   IconButton,
   InputAdornment,
   Stack,
@@ -25,8 +26,8 @@ import {
   PortalFieldType,
   RequestPortalField
 } from '../../../../models/owns/requestPortal';
-import { LocationMiniDTO } from '../../../../models/owns/location';
-import { AssetMiniDTO } from '../../../../models/owns/asset';
+import Location, { LocationMiniDTO } from '../../../../models/owns/location';
+import Asset, { AssetMiniDTO } from '../../../../models/owns/asset';
 import SelectLocationModal from './SelectLocationModal';
 import SelectAssetModal from './SelectAssetModal';
 import FileUpload from '../FileUpload';
@@ -51,6 +52,16 @@ export interface PreviewFieldConfig {
   asset?: AssetMiniDTO | null;
 }
 
+export interface RequestPortalFormValues {
+  title: string;
+  description?: string;
+  contact?: string;
+  location?: LocationMiniDTO | null;
+  asset?: AssetMiniDTO | null;
+  images?: File[];
+  files?: File[];
+}
+
 export interface RequestPortalPreviewProps {
   title: string;
   welcomeMessage: string;
@@ -59,6 +70,14 @@ export interface RequestPortalPreviewProps {
   onFieldChange?: (index: number, patch: Partial<PreviewFieldConfig>) => void;
   onLocationSelect?: (index: number, location: LocationMiniDTO | null) => void;
   onAssetSelect?: (index: number, asset: AssetMiniDTO | null) => void;
+  onDescriptionChange?: (value: string) => void;
+  onTitleChange?: (value: string) => void;
+  onContactChange?: (value: string) => void;
+  onImagesChange?: (files: File[]) => void;
+  onFilesChange?: (files: File[]) => void;
+  onSubmit?: () => Promise<void>;
+  submitting?: boolean;
+  errors?: Record<string, string>;
 }
 
 // ---------------------------------------------------------------------------
@@ -107,8 +126,12 @@ export const buildDefaultConfigs = (
           (!existingFields?.length && defaultEnabledFields.includes(def.type)),
       required: def.alwaysRequired ? true : existing?.required ?? false,
       selectionMode,
-      location: existing?.location || null,
-      asset: existing?.asset || null
+      location: existing?.location
+        ? (existing.location as unknown as LocationMiniDTO)
+        : null,
+      asset: existing?.asset
+        ? (existing.asset as unknown as AssetMiniDTO)
+        : null
     };
   });
 };
@@ -120,8 +143,8 @@ export const configsToFields = (
     .filter((c) => c.enabled && c.type !== 'TITLE')
     .map((c) => ({
       type: c.type as PortalFieldType,
-      location: c.location || null,
-      asset: c.asset || null,
+      location: c.location ? (c.location as unknown as Location) : null,
+      asset: c.asset ? (c.asset as unknown as Asset) : null,
       required: c.required
     }));
 
@@ -207,7 +230,7 @@ export function AssetLocationClause({
         onClose={() => {
           setOpen(false);
         }}
-        value={valueOption}
+        value={valueOption || undefined}
         onChange={(_, newValue) => {
           onChange(newValue ? (newValue.dto as any) : null);
         }}
@@ -294,7 +317,13 @@ interface PreviewFieldRenderProps {
   t: (k: string) => string;
   onLocationSelect?: (location: LocationMiniDTO | null) => void;
   onAssetSelect?: (asset: AssetMiniDTO | null) => void;
+  onDescriptionChange?: (value: string) => void;
+  onTitleChange?: (value: string) => void;
+  onContactChange?: (value: string) => void;
+  onImagesChange?: (files: File[]) => void;
+  onFilesChange?: (files: File[]) => void;
   disabled?: boolean;
+  error?: string;
 }
 
 function PreviewFieldRender({
@@ -303,7 +332,13 @@ function PreviewFieldRender({
   t,
   onLocationSelect,
   onAssetSelect,
-  disabled
+  onDescriptionChange,
+  onContactChange,
+  onImagesChange,
+  onFilesChange,
+  disabled,
+  error,
+  onTitleChange
 }: PreviewFieldRenderProps) {
   const getLabel = (str: string, required: boolean) => {
     return `${str} ${required ? '(' + t('required') + ')' : ''}`;
@@ -318,6 +353,9 @@ function PreviewFieldRender({
             disabled={disabled}
             label={getLabel(t('request_title'), config.required)}
             required={config.required}
+            error={!!error}
+            helperText={error}
+            onChange={(e) => onTitleChange?.(e.target.value)}
           />
         );
       case 'DESCRIPTION':
@@ -329,6 +367,9 @@ function PreviewFieldRender({
             disabled={disabled}
             label={getLabel(t('description'), config.required)}
             required={config.required}
+            onChange={(e) => onDescriptionChange?.(e.target.value)}
+            error={!!error}
+            helperText={error}
           />
         );
       case 'ASSET':
@@ -338,7 +379,7 @@ function PreviewFieldRender({
               field={{
                 name: 'asset',
                 type: 'asset',
-                value: disabled ? null : config.asset || null,
+                value: undefined,
                 required: config.required,
                 disabled: true
               }}
@@ -354,7 +395,7 @@ function PreviewFieldRender({
               field={{
                 name: 'location',
                 type: 'location',
-                value: disabled ? null : config.location || null,
+                value: undefined,
                 required: config.required,
                 disabled: true
               }}
@@ -370,14 +411,9 @@ function PreviewFieldRender({
             disabled={disabled}
             label={getLabel(t('contact'), config.required)}
             required={config.required}
-            InputProps={{
-              endAdornment: (
-                <PersonOutlineIcon
-                  fontSize="small"
-                  sx={{ color: 'text.disabled' }}
-                />
-              )
-            }}
+            onChange={(e) => onContactChange?.(e.target.value)}
+            error={!!error}
+            helperText={error}
           />
         );
       case 'IMAGE':
@@ -389,7 +425,13 @@ function PreviewFieldRender({
             type={isImage ? 'image' : 'file'}
             multiple={!isImage}
             description={''}
-            onDrop={() => {}}
+            onDrop={(files) => {
+              if (isImage) {
+                onImagesChange?.(files as File[]);
+              } else {
+                onFilesChange?.(files as File[]);
+              }
+            }}
             disabled={disabled}
           />
         );
@@ -413,14 +455,24 @@ export default function RequestPortalPreview({
   preview = false,
   onFieldChange,
   onLocationSelect,
-  onAssetSelect
+  onAssetSelect,
+  onDescriptionChange,
+  onContactChange,
+  onImagesChange,
+  onFilesChange,
+  onSubmit,
+  submitting,
+  errors,
+  onTitleChange
 }: RequestPortalPreviewProps) {
   const theme = useTheme();
   const { t } = useTranslation();
 
   const formik = useFormik({
     initialValues: { title, welcomeMessage, fieldConfigs },
-    onSubmit: () => {},
+    onSubmit: async () => {
+      await onSubmit?.();
+    },
     enableReinitialize: true
   });
 
@@ -439,6 +491,10 @@ export default function RequestPortalPreview({
               (c) => c.type === config.type
             );
 
+            // Get error for this field type
+            const errorKey = config.type.toLowerCase();
+            const fieldError = errors?.[errorKey];
+
             return (
               <PreviewFieldRender
                 key={config.type}
@@ -449,7 +505,13 @@ export default function RequestPortalPreview({
                   onLocationSelect?.(originalIndex, location)
                 }
                 onAssetSelect={(asset) => onAssetSelect?.(originalIndex, asset)}
+                onTitleChange={onTitleChange}
+                onDescriptionChange={onDescriptionChange}
+                onContactChange={onContactChange}
+                onImagesChange={onImagesChange}
+                onFilesChange={onFilesChange}
                 disabled={preview}
+                error={fieldError}
               />
             );
           })}
@@ -459,10 +521,11 @@ export default function RequestPortalPreview({
           <Button
             fullWidth
             variant="contained"
-            disabled={preview}
+            disabled={preview || submitting}
+            onClick={() => formik.handleSubmit()}
             sx={{ mt: 1 }}
           >
-            {t('submit_request')}
+            {submitting ? <CircularProgress size={24} /> : t('submit_request')}
           </Button>
         )}
       </Box>

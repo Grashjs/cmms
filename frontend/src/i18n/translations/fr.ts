@@ -1885,12 +1885,18 @@ const frJSON = {
   },
   portal_not_found: 'Portail non trouvé',
   request_submitted_success: 'Votre demande a été soumise avec succès',
+  request_submit_failure:
+    'Échec de la soumission de la demande. Veuillez réessayer.',
+  required_title: 'Le titre est obligatoire',
+  required_description: 'La description est obligatoire',
+  required_contact: 'Le contact est obligatoire',
+  required_location: "L'emplacement est obligatoire",
   company_info: "Informations sur l'entreprise",
   required_information: 'Informations requises',
   upload_files: 'Télécharger des fichiers',
   delete: 'Supprimer',
   portail_de_demandes: 'Portail de demandes',
-  company_logo: 'Logo de l\'entreprise'
+  company_logo: "Logo de l'entreprise"
 };
 
 export default frJSON;

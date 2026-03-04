@@ -28,6 +28,9 @@ public class Request extends WorkOrderBase {
     @OneToOne(fetch = FetchType.LAZY)
     private WorkOrder workOrder;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private RequestPortal requestPortal;
+
     @PreRemove
     private void preRemove() {
         if (workOrder != null)

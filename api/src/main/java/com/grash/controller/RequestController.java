@@ -49,6 +49,7 @@ public class RequestController {
     private final WorkflowService workflowService;
     private final MailServiceFactory mailServiceFactory;
     private final AssetService assetService;
+    private final RequestPortalService requestPortalService;
 
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -94,35 +95,54 @@ public class RequestController {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
+    private void onRequestCreation(Request createdRequest, Company company, String requesterName) {
+        String title = messageSource.getMessage("new_request", null, Helper.getLocale(company));
+        String message = messageSource.getMessage("notification_new_request", null, Helper.getLocale(company));
+        List<OwnUser> usersToNotify = userService.findByCompany(company.getId()).stream()
+                .filter(user1 -> user1.isEnabled() && user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
+                        || user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN)).collect(Collectors.toList());
+        notificationService.createMultiple(usersToNotify
+                .stream().map(user1 -> new Notification(message, user1, NotificationType.REQUEST,
+                        createdRequest.getId())).collect(Collectors.toList()), true, title);
+        Map<String, Object> mailVariables = new HashMap<String, Object>() {{
+            put("requestLink", frontendUrl + "/app/requests/" + createdRequest.getId());
+            put("requestTitle", createdRequest.getTitle());
+            put("requester", requesterName);
+        }};
+        mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToNotify.stream().map(OwnUser::getEmail)
+                .toArray(String[]::new), messageSource.getMessage("new_request", null,
+                Helper.getLocale(company)), mailVariables, "new-request.html", Helper.getLocale(company), null);
+
+        Collection<Workflow> workflows =
+                workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_CREATED,
+                        company.getId());
+        workflows.forEach(workflow -> workflowService.runRequest(workflow, createdRequest));
+
+    }
+
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     RequestShowDTO create(@Valid @RequestBody Request requestReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.REQUESTS)) {
             Request createdRequest = requestService.create(requestReq, user.getCompany());
-            String title = messageSource.getMessage("new_request", null, Helper.getLocale(user));
-            String message = messageSource.getMessage("notification_new_request", null, Helper.getLocale(user));
-            List<OwnUser> usersToNotify = userService.findByCompany(user.getCompany().getId()).stream()
-                    .filter(user1 -> user1.isEnabled() && user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
-                            || user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN)).collect(Collectors.toList());
-            notificationService.createMultiple(usersToNotify
-                    .stream().map(user1 -> new Notification(message, user1, NotificationType.REQUEST,
-                            createdRequest.getId())).collect(Collectors.toList()), true, title);
-            Map<String, Object> mailVariables = new HashMap<String, Object>() {{
-                put("requestLink", frontendUrl + "/app/requests/" + createdRequest.getId());
-                put("requestTitle", createdRequest.getTitle());
-                put("requester", user.getFullName());
-            }};
-            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToNotify.stream().map(OwnUser::getEmail)
-                    .toArray(String[]::new), messageSource.getMessage("new_request", null,
-                    Helper.getLocale(user)), mailVariables, "new-request.html", Helper.getLocale(user), null);
-
-            Collection<Workflow> workflows =
-                    workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_CREATED,
-                            user.getCompany().getId());
-            workflows.forEach(workflow -> workflowService.runRequest(workflow, createdRequest));
+            onRequestCreation(createdRequest, user.getCompany(), user.getFullName());
             return requestMapper.toShowDto(createdRequest);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PostMapping("/portal/{requestPortalUuid}")
+    RequestShowDTO createFromPortal(@Valid @RequestBody Request requestReq,
+                                    @PathVariable("requestPortalUuid") String requestPortalUuid,
+                                    HttpServletRequest req) {
+        Optional<RequestPortal> optionalRequestPortal = requestPortalService.findByUuid(requestPortalUuid);
+        if (optionalRequestPortal.isEmpty()) {
+            throw new CustomException("Request portal not found", HttpStatus.NOT_FOUND);
+        }
+        RequestPortal requestPortal = optionalRequestPortal.get();
+        Request createdRequest = requestService.create(requestReq, requestPortal.getCompany(), requestPortal);
+        onRequestCreation(createdRequest, requestPortal.getCompany(), "Someone");
+        return requestMapper.toShowDto(createdRequest);
     }
 
     @PatchMapping("/{id}")

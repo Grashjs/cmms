@@ -1755,6 +1755,10 @@ const locale = {
   // Public Request Portal Page
   portal_not_found: 'Portal not found',
   request_submitted_success: 'Your request has been submitted successfully',
+  request_submit_failure: 'Failed to submit request. Please try again.',
+  required_description: 'Description is required',
+  required_contact: 'Contact is required',
+  required_location: 'Location is required',
   company_info: 'Company Information',
   required_information: 'Required Information',
   upload_files: 'Upload Files',

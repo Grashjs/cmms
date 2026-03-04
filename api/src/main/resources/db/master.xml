@@ -185,4 +185,5 @@
     <include file="changelog/2026_02_18_1771453794_timezone.xml"
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_03_04_00000000001_add_request_portal.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/2026_03_04_00000000002_add_request_portal_id_to_request.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

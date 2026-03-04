@@ -532,7 +532,21 @@ export default function RequestPortalModal({
                       updateConfig(i, { required: !fieldConfigs[i].required })
                     }
                     onSelectionModeChange={(m) =>
-                      updateConfig(i, { selectionMode: m })
+                      updateConfig(i, {
+                        selectionMode: m,
+                        asset:
+                          def.type === 'ASSET'
+                            ? m === 'all'
+                              ? null
+                              : undefined
+                            : undefined,
+                        location:
+                          def.type === 'LOCATION'
+                            ? m === 'all'
+                              ? null
+                              : undefined
+                            : undefined
+                      })
                     }
                     onAssetSelect={(asset) => updateConfig(i, { asset })}
                     onLocationSelect={(location) =>

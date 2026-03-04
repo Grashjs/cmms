@@ -223,8 +223,8 @@ export default function RequestPortalTable({
             onPageSizeChange={onPageSizeChange}
             onPageChange={onPageChange}
             rowsPerPageOptions={[10, 20, 50]}
-            onRowClick={(row, event) => {
-              handleEdit(row);
+            onRowClick={(params, event) => {
+              handleEdit(params.row);
             }}
             components={{
               NoRowsOverlay: () => (

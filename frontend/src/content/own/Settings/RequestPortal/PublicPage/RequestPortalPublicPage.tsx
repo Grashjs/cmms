@@ -35,6 +35,9 @@ import { useDispatch, useSelector } from '../../../../../store';
 import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
 import { Business } from '@mui/icons-material';
 import BusinessTwoToneIcon from '@mui/icons-material/BusinessTwoTone';
+import { useSnackbar } from 'notistack';
+import { submitPublicRequest } from '../../../../../slices/request';
+import api from '../../../../../utils/api';
 
 interface FormValues {
   title: string;
@@ -42,7 +45,7 @@ interface FormValues {
   contact?: string;
   location?: LocationMiniDTO | null;
   asset?: AssetMiniDTO | null;
-  image?: File[];
+  images?: File[];
   files?: File[];
 }
 
@@ -50,6 +53,7 @@ export default function RequestPortalPublicPage() {
   const { t } = useTranslation();
   const theme = useTheme();
   const { uuid } = useParams<{ uuid: string }>();
+  const { enqueueSnackbar } = useSnackbar();
 
   const dispatch = useDispatch();
   const { singleRequestPortal: portal, loadingGet } = useSelector(
@@ -63,7 +67,7 @@ export default function RequestPortalPublicPage() {
     contact: '',
     location: null,
     asset: null,
-    image: [],
+    images: [],
     files: []
   });
   const [submitting, setSubmitting] = useState(false);
@@ -88,23 +92,131 @@ export default function RequestPortalPublicPage() {
 
   const handleLocationSelect = useCallback(
     (index: number, location: LocationMiniDTO | null) => {
-      setFieldConfigs((prev) =>
-        prev.map((config, i) =>
-          i === index ? { ...config, location } : config
-        )
-      );
+      setFormValues((prev) => ({ ...prev, location }));
     },
     []
   );
 
   const handleAssetSelect = useCallback(
     (index: number, asset: AssetMiniDTO | null) => {
-      setFieldConfigs((prev) =>
-        prev.map((config, i) => (i === index ? { ...config, asset } : config))
-      );
+      setFormValues((prev) => ({ ...prev, asset }));
     },
     []
   );
+
+  const handleTitleChange = useCallback((value: string) => {
+    setFormValues((prev) => ({ ...prev, title: value }));
+  }, []);
+  const handleDescriptionChange = useCallback((value: string) => {
+    setFormValues((prev) => ({ ...prev, description: value }));
+  }, []);
+
+  const handleContactChange = useCallback((value: string) => {
+    setFormValues((prev) => ({ ...prev, contact: value }));
+  }, []);
+
+  const handleImagesChange = useCallback((files: File[]) => {
+    setFormValues((prev) => ({ ...prev, images: files }));
+  }, []);
+
+  const handleFilesChange = useCallback((files: File[]) => {
+    setFormValues((prev) => ({ ...prev, files: files }));
+  }, []);
+
+  const validateForm = useCallback(() => {
+    const errors: Record<string, string> = {};
+    // Check required fields from fieldConfigs
+    fieldConfigs.forEach((config) => {
+      if (!config.enabled || !config.required) return;
+
+      switch (config.type) {
+        case 'TITLE':
+          if (!formValues.title.trim()) {
+            errors.title = t('required_title');
+          }
+          break;
+        case 'DESCRIPTION':
+          if (!formValues.description?.trim()) {
+            errors.description = t('required_description');
+          }
+          break;
+        case 'CONTACT':
+          if (!formValues.contact?.trim()) {
+            errors.contact = t('required_contact');
+          }
+          break;
+        case 'LOCATION':
+          if (!formValues.location) {
+            errors.location = t('required_location');
+          }
+          break;
+        case 'ASSET':
+          if (!formValues.asset) {
+            errors.asset = t('required_asset');
+          }
+          break;
+      }
+    });
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  }, [fieldConfigs, formValues, t]);
+
+  const uploadFiles = async (files: File[]): Promise<number[]> => {
+    const formData = new FormData();
+    files.forEach((file) => formData.append('files', file));
+
+    const response = await api.post<{ fileIds: number[] }>(
+      'files/upload',
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      }
+    );
+    return response.fileIds || [];
+  };
+
+  const handleSubmit = useCallback(async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      // Upload images and files
+      let imageIds: number[] = [];
+      let fileIds: number[] = [];
+
+      if (formValues.images && formValues.images.length > 0) {
+        imageIds = await uploadFiles(formValues.images);
+      }
+
+      if (formValues.files && formValues.files.length > 0) {
+        fileIds = await uploadFiles(formValues.files);
+      }
+
+      // Submit the request
+      await dispatch(
+        submitPublicRequest(uuid!, {
+          title: formValues.title,
+          description: formValues.description,
+          contact: formValues.contact,
+          location: formValues.location || null,
+          asset: formValues.asset || null,
+          image: imageIds.length ? { id: imageIds[0] } : null,
+          files: fileIds.map((fileId) => ({ id: fileId }))
+        })
+      );
+
+      setSubmitted(true);
+    } catch (error: any) {
+      enqueueSnackbar(error.message || t('request_submit_failure'), {
+        variant: 'error'
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  }, [validateForm, formValues, uuid, dispatch, t]);
 
   if (loadingGet) {
     return (
@@ -132,6 +244,21 @@ export default function RequestPortalPublicPage() {
         }}
       >
         <Alert severity="error">{t('portal_not_found')}</Alert>
+      </Box>
+    );
+  }
+
+  if (submitted) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh'
+        }}
+      >
+        <Alert severity="success">{t('request_submitted_success')}</Alert>
       </Box>
     );
   }
@@ -179,7 +306,6 @@ export default function RequestPortalPublicPage() {
               sx={{
                 p: 4,
                 bgcolor: 'background.paper'
-                // boxShadow: theme.shadows[24]
               }}
             >
               <RequestPortalPreview
@@ -189,6 +315,14 @@ export default function RequestPortalPublicPage() {
                 preview={false}
                 onLocationSelect={handleLocationSelect}
                 onAssetSelect={handleAssetSelect}
+                onDescriptionChange={handleDescriptionChange}
+                onTitleChange={handleTitleChange}
+                onContactChange={handleContactChange}
+                onImagesChange={handleImagesChange}
+                onFilesChange={handleFilesChange}
+                onSubmit={handleSubmit}
+                submitting={submitting}
+                errors={formErrors}
               />
             </Paper>
           </Grid>

@@ -68,6 +68,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/paddle/create-checkout-session").permitAll()
                 .requestMatchers("/auth/reset-pwd-confirm**").permitAll()
                 .requestMatchers("/request-portals/public/{uuid}").permitAll()
+                .requestMatchers("/requests/portal/{requestPortalUuid}").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/swagger-ui.html").permitAll()
