@@ -1,0 +1,60 @@
+{
+  "name": "New Entity",
+  "description": "New entity",
+  "param": [
+    "name"
+  ],
+  "addFile": [
+    {
+      "name": "{name}[-C].java",
+      "path": "java/com/grash/model",
+      "fileTemplatePath": "model.tm"
+    },
+    {
+      "name": "{name}[-C]Repository.java",
+      "path": "java/com/grash/repository",
+      "fileTemplatePath": "repository.tm"
+    },
+    {
+      "name": "{name}[-C]Service.java",
+      "path": "java/com/grash/service",
+      "fileTemplatePath": "service.tm"
+    },
+    {
+      "name": "{name}[-C]Mapper.java",
+      "path": "java/com/grash/mapper",
+      "fileTemplatePath": "mapper.tm"
+    },
+    {
+      "name": "{name}[-C]PostDTO.java",
+      "path": "java/com/grash/dto/{name}[-c]",
+      "fileTemplatePath": "postDto.tm"
+    },
+    {
+      "name": "{name}[-C]ShowDTO.java",
+      "path": "java/com/grash/dto/{name}[-c]",
+      "fileTemplatePath": "showDto.tm"
+    },
+    {
+      "name": "{name}[-C]Criteria.java",
+      "path": "java/com/grash/dto/{name}[-c]",
+      "fileTemplatePath": "criteria.tm"
+    },
+    {
+      "name": "{name}[-C]PatchDTO.java",
+      "path": "java/com/grash/dto/{name}[-c]",
+      "fileTemplatePath": "patchDto.tm"
+    },
+    {
+      "name": "{name}[-C]Controller.java",
+      "path": "java/com/grash/controller",
+      "fileTemplatePath": "controller.tm"
+    },
+    {
+      "name": "{year}_{month}_{day}_00000000001_add_{name}[-s].xml",
+      "path": "resources/db/changelog",
+      "fileTemplatePath": "liquibase.tm"
+    }
+  ],
+  "globalBasePath": ""
+}
