@@ -162,4 +162,16 @@ export const deleteRequestPortal =
 export const clearSingleRequestPortal = (): AppThunk => async (dispatch) => {
   dispatch(slice.actions.clearSingleRequestPortal({}));
 };
+
+export const getRequestPortalPublic =
+  (uuid: string): AppThunk =>
+  async (dispatch) => {
+    dispatch(slice.actions.setLoadingGet({ loading: true }));
+    const requestPortal = await api.get<RequestPortal>(
+      `${basePath}/public/${uuid}`
+    );
+    dispatch(slice.actions.getSingleRequestPortal({ requestPortal }));
+    dispatch(slice.actions.setLoadingGet({ loading: false }));
+  };
+
 export default slice;

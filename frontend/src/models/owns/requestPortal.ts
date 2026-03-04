@@ -27,3 +27,12 @@ export interface RequestPortalPostDTO {
   welcomeMessage: string;
   fields: RequestPortalField[];
 }
+
+export interface RequestPortalPublicDTO {
+  title: string;
+  welcomeMessage: string;
+  fields: RequestPortalField[];
+  companyId: number;
+  companyName: string;
+  companyLogo: string;
+}

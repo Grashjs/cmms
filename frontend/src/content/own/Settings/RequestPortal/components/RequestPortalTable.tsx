@@ -1,4 +1,4 @@
-import { Box, Button, IconButton, Stack } from '@mui/material';
+import { Box, Button, IconButton, Link, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import * as React from 'react';
 import { useContext, useEffect, useState } from 'react';
@@ -128,8 +128,14 @@ export default function RequestPortalTable({
       headerName: t('title'),
       description: t('title'),
       width: 200,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
+      renderCell: (params) => (
+        <Link
+          href={`/request-portal/${params.row.uuid}`}
+          sx={{ fontWeight: 'bold' }}
+          onClick={(event) => event.stopPropagation()}
+        >
+          {params.value}
+        </Link>
       )
     },
     {
@@ -218,10 +224,6 @@ export default function RequestPortalTable({
             onPageChange={onPageChange}
             rowsPerPageOptions={[10, 20, 50]}
             onRowClick={(row, event) => {
-              const target = event.target as HTMLElement;
-              if (target.closest('.MuiIconButton-root')) {
-                return;
-              }
               handleEdit(row);
             }}
             components={{

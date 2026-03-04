@@ -1883,7 +1883,14 @@ const frJSON = {
       action: 'Créer un portail'
     }
   },
-  delete: 'Supprimer'
+  portal_not_found: 'Portail non trouvé',
+  request_submitted_success: 'Votre demande a été soumise avec succès',
+  company_info: "Informations sur l'entreprise",
+  required_information: 'Informations requises',
+  upload_files: 'Télécharger des fichiers',
+  delete: 'Supprimer',
+  portail_de_demandes: 'Portail de demandes',
+  company_logo: 'Logo de l\'entreprise'
 };
 
 export default frJSON;

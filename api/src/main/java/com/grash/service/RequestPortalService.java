@@ -78,4 +78,8 @@ public class RequestPortalService {
 
         return requestPortalRepository.findAll(specification, pageable);
     }
+
+    public Optional<RequestPortal> findByUuid(String uuid) {
+        return requestPortalRepository.findByUuid(uuid);
+    }
 }

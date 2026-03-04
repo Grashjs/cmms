@@ -35,6 +35,7 @@ import { getLocationsMini } from '../../../../slices/location';
 import { getAssetsMini } from '../../../../slices/asset';
 import debounce from 'lodash.debounce';
 import { boolean, number, string } from 'yup';
+import { FIELD_DEFS } from '../../Settings/RequestPortal/components/RequestPortalModal';
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -73,50 +74,6 @@ interface FieldDef {
   hasSelectionPanel?: boolean;
   publicWarningKey?: string;
 }
-
-const FIELD_DEFS: FieldDef[] = [
-  {
-    type: 'TITLE',
-    icon: <></>,
-    labelKey: 'request_title',
-    alwaysEnabled: true,
-    alwaysRequired: true
-  },
-  {
-    type: 'LOCATION',
-    icon: <></>,
-    labelKey: 'location',
-    hasSelectionPanel: true,
-    publicWarningKey: 'portal_public_location_warning'
-  },
-  {
-    type: 'ASSET',
-    icon: <></>,
-    labelKey: 'asset',
-    hasSelectionPanel: true,
-    publicWarningKey: 'portal_public_asset_warning'
-  },
-  {
-    type: 'DESCRIPTION',
-    icon: <></>,
-    labelKey: 'description'
-  },
-  {
-    type: 'CONTACT',
-    icon: <></>,
-    labelKey: 'contact'
-  },
-  {
-    type: 'IMAGE',
-    icon: <></>,
-    labelKey: 'image'
-  },
-  {
-    type: 'FILES',
-    icon: <></>,
-    labelKey: 'files'
-  }
-];
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -492,14 +449,19 @@ export default function RequestPortalPreview({
                   onLocationSelect?.(originalIndex, location)
                 }
                 onAssetSelect={(asset) => onAssetSelect?.(originalIndex, asset)}
-                disabled
+                disabled={preview}
               />
             );
           })}
         </Stack>
 
         {enabledConfigs.length > 0 && (
-          <Button fullWidth variant="contained" disabled sx={{ mt: 1 }}>
+          <Button
+            fullWidth
+            variant="contained"
+            disabled={preview}
+            sx={{ mt: 1 }}
+          >
             {t('submit_request')}
           </Button>
         )}

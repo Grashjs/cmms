@@ -1751,7 +1751,15 @@ const locale = {
   copy: 'Copy',
   download: 'Download',
   share: 'Share',
-  delete: 'Delete'
+  delete: 'Delete',
+  // Public Request Portal Page
+  portal_not_found: 'Portal not found',
+  request_submitted_success: 'Your request has been submitted successfully',
+  company_info: 'Company Information',
+  required_information: 'Required Information',
+  upload_files: 'Upload Files',
+  portail_de_demandes: 'Request Portal',
+  company_logo: 'Company Logo'
 };
 
 export default locale;
