@@ -54,6 +54,7 @@ public class ChecklistController {
         Optional<Checklist> optionalChecklist = checklistService.findById(id);
         if (optionalChecklist.isPresent()) {
             Checklist savedChecklist = optionalChecklist.get();
+            checkAccessToChecklist(savedChecklist, user);
             return savedChecklist;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -79,6 +80,7 @@ public class ChecklistController {
 
         if (optionalChecklist.isPresent()) {
             Checklist savedChecklist = optionalChecklist.get();
+            checkAccessToChecklist(savedChecklist, user);
             if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
                 return checklistService.update(id, checklist, user.getCompany());
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
@@ -94,6 +96,7 @@ public class ChecklistController {
         Optional<Checklist> optionalChecklist = checklistService.findById(id);
         if (optionalChecklist.isPresent()) {
             Checklist savedChecklist = optionalChecklist.get();
+            checkAccessToChecklist(savedChecklist, user);
             if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
                 checklistService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
@@ -102,6 +105,10 @@ public class ChecklistController {
         } else throw new CustomException("Checklist not found", HttpStatus.NOT_FOUND);
     }
 
+    private void checkAccessToChecklist(Checklist checklist, OwnUser user) {
+        if (!checklist.getCompanySettings().getCompany().getId().equals(user.getCompany().getId()))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    }
 }
 
 

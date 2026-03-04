@@ -8,6 +8,7 @@ import com.grash.mapper.FloorPlanMapper;
 import com.grash.model.FloorPlan;
 import com.grash.model.Location;
 import com.grash.model.OwnUser;
+import com.grash.model.enums.RoleType;
 import com.grash.service.FloorPlanService;
 import com.grash.service.LocationService;
 import com.grash.service.UserService;
@@ -39,24 +40,25 @@ public class FloorPlanController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public FloorPlanShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<FloorPlan> optionalFloorPlan = floorPlanService.findById(id);
         if (optionalFloorPlan.isPresent()) {
             FloorPlan savedFloorPlan = optionalFloorPlan.get();
+            checkAccessToFloorPlan(savedFloorPlan, user);
             return floorPlanMapper.toShowDto(savedFloorPlan);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/location/{id}")
     @PreAuthorize("permitAll()")
-
     public Collection<FloorPlanShowDTO> getByLocation(@PathVariable("id") Long id,
                                                       HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
+            Location location = optionalLocation.get();
+            checkAccessToLocation(location, user);
             return floorPlanService.findByLocation(id).stream().map(floorPlanMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -71,7 +73,6 @@ public class FloorPlanController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public FloorPlanShowDTO patch(@Valid @RequestBody FloorPlanPatchDTO floorPlan, @PathVariable("id") Long id,
                                   HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
@@ -79,22 +80,36 @@ public class FloorPlanController {
 
         if (optionalFloorPlan.isPresent()) {
             FloorPlan savedFloorPlan = optionalFloorPlan.get();
+            checkAccessToFloorPlan(savedFloorPlan, user);
             return floorPlanMapper.toShowDto(floorPlanService.update(id, floorPlan));
         } else throw new CustomException("FloorPlan not found", HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<FloorPlan> optionalFloorPlan = floorPlanService.findById(id);
         if (optionalFloorPlan.isPresent()) {
+            FloorPlan savedFloorPlan = optionalFloorPlan.get();
+            checkAccessToFloorPlan(savedFloorPlan, user);
             floorPlanService.delete(id);
             return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                     HttpStatus.OK);
         } else throw new CustomException("FloorPlan not found", HttpStatus.NOT_FOUND);
+    }
+
+    private void checkAccessToFloorPlan(FloorPlan floorPlan, OwnUser user) {
+        if (!floorPlan.getLocation().getCompany().getId().equals(user.getCompany().getId())) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
+    }
+
+    private void checkAccessToLocation(Location location, OwnUser user) {
+        if (!location.getCompany().getId().equals(user.getCompany().getId())) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
     }
 
 }
