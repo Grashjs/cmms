@@ -257,6 +257,7 @@ function Assets() {
       </MenuItem>
     </Menu>
   );
+  const DEMO_ASSET = 'HVAC-001';
   const columns: CustomDatagridColumn[] = [
     {
       field: 'customId',
@@ -270,7 +271,12 @@ function Assets() {
       description: t('name'),
       width: 150,
       renderCell: (params: GridRenderCellParams<string>) => (
-        <Box sx={{ py: 1, fontWeight: 'bold' }}>{params.value}</Box>
+        <Box
+          sx={{ py: 1, fontWeight: 'bold' }}
+          data-tour={params.value === DEMO_ASSET ? 'demo-asset' : undefined}
+        >
+          {params.value}
+        </Box>
       )
     },
     {

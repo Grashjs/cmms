@@ -98,7 +98,12 @@ const SidebarMenuItem: FC<SidebarMenuItemProps> = ({
   }
 
   return (
-    <ListItem component="div" key={name} {...rest}>
+    <ListItem
+      component="div"
+      key={name}
+      data-tour={`sidebar-${name}`}
+      {...rest}
+    >
       <Button
         disableRipple
         component={RouterLink}

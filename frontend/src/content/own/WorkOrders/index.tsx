@@ -106,6 +106,7 @@ import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import Request from '../../../models/owns/request';
 import { getErrorMessage } from '../../../utils/api';
 import SplitButton from '../components/SplitButton';
+import WorkOrderTour from './WorkOrderTour';
 
 function WorkOrders() {
   const { t }: { t: any } = useTranslation();
@@ -149,6 +150,7 @@ function WorkOrders() {
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const [openFilterDrawer, setOpenFilterDrawer] = useState<boolean>(false);
+  const [runTour, setRunTour] = useState<boolean>(false);
   const { setTitle } = useContext(TitleContext);
   const { workOrderId } = useParams();
   const { showSnackBar } = useContext(CustomSnackBarContext);
@@ -316,6 +318,19 @@ function WorkOrders() {
     }
   }, [locationParamObject, assetParamObject]);
 
+  useEffect(() => {
+    const lastLoginTime = new Date(user.lastLogin).getTime();
+    const currentTime = new Date().getTime();
+    const minutesSinceLogin = (currentTime - lastLoginTime) / 1000 / 60;
+
+    if (true) {
+      const hasSeenTour = localStorage.getItem('workOrderTourCompleted');
+      if (true) {
+        setRunTour(true);
+      }
+    }
+  }, [user]);
+
   const formatValues = (values) => {
     const newValues = { ...values };
     newValues.assetStatus = newValues.assetStatus?.value ?? null;
@@ -348,6 +363,10 @@ function WorkOrders() {
   };
   const onDeleteFailure = (err) =>
     showSnackBar(t('wo_delete_failure'), 'error');
+  const handleTourComplete = () => {
+    setRunTour(false);
+    localStorage.setItem('workOrderTourCompleted', 'true');
+  };
 
   const onPageSizeChange = (size: number) => {
     setCriteria({ ...criteria, pageSize: size });
@@ -868,6 +887,7 @@ function WorkOrders() {
       <Helmet>
         <title>{t('work_orders')}</title>
       </Helmet>
+      <WorkOrderTour run={runTour} onComplete={handleTourComplete} />
       <Box justifyContent="center" alignItems="stretch" paddingX={4}>
         <Box
           my={1}
