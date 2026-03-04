@@ -117,6 +117,7 @@ interface FileUploadProps {
   description: string;
   onDrop: (files: any) => void;
   files?: any[];
+  disabled?: boolean;
 }
 function FileUpload(props: FileUploadProps) {
   const { t }: { t: any } = useTranslation();
@@ -139,6 +140,7 @@ function FileUpload(props: FileUploadProps) {
     getInputProps,
     inputRef
   } = useDropzone({
+    disabled: props.disabled,
     accept:
       type === 'image'
         ? {

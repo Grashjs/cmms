@@ -92,7 +92,7 @@ export default function RequestPortalTable({
 
   const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
 
-  const columns: GridEnrichedColDef[] = [
+  const columns: GridEnrichedColDef<RequestPortal>[] = [
     {
       field: 'title',
       headerName: t('title'),
@@ -103,10 +103,19 @@ export default function RequestPortalTable({
       )
     },
     {
-      field: 'welcomeMessage',
-      headerName: t('welcome_message'),
-      description: t('welcome_message'),
-      width: 300
+      field: 'asset',
+      headerName: t('asset'),
+      width: 300,
+      valueGetter: (params) =>
+        params.row.fields.find((field) => field.type === 'ASSET')?.asset?.name
+    },
+    {
+      field: 'location',
+      headerName: t('location'),
+      width: 300,
+      valueGetter: (params) =>
+        params.row.fields.find((field) => field.type === 'LOCATION')?.location
+          ?.name
     },
     {
       field: 'uuid',
@@ -132,17 +141,11 @@ export default function RequestPortalTable({
 
   return (
     <>
-      <Box justifyContent="center" alignItems="stretch" paddingX={4}>
+      <Box justifyContent="center" p={4}>
         {hasCreatePermission(PermissionEntity.SETTINGS) && (
-          <Box
-            display="flex"
-            flexDirection="row"
-            justifyContent="right"
-            alignItems="center"
-          >
+          <Box display="flex" flexDirection="row" alignItems="center">
             <Button
               startIcon={<AddTwoToneIcon />}
-              sx={{ my: 1 }}
               variant="contained"
               onClick={() => onOpenModal()}
             >
@@ -150,74 +153,65 @@ export default function RequestPortalTable({
             </Button>
           </Box>
         )}
-        <Card
-          sx={{
-            py: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center'
-          }}
-        >
-          <Box sx={{ width: '95%' }}>
-            <CustomDataGrid
-              columns={columns}
-              loading={loadingGet}
-              pageSize={criteria.pageSize}
-              page={criteria.pageNum}
-              rows={requestPortals.content}
-              rowCount={requestPortals.totalElements}
-              pagination
-              paginationMode="server"
-              onPageSizeChange={onPageSizeChange}
-              onPageChange={onPageChange}
-              rowsPerPageOptions={[10, 20, 50]}
-              onRowClick={({ row }) => handleEdit(row)}
-              components={{
-                NoRowsOverlay: () => (
-                  <NoRowsMessageWrapper
-                    message={t('noRows.request_portal.message')}
-                    action={t('noRows.request_portal.action')}
-                  />
-                )
-              }}
-              onSortModelChange={(model) => {
-                if (model.length === 0) {
-                  setCriteria({
-                    ...criteria,
-                    sortField: undefined,
-                    direction: undefined
-                  });
-                  return;
-                }
-
-                const fieldMapping: Record<string, string> = {
-                  title: 'title',
-                  welcomeMessage: 'welcomeMessage',
-                  uuid: 'uuid',
-                  createdAt: 'createdAt'
-                };
-
-                const field = model[0].field;
-                const mappedField = fieldMapping[field];
-
-                if (!mappedField) return;
-
+        <Box sx={{ mt: 2, width: '95%' }}>
+          <CustomDataGrid
+            columns={columns}
+            loading={loadingGet}
+            pageSize={criteria.pageSize}
+            page={criteria.pageNum}
+            rows={requestPortals.content}
+            rowCount={requestPortals.totalElements}
+            pagination
+            paginationMode="server"
+            onPageSizeChange={onPageSizeChange}
+            onPageChange={onPageChange}
+            rowsPerPageOptions={[10, 20, 50]}
+            onRowClick={({ row }) => handleEdit(row)}
+            components={{
+              NoRowsOverlay: () => (
+                <NoRowsMessageWrapper
+                  message={t('noRows.request_portal.message')}
+                  action={t('noRows.request_portal.action')}
+                />
+              )
+            }}
+            onSortModelChange={(model) => {
+              if (model.length === 0) {
                 setCriteria({
                   ...criteria,
-                  sortField: mappedField,
-                  direction: (model[0].sort?.toUpperCase() ||
-                    'ASC') as SortDirection
+                  sortField: undefined,
+                  direction: undefined
                 });
-              }}
-              sortingMode={'server'}
-              initialState={{
-                columns: {
-                  columnVisibilityModel: {}
-                }
-              }}
-            />
-          </Box>
-        </Card>
+                return;
+              }
+
+              const fieldMapping: Record<string, string> = {
+                title: 'title',
+                welcomeMessage: 'welcomeMessage',
+                uuid: 'uuid',
+                createdAt: 'createdAt'
+              };
+
+              const field = model[0].field;
+              const mappedField = fieldMapping[field];
+
+              if (!mappedField) return;
+
+              setCriteria({
+                ...criteria,
+                sortField: mappedField,
+                direction: (model[0].sort?.toUpperCase() ||
+                  'ASC') as SortDirection
+              });
+            }}
+            sortingMode={'server'}
+            initialState={{
+              columns: {
+                columnVisibilityModel: {}
+              }
+            }}
+          />
+        </Box>
       </Box>
       <RequestPortalModal
         open={openModal}

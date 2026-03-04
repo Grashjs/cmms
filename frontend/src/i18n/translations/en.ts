@@ -1740,7 +1740,8 @@ const locale = {
   portal_public_asset_warning:
     'Ce portail est public et ne nécessite pas d’authentification. Les Équipements listés seront visibles par toute personne possédant le lien.',
   portal_public_location_warning:
-    'Ce portail est public et ne nécessite pas d’authentification. Les Emplacements listés seront visibles par toute personne possédant le lien.'
+    'Ce portail est public et ne nécessite pas d’authentification. Les Emplacements listés seront visibles par toute personne possédant le lien.',
+  submit_request: 'Submit request'
 };
 
 export default locale;

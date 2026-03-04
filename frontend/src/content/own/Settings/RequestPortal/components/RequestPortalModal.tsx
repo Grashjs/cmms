@@ -42,6 +42,7 @@ import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import TitleOutlinedIcon from '@mui/icons-material/TitleOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import FileUpload from '../../../components/FileUpload';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -138,8 +139,14 @@ const FIELD_DEFS: FieldDef[] = [
 
 const buildDefaultConfigs = (
   existingFields?: RequestPortalField[]
-): FieldConfig[] =>
-  FIELD_DEFS.map((def) => {
+): FieldConfig[] => {
+  const defaultEnabledFields: AllFieldType[] = [
+    'DESCRIPTION',
+    'CONTACT',
+    'IMAGE',
+    'FILES'
+  ];
+  return FIELD_DEFS.map((def) => {
     const existing = existingFields?.find(
       (f) => (f.type as string) === def.type
     );
@@ -148,14 +155,18 @@ const buildDefaultConfigs = (
         ? existing?.[def.type.toLowerCase()]
           ? 'specific'
           : 'all'
-        : 'specific';
+        : 'all';
     return {
       type: def.type,
-      enabled: def.alwaysEnabled ? true : !!existing,
+      enabled: def.alwaysEnabled
+        ? true
+        : !!existing ||
+          (!existingFields?.length && defaultEnabledFields.includes(def.type)),
       required: def.alwaysRequired ? true : existing?.required ?? false,
       selectionMode
     };
   });
+};
 
 const configsToFields = (configs: FieldConfig[]): RequestPortalField[] =>
   configs
@@ -275,10 +286,19 @@ function FieldRow({
           }}
           control={
             <Switch
+              disabled={def.alwaysRequired}
               checked={config.required}
               onChange={onToggleRequired}
-              style={{
-                visibility: def.alwaysRequired ? 'hidden' : 'visible'
+              sx={{
+                '& .MuiSwitch-switchBase.Mui-checked.Mui-disabled .MuiSwitch-thumb':
+                  {
+                    color: '#bdbdbd !important'
+                  },
+                '& .MuiSwitch-switchBase.Mui-checked.Mui-disabled + .MuiSwitch-track':
+                  {
+                    backgroundColor: '#bdbdbd !important',
+                    opacity: '1 !important'
+                  }
               }}
             />
           }
@@ -381,6 +401,9 @@ function PreviewField({
   def: FieldDef;
   t: (k: string) => string;
 }) {
+  const getLabel = (str: string, required: boolean) => {
+    return `${str} ${required ? '(' + t('required') + ')' : ''}`;
+  };
   const renderInput = () => {
     switch (def.type) {
       case 'TITLE':
@@ -388,7 +411,7 @@ function PreviewField({
           <TextField
             fullWidth
             disabled
-            label={t('request_title')}
+            label={getLabel(t('request_title'), config.required)}
             required={config.required}
           />
         );
@@ -399,16 +422,16 @@ function PreviewField({
             multiline
             rows={3}
             disabled
-            label={t('description')}
+            label={getLabel(t('description'), config.required)}
             required={config.required}
           />
         );
       case 'ASSET':
-        return (
+        return config.selectionMode === 'all' ? (
           <TextField
             fullWidth
             disabled
-            label={t('asset')}
+            label={getLabel(t('asset'), config.required)}
             placeholder={t('select_asset')}
             required={config.required}
             InputProps={{
@@ -420,13 +443,13 @@ function PreviewField({
               )
             }}
           />
-        );
+        ) : null;
       case 'LOCATION':
-        return (
+        return config.selectionMode === 'all' ? (
           <TextField
             fullWidth
             disabled
-            label={t('location')}
+            label={getLabel(t('location'), config.required)}
             placeholder={t('select_location')}
             required={config.required}
             InputProps={{
@@ -438,13 +461,13 @@ function PreviewField({
               )
             }}
           />
-        );
+        ) : null;
       case 'CONTACT':
         return (
           <TextField
             fullWidth
             disabled
-            label={t('contact')}
+            label={getLabel(t('contact'), config.required)}
             required={config.required}
             InputProps={{
               endAdornment: (
@@ -460,27 +483,14 @@ function PreviewField({
       case 'FILES': {
         const isImage = def.type === 'IMAGE';
         return (
-          <Box
-            sx={{
-              border: '2px dashed',
-              borderColor: 'divider',
-              borderRadius: 1.5,
-              p: 2.5,
-              textAlign: 'center',
-              bgcolor: 'action.disabledBackground'
-            }}
-          >
-            {isImage ? (
-              <ImageOutlinedIcon sx={{ color: 'text.disabled', mb: 0.5 }} />
-            ) : (
-              <AttachFileOutlinedIcon
-                sx={{ color: 'text.disabled', mb: 0.5 }}
-              />
-            )}
-            <Typography variant="caption" color="text.disabled" display="block">
-              {t(isImage ? 'upload_image' : 'upload_files')}
-            </Typography>
-          </Box>
+          <FileUpload
+            title={isImage ? t('image') : t('files')}
+            type={isImage ? 'image' : 'file'}
+            multiple={!isImage}
+            description={''}
+            onDrop={() => {}}
+            disabled
+          />
         );
       }
       default:
@@ -488,20 +498,7 @@ function PreviewField({
     }
   };
 
-  return (
-    <Box sx={{ mb: 2 }}>
-      {renderInput()}
-      {config.required && (
-        <Typography
-          variant="caption"
-          color="error"
-          sx={{ mt: 0.5, display: 'block' }}
-        >
-          * {t('required')}
-        </Typography>
-      )}
-    </Box>
-  );
+  return <Box sx={{ mb: 2 }}>{renderInput()}</Box>;
 }
 
 // ---------------------------------------------------------------------------

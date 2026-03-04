@@ -1,5 +1,6 @@
 import { Audit } from './audit';
 import Asset from './asset';
+import Location from './location';
 
 export interface RequestPortal extends Audit {
   title: string;
