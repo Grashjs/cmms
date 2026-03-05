@@ -24,7 +24,7 @@ import { apiUrl, mainAppUrl, PADDLE_SECRET_TOKEN, paddleEnvironment } from "src/
 import { useEffect, useRef, useState } from "react";
 import EmailModal from "./EmailModal";
 import { initializePaddle, Paddle } from "@paddle/paddle-js";
-import { getSignupUrl } from "src/utils/urlPaths";
+import SignupButton from "src/components/SignupButton";
 
 interface SubscriptionPlanSelectorProps {
   monthly: boolean;
@@ -194,10 +194,9 @@ export default function SubscriptionPlanSelector({ monthly, setMonthly, selfHost
 
                 <Box mt="auto" pt={3}>
                   {selfHosted && plan.id === "sh-free" ? null : (
-                    <Button
+                    <SignupButton
                       fullWidth
                       variant="contained"
-                      component={selfHosted && plan.id !== "sh-free" ? "button" : "a"}
                       onClick={async () => {
                         if (plan.id !== "basic") {
                           fireGa4Event({
@@ -213,12 +212,12 @@ export default function SubscriptionPlanSelector({ monthly, setMonthly, selfHost
                           handleOpenModal(plan);
                         }
                       }}
-                      href={
-                        selfHosted && plan.id !== "sh-free"
+                      params={
+                        selfHosted
                           ? undefined
-                          : selfHosted
-                            ? getSignupUrl(locale)
-                            : getSignupUrl(locale, plan.id !== "basic" ? { "subscription-plan-id": plan.id } : {})
+                          : plan.id !== "basic"
+                            ? { "subscription-plan-id": plan.id }
+                            : undefined
                       }
                       sx={{ mb: 1 }}
                     >
@@ -227,7 +226,7 @@ export default function SubscriptionPlanSelector({ monthly, setMonthly, selfHost
                         : selfHosted
                           ? t("pricing_1.get_your_license")
                           : t("try_for_free")}
-                    </Button>
+                    </SignupButton>
                   )}
                   {!selfHosted && (
                     <Typography variant="caption" color="text.secondary" align="center" display="block">

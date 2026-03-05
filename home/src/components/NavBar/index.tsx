@@ -31,7 +31,8 @@ import { Link } from "src/i18n/routing";
 import { useTranslations, useLocale } from "next-intl";
 import { useState } from "react";
 import { demoLink, isWhiteLabeled } from "src/config";
-import { getIndustriesLinks, getFeaturesLinks, getSignupUrl, getWorkOrdersUrl } from "src/utils/urlPaths";
+import { getIndustriesLinks, getFeaturesLinks, getWorkOrdersUrl } from "src/utils/urlPaths";
+import SignupButton from "src/components/SignupButton";
 
 const HeaderWrapper = styled(Card)(
   ({ theme }) => `
@@ -367,9 +368,7 @@ export default function NavBar() {
                 >
                   {t("login")}
                 </Button>
-                <Button
-                  component={Link}
-                  href={getSignupUrl(locale)}
+                <SignupButton
                   variant="contained"
                   sx={{
                     ml: 2,
@@ -377,7 +376,7 @@ export default function NavBar() {
                   }}
                 >
                   {t("register")}
-                </Button>
+                </SignupButton>
                 <Button
                   href={demoLink}
                   variant="outlined"
@@ -560,16 +559,13 @@ export default function NavBar() {
                         >
                           {t("login")}
                         </Button>
-                        <Button
-                          component={Link}
-                          href={getSignupUrl(locale)}
-                          variant="contained"
+                        <SignupButton
                           fullWidth
                           size="large"
                           onClick={handleMenuClose}
                         >
                           {t("register")}
-                        </Button>
+                        </SignupButton>
                         <Button href={demoLink} variant="outlined" fullWidth size="large">
                           {t("book_demo")}
                         </Button>

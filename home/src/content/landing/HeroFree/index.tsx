@@ -1,6 +1,6 @@
 import { Button, Container, Grid, Stack, Typography } from "@mui/material";
 import { getLocale, getTranslations } from "next-intl/server";
-import { getSignupUrl } from "src/utils/urlPaths";
+import SignupButton from "src/components/SignupButton";
 import { BoxAccent, BoxContent, MobileImgWrapper, TypographyH2 } from "../styled";
 import { ImgWrapper } from "src/content/overview/Hero/styles";
 import Image from "next/image";
@@ -38,20 +38,19 @@ async function HeroFree() {
             {t("free_cmms.hero.description")}
           </TypographyH2>
           <Stack direction={{ xs: "column", md: "row" }} spacing={1}>
-            <Button
+            <SignupButton
               size="large"
               variant="contained"
-              href={getSignupUrl(locale)}
-              target="_blank"
-              rel="noopener noreferrer"
             >
               {t("free_cmms.hero.start_free")}
-            </Button>
+            </SignupButton>
           </Stack>
         </Grid>
         <Grid item md={6}>
           <BoxContent>
-            <a href={getSignupUrl(locale)}>
+            <SignupButton
+              sx={{ display: "block", width: "100%" }}
+            >
               <ImgWrapper>
                 <Image
                   alt={t("free_cmms.hero.work_orders_alt")}
@@ -60,7 +59,7 @@ async function HeroFree() {
                   height={922}
                 />
               </ImgWrapper>
-            </a>
+            </SignupButton>
             <MobileImgWrapper>
               <Image height={1600} width={720} alt={t("free_cmms.hero.mobile_app_alt")} src="/static/mobile_app.jpeg" />
             </MobileImgWrapper>

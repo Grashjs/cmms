@@ -11,9 +11,9 @@ import TwoCallToActions from "../../content/landing/components/TwoCallToActions"
 import Testimonials, { Testimonial } from "../../content/landing/components/Testimonials";
 import { OverviewWrapper } from "src/content/overview/styles";
 import { TypographyH2 } from "src/content/overview/Hero/styles";
-import { getSignupUrl } from "src/utils/urlPaths";
 import Image from "next/image";
 import CompanyLogos from "src/components/CompanyLogos";
+import SignupButton from "src/components/SignupButton";
 import { getLocale, getTranslations } from "next-intl/server";
 
 interface Feature {
@@ -99,9 +99,9 @@ const IndustryLayout: FC<IndustryLayoutProps> = async (props) => {
                 {headerSubtitle}
               </TypographyH2>
               <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-                <Button variant={"contained"} component={"a"} href={getSignupUrl(locale)}>
+                <SignupButton variant={"contained"}>
                   {t("try_for_free")}
-                </Button>
+                </SignupButton>
                 <Button component={"a"} size="large" href={demoLink} variant="outlined">
                   {t("book_demo")}
                 </Button>
@@ -194,9 +194,9 @@ const IndustryLayout: FC<IndustryLayoutProps> = async (props) => {
                     Learn More
                   </Button>
                 ) : (
-                  <Button component={"a"} variant={"outlined"} href={getSignupUrl(locale)}>
+                  <SignupButton variant={"outlined"}>
                     {t("try_for_free")}
-                  </Button>
+                  </SignupButton>
                 )}
               </Grid>
               <Grid item xs={12} md={6} order={{ xs: 1, md: index % 2 === 0 ? 2 : 1 }}>

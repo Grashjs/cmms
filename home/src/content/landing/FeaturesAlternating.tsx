@@ -13,7 +13,7 @@ import HistoryIcon from "@mui/icons-material/History";
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
 import RuleIcon from "@mui/icons-material/Rule";
 import { getLocale, getTranslations } from "next-intl/server";
-import { getSignupUrl } from "src/utils/urlPaths";
+import SignupButton from "src/components/SignupButton";
 import CompanyLogos from "src/components/CompanyLogos";
 import { FeatureRow, ImageWrapper, FeatureContent } from "./styled";
 import Image from "next/image";
@@ -187,11 +187,9 @@ export const FeaturesAlternating = async () => {
                     </Box>
                   ))}
                 </Stack>
-                <Button
-                  component={"a"}
-                  href={getSignupUrl(locale)}
-                  variant="contained"
+                <SignupButton
                   size="large"
+                  variant={'outlined'}
                   sx={{
                     px: 4,
                     py: 1.5,
@@ -202,7 +200,7 @@ export const FeaturesAlternating = async () => {
                   }}
                 >
                   {t("free_cmms.features.get_started_free")}
-                </Button>
+                </SignupButton>
               </FeatureContent>
             </Grid>
           </FeatureRow>
@@ -224,10 +222,7 @@ export const FeaturesAlternating = async () => {
         <Typography variant="h5" sx={{ mb: 4, opacity: 0.9 }}>
           {t("free_cmms.features.join_thousands")}
         </Typography>
-        <Button
-          component={"a"}
-          href={getSignupUrl(locale)}
-          variant="contained"
+        <SignupButton
           size="large"
           sx={{
             px: 6,
@@ -236,11 +231,10 @@ export const FeaturesAlternating = async () => {
             borderRadius: "50px",
             textTransform: "none",
             fontWeight: "bold",
-            boxShadow: "0 10px 20px rgba(0,0,0,0.2)",
           }}
         >
           {t("free_cmms.features.get_started_no_card")}
-        </Button>
+        </SignupButton>
       </Box>
     </Container>
   );
