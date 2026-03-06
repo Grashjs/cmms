@@ -92,7 +92,6 @@ export default function RequestPortalPublicPage() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const isUnderMd = useMediaQuery(theme.breakpoints.down('md'));
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
-
   useEffect(() => {
     if (uuid) {
       dispatch(getRequestPortalPublic(uuid));
@@ -196,7 +195,7 @@ export default function RequestPortalPublicPage() {
       return;
     }
 
-    // If reCAPTCHA is configured, execute it
+    let captchaToken = '';
     if (recaptchaSiteKey?.trim() && recaptchaRef.current) {
       try {
         const token = await recaptchaRef.current.executeAsync();
@@ -204,6 +203,7 @@ export default function RequestPortalPublicPage() {
           enqueueSnackbar(t('recaptcha_failed'), { variant: 'error' });
           return;
         }
+        captchaToken = token;
         setRecaptchaToken(token);
       } catch (error) {
         enqueueSnackbar(t('recaptcha_failed'), { variant: 'error' });
@@ -213,7 +213,6 @@ export default function RequestPortalPublicPage() {
 
     setSubmitting(true);
     try {
-      // Upload images and files
       let imageIds: number[] = [];
       let fileIds: number[] = [];
 
@@ -229,7 +228,6 @@ export default function RequestPortalPublicPage() {
         )) as number[];
       }
 
-      // Submit the request
       await dispatch(
         submitPublicRequest(
           uuid!,
@@ -242,7 +240,7 @@ export default function RequestPortalPublicPage() {
             image: imageIds.length ? { id: imageIds[0] } : null,
             files: fileIds.map((fileId) => ({ id: fileId }))
           },
-          recaptchaToken || ''
+          captchaToken
         )
       );
 
@@ -253,7 +251,6 @@ export default function RequestPortalPublicPage() {
       });
     } finally {
       setSubmitting(false);
-      // Reset reCAPTCHA after submission
       if (recaptchaRef.current) {
         recaptchaRef.current.reset();
       }
