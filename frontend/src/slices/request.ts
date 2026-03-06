@@ -222,7 +222,7 @@ export const submitPublicRequest =
       `${basePath}/portal/${uuid}?recaptchaToken=${recaptchaToken}`,
       request
     );
-    return requestResponse;
+    return requestResponse as any;
   };
 
 export default slice;

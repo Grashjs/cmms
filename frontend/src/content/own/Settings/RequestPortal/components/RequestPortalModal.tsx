@@ -373,7 +373,9 @@ export default function RequestPortalModal({
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
 
-  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>(initialActiveTab || 'edit');
+  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>(
+    initialActiveTab || 'edit'
+  );
   const [submitting, setSubmitting] = useState(false);
   const [title, setTitle] = useState('');
   const [welcomeMessage, setWelcomeMessage] = useState('');
@@ -565,8 +567,6 @@ export default function RequestPortalModal({
         {/* ═══════════════════════ PREVIEW TAB ═══════════════════════ */}
         {activeTab === 'preview' && (
           <RequestPortalPreview
-            title={title}
-            welcomeMessage={welcomeMessage}
             fieldConfigs={fieldConfigs}
             onFieldChange={updateConfig}
             onLocationSelect={handleLocationSelect}

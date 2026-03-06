@@ -190,8 +190,8 @@ export function AssetLocationClause({
   const isLocation = field.type === 'location';
 
   // Get data from Redux store
-  const { locationsMini } = useSelector((state: any) => state.locations);
-  const { assetsMini } = useSelector((state: any) => state.assets);
+  const { locationsMini } = useSelector((state) => state.locations);
+  const { assetsMini } = useSelector((state) => state.assets);
 
   // Fetch options when autocomplete opens
   const fetchOptions = useCallback(() => {
@@ -209,20 +209,28 @@ export function AssetLocationClause({
   }, [dispatch, isLocation, locationId, portalUUID]);
 
   // Filter options based on search term
-  const options = useMemo(() => {
-    const items = isLocation ? locationsMini : assetsMini;
+  type Option = {
+    label: string;
+    value: number;
+    dto: LocationMiniDTO | AssetMiniDTO;
+  };
+  const options: Option[] = useMemo(() => {
+    const items = (isLocation ? locationsMini : assetsMini) as (
+      | LocationMiniDTO
+      | AssetMiniDTO
+    )[];
+
     return items
-      .filter((item: any) => item.id !== excludedIds?.[0])
-      .map((item: any) => ({
+      .filter((item) => item.id !== excludedIds?.[0])
+      .map((item) => ({
         label: item.name,
         value: item.id,
         dto: item
       }))
-      .filter((option: any) =>
+      .filter((option) =>
         option.label.toLowerCase().includes(searchTerm.toLowerCase())
       );
   }, [isLocation, locationsMini, assetsMini, searchTerm, excludedIds]);
-
   const valueOption = field.value
     ? {
         label: (field.value as any).name,
@@ -245,11 +253,11 @@ export function AssetLocationClause({
           setOpen(false);
         }}
         value={valueOption || undefined}
-        onChange={(_, newValue) => {
-          onChange(newValue ? (newValue.dto as any) : null);
+        onChange={(_, newValue: Option) => {
+          onChange(newValue ? newValue.dto : null);
         }}
         options={options}
-        getOptionLabel={(option) => option.label}
+        getOptionLabel={(option: Option) => option.label}
         isOptionEqualToValue={(option, value) =>
           !value || option.value === value.value
         }

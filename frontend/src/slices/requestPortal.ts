@@ -123,7 +123,7 @@ export const getSingleRequestPortal =
       dispatch(slice.actions.setLoadingGet({ loading: true }));
       const requestPortal = await api.get<RequestPortal>(`${basePath}/${id}`);
       dispatch(slice.actions.getSingleRequestPortal({ requestPortal }));
-      return requestPortal;
+      return requestPortal as any;
     } finally {
       dispatch(slice.actions.setLoadingGet({ loading: false }));
     }
