@@ -5,7 +5,8 @@ import { Link } from "src/i18n/routing";
 import { getBrandServer as getBrandConfig } from "src/utils/serverBrand";
 import LiveDemoButton from "./LiveDemoButton";
 import { BoxAccent, BoxContent, ImgWrapper, MobileImgWrapper, TypographyH2 } from "./styles";
-import { getSignupUrl, getWorkOrdersUrl } from "src/utils/urlPaths";
+import SignupButton from "src/components/SignupButton";
+import { getWorkOrdersUrl } from "src/utils/urlPaths";
 import Image from "next/image";
 
 async function Hero() {
@@ -42,11 +43,9 @@ async function Hero() {
             {t("home.h3", { brandName: brandConfig.name })}
           </TypographyH2>
           <Stack direction={{ xs: "column", md: "row" }} spacing={1}>
-            <Link href={getSignupUrl(locale)}>
-              <Button fullWidth size="large" variant="contained">
-                {t("try_for_free")}
-              </Button>
-            </Link>
+            <SignupButton  size="large" variant="contained">
+              {t("try_for_free")}
+            </SignupButton>
             {/*<LiveDemoButton />*/}
             <Button
               sx={{

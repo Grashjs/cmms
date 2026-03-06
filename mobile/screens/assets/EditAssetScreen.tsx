@@ -6,7 +6,7 @@ import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
-import { getImageAndFiles } from '../../utils/overall';
+import { getImageAndFiles, handleFileUpload } from '../../utils/overall';
 import { useDispatch } from '../../store';
 import { editAsset } from '../../slices/asset';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
@@ -105,20 +105,13 @@ export default function EditAssetScreen({
         onSubmit={async (values) => {
           let formattedValues = formatAssetValues(values);
           try {
-            const filesToUpload = formattedValues.files.filter(
-              (file) => !file.id
+            const imageAndFiles = await handleFileUpload(
+              {
+                files: formattedValues.files,
+                image: formattedValues.image
+              },
+              uploadFiles
             );
-            const existingFiles = formattedValues.files.filter(
-              (file) => file.id
-            );
-            const uploadedFiles = await uploadFiles(
-              filesToUpload,
-              formattedValues.image
-            );
-            const imageAndFiles = getImageAndFiles([
-              ...existingFiles,
-              ...uploadedFiles
-            ]);
             formattedValues = {
               ...formattedValues,
               image: imageAndFiles.image,

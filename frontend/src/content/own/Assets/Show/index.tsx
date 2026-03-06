@@ -34,7 +34,7 @@ import useAuth from '../../../../hooks/useAuth';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import AssetMeters from './AssetMeters';
-import { getImageAndFiles } from '../../../../utils/overall';
+import { handleFileUpload } from '../../../../utils/overall';
 import AssetDowntimes from './AssetDowntimes';
 import AssetAnalytics from './AssetAnalytics';
 
@@ -379,21 +379,13 @@ const ShowAsset = ({}: PropsType) => {
             onSubmit={async (values) => {
               let formattedValues = formatAssetValues(values);
               try {
-                const filesToUpload = formattedValues.files.filter(
-                  (file) => !file.id
+                const imageAndFiles = await handleFileUpload(
+                  {
+                    files: formattedValues.files,
+                    image: formattedValues.image
+                  },
+                  uploadFiles
                 );
-                const existingFiles = formattedValues.files.filter(
-                  (file) => file.id
-                );
-                const uploadedFiles = await uploadFiles(
-                  filesToUpload,
-                  formattedValues.image
-                );
-
-                const imageAndFiles = getImageAndFiles([
-                  ...existingFiles,
-                  ...uploadedFiles
-                ]);
 
                 formattedValues = {
                   ...formattedValues,

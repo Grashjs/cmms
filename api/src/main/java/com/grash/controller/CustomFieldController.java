@@ -5,6 +5,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.CustomField;
 import com.grash.model.OwnUser;
+import com.grash.model.enums.RoleType;
 import com.grash.service.CustomFieldService;
 import com.grash.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,12 +32,12 @@ public class CustomFieldController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public CustomField getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<CustomField> optionalCustomField = customFieldService.findById(id);
         if (optionalCustomField.isPresent()) {
             CustomField savedCustomField = optionalCustomField.get();
+            checkAccessToCustomField(savedCustomField, user);
             return savedCustomField;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -51,7 +52,6 @@ public class CustomFieldController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public CustomField patch(@Valid @RequestBody CustomFieldPatchDTO customField, @PathVariable("id") Long id,
                              HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
@@ -59,23 +59,30 @@ public class CustomFieldController {
 
         if (optionalCustomField.isPresent()) {
             CustomField savedCustomField = optionalCustomField.get();
+            checkAccessToCustomField(savedCustomField, user);
             return customFieldService.update(id, customField);
         } else throw new CustomException("CustomField not found", HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<CustomField> optionalCustomField = customFieldService.findById(id);
         if (optionalCustomField.isPresent()) {
             CustomField savedCustomField = optionalCustomField.get();
+            checkAccessToCustomField(savedCustomField, user);
             customFieldService.delete(id);
             return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                     HttpStatus.OK);
         } else throw new CustomException("CustomField not found", HttpStatus.NOT_FOUND);
+    }
+
+    private void checkAccessToCustomField(CustomField customField, OwnUser user) {
+        if (!customField.getVendor().getCompany().getId().equals(user.getCompany().getId())) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
     }
 }
 

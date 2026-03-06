@@ -76,6 +76,7 @@ import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
 import {
   fireGa4Event,
   getImageAndFiles,
+  handleFileUpload,
   onSearchQueryChange
 } from '../../../utils/overall';
 import { getSingleLocation } from '../../../slices/location';
@@ -789,22 +790,15 @@ function WorkOrders() {
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
-              try {
-                const filesToUpload = formattedValues.files.filter(
-                  (file) => !file.id
-                );
-                const existingFiles = formattedValues.files.filter(
-                  (file) => file.id
-                );
-                const uploadedFiles = await uploadFiles(
-                  filesToUpload,
-                  formattedValues.image
-                );
 
-                const imageAndFiles = getImageAndFiles([
-                  ...existingFiles,
-                  ...uploadedFiles
-                ]);
+              try {
+                const imageAndFiles = await handleFileUpload(
+                  {
+                    files: formattedValues.files,
+                    image: formattedValues.image
+                  },
+                  uploadFiles
+                );
 
                 formattedValues = {
                   ...formattedValues,

@@ -6,7 +6,7 @@ import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
-import { getImageAndFiles } from '../../utils/overall';
+import { getImageAndFiles, handleFileUpload } from '../../utils/overall';
 import { useDispatch } from '../../store';
 import { editRequest } from '../../slices/request';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
@@ -48,21 +48,13 @@ export default function EditRequestScreen({
         onSubmit={async (values) => {
           try {
             let formattedValues = formatRequestValues(values);
-            const filesToUpload = formattedValues.files.filter(
-              (file) => !file.id
+            const imageAndFiles = await handleFileUpload(
+              {
+                files: formattedValues.files,
+                image: formattedValues.image
+              },
+              uploadFiles
             );
-            const existingFiles = formattedValues.files.filter(
-              (file) => file.id
-            );
-
-            const uploadedFiles = await uploadFiles(
-              filesToUpload,
-              formattedValues.image
-            );
-            const imageAndFiles = getImageAndFiles([
-              ...existingFiles,
-              ...uploadedFiles
-            ]);
             if (values.audioDescription) {
               const audioFiles = await uploadFiles(
                 [values.audioDescription],

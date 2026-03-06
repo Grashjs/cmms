@@ -44,6 +44,7 @@ public class AdditionalCostController {
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
+            checkAccessToAdditionalCost(savedAdditionalCost, user);
             return savedAdditionalCost;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -55,6 +56,8 @@ public class AdditionalCostController {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
+            WorkOrder workOrder = optionalWorkOrder.get();
+            checkAccessToWorkOrder(workOrder, user);
             return additionalCostService.findByWorkOrder(id);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -83,6 +86,7 @@ public class AdditionalCostController {
 
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
+            checkAccessToAdditionalCost(savedAdditionalCost, user);
             return additionalCostService.update(id, additionalCost);
         } else throw new CustomException("AdditionalCost not found", HttpStatus.NOT_FOUND);
     }
@@ -95,10 +99,23 @@ public class AdditionalCostController {
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
+            checkAccessToAdditionalCost(savedAdditionalCost, user);
             additionalCostService.delete(id);
             return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                     HttpStatus.OK);
         } else throw new CustomException("AdditionalCost not found", HttpStatus.NOT_FOUND);
+    }
+
+    private void checkAccessToAdditionalCost(AdditionalCost additionalCost, OwnUser user) {
+        if (!additionalCost.getWorkOrder().getCompany().getId().equals(user.getCompany().getId())) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
+    }
+
+    private void checkAccessToWorkOrder(WorkOrder workOrder, OwnUser user) {
+        if (!workOrder.getCompany().getId().equals(user.getCompany().getId())) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
     }
 
 }

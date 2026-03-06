@@ -43,6 +43,7 @@ public class WorkOrderHistoryController {
         Optional<WorkOrderHistory> optionalWorkOrderHistory = workOrderHistoryService.findById(id);
         if (optionalWorkOrderHistory.isPresent()) {
             WorkOrderHistory savedWorkOrderHistory = optionalWorkOrderHistory.get();
+            savedWorkOrderHistory.getWorkOrder();//security check
             return workOrderHistoryMapper.toShowDto(savedWorkOrderHistory);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

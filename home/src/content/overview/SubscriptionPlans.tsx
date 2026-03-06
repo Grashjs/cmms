@@ -4,7 +4,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "src/i18n/routing";
 import { getBrandServer as getBrandConfig } from "src/utils/serverBrand";
 import { fetchSubscriptionPlans } from "src/lib/subscriptions";
-import { getSignupUrl } from "src/utils/urlPaths";
+import SignupButton from "src/components/SignupButton";
 
 export default async function SubscriptionPlans() {
   const unorderedSubscriptionPlans = await fetchSubscriptionPlans();
@@ -57,9 +57,9 @@ export default async function SubscriptionPlans() {
                   </Button>
                 ) : (
                   <Box display={"flex"} flexDirection={"column"} justifyContent={"center"} alignItems={"center"}>
-                    <Button fullWidth sx={{ mt: 2 }} variant={"outlined"} component={Link} href={getSignupUrl(locale)}>
+                    <SignupButton fullWidth sx={{ mt: 2 }} variant={"outlined"}>
                       {t("try_for_free")}
-                    </Button>
+                    </SignupButton>
                     <Typography mt={1}>{t("no_credit_card")}</Typography>
                   </Box>
                 )}

@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { IField } from '../../models/form';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
-import { getImageAndFiles } from '../../utils/overall';
+import { getImageAndFiles, handleFileUpload } from '../../utils/overall';
 import { useDispatch } from '../../store';
 import { editWorkOrder } from '../../slices/workOrder';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
@@ -54,21 +54,13 @@ export default function EditWorkOrderScreen({
         onSubmit={async (values) => {
           let formattedValues = formatWorkOrderValues(values);
           try {
-            //differentiate files from api and formattedValues
-            const filesToUpload = formattedValues.files.filter(
-              (file) => !file.id
+            const imageAndFiles = await handleFileUpload(
+              {
+                files: formattedValues.files,
+                image: formattedValues.image
+              },
+              uploadFiles
             );
-            const existingFiles = formattedValues.files.filter(
-              (file) => file.id
-            );
-            const uploadedFiles = await uploadFiles(
-              filesToUpload,
-              formattedValues.image
-            );
-            const imageAndFiles = getImageAndFiles([
-              ...existingFiles,
-              ...uploadedFiles
-            ]);
             formattedValues = {
               ...formattedValues,
               image: imageAndFiles.image,
