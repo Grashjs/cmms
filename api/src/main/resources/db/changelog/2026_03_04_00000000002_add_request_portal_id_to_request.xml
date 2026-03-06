@@ -7,8 +7,16 @@
     <changeSet id="2026_03_04_add_request_portal_id_to_request" author="Ibrahima">
         <addColumn tableName="request">
             <column name="request_portal_id" type="bigint">
-                <constraints nullable="true" foreignKeyName="fk_request_request_portal" references="request_portal(id)"/>
+                <constraints nullable="true" foreignKeyName="fk_request_request_portal"
+                             references="request_portal(id)"/>
             </column>
         </addColumn>
+    </changeSet>
+    <changeSet id="1772773819114-1" author="Ibrahima G. Coulibaly">
+        <dropForeignKeyConstraint baseTableName="request" constraintName="fk_request_request_portal"/>
+        <addForeignKeyConstraint baseTableName="request" baseColumnNames="request_portal_id"
+                                 constraintName="fk_request_request_portal"
+                                 referencedTableName="request_portal"
+                                 referencedColumnNames="id" onDelete="SET NULL"/>
     </changeSet>
 </databaseChangeLog>

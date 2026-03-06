@@ -1782,7 +1782,63 @@ const esJSON = {
   'free_cmms.features.join_thousands':
     'Únase a miles de profesionales del mantenimiento que utilizan el GMAO gratuito más intuitivo del mundo.',
   'free_cmms.features.get_started_no_card':
-    'Comience gratis - No se requiere tarjeta de crédito'
+    'Comience gratis - No se requiere tarjeta de crédito',
+  portal_public_asset_warning:
+    'Este portal es público y no requiere autenticación. Los activos listados serán visibles para cualquier persona con el enlace.',
+  portal_public_location_warning:
+    'Este portal es público y no requiere autenticación. Las ubicaciones listadas serán visibles para cualquier persona con el enlace.',
+  create_request_portal: 'Crear portal de solicitudes',
+  edit_request_portal: 'Editar portal de solicitudes',
+  welcome_message: 'Mensaje de bienvenida',
+  uuid: 'UUID',
+  fields: 'Campos',
+  field_settings: 'Configuración de campos',
+  contact: 'Contacto',
+  required_title: 'El título es obligatorio',
+  untitled_portal: 'Portal sin título',
+  no_welcome_message: 'Sin mensaje de bienvenida',
+  request_portal_create_success: 'Portal de solicitudes creado exitosamente',
+  request_portal_edit_success: 'Portal de solicitudes actualizado exitosamente',
+  request_portal_delete_success: 'Portal de solicitudes eliminado exitosamente',
+  request_portal_create_failure: 'Error al crear el portal de solicitudes',
+  request_portal_edit_failure: 'Error al actualizar el portal de solicitudes',
+  request_portal_delete_failure: 'Error al eliminar el portal de solicitudes',
+  no_access_request_portals: 'No tiene acceso a los portales de solicitudes',
+  'noRows.request_portal.message':
+    'Parece que aún no tienes ningún portal de solicitudes.',
+  'noRows.request_portal.action': 'Crea tu primer portal de solicitudes',
+  request_title: 'Título de la solicitud',
+  configure_form_fields: 'Configurar campos del formulario',
+  allow_selection_from_all_locations:
+    'Permitir selección de todas las ubicaciones',
+  allow_selection_from_all_assets: 'Permitir selección de todos los activos',
+  restrict_to_a_specific_location: 'Restringir a una ubicación específica',
+  restrict_to_a_specific_asset: 'Restringir a un activo específico',
+  submit_request: 'Enviar solicitud',
+  share_portal: 'Compartir portal',
+  get_portal_link: 'Obtener enlace del portal',
+  portal_link_description:
+    'Solo las personas con este enlace pueden acceder al portal.',
+  print_qr_code: 'Imprimir código QR',
+  qr_code_description:
+    'Descargue el código QR y péguelo en la instalación para que los usuarios puedan escanearlo y acceder al portal.',
+  copied: '¡Copiado!',
+  copy: 'Copiar',
+  download: 'Descargar',
+  share: 'Compartir',
+  delete: 'Eliminar',
+  portal_not_found: 'Portal no encontrado',
+  request_submitted_success: 'Su solicitud ha sido enviada exitosamente',
+  request_submit_failure:
+    'Error al enviar la solicitud. Por favor, inténtelo de nuevo.',
+  required_description: 'La descripción es obligatoria',
+  required_contact: 'El contacto es obligatorio',
+  required_location: 'La ubicación es obligatoria',
+  required_image: 'La imagen es obligatoria',
+  upload_files: 'Subir archivos',
+  request_portal: 'Portal de solicitudes',
+  requested_from_portal: 'Esta solicitud fue creada desde el portal: ',
+  request_portals: 'Portales de solicitudes'
 };
 
 export default esJSON;
