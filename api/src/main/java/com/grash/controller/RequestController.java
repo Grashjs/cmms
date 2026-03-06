@@ -226,13 +226,19 @@ public class RequestController {
                 savedRequest.getAsset().setStatus(requestApproveDTO.getAssetStatus());
                 assetService.save(savedRequest.getAsset());
             }
-            OwnUser requester = userService.findById(savedRequest.getCreatedBy()).get();
+            List<OwnUser> usersToMail =
+                    userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
+                            .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
             String title = messageSource.getMessage("request_approved", null, Helper.getLocale(user));
-            String message = messageSource.getMessage("request_approved_description",
-                    new Object[]{savedRequest.getTitle()}, Helper.getLocale(user));
-            notificationService.createMultiple(Collections.singletonList(new Notification(message, requester,
-                    NotificationType.WORK_ORDER, result.getId())), true, title);
 
+            if (savedRequest.getCreatedBy() != null) {
+                OwnUser requester = userService.findById(savedRequest.getCreatedBy()).get();
+                String message = messageSource.getMessage("request_approved_description",
+                        new Object[]{savedRequest.getTitle()}, Helper.getLocale(user));
+                notificationService.createMultiple(Collections.singletonList(new Notification(message, requester,
+                        NotificationType.WORK_ORDER, result.getId())), true, title);
+                usersToMail.add(requester);
+            }
             String message2 = messageSource.getMessage("request_approved_description_limited_admin",
                     new Object[]{user.getFullName(), savedRequest.getTitle()}, Helper.getLocale(user));
             notificationService.createMultiple(userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN) && !user1.getId().equals(user.getId())).map(user1 -> new Notification(message2, user1,
@@ -242,10 +248,6 @@ public class RequestController {
                 put("workOrderLink", frontendUrl + "/app/work-orders/" + result.getId());
                 put("workOrderTitle", result.getTitle());
             }};
-            List<OwnUser> usersToMail =
-                    userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
-                            .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
-            usersToMail.add(requester);
             mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
                             .toArray(String[]::new), title, mailVariables, "approved-request.html",
                     Helper.getLocale(user),
@@ -280,14 +282,20 @@ public class RequestController {
                             user.getCompany().getId());
             workflows.forEach(workflow -> workflowService.runRequest(workflow, savedRequest));
 
-            OwnUser requester = userService.findById(savedRequest.getCreatedBy()).get();
-
             String title = messageSource.getMessage("request_rejected", null, Helper.getLocale(user));
-            String message = messageSource.getMessage("request_rejected_description",
-                    new Object[]{savedRequest.getTitle()}, Helper.getLocale(user));
-            notificationService.createMultiple(Collections.singletonList(new Notification(message, requester,
-                    NotificationType.INFO, null)), true, title);
+            List<OwnUser> usersToMail =
+                    userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
+                            .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
 
+            if (savedRequest.getCreatedBy() != null) {
+                OwnUser requester = userService.findById(savedRequest.getCreatedBy()).get();
+
+                String message = messageSource.getMessage("request_rejected_description",
+                        new Object[]{savedRequest.getTitle()}, Helper.getLocale(user));
+                notificationService.createMultiple(Collections.singletonList(new Notification(message, requester,
+                        NotificationType.INFO, null)), true, title);
+                usersToMail.add(requester);
+            }
             String message2 = messageSource.getMessage("request_rejected_description_limited_admin",
                     new Object[]{user.getFullName(), savedRequest.getTitle()}, Helper.getLocale(user));
             notificationService.createMultiple(userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN) && !user1.getId().equals(user.getId())).map(user1 -> new Notification(message2, user1,
@@ -297,10 +305,6 @@ public class RequestController {
                 put("requestLink", frontendUrl + "/app/requests/" + savedRequest.getId());
                 put("requestTitle", savedRequest.getTitle());
             }};
-            List<OwnUser> usersToMail =
-                    userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
-                            .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
-            usersToMail.add(requester);
             mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
                             .toArray(String[]::new), title, mailVariables, "rejected-request.html",
                     Helper.getLocale(user),
