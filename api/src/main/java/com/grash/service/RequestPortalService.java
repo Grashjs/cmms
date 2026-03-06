@@ -1,5 +1,6 @@
 package com.grash.service;
 
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.dto.requestPortal.RequestPortalCriteria;
 import com.grash.dto.requestPortal.RequestPortalPatchDTO;
 import com.grash.dto.requestPortal.RequestPortalPostDTO;
@@ -32,9 +33,10 @@ import java.util.UUID;
 public class RequestPortalService {
     private final RequestPortalRepository requestPortalRepository;
     private final RequestPortalMapper requestPortalMapper;
+    private final LicenseService licenseService;
 
     public RequestPortal create(@Valid RequestPortalPostDTO requestPortalReq, OwnUser user) {
-        if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.REQUEST_PORTAL) || !user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
+        if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.REQUEST_PORTAL) || !user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) || !licenseService.hasEntitlement(LicenseEntitlement.REQUEST_PORTAL))
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         RequestPortal requestPortal =
                 requestPortalMapper.fromPostDto(requestPortalReq);
@@ -85,7 +87,7 @@ public class RequestPortalService {
 
     public Optional<RequestPortal> findByUuidByUser(String uuid) {
         return requestPortalRepository.findByUuid(uuid).map(requestPortal -> {
-            if (requestPortal.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.REQUEST_PORTAL))
+            if (requestPortal.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.REQUEST_PORTAL) && licenseService.hasEntitlement(LicenseEntitlement.REQUEST_PORTAL))
                 return requestPortal;
             else return null;
         });
