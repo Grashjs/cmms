@@ -8,6 +8,8 @@ import com.grash.mapper.RequestPortalMapper;
 import com.grash.model.RequestPortal;
 import com.grash.model.RequestPortal_;
 import com.grash.model.OwnUser;
+import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.repository.RequestPortalRepository;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
@@ -32,6 +34,8 @@ public class RequestPortalService {
     private final RequestPortalMapper requestPortalMapper;
 
     public RequestPortal create(@Valid RequestPortalPostDTO requestPortalReq, OwnUser user) {
+        if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.REQUEST_PORTAL) || !user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         RequestPortal requestPortal =
                 requestPortalMapper.fromPostDto(requestPortalReq);
         requestPortal.setUuid(UUID.randomUUID().toString());
@@ -79,7 +83,11 @@ public class RequestPortalService {
         return requestPortalRepository.findAll(specification, pageable);
     }
 
-    public Optional<RequestPortal> findByUuid(String uuid) {
-        return requestPortalRepository.findByUuid(uuid);
+    public Optional<RequestPortal> findByUuidByUser(String uuid) {
+        return requestPortalRepository.findByUuid(uuid).map(requestPortal -> {
+            if (requestPortal.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.REQUEST_PORTAL))
+                return requestPortal;
+            else return null;
+        });
     }
 }

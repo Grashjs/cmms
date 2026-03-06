@@ -1896,6 +1896,31 @@ const frJSON = {
   upload_files: 'Télécharger des fichiers',
   delete: 'Supprimer',
   request_portal: 'Portail de demandes',
+  required_image: "L'image est obligatoire",
+  requested_from_portal: 'Cette demande a été créée depuis le portail : ',
+  request_portals: 'Portails de demandes',
+  welcome_message: "Message d'accueil",
+  fields: 'Champs',
+  field_settings: 'Paramètres des champs',
+  contact: 'Contact',
+  untitled_portal: 'Portail sans titre',
+  no_welcome_message: "Aucun message d'accueil",
+  request_portal_create_failure: 'Échec de la création du portail de demandes',
+  request_portal_edit_failure:
+    'Échec de la modification du portail de demandes',
+  no_access_request_portals: "Vous n'avez pas accès aux portails de demandes",
+  'noRows.request_portal.message':
+    "Il semble que vous n'ayez pas encore de portails de demandes.",
+  'noRows.request_portal.action': 'Créez votre premier portail de demandes',
+  request_title: 'Titre de la demande',
+  configure_form_fields: 'Configurer les champs du formulaire',
+  allow_selection_from_all_locations:
+    'Autoriser la sélection de tous les emplacements',
+  allow_selection_from_all_assets:
+    'Autoriser la sélection de tous les équipements',
+  restrict_to_a_specific_location: 'Restreindre à un emplacement spécifique',
+  restrict_to_a_specific_asset: 'Restreindre à un équipement spécifique',
+  submit_request: 'Soumettre la demande',
   company_logo: "Logo de l'entreprise"
 };
 

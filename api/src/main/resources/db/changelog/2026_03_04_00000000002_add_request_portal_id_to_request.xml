@@ -19,4 +19,12 @@
                                  referencedTableName="request_portal"
                                  referencedColumnNames="id" onDelete="SET NULL"/>
     </changeSet>
+    <changeSet id="1772774718935-1" author="Ibrahima G. Coulibaly">
+        <sql>
+            insert into subscription_plan_features(subscription_plan_id, features)
+            SELECT id, 9
+            from subscription_plan
+            where code = 'PROFESSIONAL';
+        </sql>
+    </changeSet>
 </databaseChangeLog>

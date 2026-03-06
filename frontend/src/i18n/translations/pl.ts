@@ -1758,8 +1758,60 @@ const plJSON = {
   'free_cmms.features.ready_to_optimize': 'Gotowy na optymalizację konserwacji?',
   'free_cmms.features.join_thousands':
     'Dołącz do tysięcy profesjonalistów ds. utrzymania ruchu, którzy korzystają z najbardziej intuicyjnego darmowego CMMS na świecie.',
-  'free_cmms.features.get_started_no_card':
-    'Rozpocznij za darmo - Bez podawania karty kredytowej'
+  "free_cmms.features.get_started_no_card":
+    "Rozpocznij za darmo - Bez podawania karty kredytowej",
+  "create_request_portal": "Utwórz portal zgłoszeń",
+  "edit_request_portal": "Edytuj portal zgłoszeń",
+  "welcome_message": "Wiadomość powitalna",
+  "fields": "Pola",
+  "field_settings": "Ustawienia pól",
+  "contact": "Kontakt",
+  "required_title": "Tytuł jest wymagany",
+  "untitled_portal": "Portal bez tytułu",
+  "no_welcome_message": "Brak wiadomości powitalnej",
+  "request_portal_create_success": "Portal zgłoszeń utworzony pomyślnie",
+  "request_portal_edit_success": "Portal zgłoszeń zaktualizowany pomyślnie",
+  "request_portal_delete_success": "Portal zgłoszeń usunięty pomyślnie",
+  "request_portal_create_failure": "Nie udało się utworzyć portalu zgłoszeń",
+  "request_portal_edit_failure": "Nie udało się zaktualizować portalu zgłoszeń",
+  "request_portal_delete_failure": "Nie udało się usunąć portalu zgłoszeń",
+  "no_access_request_portals": "Nie masz dostępu do portali zgłoszeń",
+  "noRows.request_portal.message":
+    "Wygląda na to, że nie masz jeszcze żadnych portali zgłoszeń.",
+  "noRows.request_portal.action": "Utwórz swój pierwszy portal zgłoszeń",
+  "request_title": "Tytuł zgłoszenia",
+  "configure_form_fields": "Konfiguruj pola formularza",
+  "allow_selection_from_all_locations": "Zezwól na wybór ze wszystkich lokalizacji",
+  "allow_selection_from_all_assets": "Zezwól na wybór ze wszystkich zasobów",
+  "restrict_to_a_specific_location": "Ogranicz do określonej lokalizacji",
+  "restrict_to_a_specific_asset": "Ogranicz do określonego zasobu",
+  "portal_public_asset_warning":
+    "Ten portal jest publiczny i nie wymaga uwierzytelnienia. Wyświetlane zasoby będą widoczne dla każdej osoby mającej link.",
+  "portal_public_location_warning":
+    "Ten portal jest publiczny i nie wymaga uwierzytelnienia. Wyświetlane lokalizacje będą widoczne dla każdej osoby mającej link.",
+  "submit_request": "Prześlij zgłoszenie",
+  "share_portal": "Udostępnij portal",
+  "get_portal_link": "Pobierz link do portalu",
+  "portal_link_description": "Tylko osoby posiadające ten link mogą uzyskać dostęp do portalu.",
+  "print_qr_code": "Drukuj kod QR",
+  "qr_code_description":
+    "Pobierz kod QR i przyklej go na instalacji, aby użytkownicy mogli go zeskanować i uzyskać dostęp do portalu.",
+  "copied": "Skopiowano!",
+  "copy": "Kopiuj",
+  "download": "Pobierz",
+  "share": "Udostępnij",
+  "delete": "Usuń",
+  "portal_not_found": "Nie znaleziono portalu",
+  "request_submitted_success": "Twoje zgłoszenie zostało pomyślnie przesłane",
+  "request_submit_failure": "Nie udało się przesłać zgłoszenia. Spróbuj ponownie.",
+  "required_description": "Opis jest wymagany",
+  "required_contact": "Kontakt jest wymagany",
+  "required_location": "Lokalizacja jest wymagana",
+  "upload_files": "Prześlij pliki",
+  "request_portal": "Portal zgłoszeń",
+  "required_image": "Obraz jest wymagany",
+  "requested_from_portal": "To zgłoszenie zostało utworzone z portalu: ",
+  "request_portals": "Portale zgłoszeń"
 };
 
 export default plJSON;

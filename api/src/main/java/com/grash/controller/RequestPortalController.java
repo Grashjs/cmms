@@ -9,7 +9,6 @@ import com.grash.model.OwnUser;
 import com.grash.security.CurrentUser;
 import com.grash.service.RequestPortalService;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,8 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/request-portals")
@@ -54,7 +51,7 @@ public class RequestPortalController {
 
     @GetMapping("/public/{uuid}")
     public RequestPortalPublicDTO getByIdPublic(@PathVariable String uuid) {
-        return requestPortalMapper.toPublicDto(requestPortalService.findByUuid(uuid).orElseThrow(() -> new CustomException(
+        return requestPortalMapper.toPublicDto(requestPortalService.findByUuidByUser(uuid).orElseThrow(() -> new CustomException(
                 "Not found",
                 HttpStatus.NOT_FOUND)));
     }

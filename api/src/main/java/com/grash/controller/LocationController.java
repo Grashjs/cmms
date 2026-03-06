@@ -21,7 +21,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -118,7 +117,7 @@ public class LocationController {
         if (!rateLimiterService.resolvePublicMiniBucket(clientIp).tryConsume(1)) {
             throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
         }
-        return locationService.findByCompany(requestPortalService.findByUuid(portalUUID).get().getCompany().getId()).stream().map(locationMapper::toMiniDto).collect(Collectors.toList());
+        return locationService.findByCompany(requestPortalService.findByUuidByUser(portalUUID).get().getCompany().getId()).stream().map(locationMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")

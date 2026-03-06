@@ -135,7 +135,7 @@ public class RequestController {
     RequestShowDTO createFromPortal(@Valid @RequestBody Request requestReq,
                                     @PathVariable("requestPortalUuid") String requestPortalUuid,
                                     HttpServletRequest req) {
-        Optional<RequestPortal> optionalRequestPortal = requestPortalService.findByUuid(requestPortalUuid);
+        Optional<RequestPortal> optionalRequestPortal = requestPortalService.findByUuidByUser(requestPortalUuid);
         if (optionalRequestPortal.isEmpty()) {
             throw new CustomException("Request portal not found", HttpStatus.NOT_FOUND);
         }

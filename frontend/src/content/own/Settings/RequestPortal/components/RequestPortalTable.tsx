@@ -27,6 +27,8 @@ import PermissionErrorMessage from '../../../components/PermissionErrorMessage';
 import CustomDataGrid from '../../../components/CustomDatagrid';
 import NoRowsMessageWrapper from '../../../components/NoRowsMessageWrapper';
 import { CompanySettingsContext } from '../../../../../contexts/CompanySettingsContext';
+import FeatureErrorMessage from '../../../components/FeatureErrorMessage';
+import { PlanFeature } from '../../../../../models/owns/subscriptionPlan';
 
 interface RequestPortalTableProps {
   openModal: boolean;
@@ -44,8 +46,12 @@ export default function RequestPortalTable({
   onOpenModal
 }: RequestPortalTableProps) {
   const { t }: { t: any } = useTranslation();
-  const { hasViewPermission, hasCreatePermission, hasEditPermission } =
-    useAuth();
+  const {
+    hasViewPermission,
+    hasFeature,
+    hasCreatePermission,
+    hasEditPermission
+  } = useAuth();
   const { requestPortals, loadingGet } = useSelector(
     (state) => state.requestPortals
   );
@@ -195,6 +201,9 @@ export default function RequestPortalTable({
 
   if (!hasViewPermission(PermissionEntity.SETTINGS)) {
     return <PermissionErrorMessage message={'no_access_request_portals'} />;
+  }
+  if (!hasFeature(PlanFeature.REQUEST_PORTAL)) {
+    return <FeatureErrorMessage message={'no_access_request_portals'} />;
   }
 
   return (

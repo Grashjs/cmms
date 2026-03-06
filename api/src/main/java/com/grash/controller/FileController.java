@@ -91,7 +91,7 @@ public class FileController {
             throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
         }
 
-        RequestPortal requestPortal = requestPortalService.findByUuid(uuid).orElseThrow(() -> new CustomException(
+        RequestPortal requestPortal = requestPortalService.findByUuidByUser(uuid).orElseThrow(() -> new CustomException(
                 "Request Portal not found", HttpStatus.NOT_FOUND));
 
         String folder = "company " + requestPortal.getCompany().getId() + "/request-portal/" + requestPortal.getUuid();

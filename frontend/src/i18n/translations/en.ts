@@ -1652,7 +1652,6 @@ const locale = {
   create_request_portal: 'Create Request Portal',
   edit_request_portal: 'Edit Request Portal',
   welcome_message: 'Welcome Message',
-  uuid: 'UUID',
   fields: 'Fields',
   field_settings: 'Field Settings',
   contact: 'Contact',

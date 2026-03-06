@@ -1754,7 +1754,59 @@ const locale = {
   'free_cmms.features.ready_to_optimize': 'Klaar om uw onderhoud te optimaliseren?',
   'free_cmms.features.join_thousands':
     'Sluit u aan bij duizenden onderhoudsprofessionals die het meest intuïtieve gratis CMMS ter wereld gebruiken.',
-  'free_cmms.features.get_started_no_card':
-    'Start gratis - Geen creditcard nodig'
+  "free_cmms.features.get_started_no_card":
+    "Start gratis - Geen creditcard nodig",
+  "create_request_portal": "Verzoekportaal aanmaken",
+  "edit_request_portal": "Verzoekportaal bewerken",
+  "welcome_message": "Welkomstbericht",
+  "fields": "Velden",
+  "field_settings": "Veldinstellingen",
+  "contact": "Contact",
+  "required_title": "Titel is verplicht",
+  "untitled_portal": "Naamloos portaal",
+  "no_welcome_message": "Geen welkomstbericht",
+  "request_portal_create_success": "Verzoekportaal succesvol aangemaakt",
+  "request_portal_edit_success": "Verzoekportaal succesvol bijgewerkt",
+  "request_portal_delete_success": "Verzoekportaal succesvol verwijderd",
+  "request_portal_create_failure": "Aanmaken van verzoekportaal mislukt",
+  "request_portal_edit_failure": "Bijwerken van verzoekportaal mislukt",
+  "request_portal_delete_failure": "Verwijderen van verzoekportaal mislukt",
+  "no_access_request_portals": "U heeft geen toegang tot verzoekportalen",
+  "noRows.request_portal.message":
+    "Het lijkt erop dat u nog geen verzoekportalen heeft.",
+  "noRows.request_portal.action": "Maak uw eerste verzoekportaal",
+  "request_title": "Verzoek titel",
+  "configure_form_fields": "Formuliervelden configureren",
+  "allow_selection_from_all_locations": "Selectie uit alle locaties toestaan",
+  "allow_selection_from_all_assets": "Selectie uit alle assets toestaan",
+  "restrict_to_a_specific_location": "Beperken tot een specifieke locatie",
+  "restrict_to_a_specific_asset": "Beperken tot een specifiek asset",
+  "portal_public_asset_warning":
+    "Dit portaal is openbaar en vereist geen authenticatie. De vermelde assets zijn zichtbaar voor iedereen met de link.",
+  "portal_public_location_warning":
+    "Dit portaal is openbaar en vereist geen authenticatie. De vermelde locaties zijn zichtbaar voor iedereen met de link.",
+  "submit_request": "Verzoek indienen",
+  "share_portal": "Portaal delen",
+  "get_portal_link": "Portaallink ophalen",
+  "portal_link_description": "Alleen mensen met deze link kunnen toegang krijgen tot het portaal.",
+  "print_qr_code": "QR-code afdrukken",
+  "qr_code_description":
+    "Download de QR-code en plak deze op de installatie, zodat gebruikers deze kunnen scannen en toegang krijgen tot het portaal.",
+  "copied": "Gekopieerd!",
+  "copy": "Kopiëren",
+  "download": "Downloaden",
+  "share": "Delen",
+  "delete": "Verwijderen",
+  "portal_not_found": "Portaal niet gevonden",
+  "request_submitted_success": "Uw verzoek is succesvol ingediend",
+  "request_submit_failure": "Verzoek indienen mislukt. Probeer het opnieuw.",
+  "required_description": "Beschrijving is verplicht",
+  "required_contact": "Contact is verplicht",
+  "required_location": "Locatie is verplicht",
+  "upload_files": "Bestanden uploaden",
+  "request_portal": "Verzoekportaal",
+  "required_image": "Afbeelding is verplicht",
+  "requested_from_portal": "Dit verzoek is aangemaakt vanuit het portaal: ",
+  "request_portals": "Verzoekportalen"
 };
 export default locale;

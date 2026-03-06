@@ -1611,8 +1611,60 @@ const locale = {
   'free_cmms.features.ready_to_optimize': 'Készen áll a karbantartás optimalizálására?',
   'free_cmms.features.join_thousands':
     'Csatlakozzon a világ legintuitívabb ingyenes GMAO-ját használó karbantartási szakemberek ezreihez.',
-  'free_cmms.features.get_started_no_card':
-    'Kezdés ingyenesen - Nincs szükség hitelkártyára'
+  "free_cmms.features.get_started_no_card":
+    "Kezdés ingyenesen - Nincs szükség hitelkártyára",
+  "create_request_portal": "Kérési portál létrehozása",
+  "edit_request_portal": "Kérési portál szerkesztése",
+  "welcome_message": "Üdvözlő üzenet",
+  "fields": "Mezők",
+  "field_settings": "Mező beállítások",
+  "contact": "Kapcsolat",
+  "required_title": "A cím kötelező",
+  "untitled_portal": "Névtelen portál",
+  "no_welcome_message": "Nincs üdvözlő üzenet",
+  "request_portal_create_success": "Kérési portál sikeresen létrehozva",
+  "request_portal_edit_success": "Kérési portál sikeresen frissítve",
+  "request_portal_delete_success": "Kérési portál sikeresen törölve",
+  "request_portal_create_failure": "Kérési portál létrehozása sikertelen",
+  "request_portal_edit_failure": "Kérési portál frissítése sikertelen",
+  "request_portal_delete_failure": "Kérési portál törlése sikertelen",
+  "no_access_request_portals": "Nincs hozzáférése a kérési portálokhoz",
+  "noRows.request_portal.message":
+    "Úgy tűnik, még nincs kérési portálja.",
+  "noRows.request_portal.action": "Hozza létre az első kérési portálját",
+  "request_title": "Kérés címe",
+  "configure_form_fields": "Űrlapmezők konfigurálása",
+  "allow_selection_from_all_locations": "Kiválasztás engedélyezése az összes helyszín közül",
+  "allow_selection_from_all_assets": "Kiválasztás engedélyezése az összes eszköz közül",
+  "restrict_to_a_specific_location": "Korlátozás egy adott helyszínre",
+  "restrict_to_a_specific_asset": "Korlátozás egy adott eszközre",
+  "portal_public_asset_warning":
+    "Ez a portál nyilvános, és nem igényel hitelesítést. A felsorolt eszközök mindenki számára láthatóak lesznek, aki rendelkezik a linkkel.",
+  "portal_public_location_warning":
+    "Ez a portál nyilvános, és nem igényel hitelesítést. A felsorolt helyszínek mindenki számára láthatóak lesznek, aki rendelkezik a linkkel.",
+  "submit_request": "Kérés beküldése",
+  "share_portal": "Portál megosztása",
+  "get_portal_link": "Portál hivatkozás kérése",
+  "portal_link_description": "Csak azok férhetnek hozzá a portálhoz, akik rendelkeznek ezzel a hivatkozással.",
+  "print_qr_code": "QR-kód nyomtatása",
+  "qr_code_description":
+    "Töltse le a QR-kódot, és ragassza fel a létesítményre, így a felhasználók beolvashatják és elérhetik a portált.",
+  "copied": "Másolva!",
+  "copy": "Másolás",
+  "download": "Letöltés",
+  "share": "Megosztás",
+  "delete": "Törlés",
+  "portal_not_found": "Portál nem található",
+  "request_submitted_success": "A kérését sikeresen beküldte",
+  "request_submit_failure": "A kérés beküldése sikertelen. Kérjük, próbálja újra.",
+  "required_description": "A leírás kötelező",
+  "required_contact": "A kapcsolat kötelező",
+  "required_location": "A helyszín kötelező",
+  "upload_files": "Fájlok feltöltése",
+  "request_portal": "Kérési portál",
+  "required_image": "A kép kötelező",
+  "requested_from_portal": "Ez a kérés a portálból jött létre: ",
+  "request_portals": "Kérési portálok"
 };
 
 export default locale;
