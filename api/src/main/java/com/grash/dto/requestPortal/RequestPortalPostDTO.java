@@ -14,4 +14,5 @@ public class RequestPortalPostDTO {
     private String title;
     private String welcomeMessage;
     private List<RequestPortalField> fields;
+    private String recaptchaToken;
 }

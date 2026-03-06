@@ -1782,7 +1782,8 @@ const locale = {
   "request_portal": "Begäringsportal",
   "required_image": "Bild krävs",
   "requested_from_portal": "Denna begäran skapades från portalen: ",
-  "request_portals": "Begäringsportaler"
+  "request_portals": "Begäringsportaler",
+  "recaptcha_failed": "reCAPTCHA-verifiering misslyckades. Försök igen."
 };
 
 export default locale;

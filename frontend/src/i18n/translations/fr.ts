@@ -1921,7 +1921,8 @@ const frJSON = {
   restrict_to_a_specific_location: 'Restreindre à un emplacement spécifique',
   restrict_to_a_specific_asset: 'Restreindre à un équipement spécifique',
   submit_request: 'Soumettre la demande',
-  company_logo: "Logo de l'entreprise"
+  company_logo: "Logo de l'entreprise",
+  recaptcha_failed: 'La vérification reCAPTCHA a échoué. Veuillez réessayer.'
 };
 
 export default frJSON;

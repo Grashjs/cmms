@@ -1811,7 +1811,8 @@ const plJSON = {
   "request_portal": "Portal zgłoszeń",
   "required_image": "Obraz jest wymagany",
   "requested_from_portal": "To zgłoszenie zostało utworzone z portalu: ",
-  "request_portals": "Portale zgłoszeń"
+  "request_portals": "Portale zgłoszeń",
+  "recaptcha_failed": "Weryfikacja reCAPTCHA nie powiodła się. Spróbuj ponownie."
 };
 
 export default plJSON;

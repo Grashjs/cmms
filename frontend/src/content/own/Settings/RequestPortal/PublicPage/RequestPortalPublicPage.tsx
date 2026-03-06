@@ -21,10 +21,11 @@ import {
   FormControl,
   useMediaQuery
 } from '@mui/material';
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import i18n from 'i18next';
+import ReCAPTCHA from 'react-google-recaptcha';
 import FileUpload from '../../../components/FileUpload';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import {
@@ -50,6 +51,8 @@ import api from '../../../../../utils/api';
 import { uploadToRequestPortal } from '../../../../../slices/file';
 import { supportedLanguages } from '../../../../../i18n/i18n';
 import { useBrand } from '../../../../../hooks/useBrand';
+import { recaptchaSiteKey } from '../../../../../config';
+import { Helmet } from 'react-helmet-async';
 
 interface FormValues {
   title: string;
@@ -73,6 +76,7 @@ export default function RequestPortalPublicPage() {
     (state) => state.requestPortals
   );
 
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const [fieldConfigs, setFieldConfigs] = useState<PreviewFieldConfig[]>([]);
   const [formValues, setFormValues] = useState<FormValues>({
     title: '',
@@ -87,6 +91,7 @@ export default function RequestPortalPublicPage() {
   const [submitted, setSubmitted] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const isUnderMd = useMediaQuery(theme.breakpoints.down('md'));
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   useEffect(() => {
     if (uuid) {
@@ -182,7 +187,6 @@ export default function RequestPortalPublicPage() {
           break;
       }
     });
-    console.log(errors);
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   }, [fieldConfigs, formValues, t]);
@@ -190,6 +194,21 @@ export default function RequestPortalPublicPage() {
   const handleSubmit = useCallback(async () => {
     if (!validateForm()) {
       return;
+    }
+
+    // If reCAPTCHA is configured, execute it
+    if (recaptchaSiteKey?.trim() && recaptchaRef.current) {
+      try {
+        const token = await recaptchaRef.current.executeAsync();
+        if (!token) {
+          enqueueSnackbar(t('recaptcha_failed'), { variant: 'error' });
+          return;
+        }
+        setRecaptchaToken(token);
+      } catch (error) {
+        enqueueSnackbar(t('recaptcha_failed'), { variant: 'error' });
+        return;
+      }
     }
 
     setSubmitting(true);
@@ -212,15 +231,19 @@ export default function RequestPortalPublicPage() {
 
       // Submit the request
       await dispatch(
-        submitPublicRequest(uuid!, {
-          title: formValues.title,
-          description: formValues.description,
-          contact: formValues.contact,
-          location: formValues.location || null,
-          asset: formValues.asset || null,
-          image: imageIds.length ? { id: imageIds[0] } : null,
-          files: fileIds.map((fileId) => ({ id: fileId }))
-        })
+        submitPublicRequest(
+          uuid!,
+          {
+            title: formValues.title,
+            description: formValues.description,
+            contact: formValues.contact,
+            location: formValues.location || null,
+            asset: formValues.asset || null,
+            image: imageIds.length ? { id: imageIds[0] } : null,
+            files: fileIds.map((fileId) => ({ id: fileId }))
+          },
+          recaptchaToken || ''
+        )
       );
 
       setSubmitted(true);
@@ -230,8 +253,12 @@ export default function RequestPortalPublicPage() {
       });
     } finally {
       setSubmitting(false);
+      // Reset reCAPTCHA after submission
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset();
+      }
     }
-  }, [validateForm, formValues, uuid, dispatch, t]);
+  }, [validateForm, formValues, uuid, dispatch, t, enqueueSnackbar]);
 
   if (loadingGet) {
     return (
@@ -335,6 +362,11 @@ export default function RequestPortalPublicPage() {
         bgcolor: { xs: 'background.paper', md: 'background.default' }
       }}
     >
+      <Helmet>
+        <title>
+          {t('request_portal')} - {portal.companyName}
+        </title>
+      </Helmet>
       {/* Navbar */}
       <AppBar
         position="static"
@@ -441,6 +473,18 @@ export default function RequestPortalPublicPage() {
           </Grid>
         </Grid>
       </Container>
+
+      {/* Invisible reCAPTCHA */}
+      {recaptchaSiteKey && (
+        <ReCAPTCHA
+          ref={recaptchaRef}
+          size="invisible"
+          sitekey={recaptchaSiteKey}
+          onChange={(token) => setRecaptchaToken(token)}
+          onExpired={() => setRecaptchaToken(null)}
+          onErrored={() => setRecaptchaToken(null)}
+        />
+      )}
     </Box>
   );
 }

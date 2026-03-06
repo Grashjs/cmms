@@ -1813,7 +1813,8 @@ const trJSON = {
   "request_portal": "Talep Portalı",
   "required_image": "Görsel gereklidir",
   "requested_from_portal": "Bu talep portaldan oluşturuldu: ",
-  "request_portals": "Talep Portalları"
+  "request_portals": "Talep Portalları",
+  "recaptcha_failed": "reCAPTCHA doğrulaması başarısız. Lütfen tekrar deneyin."
 };
 
 export default trJSON;

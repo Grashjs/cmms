@@ -15,8 +15,10 @@ import com.grash.model.enums.RoleType;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.service.*;
 import com.grash.utils.Helper;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -26,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -53,6 +56,29 @@ public class RequestController {
 
     @Value("${frontend.url}")
     private String frontendUrl;
+
+    @Value("${security.recaptcha-secret-key:}")
+    private String recaptchaSecretKey;
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    private void verifyRecaptcha(String token) {
+        String verifyUrl = "https://www.google.com/recaptcha/api/siteverify?secret=" +
+                recaptchaSecretKey + "&response=" + token;
+
+        ResponseEntity<RecaptchaResponse> response = restTemplate.postForEntity(verifyUrl, null,
+                RecaptchaResponse.class);
+
+        if (response.getBody() == null || !response.getBody().isSuccess()) {
+            throw new CustomException("reCAPTCHA verification failed", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private static class RecaptchaResponse {
+        private boolean success;
+    }
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -134,7 +160,13 @@ public class RequestController {
     @PostMapping("/portal/{requestPortalUuid}")
     RequestShowDTO createFromPortal(@Valid @RequestBody Request requestReq,
                                     @PathVariable("requestPortalUuid") String requestPortalUuid,
+                                    @RequestParam(value = "recaptchaToken", required = false) String recaptchaToken,
                                     HttpServletRequest req) {
+        if (recaptchaSecretKey != null && !recaptchaSecretKey.isBlank()) {
+            if (recaptchaToken == null || recaptchaToken.isBlank())
+                throw new CustomException("Recaptcha token missing", HttpStatus.NOT_ACCEPTABLE);
+            verifyRecaptcha(recaptchaToken);
+        }
         Optional<RequestPortal> optionalRequestPortal = requestPortalService.findByUuidByUser(requestPortalUuid);
         if (optionalRequestPortal.isEmpty()) {
             throw new CustomException("Request portal not found", HttpStatus.NOT_FOUND);

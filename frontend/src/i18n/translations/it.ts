@@ -1815,7 +1815,8 @@ const locale = {
   "request_portal": "Portale richieste",
   "required_image": "L'immagine è obbligatoria",
   "requested_from_portal": "Questa richiesta è stata creata dal portale: ",
-  "request_portals": "Portali richieste"
+  "request_portals": "Portali richieste",
+  "recaptcha_failed": "Verifica reCAPTCHA fallita. Riprova."
 };
 
 export default locale;

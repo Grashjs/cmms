@@ -212,10 +212,14 @@ export interface SubmitPublicRequestDTO {
 }
 
 export const submitPublicRequest =
-  (uuid: string, request: SubmitPublicRequestDTO): AppThunk =>
+  (
+    uuid: string,
+    request: SubmitPublicRequestDTO,
+    recaptchaToken?: string
+  ): AppThunk =>
   async (dispatch) => {
     const requestResponse = await api.post<Request>(
-      `${basePath}/portal/${uuid}`,
+      `${basePath}/portal/${uuid}?recaptchaToken=${recaptchaToken}`,
       request
     );
     return requestResponse;

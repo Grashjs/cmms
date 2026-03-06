@@ -1700,7 +1700,8 @@ const locale = {
   request_portal: 'Request Portal',
   required_image: 'Image is required',
   requested_from_portal: 'This request was created from the portal: ',
-  request_portals: 'Request Portals'
+  request_portals: 'Request Portals',
+  recaptcha_failed: 'reCAPTCHA verification failed. Please try again.'
 };
 
 export default locale;
