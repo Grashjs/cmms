@@ -6,6 +6,9 @@ export interface RequestPortal extends Audit {
   title: string;
   welcomeMessage: string;
   uuid: string;
+  companyLogo: string;
+  companyId: number;
+  companyName: string;
   fields: RequestPortalField[];
 }
 export interface RequestPortalField {

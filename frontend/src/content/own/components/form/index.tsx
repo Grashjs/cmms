@@ -26,15 +26,6 @@ import useAuth from '../../../../hooks/useAuth';
 import { CustomSelect } from './CustomSelect2';
 import SignaturePad from './SignaturePad';
 
-export { AssetLocationClause } from './RequestPortalPreview';
-export { buildDefaultConfigs, configsToFields } from './RequestPortalPreview';
-export type {
-  PreviewFieldConfig,
-  SelectionMode,
-  RequestPortalPreviewProps
-} from './RequestPortalPreview';
-export { default as RequestPortalPreview } from './RequestPortalPreview';
-
 interface PropsType {
   fields: Array<IField>;
   values?: IHash<any>;

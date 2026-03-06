@@ -66,6 +66,7 @@ public class RequestService {
         Long nextSequence = customSequenceService.getNextRequestSequence(company);
         request.setCustomId("R" + String.format("%06d", nextSequence));
         request.setRequestPortal(requestPortal);
+        request.setCompany(requestPortal.getCompany());
         RequestPortalField assetField =
                 requestPortal.getFields().stream().filter(field -> field.getType().equals(PortalFieldType.ASSET) && field.getAsset() != null).findFirst().orElse(null);
         RequestPortalField locationField =

@@ -53,8 +53,7 @@ public class RequestPortalController {
     }
 
     @GetMapping("/public/{uuid}")
-    public RequestPortalPublicDTO getByIdPublic(@PathVariable String uuid,
-                                                @Parameter(hidden = true) @CurrentUser OwnUser user) {
+    public RequestPortalPublicDTO getByIdPublic(@PathVariable String uuid) {
         return requestPortalMapper.toPublicDto(requestPortalService.findByUuid(uuid).orElseThrow(() -> new CustomException(
                 "Not found",
                 HttpStatus.NOT_FOUND)));

@@ -58,6 +58,8 @@ public class AssetController {
     private final MessageSource messageSource;
     private final EntityManager em;
     private final LicenseService licenseService;
+    private final RateLimiterService rateLimiterService;
+    private final RequestPortalService requestPortalService;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -231,6 +233,24 @@ public class AssetController {
         List<Asset> assets = new ArrayList<>();
         if (locationId == null) {
             assets = assetService.findByCompany(user.getCompany().getId());
+        } else {
+            assets = assetService.findByLocation(locationId);
+        }
+        return assets.stream().map(assetMapper::toMiniDto).collect(Collectors.toList());
+    }
+
+    @GetMapping("/public/mini/{portalUUID}")
+    public Collection<AssetMiniDTO> getMiniPublic(@PathVariable String portalUUID,
+                                                  @RequestParam(required = false) Long locationId,
+                                                  HttpServletRequest req) {
+        String clientIp = Helper.extractClientIp(req);
+        if (!rateLimiterService.resolvePublicMiniBucket(clientIp).tryConsume(1)) {
+            throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
+        }
+        List<Asset> assets = new ArrayList<>();
+        Long companyId = requestPortalService.findByUuid(portalUUID).get().getCompany().getId();
+        if (locationId == null) {
+            assets = assetService.findByCompany(companyId);
         } else {
             assets = assetService.findByLocation(locationId);
         }

@@ -119,10 +119,13 @@ export const getRequestPortals =
 export const getSingleRequestPortal =
   (id: number): AppThunk =>
   async (dispatch) => {
-    dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const requestPortal = await api.get<RequestPortal>(`${basePath}/${id}`);
-    dispatch(slice.actions.getSingleRequestPortal({ requestPortal }));
-    dispatch(slice.actions.setLoadingGet({ loading: false }));
+    try {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      const requestPortal = await api.get<RequestPortal>(`${basePath}/${id}`);
+      dispatch(slice.actions.getSingleRequestPortal({ requestPortal }));
+    } finally {
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    }
   };
 
 export const editRequestPortal =
@@ -166,12 +169,15 @@ export const clearSingleRequestPortal = (): AppThunk => async (dispatch) => {
 export const getRequestPortalPublic =
   (uuid: string): AppThunk =>
   async (dispatch) => {
-    dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const requestPortal = await api.get<RequestPortal>(
-      `${basePath}/public/${uuid}`
-    );
-    dispatch(slice.actions.getSingleRequestPortal({ requestPortal }));
-    dispatch(slice.actions.setLoadingGet({ loading: false }));
+    try {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      const requestPortal = await api.get<RequestPortal>(
+        `${basePath}/public/${uuid}`
+      );
+      dispatch(slice.actions.getSingleRequestPortal({ requestPortal }));
+    } finally {
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    }
   };
 
 export default slice;

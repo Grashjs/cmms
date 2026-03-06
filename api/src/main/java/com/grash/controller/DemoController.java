@@ -11,6 +11,7 @@ import com.grash.model.enums.Language;
 import com.grash.security.CurrentUser;
 import com.grash.security.CustomUserDetail;
 import com.grash.service.*;
+import com.grash.utils.Helper;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
@@ -50,8 +51,8 @@ public class DemoController {
     @Hidden
     @GetMapping("/generate-account")
     public SuccessResponse generateAccount(HttpServletRequest req) {
-        String clientIp = extractClientIp(req);
-        if (!rateLimiterService.resolveBucket(clientIp).tryConsume(1)) {
+        String clientIp = Helper.extractClientIp(req);
+        if (!rateLimiterService.resolveDemoBucket(clientIp).tryConsume(1)) {
             return new SuccessResponse(false, "Rate limit exceeded. Try again later.");
         }
         try {
@@ -86,26 +87,6 @@ public class DemoController {
         } finally {
             MailService.skipMail.set(false);
         }
-    }
-
-    private String extractClientIp(HttpServletRequest req) {
-        String[] headerCandidates = {
-                "X-Forwarded-For",
-                "X-Real-IP",
-                "CF-Connecting-IP",   // Cloudflare
-                "True-Client-IP"
-        };
-
-        for (String header : headerCandidates) {
-            String ip = req.getHeader(header);
-            if (ip != null && !ip.isBlank() && !"unknown".equalsIgnoreCase(ip)) {
-                // X-Forwarded-For can be a comma-separated chain: "clientIp, proxy1, proxy2"
-                return ip.split(",")[0].trim();
-            }
-        }
-
-        String remoteAddr = req.getRemoteAddr();
-        return (remoteAddr != null && !remoteAddr.isBlank()) ? remoteAddr : "unknown";
     }
 
     @DeleteMapping("/demo-data")

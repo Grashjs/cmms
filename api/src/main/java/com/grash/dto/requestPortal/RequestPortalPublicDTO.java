@@ -11,6 +11,7 @@ public class RequestPortalPublicDTO extends AuditShowDTO {
     private String title;
     private String welcomeMessage;
     private List<RequestPortalField> fields;
+    private String uuid;
     private Long companyId;
     private String companyName;
     private String companyLogo;

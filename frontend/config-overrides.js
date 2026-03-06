@@ -10,6 +10,12 @@ module.exports = function override(config, env) {
         hotKeys: ['altKey']
       })
     );
+    config.devServer = {
+      ...config.devServer,
+      client: {
+        overlay: false
+      }
+    };
   }
 
   return config;

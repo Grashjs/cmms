@@ -27,7 +27,7 @@ import {
   AssetLocationClause,
   buildDefaultConfigs,
   PreviewFieldConfig
-} from 'src/content/own/components/form';
+} from 'src/content/own/components/form/RequestPortalPreview';
 import RequestPortalPreview from '../../../components/form/RequestPortalPreview';
 import { LocationMiniDTO } from '../../../../../models/owns/location';
 import { AssetMiniDTO } from '../../../../../models/owns/asset';
@@ -38,6 +38,7 @@ import BusinessTwoToneIcon from '@mui/icons-material/BusinessTwoTone';
 import { useSnackbar } from 'notistack';
 import { submitPublicRequest } from '../../../../../slices/request';
 import api from '../../../../../utils/api';
+import { uploadToRequestPortal } from '../../../../../slices/file';
 
 interface FormValues {
   title: string;
@@ -57,7 +58,7 @@ export default function RequestPortalPublicPage() {
 
   const dispatch = useDispatch();
   const { singleRequestPortal: portal, loadingGet } = useSelector(
-    (state: any) => state.requestPortals
+    (state) => state.requestPortals
   );
 
   const [fieldConfigs, setFieldConfigs] = useState<PreviewFieldConfig[]>([]);
@@ -162,20 +163,6 @@ export default function RequestPortalPublicPage() {
     return Object.keys(errors).length === 0;
   }, [fieldConfigs, formValues, t]);
 
-  const uploadFiles = async (files: File[]): Promise<number[]> => {
-    const formData = new FormData();
-    files.forEach((file) => formData.append('files', file));
-
-    const response = await api.post<{ fileIds: number[] }>(
-      'files/upload',
-      formData,
-      {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      }
-    );
-    return response.fileIds || [];
-  };
-
   const handleSubmit = useCallback(async () => {
     if (!validateForm()) {
       return;
@@ -188,11 +175,15 @@ export default function RequestPortalPublicPage() {
       let fileIds: number[] = [];
 
       if (formValues.images && formValues.images.length > 0) {
-        imageIds = await uploadFiles(formValues.images);
+        imageIds = (await dispatch(
+          uploadToRequestPortal(uuid, formValues.images, 'IMAGE')
+        )) as number[];
       }
 
       if (formValues.files && formValues.files.length > 0) {
-        fileIds = await uploadFiles(formValues.files);
+        fileIds = (await dispatch(
+          uploadToRequestPortal(uuid, formValues.files, 'OTHER')
+        )) as number[];
       }
 
       // Submit the request
@@ -280,7 +271,7 @@ export default function RequestPortalPublicPage() {
             color: 'text.primary'
           }}
         >
-          {t('portail_de_demandes')} {portal.companyName || t('company')}
+          {t('portail_de_demandes')} - {portal.companyName}
         </Typography>
         <Grid container spacing={4}>
           {/* Left Panel - Company Logo, Title and Welcome Message */}
@@ -323,6 +314,7 @@ export default function RequestPortalPublicPage() {
                 onSubmit={handleSubmit}
                 submitting={submitting}
                 errors={formErrors}
+                portalUUID={uuid}
               />
             </Paper>
           </Grid>
