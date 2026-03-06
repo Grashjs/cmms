@@ -21,6 +21,12 @@ const PaymentSuccess = Loader(
   lazy(() => import('../content/pages/Payment/Success'))
 );
 
+const RequestPortalPublicPage = Loader(
+  lazy(() =>
+    import('../content/own/Settings/RequestPortal/PublicPage/RequestPortalPublicPage')
+  )
+);
+
 const router: RouteObject[] = [
   {
     path: 'account',
@@ -30,6 +36,10 @@ const router: RouteObject[] = [
   {
     path: 'payment/success',
     element: <PaymentSuccess />
+  },
+  {
+    path: 'request-portal/:uuid',
+    element: <RequestPortalPublicPage />
   },
   {
     path: 'app',

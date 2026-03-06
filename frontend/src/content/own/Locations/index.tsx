@@ -441,7 +441,7 @@ function Locations() {
   };
   const shape = {
     name: Yup.string().required(t('required_location_name')),
-    address: Yup.string().required(t('required_location_address'))
+    address: Yup.string().required(t('required_location_address')).nullable()
   };
 
   const renderLocationAddModal = () => (

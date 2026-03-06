@@ -1793,7 +1793,8 @@ const frJSON = {
     'Approuvé par les équipes de maintenance dans plusieurs secteurs',
   cut_costs_performance:
     'Réduisez les coûts de logiciel de maintenance sans sacrifier la performance',
-  'free_cmms.title': 'Logiciel de GMAO gratuit Atlas | Aucune carte de crédit requise',
+  'free_cmms.title':
+    'Logiciel de GMAO gratuit Atlas | Aucune carte de crédit requise',
   'free_cmms.description':
     "Logiciel de GMAO gratuit — pas une version d'essai. Gérez la maintenance, les actifs et les bons de travail instantanément. Aucune carte de crédit requise.",
   'free_cmms.keywords':
@@ -1806,7 +1807,8 @@ const frJSON = {
   'pricing.description':
     'Plans tarifaires flexibles pour Atlas CMMS. Choisissez entre les versions Cloud et Auto-hébergée de notre GMAO open-source pour optimiser vos opérations de maintenance.',
   'free_cmms.hero.subtitle': 'Logiciel de GMAO gratuit',
-  'free_cmms.hero.title': 'Gérez vos bons de travail et actifs - Gratuit pour toujours',
+  'free_cmms.hero.title':
+    'Gérez vos bons de travail et actifs - Gratuit pour toujours',
   'free_cmms.hero.description':
     'Arrêtez de jongler avec des feuilles de calcul et des outils obsolètes. Passez à un logiciel de GMAO moderne - gratuitement.',
   'free_cmms.hero.start_free': 'Commencez gratuitement maintenant',
@@ -1845,11 +1847,82 @@ const frJSON = {
     'Synchronisez les données instantanément et travaillez hors ligne si nécessaire.',
   'free_cmms.features.mobile.alt': 'Application GMAO mobile',
   'free_cmms.features.get_started_free': 'Commencez gratuitement',
-  'free_cmms.features.ready_to_optimize': 'Prêt à optimiser votre maintenance ?',
+  'free_cmms.features.ready_to_optimize':
+    'Prêt à optimiser votre maintenance ?',
   'free_cmms.features.join_thousands':
     'Rejoignez des milliers de professionnels de la maintenance utilisant la GMAO gratuite la plus intuitive au monde.',
   'free_cmms.features.get_started_no_card':
-    'Commencez gratuitement - Aucune carte de crédit requise'
+    'Commencez gratuitement - Aucune carte de crédit requise',
+  portal_public_asset_warning:
+    'Ce portail est public et ne nécessite pas d’authentification. Les Équipements listés seront visibles par toute personne possédant le lien.',
+  portal_public_location_warning:
+    'Ce portail est public et ne nécessite pas d’authentification. Les Emplacements listés seront visibles par toute personne possédant le lien.',
+  create_request_portal: 'Créer un portail de demande',
+  edit_request_portal: 'Modifier le portail de demande',
+  request_portal_create_success: 'Portail de demande créé avec succès',
+  request_portal_edit_success: 'Portail de demande modifié avec succès',
+  request_portal_delete_success: 'Portail de demande supprimé avec succès',
+  request_portal_delete_failure:
+    'Échec de la suppression du portail de demande',
+  confirm_delete_request_portal:
+    'Voulez-vous vraiment supprimer ce portail de demande ?',
+  share_portal: 'Partager le portail',
+  get_portal_link: 'Obtenir le lien du portail',
+  portal_link_description:
+    'Seules les personnes disposant de ce lien pourront accéder au portail.',
+  print_qr_code: 'Imprimer le QR code',
+  qr_code_description:
+    "Téléchargez le QR code et collez-le sur l'installation, afin que les utilisateurs puissent le scanner et accéder au portail.",
+  copied: 'Copié !',
+  copy: 'Copier',
+  download: 'Télécharger',
+  share: 'Partager',
+  noRows: {
+    request_portal: {
+      message: 'Aucun portail de demande trouvé',
+      action: 'Créer un portail'
+    }
+  },
+  portal_not_found: 'Portail non trouvé',
+  request_submitted_success: 'Votre demande a été soumise avec succès',
+  request_submit_failure:
+    'Échec de la soumission de la demande. Veuillez réessayer.',
+  required_title: 'Le titre est obligatoire',
+  required_description: 'La description est obligatoire',
+  required_contact: 'Le contact est obligatoire',
+  required_location: "L'emplacement est obligatoire",
+  company_info: "Informations sur l'entreprise",
+  required_information: 'Informations requises',
+  upload_files: 'Télécharger des fichiers',
+  delete: 'Supprimer',
+  request_portal: 'Portail de demandes',
+  required_image: "L'image est obligatoire",
+  requested_from_portal: 'Cette demande a été créée depuis le portail : ',
+  request_portals: 'Portails de demandes',
+  welcome_message: "Message d'accueil",
+  fields: 'Champs',
+  field_settings: 'Paramètres des champs',
+  contact: 'Contact',
+  untitled_portal: 'Portail sans titre',
+  no_welcome_message: "Aucun message d'accueil",
+  request_portal_create_failure: 'Échec de la création du portail de demandes',
+  request_portal_edit_failure:
+    'Échec de la modification du portail de demandes',
+  no_access_request_portals: "Vous n'avez pas accès aux portails de demandes",
+  'noRows.request_portal.message':
+    "Il semble que vous n'ayez pas encore de portails de demandes.",
+  'noRows.request_portal.action': 'Créez votre premier portail de demandes',
+  request_title: 'Titre de la demande',
+  configure_form_fields: 'Configurer les champs du formulaire',
+  allow_selection_from_all_locations:
+    'Autoriser la sélection de tous les emplacements',
+  allow_selection_from_all_assets:
+    'Autoriser la sélection de tous les équipements',
+  restrict_to_a_specific_location: 'Restreindre à un emplacement spécifique',
+  restrict_to_a_specific_asset: 'Restreindre à un équipement spécifique',
+  submit_request: 'Soumettre la demande',
+  company_logo: "Logo de l'entreprise",
+  recaptcha_failed: 'La vérification reCAPTCHA a échoué. Veuillez réessayer.'
 };
 
 export default frJSON;

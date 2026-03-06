@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   Divider,
+  FormHelperText,
   List,
   ListItem,
   ListItemText,
@@ -117,6 +118,8 @@ interface FileUploadProps {
   description: string;
   onDrop: (files: any) => void;
   files?: any[];
+  disabled?: boolean;
+  error?: string;
 }
 function FileUpload(props: FileUploadProps) {
   const { t }: { t: any } = useTranslation();
@@ -128,7 +131,9 @@ function FileUpload(props: FileUploadProps) {
     onDrop: setFieldValue,
     type,
     multiple,
-    files: defaultFiles
+    files: defaultFiles,
+    error,
+    disabled
   } = props;
   const {
     acceptedFiles,
@@ -139,6 +144,7 @@ function FileUpload(props: FileUploadProps) {
     getInputProps,
     inputRef
   } = useDropzone({
+    disabled: props.disabled,
     accept:
       type === 'image'
         ? {
@@ -215,7 +221,7 @@ function FileUpload(props: FileUploadProps) {
         {description || t('drag_one_file')}
       </TypographySecondary>
 
-      <BoxUploadWrapper {...getRootProps()}>
+      <BoxUploadWrapper {...getRootProps()} sx={{ borderColor: error ? theme.colors.error.main : undefined }}>
         <input {...getInputProps()} />
         {isDragAccept && (
           <>
@@ -260,6 +266,11 @@ function FileUpload(props: FileUploadProps) {
           </>
         )}
       </BoxUploadWrapper>
+      {error && (
+        <FormHelperText error sx={{ mx: 2, mt: 1 }}>
+          {error}
+        </FormHelperText>
+      )}
       {files.length > 0 && (
         <>
           {multiple && (

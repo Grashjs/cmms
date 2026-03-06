@@ -1822,8 +1822,61 @@ const ruJSON = {
   'free_cmms.features.ready_to_optimize': 'Готовы оптимизировать техническое обслуживание?',
   'free_cmms.features.join_thousands':
     'Присоединяйтесь к тысячам специалистов по техническому обслуживанию, использующим самую интуитивно понятную бесплатную CMMS в мире.',
-  'free_cmms.features.get_started_no_card':
-    'Начать бесплатно - Кредитная карта не требуется'
+  "free_cmms.features.get_started_no_card":
+    "Начать бесплатно - Кредитная карта не требуется",
+  "create_request_portal": "Создать портал запросов",
+  "edit_request_portal": "Редактировать портал запросов",
+  "welcome_message": "Приветственное сообщение",
+  "fields": "Поля",
+  "field_settings": "Настройки полей",
+  "contact": "Контакт",
+  "required_title": "Заголовок обязателен",
+  "untitled_portal": "Портал без названия",
+  "no_welcome_message": "Нет приветственного сообщения",
+  "request_portal_create_success": "Портал запросов успешно создан",
+  "request_portal_edit_success": "Портал запросов успешно обновлен",
+  "request_portal_delete_success": "Портал запросов успешно удален",
+  "request_portal_create_failure": "Не удалось создать портал запросов",
+  "request_portal_edit_failure": "Не удалось обновить портал запросов",
+  "request_portal_delete_failure": "Не удалось удалить портал запросов",
+  "no_access_request_portals": "У вас нет доступа к порталам запросов",
+  "noRows.request_portal.message":
+    "Похоже, у вас пока нет порталов запросов.",
+  "noRows.request_portal.action": "Создайте свой первый портал запросов",
+  "request_title": "Заголовок запроса",
+  "configure_form_fields": "Настроить поля формы",
+  "allow_selection_from_all_locations": "Разрешить выбор из всех местоположений",
+  "allow_selection_from_all_assets": "Разрешить выбор из всех активов",
+  "restrict_to_a_specific_location": "Ограничить конкретным местоположением",
+  "restrict_to_a_specific_asset": "Ограничить конкретным активом",
+  "portal_public_asset_warning":
+    "Этот портал является общедоступным и не требует аутентификации. Перечисленные активы будут видны всем, у кого есть ссылка.",
+  "portal_public_location_warning":
+    "Этот портал является общедоступным и не требует аутентификации. Перечисленные местоположения будут видны всем, у кого есть ссылка.",
+  "submit_request": "Отправить запрос",
+  "share_portal": "Поделиться порталом",
+  "get_portal_link": "Получить ссылку на портал",
+  "portal_link_description": "Только люди с этой ссылкой могут получить доступ к порталу.",
+  "print_qr_code": "Распечатать QR-код",
+  "qr_code_description":
+    "Загрузите QR-код и приклейте его на установку, чтобы пользователи могли отсканировать его и получить доступ к порталу.",
+  "copied": "Скопировано!",
+  "copy": "Копировать",
+  "download": "Скачать",
+  "share": "Поделиться",
+  "delete": "Удалить",
+  "portal_not_found": "Портал не найден",
+  "request_submitted_success": "Ваш запрос успешно отправлен",
+  "request_submit_failure": "Не удалось отправить запрос. Пожалуйста, попробуйте снова.",
+  "required_description": "Описание обязательно",
+  "required_contact": "Контакт обязателен",
+  "required_location": "Местоположение обязательно",
+  "upload_files": "Загрузить файлы",
+  "request_portal": "Портал запросов",
+  "required_image": "Изображение обязательно",
+  "requested_from_portal": "Этот запрос был создан из портала: ",
+  "request_portals": "Порталы запросов",
+  "recaptcha_failed": "Ошибка проверки reCAPTCHA. Пожалуйста, попробуйте снова."
 };
 
 export default ruJSON;

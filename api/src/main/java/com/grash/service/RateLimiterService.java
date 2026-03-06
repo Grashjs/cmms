@@ -12,13 +12,23 @@ import java.util.concurrent.ConcurrentMap;
 @Component
 public class RateLimiterService {
 
-    private final ConcurrentMap<String, Bucket> cache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Bucket> demoCache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Bucket> fileUploadCache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Bucket> publicMiniCache = new ConcurrentHashMap<>();
 
-    public Bucket resolveBucket(String key) {
-        return cache.computeIfAbsent(key, this::newBucket);
+    public Bucket resolveDemoBucket(String key) {
+        return demoCache.computeIfAbsent(key, this::newDemoBucket);
     }
 
-    private Bucket newBucket(String key) {
+    public Bucket resolveFileUploadBucket(String key) {
+        return fileUploadCache.computeIfAbsent(key, this::newFileUploadBucket);
+    }
+
+    public Bucket resolvePublicMiniBucket(String key) {
+        return publicMiniCache.computeIfAbsent(key, this::newPublicMiniBucket);
+    }
+
+    private Bucket newDemoBucket(String key) {
         // 1 request per minute
         Bandwidth onePerMinute = Bandwidth.classic(1, Refill.greedy(1, Duration.ofMinutes(1)));
 
@@ -28,6 +38,32 @@ public class RateLimiterService {
         return Bucket.builder()
                 .addLimit(onePerMinute)
                 .addLimit(twoPer5Hours)
+                .build();
+    }
+
+    private Bucket newFileUploadBucket(String key) {
+        // 1 requests per minute
+        Bandwidth tenPerMinute = Bandwidth.classic(4, Refill.greedy(1, Duration.ofMinutes(1)));
+
+        // 4 requests per hour
+        Bandwidth fiftyPerHour = Bandwidth.classic(12, Refill.greedy(12, Duration.ofHours(1)));
+
+        return Bucket.builder()
+                .addLimit(tenPerMinute)
+                .addLimit(fiftyPerHour)
+                .build();
+    }
+
+    private Bucket newPublicMiniBucket(String key) {
+        // 3 requests per minute
+        Bandwidth thirtyPerMinute = Bandwidth.classic(3, Refill.greedy(3, Duration.ofMinutes(1)));
+
+        //20
+        Bandwidth twoHundredPerHour = Bandwidth.classic(20, Refill.greedy(20, Duration.ofHours(1)));
+
+        return Bucket.builder()
+                .addLimit(thirtyPerMinute)
+                .addLimit(twoHundredPerHour)
                 .build();
     }
 }

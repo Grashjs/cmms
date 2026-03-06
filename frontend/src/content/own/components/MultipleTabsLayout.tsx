@@ -12,7 +12,7 @@ const TabsContainerWrapper = styled(Box)(
       margin-top: 2px;
       position: relative;
       bottom: -1px;
-      max-width: 82%;
+      max-width: 100%;
 
       .MuiTabs-root {
         height: 44px;
@@ -150,27 +150,31 @@ function MultipleTabsLayout(props: SettingsLayoutProps) {
             ))}
           </Tabs>
         </TabsContainerWrapper>
-        <Stack direction="row" spacing={1} sx={{ mr: 4, my: 1 }}>
-          {action && (
-            <Button
-              startIcon={editAction ? <EditTwoToneIcon /> : <AddTwoToneIcon />}
-              variant="contained"
-              onClick={action}
-            >
-              {actionTitle}
-            </Button>
-          )}
-          {secondAction && secondActionTitle && (
-            <Button
-              startIcon={secondActionIcon}
-              variant="outlined"
-              onClick={secondAction}
-            >
-              {secondActionTitle}
-            </Button>
-          )}
-          {rawAction}
-        </Stack>
+        {(action || secondAction || rawAction) && (
+          <Stack direction="row" spacing={1} sx={{ mr: 4, my: 1 }}>
+            {action && (
+              <Button
+                startIcon={
+                  editAction ? <EditTwoToneIcon /> : <AddTwoToneIcon />
+                }
+                variant="contained"
+                onClick={action}
+              >
+                {actionTitle}
+              </Button>
+            )}
+            {secondAction && secondActionTitle && (
+              <Button
+                startIcon={secondActionIcon}
+                variant="outlined"
+                onClick={secondAction}
+              >
+                {secondActionTitle}
+              </Button>
+            )}
+            {rawAction}
+          </Stack>
+        )}
       </Box>
       {withoutCard ? (
         children

@@ -1760,8 +1760,61 @@ const trJSON = {
   'free_cmms.features.ready_to_optimize': 'Bakımınızı optimize etmeye hazır mısınız?',
   'free_cmms.features.join_thousands':
     'Dünyanın en sezgisel ücretsiz CMMS\'sini kullanan binlerce bakım uzmanına katılın.',
-  'free_cmms.features.get_started_no_card':
-    'Ücretsiz başlayın - Kredi kartı gerekmez'
+  "free_cmms.features.get_started_no_card":
+    "Ücretsiz başlayın - Kredi kartı gerekmez",
+  "create_request_portal": "Talep Portalı Oluştur",
+  "edit_request_portal": "Talep Portalını Düzenle",
+  "welcome_message": "Hoş Geldiniz Mesajı",
+  "fields": "Alanlar",
+  "field_settings": "Alan Ayarları",
+  "contact": "İletişim",
+  "required_title": "Başlık gereklidir",
+  "untitled_portal": "Başlıksız Portal",
+  "no_welcome_message": "Hoş geldiniz mesajı yok",
+  "request_portal_create_success": "Talep Portalı başarıyla oluşturuldu",
+  "request_portal_edit_success": "Talep Portalı başarıyla güncellendi",
+  "request_portal_delete_success": "Talep Portalı başarıyla silindi",
+  "request_portal_create_failure": "Talep Portalı oluşturulamadı",
+  "request_portal_edit_failure": "Talep Portalı güncellenemedi",
+  "request_portal_delete_failure": "Talep Portalı silinemedi",
+  "no_access_request_portals": "Talep Portallarına erişiminiz yok",
+  "noRows.request_portal.message":
+    "Henüz hiç Talep Portalınız yok gibi görünüyor.",
+  "noRows.request_portal.action": "İlk Talep Portalınızı oluşturun",
+  "request_title": "Talep başlığı",
+  "configure_form_fields": "Form alanlarını yapılandır",
+  "allow_selection_from_all_locations": "Tüm konumlardan seçime izin ver",
+  "allow_selection_from_all_assets": "Tüm varlıklardan seçime izin ver",
+  "restrict_to_a_specific_location": "Belirli bir konumla sınırla",
+  "restrict_to_a_specific_asset": "Belirli bir varlıkla sınırla",
+  "portal_public_asset_warning":
+    "Bu portal herkese açıktır ve kimlik doğrulama gerektirmez. Listelenen varlıklar, bağlantıya sahip olan herkes tarafından görülebilir.",
+  "portal_public_location_warning":
+    "Bu portal herkese açıktır ve kimlik doğrulama gerektirmez. Listelenen konumlar, bağlantıya sahip olan herkes tarafından görülebilir.",
+  "submit_request": "Talep gönder",
+  "share_portal": "Portalı Paylaş",
+  "get_portal_link": "Portal Bağlantısını Al",
+  "portal_link_description": "Yalnızca bu bağlantıya sahip kişiler portala erişebilir.",
+  "print_qr_code": "QR Kodunu Yazdır",
+  "qr_code_description":
+    "QR kodunu indirin ve tesislere yapıştırın, böylece kullanıcılar kodu tarayarak portala erişebilir.",
+  "copied": "Kopyalandı!",
+  "copy": "Kopyala",
+  "download": "İndir",
+  "share": "Paylaş",
+  "delete": "Sil",
+  "portal_not_found": "Portal bulunamadı",
+  "request_submitted_success": "Talebiniz başarıyla gönderildi",
+  "request_submit_failure": "Talep gönderilemedi. Lütfen tekrar deneyin.",
+  "required_description": "Açıklama gereklidir",
+  "required_contact": "İletişim gereklidir",
+  "required_location": "Konum gereklidir",
+  "upload_files": "Dosyaları Yükle",
+  "request_portal": "Talep Portalı",
+  "required_image": "Görsel gereklidir",
+  "requested_from_portal": "Bu talep portaldan oluşturuldu: ",
+  "request_portals": "Talep Portalları",
+  "recaptcha_failed": "reCAPTCHA doğrulaması başarısız. Lütfen tekrar deneyin."
 };
 
 export default trJSON;

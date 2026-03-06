@@ -277,6 +277,7 @@ function Assets() {
       field: 'status',
       headerName: t('status'),
       description: t('status'),
+      width: 150,
       renderCell: (params: GridRenderCellParams<AssetStatus>) => (
         <AssetStatusTag status={params.value} />
       )

@@ -1762,8 +1762,61 @@ const locale = {
   'free_cmms.features.ready_to_optimize': 'Pronto a ottimizzare la tua manutenzione?',
   'free_cmms.features.join_thousands':
     'Unisciti a migliaia di professionisti della manutenzione che utilizzano il CMMS gratuito più intuitivo al mondo.',
-  'free_cmms.features.get_started_no_card':
-    'Inizia gratis - Nessuna carta di credito richiesta'
+  "free_cmms.features.get_started_no_card":
+    "Inizia gratis - Nessuna carta di credito richiesta",
+  "create_request_portal": "Crea portale richieste",
+  "edit_request_portal": "Modifica portale richieste",
+  "welcome_message": "Messaggio di benvenuto",
+  "fields": "Campi",
+  "field_settings": "Impostazioni campi",
+  "contact": "Contatto",
+  "required_title": "Il titolo è obbligatorio",
+  "untitled_portal": "Portale senza titolo",
+  "no_welcome_message": "Nessun messaggio di benvenuto",
+  "request_portal_create_success": "Portale richieste creato con successo",
+  "request_portal_edit_success": "Portale richieste aggiornato con successo",
+  "request_portal_delete_success": "Portale richieste eliminato con successo",
+  "request_portal_create_failure": "Creazione del portale richieste fallita",
+  "request_portal_edit_failure": "Aggiornamento del portale richieste fallito",
+  "request_portal_delete_failure": "Eliminazione del portale richieste fallita",
+  "no_access_request_portals": "Non hai accesso ai portali richieste",
+  "noRows.request_portal.message":
+    "Sembra che tu non abbia ancora nessun portale richieste.",
+  "noRows.request_portal.action": "Crea il tuo primo portale richieste",
+  "request_title": "Titolo richiesta",
+  "configure_form_fields": "Configura campi modulo",
+  "allow_selection_from_all_locations": "Consenti selezione da tutte le posizioni",
+  "allow_selection_from_all_assets": "Consenti selezione da tutti gli asset",
+  "restrict_to_a_specific_location": "Limita a una posizione specifica",
+  "restrict_to_a_specific_asset": "Limita a un asset specifico",
+  "portal_public_asset_warning":
+    "Questo portale è pubblico e non richiede autenticazione. Gli asset elencati saranno visibili a chiunque abbia il link.",
+  "portal_public_location_warning":
+    "Questo portale è pubblico e non richiede autenticazione. Le posizioni elencate saranno visibili a chiunque abbia il link.",
+  "submit_request": "Invia richiesta",
+  "share_portal": "Condividi portale",
+  "get_portal_link": "Ottieni link portale",
+  "portal_link_description": "Solo le persone con questo link possono accedere al portale.",
+  "print_qr_code": "Stampa codice QR",
+  "qr_code_description":
+    "Scarica il codice QR e incollalo sull'impianto, così gli utenti possono scansionarlo e accedere al portale.",
+  "copied": "Copiato!",
+  "copy": "Copia",
+  "download": "Scarica",
+  "share": "Condividi",
+  "delete": "Elimina",
+  "portal_not_found": "Portale non trovato",
+  "request_submitted_success": "La tua richiesta è stata inviata con successo",
+  "request_submit_failure": "Invio della richiesta fallito. Riprova.",
+  "required_description": "La descrizione è obbligatoria",
+  "required_contact": "Il contatto è obbligatorio",
+  "required_location": "La posizione è obbligatoria",
+  "upload_files": "Carica file",
+  "request_portal": "Portale richieste",
+  "required_image": "L'immagine è obbligatoria",
+  "requested_from_portal": "Questa richiesta è stata creata dal portale: ",
+  "request_portals": "Portali richieste",
+  "recaptcha_failed": "Verifica reCAPTCHA fallita. Riprova."
 };
 
 export default locale;

@@ -1788,8 +1788,61 @@ const ptBRJSON = {
   'free_cmms.features.ready_to_optimize': 'Pronto para otimizar sua manutenção?',
   'free_cmms.features.join_thousands':
     'Junte-se a milhares de profissionais de manutenção que usam o CMMS gratuito mais intuitivo do mundo.',
-  'free_cmms.features.get_started_no_card':
-    'Comece de graça - Sem necessidade de cartão de crédito'
+  "free_cmms.features.get_started_no_card":
+    "Comece de graça - Sem necessidade de cartão de crédito",
+  "create_request_portal": "Criar portal de solicitações",
+  "edit_request_portal": "Editar portal de solicitações",
+  "welcome_message": "Mensagem de boas-vindas",
+  "fields": "Campos",
+  "field_settings": "Configurações de campos",
+  "contact": "Contato",
+  "required_title": "O título é obrigatório",
+  "untitled_portal": "Portal sem título",
+  "no_welcome_message": "Sem mensagem de boas-vindas",
+  "request_portal_create_success": "Portal de solicitações criado com sucesso",
+  "request_portal_edit_success": "Portal de solicitações atualizado com sucesso",
+  "request_portal_delete_success": "Portal de solicitações excluído com sucesso",
+  "request_portal_create_failure": "Falha ao criar portal de solicitações",
+  "request_portal_edit_failure": "Falha ao atualizar portal de solicitações",
+  "request_portal_delete_failure": "Falha ao excluir portal de solicitações",
+  "no_access_request_portals": "Você não tem acesso aos portais de solicitações",
+  "noRows.request_portal.message":
+    "Parece que você ainda não tem nenhum portal de solicitações.",
+  "noRows.request_portal.action": "Crie seu primeiro portal de solicitações",
+  "request_title": "Título da solicitação",
+  "configure_form_fields": "Configurar campos do formulário",
+  "allow_selection_from_all_locations": "Permitir seleção de todos os locais",
+  "allow_selection_from_all_assets": "Permitir seleção de todos os ativos",
+  "restrict_to_a_specific_location": "Restringir a um local específico",
+  "restrict_to_a_specific_asset": "Restringir a um ativo específico",
+  "portal_public_asset_warning":
+    "Este portal é público e não requer autenticação. Os ativos listados ficarão visíveis para qualquer pessoa com o link.",
+  "portal_public_location_warning":
+    "Este portal é público e não requer autenticação. Os locais listados ficarão visíveis para qualquer pessoa com o link.",
+  "submit_request": "Enviar solicitação",
+  "share_portal": "Compartilhar portal",
+  "get_portal_link": "Obter link do portal",
+  "portal_link_description": "Apenas pessoas com este link podem acessar o portal.",
+  "print_qr_code": "Imprimir código QR",
+  "qr_code_description":
+    "Baixe o código QR e cole-o na instalação, para que os usuários possam escaneá-lo e acessar o portal.",
+  "copied": "Copiado!",
+  "copy": "Copiar",
+  "download": "Baixar",
+  "share": "Compartilhar",
+  "delete": "Excluir",
+  "portal_not_found": "Portal não encontrado",
+  "request_submitted_success": "Sua solicitação foi enviada com sucesso",
+  "request_submit_failure": "Falha ao enviar solicitação. Tente novamente.",
+  "required_description": "A descrição é obrigatória",
+  "required_contact": "O contato é obrigatório",
+  "required_location": "O local é obrigatório",
+  "upload_files": "Carregar arquivos",
+  "request_portal": "Portal de solicitações",
+  "required_image": "A imagem é obrigatória",
+  "requested_from_portal": "Esta solicitação foi criada a partir do portal: ",
+  "request_portals": "Portais de solicitações",
+  "recaptcha_failed": "Falha na verificação reCAPTCHA. Tente novamente."
 };
 
 export default ptBRJSON;

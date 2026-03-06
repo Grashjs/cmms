@@ -1786,7 +1786,60 @@ const deJSON = {
   'free_cmms.features.join_thousands':
     'Schließen Sie sich Tausenden von Wartungsprofis an, die das intuitivste kostenlose CMMS der Welt nutzen.',
   'free_cmms.features.get_started_no_card':
-    'Kostenlos starten - Keine Kreditkarte erforderlich'
+    'Kostenlos starten - Keine Kreditkarte erforderlich',
+  create_request_portal: 'Anfrageportal erstellen',
+  edit_request_portal: 'Anfrageportal bearbeiten',
+  welcome_message: 'Willkommensnachricht',
+  fields: 'Felder',
+  field_settings: 'Feldeinstellungen',
+  contact: 'Kontakt',
+  required_title: 'Titel ist erforderlich',
+  untitled_portal: 'Unbenanntes Portal',
+  no_welcome_message: 'Keine Willkommensnachricht',
+  request_portal_create_success: 'Anfrageportal erfolgreich erstellt',
+  request_portal_edit_success: 'Anfrageportal erfolgreich aktualisiert',
+  request_portal_delete_success: 'Anfrageportal erfolgreich gelöscht',
+  request_portal_create_failure: 'Erstellen des Anfrageportals fehlgeschlagen',
+  request_portal_edit_failure: 'Aktualisieren des Anfrageportals fehlgeschlagen',
+  request_portal_delete_failure: 'Löschen des Anfrageportals fehlgeschlagen',
+  no_access_request_portals: 'Sie haben keinen Zugriff auf Anfrageportale',
+  'noRows.request_portal.message':
+    'Sieht aus, als hätten Sie noch keine Anfrageportale.',
+  'noRows.request_portal.action': 'Erstellen Sie Ihr erstes Anfrageportal',
+  request_title: 'Anfragetitel',
+  configure_form_fields: 'Formularfelder konfigurieren',
+  allow_selection_from_all_locations: 'Auswahl aus allen Standorten ermöglichen',
+  allow_selection_from_all_assets: 'Auswahl aus allen Anlagen ermöglichen',
+  restrict_to_a_specific_location: 'Auf einen bestimmten Standort beschränken',
+  restrict_to_a_specific_asset: 'Auf eine bestimmte Anlage beschränken',
+  portal_public_asset_warning:
+    'Dieses Portal ist öffentlich und erfordert keine Authentifizierung. Die aufgelisteten Anlagen sind für alle Personen mit dem Link sichtbar.',
+  portal_public_location_warning:
+    'Dieses Portal ist öffentlich und erfordert keine Authentifizierung. Die aufgelisteten Standorte sind für alle Personen mit dem Link sichtbar.',
+  submit_request: 'Anfrage einreichen',
+  share_portal: 'Portal teilen',
+  get_portal_link: 'Portal-Link erhalten',
+  portal_link_description: 'Nur Personen mit diesem Link können auf das Portal zugreifen.',
+  print_qr_code: 'QR-Code drucken',
+  qr_code_description:
+    'Laden Sie den QR-Code herunter und kleben Sie ihn auf die Anlage, damit Benutzer ihn scannen und auf das Portal zugreifen können.',
+  copied: 'Kopiert!',
+  copy: 'Kopieren',
+  download: 'Herunterladen',
+  share: 'Teilen',
+  delete: 'Löschen',
+  portal_not_found: 'Portal nicht gefunden',
+  request_submitted_success: 'Ihre Anfrage wurde erfolgreich eingereicht',
+  request_submit_failure: 'Anfrage konnte nicht eingereicht werden. Bitte versuchen Sie es erneut.',
+  required_description: 'Beschreibung ist erforderlich',
+  required_contact: 'Kontakt ist erforderlich',
+  required_location: 'Standort ist erforderlich',
+  upload_files: 'Dateien hochladen',
+  request_portal: 'Anfrageportal',
+  required_image: 'Bild ist erforderlich',
+  requested_from_portal: 'Diese Anfrage wurde vom Portal erstellt: ',
+  request_portals: 'Anfrageportale',
+  recaptcha_failed: 'reCAPTCHA-Verifizierung fehlgeschlagen. Bitte versuchen Sie es erneut.'
 };
 
 export default deJSON;

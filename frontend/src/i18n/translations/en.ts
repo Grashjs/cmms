@@ -1649,63 +1649,59 @@ const locale = {
     'Trusted by maintenance teams across multiple industries',
   cut_costs_performance:
     'Cut maintenance software costs without sacrificing performance',
-  'free_cmms.title': 'Atlas Free CMMS Software | No credit card required',
-  'free_cmms.description':
-    'Free CMMS software — not a trial. Manage maintenance, assets and work orders instantly. No credit card required.',
-  'free_cmms.keywords':
-    'free cmms, maintenance management software, free work order software, asset tracking, preventive maintenance',
-  'overview.description':
-    'Atlas CMMS is a free, open-source CMMS to manage work orders, preventive maintenance, assets, and facilities. Streamline maintenance operations today.',
-  'overview.keywords':
-    'CMMS, computerized maintenance management system, EAM, enterprise asset management, open source CMMS, free maintenance software, work order management, preventive maintenance, asset tracking, facility management, maintenance tracking software, equipment maintenance, Atlas CMMS',
-  'pricing.title': 'Pricing - Atlas CMMS',
-  'pricing.description':
-    'Flexible pricing plans for Atlas CMMS. Choose between Cloud and Self-Hosted versions of our open-source CMMS to optimize your maintenance operations.',
-  'free_cmms.hero.subtitle': 'Free CMMS Software',
-  'free_cmms.hero.title': 'Manage Work Orders and Assets - Free Forever',
-  'free_cmms.hero.description':
-    'Stop juggling spreadsheets and outdated tools. Upgrade to a modern CMMS software - for free.',
-  'free_cmms.hero.start_free': 'Start Free Now',
-  'free_cmms.hero.work_orders_alt': 'Work Orders',
-  'free_cmms.hero.mobile_app_alt': 'Mobile App',
-  'free_cmms.features.work_orders.title': 'Effortless Work Orders',
-  'free_cmms.features.work_orders.p1':
-    'Create, assign, and track work orders in seconds.',
-  'free_cmms.features.work_orders.p2':
-    'Attach photos, manuals, and checklists to any task.',
-  'free_cmms.features.work_orders.p3':
-    'Monitor progress in real-time with instant status updates.',
-  'free_cmms.features.work_orders.alt': 'Work Order Management',
-  'free_cmms.features.asset_tracking.title': 'Asset Lifecycle Tracking',
-  'free_cmms.features.asset_tracking.p1':
-    'Maintain a complete digital history of every asset.',
-  'free_cmms.features.asset_tracking.p2':
-    'Make data-driven decisions on repair vs. replace.',
-  'free_cmms.features.asset_tracking.p3':
-    'Stay audit-ready with automated compliance logs.',
-  'free_cmms.features.asset_tracking.alt': 'Asset Management',
-  'free_cmms.features.inventory.title': 'Inventory & Parts',
-  'free_cmms.features.inventory.p1':
-    'Track stock levels across multiple locations in real-time.',
-  'free_cmms.features.inventory.p2':
-    'Scan QR codes for instant part lookup and usage.',
-  'free_cmms.features.inventory.p3':
-    'Get automated low-stock alerts and reorder instantly.',
-  'free_cmms.features.inventory.alt': 'Inventory Management',
-  'free_cmms.features.mobile.title': 'Maintenance on the Go',
-  'free_cmms.features.mobile.p1':
-    'Full mobile app functionality for iOS and Android.',
-  'free_cmms.features.mobile.p2':
-    'Capture photos and scan barcodes directly from the field.',
-  'free_cmms.features.mobile.p3':
-    'Sync data instantly and work offline when needed.',
-  'free_cmms.features.mobile.alt': 'Mobile CMMS App',
-  'free_cmms.features.get_started_free': 'Get started for free',
-  'free_cmms.features.ready_to_optimize': 'Ready to optimize your maintenance?',
-  'free_cmms.features.join_thousands':
-    "Join thousands of maintenance professionals using the world's most intuitive free CMMS.",
-  'free_cmms.features.get_started_no_card':
-    'Get started for free - No credit card required'
+  create_request_portal: 'Create Request Portal',
+  edit_request_portal: 'Edit Request Portal',
+  welcome_message: 'Welcome Message',
+  fields: 'Fields',
+  field_settings: 'Field Settings',
+  contact: 'Contact',
+  required_title: 'Title is required',
+  untitled_portal: 'Untitled Portal',
+  no_welcome_message: 'No welcome message',
+  request_portal_create_success: 'Request Portal created successfully',
+  request_portal_edit_success: 'Request Portal updated successfully',
+  request_portal_delete_success: 'Request Portal deleted successfully',
+  request_portal_create_failure: 'Failed to create Request Portal',
+  request_portal_edit_failure: 'Failed to update Request Portal',
+  request_portal_delete_failure: 'Failed to delete Request Portal',
+  no_access_request_portals: 'You do not have access to Request Portals',
+  'noRows.request_portal.message':
+    "Looks like you don't have any Request Portals yet.",
+  'noRows.request_portal.action': 'Create your first Request Portal',
+  request_title: 'Request title',
+  configure_form_fields: 'Configure form fields',
+  allow_selection_from_all_locations: 'Allow selection from all locations',
+  allow_selection_from_all_assets: 'Allow selection from all assets',
+  restrict_to_a_specific_location: 'Restrict to a specific location',
+  restrict_to_a_specific_asset: 'Restrict to a specific asset',
+  portal_public_asset_warning:
+    'This portal is public and does not require authentication. The listed assets will be visible to anyone with the link.',
+  portal_public_location_warning:
+    'This portal is public and does not require authentication. The listed locations will be visible to anyone with the link.',
+  submit_request: 'Submit request',
+  share_portal: 'Share Portal',
+  get_portal_link: 'Get Portal Link',
+  portal_link_description: 'Only people with this link can access the portal.',
+  print_qr_code: 'Print QR Code',
+  qr_code_description:
+    'Download the QR code and stick it on the installation, so users can scan it and access the portal.',
+  copied: 'Copied!',
+  copy: 'Copy',
+  download: 'Download',
+  share: 'Share',
+  delete: 'Delete',
+  portal_not_found: 'Portal not found',
+  request_submitted_success: 'Your request has been submitted successfully',
+  request_submit_failure: 'Failed to submit request. Please try again.',
+  required_description: 'Description is required',
+  required_contact: 'Contact is required',
+  required_location: 'Location is required',
+  upload_files: 'Upload Files',
+  request_portal: 'Request Portal',
+  required_image: 'Image is required',
+  requested_from_portal: 'This request was created from the portal: ',
+  request_portals: 'Request Portals',
+  recaptcha_failed: 'reCAPTCHA verification failed. Please try again.'
 };
 
 export default locale;

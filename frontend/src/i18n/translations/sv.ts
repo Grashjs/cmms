@@ -1729,8 +1729,61 @@ const locale = {
   'free_cmms.features.ready_to_optimize': 'Redo att optimera ditt underhåll?',
   'free_cmms.features.join_thousands':
     'Gå med i tusentals underhållsproffs som använder världens mest intuitiva gratis CMMS.',
-  'free_cmms.features.get_started_no_card':
-    'Kom igång gratis - Inget kreditkort krävs'
+  "free_cmms.features.get_started_no_card":
+    "Kom igång gratis - Inget kreditkort krävs",
+  "create_request_portal": "Skapa begäringsportal",
+  "edit_request_portal": "Redigera begäringsportal",
+  "welcome_message": "Välkomstmeddelande",
+  "fields": "Fält",
+  "field_settings": "Fältinställningar",
+  "contact": "Kontakt",
+  "required_title": "Titel krävs",
+  "untitled_portal": "Namnlös portal",
+  "no_welcome_message": "Inget välkomstmeddelande",
+  "request_portal_create_success": "Begäringsportal skapad framgångsrikt",
+  "request_portal_edit_success": "Begäringsportal uppdaterad framgångsrikt",
+  "request_portal_delete_success": "Begäringsportal borttagen framgångsrikt",
+  "request_portal_create_failure": "Misslyckades skapa begäringsportal",
+  "request_portal_edit_failure": "Misslyckades uppdatera begäringsportal",
+  "request_portal_delete_failure": "Misslyckades ta bort begäringsportal",
+  "no_access_request_portals": "Du har inte tillgång till begäringsportaler",
+  "noRows.request_portal.message":
+    "Det ser ut som att du inte har några begäringsportaler än.",
+  "noRows.request_portal.action": "Skapa din första begäringsportal",
+  "request_title": "Begäranstitel",
+  "configure_form_fields": "Konfigurera formulärfält",
+  "allow_selection_from_all_locations": "Tillåt val från alla platser",
+  "allow_selection_from_all_assets": "Tillåt val från alla tillgångar",
+  "restrict_to_a_specific_location": "Begränsa till en specifik plats",
+  "restrict_to_a_specific_asset": "Begränsa till en specifik tillgång",
+  "portal_public_asset_warning":
+    "Denna portal är offentlig och kräver ingen autentisering. De listade tillgångarna kommer att vara synliga för alla med länken.",
+  "portal_public_location_warning":
+    "Denna portal är offentlig och kräver ingen autentisering. De listade platserna kommer att vara synliga för alla med länken.",
+  "submit_request": "Skicka begäran",
+  "share_portal": "Dela portal",
+  "get_portal_link": "Hämta portallänk",
+  "portal_link_description": "Endast personer med denna länk kan komma åt portalen.",
+  "print_qr_code": "Skriv ut QR-kod",
+  "qr_code_description":
+    "Ladda ner QR-koden och klistra den på installationen, så att användare kan skanna den och komma åt portalen.",
+  "copied": "Kopierad!",
+  "copy": "Kopiera",
+  "download": "Ladda ner",
+  "share": "Dela",
+  "delete": "Ta bort",
+  "portal_not_found": "Portal hittades inte",
+  "request_submitted_success": "Din begäran har skickats framgångsrikt",
+  "request_submit_failure": "Misslyckades skicka begäran. Försök igen.",
+  "required_description": "Beskrivning krävs",
+  "required_contact": "Kontakt krävs",
+  "required_location": "Plats krävs",
+  "upload_files": "Ladda upp filer",
+  "request_portal": "Begäringsportal",
+  "required_image": "Bild krävs",
+  "requested_from_portal": "Denna begäran skapades från portalen: ",
+  "request_portals": "Begäringsportaler",
+  "recaptcha_failed": "reCAPTCHA-verifiering misslyckades. Försök igen."
 };
 
 export default locale;

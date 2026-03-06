@@ -102,3 +102,5 @@ export const PADDLE_SECRET_TOKEN: string = getRuntimeValue(
 export const paddleEnvironment = getRuntimeValue('PADDLE_ENVIRONMENT') as
   | 'sandbox'
   | 'production';
+
+export const recaptchaSiteKey = getRuntimeValue('RECAPTCHA_SITE_KEY');
