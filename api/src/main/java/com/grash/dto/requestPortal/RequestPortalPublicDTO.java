@@ -2,6 +2,7 @@ package com.grash.dto.requestPortal;
 
 import com.grash.dto.AuditShowDTO;
 import com.grash.model.RequestPortalField;
+import com.grash.model.enums.Language;
 import lombok.Data;
 
 import java.util.List;
@@ -15,4 +16,5 @@ public class RequestPortalPublicDTO extends AuditShowDTO {
     private Long companyId;
     private String companyName;
     private String companyLogo;
+    private Language companyLanguage;
 }

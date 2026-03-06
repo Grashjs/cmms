@@ -1895,7 +1895,7 @@ const frJSON = {
   required_information: 'Informations requises',
   upload_files: 'Télécharger des fichiers',
   delete: 'Supprimer',
-  portail_de_demandes: 'Portail de demandes',
+  request_portal: 'Portail de demandes',
   company_logo: "Logo de l'entreprise"
 };
 

@@ -1,6 +1,7 @@
 import { Audit } from './audit';
 import Asset from './asset';
 import Location from './location';
+import { SupportedLanguage } from '../../i18n/i18n';
 
 export interface RequestPortal extends Audit {
   title: string;
@@ -9,6 +10,7 @@ export interface RequestPortal extends Audit {
   companyLogo: string;
   companyId: number;
   companyName: string;
+  companyLanguage: SupportedLanguage;
   fields: RequestPortalField[];
 }
 export interface RequestPortalField {
@@ -38,4 +40,9 @@ export interface RequestPortalPublicDTO {
   companyId: number;
   companyName: string;
   companyLogo: string;
+}
+
+export interface RequestPortalMiniDTO extends Audit {
+  title: string;
+  uuid: string;
 }

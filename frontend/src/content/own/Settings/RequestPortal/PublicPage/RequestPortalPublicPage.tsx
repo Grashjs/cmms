@@ -12,11 +12,19 @@ import {
   useTheme,
   Divider,
   Grid,
-  Avatar
+  Avatar,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Select,
+  MenuItem,
+  FormControl,
+  useMediaQuery
 } from '@mui/material';
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
+import i18n from 'i18next';
 import FileUpload from '../../../components/FileUpload';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import {
@@ -35,10 +43,13 @@ import { useDispatch, useSelector } from '../../../../../store';
 import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
 import { Business } from '@mui/icons-material';
 import BusinessTwoToneIcon from '@mui/icons-material/BusinessTwoTone';
+import LanguageIcon from '@mui/icons-material/Language';
 import { useSnackbar } from 'notistack';
 import { submitPublicRequest } from '../../../../../slices/request';
 import api from '../../../../../utils/api';
 import { uploadToRequestPortal } from '../../../../../slices/file';
+import { supportedLanguages } from '../../../../../i18n/i18n';
+import { useBrand } from '../../../../../hooks/useBrand';
 
 interface FormValues {
   title: string;
@@ -55,6 +66,7 @@ export default function RequestPortalPublicPage() {
   const theme = useTheme();
   const { uuid } = useParams<{ uuid: string }>();
   const { enqueueSnackbar } = useSnackbar();
+  const brandConfig = useBrand();
 
   const dispatch = useDispatch();
   const { singleRequestPortal: portal, loadingGet } = useSelector(
@@ -74,6 +86,7 @@ export default function RequestPortalPublicPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const isUnderMd = useMediaQuery(theme.breakpoints.down('md'));
 
   useEffect(() => {
     if (uuid) {
@@ -85,9 +98,10 @@ export default function RequestPortalPublicPage() {
   }, [uuid, dispatch]);
 
   useEffect(() => {
-    if (portal?.fields) {
+    if (portal) {
       const configs = buildDefaultConfigs(portal.fields);
       setFieldConfigs(configs);
+      i18n.changeLanguage(portal.companyLanguage.toLowerCase());
     }
   }, [portal]);
 
@@ -147,18 +161,28 @@ export default function RequestPortalPublicPage() {
           }
           break;
         case 'LOCATION':
-          if (!formValues.location) {
+          if (!config.location && !formValues.location) {
             errors.location = t('required_location');
           }
           break;
         case 'ASSET':
-          if (!formValues.asset) {
+          if (!config.asset && !formValues.asset) {
             errors.asset = t('required_asset');
+          }
+          break;
+        case 'IMAGE':
+          if (!formValues.images || formValues.images.length === 0) {
+            errors.image = t('required_image');
+          }
+          break;
+        case 'FILES':
+          if (!formValues.files || formValues.files.length === 0) {
+            errors.files = t('required_files');
           }
           break;
       }
     });
-
+    console.log(errors);
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   }, [fieldConfigs, formValues, t]);
@@ -254,69 +278,166 @@ export default function RequestPortalPublicPage() {
     );
   }
 
+  const languageSwitcher = (
+    <FormControl size="small">
+      <Select
+        value={i18n.language}
+        onChange={(e) => {
+          i18n.changeLanguage(e.target.value);
+        }}
+        displayEmpty
+        variant="outlined"
+        size="small"
+        sx={{
+          minWidth: 100,
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'divider'
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'text.primary'
+          }
+        }}
+        IconComponent={LanguageIcon}
+      >
+        {supportedLanguages.map((supportedLanguage) => (
+          <MenuItem key={supportedLanguage.code} value={supportedLanguage.code}>
+            {supportedLanguage.label}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  );
+
+  const form = (
+    <RequestPortalPreview
+      fieldConfigs={fieldConfigs}
+      preview={false}
+      onLocationSelect={handleLocationSelect}
+      onAssetSelect={handleAssetSelect}
+      onDescriptionChange={handleDescriptionChange}
+      onTitleChange={handleTitleChange}
+      onContactChange={handleContactChange}
+      onImagesChange={handleImagesChange}
+      onFilesChange={handleFilesChange}
+      onSubmit={handleSubmit}
+      submitting={submitting}
+      errors={formErrors}
+      portalUUID={uuid}
+      images={formValues.images}
+      files={formValues.files}
+    />
+  );
   return (
     <Box
       sx={{
         minHeight: '100vh',
-        bgcolor: 'background.default'
+        height: 'fit-content',
+        bgcolor: { xs: 'background.paper', md: 'background.default' }
       }}
     >
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{
-            fontWeight: 700,
-            mb: 2,
-            color: 'text.primary'
-          }}
-        >
-          {t('portail_de_demandes')} - {portal.companyName}
-        </Typography>
-        <Grid container spacing={4}>
+      {/* Navbar */}
+      <AppBar
+        position="static"
+        elevation={0}
+        sx={{
+          bgcolor: 'background.paper',
+          borderBottom: 1,
+          py: 2,
+          borderColor: 'divider',
+          display: { xs: 'none', md: 'block' }
+        }}
+      >
+        <Container maxWidth="lg">
+          <Toolbar>
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{
+                flexGrow: 1,
+                fontWeight: 700,
+                color: 'text.primary'
+              }}
+            >
+              {t('request_portal')} - {portal.companyName}
+            </Typography>
+
+            <Stack direction="row" spacing={2} alignItems="center">
+              {/* Powered by Logo */}
+              <Typography
+                variant="body2"
+                display={{ xs: 'none', sm: 'block' }}
+                sx={{
+                  color: 'text.secondary',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    color: 'primary.main'
+                  }
+                }}
+                onClick={() => {
+                  window.open(brandConfig.website, '_blank');
+                }}
+              >
+                Powered by {brandConfig.name}
+              </Typography>
+              {languageSwitcher}
+            </Stack>
+          </Toolbar>
+        </Container>
+      </AppBar>
+
+      <Container
+        maxWidth="lg"
+        sx={{
+          py: 4,
+          bgcolor: { xs: 'background.paper', md: 'background.default' }
+        }}
+      >
+        <Grid container spacing={4} alignItems="stretch">
           {/* Left Panel - Company Logo, Title and Welcome Message */}
           <Grid item xs={12} md={6}>
-            <Avatar
-              sx={{
-                width: 140,
-                height: 140,
-                mt: 10
-              }}
-              src={portal.companyLogo}
-            >
-              <BusinessTwoToneIcon sx={{ fontSize: 70 }} />
-            </Avatar>
+            <Stack direction={'row'} justifyContent={'space-between'}>
+              <Avatar
+                sx={{
+                  width: { xs: 48, md: 140 },
+                  height: { xs: 48, md: 140 },
+                  mt: { xs: 0, sm: 3, md: 12 }
+                }}
+                src={portal.companyLogo}
+              >
+                <BusinessTwoToneIcon sx={{ fontSize: 70 }} />
+              </Avatar>
+              {isUnderMd && languageSwitcher}
+            </Stack>
             <Typography mt={1} fontSize={32} fontWeight={'bold'}>
               {portal.title}
+            </Typography>
+            <Typography variant={'subtitle1'}>
+              {portal.welcomeMessage}
             </Typography>
           </Grid>
 
           {/* Right Panel - Request Form Preview */}
           <Grid item xs={12} md={6}>
-            <Paper
-              sx={{
-                p: 4,
-                bgcolor: 'background.paper'
-              }}
-            >
-              <RequestPortalPreview
-                title={portal.title}
-                welcomeMessage={portal.welcomeMessage}
-                fieldConfigs={fieldConfigs}
-                preview={false}
-                onLocationSelect={handleLocationSelect}
-                onAssetSelect={handleAssetSelect}
-                onDescriptionChange={handleDescriptionChange}
-                onTitleChange={handleTitleChange}
-                onContactChange={handleContactChange}
-                onImagesChange={handleImagesChange}
-                onFilesChange={handleFilesChange}
-                onSubmit={handleSubmit}
-                submitting={submitting}
-                errors={formErrors}
-                portalUUID={uuid}
-              />
-            </Paper>
+            {isUnderMd ? (
+              <Box
+                sx={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}
+              >
+                {form}
+              </Box>
+            ) : (
+              <Paper
+                sx={{
+                  p: { xs: 0, md: 4 },
+                  bgcolor: 'background.paper'
+                }}
+              >
+                {form}
+              </Paper>
+            )}
           </Grid>
         </Grid>
       </Container>

@@ -1,11 +1,10 @@
-import { Box, Button, IconButton, Link, Stack } from '@mui/material';
+import { Box, Button, IconButton, Link } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import * as React from 'react';
 import { useContext, useEffect, useState } from 'react';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import ShareTwoToneIcon from '@mui/icons-material/ShareTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
-import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import { useDispatch, useSelector } from '../../../../../store';
 import {
   addRequestPortal,
@@ -32,13 +31,15 @@ import { CompanySettingsContext } from '../../../../../contexts/CompanySettingsC
 interface RequestPortalTableProps {
   openModal: boolean;
   currentPortal?: RequestPortal;
+  activeTab?: 'edit' | 'preview';
   onCloseModal: () => void;
-  onOpenModal: (portal?: RequestPortal) => void;
+  onOpenModal: (portal?: RequestPortal, tab?: 'edit' | 'preview') => void;
 }
 
 export default function RequestPortalTable({
   openModal,
   currentPortal,
+  activeTab,
   onCloseModal,
   onOpenModal
 }: RequestPortalTableProps) {
@@ -81,7 +82,7 @@ export default function RequestPortalTable({
   };
 
   const handleEdit = (portal: RequestPortal) => {
-    onOpenModal(portal);
+    onOpenModal(portal, 'edit');
   };
 
   const handleDelete = async () => {
@@ -204,7 +205,7 @@ export default function RequestPortalTable({
             <Button
               startIcon={<AddTwoToneIcon />}
               variant="contained"
-              onClick={() => onOpenModal()}
+              onClick={() => onOpenModal(undefined, 'edit')}
             >
               {t('create_request_portal')}
             </Button>
@@ -276,6 +277,7 @@ export default function RequestPortalTable({
         open={openModal}
         onClose={onCloseModal}
         portal={currentPortal}
+        activeTab={activeTab}
         onSubmit={async (values, action) => {
           if (action === 'create') {
             await dispatch(addRequestPortal(values));

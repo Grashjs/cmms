@@ -31,6 +31,7 @@ public abstract class RequestPortalMapper {
 
     @Mapping(source = "company.id", target = "companyId")
     @Mapping(source = "company.name", target = "companyName")
+    @Mapping(source = "company.companySettings.generalPreferences.language", target = "companyLanguage")
     public abstract RequestPortalPublicDTO toPublicDto(@Valid RequestPortal model);
 
     @AfterMapping

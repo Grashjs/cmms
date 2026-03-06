@@ -1762,8 +1762,10 @@ const locale = {
   company_info: 'Company Information',
   required_information: 'Required Information',
   upload_files: 'Upload Files',
-  portail_de_demandes: 'Request Portal',
-  company_logo: 'Company Logo'
+  request_portal: 'Request Portal',
+  company_logo: 'Company Logo',
+  required_image: 'Image is required',
+  requested_from_portal: 'This request was created from the portal: '
 };
 
 export default locale;

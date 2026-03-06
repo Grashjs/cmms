@@ -61,6 +61,7 @@ interface RequestPortalModalProps {
   open: boolean;
   onClose: () => void;
   portal?: RequestPortal;
+  activeTab?: 'edit' | 'preview';
   onSubmit: (
     values: RequestPortalPostDTO,
     action: 'create' | 'edit'
@@ -366,12 +367,13 @@ export default function RequestPortalModal({
   open,
   onClose,
   portal,
+  activeTab: initialActiveTab,
   onSubmit
 }: RequestPortalModalProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
 
-  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
+  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>(initialActiveTab || 'edit');
   const [submitting, setSubmitting] = useState(false);
   const [title, setTitle] = useState('');
   const [welcomeMessage, setWelcomeMessage] = useState('');
@@ -382,14 +384,14 @@ export default function RequestPortalModal({
 
   useEffect(() => {
     if (open) {
-      setActiveTab('edit');
+      setActiveTab(initialActiveTab || 'edit');
       setTitleTouched(false);
       setSubmitting(false);
       setTitle(portal?.title ?? '');
       setWelcomeMessage(portal?.welcomeMessage ?? '');
       setFieldConfigs(buildDefaultConfigs(portal?.fields));
     }
-  }, [portal, open]);
+  }, [portal, open, initialActiveTab]);
 
   // ── Mutators ──────────────────────────────────────────────────────────────
 

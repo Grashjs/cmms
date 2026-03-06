@@ -125,6 +125,10 @@ const appRoutes = [
         element: <RequestPortalSettings />
       },
       {
+        path: 'request-portals/:id',
+        element: <RequestPortalSettings />
+      },
+      {
         path: 'roles',
         element: <RolesSettings />
       },
