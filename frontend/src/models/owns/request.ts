@@ -8,4 +8,5 @@ export default interface Request extends WorkOrderBase {
   audioDescription: File;
   workOrder: WorkOrder;
   customId: string;
+  contact: string;
 }

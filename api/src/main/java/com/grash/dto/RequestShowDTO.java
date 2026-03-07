@@ -19,4 +19,6 @@ public class RequestShowDTO extends WorkOrderBaseShowDTO {
     private String customId;
 
     private RequestPortalMiniDTO requestPortal;
+
+    private String contact;
 }

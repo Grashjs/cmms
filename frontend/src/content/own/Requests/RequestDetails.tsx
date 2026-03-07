@@ -108,6 +108,10 @@ export default function RequestDetails({
     request: Request
   ): { label: string; value: string | number }[] => [
     {
+      label: t('contact'),
+      value: request.contact
+    },
+    {
       label: t('description'),
       value: request.description
     },

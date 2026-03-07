@@ -27,4 +27,9 @@
             where code = 'PROFESSIONAL';
         </sql>
     </changeSet>
+    <changeSet id="1772891559949-1" author="Ibrahima G. Coulibaly">
+        <addColumn tableName="request">
+            <column name="contact" type="varchar"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

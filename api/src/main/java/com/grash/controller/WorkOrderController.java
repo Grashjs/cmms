@@ -306,7 +306,17 @@ public class WorkOrderController {
                     && savedWorkOrderStatusBefore != patchedWorkOrder.getStatus()
                     && patchedWorkOrder.getParentRequest() != null) {
                 Long requesterId = patchedWorkOrder.getParentRequest().getCreatedBy();
-                OwnUser requester = userService.findById(requesterId).get();
+                String requesterEmail = null;
+                OwnUser requester = null;
+                if (requesterId == null) {
+                    String contact = patchedWorkOrder.getParentRequest().getContact();
+                    if (contact != null && Helper.isValidEmailAddress(contact)) {
+                        requesterEmail = contact;
+                    }
+                } else {
+                    requester = userService.findById(requesterId).get();
+                    requesterEmail = requester.getEmail();
+                }
                 Locale locale = Helper.getLocale(user);
                 String message = messageSource.getMessage("notification_wo_request",
                         new Object[]{patchedWorkOrder.getTitle(),
@@ -314,12 +324,12 @@ public class WorkOrderController {
                         locale);
                 notificationService.create(new Notification(message, userService.findById(requesterId).get(),
                         NotificationType.WORK_ORDER, id));
-                if (requester.getUserSettings().shouldEmailUpdatesForRequests() && requester.isEnabled()) {
+                if ((requester != null && requester.getUserSettings().shouldEmailUpdatesForRequests() && requester.isEnabled()) || requesterEmail != null) {
                     Map<String, Object> mailVariables = new HashMap<String, Object>() {{
                         put("workOrderLink", frontendUrl + "/app/work-orders/" + id);
                         put("message", message);
                     }};
-                    mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{requester.getEmail()},
+                    mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{requesterEmail},
                             messageSource.getMessage("request_update", null, locale), mailVariables, "requester" +
                                     "-update.html", Helper.getLocale(user), null);
                 }

@@ -31,6 +31,8 @@ public class Request extends WorkOrderBase {
     @ManyToOne(fetch = FetchType.LAZY)
     private RequestPortal requestPortal;
 
+    private String contact;
+
     @PreRemove
     private void preRemove() {
         if (workOrder != null)
