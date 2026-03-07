@@ -161,6 +161,9 @@ public class Helper {
                 return new Locale("zh", "CN");
             case ZH:
                 return new Locale("zh", "CN");
+            case BS:
+                return new Locale("bs", "BS");
+            
             default:
                 return Locale.getDefault();
         }
