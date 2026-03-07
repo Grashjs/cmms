@@ -82,6 +82,8 @@ export interface RequestPortalPreviewProps {
   portalUUID?: string;
   images?: File[];
   files?: File[];
+  location?: LocationMiniDTO | null;
+  asset?: AssetMiniDTO | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -233,8 +235,8 @@ export function AssetLocationClause({
   }, [isLocation, locationsMini, assetsMini, searchTerm, excludedIds]);
   const valueOption = field.value
     ? {
-        label: (field.value as any).name,
-        value: (field.value as any).id,
+        label: field.value.name,
+        value: field.value.id,
         dto: field.value
       }
     : null;
@@ -252,7 +254,7 @@ export function AssetLocationClause({
         onClose={() => {
           setOpen(false);
         }}
-        value={valueOption || undefined}
+        value={valueOption}
         onChange={(_, newValue: Option) => {
           onChange(newValue ? newValue.dto : null);
         }}
@@ -280,6 +282,7 @@ export function AssetLocationClause({
                 <>
                   <InputAdornment position="end">
                     <IconButton
+                      sx={{ display: { xs: 'none', md: 'block' } }}
                       style={{ marginRight: 10 }}
                       size="small"
                       onClick={(e) => {
@@ -351,6 +354,8 @@ interface PreviewFieldRenderProps {
   portalUUID?: string;
   images?: File[];
   files?: File[];
+  location?: LocationMiniDTO | null;
+  asset?: AssetMiniDTO | null;
 }
 
 function PreviewFieldRender({
@@ -368,7 +373,9 @@ function PreviewFieldRender({
   onTitleChange,
   portalUUID,
   images,
-  files
+  files,
+  location,
+  asset
 }: PreviewFieldRenderProps) {
   const getLabel = (str: string, required: boolean) => {
     return `${str} ${required ? '(' + t('required') + ')' : ''}`;
@@ -406,10 +413,11 @@ function PreviewFieldRender({
         if (config.selectionMode === 'all' || !config.asset) {
           return (
             <AssetLocationClause
+              key={'asset-clause'}
               field={{
                 name: 'asset',
                 type: 'asset',
-                value: undefined,
+                value: asset || null,
                 required: config.required,
                 disabled: true
               }}
@@ -417,6 +425,7 @@ function PreviewFieldRender({
               disabled={disabled}
               portalUUID={portalUUID}
               error={error}
+              locationId={location?.id || null}
             />
           );
         } else return null;
@@ -424,10 +433,11 @@ function PreviewFieldRender({
         if (config.selectionMode === 'all' || !config.location) {
           return (
             <AssetLocationClause
+              key={'locations-clause'}
               field={{
                 name: 'location',
                 type: 'location',
-                value: undefined,
+                value: location || null,
                 required: config.required,
                 disabled: true
               }}
@@ -501,7 +511,9 @@ export default function RequestPortalPreview({
   onTitleChange,
   portalUUID,
   images,
-  files
+  files,
+  location,
+  asset
 }: RequestPortalPreviewProps) {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -553,6 +565,8 @@ export default function RequestPortalPreview({
                 portalUUID={portalUUID}
                 images={images}
                 files={files}
+                location={location}
+                asset={asset}
               />
             );
           })}

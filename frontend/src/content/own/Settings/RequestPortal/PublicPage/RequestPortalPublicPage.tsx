@@ -87,6 +87,7 @@ export default function RequestPortalPublicPage() {
     images: [],
     files: []
   });
+
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -349,6 +350,8 @@ export default function RequestPortalPublicPage() {
       portalUUID={uuid}
       images={formValues.images}
       files={formValues.files}
+      location={formValues.location}
+      asset={formValues.asset}
     />
   );
   return (
