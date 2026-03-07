@@ -496,7 +496,7 @@ function Roles() {
         open={openDrawer}
         onClose={() => setOpenDrawer(false)}
         PaperProps={{
-          sx: { width: '50%' }
+          sx: { width: { xs: '90%', sm: '70%', md: '50%' } }
         }}
       >
         <RoleDetails
