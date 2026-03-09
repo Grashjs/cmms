@@ -6,6 +6,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
 
     <changeSet id="1773073802-1" author="Ibrahima G. Coulibaly">
+        <validCheckSum>ANY</validCheckSum>
         <sql>
             UPDATE "own_user" u
             SET role_id = sub.min_role_id FROM (
@@ -14,7 +15,7 @@
         id as bad_role_id,
         MIN(id) OVER (PARTITION BY code) as min_role_id
     FROM role
-    WHERE company_settings_id IS NULL
+    WHERE company_settings_id IS NULL AND code !=6
 ) sub
             WHERE u.role_id = sub.bad_role_id
               AND sub.bad_role_id != sub.min_role_id;
