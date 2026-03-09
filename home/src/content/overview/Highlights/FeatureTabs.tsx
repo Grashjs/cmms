@@ -241,11 +241,8 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
               <CheckItem key={index} description={desc} />
             ))}
           </List>
-          <SignupButton
-            mt={2}
-            variant="text"
-        >
-            {t('register')}
+          <SignupButton sx={{ mt: 2 }} variant="text">
+            {t("register")}
           </SignupButton>
         </Grid>
         <Grid item xs={12} md={6}>
