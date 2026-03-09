@@ -169,7 +169,7 @@ email at [contact@atlas-cmms.com](mailto:contact@atlas-cmms.com).
 
 ## 🏗️ **Tech Stack**
 
-- [Api](api) with java Spring Boot
+- [Backend](api) with java Spring Boot
 - [Website](frontend) with React/Typescript
 - [Mobile](mobile) with React Native.
 
