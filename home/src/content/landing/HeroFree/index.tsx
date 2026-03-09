@@ -4,6 +4,8 @@ import SignupButton from "src/components/SignupButton";
 import { BoxAccent, BoxContent, MobileImgWrapper, TypographyH2 } from "../styled";
 import { ImgWrapper } from "src/content/overview/Hero/styles";
 import Image from "next/image";
+import { getSignupUrl } from "src/utils/urlPaths";
+import { Link } from "src/i18n/routing";
 
 async function HeroFree() {
   const t = await getTranslations();
@@ -48,10 +50,8 @@ async function HeroFree() {
         </Grid>
         <Grid item md={6}>
           <BoxContent>
-            <SignupButton
-              sx={{ display: "block", width: "100%" }}
-            >
-              <ImgWrapper>
+            <Link href={getSignupUrl(locale)}>
+            <ImgWrapper>
                 <Image
                   alt={t("free_cmms.hero.work_orders_alt")}
                   src="/static/images/overview/work_orders_screenshot.png"
@@ -59,7 +59,7 @@ async function HeroFree() {
                   height={922}
                 />
               </ImgWrapper>
-            </SignupButton>
+            </Link>
             <MobileImgWrapper>
               <Image height={1600} width={720} alt={t("free_cmms.hero.mobile_app_alt")} src="/static/mobile_app.jpeg" />
             </MobileImgWrapper>
