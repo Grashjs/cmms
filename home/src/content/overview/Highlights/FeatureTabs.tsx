@@ -15,6 +15,7 @@ import {
   TypographyH2,
 } from "./styles";
 import Image from "next/image";
+import { ArrowForward } from "@mui/icons-material";
 
 export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig }) {
   const t = useTranslations();
@@ -241,7 +242,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
               <CheckItem key={index} description={desc} />
             ))}
           </List>
-          <SignupButton sx={{ mt: 2 }} variant="text">
+          <SignupButton endIcon={<ArrowForward />} sx={{ mt: 2 }} variant="text">
             {t("register")}
           </SignupButton>
         </Grid>
