@@ -1,8 +1,7 @@
 import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
 import { mainAppUrl } from "src/config";
-
-export const locales = ["en", "es", "fr", "de", "tr", "pt-br", "pl", "ar", "it", "sv", "ru", "hu", "nl", "zh-cn"];
+import { locales } from "src/i18n/request";
 
 const intlMiddleware = createMiddleware({
   locales,
@@ -13,7 +12,7 @@ const intlMiddleware = createMiddleware({
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname==='/app'||pathname.startsWith("/app/")) {
+  if (pathname === "/app" || pathname.startsWith("/app/")) {
     const normalizedMainAppUrl = mainAppUrl.endsWith("/") ? mainAppUrl : mainAppUrl + "/";
     const targetUrl = normalizedMainAppUrl + pathname.slice(1);
     return NextResponse.redirect(targetUrl);
@@ -26,7 +25,7 @@ export const config = {
   // Match only internationalized pathnames
   matcher: [
     "/",
-    "/(en|es|fr|de|tr|pt-br|pl|ar|it|sv|ru|hu|nl|zh-cn)/:path*",
+    "/(en|es|fr|de|tr|pt-br|pl|ar|it|sv|ru|hu|nl|zh-cn|bs)/:path*",
     // Match all pathnames except for API routes, static files, Next.js internals
     "/((?!api|_next|_vercel|.*\\..*).*)",
   ],
