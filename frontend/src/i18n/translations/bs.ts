@@ -35,7 +35,8 @@ const locale = {
   parts_inventory: 'Zalihe dijelova',
   custom_dashboards: 'Prilagođene kontrolne ploče',
   'work-orders.title': 'Upravljajte svojim radnim nalozima kao šef',
-  'work-orders.description.short': 'Pregledajte i upravljajte svim svojim zadacima',
+  'work-orders.description.short':
+    'Pregledajte i upravljajte svim svojim zadacima',
   'work-orders.descriptions.0':
     'Dosta vam je gomila papira i izgubljenih radnih naloga? Svi ti izgubljeni predmeti direktno utiču na vašu dobit i reputaciju.',
   'work-orders.descriptions.1':
@@ -44,7 +45,8 @@ const locale = {
     'Pregledajte sve svoje zadatke uključujući radne naloge, PM-ove i zahtjeve za rad',
   'work-orders.checks.1':
     'Postavite prioritet zadatka kako bi se pravi posao obavio prvi.',
-  'work-orders.checks.2': 'Pregledajte kalendar trenutnih i nadolazećih zadataka.',
+  'work-orders.checks.2':
+    'Pregledajte kalendar trenutnih i nadolazećih zadataka.',
   'work-orders.checks.3':
     'Pregledajte dodijeljene poslove s ključnim informacijama kao što su informacije o imovini, datum dospijeća, prioritet i više.',
   'work-orders.checks.4':
@@ -53,19 +55,21 @@ const locale = {
   'work-requests.descriptions.0':
     'Dosta vam je starog sistema telefona i e-pošte koji rezultira IZGUBLJENIM zahtjevima, stalnim dnevnim prekidima i dupliranim poslom?',
   'work-requests.descriptions.1':
-    "Rješenje za upravljanje održavanjem {{shortBrandName}} omogućava svakome koga ovlastite da prijavi problem vašem odjelu održavanja jednostavnim skeniranjem QR koda (bar koda) ili posjetom URL-u i unosom svog zahtjeva putem mobilnog uređaja.",
+    'Rješenje za upravljanje održavanjem {{shortBrandName}} omogućava svakome koga ovlastite da prijavi problem vašem odjelu održavanja jednostavnim skeniranjem QR koda (bar koda) ili posjetom URL-u i unosom svog zahtjeva putem mobilnog uređaja.',
   'work-requests.checks.0': 'Nikada više ne izgubite radni nalog.',
   'work-requests.checks.1':
     'Smanjite vrijeme utrošeno na obradu zahtjeva za rad do 34%.',
   'work-requests.checks.2':
     'Smanjite vrijeme komunikacije s podnosiocima zahtjeva do 41% (pozivi, e-pošta, SMS).',
-  'mobile-app.title': 'Mobilna CMMS aplikacija koja osnažuje vaš tim za održavanje',
+  'mobile-app.title':
+    'Mobilna CMMS aplikacija koja osnažuje vaš tim za održavanje',
   'mobile-app.descriptions.0':
     'Korištenjem naših iOS/Android mobilnih aplikacija, naši klijenti doživljavaju bolju organizaciju, komunikaciju, odgovornost i produktivnost do 30% u cijelom svom timu za održavanje.',
   'mobile-app.descriptions.1':
     'Sa svog ručnog uređaja bilo ko u vašem timu za održavanje može:',
   'mobile-app.checks.0': 'Pregledati svoje dodijeljene radne naloge i PM-ove.',
-  'mobile-app.checks.1': 'Evidentirati svoje radne naloge za manje od 60 sekundi',
+  'mobile-app.checks.1':
+    'Evidentirati svoje radne naloge za manje od 60 sekundi',
   'mobile-app.checks.2':
     'Primati trenutne komunikacije putem push i e-mail obavijesti.',
   'mobile-app.checks.3': 'Započeti nove radne naloge dok su na terenu.',
@@ -82,8 +86,10 @@ const locale = {
   'eam.checks.0':
     'Znajte stanje svoje imovine u svakom trenutku i koliko vas koštaju',
   'eam.checks.1': 'Pregledajte potpune i detaljne evidencije održavanja.',
-  'eam.checks.2': 'Pratite samo ono što želite s neograničenim prilagođenim poljima',
-  'eam.checks.3': 'Organizirajte svoju imovinu u jasnoj hijerarhiji roditelj-dijete',
+  'eam.checks.2':
+    'Pratite samo ono što želite s neograničenim prilagođenim poljima',
+  'eam.checks.3':
+    'Organizirajte svoju imovinu u jasnoj hijerarhiji roditelj-dijete',
   'eam.checks.4':
     'Pronađite informacije brzo i jednostavno pomoću QR kodova (bar kodova)',
   'eam.checks.5':
@@ -117,14 +123,16 @@ const locale = {
     'Automatsko praćenje upotrebe dijelova. Kako radni nalozi ili preventivna održavanja koriste dijelove, zalihe će se automatski ažurirati kako bi odražavale korištene dijelove.',
   'part.checks.3':
     'Poznavanje upotrebe dijelova. Pregledajte evidenciju dijelova da vidite gdje se dio koristi i ko ga koristi.',
-  'part.checks.4': 'Eliminišite nekorištene dijelove. Znajte kada je dio zastario.',
+  'part.checks.4':
+    'Eliminišite nekorištene dijelove. Znajte kada je dio zastario.',
   'part.checks.5':
     'Izvještavanje u realnom vremenu. Znajte koji se dijelovi gdje koriste i koliko vas koštaju.',
   'part.checks.6':
     'Optimizirajte nivoe zaliha. Odmah pregledajte prognozu za dio da vidite koliko bi se dijelova moglo potrošiti u narednih godinu dana.',
   'part.checks.7':
     'Pretraga barkodom. Učinite svoj inventar lakim za praćenje i pristup pomoću prilagođenih QR kodova.',
-  'dashboard.title': 'Vaši podaci, na vaš način s prilagođenim kontrolnim pločama',
+  'dashboard.title':
+    'Vaši podaci, na vaš način s prilagođenim kontrolnim pločama',
   'dashboard.descriptions.0':
     'Da se razumijemo, prvi korak ka poboljšanju vašeg poslovanja je da znate dobro, loše i ružno.',
   'dashboard.descriptions.1':
@@ -175,7 +183,8 @@ const locale = {
   terms_conditions: 'uvjete korištenja',
   create_your_account: 'Kreirajte svoj nalog',
   register: 'Registruj se',
-  login_description: 'Popunite polja ispod da biste se prijavili na svoj nalog.',
+  login_description:
+    'Popunite polja ispod da biste se prijavili na svoj nalog.',
   no_account_yet: 'Još nemate nalog?',
   signup_here: 'Prijavite se ovdje',
   wrong_credentials: 'Uneseni su pogrešni podaci za prijavu',
@@ -338,7 +347,8 @@ const locale = {
   schedule_wo: 'Zakaži radni nalog',
   schedule_wo_description: 'Popunite polja ispod da zakažete radni nalog',
   edit_wo_trigger: 'Uredi okidač radnog naloga',
-  edit_wo_trigger_description: 'Popunite polja ispod da uredite okidač radnog naloga',
+  edit_wo_trigger_description:
+    'Popunite polja ispod da uredite okidač radnog naloga',
   create_trigger: 'Kreiraj okidač',
   'noRows.pm.message': 'Zakažite radne naloge s prilagođenim okidačima',
   'noRows.pm.action': 'Pritisnite "+" dugme da kreirate okidač',
@@ -487,7 +497,8 @@ const locale = {
   upload_image: 'Otpremi sliku',
   required_floor_plan_name: 'Naziv plana sprata je obavezan',
   add_floor_plan: 'Dodaj novi plan sprata',
-  add_floor_plan_description: 'Popunite polja ispod da kreirate novi plan sprata',
+  add_floor_plan_description:
+    'Popunite polja ispod da kreirate novi plan sprata',
   no_asset_in_location: 'Nema imovine na ovoj lokaciji',
   no_wo_in_location: 'Nema radnih naloga na ovoj lokaciji',
   no_file_in_location: 'Nema datoteka priloženih ovoj lokaciji',
@@ -561,7 +572,8 @@ const locale = {
   create_part: 'Kreiraj dio',
   update_part: 'Ažuriraj dio',
   update_part_description: 'Popunite polja ispod da ažurirate dio',
-  'noRows.part.message': 'Dijelovi se mogu kombinirati u imovinu ili koristiti samostalno',
+  'noRows.part.message':
+    'Dijelovi se mogu kombinirati u imovinu ili koristiti samostalno',
   'noRows.part.action': 'Pritisnite "+" dugme da kreirate dio',
   confirm_delete_part: 'Jeste li sigurni da želite izbrisati ovaj dio?',
   part_details: 'Detalji dijela',
@@ -600,7 +612,8 @@ const locale = {
   edit_po: 'Uredi zahtjev za nabavku',
   edit_po_description: 'Popunite polja ispod da ažurirate zahtjev za nabavku',
   purchase_order: 'Zahtjev za nabavku',
-  'noRows.po.message': 'Upravljajte svojim zahtjevima za nabavku na jednom mjestu',
+  'noRows.po.message':
+    'Upravljajte svojim zahtjevima za nabavku na jednom mjestu',
   'noRows.po.action': 'Pritisnite "+" dugme da kreirate zahtjev za nabavku.',
   confirm_delete_po:
     'Jeste li sigurni da želite izbrisati ovaj zahtjev za nabavku?',
@@ -647,7 +660,8 @@ const locale = {
   required_meter_update_frequency: 'Učestalost ažuriranja brojila je obavezna',
   required_asset: 'Imovina je obavezna',
   add_meter: 'Dodaj brojilo',
-  add_meter_description: 'Popunite polja ispod da kreirate i dodate novo brojilo',
+  add_meter_description:
+    'Popunite polja ispod da kreirate i dodate novo brojilo',
   edit_meter: 'Uredi brojilo',
   edit_meter_description: 'Popunite polja ispod da uredite brojilo',
   confirm_delete_meter: 'Jeste li sigurni da želite izbrisati ovo brojilo?',
@@ -697,7 +711,8 @@ const locale = {
   type: 'Tip',
   billing_currency: 'Valuta za naplatu',
   go_back: 'Nazad',
-  confirm_delete_customer: 'Jeste li sigurni da želite izbrisati ovog izvođača?',
+  confirm_delete_customer:
+    'Jeste li sigurni da želite izbrisati ovog izvođača?',
   vendor_create_success: 'Dobavljač je uspješno kreiran',
   vendor_create_failure: 'Dobavljač nije mogao biti kreiran',
   vendor_edit_failure: 'Dobavljač nije mogao biti uređen',
@@ -709,8 +724,10 @@ const locale = {
   add_vendor: 'Dodaj dobavljača',
   add_vendor_description:
     'Popunite polja ispod da kreirate i dodate novog dobavljača',
-  confirm_delete_vendor: 'Jeste li sigurni da želite izbrisati ovog dobavljača?',
-  'noRows.vendor.message': 'Dobavljači su organizacije koje isporučuju imovinu ili dijelove',
+  confirm_delete_vendor:
+    'Jeste li sigurni da želite izbrisati ovog dobavljača?',
+  'noRows.vendor.message':
+    'Dobavljači su organizacije koje isporučuju imovinu ili dijelove',
   'noRows.vendor.action': 'Pritisnite "+" dugme da kreirate dobavljača',
   vendor_type_description: 'npr. Vodoinstalateri, Električari',
   role: 'Uloga',
@@ -763,7 +780,8 @@ const locale = {
   REQUESTER_description:
     'Podnosioci zahtjeva mogu samo podnositi zahtjeve za rad i pratiti njihov status',
   select_user_role: 'Odaberite ulogu korisnika',
-  'noRows.team.message': 'Timovi vam pomažu da upravljate specifičnim grupama ljudi.',
+  'noRows.team.message':
+    'Timovi vam pomažu da upravljate specifičnim grupama ljudi.',
   'noRows.team.action': 'Pritisnite "+" dugme da kreirate tim.',
   user_details: 'Detalji korisnika',
   file_delete_success: 'Datoteka je uspješno izbrisana',
@@ -794,7 +812,8 @@ const locale = {
   edit_category: 'Uredi kategoriju',
   edit_category_description: 'Unesite naziv za uređivanje kategorije',
   no_category_action: 'Pritisnite "+" dugme da dodate svoju prvu kategoriju.',
-  confirm_delete_category: 'Jeste li sigurni da želite izbrisati ovu kategoriju?',
+  confirm_delete_category:
+    'Jeste li sigurni da želite izbrisati ovu kategoriju?',
   no_category_message:
     'Izgleda da još nemate nijednu kategoriju {{categoryName}}.',
   acquisition_cost: 'Trošak nabavke',
@@ -820,8 +839,7 @@ const locale = {
   to_access: 'Pristup',
   role_delete_success: 'Uloga je uspješno izbrisana',
   role_delete_failure: 'Uloga nije mogla biti izbrisana',
-  confirm_delete_role:
-    'Jeste li sigurni da želite trajno izbrisati ovu ulogu?',
+  confirm_delete_role: 'Jeste li sigurni da želite trajno izbrisati ovu ulogu?',
   users: 'Korisnici',
   paid: 'Plaćeno',
   free: 'Besplatno',
@@ -845,10 +863,12 @@ const locale = {
   auto_assign_requests: 'Automatski dodijeli zahtjeve',
   auto_assign_requests_description:
     'Automatski dodijeli nove radne naloge osobi koja odobri zahtjev',
-  disable_closed_wo_notification: 'Onemogući obavijesti za zatvorene radne naloge',
+  disable_closed_wo_notification:
+    'Onemogući obavijesti za zatvorene radne naloge',
   disable_closed_wo_notification_description:
     'Onemogući obavijesti kada se ažuriraju zatvoreni radni nalozi',
-  ask_feedback_wo_closed: 'Traži povratnu informaciju kada se radni nalog zatvori',
+  ask_feedback_wo_closed:
+    'Traži povratnu informaciju kada se radni nalog zatvori',
   ask_feedback_wo_closed_description:
     'Od korisnika se traži da daju povratnu informaciju o obavljenom poslu',
   include_labor_in_total_cost: 'Uključi trošak rada u ukupni trošak',
@@ -982,7 +1002,8 @@ const locale = {
   po_emails: 'E-pošta za zahtjeve za nabavku',
   required_job_title: 'Polje naziva radnog mjesta je obavezno',
   required_old_password: 'Molimo unesite trenutnu lozinku.',
-  invalid_password: 'Lozinka je prekratka - trebala bi imati najmanje 8 znakova.',
+  invalid_password:
+    'Lozinka je prekratka - trebala bi imati najmanje 8 znakova.',
   required_new_password: 'Nije unesena lozinka.',
   passwords_must_match: 'Lozinke se moraju podudarati',
   password_change_success: 'Lozinka uspješno promijenjena',
@@ -1027,7 +1048,8 @@ const locale = {
   your_payment_secure: 'Vaši podaci o plaćanju su šifrirani i sigurni.',
   plan: 'Plan',
   current_plan: 'Trenutni plan',
-  number_users_who_will_use_grash: 'Broj korisnika koji će koristiti {{shortBrandName}}',
+  number_users_who_will_use_grash:
+    'Broj korisnika koji će koristiti {{shortBrandName}}',
   admin_role: 'Admin',
   technical_role: 'Tehnički',
   limited_technical_role: 'Ograničeni tehnički',
@@ -1056,7 +1078,8 @@ const locale = {
     'Unesite e-poštu korištenu za registraciju da biste resetirali svoju lozinku.',
   send_me_new_password: 'Pošalji mi novu lozinku',
   want_to_sign_in_again: 'Želite li pokušati ponovo da se prijavite?',
-  check_mails_for_instructions: 'Provjerite svoju e-poštu za daljnje instrukcije',
+  check_mails_for_instructions:
+    'Provjerite svoju e-poštu za daljnje instrukcije',
   pdf_report: 'PDF izvještaj',
   HIGH: 'Visok',
   MEDIUM: 'Srednji',
@@ -1179,8 +1202,7 @@ const locale = {
   detail_panel_toggle: 'Preklopi panel detalja',
   cancel_subscription: 'Otkaži pretplatu',
   resume_subscription: 'Nastavi pretplatu',
-  confirm_cancel_subscription:
-    'Jeste li sigurni da želite otkazati pretplatu?',
+  confirm_cancel_subscription: 'Jeste li sigurni da želite otkazati pretplatu?',
   workflows: 'Tokovi posla',
   create_workflow: 'Kreiraj tok posla',
   if: 'Ako',
@@ -1242,7 +1264,8 @@ const locale = {
   workflow_edit_failure: 'Tok posla nije mogao biti uređen',
   workflow_delete_success: 'Tok posla je uspješno izbrisan',
   workflow_delete_failure: 'Tok posla nije mogao biti izbrisan',
-  confirm_delete_workflow: 'Jeste li sigurni da želite izbrisati ovaj tok posla?',
+  confirm_delete_workflow:
+    'Jeste li sigurni da želite izbrisati ovaj tok posla?',
   click_here: 'Kliknite ovdje',
   verify_email_title: 'Potvrdi e-poštu',
   verify_email_description:
@@ -1291,12 +1314,12 @@ const locale = {
   edit_company: 'Uredi kompaniju',
   fill_fields_below: 'Popunite polja ispod',
   IMPORT_CSV_feature: 'CSV uvoz',
-  no_import_access:
-    'Nadogradite svoj plan za uvoz iz CSV, Excel datoteka',
+  no_import_access: 'Nadogradite svoj plan za uvoz iz CSV, Excel datoteka',
   members: 'Članovi',
   assign_user: 'Dodijeli korisnika',
   assign_asset: 'Dodijeli imovinu',
-  required_files_on_completion: 'Datoteke su obavezne po završetku radnog naloga',
+  required_files_on_completion:
+    'Datoteke su obavezne po završetku radnog naloga',
   required_tasks_on_completion: 'Zadaci moraju biti završeni',
   required_labor_on_completion: 'Morate evidentirati vrijeme',
   required_part_on_completion: 'Nijedan dio nije korišten u ovom radnom nalogu',
@@ -1343,8 +1366,7 @@ const locale = {
   resolved: 'Riješeno',
   average: 'Prosjek',
   documentation: 'Dokumentacija',
-  days_before_pm_notification:
-    'Obavijesti prije radnog naloga za zakazane',
+  days_before_pm_notification: 'Obavijesti prije radnog naloga za zakazane',
   estimated_start_date: 'Očekivani datum početka',
   no_file_linked_to_wo: 'Nema datoteke priložene ovom radnom nalogu',
   add_file: 'Dodaj datoteku',
@@ -1414,7 +1436,8 @@ const locale = {
   ui_configuration: 'Konfiguracija korisničkog interfejsa',
   password_leave_empty_if_you_dont_want_to_change:
     'Lozinka - ostavite prazno ako je ne želite promijeniti',
-  upgrade_request_success: 'Zahtjev za nadogradnju primljen! Kontaktirat ćemo vas uskoro.',
+  upgrade_request_success:
+    'Zahtjev za nadogradnju primljen! Kontaktirat ćemo vas uskoro.',
   continue_with_sso: 'Nastavi sa SSO',
   see_live_demo: 'Pogledajte demonstraciju uživo',
   demo_warning:
@@ -1449,8 +1472,10 @@ const locale = {
   csv_separator: 'CSV separator',
   Advantages: 'Prednosti',
   open_source_cmms: 'Open-Source CMMS (softver otvorenog koda)',
-  'main.title': 'Besplatni Open-Source CMMS (Softver za upravljanje održavanjem)',
-  'home.h1': 'Besplatni CMMS otvorenog koda koji možete samostalno hostirati ili koristiti u oblaku',
+  'main.title':
+    'Besplatni Open-Source CMMS (Softver za upravljanje održavanjem)',
+  'home.h1':
+    'Besplatni CMMS otvorenog koda koji možete samostalno hostirati ili koristiti u oblaku',
   'home.h2': 'Snažno održavanje po niskoj cijeni',
   'home.h3':
     'Prestanite se oslanjati na proračunske tablice i bijele ploče. {{brandName}} pomaže timovima za održavanje planirati intervencije, pratiti opremu i ostati usklađeni. Samostalno hostirajte na svom serveru ili započnite odmah u oblaku.',
@@ -1459,7 +1484,8 @@ const locale = {
   'pricing.slogan_effective_maintenance':
     'Naš softver daje timovima za održavanje i pouzdanost alate koji su im potrebni za efikasno i efektivno upravljanje operacijama.',
   'pricing.compare_plans_and_pricing': 'Uporedite planove i cijene',
-  'pricing.see_which_plan_is_right_for_you': 'Pogledajte koji je plan pravi za vas',
+  'pricing.see_which_plan_is_right_for_you':
+    'Pogledajte koji je plan pravi za vas',
   'pricing.select_two_plans_to_compare': 'Odaberite 2 plana za poređenje',
   'pricing.select_three_plans_to_compare': 'Odaberite 3 plana za poređenje',
   'pricing.month_per_user': 'mjesečno po korisniku',
@@ -1480,7 +1506,8 @@ const locale = {
   'pricing.feature_custom_checklists': 'Prilagođene kontrolne liste',
   'pricing.feature_inventory_management_costing':
     'Upravljanje zalihama/Obračun troškova',
-  'pricing.feature_time_and_manpower_tracking': 'Praćenje vremena i radne snage',
+  'pricing.feature_time_and_manpower_tracking':
+    'Praćenje vremena i radne snage',
   'pricing.feature_thirty_day_analytics_reporting':
     '30-dnevna analitika i izvještavanje',
   'pricing.plan_professional_name': 'Profesionalni',
@@ -1488,18 +1515,24 @@ const locale = {
     'Odjeli koji trebaju iskoristiti uvide i analitiku za daljnji rast i produktivnost održavanja.',
   'pricing.feature_everything_in_starter_plus': 'Sve iz Početnog plana plus:',
   'pricing.feature_multiple_inventory_lines': 'Višestruke linije inventara',
-  'pricing.feature_customizable_request_portal': 'Prilagodljivi portal za zahtjeve',
+  'pricing.feature_customizable_request_portal':
+    'Prilagodljivi portal za zahtjeve',
   'pricing.feature_mobile_offline_mode': 'Mobilni offline način rada',
   'pricing.feature_advanced_analytics_reporting':
     'Napredna analitika i izvještavanje',
   'pricing.plan_business_name': 'Poslovni',
   'pricing.plan_business_description':
     'Organizacije spremne prikupljati podatke o održavanju i operacijama za upravljanje više lokacija i prilagođavanje sistema.',
-  'pricing.feature_everything_in_professional_plus': 'Sve iz Profesionalnog plana plus:',
-  'pricing.feature_purchase_order_management': 'Upravljanje zahtjevima za nabavku',
-  'pricing.feature_multi_site_module_support': 'Podrška za module na više lokacija',
-  'pricing.feature_custom_work_order_statuses': 'Prilagođeni statusi radnih naloga',
-  'pricing.feature_custom_integrations_support': 'Podrška za prilagođene integracije',
+  'pricing.feature_everything_in_professional_plus':
+    'Sve iz Profesionalnog plana plus:',
+  'pricing.feature_purchase_order_management':
+    'Upravljanje zahtjevima za nabavku',
+  'pricing.feature_multi_site_module_support':
+    'Podrška za module na više lokacija',
+  'pricing.feature_custom_work_order_statuses':
+    'Prilagođeni statusi radnih naloga',
+  'pricing.feature_custom_integrations_support':
+    'Podrška za prilagođene integracije',
   'pricing.feature_work_order_management': 'Upravljanje radnim nalozima',
   'pricing.feature_recurring_work_orders': 'Periodični radni nalozi',
   'pricing.feature_custom_categories': 'Prilagođene kategorije',
@@ -1514,7 +1547,8 @@ const locale = {
   'pricing.feature_inventory_management': 'Upravljanje inventarom',
   'pricing.feature_custom_asset_statuses': 'Prilagođeni statusi imovine',
   'pricing.feature_asset_downtime_tracking': 'Praćenje zastoja imovine',
-  'pricing.feature_asset_depreciation_tracking': 'Praćenje amortizacije imovine',
+  'pricing.feature_asset_depreciation_tracking':
+    'Praćenje amortizacije imovine',
   'pricing.feature_asset_warranty_tracking': 'Praćenje garancije imovine',
   'pricing.feature_purchase_orders_management': 'Zahtjevi za nabavku',
   'pricing.feature_asset_check_in_out': 'Zaduženje/Razduženje imovine',
@@ -1530,7 +1564,8 @@ const locale = {
   'pricing.feature_pdf_csv_exporting': 'PDF i CSV izvoz',
   'pricing.feature_itemized_time_reporting': 'Detaljno izvještavanje o vremenu',
   'pricing.feature_user_login_reports': 'Izvještaji o prijavi korisnika',
-  'pricing.feature_parts_consumption_reports': 'Izvještaji o potrošnji dijelova',
+  'pricing.feature_parts_consumption_reports':
+    'Izvještaji o potrošnji dijelova',
   'pricing.feature_asset_downtime_reports': 'Izvještaji o zastojima imovine',
   'pricing.feature_equipment_reliability_reports':
     'Izvještaji o pouzdanosti opreme',
@@ -1539,7 +1574,8 @@ const locale = {
   'pricing.feature_business_integrations':
     'Poslovne integracije (SAP/Oracle/Causal AI...)',
   'pricing.feature_custom_integrations': 'Prilagođene integracije',
-  'pricing.feature_unlimited_view_only_users': 'Neograničeno korisnika (samo pregled)',
+  'pricing.feature_unlimited_view_only_users':
+    'Neograničeno korisnika (samo pregled)',
   'pricing.feature_unlimited_requesters': 'Neograničeno podnosilaca zahtjeva',
   'pricing.feature_unlimited_vendors': 'Neograničeno dobavljača',
   'pricing.feature_unlimited_customers': 'Neograničeno izvođača',
@@ -1558,7 +1594,8 @@ const locale = {
   'pricing.sh_plan_basic_name': 'Osnovni (Self-Hosted)',
   'pricing.sh_plan_basic_description':
     'Za male timove kojima je potreban potpuni suverenitet nad podacima i osnovno praćenje održavanja na vlastitoj infrastrukturi.',
-  'pricing.sh_feature_core_work_order_management': 'Osnovno upravljanje radnim nalozima',
+  'pricing.sh_feature_core_work_order_management':
+    'Osnovno upravljanje radnim nalozima',
   'pricing.sh_feature_asset_inventory_tracking': 'Praćenje imovine i inventara',
   'pricing.sh_feature_local_data_storage': 'Lokalno skladištenje podataka',
   'pricing.sh_plan_professional_name': 'Profesionalni (Self-Hosted)',
@@ -1572,12 +1609,14 @@ const locale = {
   'pricing.sh_plan_business_name': 'Poslovni (Self-Hosted)',
   'pricing.sh_plan_business_description':
     'Operacije punog obima koje zahtijevaju upravljanje više instanci, prilagođeno brendiranje i vrhunsku sigurnost.',
-  'pricing.sh_feature_everything_in_professional_plus': 'Sve iz Profesionalnog plana plus:',
+  'pricing.sh_feature_everything_in_professional_plus':
+    'Sve iz Profesionalnog plana plus:',
   'pricing.sh_feature_multi_instance_management': 'Upravljanje više instanci',
   'pricing.sh_feature_custom_user_roles': 'Prilagođene korisničke uloge',
   'pricing.sh_feature_priority_implementation_support':
     'Prioritetna podrška pri implementaciji',
-  'pricing.faq_free_users_q': 'Koje vrste korisnika se smatraju besplatnim korisnicima?',
+  'pricing.faq_free_users_q':
+    'Koje vrste korisnika se smatraju besplatnim korisnicima?',
   'pricing.faq_free_users_a1':
     'Postoje tri vrste korisnika koje ne zahtijevaju plaćenu licencu:',
   'pricing.faq_view_only_users_title': 'Korisnici (samo pregled)',
@@ -1589,7 +1628,8 @@ const locale = {
   'pricing.faq_third_party_users_title': 'Korisnici treće strane',
   'pricing.faq_third_party_users_description':
     'To su obično dobavljači i izvođači. Oni se zapravo ne mogu prijaviti u sistem. Oni mogu samo slati ažuriranja za određeni radni nalog na kojem su označeni putem javne veze.',
-  'pricing.faq_paid_users_q': 'Koje vrste korisnika se smatraju plaćenim korisnicima?',
+  'pricing.faq_paid_users_q':
+    'Koje vrste korisnika se smatraju plaćenim korisnicima?',
   'pricing.faq_paid_users_a1':
     'Postoje tri vrste korisnika koje zahtijevaju plaćenu licencu:',
   'pricing.faq_admin_users_title': 'Administratori',
@@ -1648,7 +1688,8 @@ const locale = {
     'Vjeruju nam timovi za održavanje u više industrija',
   cut_costs_performance:
     'Smanjite troškove softvera za održavanje bez žrtvovanja performansi',
-  'free_cmms.title': 'Atlas Besplatni CMMS Softver | Nije potrebna kreditna kartica',
+  'free_cmms.title':
+    'Atlas Besplatni CMMS Softver | Nije potrebna kreditna kartica',
   'free_cmms.description':
     'Besplatni CMMS softver — nije probni period. Upravljajte održavanjem, imovinom i radnim nalozima odmah. Nije potrebna kreditna kartica.',
   'free_cmms.keywords':
@@ -1661,7 +1702,8 @@ const locale = {
   'pricing.description':
     'Fleksibilni planovi cijena za Atlas CMMS. Birajte između Cloud i Self-Hosted verzija našeg CMMS-a otvorenog koda za optimizaciju vaših operacija održavanja.',
   'free_cmms.hero.subtitle': 'Besplatni CMMS Softver',
-  'free_cmms.hero.title': 'Upravljajte radnim nalozima i imovinom - Zauvijek besplatno',
+  'free_cmms.hero.title':
+    'Upravljajte radnim nalozima i imovinom - Zauvijek besplatno',
   'free_cmms.hero.description':
     'Prestanite žonglirati s proračunskim tablicama i zastarjelim alatima. Nadogradite na moderni CMMS softver - besplatno.',
   'free_cmms.hero.start_free': 'Započnite besplatno odmah',
@@ -1675,7 +1717,8 @@ const locale = {
   'free_cmms.features.work_orders.p3':
     'Pratite napredak u realnom vremenu s trenutnim ažuriranjima statusa.',
   'free_cmms.features.work_orders.alt': 'Upravljanje radnim nalozima',
-  'free_cmms.features.asset_tracking.title': 'Praćenje životnog ciklusa imovine',
+  'free_cmms.features.asset_tracking.title':
+    'Praćenje životnog ciklusa imovine',
   'free_cmms.features.asset_tracking.p1':
     'Održavajte potpunu digitalnu historiju svake imovine.',
   'free_cmms.features.asset_tracking.p2':
@@ -1700,11 +1743,67 @@ const locale = {
     'Sinhronizujte podatke trenutno i radite van mreže kada je potrebno.',
   'free_cmms.features.mobile.alt': 'Mobilna CMMS aplikacija',
   'free_cmms.features.get_started_free': 'Započnite besplatno',
-  'free_cmms.features.ready_to_optimize': 'Spremni za optimizaciju vašeg održavanja?',
+  'free_cmms.features.ready_to_optimize':
+    'Spremni za optimizaciju vašeg održavanja?',
   'free_cmms.features.join_thousands':
     'Pridružite se hiljadama stručnjaka za održavanje koji koriste najintuitivniji besplatni CMMS na svijetu.',
   'free_cmms.features.get_started_no_card':
-    'Započnite besplatno - Nije potrebna kreditna kartica'
+    'Započnite besplatno - Nije potrebna kreditna kartica',
+  create_request_portal: 'Kreiraj portal zahtjeva',
+  edit_request_portal: 'Uredi portal zahtjeva',
+  welcome_message: 'Poruka dobrodošlice',
+  fields: 'Polja',
+  field_settings: 'Postavke polja',
+  contact: 'Kontakt',
+  required_title: 'Naslov je obavezan',
+  untitled_portal: 'Portal bez naslova',
+  no_welcome_message: 'Nema poruke dobrodošlice',
+  request_portal_create_success: 'Portal zahtjeva uspješno kreiran',
+  request_portal_edit_success: 'Portal zahtjeva uspješno ažuriran',
+  request_portal_delete_success: 'Portal zahtjeva uspješno obrisan',
+  request_portal_create_failure: 'Neuspješno kreiranje portala zahtjeva',
+  request_portal_edit_failure: 'Neuspješno ažuriranje portala zahtjeva',
+  request_portal_delete_failure: 'Neuspješno brisanje portala zahtjeva',
+  no_access_request_portals: 'Nemate pristup portalima zahtjeva',
+  'noRows.request_portal.message':
+    'Izgleda da još nemate nijedan portal zahtjeva.',
+  'noRows.request_portal.action': 'Kreirajte svoj prvi portal zahtjeva',
+  request_title: 'Naslov zahtjeva',
+  configure_form_fields: 'Konfiguriši polja obrasca',
+  allow_selection_from_all_locations: 'Dozvoli odabir iz svih lokacija',
+  allow_selection_from_all_assets: 'Dozvoli odabir iz svih sredstava',
+  restrict_to_a_specific_location: 'Ograniči na određenu lokaciju',
+  restrict_to_a_specific_asset: 'Ograniči na određeno sredstvo',
+  portal_public_asset_warning:
+    'Ovaj portal je javan i ne zahtijeva autentifikaciju. Navedena sredstva bit će vidljiva svakome ko ima link.',
+  portal_public_location_warning:
+    'Ovaj portal je javan i ne zahtijeva autentifikaciju. Navedene lokacije bit će vidljive svakome ko ima link.',
+  submit_request: 'Pošalji zahtjev',
+  share_portal: 'Podijeli portal',
+  get_portal_link: 'Preuzmi link portala',
+  portal_link_description: 'Samo osobe s ovim linkom mogu pristupiti portalu.',
+  print_qr_code: 'Štampaj QR kod',
+  qr_code_description:
+    'Preuzmite QR kod i zalijepite ga na uređaj kako bi korisnici mogli skenirati i pristupiti portalu.',
+  copied: 'Kopirano!',
+  copy: 'Kopiraj',
+  download: 'Preuzmi',
+  share: 'Podijeli',
+  delete: 'Obriši',
+  portal_not_found: 'Portal nije pronađen',
+  request_submitted_success: 'Vaš zahtjev je uspješno poslan',
+  request_submit_failure:
+    'Slanje zahtjeva nije uspjelo. Molimo pokušajte ponovo.',
+  required_description: 'Opis je obavezan',
+  required_contact: 'Kontakt je obavezan',
+  required_location: 'Lokacija je obavezna',
+  upload_files: 'Otpremi fajlove',
+  request_portal: 'Portal zahtjeva',
+  required_image: 'Slika je obavezna',
+  requested_from_portal: 'Ovaj zahtjev je kreiran s portala: ',
+  request_portals: 'Portali zahtjeva',
+  recaptcha_failed:
+    'reCAPTCHA verifikacija nije uspjela. Molimo pokušajte ponovo.'
 };
 
 export default locale;

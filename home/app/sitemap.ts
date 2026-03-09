@@ -1,5 +1,6 @@
 import { MetadataRoute } from "next";
 import { getBrandServer } from "src/utils/serverBrand";
+import { locales } from "src/i18n/request";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // const brand = await getBrandServer();
@@ -26,7 +27,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/industries/open-source-construction-maintenance-software",
   ];
 
-  const locales = ["en", "es", "fr", "de", "tr", "pt-br", "pl", "ar", "it", "sv", "ru", "hu", "nl", "zh-cn"];
   const defaultLocale = "en";
 
   const getUrl = (path: string, locale: string) => {

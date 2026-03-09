@@ -1,8 +1,8 @@
 import { getRequestConfig } from "next-intl/server";
 
-export const locales = ["en", "es", "fr", "de", "tr", "pt-br", "pl", "ar", "it", "sv", "ru", "hu", "nl", "zh-cn"];
+export const locales = ["en", "es", "fr", "de", "tr", "pt-br", "pl", "ar", "it", "sv", "ru", "hu", "nl", "zh-cn", "bs"];
 
-function deepmerge(target: any, source: any): any {
+function deepmerge(target: object, source: object): object {
   const result = { ...target };
   for (const key in source) {
     if (source[key] && typeof source[key] === "object" && !Array.isArray(source[key])) {
@@ -17,7 +17,7 @@ function deepmerge(target: any, source: any): any {
 export default getRequestConfig(async ({ requestLocale }) => {
   let locale = await requestLocale;
 
-  if (!locale || !locales.includes(locale as any)) {
+  if (!locale || !locales.includes(locale)) {
     locale = "en";
   }
 
