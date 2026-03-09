@@ -21,10 +21,10 @@ public class CompanyService {
     private final CompanyRepository companyRepository;
     private final CompanyMapper companyMapper;
     private final EntityManager em;
-    private final RoleService roleService;
+//    private final RoleService roleService;
 
     public Company create(Company company) {
-        company.getCompanySettings().setRoleList(roleService.findDefaultRoles());
+//        company.getCompanySettings().setRoleList(roleService.findDefaultRoles());
         return companyRepository.save(company);
     }
 

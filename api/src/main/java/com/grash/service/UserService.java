@@ -173,7 +173,7 @@ public class UserService {
             companyService.create(company);
             user.setOwnsCompany(true);
             user.setCompany(company);
-            user.setRole(company.getCompanySettings().getRoleList().stream().filter(role -> role.getName().equals(
+            user.setRole(roleService.findDefaultRoles().stream().filter(role -> role.getName().equals(
                     "Administrator")).findFirst().get());
             checkUsageBasedLimit(1);
         } else {
