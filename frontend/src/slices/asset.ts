@@ -175,6 +175,20 @@ export const getAssetsMini =
       dispatch(slice.actions.setLoadingGet({ loading: false }));
     }
   };
+
+export const getPublicAssetsMini =
+  (portalUUID: string, locationId?: number): AppThunk =>
+  async (dispatch) => {
+    try {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      const assets = await api.get<AssetMiniDTO[]>(
+        `${basePath}/public/mini/${portalUUID}?locationId=${locationId ?? ''}`
+      );
+      dispatch(slice.actions.getAssetsMini({ assets }));
+    } finally {
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    }
+  };
 export const addAsset =
   (asset): AppThunk =>
   async (dispatch) => {

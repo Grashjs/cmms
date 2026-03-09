@@ -1649,8 +1649,61 @@ const locale = {
   'free_cmms.features.ready_to_optimize': 'هل أنت مستعد لتحسين صيانتك؟',
   'free_cmms.features.join_thousands':
     'انضم إلى آلاف متخصصي الصيانة الذين يستخدمون برنامج CMMS المجاني الأكثر سهولة في العالم.',
-  'free_cmms.features.get_started_no_card':
-    'ابدأ مجاناً - لا حاجة لبطاقة ائتمان'
+  "free_cmms.features.get_started_no_card":
+    'ابدأ مجاناً - لا حاجة لبطاقة ائتمان',
+  "create_request_portal": "إنشاء بوابة الطلبات",
+  "edit_request_portal": "تعديل بوابة الطلبات",
+  "welcome_message": "رسالة الترحيب",
+  "fields": "الحقول",
+  "field_settings": "إعدادات الحقول",
+  "contact": "جهة الاتصال",
+  "required_title": "العنوان مطلوب",
+  "untitled_portal": "بوابة بدون عنوان",
+  "no_welcome_message": "لا توجد رسالة ترحيب",
+  "request_portal_create_success": "تم إنشاء بوابة الطلبات بنجاح",
+  "request_portal_edit_success": "تم تحديث بوابة الطلبات بنجاح",
+  "request_portal_delete_success": "تم حذف بوابة الطلبات بنجاح",
+  "request_portal_create_failure": "فشل إنشاء بوابة الطلبات",
+  "request_portal_edit_failure": "فشل تحديث بوابة الطلبات",
+  "request_portal_delete_failure": "فشل حذف بوابة الطلبات",
+  "no_access_request_portals": "ليس لديك صلاحية الوصول إلى بوابات الطلبات",
+  "noRows.request_portal.message":
+    "يبدو أنه ليس لديك أي بوابات طلبات حتى الآن.",
+  "noRows.request_portal.action": "أنشئ أول بوابة طلبات لك",
+  "request_title": "عنوان الطلب",
+  "configure_form_fields": "تكوين حقول النموذج",
+  "allow_selection_from_all_locations": "السماح بالاختيار من جميع المواقع",
+  "allow_selection_from_all_assets": "السماح بالاختيار من جميع الأصول",
+  "restrict_to_a_specific_location": "تقييد بموقع محدد",
+  "restrict_to_a_specific_asset": "تقييد بأصل محدد",
+  "portal_public_asset_warning":
+    "هذه البوابة عامة ولا تتطلب مصادقة. الأصول المدرجة ستكون مرئية لأي شخص لديه الرابط.",
+  "portal_public_location_warning":
+    "هذه البوابة عامة ولا تتطلب مصادقة. المواقع المدرجة ستكون مرئية لأي شخص لديه الرابط.",
+  "submit_request": "إرسال الطلب",
+  "share_portal": "مشاركة البوابة",
+  "get_portal_link": "الحصول على رابط البوابة",
+  "portal_link_description": "فقط الأشخاص الذين لديهم هذا الرابط يمكنهم الوصول إلى البوابة.",
+  "print_qr_code": "طباعة رمز QR",
+  "qr_code_description":
+    "قم بتنزيل رمز QR والصقه على المنشأة، حتى يتمكن المستخدمون من مسحه ضوئياً والوصول إلى البوابة.",
+  "copied": "تم النسخ!",
+  "copy": "نسخ",
+  "download": "تنزيل",
+  "share": "مشاركة",
+  "delete": "حذف",
+  "portal_not_found": "البوابة غير موجودة",
+  "request_submitted_success": "تم إرسال طلبك بنجاح",
+  "request_submit_failure": "فشل إرسال الطلب. يرجى المحاولة مرة أخرى.",
+  "required_description": "الوصف مطلوب",
+  "required_contact": "جهة الاتصال مطلوبة",
+  "required_location": "الموقع مطلوب",
+  "upload_files": "تحميل الملفات",
+  "request_portal": "بوابة الطلبات",
+  "required_image": "الصورة مطلوبة",
+  "requested_from_portal": "تم إنشاء هذا الطلب من البوابة: ",
+  "request_portals": "بوابات الطلبات",
+  "recaptcha_failed": "فشل التحقق من reCAPTCHA. يرجى المحاولة مرة أخرى."
 };
 
 export default locale;

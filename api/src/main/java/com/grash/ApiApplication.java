@@ -126,7 +126,8 @@ public class ApiApplication implements SmartInitializingSingleton {
                             PlanFeatures.REQUEST_CONFIGURATION,
                             PlanFeatures.SIGNATURE,
                             PlanFeatures.ANALYTICS,
-                            PlanFeatures.IMPORT_CSV
+                            PlanFeatures.IMPORT_CSV,
+                            PlanFeatures.REQUEST_PORTAL
                     )))
                     .yearlyCostPerUser(150).build());
         }

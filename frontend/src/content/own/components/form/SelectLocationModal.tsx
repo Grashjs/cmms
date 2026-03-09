@@ -165,7 +165,7 @@ const SelectLocationModal: React.FC<SelectLocationModalProps> = ({
       headerName: t('name'),
       flex: 1,
       renderCell: (params: GridRenderCellParams<string>) => (
-        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
+        <Box sx={{ fontWeight: 'bold', py: 1 }}>{params.value}</Box>
       )
     }
   ];

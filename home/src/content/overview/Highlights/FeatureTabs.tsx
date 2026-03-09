@@ -4,6 +4,7 @@ import { SetStateAction, useState } from "react";
 import { Box, Grid, List, ListItem, ListItemText, Tab, Tabs, Typography, Container } from "@mui/material";
 import CheckTwoToneIcon from "@mui/icons-material/CheckTwoTone";
 import { BrandConfig } from "src/utils/serverBrand";
+import SignupButton from "src/components/SignupButton";
 import {
   AvatarSuccess,
   Blob1,
@@ -14,6 +15,7 @@ import {
   TypographyH2,
 } from "./styles";
 import Image from "next/image";
+import { ArrowForward } from "@mui/icons-material";
 
 export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig }) {
   const t = useTranslations();
@@ -240,6 +242,9 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
               <CheckItem key={index} description={desc} />
             ))}
           </List>
+          <SignupButton endIcon={<ArrowForward />} sx={{ mt: 2 }} variant="text">
+            {t("register")}
+          </SignupButton>
         </Grid>
         <Grid item xs={12} md={6}>
           <BlowWrapper>

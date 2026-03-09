@@ -12,6 +12,8 @@ import com.grash.model.OwnUser;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.LocationService;
+import com.grash.service.RateLimiterService;
+import com.grash.service.RequestPortalService;
 import com.grash.service.UserService;
 import com.grash.utils.Helper;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +21,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,6 +45,8 @@ public class LocationController {
     private final LocationMapper locationMapper;
     private final UserService userService;
     private final EntityManager em;
+    private final RateLimiterService rateLimiterService;
+    private final RequestPortalService requestPortalService;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -107,7 +110,16 @@ public class LocationController {
         OwnUser location = userService.whoami(req);
         return locationService.findByCompany(location.getCompany().getId()).stream().map(locationMapper::toMiniDto).collect(Collectors.toList());
     }
-    
+
+    @GetMapping("/public/mini/{portalUUID}")
+    public Collection<LocationMiniDTO> getMiniPublic(@PathVariable String portalUUID, HttpServletRequest req) {
+        String clientIp = Helper.extractClientIp(req);
+        if (!rateLimiterService.resolvePublicMiniBucket(clientIp).tryConsume(1)) {
+            throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
+        }
+        return locationService.findByCompany(requestPortalService.findByUuidByUser(portalUUID).get().getCompany().getId()).stream().map(locationMapper::toMiniDto).collect(Collectors.toList());
+    }
+
     @GetMapping("/{id}")
     public LocationShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

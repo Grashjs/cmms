@@ -64,9 +64,11 @@ function LanguageSwitcher({ onSwitch }: { onSwitch?: () => void }) {
   return (
     <>
       <Tooltip arrow title={t("Language Switcher")}>
+        <span>
         <IconButtonWrapper color="secondary" onClick={handleOpen}>
           {currentSupportedLanguage && <currentSupportedLanguage.Icon title={currentSupportedLanguage.label} />}
         </IconButtonWrapper>
+        </span>
       </Tooltip>
       <Popover
         disableScrollLock

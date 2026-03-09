@@ -30,6 +30,7 @@ import Faq from "./components/Faq";
 import SubscriptionPlanSelector, { PRICING_YEAR_MULTIPLIER } from "./components/SubscriptionPlanSelector";
 import { fireGa4Event } from "src/utils/overall";
 import { getLocalizedMainAppUrl } from "src/utils/urlPaths";
+import TwoCallToActions from "src/content/landing/components/TwoCallToActions";
 
 const PricingWrapper = styled(Box)(
   ({ theme }) => `
@@ -259,6 +260,11 @@ function Pricing() {
             </Box>
           </CardContent>
         </Card>
+        <TwoCallToActions
+          sx={{
+            pt: { xs: 6, md: 12 },
+          }}
+        />
         <Faq />
       </Container>
     </PricingWrapper>

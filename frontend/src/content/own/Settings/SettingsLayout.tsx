@@ -16,6 +16,7 @@ function SettingsLayout() {
     { value: '', label: t('general_settings') },
     { value: 'work-order', label: t('wo_configuration') },
     { value: 'request', label: t('request_form_configuration') },
+    { value: 'request-portals', label: t('request_portals') },
     { value: 'roles', label: t('roles') },
     { value: 'checklists', label: t('checklists') },
     { value: 'workflows', label: t('workflows') },

@@ -22,6 +22,7 @@ import com.grash.service.UserService;
 import com.grash.service.AssetService;
 import com.grash.service.WorkOrderCategoryService;
 import com.grash.security.CustomUserDetail;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.CacheControl;
@@ -396,6 +397,26 @@ public class Helper {
                 customUserDetail.getAuthorities()
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    public static String extractClientIp(HttpServletRequest req) {
+        String[] headerCandidates = {
+                "X-Forwarded-For",
+                "X-Real-IP",
+                "CF-Connecting-IP",   // Cloudflare
+                "True-Client-IP"
+        };
+
+        for (String header : headerCandidates) {
+            String ip = req.getHeader(header);
+            if (ip != null && !ip.isBlank() && !"unknown".equalsIgnoreCase(ip)) {
+                // X-Forwarded-For can be a comma-separated chain: "clientIp, proxy1, proxy2"
+                return ip.split(",")[0].trim();
+            }
+        }
+
+        String remoteAddr = req.getRemoteAddr();
+        return (remoteAddr != null && !remoteAddr.isBlank()) ? remoteAddr : "unknown";
     }
 
 }

@@ -151,4 +151,24 @@ export const clearSingleFile = (): AppThunk => async (dispatch) => {
   dispatch(slice.actions.clearSingleFile({}));
 };
 
+export const uploadToRequestPortal =
+  (uuid: string, files: any[], fileType: FileType): AppThunk =>
+  async (dispatch) => {
+    let formData = new FormData();
+    const headers = authHeader(true);
+    delete headers['Content-Type'];
+    files.forEach((file) => formData.append('files', file));
+    formData.append('type', fileType);
+    const filesResponse = await api.post<File[]>(
+      `${basePath}/upload/request-portal/${uuid}`,
+      formData,
+      {
+        headers
+      },
+      true
+    );
+    dispatch(slice.actions.addFiles({ files: filesResponse }));
+    return filesResponse.map((file) => file.id);
+  };
+
 export default slice;

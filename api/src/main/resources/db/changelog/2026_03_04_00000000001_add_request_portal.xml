@@ -1,0 +1,76 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="2026_03_04_request_portal_00000000001" author="Ibrahima">
+        <createTable tableName="request_portal">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="company_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_request_portal_company" references="company(id)"/>
+            </column>
+
+            <column name="title" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="welcome_message" type="text"/>
+            <column name="uuid" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="BIGINT"/>
+            <column name="updated_by" type="BIGINT"/>
+        </createTable>
+
+        <createTable tableName="request_portal_field">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="company_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_request_portal_field_company"
+                             references="company(id)"/>
+            </column>
+
+            <column name="type" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="location_id" type="bigint">
+                <constraints foreignKeyName="fk_request_portal_field_location" references="location(id)"/>
+            </column>
+            <column name="asset_id" type="bigint">
+                <constraints foreignKeyName="fk_request_portal_field_asset" references="asset(id)"/>
+            </column>
+            <column name="required" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="request_portal_id" type="bigint">
+                <constraints nullable="false" foreignKeyName="fk_request_portal_field_request_portal"
+                             references="request_portal(id)"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="BIGINT"/>
+            <column name="updated_by" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1772619256291-1" author="Ibrahima G. Coulibaly">
+        <createSequence sequenceName="request_portal_seq" startValue="1" incrementBy="50"/>
+        <createSequence sequenceName="request_portal_field_seq" startValue="1" incrementBy="50"/>
+    </changeSet>
+</databaseChangeLog>

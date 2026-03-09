@@ -232,7 +232,7 @@ public class WorkOrderService {
         workOrder.setTitle(workOrderBase.getTitle());
         workOrder.setDescription(workOrderBase.getDescription());
         workOrder.setPriority(workOrderBase.getPriority());
-        workOrder.setImage(workOrder.getImage());
+        workOrder.setImage(workOrderBase.getImage());
         workOrder.setCompany(workOrderBase.getCompany());
         workOrder.getFiles().addAll(workOrderBase.getFiles());
         workOrder.setAsset(workOrderBase.getAsset());

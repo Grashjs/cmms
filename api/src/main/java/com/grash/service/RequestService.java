@@ -8,8 +8,10 @@ import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RequestMapper;
 import com.grash.model.*;
+import com.grash.model.enums.PortalFieldType;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.RoleType;
+import com.grash.repository.FieldConfigurationRepository;
 import com.grash.repository.RequestRepository;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,6 +44,8 @@ public class RequestService {
     private final EntityManager em;
     private final CustomSequenceService customSequenceService;
     private final LicenseService licenseService;
+    private final RequestPortalService requestPortalService;
+    private final FieldConfigurationRepository fieldConfigurationRepository;
 
     @Transactional
     public Request create(Request request, Company company) {
@@ -48,6 +53,28 @@ public class RequestService {
             throw new CustomException("You need a license to add voice notes", HttpStatus.FORBIDDEN);
         Long nextSequence = customSequenceService.getNextRequestSequence(company);
         request.setCustomId("R" + String.format("%06d", nextSequence));
+
+        Request savedRequest = requestRepository.saveAndFlush(request);
+        em.refresh(savedRequest);
+        return savedRequest;
+    }
+
+    @Transactional
+    public Request create(Request request, Company company, RequestPortal requestPortal) {
+        if (request.getAudioDescription() != null && !licenseService.hasEntitlement(LicenseEntitlement.VOICE_NOTES))
+            throw new CustomException("You need a license to add voice notes", HttpStatus.FORBIDDEN);
+        Long nextSequence = customSequenceService.getNextRequestSequence(company);
+        request.setCustomId("R" + String.format("%06d", nextSequence));
+        request.setRequestPortal(requestPortal);
+        request.setCompany(requestPortal.getCompany());
+        RequestPortalField assetField =
+                requestPortal.getFields().stream().filter(field -> field.getType().equals(PortalFieldType.ASSET) && field.getAsset() != null).findFirst().orElse(null);
+        RequestPortalField locationField =
+                requestPortal.getFields().stream().filter(field -> field.getType().equals(PortalFieldType.LOCATION) && field.getLocation() != null).findFirst().orElse(null);
+
+        if (assetField != null) request.setAsset(assetField.getAsset());
+        if (locationField != null) request.setLocation(locationField.getLocation());
+
 
         Request savedRequest = requestRepository.saveAndFlush(request);
         em.refresh(savedRequest);

@@ -1,5 +1,6 @@
 package com.grash.dto;
 
+import com.grash.dto.requestPortal.RequestPortalMiniDTO;
 import com.grash.dto.workOrder.WorkOrderMiniDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,4 +17,8 @@ public class RequestShowDTO extends WorkOrderBaseShowDTO {
     private FileMiniDTO audioDescription;
 
     private String customId;
+
+    private RequestPortalMiniDTO requestPortal;
+
+    private String contact;
 }

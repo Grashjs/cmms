@@ -12,16 +12,12 @@ import com.grash.model.Asset;
 import com.grash.model.Location;
 import com.grash.model.OwnUser;
 import com.grash.model.Part;
-import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.PermissionEntity;
-import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import com.grash.security.CurrentUser;
 import com.grash.service.*;
 import com.grash.utils.Helper;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -32,7 +28,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import io.swagger.v3.oas.annotations.Parameter;
 
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
@@ -58,6 +53,8 @@ public class AssetController {
     private final MessageSource messageSource;
     private final EntityManager em;
     private final LicenseService licenseService;
+    private final RateLimiterService rateLimiterService;
+    private final RequestPortalService requestPortalService;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -231,6 +228,24 @@ public class AssetController {
         List<Asset> assets = new ArrayList<>();
         if (locationId == null) {
             assets = assetService.findByCompany(user.getCompany().getId());
+        } else {
+            assets = assetService.findByLocation(locationId);
+        }
+        return assets.stream().map(assetMapper::toMiniDto).collect(Collectors.toList());
+    }
+
+    @GetMapping("/public/mini/{portalUUID}")
+    public Collection<AssetMiniDTO> getMiniPublic(@PathVariable String portalUUID,
+                                                  @RequestParam(required = false) Long locationId,
+                                                  HttpServletRequest req) {
+        String clientIp = Helper.extractClientIp(req);
+        if (!rateLimiterService.resolvePublicMiniBucket(clientIp).tryConsume(1)) {
+            throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
+        }
+        List<Asset> assets = new ArrayList<>();
+        Long companyId = requestPortalService.findByUuidByUser(portalUUID).get().getCompany().getId();
+        if (locationId == null) {
+            assets = assetService.findByCompany(companyId);
         } else {
             assets = assetService.findByLocation(locationId);
         }

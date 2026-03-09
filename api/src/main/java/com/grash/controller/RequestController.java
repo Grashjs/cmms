@@ -15,8 +15,10 @@ import com.grash.model.enums.RoleType;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.service.*;
 import com.grash.utils.Helper;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -26,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -49,9 +52,33 @@ public class RequestController {
     private final WorkflowService workflowService;
     private final MailServiceFactory mailServiceFactory;
     private final AssetService assetService;
+    private final RequestPortalService requestPortalService;
 
     @Value("${frontend.url}")
     private String frontendUrl;
+
+    @Value("${security.recaptcha-secret-key:}")
+    private String recaptchaSecretKey;
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    private void verifyRecaptcha(String token) {
+        String verifyUrl = "https://www.google.com/recaptcha/api/siteverify?secret=" +
+                recaptchaSecretKey + "&response=" + token;
+
+        ResponseEntity<RecaptchaResponse> response = restTemplate.postForEntity(verifyUrl, null,
+                RecaptchaResponse.class);
+
+        if (response.getBody() == null || !response.getBody().isSuccess()) {
+            throw new CustomException("reCAPTCHA verification failed", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private static class RecaptchaResponse {
+        private boolean success;
+    }
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -94,35 +121,61 @@ public class RequestController {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
+    private void onRequestCreation(Request createdRequest, Company company, String requesterName) {
+        String title = messageSource.getMessage("new_request", null, Helper.getLocale(company));
+        String message = messageSource.getMessage("notification_new_request", null, Helper.getLocale(company));
+        List<OwnUser> usersToNotify = userService.findByCompany(company.getId()).stream()
+                .filter(user1 -> user1.isEnabled() && user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
+                        || user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN)).collect(Collectors.toList());
+        notificationService.createMultiple(usersToNotify
+                .stream().map(user1 -> new Notification(message, user1, NotificationType.REQUEST,
+                        createdRequest.getId())).collect(Collectors.toList()), true, title);
+        Map<String, Object> mailVariables = new HashMap<String, Object>() {{
+            put("requestLink", frontendUrl + "/app/requests/" + createdRequest.getId());
+            put("requestTitle", createdRequest.getTitle());
+            put("requester", requesterName);
+        }};
+        mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToNotify.stream().map(OwnUser::getEmail)
+                .toArray(String[]::new), messageSource.getMessage("new_request", null,
+                Helper.getLocale(company)), mailVariables, "new-request.html", Helper.getLocale(company), null);
+
+        Collection<Workflow> workflows =
+                workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_CREATED,
+                        company.getId());
+        workflows.forEach(workflow -> workflowService.runRequest(workflow, createdRequest));
+
+    }
+
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     RequestShowDTO create(@Valid @RequestBody Request requestReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.REQUESTS)) {
             Request createdRequest = requestService.create(requestReq, user.getCompany());
-            String title = messageSource.getMessage("new_request", null, Helper.getLocale(user));
-            String message = messageSource.getMessage("notification_new_request", null, Helper.getLocale(user));
-            List<OwnUser> usersToNotify = userService.findByCompany(user.getCompany().getId()).stream()
-                    .filter(user1 -> user1.isEnabled() && user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
-                            || user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN)).collect(Collectors.toList());
-            notificationService.createMultiple(usersToNotify
-                    .stream().map(user1 -> new Notification(message, user1, NotificationType.REQUEST,
-                            createdRequest.getId())).collect(Collectors.toList()), true, title);
-            Map<String, Object> mailVariables = new HashMap<String, Object>() {{
-                put("requestLink", frontendUrl + "/app/requests/" + createdRequest.getId());
-                put("requestTitle", createdRequest.getTitle());
-                put("requester", user.getFullName());
-            }};
-            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToNotify.stream().map(OwnUser::getEmail)
-                    .toArray(String[]::new), messageSource.getMessage("new_request", null,
-                    Helper.getLocale(user)), mailVariables, "new-request.html", Helper.getLocale(user), null);
-
-            Collection<Workflow> workflows =
-                    workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_CREATED,
-                            user.getCompany().getId());
-            workflows.forEach(workflow -> workflowService.runRequest(workflow, createdRequest));
+            onRequestCreation(createdRequest, user.getCompany(), user.getFullName());
             return requestMapper.toShowDto(createdRequest);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PostMapping("/portal/{requestPortalUuid}")
+    RequestShowDTO createFromPortal(@Valid @RequestBody Request requestReq,
+                                    @PathVariable("requestPortalUuid") String requestPortalUuid,
+                                    @RequestParam(value = "recaptchaToken", required = false) String recaptchaToken,
+                                    HttpServletRequest req) {
+        if (recaptchaSecretKey != null && !recaptchaSecretKey.isBlank()) {
+            if (recaptchaToken == null || recaptchaToken.isBlank())
+                throw new CustomException("Recaptcha token missing", HttpStatus.NOT_ACCEPTABLE);
+            verifyRecaptcha(recaptchaToken);
+        }
+        Optional<RequestPortal> optionalRequestPortal = requestPortalService.findByUuidByUser(requestPortalUuid);
+        if (optionalRequestPortal.isEmpty()) {
+            throw new CustomException("Request portal not found", HttpStatus.NOT_FOUND);
+        }
+        RequestPortal requestPortal = optionalRequestPortal.get();
+        Request createdRequest = requestService.create(requestReq, requestPortal.getCompany(), requestPortal);
+        onRequestCreation(createdRequest, requestPortal.getCompany(), messageSource.getMessage("someone", null,
+                Helper.getLocale(requestPortal.getCompany())));
+        return requestMapper.toShowDto(createdRequest);
     }
 
     @PatchMapping("/{id}")
@@ -173,13 +226,19 @@ public class RequestController {
                 savedRequest.getAsset().setStatus(requestApproveDTO.getAssetStatus());
                 assetService.save(savedRequest.getAsset());
             }
-            OwnUser requester = userService.findById(savedRequest.getCreatedBy()).get();
+            List<OwnUser> usersToMail =
+                    userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
+                            .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
             String title = messageSource.getMessage("request_approved", null, Helper.getLocale(user));
-            String message = messageSource.getMessage("request_approved_description",
-                    new Object[]{savedRequest.getTitle()}, Helper.getLocale(user));
-            notificationService.createMultiple(Collections.singletonList(new Notification(message, requester,
-                    NotificationType.WORK_ORDER, result.getId())), true, title);
 
+            if (savedRequest.getCreatedBy() != null) {
+                OwnUser requester = userService.findById(savedRequest.getCreatedBy()).get();
+                String message = messageSource.getMessage("request_approved_description",
+                        new Object[]{savedRequest.getTitle()}, Helper.getLocale(user));
+                notificationService.createMultiple(Collections.singletonList(new Notification(message, requester,
+                        NotificationType.WORK_ORDER, result.getId())), true, title);
+                usersToMail.add(requester);
+            }
             String message2 = messageSource.getMessage("request_approved_description_limited_admin",
                     new Object[]{user.getFullName(), savedRequest.getTitle()}, Helper.getLocale(user));
             notificationService.createMultiple(userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN) && !user1.getId().equals(user.getId())).map(user1 -> new Notification(message2, user1,
@@ -189,10 +248,6 @@ public class RequestController {
                 put("workOrderLink", frontendUrl + "/app/work-orders/" + result.getId());
                 put("workOrderTitle", result.getTitle());
             }};
-            List<OwnUser> usersToMail =
-                    userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
-                            .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
-            usersToMail.add(requester);
             mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
                             .toArray(String[]::new), title, mailVariables, "approved-request.html",
                     Helper.getLocale(user),
@@ -227,14 +282,20 @@ public class RequestController {
                             user.getCompany().getId());
             workflows.forEach(workflow -> workflowService.runRequest(workflow, savedRequest));
 
-            OwnUser requester = userService.findById(savedRequest.getCreatedBy()).get();
-
             String title = messageSource.getMessage("request_rejected", null, Helper.getLocale(user));
-            String message = messageSource.getMessage("request_rejected_description",
-                    new Object[]{savedRequest.getTitle()}, Helper.getLocale(user));
-            notificationService.createMultiple(Collections.singletonList(new Notification(message, requester,
-                    NotificationType.INFO, null)), true, title);
+            List<OwnUser> usersToMail =
+                    userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
+                            .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
 
+            if (savedRequest.getCreatedBy() != null) {
+                OwnUser requester = userService.findById(savedRequest.getCreatedBy()).get();
+
+                String message = messageSource.getMessage("request_rejected_description",
+                        new Object[]{savedRequest.getTitle()}, Helper.getLocale(user));
+                notificationService.createMultiple(Collections.singletonList(new Notification(message, requester,
+                        NotificationType.INFO, null)), true, title);
+                usersToMail.add(requester);
+            }
             String message2 = messageSource.getMessage("request_rejected_description_limited_admin",
                     new Object[]{user.getFullName(), savedRequest.getTitle()}, Helper.getLocale(user));
             notificationService.createMultiple(userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN) && !user1.getId().equals(user.getId())).map(user1 -> new Notification(message2, user1,
@@ -244,10 +305,6 @@ public class RequestController {
                 put("requestLink", frontendUrl + "/app/requests/" + savedRequest.getId());
                 put("requestTitle", savedRequest.getTitle());
             }};
-            List<OwnUser> usersToMail =
-                    userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
-                            .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
-            usersToMail.add(requester);
             mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
                             .toArray(String[]::new), title, mailVariables, "rejected-request.html",
                     Helper.getLocale(user),
