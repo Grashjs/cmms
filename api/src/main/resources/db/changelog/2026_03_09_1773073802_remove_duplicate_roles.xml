@@ -22,6 +22,7 @@
             DELETE
             FROM role
             WHERE company_settings_id IS NULL
+              AND code !=6
               AND id NOT IN (SELECT MIN(id)
                              FROM role
                              WHERE company_settings_id IS NULL
