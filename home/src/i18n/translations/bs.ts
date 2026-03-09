@@ -1448,257 +1448,156 @@ const locale = {
     select_three_plans_to_compare: "Odaberite 3 plana za poređenje",
     month_per_user: "mjesečno po korisniku",
     year_per_user: "godišnje po korisniku",
-    title: "Cijene",
-    description:
-      "Fleksibilni planovi cijena za Atlas CMMS. Birajte između Cloud i Self-Hosted verzija našeg CMMS-a otvorenog koda kako biste optimizirali svoje operacije održavanja.",
+    plan_basic_name: "Osnovni",
+    plan_basic_description:
+      "Za timove koji žele pratiti imovinu i kreirati osnovne rasporede preventivnog održavanja s procedurama.",
+    feature_unlimited_work_orders: "Neograničeni radni nalozi",
+    feature_custom_tasks: "Prilagođeni zadaci",
+    feature_unlimited_request_user_licenses: "Neograničene licence za korisnike zahtjeva",
+    plan_starter_name: "Početni",
+    plan_starter_description:
+      "Za timove koji žele izgraditi efikasno i snažno preventivno održavanje kroz preglednost stanja mašina i radne snage.",
+    feature_everything_in_basic_plus: "Sve iz Osnovnog plana plus:",
+    feature_preventive_maintenance_recurring_work_orders: "Preventivno održavanje / Ponavljajući radni nalozi",
+    feature_custom_checklists: "Prilagođene kontrolne liste",
+    feature_inventory_management_costing: "Upravljanje zalihama / Obračun troškova",
+    feature_time_and_manpower_tracking: "Praćenje vremena i radne snage",
+    feature_thirty_day_analytics_reporting: "30-dnevna analitika i izvještavanje",
+    plan_professional_name: "Profesionalni",
+    plan_professional_description:
+      "Odjeli koji trebaju koristiti uvide i analitiku za daljnji rast i produktivnost održavanja.",
+    feature_everything_in_starter_plus: "Sve iz Početnog plana plus:",
+    feature_multiple_inventory_lines: "Višestruke zalihe",
+    feature_customizable_request_portal: "Prilagodljivi portal zahtjeva",
+    feature_mobile_offline_mode: "Mobilni vanmrežni režim rada",
+    feature_advanced_analytics_reporting: "Napredna analitika i izvještavanje",
+    plan_business_name: "Poslovni",
+    plan_business_description:
+      "Organizacije spremne za prikupljanje podataka o održavanju i operacijama radi upravljanja s više lokacija i prilagodbe sistema.",
+    feature_everything_in_professional_plus: "Sve iz Profesionalnog plana plus:",
+    feature_purchase_order_management: "Upravljanje narudžbenicama",
+    feature_multi_site_module_support: "Podrška za module za više lokacija",
+    feature_custom_work_order_statuses: "Prilagođeni statusi radnih naloga",
+    feature_custom_integrations_support: "Podrška za prilagođene integracije",
+    feature_work_order_management: "Upravljanje radnim nalozima",
+    feature_recurring_work_orders: "Ponavljajući radni nalozi",
+    feature_custom_categories: "Prilagođene kategorije",
+    feature_data_importing: "Uvoz podataka",
+    feature_time_and_cost_tracking: "Praćenje vremena i troškova",
+    feature_work_order_configuration: "Konfiguracija radnih naloga",
+    feature_internal_requests: "Interni zahtjevi",
+    feature_external_request_portal: "Eksterni portal zahtjeva",
+    category_locations_assets_parts: "Lokacije, sredstva i dijelovi",
+    feature_location_management: "Upravljanje lokacijama",
+    feature_barcode_scanning: "Skener barkoda",
+    feature_inventory_management: "Upravljanje zalihama",
+    feature_custom_asset_statuses: "Prilagođeni statusi sredstava",
+    feature_asset_downtime_tracking: "Praćenje zastoja sredstava",
+    feature_asset_depreciation_tracking: "Praćenje amortizacije sredstava",
+    feature_asset_warranty_tracking: "Praćenje garancije sredstava",
+    feature_purchase_orders_management: "Narudžbenice",
+    feature_asset_check_in_out: "Zaduživanje / Razduživanje sredstava",
+    category_mobile_offline: "Mobilni vanmrežni rad",
+    feature_work_order_availability: "Dostupnost radnih naloga",
+    feature_updating_status: "Ažuriranje statusa",
+    feature_updating_tasks: "Ažuriranje zadataka",
+    feature_work_order_drafts: "Skice radnih naloga",
+    feature_full_drill_down_reporting_history: "Potpuno dubinsko izvještavanje i historija",
+    period_thirty_days: "30 dana",
+    period_full: "Potpuno",
+    feature_pdf_csv_exporting: "PDF i CSV izvoz",
+    feature_itemized_time_reporting: "Izvještavanje o vremenu po stavkama",
+    feature_user_login_reports: "Izvještaji o prijavama korisnika",
+    feature_parts_consumption_reports: "Izvještaji o potrošnji dijelova",
+    feature_asset_downtime_reports: "Izvještaji o zastojima sredstava",
+    feature_equipment_reliability_reports: "Izvještaji o pouzdanosti opreme",
+    feature_multi_site_modules: "Moduli za više lokacija",
+    category_integrations: "Integracije",
+    feature_business_integrations: "Poslovne integracije (SAP/Oracle/Causal AI...)",
+    feature_custom_integrations: "Prilagođene integracije",
+    feature_unlimited_view_only_users: "Neograničeni korisnici samo za pregled",
+    feature_unlimited_requesters: "Neograničeni podnosioci zahtjeva",
+    feature_unlimited_vendors: "Neograničeni dobavljači",
+    feature_unlimited_customers: "Neograničeni kupci",
+    category_support: "Podrška",
+    feature_daily_email_digest: "Dnevni email sažetak",
+    feature_articles: "Članci",
+    feature_training_webinars: "Webinari za obuku",
+    feature_community_support_discord: "Podrška zajednice (Discord)",
+    feature_email_support: "Email podrška",
+    feature_chat_phone_support: "Podrška putem chata/telefona",
+    feature_priority_support: "Prioritetna podrška",
+    feature_implementation_training: "Implementacija i obuka",
+    feature_dedicated_account_manager: "Namjenski upravitelj naloga",
+    category_customization: "Prilagodba",
+    feature_custom_development: "Prilagođeni razvoj",
+    sh_plan_basic_name: "Osnovni",
+    sh_plan_basic_description:
+      "Za male timove kojima je potreban potpuni suverenitet nad podacima i osnovno praćenje održavanja na vlastitoj infrastrukturi.",
+    sh_feature_core_work_order_management: "Osnovno upravljanje radnim nalozima",
+    sh_feature_asset_inventory_tracking: "Praćenje sredstava i zaliha",
+    sh_feature_local_data_storage: "Lokalno pohranjivanje podataka",
+    sh_plan_professional_name: "Profesionalni",
+    sh_plan_professional_description:
+      "Idealno za rastuće pogone koji zahtijevaju napredne kontrolne liste, tokove rada i dublju integraciju sistema.",
+    sh_feature_everything_in_basic_plus: "Sve iz Osnovnog plana plus:",
+    sh_feature_unlimited_assets_checklists: "Neograničena sredstva/kontrolne liste",
+    sh_feature_nfc_barcode_scanning: "NFC i barkod skeniranje",
+    sh_feature_email_support: "Email podrška",
+    sh_plan_business_name: "Poslovni",
+    sh_plan_business_description:
+      "Operacije punog obima koje zahtijevaju upravljanje s više instanci, prilagođeno brendiranje i vrhunsku sigurnost.",
+    sh_feature_everything_in_professional_plus: "Sve iz Profesionalnog plana plus:",
+    sh_feature_multi_instance_management: "Upravljanje s više instanci",
+    sh_feature_custom_user_roles: "Prilagođene korisničke uloge",
+    sh_feature_priority_implementation_support: "Prioritetna podrška pri implementaciji",
+    faq_free_users_q: "Koje vrste korisnika se smatraju besplatnim korisnicima?",
+    faq_free_users_a1: "Postoje tri vrste korisnika koji ne zahtijevaju plaćenu licencu:",
+    faq_view_only_users_title: "Korisnici samo za pregled",
+    faq_view_only_users_description:
+      "To su obično nadzornici koji se rijetko prijavljuju kako bi vidjeli pregled aktivnosti održavanja. Oni također mogu podnositi radne zahtjeve i pokretati izvještaje.",
+    faq_requester_users_title: "Korisnici podnosioci zahtjeva",
+    faq_requester_users_description:
+      "Ovi korisnici mogu samo podnositi radne zahtjeve i pratiti status tih zahtjeva. Oni ne mogu vidjeti radne naloge, sredstva, dijelove niti bilo koje druge podatke pohranjene u CMMS-u.",
+    faq_third_party_users_title: "Korisnici treće strane",
+    faq_third_party_users_description:
+      "To su obično dobavljači i izvođači. Oni se zapravo ne mogu prijaviti u sistem. Mogu samo slati ažuriranja za određeni radni nalog na koji su označeni putem javnog linka.",
+    faq_paid_users_q: "Koje vrste korisnika se smatraju plaćenim korisnicima?",
+    faq_paid_users_a1: "Postoje tri vrste korisnika koje zahtijevaju plaćenu licencu:",
+    faq_admin_users_title: "Administratori",
+    faq_admin_users_description:
+      "Ovi korisnici imaju mogućnost dodavanja drugih na nalog, prihvaćanja ili odbijanja radnih zahtjeva i uređivanja detalja radnih naloga. Oni su korisnici koji kontroliraju nalog. Možete imati više administratora po nalogu.",
+    faq_technical_users_title: "Tehnički korisnici",
+    faq_technical_users_description:
+      "To su obično tehničari koji zatvaraju radne naloge na terenu. Oni mogu uređivati radne naloge koje sami kreiraju, ali ne i druge radne naloge. Mogu dodavati slike i ažuriranja statusa radnim nalozima i kreirati nove radne naloge.",
+    faq_limited_technical_users_title: "Ograničeni tehnički korisnici",
+    faq_limited_technical_users_description:
+      "Ovi korisnici imaju ista prava kao i tehnički korisnik. Jedini izuzetak je da mogu vidjeti samo radne naloge koji su dodijeljeni njima – ne i druge tehničke korisnike na nalogu.",
+    faq_change_plans_q: "Mogu li kasnije promijeniti plan?",
+    faq_change_plans_a:
+      "Da, svoj plan možete nadograditi ili degradirati u bilo kojem trenutku. Promjene stupaju na snagu na početku vašeg sljedećeg ciklusa naplate.",
+    faq_free_trial_q: "Postoji li besplatna probna verzija?",
+    faq_free_trial_a:
+      "Da, nudimo 15-dnevnu besplatnu probnu verziju Poslovnog plana kako biste mogli iskusiti sve značajke prije donošenja odluke.",
+    faq_non_profit_discounts_q: "Nudite li popuste za neprofitne organizacije?",
+    faq_non_profit_discounts_a:
+      "Da, nudimo posebne cijene za neprofitne organizacije. Za više informacija molimo kontaktirajte naš tim prodaje.",
+    faq_payment_methods_q: "Koje načine plaćanja prihvatate?",
+    faq_payment_methods_a:
+      "Prihvatamo sve glavne kreditne kartice, bankovne transfere i PayPal. Za Enterprise planove možemo dogovoriti i fakturisanje.",
+    faq_cancel_subscription_q: "Mogu li otkazati svoju pretplatu?",
+    faq_cancel_subscription_a:
+      "Da, svoju pretplatu možete otkazati u bilo kojem trenutku. I dalje ćete imati pristup do kraja vašeg trenutnog obračunskog perioda.",
+    faq_data_secure_q: "Jesu li moji podaci sigurni?",
+    faq_data_secure_a:
+      "Da, sigurnost podataka shvaćamo vrlo ozbiljno. Svi podaci su šifrirani u prijenosu i mirovanju, te redovno provodimo sigurnosne revizije.",
+    faq_title: "Često postavljana pitanja",
     annually_save_two_months: "Godišnje (Uštedite 2 mjeseca)",
     most_popular: "Najpopularnije",
     get_your_license: "Preuzmite licencu",
-    plans: {
-      basic: {
-        name: "Osnovni",
-        description:
-          "Za timove koji žele pratiti imovinu i kreirati osnovne rasporede preventivnog održavanja s procedurama.",
-        features: ["Neograničeni radni nalozi", "Prilagođeni zadaci", "Neograničene licence za korisnike zahtjeva"],
-      },
-      starter: {
-        name: "Početni",
-        description:
-          "Za timove koji žele izgraditi efikasno i snažno preventivno održavanje kroz preglednost stanja mašina i radne snage.",
-        features: [
-          "Sve iz Osnovnog plana plus:",
-          "Preventivno održavanje / Ponavljajući radni nalozi",
-          "Prilagođene kontrolne liste",
-          "Upravljanje zalihama / Obračun troškova",
-          "Praćenje vremena i radne snage",
-          "30-dnevna analitika i izvještavanje",
-        ],
-      },
-      professional: {
-        name: "Profesionalni",
-        description: "Odjeli koji trebaju koristiti uvide i analitiku za daljnji rast i produktivnost održavanja.",
-        features: [
-          "Sve iz Početnog plana plus:",
-          "Višestruke zalihe",
-          "Prilagodljivi portal zahtjeva",
-          "Mobilni vanmrežni režim rada",
-          "Napredna analitika i izvještavanje",
-        ],
-      },
-      business: {
-        name: "Poslovni",
-        description:
-          "Organizacije spremne za prikupljanje podataka o održavanju i operacijama radi upravljanja s više lokacija i prilagodbe sistema.",
-        features: [
-          "Sve iz Profesionalnog plana plus:",
-          "Upravljanje narudžbenicama",
-          "Podrška za module za više lokacija",
-          "Prilagođeni statusi radnih naloga",
-          "Podrška za prilagođene integracije",
-        ],
-      },
-    },
-    self_hosted_plans: {
-      basic: {
-        name: "Osnovni",
-        description:
-          "Za male timove kojima je potreban potpuni suverenitet nad podacima i osnovno praćenje održavanja na vlastitoj infrastrukturi.",
-        features: [
-          "Osnovno upravljanje radnim nalozima",
-          "Praćenje sredstava i zaliha",
-          "Lokalno pohranjivanje podataka",
-        ],
-      },
-      professional: {
-        name: "Profesionalni",
-        description:
-          "Idealno za rastuće pogone koji zahtijevaju napredne kontrolne liste, tokove rada i dublju integraciju sistema.",
-        features: [
-          "Sve iz Osnovnog plana plus:",
-          "Neograničena sredstva/kontrolne liste",
-          "NFC i barkod skeniranje",
-          "Email podrška",
-        ],
-      },
-      business: {
-        name: "Poslovni",
-        description:
-          "Operacije punog obima koje zahtijevaju upravljanje s više instanci, prilagođeno brendiranje i vrhunsku sigurnost.",
-        features: [
-          "Sve iz Profesionalnog plana plus:",
-          "Upravljanje s više instanci",
-          "Prilagođene korisničke uloge",
-          "Prioritetna podrška pri implementaciji",
-        ],
-      },
-    },
-    categories: {
-      work_orders: {
-        label: "Radni nalozi",
-        features: {
-          feature_work_order_management: "Upravljanje radnim nalozima",
-          feature_recurring_work_orders: "Ponavljajući radni nalozi",
-          feature_custom_categories: "Prilagođene kategorije",
-          feature_data_importing: "Uvoz podataka",
-          feature_time_and_cost_tracking: "Praćenje vremena i troškova",
-          feature_work_order_configuration: "Konfiguracija radnih naloga",
-          feature_internal_requests: "Interni zahtjevi",
-          feature_external_request_portal: "Eksterni portal zahtjeva",
-          feature_custom_work_order_statuses: "Prilagođeni statusi radnih naloga",
-        },
-      },
-      locations_assets_parts: {
-        label: "Lokacije, sredstva i dijelovi",
-        features: {
-          feature_location_management: "Upravljanje lokacijama",
-          feature_barcode_scanning: "Skener barkoda",
-          feature_inventory_management: "Upravljanje zalihama",
-          feature_custom_asset_statuses: "Prilagođeni statusi sredstava",
-          feature_asset_downtime_tracking: "Praćenje zastoja sredstava",
-          feature_asset_depreciation_tracking: "Praćenje amortizacije sredstava",
-          feature_asset_warranty_tracking: "Praćenje garancije sredstava",
-          feature_purchase_orders_management: "Narudžbenice",
-          feature_asset_check_in_out: "Zaduživanje / Razduživanje sredstava",
-        },
-      },
-      mobile_offline: {
-        label: "Mobilni vanmrežni rad",
-        features: {
-          feature_work_order_availability: "Dostupnost radnih naloga",
-          feature_updating_status: "Ažuriranje statusa",
-          feature_updating_tasks: "Ažuriranje zadataka",
-          feature_work_order_drafts: "Skice radnih naloga",
-        },
-      },
-      reporting: {
-        label: "Izvještavanje",
-        features: {
-          feature_full_drill_down_reporting_history: "Potpuno dubinsko izvještavanje i historija",
-          period_thirty_days: "30 dana",
-          period_full: "Potpuno",
-          feature_pdf_csv_exporting: "PDF i CSV izvoz",
-          feature_itemized_time_reporting: "Izvještavanje o vremenu po stavkama",
-          feature_user_login_reports: "Izvještaji o prijavama korisnika",
-          feature_parts_consumption_reports: "Izvještaji o potrošnji dijelova",
-          feature_asset_downtime_reports: "Izvještaji o zastojima sredstava",
-          feature_equipment_reliability_reports: "Izvještaji o pouzdanosti opreme",
-          feature_multi_site_modules: "Moduli za više lokacija",
-        },
-      },
-      integrations: {
-        label: "Integracije",
-        features: {
-          feature_business_integrations: "Poslovne integracije (SAP/Oracle/Causal AI...)",
-          feature_custom_integrations: "Prilagođene integracije",
-        },
-      },
-      users: {
-        label: "Korisnici",
-        features: {
-          feature_unlimited_view_only_users: "Neograničeni korisnici samo za pregled",
-          feature_unlimited_requesters: "Neograničeni podnosioci zahtjeva",
-          feature_unlimited_vendors: "Neograničeni dobavljači",
-          feature_unlimited_customers: "Neograničeni kupci",
-        },
-      },
-      support: {
-        label: "Podrška",
-        features: {
-          feature_daily_email_digest: "Dnevni email sažetak",
-          feature_articles: "Članci",
-          feature_training_webinars: "Webinari za obuku",
-          feature_community_support_discord: "Podrška zajednice (Discord)",
-          feature_email_support: "Email podrška",
-          feature_chat_phone_support: "Podrška putem chata/telefona",
-          feature_priority_support: "Prioritetna podrška",
-          feature_implementation_training: "Implementacija i obuka",
-          feature_dedicated_account_manager: "Namjenski upravitelj naloga",
-        },
-      },
-      customization: {
-        label: "Prilagodba",
-        features: {
-          feature_custom_development: "Prilagođeni razvoj",
-        },
-      },
-    },
-    faq: {
-      title: "Često postavljana pitanja",
-      questions: [
-        {
-          question: "Koje vrste korisnika se smatraju besplatnim korisnicima?",
-          answer: "Postoje tri vrste korisnika koji ne zahtijevaju plaćenu licencu:",
-          user_types: [
-            {
-              title: "Korisnici samo za pregled",
-              description:
-                "To su obično nadzornici koji se rijetko prijavljuju kako bi vidjeli pregled aktivnosti održavanja. Oni također mogu podnositi radne zahtjeve i pokretati izvještaje.",
-            },
-            {
-              title: "Korisnici podnosioci zahtjeva",
-              description:
-                "Ovi korisnici mogu samo podnositi radne zahtjeve i pratiti status tih zahtjeva. Oni ne mogu vidjeti radne naloge, sredstva, dijelove niti bilo koje druge podatke pohranjene u CMMS-u.",
-            },
-            {
-              title: "Korisnici treće strane",
-              description:
-                "To su obično dobavljači i izvođači. Oni se zapravo ne mogu prijaviti u sistem. Mogu samo slati ažuriranja za određeni radni nalog na koji su označeni putem javnog linka.",
-            },
-          ],
-        },
-        {
-          question: "Koje vrste korisnika se smatraju plaćenim korisnicima?",
-          answer: "Postoje tri vrste korisnika koje zahtijevaju plaćenu licencu:",
-          user_types: [
-            {
-              title: "Administratori",
-              description:
-                "Ovi korisnici imaju mogućnost dodavanja drugih na nalog, prihvaćanja ili odbijanja radnih zahtjeva i uređivanja detalja radnih naloga. Oni su korisnici koji kontroliraju nalog. Možete imati više administratora po nalogu.",
-            },
-            {
-              title: "Tehnički korisnici",
-              description:
-                "To su obično tehničari koji zatvaraju radne naloge na terenu. Oni mogu uređivati radne naloge koje sami kreiraju, ali ne i druge radne naloge. Mogu dodavati slike i ažuriranja statusa radnim nalozima i kreirati nove radne naloge.",
-            },
-            {
-              title: "Ograničeni tehnički korisnici",
-              description:
-                "Ovi korisnici imaju ista prava kao i tehnički korisnik. Jedini izuzetak je da mogu vidjeti samo radne naloge koji su dodijeljeni njima – ne i druge tehničke korisnike na nalogu.",
-            },
-          ],
-        },
-        {
-          question: "Mogu li kasnije promijeniti plan?",
-          answer:
-            "Da, svoj plan možete nadograditi ili degradirati u bilo kojem trenutku. Promjene stupaju na snagu na početku vašeg sljedećeg ciklusa naplate.",
-        },
-        {
-          question: "Postoji li besplatna probna verzija?",
-          answer:
-            "Da, nudimo 15-dnevnu besplatnu probnu verziju Poslovnog plana kako biste mogli iskusiti sve značajke prije donošenja odluke.",
-        },
-        {
-          question: "Nudite li popuste za neprofitne organizacije?",
-          answer:
-            "Da, nudimo posebne cijene za neprofitne organizacije. Za više informacija molimo kontaktirajte naš tim prodaje.",
-        },
-        {
-          question: "Koje načine plaćanja prihvatate?",
-          answer:
-            "Prihvatamo sve glavne kreditne kartice, bankovne transfere i PayPal. Za Enterprise planove možemo dogovoriti i fakturisanje.",
-        },
-        {
-          question: "Mogu li otkazati svoju pretplatu?",
-          answer:
-            "Da, svoju pretplatu možete otkazati u bilo kojem trenutku. I dalje ćete imati pristup do kraja vašeg trenutnog obračunskog perioda.",
-        },
-        {
-          question: "Jesu li moji podaci sigurni?",
-          answer:
-            "Da, sigurnost podataka shvaćamo vrlo ozbiljno. Svi podaci su šifrirani u prijenosu i mirovanju, te redovno provodimo sigurnosne revizije.",
-        },
-      ],
-    },
+    title: "Cijene",
+    description:
+      "Fleksibilni planovi cijena za Atlas CMMS. Birajte između Cloud i Self-Hosted verzija našeg CMMS-a otvorenog koda kako biste optimizirali svoje operacije održavanja.",
   },
   get_started: "Započnite",
   workflow_automation: "Automatizacija toka posla",
