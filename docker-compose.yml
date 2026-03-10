@@ -62,6 +62,7 @@ services:
       SENDGRID_API_KEY: ${SENDGRID_API_KEY:-}
       SENDGRID_FROM_EMAIL: ${SENDGRID_FROM_EMAIL:-}
       SENDGRID_CONTACT_LIST_ID: ${SENDGRID_CONTACT_LIST_ID:-}
+      RECAPTCHA_SECRET_KEY: ${RECAPTCHA_SECRET_KEY:-}
     ports:
       - "8080:8080"
   frontend:
@@ -83,6 +84,7 @@ services:
         DEMO_LINK: ${DEMO_LINK:- }
         PADDLE_SECRET_TOKEN: ${PADDLE_SECRET_TOKEN:- }
         PADDLE_ENVIRONMENT: ${PADDLE_ENVIRONMENT:-sandbox}
+        RECAPTCHA_SITE_KEY: ${RECAPTCHA_SITE_KEY:- }
     ports:
       - "3000:3000"
     depends_on:
