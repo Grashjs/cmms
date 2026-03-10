@@ -260,8 +260,9 @@ public class ScheduleService {
         }
 
         ScheduleBuilder<?> notificationScheduleBuilder;
-
-        if (schedule.getRecurrenceType() == RecurrenceType.WEEKLY) {
+        if (schedule.getRecurrenceBasedOn() == RecurrenceBasedOn.COMPLETED_DATE) {
+            notificationScheduleBuilder = SimpleScheduleBuilder.simpleSchedule().withRepeatCount(0);
+        } else if (schedule.getRecurrenceType() == RecurrenceType.WEEKLY) {
             // WEEKLY needs special handling because notification days differ from WO days
             if (schedule.getDaysOfWeek() == null || schedule.getDaysOfWeek().isEmpty()) {
                 throw new CustomException("Days of week are required for weekly recurrence.",

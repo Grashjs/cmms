@@ -29,6 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
 
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -170,7 +172,9 @@ public class PreventiveMaintenanceService {
                     // Compute fire times
                     Date fireTime = operableTrigger.getFireTimeAfter(startTime);
                     while (fireTime != null && (fireTime.before(end) || fireTime.equals(end))) {
-                        fireTimes.add(fireTime);
+                        if (shouldFireOnDate(schedule, fireTime)) {
+                            fireTimes.add(fireTime);
+                        }
                         fireTime = operableTrigger.getFireTimeAfter(fireTime);
 
                         // Safety limit to prevent infinite loops
@@ -192,6 +196,25 @@ public class PreventiveMaintenanceService {
         }
 
         return result;
+    }
+
+    private boolean shouldFireOnDate(Schedule schedule, Date fireTime) {
+        if (schedule.getRecurrenceType() != RecurrenceType.WEEKLY || schedule.getFrequency() <= 1) {
+            return true;
+        }
+
+        String tzId = schedule.getPreventiveMaintenance()
+                .getCompany().getCompanySettings()
+                .getGeneralPreferences().getTimeZone();
+        ZoneId zoneId = ZoneId.of(tzId);
+
+        long daysSinceStart = ChronoUnit.DAYS.between(
+                schedule.getStartsOn().toInstant().atZone(zoneId).toLocalDate(),
+                fireTime.toInstant().atZone(zoneId).toLocalDate()
+        );
+        long weeksSinceStart = daysSinceStart / 7;
+
+        return weeksSinceStart % schedule.getFrequency() == 0;
     }
 
     public Optional<PreventiveMaintenance> findByIdAndCompany(Long id, Long companyId) {
