@@ -1,6 +1,6 @@
 import { getRequestConfig } from "next-intl/server";
 
-export const locales = ["en", "es", "fr", "de", "tr", "pt-br", "pl", "ar", "it", "sv", "ru", "hu", "nl", "zh-cn", "bs"];
+export const locales = ["en", "es", "fr", "de", "tr", "pt-br", "pl", "ar", "it", "sv", "ru", "hu", "nl", "zh-cn", "ba"];
 
 function deepmerge(target: object, source: object): object {
   const result = { ...target };

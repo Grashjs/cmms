@@ -25,7 +25,7 @@ export const config = {
   // Match only internationalized pathnames
   matcher: [
     "/",
-    "/(en|es|fr|de|tr|pt-br|pl|ar|it|sv|ru|hu|nl|zh-cn|bs)/:path*",
+    "/(en|es|fr|de|tr|pt-br|pl|ar|it|sv|ru|hu|nl|zh-cn|ba)/:path*",
     // Match all pathnames except for API routes, static files, Next.js internals
     "/((?!api|_next|_vercel|.*\\..*).*)",
   ],
