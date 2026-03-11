@@ -19,7 +19,7 @@ import {
   HU,
   NL,
   CN,
-  BS,
+  BA,
 } from 'country-flag-icons/react/3x2';
 
 // ─── Lazy translation loaders ────────────────────────────────────────────────
@@ -38,7 +38,7 @@ const translationLoaders: Record<string, () => Promise<{ default: object }>> = {
   hu: () => import('./translations/hu'),
   nl: () => import('./translations/nl'),
   zh_cn: () => import('./translations/zh_cn'),
-  bs: () => import('./translations/bs')
+  ba: () => import('./translations/ba')
 };
 
 // ─── Lazy date-fns locale loaders ────────────────────────────────────────────
@@ -57,7 +57,7 @@ const dateLocaleLoaders: Record<string, () => Promise<DateLocale>> = {
   hu: () => import('date-fns/locale').then((m) => m.hu),
   nl: () => import('date-fns/locale').then((m) => m.nl),
   zh_cn: () => import('date-fns/locale').then((m) => m.zhCN),
-  ba: () => import('date-fns/locale').then((m) => m.bs),
+  ba: () => import('date-fns/locale').then((m) => m.ba),
 };
 
 // ─── Lazy FullCalendar locale loaders ────────────────────────────────────────
@@ -79,7 +79,7 @@ const calendarLocaleLoaders: Record<string, () => Promise<LocaleSingularArg>> =
     nl: () => import('@fullcalendar/core/locales/nl').then((m) => m.default),
     zh_cn: () =>
       import('@fullcalendar/core/locales/zh-cn').then((m) => m.default),
-    bs: () => import('@fullcalendar/core/locales/bs').then((m) => m.default)
+    ba: () => import('@fullcalendar/core/locales/ba').then((m) => m.default)
   };
 
 // ─── i18n init (no resources bundled upfront) ────────────────────────────────
@@ -181,7 +181,7 @@ export type SupportedLanguage =
   | 'HU'
   | 'NL'
   | 'ZH_CN'
-  | 'BS';
+  | 'BA';
 
 export const supportedLanguages: {
   code: Lowercase<SupportedLanguage>;
@@ -202,7 +202,7 @@ export const supportedLanguages: {
   { code: 'hu', label: 'Hungarian', Icon: HU },
   { code: 'nl', label: 'Dutch', Icon: NL },
   { code: 'zh_cn', label: 'Chinese (Simplified)', Icon: CN },
-  { code: 'bs', label: 'Bosanski', Icon: BS },
+  { code: 'ba', label: 'Bosanski', Icon: BA },
 ];
 
 export const getSupportedLanguage = (lang: string) =>
