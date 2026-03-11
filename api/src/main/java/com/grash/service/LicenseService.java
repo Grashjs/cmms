@@ -25,7 +25,6 @@ public class LicenseService {
     private static final String ENTITLEMENTS_URL_TEMPLATE = "https://api.keygen.sh/v1/accounts/%s/licenses/%s" +
             "/entitlements?limit=100";
     private static final MediaType KEYGEN_MEDIA_TYPE = MediaType.valueOf("application/vnd.api+json");
-    private static final String DEFAULT_LICENSE_FILE_PATH = "/app/static/config/license.lic";
     private static final String KEYGEN_PUBLIC_KEY =
             "cf9ce7f95c29c0cb0666a61d89c931bd4170a5fbaa0a391ff6649c213f4d13fc";
 
@@ -86,8 +85,8 @@ public class LicenseService {
     }
 
     private boolean hasLicenseFile() {
-        String actualPath = licenseFilePath != null ? licenseFilePath : DEFAULT_LICENSE_FILE_PATH;
-        return LicenseFileValidator.licenseFileExists(actualPath);
+        if (licenseFilePath == null || licenseFilePath.isBlank()) return false;
+        return LicenseFileValidator.licenseFileExists(licenseFilePath);
     }
 
     private LicensingState buildLicensingStateFromCache() {
