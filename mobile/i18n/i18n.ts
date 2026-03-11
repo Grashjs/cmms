@@ -16,7 +16,7 @@ import ruJSON from './translations/ru';
 import huJSON from './translations/hu';
 import nlJSON from './translations/nl';
 import zhCnJSON from './translations/zh_cn';
-import bslJSON from './translations/bs';
+import balJSON from './translations/ba';
 const resources = {
   de: { translation: deJSON },
   en: { translation: locale },
@@ -32,7 +32,7 @@ const resources = {
   hu: { translation: huJSON },
   nl: { translation: nlJSON },
   zh_cn: { translation: zhCnJSON },
-  bs: { translation: bsJSON },
+  ba: { translation: baJSON },
 };
 
 i18n
