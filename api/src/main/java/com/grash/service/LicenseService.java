@@ -3,7 +3,7 @@ package com.grash.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grash.dto.license.*;
 import com.grash.utils.FingerprintGenerator;
-import com.grash.utils.Helper;
+import com.grash.utils.LicenseFileValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +25,9 @@ public class LicenseService {
     private static final String ENTITLEMENTS_URL_TEMPLATE = "https://api.keygen.sh/v1/accounts/%s/licenses/%s" +
             "/entitlements?limit=100";
     private static final MediaType KEYGEN_MEDIA_TYPE = MediaType.valueOf("application/vnd.api+json");
+    private static final String DEFAULT_LICENSE_FILE_PATH = "/app/static/config/license.lic";
+    private static final String KEYGEN_PUBLIC_KEY =
+            "cf9ce7f95c29c0cb0666a61d89c931bd4170a5fbaa0a391ff6649c213f4d13fc";
 
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate = new RestTemplate();
@@ -38,7 +41,11 @@ public class LicenseService {
     @Value("${keygen.account-id}")
     private String keygenAccountId;
 
+    @Value("${license-file-path:#{null}}")
+    private String licenseFilePath;
+
     private volatile LicenseValidationResponse cachedLicenseResponse;
+    private volatile DecryptedLicenseData cachedDecryptedLicenseData;
     private volatile Set<String> cachedEntitlements = new HashSet<>();
     private volatile long lastCheckedTime = 0;
 
@@ -47,11 +54,17 @@ public class LicenseService {
             return buildLicensingStateFromCache();
         }
 
-        if (!hasLicenseKey()) {
+        if (!hasLicenseKey() && !hasLicenseFile()) {
             return clearCacheAndReturnInvalid();
         }
 
-        return validateAndCacheLicense();
+        // Try license file validation first if available
+        if (hasLicenseFile()) {
+            return validateAndCacheLicenseFile();
+        }
+
+        // Fall back to Keygen API validation
+        return validateAndCacheLicenseKey();
     }
 
     public boolean isSSOEnabled() {
@@ -65,14 +78,51 @@ public class LicenseService {
 
     private boolean isCacheValid() {
         long now = System.currentTimeMillis();
-        return (now - lastCheckedTime) < CACHE_DURATION_MILLIS && cachedLicenseResponse != null;
+        return (now - lastCheckedTime) < CACHE_DURATION_MILLIS && (cachedLicenseResponse != null || cachedDecryptedLicenseData != null);
     }
 
     private boolean hasLicenseKey() {
         return licenseKey != null && !licenseKey.isEmpty();
     }
 
+    private boolean hasLicenseFile() {
+        String actualPath = licenseFilePath != null ? licenseFilePath : DEFAULT_LICENSE_FILE_PATH;
+        return LicenseFileValidator.licenseFileExists(actualPath);
+    }
+
     private LicensingState buildLicensingStateFromCache() {
+        if (cachedDecryptedLicenseData != null) {
+            return buildStateFromDecryptedLicense();
+        }
+
+        if (cachedLicenseResponse != null) {
+            return buildStateFromKeygenResponse();
+        }
+
+        return clearCacheAndReturnInvalid();
+    }
+
+    private LicensingState buildStateFromDecryptedLicense() {
+        if (!cachedDecryptedLicenseData.isTimeValid()) {
+            log.warn("License file has expired or is invalid based on issued/expiry timestamps");
+            return LicensingState.builder()
+                    .hasLicense(true)
+                    .valid(false)
+                    .build();
+        }
+
+        Date expiry = cachedDecryptedLicenseData.getMeta().getExpiry();
+        return LicensingState.builder()
+                .valid(true)
+                .hasLicense(true)
+                .entitlements(cachedDecryptedLicenseData.getEntitlements())
+                .planName(cachedDecryptedLicenseData.getLicenseName())
+                .expirationDate(expiry)
+                .usersCount(cachedDecryptedLicenseData.getUsersCount())
+                .build();
+    }
+
+    private LicensingState buildStateFromKeygenResponse() {
         String rawExpiry = cachedLicenseResponse.getData().getAttributes().getExpiry();
         return LicensingState.builder()
                 .valid(cachedLicenseResponse.getMeta().isValid())
@@ -86,6 +136,7 @@ public class LicenseService {
 
     private LicensingState clearCacheAndReturnInvalid() {
         cachedLicenseResponse = null;
+        cachedDecryptedLicenseData = null;
         cachedEntitlements.clear();
         lastCheckedTime = System.currentTimeMillis();
         return LicensingState.builder()
@@ -94,7 +145,7 @@ public class LicenseService {
                 .build();
     }
 
-    private LicensingState validateAndCacheLicense() {
+    private LicensingState validateAndCacheLicenseKey() {
         long now = System.currentTimeMillis();
 
         try {
@@ -123,6 +174,42 @@ public class LicenseService {
         } catch (Exception e) {
             log.error("License validation failed", e);
             cachedLicenseResponse = null;
+            cachedEntitlements.clear();
+        }
+
+        lastCheckedTime = now;
+        return LicensingState.builder()
+                .hasLicense(true)
+                .valid(false)
+                .build();
+    }
+
+    private LicensingState validateAndCacheLicenseFile() {
+        long now = System.currentTimeMillis();
+        String actualPath = licenseFilePath != null ? licenseFilePath : DEFAULT_LICENSE_FILE_PATH;
+
+        try {
+            // Use license key from file or configured key
+            String keyToUse = licenseKey;
+            if (keyToUse == null || keyToUse.isEmpty()) {
+                log.warn("License key is required for license file decryption");
+                return clearCacheAndReturnInvalid();
+            }
+
+            String decryptedData = LicenseFileValidator.validateAndDecryptLicenseFile(
+                    actualPath,
+                    keyToUse,
+                    KEYGEN_PUBLIC_KEY
+            );
+
+            if (decryptedData != null) {
+                cachedDecryptedLicenseData = objectMapper.readValue(decryptedData, DecryptedLicenseData.class);
+                lastCheckedTime = now;
+                return buildStateFromDecryptedLicense();
+            }
+        } catch (Exception e) {
+            log.error("License file validation failed", e);
+            cachedDecryptedLicenseData = null;
             cachedEntitlements.clear();
         }
 
