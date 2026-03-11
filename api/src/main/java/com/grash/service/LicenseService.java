@@ -185,8 +185,6 @@ public class LicenseService {
 
     private LicensingState validateAndCacheLicenseFile() {
         long now = System.currentTimeMillis();
-        String actualPath = licenseFilePath != null ? licenseFilePath : DEFAULT_LICENSE_FILE_PATH;
-
         try {
             // Use license key from file or configured key
             String keyToUse = licenseKey;
@@ -196,7 +194,7 @@ public class LicenseService {
             }
 
             String decryptedData = LicenseFileValidator.validateAndDecryptLicenseFile(
-                    actualPath,
+                    licenseFilePath,
                     keyToUse,
                     KEYGEN_PUBLIC_KEY
             );
