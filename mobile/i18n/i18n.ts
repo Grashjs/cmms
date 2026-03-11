@@ -16,7 +16,7 @@ import ruJSON from './translations/ru';
 import huJSON from './translations/hu';
 import nlJSON from './translations/nl';
 import zhCnJSON from './translations/zh_cn';
-import balJSON from './translations/ba';
+import baJSON from './translations/ba';
 const resources = {
   de: { translation: deJSON },
   en: { translation: locale },
