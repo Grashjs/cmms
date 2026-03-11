@@ -21,7 +21,7 @@ public enum Language {
     NL,
     ZH_CN,
     ZH,
-    BS;
+    BA;
     //always add new languages at the end
     
     @JsonCreator
