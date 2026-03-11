@@ -48,7 +48,7 @@ function SubscriptionPlans() {
   const theme = useTheme();
   const [item, setItem] = useState(null);
   const [usersCount, setUsersCount] = useState<number>(
-    company.subscription.usersCount
+    company.subscription.usersCount > 150 ? 10 : company.subscription.usersCount
   );
   const [period, setPeriod] = useState<'monthly' | 'annually'>('monthly');
   const [selectedPlan, setSelectedPlan] = useState<string>('STARTER');
