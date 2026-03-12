@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,103 +68,191 @@ public class ImportService {
                 .build();
     }
 
+    @Transactional
     public ImportResponse importAssets(List<AssetImportDTO> toImport, Company company) {
-        final int[] created = {0};
-        final int[] updated = {0};
-        AssetService.orderAssets(toImport).forEach(assetImportDTO -> {
-            Long id = assetImportDTO.getId();
-            Asset asset = new Asset();
+        List<Long> idsToCheck = toImport.stream()
+                .map(AssetImportDTO::getId)
+                .filter(Objects::nonNull)
+                .collect(java.util.stream.Collectors.toList());
+
+        Map<Long, Asset> existingAssets = new java.util.HashMap<>();
+        if (!idsToCheck.isEmpty()) {
+            assetService.findByIdsAndCompany(idsToCheck, company.getId())
+                    .forEach(asset -> existingAssets.put(asset.getId(), asset));
+        }
+
+        Map<String, Asset> assetsByName = new java.util.HashMap<>();
+        List<Asset> assetsToSave = new java.util.ArrayList<>();
+        int created = 0;
+        int updated = 0;
+
+        for (AssetImportDTO dto : AssetService.orderAssets(toImport)) {
+            Long id = dto.getId();
+            Asset asset;
+
             if (id == null) {
-                created[0]++;
+                asset = new Asset();
+                created++;
+            } else if (existingAssets.containsKey(id)) {
+                asset = existingAssets.get(id);
+                updated++;
             } else {
-                Optional<Asset> optionalAsset = assetService.findByIdAndCompany(id, company.getId());
-                if (optionalAsset.isPresent()) {
-                    asset = optionalAsset.get();
-                    updated[0]++;
-                } else {
-                    created[0]++;
-                }
+                asset = new Asset();
+                created++;
             }
-            assetService.importAsset(asset, assetImportDTO, company);
-        });
+
+            assetService.importAsset(asset, dto, company, assetsByName);
+            assetsToSave.add(asset);
+            assetsByName.put(asset.getName(), asset);
+        }
+
+        if (!assetsToSave.isEmpty()) {
+            assetService.saveAll(assetsToSave);
+        }
+
         return ImportResponse.builder()
-                .created(created[0])
-                .updated(updated[0])
+                .created(created)
+                .updated(updated)
                 .build();
     }
 
+    @Transactional
     public ImportResponse importLocations(List<LocationImportDTO> toImport, Company company) {
-        final int[] created = {0};
-        final int[] updated = {0};
-        LocationService.orderLocations(toImport).forEach(locationImportDTO -> {
-            Long id = locationImportDTO.getId();
-            Location location = new Location();
+        List<Long> idsToCheck = toImport.stream()
+                .map(LocationImportDTO::getId)
+                .filter(Objects::nonNull)
+                .collect(java.util.stream.Collectors.toList());
+
+        Map<Long, Location> existingLocations = new java.util.HashMap<>();
+        if (!idsToCheck.isEmpty()) {
+            locationService.findByIdsAndCompany(idsToCheck, company.getId())
+                    .forEach(location -> existingLocations.put(location.getId(), location));
+        }
+
+        Map<String, Location> locationsByName = new java.util.HashMap<>();
+        List<Location> locationsToSave = new java.util.ArrayList<>();
+        int created = 0;
+        int updated = 0;
+
+        for (LocationImportDTO dto : LocationService.orderLocations(toImport)) {
+            Long id = dto.getId();
+            Location location;
+
             if (id == null) {
-                created[0]++;
+                location = new Location();
+                created++;
+            } else if (existingLocations.containsKey(id)) {
+                location = existingLocations.get(id);
+                updated++;
             } else {
-                Optional<Location> optionalLocation = locationService.findByIdAndCompany(id, company.getId());
-                if (optionalLocation.isPresent()) {
-                    location = optionalLocation.get();
-                    updated[0]++;
-                } else {
-                    created[0]++;
-                }
+                location = new Location();
+                created++;
             }
-            locationService.importLocation(location, locationImportDTO, company);
-        });
+
+            locationService.importLocation(location, dto, company, locationsByName);
+            locationsToSave.add(location);
+            locationsByName.put(location.getName(), location);
+        }
+
+        if (!locationsToSave.isEmpty()) {
+            locationService.saveAll(locationsToSave);
+        }
+
         return ImportResponse.builder()
-                .created(created[0])
-                .updated(updated[0])
+                .created(created)
+                .updated(updated)
                 .build();
     }
 
+    @Transactional
     public ImportResponse importMeters(List<MeterImportDTO> toImport, Company company) {
-        final int[] created = {0};
-        final int[] updated = {0};
-        toImport.forEach(meterImportDTO -> {
-            Long id = meterImportDTO.getId();
-            Meter meter = new Meter();
+        List<Long> idsToCheck = toImport.stream()
+                .map(MeterImportDTO::getId)
+                .filter(Objects::nonNull)
+                .collect(java.util.stream.Collectors.toList());
+
+        Map<Long, Meter> existingMeters = new java.util.HashMap<>();
+        if (!idsToCheck.isEmpty()) {
+            meterService.findByIdsAndCompany(idsToCheck, company.getId())
+                    .forEach(meter -> existingMeters.put(meter.getId(), meter));
+        }
+
+        List<Meter> metersToSave = new java.util.ArrayList<>();
+        int created = 0;
+        int updated = 0;
+
+        for (MeterImportDTO dto : toImport) {
+            Long id = dto.getId();
+            Meter meter;
+
             if (id == null) {
-                created[0]++;
+                meter = new Meter();
+                created++;
+            } else if (existingMeters.containsKey(id)) {
+                meter = existingMeters.get(id);
+                updated++;
             } else {
-                Optional<Meter> optionalMeter = meterService.findByIdAndCompany(id, company.getId());
-                if (optionalMeter.isPresent()) {
-                    meter = optionalMeter.get();
-                    updated[0]++;
-                } else {
-                    created[0]++;
-                }
+                meter = new Meter();
+                created++;
             }
-            meterService.importMeter(meter, meterImportDTO, company);
-        });
+
+            meterService.importMeter(meter, dto, company);
+            metersToSave.add(meter);
+        }
+
+        if (!metersToSave.isEmpty()) {
+            meterService.saveAll(metersToSave);
+        }
+
         return ImportResponse.builder()
-                .created(created[0])
-                .updated(updated[0])
+                .created(created)
+                .updated(updated)
                 .build();
     }
 
+    @Transactional
     public ImportResponse importParts(List<PartImportDTO> toImport, Company company) {
-        final int[] created = {0};
-        final int[] updated = {0};
-        toImport.forEach(partImportDTO -> {
-            Long id = partImportDTO.getId();
-            Part part = new Part();
+        List<Long> idsToCheck = toImport.stream()
+                .map(PartImportDTO::getId)
+                .filter(Objects::nonNull)
+                .collect(java.util.stream.Collectors.toList());
+
+        Map<Long, Part> existingParts = new java.util.HashMap<>();
+        if (!idsToCheck.isEmpty()) {
+            partService.findByIdsAndCompany(idsToCheck, company.getId())
+                    .forEach(part -> existingParts.put(part.getId(), part));
+        }
+
+        List<Part> partsToSave = new java.util.ArrayList<>();
+        int created = 0;
+        int updated = 0;
+
+        for (PartImportDTO dto : toImport) {
+            Long id = dto.getId();
+            Part part;
+
             if (id == null) {
-                created[0]++;
+                part = new Part();
+                created++;
+            } else if (existingParts.containsKey(id)) {
+                part = existingParts.get(id);
+                updated++;
             } else {
-                Optional<Part> optionalPart = partService.findByIdAndCompany(id, company.getId());
-                if (optionalPart.isPresent()) {
-                    part = optionalPart.get();
-                    updated[0]++;
-                } else {
-                    created[0]++;
-                }
+                part = new Part();
+                created++;
             }
-            partService.importPart(part, partImportDTO, company);
-        });
+
+            partService.importPart(part, dto, company);
+            partsToSave.add(part);
+        }
+
+        if (!partsToSave.isEmpty()) {
+            partService.saveAll(partsToSave);
+        }
+
         return ImportResponse.builder()
-                .created(created[0])
-                .updated(updated[0])
+                .created(created)
+                .updated(updated)
                 .build();
     }
 

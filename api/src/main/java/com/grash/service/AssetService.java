@@ -112,6 +112,10 @@ public class AssetService {
         return assetRepository.save(asset);
     }
 
+    public List<Asset> saveAll(List<Asset> assets) {
+        return assetRepository.saveAll(assets);
+    }
+
     public Collection<Asset> getAll() {
         return assetRepository.findAll();
     }
@@ -250,7 +254,7 @@ public class AssetService {
         return assetRepository.findByNameIgnoreCaseAndCompany_Id(assetName, companyId);
     }
 
-    public void importAsset(Asset asset, AssetImportDTO dto, Company company) {
+    public void importAsset(Asset asset, AssetImportDTO dto, Company company, Map<String, Asset> assetsByName) {
         checkUsageBasedLimit(company);
         if (!licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY) && dto.getParentAssetName() != null && !dto.getParentAssetName().isEmpty())
             throw new CustomException("You need a license to import assets with hierarchy", HttpStatus.FORBIDDEN);
@@ -284,9 +288,15 @@ public class AssetService {
         Optional<Location> optionalLocation = locationService.findByNameIgnoreCaseAndCompany(dto.getLocationName(),
                 companyId).stream().findFirst();
         optionalLocation.ifPresent(asset::setLocation);
-        Optional<Asset> optionalAsset =
-                findByNameIgnoreCaseAndCompany(dto.getParentAssetName(), companyId).stream().findFirst();
-        optionalAsset.ifPresent(asset::setParentAsset);
+        // Check parent asset in batch first, then in database
+        if (dto.getParentAssetName() != null && !dto.getParentAssetName().isEmpty()) {
+            Asset parentAsset = assetsByName != null ? assetsByName.get(dto.getParentAssetName()) : null;
+            if (parentAsset == null) {
+                parentAsset = findByNameIgnoreCaseAndCompany(dto.getParentAssetName(), companyId)
+                        .stream().findFirst().orElse(null);
+            }
+            asset.setParentAsset(parentAsset);
+        }
         Optional<AssetCategory> optionalAssetCategory =
                 assetCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
         optionalAssetCategory.ifPresent(asset::setCategory);
@@ -335,6 +345,10 @@ public class AssetService {
 
     public Optional<Asset> findByIdAndCompany(Long id, Long companyId) {
         return assetRepository.findByIdAndCompany_Id(id, companyId);
+    }
+
+    public List<Asset> findByIdsAndCompany(List<Long> ids, Long companyId) {
+        return assetRepository.findByIdInAndCompany_Id(ids, companyId);
     }
 
     public Optional<Asset> findByBarcodeAndCompany(String data, Long id) {

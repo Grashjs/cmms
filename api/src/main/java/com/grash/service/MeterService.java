@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -153,11 +154,18 @@ public class MeterService {
             optionalUser1.ifPresent(users::add);
         });
         meter.setUsers(users);
-        meterRepository.save(meter);
     }
 
     public Optional<Meter> findByIdAndCompany(Long id, Long companyId) {
         return meterRepository.findByIdAndCompany_Id(id, companyId);
+    }
+
+    public List<Meter> saveAll(List<Meter> meters) {
+        return meterRepository.saveAll(meters);
+    }
+
+    public List<Meter> findByIdsAndCompany(List<Long> ids, Long companyId) {
+        return meterRepository.findByIdInAndCompany_Id(ids, companyId);
     }
 }
 

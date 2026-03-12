@@ -126,6 +126,10 @@ public class LocationService {
         locationRepository.save(location);
     }
 
+    public List<Location> saveAll(List<Location> locations) {
+        return locationRepository.saveAll(locations);
+    }
+
     public boolean isLocationInCompany(Location location, long companyId, boolean optional) {
         if (optional) {
             Optional<Location> optionalLocation = location == null ? Optional.empty() : findById(location.getId());
@@ -140,16 +144,22 @@ public class LocationService {
         return locationRepository.findByNameIgnoreCaseAndCompany_Id(locationName, companyId);
     }
 
-    public void importLocation(Location location, LocationImportDTO dto, Company company) {
+    public void importLocation(Location location, LocationImportDTO dto, Company company, Map<String, Location> locationsByName) {
         checkUsageBasedLimit(company);
         Long companyId = company.getId();
         location.setName(dto.getName());
         location.setAddress(dto.getAddress());
         location.setLongitude(dto.getLongitude());
         location.setLatitude(dto.getLatitude());
-        Optional<Location> optionalLocation =
-                findByNameIgnoreCaseAndCompany(dto.getParentLocationName(), companyId).stream().findFirst();
-        optionalLocation.ifPresent(location::setParentLocation);
+        // Check parent location in batch first, then in database
+        if (dto.getParentLocationName() != null && !dto.getParentLocationName().isEmpty()) {
+            Location parentLocation = locationsByName != null ? locationsByName.get(dto.getParentLocationName()) : null;
+            if (parentLocation == null) {
+                parentLocation = findByNameIgnoreCaseAndCompany(dto.getParentLocationName(), companyId)
+                        .stream().findFirst().orElse(null);
+            }
+            location.setParentLocation(parentLocation);
+        }
         List<OwnUser> workers = new ArrayList<>();
         dto.getWorkersEmails().forEach(email -> {
             Optional<OwnUser> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
@@ -180,6 +190,10 @@ public class LocationService {
 
     public Optional<Location> findByIdAndCompany(Long id, Long companyId) {
         return locationRepository.findByIdAndCompany_Id(id, companyId);
+    }
+
+    public List<Location> findByIdsAndCompany(List<Long> ids, Long companyId) {
+        return locationRepository.findByIdInAndCompany_Id(ids, companyId);
     }
 
     public Page<LocationShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {

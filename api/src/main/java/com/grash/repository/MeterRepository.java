@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface MeterRepository extends JpaRepository<Meter, Long>, JpaSpecificationExecutor<Meter> {
@@ -15,6 +16,8 @@ public interface MeterRepository extends JpaRepository<Meter, Long>, JpaSpecific
     Collection<Meter> findByAsset_Id(Long id);
 
     Optional<Meter> findByIdAndCompany_Id(Long id, Long companyId);
+
+    List<Meter> findByIdInAndCompany_Id(List<Long> ids, Long companyId);
 
     void deleteByCompany_IdAndIsDemoTrue(Long companyId);
 

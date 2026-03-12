@@ -221,6 +221,14 @@ public class PreventiveMaintenanceService {
         return preventiveMaintenanceRepository.findByIdAndCompany_Id(id, companyId);
     }
 
+    public List<PreventiveMaintenance> saveAll(List<PreventiveMaintenance> preventiveMaintenances) {
+        return preventiveMaintenanceRepository.saveAll(preventiveMaintenances);
+    }
+
+    public List<PreventiveMaintenance> findByIdsAndCompany(List<Long> ids, Long companyId) {
+        return preventiveMaintenanceRepository.findByIdInAndCompany_Id(ids, companyId);
+    }
+
     public void importPreventiveMaintenance(PreventiveMaintenance preventiveMaintenance,
                                             PreventiveMaintenanceImportDTO pmImportDTO, Company company) {
         checkUsageBasedLimit(company);

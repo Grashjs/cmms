@@ -136,6 +136,10 @@ public class PartService {
         return partRepository.save(part);
     }
 
+    public List<Part> saveAll(List<Part> parts) {
+        return partRepository.saveAll(parts);
+    }
+
     public boolean isPartInCompany(Part part, long companyId, boolean optional) {
         if (optional) {
             Optional<Part> optionalPart = part == null ? Optional.empty() : findById(part.getId());
@@ -213,11 +217,14 @@ public class PartService {
             optionalVendor.ifPresent(vendors::add);
         });
         part.setVendors(vendors);
-        partRepository.save(part);
     }
 
     public Optional<Part> findByIdAndCompany(Long id, Long companyId) {
         return partRepository.findByIdAndCompany_Id(id, companyId);
+    }
+
+    public List<Part> findByIdsAndCompany(List<Long> ids, Long companyId) {
+        return partRepository.findByIdInAndCompany_Id(ids, companyId);
     }
 
     public Optional<Part> findByNameIgnoreCaseAndCompany(String name, Long companyId) {

@@ -7,12 +7,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface PartRepository extends JpaRepository<Part, Long>, JpaSpecificationExecutor<Part> {
     Collection<Part> findByCompany_Id(@Param("x") Long id);
 
     Optional<Part> findByIdAndCompany_Id(Long id, Long companyId);
+
+    List<Part> findByIdInAndCompany_Id(List<Long> ids, Long companyId);
 
     Optional<Part> findByNameIgnoreCaseAndCompany_Id(String name, Long companyId);
 
