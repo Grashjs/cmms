@@ -11,10 +11,13 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, JpaSpecificationExecutor<WorkOrder> {
     Collection<WorkOrder> findByCompany_Id(Long id);
+
+    Collection<WorkOrder> findByIdInAndCompany_Id(List<Long> ids, Long companyId);
 
     Collection<WorkOrder> findByAsset_Id(Long id);
 

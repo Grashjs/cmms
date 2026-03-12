@@ -5,9 +5,10 @@ import com.grash.model.*;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,28 +21,49 @@ public class ImportService {
     private final WorkOrderService workOrderService;
     private final PreventiveMaintenanceService preventiveMaintenanceService;
 
+    @Transactional
     public ImportResponse importWorkOrders(List<WorkOrderImportDTO> toImport, Company company) {
-        final int[] created = {0};
-        final int[] updated = {0};
-        toImport.forEach(workOrderImportDTO -> {
-            Long id = workOrderImportDTO.getId();
-            WorkOrder workOrder = new WorkOrder();
+        List<Long> idsToCheck = toImport.stream()
+                .map(WorkOrderImportDTO::getId)
+                .filter(Objects::nonNull)
+                .collect(java.util.stream.Collectors.toList());
+
+        Map<Long, WorkOrder> existingWorkOrders = new java.util.HashMap<>();
+        if (!idsToCheck.isEmpty()) {
+            workOrderService.findByIdsAndCompany(idsToCheck, company.getId())
+                    .forEach(wo -> existingWorkOrders.put(wo.getId(), wo));
+        }
+
+        List<WorkOrder> workOrdersToSave = new java.util.ArrayList<>();
+        int created = 0;
+        int updated = 0;
+
+        for (WorkOrderImportDTO dto : toImport) {
+            Long id = dto.getId();
+            WorkOrder workOrder;
+
             if (id == null) {
-                created[0]++;
+                workOrder = new WorkOrder();
+                created++;
+            } else if (existingWorkOrders.containsKey(id)) {
+                workOrder = existingWorkOrders.get(id);
+                updated++;
             } else {
-                Optional<WorkOrder> optionalWorkOrder = workOrderService.findByIdAndCompany(id, company.getId());
-                if (optionalWorkOrder.isPresent()) {
-                    workOrder = optionalWorkOrder.get();
-                    updated[0]++;
-                } else {
-                    created[0]++;
-                }
+                workOrder = new WorkOrder();
+                created++;
             }
-            workOrderService.importWorkOrder(workOrder, workOrderImportDTO, company);
-        });
+
+            workOrderService.importWorkOrder(workOrder, dto, company);
+            workOrdersToSave.add(workOrder);
+        }
+
+        if (!workOrdersToSave.isEmpty()) {
+            workOrderService.saveAll(workOrdersToSave);
+        }
+
         return ImportResponse.builder()
-                .created(created[0])
-                .updated(updated[0])
+                .created(created)
+                .updated(updated)
                 .build();
     }
 

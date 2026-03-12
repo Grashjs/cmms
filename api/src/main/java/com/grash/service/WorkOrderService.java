@@ -150,6 +150,10 @@ public class WorkOrderService {
         return workOrderRepository.findByIdAndCompany_Id(id, companyId);
     }
 
+    public Collection<WorkOrder> findByIdsAndCompany(List<Long> ids, Long companyId) {
+        return workOrderRepository.findByIdInAndCompany_Id(ids, companyId);
+    }
+
     public Collection<WorkOrder> findByCompany(Long id) {
         return workOrderRepository.findByCompany_Id(id);
     }
@@ -219,6 +223,10 @@ public class WorkOrderService {
 
     public void save(WorkOrder workOrder) {
         workOrderRepository.save(workOrder);
+    }
+
+    public List<WorkOrder> saveAll(List<WorkOrder> workOrders) {
+        return workOrderRepository.saveAll(workOrders);
     }
 
     public WorkOrder saveAndFlush(WorkOrder workOrder) {
@@ -360,7 +368,6 @@ public class WorkOrderService {
             optionalCustomer.ifPresent(customers::add);
         });
         workOrder.setCustomers(customers);
-        workOrderRepository.save(workOrder);
     }
 
     public Collection<WorkOrder> findByCreatedByAndCreatedAtBetween(Long id, Date date1, Date date2) {
