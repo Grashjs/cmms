@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogTitle,
   Grid,
+  Stack,
   Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
@@ -14,14 +15,9 @@ import { useContext, useEffect, useState } from 'react';
 import { TitleContext } from '../../../contexts/TitleContext';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import CustomDataGrid from '../components/CustomDatagrid';
-import {
-  GridActionsCellItem,
-  GridRenderCellParams,
-  GridRowParams,
-  GridToolbar
-} from '@mui/x-data-grid';
+import CustomDatagrid2, {
+  CustomDatagridColumn2
+} from '../components/CustomDatagrid2';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import { useDispatch, useSelector } from '../../../store';
@@ -48,8 +44,8 @@ import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
 import { useParams } from 'react-router-dom';
 import { SearchCriteria } from '../../../models/owns/page';
 import { isNumeric } from '../../../utils/validators';
-import { useGridApiRef } from '@mui/x-data-grid-pro';
-import useGridStatePersist from '../../../hooks/useGridStatePersist';
+import { createColumnHelper } from '@tanstack/react-table';
+import useTableState from '../../../hooks/useTableState';
 
 function Files() {
   const { t }: { t: any } = useTranslation();
@@ -71,6 +67,38 @@ function Files() {
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const [currentFile, setCurrentFile] = useState<File>();
+
+  const fieldMapping: Record<string, string> = {
+    id: 'id',
+    name: 'name',
+    createdBy: 'createdBy',
+    createdAt: 'createdAt'
+  };
+
+  // Use the table state hook for TanStack Table
+  const {
+    sorting,
+    setSorting,
+    pagination,
+    setPagination,
+    columnOrder,
+    setColumnOrder,
+    columnSizing,
+    setColumnSizing,
+    columnVisibility,
+    setColumnVisibility,
+    pinnedColumns,
+    setPinnedColumns
+  } = useTableState({
+    prefix: 'files',
+    initialSorting: [],
+    initialPagination: {
+      pageSize: criteria.pageSize,
+      pageIndex: criteria.pageNum
+    },
+    setCriteria,
+    fieldMapping
+  });
   const handleOpenDelete = (id: number) => {
     setCurrentFile(files.content.find((file) => file.id === id));
     setOpenDelete(true);
@@ -134,13 +162,75 @@ function Files() {
     };
   }, [singleFile, files]);
 
-  const onPageSizeChange = (size: number) => {
-    setCriteria({ ...criteria, pageSize: size });
-  };
-  const onPageChange = (number: number) => {
-    setCriteria({ ...criteria, pageNum: number });
-  };
+  const columnHelper = createColumnHelper<File>();
 
+  const columns: CustomDatagridColumn2<File>[] = [
+    columnHelper.accessor('id', {
+      id: 'id',
+      header: () => t('id'),
+      cell: (info) => info.getValue(),
+      size: 80
+    }),
+    columnHelper.accessor('name', {
+      id: 'name',
+      header: () => t('name'),
+      cell: (info) => (
+        <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>
+      ),
+      size: 200
+    }),
+    columnHelper.accessor('createdBy', {
+      id: 'createdBy',
+      header: () => t('uploaded_by'),
+      cell: (info) => getUserNameById(info.getValue()),
+      size: 150
+    }),
+    columnHelper.accessor('createdAt', {
+      id: 'createdAt',
+      header: () => t('uploaded_on'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    }),
+    columnHelper.display({
+      id: 'actions',
+      header: () => t('actions'),
+      cell: (info) => {
+        const file = info.row.original;
+        const canEdit = hasEditPermission(PermissionEntity.FILES, file);
+        const canDelete = hasDeletePermission(PermissionEntity.FILES, file);
+
+        if (!canEdit && !canDelete) return null;
+
+        return (
+          <Stack direction="row" spacing={1}>
+            {canEdit && (
+              <EditTwoToneIcon
+                fontSize="small"
+                color="primary"
+                sx={{ cursor: 'pointer' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRename(file.id);
+                }}
+              />
+            )}
+            {canDelete && (
+              <DeleteTwoToneIcon
+                fontSize="small"
+                color="error"
+                sx={{ cursor: 'pointer' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOpenDelete(file.id);
+                }}
+              />
+            )}
+          </Stack>
+        );
+      },
+      size: 100
+    })
+  ];
   const fields: Array<IField> = [
     {
       name: 'files',
@@ -158,69 +248,6 @@ function Files() {
       required: true
     }
   ];
-  const columns: GridEnrichedColDef[] = [
-    {
-      field: 'id',
-      headerName: t('id'),
-      description: t('id'),
-      flex: 0.5
-    },
-    {
-      field: 'name',
-      headerName: t('name'),
-      description: t('name'),
-      flex: 1.5,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
-      )
-    },
-    {
-      field: 'createdBy',
-      headerName: t('uploaded_by'),
-      description: t('uploaded_by'),
-      width: 150,
-      flex: 1,
-      valueGetter: (params) => getUserNameById(params.value)
-    },
-    {
-      field: 'createdAt',
-      headerName: t('uploaded_on'),
-      description: t('uploaded_on'),
-      width: 150,
-      valueGetter: (params) => getFormattedDate(params.row.createdAt)
-    },
-    {
-      field: 'actions',
-      type: 'actions',
-      headerName: t('actions'),
-      description: t('actions'),
-      getActions: (params: GridRowParams<File>) => {
-        let actions = [
-          <GridActionsCellItem
-            key="rename"
-            icon={<EditTwoToneIcon fontSize="small" color="primary" />}
-            onClick={() => handleRename(Number(params.id))}
-            label={t('rename')}
-          />,
-          <GridActionsCellItem
-            key="delete"
-            icon={<DeleteTwoToneIcon fontSize="small" color="error" />}
-            onClick={() => handleOpenDelete(Number(params.id))}
-            label={t('to_delete')}
-          />
-        ];
-        if (!hasEditPermission(PermissionEntity.FILES, params.row)) {
-          actions.shift();
-        }
-        if (!hasDeletePermission(PermissionEntity.FILES, params.row)) {
-          actions.pop();
-        }
-        return actions;
-      }
-    }
-  ];
-  const apiRef = useGridApiRef();
-  useGridStatePersist(apiRef, columns, 'file');
   const shape = {
     files: Yup.array().required(t('required_files'))
   };
@@ -340,35 +367,29 @@ function Files() {
               }}
             >
               <Box sx={{ width: '95%' }}>
-                <CustomDataGrid
-                  apiRef={apiRef}
+                <CustomDatagrid2
                   columns={columns}
-                  pageSize={criteria.pageSize}
-                  page={criteria.pageNum}
-                  rows={files.content}
-                  rowCount={files.totalElements}
-                  pagination
-                  paginationMode="server"
-                  onPageSizeChange={onPageSizeChange}
-                  onPageChange={onPageChange}
-                  rowsPerPageOptions={[10, 20, 50]}
+                  data={files.content}
                   loading={loadingGet}
-                  components={{
-                    NoRowsOverlay: () => (
-                      <NoRowsMessageWrapper
-                        message={t('noRows.file.message')}
-                        action={t('noRows.file.action')}
-                      />
-                    )
-                  }}
-                  onRowClick={(params: GridRowParams<File>) =>
-                    window.open(params.row.url, '_blank')
-                  }
-                  initialState={{
-                    columns: {
-                      columnVisibilityModel: {}
-                    }
-                  }}
+                  pagination={pagination}
+                  onPaginationChange={setPagination}
+                  totalRows={files.totalElements}
+                  pageSizeOptions={[10, 20, 50]}
+                  sorting={sorting}
+                  onSortingChange={setSorting}
+                  columnOrder={columnOrder}
+                  onColumnOrderChange={setColumnOrder}
+                  columnSizing={columnSizing}
+                  onColumnSizingChange={setColumnSizing}
+                  columnVisibility={columnVisibility}
+                  onColumnVisibilityChange={setColumnVisibility}
+                  onRowClick={(row) => window.open(row.url, '_blank')}
+                  noRowsMessage={t('noRows.file.message')}
+                  noRowsAction={t('noRows.file.action')}
+                  enableColumnReordering
+                  enableColumnResizing
+                  pinnedColumns={pinnedColumns}
+                  onPinnedColumnsChange={setPinnedColumns}
                 />
               </Box>
             </Card>

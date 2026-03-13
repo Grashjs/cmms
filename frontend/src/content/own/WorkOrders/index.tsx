@@ -429,7 +429,7 @@ function WorkOrders() {
       id: 'title',
       header: () => t('title'),
       cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>,
-      size: 200
+      size: 150
     }),
     columnHelper.accessor('priority', {
       id: 'priority',
@@ -448,13 +448,13 @@ function WorkOrders() {
       header: () => t('worker'),
       cell: (info) =>
         info.getValue() ? <UserAvatars users={[info.getValue()]} /> : null,
-      size: 150
+      size: 170
     }),
     columnHelper.accessor('assignedTo', {
       id: 'assignedTo',
       header: () => t('assigned_to'),
       cell: (info) => <UserAvatars users={info.getValue()} />,
-      size: 150
+      size: 170
     }),
     columnHelper.accessor((row) => row.location?.name, {
       id: 'location',
@@ -472,7 +472,7 @@ function WorkOrders() {
       meta: {
         uiConfigKey: 'locations'
       },
-      size: 180
+      size: 150
     }),
     columnHelper.accessor((row) => row.category?.name, {
       id: 'category',
@@ -490,7 +490,7 @@ function WorkOrders() {
       id: 'dueDate',
       header: () => t('due_date'),
       cell: (info) => getFormattedDate(info.getValue()),
-      size: 140
+      size: 150
     }),
     columnHelper.accessor(
       (row) => dayDiff(new Date(), new Date(row.createdAt)),
@@ -498,7 +498,7 @@ function WorkOrders() {
         id: 'daysSinceCreated',
         header: () => t('days_since_creation'),
         cell: (info) => info.getValue(),
-        size: 140
+        size: 150
       }
     ),
     columnHelper.accessor('files', {
