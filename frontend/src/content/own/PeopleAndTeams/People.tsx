@@ -11,15 +11,9 @@ import {
   useTheme
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import CustomDataGrid from '../components/CustomDatagrid';
-import {
-  GridActionsCellItem,
-  GridEnrichedColDef,
-  GridRenderCellParams,
-  GridRowParams,
-  GridToolbar,
-  GridValueGetterParams
-} from '@mui/x-data-grid';
+import CustomDatagrid2, {
+  CustomDatagridColumn2
+} from '../components/CustomDatagrid2';
 import * as React from 'react';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import UserDetailsDrawer from './UserDetailsDrawer';
@@ -50,10 +44,20 @@ import { onSearchQueryChange } from '../../../utils/overall';
 import SearchInput from '../components/SearchInput';
 import CancelIcon from '@mui/icons-material/Cancel';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { useGridApiRef } from '@mui/x-data-grid-pro';
-import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import InviteUserDialog from './components/InviteUserDialog';
 import { isEmailVerificationEnabled } from '../../../config';
+import { createColumnHelper } from '@tanstack/react-table';
+import useTableState from '../../../hooks/useTableState';
+
+const fieldMapping: Record<string, string> = {
+  name: 'firstName',
+  email: 'email',
+  phone: 'phone',
+  jobTitle: 'jobTitle',
+  role: 'role.name',
+  rate: 'rate',
+  lastLogin: 'lastLogin'
+};
 
 interface PropsType {
   values?: any;
@@ -77,6 +81,32 @@ const People = ({ openModal, handleCloseModal }: PropsType) => {
     pageNum: 0,
     direction: 'DESC'
   });
+
+  // Use the table state hook for TanStack Table
+  const {
+    sorting,
+    setSorting,
+    pagination,
+    setPagination,
+    columnOrder,
+    setColumnOrder,
+    columnSizing,
+    setColumnSizing,
+    columnVisibility,
+    setColumnVisibility,
+    pinnedColumns,
+    setPinnedColumns
+  } = useTableState({
+    prefix: 'people',
+    initialSorting: [],
+    initialPagination: {
+      pageSize: criteria.pageSize,
+      pageIndex: criteria.pageNum
+    },
+    setCriteria,
+    fieldMapping
+  });
+
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { getFormattedCurrency, getFormattedDate } = useContext(
@@ -268,163 +298,130 @@ const People = ({ openModal, handleCloseModal }: PropsType) => {
     };
   }, [singleUser, users]);
 
-  const onPageSizeChange = (size: number) => {
-    setCriteria({ ...criteria, pageSize: size });
-  };
-  const onPageChange = (number: number) => {
-    setCriteria({ ...criteria, pageNum: number });
-  };
+  const columnHelper = createColumnHelper<OwnUser>();
 
-  // let fields: Array<IField> = [];
-
-  // const shape = {};
-
-  const columns: GridEnrichedColDef<OwnUser>[] = [
-    {
-      field: 'name',
-      headerName: t('name'),
-      width: 150,
-      valueGetter: (params) =>
-        `${params.row.firstName} ${params.row.lastName}${
-          params.row.enabled ? '' : ` (${t('disabled')})`
+  const columns: CustomDatagridColumn2<OwnUser>[] = [
+    columnHelper.accessor(
+      (row) =>
+        `${row.firstName} ${row.lastName}${
+          row.enabled ? '' : ` (${t('disabled')})`
         }`,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <Box
-          sx={{
-            fontWeight: 'bold',
-            color: params.row.enabled ? 'inherit' : 'gray'
-          }}
-        >
-          {params.value}
-        </Box>
-      )
-    },
-    {
-      field: 'email',
-      headerName: t('email'),
-      width: 150
-    },
-    {
-      field: 'phone',
-      headerName: t('phone'),
-      width: 150
-    },
-    {
-      field: 'jobTitle',
-      headerName: t('job_title'),
-      width: 150
-    },
-    {
-      field: 'role',
-      headerName: t('role'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<Role>) =>
-        params.value.code === 'USER_CREATED'
-          ? params.value.name
-          : t(`${params.value.code}_name`)
-    },
-    {
-      field: 'rate',
-      headerName: t('hourly_rate'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<number>) =>
-        getFormattedCurrency(params.value)
-    },
-    {
-      field: 'lastLogin',
-      headerName: t('last_login'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<string>) =>
-        getFormattedDate(params.value)
-    },
-    {
-      field: 'actions',
-      type: 'actions',
-      headerName: t('actions'),
-      description: t('actions'),
-      getActions: (params: GridRowParams<OwnUser>) => {
-        let actions = [
-          <GridActionsCellItem
-            key="edit"
-            icon={<EditTwoToneIcon fontSize="small" color={'primary'} />}
-            onClick={() => handleOpenUpdate(Number(params.id))}
-            label={t('edit')}
-          />,
-          ...(params.row.enabled && !params.row.ownsCompany
-            ? [
-                <GridActionsCellItem
-                  key="disable"
-                  icon={<CancelIcon fontSize="small" color={'error'} />}
-                  onClick={() => handleOpenDisable(Number(params.id))}
-                  label={t('disable')}
-                />
-              ]
-            : [])
-        ];
-        if (!hasEditPermission(PermissionEntity.PEOPLE_AND_TEAMS, params.row))
-          actions = [];
-        return actions;
+      {
+        id: 'name',
+        header: () => t('name'),
+        cell: (info) => (
+          <Box
+            sx={{
+              fontWeight: 'bold',
+              color: info.row.original.enabled ? 'inherit' : 'gray'
+            }}
+          >
+            {info.getValue()}
+          </Box>
+        ),
+        size: 150
       }
-    }
+    ),
+    columnHelper.accessor('email', {
+      id: 'email',
+      header: () => t('email'),
+      cell: (info) => info.getValue(),
+      size: 150
+    }),
+    columnHelper.accessor('phone', {
+      id: 'phone',
+      header: () => t('phone'),
+      cell: (info) => info.getValue(),
+      size: 150
+    }),
+    columnHelper.accessor('jobTitle', {
+      id: 'jobTitle',
+      header: () => t('job_title'),
+      cell: (info) => info.getValue(),
+      size: 150
+    }),
+    columnHelper.accessor('role', {
+      id: 'role',
+      header: () => t('role'),
+      cell: (info) => {
+        const role = info.getValue();
+        return role.code === 'USER_CREATED'
+          ? role.name
+          : t(`${role.code}_name`);
+      },
+      size: 150
+    }),
+    columnHelper.accessor('rate', {
+      id: 'rate',
+      header: () => t('hourly_rate'),
+      cell: (info) => getFormattedCurrency(info.getValue()),
+      size: 150
+    }),
+    columnHelper.accessor('lastLogin', {
+      id: 'lastLogin',
+      header: () => t('last_login'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    }),
+    columnHelper.display({
+      id: 'actions',
+      header: () => t('actions'),
+      cell: (info) => {
+        const user = info.row.original;
+
+        if (!hasEditPermission(PermissionEntity.PEOPLE_AND_TEAMS, user))
+          return null;
+
+        return (
+          <Stack direction="row" spacing={1}>
+            <EditTwoToneIcon
+              fontSize="small"
+              color="primary"
+              sx={{ cursor: 'pointer' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleOpenUpdate(user.id);
+              }}
+            />
+            {user.enabled && !user.ownsCompany && (
+              <CancelIcon
+                fontSize="small"
+                color="error"
+                sx={{ cursor: 'pointer' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOpenDisable(user.id);
+                }}
+              />
+            )}
+          </Stack>
+        );
+      },
+      size: 100
+    })
   ];
-  const apiRef = useGridApiRef();
-  useGridStatePersist(apiRef, columns, 'users');
   const RenderPeopleList = () => (
-    <CustomDataGrid
-      apiRef={apiRef}
-      pageSize={criteria.pageSize}
-      page={criteria.pageNum}
-      rows={users.content}
-      rowCount={users.totalElements}
-      pagination
-      paginationMode="server"
-      sortingMode="server"
-      onPageSizeChange={onPageSizeChange}
-      onPageChange={onPageChange}
-      rowsPerPageOptions={[10, 20, 50]}
-      loading={loadingGet}
-      onSortModelChange={(model) => {
-        if (model.length === 0) {
-          setCriteria({
-            ...criteria,
-            sortField: undefined,
-            direction: undefined
-          });
-          return;
-        }
-
-        const fieldMapping = {
-          firstName: 'firstName',
-          lastName: 'lastName',
-          email: 'email',
-          rate: 'rate',
-          role: 'role.name'
-        };
-
-        const field = model[0].field;
-        const mappedField = fieldMapping[field];
-
-        if (!mappedField) return;
-
-        setCriteria({
-          ...criteria,
-          sortField: mappedField,
-          direction: (model[0].sort?.toUpperCase() || 'ASC') as SortDirection
-        });
-      }}
+    <CustomDatagrid2
       columns={columns}
-      components={{
-        Toolbar: GridToolbar
-      }}
-      initialState={{
-        columns: {
-          columnVisibilityModel: {}
-        }
-      }}
-      onRowClick={(params) => {
-        // setCurrentUser(users.find((user) => user.id === params.id));
-        handleOpenDetails(Number(params.id));
-      }}
+      data={users.content}
+      loading={loadingGet}
+      pagination={pagination}
+      onPaginationChange={setPagination}
+      totalRows={users.totalElements}
+      pageSizeOptions={[10, 20, 50]}
+      sorting={sorting}
+      onSortingChange={setSorting}
+      columnOrder={columnOrder}
+      onColumnOrderChange={setColumnOrder}
+      columnSizing={columnSizing}
+      onColumnSizingChange={setColumnSizing}
+      columnVisibility={columnVisibility}
+      onColumnVisibilityChange={setColumnVisibility}
+      onRowClick={(row) => handleOpenDetails(row.id)}
+      enableColumnReordering
+      enableColumnResizing
+      pinnedColumns={pinnedColumns}
+      onPinnedColumnsChange={setPinnedColumns}
     />
   );
 
