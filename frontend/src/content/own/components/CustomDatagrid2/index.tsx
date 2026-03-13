@@ -550,7 +550,7 @@ function CustomDatagrid2<TData extends RowData>({
                         left: isPinned ? stickyLeft : undefined,
                         backgroundColor: PINNED_BG,
                         userSelect: isResizing ? 'none' : 'auto',
-                        cursor: enableColumnReordering ? 'grab' : 'default',
+                        cursor: enableColumnReordering ? 'pointer' : 'default',
                         borderRight: isPinned
                           ? `2px solid ${theme.palette.divider}`
                           : `1px solid ${alpha(theme.palette.divider, 0.3)}`,
@@ -559,7 +559,10 @@ function CustomDatagrid2<TData extends RowData>({
                               theme.palette.common.black,
                               0.08
                             )}`
-                          : undefined
+                          : undefined,
+                        '&:hover .sort-icon, &:hover .more-vert-icon': {
+                          opacity: 1
+                        }
                       }}
                       style={{
                         width: header.getSize(),
@@ -571,7 +574,12 @@ function CustomDatagrid2<TData extends RowData>({
                       onDragOver={handleDragOver}
                       onDrop={(e) => handleDrop(e, header.id)}
                       onDragEnd={handleDragEnd}
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (isSortable) {
+                          header.column.toggleSorting();
+                        }
+                      }}
                     >
                       <Box
                         sx={{
@@ -580,28 +588,21 @@ function CustomDatagrid2<TData extends RowData>({
                           gap: 0.5
                         }}
                       >
-                        {isSortable ? (
-                          <Box
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              header.column.toggleSorting();
-                            }}
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 0.5,
-                              cursor: 'pointer',
-                              '&:hover': {
-                                opacity: 0.8
-                              },
-                              flexGrow: 1
-                            }}
-                          >
-                            {flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 0.5,
+                            flexGrow: 1
+                          }}
+                        >
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                          {isSortable && (
                             <ArrowDownwardIcon
+                              className="sort-icon"
                               sx={{
                                 fontSize: 16,
                                 opacity: sortDirection ? 1 : 0,
@@ -609,26 +610,22 @@ function CustomDatagrid2<TData extends RowData>({
                                   sortDirection === 'asc'
                                     ? 'rotate(180deg)'
                                     : 'rotate(0deg)',
-                                transition: 'all 0.2s',
-                                '&:hover': {
-                                  opacity: 1
-                                }
+                                transition: 'all 0.2s'
                               }}
                             />
-                          </Box>
-                        ) : (
-                          <Box sx={{ flexGrow: 1 }}>
-                            {flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                          </Box>
-                        )}
+                          )}
+                        </Box>
                         <IconButton
+                          className="more-vert-icon"
                           size="small"
-                          onClick={(e) => handleMenuClick(e, header.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMenuClick(e, header.id);
+                          }}
                           sx={{
                             padding: 0.5,
+                            opacity: 0,
+                            transition: 'opacity 0.2s',
                             '&:hover': {
                               backgroundColor: alpha(
                                 theme.palette.common.black,
