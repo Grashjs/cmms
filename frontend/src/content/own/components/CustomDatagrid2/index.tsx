@@ -33,10 +33,20 @@ import {
   TablePagination,
   CircularProgress,
   alpha,
-  DragEvent
+  Menu,
+  MenuItem,
+  Switch,
+  Divider
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  DragEventHandler,
+  DragEvent
+} from 'react';
 import useWindowDimensions from '../../../../hooks/useWindowDimensions';
 import useAuth from '../../../../hooks/useAuth';
 import { UiConfiguration } from '../../../../models/owns/uiConfiguration';
@@ -47,6 +57,10 @@ import LastPageIcon from '@mui/icons-material/LastPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import PushPinIcon from '@mui/icons-material/PushPin';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 
 declare module '@tanstack/react-table' {
   interface ColumnMeta<TData extends RowData, TValue> {
@@ -95,7 +109,12 @@ interface CustomDatagrid2Props<TData extends RowData> {
   enableColumnReordering?: boolean;
   // Enable column resizing
   enableColumnResizing?: boolean;
+  // Pinned columns (array of column IDs)
+  pinnedColumns?: string[];
+  onPinnedColumnsChange?: (pinnedColumns: string[]) => void;
 }
+
+const PINNED_BG = '#F2F5F9';
 
 function CustomDatagrid2<TData extends RowData>({
   columns,
@@ -122,7 +141,9 @@ function CustomDatagrid2<TData extends RowData>({
   onRowSelectionChange,
   noRowsMessage,
   enableColumnReordering = true,
-  enableColumnResizing = true
+  enableColumnResizing = true,
+  pinnedColumns: externalPinnedColumns,
+  onPinnedColumnsChange
 }: CustomDatagrid2Props<TData>) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
@@ -131,8 +152,136 @@ function CustomDatagrid2<TData extends RowData>({
   const [tableHeight, setTableHeight] = useState<number>(500);
   const { user } = useAuth();
 
+  // Internal pinned columns state (used if external not provided)
+  const [internalPinnedColumns, setInternalPinnedColumns] = useState<string[]>(
+    []
+  );
+  const pinnedColumns = externalPinnedColumns ?? internalPinnedColumns;
+  const setPinnedColumns = (cols: string[]) => {
+    if (onPinnedColumnsChange) {
+      onPinnedColumnsChange(cols);
+    } else {
+      setInternalPinnedColumns(cols);
+    }
+  };
+
   // Drag state for column reordering
   const [draggedColumnId, setDraggedColumnId] = useState<string | null>(null);
+
+  // Column menu state
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [currentColumnId, setCurrentColumnId] = useState<string | null>(null);
+  const [columnsMenuAnchor, setColumnsMenuAnchor] =
+    useState<null | HTMLElement>(null);
+
+  const openMenu = Boolean(anchorEl);
+  const openColumnsMenu = Boolean(columnsMenuAnchor);
+
+  const handleMenuClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    columnId: string
+  ) => {
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
+    setCurrentColumnId(columnId);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setCurrentColumnId(null);
+  };
+
+  const handleColumnsMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    // Anchor to the same MoreVert button that opened the first menu (anchorEl),
+    // so the columns menu stays positioned near the column header even after
+    // the first menu unmounts.
+    setColumnsMenuAnchor(anchorEl);
+    setAnchorEl(null); // close first menu without nulling currentColumnId
+  };
+
+  const handleColumnsMenuClose = () => {
+    setColumnsMenuAnchor(null);
+  };
+
+  const handleHideColumn = () => {
+    if (currentColumnId && onColumnVisibilityChange) {
+      onColumnVisibilityChange((prev) => ({
+        ...prev,
+        [currentColumnId]: false
+      }));
+    }
+    handleMenuClose();
+  };
+
+  // Check if a column is currently pinned
+  const isColumnPinned = (columnId: string) => pinnedColumns.includes(columnId);
+
+  const handlePinColumn = () => {
+    if (!currentColumnId) return;
+
+    if (isColumnPinned(currentColumnId)) {
+      // Unpin: remove from pinned list and move after last pinned column in order
+      const newPinned = pinnedColumns.filter((id) => id !== currentColumnId);
+      setPinnedColumns(newPinned);
+
+      if (onColumnOrderChange) {
+        const allColumnIds = table.getAllColumns().map((col) => col.id);
+        const currentOrder = columnOrder?.length
+          ? columnOrder.filter((id) => allColumnIds.includes(id))
+          : [...allColumnIds];
+
+        // Remove from current position, insert after last pinned column
+        const withoutCurrent = currentOrder.filter(
+          (id) => id !== currentColumnId
+        );
+        const lastPinnedIndex = newPinned.reduce((maxIdx, pinnedId) => {
+          const idx = withoutCurrent.indexOf(pinnedId);
+          return idx > maxIdx ? idx : maxIdx;
+        }, -1);
+        const insertAt = lastPinnedIndex + 1;
+        withoutCurrent.splice(insertAt, 0, currentColumnId);
+        onColumnOrderChange(withoutCurrent);
+      }
+    } else {
+      // Pin: add to pinned list and move to front
+      const newPinned = [...pinnedColumns, currentColumnId];
+      setPinnedColumns(newPinned);
+
+      if (onColumnOrderChange) {
+        const allColumnIds = table.getAllColumns().map((col) => col.id);
+        const currentOrder = columnOrder?.length
+          ? columnOrder.filter((id) => allColumnIds.includes(id))
+          : [...allColumnIds];
+
+        const newOrder = currentOrder.filter((id) => id !== currentColumnId);
+        // Insert after existing pinned columns
+        const lastExistingPinnedIndex = pinnedColumns.reduce(
+          (maxIdx, pinnedId) => {
+            const idx = newOrder.indexOf(pinnedId);
+            return idx > maxIdx ? idx : maxIdx;
+          },
+          -1
+        );
+        newOrder.splice(lastExistingPinnedIndex + 1, 0, currentColumnId);
+        onColumnOrderChange(newOrder);
+      }
+    }
+
+    handleMenuClose();
+  };
+
+  const handleToggleColumnVisibility = (columnId: string) => {
+    if (onColumnVisibilityChange) {
+      onColumnVisibilityChange((prev: VisibilityState) => {
+        const currentVisibility = prev[columnId] !== false;
+        return {
+          ...prev,
+          [columnId]: !currentVisibility
+        };
+      });
+    }
+  };
 
   const getTableHeight = () => {
     if (tableRef.current) {
@@ -185,6 +334,24 @@ function CustomDatagrid2<TData extends RowData>({
     enableColumnResizing: enableColumnResizing,
     columnResizeMode: 'onChange' as ColumnResizeMode
   });
+
+  // Compute sticky left offsets for pinned columns
+  // Pinned columns are those whose IDs are in pinnedColumns array
+  const getPinnedStickyLeft = (columnId: string): number | undefined => {
+    if (!isColumnPinned(columnId)) return undefined;
+
+    const visibleHeaders = table.getHeaderGroups()[0]?.headers ?? [];
+    let left = 0;
+    for (const header of visibleHeaders) {
+      if (header.id === columnId) break;
+      if (isColumnPinned(header.id)) {
+        left += header.getSize();
+      }
+    }
+    // Account for selection checkbox column
+    if (enableRowSelection) left += 42; // approximate checkbox cell width
+    return left;
+  };
 
   const TablePaginationActions = (props: any) => {
     const { page, onPageChange, rowsPerPage } = props;
@@ -245,22 +412,26 @@ function CustomDatagrid2<TData extends RowData>({
   };
 
   // Handle column drag start
-  const handleDragStart = (e: DragEvent<HTMLDivElement>, columnId: string) => {
-    // Prevent horizontal scroll during drag
-    // e.stopPropagation();
+  const handleDragStart = (
+    e: DragEvent<HTMLTableCellElement>,
+    columnId: string
+  ) => {
     setDraggedColumnId(columnId);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.dropEffect = 'move';
   };
 
   // Handle column drag over
-  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (e: DragEvent<HTMLTableCellElement>) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
   };
 
   // Handle column drop
-  const handleDrop = (e: DragEvent<HTMLDivElement>, targetColumnId: string) => {
+  const handleDrop = (
+    e: DragEvent<HTMLTableCellElement>,
+    targetColumnId: string
+  ) => {
     e.preventDefault();
     e.stopPropagation();
     if (
@@ -271,7 +442,6 @@ function CustomDatagrid2<TData extends RowData>({
       const currentOrder = columnOrder || table.getState().columnOrder || [];
       const filteredColumnIds = table.getAllColumns().map((col) => col.id);
 
-      // Get current order or create default order
       const order =
         currentOrder.length > 0
           ? currentOrder.filter((id) => filteredColumnIds.includes(id))
@@ -338,7 +508,7 @@ function CustomDatagrid2<TData extends RowData>({
                 backgroundColor: '#E8EAEE',
                 position: 'sticky',
                 top: 0,
-                zIndex: 2
+                zIndex: 3
               }
             },
             '& .MuiTableBody-root': {
@@ -359,18 +529,33 @@ function CustomDatagrid2<TData extends RowData>({
                   const sortDirection = header.column.getIsSorted();
                   const canResize = header.column.getCanResize();
                   const isResizing = header.column.getIsResizing();
+                  const isPinned = isColumnPinned(header.id);
+                  const stickyLeft = getPinnedStickyLeft(header.id);
 
                   return (
                     <TableCell
                       key={header.id}
                       sx={{
                         whiteSpace: 'nowrap',
-                        position: 'relative',
+                        position: isPinned ? 'sticky' : 'relative',
+                        left: isPinned ? stickyLeft : undefined,
+                        backgroundColor: PINNED_BG,
                         userSelect: isResizing ? 'none' : 'auto',
-                        cursor: enableColumnReordering ? 'grab' : 'default'
+                        cursor: enableColumnReordering ? 'grab' : 'default',
+                        borderRight: isPinned
+                          ? `2px solid ${theme.palette.divider}`
+                          : `1px solid ${alpha(theme.palette.divider, 0.3)}`,
+                        boxShadow: isPinned
+                          ? `2px 0 4px ${alpha(
+                              theme.palette.common.black,
+                              0.08
+                            )}`
+                          : undefined
                       }}
                       style={{
-                        width: header.getSize()
+                        width: header.getSize(),
+                        // Use inline style for zIndex so it beats MUI's global .MuiTableCell-head rule
+                        zIndex: isPinned ? 5 : 3
                       }}
                       draggable={enableColumnReordering}
                       onDragStart={(e) => handleDragStart(e, header.id)}
@@ -380,7 +565,11 @@ function CustomDatagrid2<TData extends RowData>({
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Box
-                        sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 0.5
+                        }}
                       >
                         {isSortable ? (
                           <Box
@@ -395,7 +584,8 @@ function CustomDatagrid2<TData extends RowData>({
                               cursor: 'pointer',
                               '&:hover': {
                                 opacity: 0.8
-                              }
+                              },
+                              flexGrow: 1
                             }}
                           >
                             {flexRender(
@@ -418,11 +608,28 @@ function CustomDatagrid2<TData extends RowData>({
                             />
                           </Box>
                         ) : (
-                          flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )
+                          <Box sx={{ flexGrow: 1 }}>
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                          </Box>
                         )}
+                        <IconButton
+                          size="small"
+                          onClick={(e) => handleMenuClick(e, header.id)}
+                          sx={{
+                            padding: 0.5,
+                            '&:hover': {
+                              backgroundColor: alpha(
+                                theme.palette.common.black,
+                                0.1
+                              )
+                            }
+                          }}
+                        >
+                          <MoreVertIcon fontSize="small" />
+                        </IconButton>
                       </Box>
                       {canResize && enableColumnResizing && (
                         <Box
@@ -505,30 +712,143 @@ function CustomDatagrid2<TData extends RowData>({
                       />
                     </TableCell>
                   )}
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      sx={{
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}
-                      style={{
-                        maxWidth: cell.column.getSize()
-                      }}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    const isPinned = isColumnPinned(cell.column.id);
+                    const stickyLeft = getPinnedStickyLeft(cell.column.id);
+
+                    return (
+                      <TableCell
+                        key={cell.id}
+                        sx={{
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          position: isPinned ? 'sticky' : undefined,
+                          left: isPinned ? stickyLeft : undefined,
+                          backgroundColor: isPinned ? PINNED_BG : undefined,
+                          borderRight: isPinned
+                            ? `2px solid ${theme.palette.divider}`
+                            : undefined,
+                          boxShadow: isPinned
+                            ? `2px 0 4px ${alpha(
+                                theme.palette.common.black,
+                                0.08
+                              )}`
+                            : undefined
+                        }}
+                        style={{
+                          maxWidth: cell.column.getSize(),
+                          zIndex: isPinned ? 2 : undefined
+                        }}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))
             )}
           </TableBody>
         </Table>
       </Box>
+
+      {/* Column header menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={openMenu}
+        onClose={handleMenuClose}
+        onClick={(e) => e.stopPropagation()}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+      >
+        <MenuItem onClick={handleColumnsMenuOpen}>
+          <ViewColumnIcon sx={{ mr: 1, fontSize: 20 }} />
+          {t('show_columns')}
+        </MenuItem>
+        <Divider sx={{ my: 0.5 }} />
+        <MenuItem onClick={handlePinColumn}>
+          <PushPinIcon
+            sx={{
+              mr: 1,
+              fontSize: 20,
+              color:
+                currentColumnId && isColumnPinned(currentColumnId)
+                  ? theme.palette.primary.main
+                  : 'inherit'
+            }}
+          />
+          {currentColumnId && isColumnPinned(currentColumnId)
+            ? t('unpin')
+            : t('pin')}
+        </MenuItem>
+        <MenuItem onClick={handleHideColumn}>
+          <VisibilityOffIcon sx={{ mr: 1, fontSize: 20 }} />
+          {t('hide')}
+        </MenuItem>
+      </Menu>
+
+      {/* Columns visibility menu */}
+      <Menu
+        anchorEl={columnsMenuAnchor}
+        open={openColumnsMenu}
+        onClose={handleColumnsMenuClose}
+        onClick={(e) => e.stopPropagation()}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+        PaperProps={{
+          sx: {
+            maxHeight: 400,
+            minWidth: 250
+          }
+        }}
+      >
+        <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
+          <Typography variant="subtitle2" sx={{ px: 1, py: 0.5, mb: 1 }}>
+            {t('toggle_columns')}
+          </Typography>
+          <Divider sx={{ mb: 1 }} />
+          {table.getAllColumns().map((column) => {
+            const headerLabel =
+              typeof column.columnDef.header === 'function'
+                ? column.columnDef.header({} as any)
+                : String(column.columnDef.header);
+
+            return (
+              <Box
+                key={column.id}
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  px: 1,
+                  py: 0.5,
+                  gap: 1
+                }}
+              >
+                <Switch
+                  size="small"
+                  checked={column.getIsVisible()}
+                  onChange={() => handleToggleColumnVisibility(column.id)}
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <Typography
+                  sx={{
+                    fontSize: '0.75rem',
+                    color: 'text.secondary',
+                    mb: 0.5
+                  }}
+                >
+                  {headerLabel}
+                </Typography>
+              </Box>
+            );
+          })}
+        </Box>
+      </Menu>
+
       <TablePagination
         component="div"
         count={totalRows}
