@@ -8,6 +8,7 @@ import {
   OnChangeFn
 } from '@tanstack/react-table';
 import useTableStatePersist from './useTableStatePersist';
+import { SearchCriteria, SortDirection } from '../models/owns/page';
 
 export interface TableStateReturn {
   sorting: SortingState;
@@ -34,6 +35,8 @@ interface UseTableStateProps {
   contextKey?: string;
   // Optional: whether to persist pageIndex in localStorage (default: true)
   persistPageIndex?: boolean;
+  setCriteria: React.Dispatch<React.SetStateAction<SearchCriteria>>;
+  fieldMapping: Record<string, string>;
 }
 
 const useTableState = ({
@@ -41,7 +44,9 @@ const useTableState = ({
   initialSorting = [],
   initialPagination = { pageIndex: 0, pageSize: 10 },
   pageSizeOptions = [10, 25, 50, 100],
-  persistPageIndex = false
+  persistPageIndex = false,
+  setCriteria = () => null,
+  fieldMapping = {}
 }: UseTableStateProps): TableStateReturn => {
   const stateItem = `${prefix}TableState`;
   const hasRestoredRef = useRef(false);
@@ -133,6 +138,38 @@ const useTableState = ({
   const setPinnedColumns = useCallback((newPinnedColumns: string[]) => {
     setPinnedColumnsState(newPinnedColumns);
   }, []);
+
+  // Sync criteria with TanStack Table state
+  useEffect(() => {
+    setCriteria((prev) => {
+      if (
+        prev.pageSize === pagination.pageSize &&
+        prev.pageNum === pagination.pageIndex
+      )
+        return prev; // no change, no re-render
+      return {
+        ...prev,
+        pageSize: pagination.pageSize,
+        pageNum: pagination.pageIndex
+      };
+    });
+  }, [pagination]);
+
+  useEffect(() => {
+    setCriteria((prev) => {
+      if (sorting.length === 0) {
+        if (!prev.sortField && !prev.direction) return prev; // no change
+        return { ...prev, sortField: undefined, direction: undefined };
+      }
+      const sort = sorting[0];
+      const mappedField = fieldMapping[sort.id];
+      if (!mappedField) return prev;
+      const newDirection: SortDirection = sort.desc ? 'DESC' : 'ASC';
+      if (prev.sortField === mappedField && prev.direction === newDirection)
+        return prev; // no change
+      return { ...prev, sortField: mappedField, direction: newDirection };
+    });
+  }, [sorting]);
 
   // Persist state changes
   useTableStatePersist({

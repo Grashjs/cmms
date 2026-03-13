@@ -98,6 +98,24 @@ import SplitButton from '../components/SplitButton';
 import useTableState from '../../../hooks/useTableState';
 import { assetStatuses } from '../../../models/owns/asset';
 
+const fieldMapping: Record<string, string> = {
+  customId: 'customId',
+  status: 'status',
+  title: 'title',
+  priority: 'priority',
+  description: 'description',
+  primaryUser: 'primaryUser.firstName',
+  assignedTo: 'assignedTo',
+  location: 'location.name',
+  category: 'category.name',
+  asset: 'asset.name',
+  daysSinceCreated: 'createdAt',
+  files: 'files',
+  completedOn: 'completedOn',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt',
+  dueDate: 'dueDate'
+};
 function WorkOrders() {
   const { t }: { t: any } = useTranslation();
   const [currentTab, setCurrentTab] = useState<string>('list');
@@ -159,24 +177,6 @@ function WorkOrders() {
     useState<boolean>(false);
 
   // Use the table state hook for TanStack Table
-  const {
-    sorting,
-    setSorting,
-    pagination,
-    setPagination,
-    columnOrder,
-    setColumnOrder,
-    columnSizing,
-    setColumnSizing,
-    columnVisibility,
-    setColumnVisibility,
-    pinnedColumns,
-    setPinnedColumns
-  } = useTableState({
-    prefix: 'workOrder',
-    initialSorting: [{ id: 'updatedAt', desc: true }],
-    initialPagination: { pageIndex: 0, pageSize: 10 }
-  });
   const initialCriteria: SearchCriteria = {
     filterFields: [
       {
@@ -199,8 +199,8 @@ function WorkOrders() {
         value: false
       }
     ],
-    pageSize: pagination.pageSize,
-    pageNum: pagination.pageIndex,
+    pageSize: 10,
+    pageNum: 0,
     direction: 'DESC'
   };
   const [criteria, setCriteria] = useState<SearchCriteria>({
@@ -208,39 +208,29 @@ function WorkOrders() {
     sortField: 'updatedAt',
     direction: 'DESC'
   });
-
-  // Sync criteria with TanStack Table state
-  useEffect(() => {
-    setCriteria((prev) => {
-      if (
-        prev.pageSize === pagination.pageSize &&
-        prev.pageNum === pagination.pageIndex
-      )
-        return prev; // no change, no re-render
-      return {
-        ...prev,
-        pageSize: pagination.pageSize,
-        pageNum: pagination.pageIndex
-      };
-    });
-  }, [pagination]);
-
-  useEffect(() => {
-    setCriteria((prev) => {
-      if (sorting.length === 0) {
-        if (!prev.sortField && !prev.direction) return prev; // no change
-        return { ...prev, sortField: undefined, direction: undefined };
-      }
-      const sort = sorting[0];
-      const mappedField = fieldMapping[sort.id];
-      if (!mappedField) return prev;
-      const newDirection: SortDirection = sort.desc ? 'DESC' : 'ASC';
-      if (prev.sortField === mappedField && prev.direction === newDirection)
-        return prev; // no change
-      return { ...prev, sortField: mappedField, direction: newDirection };
-    });
-  }, [sorting]);
-
+  const {
+    sorting,
+    setSorting,
+    pagination,
+    setPagination,
+    columnOrder,
+    setColumnOrder,
+    columnSizing,
+    setColumnSizing,
+    columnVisibility,
+    setColumnVisibility,
+    pinnedColumns,
+    setPinnedColumns
+  } = useTableState({
+    prefix: 'workOrder',
+    initialSorting: [{ id: 'updatedAt', desc: true }],
+    initialPagination: {
+      pageSize: initialCriteria.pageSize,
+      pageIndex: initialCriteria.pageNum
+    },
+    setCriteria,
+    fieldMapping
+  });
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
   const navigate = useNavigate();
@@ -405,26 +395,6 @@ function WorkOrders() {
   }, [criteria]);
 
   const columnHelper = createColumnHelper<WorkOrder>();
-
-  // Mapping for column fields to API field names for sorting
-  const fieldMapping: Record<string, string> = {
-    customId: 'customId',
-    status: 'status',
-    title: 'title',
-    priority: 'priority',
-    description: 'description',
-    primaryUser: 'primaryUser.firstName',
-    assignedTo: 'assignedTo',
-    location: 'location.name',
-    category: 'category.name',
-    asset: 'asset.name',
-    daysSinceCreated: 'createdAt',
-    files: 'files',
-    completedOn: 'completedOn',
-    updatedAt: 'updatedAt',
-    createdAt: 'createdAt',
-    dueDate: 'dueDate'
-  };
 
   const columns: CustomDatagridColumn2<WorkOrder>[] = [
     columnHelper.accessor('customId', {

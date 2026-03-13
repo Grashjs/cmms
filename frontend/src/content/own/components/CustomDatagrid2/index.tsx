@@ -683,19 +683,17 @@ function CustomDatagrid2<TData extends RowData>({
           </TableHead>
           <TableBody>
             {loading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={
-                    enableRowSelection
-                      ? filteredColumns.length + 1
-                      : filteredColumns.length
-                  }
-                  align="center"
-                  sx={{ py: 8 }}
-                >
-                  <CircularProgress />
-                </TableCell>
-              </TableRow>
+              <Box
+                style={{
+                  marginTop: 130,
+                  width: scrollContainerRef.current?.clientWidth ?? 500,
+                  maxWidth: scrollContainerRef.current?.clientWidth ?? 500,
+                  display: 'flex',
+                  justifyContent: 'center'
+                }}
+              >
+                <CircularProgress />
+              </Box>
             ) : table.getRowModel().rows.length === 0 ? (
               <Box
                 style={{
