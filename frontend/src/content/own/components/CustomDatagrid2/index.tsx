@@ -472,7 +472,8 @@ function CustomDatagrid2<TData extends RowData>({
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        boxShadow: 'none'
       }}
       variant="outlined"
     >
@@ -597,7 +598,7 @@ function CustomDatagrid2<TData extends RowData>({
                                 fontSize: 16,
                                 opacity: sortDirection ? 1 : 0,
                                 transform:
-                                  sortDirection === 'desc'
+                                  sortDirection === 'asc'
                                     ? 'rotate(180deg)'
                                     : 'rotate(0deg)',
                                 transition: 'all 0.2s',

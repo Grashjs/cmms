@@ -13,6 +13,7 @@ interface TableState {
   columnSizing?: ColumnSizingState;
   columnVisibility?: VisibilityState;
   pagination?: PaginationState;
+  pinnedColumns?: string[];
 }
 
 interface UseTableStatePersistProps {
@@ -22,6 +23,7 @@ interface UseTableStatePersistProps {
   columnSizing?: ColumnSizingState;
   columnVisibility?: VisibilityState;
   pagination?: PaginationState;
+  pinnedColumns?: string[];
 }
 
 const useTableStatePersist = ({
@@ -30,7 +32,8 @@ const useTableStatePersist = ({
   columnOrder,
   columnSizing,
   columnVisibility,
-  pagination
+  pagination,
+  pinnedColumns
 }: UseTableStatePersistProps) => {
   const stateItem = `${prefix}TableState`;
   const hasRestoredSortingRef = useRef(false);
@@ -60,9 +63,12 @@ const useTableStatePersist = ({
     if (pagination !== undefined) {
       currentState.pagination = pagination;
     }
+    if (pinnedColumns !== undefined) {
+      currentState.pinnedColumns = pinnedColumns;
+    }
 
     localStorage.setItem(stateItem, JSON.stringify(currentState));
-  }, [stateItem, sorting, columnOrder, columnSizing, columnVisibility, pagination]);
+  }, [stateItem, sorting, columnOrder, columnSizing, columnVisibility, pagination, pinnedColumns]);
 
   // Save state whenever it changes (after initial mount)
   useEffect(() => {
@@ -102,7 +108,10 @@ const useTableStatePersist = ({
 
       // Note: The actual state restoration is handled by the parent component
       // This hook primarily handles persistence
-      console.log('Restored table state from localStorage:', state);
+      console.log('Restored table state from localStorage:', {
+        ...state,
+        pinnedColumns: state.pinnedColumns || []
+      });
     } catch (error) {
       console.error('Error restoring table state:', error);
     }

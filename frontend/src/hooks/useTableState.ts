@@ -7,7 +7,6 @@ import {
   VisibilityState,
   OnChangeFn
 } from '@tanstack/react-table';
-import { SortDirection } from '../../models/owns/page';
 import useTableStatePersist from './useTableStatePersist';
 
 export interface TableStateReturn {
@@ -21,6 +20,8 @@ export interface TableStateReturn {
   setColumnSizing: OnChangeFn<ColumnSizingState>;
   columnVisibility: VisibilityState;
   setColumnVisibility: OnChangeFn<VisibilityState>;
+  pinnedColumns: string[];
+  setPinnedColumns: (pinnedColumns: string[]) => void;
 }
 
 interface UseTableStateProps {
@@ -41,10 +42,13 @@ const useTableState = ({
 
   // Initialize state
   const [sorting, setSortingState] = useState<SortingState>(initialSorting);
-  const [pagination, setPaginationState] = useState<PaginationState>(initialPagination);
+  const [pagination, setPaginationState] =
+    useState<PaginationState>(initialPagination);
   const [columnOrder, setColumnOrderState] = useState<ColumnOrderState>([]);
   const [columnSizing, setColumnSizingState] = useState<ColumnSizingState>({});
-  const [columnVisibility, setColumnVisibilityState] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibilityState] =
+    useState<VisibilityState>({});
+  const [pinnedColumns, setPinnedColumnsState] = useState<string[]>([]);
 
   // Restore state from localStorage on mount
   useEffect(() => {
@@ -71,8 +75,14 @@ const useTableState = ({
       if (state.columnSizing && Object.keys(state.columnSizing).length > 0) {
         setColumnSizingState(state.columnSizing);
       }
-      if (state.columnVisibility && Object.keys(state.columnVisibility).length > 0) {
+      if (
+        state.columnVisibility &&
+        Object.keys(state.columnVisibility).length > 0
+      ) {
         setColumnVisibilityState(state.columnVisibility);
+      }
+      if (state.pinnedColumns && Array.isArray(state.pinnedColumns)) {
+        setPinnedColumnsState(state.pinnedColumns);
       }
 
       hasRestoredRef.current = true;
@@ -90,16 +100,29 @@ const useTableState = ({
     setPaginationState(updater);
   }, []);
 
-  const setColumnOrder = useCallback<OnChangeFn<ColumnOrderState>>((updater) => {
-    setColumnOrderState(updater);
-  }, []);
+  const setColumnOrder = useCallback<OnChangeFn<ColumnOrderState>>(
+    (updater) => {
+      setColumnOrderState(updater);
+    },
+    []
+  );
 
-  const setColumnSizing = useCallback<OnChangeFn<ColumnSizingState>>((updater) => {
-    setColumnSizingState(updater);
-  }, []);
+  const setColumnSizing = useCallback<OnChangeFn<ColumnSizingState>>(
+    (updater) => {
+      setColumnSizingState(updater);
+    },
+    []
+  );
 
-  const setColumnVisibility = useCallback<OnChangeFn<VisibilityState>>((updater) => {
-    setColumnVisibilityState(updater);
+  const setColumnVisibility = useCallback<OnChangeFn<VisibilityState>>(
+    (updater) => {
+      setColumnVisibilityState(updater);
+    },
+    []
+  );
+
+  const setPinnedColumns = useCallback((newPinnedColumns: string[]) => {
+    setPinnedColumnsState(newPinnedColumns);
   }, []);
 
   // Persist state changes
@@ -109,7 +132,8 @@ const useTableState = ({
     columnOrder,
     columnSizing,
     columnVisibility,
-    pagination
+    pagination,
+    pinnedColumns
   });
 
   return {
@@ -122,7 +146,9 @@ const useTableState = ({
     columnSizing,
     setColumnSizing,
     columnVisibility,
-    setColumnVisibility
+    setColumnVisibility,
+    pinnedColumns,
+    setPinnedColumns
   };
 };
 

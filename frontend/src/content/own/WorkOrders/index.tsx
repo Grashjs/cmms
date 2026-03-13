@@ -169,7 +169,9 @@ function WorkOrders() {
     columnSizing,
     setColumnSizing,
     columnVisibility,
-    setColumnVisibility
+    setColumnVisibility,
+    pinnedColumns,
+    setPinnedColumns
   } = useTableState({
     prefix: 'workOrder',
     initialSorting: [{ id: 'updatedAt', desc: true }],
@@ -1001,6 +1003,8 @@ function WorkOrders() {
                 noRowsMessage={t('noRows.wo.message')}
                 enableColumnReordering
                 enableColumnResizing
+                pinnedColumns={pinnedColumns}
+                onPinnedColumnsChange={setPinnedColumns}
               />
             ) : (
               <WorkOrderCalendar
