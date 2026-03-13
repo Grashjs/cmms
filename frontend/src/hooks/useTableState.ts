@@ -29,6 +29,9 @@ interface UseTableStateProps {
   initialSorting?: SortingState;
   initialPagination?: PaginationState;
   pageSizeOptions?: number[];
+  // Optional: when this changes, pagination will be reset to initial value
+  // Useful for resetting pagination when navigating between different pages
+  contextKey?: string;
 }
 
 const useTableState = ({
@@ -50,6 +53,9 @@ const useTableState = ({
     useState<VisibilityState>({});
   const [pinnedColumns, setPinnedColumnsState] = useState<string[]>([]);
 
+  useEffect(() => {
+    setPaginationState(initialPagination);
+  }, [initialPagination.pageIndex, initialPagination.pageSize]);
   // Restore state from localStorage on mount
   useEffect(() => {
     if (typeof localStorage === 'undefined' || hasRestoredRef.current) return;

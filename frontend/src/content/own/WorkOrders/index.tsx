@@ -175,7 +175,10 @@ function WorkOrders() {
   } = useTableState({
     prefix: 'workOrder',
     initialSorting: [{ id: 'updatedAt', desc: true }],
-    initialPagination: { pageIndex: 0, pageSize: 10 }
+    initialPagination: {
+      pageIndex: workOrders.number,
+      pageSize: workOrders.size
+    }
   });
   const initialCriteria: SearchCriteria = {
     filterFields: [
@@ -216,7 +219,7 @@ function WorkOrders() {
       pageSize: pagination.pageSize,
       pageNum: pagination.pageIndex
     }));
-  }, [pagination]);
+  }, [pagination.pageSize, pagination.pageIndex]);
 
   useEffect(() => {
     if (sorting.length === 0) {

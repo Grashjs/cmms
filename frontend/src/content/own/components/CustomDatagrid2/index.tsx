@@ -867,11 +867,6 @@ function CustomDatagrid2<TData extends RowData>({
         }
         rowsPerPageOptions={pageSizeOptions}
         labelRowsPerPage={t('rows_per_page')}
-        labelDisplayedRows={({ from, to, count }) =>
-          `${from}-${to} ${t('of')} ${
-            count !== -1 ? count : `${t('more_than')} ${to}`
-          }`
-        }
         ActionsComponent={TablePaginationActions}
         sx={{
           borderTop: `1px solid ${theme.palette.divider}`,
