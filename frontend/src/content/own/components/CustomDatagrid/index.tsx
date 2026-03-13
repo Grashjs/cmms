@@ -1,5 +1,4 @@
-import { DataGridPro, DataGridProProps } from '@mui/x-data-grid-pro';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, DataGridProps } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
 import { Stack, Typography, useTheme } from '@mui/material';
 import gridLocaleText from './GridLocaleText';
@@ -15,7 +14,7 @@ import useAuth from '../../../../hooks/useAuth';
 export type CustomDatagridColumn = GridEnrichedColDef & {
   uiConfigKey?: keyof Omit<UiConfiguration, 'id'>;
 };
-interface CustomDatagridProps extends DataGridProProps {
+interface CustomDatagridProps extends DataGridProps {
   notClickable?: boolean;
   pro?: boolean;
   columns: CustomDatagridColumn[];
@@ -54,7 +53,7 @@ function CustomDataGrid(props: CustomDatagridProps) {
   return (
     <div ref={tableRef} style={{ height: tableHeight, width: '100%' }}>
       {/*@ts-ignore*/}
-      <DataGridPro
+      <DataGrid
         sx={{
           ' .MuiDataGrid-columnHeader': {
             fontWeight: 'bold',
