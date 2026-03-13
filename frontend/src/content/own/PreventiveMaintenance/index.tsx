@@ -32,17 +32,15 @@ import {
 } from '../../../slices/preventiveMaintenance';
 import { useDispatch, useSelector } from '../../../store';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import CustomDataGrid, {
-  CustomDatagridColumn
-} from '../components/CustomDatagrid';
+import CustomDatagrid2, {
+  CustomDatagridColumn2
+} from '../components/CustomDatagrid2';
 import {
   FilterField,
   SearchCriteria,
   SearchOperator,
   SortDirection
 } from '../../../models/owns/page';
-import { GridRenderCellParams, GridValueGetterParams } from '@mui/x-data-grid';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import Form from '../components/form';
 import * as Yup from 'yup';
@@ -72,8 +70,8 @@ import Category from '../../../models/owns/category';
 import { LocationMiniDTO } from '../../../models/owns/location';
 import { AssetMiniDTO } from '../../../models/owns/asset';
 import { patchTasksOfPreventiveMaintenance } from '../../../slices/task';
-import { useGridApiRef } from '@mui/x-data-grid-pro';
-import useGridStatePersist from '../../../hooks/useGridStatePersist';
+import { createColumnHelper } from '@tanstack/react-table';
+import useTableState from '../../../hooks/useTableState';
 import EnumFilter from '../WorkOrders/Filters/EnumFilter';
 import SignalCellularAltTwoToneIcon from '@mui/icons-material/SignalCellularAltTwoTone';
 import SearchInput from '../components/SearchInput';
@@ -134,6 +132,46 @@ function PMs() {
     pageNum: 0,
     direction: 'DESC'
   });
+
+  // Mapping for column fields to API field names for sorting
+  const fieldMapping: Record<string, string> = {
+    customId: 'customId',
+    name: 'name',
+    title: 'title',
+    priority: 'priority',
+    description: 'description',
+    next: 'schedule.startsOn',
+    primaryUser: 'primaryUser.firstName',
+    assignedTo: 'assignedTo',
+    location: 'location.name',
+    category: 'category.name',
+    asset: 'asset.name'
+  };
+
+  // Use the table state hook for TanStack Table
+  const {
+    sorting,
+    setSorting,
+    pagination,
+    setPagination,
+    columnOrder,
+    setColumnOrder,
+    columnSizing,
+    setColumnSizing,
+    columnVisibility,
+    setColumnVisibility,
+    pinnedColumns,
+    setPinnedColumns
+  } = useTableState({
+    prefix: 'pm',
+    initialSorting: [{ id: 'next', desc: true }],
+    initialPagination: {
+      pageSize: criteria.pageSize,
+      pageIndex: criteria.pageNum
+    },
+    setCriteria,
+    fieldMapping
+  });
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const navigate = useNavigate();
   const basedOnArray: {
@@ -188,12 +226,6 @@ function PMs() {
     };
   }, [singlePreventiveMaintenance, preventiveMaintenances]);
 
-  const onPageSizeChange = (size: number) => {
-    setCriteria({ ...criteria, pageSize: size });
-  };
-  const onPageChange = (number: number) => {
-    setCriteria({ ...criteria, pageNum: number });
-  };
   const handleOpenDrawer = (preventiveMaintenance: PreventiveMaintenance) => {
     setCurrentPM(preventiveMaintenance);
     window.history.replaceState(
@@ -276,115 +308,81 @@ function PMs() {
     newValues.recurrenceType = newValues.recurrenceType?.value;
     return newValues;
   };
-  const columns: CustomDatagridColumn[] = [
-    {
-      field: 'customId',
-      headerName: t('id'),
-      description: t('id')
-    },
-    {
-      field: 'name',
-      headerName: t('name'),
-      description: t('name'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
-      )
-    },
-    {
-      field: 'title',
-      headerName: t('wo_title'),
-      description: t('wo_title'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
-      )
-    },
 
-    {
-      field: 'priority',
-      headerName: t('priority'),
-      description: t('priority'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <PriorityWrapper priority={params.value} />
-      )
-    },
-    {
-      field: 'description',
-      headerName: t('description'),
-      description: t('description'),
-      width: 300
-    },
-    {
-      field: 'next',
-      headerName: t('next_wo'),
-      description: t('next_wo'),
-      width: 150,
-      valueGetter: (
-        params: GridValueGetterParams<null, PreventiveMaintenance>
-      ) => getFormattedDate(params.row.nextWorkOrderDate)
-    },
-    {
-      field: 'primaryUser',
-      headerName: t('worker'),
-      description: t('worker'),
-      width: 170,
-      renderCell: (params: GridRenderCellParams<UserMiniDTO>) =>
-        params.value ? <UserAvatars users={[params.value]} /> : null
-    },
-    {
-      field: 'assignedTo',
-      headerName: t('assigned_to'),
-      description: t('assigned_to'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<UserMiniDTO[]>) => (
-        <UserAvatars users={params.value} />
-      )
-    },
-    {
-      field: 'location',
-      headerName: t('location_name'),
-      description: t('location_name'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<LocationMiniDTO>) =>
-        params.value?.name,
-      uiConfigKey: 'locations'
-    },
-    {
-      field: 'category',
-      headerName: t('category'),
-      description: t('category'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<Category>) =>
-        params.value?.name
-    },
-    {
-      field: 'asset',
-      headerName: t('asset_name'),
-      description: t('asset_name'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<AssetMiniDTO>) =>
-        params.value?.name
-    }
+  const columnHelper = createColumnHelper<PreventiveMaintenance>();
+
+  const columns: CustomDatagridColumn2<PreventiveMaintenance>[] = [
+    columnHelper.accessor('customId', {
+      id: 'customId',
+      header: () => t('id'),
+      cell: (info) => info.getValue(),
+      size: 80
+    }),
+    columnHelper.accessor('name', {
+      id: 'name',
+      header: () => t('name'),
+      cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>,
+      size: 150
+    }),
+    columnHelper.accessor('title', {
+      id: 'title',
+      header: () => t('wo_title'),
+      cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>,
+      size: 150
+    }),
+    columnHelper.accessor('priority', {
+      id: 'priority',
+      header: () => t('priority'),
+      cell: (info) => <PriorityWrapper priority={info.getValue()} />,
+      size: 150
+    }),
+    columnHelper.accessor('description', {
+      id: 'description',
+      header: () => t('description'),
+      cell: (info) => info.getValue(),
+      size: 300
+    }),
+    columnHelper.accessor('schedule', {
+      id: 'next',
+      header: () => t('next_wo'),
+      cell: (info) => getFormattedDate(info.row.original.nextWorkOrderDate),
+      size: 150
+    }),
+    columnHelper.accessor('primaryUser', {
+      id: 'primaryUser',
+      header: () => t('worker'),
+      cell: (info) =>
+        info.getValue() ? <UserAvatars users={[info.getValue()]} /> : null,
+      size: 170
+    }),
+    columnHelper.accessor('assignedTo', {
+      id: 'assignedTo',
+      header: () => t('assigned_to'),
+      cell: (info) => <UserAvatars users={info.getValue()} />,
+      size: 150
+    }),
+    columnHelper.accessor((row) => row.location?.name, {
+      id: 'location',
+      header: () => t('location_name'),
+      cell: (info) => info.getValue() || '',
+      size: 150,
+      meta: {
+        uiConfigKey: 'locations'
+      }
+    }),
+    columnHelper.accessor((row) => row.category?.name, {
+      id: 'category',
+      header: () => t('category'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor((row) => row.asset?.name, {
+      id: 'asset',
+      header: () => t('asset_name'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    })
   ];
-  const apiRef = useGridApiRef();
-  useGridStatePersist(apiRef, columns, 'pm');
-
-  // Mapping for column fields to API field names for sorting
-  const fieldMapping: Record<string, string> = {
-    customId: 'customId',
-    name: 'name',
-    title: 'title',
-    priority: 'priority',
-    description: 'description',
-    next: 'schedule.startsOn',
-    primaryUser: 'primaryUser.firstName',
-    assignedTo: 'assignedTo',
-    location: 'location.name',
-    category: 'category.name',
-    asset: 'asset.name'
-  };
 
   const defaultFields: Array<IField> = [
     {
@@ -736,57 +734,29 @@ function PMs() {
                 <SearchInput onChange={debouncedQueryChange} />
               </Stack>
               <Box sx={{ width: '95%' }}>
-                <CustomDataGrid
-                  apiRef={apiRef}
+                <CustomDatagrid2
                   columns={columns}
+                  data={preventiveMaintenances.content}
                   loading={loadingGet}
-                  pageSize={criteria.pageSize}
-                  page={criteria.pageNum}
-                  rows={preventiveMaintenances.content}
-                  rowCount={preventiveMaintenances.totalElements}
-                  pagination
-                  paginationMode="server"
-                  sortingMode="server"
-                  onSortModelChange={(model) => {
-                    if (model.length === 0) {
-                      setCriteria((prevState) => ({
-                        ...prevState,
-                        sortField: undefined,
-                        direction: undefined
-                      }));
-                      return;
-                    }
-
-                    const field = model[0].field;
-                    const mappedField = fieldMapping[field];
-
-                    // Only proceed if we have a mapping for this field
-                    if (!mappedField) return;
-
-                    setCriteria({
-                      ...criteria,
-                      sortField: mappedField,
-                      direction: (model[0].sort?.toUpperCase() ||
-                        'ASC') as SortDirection
-                    });
-                  }}
-                  initialState={{
-                    columns: {
-                      columnVisibilityModel: {}
-                    }
-                  }}
-                  onPageSizeChange={onPageSizeChange}
-                  onPageChange={onPageChange}
-                  rowsPerPageOptions={[10, 20, 50]}
-                  onRowClick={({ id }) => handleOpenDetails(Number(id))}
-                  components={{
-                    NoRowsOverlay: () => (
-                      <NoRowsMessageWrapper
-                        message={t('noRows.pm.message')}
-                        action={t('noRows.pm.action')}
-                      />
-                    )
-                  }}
+                  pagination={pagination}
+                  onPaginationChange={setPagination}
+                  totalRows={preventiveMaintenances.totalElements}
+                  pageSizeOptions={[10, 20, 50]}
+                  sorting={sorting}
+                  onSortingChange={setSorting}
+                  columnOrder={columnOrder}
+                  onColumnOrderChange={setColumnOrder}
+                  columnSizing={columnSizing}
+                  onColumnSizingChange={setColumnSizing}
+                  columnVisibility={columnVisibility}
+                  onColumnVisibilityChange={setColumnVisibility}
+                  onRowClick={(row) => handleOpenDetails(row.id)}
+                  noRowsMessage={t('noRows.pm.message')}
+                  noRowsAction={t('noRows.pm.action')}
+                  enableColumnReordering
+                  enableColumnResizing
+                  pinnedColumns={pinnedColumns}
+                  onPinnedColumnsChange={setPinnedColumns}
                 />
               </Box>
             </Card>
