@@ -38,7 +38,6 @@ import CustomDatagrid2, {
   CustomDatagridColumn2
 } from '../components/CustomDatagrid2';
 import { createColumnHelper, SortingState } from '@tanstack/react-table';
-import { PaginationState } from '@tanstack/react-table';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import Form from '../components/form';
 import UserAvatars from '../components/UserAvatars';
@@ -93,10 +92,10 @@ import _ from 'lodash';
 import SearchInput from '../components/SearchInput';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import { getPreventiveMaintenanceUrl } from 'src/utils/urlPaths';
-import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import Request from '../../../models/owns/request';
 import { getErrorMessage } from '../../../utils/api';
 import SplitButton from '../components/SplitButton';
+import useTableState from '../../../hooks/useTableState';
 import { assetStatuses } from '../../../models/owns/asset';
 
 function WorkOrders() {
@@ -144,8 +143,6 @@ function WorkOrders() {
   const { setTitle } = useContext(TitleContext);
   const { workOrderId } = useParams();
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const [columnOrder, setColumnOrder] = useState([]);
-
   const [currentWorkOrder, setCurrentWorkOrder] = useState<WorkOrder>();
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const { tasksByWorkOrder } = useSelector((state) => state.tasks);
@@ -161,13 +158,22 @@ function WorkOrders() {
   const [openDrawerForSingleWO, setOpenDrawerForSingleWO] =
     useState<boolean>(false);
 
-  // TanStack Table state
-  const [sorting, setSorting] = useState<SortingState>([
-    { id: 'updatedAt', desc: true }
-  ]);
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10
+  // Use the table state hook for TanStack Table
+  const {
+    sorting,
+    setSorting,
+    pagination,
+    setPagination,
+    columnOrder,
+    setColumnOrder,
+    columnSizing,
+    setColumnSizing,
+    columnVisibility,
+    setColumnVisibility
+  } = useTableState({
+    prefix: 'workOrder',
+    initialSorting: [{ id: 'updatedAt', desc: true }],
+    initialPagination: { pageIndex: 0, pageSize: 10 }
   });
   const initialCriteria: SearchCriteria = {
     filterFields: [
@@ -417,7 +423,13 @@ function WorkOrders() {
     columnHelper.accessor('customId', {
       id: 'customId',
       header: () => t('id'),
-      cell: (info) => info.getValue()
+      cell: (info) => info.getValue(),
+      meta: {
+        description: t('id')
+      },
+      size: 80,
+      minSize: 60,
+      maxSize: 150
     }),
     columnHelper.accessor('status', {
       id: 'status',
@@ -438,72 +450,126 @@ function WorkOrders() {
           />
           <Typography sx={{ ml: 1 }}>{t(info.getValue())}</Typography>
         </Box>
-      )
+      ),
+      meta: {
+        description: t('status')
+      },
+      size: 150,
+      minSize: 100,
+      maxSize: 200
     }),
     columnHelper.accessor('title', {
       id: 'title',
       header: () => t('title'),
-      cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>
+      cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>,
+      meta: {
+        description: t('title')
+      },
+      size: 200,
+      minSize: 100,
+      maxSize: 400
     }),
     columnHelper.accessor('priority', {
       id: 'priority',
       header: () => t('priority'),
-      cell: (info) => <PriorityWrapper priority={info.getValue()} />
+      cell: (info) => <PriorityWrapper priority={info.getValue()} />,
+      meta: {
+        description: t('priority')
+      },
+      size: 120,
+      minSize: 80,
+      maxSize: 180
     }),
     columnHelper.accessor('description', {
       id: 'description',
       header: () => t('description'),
       cell: (info) => info.getValue(),
-      size: 300
+      meta: {
+        description: t('description')
+      },
+      size: 300,
+      minSize: 150,
+      maxSize: 600
     }),
     columnHelper.accessor('primaryUser', {
       id: 'primaryUser',
       header: () => t('worker'),
       cell: (info) =>
         info.getValue() ? <UserAvatars users={[info.getValue()]} /> : null,
-      size: 170
+      meta: {
+        description: t('worker')
+      },
+      size: 150,
+      minSize: 100,
+      maxSize: 250
     }),
     columnHelper.accessor('assignedTo', {
       id: 'assignedTo',
       header: () => t('assigned_to'),
       cell: (info) => <UserAvatars users={info.getValue()} />,
-      size: 170
+      meta: {
+        description: t('assigned_to')
+      },
+      size: 150,
+      minSize: 100,
+      maxSize: 250
     }),
     columnHelper.accessor((row) => row.location?.name, {
       id: 'location',
       header: () => t('location_name'),
       cell: (info) => info.getValue() || '',
       meta: {
+        description: t('location_name'),
         uiConfigKey: 'locations'
       },
-      size: 150
+      size: 150,
+      minSize: 100,
+      maxSize: 250
     }),
     columnHelper.accessor((row) => row.location?.address, {
       id: 'locationAddress',
       header: () => t('location_address'),
       cell: (info) => info.getValue() || '',
       meta: {
+        description: t('location_address'),
         uiConfigKey: 'locations'
       },
-      size: 150
+      size: 180,
+      minSize: 100,
+      maxSize: 300
     }),
     columnHelper.accessor((row) => row.category?.name, {
       id: 'category',
       header: () => t('category'),
       cell: (info) => info.getValue() || '',
-      size: 150
+      meta: {
+        description: t('category')
+      },
+      size: 150,
+      minSize: 100,
+      maxSize: 250
     }),
     columnHelper.accessor((row) => row.asset?.name, {
       id: 'asset',
       header: () => t('asset_name'),
       cell: (info) => info.getValue() || '',
-      size: 150
+      meta: {
+        description: t('asset_name')
+      },
+      size: 150,
+      minSize: 100,
+      maxSize: 250
     }),
     columnHelper.accessor('dueDate', {
       id: 'dueDate',
       header: () => t('due_date'),
       cell: (info) => getFormattedDate(info.getValue()),
-      size: 150
+      meta: {
+        description: t('due_date')
+      },
+      size: 140,
+      minSize: 100,
+      maxSize: 200
     }),
     columnHelper.accessor(
       (row) => dayDiff(new Date(), new Date(row.createdAt)),
@@ -511,14 +577,24 @@ function WorkOrders() {
         id: 'daysSinceCreated',
         header: () => t('days_since_creation'),
         cell: (info) => info.getValue(),
-        size: 150
+        meta: {
+          description: t('days_since_creation')
+        },
+        size: 140,
+        minSize: 100,
+        maxSize: 200
       }
     ),
     columnHelper.accessor('files', {
       id: 'files',
       header: () => t('files'),
       cell: (info) => info.getValue()?.length ?? 0,
-      size: 150
+      meta: {
+        description: t('files')
+      },
+      size: 80,
+      minSize: 60,
+      maxSize: 120
     }),
     columnHelper.accessor(
       (row) => getUserNameById(row.parentRequest?.createdBy),
@@ -526,26 +602,46 @@ function WorkOrders() {
         id: 'requestedBy',
         header: () => t('requested_by'),
         cell: (info) => info.getValue() || '',
-        size: 150
+        meta: {
+          description: t('requested_by')
+        },
+        size: 150,
+        minSize: 100,
+        maxSize: 250
       }
     ),
     columnHelper.accessor('completedOn', {
       id: 'completedOn',
       header: () => t('completed_on'),
       cell: (info) => getFormattedDate(info.getValue()),
-      size: 150
+      meta: {
+        description: t('completed_on')
+      },
+      size: 140,
+      minSize: 100,
+      maxSize: 200
     }),
     columnHelper.accessor('updatedAt', {
       id: 'updatedAt',
       header: () => t('updated_at'),
       cell: (info) => getFormattedDate(info.getValue()),
-      size: 150
+      meta: {
+        description: t('updated_at')
+      },
+      size: 140,
+      minSize: 100,
+      maxSize: 200
     }),
     columnHelper.accessor('createdAt', {
       id: 'createdAt',
       header: () => t('created_at'),
       cell: (info) => getFormattedDate(info.getValue()),
-      size: 150
+      meta: {
+        description: t('created_at')
+      },
+      size: 140,
+      minSize: 100,
+      maxSize: 200
     })
   ];
 
@@ -981,8 +1077,16 @@ function WorkOrders() {
                 pageSizeOptions={[10, 20, 50]}
                 sorting={sorting}
                 onSortingChange={setSorting}
+                columnOrder={columnOrder}
+                onColumnOrderChange={setColumnOrder}
+                columnSizing={columnSizing}
+                onColumnSizingChange={setColumnSizing}
+                columnVisibility={columnVisibility}
+                onColumnVisibilityChange={setColumnVisibility}
                 onRowClick={(row) => handleOpenDetails(row.id)}
                 noRowsMessage={t('noRows.wo.message')}
+                enableColumnReordering
+                enableColumnResizing
               />
             ) : (
               <WorkOrderCalendar
