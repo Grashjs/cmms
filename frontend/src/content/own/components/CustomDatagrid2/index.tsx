@@ -553,7 +553,7 @@ function CustomDatagrid2<TData extends RowData>({
                         cursor: enableColumnReordering ? 'pointer' : 'default',
                         borderRight: isPinned
                           ? `2px solid ${theme.palette.divider}`
-                          : `1px solid ${alpha(theme.palette.divider, 0.3)}`,
+                          : `1px solid #F2F5F9`,
                         boxShadow: isPinned
                           ? `2px 0 4px ${alpha(
                               theme.palette.common.black,
