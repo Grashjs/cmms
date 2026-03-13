@@ -29,15 +29,9 @@ import * as React from 'react';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import ReplayTwoToneIcon from '@mui/icons-material/ReplayTwoTone';
 import { TitleContext } from '../../../contexts/TitleContext';
-import CustomDataGrid, {
-  CustomDatagridColumn
-} from '../components/CustomDatagrid';
-import {
-  GridEventListener,
-  GridRenderCellParams,
-  GridRow,
-  GridValueGetterParams
-} from '@mui/x-data-grid';
+import CustomDatagrid2, {
+  CustomDatagridColumn2
+} from '../components/CustomDatagrid2';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import {
   AssetDTO,
@@ -48,9 +42,7 @@ import {
 import Form from '../components/form';
 import * as Yup from 'yup';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { DataGridProProps, useGridApiRef } from '@mui/x-data-grid-pro';
 import { formatAssetValues } from '../../../utils/formatters';
-import { GroupingCellWithLazyLoading } from './GroupingCellWithLazyLoading';
 import { UserMiniDTO } from '../../../models/user';
 import UserAvatars from '../components/UserAvatars';
 import { enumerate } from '../../../utils/displayers';
@@ -84,10 +76,13 @@ import {
 import SearchInput from '../components/SearchInput';
 import File from '../../../models/owns/file';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
-import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import AssetStatusTag from './components/AssetStatusTag';
 import { getErrorMessage } from '../../../utils/api';
 import SplitButton from '../components/SplitButton';
+import { createColumnHelper } from '@tanstack/react-table';
+import useTableState from '../../../hooks/useTableState';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const HIERARCHY_ZERO_PAGE_SIZE = 40;
 
@@ -111,7 +106,6 @@ function Assets() {
     (state) => state.assets
   );
   const { loadingExport } = useSelector((state) => state.exports);
-  const apiRef = useGridApiRef();
   const { getFormattedDate } = useContext(CompanySettingsContext);
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { locations } = useSelector((state) => state.locations);
@@ -165,6 +159,29 @@ function Assets() {
       hierarchy: []
     }
   ]);
+
+  // Expanding state for hierarchy view
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [subRowsMap, setSubRowsMap] = useState<Record<number, AssetRow[]>>({});
+
+  const handleToggleExpand = async (row: AssetRow) => {
+    const isExpanded = expanded[row.id];
+    if (!isExpanded && !subRowsMap[row.id]) {
+      // Fetch children if not already fetched
+      const newSubRows: AssetRow[] = [];
+      const loadingRow: AssetRow = {
+        id: `loading-${row.id}`,
+        name: t('loading_assets', { name: row.name, id: row.id }),
+        hierarchy: [...row.hierarchy, row.id]
+      } as AssetRow;
+      setSubRowsMap((prev) => ({ ...prev, [row.id]: [loadingRow] }));
+
+      await dispatch(getAssetChildren(row.id, row.hierarchy, pageable));
+      // After dispatch, the children will be in the store, we need to fetch them
+      // This is handled by the useEffect below
+    }
+    setExpanded((prev) => ({ ...prev, [row.id]: !isExpanded }));
+  };
   const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -200,6 +217,17 @@ function Assets() {
     if (hasViewPermission(PermissionEntity.ASSETS))
       dispatch(getAssets(criteria));
   }, [criteria]);
+
+  // Fetch children for expanded rows
+  useEffect(() => {
+    deployedAssets.forEach((deployedAsset) => {
+      if (deployedAsset.id !== 0) {
+        dispatch(
+          getAssetChildren(deployedAsset.id, deployedAsset.hierarchy, pageable)
+        );
+      }
+    });
+  }, [deployedAssets, pageable]);
 
   const fetchMore = () => {
     setPageable((prevState) => {
@@ -257,136 +285,6 @@ function Assets() {
       </MenuItem>
     </Menu>
   );
-  const columns: CustomDatagridColumn[] = [
-    {
-      field: 'customId',
-      headerName: t('id'),
-      description: t('id'),
-      width: 150
-    },
-    {
-      field: 'name',
-      headerName: t('name'),
-      description: t('name'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <Box sx={{ py: 1, fontWeight: 'bold' }}>{params.value}</Box>
-      )
-    },
-    {
-      field: 'status',
-      headerName: t('status'),
-      description: t('status'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<AssetStatus>) => (
-        <AssetStatusTag status={params.value} />
-      )
-    },
-    {
-      field: 'location',
-      headerName: t('location'),
-      description: t('location'),
-      width: 150,
-      uiConfigKey: 'locations',
-      valueGetter: (params: GridValueGetterParams<LocationMiniDTO>) =>
-        params.value?.name
-    },
-    {
-      field: 'image',
-      headerName: t('image'),
-      description: t('image'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<any, any, File>) =>
-        params.value && (
-          <img width="100%" height="100%" src={params.value.url} />
-        )
-    },
-    {
-      field: 'area',
-      headerName: t('area'),
-      description: t('area'),
-      width: 150
-    },
-    {
-      field: 'model',
-      headerName: t('model'),
-      description: t('model'),
-      width: 150
-    },
-    {
-      field: 'barCode',
-      headerName: t('barcode'),
-      description: t('barcode'),
-      width: 150
-    },
-    {
-      field: 'category',
-      headerName: t('category'),
-      description: t('category'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<Category>) =>
-        params.value?.name
-    },
-    {
-      field: 'description',
-      headerName: t('description'),
-      description: t('description'),
-      width: 300
-    },
-    {
-      field: 'primaryUser',
-      headerName: t('primary_worker'),
-      description: t('primary_worker'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<UserMiniDTO>) =>
-        params.value
-          ? `${params.value.firstName} ${params.value.lastName}`
-          : null
-    },
-    {
-      field: 'assignedTo',
-      headerName: t('assigned_to'),
-      description: t('assigned_to'),
-      width: 170,
-      renderCell: (params: GridRenderCellParams<UserMiniDTO[]>) => (
-        <UserAvatars users={params.value ?? []} />
-      )
-    },
-    {
-      field: 'teams',
-      headerName: t('teams'),
-      description: t('teams'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<TeamMiniDTO[]>) =>
-        enumerate(params.value?.map((team) => team.name) ?? [])
-    },
-    {
-      field: 'vendors',
-      headerName: t('vendors'),
-      description: t('vendors'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<VendorMiniDTO[]>) =>
-        enumerate(params.value?.map((vendor) => vendor.companyName) ?? []),
-      uiConfigKey: 'vendorsAndCustomers'
-    },
-    {
-      field: 'parentAsset',
-      headerName: t('parent_asset'),
-      description: t('parent_asset'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<AssetMiniDTO>) =>
-        params.value?.name
-    },
-    {
-      field: 'createdAt',
-      headerName: t('created_at'),
-      description: t('created_at'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<string>) =>
-        getFormattedDate(params.value)
-    }
-  ];
-  useGridStatePersist(apiRef, columns, 'asset');
 
   // Mapping for column fields to API field names for sorting
   const fieldMapping: Record<string, string> = {
@@ -412,6 +310,175 @@ function Assets() {
     setCriteria(initialCriteria);
     setView('hierarchy');
   };
+
+  const columnHelper = createColumnHelper<AssetDTO>();
+
+  const columns: CustomDatagridColumn2<AssetDTO>[] = [
+    columnHelper.display({
+      id: 'expander',
+      header: '',
+      cell: ({ row }) => {
+        const isExpanded = expanded[row.original.id];
+        const hasSubRows =
+          row.original.hasChildren || subRowsMap[row.original.id]?.length > 0;
+
+        if (!hasSubRows && view === 'hierarchy') {
+          return <Box sx={{ width: 24 }} />;
+        }
+
+        return (
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleExpand(row.original);
+            }}
+            sx={{ padding: 0.5 }}
+          >
+            {isExpanded ? (
+              <ExpandMoreIcon fontSize="small" />
+            ) : (
+              <ChevronRightIcon fontSize="small" />
+            )}
+          </IconButton>
+        );
+      },
+      size: 50
+    }),
+    columnHelper.accessor('customId', {
+      id: 'customId',
+      header: () => t('id'),
+      cell: (info) => info.getValue(),
+      size: 100
+    }),
+    columnHelper.accessor('name', {
+      id: 'name',
+      header: () => t('name'),
+      cell: (info) => (
+        <Box
+          sx={{
+            py: 1,
+            fontWeight: 'bold',
+            ml: view === 'hierarchy' ? (info.row.depth || 0) * 24 : 0
+          }}
+        >
+          {info.getValue()}
+        </Box>
+      ),
+      size: 200
+    }),
+    columnHelper.accessor('status', {
+      id: 'status',
+      header: () => t('status'),
+      cell: (info) => <AssetStatusTag status={info.getValue()} />,
+      size: 120
+    }),
+    columnHelper.accessor((row) => row.location?.name, {
+      id: 'location',
+      header: () => t('location'),
+      cell: (info) => info.getValue() || '',
+      size: 150,
+      meta: {
+        uiConfigKey: 'locations'
+      }
+    }),
+    columnHelper.accessor('image', {
+      id: 'image',
+      header: () => t('image'),
+      cell: (info) =>
+        info.getValue() ? (
+          <img
+            width="100%"
+            height="100%"
+            src={info.getValue().url}
+            alt={info.row.original.name}
+          />
+        ) : null,
+      size: 100
+    }),
+    columnHelper.accessor('area', {
+      id: 'area',
+      header: () => t('area'),
+      cell: (info) => info.getValue(),
+      size: 100
+    }),
+    columnHelper.accessor('model', {
+      id: 'model',
+      header: () => t('model'),
+      cell: (info) => info.getValue(),
+      size: 120
+    }),
+    columnHelper.accessor('barCode', {
+      id: 'barCode',
+      header: () => t('barcode'),
+      cell: (info) => info.getValue(),
+      size: 120
+    }),
+    columnHelper.accessor((row) => row.category?.name, {
+      id: 'category',
+      header: () => t('category'),
+      cell: (info) => info.getValue() || '',
+      size: 120
+    }),
+    columnHelper.accessor('description', {
+      id: 'description',
+      header: () => t('description'),
+      cell: (info) => info.getValue(),
+      size: 250
+    }),
+    columnHelper.accessor(
+      (row) =>
+        row.primaryUser
+          ? `${row.primaryUser.firstName} ${row.primaryUser.lastName}`
+          : null,
+      {
+        id: 'primaryUser',
+        header: () => t('primary_worker'),
+        cell: (info) => info.getValue() || '',
+        size: 150
+      }
+    ),
+    columnHelper.accessor('assignedTo', {
+      id: 'assignedTo',
+      header: () => t('assigned_to'),
+      cell: (info) => <UserAvatars users={info.getValue() ?? []} />,
+      size: 150
+    }),
+    columnHelper.accessor(
+      (row) => enumerate(row.teams?.map((team) => team.name) ?? []),
+      {
+        id: 'teams',
+        header: () => t('teams'),
+        cell: (info) => info.getValue(),
+        size: 150
+      }
+    ),
+    columnHelper.accessor(
+      (row) =>
+        enumerate(row.vendors?.map((vendor) => vendor.companyName) ?? []),
+      {
+        id: 'vendors',
+        header: () => t('vendors'),
+        cell: (info) => info.getValue(),
+        size: 150,
+        meta: {
+          uiConfigKey: 'vendorsAndCustomers'
+        }
+      }
+    ),
+    columnHelper.accessor((row) => row.parentAsset?.name, {
+      id: 'parentAsset',
+      header: () => t('parent_asset'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor('createdAt', {
+      id: 'createdAt',
+      header: () => t('created_at'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 140
+    })
+  ];
   const defaultFields: Array<IField> = [
     {
       name: 'assetInfo',
@@ -599,65 +666,6 @@ function Assets() {
   const handleReset = (callApi: boolean) => {
     dispatch(resetAssetsHierarchy(callApi));
   };
-  useEffect(() => {
-    if (apiRef.current.getRow) {
-      const handleRowExpansionChange: GridEventListener<
-        'rowExpansionChange'
-      > = async (node) => {
-        const row = apiRef.current.getRow(node.id) as AssetRow | null;
-        if (!node.childrenExpanded || !row || row.childrenFetched) {
-          return;
-        }
-        apiRef.current.updateRows([
-          {
-            id: t('loading_assets', { name: row.name, id: node.id }),
-            hierarchy: [...row.hierarchy, '']
-          }
-        ]);
-        if (
-          !deployedAssets.find((deployedAsset) => deployedAsset.id === row.id)
-        )
-          setDeployedAssets(
-            deployedAssets.concat({
-              id: row.id,
-              hierarchy: row.hierarchy
-            })
-          );
-        dispatch(getAssetChildren(row.id, row.hierarchy, pageable));
-      };
-      /**
-       * By default, the grid does not toggle the expansion of rows with 0 children
-       * We need to override the `cellKeyDown` event listener to force the expansion if there are children on the server
-       */
-      const handleCellKeyDown: GridEventListener<'cellKeyDown'> = (
-        params,
-        event
-      ) => {
-        const cellParams = apiRef.current.getCellParams(
-          params.id,
-          params.field
-        );
-        if (cellParams.colDef.type === 'treeDataGroup' && event.key === ' ') {
-          event.stopPropagation();
-          event.preventDefault();
-          event.defaultMuiPrevented = true;
-
-          apiRef.current.setRowChildrenExpansion(
-            params.id,
-            !params.rowNode.childrenExpanded
-          );
-        }
-      };
-
-      apiRef.current.subscribeEvent(
-        'rowExpansionChange',
-        handleRowExpansionChange
-      );
-      apiRef.current.subscribeEvent('cellKeyDown', handleCellKeyDown, {
-        isFirst: true
-      });
-    }
-  }, [apiRef]);
 
   const renderAssetAddModal = () => (
     <Dialog
@@ -739,32 +747,53 @@ function Assets() {
     </Dialog>
   );
 
-  const groupingColDef: DataGridProProps['groupingColDef'] = {
-    headerName: t('hierarchy'),
-    disableReorder: true,
-    renderCell: (params) => <GroupingCellWithLazyLoading {...params} />
-  };
-  const CustomRow = (props: React.ComponentProps<typeof GridRow>) => {
-    const rowNode = apiRef.current.getRowNode(props.rowId);
-    const theme = useTheme();
+  // Flatten hierarchy based on expanded state
+  const getHierarchicalData = (
+    rows: AssetRow[],
+    expanded: Record<string, boolean>,
+    subRowsMap: Record<number, AssetRow[]>,
+    depth: number = 0
+  ): (AssetRow & { depth: number })[] => {
+    let result: (AssetRow & { depth: number })[] = [];
 
-    return (
-      <GridRow
-        {...props}
-        style={
-          (rowNode?.depth ?? 0) > 0
-            ? {
-                backgroundColor:
-                  rowNode.depth % 2 === 0
-                    ? theme.colors.primary.light
-                    : theme.colors.primary.main,
-                color: 'white'
-              }
-            : undefined
+    for (const row of rows) {
+      // Add current row with depth
+      result.push({ ...row, depth });
+
+      // If expanded and has children, add children
+      if (expanded[row.id] && subRowsMap[row.id]) {
+        const children = subRowsMap[row.id].filter(
+          (child) => !String(child.id).startsWith('loading-')
+        );
+        if (children.length > 0) {
+          const childrenWithDepth = getHierarchicalData(
+            children,
+            expanded,
+            subRowsMap,
+            depth + 1
+          );
+          result = [...result, ...childrenWithDepth];
         }
-      />
-    );
+      }
+    }
+
+    return result;
   };
+
+  // Use table state for list view (server-side pagination and sorting)
+  const tableState = useTableState({
+    prefix: 'assets-list',
+    setCriteria,
+    fieldMapping,
+    initialPagination: { pageIndex: 0, pageSize: criteria.pageSize }
+  });
+
+  // Prepare data for the table based on view type
+  const tableData =
+    view === 'hierarchy'
+      ? getHierarchicalData(assetsHierarchy, expanded, subRowsMap)
+      : assets.content || [];
+
   if (hasViewPermission(PermissionEntity.ASSETS))
     return (
       <>
@@ -831,69 +860,34 @@ function Assets() {
             }}
           >
             <Box sx={{ width: '95%' }}>
-              <CustomDataGrid
-                pro
-                treeData={view === 'hierarchy'}
+              <CustomDatagrid2
                 columns={columns}
-                rows={view === 'hierarchy' ? assetsHierarchy : assets.content}
-                apiRef={apiRef}
-                getRowHeight={() => 'auto'}
-                getTreeDataPath={(row) =>
+                data={tableData}
+                loading={view === 'hierarchy' ? loadingHierarchy : loadingGet}
+                pagination={tableState.pagination}
+                onPaginationChange={tableState.setPagination}
+                totalRows={
                   view === 'hierarchy'
-                    ? row.hierarchy.map((id) => id.toString())
-                    : [row.id.toString()]
+                    ? assetsHierarchy.length
+                    : assets.totalElements
                 }
-                disableColumnFilter
-                loading={loadingHierarchy}
-                groupingColDef={
-                  view === 'hierarchy' ? groupingColDef : undefined
+                pageSizeOptions={
+                  view === 'list' ? [10, 20, 50] : [10, 25, 50, 100]
                 }
-                paginationMode={view === 'hierarchy' ? undefined : 'server'}
-                sortingMode={view === 'hierarchy' ? 'client' : undefined}
-                onSortModelChange={(model) => {
-                  if (view !== 'hierarchy') return;
-
-                  if (model.length === 0) {
-                    setCriteria({
-                      ...criteria,
-                      sortField: undefined,
-                      direction: undefined
-                    });
-                    return;
-                  }
-
-                  const field = model[0].field;
-                  const mappedField = fieldMapping[field];
-
-                  // Only proceed if we have a mapping for this field
-                  if (!mappedField) return;
-
-                  setPageable((prevState) => ({
-                    ...prevState,
-                    sort: model.length
-                      ? [`${mappedField},${model[0].sort}` as Sort]
-                      : []
-                  }));
-                }}
-                onPageSizeChange={onPageSizeChange}
-                onPageChange={onPageChange}
-                rowsPerPageOptions={view === 'list' ? [10, 20, 50] : undefined}
-                components={{
-                  Row: CustomRow,
-                  NoRowsOverlay: () => (
-                    <NoRowsMessageWrapper
-                      message={t('noRows.asset.message')}
-                      action={t('noRows.asset.action')}
-                    />
-                  )
-                }}
-                onRowClick={(params) => {
-                  navigate(getAssetUrl(params.id));
-                }}
-                initialState={{
-                  columns: {
-                    columnVisibilityModel: {}
-                  }
+                sorting={tableState.sorting}
+                onSortingChange={tableState.setSorting}
+                columnOrder={tableState.columnOrder}
+                onColumnOrderChange={tableState.setColumnOrder}
+                columnSizing={tableState.columnSizing}
+                onColumnSizingChange={tableState.setColumnSizing}
+                columnVisibility={tableState.columnVisibility}
+                onColumnVisibilityChange={tableState.setColumnVisibility}
+                pinnedColumns={tableState.pinnedColumns}
+                onPinnedColumnsChange={tableState.setPinnedColumns}
+                noRowsMessage={t('noRows.asset.message')}
+                noRowsAction={t('noRows.asset.action')}
+                onRowClick={(row) => {
+                  navigate(getAssetUrl(row.id));
                 }}
               />
             </Box>
