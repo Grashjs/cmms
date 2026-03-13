@@ -14,13 +14,9 @@ import * as Yup from 'yup';
 import { IField } from '../type';
 import * as React from 'react';
 import { useContext, useEffect, useMemo, useState } from 'react';
-import CustomDataGrid from '../components/CustomDatagrid';
-import {
-  GridEnrichedColDef,
-  GridRenderCellParams,
-  GridToolbar,
-  GridValueGetterParams
-} from '@mui/x-data-grid';
+import CustomDatagrid2, {
+  CustomDatagridColumn2
+} from '../components/CustomDatagrid2';
 import {
   emailRegExp,
   isNumeric,
@@ -49,8 +45,8 @@ import Currency from '../../../models/owns/currency';
 import { SearchCriteria, SortDirection } from '../../../models/owns/page';
 import { onSearchQueryChange } from '../../../utils/overall';
 import SearchInput from '../components/SearchInput';
-import { useGridApiRef } from '@mui/x-data-grid-pro';
-import useGridStatePersist from '../../../hooks/useGridStatePersist';
+import { createColumnHelper } from '@tanstack/react-table';
+import useTableState from '../../../hooks/useTableState';
 import { getErrorMessage } from '../../../utils/api';
 
 interface PropsType {
@@ -58,6 +54,16 @@ interface PropsType {
   openModal: boolean;
   handleCloseModal: () => void;
 }
+
+const fieldMapping: Record<string, string> = {
+  companyName: 'companyName',
+  name: 'name',
+  customerType: 'customerType',
+  email: 'email',
+  phone: 'phone',
+  website: 'website',
+  billingCurrency: 'billingCurrency.name'
+};
 
 const Customers = ({ openModal, handleCloseModal }: PropsType) => {
   const { t }: { t: any } = useTranslation();
@@ -74,6 +80,31 @@ const Customers = ({ openModal, handleCloseModal }: PropsType) => {
     pageSize: 10,
     pageNum: 0,
     direction: 'DESC'
+  });
+
+  // Use the table state hook for TanStack Table
+  const {
+    sorting,
+    setSorting,
+    pagination,
+    setPagination,
+    columnOrder,
+    setColumnOrder,
+    columnSizing,
+    setColumnSizing,
+    columnVisibility,
+    setColumnVisibility,
+    pinnedColumns,
+    setPinnedColumns
+  } = useTableState({
+    prefix: 'customers',
+    initialSorting: [],
+    initialPagination: {
+      pageSize: criteria.pageSize,
+      pageIndex: criteria.pageNum
+    },
+    setCriteria,
+    fieldMapping
   });
   const { hasEditPermission, hasDeletePermission } = useAuth();
   const [currentCustomer, setCurrentCustomer] = useState<Customer>();
@@ -287,81 +318,78 @@ const Customers = ({ openModal, handleCloseModal }: PropsType) => {
     email: Yup.string().matches(emailRegExp, t('invalid_email')).nullable()
   };
 
-  const columns: GridEnrichedColDef[] = [
-    {
-      field: 'name',
-      headerName: t('customer_name'),
-      description: t('customer_name'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
-      )
-    },
-    {
-      field: 'address',
-      headerName: t('address'),
-      description: t('address'),
-      width: 150
-    },
-    {
-      field: 'phone',
-      headerName: t('phone'),
-      description: t('phone'),
-      width: 150
-    },
-    {
-      field: 'website',
-      headerName: t('website'),
-      description: t('website'),
-      width: 150
-    },
-    {
-      field: 'email',
-      headerName: t('email'),
-      description: t('email'),
-      width: 150
-    },
-    {
-      field: 'customerType',
-      headerName: t('customer_type'),
-      description: t('customer_type'),
-      width: 150
-    },
-    {
-      field: 'description',
-      headerName: t('description'),
-      description: t('description'),
-      width: 300
-    },
-    {
-      field: 'rate',
-      headerName: t('hourly_rate'),
-      description: t('hourly_rate'),
-      width: 150
-    },
-    {
-      field: 'billingAddress',
-      headerName: t('billing_address'),
-      description: t('billing_address'),
-      width: 150
-    },
-    {
-      field: 'billingName',
-      headerName: t('billing_name'),
-      description: t('billing_name'),
-      width: 150
-    },
-    {
-      field: 'billingCurrency',
-      headerName: t('currency'),
-      description: t('currency'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<Currency>) =>
-        params.value?.name
-    }
+  const columnHelper = createColumnHelper<Customer>();
+
+  const columns: CustomDatagridColumn2<Customer>[] = [
+    columnHelper.accessor('name', {
+      id: 'name',
+      header: () => t('customer_name'),
+      cell: (info) => (
+        <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>
+      ),
+      size: 150
+    }),
+    columnHelper.accessor('address', {
+      id: 'address',
+      header: () => t('address'),
+      cell: (info) => info.getValue(),
+      size: 150
+    }),
+    columnHelper.accessor('phone', {
+      id: 'phone',
+      header: () => t('phone'),
+      cell: (info) => info.getValue(),
+      size: 150
+    }),
+    columnHelper.accessor('website', {
+      id: 'website',
+      header: () => t('website'),
+      cell: (info) => info.getValue(),
+      size: 150
+    }),
+    columnHelper.accessor('email', {
+      id: 'email',
+      header: () => t('email'),
+      cell: (info) => info.getValue(),
+      size: 150
+    }),
+    columnHelper.accessor('customerType', {
+      id: 'customerType',
+      header: () => t('customer_type'),
+      cell: (info) => info.getValue(),
+      size: 150
+    }),
+    columnHelper.accessor('description', {
+      id: 'description',
+      header: () => t('description'),
+      cell: (info) => info.getValue(),
+      size: 300
+    }),
+    columnHelper.accessor('rate', {
+      id: 'rate',
+      header: () => t('hourly_rate'),
+      cell: (info) => info.getValue(),
+      size: 150
+    }),
+    columnHelper.accessor('billingAddress', {
+      id: 'billingAddress',
+      header: () => t('billing_address'),
+      cell: (info) => info.getValue(),
+      size: 150
+    }),
+    columnHelper.accessor('billingName', {
+      id: 'billingName',
+      header: () => t('billing_name'),
+      cell: (info) => info.getValue(),
+      size: 150
+    }),
+    columnHelper.accessor((row) => row.billingCurrency?.name, {
+      id: 'billingCurrency',
+      header: () => t('currency'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    })
   ];
-  const apiRef = useGridApiRef();
-  useGridStatePersist(apiRef, columns, 'customer');
   const RenderCustomersAddModal = () => (
     <Dialog fullWidth maxWidth="md" open={openModal} onClose={handleCloseModal}>
       <DialogTitle
@@ -407,65 +435,29 @@ const Customers = ({ openModal, handleCloseModal }: PropsType) => {
         width: '95%'
       }}
     >
-      <CustomDataGrid
-        apiRef={apiRef}
-        pageSize={criteria.pageSize}
-        page={criteria.pageNum}
-        rows={customers.content}
-        rowCount={customers.totalElements}
-        pagination
-        paginationMode="server"
-        sortingMode="server"
-        onPageSizeChange={onPageSizeChange}
-        onPageChange={onPageChange}
-        onSortModelChange={(model) => {
-          if (model.length === 0) {
-            setCriteria({
-              ...criteria,
-              sortField: undefined,
-              direction: undefined
-            });
-            return;
-          }
-
-          const fieldMapping = {
-            companyName: 'companyName',
-            name: 'name',
-            customerType: 'customerType',
-            email: 'email',
-            phone: 'phone',
-            website: 'website',
-            billingCurrency: 'billingCurrency.name'
-          };
-
-          const field = model[0].field;
-          const mappedField = fieldMapping[field];
-
-          if (!mappedField) return;
-
-          setCriteria({
-            ...criteria,
-            sortField: mappedField,
-            direction: (model[0].sort?.toUpperCase() || 'ASC') as SortDirection
-          });
-        }}
-        rowsPerPageOptions={[10, 20, 50]}
+      <CustomDatagrid2
         columns={columns}
+        data={customers.content}
         loading={loadingGet}
-        components={{
-          NoRowsOverlay: () => (
-            <NoRowsMessageWrapper
-              message={t('noRows.customer.message')}
-              action={t('noRows.customer.action')}
-            />
-          )
-        }}
-        initialState={{
-          columns: {
-            columnVisibilityModel: {}
-          }
-        }}
-        onRowClick={(params) => handleOpenDetails(Number(params.id))}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        totalRows={customers.totalElements}
+        pageSizeOptions={[10, 20, 50]}
+        sorting={sorting}
+        onSortingChange={setSorting}
+        columnOrder={columnOrder}
+        onColumnOrderChange={setColumnOrder}
+        columnSizing={columnSizing}
+        onColumnSizingChange={setColumnSizing}
+        columnVisibility={columnVisibility}
+        onColumnVisibilityChange={setColumnVisibility}
+        onRowClick={(row) => handleOpenDetails(row.id)}
+        noRowsMessage={t('noRows.customer.message')}
+        noRowsAction={t('noRows.customer.action')}
+        enableColumnReordering
+        enableColumnResizing
+        pinnedColumns={pinnedColumns}
+        onPinnedColumnsChange={setPinnedColumns}
       />
     </Box>
   );
