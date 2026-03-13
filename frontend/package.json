@@ -26,6 +26,7 @@
     "@paddle/paddle-js": "^1.6.1",
     "@reduxjs/toolkit": "1.8.2",
     "@stomp/stompjs": "^7.0.0",
+    "@tanstack/react-table": "^8.21.3",
     "@types/check-types": "^7.3.4",
     "@types/jsonwebtoken": "8.5.8",
     "@types/nprogress": "0.2.0",

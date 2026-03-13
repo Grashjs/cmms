@@ -34,15 +34,11 @@ import {
   useState
 } from 'react';
 import { TitleContext } from '../../../contexts/TitleContext';
-import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import CustomDataGrid, {
-  CustomDatagridColumn
-} from '../components/CustomDatagrid';
-import {
-  GridRenderCellParams,
-  GridToolbar,
-  GridValueGetterParams
-} from '@mui/x-data-grid';
+import CustomDatagrid2, {
+  CustomDatagridColumn2
+} from '../components/CustomDatagrid2';
+import { createColumnHelper, SortingState } from '@tanstack/react-table';
+import { PaginationState } from '@tanstack/react-table';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import Form from '../components/form';
 import UserAvatars from '../components/UserAvatars';
@@ -51,8 +47,6 @@ import { isNumeric } from '../../../utils/validators';
 import { UserMiniDTO } from '../../../models/user';
 import WorkOrderDetails from './Details/WorkOrderDetails';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { LocationMiniDTO } from '../../../models/owns/location';
-import { AssetMiniDTO, assetStatuses } from '../../../models/owns/asset';
 import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
 import {
   addWorkOrder,
@@ -72,7 +66,6 @@ import { getWOBaseValues } from '../../../utils/woBase';
 import { PermissionEntity } from '../../../models/owns/role';
 import PermissionErrorMessage from '../components/PermissionErrorMessage';
 import ConfirmDialog from '../components/ConfirmDialog';
-import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
 import {
   fireGa4Event,
   getImageAndFiles,
@@ -82,7 +75,6 @@ import {
 import { getSingleLocation } from '../../../slices/location';
 import { getSingleAsset } from '../../../slices/asset';
 import Category from '../../../models/owns/category';
-import File from '../../../models/owns/file';
 import { dayDiff } from '../../../utils/dates';
 import {
   FilterField,
@@ -101,11 +93,11 @@ import _ from 'lodash';
 import SearchInput from '../components/SearchInput';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import { getPreventiveMaintenanceUrl } from 'src/utils/urlPaths';
-import { useGridApiRef } from '@mui/x-data-grid-pro';
 import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import Request from '../../../models/owns/request';
 import { getErrorMessage } from '../../../utils/api';
 import SplitButton from '../components/SplitButton';
+import { assetStatuses } from '../../../models/owns/asset';
 
 function WorkOrders() {
   const { t }: { t: any } = useTranslation();
@@ -168,6 +160,15 @@ function WorkOrders() {
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
   const [openDrawerForSingleWO, setOpenDrawerForSingleWO] =
     useState<boolean>(false);
+
+  // TanStack Table state
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: 'updatedAt', desc: true }
+  ]);
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10
+  });
   const initialCriteria: SearchCriteria = {
     filterFields: [
       {
@@ -199,6 +200,35 @@ function WorkOrders() {
     sortField: 'updatedAt',
     direction: 'DESC'
   });
+
+  // Sync criteria with TanStack Table state
+  useEffect(() => {
+    setCriteria((prev) => ({
+      ...prev,
+      pageSize: pagination.pageSize,
+      pageNum: pagination.pageIndex
+    }));
+  }, [pagination]);
+
+  useEffect(() => {
+    if (sorting.length === 0) {
+      setCriteria((prev) => ({
+        ...prev,
+        sortField: undefined,
+        direction: undefined
+      }));
+      return;
+    }
+    const sort = sorting[0];
+    const mappedField = fieldMapping[sort.id];
+    if (mappedField) {
+      setCriteria((prev) => ({
+        ...prev,
+        sortField: mappedField,
+        direction: sort.desc ? 'DESC' : 'ASC'
+      }));
+    }
+  }, [sorting]);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
   const navigate = useNavigate();
@@ -349,12 +379,6 @@ function WorkOrders() {
   const onDeleteFailure = (err) =>
     showSnackBar(t('wo_delete_failure'), 'error');
 
-  const onPageSizeChange = (size: number) => {
-    setCriteria({ ...criteria, pageSize: size });
-  };
-  const onPageChange = (number: number) => {
-    setCriteria({ ...criteria, pageNum: number });
-  };
   const onQueryChange = (event) => {
     onSearchQueryChange<WorkOrder>(event, criteria, setCriteria, [
       'title',
@@ -367,171 +391,7 @@ function WorkOrders() {
     dispatch(getWorkOrders(criteria));
   }, [criteria]);
 
-  const columns: CustomDatagridColumn[] = [
-    {
-      field: 'customId',
-      headerName: t('id'),
-      description: t('id')
-    },
-    {
-      field: 'status',
-      headerName: t('status'),
-      description: t('status'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <Box display="flex" flexDirection="row" justifyContent="center">
-          <CircleTwoToneIcon
-            fontSize="small"
-            color={
-              params.value === 'IN_PROGRESS'
-                ? 'success'
-                : params.value === 'ON_HOLD'
-                ? 'warning'
-                : params.value === 'COMPLETE'
-                ? 'info'
-                : 'secondary'
-            }
-          />
-          <Typography sx={{ ml: 1 }}>{t(params.value)}</Typography>
-        </Box>
-      )
-    },
-    {
-      field: 'title',
-      headerName: t('title'),
-      description: t('title'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
-      )
-    },
-
-    {
-      field: 'priority',
-      headerName: t('priority'),
-      description: t('priority'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <PriorityWrapper priority={params.value} />
-      )
-    },
-    {
-      field: 'description',
-      headerName: t('description'),
-      description: t('description'),
-      width: 300
-    },
-    {
-      field: 'primaryUser',
-      headerName: t('worker'),
-      description: t('worker'),
-      width: 170,
-      renderCell: (params: GridRenderCellParams<UserMiniDTO>) =>
-        params.value ? <UserAvatars users={[params.value]} /> : null
-    },
-    {
-      field: 'assignedTo',
-      headerName: t('assigned_to'),
-      description: t('assigned_to'),
-      width: 170,
-      renderCell: (params: GridRenderCellParams<UserMiniDTO[]>) => (
-        <UserAvatars users={params.value} />
-      )
-    },
-    {
-      field: 'location',
-      headerName: t('location_name'),
-      description: t('location_name'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<LocationMiniDTO>) =>
-        params.value?.name,
-      uiConfigKey: 'locations'
-    },
-    {
-      field: 'locationAddress',
-      headerName: t('location_address'),
-      description: t('location_address'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<null, WorkOrder>) =>
-        params.row.location?.address,
-      uiConfigKey: 'locations'
-    },
-    {
-      field: 'category',
-      headerName: t('category'),
-      description: t('category'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<Category>) =>
-        params.value?.name
-    },
-    {
-      field: 'asset',
-      headerName: t('asset_name'),
-      description: t('asset_name'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<AssetMiniDTO>) =>
-        params.value?.name
-    },
-    {
-      field: 'dueDate',
-      headerName: t('due_date'),
-      description: t('due_date'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<null, WorkOrder>) =>
-        getFormattedDate(params.value)
-    },
-    {
-      field: 'daysSinceCreated',
-      headerName: t('days_since_creation'),
-      description: t('days_since_creation'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<null, WorkOrder>) =>
-        dayDiff(new Date(), new Date(params.row.createdAt))
-    },
-    {
-      field: 'files',
-      headerName: t('files'),
-      description: t('files'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<File[]>) =>
-        params.value.length
-    },
-    {
-      field: 'requestedBy',
-      headerName: t('requested_by'),
-      description: t('requested_by'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<null, WorkOrder>) =>
-        getUserNameById(params.row.parentRequest?.createdBy)
-    },
-    {
-      field: 'completedOn',
-      headerName: t('completed_on'),
-      description: t('completed_on'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<string>) =>
-        getFormattedDate(params.value)
-    },
-    {
-      field: 'updatedAt',
-      headerName: t('updated_at'),
-      description: t('updated_at'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<string>) =>
-        getFormattedDate(params.value)
-    },
-    {
-      field: 'createdAt',
-      headerName: t('created_at'),
-      description: t('created_at'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<string>) =>
-        getFormattedDate(params.value)
-    }
-  ];
-  // dataGrid state
-  const apiRef = useGridApiRef();
-  useGridStatePersist(apiRef, columns, 'workOrder');
+  const columnHelper = createColumnHelper<WorkOrder>();
 
   // Mapping for column fields to API field names for sorting
   const fieldMapping: Record<string, string> = {
@@ -552,6 +412,142 @@ function WorkOrders() {
     createdAt: 'createdAt',
     dueDate: 'dueDate'
   };
+
+  const columns: CustomDatagridColumn2<WorkOrder>[] = [
+    columnHelper.accessor('customId', {
+      id: 'customId',
+      header: () => t('id'),
+      cell: (info) => info.getValue()
+    }),
+    columnHelper.accessor('status', {
+      id: 'status',
+      header: () => t('status'),
+      cell: (info) => (
+        <Box display="flex" flexDirection="row">
+          <CircleTwoToneIcon
+            fontSize="small"
+            color={
+              info.getValue() === 'IN_PROGRESS'
+                ? 'success'
+                : info.getValue() === 'ON_HOLD'
+                ? 'warning'
+                : info.getValue() === 'COMPLETE'
+                ? 'info'
+                : 'secondary'
+            }
+          />
+          <Typography sx={{ ml: 1 }}>{t(info.getValue())}</Typography>
+        </Box>
+      )
+    }),
+    columnHelper.accessor('title', {
+      id: 'title',
+      header: () => t('title'),
+      cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>
+    }),
+    columnHelper.accessor('priority', {
+      id: 'priority',
+      header: () => t('priority'),
+      cell: (info) => <PriorityWrapper priority={info.getValue()} />
+    }),
+    columnHelper.accessor('description', {
+      id: 'description',
+      header: () => t('description'),
+      cell: (info) => info.getValue(),
+      size: 300
+    }),
+    columnHelper.accessor('primaryUser', {
+      id: 'primaryUser',
+      header: () => t('worker'),
+      cell: (info) =>
+        info.getValue() ? <UserAvatars users={[info.getValue()]} /> : null,
+      size: 170
+    }),
+    columnHelper.accessor('assignedTo', {
+      id: 'assignedTo',
+      header: () => t('assigned_to'),
+      cell: (info) => <UserAvatars users={info.getValue()} />,
+      size: 170
+    }),
+    columnHelper.accessor((row) => row.location?.name, {
+      id: 'location',
+      header: () => t('location_name'),
+      cell: (info) => info.getValue() || '',
+      meta: {
+        uiConfigKey: 'locations'
+      },
+      size: 150
+    }),
+    columnHelper.accessor((row) => row.location?.address, {
+      id: 'locationAddress',
+      header: () => t('location_address'),
+      cell: (info) => info.getValue() || '',
+      meta: {
+        uiConfigKey: 'locations'
+      },
+      size: 150
+    }),
+    columnHelper.accessor((row) => row.category?.name, {
+      id: 'category',
+      header: () => t('category'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor((row) => row.asset?.name, {
+      id: 'asset',
+      header: () => t('asset_name'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor('dueDate', {
+      id: 'dueDate',
+      header: () => t('due_date'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    }),
+    columnHelper.accessor(
+      (row) => dayDiff(new Date(), new Date(row.createdAt)),
+      {
+        id: 'daysSinceCreated',
+        header: () => t('days_since_creation'),
+        cell: (info) => info.getValue(),
+        size: 150
+      }
+    ),
+    columnHelper.accessor('files', {
+      id: 'files',
+      header: () => t('files'),
+      cell: (info) => info.getValue()?.length ?? 0,
+      size: 150
+    }),
+    columnHelper.accessor(
+      (row) => getUserNameById(row.parentRequest?.createdBy),
+      {
+        id: 'requestedBy',
+        header: () => t('requested_by'),
+        cell: (info) => info.getValue() || '',
+        size: 150
+      }
+    ),
+    columnHelper.accessor('completedOn', {
+      id: 'completedOn',
+      header: () => t('completed_on'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    }),
+    columnHelper.accessor('updatedAt', {
+      id: 'updatedAt',
+      header: () => t('updated_at'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    }),
+    columnHelper.accessor('createdAt', {
+      id: 'createdAt',
+      header: () => t('created_at'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    })
+  ];
 
   const defaultFields: Array<IField> = [
     {
@@ -975,58 +971,18 @@ function WorkOrders() {
           <Divider sx={{ mt: 1 }} />
           <Box sx={{ width: '95%' }}>
             {currentTab === 'list' ? (
-              <CustomDataGrid
-                apiRef={apiRef}
-                pageSize={criteria.pageSize}
-                page={criteria.pageNum}
+              <CustomDatagrid2
                 columns={columns}
-                rows={workOrders.content}
-                rowCount={workOrders.totalElements}
+                data={workOrders.content}
                 loading={loadingGet}
-                pagination
-                disableColumnFilter
-                paginationMode="server"
-                sortingMode="server"
-                initialState={{
-                  columns: {
-                    columnVisibilityModel: {}
-                  }
-                }}
-                onSortModelChange={(model) => {
-                  if (model.length === 0) {
-                    setCriteria({
-                      ...criteria,
-                      sortField: undefined,
-                      direction: undefined
-                    });
-                    return;
-                  }
-
-                  const field = model[0].field;
-                  const mappedField = fieldMapping[field];
-
-                  // Only proceed if we have a mapping for this field
-                  if (!mappedField) return;
-
-                  setCriteria({
-                    ...criteria,
-                    sortField: mappedField,
-                    direction: (model[0].sort?.toUpperCase() ||
-                      'ASC') as SortDirection
-                  });
-                }}
-                onPageSizeChange={onPageSizeChange}
-                onPageChange={onPageChange}
-                rowsPerPageOptions={[10, 20, 50]}
-                components={{
-                  NoRowsOverlay: () => (
-                    <NoRowsMessageWrapper
-                      message={t('noRows.wo.message')}
-                      action={t('noRows.wo.action')}
-                    />
-                  )
-                }}
-                onRowClick={(params) => handleOpenDetails(Number(params.id))}
+                pagination={pagination}
+                onPaginationChange={setPagination}
+                totalRows={workOrders.totalElements}
+                pageSizeOptions={[10, 20, 50]}
+                sorting={sorting}
+                onSortingChange={setSorting}
+                onRowClick={(row) => handleOpenDetails(row.id)}
+                noRowsMessage={t('noRows.wo.message')}
               />
             ) : (
               <WorkOrderCalendar
