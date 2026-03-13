@@ -424,12 +424,7 @@ function WorkOrders() {
       id: 'customId',
       header: () => t('id'),
       cell: (info) => info.getValue(),
-      meta: {
-        description: t('id')
-      },
-      size: 80,
-      minSize: 60,
-      maxSize: 150
+      size: 80
     }),
     columnHelper.accessor('status', {
       id: 'status',
@@ -451,125 +446,74 @@ function WorkOrders() {
           <Typography sx={{ ml: 1 }}>{t(info.getValue())}</Typography>
         </Box>
       ),
-      meta: {
-        description: t('status')
-      },
-      size: 150,
-      minSize: 100,
-      maxSize: 200
+      size: 150
     }),
     columnHelper.accessor('title', {
       id: 'title',
       header: () => t('title'),
       cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>,
-      meta: {
-        description: t('title')
-      },
-      size: 200,
-      minSize: 100,
-      maxSize: 400
+      size: 200
     }),
     columnHelper.accessor('priority', {
       id: 'priority',
       header: () => t('priority'),
       cell: (info) => <PriorityWrapper priority={info.getValue()} />,
-      meta: {
-        description: t('priority')
-      },
-      size: 120,
-      minSize: 80,
-      maxSize: 180
+      size: 120
     }),
     columnHelper.accessor('description', {
       id: 'description',
       header: () => t('description'),
       cell: (info) => info.getValue(),
-      meta: {
-        description: t('description')
-      },
-      size: 300,
-      minSize: 150,
-      maxSize: 600
+      size: 300
     }),
     columnHelper.accessor('primaryUser', {
       id: 'primaryUser',
       header: () => t('worker'),
       cell: (info) =>
         info.getValue() ? <UserAvatars users={[info.getValue()]} /> : null,
-      meta: {
-        description: t('worker')
-      },
-      size: 150,
-      minSize: 100,
-      maxSize: 250
+      size: 150
     }),
     columnHelper.accessor('assignedTo', {
       id: 'assignedTo',
       header: () => t('assigned_to'),
       cell: (info) => <UserAvatars users={info.getValue()} />,
-      meta: {
-        description: t('assigned_to')
-      },
-      size: 150,
-      minSize: 100,
-      maxSize: 250
+      size: 150
     }),
     columnHelper.accessor((row) => row.location?.name, {
       id: 'location',
       header: () => t('location_name'),
       cell: (info) => info.getValue() || '',
       meta: {
-        description: t('location_name'),
         uiConfigKey: 'locations'
       },
-      size: 150,
-      minSize: 100,
-      maxSize: 250
+      size: 150
     }),
     columnHelper.accessor((row) => row.location?.address, {
       id: 'locationAddress',
       header: () => t('location_address'),
       cell: (info) => info.getValue() || '',
       meta: {
-        description: t('location_address'),
         uiConfigKey: 'locations'
       },
-      size: 180,
-      minSize: 100,
-      maxSize: 300
+      size: 180
     }),
     columnHelper.accessor((row) => row.category?.name, {
       id: 'category',
       header: () => t('category'),
       cell: (info) => info.getValue() || '',
-      meta: {
-        description: t('category')
-      },
-      size: 150,
-      minSize: 100,
-      maxSize: 250
+      size: 150
     }),
     columnHelper.accessor((row) => row.asset?.name, {
       id: 'asset',
       header: () => t('asset_name'),
       cell: (info) => info.getValue() || '',
-      meta: {
-        description: t('asset_name')
-      },
-      size: 150,
-      minSize: 100,
-      maxSize: 250
+      size: 150
     }),
     columnHelper.accessor('dueDate', {
       id: 'dueDate',
       header: () => t('due_date'),
       cell: (info) => getFormattedDate(info.getValue()),
-      meta: {
-        description: t('due_date')
-      },
-      size: 140,
-      minSize: 100,
-      maxSize: 200
+      size: 140
     }),
     columnHelper.accessor(
       (row) => dayDiff(new Date(), new Date(row.createdAt)),
@@ -577,24 +521,14 @@ function WorkOrders() {
         id: 'daysSinceCreated',
         header: () => t('days_since_creation'),
         cell: (info) => info.getValue(),
-        meta: {
-          description: t('days_since_creation')
-        },
-        size: 140,
-        minSize: 100,
-        maxSize: 200
+        size: 140
       }
     ),
     columnHelper.accessor('files', {
       id: 'files',
       header: () => t('files'),
       cell: (info) => info.getValue()?.length ?? 0,
-      meta: {
-        description: t('files')
-      },
-      size: 80,
-      minSize: 60,
-      maxSize: 120
+      size: 80
     }),
     columnHelper.accessor(
       (row) => getUserNameById(row.parentRequest?.createdBy),
@@ -602,46 +536,26 @@ function WorkOrders() {
         id: 'requestedBy',
         header: () => t('requested_by'),
         cell: (info) => info.getValue() || '',
-        meta: {
-          description: t('requested_by')
-        },
-        size: 150,
-        minSize: 100,
-        maxSize: 250
+        size: 150
       }
     ),
     columnHelper.accessor('completedOn', {
       id: 'completedOn',
       header: () => t('completed_on'),
       cell: (info) => getFormattedDate(info.getValue()),
-      meta: {
-        description: t('completed_on')
-      },
-      size: 140,
-      minSize: 100,
-      maxSize: 200
+      size: 140
     }),
     columnHelper.accessor('updatedAt', {
       id: 'updatedAt',
       header: () => t('updated_at'),
       cell: (info) => getFormattedDate(info.getValue()),
-      meta: {
-        description: t('updated_at')
-      },
-      size: 140,
-      minSize: 100,
-      maxSize: 200
+      size: 140
     }),
     columnHelper.accessor('createdAt', {
       id: 'createdAt',
       header: () => t('created_at'),
       cell: (info) => getFormattedDate(info.getValue()),
-      meta: {
-        description: t('created_at')
-      },
-      size: 140,
-      minSize: 100,
-      maxSize: 200
+      size: 140
     })
   ];
 

@@ -247,7 +247,7 @@ function CustomDatagrid2<TData extends RowData>({
   // Handle column drag start
   const handleDragStart = (e: DragEvent<HTMLDivElement>, columnId: string) => {
     // Prevent horizontal scroll during drag
-    e.stopPropagation();
+    // e.stopPropagation();
     setDraggedColumnId(columnId);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.dropEffect = 'move';
@@ -293,28 +293,6 @@ function CustomDatagrid2<TData extends RowData>({
   const handleDragEnd = () => {
     setDraggedColumnId(null);
   };
-
-  // Prevent drag when clicking on sort or resize
-  const handleDragIconMouseDown = (e: React.MouseEvent) => {
-    e.stopPropagation();
-  };
-
-  // Lock scroll during drag
-  useEffect(() => {
-    if (draggedColumnId) {
-      const scrollContainer = tableRef.current?.querySelector(
-        '[style*="overflow: auto"]'
-      );
-      if (scrollContainer) {
-        scrollContainer.style.overflow = 'hidden';
-      }
-      return () => {
-        if (scrollContainer) {
-          scrollContainer.style.overflow = 'auto';
-        }
-      };
-    }
-  }, [draggedColumnId]);
 
   return (
     <Paper
