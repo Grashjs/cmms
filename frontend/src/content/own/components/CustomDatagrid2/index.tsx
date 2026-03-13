@@ -61,6 +61,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
+import NoRowsMessageWrapper from '../NoRowsMessageWrapper';
 
 declare module '@tanstack/react-table' {
   interface ColumnMeta<TData extends RowData, TValue> {
@@ -105,6 +106,7 @@ interface CustomDatagrid2Props<TData extends RowData> {
   onRowSelectionChange?: OnChangeFn<Record<string, boolean>>;
   // Custom render for no rows
   noRowsMessage?: string;
+  noRowsAction?: string;
   // Enable column reordering
   enableColumnReordering?: boolean;
   // Enable column resizing
@@ -143,7 +145,8 @@ function CustomDatagrid2<TData extends RowData>({
   enableColumnReordering = true,
   enableColumnResizing = true,
   pinnedColumns: externalPinnedColumns,
-  onPinnedColumnsChange
+  onPinnedColumnsChange,
+  noRowsAction
 }: CustomDatagrid2Props<TData>) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
@@ -151,6 +154,7 @@ function CustomDatagrid2<TData extends RowData>({
   const tableRef = useRef<HTMLDivElement>(null);
   const [tableHeight, setTableHeight] = useState<number>(500);
   const { user } = useAuth();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Internal pinned columns state (used if external not provided)
   const [internalPinnedColumns, setInternalPinnedColumns] = useState<string[]>(
@@ -478,6 +482,7 @@ function CustomDatagrid2<TData extends RowData>({
       variant="outlined"
     >
       <Box
+        ref={scrollContainerRef}
         sx={{
           overflow: 'auto',
           flex: 1,
@@ -692,21 +697,18 @@ function CustomDatagrid2<TData extends RowData>({
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={
-                    enableRowSelection
-                      ? filteredColumns.length + 1
-                      : filteredColumns.length
-                  }
-                  align="center"
-                  sx={{ py: 8 }}
-                >
-                  <Typography variant="h3">
-                    {noRowsMessage || t('no_content')}
-                  </Typography>
-                </TableCell>
-              </TableRow>
+              <Box
+                style={{
+                  marginTop: 130,
+                  width: scrollContainerRef.current?.clientWidth ?? 500,
+                  maxWidth: scrollContainerRef.current?.clientWidth ?? 500
+                }}
+              >
+                <NoRowsMessageWrapper
+                  message={noRowsMessage}
+                  action={noRowsAction}
+                />
+              </Box>
             ) : (
               table.getRowModel().rows.map((row) => (
                 <TableRow

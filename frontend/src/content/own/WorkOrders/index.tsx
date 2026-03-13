@@ -1006,6 +1006,7 @@ function WorkOrders() {
                 onColumnVisibilityChange={setColumnVisibility}
                 onRowClick={(row) => handleOpenDetails(row.id)}
                 noRowsMessage={t('noRows.wo.message')}
+                noRowsAction={t('noRows.wo.action')}
                 enableColumnReordering
                 enableColumnResizing
                 pinnedColumns={pinnedColumns}
