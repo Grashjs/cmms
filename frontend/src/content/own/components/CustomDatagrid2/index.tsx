@@ -496,7 +496,10 @@ function CustomDatagrid2<TData extends RowData>({
       >
         <Table
           stickyHeader
+          style={{ width: table.getTotalSize() }}
           sx={{
+            tableLayout: 'fixed',
+            minWidth: '100%',
             borderCollapse: 'separate',
             '& .MuiTableHead-root': {
               position: 'sticky',
@@ -634,8 +637,16 @@ function CustomDatagrid2<TData extends RowData>({
                       </Box>
                       {canResize && enableColumnResizing && (
                         <Box
-                          onMouseDown={header.getResizeHandler()}
-                          onTouchStart={header.getResizeHandler()}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            header.getResizeHandler()(e);
+                          }}
+                          onTouchStart={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            header.getResizeHandler()(e);
+                          }}
                           sx={{
                             position: 'absolute',
                             right: 0,
@@ -738,7 +749,7 @@ function CustomDatagrid2<TData extends RowData>({
                             : undefined
                         }}
                         style={{
-                          maxWidth: cell.column.getSize(),
+                          width: cell.column.getSize(),
                           zIndex: isPinned ? 2 : undefined
                         }}
                       >
