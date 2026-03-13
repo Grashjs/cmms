@@ -13,6 +13,7 @@ interface TableState {
   columnSizing?: ColumnSizingState;
   columnVisibility?: VisibilityState;
   pagination?: PaginationState;
+  pageSize?: number;
   pinnedColumns?: string[];
 }
 
@@ -24,6 +25,7 @@ interface UseTableStatePersistProps {
   columnVisibility?: VisibilityState;
   pagination?: PaginationState;
   pinnedColumns?: string[];
+  persistPageIndex?: boolean;
 }
 
 const useTableStatePersist = ({
@@ -33,14 +35,10 @@ const useTableStatePersist = ({
   columnSizing,
   columnVisibility,
   pagination,
-  pinnedColumns
+  pinnedColumns,
+  persistPageIndex = false
 }: UseTableStatePersistProps) => {
   const stateItem = `${prefix}TableState`;
-  const hasRestoredSortingRef = useRef(false);
-  const hasRestoredColumnOrderRef = useRef(false);
-  const hasRestoredPaginationRef = useRef(false);
-  const hasRestoredColumnSizingRef = useRef(false);
-  const hasRestoredColumnVisibilityRef = useRef(false);
   const isInitialMountRef = useRef(true);
 
   const saveSnapshot = useCallback(() => {
@@ -61,14 +59,28 @@ const useTableStatePersist = ({
       currentState.columnVisibility = columnVisibility;
     }
     if (pagination !== undefined) {
-      currentState.pagination = pagination;
+      // If persistPageIndex is false, only save pageSize, not pageIndex
+      if (persistPageIndex) {
+        currentState.pagination = pagination;
+      } else {
+        currentState.pageSize = pagination.pageSize;
+      }
     }
     if (pinnedColumns !== undefined) {
       currentState.pinnedColumns = pinnedColumns;
     }
 
     localStorage.setItem(stateItem, JSON.stringify(currentState));
-  }, [stateItem, sorting, columnOrder, columnSizing, columnVisibility, pagination, pinnedColumns]);
+  }, [
+    stateItem,
+    sorting,
+    columnOrder,
+    columnSizing,
+    columnVisibility,
+    pagination,
+    pinnedColumns,
+    persistPageIndex
+  ]);
 
   // Save state whenever it changes (after initial mount)
   useEffect(() => {

@@ -32,13 +32,16 @@ interface UseTableStateProps {
   // Optional: when this changes, pagination will be reset to initial value
   // Useful for resetting pagination when navigating between different pages
   contextKey?: string;
+  // Optional: whether to persist pageIndex in localStorage (default: true)
+  persistPageIndex?: boolean;
 }
 
 const useTableState = ({
   prefix,
   initialSorting = [],
   initialPagination = { pageIndex: 0, pageSize: 10 },
-  pageSizeOptions = [10, 25, 50, 100]
+  pageSizeOptions = [10, 25, 50, 100],
+  persistPageIndex = false
 }: UseTableStateProps): TableStateReturn => {
   const stateItem = `${prefix}TableState`;
   const hasRestoredRef = useRef(false);
@@ -53,9 +56,6 @@ const useTableState = ({
     useState<VisibilityState>({});
   const [pinnedColumns, setPinnedColumnsState] = useState<string[]>([]);
 
-  useEffect(() => {
-    setPaginationState(initialPagination);
-  }, [initialPagination.pageIndex, initialPagination.pageSize]);
   // Restore state from localStorage on mount
   useEffect(() => {
     if (typeof localStorage === 'undefined' || hasRestoredRef.current) return;
@@ -72,9 +72,12 @@ const useTableState = ({
       if (state.sorting && state.sorting.length > 0) {
         setSortingState(state.sorting);
       }
-      if (state.pagination) {
-        setPaginationState(state.pagination);
-      }
+      setPaginationState({
+        pageIndex: persistPageIndex
+          ? state.pageSize
+          : initialPagination.pageIndex,
+        pageSize: state.pageSize ?? initialPagination.pageSize
+      });
       if (state.columnOrder && state.columnOrder.length > 0) {
         setColumnOrderState(state.columnOrder);
       }
@@ -95,7 +98,7 @@ const useTableState = ({
     } catch (error) {
       console.error('Error restoring table state:', error);
     }
-  }, [stateItem]);
+  }, [stateItem, persistPageIndex]);
 
   // Wrap state setters to work with TanStack Table's OnChangeFn
   const setSorting = useCallback<OnChangeFn<SortingState>>((updater) => {
@@ -139,7 +142,8 @@ const useTableState = ({
     columnSizing,
     columnVisibility,
     pagination,
-    pinnedColumns
+    pinnedColumns,
+    persistPageIndex
   });
 
   return {

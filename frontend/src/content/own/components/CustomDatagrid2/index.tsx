@@ -866,7 +866,7 @@ function CustomDatagrid2<TData extends RowData>({
           })
         }
         rowsPerPageOptions={pageSizeOptions}
-        labelRowsPerPage={t('rows_per_page')}
+        // labelRowsPerPage={t('rows_per_page')}
         ActionsComponent={TablePaginationActions}
         sx={{
           borderTop: `1px solid ${theme.palette.divider}`,

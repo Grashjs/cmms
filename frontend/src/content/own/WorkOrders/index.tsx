@@ -175,10 +175,7 @@ function WorkOrders() {
   } = useTableState({
     prefix: 'workOrder',
     initialSorting: [{ id: 'updatedAt', desc: true }],
-    initialPagination: {
-      pageIndex: workOrders.number,
-      pageSize: workOrders.size
-    }
+    initialPagination: { pageIndex: 0, pageSize: 10 }
   });
   const initialCriteria: SearchCriteria = {
     filterFields: [
@@ -202,8 +199,8 @@ function WorkOrders() {
         value: false
       }
     ],
-    pageSize: 10,
-    pageNum: 0,
+    pageSize: pagination.pageSize,
+    pageNum: pagination.pageIndex,
     direction: 'DESC'
   };
   const [criteria, setCriteria] = useState<SearchCriteria>({
@@ -214,32 +211,36 @@ function WorkOrders() {
 
   // Sync criteria with TanStack Table state
   useEffect(() => {
-    setCriteria((prev) => ({
-      ...prev,
-      pageSize: pagination.pageSize,
-      pageNum: pagination.pageIndex
-    }));
-  }, [pagination.pageSize, pagination.pageIndex]);
+    setCriteria((prev) => {
+      if (
+        prev.pageSize === pagination.pageSize &&
+        prev.pageNum === pagination.pageIndex
+      )
+        return prev; // no change, no re-render
+      return {
+        ...prev,
+        pageSize: pagination.pageSize,
+        pageNum: pagination.pageIndex
+      };
+    });
+  }, [pagination]);
 
   useEffect(() => {
-    if (sorting.length === 0) {
-      setCriteria((prev) => ({
-        ...prev,
-        sortField: undefined,
-        direction: undefined
-      }));
-      return;
-    }
-    const sort = sorting[0];
-    const mappedField = fieldMapping[sort.id];
-    if (mappedField) {
-      setCriteria((prev) => ({
-        ...prev,
-        sortField: mappedField,
-        direction: sort.desc ? 'DESC' : 'ASC'
-      }));
-    }
+    setCriteria((prev) => {
+      if (sorting.length === 0) {
+        if (!prev.sortField && !prev.direction) return prev; // no change
+        return { ...prev, sortField: undefined, direction: undefined };
+      }
+      const sort = sorting[0];
+      const mappedField = fieldMapping[sort.id];
+      if (!mappedField) return prev;
+      const newDirection: SortDirection = sort.desc ? 'DESC' : 'ASC';
+      if (prev.sortField === mappedField && prev.direction === newDirection)
+        return prev; // no change
+      return { ...prev, sortField: mappedField, direction: newDirection };
+    });
   }, [sorting]);
+
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
   const navigate = useNavigate();
@@ -306,6 +307,7 @@ function WorkOrders() {
   const onFilterChange = (newFilters: FilterField[]) => {
     const newCriteria = { ...criteria };
     newCriteria.filterFields = newFilters;
+    console.log('jjy4');
     setCriteria(newCriteria);
   };
   useEffect(() => {
