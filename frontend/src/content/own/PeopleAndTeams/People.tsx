@@ -331,13 +331,13 @@ const People = ({ openModal, handleCloseModal }: PropsType) => {
     columnHelper.accessor('phone', {
       id: 'phone',
       header: () => t('phone'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 150
     }),
     columnHelper.accessor('jobTitle', {
       id: 'jobTitle',
       header: () => t('job_title'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 150
     }),
     columnHelper.accessor('role', {

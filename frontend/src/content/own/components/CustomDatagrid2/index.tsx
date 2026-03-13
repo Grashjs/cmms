@@ -81,13 +81,13 @@ interface CustomDatagrid2Props<TData extends RowData> {
   onRowClick?: (row: TData) => void;
   loading?: boolean;
   // Pagination props
-  pagination: PaginationState;
-  onPaginationChange: (pagination: PaginationState) => void;
-  totalRows: number;
+  pagination?: PaginationState;
+  onPaginationChange?: (pagination: PaginationState) => void;
+  totalRows?: number;
   pageSizeOptions?: number[];
   // Sorting props
-  sorting: SortingState;
-  onSortingChange: OnChangeFn<SortingState>;
+  sorting?: SortingState;
+  onSortingChange?: OnChangeFn<SortingState>;
   // Column order props
   columnOrder?: ColumnOrderState;
   onColumnOrderChange?: OnChangeFn<ColumnOrderState>;
@@ -124,18 +124,18 @@ function CustomDatagrid2<TData extends RowData>({
   notClickable,
   onRowClick,
   loading,
-  pagination,
-  onPaginationChange,
-  totalRows,
+  pagination = { pageIndex: 0, pageSize: 10 },
+  onPaginationChange = () => {},
+  totalRows = 0,
   pageSizeOptions = [10, 25, 50, 100],
-  sorting,
-  onSortingChange,
+  sorting = [],
+  onSortingChange = () => {},
   columnOrder,
   onColumnOrderChange,
-  columnSizing,
-  onColumnSizingChange,
-  columnVisibility,
-  onColumnVisibilityChange,
+  columnSizing = {},
+  onColumnSizingChange = () => {},
+  columnVisibility = {},
+  onColumnVisibilityChange = () => {},
   columnFilters,
   onColumnFiltersChange,
   enableRowSelection,

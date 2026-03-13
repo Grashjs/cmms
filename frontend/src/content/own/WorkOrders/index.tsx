@@ -440,7 +440,7 @@ function WorkOrders() {
     columnHelper.accessor('description', {
       id: 'description',
       header: () => t('description'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 300
     }),
     columnHelper.accessor('primaryUser', {
