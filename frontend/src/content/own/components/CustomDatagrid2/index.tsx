@@ -72,6 +72,7 @@ declare module '@tanstack/react-table' {
 export type CustomDatagridColumn2<TData extends RowData = any> =
   ColumnDef<TData> & {
     uiConfigKey?: keyof Omit<UiConfiguration, 'id'>;
+    enableReordering?: boolean;
   };
 
 interface CustomDatagrid2Props<TData extends RowData> {
@@ -543,6 +544,12 @@ function CustomDatagrid2<TData extends RowData>({
                   const isResizing = header.column.getIsResizing();
                   const isPinned = isColumnPinned(header.id);
                   const stickyLeft = getPinnedStickyLeft(header.id);
+                  const columnEnableReordering = (
+                    header.column.columnDef as CustomDatagridColumn2<TData>
+                  )?.enableReordering;
+                  const canDrag =
+                    enableColumnReordering &&
+                    columnEnableReordering !== false;
 
                   return (
                     <TableCell
@@ -553,7 +560,7 @@ function CustomDatagrid2<TData extends RowData>({
                         left: isPinned ? stickyLeft : undefined,
                         backgroundColor: PINNED_BG,
                         userSelect: isResizing ? 'none' : 'auto',
-                        cursor: enableColumnReordering ? 'pointer' : 'default',
+                        cursor: canDrag ? 'pointer' : 'default',
                         borderRight: isPinned
                           ? `2px solid ${theme.palette.divider}`
                           : `1px solid #F2F5F9`,
@@ -572,10 +579,16 @@ function CustomDatagrid2<TData extends RowData>({
                         // Use inline style for zIndex so it beats MUI's global .MuiTableCell-head rule
                         zIndex: isPinned ? 5 : 3
                       }}
-                      draggable={enableColumnReordering}
-                      onDragStart={(e) => handleDragStart(e, header.id)}
-                      onDragOver={handleDragOver}
-                      onDrop={(e) => handleDrop(e, header.id)}
+                      draggable={canDrag}
+                      onDragStart={(e) =>
+                        canDrag ? handleDragStart(e, header.id) : undefined
+                      }
+                      onDragOver={(e) =>
+                        canDrag ? handleDragOver(e) : undefined
+                      }
+                      onDrop={(e) =>
+                        canDrag ? handleDrop(e, header.id) : undefined
+                      }
                       onDragEnd={handleDragEnd}
                       onClick={(e) => {
                         e.stopPropagation();
