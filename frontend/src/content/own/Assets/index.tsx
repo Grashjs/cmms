@@ -79,7 +79,12 @@ import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import AssetStatusTag from './components/AssetStatusTag';
 import { getErrorMessage } from '../../../utils/api';
 import SplitButton from '../components/SplitButton';
-import { createColumnHelper } from '@tanstack/react-table';
+import {
+  createColumnHelper,
+  OnChangeFn,
+  SortingState,
+  Updater
+} from '@tanstack/react-table';
 import useTableState from '../../../hooks/useTableState';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -117,6 +122,7 @@ function Assets() {
   type ViewType = 'hierarchy' | 'list';
   const theme = useTheme();
   const [view, setView] = useState<ViewType>('hierarchy');
+  const [hierarchySorting, setHierarchySorting] = useState<SortingState>([]);
   const [pageable, setPageable] = useState<Pageable>({
     page: 0,
     size: HIERARCHY_ZERO_PAGE_SIZE
@@ -179,7 +185,7 @@ function Assets() {
           id: `loading-${row.id}`,
           name: t('loading_assets', { name: row.name, id: row.id }),
           hierarchy: [...(row.hierarchy || []), row.id]
-        } as AssetRow;
+        } as unknown as AssetRow;
 
         setSubRowsMap((prev) => ({ ...prev, [row.id]: [loadingRow] }));
 
@@ -329,7 +335,7 @@ function Assets() {
 
   const columnHelper = createColumnHelper<AssetDTO>();
 
-  const columns: CustomDatagridColumn2<AssetDTO>[] = [
+  const columns: CustomDatagridColumn2<AssetDTO | AssetRow>[] = [
     columnHelper.display({
       id: 'expander',
       header: '',
@@ -347,7 +353,7 @@ function Assets() {
             size="small"
             onClick={(e) => {
               e.stopPropagation();
-              handleToggleExpand(row.original);
+              handleToggleExpand(row.original as AssetRow);
             }}
             sx={{ padding: 0.5 }}
           >
@@ -822,6 +828,49 @@ function Assets() {
       ? getHierarchicalData(assetsHierarchy, expanded, subRowsMap)
       : assets.content || [];
 
+  // Handle pagination change based on view type
+  const handlePaginationChange = (newPagination: {
+    pageIndex: number;
+    pageSize: number;
+  }) => {
+    if (view === 'hierarchy') {
+      setPageable((prev) => ({
+        ...prev,
+        page: newPagination.pageIndex,
+        size: newPagination.pageSize
+      }));
+    } else {
+      tableState.setPagination(newPagination);
+    }
+  };
+
+  // Handle sorting change based on view type
+  const handleSortingChange = (newSorting: Updater<SortingState>) => {
+    if (view === 'hierarchy') {
+      // Resolve the sorting value (handle both direct value and updater function)
+      const resolvedSorting: SortingState =
+        typeof newSorting === 'function'
+          ? newSorting(hierarchySorting)
+          : newSorting;
+      setHierarchySorting(newSorting);
+      const sortParams =
+        resolvedSorting.length > 0
+          ? resolvedSorting.map(
+              (sort) =>
+                `${fieldMapping[sort.id] || sort.id},${
+                  sort.desc ? 'desc' : 'asc'
+                }` as Sort
+            )
+          : [];
+      setPageable((prev) => ({
+        ...prev,
+        sort: sortParams.length > 0 ? [...sortParams] : undefined
+      }));
+    } else {
+      tableState.setSorting(newSorting);
+    }
+  };
+
   if (hasViewPermission(PermissionEntity.ASSETS))
     return (
       <>
@@ -892,8 +941,12 @@ function Assets() {
                 columns={view === 'hierarchy' ? columns : columns.slice(1)}
                 data={tableData}
                 loading={view === 'hierarchy' ? loadingHierarchy : loadingGet}
-                pagination={tableState.pagination}
-                onPaginationChange={tableState.setPagination}
+                pagination={
+                  view === 'hierarchy'
+                    ? { pageIndex: pageable.page, pageSize: pageable.size }
+                    : tableState.pagination
+                }
+                onPaginationChange={handlePaginationChange}
                 totalRows={
                   view === 'hierarchy'
                     ? assetsHierarchy.length
@@ -902,8 +955,10 @@ function Assets() {
                 pageSizeOptions={
                   view === 'list' ? [10, 20, 50] : [10, 25, 50, 100]
                 }
-                sorting={tableState.sorting}
-                onSortingChange={tableState.setSorting}
+                sorting={
+                  view === 'hierarchy' ? hierarchySorting : tableState.sorting
+                }
+                onSortingChange={handleSortingChange}
                 columnOrder={tableState.columnOrder}
                 onColumnOrderChange={tableState.setColumnOrder}
                 columnSizing={tableState.columnSizing}
