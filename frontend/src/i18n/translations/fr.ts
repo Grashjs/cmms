@@ -1922,7 +1922,8 @@ const frJSON = {
   restrict_to_a_specific_asset: 'Restreindre à un équipement spécifique',
   submit_request: 'Soumettre la demande',
   company_logo: "Logo de l'entreprise",
-  recaptcha_failed: 'La vérification reCAPTCHA a échoué. Veuillez réessayer.'
+  recaptcha_failed: 'La vérification reCAPTCHA a échoué. Veuillez réessayer.',
+  select_date_range: 'Sélectionner la plage de dates'
 };
 
 export default frJSON;

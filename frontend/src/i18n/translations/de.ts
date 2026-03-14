@@ -1839,7 +1839,8 @@ const deJSON = {
   required_image: 'Bild ist erforderlich',
   requested_from_portal: 'Diese Anfrage wurde vom Portal erstellt: ',
   request_portals: 'Anfrageportale',
-  recaptcha_failed: 'reCAPTCHA-Verifizierung fehlgeschlagen. Bitte versuchen Sie es erneut.'
+  recaptcha_failed: 'reCAPTCHA-Verifizierung fehlgeschlagen. Bitte versuchen Sie es erneut.',
+  select_date_range: 'Datumsbereich auswählen'
 };
 
 export default deJSON;

@@ -1704,7 +1704,8 @@ const locale = {
   recaptcha_failed: 'reCAPTCHA verification failed. Please try again.',
   pin: 'Pin',
   unpin: 'Unpin',
-  toggle_columns: 'Toggle columns'
+  toggle_columns: 'Toggle columns',
+  select_date_range: 'Select date range'
 };
 
 export default locale;

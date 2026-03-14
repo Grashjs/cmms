@@ -23,10 +23,7 @@ import SelectPartQuantities from './SelectPartQuantities';
 import useAuth from '../../../../hooks/useAuth';
 import { CustomSelect } from './CustomSelect2';
 import SignaturePad from './SignaturePad';
-import { DateRange } from 'react-date-range';
-import 'react-date-range/dist/styles.css';
-import 'react-date-range/dist/theme/default.css';
-import en from 'date-fns/locale/en-US';
+import DateRangePicker from './DateRangePicker';
 
 interface PropsType {
   fields: Array<IField>;
@@ -207,30 +204,20 @@ export default (props: PropsType) => {
                       <Box pb={1}>
                         <b>{field.label}:</b>
                       </Box>
-                      <DateRange
-                        locale={en}
-                        ranges={
-                          formik.values[field.name]
-                            ? [
-                                {
-                                  startDate: formik.values[field.name][0],
-                                  endDate: formik.values[field.name][1],
-                                  key: 'selection'
-                                }
-                              ]
-                            : []
-                        }
-                        onChange={(ranges) => {
-                          const { selection } = ranges;
-                          handleChange(formik, field.name, [
-                            selection.startDate,
-                            selection.endDate
-                          ]);
+                      <DateRangePicker
+                        value={formik.values[field.name]}
+                        onChange={(range) => {
+                          handleChange(formik, field.name, range);
                         }}
-                        months={1}
-                        direction="horizontal"
-                        // showDateDisplay={false}
-                        rangeColors={[theme.palette.primary.main]}
+                        fullWidth
+                        placeholder={t('select_date_range')}
+                        required={field?.required}
+                        error={!!formik.errors[field.name] || field.error}
+                        helperText={
+                          !!formik.errors[field.name] || field.error
+                            ? formik.errors[field.name]
+                            : ''
+                        }
                       />
                     </Box>
                   ) : field.type === 'coordinates' ? (

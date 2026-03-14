@@ -1808,6 +1808,7 @@ const locale = {
   "required_image": "Afbeelding is verplicht",
   "requested_from_portal": "Dit verzoek is aangemaakt vanuit het portaal: ",
   "request_portals": "Verzoekportalen",
-  "recaptcha_failed": "reCAPTCHA-verificatie mislukt. Probeer het opnieuw."
+  "recaptcha_failed": "reCAPTCHA-verificatie mislukt. Probeer het opnieuw.",
+  "select_date_range": "Datumbereik selecteren"
 };
 export default locale;

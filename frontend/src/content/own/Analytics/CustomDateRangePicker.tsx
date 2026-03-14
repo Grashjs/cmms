@@ -71,8 +71,7 @@ export default function ({ start, end, setEnd, setStart }: OwnProps) {
             readOnly: true
           }}
         />
-      </Card>
-
+      </Card>{' '}
       <Popover
         open={open}
         anchorEl={anchorRef.current}

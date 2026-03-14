@@ -1876,7 +1876,8 @@ const ruJSON = {
   "required_image": "Изображение обязательно",
   "requested_from_portal": "Этот запрос был создан из портала: ",
   "request_portals": "Порталы запросов",
-  "recaptcha_failed": "Ошибка проверки reCAPTCHA. Пожалуйста, попробуйте снова."
+  "recaptcha_failed": "Ошибка проверки reCAPTCHA. Пожалуйста, попробуйте снова.",
+  "select_date_range": "Выбрать диапазон дат"
 };
 
 export default ruJSON;

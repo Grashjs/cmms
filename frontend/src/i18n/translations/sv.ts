@@ -1783,7 +1783,8 @@ const locale = {
   "required_image": "Bild krävs",
   "requested_from_portal": "Denna begäran skapades från portalen: ",
   "request_portals": "Begäringsportaler",
-  "recaptcha_failed": "reCAPTCHA-verifiering misslyckades. Försök igen."
+  "recaptcha_failed": "reCAPTCHA-verifiering misslyckades. Försök igen.",
+  "select_date_range": "Välj datumintervall"
 };
 
 export default locale;

@@ -63,6 +63,7 @@ import DateTimePicker from '@mui/lab/DateTimePicker';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import { useBrand } from '../../../../hooks/useBrand';
 import { getErrorMessage } from '../../../../utils/api';
+import DateRangePicker from '../../components/form/DateRangePicker';
 
 interface UICondition {
   type: WorkflowConditionType;
@@ -785,28 +786,16 @@ function Workflows() {
                 )}
               />
             ) : config.type === 'dateRange' ? (
-              <LocalizationProvider
-                localeText={{ start: t('start'), end: t('end') }}
-                dateAdapter={AdapterDayjs}
-              >
-                <DateRangePicker
-                  value={
-                    condition.values?.length > 1
-                      ? [condition.values[0], condition.values[1]]
-                      : [null, null]
-                  }
-                  onChange={(newValues) => {
-                    handleConditionValuesChange(newValues as string[], index);
-                  }}
-                  renderInput={(startProps, endProps) => (
-                    <>
-                      <TextField {...startProps} />
-                      <Box sx={{ mx: 2 }}> {t('to')} </Box>
-                      <TextField {...endProps} />
-                    </>
-                  )}
-                />
-              </LocalizationProvider>
+              <DateRangePicker
+                value={
+                  condition.values?.length > 1
+                    ? [condition.values[0], condition.values[1]]
+                    : [null, null]
+                }
+                onChange={(newValues) => {
+                  handleConditionValuesChange(newValues as string[], index);
+                }}
+              />
             ) : null}
           </Box>
         </Box>
@@ -853,28 +842,16 @@ function Workflows() {
               )}
             />
           ) : config.type === 'dateRange' ? (
-            <LocalizationProvider
-              localeText={{ start: t('start'), end: t('end') }}
-              dateAdapter={AdapterDayjs}
-            >
-              <DateRangePicker
-                value={
-                  action.values?.length > 1
-                    ? [action.values[0], action.values[1]]
-                    : [null, null]
-                }
-                onChange={(newValues) => {
-                  handleActionValuesChange(newValues as string[]);
-                }}
-                renderInput={(startProps, endProps) => (
-                  <>
-                    <TextField {...startProps} />
-                    <Box sx={{ mx: 2 }}> {t('to')} </Box>
-                    <TextField {...endProps} />
-                  </>
-                )}
-              />
-            </LocalizationProvider>
+            <DateRangePicker
+              value={
+                action.values?.length > 1
+                  ? [action.values[0], action.values[1]]
+                  : [null, null]
+              }
+              onChange={(newValues) => {
+                handleActionValuesChange(newValues as string[]);
+              }}
+            />
           ) : null}
         </Box>
       </Box>

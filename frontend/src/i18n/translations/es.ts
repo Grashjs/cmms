@@ -1838,7 +1838,8 @@ const esJSON = {
   upload_files: 'Subir archivos',
   request_portal: 'Portal de solicitudes',
   requested_from_portal: 'Esta solicitud fue creada desde el portal: ',
-  request_portals: 'Portales de solicitudes'
+  request_portals: 'Portales de solicitudes',
+  select_date_range: 'Seleccionar rango de fechas'
 };
 
 export default esJSON;

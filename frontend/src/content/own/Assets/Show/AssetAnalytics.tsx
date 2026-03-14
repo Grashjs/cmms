@@ -7,7 +7,6 @@ import {
   Divider,
   Grid,
   Stack,
-  TextField,
   Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +15,7 @@ import { useContext, useEffect, useState } from 'react';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
 import { getAssetDetailsOverview } from '../../../../slices/analytics/asset';
 import Loading from '../../Analytics/Loading';
+import DateRangePicker from '../../components/form/DateRangePicker';
 
 interface PropsType {
   id: number;
@@ -68,25 +68,13 @@ const AssetDowntimes = ({ id }: PropsType) => {
           <Card sx={{ p: 2 }}>
             <Box sx={{ height: 550, width: '95%' }}>
               <Stack direction="row" justifyContent="space-between" py={3}>
-                <LocalizationProvider
-                  localeText={{ start: t('start'), end: t('end') }}
-                  dateAdapter={AdapterDayjs}
-                >
-                  <DateRangePicker
-                    value={[start, end]}
-                    onChange={(newValue) => {
-                      setStart(newValue[0]);
-                      setEnd(newValue[1]);
-                    }}
-                    renderInput={(startProps, endProps) => (
-                      <>
-                        <TextField {...startProps} />
-                        <Box sx={{ mx: 2 }}> {t('to')} </Box>
-                        <TextField {...endProps} />
-                      </>
-                    )}
-                  />
-                </LocalizationProvider>
+                <DateRangePicker
+                  value={[start, end]}
+                  onChange={(newValue) => {
+                    setStart(newValue[0]);
+                    setEnd(newValue[1]);
+                  }}
+                />
                 <Button
                   disabled={loading.assetDetailsOverview}
                   onClick={() =>
