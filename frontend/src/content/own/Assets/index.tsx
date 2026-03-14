@@ -236,9 +236,9 @@ function Assets() {
   }, [locationParamObject]);
 
   useEffect(() => {
-    if (hasViewPermission(PermissionEntity.ASSETS))
+    if (view === 'list' && hasViewPermission(PermissionEntity.ASSETS))
       dispatch(getAssets(criteria));
-  }, [criteria]);
+  }, [criteria, view]);
 
   // Fetch children for expanded rows
   useEffect(() => {
@@ -255,7 +255,7 @@ function Assets() {
     setPageable((prevState) => {
       return {
         ...prevState,
-        size: prevState.size + HIERARCHY_ZERO_PAGE_SIZE
+        page: prevState.page + HIERARCHY_ZERO_PAGE_SIZE
       };
     });
   };
@@ -946,6 +946,7 @@ function Assets() {
                     ? { pageIndex: pageable.page, pageSize: pageable.size }
                     : tableState.pagination
                 }
+                hidePagination={view === 'hierarchy'}
                 onPaginationChange={handlePaginationChange}
                 totalRows={
                   view === 'hierarchy'

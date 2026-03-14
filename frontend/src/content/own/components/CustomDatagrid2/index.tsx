@@ -114,6 +114,7 @@ interface CustomDatagrid2Props<TData extends RowData> {
   // Pinned columns (array of column IDs)
   pinnedColumns?: string[];
   onPinnedColumnsChange?: (pinnedColumns: string[]) => void;
+  hidePagination?: boolean;
 }
 
 const PINNED_BG = '#F2F5F9';
@@ -146,7 +147,8 @@ function CustomDatagrid2<TData extends RowData>({
   enableColumnResizing = true,
   pinnedColumns: externalPinnedColumns,
   onPinnedColumnsChange,
-  noRowsAction
+  noRowsAction,
+  hidePagination
 }: CustomDatagrid2Props<TData>) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
@@ -874,31 +876,33 @@ function CustomDatagrid2<TData extends RowData>({
         </Box>
       </Menu>
 
-      <TablePagination
-        component="div"
-        count={totalRows}
-        page={pagination.pageIndex}
-        onPageChange={(_, newPage) =>
-          onPaginationChange({ ...pagination, pageIndex: newPage })
-        }
-        rowsPerPage={pagination.pageSize}
-        onRowsPerPageChange={(event) =>
-          onPaginationChange({
-            ...pagination,
-            pageIndex: 0,
-            pageSize: Number(event.target.value)
-          })
-        }
-        rowsPerPageOptions={pageSizeOptions}
-        // labelRowsPerPage={t('rows_per_page')}
-        ActionsComponent={TablePaginationActions}
-        sx={{
-          borderTop: `1px solid ${theme.palette.divider}`,
-          '& .MuiTablePagination-toolbar': {
-            minHeight: '52px'
+      {!hidePagination && (
+        <TablePagination
+          component="div"
+          count={totalRows}
+          page={pagination.pageIndex}
+          onPageChange={(_, newPage) =>
+            onPaginationChange({ ...pagination, pageIndex: newPage })
           }
-        }}
-      />
+          rowsPerPage={pagination.pageSize}
+          onRowsPerPageChange={(event) =>
+            onPaginationChange({
+              ...pagination,
+              pageIndex: 0,
+              pageSize: Number(event.target.value)
+            })
+          }
+          rowsPerPageOptions={pageSizeOptions}
+          // labelRowsPerPage={t('rows_per_page')}
+          ActionsComponent={TablePaginationActions}
+          sx={{
+            borderTop: `1px solid ${theme.palette.divider}`,
+            '& .MuiTablePagination-toolbar': {
+              minHeight: '52px'
+            }
+          }}
+        />
+      )}
     </Paper>
   );
 }
