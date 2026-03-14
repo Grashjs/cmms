@@ -129,7 +129,7 @@ function Assets() {
         value: false
       }
     ],
-    pageSize: 10,
+    pageSize: 50,
     pageNum: 0,
     direction: 'DESC'
   };
@@ -810,7 +810,7 @@ function Assets() {
 
   // Use table state for list view (server-side pagination and sorting)
   const tableState = useTableState({
-    prefix: 'assets-list',
+    prefix: 'assets',
     setCriteria,
     fieldMapping,
     initialPagination: { pageIndex: 0, pageSize: criteria.pageSize }
@@ -889,7 +889,7 @@ function Assets() {
           >
             <Box sx={{ width: '95%' }}>
               <CustomDatagrid2
-                columns={columns}
+                columns={view === 'hierarchy' ? columns : columns.slice(1)}
                 data={tableData}
                 loading={view === 'hierarchy' ? loadingHierarchy : loadingGet}
                 pagination={tableState.pagination}

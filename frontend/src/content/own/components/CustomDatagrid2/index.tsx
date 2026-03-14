@@ -522,10 +522,7 @@ function CustomDatagrid2<TData extends RowData>({
             },
             '& .MuiTableBody-root': {
               '& .MuiTableRow-root': {
-                cursor: notClickable ? 'auto' : 'pointer',
-                '&:hover': {
-                  backgroundColor: alpha(theme.palette.primary.main, 0.04)
-                }
+                cursor: notClickable ? 'auto' : 'pointer'
               }
             }
           }}
@@ -722,7 +719,12 @@ function CustomDatagrid2<TData extends RowData>({
                     sx={{
                       '&:last-child td, &:last-child th': { border: 0 },
                       backgroundColor,
-                      color: textColor
+                      color: textColor,
+                      '&:hover': {
+                        backgroundColor: isNested
+                          ? theme.palette.primary.main
+                          : alpha(theme.palette.primary.main, 0.04)
+                      }
                     }}
                   >
                     {enableRowSelection && (
