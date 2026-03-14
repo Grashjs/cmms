@@ -17,77 +17,26 @@ import {
   getLocationsMini,
   resetLocationsHierarchy
 } from '../../../../slices/location';
-import CustomDataGrid, { CustomDatagridColumn } from '../CustomDatagrid';
-import {
-  GridEventListener,
-  GridRenderCellParams,
-  GridRow,
-  GridSelectionModel
-} from '@mui/x-data-grid';
-import { DataGridProProps, useGridApiRef } from '@mui/x-data-grid-pro';
 import { LocationMiniDTO } from '../../../../models/owns/location';
-import { GroupingCellWithLazyLoading } from '../../Assets/GroupingCellWithLazyLoading';
 import ReplayTwoToneIcon from '@mui/icons-material/ReplayTwoTone';
-import { Pageable } from '../../../../models/owns/page';
 import NoRowsMessageWrapper from '../NoRowsMessageWrapper';
 import { usePrevious } from '../../../../hooks/usePrevious';
+import { createColumnHelper } from '@tanstack/react-table';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CustomDatagrid2, { CustomDatagridColumn2 } from '../CustomDatagrid2';
 
 interface SelectLocationModalProps {
   open: boolean;
   onClose: () => void;
-  onSelect: (locations: LocationMiniDTO[]) => void; // Changed to handle array of locations
-  excludedLocationIds?: number[]; // Changed to array for multiple exclusions
-  maxSelections?: number; // Optional limit for selections
-  initialSelectedLocations?: LocationMiniDTO[]; // Optional pre-selected locations
+  onSelect: (locations: LocationMiniDTO[]) => void;
+  excludedLocationIds?: number[];
+  maxSelections?: number;
+  initialSelectedLocations?: LocationMiniDTO[];
 }
 
-const getLocationRows = (locations: LocationMiniDTO[]): IRow[] => {
-  // Build a map of parent to children
-  const locationsByParent: { [key: number]: number[] } = {};
-  const locationMap: { [key: number]: LocationMiniDTO } = {};
+type LocationRow = LocationMiniDTO & { depth?: number };
 
-  // Create location map for quick lookup
-  locations.forEach((location) => {
-    locationMap[location.id] = location;
-  });
-
-  // Build parent-children relationships
-  locations.forEach((location) => {
-    if (location.parentId) {
-      if (!locationsByParent[location.parentId]) {
-        locationsByParent[location.parentId] = [];
-      }
-      locationsByParent[location.parentId].push(location.id);
-    }
-  });
-
-  // Helper function to build hierarchy path
-  const buildHierarchy = (locationId: number): number[] => {
-    const hierarchy: number[] = [];
-    let currentLocation = locationMap[locationId];
-    hierarchy.unshift(currentLocation.id);
-
-    while (
-      currentLocation.parentId &&
-      !hierarchy.includes(currentLocation.parentId)
-    ) {
-      hierarchy.unshift(currentLocation.parentId);
-      currentLocation = locationMap[currentLocation.parentId];
-    }
-
-    return hierarchy;
-  };
-
-  return locations.map((location) => {
-    const hierarchy = buildHierarchy(location.id);
-    return {
-      ...location,
-      hierarchy,
-      hasChildren: !!locationsByParent[location.id]
-    };
-  });
-};
-type IRow = LocationMiniDTO & { hierarchy: number[]; hasChildren: boolean };
 const SelectLocationModal: React.FC<SelectLocationModalProps> = ({
   open,
   onClose,
@@ -98,23 +47,23 @@ const SelectLocationModal: React.FC<SelectLocationModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const apiRef = useGridApiRef();
   const theme = useTheme();
   const { loadingGet, locationsMini } = useSelector((state) => state.locations);
   const initialized = useRef<boolean>(false);
   const single = maxSelections === 1;
 
-  const locationsHierarchy: IRow[] = useMemo(
-    () => getLocationRows(locationsMini),
-    [locationsMini.length]
-  );
+  // State for tracking expanded rows
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   // State for tracking selected locations
   const [selectedLocations, setSelectedLocations] = useState<LocationMiniDTO[]>(
     initialSelectedLocations
   );
-  const [selectionModel, setSelectionModel] = useState<GridSelectionModel>(
-    initialSelectedLocations.map((location) => location.id)
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>(
+    initialSelectedLocations.reduce((acc, loc) => {
+      acc[loc.id] = true;
+      return acc;
+    }, {} as Record<string, boolean>)
   );
   const previousInitialSelectedLocations = usePrevious(
     initialSelectedLocations
@@ -125,6 +74,48 @@ const SelectLocationModal: React.FC<SelectLocationModalProps> = ({
       dispatch(getLocationsMini());
     }
   };
+
+  // Flatten hierarchy based on expanded state
+  const getHierarchicalData = (
+    flatList: LocationMiniDTO[],
+    expanded: Record<string, boolean>,
+    parentId: number | null = null,
+    depth: number = 0
+  ): (LocationMiniDTO & { depth: number })[] => {
+    let result: (LocationMiniDTO & { depth: number })[] = [];
+
+    const nodes = flatList.filter((item) => {
+      if (parentId === null) {
+        return !item.parentId;
+      }
+      return item.parentId === parentId;
+    });
+
+    for (const node of nodes) {
+      result.push({ ...node, depth });
+
+      if (expanded[node.id]) {
+        const children = getHierarchicalData(
+          flatList,
+          expanded,
+          node.id,
+          depth + 1
+        );
+        result = [...result, ...children];
+      }
+    }
+
+    return result;
+  };
+
+  const tableData = useMemo(
+    () => getHierarchicalData(locationsMini, expanded),
+    [locationsMini, expanded]
+  );
+
+  const filteredTableData = tableData.filter(
+    (location) => !excludedLocationIds.includes(location.id)
+  );
 
   useEffect(() => {
     if (
@@ -137,12 +128,15 @@ const SelectLocationModal: React.FC<SelectLocationModalProps> = ({
       handleReset(true);
       if (initialSelectedLocations?.length) {
         setSelectedLocations(initialSelectedLocations);
-        setSelectionModel(
-          initialSelectedLocations.map((location) => location.id)
+        setRowSelection(
+          initialSelectedLocations.reduce((acc, loc) => {
+            acc[loc.id] = true;
+            return acc;
+          }, {} as Record<string, boolean>)
         );
       } else {
         setSelectedLocations([]);
-        setSelectionModel([]);
+        setRowSelection({});
       }
     }
   }, [open, initialSelectedLocations, previousInitialSelectedLocations]);
@@ -150,83 +144,107 @@ const SelectLocationModal: React.FC<SelectLocationModalProps> = ({
   useEffect(() => {
     if (single && open) {
       setSelectedLocations([]);
-      setSelectionModel([]);
+      setRowSelection({});
     }
-  }, [open]);
+  }, [open, single]);
 
-  const columns: CustomDatagridColumn[] = [
-    {
-      field: 'customId',
-      headerName: t('id'),
-      flex: 1
-    },
-    {
-      field: 'name',
-      headerName: t('name'),
-      flex: 1,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <Box sx={{ fontWeight: 'bold', py: 1 }}>{params.value}</Box>
-      )
-    }
+  const handleToggleExpand = (row: LocationRow) => {
+    setExpanded((prev) => ({ ...prev, [row.id]: !prev[row.id] }));
+  };
+
+  const columnHelper = createColumnHelper<LocationMiniDTO>();
+
+  const columns: CustomDatagridColumn2<LocationMiniDTO>[] = [
+    columnHelper.display({
+      id: 'expander',
+      header: '',
+      cell: ({ row }) => {
+        const isExpanded = expanded[row.original.id];
+        const hasChildren = locationsMini.some(
+          (loc) => loc.parentId === row.original.id
+        );
+
+        if (!hasChildren) {
+          return <Box sx={{ width: 24 }} />;
+        }
+
+        return (
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleExpand(row.original);
+            }}
+            sx={{ padding: 0.5 }}
+          >
+            {isExpanded ? (
+              <ExpandMoreIcon fontSize="small" />
+            ) : (
+              <ChevronRightIcon fontSize="small" />
+            )}
+          </IconButton>
+        );
+      },
+      size: 50
+    }),
+    columnHelper.accessor('customId', {
+      id: 'customId',
+      header: () => t('id'),
+      cell: (info) => info.getValue(),
+      size: 100
+    }),
+    columnHelper.accessor('name', {
+      id: 'name',
+      header: () => t('name'),
+      cell: (info) => (
+        <Box
+          sx={{
+            py: 1,
+            fontWeight: 'bold',
+            ml: (info.row.depth || 0) * 24
+          }}
+        >
+          {info.getValue()}
+        </Box>
+      ),
+      size: 200
+    })
   ];
 
-  const groupingColDef: DataGridProProps['groupingColDef'] = {
-    headerName: t('hierarchy'),
-    renderCell: (params) => <GroupingCellWithLazyLoading {...params} />
-  };
+  const handleRowClick = (row: LocationMiniDTO) => {
+    // Prevent selection of excluded locations
+    if (excludedLocationIds.includes(row.id)) return;
 
-  const CustomRow = (props: React.ComponentProps<typeof GridRow>) => {
-    const rowNode = apiRef.current.getRowNode(props.rowId);
-    return (
-      <GridRow
-        {...props}
-        style={
-          (rowNode?.depth ?? 0) > 0
-            ? {
-                backgroundColor:
-                  rowNode.depth % 2 === 0
-                    ? theme.colors.primary.light
-                    : theme.colors.primary.main,
-                color: 'white'
-              }
-            : undefined
-        }
-      />
-    );
-  };
-
-  const handleRowClick: GridEventListener<'rowClick'> = (params) => {
-    // Prevent selection of loading rows or excluded locations
-    if (typeof params.id === 'string' && params.id.startsWith('loading_'))
-      return;
-    if (excludedLocationIds.includes(params.id as number)) return;
-
-    // Get the current selection model
-    const currentSelectionModel = [...selectionModel];
-
-    // Check if the item is already selected
-    const selectedIndex = currentSelectionModel.indexOf(params.id);
-
-    // Toggle selection
-    if (selectedIndex === -1) {
-      // Check maximum selections limit if applicable
-      if (maxSelections && currentSelectionModel.length >= maxSelections) {
-        return; // Do not add if max is reached
-      }
-      currentSelectionModel.push(params.id);
-    } else {
-      currentSelectionModel.splice(selectedIndex, 1);
-    }
-    setSelectionModel(currentSelectionModel);
-
-    // Update the selected locations array
-    const updatedSelectedLocations = currentSelectionModel.map((id) => {
-      return apiRef.current.getRow(id) as IRow;
-    });
-    setSelectedLocations(updatedSelectedLocations);
     if (single) {
-      onSelect(updatedSelectedLocations);
+      // Single selection mode
+      const newSelection = [row];
+      setSelectedLocations(newSelection);
+      onSelect(newSelection);
       onClose();
+    } else {
+      // Multiple selection mode
+      const isSelected = rowSelection[row.id];
+      let newRowSelection: Record<string, boolean>;
+      let updatedSelectedLocations: LocationMiniDTO[];
+
+      if (isSelected) {
+        // Remove from selection
+        newRowSelection = { ...rowSelection };
+        delete newRowSelection[row.id];
+        updatedSelectedLocations = selectedLocations.filter(
+          (loc) => loc.id !== row.id
+        );
+      } else {
+        // Add to selection
+        if (maxSelections && selectedLocations.length >= maxSelections) {
+          return;
+        }
+        newRowSelection = { ...rowSelection, [row.id]: true };
+        updatedSelectedLocations = [...selectedLocations, row];
+      }
+
+      setRowSelection(newRowSelection);
+      setSelectedLocations(updatedSelectedLocations);
     }
   };
 
@@ -236,20 +254,15 @@ const SelectLocationModal: React.FC<SelectLocationModalProps> = ({
   };
 
   const handleRemoveSelection = (locationId: number) => {
-    const updatedSelectionModel = selectionModel.filter(
-      (id) => id !== locationId
-    );
-    setSelectionModel(updatedSelectionModel);
+    const newRowSelection = { ...rowSelection };
+    delete newRowSelection[locationId];
+    setRowSelection(newRowSelection);
 
     const updatedSelectedLocations = selectedLocations.filter(
       (location) => location.id !== locationId
     );
     setSelectedLocations(updatedSelectedLocations);
   };
-
-  const filteredLocationsHierarchy = locationsHierarchy.filter(
-    (location) => !excludedLocationIds.includes(location.id)
-  );
 
   return (
     <Dialog fullWidth maxWidth="md" open={open} onClose={onClose}>
@@ -287,45 +300,21 @@ const SelectLocationModal: React.FC<SelectLocationModalProps> = ({
 
       <DialogContent dividers sx={{ p: 1, height: '60vh' }}>
         <Box sx={{ height: '100%', width: '100%' }}>
-          <CustomDataGrid
-            pro
-            treeData
-            apiRef={apiRef}
+          <CustomDatagrid2
             columns={columns}
-            rows={filteredLocationsHierarchy}
+            data={filteredTableData}
             loading={loadingGet}
-            getRowId={(row) => row.id}
-            getRowHeight={() => 'auto'}
-            getTreeDataPath={(row) => row.hierarchy.map(String)}
-            groupingColDef={groupingColDef}
-            disableColumnFilter
-            checkboxSelection={!single}
-            selectionModel={selectionModel}
-            onSelectionModelChange={(newSelectionModel) => {
-              if (loadingGet) return;
-              if (maxSelections && newSelectionModel.length > maxSelections) {
-                return;
-              }
-              setSelectionModel(newSelectionModel);
-              const updatedSelectedLocations = newSelectionModel.map((id) => {
-                return apiRef.current.getRow(id) as IRow;
-              });
-
-              setSelectedLocations(updatedSelectedLocations);
-            }}
-            components={{
-              Row: CustomRow,
-              NoRowsOverlay: () => (
-                <NoRowsMessageWrapper
-                  message={t('noRows.location.message')}
-                  action={t('noRows.location.action')}
-                />
-              )
-            }}
+            enableRowSelection={!single}
+            rowSelection={rowSelection}
+            onRowSelectionChange={setRowSelection}
             onRowClick={handleRowClick}
-            initialState={{
-              columns: { columnVisibilityModel: {} }
-            }}
+            getRowId={(row) => row.id.toString()}
+            noRowsMessage={t('noRows.location.message')}
+            noRowsAction={t('noRows.location.action')}
+            pagination={{ pageIndex: 0, pageSize: 100 }}
+            onPaginationChange={() => {}}
+            totalRows={filteredTableData.length}
+            hidePagination
           />
         </Box>
       </DialogContent>

@@ -1842,7 +1842,8 @@ const ptBRJSON = {
   "required_image": "A imagem é obrigatória",
   "requested_from_portal": "Esta solicitação foi criada a partir do portal: ",
   "request_portals": "Portais de solicitações",
-  "recaptcha_failed": "Falha na verificação reCAPTCHA. Tente novamente."
+  "recaptcha_failed": "Falha na verificação reCAPTCHA. Tente novamente.",
+  "select_date_range": "Selecionar intervalo de datas"
 };
 
 export default ptBRJSON;

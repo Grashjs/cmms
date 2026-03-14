@@ -1803,7 +1803,8 @@ const locale = {
   requested_from_portal: 'Ovaj zahtjev je kreiran s portala: ',
   request_portals: 'Portali zahtjeva',
   recaptcha_failed:
-    'reCAPTCHA verifikacija nije uspjela. Molimo pokušajte ponovo.'
+    'reCAPTCHA verifikacija nije uspjela. Molimo pokušajte ponovo.',
+  select_date_range: 'তারিখ পরিসর নির্বাচন করুন'
 };
 
 export default locale;

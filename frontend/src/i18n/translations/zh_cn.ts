@@ -1478,7 +1478,8 @@ const locale = {
   "required_image": "图片为必填项",
   "requested_from_portal": "此请求是从门户创建的：",
   "request_portals": "请求门户",
-  "recaptcha_failed": "reCAPTCHA 验证失败。请重试。"
+  "recaptcha_failed": "reCAPTCHA 验证失败。请重试。",
+  "select_date_range": "选择日期范围"
 };
 
 export default locale;

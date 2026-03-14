@@ -32,16 +32,10 @@ import { useTranslation } from 'react-i18next';
 import * as React from 'react';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { TitleContext } from '../../../contexts/TitleContext';
-import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import CustomDataGrid, {
-  CustomDatagridColumn
-} from '../components/CustomDatagrid';
+import CustomDatagrid2, {
+  CustomDatagridColumn2
+} from '../components/CustomDatagrid2';
 import { SearchCriteria, SortDirection } from '../../../models/owns/page';
-import {
-  GridRenderCellParams,
-  GridToolbar,
-  GridValueGetterParams
-} from '@mui/x-data-grid';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import Meter from '../../../models/owns/meter';
 import Form from '../components/form';
@@ -67,8 +61,8 @@ import {
   onSearchQueryChange
 } from '../../../utils/overall';
 import SearchInput from '../components/SearchInput';
-import { useGridApiRef } from '@mui/x-data-grid-pro';
-import useGridStatePersist from '../../../hooks/useGridStatePersist';
+import { createColumnHelper } from '@tanstack/react-table';
+import useTableState from '../../../hooks/useTableState';
 import { getErrorMessage } from '../../../utils/api';
 import SplitButton from '../components/SplitButton';
 
@@ -82,6 +76,16 @@ const LabelWrapper = styled(Box)(
     line-height: 1;
   `
 );
+
+const fieldMapping: Record<string, string> = {
+  name: 'name',
+  unit: 'unit',
+  asset: 'asset.name',
+  location: 'location.name',
+  customId: 'customId',
+  createdAt: 'createdAt',
+  createdBy: 'createdBy'
+};
 
 function Meters() {
   const { t }: { t: any } = useTranslation();
@@ -114,6 +118,31 @@ function Meters() {
     pageSize: 10,
     pageNum: 0,
     direction: 'DESC'
+  });
+
+  // Use the table state hook for TanStack Table
+  const {
+    sorting,
+    setSorting,
+    pagination,
+    setPagination,
+    columnOrder,
+    setColumnOrder,
+    columnSizing,
+    setColumnSizing,
+    columnVisibility,
+    setColumnVisibility,
+    pinnedColumns,
+    setPinnedColumns
+  } = useTableState({
+    prefix: 'meters',
+    initialSorting: [],
+    initialPagination: {
+      pageSize: criteria.pageSize,
+      pageIndex: criteria.pageNum
+    },
+    setCriteria,
+    fieldMapping
   });
   const { loadingExport } = useSelector((state) => state.exports);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -169,13 +198,6 @@ function Meters() {
     };
   }, [singleMeter, meters]);
 
-  const onPageSizeChange = (size: number) => {
-    setCriteria({ ...criteria, pageSize: size });
-  };
-  const onPageChange = (number: number) => {
-    setCriteria({ ...criteria, pageNum: number });
-  };
-
   const formatValues = (values) => {
     const newValues = { ...values };
     newValues.users = formatSelectMultiple(newValues.users);
@@ -230,23 +252,23 @@ function Meters() {
   };
   const onDeleteFailure = (err) =>
     showSnackBar(t('meter_delete_failure'), 'error');
-  const columns: CustomDatagridColumn[] = [
-    {
-      field: 'name',
-      headerName: t('name'),
-      description: t('name'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
-      )
-    },
-    {
-      field: 'nextReading',
-      headerName: t('next_reading_due'),
-      description: t('next_reading_due'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<string, Meter>) =>
-        canAddReading(params.row) ? (
+
+  const columnHelper = createColumnHelper<Meter>();
+
+  const columns: CustomDatagridColumn2<Meter>[] = [
+    columnHelper.accessor('name', {
+      id: 'name',
+      header: () => t('name'),
+      cell: (info) => (
+        <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>
+      ),
+      size: 150
+    }),
+    columnHelper.accessor('nextReading', {
+      id: 'nextReading',
+      header: () => t('next_reading_due'),
+      cell: (info) =>
+        canAddReading(info.row.original) ? (
           <LabelWrapper
             sx={{
               background: theme.colors.error.main,
@@ -256,56 +278,50 @@ function Meters() {
             {t('past_due')}
           </LabelWrapper>
         ) : (
-          <Typography>{getFormattedDate(params.value)}</Typography>
-        )
-    },
-    {
-      field: 'unit',
-      headerName: t('unit_of_measurement'),
-      description: t('unit_of_measurement'),
-      width: 150
-    },
-    {
-      field: 'lastReading',
-      headerName: t('last_reading'),
-      description: t('last_reading'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<string>) =>
-        getFormattedDate(params.value)
-    },
-    {
-      field: 'location',
-      headerName: t('location'),
-      description: t('location'),
-      width: 150,
-      valueGetter: (params) => params.row.location?.name,
-      uiConfigKey: 'locations'
-    },
-    {
-      field: 'asset',
-      headerName: t('asset'),
-      description: t('asset'),
-      width: 150,
-      valueGetter: (params) => params.row.asset.name
-    },
-    {
-      field: 'createdBy',
-      headerName: t('created_by'),
-      description: t('created_by'),
-      width: 150,
-      valueGetter: (params) => getUserNameById(params.value)
-    },
-    {
-      field: 'createdAt',
-      headerName: t('created_at'),
-      description: t('created_at'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<string>) =>
-        getFormattedDate(params.value)
-    }
+          <Typography>{getFormattedDate(info.getValue())}</Typography>
+        ),
+      size: 150
+    }),
+    columnHelper.accessor('unit', {
+      id: 'unit',
+      header: () => t('unit_of_measurement'),
+      cell: (info) => info.getValue(),
+      size: 150
+    }),
+    columnHelper.accessor('lastReading', {
+      id: 'lastReading',
+      header: () => t('last_reading'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    }),
+    columnHelper.accessor((row) => row.location?.name, {
+      id: 'location',
+      header: () => t('location'),
+      cell: (info) => info.getValue() || '',
+      size: 150,
+      meta: {
+        uiConfigKey: 'locations'
+      }
+    }),
+    columnHelper.accessor((row) => row.asset?.name, {
+      id: 'asset',
+      header: () => t('asset'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor('createdBy', {
+      id: 'createdBy',
+      header: () => t('created_by'),
+      cell: (info) => getUserNameById(info.getValue()),
+      size: 150
+    }),
+    columnHelper.accessor('createdAt', {
+      id: 'createdAt',
+      header: () => t('created_at'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    })
   ];
-  const apiRef = useGridApiRef();
-  useGridStatePersist(apiRef, columns, 'meter');
   const fields: Array<IField> = [
     {
       name: 'name',
@@ -593,66 +609,29 @@ function Meters() {
               }}
             >
               <Box sx={{ width: '95%' }}>
-                <CustomDataGrid
-                  apiRef={apiRef}
+                <CustomDatagrid2
                   columns={columns}
+                  data={meters.content}
                   loading={loadingGet}
-                  pageSize={criteria.pageSize}
-                  page={criteria.pageNum}
-                  rows={meters.content}
-                  rowCount={meters.totalElements}
-                  pagination
-                  paginationMode="server"
-                  sortingMode="server"
-                  onPageSizeChange={onPageSizeChange}
-                  onPageChange={onPageChange}
-                  rowsPerPageOptions={[10, 20, 50]}
-                  onSortModelChange={(model) => {
-                    if (model.length === 0) {
-                      setCriteria({
-                        ...criteria,
-                        sortField: undefined,
-                        direction: undefined
-                      });
-                      return;
-                    }
-
-                    const fieldMapping = {
-                      name: 'name',
-                      unit: 'unit',
-                      asset: 'asset.name',
-                      location: 'location.name',
-                      customId: 'customId',
-                      createdAt: 'createdAt',
-                      createdBy: 'createdBy'
-                    };
-
-                    const field = model[0].field;
-                    const mappedField = fieldMapping[field];
-
-                    if (!mappedField) return;
-
-                    setCriteria({
-                      ...criteria,
-                      sortField: mappedField,
-                      direction: (model[0].sort?.toUpperCase() ||
-                        'ASC') as SortDirection
-                    });
-                  }}
-                  onRowClick={({ id }) => handleOpenDetails(Number(id))}
-                  components={{
-                    NoRowsOverlay: () => (
-                      <NoRowsMessageWrapper
-                        message={t('noRows.meter.message')}
-                        action={t('')}
-                      />
-                    )
-                  }}
-                  initialState={{
-                    columns: {
-                      columnVisibilityModel: {}
-                    }
-                  }}
+                  pagination={pagination}
+                  onPaginationChange={setPagination}
+                  totalRows={meters.totalElements}
+                  pageSizeOptions={[10, 20, 50]}
+                  sorting={sorting}
+                  onSortingChange={setSorting}
+                  columnOrder={columnOrder}
+                  onColumnOrderChange={setColumnOrder}
+                  columnSizing={columnSizing}
+                  onColumnSizingChange={setColumnSizing}
+                  columnVisibility={columnVisibility}
+                  onColumnVisibilityChange={setColumnVisibility}
+                  onRowClick={(row) => handleOpenDetails(row.id)}
+                  noRowsMessage={t('noRows.meter.message')}
+                  noRowsAction={t('')}
+                  enableColumnReordering
+                  enableColumnResizing
+                  pinnedColumns={pinnedColumns}
+                  onPinnedColumnsChange={setPinnedColumns}
                 />
               </Box>
             </Card>

@@ -14,13 +14,9 @@ import {
   useTheme
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import CustomDataGrid from '../components/CustomDatagrid';
-import {
-  GridRenderCellParams,
-  GridToolbar,
-  GridValueGetterParams
-} from '@mui/x-data-grid';
-import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
+import CustomDatagrid2, {
+  CustomDatagridColumn2
+} from '../components/CustomDatagrid2';
 import Part from '../../../models/owns/part';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useDispatch, useSelector } from '../../../store';
@@ -42,8 +38,7 @@ import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
 import { formatSelectMultiple } from '../../../utils/formatters';
-import { useGridApiRef } from '@mui/x-data-grid-pro';
-import useGridStatePersist from '../../../hooks/useGridStatePersist';
+import { createColumnHelper } from '@tanstack/react-table';
 
 interface PropsType {
   setAction: (p: () => () => void) => void;
@@ -109,42 +104,44 @@ const Sets = ({ setAction }: PropsType) => {
   const handleTabsChange = (_event: ChangeEvent<{}>, value: string): void => {
     setCurrentTab(value);
   };
-  const columns: GridEnrichedColDef[] = [
-    {
-      field: 'name',
-      headerName: t('name'),
-      description: t('name'),
-      flex: 1,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
-      )
-    },
-    {
-      field: 'parts',
-      headerName: t('parts'),
-      description: t('parts'),
-      flex: 1,
-      valueGetter: (params: GridValueGetterParams<Part[]>) =>
-        params.value.length
-    },
-    {
-      field: 'cost',
-      headerName: t('total_cost'),
-      description: t('total_cost'),
-      flex: 1,
-      valueGetter: (params) =>
-        params.row.parts.reduce((acc, part) => acc + part.cost, 0)
-    },
-    {
-      field: 'createdAt',
-      headerName: t('created_at'),
-      description: t('created_at'),
-      flex: 1,
-      valueGetter: (params) => getFormattedDate(params.row.createdAt)
-    }
+
+  const columnHelper = createColumnHelper<SetType>();
+
+  const columns: CustomDatagridColumn2<SetType>[] = [
+    columnHelper.accessor('id', {
+      id: 'id',
+      header: () => t('id'),
+      cell: (info) => info.getValue(),
+      size: 80
+    }),
+    columnHelper.accessor('name', {
+      id: 'name',
+      header: () => t('name'),
+      cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>,
+      size: 200
+    }),
+    columnHelper.accessor('parts', {
+      id: 'parts',
+      header: () => t('parts'),
+      cell: (info) => info.getValue().length,
+      size: 150
+    }),
+    columnHelper.accessor(
+      (row) => row.parts.reduce((acc, part) => acc + part.cost, 0),
+      {
+        id: 'cost',
+        header: () => t('total_cost'),
+        cell: (info) => info.getValue() || '',
+        size: 150
+      }
+    ),
+    columnHelper.accessor('createdAt', {
+      id: 'createdAt',
+      header: () => t('created_at'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    })
   ];
-  const apiRef = useGridApiRef();
-  useGridStatePersist(apiRef, columns, 'multiPart');
   const fields: Array<IField> = [
     {
       name: 'name',
@@ -330,29 +327,15 @@ const Sets = ({ setAction }: PropsType) => {
       </Tabs>
       {currentTab === 'list' && (
         <Box sx={{ width: '95%' }}>
-          <CustomDataGrid
-            apiRef={apiRef}
+          <CustomDatagrid2
             columns={columns}
-            rows={multiParts}
+            data={multiParts}
             loading={loadingGet}
-            components={{
-              NoRowsOverlay: () => (
-                <NoRowsMessageWrapper
-                  message={t(
-                    'Manage your inventory by combining inventory part items into a single item which can be a kit, bundle or package'
-                  )}
-                  action={t("Press the '+' button to create a Set")}
-                />
-              )
-            }}
-            onRowClick={(params) => {
-              handleOpenDetails(Number(params.id));
-            }}
-            initialState={{
-              columns: {
-                columnVisibilityModel: {}
-              }
-            }}
+            onRowClick={(row) => handleOpenDetails(row.id)}
+            noRowsMessage={t(
+              'Manage your inventory by combining inventory part items into a single item which can be a kit, bundle or package'
+            )}
+            noRowsAction={t("Press the '+' button to create a Set")}
           />
         </Box>
       )}

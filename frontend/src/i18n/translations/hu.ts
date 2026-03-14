@@ -1665,7 +1665,8 @@ const locale = {
   "required_image": "A kép kötelező",
   "requested_from_portal": "Ez a kérés a portálból jött létre: ",
   "request_portals": "Kérési portálok",
-  "recaptcha_failed": "A reCAPTCHA ellenőrzés sikertelen. Kérjük, próbálja újra."
+  "recaptcha_failed": "A reCAPTCHA ellenőrzés sikertelen. Kérjük, próbálja újra.",
+  "select_date_range": "Dátumtartomány kiválasztása"
 };
 
 export default locale;

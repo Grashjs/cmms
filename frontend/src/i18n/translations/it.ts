@@ -1816,7 +1816,8 @@ const locale = {
   "required_image": "L'immagine è obbligatoria",
   "requested_from_portal": "Questa richiesta è stata creata dal portale: ",
   "request_portals": "Portali richieste",
-  "recaptcha_failed": "Verifica reCAPTCHA fallita. Riprova."
+  "recaptcha_failed": "Verifica reCAPTCHA fallita. Riprova.",
+  "select_date_range": "Seleziona intervallo di date"
 };
 
 export default locale;

@@ -26,3 +26,5 @@ yarn-debug.log*
 yarn-error.log*
 
 public/runtime-env.js
+
+build_*.txt

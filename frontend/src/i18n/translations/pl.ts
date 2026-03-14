@@ -1812,7 +1812,8 @@ const plJSON = {
   "required_image": "Obraz jest wymagany",
   "requested_from_portal": "To zgłoszenie zostało utworzone z portalu: ",
   "request_portals": "Portale zgłoszeń",
-  "recaptcha_failed": "Weryfikacja reCAPTCHA nie powiodła się. Spróbuj ponownie."
+  "recaptcha_failed": "Weryfikacja reCAPTCHA nie powiodła się. Spróbuj ponownie.",
+  "select_date_range": "Wybierz zakres dat"
 };
 
 export default plJSON;

@@ -165,7 +165,11 @@ export const CustomSelect = ({
                 label={field.label}
                 placeholder={field.placeholder}
                 error={!!formik.errors[field.name] || field.error}
-                helperText={formik.errors[field.name]}
+                helperText={
+                  typeof formik.errors[field.name] === 'string'
+                    ? (formik.errors[field.name] as string)
+                    : ''
+                }
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: (
@@ -261,7 +265,11 @@ export const CustomSelect = ({
                 label={field.label}
                 placeholder={field.placeholder}
                 error={!!formik.errors[field.name] || field.error}
-                helperText={formik.errors[field.name]}
+                helperText={
+                  typeof formik.errors[field.name] === 'string'
+                    ? (formik.errors[field.name] as string)
+                    : ''
+                }
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: (

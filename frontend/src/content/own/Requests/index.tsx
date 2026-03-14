@@ -26,13 +26,9 @@ import {
 } from '../../../slices/request';
 import { useDispatch, useSelector } from '../../../store';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import CustomDataGrid from '../components/CustomDatagrid';
-import {
-  GridRenderCellParams,
-  GridToolbar,
-  GridValueGetterParams
-} from '@mui/x-data-grid';
+import CustomDatagrid2, {
+  CustomDatagridColumn2
+} from '../components/CustomDatagrid2';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import Request from '../../../models/owns/request';
 import Form from '../components/form';
@@ -60,8 +56,8 @@ import {
   SearchCriteria,
   SortDirection
 } from '../../../models/owns/page';
-import { useGridApiRef } from '@mui/x-data-grid-pro';
-import useGridStatePersist from '../../../hooks/useGridStatePersist';
+import { createColumnHelper } from '@tanstack/react-table';
+import useTableState from '../../../hooks/useTableState';
 import _ from 'lodash';
 import FilterAltTwoToneIcon from '@mui/icons-material/FilterAltTwoTone';
 import EnumFilter from '../WorkOrders/Filters/EnumFilter';
@@ -71,7 +67,7 @@ import SearchInput from '../components/SearchInput';
 import * as React from 'react';
 import WorkOrder from '../../../models/owns/workOrder';
 
-function Files() {
+function Requests() {
   const { t }: { t: any } = useTranslation();
   const { setTitle } = useContext(TitleContext);
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
@@ -114,6 +110,41 @@ function Files() {
     pageSize: 10,
     pageNum: 0,
     direction: 'DESC'
+  });
+
+  // Mapping for column fields to API field names for sorting
+  const fieldMapping: Record<string, string> = {
+    customId: 'customId',
+    title: 'title',
+    description: 'description',
+    priority: 'priority',
+    createdAt: 'createdAt',
+    dueDate: 'dueDate'
+  };
+
+  // Use the table state hook for TanStack Table
+  const {
+    sorting,
+    setSorting,
+    pagination,
+    setPagination,
+    columnOrder,
+    setColumnOrder,
+    columnSizing,
+    setColumnSizing,
+    columnVisibility,
+    setColumnVisibility,
+    pinnedColumns,
+    setPinnedColumns
+  } = useTableState({
+    prefix: 'requests',
+    initialSorting: [],
+    initialPagination: {
+      pageSize: criteria.pageSize,
+      pageIndex: criteria.pageNum
+    },
+    setCriteria,
+    fieldMapping
   });
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const navigate = useNavigate();
@@ -160,13 +191,6 @@ function Files() {
       dispatch(clearSingleRequest());
     };
   }, [singleRequest, requests]);
-
-  const onPageSizeChange = (size: number) => {
-    setCriteria({ ...criteria, pageSize: size });
-  };
-  const onPageChange = (number: number) => {
-    setCriteria({ ...criteria, pageNum: number });
-  };
 
   const handleDelete = (id: number) => {
     handleCloseDetails();
@@ -219,67 +243,62 @@ function Files() {
     newValues.category = formatSelect(newValues.category);
     return newValues;
   };
-  const columns: GridEnrichedColDef[] = [
-    {
-      field: 'customId',
-      headerName: t('id'),
-      description: t('id')
-    },
-    {
-      field: 'title',
-      headerName: t('title'),
-      description: t('title'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
-      )
-    },
-    {
-      field: 'description',
-      headerName: t('description'),
-      description: t('description'),
-      width: 300
-    },
-    {
-      field: 'priority',
-      headerName: t('priority'),
-      description: t('priority'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <PriorityWrapper priority={params.value} />
-      )
-    },
-    {
-      field: 'status',
-      headerName: t('status'),
-      description: t('status'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<null, Request>) =>
-        params.row.cancelled
+
+  const columnHelper = createColumnHelper<Request>();
+
+  const columns: CustomDatagridColumn2<Request>[] = [
+    columnHelper.accessor('customId', {
+      id: 'customId',
+      header: () => t('id'),
+      cell: (info) => info.getValue(),
+      size: 80
+    }),
+    columnHelper.accessor('title', {
+      id: 'title',
+      header: () => t('title'),
+      cell: (info) => (
+        <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>
+      ),
+      size: 150
+    }),
+    columnHelper.accessor('description', {
+      id: 'description',
+      header: () => t('description'),
+      cell: (info) => info.getValue(),
+      size: 300
+    }),
+    columnHelper.accessor('priority', {
+      id: 'priority',
+      header: () => t('priority'),
+      cell: (info) => <PriorityWrapper priority={info.getValue()} />,
+      size: 150
+    }),
+    columnHelper.display({
+      id: 'status',
+      header: () => t('status'),
+      cell: (info) => {
+        const row = info.row.original;
+        return row.cancelled
           ? t('rejected')
-          : params.row.workOrder
+          : row.workOrder
           ? t('approved')
-          : t('pending')
-    },
-    {
-      field: 'dueDate',
-      headerName: t('due_date'),
-      description: t('due_date'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<null, Request>) =>
-        getFormattedDate(params.value)
-    },
-    {
-      field: 'createdAt',
-      headerName: t('created_at'),
-      description: t('created_at'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<null, Request>) =>
-        getFormattedDate(params.value)
-    }
+          : t('pending');
+      },
+      size: 150
+    }),
+    columnHelper.accessor('dueDate', {
+      id: 'dueDate',
+      header: () => t('due_date'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    }),
+    columnHelper.accessor('createdAt', {
+      id: 'createdAt',
+      header: () => t('created_at'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    })
   ];
-  const apiRef = useGridApiRef();
-  useGridStatePersist(apiRef, columns, 'request');
   const defaultFields: Array<IField> = [...getWOBaseFields(t)];
   const defaultShape = {
     title: Yup.string().required(t('required_request_name'))
@@ -529,66 +548,29 @@ function Files() {
             </Stack>
             <Divider sx={{ mt: 1 }} />
             <Box sx={{ width: '95%' }}>
-              <CustomDataGrid
-                apiRef={apiRef}
+              <CustomDatagrid2
                 columns={columns}
+                data={requests.content}
                 loading={loadingGet}
-                pageSize={criteria.pageSize}
-                page={criteria.pageNum}
-                rows={requests.content}
-                rowCount={requests.totalElements}
-                pagination
-                paginationMode="server"
-                onPageSizeChange={onPageSizeChange}
-                onPageChange={onPageChange}
-                rowsPerPageOptions={[10, 20, 50]}
-                onRowClick={({ id }) => handleOpenDetails(Number(id))}
-                components={{
-                  NoRowsOverlay: () => (
-                    <NoRowsMessageWrapper
-                      message={t('noRows.request.message')}
-                      action={t('noRows.request.action')}
-                    />
-                  )
-                }}
-                onSortModelChange={(model) => {
-                  if (model.length === 0) {
-                    setCriteria({
-                      ...criteria,
-                      sortField: undefined,
-                      direction: undefined
-                    });
-                    return;
-                  }
-
-                  const fieldMapping = {
-                    customId: 'customId',
-                    title: 'title',
-                    description: 'description',
-                    priority: 'priority',
-                    // status: 'status',
-                    createdAt: 'createdAt',
-                    dueDate: 'dueDate'
-                  };
-
-                  const field = model[0].field;
-                  const mappedField = fieldMapping[field];
-
-                  if (!mappedField) return;
-
-                  setCriteria({
-                    ...criteria,
-                    sortField: mappedField,
-                    direction: (model[0].sort?.toUpperCase() ||
-                      'ASC') as SortDirection
-                  });
-                }}
-                sortingMode={'server'}
-                initialState={{
-                  columns: {
-                    columnVisibilityModel: {}
-                  }
-                }}
+                pagination={pagination}
+                onPaginationChange={setPagination}
+                totalRows={requests.totalElements}
+                pageSizeOptions={[10, 20, 50]}
+                sorting={sorting}
+                onSortingChange={setSorting}
+                columnOrder={columnOrder}
+                onColumnOrderChange={setColumnOrder}
+                columnSizing={columnSizing}
+                onColumnSizingChange={setColumnSizing}
+                columnVisibility={columnVisibility}
+                onColumnVisibilityChange={setColumnVisibility}
+                onRowClick={(row) => handleOpenDetails(row.id)}
+                noRowsMessage={t('noRows.request.message')}
+                noRowsAction={t('noRows.request.action')}
+                enableColumnReordering
+                enableColumnResizing
+                pinnedColumns={pinnedColumns}
+                onPinnedColumnsChange={setPinnedColumns}
               />
             </Box>
           </Card>
@@ -623,4 +605,4 @@ function Files() {
   else return <PermissionErrorMessage message={'no_access_requests'} />;
 }
 
-export default Files;
+export default Requests;

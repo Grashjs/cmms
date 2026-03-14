@@ -36,8 +36,6 @@ export const homeUrl = rawHomeUrl
     : rawHomeUrl + '/'
   : 'http://localhost:4000/';
 
-export const muiLicense = getRuntimeValue('MUI_X_LICENSE');
-
 export const zendeskKey = '';
 
 export const googleTrackingId = getRuntimeValue('GOOGLE_TRACKING_ID');

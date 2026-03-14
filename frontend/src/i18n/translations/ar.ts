@@ -1703,7 +1703,8 @@ const locale = {
   "required_image": "الصورة مطلوبة",
   "requested_from_portal": "تم إنشاء هذا الطلب من البوابة: ",
   "request_portals": "بوابات الطلبات",
-  "recaptcha_failed": "فشل التحقق من reCAPTCHA. يرجى المحاولة مرة أخرى."
+  "recaptcha_failed": "فشل التحقق من reCAPTCHA. يرجى المحاولة مرة أخرى.",
+  "select_date_range": "حدد نطاق التاريخ"
 };
 
 export default locale;

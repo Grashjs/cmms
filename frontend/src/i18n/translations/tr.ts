@@ -1814,7 +1814,8 @@ const trJSON = {
   "required_image": "Görsel gereklidir",
   "requested_from_portal": "Bu talep portaldan oluşturuldu: ",
   "request_portals": "Talep Portalları",
-  "recaptcha_failed": "reCAPTCHA doğrulaması başarısız. Lütfen tekrar deneyin."
+  "recaptcha_failed": "reCAPTCHA doğrulaması başarısız. Lütfen tekrar deneyin.",
+  "select_date_range": "Tarih aralığını seçin"
 };
 
 export default trJSON;

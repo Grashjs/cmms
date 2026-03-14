@@ -19,13 +19,9 @@ import {
   useTheme
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import CustomDataGrid from '../components/CustomDatagrid';
-import {
-  GridRenderCellParams,
-  GridToolbar,
-  GridValueGetterParams
-} from '@mui/x-data-grid';
-import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
+import CustomDatagrid2, {
+  CustomDatagridColumn2
+} from '../components/CustomDatagrid2';
 import Part from '../../../models/owns/part';
 import {
   addPart,
@@ -67,8 +63,8 @@ import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import { PermissionEntity } from '../../../models/owns/role';
 import SearchInput from '../components/SearchInput';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
-import { useGridApiRef } from '@mui/x-data-grid-pro';
-import useGridStatePersist from '../../../hooks/useGridStatePersist';
+import { createColumnHelper } from '@tanstack/react-table';
+import useTableState from '../../../hooks/useTableState';
 import { CategoryMiniDTO } from '../../../models/owns/category';
 import { getErrorMessage } from '../../../utils/api';
 
@@ -82,6 +78,19 @@ export const getFormattedQuantityWithUnit = (
 ) => {
   return unit ? quantity + ' ' + unit : quantity;
 };
+
+const fieldMapping: Record<string, string> = {
+  name: 'name',
+  cost: 'cost',
+  quantity: 'quantity',
+  barcode: 'barcode',
+  area: 'area',
+  category: 'category.name',
+  description: 'description',
+  createdAt: 'createdAt',
+  openWorkOrders: 'openWorkOrders'
+};
+
 const Parts = ({ setAction }: PropsType) => {
   const { t }: { t: any } = useTranslation();
   const [currentTab, setCurrentTab] = useState<string>('list');
@@ -97,6 +106,31 @@ const Parts = ({ setAction }: PropsType) => {
     pageSize: 10,
     pageNum: 0,
     direction: 'DESC'
+  });
+
+  // Use the table state hook for TanStack Table
+  const {
+    sorting,
+    setSorting,
+    pagination,
+    setPagination,
+    columnOrder,
+    setColumnOrder,
+    columnSizing,
+    setColumnSizing,
+    columnVisibility,
+    setColumnVisibility,
+    pinnedColumns,
+    setPinnedColumns
+  } = useTableState({
+    prefix: 'parts',
+    initialSorting: [],
+    initialPagination: {
+      pageSize: criteria.pageSize,
+      pageIndex: criteria.pageNum
+    },
+    setCriteria,
+    fieldMapping
   });
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
@@ -205,13 +239,6 @@ const Parts = ({ setAction }: PropsType) => {
     };
   }, [singlePart, parts]);
 
-  const onPageSizeChange = (size: number) => {
-    setCriteria({ ...criteria, pageSize: size });
-  };
-  const onPageChange = (number: number) => {
-    setCriteria({ ...criteria, pageNum: number });
-  };
-
   const handleTabsChange = (_event: ChangeEvent<{}>, value: string): void => {
     setCurrentTab(value);
   };
@@ -232,93 +259,86 @@ const Parts = ({ setAction }: PropsType) => {
     newValues.customers = formatSelectMultiple(newValues.customers);
     newValues.vendors = formatSelectMultiple(newValues.vendors);
     newValues.category = formatSelect(newValues.category);
-    // values.image = formatSelect(values.image);
-    // values.files = formatSelect(values.files);
     return newValues;
   };
-  const columns: GridEnrichedColDef<Part>[] = [
-    {
-      field: 'name',
-      headerName: t('name'),
-      description: t('name'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
-      )
-    },
-    {
-      field: 'cost',
-      headerName: t('cost'),
-      description: t('cost'),
-      valueGetter: (params) =>
+
+  const columnHelper = createColumnHelper<Part>();
+
+  const columns: CustomDatagridColumn2<Part>[] = [
+    columnHelper.accessor('name', {
+      id: 'name',
+      header: () => t('name'),
+      cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>,
+      size: 150
+    }),
+    columnHelper.accessor('cost', {
+      id: 'cost',
+      header: () => t('cost'),
+      cell: (info) =>
         getFormattedCostPerUnit(
-          params.value,
-          params.row.unit,
+          info.getValue(),
+          info.row.original.unit,
           getFormattedCurrency
         ),
-      width: 150
-    },
-    {
-      field: 'quantity',
-      headerName: t('quantity'),
-      description: t('quantity'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<number, Part>) => (
-        <Box sx={params.value < params.row.minQuantity ? { color: 'red' } : {}}>
-          {getFormattedQuantityWithUnit(params.value, params.row.unit)}{' '}
-          {params.value < params.row.minQuantity && t('(Running Low !)')}
-        </Box>
-      )
-    },
-    {
-      field: 'barcode',
-      headerName: t('barcode'),
-      description: t('barcode'),
-      width: 150
-    },
-    {
-      field: 'area',
-      headerName: t('area'),
-      description: t('area'),
-      width: 150
-    },
-    {
-      field: 'category',
-      headerName: t('category'),
-      description: t('category'),
-      valueGetter: (params: GridValueGetterParams<CategoryMiniDTO>) =>
-        params.value?.name,
-      width: 150
-    },
-    {
-      field: 'description',
-      headerName: t('description'),
-      description: t('description'),
-      width: 300
-    },
-    {
-      field: 'assignedTo',
-      headerName: t('assigned_to'),
-      description: t('assigned_to'),
-      width: 170,
-      renderCell: (params: GridRenderCellParams<UserMiniDTO[]>) => (
-        <UserAvatars users={params.value} />
-      )
-    },
-    {
-      field: 'createdAt',
-      headerName: t('created_at'),
-      description: t('created_at'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<string>) =>
-        getFormattedDate(params.value)
-    },
-    {
-      field: 'openWorkOrders',
-      headerName: t('open_wo'),
-      description: t('open_wo'),
-      width: 150
-    }
+      size: 150
+    }),
+    columnHelper.accessor('quantity', {
+      id: 'quantity',
+      header: () => t('quantity'),
+      cell: (info) => {
+        const quantity = info.getValue();
+        const row = info.row.original;
+        return (
+          <Box sx={quantity < row.minQuantity ? { color: 'red' } : {}}>
+            {getFormattedQuantityWithUnit(quantity, row.unit)}{' '}
+            {quantity < row.minQuantity && t('(Running Low !)')}
+          </Box>
+        );
+      },
+      size: 150
+    }),
+    columnHelper.accessor('barcode', {
+      id: 'barcode',
+      header: () => t('barcode'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor('area', {
+      id: 'area',
+      header: () => t('area'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor((row) => row.category?.name, {
+      id: 'category',
+      header: () => t('category'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor('description', {
+      id: 'description',
+      header: () => t('description'),
+      cell: (info) => info.getValue() || '',
+      size: 300
+    }),
+    columnHelper.accessor('assignedTo', {
+      id: 'assignedTo',
+      header: () => t('assigned_to'),
+      cell: (info) => <UserAvatars users={info.getValue()} />,
+      size: 170
+    }),
+    columnHelper.accessor('createdAt', {
+      id: 'createdAt',
+      header: () => t('created_at'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    })
+    // columnHelper.accessor('openWorkOrders', {
+    //   id: 'openWorkOrders',
+    //   header: () => t('open_wo'),
+    //   cell: (info) => info.getValue() || '',
+    //   size: 150
+    // })
   ];
   const fields: Array<IField> = [
     {
@@ -436,8 +456,6 @@ const Parts = ({ setAction }: PropsType) => {
       label: t('files')
     }
   ];
-  const apiRef = useGridApiRef();
-  useGridStatePersist(apiRef, columns, 'part');
   const shape = {
     name: Yup.string().required(t('required_part_name'))
   };
@@ -699,68 +717,29 @@ const Parts = ({ setAction }: PropsType) => {
         </IconButton>
       </Stack>
       {currentTab === 'list' && (
-        <CustomDataGrid
-          apiRef={apiRef}
+        <CustomDatagrid2
           columns={columns}
-          pageSize={criteria.pageSize}
-          page={criteria.pageNum}
-          rows={parts.content}
-          rowCount={parts.totalElements}
-          pagination
-          paginationMode="server"
-          sortingMode="server"
-          onPageSizeChange={onPageSizeChange}
-          onPageChange={onPageChange}
-          rowsPerPageOptions={[10, 20, 50]}
+          data={parts.content}
           loading={loadingGet}
-          onSortModelChange={(model) => {
-            if (model.length === 0) {
-              setCriteria({
-                ...criteria,
-                sortField: undefined,
-                direction: undefined
-              });
-              return;
-            }
-
-            const fieldMapping = {
-              name: 'name',
-              cost: 'cost',
-              category: 'category',
-              quantity: 'quantity',
-              description: 'description',
-              minQuantity: 'minQuantity',
-              customId: 'customId'
-            };
-
-            const field = model[0].field;
-            const mappedField = fieldMapping[field];
-
-            if (!mappedField) return;
-
-            setCriteria({
-              ...criteria,
-              sortField: mappedField,
-              direction: (model[0].sort?.toUpperCase() ||
-                'ASC') as SortDirection
-            });
-          }}
-          components={{
-            NoRowsOverlay: () => (
-              <NoRowsMessageWrapper
-                message={t('noRows.part.message')}
-                action={t('noRows.part.action')}
-              />
-            )
-          }}
-          onRowClick={(params) => {
-            handleOpenDetails(Number(params.id));
-          }}
-          initialState={{
-            columns: {
-              columnVisibilityModel: {}
-            }
-          }}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          totalRows={parts.totalElements}
+          pageSizeOptions={[10, 20, 50]}
+          sorting={sorting}
+          onSortingChange={setSorting}
+          columnOrder={columnOrder}
+          onColumnOrderChange={setColumnOrder}
+          columnSizing={columnSizing}
+          onColumnSizingChange={setColumnSizing}
+          columnVisibility={columnVisibility}
+          onColumnVisibilityChange={setColumnVisibility}
+          onRowClick={(row) => handleOpenDetails(row.id)}
+          noRowsMessage={t('noRows.part.message')}
+          noRowsAction={t('noRows.part.action')}
+          enableColumnReordering
+          enableColumnResizing
+          pinnedColumns={pinnedColumns}
+          onPinnedColumnsChange={setPinnedColumns}
         />
       )}
       {currentTab === 'card' && (

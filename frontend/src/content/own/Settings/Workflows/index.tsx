@@ -60,12 +60,10 @@ import { VendorMiniDTO } from '../../../../models/owns/vendor';
 import { TeamMiniDTO } from '../../../../models/owns/team';
 import Category from '../../../../models/owns/category';
 import DateTimePicker from '@mui/lab/DateTimePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers-pro';
-import { AdapterDayjs } from '@mui/x-date-pickers-pro/AdapterDayjs';
-import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import { useBrand } from '../../../../hooks/useBrand';
 import { getErrorMessage } from '../../../../utils/api';
+import DateRangePicker from '../../components/form/DateRangePicker';
 
 interface UICondition {
   type: WorkflowConditionType;
@@ -679,7 +677,7 @@ function Workflows() {
               [config.accessor]: formattedValue
             };
             config.accessors?.forEach((accessor, index) => {
-              result[accessor] = condition.values[index];
+              result[accessor] = condition.values?.[index] as string | number;
             });
             return result;
           }),
@@ -788,28 +786,22 @@ function Workflows() {
                 )}
               />
             ) : config.type === 'dateRange' ? (
-              <LocalizationProvider
-                localeText={{ start: t('start'), end: t('end') }}
-                dateAdapter={AdapterDayjs}
-              >
-                <DateRangePicker
-                  value={
-                    condition.values?.length > 1
-                      ? [condition.values[0], condition.values[1]]
-                      : [null, null]
-                  }
-                  onChange={(newValues) => {
-                    handleConditionValuesChange(newValues as string[], index);
-                  }}
-                  renderInput={(startProps, endProps) => (
-                    <>
-                      <TextField {...startProps} />
-                      <Box sx={{ mx: 2 }}> {t('to')} </Box>
-                      <TextField {...endProps} />
-                    </>
-                  )}
-                />
-              </LocalizationProvider>
+              <DateRangePicker
+                value={
+                  condition.values?.length > 1
+                    ? [
+                        new Date(condition.values[0]),
+                        new Date(condition.values[1])
+                      ]
+                    : [null, null]
+                }
+                onChange={(newValues) => {
+                  handleConditionValuesChange(
+                    newValues.map((value) => value.toISOString()),
+                    index
+                  );
+                }}
+              />
             ) : null}
           </Box>
         </Box>
@@ -856,28 +848,18 @@ function Workflows() {
               )}
             />
           ) : config.type === 'dateRange' ? (
-            <LocalizationProvider
-              localeText={{ start: t('start'), end: t('end') }}
-              dateAdapter={AdapterDayjs}
-            >
-              <DateRangePicker
-                value={
-                  action.values?.length > 1
-                    ? [action.values[0], action.values[1]]
-                    : [null, null]
-                }
-                onChange={(newValues) => {
-                  handleActionValuesChange(newValues as string[]);
-                }}
-                renderInput={(startProps, endProps) => (
-                  <>
-                    <TextField {...startProps} />
-                    <Box sx={{ mx: 2 }}> {t('to')} </Box>
-                    <TextField {...endProps} />
-                  </>
-                )}
-              />
-            </LocalizationProvider>
+            <DateRangePicker
+              value={
+                action.values?.length > 1
+                  ? [new Date(action.values[0]), new Date(action.values[1])]
+                  : [null, null]
+              }
+              onChange={(newValues) => {
+                handleActionValuesChange(
+                  newValues.map((value) => value.toISOString())
+                );
+              }}
+            />
           ) : null}
         </Box>
       </Box>

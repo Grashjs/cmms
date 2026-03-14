@@ -4,7 +4,8 @@ import {
   CircularProgress,
   Grid,
   TextField,
-  Typography
+  Typography,
+  useTheme
 } from '@mui/material';
 import { Formik, FormikProps } from 'formik';
 import { useTranslation } from 'react-i18next';
@@ -19,12 +20,10 @@ import DateTimePicker from '@mui/lab/DateTimePicker';
 import CustomSwitch from './CustomSwitch';
 import SelectMapCoordinates from './SelectMapCoordinates';
 import SelectPartQuantities from './SelectPartQuantities';
-import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers-pro';
-import { AdapterDayjs } from '@mui/x-date-pickers-pro/AdapterDayjs';
 import useAuth from '../../../../hooks/useAuth';
 import { CustomSelect } from './CustomSelect2';
 import SignaturePad from './SignaturePad';
+import DateRangePicker from './DateRangePicker';
 
 interface PropsType {
   fields: Array<IField>;
@@ -40,6 +39,7 @@ interface PropsType {
 
 export default (props: PropsType) => {
   const { t }: { t: any } = useTranslation();
+  const theme = useTheme();
   const shape: IHash<any> = {};
   const {
     companySettings: { generalPreferences }
@@ -191,8 +191,8 @@ export default (props: PropsType) => {
                             required={field?.required}
                             error={!!formik.errors[field.name] || field.error}
                             helperText={
-                              !!formik.errors[field.name] || field.error
-                                ? formik.errors[field.name]
+                              typeof formik.errors[field.name] === 'string'
+                                ? (formik.errors[field.name] as string)
                                 : ''
                             }
                           />
@@ -204,24 +204,21 @@ export default (props: PropsType) => {
                       <Box pb={1}>
                         <b>{field.label}:</b>
                       </Box>
-                      <LocalizationProvider
-                        localeText={{ start: t('start'), end: t('end') }}
-                        dateAdapter={AdapterDayjs}
-                      >
-                        <DateRangePicker
-                          value={formik.values[field.name] ?? [null, null]}
-                          onChange={(newValue) => {
-                            handleChange(formik, field.name, newValue);
-                          }}
-                          renderInput={(startProps, endProps) => (
-                            <>
-                              <TextField {...startProps} />
-                              <Box sx={{ mx: 2 }}> {t('to')} </Box>
-                              <TextField {...endProps} />
-                            </>
-                          )}
-                        />
-                      </LocalizationProvider>
+                      <DateRangePicker
+                        value={formik.values[field.name]}
+                        onChange={(range) => {
+                          handleChange(formik, field.name, range);
+                        }}
+                        fullWidth
+                        placeholder={t('select_date_range')}
+                        required={field?.required}
+                        error={!!formik.errors[field.name] || field.error}
+                        helperText={
+                          typeof formik.errors[field.name] === 'string'
+                            ? (formik.errors[field.name] as string)
+                            : ''
+                        }
+                      />
                     </Box>
                   ) : field.type === 'coordinates' ? (
                     <SelectMapCoordinates
