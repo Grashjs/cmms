@@ -115,6 +115,7 @@ interface CustomDatagrid2Props<TData extends RowData> {
   pinnedColumns?: string[];
   onPinnedColumnsChange?: (pinnedColumns: string[]) => void;
   hidePagination?: boolean;
+  getRowId?: (row: TData) => string;
 }
 
 const PINNED_BG = '#F2F5F9';
@@ -148,7 +149,8 @@ function CustomDatagrid2<TData extends RowData>({
   pinnedColumns: externalPinnedColumns,
   onPinnedColumnsChange,
   noRowsAction,
-  hidePagination
+  hidePagination,
+  getRowId
 }: CustomDatagrid2Props<TData>) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
@@ -322,6 +324,7 @@ function CustomDatagrid2<TData extends RowData>({
       columnSizing,
       columnVisibility
     },
+    getRowId,
     onPaginationChange: onPaginationChange,
     onSortingChange: onSortingChange,
     onColumnFiltersChange: onColumnFiltersChange,
@@ -337,6 +340,7 @@ function CustomDatagrid2<TData extends RowData>({
     manualSorting: true,
     manualFiltering: true,
     rowCount: totalRows,
+    enableRowSelection: enableRowSelection,
     enableColumnResizing: enableColumnResizing,
     columnResizeMode: 'onChange' as ColumnResizeMode
   });
