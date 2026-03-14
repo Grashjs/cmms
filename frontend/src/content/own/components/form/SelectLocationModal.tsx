@@ -207,7 +207,7 @@ const SelectLocationModal: React.FC<SelectLocationModalProps> = ({
           {info.getValue()}
         </Box>
       ),
-      size: 200
+      size: Number.MAX_SAFE_INTEGER
     })
   ];
 

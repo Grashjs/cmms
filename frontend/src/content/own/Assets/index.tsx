@@ -328,6 +328,7 @@ function Assets() {
     columnHelper.display({
       id: 'expander',
       header: '',
+      enableReordering: false,
       cell: ({ row }) => {
         const isExpanded = expanded[row.original.id];
         const hasSubRows =

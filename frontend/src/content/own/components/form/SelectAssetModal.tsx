@@ -199,7 +199,7 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
           {info.getValue()}
         </Box>
       ),
-      size: 200
+      size: Number.MAX_SAFE_INTEGER
     })
   ];
 
