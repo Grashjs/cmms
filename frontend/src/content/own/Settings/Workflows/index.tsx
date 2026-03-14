@@ -68,12 +68,12 @@ import DateRangePicker from '../../components/form/DateRangePicker';
 interface UICondition {
   type: WorkflowConditionType;
   value: string | number;
-  values?: (string | number | Date)[];
+  values?: (string | number)[];
 }
 interface UIAction {
   type: WorkflowActionType;
   value: string | number;
-  values?: (string | number | Date)[];
+  values?: (string | number)[];
 }
 type FieldType = 'simple' | 'text' | 'number' | 'select' | 'date' | 'dateRange';
 
@@ -457,7 +457,7 @@ function Workflows() {
     newConditions[index].value = value;
     setCurrentConditions(newConditions);
   };
-  const handleConditionValuesChange = (values: Date[], index: number) => {
+  const handleConditionValuesChange = (values: string[], index: number) => {
     const newConditions = [...currentConditions];
     newConditions[index].values = values;
     setCurrentConditions(newConditions);
@@ -483,7 +483,7 @@ function Workflows() {
       value
     }));
   };
-  const handleActionValuesChange = (values: Date[]) => {
+  const handleActionValuesChange = (values: string[]) => {
     setCurrentAction((action) => ({
       ...action,
       values
@@ -626,7 +626,7 @@ function Workflows() {
     setView('update');
   };
   const checkFieldTypeValue = <
-    T extends { values?: (string | number | Date)[]; value: string | number }
+    T extends { values?: (string | number)[]; value: string | number }
   >(
     fieldType: FieldType,
     field: T
@@ -789,11 +789,17 @@ function Workflows() {
               <DateRangePicker
                 value={
                   condition.values?.length > 1
-                    ? [condition.values[0] as Date, condition.values[1] as Date]
+                    ? [
+                        new Date(condition.values[0]),
+                        new Date(condition.values[1])
+                      ]
                     : [null, null]
                 }
                 onChange={(newValues) => {
-                  handleConditionValuesChange(newValues, index);
+                  handleConditionValuesChange(
+                    newValues.map((value) => value.toISOString()),
+                    index
+                  );
                 }}
               />
             ) : null}
@@ -845,11 +851,13 @@ function Workflows() {
             <DateRangePicker
               value={
                 action.values?.length > 1
-                  ? [action.values[0] as Date, action.values[1] as Date]
+                  ? [new Date(action.values[0]), new Date(action.values[1])]
                   : [null, null]
               }
               onChange={(newValues) => {
-                handleActionValuesChange(newValues);
+                handleActionValuesChange(
+                  newValues.map((value) => value.toISOString())
+                );
               }}
             />
           ) : null}
