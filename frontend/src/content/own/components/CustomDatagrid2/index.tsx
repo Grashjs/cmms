@@ -484,7 +484,8 @@ function CustomDatagrid2<TData extends RowData>({
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
-        boxShadow: 'none'
+        boxShadow: 'none',
+        position: 'relative'
       }}
       variant="outlined"
     >
@@ -694,20 +695,13 @@ function CustomDatagrid2<TData extends RowData>({
               </TableRow>
             ))}
           </TableHead>
-          <TableBody>
-            {loading ? (
-              <Box
-                style={{
-                  marginTop: 130,
-                  width: scrollContainerRef.current?.clientWidth ?? 500,
-                  maxWidth: scrollContainerRef.current?.clientWidth ?? 500,
-                  display: 'flex',
-                  justifyContent: 'center'
-                }}
-              >
-                <CircularProgress />
-              </Box>
-            ) : table.getRowModel().rows.length === 0 ? (
+          <TableBody
+            sx={{
+              opacity: loading ? 0.3 : 1,
+              transition: 'opacity 0.2s'
+            }}
+          >
+            {table.getRowModel().rows.length === 0 ? (
               <Box
                 style={{
                   marginTop: 130,
@@ -798,6 +792,25 @@ function CustomDatagrid2<TData extends RowData>({
           </TableBody>
         </Table>
       </Box>
+      {loading && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: alpha(theme.palette.common.white, 0.5),
+            zIndex: 10,
+            pointerEvents: 'none'
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      )}
 
       {/* Column header menu */}
       <Menu
