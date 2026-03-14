@@ -705,60 +705,74 @@ function CustomDatagrid2<TData extends RowData>({
                 />
               </Box>
             ) : (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  onClick={() => onRowClick && onRowClick(row.original)}
-                  sx={{
-                    '&:last-child td, &:last-child th': { border: 0 }
-                  }}
-                >
-                  {enableRowSelection && (
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        checked={row.getIsSelected()}
-                        onChange={row.getToggleSelectedHandler()}
-                      />
-                    </TableCell>
-                  )}
-                  {row.getVisibleCells().map((cell) => {
-                    const isPinned = isColumnPinned(cell.column.id);
-                    const stickyLeft = getPinnedStickyLeft(cell.column.id);
+              table.getRowModel().rows.map((row) => {
+                const rowDepth = (row.original as any)?.depth ?? 0;
+                const isNested = rowDepth > 0;
+                const backgroundColor = isNested
+                  ? rowDepth % 2 === 0
+                    ? theme.colors.primary.light
+                    : theme.palette.primary.main
+                  : undefined;
+                const textColor = isNested ? 'white' : undefined;
 
-                    return (
-                      <TableCell
-                        key={cell.id}
-                        sx={{
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          position: isPinned ? 'sticky' : undefined,
-                          left: isPinned ? stickyLeft : undefined,
-                          backgroundColor: isPinned ? PINNED_BG : undefined,
-                          borderRight: isPinned
-                            ? `2px solid ${theme.palette.divider}`
-                            : undefined,
-                          boxShadow: isPinned
-                            ? `2px 0 4px ${alpha(
-                                theme.palette.common.black,
-                                0.08
-                              )}`
-                            : undefined
-                        }}
-                        style={{
-                          width: cell.column.getSize(),
-                          zIndex: isPinned ? 2 : undefined
-                        }}
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                return (
+                  <TableRow
+                    key={row.id}
+                    onClick={() => onRowClick && onRowClick(row.original)}
+                    sx={{
+                      '&:last-child td, &:last-child th': { border: 0 },
+                      backgroundColor,
+                      color: textColor
+                    }}
+                  >
+                    {enableRowSelection && (
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={row.getIsSelected()}
+                          onChange={row.getToggleSelectedHandler()}
+                        />
                       </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))
+                    )}
+                    {row.getVisibleCells().map((cell) => {
+                      const isPinned = isColumnPinned(cell.column.id);
+                      const stickyLeft = getPinnedStickyLeft(cell.column.id);
+
+                      return (
+                        <TableCell
+                          key={cell.id}
+                          sx={{
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            color: textColor,
+                            textOverflow: 'ellipsis',
+                            position: isPinned ? 'sticky' : undefined,
+                            left: isPinned ? stickyLeft : undefined,
+                            backgroundColor: isPinned ? PINNED_BG : undefined,
+                            borderRight: isPinned
+                              ? `2px solid ${theme.palette.divider}`
+                              : undefined,
+                            boxShadow: isPinned
+                              ? `2px 0 4px ${alpha(
+                                  theme.palette.common.black,
+                                  0.08
+                                )}`
+                              : undefined
+                          }}
+                          style={{
+                            width: cell.column.getSize(),
+                            zIndex: isPinned ? 2 : undefined
+                          }}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
