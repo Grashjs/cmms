@@ -166,20 +166,36 @@ function Assets() {
 
   const handleToggleExpand = async (row: AssetRow) => {
     const isExpanded = expanded[row.id];
-    if (!isExpanded && !subRowsMap[row.id]) {
-      // Fetch children if not already fetched
-      const newSubRows: AssetRow[] = [];
-      const loadingRow: AssetRow = {
-        id: `loading-${row.id}`,
-        name: t('loading_assets', { name: row.name, id: row.id }),
-        hierarchy: [...row.hierarchy, row.id]
-      } as AssetRow;
-      setSubRowsMap((prev) => ({ ...prev, [row.id]: [loadingRow] }));
 
-      await dispatch(getAssetChildren(row.id, row.hierarchy, pageable));
-      // After dispatch, the children will be in the store, we need to fetch them
-      // This is handled by the useEffect below
+    if (!isExpanded) {
+      // Check if we already have children for this row in the Redux store
+      const hasChildrenLoaded = assetsHierarchy.some(
+        (a) => a.parentAsset?.id === row.id
+      );
+
+      if (!hasChildrenLoaded && row.hasChildren) {
+        // Set temporary loading row
+        const loadingRow: AssetRow = {
+          id: `loading-${row.id}`,
+          name: t('loading_assets', { name: row.name, id: row.id }),
+          hierarchy: [...(row.hierarchy || []), row.id]
+        } as AssetRow;
+
+        setSubRowsMap((prev) => ({ ...prev, [row.id]: [loadingRow] }));
+
+        // Fetch the children
+        await dispatch(getAssetChildren(row.id, row.hierarchy || [], pageable));
+
+        // Clean up the loading row once the fetch is complete
+        setSubRowsMap((prev) => {
+          const newMap = { ...prev };
+          delete newMap[row.id];
+          return newMap;
+        });
+      }
     }
+
+    // Toggle expand/collapse state
     setExpanded((prev) => ({ ...prev, [row.id]: !isExpanded }));
   };
   const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -748,31 +764,43 @@ function Assets() {
   );
 
   // Flatten hierarchy based on expanded state
+  // Flatten hierarchy based on expanded state and parent-child relationships
   const getHierarchicalData = (
-    rows: AssetRow[],
+    flatList: AssetRow[],
     expanded: Record<string, boolean>,
     subRowsMap: Record<number, AssetRow[]>,
+    parentId: number | null = null,
     depth: number = 0
   ): (AssetRow & { depth: number })[] => {
     let result: (AssetRow & { depth: number })[] = [];
 
-    for (const row of rows) {
-      // Add current row with depth
-      result.push({ ...row, depth });
+    // 1. Find the children of the current parent
+    const nodes = flatList.filter((item) => {
+      if (parentId === null) {
+        return !item.parentAsset; // Root nodes have no parent
+      }
+      return item.parentAsset?.id === parentId; // Child nodes
+    });
 
-      // If expanded and has children, add children
-      if (expanded[row.id] && subRowsMap[row.id]) {
-        const children = subRowsMap[row.id].filter(
-          (child) => !String(child.id).startsWith('loading-')
+    for (const node of nodes) {
+      // 2. Add the current node
+      result.push({ ...node, depth });
+
+      // 3. If expanded, add its children right below it
+      if (expanded[node.id]) {
+        const children = getHierarchicalData(
+          flatList,
+          expanded,
+          subRowsMap,
+          node.id,
+          depth + 1
         );
+
         if (children.length > 0) {
-          const childrenWithDepth = getHierarchicalData(
-            children,
-            expanded,
-            subRowsMap,
-            depth + 1
-          );
-          result = [...result, ...childrenWithDepth];
+          result = [...result, ...children];
+        } else if (subRowsMap[node.id]) {
+          // Render the temporary loading row if fetching is in progress
+          result.push({ ...subRowsMap[node.id][0], depth: depth + 1 });
         }
       }
     }
