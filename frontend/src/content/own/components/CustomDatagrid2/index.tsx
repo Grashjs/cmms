@@ -66,13 +66,13 @@ import NoRowsMessageWrapper from '../NoRowsMessageWrapper';
 declare module '@tanstack/react-table' {
   interface ColumnMeta<TData extends RowData, TValue> {
     uiConfigKey?: keyof Omit<UiConfiguration, 'id'>;
+    enableReordering?: boolean;
   }
 }
 
 export type CustomDatagridColumn2<TData extends RowData = any> =
   ColumnDef<TData> & {
     uiConfigKey?: keyof Omit<UiConfiguration, 'id'>;
-    enableReordering?: boolean;
   };
 
 interface CustomDatagrid2Props<TData extends RowData> {
@@ -545,9 +545,8 @@ function CustomDatagrid2<TData extends RowData>({
                   const isResizing = header.column.getIsResizing();
                   const isPinned = isColumnPinned(header.id);
                   const stickyLeft = getPinnedStickyLeft(header.id);
-                  const columnEnableReordering = (
-                    header.column.columnDef as CustomDatagridColumn2<TData>
-                  )?.enableReordering;
+                  const columnEnableReordering =
+                    header.column.columnDef.meta?.enableReordering;
                   const canDrag =
                     enableColumnReordering &&
                     columnEnableReordering !== false;
