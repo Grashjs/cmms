@@ -35,8 +35,8 @@ interface UseTableStateProps {
   contextKey?: string;
   // Optional: whether to persist pageIndex in localStorage (default: true)
   persistPageIndex?: boolean;
-  setCriteria: React.Dispatch<React.SetStateAction<SearchCriteria>>;
-  fieldMapping: Record<string, string>;
+  setCriteria?: React.Dispatch<React.SetStateAction<SearchCriteria>>;
+  fieldMapping?: Record<string, string>;
 }
 
 const useTableState = ({

@@ -188,9 +188,9 @@ function Assets() {
         } as unknown as AssetRow;
 
         setSubRowsMap((prev) => ({ ...prev, [row.id]: [loadingRow] }));
-
         // Fetch the children
         await dispatch(getAssetChildren(row.id, row.hierarchy || [], pageable));
+        setDeployedAssets((prevState) => [...prevState, row]);
 
         // Clean up the loading row once the fetch is complete
         setSubRowsMap((prev) => {
@@ -239,17 +239,6 @@ function Assets() {
     if (view === 'list' && hasViewPermission(PermissionEntity.ASSETS))
       dispatch(getAssets(criteria));
   }, [criteria, view]);
-
-  // Fetch children for expanded rows
-  useEffect(() => {
-    deployedAssets.forEach((deployedAsset) => {
-      if (deployedAsset.id !== 0) {
-        dispatch(
-          getAssetChildren(deployedAsset.id, deployedAsset.hierarchy, pageable)
-        );
-      }
-    });
-  }, [deployedAssets, pageable]);
 
   const fetchMore = () => {
     setPageable((prevState) => {
@@ -769,7 +758,6 @@ function Assets() {
     </Dialog>
   );
 
-  // Flatten hierarchy based on expanded state
   // Flatten hierarchy based on expanded state and parent-child relationships
   const getHierarchicalData = (
     flatList: AssetRow[],

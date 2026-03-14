@@ -31,4 +31,5 @@ export interface LocationMiniDTO {
 export interface LocationRow extends Location {
   hierarchy: number[];
   childrenFetched?: boolean;
+  hasChildren?: boolean;
 }
