@@ -191,8 +191,8 @@ export default (props: PropsType) => {
                             required={field?.required}
                             error={!!formik.errors[field.name] || field.error}
                             helperText={
-                              !!formik.errors[field.name] || field.error
-                                ? formik.errors[field.name]
+                              typeof formik.errors[field.name] === 'string'
+                                ? (formik.errors[field.name] as string)
                                 : ''
                             }
                           />
@@ -214,8 +214,8 @@ export default (props: PropsType) => {
                         required={field?.required}
                         error={!!formik.errors[field.name] || field.error}
                         helperText={
-                          !!formik.errors[field.name] || field.error
-                            ? formik.errors[field.name]
+                          typeof formik.errors[field.name] === 'string'
+                            ? (formik.errors[field.name] as string)
                             : ''
                         }
                       />
