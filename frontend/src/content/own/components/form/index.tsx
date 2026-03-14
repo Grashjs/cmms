@@ -4,7 +4,8 @@ import {
   CircularProgress,
   Grid,
   TextField,
-  Typography
+  Typography,
+  useTheme
 } from '@mui/material';
 import { Formik, FormikProps } from 'formik';
 import { useTranslation } from 'react-i18next';
@@ -19,12 +20,13 @@ import DateTimePicker from '@mui/lab/DateTimePicker';
 import CustomSwitch from './CustomSwitch';
 import SelectMapCoordinates from './SelectMapCoordinates';
 import SelectPartQuantities from './SelectPartQuantities';
-import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers-pro';
-import { AdapterDayjs } from '@mui/x-date-pickers-pro/AdapterDayjs';
 import useAuth from '../../../../hooks/useAuth';
 import { CustomSelect } from './CustomSelect2';
 import SignaturePad from './SignaturePad';
+import { DateRange } from 'react-date-range';
+import 'react-date-range/dist/styles.css';
+import 'react-date-range/dist/theme/default.css';
+import en from 'date-fns/locale/en-US';
 
 interface PropsType {
   fields: Array<IField>;
@@ -40,6 +42,7 @@ interface PropsType {
 
 export default (props: PropsType) => {
   const { t }: { t: any } = useTranslation();
+  const theme = useTheme();
   const shape: IHash<any> = {};
   const {
     companySettings: { generalPreferences }
@@ -204,24 +207,31 @@ export default (props: PropsType) => {
                       <Box pb={1}>
                         <b>{field.label}:</b>
                       </Box>
-                      <LocalizationProvider
-                        localeText={{ start: t('start'), end: t('end') }}
-                        dateAdapter={AdapterDayjs}
-                      >
-                        <DateRangePicker
-                          value={formik.values[field.name] ?? [null, null]}
-                          onChange={(newValue) => {
-                            handleChange(formik, field.name, newValue);
-                          }}
-                          renderInput={(startProps, endProps) => (
-                            <>
-                              <TextField {...startProps} />
-                              <Box sx={{ mx: 2 }}> {t('to')} </Box>
-                              <TextField {...endProps} />
-                            </>
-                          )}
-                        />
-                      </LocalizationProvider>
+                      <DateRange
+                        locale={en}
+                        ranges={
+                          formik.values[field.name]
+                            ? [
+                                {
+                                  startDate: formik.values[field.name][0],
+                                  endDate: formik.values[field.name][1],
+                                  key: 'selection'
+                                }
+                              ]
+                            : []
+                        }
+                        onChange={(ranges) => {
+                          const { selection } = ranges;
+                          handleChange(formik, field.name, [
+                            selection.startDate,
+                            selection.endDate
+                          ]);
+                        }}
+                        months={1}
+                        direction="horizontal"
+                        // showDateDisplay={false}
+                        rangeColors={[theme.palette.primary.main]}
+                      />
                     </Box>
                   ) : field.type === 'coordinates' ? (
                     <SelectMapCoordinates
