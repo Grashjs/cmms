@@ -14,6 +14,7 @@ import {
   Stack,
   Tab,
   Tabs,
+  TextField,
   Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
@@ -68,6 +69,9 @@ import {
 import useTableState from '../../../hooks/useTableState';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
+import InputAdornment from '@mui/material/InputAdornment';
+import SearchInput from '../components/SearchInput';
 
 const HIERARCHY_ZERO_PAGE_SIZE = 40;
 
@@ -122,6 +126,7 @@ function Locations() {
     page: 0,
     size: HIERARCHY_ZERO_PAGE_SIZE
   });
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   // View type state
   const [hierarchySorting, setHierarchySorting] = useState<SortingState>([]);
@@ -266,16 +271,17 @@ function Locations() {
     return newValues;
   };
 
-  const columnHelper = createColumnHelper<LocationRow>();
+  const columnHelper = createColumnHelper<Location | LocationRow>();
 
-  const columns: CustomDatagridColumn2<LocationRow>[] = [
+  const columns: CustomDatagridColumn2<Location | LocationRow>[] = [
     columnHelper.display({
       id: 'expander',
       header: '',
       cell: ({ row }) => {
         const isExpanded = expanded[row.original.id];
         const hasSubRows =
-          row.original.hasChildren || subRowsMap[row.original.id]?.length > 0;
+          (row.original as LocationRow).hasChildren ||
+          subRowsMap[row.original.id]?.length > 0;
 
         if (!hasSubRows) {
           return <Box sx={{ width: 24 }} />;
@@ -731,6 +737,15 @@ function Locations() {
     subRowsMap
   );
 
+  // Filter table data based on search query
+  const filteredTableData = searchQuery.trim()
+    ? locations.filter(
+        (row) =>
+          row.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          row.customId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          row.address?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : tableData;
   // Handle pagination change for hierarchy view
   const handlePaginationChange = (newPagination: {
     pageIndex: number;
@@ -796,6 +811,7 @@ function Locations() {
               <Box />
             )}
             <Stack direction={'row'} alignItems="center" spacing={1}>
+              <SearchInput onChange={(e) => setSearchQuery(e.target.value)} />
               <IconButton onClick={() => handleReset(true)} color="primary">
                 <ReplayTwoToneIcon />
               </IconButton>
@@ -835,8 +851,8 @@ function Locations() {
             >
               <Box sx={{ width: '95%' }}>
                 <CustomDatagrid2
-                  columns={columns}
-                  data={tableData}
+                  columns={searchQuery?.trim() ? columns.slice(1) : columns}
+                  data={filteredTableData}
                   loading={loadingGet}
                   pagination={{
                     pageIndex: pageable.page,
