@@ -186,7 +186,7 @@ const Teams = ({ openModal, handleCloseModal }: PropsType) => {
       headerName: t('people_in_team'),
       width: 200,
       renderCell: (params: GridRenderCellParams<UserMiniDTO[]>) => (
-        <UserAvatars users={params.value} />
+        <UserAvatars compact={false} users={params.value} />
       )
     }
   ];
