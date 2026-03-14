@@ -244,7 +244,7 @@ function Assets() {
     setPageable((prevState) => {
       return {
         ...prevState,
-        page: prevState.page + HIERARCHY_ZERO_PAGE_SIZE
+        page: prevState.page + 1
       };
     });
   };
@@ -255,12 +255,7 @@ function Assets() {
   const onCreationFailure = (err) =>
     showSnackBar(getErrorMessage(err, t('asset_create_failure')), 'error');
   const handleCloseFilterDrawer = () => setOpenFilterDrawer(false);
-  const onPageSizeChange = (size: number) => {
-    setCriteria({ ...criteria, pageSize: size });
-  };
-  const onPageChange = (number: number) => {
-    setCriteria({ ...criteria, pageNum: number });
-  };
+
   const renderMenu = () => (
     <Menu
       id="basic-menu"
