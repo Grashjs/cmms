@@ -295,7 +295,7 @@ const locale = {
   select_asset: 'Select asset',
   select_tasks: 'Select Tasks',
   requires_signature: 'Requires Signature',
-  required_wo_title: 'WorkOrder title is required',
+  required_wo_title: 'Work Order title is required',
   add_wo: 'Add Work Order',
   add_wo_description:
     'Fill in the fields below to create and add a new Work Order',

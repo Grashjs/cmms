@@ -136,13 +136,15 @@ export const CompanySettingsProvider: FC = ({ children }) => {
       'files',
       'signature'
     ];
+    const fieldMap = { images: 'image' };
     fieldsToConfigure.forEach((name) => {
+      const trueFieldName = fieldMap[name] || name;
       const fieldConfig =
         workOrderConfiguration.workOrderFieldConfigurations.find(
           (woFC) => woFC.fieldName === name
         );
       const fieldIndexInFields = fields.findIndex(
-        (field) => field.name === name
+        (field) => field.name === trueFieldName
       );
       if (fieldIndexInFields !== -1) {
         if (fieldConfig.fieldType === 'REQUIRED') {
@@ -176,7 +178,7 @@ export const CompanySettingsProvider: FC = ({ children }) => {
               yupSchema = Yup.object().required(requiredMessage).nullable();
               break;
           }
-          shape[name] = yupSchema;
+          shape[trueFieldName] = yupSchema;
         } else if (fieldConfig.fieldType === 'HIDDEN') {
           fields.splice(fieldIndexInFields, 1);
         }

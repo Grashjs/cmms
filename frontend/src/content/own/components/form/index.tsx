@@ -165,6 +165,7 @@ export default (props: PropsType) => {
                         onDrop={(files) => {
                           formik.setFieldValue(field.name, files);
                         }}
+                        error={formik.errors[field.name] || field.error}
                       />
                     </Box>
                   ) : field.type === 'date' ? (
