@@ -548,8 +548,7 @@ function CustomDatagrid2<TData extends RowData>({
                   const columnEnableReordering =
                     header.column.columnDef.meta?.enableReordering;
                   const canDrag =
-                    enableColumnReordering &&
-                    columnEnableReordering !== false;
+                    enableColumnReordering && columnEnableReordering !== false;
 
                   return (
                     <TableCell
@@ -655,6 +654,7 @@ function CustomDatagrid2<TData extends RowData>({
                       </Box>
                       {canResize && enableColumnResizing && (
                         <Box
+                          onClick={(e) => e.stopPropagation()}
                           onMouseDown={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
