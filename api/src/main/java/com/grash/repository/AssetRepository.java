@@ -38,6 +38,16 @@ public interface AssetRepository extends JpaRepository<Asset, Long>, JpaSpecific
 
     Optional<Asset> findByBarCodeAndCompany_Id(String data, Long id);
 
+    @Query("SELECT a FROM Asset a " +
+            "LEFT JOIN FETCH a.location " +
+            "LEFT JOIN FETCH a.parentAsset " +
+            "LEFT JOIN FETCH a.category " +
+            "LEFT JOIN FETCH a.primaryUser " +
+            "LEFT JOIN FETCH a.deprecation " +
+            "LEFT JOIN FETCH a.image " +
+            "WHERE a.company.id = :companyId")
+    List<Asset> findByCompanyForExport(@Param("companyId") Long companyId);
+
     List<Asset> findByCompany_IdAndCreatedAtBefore(Long id, Date date);
 
     void deleteByCompany_IdAndIsDemoTrue(Long companyId);

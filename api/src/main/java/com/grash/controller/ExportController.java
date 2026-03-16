@@ -70,7 +70,7 @@ public class ExportController {
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS)) {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
-            csvFileGenerator.writeAssetsToCsv(assetService.findByCompany(user.getCompany().getId()),
+            csvFileGenerator.writeAssetsToCsv(assetService.findByCompanyForExport(user.getCompany().getId()),
                     outputStreamWriter, Helper.getLocale(user),
                     user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
             byte[] bytes = target.toByteArray();
@@ -90,7 +90,7 @@ public class ExportController {
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.LOCATIONS)) {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
-            csvFileGenerator.writeLocationsToCsv(locationService.findByCompany(user.getCompany().getId()),
+            csvFileGenerator.writeLocationsToCsv(locationService.findByCompanyForExport(user.getCompany().getId()),
                     outputStreamWriter, Helper.getLocale(user),
                     user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
             byte[] bytes = target.toByteArray();
@@ -110,7 +110,7 @@ public class ExportController {
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
-            csvFileGenerator.writePartsToCsv(partService.findByCompany(user.getCompany().getId()), outputStreamWriter
+            csvFileGenerator.writePartsToCsv(partService.findByCompanyForExport(user.getCompany().getId()), outputStreamWriter
                     , Helper.getLocale(user),
                     user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
             byte[] bytes = target.toByteArray();
@@ -130,7 +130,7 @@ public class ExportController {
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.METERS)) {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
-            csvFileGenerator.writeMetersToCsv(meterService.findByCompany(user.getCompany().getId()),
+            csvFileGenerator.writeMetersToCsv(meterService.findByCompanyForExport(user.getCompany().getId()),
                     outputStreamWriter, Helper.getLocale(user),
                     user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
             byte[] bytes = target.toByteArray();

@@ -15,6 +15,14 @@ public interface MeterRepository extends JpaRepository<Meter, Long>, JpaSpecific
 
     Collection<Meter> findByAsset_Id(Long id);
 
+    @Query("SELECT m FROM Meter m " +
+            "LEFT JOIN FETCH m.meterCategory " +
+            "LEFT JOIN FETCH m.image " +
+            "LEFT JOIN FETCH m.location " +
+            "LEFT JOIN FETCH m.asset " +
+            "WHERE m.company.id = :companyId")
+    List<Meter> findByCompanyForExport(@Param("companyId") Long companyId);
+
     Optional<Meter> findByIdAndCompany_Id(Long id, Long companyId);
 
     List<Meter> findByIdInAndCompany_Id(List<Long> ids, Long companyId);

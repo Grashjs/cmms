@@ -88,6 +88,10 @@ public class MeterService {
         return meterRepository.findByCompany_Id(id);
     }
 
+    public List<Meter> findByCompanyForExport(Long companyId) {
+        return meterRepository.findByCompanyForExport(companyId);
+    }
+
     public void notify(Meter meter, Locale locale) {
         String title = messageSource.getMessage("new_assignment", null, locale);
         String message = messageSource.getMessage("notification_meter_assigned", new Object[]{meter.getName()}, locale);

@@ -116,6 +116,10 @@ public class PartService {
         return partRepository.findByCompany_Id(id);
     }
 
+    public List<Part> findByCompanyForExport(Long companyId) {
+        return partRepository.findByCompanyForExport(companyId);
+    }
+
     public void notify(Part part, Locale locale) {
         String title = messageSource.getMessage("new_assignment", null, locale);
         String message = messageSource.getMessage("notification_part_assigned", new Object[]{part.getName()}, locale);

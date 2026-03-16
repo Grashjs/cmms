@@ -92,6 +92,10 @@ public class LocationService {
         return locationRepository.findByCompany_Id(id);
     }
 
+    public List<Location> findByCompanyForExport(Long companyId) {
+        return locationRepository.findByCompanyForExport(companyId);
+    }
+
     public List<Location> findByCompany(Long id, Sort sort) {
         return locationRepository.findByCompany_Id(id, sort);
     }
