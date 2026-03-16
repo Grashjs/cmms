@@ -105,6 +105,10 @@ public class PreventiveMaintenanceService {
         return preventiveMaintenanceRepository.findByCompany_Id(id);
     }
 
+    public List<PreventiveMaintenance> findByCompanyForExport(Long companyId) {
+        return preventiveMaintenanceRepository.findByCompanyForExport(companyId);
+    }
+
     private void checkUsageBasedLimit(Company company) {
         Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_PM_SCHEDULES);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_PM_SCHEDULES)

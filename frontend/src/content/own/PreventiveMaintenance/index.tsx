@@ -85,7 +85,7 @@ import {
 import i18n from 'i18next';
 import Schedule from '../../../models/owns/schedule';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
-import { exportEntity } from '../../../slices/exports';
+import { useExport } from '../../../hooks/useExport';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import { getErrorMessage } from '../../../utils/api';
 import useDateLocale from '../../../hooks/useDateLocale';
@@ -103,6 +103,7 @@ function PMs() {
     hasViewPermission,
     hasCreatePermission,
     getFilteredFields,
+    hasViewOtherPermission,
     hasFeature
   } = useAuth();
   const [currentPM, setCurrentPM] = useState<PreventiveMaintenance>();
@@ -173,7 +174,10 @@ function PMs() {
     fieldMapping
   });
   const { showSnackBar } = useContext(CustomSnackBarContext);
+  const { exportEntity, loadingExport } = useExport();
   const navigate = useNavigate();
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const openMenu = Boolean(anchorEl);
   const basedOnArray: {
     label: string;
     value: Schedule['recurrenceBasedOn'];
@@ -279,6 +283,12 @@ function PMs() {
       `/app/preventive-maintenances`
     );
     setOpenDrawer(false);
+  };
+  const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
   };
   const onQueryChange = (event) => {
     onSearchQueryChange<PreventiveMaintenance>(event, criteria, setCriteria, [
@@ -685,7 +695,10 @@ function PMs() {
           spacing={1}
           paddingX={4}
         >
-          <Stack direction={'row'} alignSelf={'flex-end'} spacing={2} mt={1}>
+          <Stack direction={'row'} alignSelf={'flex-end'} spacing={1} mt={1}>
+            <IconButton onClick={handleOpenMenu} color="primary">
+              <MoreVertTwoToneIcon />
+            </IconButton>
             {hasCreatePermission(PermissionEntity.PREVENTIVE_MAINTENANCES) && (
               <SplitButton
                 label={t('create_trigger')}
@@ -788,6 +801,36 @@ function PMs() {
           confirmText={t('to_delete')}
           question={t('confirm_delete_pm')}
         />
+        <Menu
+          id="basic-menu"
+          anchorEl={anchorEl}
+          open={openMenu}
+          onClose={handleCloseMenu}
+          MenuListProps={{
+            'aria-labelledby': 'basic-button'
+          }}
+        >
+          {hasViewOtherPermission(PermissionEntity.PREVENTIVE_MAINTENANCES) && (
+            <MenuItem
+              disabled={loadingExport['preventive-maintenances']}
+              onClick={async () => {
+                try {
+                  await exportEntity('preventive-maintenances');
+                } catch (error) {
+                  showSnackBar(t('Export failed'), 'error');
+                }
+                handleCloseMenu();
+              }}
+            >
+              <Stack spacing={2} direction="row">
+                {loadingExport['preventive-maintenances'] && (
+                  <CircularProgress size="1rem" />
+                )}
+                <Typography>{t('to_export')}</Typography>
+              </Stack>
+            </MenuItem>
+          )}
+        </Menu>
       </>
     );
   else return <PermissionErrorMessage message={'no_access_pm'} />;

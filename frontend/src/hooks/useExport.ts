@@ -9,7 +9,13 @@ interface UseExportReturn {
   loadingExport: Record<EntityType, boolean>;
 }
 
-type EntityType = 'work-orders' | 'assets' | 'locations' | 'parts' | 'meters';
+type EntityType =
+  | 'work-orders'
+  | 'assets'
+  | 'locations'
+  | 'parts'
+  | 'meters'
+  | 'preventive-maintenances';
 
 /**
  * Custom hook for exporting entities with WebSocket support
@@ -23,7 +29,8 @@ export const useExport = (): UseExportReturn => {
     assets: false,
     locations: false,
     parts: false,
-    meters: false
+    meters: false,
+    'preventive-maintenances': false
   });
   const [stompClient, setStompClient] = useState(null);
 
@@ -60,8 +67,11 @@ export const useExport = (): UseExportReturn => {
           function (message) {
             try {
               const url = message.body;
-              window.open(url, '_blank');
-              resolve();
+              if (url.includes('error:')) reject();
+              else {
+                window.open(url, '_blank');
+                resolve();
+              }
             } catch (error) {
               reject(error);
             } finally {

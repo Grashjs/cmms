@@ -26,6 +26,7 @@ public class AsyncExportService {
     private final LocationService locationService;
     private final PartService partService;
     private final MeterService meterService;
+    private final PreventiveMaintenanceService preventiveMaintenanceService;
     private final CsvFileGenerator csvFileGenerator;
     private final StorageServiceFactory storageServiceFactory;
     private final SimpMessageSendingOperations messagingTemplate;
@@ -136,6 +137,28 @@ public class AsyncExportService {
             log.info("Export completed for meters, uuid: {}", uuid);
         } catch (Exception e) {
             log.error("Export failed for meters, uuid: {}", uuid, e);
+            messagingTemplate.convertAndSend("/exports/" + uuid, "error: " + e.getMessage());
+        }
+    }
+
+    @Async
+    public void exportPreventiveMaintenances(OwnUser user, String uuid) {
+        try {
+            ByteArrayOutputStream target = new ByteArrayOutputStream();
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
+            csvFileGenerator.writePreventiveMaintenancesToCsv(
+                    preventiveMaintenanceService.findByCompanyForExport(user.getCompany().getId()),
+                    outputStreamWriter,
+                    Helper.getLocale(user),
+                    user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
+            byte[] bytes = target.toByteArray();
+            MultipartFile file = new MultipartFileImpl(bytes, "Preventive Maintenances.csv");
+            String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
+                    user.getCompany().getId() + "/exports/" + uuid + "/preventive-maintenances");
+            messagingTemplate.convertAndSend("/exports/" + uuid, filePath);
+            log.info("Export completed for preventive-maintenances, uuid: {}", uuid);
+        } catch (Exception e) {
+            log.error("Export failed for preventive-maintenances, uuid: {}", uuid, e);
             messagingTemplate.convertAndSend("/exports/" + uuid, "error: " + e.getMessage());
         }
     }

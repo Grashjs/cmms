@@ -99,5 +99,17 @@ public class ExportController {
                     .body(new SuccessResponse(true, uuid));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
+
+    @GetMapping("/preventive-maintenances")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<SuccessResponse> exportPreventiveMaintenances(HttpServletRequest req, @RequestParam String uuid) {
+        OwnUser user = userService.whoami(req);
+
+        if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)) {
+            asyncExportService.exportPreventiveMaintenances(user, uuid);
+            return ResponseEntity.ok()
+                    .body(new SuccessResponse(true, uuid));
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
 }
 
