@@ -307,11 +307,12 @@ function CustomDatagrid2<TData extends RowData>({
 
   // Filter columns based on uiConfiguration
   const filteredColumns = useMemo(() => {
+    if (!user) return columns;
     return columns.filter((col) => {
       const uiConfigKey = col.uiConfigKey || col.meta?.uiConfigKey;
       return uiConfigKey ? user.uiConfiguration[uiConfigKey] : true;
     });
-  }, [columns, user.uiConfiguration]);
+  }, [columns, user?.uiConfiguration]);
 
   const table = useReactTable({
     columns: filteredColumns,
