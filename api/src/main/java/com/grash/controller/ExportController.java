@@ -50,7 +50,7 @@ public class ExportController {
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS)) {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
-            csvFileGenerator.writeWorkOrdersToCsv(workOrderService.findByCompany(user.getCompany().getId()),
+            csvFileGenerator.writeWorkOrdersToCsv(workOrderService.findByCompanyForExport(user.getCompany().getId()),
                     outputStreamWriter, Helper.getLocale(user),
                     user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
             byte[] bytes = target.toByteArray();
