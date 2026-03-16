@@ -1705,7 +1705,10 @@ const locale = {
   pin: 'Pin',
   unpin: 'Unpin',
   toggle_columns: 'Toggle columns',
-  select_date_range: 'Select date range'
+  select_date_range: 'Select date range',
+  select_hour_range: 'Select hour range',
+  start_time: 'Start time',
+  end_time: 'End time'
 };
 
 export default locale;

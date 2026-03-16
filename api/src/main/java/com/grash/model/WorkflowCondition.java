@@ -16,6 +16,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.FetchType;
+
 import java.util.Date;
 import java.util.Objects;
 
@@ -80,7 +81,7 @@ public class WorkflowCondition extends CompanyAudit {
             case USER_IS:
                 return workOrder.getPrimaryUser() != null && workOrder.getPrimaryUser().getId().equals(this.user.getId());
             case CREATED_AT_BETWEEN:
-                return workOrder.getCreatedAt().getHours() > this.getCreatedTimeStart() && workOrder.getCreatedAt().getHours() < (this.getCreatedTimeEnd());
+                return this.getCreatedTimeStart() != null && this.getCreatedTimeEnd() != null && workOrder.getCreatedAt().getHours() > this.getCreatedTimeStart() && workOrder.getCreatedAt().getHours() < (this.getCreatedTimeEnd());
             case DUE_DATE_BETWEEN:
                 return workOrder.getDueDate() != null && workOrder.getDueDate().after(this.startDate) && workOrder.getDueDate().before(this.endDate);
             case STATUS_IS:
