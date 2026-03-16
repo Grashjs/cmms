@@ -56,10 +56,10 @@ public class RateLimiterService {
 
     private Bucket newPublicMiniBucket(String key) {
         // 3 requests per minute
-        Bandwidth thirtyPerMinute = Bandwidth.classic(3, Refill.greedy(3, Duration.ofMinutes(1)));
+        Bandwidth thirtyPerMinute = Bandwidth.classic(10, Refill.greedy(10, Duration.ofMinutes(1)));
 
         //20
-        Bandwidth twoHundredPerHour = Bandwidth.classic(20, Refill.greedy(20, Duration.ofHours(1)));
+        Bandwidth twoHundredPerHour = Bandwidth.classic(60, Refill.greedy(60, Duration.ofHours(1)));
 
         return Bucket.builder()
                 .addLimit(thirtyPerMinute)
