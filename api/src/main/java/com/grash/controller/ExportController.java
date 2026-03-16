@@ -37,14 +37,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class ExportController {
-
-    private final AssetService assetService;
-    private final MeterService meterService;
     private final UserService userService;
-    private final LocationService locationService;
-    private final PartService partService;
-    private final CsvFileGenerator csvFileGenerator;
-    private final StorageServiceFactory storageServiceFactory;
     private final AsyncExportService asyncExportService;
 
     @GetMapping("/work-orders")
@@ -61,82 +54,49 @@ public class ExportController {
 
     @GetMapping("/assets")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> exportAssets(HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> exportAssets(HttpServletRequest req, @RequestParam String uuid) {
         OwnUser user = userService.whoami(req);
 
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS)) {
-            ByteArrayOutputStream target = new ByteArrayOutputStream();
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
-            csvFileGenerator.writeAssetsToCsv(assetService.findByCompanyForExport(user.getCompany().getId()),
-                    outputStreamWriter, Helper.getLocale(user),
-                    user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
-            byte[] bytes = target.toByteArray();
-            MultipartFile file = new MultipartFileImpl(bytes, "Assets.csv");
+            asyncExportService.exportAssets(user, uuid);
             return ResponseEntity.ok()
-                    .body(new SuccessResponse(true, storageServiceFactory.getStorageService().uploadAndSign(file,
-                            user.getCompany().getId() + "/exports" +
-                                    "/assets")));
+                    .body(new SuccessResponse(true, uuid));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/locations")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> exportLocations(HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> exportLocations(HttpServletRequest req, @RequestParam String uuid) {
         OwnUser user = userService.whoami(req);
 
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.LOCATIONS)) {
-            ByteArrayOutputStream target = new ByteArrayOutputStream();
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
-            csvFileGenerator.writeLocationsToCsv(locationService.findByCompanyForExport(user.getCompany().getId()),
-                    outputStreamWriter, Helper.getLocale(user),
-                    user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
-            byte[] bytes = target.toByteArray();
-            MultipartFile file = new MultipartFileImpl(bytes, "Locations.csv");
+            asyncExportService.exportLocations(user, uuid);
             return ResponseEntity.ok()
-                    .body(new SuccessResponse(true, storageServiceFactory.getStorageService().uploadAndSign(file,
-                            user.getCompany().getId() + "/exports" +
-                                    "/locations")));
+                    .body(new SuccessResponse(true, uuid));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/parts")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> exportParts(HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> exportParts(HttpServletRequest req, @RequestParam String uuid) {
         OwnUser user = userService.whoami(req);
 
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
-            ByteArrayOutputStream target = new ByteArrayOutputStream();
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
-            csvFileGenerator.writePartsToCsv(partService.findByCompanyForExport(user.getCompany().getId()),
-                    outputStreamWriter
-                    , Helper.getLocale(user),
-                    user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
-            byte[] bytes = target.toByteArray();
-            MultipartFile file = new MultipartFileImpl(bytes, "Parts.csv");
+            asyncExportService.exportParts(user, uuid);
             return ResponseEntity.ok()
-                    .body(new SuccessResponse(true, storageServiceFactory.getStorageService().uploadAndSign(file,
-                            user.getCompany().getId() + "/exports" +
-                                    "/parts")));
+                    .body(new SuccessResponse(true, uuid));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/meters")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> exportMeters(HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> exportMeters(HttpServletRequest req, @RequestParam String uuid) {
         OwnUser user = userService.whoami(req);
 
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.METERS)) {
-            ByteArrayOutputStream target = new ByteArrayOutputStream();
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
-            csvFileGenerator.writeMetersToCsv(meterService.findByCompanyForExport(user.getCompany().getId()),
-                    outputStreamWriter, Helper.getLocale(user),
-                    user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
-            byte[] bytes = target.toByteArray();
-            MultipartFile file = new MultipartFileImpl(bytes, "Meters.csv");
+            asyncExportService.exportMeters(user, uuid);
             return ResponseEntity.ok()
-                    .body(new SuccessResponse(true, storageServiceFactory.getStorageService().uploadAndSign(file,
-                            user.getCompany().getId() + "/exports" +
-                                    "/meters")));
+                    .body(new SuccessResponse(true, uuid));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 }

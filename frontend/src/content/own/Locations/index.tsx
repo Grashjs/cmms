@@ -51,7 +51,7 @@ import { PermissionEntity } from '../../../models/owns/role';
 import PermissionErrorMessage from '../components/PermissionErrorMessage';
 import { handleFileUpload, getImageAndFiles } from '../../../utils/overall';
 import { getLocationUrl } from '../../../utils/urlPaths';
-import { exportEntity } from '../../../slices/exports';
+import { useExport } from '../../../hooks/useExport';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import { Pageable, Sort } from '../../../models/owns/page';
@@ -96,7 +96,7 @@ function Locations() {
     }
   ]);
 
-  const { loadingExport } = useSelector((state) => state.exports);
+  const { exportEntity, loadingExport } = useExport();
   const tabs = [
     { value: 'list', label: t('list_view') },
     ...(apiKey ? [{ value: 'map', label: t('map_view') }] : [])
@@ -571,10 +571,12 @@ function Locations() {
       {hasViewOtherPermission(PermissionEntity.LOCATIONS) && (
         <MenuItem
           disabled={loadingExport['locations']}
-          onClick={() => {
-            dispatch(exportEntity('locations')).then((url: string) => {
-              window.open(url);
-            });
+          onClick={async () => {
+            try {
+              await exportEntity('locations');
+            } catch (error) {
+              showSnackBar(t('Export failed'), 'error');
+            }
           }}
         >
           <Stack spacing={2} direction="row">

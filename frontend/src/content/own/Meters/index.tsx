@@ -53,7 +53,7 @@ import PermissionErrorMessage from '../components/PermissionErrorMessage';
 import FeatureErrorMessage from '../components/FeatureErrorMessage';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
-import { exportEntity } from '../../../slices/exports';
+import { useExport } from '../../../hooks/useExport';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import {
   canAddReading,
@@ -145,7 +145,7 @@ function Meters() {
     setCriteria,
     fieldMapping
   });
-  const { loadingExport } = useSelector((state) => state.exports);
+  const { exportEntity, loadingExport } = useExport();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
   const navigate = useNavigate();
@@ -534,10 +534,12 @@ function Meters() {
       {hasViewOtherPermission(PermissionEntity.METERS) && (
         <MenuItem
           disabled={loadingExport['meters']}
-          onClick={() => {
-            dispatch(exportEntity('meters')).then((url: string) => {
-              window.open(url);
-            });
+          onClick={async () => {
+            try {
+              await exportEntity('meters');
+            } catch (error) {
+              showSnackBar(t('Export failed'), 'error');
+            }
           }}
         >
           <Stack spacing={2} direction="row">

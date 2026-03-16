@@ -59,7 +59,7 @@ import { LocationMiniDTO } from '../../../models/owns/location';
 import { TeamMiniDTO } from '../../../models/owns/team';
 import { VendorMiniDTO } from '../../../models/owns/vendor';
 import Category from '../../../models/owns/category';
-import { exportEntity } from '../../../slices/exports';
+import { useExport } from '../../../hooks/useExport';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import {
   FilterField,
@@ -110,7 +110,7 @@ function Assets() {
   const { assetsHierarchy, loadingGet, loadingHierarchy, assets } = useSelector(
     (state) => state.assets
   );
-  const { loadingExport } = useSelector((state) => state.exports);
+  const { exportEntity, loadingExport } = useExport();
   const { getFormattedDate } = useContext(CompanySettingsContext);
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { locations } = useSelector((state) => state.locations);
@@ -269,10 +269,12 @@ function Assets() {
       {hasViewOtherPermission(PermissionEntity.ASSETS) && (
         <MenuItem
           disabled={loadingExport['assets']}
-          onClick={() => {
-            dispatch(exportEntity('assets')).then((url: string) => {
-              window.open(url);
-            });
+          onClick={async () => {
+            try {
+              await exportEntity('assets');
+            } catch (error) {
+              showSnackBar(t('Export failed'), 'error');
+            }
           }}
         >
           <Stack spacing={2} direction="row">

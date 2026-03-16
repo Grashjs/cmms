@@ -58,7 +58,7 @@ import {
   onSearchQueryChange
 } from '../../../utils/overall';
 import { SearchCriteria, SortDirection } from '../../../models/owns/page';
-import { exportEntity } from '../../../slices/exports';
+import { useExport } from '../../../hooks/useExport';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import { PermissionEntity } from '../../../models/owns/role';
 import SearchInput from '../components/SearchInput';
@@ -144,7 +144,7 @@ const Parts = ({ setAction }: PropsType) => {
   const { partId } = useParams();
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const { loadingExport } = useSelector((state) => state.exports);
+  const { exportEntity, loadingExport } = useExport();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
   const navigate = useNavigate();
@@ -666,10 +666,12 @@ const Parts = ({ setAction }: PropsType) => {
       {hasViewOtherPermission(PermissionEntity.PARTS_AND_MULTIPARTS) && (
         <MenuItem
           disabled={loadingExport['parts']}
-          onClick={() => {
-            dispatch(exportEntity('parts')).then((url: string) => {
-              window.open(url);
-            });
+          onClick={async () => {
+            try {
+              await exportEntity('parts');
+            } catch (error) {
+              showSnackBar(t('Export failed'), 'error');
+            }
           }}
         >
           <Stack spacing={2} direction="row">
