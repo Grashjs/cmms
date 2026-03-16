@@ -82,7 +82,6 @@ import {
 } from '../../../models/owns/page';
 import WorkOrderCalendar from './Calendar';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
-import { exportEntity } from '../../../slices/exports';
 import FilterAltTwoToneIcon from '@mui/icons-material/FilterAltTwoTone';
 import MoreFilters from './Filters/MoreFilters';
 import EnumFilter from './Filters/EnumFilter';
@@ -97,6 +96,7 @@ import { getErrorMessage } from '../../../utils/api';
 import SplitButton from '../components/SplitButton';
 import useTableState from '../../../hooks/useTableState';
 import { assetStatuses } from '../../../models/owns/asset';
+import { useExport } from '../../../hooks/useExport';
 
 const fieldMapping: Record<string, string> = {
   customId: 'customId',
@@ -122,7 +122,7 @@ function WorkOrders() {
   const { workOrders, loadingGet, singleWorkOrder } = useSelector(
     (state) => state.workOrders
   );
-  const { loadingExport } = useSelector((state) => state.exports);
+  const { exportEntity, loadingExport } = useExport();
   const [searchParams, setSearchParams] = useSearchParams();
   const locationParam = searchParams.get('location');
   const viewParam = searchParams.get('view');
@@ -832,10 +832,13 @@ function WorkOrders() {
       {hasViewOtherPermission(PermissionEntity.WORK_ORDERS) && (
         <MenuItem
           disabled={loadingExport['work-orders']}
-          onClick={() => {
-            dispatch(exportEntity('work-orders')).then((url: string) => {
-              window.open(url);
-            });
+          onClick={async () => {
+            try {
+              await exportEntity('work-orders');
+            } catch (error) {
+              showSnackBar(t('Export failed'), 'error');
+            }
+            handleCloseMenu();
           }}
         >
           <Stack spacing={2} direction="row">
