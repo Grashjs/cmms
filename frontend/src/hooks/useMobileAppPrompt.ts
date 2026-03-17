@@ -22,6 +22,7 @@ export function useMobileAppPrompt(): UseMobileAppPromptReturn {
 
   useEffect(() => {
     const checkMobile = () => {
+      if (!user) return;
       const userAgent = navigator.userAgent || navigator.vendor;
       const isMobileDevice =
         /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -43,7 +44,7 @@ export function useMobileAppPrompt(): UseMobileAppPromptReturn {
     };
 
     checkMobile();
-  }, []);
+  }, [user?.id]);
 
   const showPrompt = () => {
     setShouldShowPrompt(true);
@@ -56,7 +57,7 @@ export function useMobileAppPrompt(): UseMobileAppPromptReturn {
 
   return {
     isMobile,
-    shouldShowPrompt: shouldShowPrompt && !!user,
+    shouldShowPrompt,
     showPrompt,
     dismissPrompt
   };
