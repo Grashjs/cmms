@@ -28,5 +28,7 @@ export const config = {
     "/(en|es|fr|de|tr|pt-br|pl|ar|it|sv|ru|hu|nl|zh-cn|ba)/:path*",
     // Match all pathnames except for API routes, static files, Next.js internals
     "/((?!api|_next|_vercel|.*\\..*).*)",
+    // Include /mb-app route
+    "/mb-app/:path*",
   ],
 };

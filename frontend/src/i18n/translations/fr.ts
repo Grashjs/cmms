@@ -1923,7 +1923,9 @@ const frJSON = {
   submit_request: 'Soumettre la demande',
   company_logo: "Logo de l'entreprise",
   recaptcha_failed: 'La vérification reCAPTCHA a échoué. Veuillez réessayer.',
-  select_date_range: 'Sélectionner la plage de dates'
+  select_date_range: 'Sélectionner la plage de dates',
+  get_mobile_app: "Obtenir l'application mobile",
+  scan_qr_to_download: 'Scannez le code QR pour télécharger lapplication mobile'
 };
 
 export default frJSON;

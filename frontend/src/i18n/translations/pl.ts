@@ -1813,7 +1813,9 @@ const plJSON = {
   "requested_from_portal": "To zgłoszenie zostało utworzone z portalu: ",
   "request_portals": "Portale zgłoszeń",
   "recaptcha_failed": "Weryfikacja reCAPTCHA nie powiodła się. Spróbuj ponownie.",
-  "select_date_range": "Wybierz zakres dat"
+  "select_date_range": "Wybierz zakres dat",
+  "get_mobile_app": "Pobierz aplikację mobilną",
+  "scan_qr_to_download": "Zeskanuj kod QR, aby pobrać aplikację mobilną"
 };
 
 export default plJSON;

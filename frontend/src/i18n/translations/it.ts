@@ -1817,7 +1817,9 @@ const locale = {
   "requested_from_portal": "Questa richiesta è stata creata dal portale: ",
   "request_portals": "Portali richieste",
   "recaptcha_failed": "Verifica reCAPTCHA fallita. Riprova.",
-  "select_date_range": "Seleziona intervallo di date"
+  "select_date_range": "Seleziona intervallo di date",
+  "get_mobile_app": "Ottieni l'app mobile",
+  "scan_qr_to_download": "Scansiona il codice QR per scaricare l'app mobile"
 };
 
 export default locale;

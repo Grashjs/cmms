@@ -1877,7 +1877,9 @@ const ruJSON = {
   "requested_from_portal": "Этот запрос был создан из портала: ",
   "request_portals": "Порталы запросов",
   "recaptcha_failed": "Ошибка проверки reCAPTCHA. Пожалуйста, попробуйте снова.",
-  "select_date_range": "Выбрать диапазон дат"
+  "select_date_range": "Выбрать диапазон дат",
+  "get_mobile_app": "Скачать мобильное приложение",
+  "scan_qr_to_download": "Отсканируйте QR-код для загрузки мобильного приложения"
 };
 
 export default ruJSON;

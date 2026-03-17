@@ -1843,7 +1843,9 @@ const ptBRJSON = {
   "requested_from_portal": "Esta solicitação foi criada a partir do portal: ",
   "request_portals": "Portais de solicitações",
   "recaptcha_failed": "Falha na verificação reCAPTCHA. Tente novamente.",
-  "select_date_range": "Selecionar intervalo de datas"
+  "select_date_range": "Selecionar intervalo de datas",
+  "get_mobile_app": "Obter aplicativo móvel",
+  "scan_qr_to_download": "Escaneie o código QR para baixar o aplicativo móvel"
 };
 
 export default ptBRJSON;

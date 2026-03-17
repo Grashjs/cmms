@@ -1840,7 +1840,9 @@ const deJSON = {
   requested_from_portal: 'Diese Anfrage wurde vom Portal erstellt: ',
   request_portals: 'Anfrageportale',
   recaptcha_failed: 'reCAPTCHA-Verifizierung fehlgeschlagen. Bitte versuchen Sie es erneut.',
-  select_date_range: 'Datumsbereich auswählen'
+  select_date_range: 'Datumsbereich auswählen',
+  get_mobile_app: 'Mobile App herunterladen',
+  scan_qr_to_download: 'Scannen Sie den QR-Code zum Herunterladen der mobilen App'
 };
 
 export default deJSON;

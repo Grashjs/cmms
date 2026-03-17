@@ -1839,7 +1839,9 @@ const esJSON = {
   request_portal: 'Portal de solicitudes',
   requested_from_portal: 'Esta solicitud fue creada desde el portal: ',
   request_portals: 'Portales de solicitudes',
-  select_date_range: 'Seleccionar rango de fechas'
+  select_date_range: 'Seleccionar rango de fechas',
+  get_mobile_app: 'Obtener aplicación móvil',
+  scan_qr_to_download: 'Escanea el código QR para descargar la aplicación móvil'
 };
 
 export default esJSON;

@@ -1717,7 +1717,9 @@ const locale = {
   'Download on the': 'Download on the',
   'App Store': 'App Store',
   'GET IT ON': 'GET IT ON',
-  'Google Play': 'Google Play'
+  'Google Play': 'Google Play',
+  get_mobile_app: 'Get Mobile App',
+  scan_qr_to_download: 'Scan the QR code to download the mobile app'
 };
 
 export default locale;

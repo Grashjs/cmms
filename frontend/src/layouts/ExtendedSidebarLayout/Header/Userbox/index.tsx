@@ -7,6 +7,8 @@ import {
   Avatar,
   Box,
   Button,
+  Dialog,
+  DialogContent,
   Divider,
   IconButton,
   ListItemText,
@@ -17,7 +19,8 @@ import {
   Typography,
   useTheme,
   CircularProgress,
-  ListItemIcon
+  ListItemIcon,
+  Link
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import LockOpenTwoToneIcon from '@mui/icons-material/LockOpenTwoTone';
@@ -27,6 +30,9 @@ import PersonOutlineTwoToneIcon from '@mui/icons-material/PersonOutlineTwoTone';
 import BusinessTwoToneIcon from '@mui/icons-material/BusinessTwoTone';
 import SwitchLeftTwoToneIcon from '@mui/icons-material/SwitchLeftTwoTone';
 import HelpTwoToneIcon from '@mui/icons-material/HelpTwoTone';
+import PhoneAndroidTwoToneIcon from '@mui/icons-material/PhoneAndroidTwoTone';
+import CloseIcon from '@mui/icons-material/Close';
+import { QRCodeSVG } from 'qrcode.react';
 import { homeUrl } from '../../../../config';
 
 const DotLegend = styled('span')(
@@ -126,6 +132,7 @@ function HeaderUserbox() {
 
   const ref = useRef<any>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
+  const [isQrDialogOpen, setQrDialogOpen] = useState<boolean>(false);
 
   const handleOpen = (): void => {
     setOpen(true);
@@ -133,6 +140,15 @@ function HeaderUserbox() {
 
   const handleClose = (): void => {
     setOpen(false);
+  };
+
+  const handleOpenQrDialog = (): void => {
+    handleClose();
+    setQrDialogOpen(true);
+  };
+
+  const handleCloseQrDialog = (): void => {
+    setQrDialogOpen(false);
   };
 
   const handleLogout = async (): Promise<void> => {
@@ -362,6 +378,26 @@ function HeaderUserbox() {
               />
             </Box>
           </MenuItem>
+          <MenuItem onClick={handleOpenQrDialog}>
+            <ListItemIcon>
+              <PhoneAndroidTwoToneIcon />
+            </ListItemIcon>
+            <ListItemText
+              primaryTypographyProps={{
+                variant: 'h5'
+              }}
+              primary={t('get_mobile_app')}
+            />
+            <Box display="flex" alignItems="center">
+              <ChevronRightTwoToneIcon
+                sx={{
+                  ml: 1,
+                  color: `${theme.colors.alpha.black[30]}`,
+                  opacity: 0.8
+                }}
+              />
+            </Box>
+          </MenuItem>
         </MenuListWrapperPrimary>
         <Divider />
         {/*<Box m={1}>*/}
@@ -395,6 +431,74 @@ function HeaderUserbox() {
           </Button>
         </Box>
       </Popover>
+      <Dialog
+        open={isQrDialogOpen}
+        onClose={handleCloseQrDialog}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2
+          }
+        }}
+      >
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          p={3}
+          borderBottom={1}
+          borderColor="divider"
+        >
+          <Typography variant="h5" fontWeight="bold">
+            {t('get_mobile_app')}
+          </Typography>
+          <IconButton
+            onClick={handleCloseQrDialog}
+            size="small"
+            sx={{
+              borderRadius: 2
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        <DialogContent
+          sx={{
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}
+        >
+          <Box
+            sx={{
+              p: 2,
+              bgcolor: 'common.white',
+              borderRadius: 2,
+              mb: 3
+            }}
+          >
+            <QRCodeSVG
+              value={`${homeUrl}mb-app`}
+              size={220}
+              level="H"
+              includeMargin
+            />
+          </Box>
+          <Typography
+            variant="body1"
+            align="center"
+            color="text.secondary"
+            sx={{ mb: 1 }}
+          >
+            {t('scan_qr_to_download')}
+          </Typography>
+          <Link href={`${homeUrl}mb-app`} variant="body2">
+            {`${homeUrl}mb-app`}
+          </Link>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

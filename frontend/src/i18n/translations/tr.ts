@@ -1815,7 +1815,9 @@ const trJSON = {
   "requested_from_portal": "Bu talep portaldan oluşturuldu: ",
   "request_portals": "Talep Portalları",
   "recaptcha_failed": "reCAPTCHA doğrulaması başarısız. Lütfen tekrar deneyin.",
-  "select_date_range": "Tarih aralığını seçin"
+  "select_date_range": "Tarih aralığını seçin",
+  "get_mobile_app": "Mobil Uygulamayı Edinin",
+  "scan_qr_to_download": "Mobil uygulamayı indirmek için QR kodunu tarayın"
 };
 
 export default trJSON;

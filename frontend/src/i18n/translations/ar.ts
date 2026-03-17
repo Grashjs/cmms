@@ -1704,7 +1704,9 @@ const locale = {
   "requested_from_portal": "تم إنشاء هذا الطلب من البوابة: ",
   "request_portals": "بوابات الطلبات",
   "recaptcha_failed": "فشل التحقق من reCAPTCHA. يرجى المحاولة مرة أخرى.",
-  "select_date_range": "حدد نطاق التاريخ"
+  "select_date_range": "حدد نطاق التاريخ",
+  "get_mobile_app": "احصل على التطبيق المحمول",
+  "scan_qr_to_download": "امسح رمز QR ضوئيًا لتنزيل التطبيق المحمول"
 };
 
 export default locale;

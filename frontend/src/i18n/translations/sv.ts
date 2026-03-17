@@ -1784,7 +1784,9 @@ const locale = {
   "requested_from_portal": "Denna begäran skapades från portalen: ",
   "request_portals": "Begäringsportaler",
   "recaptcha_failed": "reCAPTCHA-verifiering misslyckades. Försök igen.",
-  "select_date_range": "Välj datumintervall"
+  "select_date_range": "Välj datumintervall",
+  "get_mobile_app": "Hämta mobilappen",
+  "scan_qr_to_download": "Skanna QR-koden för att ladda ner mobilappen"
 };
 
 export default locale;

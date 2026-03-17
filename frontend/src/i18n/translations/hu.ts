@@ -1666,7 +1666,9 @@ const locale = {
   "requested_from_portal": "Ez a kérés a portálból jött létre: ",
   "request_portals": "Kérési portálok",
   "recaptcha_failed": "A reCAPTCHA ellenőrzés sikertelen. Kérjük, próbálja újra.",
-  "select_date_range": "Dátumtartomány kiválasztása"
+  "select_date_range": "Dátumtartomány kiválasztása",
+  "get_mobile_app": "Mobilalkalmazás letöltése",
+  "scan_qr_to_download": "Olvassa be a QR-kódot a mobilalkalmazás letöltéséhez"
 };
 
 export default locale;
