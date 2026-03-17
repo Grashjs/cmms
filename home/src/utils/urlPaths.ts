@@ -95,6 +95,13 @@ export const getLocalizedMainAppUrl = (path: string, lang: string, params?: Reco
   url.searchParams.set("lang", lang.replace("-", "_").toLowerCase());
   if (typeof window !== "undefined") {
     url.searchParams.set("ref", document.referrer || "");
+
+    const currentParams = new URLSearchParams(window.location.search);
+    currentParams.forEach((value, key) => {
+      if (key.startsWith("utm_")) {
+        url.searchParams.set(key, value);
+      }
+    });
   }
 
   if (params) {
