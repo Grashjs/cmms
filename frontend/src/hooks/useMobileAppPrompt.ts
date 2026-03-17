@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import useAuth from './useAuth';
 
 interface UseMobileAppPromptReturn {
   isMobile: boolean;
@@ -17,6 +18,7 @@ const PROMPT_DELAY_MS = 3000; // 3 seconds delay before showing prompt
 export function useMobileAppPrompt(): UseMobileAppPromptReturn {
   const [isMobile, setIsMobile] = useState(false);
   const [shouldShowPrompt, setShouldShowPrompt] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     const checkMobile = () => {
@@ -54,7 +56,7 @@ export function useMobileAppPrompt(): UseMobileAppPromptReturn {
 
   return {
     isMobile,
-    shouldShowPrompt,
+    shouldShowPrompt: shouldShowPrompt && !!user,
     showPrompt,
     dismissPrompt
   };
