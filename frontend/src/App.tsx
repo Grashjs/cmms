@@ -30,6 +30,8 @@ import { UtmTrackerProvider } from '@nik0di3m/utm-tracker-hook';
 import { useLicenseEntitlement } from './hooks/useLicenseEntitlement';
 import { initializePaddle } from '@paddle/paddle-js';
 import { loadLanguage, supportedLanguages } from './i18n/i18n';
+import MobileAppDownloadDialog from './components/MobileAppDownloadDialog';
+import { useMobileAppPrompt } from './hooks/useMobileAppPrompt';
 
 if (!IS_LOCALHOST && googleTrackingId) ReactGA.initialize(googleTrackingId);
 
@@ -105,6 +107,7 @@ function App() {
   const hasBrandingEntitlement = useLicenseEntitlement('BRANDING');
   const { i18n } = useTranslation();
   let location = useLocation();
+  const { shouldShowPrompt, dismissPrompt } = useMobileAppPrompt();
 
   useEffect(() => {
     loadLanguage(i18n.language || 'en');
@@ -194,6 +197,10 @@ function App() {
                 {isInitialized ? content : <AppInit />}
                 {user && company?.demo && <DemoAlert />}
                 <DemoCleaningAlert />
+                <MobileAppDownloadDialog
+                  open={shouldShowPrompt}
+                  onClose={dismissPrompt}
+                />
               </CompanySettingsProvider>
             </CustomSnackBarProvider>
           </SnackbarProvider>

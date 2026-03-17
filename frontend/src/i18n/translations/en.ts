@@ -1708,7 +1708,16 @@ const locale = {
   select_date_range: 'Select date range',
   select_hour_range: 'Select hour range',
   start_time: 'Start time',
-  end_time: 'End time'
+  end_time: 'End time',
+  'Download Mobile App': 'Download Mobile App',
+  'Enhance your experience with our mobile app. Get instant notifications and manage your work orders on the go.':
+    'Enhance your experience with our mobile app. Get instant notifications and manage your work orders on the go.',
+  'Download on the App Store': 'Download on the App Store',
+  'Get it on Google Play': 'Get it on Google Play',
+  'Download on the': 'Download on the',
+  'App Store': 'App Store',
+  'GET IT ON': 'GET IT ON',
+  'Google Play': 'Google Play'
 };
 
 export default locale;
