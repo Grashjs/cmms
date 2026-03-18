@@ -14,8 +14,7 @@ export default function SignupButton({ params, ...props }: SignupButtonProps) {
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    // document.referrer is guaranteed to be available here, on user interaction
     window.location.href = enrichWithClientParams(serverSignupUrl);
   };
-  return <Button component="a" variant={"contained"} href={serverSignupUrl} onClick={handleClick} {...props} />;
+  return <Button component="a" variant={"contained"} href={serverSignupUrl} {...props} onClick={handleClick} />;
 }
