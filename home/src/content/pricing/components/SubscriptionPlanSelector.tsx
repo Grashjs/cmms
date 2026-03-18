@@ -193,11 +193,32 @@ export default function SubscriptionPlanSelector({ monthly, setMonthly, selfHost
                 </List>
 
                 <Box mt="auto" pt={3}>
-                  {selfHosted && plan.id === "sh-free" ? null : (
+                  {/* Self-hosted button */}
+                  {selfHosted && plan.id !== "sh-free" && (
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      onClick={() => {
+                        fireGa4Event({
+                          category: "Pricing",
+                          action: "Plan_Selection",
+                          label: `${plan.id}_Trial`,
+                          value: plan.id === "business" ? 100 : Number(plan.price),
+                        });
+                        handleOpenModal(plan);
+                      }}
+                      sx={{ mb: 1 }}
+                    >
+                      {t("pricing_1.get_your_license")}
+                    </Button>
+                  )}
+
+                  {/* Cloud/regular button */}
+                  {!selfHosted && (
                     <SignupButton
                       fullWidth
                       variant="contained"
-                      onClick={async () => {
+                      onClick={() => {
                         if (plan.id !== "basic") {
                           fireGa4Event({
                             category: "Pricing",
@@ -206,26 +227,11 @@ export default function SubscriptionPlanSelector({ monthly, setMonthly, selfHost
                             value: plan.id === "business" ? 100 : Number(plan.price),
                           });
                         }
-
-                        // Handle Stripe Checkout for self-hosted paid plans
-                        if (selfHosted && plan.id !== "sh-free") {
-                          handleOpenModal(plan);
-                        }
                       }}
-                      params={
-                        selfHosted
-                          ? undefined
-                          : plan.id !== "basic"
-                            ? { "subscription-plan-id": plan.id }
-                            : undefined
-                      }
+                      params={plan.id !== "basic" ? { "subscription-plan-id": plan.id } : undefined}
                       sx={{ mb: 1 }}
                     >
-                      {plan.id === "basic" || plan.id === "sh-free"
-                        ? t("get_started")
-                        : selfHosted
-                          ? t("pricing_1.get_your_license")
-                          : t("try_for_free")}
+                      {plan.id === "basic" ? t("get_started") : t("try_for_free")}
                     </SignupButton>
                   )}
                   {!selfHosted && (

@@ -12,8 +12,9 @@ export default function SignupButton({ params, ...props }: SignupButtonProps) {
   const locale = useLocale();
   const serverSignupUrl = getSignupUrl(locale, params);
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
+    props.onClick?.(e);
     window.location.href = enrichWithClientParams(serverSignupUrl);
   };
   return <Button component="a" variant={"contained"} href={serverSignupUrl} {...props} onClick={handleClick} />;

@@ -31,6 +31,7 @@ import SubscriptionPlanSelector, { PRICING_YEAR_MULTIPLIER } from "./components/
 import { fireGa4Event } from "src/utils/overall";
 import { getLocalizedMainAppUrl } from "src/utils/urlPaths";
 import TwoCallToActions from "src/content/landing/components/TwoCallToActions";
+import SignupButton from "src/components/SignupButton";
 
 const PricingWrapper = styled(Box)(
   ({ theme }) => `
@@ -58,7 +59,7 @@ function Pricing() {
   const isMdDown = useMediaQuery(theme.breakpoints.down("md"));
   const pathname = usePathname(); // returns path WITHOUT locale prefix
 
-  const handleTabsChange = (_event: React.ChangeEvent<{}>, value: string): void => {
+  const handleTabsChange = (_event: React.SyntheticEvent, value: string): void => {
     router.push(`${pathname}?type=${value}`);
   };
 
@@ -70,6 +71,7 @@ function Pricing() {
     if (isXs) {
       // For extra small screens, select 2 plans (popular plan + one more)
       const secondPlan = typePlans.find((plan) => plan.id !== popularPlan)?.id || "";
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedPlans([popularPlan, secondPlan].filter(Boolean));
     } else if (isSm) {
       // For small screens, select 3 plans (popular plan + two more)
@@ -187,19 +189,15 @@ function Pricing() {
                         </Typography>
                       )}
                       {type === "cloud" && (
-                        <Button
+                        <SignupButton
                           size="small"
                           variant="outlined"
                           component={"a"}
-                          href={getLocalizedMainAppUrl(
-                            "/account/register",
-                            locale,
-                            plan.id !== "basic" ? { "subscription-plan-id": plan.id } : {},
-                          )}
+                          params={plan.id !== "basic" ? { "subscription-plan-id": plan.id } : {}}
                           sx={{ mt: 1, mb: 2 }}
                         >
                           {plan.id === "basic" ? t("get_started") : t("try_for_free")}
-                        </Button>
+                        </SignupButton>
                       )}
                     </Grid>
                   ))}
