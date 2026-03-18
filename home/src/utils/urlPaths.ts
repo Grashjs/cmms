@@ -93,20 +93,18 @@ export const getWorkOrdersUrl = (lang: string) => getLocalizedMainAppUrl("app/wo
 export const getLocalizedMainAppUrl = (path: string, lang: string, params?: Record<string, string>) => {
   const url = new URL(path, mainAppUrl);
   url.searchParams.set("lang", lang.replace("-", "_").toLowerCase());
-  if (typeof window !== "undefined") {
-    url.searchParams.set("ref", document.referrer || "");
-
-    const currentParams = new URLSearchParams(window.location.search);
-    currentParams.forEach((value, key) => {
-      if (key.startsWith("utm_")) {
-        url.searchParams.set(key, value);
-      }
-    });
-  }
-
   if (params) {
     Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
   }
+  return url.toString();
+};
 
+// Call this client-side only (e.g. in onClick)
+export const enrichWithClientParams = (href: string) => {
+  const url = new URL(href);
+  url.searchParams.set("ref", document.referrer || "");
+  new URLSearchParams(window.location.search).forEach((value, key) => {
+    if (key.startsWith("utm_")) url.searchParams.set(key, value);
+  });
   return url.toString();
 };

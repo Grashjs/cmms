@@ -1,11 +1,11 @@
 import { Button, Container, Grid, Stack, Typography } from "@mui/material";
 import { getLocale, getTranslations } from "next-intl/server";
 import SignupButton from "src/components/SignupButton";
+import MainAppLink from "src/components/MainAppLink";
 import { BoxAccent, BoxContent, MobileImgWrapper, TypographyH2 } from "../styled";
 import { ImgWrapper } from "src/content/overview/Hero/styles";
 import Image from "next/image";
 import { getSignupUrl } from "src/utils/urlPaths";
-import { Link } from "src/i18n/routing";
 
 async function HeroFree() {
   const t = await getTranslations();
@@ -40,18 +40,15 @@ async function HeroFree() {
             {t("free_cmms.hero.description")}
           </TypographyH2>
           <Stack direction={{ xs: "column", md: "row" }} spacing={1}>
-            <SignupButton
-              size="large"
-              variant="contained"
-            >
+            <SignupButton size="large" variant="contained">
               {t("free_cmms.hero.start_free")}
             </SignupButton>
           </Stack>
         </Grid>
         <Grid item md={6}>
           <BoxContent>
-            <Link href={getSignupUrl(locale)}>
-            <ImgWrapper>
+            <MainAppLink href={getSignupUrl(locale)}>
+              <ImgWrapper>
                 <Image
                   alt={t("free_cmms.hero.work_orders_alt")}
                   src="/static/images/overview/work_orders_screenshot.png"
@@ -59,7 +56,7 @@ async function HeroFree() {
                   height={922}
                 />
               </ImgWrapper>
-            </Link>
+            </MainAppLink>
             <MobileImgWrapper>
               <Image height={1600} width={720} alt={t("free_cmms.hero.mobile_app_alt")} src="/static/mobile_app.jpeg" />
             </MobileImgWrapper>

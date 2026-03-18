@@ -3,35 +3,34 @@ import {
   Box,
   Button,
   Card,
+  Collapse,
   Container,
+  Divider,
+  Drawer,
+  Grid,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  Slide,
   Stack,
   styled,
   Typography,
-  IconButton,
-  Drawer,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemButton,
-  ListItemIcon,
-  Divider,
-  useTheme,
   useMediaQuery,
-  Slide,
-  Menu,
-  Grid,
-  Collapse,
-  Link as MuiLink,
+  useTheme,
 } from "@mui/material";
 import Logo from "../LogoSign";
-import { GitHub, ExpandLess, ExpandMore } from "@mui/icons-material";
+import { ExpandLess, ExpandMore, GitHub } from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
 import LanguageSwitcher from "src/components/LanguageSwitcher";
 import { Link } from "src/i18n/routing";
-import { useTranslations, useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { demoLink, isWhiteLabeled } from "src/config";
-import { getIndustriesLinks, getFeaturesLinks, getWorkOrdersUrl } from "src/utils/urlPaths";
+import { enrichWithClientParams, getFeaturesLinks, getIndustriesLinks, getWorkOrdersUrl } from "src/utils/urlPaths";
 import SignupButton from "src/components/SignupButton";
 
 const HeaderWrapper = styled(Card)(
@@ -66,6 +65,11 @@ export default function NavBar() {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const featuresLinks = getFeaturesLinks(t);
   const industriesLinks = getIndustriesLinks(t);
+
+  const handleLoginClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    window.location.href = enrichWithClientParams(getWorkOrdersUrl(locale));
+  };
 
   // State for hamburger menu
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -360,6 +364,7 @@ export default function NavBar() {
                 <Button
                   component={Link}
                   href={getWorkOrdersUrl(locale)}
+                  onClick={handleLoginClick}
                   variant="text"
                   sx={{
                     ml: 2,
@@ -555,15 +560,14 @@ export default function NavBar() {
                           variant="text"
                           fullWidth
                           size="large"
-                          onClick={handleMenuClose}
+                          onClick={(e) => {
+                            handleMenuClose();
+                            handleLoginClick(e);
+                          }}
                         >
                           {t("login")}
                         </Button>
-                        <SignupButton
-                          fullWidth
-                          size="large"
-                          onClick={handleMenuClose}
-                        >
+                        <SignupButton fullWidth size="large" onClick={handleMenuClose}>
                           {t("register")}
                         </SignupButton>
                         <Button href={demoLink} variant="outlined" fullWidth size="large">
