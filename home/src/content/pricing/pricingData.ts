@@ -253,10 +253,10 @@ export const getPlanFeatureCategories = (
         availability: {
           basic: false,
           starter: false,
-          professional: false,
+          professional: true,
           business: true,
           "sh-free": false,
-          "sh-professional": false,
+          "sh-professional": true,
           "sh-business": true,
         },
       },
