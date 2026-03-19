@@ -405,7 +405,7 @@ export const getPlanFeatureCategories = (
           professional: false,
           business: true,
           "sh-free": false,
-          "sh-professional": true,
+          "sh-professional": false,
           "sh-business": true,
         },
       },
