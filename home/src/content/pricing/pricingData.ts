@@ -402,7 +402,7 @@ export const getPlanFeatureCategories = (
         availability: {
           basic: false,
           starter: false,
-          professional: true,
+          professional: false,
           business: true,
           "sh-free": false,
           "sh-professional": true,
