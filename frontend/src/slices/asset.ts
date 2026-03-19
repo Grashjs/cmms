@@ -295,9 +295,9 @@ export const getAssetsByPart =
   };
 
 export const resetAssetsHierarchy =
-  (callApi: boolean): AppThunk =>
+  (pageable: Pageable, callApi: boolean): AppThunk =>
   async (dispatch) => {
     dispatch(slice.actions.resetHierarchy({}));
-    if (callApi) dispatch(getAssetChildren(0, [], { page: 0, size: 10 }));
+    if (callApi) dispatch(getAssetChildren(0, [], pageable));
   };
 export default slice;
