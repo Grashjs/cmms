@@ -17,10 +17,11 @@ import i18n from 'i18next';
 import { useContext, useEffect, useState } from 'react';
 import mailToLink from 'mailto-link';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
-import { isCloudVersion } from '../../../config';
+import { homeUrl, isCloudVersion } from '../../../config';
 import { getLicenseValidity } from '../../../slices/license';
 import { useDispatch, useSelector } from 'src/store';
 import subscriptionPlan from '../../../slices/subscriptionPlan';
+import { getLocalizedHomeUrl } from '../../../utils/urlPaths';
 
 interface CompanyPlanProps {
   plan: SubscriptionPlan;
@@ -132,7 +133,12 @@ function CompanyPlan(props: CompanyPlanProps) {
           </Button>
           {isCloudVersion && (
             <Button
-              onClick={() => navigate('/pricing')}
+              onClick={() => {
+                window.location.href = getLocalizedHomeUrl(
+                  'pricing',
+                  i18n.language
+                );
+              }}
               variant="contained"
               color="secondary"
               sx={{ mr: 2 }}
