@@ -77,7 +77,7 @@ import useTableState from '../../../hooks/useTableState';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const HIERARCHY_ZERO_PAGE_SIZE = 1;
+const HIERARCHY_ZERO_PAGE_SIZE = 40;
 
 function Assets() {
   const { t }: { t: any } = useTranslation();
