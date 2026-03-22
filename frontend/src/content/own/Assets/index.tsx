@@ -107,9 +107,13 @@ function Assets() {
   } = useAuth();
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
   const dispatch = useDispatch();
-  const { assetsHierarchy, loadingGet, loadingHierarchy, assets } = useSelector(
-    (state) => state.assets
-  );
+  const {
+    assetsHierarchy,
+    loadingGet,
+    loadingHierarchy,
+    assets,
+    childrenPages
+  } = useSelector((state) => state.assets);
   const { exportEntity, loadingExport } = useExport();
   const { getFormattedDate } = useContext(CompanySettingsContext);
   const { showSnackBar } = useContext(CustomSnackBarContext);
@@ -157,18 +161,27 @@ function Assets() {
     newCriteria.filterFields = newFilters;
     setCriteria(newCriteria);
   };
-  const [deployedAssets, setDeployedAssets] = useState<
-    { id: number; hierarchy: number[] }[]
-  >([
+  const [deployedAssets, setDeployedAssets] = useState<{ id: number }[]>([
     {
-      id: 0,
-      hierarchy: []
+      id: 0
     }
   ]);
 
   // Expanding state for hierarchy view
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [subRowsMap, setSubRowsMap] = useState<Record<number, AssetRow[]>>({});
+
+  const fetchMoreForParent = (parentId: number) => {
+    const parentPage = childrenPages[parentId];
+    if (parentPage && !parentPage.last) {
+      dispatch(
+        getAssetChildren(parentId, {
+          ...pageable,
+          page: (parentPage.number || 0) + 1
+        })
+      );
+    }
+  };
 
   const handleToggleExpand = async (row: AssetRow) => {
     const isExpanded = expanded[row.id];
@@ -183,13 +196,12 @@ function Assets() {
         // Set temporary loading row
         const loadingRow: AssetRow = {
           id: `loading-${row.id}`,
-          name: t('loading_assets', { name: row.name, id: row.id }),
-          hierarchy: [...(row.hierarchy || []), row.id]
+          name: t('loading_assets', { name: row.name, id: row.id })
         } as unknown as AssetRow;
 
         setSubRowsMap((prev) => ({ ...prev, [row.id]: [loadingRow] }));
         // Fetch the children
-        await dispatch(getAssetChildren(row.id, row.hierarchy || [], pageable));
+        await dispatch(getAssetChildren(row.id, pageable));
         setDeployedAssets((prevState) => [...prevState, row]);
 
         // Clean up the loading row once the fetch is complete
@@ -218,7 +230,7 @@ function Assets() {
   useEffect(() => {
     if (hasViewPermission(PermissionEntity.ASSETS)) {
       handleReset(false);
-      dispatch(getAssetChildren(0, [], pageable));
+      dispatch(getAssetChildren(0, pageable));
     }
   }, [pageable]);
   useEffect(() => {
@@ -240,14 +252,6 @@ function Assets() {
       dispatch(getAssets(criteria));
   }, [criteria, view]);
 
-  const fetchMore = () => {
-    setPageable((prevState) => {
-      return {
-        ...prevState,
-        page: prevState.page + 1
-      };
-    });
-  };
   const onCreationSuccess = () => {
     setOpenAddModal(false);
     showSnackBar(t('asset_create_success'), 'success');
@@ -330,26 +334,42 @@ function Assets() {
         const isExpanded = expanded[row.original.id];
         const hasSubRows =
           row.original.hasChildren || subRowsMap[row.original.id]?.length > 0;
+        const hasMore = hasMorePages(row.original.id);
 
         if (!hasSubRows && view === 'hierarchy') {
           return <Box sx={{ width: 24 }} />;
         }
 
         return (
-          <IconButton
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleToggleExpand(row.original as AssetRow);
-            }}
-            sx={{ padding: 0.5 }}
-          >
-            {isExpanded ? (
-              <ExpandMoreIcon fontSize="small" />
-            ) : (
-              <ChevronRightIcon fontSize="small" />
+          <Stack direction="row" spacing={0.5} alignItems="center">
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleExpand(row.original as AssetRow);
+              }}
+              sx={{ padding: 0.5 }}
+            >
+              {isExpanded ? (
+                <ExpandMoreIcon fontSize="small" />
+              ) : (
+                <ChevronRightIcon fontSize="small" />
+              )}
+            </IconButton>
+            {view === 'hierarchy' && isExpanded && hasMore && (
+              <Button
+                size="small"
+                variant="text"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fetchMoreForParent(row.original.id);
+                }}
+                disabled={loadingHierarchy}
+              >
+                {t('fetch_more')}
+              </Button>
             )}
-          </IconButton>
+          </Stack>
         );
       },
       size: 50
@@ -737,13 +757,7 @@ function Assets() {
                 await dispatch(addAsset(formattedValues));
                 onCreationSuccess();
                 deployedAssets.forEach((deployedAsset) =>
-                  dispatch(
-                    getAssetChildren(
-                      deployedAsset.id,
-                      deployedAsset.hierarchy,
-                      pageable
-                    )
-                  )
+                  dispatch(getAssetChildren(deployedAsset.id, pageable))
                 );
               } catch (err) {
                 onCreationFailure(err);
@@ -798,6 +812,12 @@ function Assets() {
     }
 
     return result;
+  };
+
+  // Check if a parent has more pages to load
+  const hasMorePages = (parentId: number): boolean => {
+    const childrenPage = childrenPages[parentId];
+    return childrenPage ? !childrenPage.last : false;
   };
 
   // Use table state for list view (server-side pagination and sorting)
@@ -874,13 +894,6 @@ function Assets() {
           >
             <SearchInput onChange={debouncedQueryChange} />
             <Stack direction="row" spacing={1}>
-              {view === 'hierarchy' &&
-                assetsHierarchy.length >= HIERARCHY_ZERO_PAGE_SIZE &&
-                assetsHierarchy.length % HIERARCHY_ZERO_PAGE_SIZE === 0 && (
-                  <Button onClick={fetchMore} disabled={loadingHierarchy}>
-                    {t('fetch_more')}
-                  </Button>
-                )}
               <IconButton onClick={() => handleReset(true)} color="primary">
                 <ReplayTwoToneIcon />
               </IconButton>
@@ -932,11 +945,10 @@ function Assets() {
                     ? { pageIndex: pageable.page, pageSize: pageable.size }
                     : tableState.pagination
                 }
-                hidePagination={view === 'hierarchy'}
                 onPaginationChange={handlePaginationChange}
                 totalRows={
                   view === 'hierarchy'
-                    ? assetsHierarchy.length
+                    ? childrenPages[0]?.totalElements || assetsHierarchy.length
                     : assets.totalElements
                 }
                 pageSizeOptions={

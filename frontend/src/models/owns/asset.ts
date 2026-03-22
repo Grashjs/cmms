@@ -60,7 +60,6 @@ export interface AssetDTO extends Audit {
   customId: string;
 }
 export interface AssetRow extends AssetDTO {
-  hierarchy: number[];
   childrenFetched?: boolean;
 }
 export interface AssetMiniDTO {

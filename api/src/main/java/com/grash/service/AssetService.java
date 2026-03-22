@@ -145,7 +145,7 @@ public class AssetService {
     }
 
     public List<Asset> findByCompanyAndParentAssetNull(Long id, Pageable pageable) {
-        return assetRepository.findByCompany_IdAndParentAssetIsNull(id, pageable);
+        return assetRepository.findByCompany_IdAndParentAssetIsNull(id, pageable).toList();
     }
 
 
@@ -155,6 +155,10 @@ public class AssetService {
 
     public List<Asset> findAssetChildren(Long id, Sort sort) {
         return assetRepository.findByParentAsset_Id(id, sort);
+    }
+
+    public Page<Asset> findAssetChildren(Long id, Pageable pageable) {
+        return assetRepository.findByParentAsset_Id(id, pageable);
     }
 
     public void notify(Asset asset, String title, String message) {
@@ -191,7 +195,7 @@ public class AssetService {
     }
 
     private void recursivelyStopChildrenDowntime(Asset parentAsset) {
-        List<Asset> children = findAssetChildren(parentAsset.getId(), null);
+        List<Asset> children = findAssetChildren(parentAsset.getId(), (Sort) null);
         for (Asset child : children) {
             stopAssetDowntime(child);
             recursivelyStopChildrenDowntime(child);

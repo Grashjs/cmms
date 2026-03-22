@@ -14,6 +14,7 @@ import com.grash.model.OwnUser;
 import com.grash.model.Part;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
+import com.grash.repository.AssetRepository;
 import com.grash.security.CurrentUser;
 import com.grash.service.*;
 import com.grash.utils.Helper;
@@ -24,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -55,6 +57,7 @@ public class AssetController {
     private final LicenseService licenseService;
     private final RateLimiterService rateLimiterService;
     private final RequestPortalService requestPortalService;
+    private final AssetRepository assetRepository;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -147,6 +150,28 @@ public class AssetController {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
                 return assetService.findAssetChildren(id, pageable.getSort()).stream().map(asset -> assetMapper.toShowDto(asset,
                         assetService)).collect(Collectors.toList());
+            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/children/{id}/paginated")
+    @PreAuthorize("permitAll()")
+    public Page<AssetShowDTO> getChildrenByIdPaginated(@PathVariable("id") Long id,
+                                                       Pageable pageable,
+                                                       HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            Page<Asset> assetsPage = assetRepository.findByCompany_IdAndParentAssetIsNull(user.getCompany().getId(),
+                    pageable);
+            return assetsPage.map(asset -> assetMapper.toShowDto(asset, assetService));
+        }
+        Optional<Asset> optionalAsset = assetService.findById(id);
+        if (optionalAsset.isPresent()) {
+            Asset savedAsset = optionalAsset.get();
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
+                Page<Asset> assetsPage = assetService.findAssetChildren(id, pageable);
+                return assetsPage.map(asset -> assetMapper.toShowDto(asset, assetService));
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
 
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

@@ -20,9 +20,11 @@ public interface AssetRepository extends JpaRepository<Asset, Long>, JpaSpecific
 
     List<Asset> findByCompany_Id(Long id, Sort sort);
 
-    List<Asset> findByCompany_IdAndParentAssetIsNull(Long id, Pageable pageable);
+    Page<Asset> findByCompany_IdAndParentAssetIsNull(Long id, Pageable pageable);
 
     List<Asset> findByParentAsset_Id(Long id, Sort sort);
+
+    Page<Asset> findByParentAsset_Id(Long id, Pageable pageable);
 
     Integer countByParentAsset_Id(Long id);
 
