@@ -77,7 +77,7 @@ import useTableState from '../../../hooks/useTableState';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const HIERARCHY_ZERO_PAGE_SIZE = 40;
+const PAGE_SIZE = 40;
 
 function Assets() {
   const { t }: { t: any } = useTranslation();
@@ -117,7 +117,7 @@ function Assets() {
   const [hierarchySorting, setHierarchySorting] = useState<SortingState>([]);
   const [pageable, setPageable] = useState<Pageable>({
     page: 0,
-    size: HIERARCHY_ZERO_PAGE_SIZE
+    size: PAGE_SIZE
   });
   const initialCriteria: SearchCriteria = {
     filterFields: [
