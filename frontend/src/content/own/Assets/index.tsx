@@ -971,7 +971,9 @@ function Assets() {
                     : assets.totalElements
                 }
                 pageSizeOptions={
-                  view === 'list' ? [10, 20, 50] : [10, 25, 50, 100]
+                  view === 'list'
+                    ? [10, 20, 50]
+                    : Array.from({ length: 4 }, (_, i) => PAGE_SIZE * (i + 1))
                 }
                 sorting={
                   view === 'hierarchy' ? hierarchySorting : tableState.sorting
