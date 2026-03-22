@@ -33,17 +33,11 @@ import CustomDatagrid2, {
   CustomDatagridColumn2
 } from '../components/CustomDatagrid2';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
-import {
-  AssetDTO,
-  AssetMiniDTO,
-  AssetRow,
-  AssetStatus
-} from '../../../models/owns/asset';
+import { AssetDTO, AssetRow } from '../../../models/owns/asset';
 import Form from '../components/form';
 import * as Yup from 'yup';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { formatAssetValues } from '../../../utils/formatters';
-import { UserMiniDTO } from '../../../models/user';
 import UserAvatars from '../components/UserAvatars';
 import { enumerate } from '../../../utils/displayers';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
@@ -52,13 +46,8 @@ import { getAssetUrl } from '../../../utils/urlPaths';
 import useAuth from '../../../hooks/useAuth';
 import { PermissionEntity } from '../../../models/owns/role';
 import PermissionErrorMessage from '../components/PermissionErrorMessage';
-import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
 import { isNumeric } from '../../../utils/validators';
 import { getSingleLocation } from '../../../slices/location';
-import { LocationMiniDTO } from '../../../models/owns/location';
-import { TeamMiniDTO } from '../../../models/owns/team';
-import { VendorMiniDTO } from '../../../models/owns/vendor';
-import Category from '../../../models/owns/category';
 import { useExport } from '../../../hooks/useExport';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import {
@@ -74,14 +63,12 @@ import {
   onSearchQueryChange
 } from '../../../utils/overall';
 import SearchInput from '../components/SearchInput';
-import File from '../../../models/owns/file';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import AssetStatusTag from './components/AssetStatusTag';
 import { getErrorMessage } from '../../../utils/api';
 import SplitButton from '../components/SplitButton';
 import {
   createColumnHelper,
-  OnChangeFn,
   SortingState,
   Updater
 } from '@tanstack/react-table';
@@ -89,7 +76,7 @@ import useTableState from '../../../hooks/useTableState';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const HIERARCHY_ZERO_PAGE_SIZE = 40;
+const HIERARCHY_ZERO_PAGE_SIZE = 1;
 
 function Assets() {
   const { t }: { t: any } = useTranslation();
@@ -334,42 +321,26 @@ function Assets() {
         const isExpanded = expanded[row.original.id];
         const hasSubRows =
           row.original.hasChildren || subRowsMap[row.original.id]?.length > 0;
-        const hasMore = hasMorePages(row.original.id);
 
         if (!hasSubRows && view === 'hierarchy') {
           return <Box sx={{ width: 24 }} />;
         }
 
         return (
-          <Stack direction="row" spacing={0.5} alignItems="center">
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleToggleExpand(row.original as AssetRow);
-              }}
-              sx={{ padding: 0.5 }}
-            >
-              {isExpanded ? (
-                <ExpandMoreIcon fontSize="small" />
-              ) : (
-                <ChevronRightIcon fontSize="small" />
-              )}
-            </IconButton>
-            {view === 'hierarchy' && isExpanded && hasMore && (
-              <Button
-                size="small"
-                variant="text"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  fetchMoreForParent(row.original.id);
-                }}
-                disabled={loadingHierarchy}
-              >
-                {t('fetch_more')}
-              </Button>
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleExpand(row.original as AssetRow);
+            }}
+            sx={{ padding: 0.5 }}
+          >
+            {isExpanded ? (
+              <ExpandMoreIcon fontSize="small" />
+            ) : (
+              <ChevronRightIcon fontSize="small" />
             )}
-          </Stack>
+          </IconButton>
         );
       },
       size: 50
@@ -377,23 +348,57 @@ function Assets() {
     columnHelper.accessor('customId', {
       id: 'customId',
       header: () => t('id'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 100
     }),
     columnHelper.accessor('name', {
       id: 'name',
       header: () => t('name'),
-      cell: (info) => (
-        <Box
-          sx={{
-            py: 1,
-            fontWeight: 'bold',
-            ml: view === 'hierarchy' ? (info.row.depth || 0) * 24 : 0
-          }}
-        >
-          {info.getValue()}
-        </Box>
-      ),
+      cell: (info) => {
+        const row = info.row.original as AssetRow & {
+          depth: number;
+          isLoadMoreRow?: boolean;
+          parentId?: number;
+        };
+        // Render "Load More" row as a clickable button
+        if (row.isLoadMoreRow) {
+          return (
+            <Box
+              sx={{
+                py: 1,
+                fontWeight: 'bold'
+              }}
+            >
+              <Button
+                size="small"
+                variant="text"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (row.parentId) {
+                    fetchMoreForParent(row.parentId);
+                  }
+                }}
+                disabled={loadingHierarchy}
+                startIcon={loadingHierarchy && <CircularProgress size="1rem" />}
+              >
+                {t('fetch_more')}
+              </Button>
+            </Box>
+          );
+        }
+
+        return (
+          <Box
+            sx={{
+              py: 1,
+              fontWeight: 'bold',
+              ml: view === 'hierarchy' ? (info.row.depth || 0) * 24 : 0
+            }}
+          >
+            {info.getValue()}
+          </Box>
+        );
+      },
       size: 200
     }),
     columnHelper.accessor('status', {
@@ -428,19 +433,19 @@ function Assets() {
     columnHelper.accessor('area', {
       id: 'area',
       header: () => t('area'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 100
     }),
     columnHelper.accessor('model', {
       id: 'model',
       header: () => t('model'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 120
     }),
     columnHelper.accessor('barCode', {
       id: 'barCode',
       header: () => t('barcode'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 120
     }),
     columnHelper.accessor((row) => row.category?.name, {
@@ -452,7 +457,7 @@ function Assets() {
     columnHelper.accessor('description', {
       id: 'description',
       header: () => t('description'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 250
     }),
     columnHelper.accessor(
@@ -488,7 +493,7 @@ function Assets() {
       {
         id: 'vendors',
         header: () => t('vendors'),
-        cell: (info) => info.getValue(),
+        cell: (info) => info.getValue() || '',
         size: 150,
         meta: {
           uiConfigKey: 'vendorsAndCustomers'
@@ -777,8 +782,8 @@ function Assets() {
     subRowsMap: Record<number, AssetRow[]>,
     parentId: number | null = null,
     depth: number = 0
-  ): (AssetRow & { depth: number })[] => {
-    let result: (AssetRow & { depth: number })[] = [];
+  ): AssetRow[] => {
+    let result: AssetRow[] = [];
 
     // 1. Find the children of the current parent
     const nodes = flatList.filter((item) => {
@@ -804,9 +809,16 @@ function Assets() {
 
         if (children.length > 0) {
           result = [...result, ...children];
-        } else if (subRowsMap[node.id]) {
-          // Render the temporary loading row if fetching is in progress
-          result.push({ ...subRowsMap[node.id][0], depth: depth + 1 });
+          // Add "Load More" row after children if there are more pages
+          if (hasMorePages(node.id)) {
+            result.push({
+              id: `load-more-${node.id}`,
+              name: t('fetch_more'),
+              depth: 0,
+              isLoadMoreRow: true,
+              parentId: node.id
+            } as unknown as AssetRow);
+          }
         }
       }
     }
@@ -829,7 +841,7 @@ function Assets() {
   });
 
   // Prepare data for the table based on view type
-  const tableData =
+  const tableData: (AssetRow | AssetDTO)[] =
     view === 'hierarchy'
       ? getHierarchicalData(assetsHierarchy, expanded, subRowsMap)
       : assets.content || [];
@@ -969,6 +981,7 @@ function Assets() {
                 noRowsMessage={t('noRows.asset.message')}
                 noRowsAction={t('noRows.asset.action')}
                 onRowClick={(row) => {
+                  if ('isLoadMoreRow' in row && row.isLoadMoreRow) return;
                   navigate(getAssetUrl(row.id));
                 }}
               />

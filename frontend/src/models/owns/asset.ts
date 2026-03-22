@@ -61,6 +61,9 @@ export interface AssetDTO extends Audit {
 }
 export interface AssetRow extends AssetDTO {
   childrenFetched?: boolean;
+  showMoreButton?: boolean;
+  isLoadMoreRow?: boolean;
+  depth?: number;
 }
 export interface AssetMiniDTO {
   id: number;
