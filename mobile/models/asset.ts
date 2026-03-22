@@ -51,6 +51,8 @@ export interface AssetDTO extends Audit {
   parts: PartMiniDTO[];
   files: FileMiniDTO[];
   customId: string;
+  manufacturer: string;
+  power: string;
 }
 export const assetStatuses: {
   status: AssetStatus;

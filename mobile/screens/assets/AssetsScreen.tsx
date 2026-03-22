@@ -192,7 +192,18 @@ export default function AssetsScreen({
       criteria,
       setCriteria,
       setSearchQuery,
-      ['name', 'model', 'description', 'additionalInfos']
+      [
+        'name',
+        'description',
+        'model',
+        'additionalInfos',
+        'barCode',
+        'area',
+        'serialNumber',
+        'manufacturer',
+        'power',
+        'customId'
+      ]
     );
     setView('list');
   };

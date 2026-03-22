@@ -141,7 +141,7 @@ export default function WorkOrdersScreen({
       criteria,
       setCriteria,
       setSearchQuery,
-      ['title', 'description', 'feedback']
+      ['title', 'description', 'feedback', 'customId']
     );
   };
   useDebouncedEffect(

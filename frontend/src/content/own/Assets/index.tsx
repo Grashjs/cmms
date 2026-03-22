@@ -140,7 +140,11 @@ function Assets() {
       'model',
       'additionalInfos',
       'barCode',
-      'area'
+      'area',
+      'serialNumber',
+      'manufacturer',
+      'power',
+      'customId'
     ]);
   };
   const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
