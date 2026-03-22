@@ -24,6 +24,7 @@ import {
   getAssets,
   resetAssetsHierarchy
 } from '../../../slices/asset';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useDispatch, useSelector } from '../../../store';
 import * as React from 'react';
 import { useContext, useEffect, useMemo, useState } from 'react';
@@ -379,7 +380,13 @@ function Assets() {
                   }
                 }}
                 disabled={loadingHierarchy}
-                startIcon={loadingHierarchy && <CircularProgress size="1rem" />}
+                endIcon={
+                  loadingHierarchy ? (
+                    <CircularProgress size="1rem" />
+                  ) : (
+                    <MoreHorizIcon />
+                  )
+                }
               >
                 {t('fetch_more')}
               </Button>
