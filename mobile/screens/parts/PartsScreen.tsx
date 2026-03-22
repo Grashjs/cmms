@@ -92,10 +92,10 @@ export default function PartsScreen({
   const onQueryChange = (query) => {
     onSearchQueryChange<Part>(query, criteria, setCriteria, setSearchQuery, [
       'name',
-      'barcode',
-      'area',
+      'description',
       'additionalInfos',
-      'description'
+      'area',
+      'barcode'
     ]);
   };
   useDebouncedEffect(

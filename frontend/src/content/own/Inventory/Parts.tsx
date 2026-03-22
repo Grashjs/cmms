@@ -154,7 +154,9 @@ const Parts = ({ setAction }: PropsType) => {
     onSearchQueryChange<Part>(event, criteria, setCriteria, [
       'name',
       'description',
-      'additionalInfos'
+      'additionalInfos',
+      'area',
+      'barcode'
     ]);
   };
   const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
