@@ -12,6 +12,8 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Pagination,
+  Select,
   Stack,
   Tab,
   Tabs,
@@ -745,12 +747,12 @@ const Parts = ({ setAction }: PropsType) => {
         />
       )}
       {currentTab === 'card' && (
-        <Grid item xs={12}>
+        <Box>
           <Grid container spacing={2}>
             {parts.content.map((part) => (
-              <Grid item xs={12} lg={3} key={part.id}>
+              <Grid item xs={12} sm={6} md={4} lg={3} key={part.id}>
                 <Card
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: 'pointer', height: '100%' }}
                   onClick={() => handleOpenDetails(part.id)}
                 >
                   <CardMedia
@@ -777,7 +779,44 @@ const Parts = ({ setAction }: PropsType) => {
               </Grid>
             ))}
           </Grid>
-        </Grid>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            sx={{ mt: 2, mb: 2 }}
+          >
+            <Typography variant="body2" color="text.secondary">
+              {parts.totalElements} {t('total_items')}
+            </Typography>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Typography variant="body2">{t('items_per_page')}:</Typography>
+              <Select
+                value={criteria.pageSize}
+                onChange={(e) =>
+                  setCriteria({
+                    ...criteria,
+                    pageSize: Number(e.target.value),
+                    pageNum: 0
+                  })
+                }
+              >
+                {[10, 20, 50].map((size) => (
+                  <MenuItem key={size} value={size}>
+                    {size}
+                  </MenuItem>
+                ))}
+              </Select>
+              <Pagination
+                count={Math.ceil(parts.totalElements / criteria.pageSize)}
+                page={criteria.pageNum + 1}
+                onChange={(_event, page) =>
+                  setCriteria({ ...criteria, pageNum: page - 1 })
+                }
+                color="primary"
+              />
+            </Stack>
+          </Stack>
+        </Box>
       )}
       <Drawer
         anchor="right"
