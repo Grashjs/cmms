@@ -16,4 +16,5 @@ public class WorkOrderBaseMiniDTO {
     private Date dueDate;
     private Instant createdAt;
     private Priority priority;
+    private Status status;
 }

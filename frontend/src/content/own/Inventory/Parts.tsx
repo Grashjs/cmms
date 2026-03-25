@@ -803,7 +803,7 @@ const Parts = ({ setAction }: PropsType) => {
                   })
                 }
               >
-                {[10, 20, 50].map((size) => (
+                {[PAGE_SIZE, PAGE_SIZE * 2, PAGE_SIZE * 4].map((size) => (
                   <MenuItem key={size} value={size}>
                     {size}
                   </MenuItem>

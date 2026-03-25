@@ -559,6 +559,31 @@ function WorkOrders() {
       label: t('image')
     },
     {
+      name: 'location',
+      type: 'select',
+      type2: 'location',
+      label: t('location'),
+      placeholder: t('select_location')
+    },
+    {
+      name: 'asset',
+      type: 'select',
+      type2: 'asset',
+      label: t('asset'),
+      placeholder: t('select_asset'),
+      relatedFields: [{ field: 'location' }]
+    },
+    {
+      name: 'assetStatus',
+      type: 'select',
+      label: t('asset_status'),
+      placeholder: t('select_asset_status'),
+      items: assetStatuses.map((assetStatus) => ({
+        label: t(assetStatus.status),
+        value: assetStatus.status
+      }))
+    },
+    {
       name: 'dueDate',
       type: 'date',
       label: t('due_date')
@@ -613,31 +638,6 @@ function WorkOrders() {
       type2: 'team',
       label: t('team'),
       placeholder: t('select_team')
-    },
-    {
-      name: 'location',
-      type: 'select',
-      type2: 'location',
-      label: t('location'),
-      placeholder: t('select_location')
-    },
-    {
-      name: 'asset',
-      type: 'select',
-      type2: 'asset',
-      label: t('asset'),
-      placeholder: t('select_asset'),
-      relatedFields: [{ field: 'location' }]
-    },
-    {
-      name: 'assetStatus',
-      type: 'select',
-      label: t('asset_status'),
-      placeholder: t('select_asset_status'),
-      items: assetStatuses.map((assetStatus) => ({
-        label: t(assetStatus.status),
-        value: assetStatus.status
-      }))
     },
     {
       name: 'tasks',
