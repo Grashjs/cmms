@@ -93,6 +93,7 @@ const fieldMapping: Record<string, string> = {
   openWorkOrders: 'openWorkOrders'
 };
 
+const PAGE_SIZE = 12;
 const Parts = ({ setAction }: PropsType) => {
   const { t }: { t: any } = useTranslation();
   const [currentTab, setCurrentTab] = useState<string>('list');
@@ -105,7 +106,7 @@ const Parts = ({ setAction }: PropsType) => {
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
   const [criteria, setCriteria] = useState<SearchCriteria>({
     filterFields: [],
-    pageSize: 10,
+    pageSize: PAGE_SIZE,
     pageNum: 0,
     direction: 'DESC'
   });
@@ -730,7 +731,7 @@ const Parts = ({ setAction }: PropsType) => {
           pagination={pagination}
           onPaginationChange={setPagination}
           totalRows={parts.totalElements}
-          pageSizeOptions={[10, 20, 50]}
+          pageSizeOptions={[PAGE_SIZE, PAGE_SIZE * 2, PAGE_SIZE * 4]}
           sorting={sorting}
           onSortingChange={setSorting}
           columnOrder={columnOrder}
