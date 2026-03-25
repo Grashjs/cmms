@@ -322,8 +322,10 @@ public class WorkOrderController {
                         new Object[]{patchedWorkOrder.getTitle(),
                                 messageSource.getMessage(patchedWorkOrder.getStatus().toString(), null, locale)},
                         locale);
-                notificationService.create(new Notification(message, userService.findById(requesterId).get(),
-                        NotificationType.WORK_ORDER, id));
+                if (requester != null) {
+                    notificationService.create(new Notification(message, requester,
+                            NotificationType.WORK_ORDER, id));
+                }
                 if ((requester != null && requester.getUserSettings().shouldEmailUpdatesForRequests() && requester.isEnabled()) || requesterEmail != null) {
                     Map<String, Object> mailVariables = new HashMap<String, Object>() {{
                         put("workOrderLink", frontendUrl + "/app/work-orders/" + id);
