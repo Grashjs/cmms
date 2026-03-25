@@ -256,9 +256,7 @@ function Requests() {
     columnHelper.accessor('title', {
       id: 'title',
       header: () => t('title'),
-      cell: (info) => (
-        <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>
-      ),
+      cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>,
       size: 150
     }),
     columnHelper.accessor('description', {
@@ -290,6 +288,18 @@ function Requests() {
       id: 'dueDate',
       header: () => t('due_date'),
       cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    }),
+    columnHelper.accessor((row) => row.asset?.name, {
+      id: 'asset',
+      header: () => t('asset'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor((row) => row.asset?.name, {
+      id: 'location',
+      header: () => t('location'),
+      cell: (info) => info.getValue() || '',
       size: 150
     }),
     columnHelper.accessor('createdAt', {

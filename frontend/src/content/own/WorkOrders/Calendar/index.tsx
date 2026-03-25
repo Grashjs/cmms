@@ -184,7 +184,11 @@ function ApplicationsCalendar({
     return {
       id: eventPayload.event.id.toString(),
       allDay: false,
-      color: getColor(eventPayload.event.priority),
+      color:
+        'status' in eventPayload.event &&
+        eventPayload.event.status === 'COMPLETE'
+          ? theme.colors.alpha.black[30]
+          : getColor(eventPayload.event.priority),
       description: eventPayload.event?.description,
       end: new Date(eventPayload.date),
       start: new Date(eventPayload.date),

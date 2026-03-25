@@ -21,6 +21,22 @@ export const getWOBaseFields = (
       multiple: true
     },
     {
+      name: 'location',
+      type: 'select',
+      type2: 'location',
+      label: t('location'),
+      placeholder: 'Select location'
+    },
+    {
+      name: 'asset',
+      type: 'select',
+      type2: 'asset',
+      label: t('asset'),
+      placeholder: 'Select Asset',
+      required: true,
+      relatedFields: [{ field: 'location' }]
+    },
+    {
       name: 'audioDescription',
       type: 'audio',
       label: t('audio_description')
@@ -54,22 +70,6 @@ export const getWOBaseFields = (
       label: t('category'),
       type2: 'category',
       category: 'work-order-categories'
-    },
-    {
-      name: 'location',
-      type: 'select',
-      type2: 'location',
-      label: t('location'),
-      placeholder: 'Select location'
-    },
-    {
-      name: 'asset',
-      type: 'select',
-      type2: 'asset',
-      label: t('asset'),
-      placeholder: 'Select Asset',
-      required: true,
-      relatedFields: [{ field: 'location' }]
     },
     {
       name: 'primaryUser',

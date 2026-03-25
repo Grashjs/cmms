@@ -22,6 +22,22 @@ export const getWOBaseFields = (
       multiple: true
     },
     {
+      name: 'location',
+      type: 'select',
+      type2: 'location',
+      label: t('location'),
+      placeholder: 'Select location'
+    },
+    {
+      name: 'asset',
+      type: 'select',
+      type2: 'asset',
+      label: t('asset'),
+      placeholder: 'Select Asset',
+      relatedFields: [{ field: 'location' }],
+      required: true
+    },
+    {
       name: 'priority',
       type: 'select',
       type2: 'priority',
@@ -50,22 +66,6 @@ export const getWOBaseFields = (
       label: t('category'),
       type2: 'category',
       category: 'work-order-categories'
-    },
-    {
-      name: 'location',
-      type: 'select',
-      type2: 'location',
-      label: t('location'),
-      placeholder: 'Select location'
-    },
-    {
-      name: 'asset',
-      type: 'select',
-      type2: 'asset',
-      label: t('asset'),
-      placeholder: 'Select Asset',
-      relatedFields: [{ field: 'location' }],
-      required: true
     },
     {
       name: 'primaryUser',

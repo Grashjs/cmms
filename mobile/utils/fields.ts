@@ -29,6 +29,21 @@ export const getWorkOrderFields = (t): IField[] => {
       label: t('image')
     },
     {
+      name: 'location',
+      type: 'select',
+      type2: 'location',
+      label: t('location'),
+      placeholder: t('select_location')
+    },
+    {
+      name: 'asset',
+      type: 'select',
+      type2: 'asset',
+      label: t('asset'),
+      placeholder: t('select_asset'),
+      relatedFields: [{ field: 'location' }]
+    },
+    {
       name: 'dueDate',
       type: 'date',
       label: t('due_date')
@@ -83,21 +98,6 @@ export const getWorkOrderFields = (t): IField[] => {
       type2: 'team',
       label: t('team'),
       placeholder: t('select_team')
-    },
-    {
-      name: 'location',
-      type: 'select',
-      type2: 'location',
-      label: t('location'),
-      placeholder: t('select_location')
-    },
-    {
-      name: 'asset',
-      type: 'select',
-      type2: 'asset',
-      label: t('asset'),
-      placeholder: t('select_asset'),
-      relatedFields: [{ field: 'location' }]
     },
     {
       name: 'tasks',

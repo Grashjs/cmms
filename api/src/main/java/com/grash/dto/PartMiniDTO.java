@@ -13,4 +13,5 @@ public class PartMiniDTO {
     private String description;
     private double cost;
     private String unit;
+    private boolean nonStock;
 }
