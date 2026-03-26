@@ -1,4 +1,4 @@
-import { Alert, Linking } from 'react-native';
+import { Alert, Linking, AppState, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera } from 'expo-camera';
 import i18n from '../i18n/i18n';
@@ -74,6 +74,28 @@ export const ensurePermission = async ({
   }
 };
 
+/**
+ * On Android 12+, the permission dialog dismissal puts the activity into a
+ * transient pause. Launching the camera immediately after causes Android to
+ * silently drop the intent. We wait until the activity is fully active again.
+ */
+const waitForAppActive = (): Promise<void> => {
+  return new Promise((resolve) => {
+    if (AppState.currentState === 'active') {
+      resolve();
+      return;
+    }
+
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        sub.remove();
+        // Small buffer for the activity window to fully settle
+        setTimeout(resolve, 100);
+      }
+    });
+  });
+};
+
 export const openCameraWithPermission = async (
   flow: string,
   options: ImagePicker.ImagePickerOptions
@@ -88,6 +110,12 @@ export const openCameraWithPermission = async (
   if (!hasPermission) {
     console.warn(`[${flow}] Camera permission denied, picker will not open`);
     return null;
+  }
+
+  // Wait for activity to fully resume before launching camera.
+  // Only needed on Android — iOS handles this natively.
+  if (Platform.OS === 'android') {
+    await waitForAppActive();
   }
 
   console.warn(`[${flow}] Opening camera picker`);
@@ -111,7 +139,9 @@ export const openLibraryWithPermission = async (
   });
 
   if (!hasPermission) {
-    console.warn(`[${flow}] Media library permission denied, picker will not open`);
+    console.warn(
+      `[${flow}] Media library permission denied, picker will not open`
+    );
     return null;
   }
 
