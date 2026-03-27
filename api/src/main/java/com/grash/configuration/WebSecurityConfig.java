@@ -67,6 +67,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/webhooks/**").permitAll()
                         .requestMatchers("/paddle/create-checkout-session").permitAll()
                         .requestMatchers("/auth/reset-pwd-confirm**").permitAll()
+                        .requestMatchers("/auth/ldap/login").permitAll()
                         //request-portal
                         .requestMatchers("/request-portals/public/{uuid}").permitAll()
                         .requestMatchers("/requests/portal/{requestPortalUuid}").permitAll()
