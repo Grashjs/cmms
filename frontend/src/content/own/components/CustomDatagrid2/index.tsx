@@ -119,8 +119,6 @@ interface CustomDatagrid2Props<TData extends RowData> {
   getRowId?: (row: TData) => string;
 }
 
-const PINNED_BG = '#F2F5F9';
-
 function CustomDatagrid2<TData extends RowData>({
   columns,
   data,
@@ -523,7 +521,7 @@ function CustomDatagrid2<TData extends RowData>({
                 fontWeight: 'bold',
                 textTransform: 'uppercase',
                 borderBottom: `1px solid ${theme.palette.divider}`,
-                backgroundColor: '#E8EAEE',
+                backgroundColor: theme.palette.background.paper,
                 position: 'sticky',
                 top: 0,
                 zIndex: 3
@@ -558,12 +556,12 @@ function CustomDatagrid2<TData extends RowData>({
                         whiteSpace: 'nowrap',
                         position: isPinned ? 'sticky' : 'relative',
                         left: isPinned ? stickyLeft : undefined,
-                        backgroundColor: PINNED_BG,
+                        backgroundColor: isPinned ? alpha(theme.palette.primary.main, 0.06) : theme.palette.background.paper,
                         userSelect: isResizing ? 'none' : 'auto',
                         cursor: canDrag ? 'pointer' : 'default',
                         borderRight: isPinned
                           ? `2px solid ${theme.palette.divider}`
-                          : `1px solid #F2F5F9`,
+                          : `1px solid ${theme.palette.divider}`,
                         boxShadow: isPinned
                           ? `2px 0 4px ${alpha(
                               theme.palette.common.black,
@@ -762,7 +760,7 @@ function CustomDatagrid2<TData extends RowData>({
                             textOverflow: 'ellipsis',
                             position: isPinned ? 'sticky' : undefined,
                             left: isPinned ? stickyLeft : undefined,
-                            backgroundColor: isPinned ? PINNED_BG : undefined,
+                            backgroundColor: isPinned ? alpha(theme.palette.primary.main, 0.06) : undefined,
                             borderRight: isPinned
                               ? `2px solid ${theme.palette.divider}`
                               : undefined,

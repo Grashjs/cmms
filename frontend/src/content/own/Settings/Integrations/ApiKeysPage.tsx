@@ -281,10 +281,10 @@ function ApiKeys() {
                 justifyContent="space-between"
                 p={2}
                 sx={{
-                  backgroundColor: 'grey.100',
+                  backgroundColor: 'action.hover',
                   borderRadius: 1,
                   border: '1px solid',
-                  borderColor: 'grey.300'
+                  borderColor: 'divider'
                 }}
               >
                 <Typography
