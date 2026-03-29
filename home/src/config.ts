@@ -16,6 +16,7 @@ const env = {
   GOOGLE_TRACKING_ID: process.env.NEXT_PUBLIC_GOOGLE_TRACKING_ID,
   PADDLE_SECRET_TOKEN: process.env.NEXT_PUBLIC_PADDLE_SECRET_TOKEN,
   PADDLE_ENVIRONMENT: process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT,
+  LEAD_FEEDER_ID: process.env.NEXT_PUBLIC_LEAD_FEEDER_ID,
 };
 
 const getValue = (key: keyof typeof env, defaultValue = ""): string => {
@@ -33,6 +34,7 @@ export const mainAppUrl = rawMainAppUrl
   : "http://localhost:3000/";
 
 export const googleTrackingId = getValue("GOOGLE_TRACKING_ID");
+export const leadFeederId = getValue("LEAD_FEEDER_ID");
 
 export const isCloudVersion = true;
 

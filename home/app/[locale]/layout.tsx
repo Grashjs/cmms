@@ -10,7 +10,8 @@ import { BrandProvider } from "src/contexts/BrandContext";
 import { getBrandServer } from "src/utils/serverBrand";
 import { Metadata } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
-import { googleTrackingId } from "src/config";
+import { googleTrackingId, leadFeederId } from "src/config";
+import Script from "next/dist/client/script";
 
 const inter = Inter({
   weight: "400",
@@ -69,6 +70,27 @@ export default async function RootLayout({
             </EmotionRegistry>
           </BrandProvider>
         </NextIntlClientProvider>
+        {leadFeederId && (
+          <Script id="leadfeeder" strategy="afterInteractive">
+            {`
+            (function(ss,ex){
+              window.ldfdr=window.ldfdr||function(){
+                (ldfdr._q=ldfdr._q||[]).push([].slice.call(arguments));
+              };
+              (function(d,s){
+                var fs=d.getElementsByTagName(s)[0];
+                function ce(src){
+                  var cs=d.createElement(s);
+                  cs.src=src;
+                  cs.async=1;
+                  fs.parentNode.insertBefore(cs,fs);
+                };
+                ce('https://sc.lfeeder.com/lftracker_v1_'+ss+(ex?'_'+ex:'')+'.js');
+              })(document,'script');
+            })('${leadFeederId}');
+          `}
+          </Script>
+        )}
       </body>
     </html>
   );
