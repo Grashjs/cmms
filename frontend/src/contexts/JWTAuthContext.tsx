@@ -36,6 +36,7 @@ import { getLicenseValidity } from '../slices/license';
 import { fireGa4Event } from '../utils/overall';
 import { useUtmTracker } from '@nik0di3m/utm-tracker-hook';
 import { addDays } from 'date-fns';
+import { shutdown } from '@intercom/messenger-js-sdk';
 
 interface AuthState {
   isInitialized: boolean;
@@ -606,6 +607,11 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     setSession(null);
     try {
       logoutZendesk();
+    } catch (err) {
+      console.error(err);
+    }
+    try {
+      shutdown();
     } catch (err) {
       console.error(err);
     }

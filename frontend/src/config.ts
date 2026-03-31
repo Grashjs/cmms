@@ -102,3 +102,5 @@ export const paddleEnvironment = getRuntimeValue('PADDLE_ENVIRONMENT') as
   | 'production';
 
 export const recaptchaSiteKey = getRuntimeValue('RECAPTCHA_SITE_KEY');
+
+export const intercomId = getRuntimeValue('INTERCOM_ID');
