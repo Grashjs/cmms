@@ -29,12 +29,14 @@ const PeopleAndTeams = ({}: PropsType) => {
 
   useEffect(() => {
     const inviteParam = searchParams.get('invite');
+
     if (inviteParam === 'true') {
       setOpenAddModal(true);
-      setSearchParams((prev) => {
-        prev.delete('invite');
-        return prev;
-      });
+
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('invite');
+
+      setSearchParams(newParams);
     }
   }, [searchParams]);
 

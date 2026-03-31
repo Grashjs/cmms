@@ -343,12 +343,14 @@ function WorkOrders() {
 
   useEffect(() => {
     const newParam = searchParams.get('new');
+
     if (newParam === 'true') {
       setOpenAddModal(true);
-      setSearchParams((prev) => {
-        prev.delete('new');
-        return prev;
-      });
+
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('new');
+
+      setSearchParams(newParams);
     }
   }, [searchParams]);
 
