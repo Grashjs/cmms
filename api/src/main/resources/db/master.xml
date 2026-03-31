@@ -188,4 +188,6 @@
     <include file="changelog/2026_03_04_00000000002_add_request_portal_id_to_request.xml" relativeToChangelogFile="true"/>
     <include file="changelog/2026_03_09_1773073802_remove_duplicate_roles.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_03_31_1775000000_add_company_activation_flags.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

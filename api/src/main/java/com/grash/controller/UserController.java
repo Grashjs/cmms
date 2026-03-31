@@ -10,6 +10,8 @@ import com.grash.model.Role;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.security.CurrentUser;
+import com.grash.service.CompanyService;
+import com.grash.service.IntercomService;
 import com.grash.service.RoleService;
 import com.grash.service.UserService;
 
@@ -29,6 +31,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -41,6 +45,8 @@ public class UserController {
     private final UserService userService;
     private final RoleService roleService;
     private final UserMapper userMapper;
+    private final IntercomService intercomService;
+    private final CompanyService companyService;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -71,6 +77,21 @@ public class UserController {
                     invitation.getEmails().forEach(email ->
                             userService.invite(email, optionalRole.get(), user, invitation.getDisableSendingEmail())
                     );
+
+                    // Fire Intercom event for first user invitation
+                    if (!user.getCompany().isInvitedUsers() && !invitation.getEmails().isEmpty()) {
+                        user.getCompany().setInvitedUsers(true);
+                        companyService.update(user.getCompany());
+                        Map<String, Object> metadata = new HashMap<>();
+                        metadata.put("invited_count", invitation.getEmails().size());
+                        intercomService.createCompanyActivationEvent(
+                                "first-users-invited",
+                                user.getCompany().getId(),
+                                user.getEmail(),
+                                metadata
+                        );
+                    }
+
                     return new SuccessResponse(true, "Users have been invited");
                 } else
                     throw new CustomException("Your current subscription doesn't allow you to invite that many users"

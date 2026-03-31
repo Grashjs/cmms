@@ -141,3 +141,5 @@ sendgrid:
   contact-list-id: ${SENDGRID_CONTACT_LIST_ID:}
   from:
     email: ${SENDGRID_FROM_EMAIL:}
+intercom:
+  token: ${INTERCOM_TOKEN:}

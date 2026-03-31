@@ -342,6 +342,17 @@ function WorkOrders() {
   }, []);
 
   useEffect(() => {
+    const newParam = searchParams.get('new');
+    if (newParam === 'true') {
+      setOpenAddModal(true);
+      setSearchParams((prev) => {
+        prev.delete('new');
+        return prev;
+      });
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
     let shouldOpen1 = locationParam && locationParamObject;
     let shouldOpen2 = assetParam && assetParamObject;
     if (shouldOpen1 || shouldOpen2) {

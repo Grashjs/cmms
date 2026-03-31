@@ -8,7 +8,9 @@ import com.grash.model.enums.ImportEntity;
 import com.grash.model.enums.Language;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
+import com.grash.service.CompanyService;
 import com.grash.service.ImportService;
+import com.grash.service.IntercomService;
 import com.grash.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +25,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/import")
@@ -34,6 +38,8 @@ public class ImportController {
 
     private final UserService userService;
     private final ImportService importService;
+    private final IntercomService intercomService;
+    private final CompanyService companyService;
 
     @PostMapping("/work-orders")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
@@ -54,7 +60,23 @@ public class ImportController {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.ASSETS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
-            return importService.importAssets(toImport, user.getCompany());
+            ImportResponse response = importService.importAssets(toImport, user.getCompany());
+
+            // Fire Intercom event for first asset import
+            if (!user.getCompany().isImportedAssets() && response.getCreated() > 0) {
+                user.getCompany().setImportedAssets(true);
+                companyService.update(user.getCompany());
+                Map<String, Object> metadata = new HashMap<>();
+                metadata.put("imported_count", response.getCreated());
+                intercomService.createCompanyActivationEvent(
+                        "first-assets-imported",
+                        user.getCompany().getId(),
+                        user.getEmail(),
+                        metadata
+                );
+            }
+
+            return response;
         } else {
             throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }

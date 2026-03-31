@@ -87,6 +87,8 @@ public class WorkOrderController {
     private final BrandingService brandingService;
     private final ScheduleService scheduleService;
     private final LicenseService licenseService;
+    private final IntercomService intercomService;
+    private final CompanyService companyService;
 
 
     @Value("${frontend.url}")
@@ -191,6 +193,21 @@ public class WorkOrderController {
                 workOrderReq.setPrimaryUser(primaryUser == null ? user : primaryUser);
             }
             WorkOrder createdWorkOrder = workOrderService.create(workOrderReq, user.getCompany());
+
+            // Fire Intercom event for first work order creation
+            if (!user.getCompany().isFirstWorkOrderCreated()) {
+                user.getCompany().setFirstWorkOrderCreated(true);
+                companyService.update(user.getCompany());
+                Map<String, Object> metadata = new HashMap<>();
+                metadata.put("work_order_id", createdWorkOrder.getId());
+                metadata.put("work_order_title", createdWorkOrder.getTitle());
+                intercomService.createCompanyActivationEvent(
+                        "first-work-order-created",
+                        user.getCompany().getId(),
+                        user.getEmail(),
+                        metadata
+                );
+            }
 
             return workOrderMapper.toShowDto(createdWorkOrder);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);

@@ -41,6 +41,12 @@ public class Company extends Audit {
 
     private boolean demo;
 
+    private boolean firstWorkOrderCreated = false;
+
+    private boolean invitedUsers = false;
+
+    private boolean importedAssets = false;
+
     public Company(String companyName, int employeesCount, Subscription subscription) {
         this.name = companyName;
         this.employeesCount = employeesCount;
