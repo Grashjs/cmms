@@ -2,6 +2,7 @@ import {
   Autocomplete,
   Box,
   Card,
+  CircularProgress,
   IconButton,
   InputAdornment,
   Link,
@@ -28,7 +29,7 @@ import { getTeamsMini } from '../../../../slices/team';
 import AssignmentTwoToneIcon from '@mui/icons-material/AssignmentTwoTone';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import { getPriorityLabel } from '../../../../utils/formatters';
-import { getCategories } from '../../../../slices/category';
+import { getCategories, addCategory } from '../../../../slices/category';
 import { getRoles } from '../../../../slices/role';
 import { getCurrencies } from '../../../../slices/currency';
 import { useTranslation } from 'react-i18next';
@@ -38,6 +39,8 @@ import useAuth from '../../../../hooks/useAuth';
 import { LocationMiniDTO } from '../../../../models/owns/location';
 import { AssetMiniDTO } from '../../../../models/owns/asset';
 import { PermissionEntity } from '../../../../models/owns/role';
+import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
+import { useContext } from 'react';
 
 interface OptionType {
   label: string;
@@ -55,6 +58,11 @@ interface InviteUserOptionType extends OptionType {
   __email__?: string;
 }
 
+interface CreateCategoryOptionType extends OptionType {
+  __createCategoryOption__?: boolean;
+  __categoryName__?: string;
+}
+
 export const CustomSelect = ({
   field,
   handleChange
@@ -64,13 +72,18 @@ export const CustomSelect = ({
 }) => {
   const [assetModalOpen, setAssetModalOpen] = useState(false);
   const [locationModalOpen, setLocationModalOpen] = useState(false);
+  const [creatingCategory, setCreatingCategory] = useState(false);
   const { t } = useTranslation();
   const formik = useFormikContext();
   const [openTask, setOpenTask] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { hasCreatePermission } = useAuth();
+  const {
+    hasCreatePermission,
+    user: { companySettingsId }
+  } = useAuth();
   const location = useLocation();
+  const { showSnackBar } = useContext(CustomSnackBarContext);
   const { customersMini } = useSelector((state) => state.customers);
   const { vendorsMini } = useSelector((state) => state.vendors);
   const { locationsMini, locationsHierarchy } = useSelector(
@@ -111,6 +124,32 @@ export const CustomSelect = ({
   };
   const fetchCurrencies = async () => {
     if (!currencies.length) dispatch(getCurrencies());
+  };
+
+  // Handle inline category creation
+  const handleCreateCategory = async (categoryName: string) => {
+    if (!categoryName.trim() || !field.category) return;
+
+    setCreatingCategory(true);
+    try {
+      const newCategory = await dispatch(
+        addCategory(
+          { name: categoryName, companySettings: { id: companySettingsId } },
+          field.category
+        )
+      );
+
+      // Set the newly created category in the form
+      handleChange(formik, field.name, {
+        label: newCategory.name,
+        value: newCategory.id
+      });
+    } catch (error) {
+      console.error(error);
+      showSnackBar(t('category_create_failure'), 'error');
+    } finally {
+      setCreatingCategory(false);
+    }
   };
 
   // Handle returned entity from inline creation
@@ -684,7 +723,7 @@ export const CustomSelect = ({
       onOpen = fetchRoles;
       break;
     case 'category':
-      options =
+      const categoryOptions =
         categories[field.category]?.map((category) => {
           return {
             label: category.name,
@@ -692,7 +731,133 @@ export const CustomSelect = ({
           };
         }) ?? [];
       onOpen = () => fetchCategories(field.category);
-      break;
+
+      return (
+        <>
+          <Autocomplete
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                fullWidth={field.fullWidth || true}
+                variant="outlined"
+                required={field.required}
+                label={field.label}
+                placeholder={field.placeholder}
+                error={!!formik.errors[field.name] || field.error}
+                helperText={
+                  typeof formik.errors[field.name] === 'string'
+                    ? (formik.errors[field.name] as string)
+                    : ''
+                }
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {creatingCategory ? (
+                        <CircularProgress size="1rem" />
+                      ) : (
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const inputValue = params.inputProps.value;
+                            if (inputValue) {
+                              handleCreateCategory(inputValue as string);
+                            }
+                          }}
+                          disabled={!params.inputProps.value}
+                        >
+                          <AddCircleTwoToneIcon />
+                        </IconButton>
+                      )}
+                    </InputAdornment>
+                  )
+                }}
+              />
+            )}
+            fullWidth={field.fullWidth || true}
+            disabled={formik.isSubmitting || creatingCategory}
+            onOpen={onOpen}
+            key={field.name}
+            freeSolo
+            filterOptions={(options, params) => {
+              const filtered = options.filter((option) => {
+                const inputValue = params.inputValue.toLowerCase();
+                const optionLabel = option.label.toLowerCase();
+                return optionLabel.includes(inputValue);
+              });
+
+              const { inputValue } = params;
+
+              // Add create category option when typing
+              if (
+                inputValue !== '' &&
+                hasCreatePermission(PermissionEntity.ASSETS)
+              ) {
+                filtered.unshift({
+                  label: `${t('create')} "${inputValue}"`,
+                  value: inputValue,
+                  __createCategoryOption__: true,
+                  __categoryName__: inputValue
+                } as CreateCategoryOptionType);
+              }
+
+              return filtered;
+            }}
+            //@ts-ignore
+            getOptionLabel={(option) =>
+              typeof option === 'string' ? option : option.label
+            }
+            isOptionEqualToValue={(option, value) =>
+              //@ts-ignore
+              option.value == value?.value
+            }
+            multiple={field.multiple}
+            value={field.multiple ? fieldValue ?? [] : fieldValue ?? null}
+            options={categoryOptions}
+            renderOption={(props, option) => {
+              const isCreateOption = (option as CreateCategoryOptionType)
+                .__createCategoryOption__;
+              return (
+                <Box
+                  component="li"
+                  {...props}
+                  sx={{
+                    color: isCreateOption ? 'primary.main' : 'inherit',
+                    fontWeight: isCreateOption ? 600 : 400
+                  }}
+                >
+                  {isCreateOption && (
+                    <ListItemIcon sx={{ color: 'primary.main', minWidth: 36 }}>
+                      <AddCircleTwoToneIcon fontSize="small" />
+                    </ListItemIcon>
+                  )}
+                  <Typography
+                    variant="body2"
+                    sx={{ color: isCreateOption ? 'primary.main' : 'inherit' }}
+                  >
+                    {(option as OptionType).label}
+                  </Typography>
+                </Box>
+              );
+            }}
+            onChange={async (event, newValue) => {
+              if (
+                newValue &&
+                (newValue as CreateCategoryOptionType).__createCategoryOption__
+              ) {
+                const categoryName = (newValue as CreateCategoryOptionType)
+                  .__categoryName__;
+                if (categoryName) {
+                  await handleCreateCategory(categoryName);
+                }
+              } else {
+                handleChange(formik, field.name, newValue);
+              }
+            }}
+          />
+        </>
+      );
     case 'priority':
       options = ['NONE', 'LOW', 'MEDIUM', 'HIGH'].map((value) => {
         return {
