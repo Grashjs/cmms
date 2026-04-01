@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { FormikProps, useFormikContext } from 'formik';
 import { useEffect, useState } from 'react';
-import { getLocationChildren, getLocationsMini } from 'src/slices/location';
+import { getLocationsMini } from 'src/slices/location';
 import { IField, IHash } from '../../type';
 import SelectAssetModal from './SelectAssetModal';
 import SelectForm from './SelectForm';
@@ -31,10 +31,13 @@ import { getPriorityLabel } from '../../../../utils/formatters';
 import { getCategories } from '../../../../slices/category';
 import { getRoles } from '../../../../slices/role';
 import { getCurrencies } from '../../../../slices/currency';
-import ClearTwoToneIcon from '@mui/icons-material/ClearTwoTone';
 import { useTranslation } from 'react-i18next';
 import SelectLocationModal from './SelectLocationModal';
 import { useLocation, useNavigate } from 'react-router-dom';
+import useAuth from '../../../../hooks/useAuth';
+import { LocationMiniDTO } from '../../../../models/owns/location';
+import { AssetMiniDTO } from '../../../../models/owns/asset';
+import { PermissionEntity } from '../../../../models/owns/role';
 
 interface OptionType {
   label: string;
@@ -61,6 +64,7 @@ export const CustomSelect = ({
   const [openTask, setOpenTask] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { hasCreatePermission } = useAuth();
   const location = useLocation();
   const { customersMini } = useSelector((state) => state.customers);
   const { vendorsMini } = useSelector((state) => state.vendors);
@@ -118,7 +122,7 @@ export const CustomSelect = ({
 
       if (entityId) {
         // Get the entity from the mini lists
-        const entityList =
+        const entityList: (LocationMiniDTO | AssetMiniDTO)[] =
           entityType === 'location' ? locationsMini : assetsMini;
         const entity = entityList.find((e) => e.id === Number(entityId));
 
@@ -259,7 +263,11 @@ export const CustomSelect = ({
                 option.label.toLowerCase().includes(inputValue.toLowerCase())
               );
 
-              if (inputValue !== '' && !isExisting) {
+              if (
+                inputValue !== '' &&
+                !isExisting &&
+                hasCreatePermission(PermissionEntity.LOCATIONS)
+              ) {
                 filtered.unshift({
                   label: `Create "${inputValue}"`,
                   value: inputValue,
@@ -429,7 +437,11 @@ export const CustomSelect = ({
                   option.label.toLowerCase() === inputValue.toLowerCase()
               );
 
-              if (inputValue !== '' && !isExisting) {
+              if (
+                inputValue !== '' &&
+                !isExisting &&
+                hasCreatePermission(PermissionEntity.ASSETS)
+              ) {
                 filtered.unshift({
                   label: `Create "${inputValue}"`,
                   value: inputValue,
