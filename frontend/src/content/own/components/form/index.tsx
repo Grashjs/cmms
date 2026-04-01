@@ -64,6 +64,14 @@ export default (props: PropsType) => {
     return formik.handleChange(field);
   };
 
+  const handleKeyDown =
+    (formik: FormikProps<IHash<any>>) => (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        formik.handleSubmit();
+      }
+    };
+
   const filterRelatedFields = (fields: IField[], formik): IField[] => {
     const fieldsClone = [...fields];
     const withRelatedFields = fields.filter(
@@ -196,6 +204,7 @@ export default (props: PropsType) => {
                                 ? (formik.errors[field.name] as string)
                                 : ''
                             }
+                            onKeyDown={handleKeyDown(formik)}
                           />
                         )}
                       />
@@ -257,6 +266,7 @@ export default (props: PropsType) => {
                       onChange={(e) => {
                         handleChange(formik, field.name, e.target.value);
                       }}
+                      onKeyDown={handleKeyDown(formik)}
                       error={!!formik.errors[field.name] || field.error}
                       errorMessage={formik.errors[field.name]}
                       fullWidth={field.fullWidth}
