@@ -65,8 +65,9 @@ export default (props: PropsType) => {
   };
 
   const handleKeyDown =
-    (formik: FormikProps<IHash<any>>) => (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
+    (formik: FormikProps<IHash<any>>, multiple: boolean) =>
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey && !multiple) {
         e.preventDefault();
         formik.handleSubmit();
       }
@@ -204,7 +205,6 @@ export default (props: PropsType) => {
                                 ? (formik.errors[field.name] as string)
                                 : ''
                             }
-                            onKeyDown={handleKeyDown(formik)}
                           />
                         )}
                       />
@@ -266,7 +266,7 @@ export default (props: PropsType) => {
                       onChange={(e) => {
                         handleChange(formik, field.name, e.target.value);
                       }}
-                      onKeyDown={handleKeyDown(formik)}
+                      onKeyDown={handleKeyDown(formik, field.multiple)}
                       error={!!formik.errors[field.name] || field.error}
                       errorMessage={formik.errors[field.name]}
                       fullWidth={field.fullWidth}

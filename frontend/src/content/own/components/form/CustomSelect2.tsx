@@ -115,25 +115,30 @@ export const CustomSelect = ({
     if (returnField && returnField === field.name) {
       const entityId = locationId || assetId;
       const entityType = locationId ? 'location' : 'asset';
-      
+
       if (entityId) {
         // Get the entity from the mini lists
-        const entityList = entityType === 'location' ? locationsMini : assetsMini;
+        const entityList =
+          entityType === 'location' ? locationsMini : assetsMini;
         const entity = entityList.find((e) => e.id === Number(entityId));
-        
+
         if (entity) {
           handleChange(formik, field.name, {
             label: entity.name,
             value: entity.id
           });
         }
-        
+
         // Clear the query params
         const newParams = new URLSearchParams(searchParams);
         newParams.delete('location');
         newParams.delete('asset');
         newParams.delete('returnField');
-        window.history.replaceState({}, '', `${window.location.pathname}?${newParams.toString()}`);
+        window.history.replaceState(
+          {},
+          '',
+          `${window.location.pathname}?${newParams.toString()}`
+        );
       }
     }
   }, [location.search]);
@@ -250,9 +255,8 @@ export const CustomSelect = ({
               });
 
               const { inputValue } = params;
-              const isExisting = options.some(
-                (option) =>
-                  option.label.toLowerCase() === inputValue.toLowerCase()
+              const isExisting = options.some((option) =>
+                option.label.toLowerCase().includes(inputValue.toLowerCase())
               );
 
               if (inputValue !== '' && !isExisting) {
