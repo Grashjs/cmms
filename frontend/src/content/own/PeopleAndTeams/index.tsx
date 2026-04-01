@@ -32,11 +32,6 @@ const PeopleAndTeams = ({}: PropsType) => {
 
     if (inviteParam === 'true') {
       setOpenAddModal(true);
-
-      const newParams = new URLSearchParams(searchParams);
-      newParams.delete('invite');
-
-      setSearchParams(newParams);
     }
   }, [searchParams]);
 

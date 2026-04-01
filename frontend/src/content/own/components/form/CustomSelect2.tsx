@@ -50,6 +50,11 @@ interface CreateOptionType extends OptionType {
   __returnField__?: string;
 }
 
+interface InviteUserOptionType extends OptionType {
+  __inviteOption__?: boolean;
+  __email__?: string;
+}
+
 export const CustomSelect = ({
   field,
   handleChange
@@ -173,14 +178,137 @@ export const CustomSelect = ({
       onOpen = fetchVendors;
       break;
     case 'user':
-      options = usersMini.map((user) => {
+      const userOptions = usersMini.map((user) => {
         return {
           label: `${user.firstName} ${user.lastName}`,
           value: user.id
         };
       });
       onOpen = fetchUsers;
-      break;
+
+      return (
+        <>
+          <Autocomplete
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                fullWidth={field.fullWidth || true}
+                variant="outlined"
+                required={field.required}
+                label={field.label}
+                placeholder={field.placeholder}
+                error={!!formik.errors[field.name] || field.error}
+                helperText={
+                  typeof formik.errors[field.name] === 'string'
+                    ? (formik.errors[field.name] as string)
+                    : ''
+                }
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate('/app/people-teams/people?invite=true');
+                        }}
+                      >
+                        <AddCircleTwoToneIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
+              />
+            )}
+            fullWidth={field.fullWidth || true}
+            disabled={formik.isSubmitting}
+            onOpen={onOpen}
+            key={field.name}
+            freeSolo
+            filterOptions={(options, params) => {
+              const filtered = options.filter((option) => {
+                const inputValue = params.inputValue.toLowerCase();
+                const optionLabel = option.label.toLowerCase();
+                return optionLabel.includes(inputValue);
+              });
+
+              const { inputValue } = params;
+
+              // Always add invite option at the top
+              const inviteOption: InviteUserOptionType = {
+                label: inputValue
+                  ? `${t('invite')} "${inputValue}"`
+                  : t('invite_users'),
+                value: inputValue || 'invite',
+                __inviteOption__: true,
+                __email__: inputValue
+              };
+
+              filtered.unshift(inviteOption);
+
+              return filtered;
+            }}
+            //@ts-ignore
+            getOptionLabel={(option) =>
+              typeof option === 'string' ? option : option.label
+            }
+            isOptionEqualToValue={(option, value) =>
+              //@ts-ignore
+              option.value == value?.value
+            }
+            multiple={field.multiple}
+            value={field.multiple ? fieldValue ?? [] : fieldValue ?? null}
+            options={userOptions}
+            renderOption={(props, option) => {
+              const isInviteOption = (option as InviteUserOptionType)
+                .__inviteOption__;
+              return (
+                <Box
+                  component="li"
+                  {...props}
+                  sx={{
+                    color: isInviteOption ? 'primary.main' : 'inherit',
+                    fontWeight: isInviteOption ? 600 : 400
+                  }}
+                >
+                  {isInviteOption && (
+                    <ListItemIcon sx={{ color: 'primary.main', minWidth: 36 }}>
+                      <AddCircleTwoToneIcon fontSize="small" />
+                    </ListItemIcon>
+                  )}
+                  <Typography
+                    variant="body2"
+                    sx={{ color: isInviteOption ? 'primary.main' : 'inherit' }}
+                  >
+                    {(option as OptionType).label}
+                  </Typography>
+                </Box>
+              );
+            }}
+            onChange={(event, newValue) => {
+              if (
+                newValue &&
+                (newValue as InviteUserOptionType).__inviteOption__
+              ) {
+                const email = (newValue as InviteUserOptionType).__email__;
+                // Navigate to invite page with email if provided
+                if (email) {
+                  navigate(
+                    `/app/people-teams/people?invite=true&email=${encodeURIComponent(
+                      email
+                    )}`
+                  );
+                } else {
+                  navigate('/app/people-teams/people?invite=true');
+                }
+              } else {
+                handleChange(formik, field.name, newValue);
+              }
+            }}
+          />
+        </>
+      );
     case 'team':
       options = teamsMini.map((team) => {
         return {
