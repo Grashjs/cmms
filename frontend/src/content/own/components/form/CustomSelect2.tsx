@@ -11,7 +11,7 @@ import {
   Typography
 } from '@mui/material';
 import { FormikProps, useFormikContext } from 'formik';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { getLocationsMini } from 'src/slices/location';
 import { IField, IHash } from '../../type';
 import SelectAssetModal from './SelectAssetModal';
@@ -29,7 +29,7 @@ import { getTeamsMini } from '../../../../slices/team';
 import AssignmentTwoToneIcon from '@mui/icons-material/AssignmentTwoTone';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import { getPriorityLabel } from '../../../../utils/formatters';
-import { getCategories, addCategory } from '../../../../slices/category';
+import { addCategory, getCategories } from '../../../../slices/category';
 import { getRoles } from '../../../../slices/role';
 import { getCurrencies } from '../../../../slices/currency';
 import { useTranslation } from 'react-i18next';
@@ -40,7 +40,6 @@ import { LocationMiniDTO } from '../../../../models/owns/location';
 import { AssetMiniDTO } from '../../../../models/owns/asset';
 import { PermissionEntity } from '../../../../models/owns/role';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
-import { useContext } from 'react';
 
 interface OptionType {
   label: string;
@@ -244,7 +243,9 @@ export const CustomSelect = ({
                 }
                 InputProps={{
                   ...params.InputProps,
-                  endAdornment: (
+                  endAdornment: hasCreatePermission(
+                    PermissionEntity.PEOPLE_AND_TEAMS
+                  ) && (
                     <InputAdornment position="end">
                       <IconButton
                         size="small"
@@ -275,17 +276,18 @@ export const CustomSelect = ({
               const { inputValue } = params;
 
               // Always add invite option at the top
-              const inviteOption: InviteUserOptionType = {
-                label: inputValue
-                  ? `${t('invite')} "${inputValue}"`
-                  : t('invite_users'),
-                value: inputValue || 'invite',
-                __inviteOption__: true,
-                __email__: inputValue
-              };
+              if (hasCreatePermission(PermissionEntity.PEOPLE_AND_TEAMS)) {
+                const inviteOption: InviteUserOptionType = {
+                  label: inputValue
+                    ? `${t('invite')} "${inputValue}"`
+                    : t('invite_users'),
+                  value: inputValue || 'invite',
+                  __inviteOption__: true,
+                  __email__: inputValue
+                };
 
-              filtered.unshift(inviteOption);
-
+                filtered.unshift(inviteOption);
+              }
               return filtered;
             }}
             //@ts-ignore
@@ -599,9 +601,8 @@ export const CustomSelect = ({
               });
 
               const { inputValue } = params;
-              const isExisting = options.some(
-                (option) =>
-                  option.label.toLowerCase() === inputValue.toLowerCase()
+              const isExisting = options.some((option) =>
+                option.label.toLowerCase().includes(inputValue.toLowerCase())
               );
 
               if (
@@ -751,7 +752,9 @@ export const CustomSelect = ({
                 }
                 InputProps={{
                   ...params.InputProps,
-                  endAdornment: (
+                  endAdornment: hasCreatePermission(
+                    PermissionEntity.CATEGORIES
+                  ) && (
                     <InputAdornment position="end">
                       {creatingCategory ? (
                         <CircularProgress size="1rem" />
