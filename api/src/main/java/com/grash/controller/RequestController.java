@@ -173,8 +173,10 @@ public class RequestController {
         }
         RequestPortal requestPortal = optionalRequestPortal.get();
         Request createdRequest = requestService.create(requestReq, requestPortal.getCompany(), requestPortal);
-        onRequestCreation(createdRequest, requestPortal.getCompany(), messageSource.getMessage("someone", null,
-                Helper.getLocale(requestPortal.getCompany())));
+        onRequestCreation(createdRequest, requestPortal.getCompany(),
+                requestReq.getContact() == null || requestReq.getContact().isBlank() ? messageSource.getMessage(
+                        "someone", null
+                , Helper.getLocale(requestPortal.getCompany())) : requestReq.getContact());
         return requestMapper.toShowDto(createdRequest);
     }
 
