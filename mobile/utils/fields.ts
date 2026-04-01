@@ -385,8 +385,7 @@ export const getLocationFields = (t): IField[] => {
       name: 'address',
       type: 'text',
       label: t('address'),
-      placeholder: 'Casa, Maroc',
-      required: true
+      placeholder: '13th St, New York'
     },
     {
       name: 'parentLocation',

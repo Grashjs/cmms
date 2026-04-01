@@ -26,8 +26,7 @@ export default function EditLocationScreen({
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
   const shape = {
-    name: Yup.string().required(t('required_location_name')),
-    address: Yup.string().required(t('required_location_address'))
+    name: Yup.string().required(t('required_location_name'))
   };
   const getEditFields = () => {
     const fieldsClone = [...getFilteredFields(getLocationFields(t))];

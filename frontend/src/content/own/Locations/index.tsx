@@ -398,8 +398,7 @@ function Locations() {
       name: 'address',
       type: 'text',
       label: t('address'),
-      placeholder: 'Casa, Maroc',
-      required: true
+      placeholder: '13th St, New York'
     },
     {
       name: 'parentLocation',
@@ -486,8 +485,8 @@ function Locations() {
     dispatch(resetLocationsHierarchy(pageable, callApi));
   };
   const shape = {
-    name: Yup.string().required(t('required_location_name')),
-    address: Yup.string().required(t('required_location_address')).nullable()
+    name: Yup.string().required(t('required_location_name'))
+    // address: Yup.string().required(t('required_location_address')).nullable()
   };
 
   const renderLocationAddModal = () => (
