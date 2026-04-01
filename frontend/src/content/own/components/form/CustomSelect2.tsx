@@ -269,7 +269,7 @@ export const CustomSelect = ({
                 hasCreatePermission(PermissionEntity.LOCATIONS)
               ) {
                 filtered.unshift({
-                  label: `Create "${inputValue}"`,
+                  label: `${t('create')} "${inputValue}"`,
                   value: inputValue,
                   __createOption__: true,
                   __entityType__: 'location',
@@ -443,7 +443,7 @@ export const CustomSelect = ({
                 hasCreatePermission(PermissionEntity.ASSETS)
               ) {
                 filtered.unshift({
-                  label: `Create "${inputValue}"`,
+                  label: `${t('create')} "${inputValue}"`,
                   value: inputValue,
                   __createOption__: true,
                   __entityType__: 'asset',
