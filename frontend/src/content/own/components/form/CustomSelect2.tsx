@@ -12,11 +12,12 @@ import { FormikProps, useFormikContext } from 'formik';
 import { useState } from 'react';
 import { getLocationChildren, getLocationsMini } from 'src/slices/location';
 import { IField, IHash } from '../../type';
-import SelectAssetModal from './SelectAssetModal'; // Import the new modal
+import SelectAssetModal from './SelectAssetModal';
 import SelectForm from './SelectForm';
 import SelectParts from './SelectParts';
 import { useDispatch, useSelector } from '../../../../store';
-import SearchIcon from '@mui/icons-material/Search'; // Added SearchIcon
+import SearchIcon from '@mui/icons-material/Search';
+import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
 import SelectTasksModal from './SelectTasks';
 import { getCustomersMini } from '../../../../slices/customer';
 import { getVendorsMini } from '../../../../slices/vendor';
@@ -25,7 +26,6 @@ import { getAssetsMini } from '../../../../slices/asset';
 import { getTeamsMini } from '../../../../slices/team';
 import AssignmentTwoToneIcon from '@mui/icons-material/AssignmentTwoTone';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
 import { getPriorityLabel } from '../../../../utils/formatters';
 import { getCategories } from '../../../../slices/category';
 import { getRoles } from '../../../../slices/role';
@@ -33,6 +33,13 @@ import { getCurrencies } from '../../../../slices/currency';
 import ClearTwoToneIcon from '@mui/icons-material/ClearTwoTone';
 import { useTranslation } from 'react-i18next';
 import SelectLocationModal from './SelectLocationModal';
+import { useNavigate } from 'react-router-dom';
+
+interface OptionType {
+  label: string;
+  value: string | number;
+  __createOption__?: boolean;
+}
 
 export const CustomSelect = ({
   field,
@@ -47,6 +54,7 @@ export const CustomSelect = ({
   const formik = useFormikContext();
   const [openTask, setOpenTask] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { customersMini } = useSelector((state) => state.customers);
   const { vendorsMini } = useSelector((state) => state.vendors);
   const { locationsMini, locationsHierarchy } = useSelector(
@@ -143,7 +151,7 @@ export const CustomSelect = ({
       break;
     case 'location':
     case 'parentLocation':
-      options = locationsMini
+      const locationOptions = locationsMini
         .filter((location) => location.id !== excluded)
         .map((location) => {
           return {
@@ -177,7 +185,7 @@ export const CustomSelect = ({
                       <IconButton
                         size="small"
                         onClick={(e) => {
-                          e.stopPropagation(); // Prevent TextField onClick from firing again
+                          e.stopPropagation();
                           setLocationModalOpen(true);
                         }}
                       >
@@ -192,17 +200,52 @@ export const CustomSelect = ({
             disabled={formik.isSubmitting}
             onOpen={onOpen}
             key={field.name}
+            freeSolo
+            filterOptions={(options, params) => {
+              const filtered = options.filter((option) => {
+                const inputValue = params.inputValue.toLowerCase();
+                const optionLabel = option.label.toLowerCase();
+                return optionLabel.includes(inputValue);
+              });
+
+              const { inputValue } = params;
+              const isExisting = options.some(
+                (option) =>
+                  option.label.toLowerCase() === inputValue.toLowerCase()
+              );
+
+              if (inputValue !== '' && !isExisting) {
+                filtered.unshift({
+                  label: `Create "${inputValue}"`,
+                  value: inputValue,
+                  __createOption__: true
+                } as OptionType);
+              }
+
+              return filtered;
+            }}
             //@ts-ignore
-            getOptionLabel={(option) => option.label}
+            getOptionLabel={(option) =>
+              typeof option === 'string' ? option : option.label
+            }
             isOptionEqualToValue={(option, value) =>
               //@ts-ignore
-              option.value == value.value
+              option.value == value?.value
             }
             multiple={field.multiple}
             value={field.multiple ? fieldValue ?? [] : fieldValue ?? null}
-            options={options}
+            options={locationOptions}
             onChange={(event, newValue) => {
-              handleChange(formik, field.name, newValue);
+              if (newValue && (newValue as OptionType).__createOption__) {
+                // User clicked on "Create" option
+                navigate(
+                  `/app/locations?new=true&name=${encodeURIComponent(
+                    (newValue as OptionType).value as string
+                  )}`
+                );
+              } else {
+                handleChange(formik, field.name, newValue);
+              }
             }}
           />
           <SelectLocationModal
@@ -226,7 +269,7 @@ export const CustomSelect = ({
                     }
                   : null
               );
-              setLocationModalOpen(false); // Close the modal
+              setLocationModalOpen(false);
             }}
             initialSelectedLocations={locationsMini.filter((location) =>
               (field.multiple
@@ -240,7 +283,7 @@ export const CustomSelect = ({
         </>
       );
     case 'asset': {
-      options = assetsMini
+      const assetOptions = assetsMini
         .filter((asset) => asset.id !== excluded)
         .map((asset) => {
           return {
@@ -277,7 +320,7 @@ export const CustomSelect = ({
                       <IconButton
                         size="small"
                         onClick={(e) => {
-                          e.stopPropagation(); // Prevent TextField onClick from firing again
+                          e.stopPropagation();
                           setAssetModalOpen(true);
                         }}
                       >
@@ -292,17 +335,52 @@ export const CustomSelect = ({
             disabled={formik.isSubmitting}
             onOpen={onOpen}
             key={field.name}
+            freeSolo
+            filterOptions={(options, params) => {
+              const filtered = options.filter((option) => {
+                const inputValue = params.inputValue.toLowerCase();
+                const optionLabel = option.label.toLowerCase();
+                return optionLabel.includes(inputValue);
+              });
+
+              const { inputValue } = params;
+              const isExisting = options.some(
+                (option) =>
+                  option.label.toLowerCase() === inputValue.toLowerCase()
+              );
+
+              if (inputValue !== '' && !isExisting) {
+                filtered.unshift({
+                  label: `Create "${inputValue}"`,
+                  value: inputValue,
+                  __createOption__: true
+                } as OptionType);
+              }
+
+              return filtered;
+            }}
             //@ts-ignore
-            getOptionLabel={(option) => option.label}
+            getOptionLabel={(option) =>
+              typeof option === 'string' ? option : option.label
+            }
             isOptionEqualToValue={(option, value) =>
               //@ts-ignore
-              option.value == value.value
+              option.value == value?.value
             }
             multiple={field.multiple}
             value={field.multiple ? fieldValue ?? [] : fieldValue ?? null}
-            options={options}
+            options={assetOptions}
             onChange={(event, newValue) => {
-              handleChange(formik, field.name, newValue);
+              if (newValue && (newValue as OptionType).__createOption__) {
+                // User clicked on "Create" option
+                navigate(
+                  `/app/assets?new=true&name=${encodeURIComponent(
+                    (newValue as OptionType).value as string
+                  )}`
+                );
+              } else {
+                handleChange(formik, field.name, newValue);
+              }
             }}
           />
           <SelectAssetModal
@@ -327,7 +405,7 @@ export const CustomSelect = ({
                     }
                   : null
               );
-              setAssetModalOpen(false); // Close the modal
+              setAssetModalOpen(false);
             }}
             initialSelectedAssets={assetsMini.filter((asset) =>
               (field.multiple

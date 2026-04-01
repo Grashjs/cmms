@@ -41,7 +41,7 @@ import Form from '../components/form';
 import * as Yup from 'yup';
 import { isNumeric } from '../../../utils/validators';
 import LocationDetails from './LocationDetails';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Map from '../components/Map';
 import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
 import { CustomSnackBarContext } from 'src/contexts/CustomSnackBarContext';
@@ -77,6 +77,7 @@ const HIERARCHY_ZERO_PAGE_SIZE = 40;
 
 function Locations() {
   const { t }: { t: any } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [currentTab, setCurrentTab] = useState<string>('list');
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
@@ -134,6 +135,8 @@ function Locations() {
   const [subRowsMap, setSubRowsMap] = useState<Record<number, LocationRow[]>>(
     {}
   );
+  // State for pre-filling location name from query params
+  const [initialLocationName, setInitialLocationName] = useState<string>('');
 
   // Field mapping for sorting
   const fieldMapping: Record<string, string> = {
@@ -173,6 +176,7 @@ function Locations() {
   };
   const onCreationSuccess = () => {
     setOpenAddModal(false);
+    setInitialLocationName('');
     showSnackBar(t('location_create_success'), 'success');
   };
   const onCreationFailure = (err) =>
@@ -258,6 +262,18 @@ function Locations() {
       handleOpenDetails(Number(locationId));
     }
   }, [locations]);
+
+  // Handle query params for inline creation (new=true&name=${name})
+  useEffect(() => {
+    const isNew = searchParams.get('new') === 'true';
+    const nameParam = searchParams.get('name');
+    if (isNew && hasCreatePermission(PermissionEntity.LOCATIONS)) {
+      setInitialLocationName(nameParam || '');
+      setOpenAddModal(true);
+      // Clear query params after opening modal
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams]);
 
   const formatValues = (values) => {
     const newValues = { ...values };
@@ -494,7 +510,10 @@ function Locations() {
       fullWidth
       maxWidth="md"
       open={openAddModal}
-      onClose={() => setOpenAddModal(false)}
+      onClose={() => {
+        setOpenAddModal(false);
+        setInitialLocationName('');
+      }}
     >
       <DialogTitle
         sx={{
@@ -519,7 +538,7 @@ function Locations() {
             fields={fields}
             validation={Yup.object().shape(shape)}
             submitText={t('add')}
-            values={{}}
+            values={initialLocationName ? { name: initialLocationName } : {}}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);

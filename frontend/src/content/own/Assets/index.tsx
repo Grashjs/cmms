@@ -162,6 +162,8 @@ function Assets() {
   // Expanding state for hierarchy view
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [subRowsMap, setSubRowsMap] = useState<Record<number, AssetRow[]>>({});
+  // State for pre-filling asset name from query params
+  const [initialAssetName, setInitialAssetName] = useState<string>('');
 
   const fetchMoreForParent = (parentId: number) => {
     const parentPage = childrenPages[parentId];
@@ -239,6 +241,18 @@ function Assets() {
     }
   }, [locationParamObject]);
 
+  // Handle query params for inline creation (new=true&name=${name})
+  useEffect(() => {
+    const isNew = searchParams.get('new') === 'true';
+    const nameParam = searchParams.get('name');
+    if (isNew && hasCreatePermission(PermissionEntity.ASSETS)) {
+      setInitialAssetName(nameParam || '');
+      setOpenAddModal(true);
+      // Clear query params after opening modal
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     if (view === 'list' && hasViewPermission(PermissionEntity.ASSETS))
       dispatch(getAssets(criteria));
@@ -246,6 +260,7 @@ function Assets() {
 
   const onCreationSuccess = () => {
     setOpenAddModal(false);
+    setInitialAssetName('');
     showSnackBar(t('asset_create_success'), 'success');
   };
   const onCreationFailure = (err) =>
@@ -717,7 +732,10 @@ function Assets() {
       fullWidth
       maxWidth="md"
       open={openAddModal}
-      onClose={() => setOpenAddModal(false)}
+      onClose={() => {
+        setOpenAddModal(false);
+        setInitialAssetName('');
+      }}
     >
       <DialogTitle
         sx={{
@@ -743,6 +761,7 @@ function Assets() {
             validation={Yup.object().shape(shape)}
             submitText={t('create_asset')}
             values={{
+              name: initialAssetName || undefined,
               inServiceDate: null,
               warrantyExpirationDate: null,
               location: locationParamObject
