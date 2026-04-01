@@ -217,6 +217,7 @@ export const addAsset =
   async (dispatch) => {
     const assetResponse = await api.post<AssetDTO>(basePath, asset);
     dispatch(slice.actions.addAsset({ asset: assetResponse }));
+    return assetResponse;
   };
 export const editAsset =
   (id: number, asset: Partial<AssetDTO>): AppThunk =>

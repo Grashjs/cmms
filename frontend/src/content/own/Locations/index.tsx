@@ -41,7 +41,7 @@ import Form from '../components/form';
 import * as Yup from 'yup';
 import { isNumeric } from '../../../utils/validators';
 import LocationDetails from './LocationDetails';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Map from '../components/Map';
 import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
 import { CustomSnackBarContext } from 'src/contexts/CustomSnackBarContext';
@@ -77,6 +77,7 @@ const HIERARCHY_ZERO_PAGE_SIZE = 40;
 
 function Locations() {
   const { t }: { t: any } = useTranslation();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentTab, setCurrentTab] = useState<string>('list');
   const dispatch = useDispatch();
@@ -137,6 +138,8 @@ function Locations() {
   );
   // State for pre-filling location name from query params
   const [initialLocationName, setInitialLocationName] = useState<string>('');
+  const [returnPath, setReturnPath] = useState<string>('');
+  const [returnField, setReturnField] = useState<string>('');
 
   // Field mapping for sorting
   const fieldMapping: Record<string, string> = {
@@ -174,10 +177,18 @@ function Locations() {
     dispatch(deleteLocation(id)).then(onDeleteSuccess).catch(onDeleteFailure);
     setOpenDelete(false);
   };
-  const onCreationSuccess = () => {
+  const onCreationSuccess = (createdLocation?: Location) => {
     setOpenAddModal(false);
     setInitialLocationName('');
     showSnackBar(t('location_create_success'), 'success');
+
+    if (returnField && createdLocation) {
+      // Navigate back to the return path with query params
+      navigate({
+        pathname: returnPath || '/',
+        search: `?${returnField}=${createdLocation.id}`
+      });
+    }
   };
   const onCreationFailure = (err) =>
     showSnackBar(getErrorMessage(err, t('location_create_failure')), 'error');
@@ -267,8 +278,11 @@ function Locations() {
   useEffect(() => {
     const isNew = searchParams.get('new') === 'true';
     const nameParam = searchParams.get('name');
+    const state = location.state as any;
     if (isNew && hasCreatePermission(PermissionEntity.LOCATIONS)) {
       setInitialLocationName(nameParam || '');
+      setReturnPath(state?.returnPath || '');
+      setReturnField(state?.returnField || '');
       setOpenAddModal(true);
       // Clear query params after opening modal
       setSearchParams({}, { replace: true });
@@ -555,8 +569,10 @@ function Locations() {
                   files: imageAndFiles.files
                 };
 
-                await dispatch(addLocation(formattedValues));
-                onCreationSuccess();
+                const createdLocation = await dispatch(
+                  addLocation(formattedValues)
+                );
+                onCreationSuccess(createdLocation);
                 deployedLocations.forEach((deployedLocation) =>
                   dispatch(
                     getLocationChildren(
@@ -566,6 +582,7 @@ function Locations() {
                     )
                   )
                 );
+                return createdLocation;
               } catch (err) {
                 onCreationFailure(err);
                 throw err;

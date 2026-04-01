@@ -5,11 +5,12 @@ import {
   IconButton,
   InputAdornment,
   Link,
+  ListItemIcon,
   TextField,
   Typography
 } from '@mui/material';
 import { FormikProps, useFormikContext } from 'formik';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getLocationChildren, getLocationsMini } from 'src/slices/location';
 import { IField, IHash } from '../../type';
 import SelectAssetModal from './SelectAssetModal';
@@ -33,12 +34,17 @@ import { getCurrencies } from '../../../../slices/currency';
 import ClearTwoToneIcon from '@mui/icons-material/ClearTwoTone';
 import { useTranslation } from 'react-i18next';
 import SelectLocationModal from './SelectLocationModal';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface OptionType {
   label: string;
   value: string | number;
   __createOption__?: boolean;
+}
+
+interface CreateOptionType extends OptionType {
+  __entityType__?: 'location' | 'asset';
+  __returnField__?: string;
 }
 
 export const CustomSelect = ({
@@ -55,6 +61,7 @@ export const CustomSelect = ({
   const [openTask, setOpenTask] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { customersMini } = useSelector((state) => state.customers);
   const { vendorsMini } = useSelector((state) => state.vendors);
   const { locationsMini, locationsHierarchy } = useSelector(
@@ -96,6 +103,40 @@ export const CustomSelect = ({
   const fetchCurrencies = async () => {
     if (!currencies.length) dispatch(getCurrencies());
   };
+
+  // Handle returned entity from inline creation
+  useEffect(() => {
+    // Check for query params from returned entity (?location=123 or ?asset=123)
+    const searchParams = new URLSearchParams(window.location.search);
+    const locationId = searchParams.get('location');
+    const assetId = searchParams.get('asset');
+    const returnField = searchParams.get('returnField');
+
+    if (returnField && returnField === field.name) {
+      const entityId = locationId || assetId;
+      const entityType = locationId ? 'location' : 'asset';
+      
+      if (entityId) {
+        // Get the entity from the mini lists
+        const entityList = entityType === 'location' ? locationsMini : assetsMini;
+        const entity = entityList.find((e) => e.id === Number(entityId));
+        
+        if (entity) {
+          handleChange(formik, field.name, {
+            label: entity.name,
+            value: entity.id
+          });
+        }
+        
+        // Clear the query params
+        const newParams = new URLSearchParams(searchParams);
+        newParams.delete('location');
+        newParams.delete('asset');
+        newParams.delete('returnField');
+        window.history.replaceState({}, '', `${window.location.pathname}?${newParams.toString()}`);
+      }
+    }
+  }, [location.search]);
 
   let options = field.items;
   let loading = field.loading;
@@ -218,8 +259,10 @@ export const CustomSelect = ({
                 filtered.unshift({
                   label: `Create "${inputValue}"`,
                   value: inputValue,
-                  __createOption__: true
-                } as OptionType);
+                  __createOption__: true,
+                  __entityType__: 'location',
+                  __returnField__: field.name
+                } as CreateOptionType);
               }
 
               return filtered;
@@ -235,13 +278,46 @@ export const CustomSelect = ({
             multiple={field.multiple}
             value={field.multiple ? fieldValue ?? [] : fieldValue ?? null}
             options={locationOptions}
+            renderOption={(props, option) => {
+              const isCreateOption = (option as CreateOptionType)
+                .__createOption__;
+              return (
+                <Box
+                  component="li"
+                  {...props}
+                  sx={{
+                    color: isCreateOption ? 'primary.main' : 'inherit',
+                    fontWeight: isCreateOption ? 600 : 400
+                  }}
+                >
+                  {isCreateOption && (
+                    <ListItemIcon sx={{ color: 'primary.main', minWidth: 36 }}>
+                      <AddCircleTwoToneIcon fontSize="small" />
+                    </ListItemIcon>
+                  )}
+                  <Typography
+                    variant="body2"
+                    sx={{ color: isCreateOption ? 'primary.main' : 'inherit' }}
+                  >
+                    {(option as OptionType).label}
+                  </Typography>
+                </Box>
+              );
+            }}
             onChange={(event, newValue) => {
-              if (newValue && (newValue as OptionType).__createOption__) {
-                // User clicked on "Create" option
+              if (newValue && (newValue as CreateOptionType).__createOption__) {
+                const createOption = newValue as CreateOptionType;
+                // Navigate to create page with return info in state
                 navigate(
                   `/app/locations?new=true&name=${encodeURIComponent(
-                    (newValue as OptionType).value as string
-                  )}`
+                    createOption.value as string
+                  )}`,
+                  {
+                    state: {
+                      returnPath: window.location.pathname,
+                      returnField: createOption.__returnField__
+                    }
+                  }
                 );
               } else {
                 handleChange(formik, field.name, newValue);
@@ -353,8 +429,10 @@ export const CustomSelect = ({
                 filtered.unshift({
                   label: `Create "${inputValue}"`,
                   value: inputValue,
-                  __createOption__: true
-                } as OptionType);
+                  __createOption__: true,
+                  __entityType__: 'asset',
+                  __returnField__: field.name
+                } as CreateOptionType);
               }
 
               return filtered;
@@ -370,13 +448,46 @@ export const CustomSelect = ({
             multiple={field.multiple}
             value={field.multiple ? fieldValue ?? [] : fieldValue ?? null}
             options={assetOptions}
+            renderOption={(props, option) => {
+              const isCreateOption = (option as CreateOptionType)
+                .__createOption__;
+              return (
+                <Box
+                  component="li"
+                  {...props}
+                  sx={{
+                    color: isCreateOption ? 'primary.main' : 'inherit',
+                    fontWeight: isCreateOption ? 600 : 400
+                  }}
+                >
+                  {isCreateOption && (
+                    <ListItemIcon sx={{ color: 'primary.main', minWidth: 36 }}>
+                      <AddCircleTwoToneIcon fontSize="small" />
+                    </ListItemIcon>
+                  )}
+                  <Typography
+                    variant="body2"
+                    sx={{ color: isCreateOption ? 'primary.main' : 'inherit' }}
+                  >
+                    {(option as OptionType).label}
+                  </Typography>
+                </Box>
+              );
+            }}
             onChange={(event, newValue) => {
-              if (newValue && (newValue as OptionType).__createOption__) {
-                // User clicked on "Create" option
+              if (newValue && (newValue as CreateOptionType).__createOption__) {
+                const createOption = newValue as CreateOptionType;
+                // Navigate to create page with return info in state
                 navigate(
                   `/app/assets?new=true&name=${encodeURIComponent(
-                    (newValue as OptionType).value as string
-                  )}`
+                    createOption.value as string
+                  )}`,
+                  {
+                    state: {
+                      returnPath: window.location.pathname,
+                      returnField: createOption.__returnField__
+                    }
+                  }
                 );
               } else {
                 handleChange(formik, field.name, newValue);

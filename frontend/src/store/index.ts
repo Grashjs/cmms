@@ -8,6 +8,7 @@ import type { Action } from '@reduxjs/toolkit';
 import { configureStore, createAction } from '@reduxjs/toolkit';
 import rootReducer from './rootReducer';
 import { ImportResponse } from '../models/owns/imports';
+import { AssetDTO } from '../models/owns/asset';
 
 const store = configureStore({
   reducer: rootReducer,
@@ -23,7 +24,8 @@ export type StoreReturnType =
   | number
   | number[]
   | string
-  | ImportResponse;
+  | ImportResponse
+  | any;
 export type AppThunk = ThunkAction<
   Promise<StoreReturnType>,
   RootState,

@@ -37,7 +37,7 @@ import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import { AssetDTO, AssetRow } from '../../../models/owns/asset';
 import Form from '../components/form';
 import * as Yup from 'yup';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { formatAssetValues } from '../../../utils/formatters';
 import UserAvatars from '../components/UserAvatars';
 import { enumerate } from '../../../utils/displayers';
@@ -81,6 +81,7 @@ const PAGE_SIZE = 40;
 
 function Assets() {
   const { t }: { t: any } = useTranslation();
+  const location = useLocation();
   const { setTitle } = useContext(TitleContext);
   const { uploadFiles } = useContext(CompanySettingsContext);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -164,6 +165,8 @@ function Assets() {
   const [subRowsMap, setSubRowsMap] = useState<Record<number, AssetRow[]>>({});
   // State for pre-filling asset name from query params
   const [initialAssetName, setInitialAssetName] = useState<string>('');
+  const [returnPath, setReturnPath] = useState<string>('');
+  const [returnField, setReturnField] = useState<string>('');
 
   const fetchMoreForParent = (parentId: number) => {
     const parentPage = childrenPages[parentId];
@@ -245,8 +248,11 @@ function Assets() {
   useEffect(() => {
     const isNew = searchParams.get('new') === 'true';
     const nameParam = searchParams.get('name');
+    const state = location.state as any;
     if (isNew && hasCreatePermission(PermissionEntity.ASSETS)) {
       setInitialAssetName(nameParam || '');
+      setReturnPath(state?.returnPath || '');
+      setReturnField(state?.returnField || '');
       setOpenAddModal(true);
       // Clear query params after opening modal
       setSearchParams({}, { replace: true });
@@ -258,10 +264,18 @@ function Assets() {
       dispatch(getAssets(criteria));
   }, [criteria, view]);
 
-  const onCreationSuccess = () => {
+  const onCreationSuccess = (createdAsset?: AssetDTO) => {
     setOpenAddModal(false);
     setInitialAssetName('');
     showSnackBar(t('asset_create_success'), 'success');
+
+    if (returnField && createdAsset) {
+      // Navigate back to the return path with query params
+      navigate({
+        pathname: returnPath || '/',
+        search: `?${returnField}=${createdAsset.id}`
+      });
+    }
   };
   const onCreationFailure = (err) =>
     showSnackBar(getErrorMessage(err, t('asset_create_failure')), 'error');
@@ -558,7 +572,6 @@ function Assets() {
       type2: 'location',
       label: t('location'),
       placeholder: t('select_asset_location'),
-      required: true,
       midWidth: true
     },
     {
@@ -789,11 +802,12 @@ function Assets() {
                   files: imageAndFiles.files
                 };
 
-                await dispatch(addAsset(formattedValues));
-                onCreationSuccess();
+                const createdAsset = await dispatch(addAsset(formattedValues));
+                onCreationSuccess(createdAsset);
                 deployedAssets.forEach((deployedAsset) =>
                   dispatch(getAssetChildren(deployedAsset.id, pageable))
                 );
+                return createdAsset;
               } catch (err) {
                 onCreationFailure(err);
                 throw err;

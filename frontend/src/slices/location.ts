@@ -143,6 +143,7 @@ export const addLocation =
   async (dispatch) => {
     const locationResponse = await api.post<Location>('locations', location);
     dispatch(slice.actions.addLocation({ location: locationResponse }));
+    return locationResponse;
   };
 export const editLocation =
   (id: number, location): AppThunk =>
