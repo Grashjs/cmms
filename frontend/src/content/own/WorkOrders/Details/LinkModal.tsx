@@ -56,8 +56,7 @@ export default function LinkModal({
   const onQueryChange = (event) => {
     onSearchQueryChange<WorkOrder>(event, criteria, setCriteria, [
       'title',
-      'description',
-      'feedback'
+      'customId'
     ]);
   };
   const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
@@ -143,7 +142,9 @@ export default function LinkModal({
                         fullWidth
                         options={workOrdersMini.content}
                         // @ts-ignore
-                        getOptionLabel={(option) => option.title}
+                        getOptionLabel={(option) =>
+                          `${option.title} - ${option.customId}`
+                        }
                         onInputChange={(event, value) =>
                           debouncedQueryChange({ target: { value } })
                         }

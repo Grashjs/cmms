@@ -17,4 +17,5 @@ public class WorkOrderBaseMiniDTO {
     private Instant createdAt;
     private Priority priority;
     private Status status;
+    private String customId;
 }
