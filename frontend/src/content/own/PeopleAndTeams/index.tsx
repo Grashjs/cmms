@@ -60,6 +60,7 @@ const PeopleAndTeams = ({}: PropsType) => {
         {tabIndex === 0 ? (
           <People
             openModal={openAddModal}
+            initialEmail={searchParams.get('email')}
             handleCloseModal={handleCloseAddModal}
           />
         ) : (

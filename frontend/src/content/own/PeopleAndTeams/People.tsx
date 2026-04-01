@@ -63,9 +63,10 @@ interface PropsType {
   values?: any;
   openModal: boolean;
   handleCloseModal: () => void;
+  initialEmail?: string;
 }
 
-const People = ({ openModal, handleCloseModal }: PropsType) => {
+const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const [currentUser, setCurrentUser] = useState<OwnUser>();
@@ -461,6 +462,7 @@ const People = ({ openModal, handleCloseModal }: PropsType) => {
         onRefreshUsers={() => {
           dispatch(getUsers(criteria));
         }}
+        initialEmail={initialEmail}
       />
       <ConfirmDialog
         open={openDisableModal}
