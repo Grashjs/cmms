@@ -1,12 +1,10 @@
 package com.grash.configuration;
 
-import com.grash.security.JwtTokenFilterConfigurer;
-import com.grash.security.JwtTokenProvider;
-import com.grash.security.OAuth2AuthenticationFailureHandler;
-import com.grash.security.OAuth2AuthenticationSuccessHandler;
+import com.grash.security.*;
 import com.grash.service.LicenseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -34,6 +32,7 @@ public class WebSecurityConfig {
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final LicenseService licenseService;
+    private final ApiKeyAuthFilter apiKeyAuthFilter;
     @Value("${enable-sso}")
     private boolean enableSso;
 
@@ -94,8 +93,9 @@ public class WebSecurityConfig {
         // If a user try to access a resource without having enough permissions
         http.exceptionHandling(exception -> exception.accessDeniedPage("/login"));
 
-        // Apply JWT
         http.apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
+//        http.addFilterBefore(apiKeyAuthFilter, JwtTokenFilter.class);
+
         http.cors(cors -> {
         }); // Using lambda for cors configuration
 
@@ -124,5 +124,12 @@ public class WebSecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+
+    @Bean
+    public FilterRegistrationBean<ApiKeyAuthFilter> apiKeyFilterRegistration(ApiKeyAuthFilter apiKeyAuthFilter) {
+        FilterRegistrationBean<ApiKeyAuthFilter> registration = new FilterRegistrationBean<>(apiKeyAuthFilter);
+        registration.setEnabled(false);
+        return registration;
+    }
 
 }
