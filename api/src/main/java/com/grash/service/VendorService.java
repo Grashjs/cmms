@@ -41,8 +41,6 @@ public class VendorService {
     }
 
     public Vendor create(Vendor Vendor) {
-        if (!licenseService.hasEntitlement(LicenseEntitlement.CUSTOMER_VENDOR))
-            throw new CustomException("You need a license to create a vendor", HttpStatus.FORBIDDEN);
         return vendorRepository.save(Vendor);
     }
 
