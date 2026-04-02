@@ -31,8 +31,6 @@ public class AdditionalCostService {
 
     @Transactional
     public AdditionalCost create(AdditionalCost additionalCost) {
-        if (!licenseService.hasEntitlement(LicenseEntitlement.COST_TRACKING))
-            throw new CustomException("You need a license to create a additional cost", HttpStatus.FORBIDDEN);
         AdditionalCost savedAdditionalCost = additionalCostRepository.saveAndFlush(additionalCost);
         em.refresh(savedAdditionalCost);
         return savedAdditionalCost;
