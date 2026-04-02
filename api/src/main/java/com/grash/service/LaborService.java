@@ -36,8 +36,7 @@ public class LaborService {
 
     @Transactional
     public Labor create(Labor labor) {
-        if (!licenseService.hasEntitlement(LicenseEntitlement.TIME_TRACKING))
-            throw new CustomException("You need a license to create a labor", HttpStatus.FORBIDDEN);
+
         updateHourlyRateIfNeeded(labor);
         Labor savedLabor = laborRepository.saveAndFlush(labor);
         em.refresh(savedLabor);
