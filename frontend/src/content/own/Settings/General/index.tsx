@@ -26,10 +26,7 @@ import { GeneralPreferences } from '../../../../models/owns/generalPreferences';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import api from '../../../../utils/api';
-import { apiUrl, isCloudVersion } from '../../../../config';
-import { useLicenseEntitlement } from '../../../../hooks/useLicenseEntitlement';
-import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
-import { onOpenApiDocs } from '../../../../utils/overall';
+
 function GeneralSettings() {
   const { t }: { t: any } = useTranslation();
   const [openDeleteDemo, setOpenDeleteDemo] = useState<boolean>(false);
@@ -42,7 +39,6 @@ function GeneralSettings() {
   const { generalPreferences } = companySettings;
   const dispatch = useDispatch();
   const { currencies } = useSelector((state) => state.currencies);
-  const hasApiAccess = useLicenseEntitlement('API_ACCESS');
 
   useEffect(() => {
     dispatch(getCurrencies());
@@ -337,15 +333,6 @@ function GeneralSettings() {
                       color={'error'}
                     >
                       {t('delete_demo_data')}
-                    </Button>
-                    <Button
-                      disabled={
-                        !(hasFeature(PlanFeature.API_ACCESS) && hasApiAccess)
-                      }
-                      variant={'outlined'}
-                      onClick={onOpenApiDocs}
-                    >
-                      {t('open_api_docs')}
                     </Button>
                   </Stack>
                   <ConfirmDialog
