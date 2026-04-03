@@ -280,7 +280,7 @@ const trJSON = {
   confirm_delete_file_wo:
     "Bu dosyayı bu İş Emri'nden kaldırmak istediğinizden emin misiniz?",
   archive: 'Arşiv',
-  labors: 'Emekler',
+  labors: 'Çalışma',
   add_additional_cost: 'Ek Maliyet Ekle',
   additional_costs: 'Ek maliyetler',
   add_parts: 'Parça Ekle',
