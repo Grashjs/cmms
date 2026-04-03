@@ -1,4 +1,4 @@
-ID,Adı,Maliyet,Kategori,Stok Dışı,Barkod,Tanım,Miktar,Ek Bilgiler,Alan,Minimum Adet,Atanan,Yükleniciler,Satıcılar,Ekipler
+ID,Adı,Maliyet,Kategori,Stok Dışı,Barkod,Tanım,Miktar,Ek Bilgiler,Alan,Minimum Adet,Atanan,Müşteriler,Tedarikçiler,Ekipler
 2456,Kablolar,20,Elektrik Parçaları,Hayır,1586568,Elektrik gücü veya sinyal iletimi.,20,bilgi sayfasına bakınız,"Raf 1, Bölme B",19,abc@gmail.com,"Taşeron1,Taşeron2",Tedarikçi1,Ekip1
 2476,Ekran Üniteleri,200,Elektronik Parçalar,Hayır,77061229,Ölçümleri veya işletme durumlarını gösterir.,17,bilgi sayfasına bakınız,"Raf 1, Bölme C",10,,,,
 2505, O-ringler ,5,Hidrolik Parçalar,Hayır,82168288, Sızıntıları önlemek için çeşitli uygulamalarda contalar sağlar. ,3,bilgi sayfasına bakınız,"Zemin Katı, Bölüm C",3,,,,
