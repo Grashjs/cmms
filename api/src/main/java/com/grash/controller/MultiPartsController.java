@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/multi-parts")
-@Tag(name = "multiParts")
+@Tag(name = "Multi Parts", description = "Operations on multi parts")
 @RequiredArgsConstructor
 public class MultiPartsController {
 

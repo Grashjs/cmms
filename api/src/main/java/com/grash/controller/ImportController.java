@@ -31,7 +31,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/import")
-@Tag(name = "import")
+@Tag(name = "Import", description = "Operations for importing data")
 @RequiredArgsConstructor
 @Transactional
 public class ImportController {

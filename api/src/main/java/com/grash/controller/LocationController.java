@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/locations")
-@Tag(name = "location")
+@Tag(name = "Locations", description = "Operations on locations")
 @RequiredArgsConstructor
 public class LocationController {
 

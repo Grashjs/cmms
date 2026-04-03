@@ -23,7 +23,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/custom-fields")
-@Tag(name = "customField")
+@Tag(name = "Custom Fields", description = "Operations on custom fields")
 @RequiredArgsConstructor
 public class CustomFieldController {
 

@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/vendors")
-@Tag(name = "vendor")
+@Tag(name = "Vendors", description = "Operations on vendors")
 @RequiredArgsConstructor
 public class VendorController {
 

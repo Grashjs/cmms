@@ -19,7 +19,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/user-settings")
-@Tag(name = "userSettings")
+@Tag(name = "User Settings", description = "Operations on user settings")
 @RequiredArgsConstructor
 public class UserSettingsController {
 

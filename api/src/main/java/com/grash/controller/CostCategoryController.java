@@ -28,7 +28,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/cost-categories")
-@Tag(name = "costCategory")
+@Tag(name = "Cost Categories", description = "Operations on cost categories")
 @RequiredArgsConstructor
 public class CostCategoryController {
 

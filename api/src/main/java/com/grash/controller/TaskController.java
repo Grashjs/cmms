@@ -29,7 +29,7 @@ import java.util.stream.IntStream;
 
 @RestController
 @RequestMapping("/tasks")
-@Tag(name = "task")
+@Tag(name = "Tasks", description = "Operations on work order tasks")
 @RequiredArgsConstructor
 @Transactional
 public class TaskController {

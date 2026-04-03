@@ -39,6 +39,7 @@ import java.util.stream.StreamSupport;
 
 @RestController
 @RequestMapping("/demo")
+@Hidden
 @RequiredArgsConstructor
 public class DemoController {
 

@@ -27,7 +27,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/asset-categories")
-@Tag(name = "assetCategory")
+@Tag(name = "Asset Categories", description = "Operations on asset categories")
 @RequiredArgsConstructor
 public class AssetCategoryController {
 

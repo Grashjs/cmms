@@ -11,6 +11,13 @@ export default interface User {
   hourlyRate: number;
 }
 
+export interface UserMiniDTO {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
 export const users: User[] = [
   {
     id: 1,

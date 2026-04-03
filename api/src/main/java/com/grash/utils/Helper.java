@@ -40,6 +40,9 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -163,7 +166,7 @@ public class Helper {
                 return new Locale("zh", "CN");
             case BA:
                 return new Locale("ba", "BA");
-            
+
             default:
                 return Locale.getDefault();
         }
@@ -419,4 +422,10 @@ public class Helper {
         return (remoteAddr != null && !remoteAddr.isBlank()) ? remoteAddr : "unknown";
     }
 
+    public static String hashKey(String raw) throws NoSuchAlgorithmException {
+        // Use SHA-256
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hash = digest.digest(raw.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(hash);
+    }
 }

@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/assets")
-@Tag(name = "asset")
+@Tag(name = "Assets", description = "Operations on assets")
 @RequiredArgsConstructor
 public class AssetController {
 

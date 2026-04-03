@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/teams")
-@Tag(name = "team")
+@Tag(name = "Teams", description = "Operations on teams")
 @RequiredArgsConstructor
 public class TeamController {
 

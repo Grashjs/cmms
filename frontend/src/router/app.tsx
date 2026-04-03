@@ -37,6 +37,9 @@ const UIConfigurationSettings = Loader(
 const RequestPortalSettings = Loader(
   lazy(() => import('../content/own/Settings/RequestPortal'))
 );
+const IntegrationsSettings = Loader(
+  lazy(() => import('../content/own/Settings/Integrations'))
+);
 
 const UserProfile = Loader(lazy(() => import('../content/own/UserProfile')));
 const CompanyProfile = Loader(
@@ -137,7 +140,8 @@ const appRoutes = [
         element: <ChecklistsSettings />
       },
       { path: 'workflows', element: <WorkflowsSettings /> },
-      { path: 'ui-configuration', element: <UIConfigurationSettings /> }
+      { path: 'ui-configuration', element: <UIConfigurationSettings /> },
+      { path: 'integrations', element: <IntegrationsSettings /> }
     ]
   },
   {

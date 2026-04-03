@@ -22,7 +22,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/deprecations")
-@Tag(name = "deprecation")
+@Tag(name = "Depreciation", description = "Operations on asset depreciation")
 @RequiredArgsConstructor
 public class DeprecationController {
 

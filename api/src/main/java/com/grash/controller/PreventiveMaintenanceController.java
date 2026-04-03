@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/preventive-maintenances")
-@Tag(name = "preventiveMaintenance")
+@Tag(name = "Preventive Maintenances", description = "Operations on preventive maintenances")
 @RequiredArgsConstructor
 public class PreventiveMaintenanceController {
 

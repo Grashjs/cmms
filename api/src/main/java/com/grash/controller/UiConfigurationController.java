@@ -23,7 +23,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/ui-configurations")
-@Tag(name = "uiConfiguration")
+@Tag(name = "UI Configuration", description = "Operations on UI configuration")
 @RequiredArgsConstructor
 public class UiConfigurationController {
 

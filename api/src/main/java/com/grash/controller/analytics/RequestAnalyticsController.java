@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/analytics/requests")
-@Tag(name = "RequestAnalytics")
+@Tag(name = "Request Analytics", description = "Analytics operations on requests")
 @RequiredArgsConstructor
 public class RequestAnalyticsController {
 

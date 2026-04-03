@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/work-order-request-configurations")
-@Tag(name = "workOrderRequestConfiguration")
+@Tag(name = "Work Order Request Configuration", description = "Operations on work order request configuration")
 @RequiredArgsConstructor
 public class WorkOrderRequestConfigurationController {
 

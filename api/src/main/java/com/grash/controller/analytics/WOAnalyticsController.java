@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/analytics/work-orders")
-@Tag(name = "WorkOrderAnalytics")
+@Tag(name = "Work Order Analytics", description = "Analytics operations on work orders")
 @RequiredArgsConstructor
 public class WOAnalyticsController {
 

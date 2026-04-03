@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/analytics/parts")
-@Tag(name = "PartAnalytics")
+@Tag(name = "Part Analytics", description = "Analytics operations on parts")
 @RequiredArgsConstructor
 public class PartAnalyticsController {
 

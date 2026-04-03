@@ -25,7 +25,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/time-categories")
-@Tag(name = "timeCategory")
+@Tag(name = "Time Categories", description = "Operations on time categories")
 @RequiredArgsConstructor
 public class TimeCategoryController {
 

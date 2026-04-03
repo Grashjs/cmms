@@ -31,7 +31,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/notifications")
-@Tag(name = "notification")
+@Tag(name = "Notifications", description = "Operations on notifications")
 @RequiredArgsConstructor
 public class NotificationController {
 
