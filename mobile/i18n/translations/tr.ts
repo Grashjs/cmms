@@ -1369,7 +1369,7 @@ const trJSON = {
     'Bu dosyayı bu bölümden kaldırmak istediğinizden emin misiniz?',
   no_wo_linked_part: 'Bu bölüme bağlı İş Emri yok',
   edit_customer: 'Müşteriyi düzenle',
-  edit_vendor: 'Satıcıyı düzenle',
+  edit_vendor: 'Tedarikçiyi düzenle',
   reading_history: 'Tarih okuma',
   user_invite_success: 'Kullanıcı davet edildi',
   user_invite_failure: 'Kullanıcı davet edilemedi',
