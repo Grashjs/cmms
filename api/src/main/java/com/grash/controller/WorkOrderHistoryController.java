@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/work-order-histories")
-@Tag(name = "workOrderHistory")
+@Tag(name = "Work Order History", description = "Operations on work order history")
 @RequiredArgsConstructor
 public class WorkOrderHistoryController {
 

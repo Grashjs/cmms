@@ -24,7 +24,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/currencies")
-@Tag(name = "currency")
+@Tag(name = "Currencies", description = "Operations on currencies")
 @RequiredArgsConstructor
 public class CurrencyController {
 

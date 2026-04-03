@@ -25,7 +25,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/meter-categories")
-@Tag(name = "meterCategory")
+@Tag(name = "Meter Categories", description = "Operations on meter categories")
 @RequiredArgsConstructor
 public class MeterCategoryController {
 

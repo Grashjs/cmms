@@ -143,3 +143,6 @@ sendgrid:
     email: ${SENDGRID_FROM_EMAIL:}
 intercom:
   token: ${INTERCOM_TOKEN:}
+springdoc:
+  swagger-ui:
+    tags-sorter: alpha

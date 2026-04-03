@@ -13,6 +13,8 @@ import com.grash.service.FloorPlanService;
 import com.grash.service.LicenseService;
 import com.grash.service.LocationService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/license")
 @RequiredArgsConstructor
+@Hidden
 public class LicenseController {
 
     private final LicenseService licenseService;

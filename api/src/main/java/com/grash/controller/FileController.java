@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 
 
 @RestController
-@Tag(name = "file")
+@Tag(name = "Files", description = "Operations on files")
 @RequestMapping("/files")
 @RequiredArgsConstructor
 public class FileController {

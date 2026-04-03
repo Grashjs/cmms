@@ -29,7 +29,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/labors")
-@Tag(name = "labor")
+@Tag(name = "Labor", description = "Operations on labor tracking")
 @RequiredArgsConstructor
 public class LaborController {
 

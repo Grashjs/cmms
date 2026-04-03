@@ -28,7 +28,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/checklists")
-@Tag(name = "checklist")
+@Tag(name = "Checklists", description = "Operations on checklists")
 @RequiredArgsConstructor
 public class ChecklistController {
 

@@ -24,7 +24,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/schedules")
-@Tag(name = "schedule")
+@Tag(name = "Schedules", description = "Operations on schedules")
 @RequiredArgsConstructor
 public class ScheduleController {
 

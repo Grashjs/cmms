@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
-@Tag(name = "user")
+@Tag(name = "Users", description = "Operations on users")
 @RequiredArgsConstructor
 public class UserController {
 

@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/purchase-orders")
-@Tag(name = "purchaseOrder")
+@Tag(name = "Purchase Orders", description = "Operations on purchase orders")
 @RequiredArgsConstructor
 public class PurchaseOrderController {
 

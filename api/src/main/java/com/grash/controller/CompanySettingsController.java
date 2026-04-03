@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/company-settings")
-@Tag(name = "companySettings")
+@Tag(name = "Company Settings", description = "Operations on company settings")
 @RequiredArgsConstructor
 public class CompanySettingsController {
 

@@ -55,7 +55,7 @@ import static java.util.stream.Collectors.toCollection;
 
 @RestController
 @RequestMapping("/work-orders")
-@Tag(name = "workOrder")
+@Tag(name = "Work Orders", description = "Operations on work orders")
 @RequiredArgsConstructor
 @Transactional
 public class WorkOrderController {

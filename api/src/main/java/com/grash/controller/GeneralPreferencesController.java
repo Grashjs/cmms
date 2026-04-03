@@ -23,7 +23,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/general-preferences")
-@Tag(name = "generalPreferences")
+@Tag(name = "General Preferences", description = "Operations on general preferences")
 @RequiredArgsConstructor
 public class GeneralPreferencesController {
 

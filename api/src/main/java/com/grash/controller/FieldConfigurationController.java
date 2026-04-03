@@ -25,7 +25,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/field-configurations")
-@Tag(name = "fieldConfiguration")
+@Tag(name = "Field Configuration", description = "Operations on field configurations")
 @RequiredArgsConstructor
 public class FieldConfigurationController {
 

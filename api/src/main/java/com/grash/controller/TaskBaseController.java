@@ -25,7 +25,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/task-bases")
-@Tag(name = "taskBase")
+@Tag(name = "Task Templates", description = "Operations on task templates")
 @RequiredArgsConstructor
 public class TaskBaseController {
 

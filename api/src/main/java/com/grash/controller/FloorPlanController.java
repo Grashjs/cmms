@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/floor-plans")
-@Tag(name = "floorPlan")
+@Tag(name = "Floor Plans", description = "Operations on floor plans")
 @RequiredArgsConstructor
 public class FloorPlanController {
 

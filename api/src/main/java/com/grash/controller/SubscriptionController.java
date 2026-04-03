@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/subscriptions")
-@Tag(name = "subscription")
+@Tag(name = "Subscriptions", description = "Operations on subscriptions")
 @RequiredArgsConstructor
 public class SubscriptionController {
 

@@ -24,7 +24,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/subscription-plans")
-@Tag(name = "subscriptionPlan")
+@Tag(name = "Subscription Plans", description = "Operations on subscription plans")
 @RequiredArgsConstructor
 public class SubscriptionPlanController {
 

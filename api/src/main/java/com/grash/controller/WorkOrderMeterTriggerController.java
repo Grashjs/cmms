@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/work-order-meter-triggers")
-@Tag(name = "workOrderMeterTrigger")
+@Tag(name = "Work Order Meter Triggers", description = "Operations on work order meter triggers")
 @RequiredArgsConstructor
 public class WorkOrderMeterTriggerController {
 

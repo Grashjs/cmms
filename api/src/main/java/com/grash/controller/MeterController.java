@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/meters")
-@Tag(name = "meter")
+@Tag(name = "Meters", description = "Operations on meters")
 @RequiredArgsConstructor
 public class MeterController {
 

@@ -12,6 +12,7 @@ import com.grash.model.OwnUser;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.security.CurrentUser;
 import com.grash.service.ApiKeyService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -29,6 +30,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api-keys")
 @RequiredArgsConstructor
+@Hidden
 public class ApiKeyController {
 
     private final ApiKeyService apiKeyService;

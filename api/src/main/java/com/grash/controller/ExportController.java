@@ -33,7 +33,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/export")
-@Tag(name = "export")
+@Tag(name = "Export", description = "Operations for exporting data")
 @RequiredArgsConstructor
 @Slf4j
 public class ExportController {

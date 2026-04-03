@@ -28,7 +28,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/asset-downtimes")
-@Tag(name = "assetDowntime")
+@Tag(name = "Asset Downtime", description = "Operations on asset downtime tracking")
 @RequiredArgsConstructor
 public class AssetDowntimeController {
 

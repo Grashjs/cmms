@@ -3,5 +3,6 @@
     "allow": [
       "Bash(del *)"
     ]
-  }
+  },
+  "$version": 3
 }

@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/workflows")
-@Tag(name = "workflow")
+@Tag(name = "Workflows", description = "Operations on workflows")
 @RequiredArgsConstructor
 public class WorkflowController {
 

@@ -26,7 +26,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/relations")
-@Tag(name = "relation")
+@Tag(name = "Relations", description = "Operations on work order relations")
 @RequiredArgsConstructor
 public class RelationController {
 

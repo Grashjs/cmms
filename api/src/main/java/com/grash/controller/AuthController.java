@@ -34,7 +34,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "auth")
+@Tag(name = "Authentication", description = "Authentication and authorization operations")
 @RequiredArgsConstructor
 public class AuthController {
 

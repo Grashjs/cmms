@@ -26,7 +26,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/purchase-order-categories")
-@Tag(name = "purchaseOrderCategory")
+@Tag(name = "Purchase Order Categories", description = "Operations on purchase order categories")
 @RequiredArgsConstructor
 public class PurchaseOrderCategoryController {
 

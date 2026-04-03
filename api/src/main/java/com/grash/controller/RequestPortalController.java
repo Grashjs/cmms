@@ -9,6 +9,7 @@ import com.grash.model.OwnUser;
 import com.grash.security.CurrentUser;
 import com.grash.service.RequestPortalService;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/request-portals")
 @RequiredArgsConstructor
+@Tag(name = "Request portals", description = "Operations on request portals")
 public class RequestPortalController {
 
     private final RequestPortalService requestPortalService;

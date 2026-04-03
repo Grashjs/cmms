@@ -26,7 +26,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/roles")
-@Tag(name = "role")
+@Tag(name = "Roles", description = "Operations on roles")
 @RequiredArgsConstructor
 public class RoleController {
 

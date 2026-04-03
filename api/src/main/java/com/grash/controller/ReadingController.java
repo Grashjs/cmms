@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/readings")
-@Tag(name = "reading")
+@Tag(name = "Readings", description = "Operations on meter readings")
 @RequiredArgsConstructor
 public class ReadingController {
 

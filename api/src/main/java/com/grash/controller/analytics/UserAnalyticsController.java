@@ -29,7 +29,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/analytics/users")
-@Tag(name = "UserAnalytics")
+@Tag(name = "User Analytics", description = "Analytics operations on users")
 @RequiredArgsConstructor
 public class UserAnalyticsController {
 
