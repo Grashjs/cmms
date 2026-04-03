@@ -1538,7 +1538,7 @@ const trJSON = {
     feature_custom_integrations: "Özel Entegrasyonlar",
     feature_unlimited_view_only_users: "Sınırsız Sadece Görüntüleme Kullanıcısı",
     feature_unlimited_requesters: "Sınırsız Talep Edenler",
-    feature_unlimited_vendors: "Sınırsız Satıcı",
+    feature_unlimited_vendors: "Sınırsız Tedarikçi",
     feature_unlimited_customers: "Sınırsız Müşteri",
     category_support: "Destek",
     feature_daily_email_digest: "Günlük E-posta Özeti",
