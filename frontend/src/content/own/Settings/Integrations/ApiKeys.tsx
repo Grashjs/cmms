@@ -38,6 +38,7 @@ import ConfirmDialog from '../../components/ConfirmDialog';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
+import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
 
 const DialogWrapper = styled(Dialog)(
   () => `
@@ -59,14 +60,14 @@ function ApiKeys() {
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { apiKeys, loadingGet } = useSelector((state) => state.apiKeys);
-
+  const { getFormattedDate } = useContext(CompanySettingsContext);
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [currentApiKey, setCurrentApiKey] = useState<ApiKey | null>(null);
   const [pageable, setPageable] = useState<Pageable>({
     page: 0,
     size: 10,
-    sort: ['createdAt,desc']
+    sort: ['lastUsed,asc']
   });
   const [createdApiKeyCode, setCreatedApiKeyCode] = useState<string | null>(
     null
@@ -139,8 +140,8 @@ function ApiKeys() {
       header: t('last_used'),
       accessorKey: 'lastUsed',
       cell: (info) => {
-        const lastUsed = info.getValue() as Date | undefined;
-        return lastUsed ? new Date(lastUsed).toLocaleDateString() : t('never');
+        const lastUsed = info.getValue() as string;
+        return lastUsed ? getFormattedDate(lastUsed) : t('never');
       }
     },
     {
