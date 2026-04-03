@@ -16,6 +16,7 @@ import com.grash.model.*;
 import com.grash.model.enums.RoleCode;
 import com.grash.repository.UserRepository;
 import com.grash.repository.VerificationTokenRepository;
+import com.grash.security.CustomUserDetail;
 import com.grash.security.JwtTokenProvider;
 import com.grash.utils.Helper;
 import com.grash.utils.Utils;
@@ -32,6 +33,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -260,7 +262,16 @@ public class UserService {
     }
 
     public OwnUser whoami(HttpServletRequest req, boolean cached) {
-        String username = jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(req));
+        String token = jwtTokenProvider.resolveToken(req);
+        if (token == null || token.isEmpty()) {
+            // API key authentication - get user from SecurityContext
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.getPrincipal() instanceof CustomUserDetail) {
+                return ((CustomUserDetail) auth.getPrincipal()).getUser();
+            }
+            throw new CustomException("Authentication required", HttpStatus.UNAUTHORIZED);
+        }
+        String username = jwtTokenProvider.getUsername(token);
         return whoami(username, cached);
     }
 

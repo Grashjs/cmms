@@ -18,6 +18,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,9 +46,9 @@ public class ApiKeyController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ApiKeyShowDTO create(@RequestBody @Valid ApiKeyPostDTO apiKey,
                                 @Parameter(hidden = true) @CurrentUser OwnUser user) {
-        ApiKey savedApiKey = apiKeyService.create(apiKey, user);
-        ApiKeyShowDTO result = apiKeyMapper.toShowDto(savedApiKey);
-        result.setCode(savedApiKey.getCode());
+        Pair<ApiKey, String> savedApiKeyPair = apiKeyService.create(apiKey, user);
+        ApiKeyShowDTO result = apiKeyMapper.toShowDto(savedApiKeyPair.getFirst());
+        result.setCode(savedApiKeyPair.getSecond());
         return result;
     }
 

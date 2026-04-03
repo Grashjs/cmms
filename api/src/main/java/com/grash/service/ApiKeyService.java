@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +36,7 @@ public class ApiKeyService {
     private final ApiKeyRepository apiKeyRepository;
     private final ApiKeyMapper apiKeyMapper;
 
-    public ApiKey create(@Valid ApiKeyPostDTO apiKeyReq, OwnUser user) {
+    public Pair<ApiKey, String> create(@Valid ApiKeyPostDTO apiKeyReq, OwnUser user) {
         if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         ApiKey apiKey =
@@ -52,7 +53,7 @@ public class ApiKeyService {
             throw new RuntimeException(e);
         }
 
-        return apiKeyRepository.save(apiKey);
+        return Pair.of(apiKeyRepository.save(apiKey), code);
     }
 
 

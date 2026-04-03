@@ -19,6 +19,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.Arrays;
 
@@ -32,12 +33,11 @@ public class WebSecurityConfig {
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final LicenseService licenseService;
-    private final ApiKeyAuthFilter apiKeyAuthFilter;
     @Value("${enable-sso}")
     private boolean enableSso;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, ApiKeyAuthFilter apiKeyAuthFilter) throws Exception {
 
         // Disable CSRF (cross site request forgery)
         http.csrf(csrf -> csrf.disable());
@@ -93,8 +93,8 @@ public class WebSecurityConfig {
         // If a user try to access a resource without having enough permissions
         http.exceptionHandling(exception -> exception.accessDeniedPage("/login"));
 
-        http.apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
-//        http.addFilterBefore(apiKeyAuthFilter, JwtTokenFilter.class);
+        http.addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         http.cors(cors -> {
         }); // Using lambda for cors configuration
@@ -122,14 +122,6 @@ public class WebSecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
-    }
-
-
-    @Bean
-    public FilterRegistrationBean<ApiKeyAuthFilter> apiKeyFilterRegistration(ApiKeyAuthFilter apiKeyAuthFilter) {
-        FilterRegistrationBean<ApiKeyAuthFilter> registration = new FilterRegistrationBean<>(apiKeyAuthFilter);
-        registration.setEnabled(false);
-        return registration;
     }
 
 }

@@ -42,6 +42,7 @@ import { reducer as exportsReducer } from 'src/slices/exports';
 import { reducer as workflowReducer } from 'src/slices/workflow';
 import { reducer as licenseReducer } from 'src/slices/license';
 import { reducer as requestPortalReducer } from 'src/slices/requestPortal';
+import { reducer as apiKeyReducer } from 'src/slices/apiKey';
 
 const rootReducer = combineReducers({
   calendar: calendarReducer,
@@ -86,7 +87,8 @@ const rootReducer = combineReducers({
   exports: exportsReducer,
   workflows: workflowReducer,
   license: licenseReducer,
-  requestPortals: requestPortalReducer
+  requestPortals: requestPortalReducer,
+  apiKeys: apiKeyReducer
 });
 
 export default rootReducer;

@@ -32,7 +32,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
                                     @NotNull HttpServletResponse response,
                                     @NotNull FilterChain filterChain) throws ServletException, IOException {
 
-        String apiKey = request.getHeader("X-API-Key");
+        String apiKey = request.getHeader("x-api-key");
 
         if (apiKey != null) {
             try {
