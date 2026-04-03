@@ -206,10 +206,5 @@ export const companyLogosAssets: string[] = [
 ];
 
 export const onOpenApiDocs = async () => {
-  await api.get('swagger/swagger-session', {
-    method: 'GET',
-    credentials: 'include'
-  });
-  // Open Swagger UI - it will use the cookie
-  window.open(apiUrl + 'swagger-ui/index.html', '_blank');
+  window.open(apiUrl + 'api-docs.html', '_blank');
 };
