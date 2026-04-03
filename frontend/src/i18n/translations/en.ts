@@ -1730,14 +1730,15 @@ const locale = {
   api_key_label: 'API Key Label',
   api_key_created_success: 'API Key created successfully',
   api_key_code_copied: 'API Key code copied to clipboard',
-  api_key_code_view_once: 'This code can only be viewed once. Please copy it now as you will not be able to see it again.',
+  api_key_code_view_once:
+    'This code can only be viewed once. Please copy it now as you will not be able to see it again.',
   api_key_code: 'API Key Code',
   copy_code: 'Copy Code',
-  close: 'Close',
   last_used: 'Last Used',
   never: 'Never',
   delete_api_key: 'Delete API Key',
-  delete_api_key_confirm: 'Are you sure you want to delete this API Key?'
+  delete_api_key_confirm: 'Are you sure you want to delete this API Key?',
+  upgrade_api: 'Upgrade to get access to the API, connectors, and webhooks'
 };
 
 export default locale;

@@ -1841,7 +1841,25 @@ const esJSON = {
   request_portals: 'Portales de solicitudes',
   select_date_range: 'Seleccionar rango de fechas',
   get_mobile_app: 'Obtener aplicación móvil',
-  scan_qr_to_download: 'Escanea el código QR para descargar la aplicación móvil'
+  scan_qr_to_download:
+    'Escanea el código QR para descargar la aplicación móvil',
+  integrations: 'Integraciones',
+  api_keys: 'Claves API',
+  connectors: 'Conectores',
+  webhooks: 'Webhooks',
+  create_api_key: 'Crear clave API',
+  api_key_label: 'Etiqueta de la clave API',
+  api_key_created_success: 'Clave API creada con éxito',
+  api_key_code_copied: 'Código de la clave API copiado al portapapeles',
+  api_key_code_view_once:
+    'Este código solo puede verse una vez. Por favor, cópielo ahora ya que no podrá verlo de nuevo.',
+  api_key_code: 'Código de la clave API',
+  copy_code: 'Copiar código',
+  last_used: 'Último uso',
+  never: 'Nunca',
+  delete_api_key: 'Eliminar clave API',
+  delete_api_key_confirm: '¿Está seguro de que desea eliminar esta clave API?',
+  upgrade_api: 'Actualice para obtener acceso a la API, conectores y webhooks'
 };
 
 export default esJSON;

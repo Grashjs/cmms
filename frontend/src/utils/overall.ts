@@ -9,9 +9,10 @@ import {
 } from '../models/owns/page';
 import React from 'react';
 import { sameDay } from './dates';
-import { googleTrackingId, IS_LOCALHOST } from '../config';
+import { apiUrl, googleTrackingId, IS_LOCALHOST } from '../config';
 import ReactGA from 'react-ga4';
 import { UaEventOptions } from 'react-ga4/types/ga4';
+import api from './api';
 
 export const canAddReading = (meter: Meter): boolean => {
   if (!meter) {
@@ -203,3 +204,12 @@ export const companyLogosAssets: string[] = [
   '/static/images/industries/logos/penflex.png',
   '/static/images/industries/logos/mfwaterwork.png'
 ];
+
+export const onOpenApiDocs = async () => {
+  await api.get('swagger/swagger-session', {
+    method: 'GET',
+    credentials: 'include'
+  });
+  // Open Swagger UI - it will use the cookie
+  window.open(apiUrl + 'swagger-ui/index.html', '_blank');
+};

@@ -1806,7 +1806,25 @@ const locale = {
     'reCAPTCHA verifikacija nije uspjela. Molimo pokušajte ponovo.',
   select_date_range: 'তারিখ পরিসর নির্বাচন করুন',
   get_mobile_app: 'Nabavite mobilnu aplikaciju',
-  scan_qr_to_download: 'Skenirajte QR kod da preuzmete mobilnu aplikaciju'
+  scan_qr_to_download: 'Skenirajte QR kod da preuzmete mobilnu aplikaciju',
+  integrations: 'Integracije',
+  api_keys: 'API ključevi',
+  connectors: 'Konektori',
+  webhooks: 'Webhooks',
+  create_api_key: 'Kreiraj API ključ',
+  api_key_label: 'Naziv API ključa',
+  api_key_created_success: 'API ključ je uspješno kreiran',
+  api_key_code_copied: 'Kod API ključa je kopiran u međuspremnik',
+  api_key_code_view_once:
+    'Ovaj kod se može vidjeti samo jednom. Molimo kopirajte ga sada jer ga kasnije nećete moći vidjeti.',
+  api_key_code: 'Kod API ključa',
+  copy_code: 'Kopiraj kod',
+  last_used: 'Zadnje korištenje',
+  never: 'Nikada',
+  delete_api_key: 'Obriši API ključ',
+  delete_api_key_confirm:
+    'Da li ste sigurni da želite obrisati ovaj API ključ?',
+  upgrade_api: 'Nadogradite za pristup API-ju, konektorima i webhookovima'
 };
 
 export default locale;

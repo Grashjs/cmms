@@ -3,12 +3,14 @@ package com.grash.service;
 import com.grash.dto.apiKey.ApiKeyCriteria;
 import com.grash.dto.apiKey.ApiKeyPatchDTO;
 import com.grash.dto.apiKey.ApiKeyPostDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.ApiKeyMapper;
 import com.grash.model.ApiKey;
 import com.grash.model.ApiKey_;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.repository.ApiKeyRepository;
 import com.grash.utils.Helper;
 import jakarta.persistence.criteria.Predicate;
@@ -35,9 +37,12 @@ import java.util.Optional;
 public class ApiKeyService {
     private final ApiKeyRepository apiKeyRepository;
     private final ApiKeyMapper apiKeyMapper;
+    private final LicenseService licenseService;
 
     public Pair<ApiKey, String> create(@Valid ApiKeyPostDTO apiKeyReq, OwnUser user) {
-        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
+                || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.API_ACCESS)
+                || !licenseService.hasEntitlement(LicenseEntitlement.API_ACCESS))
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         ApiKey apiKey =
                 apiKeyMapper.fromPostDto(apiKeyReq);

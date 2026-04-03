@@ -29,15 +29,7 @@ import api from '../../../../utils/api';
 import { apiUrl, isCloudVersion } from '../../../../config';
 import { useLicenseEntitlement } from '../../../../hooks/useLicenseEntitlement';
 import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
-
-const onOpenApiDocs = async () => {
-  await api.get('swagger/swagger-session', {
-    method: 'GET',
-    credentials: 'include'
-  });
-  // Open Swagger UI - it will use the cookie
-  window.open(apiUrl + 'swagger-ui/index.html', '_blank');
-};
+import { onOpenApiDocs } from '../../../../utils/overall';
 function GeneralSettings() {
   const { t }: { t: any } = useTranslation();
   const [openDeleteDemo, setOpenDeleteDemo] = useState<boolean>(false);

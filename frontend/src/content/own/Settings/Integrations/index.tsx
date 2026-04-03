@@ -8,11 +8,18 @@ import { Tab as MuiTab } from '@mui/material';
 import LeakAddIcon from '@mui/icons-material/LeakAdd';
 import KeyIcon from '@mui/icons-material/Key';
 import WebhookIcon from '@mui/icons-material/Webhook';
+import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
+import { PermissionEntity } from '../../../../models/owns/role';
+import PermissionErrorMessage from '../../components/PermissionErrorMessage';
+import FeatureErrorMessage from '../../components/FeatureErrorMessage';
+import useAuth from '../../../../hooks/useAuth';
+import { useLicenseEntitlement } from '../../../../hooks/useLicenseEntitlement';
 
 function IntegrationsSettings() {
   const { t }: { t: any } = useTranslation();
   const [currentTab, setCurrentTab] = useState<string>('api-keys');
-
+  const { hasFeature } = useAuth();
+  const hasAPIEntitlement = useLicenseEntitlement('API_ACCESS');
   const tabs = [
     {
       value: 'connectors',
@@ -42,6 +49,9 @@ function IntegrationsSettings() {
     (tab) => tab.value === currentTab
   )?.component;
 
+  if (!hasFeature(PlanFeature.API_ACCESS) || !hasAPIEntitlement) {
+    return <FeatureErrorMessage message={'upgrade_api'} />;
+  }
   return (
     <Grid item xs={12}>
       <Box p={4}>

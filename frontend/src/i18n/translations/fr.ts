@@ -1925,7 +1925,26 @@ const frJSON = {
   recaptcha_failed: 'La vérification reCAPTCHA a échoué. Veuillez réessayer.',
   select_date_range: 'Sélectionner la plage de dates',
   get_mobile_app: "Obtenir l'application mobile",
-  scan_qr_to_download: 'Scannez le code QR pour télécharger lapplication mobile'
+  scan_qr_to_download:
+    'Scannez le code QR pour télécharger lapplication mobile',
+  integrations: 'Intégrations',
+  api_keys: 'Clés API',
+  connectors: 'Connecteurs',
+  webhooks: 'Webhooks',
+  create_api_key: 'Créer une clé API',
+  api_key_label: 'Libellé de la clé API',
+  api_key_created_success: 'Clé API créée avec succès',
+  api_key_code_copied: 'Code de la clé API copié dans le presse-papiers',
+  api_key_code_view_once:
+    "Ce code ne peut être affiché qu'une seule fois. Veuillez le copier maintenant car vous ne pourrez plus le voir.",
+  api_key_code: 'Code de la clé API',
+  copy_code: 'Copier le code',
+  last_used: 'Dernière utilisation',
+  never: 'Jamais',
+  delete_api_key: 'Supprimer la clé API',
+  delete_api_key_confirm: 'Êtes-vous sûr de vouloir supprimer cette clé API ?',
+  upgrade_api:
+    "Passez à une version supérieure pour accéder à l'API, aux connecteurs et aux webhooks"
 };
 
 export default frJSON;

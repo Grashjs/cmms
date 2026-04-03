@@ -1707,7 +1707,8 @@ const locale = {
   trusted_by_maintenance_teams:
     'Approvato da squadre di manutenzione in vari settori',
   cut_costs_performance: 'Riduci i costi senza compromettere le prestazioni',
-  'free_cmms.title': 'Software CMMS Gratuito Atlas | Nessuna carta di credito richiesta',
+  'free_cmms.title':
+    'Software CMMS Gratuito Atlas | Nessuna carta di credito richiesta',
   'free_cmms.description':
     "Software CMMS gratuito — non è una versione di prova. Gestisci manutenzione, risorse e ordini di lavoro all'istante. Nessuna carta di credito richiesta.",
   'free_cmms.keywords':
@@ -1720,7 +1721,8 @@ const locale = {
   'pricing.description':
     'Piani tariffari flessibili per Atlas CMMS. Scegli tra le versioni Cloud e Self-Hosted del nostro CMMS open source per ottimizzare le tue operazioni di manutenzione.',
   'free_cmms.hero.subtitle': 'Software CMMS Gratuito',
-  'free_cmms.hero.title': 'Gestisci Ordini di Lavoro e Risorse - Gratis per sempre',
+  'free_cmms.hero.title':
+    'Gestisci Ordini di Lavoro e Risorse - Gratis per sempre',
   'free_cmms.hero.description':
     'Smetti di destreggiarti tra fogli di calcolo e strumenti obsoleti. Passa a un software CMMS moderno - gratis.',
   'free_cmms.hero.start_free': 'Inizia Gratis Ora',
@@ -1734,7 +1736,8 @@ const locale = {
   'free_cmms.features.work_orders.p3':
     'Monitora i progressi in tempo reale con aggiornamenti di stato istantanei.',
   'free_cmms.features.work_orders.alt': 'Gestione degli Ordini di Lavoro',
-  'free_cmms.features.asset_tracking.title': 'Tracciamento del Ciclo di Vita delle Risorse',
+  'free_cmms.features.asset_tracking.title':
+    'Tracciamento del Ciclo di Vita delle Risorse',
   'free_cmms.features.asset_tracking.p1':
     'Mantieni una cronologia digitale completa di ogni risorsa.',
   'free_cmms.features.asset_tracking.p2':
@@ -1756,70 +1759,90 @@ const locale = {
   'free_cmms.features.mobile.p2':
     'Scatta foto e scansiona codici a barre direttamente sul campo.',
   'free_cmms.features.mobile.p3':
-    'Sincronizza i dati all\'istante e lavora offline quando necessario.',
+    "Sincronizza i dati all'istante e lavora offline quando necessario.",
   'free_cmms.features.mobile.alt': 'App CMMS Mobile',
   'free_cmms.features.get_started_free': 'Inizia gratis',
-  'free_cmms.features.ready_to_optimize': 'Pronto a ottimizzare la tua manutenzione?',
+  'free_cmms.features.ready_to_optimize':
+    'Pronto a ottimizzare la tua manutenzione?',
   'free_cmms.features.join_thousands':
     'Unisciti a migliaia di professionisti della manutenzione che utilizzano il CMMS gratuito più intuitivo al mondo.',
-  "free_cmms.features.get_started_no_card":
-    "Inizia gratis - Nessuna carta di credito richiesta",
-  "create_request_portal": "Crea portale richieste",
-  "edit_request_portal": "Modifica portale richieste",
-  "welcome_message": "Messaggio di benvenuto",
-  "fields": "Campi",
-  "field_settings": "Impostazioni campi",
-  "contact": "Contatto",
-  "required_title": "Il titolo è obbligatorio",
-  "untitled_portal": "Portale senza titolo",
-  "no_welcome_message": "Nessun messaggio di benvenuto",
-  "request_portal_create_success": "Portale richieste creato con successo",
-  "request_portal_edit_success": "Portale richieste aggiornato con successo",
-  "request_portal_delete_success": "Portale richieste eliminato con successo",
-  "request_portal_create_failure": "Creazione del portale richieste fallita",
-  "request_portal_edit_failure": "Aggiornamento del portale richieste fallito",
-  "request_portal_delete_failure": "Eliminazione del portale richieste fallita",
-  "no_access_request_portals": "Non hai accesso ai portali richieste",
-  "noRows.request_portal.message":
-    "Sembra che tu non abbia ancora nessun portale richieste.",
-  "noRows.request_portal.action": "Crea il tuo primo portale richieste",
-  "request_title": "Titolo richiesta",
-  "configure_form_fields": "Configura campi modulo",
-  "allow_selection_from_all_locations": "Consenti selezione da tutte le posizioni",
-  "allow_selection_from_all_assets": "Consenti selezione da tutti gli asset",
-  "restrict_to_a_specific_location": "Limita a una posizione specifica",
-  "restrict_to_a_specific_asset": "Limita a un asset specifico",
-  "portal_public_asset_warning":
-    "Questo portale è pubblico e non richiede autenticazione. Gli asset elencati saranno visibili a chiunque abbia il link.",
-  "portal_public_location_warning":
-    "Questo portale è pubblico e non richiede autenticazione. Le posizioni elencate saranno visibili a chiunque abbia il link.",
-  "submit_request": "Invia richiesta",
-  "share_portal": "Condividi portale",
-  "get_portal_link": "Ottieni link portale",
-  "portal_link_description": "Solo le persone con questo link possono accedere al portale.",
-  "print_qr_code": "Stampa codice QR",
-  "qr_code_description":
+  'free_cmms.features.get_started_no_card':
+    'Inizia gratis - Nessuna carta di credito richiesta',
+  create_request_portal: 'Crea portale richieste',
+  edit_request_portal: 'Modifica portale richieste',
+  welcome_message: 'Messaggio di benvenuto',
+  fields: 'Campi',
+  field_settings: 'Impostazioni campi',
+  contact: 'Contatto',
+  required_title: 'Il titolo è obbligatorio',
+  untitled_portal: 'Portale senza titolo',
+  no_welcome_message: 'Nessun messaggio di benvenuto',
+  request_portal_create_success: 'Portale richieste creato con successo',
+  request_portal_edit_success: 'Portale richieste aggiornato con successo',
+  request_portal_delete_success: 'Portale richieste eliminato con successo',
+  request_portal_create_failure: 'Creazione del portale richieste fallita',
+  request_portal_edit_failure: 'Aggiornamento del portale richieste fallito',
+  request_portal_delete_failure: 'Eliminazione del portale richieste fallita',
+  no_access_request_portals: 'Non hai accesso ai portali richieste',
+  'noRows.request_portal.message':
+    'Sembra che tu non abbia ancora nessun portale richieste.',
+  'noRows.request_portal.action': 'Crea il tuo primo portale richieste',
+  request_title: 'Titolo richiesta',
+  configure_form_fields: 'Configura campi modulo',
+  allow_selection_from_all_locations:
+    'Consenti selezione da tutte le posizioni',
+  allow_selection_from_all_assets: 'Consenti selezione da tutti gli asset',
+  restrict_to_a_specific_location: 'Limita a una posizione specifica',
+  restrict_to_a_specific_asset: 'Limita a un asset specifico',
+  portal_public_asset_warning:
+    'Questo portale è pubblico e non richiede autenticazione. Gli asset elencati saranno visibili a chiunque abbia il link.',
+  portal_public_location_warning:
+    'Questo portale è pubblico e non richiede autenticazione. Le posizioni elencate saranno visibili a chiunque abbia il link.',
+  submit_request: 'Invia richiesta',
+  share_portal: 'Condividi portale',
+  get_portal_link: 'Ottieni link portale',
+  portal_link_description:
+    'Solo le persone con questo link possono accedere al portale.',
+  print_qr_code: 'Stampa codice QR',
+  qr_code_description:
     "Scarica il codice QR e incollalo sull'impianto, così gli utenti possono scansionarlo e accedere al portale.",
-  "copied": "Copiato!",
-  "copy": "Copia",
-  "download": "Scarica",
-  "share": "Condividi",
-  "delete": "Elimina",
-  "portal_not_found": "Portale non trovato",
-  "request_submitted_success": "La tua richiesta è stata inviata con successo",
-  "request_submit_failure": "Invio della richiesta fallito. Riprova.",
-  "required_description": "La descrizione è obbligatoria",
-  "required_contact": "Il contatto è obbligatorio",
-  "required_location": "La posizione è obbligatoria",
-  "upload_files": "Carica file",
-  "request_portal": "Portale richieste",
-  "required_image": "L'immagine è obbligatoria",
-  "requested_from_portal": "Questa richiesta è stata creata dal portale: ",
-  "request_portals": "Portali richieste",
-  "recaptcha_failed": "Verifica reCAPTCHA fallita. Riprova.",
-  "select_date_range": "Seleziona intervallo di date",
-  "get_mobile_app": "Ottieni l'app mobile",
-  "scan_qr_to_download": "Scansiona il codice QR per scaricare l'app mobile"
+  copied: 'Copiato!',
+  copy: 'Copia',
+  download: 'Scarica',
+  share: 'Condividi',
+  delete: 'Elimina',
+  portal_not_found: 'Portale non trovato',
+  request_submitted_success: 'La tua richiesta è stata inviata con successo',
+  request_submit_failure: 'Invio della richiesta fallito. Riprova.',
+  required_description: 'La descrizione è obbligatoria',
+  required_contact: 'Il contatto è obbligatorio',
+  required_location: 'La posizione è obbligatoria',
+  upload_files: 'Carica file',
+  request_portal: 'Portale richieste',
+  required_image: "L'immagine è obbligatoria",
+  requested_from_portal: 'Questa richiesta è stata creata dal portale: ',
+  request_portals: 'Portali richieste',
+  recaptcha_failed: 'Verifica reCAPTCHA fallita. Riprova.',
+  select_date_range: 'Seleziona intervallo di date',
+  get_mobile_app: "Ottieni l'app mobile",
+  scan_qr_to_download: "Scansiona il codice QR per scaricare l'app mobile",
+  integrations: 'Integrazioni',
+  api_keys: 'Chiavi API',
+  connectors: 'Connettori',
+  webhooks: 'Webhook',
+  create_api_key: 'Crea chiave API',
+  api_key_label: 'Etichetta chiave API',
+  api_key_created_success: 'Chiave API creata con successo',
+  api_key_code_copied: 'Codice chiave API copiato negli appunti',
+  api_key_code_view_once:
+    'Questo codice può essere visualizzato solo una volta. Copialo ora perché non potrai più vederlo.',
+  api_key_code: 'Codice chiave API',
+  copy_code: 'Copia codice',
+  last_used: 'Ultimo utilizzo',
+  never: 'Mai',
+  delete_api_key: 'Elimina chiave API',
+  delete_api_key_confirm: 'Sei sicuro di voler eliminare questa chiave API?',
+  upgrade_api: 'Aggiorna per accedere a API, connettori e webhook'
 };
 
 export default locale;

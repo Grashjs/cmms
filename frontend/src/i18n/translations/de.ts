@@ -1730,7 +1730,8 @@ const deJSON = {
   trusted_by_maintenance_teams:
     'Verwendet von Wartungsteams in verschiedenen Branchen',
   cut_costs_performance: 'Kosten sparen, ohne Leistung zu verlieren',
-  'free_cmms.title': 'Atlas Kostenlose CMMS-Software | Keine Kreditkarte erforderlich',
+  'free_cmms.title':
+    'Atlas Kostenlose CMMS-Software | Keine Kreditkarte erforderlich',
   'free_cmms.description':
     'Kostenlose CMMS-Software — keine Testversion. Verwalten Sie Wartung, Anlagen und Arbeitsaufträge sofort. Keine Kreditkarte erforderlich.',
   'free_cmms.keywords':
@@ -1743,7 +1744,8 @@ const deJSON = {
   'pricing.description':
     'Flexible Preispläne für Atlas CMMS. Wählen Sie zwischen Cloud- und selbstgehosteten Versionen unseres Open-Source-CMMS, um Ihre Wartungsarbeiten zu optimieren.',
   'free_cmms.hero.subtitle': 'Kostenlose CMMS-Software',
-  'free_cmms.hero.title': 'Verwalten Sie Arbeitsaufträge und Anlagen - Für immer kostenlos',
+  'free_cmms.hero.title':
+    'Verwalten Sie Arbeitsaufträge und Anlagen - Für immer kostenlos',
   'free_cmms.hero.description':
     'Hören Sie auf, mit Tabellenkalkulationen und veralteten Tools zu jonglieren. Wechseln Sie zu einer modernen CMMS-Software - kostenlos.',
   'free_cmms.hero.start_free': 'Jetzt kostenlos starten',
@@ -1800,7 +1802,8 @@ const deJSON = {
   request_portal_edit_success: 'Anfrageportal erfolgreich aktualisiert',
   request_portal_delete_success: 'Anfrageportal erfolgreich gelöscht',
   request_portal_create_failure: 'Erstellen des Anfrageportals fehlgeschlagen',
-  request_portal_edit_failure: 'Aktualisieren des Anfrageportals fehlgeschlagen',
+  request_portal_edit_failure:
+    'Aktualisieren des Anfrageportals fehlgeschlagen',
   request_portal_delete_failure: 'Löschen des Anfrageportals fehlgeschlagen',
   no_access_request_portals: 'Sie haben keinen Zugriff auf Anfrageportale',
   'noRows.request_portal.message':
@@ -1808,7 +1811,8 @@ const deJSON = {
   'noRows.request_portal.action': 'Erstellen Sie Ihr erstes Anfrageportal',
   request_title: 'Anfragetitel',
   configure_form_fields: 'Formularfelder konfigurieren',
-  allow_selection_from_all_locations: 'Auswahl aus allen Standorten ermöglichen',
+  allow_selection_from_all_locations:
+    'Auswahl aus allen Standorten ermöglichen',
   allow_selection_from_all_assets: 'Auswahl aus allen Anlagen ermöglichen',
   restrict_to_a_specific_location: 'Auf einen bestimmten Standort beschränken',
   restrict_to_a_specific_asset: 'Auf eine bestimmte Anlage beschränken',
@@ -1819,7 +1823,8 @@ const deJSON = {
   submit_request: 'Anfrage einreichen',
   share_portal: 'Portal teilen',
   get_portal_link: 'Portal-Link erhalten',
-  portal_link_description: 'Nur Personen mit diesem Link können auf das Portal zugreifen.',
+  portal_link_description:
+    'Nur Personen mit diesem Link können auf das Portal zugreifen.',
   print_qr_code: 'QR-Code drucken',
   qr_code_description:
     'Laden Sie den QR-Code herunter und kleben Sie ihn auf die Anlage, damit Benutzer ihn scannen und auf das Portal zugreifen können.',
@@ -1830,7 +1835,8 @@ const deJSON = {
   delete: 'Löschen',
   portal_not_found: 'Portal nicht gefunden',
   request_submitted_success: 'Ihre Anfrage wurde erfolgreich eingereicht',
-  request_submit_failure: 'Anfrage konnte nicht eingereicht werden. Bitte versuchen Sie es erneut.',
+  request_submit_failure:
+    'Anfrage konnte nicht eingereicht werden. Bitte versuchen Sie es erneut.',
   required_description: 'Beschreibung ist erforderlich',
   required_contact: 'Kontakt ist erforderlich',
   required_location: 'Standort ist erforderlich',
@@ -1839,10 +1845,31 @@ const deJSON = {
   required_image: 'Bild ist erforderlich',
   requested_from_portal: 'Diese Anfrage wurde vom Portal erstellt: ',
   request_portals: 'Anfrageportale',
-  recaptcha_failed: 'reCAPTCHA-Verifizierung fehlgeschlagen. Bitte versuchen Sie es erneut.',
+  recaptcha_failed:
+    'reCAPTCHA-Verifizierung fehlgeschlagen. Bitte versuchen Sie es erneut.',
   select_date_range: 'Datumsbereich auswählen',
   get_mobile_app: 'Mobile App herunterladen',
-  scan_qr_to_download: 'Scannen Sie den QR-Code zum Herunterladen der mobilen App'
+  scan_qr_to_download:
+    'Scannen Sie den QR-Code zum Herunterladen der mobilen App',
+  integrations: 'Integrationen',
+  api_keys: 'API-Schlüssel',
+  connectors: 'Konnektoren',
+  webhooks: 'Webhooks',
+  create_api_key: 'API-Schlüssel erstellen',
+  api_key_label: 'API-Schlüssel Bezeichnung',
+  api_key_created_success: 'API-Schlüssel erfolgreich erstellt',
+  api_key_code_copied: 'API-Schlüssel wurde in die Zwischenablage kopiert',
+  api_key_code_view_once:
+    'Dieser Code kann nur einmal angezeigt werden. Bitte kopieren Sie ihn jetzt, da Sie ihn später nicht mehr sehen können.',
+  api_key_code: 'API-Schlüsselcode',
+  copy_code: 'Code kopieren',
+  last_used: 'Zuletzt verwendet',
+  never: 'Nie',
+  delete_api_key: 'API-Schlüssel löschen',
+  delete_api_key_confirm:
+    'Sind Sie sicher, dass Sie diesen API-Schlüssel löschen möchten?',
+  upgrade_api:
+    'Upgrade durchführen, um Zugriff auf API, Konnektoren und Webhooks zu erhalten'
 };
 
 export default deJSON;

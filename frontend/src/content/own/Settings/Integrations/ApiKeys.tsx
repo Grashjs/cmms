@@ -11,7 +11,9 @@ import {
   DialogTitle,
   IconButton,
   InputAdornment,
-  FormHelperText
+  FormHelperText,
+  Link,
+  Stack
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import {
@@ -39,6 +41,7 @@ import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContex
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
+import { onOpenApiDocs } from '../../../../utils/overall';
 
 const DialogWrapper = styled(Dialog)(
   () => `
@@ -161,13 +164,16 @@ function ApiKeys() {
   return (
     <Box>
       <Box display="flex" justifyContent="flex-end" mb={3}>
-        <Button
-          variant="contained"
-          startIcon={<AddTwoToneIcon />}
-          onClick={handleOpenCreateModal}
-        >
-          {t('create_api_key')}
-        </Button>
+        <Stack direction={'row'} spacing={1} alignItems={'center'}>
+          <Button onClick={onOpenApiDocs}>{t('open_api_docs')}</Button>
+          <Button
+            variant="contained"
+            startIcon={<AddTwoToneIcon />}
+            onClick={handleOpenCreateModal}
+          >
+            {t('create_api_key')}
+          </Button>
+        </Stack>
       </Box>
 
       <CustomDatagrid2
