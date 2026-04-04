@@ -346,7 +346,7 @@ const trJSON = {
       action: "Tedarikçi oluşturmak için '' düğmesine basın",
     },
     team: {
-      message: "Ekipler belirli insan gruplarını yönetmenize yardımcı olur.",
+      message: "Ekipler belirli personel gruplarını yönetmenize yardımcı olur.",
       action: "Ekip oluşturmak için '' butonuna basın.",
     },
     file: {
@@ -727,7 +727,7 @@ const trJSON = {
   edit_user_description: "Kullanıcıyı düzenlemek için aşağıdaki alanları doldurun",
   job_title: "İş unvanı",
   invite_users: "Kullanıcıları Davet Et",
-  bring_people_team: "Ekibe yeni insanlar getirin",
+  bring_people_team: "Ekibe yeni personeller getirin",
   add_20_users:
     "Her e-posta girişinden sonra 'sekme' veya 'enter' tuşuna basarak aynı anda 20 kullanıcı ekleyebilirsiniz. ",
   enter_email: "Email adresini gir",
@@ -742,7 +742,7 @@ const trJSON = {
   team_delete_success: "Ekip başarıyla silindi",
   team_delete_failure: "Ekip silinemedi",
   team_name: "Ekip adı",
-  people_in_team: "Ekipdeki insanlar",
+  people_in_team: "Ekipdeki Personeller",
   required_team_name: "Ekip Adı gerekli",
   create_team: "Ekip oluştur",
   create_team_description: "Ekip üyelerini buradan ekleyebilirsiniz",
@@ -1414,7 +1414,7 @@ const trJSON = {
   try_for_free: "Ücretsiz dene",
   choose_your_plan: "Planınızı seçin",
   STARTER_description:
-    "Makine durumu ve insan gücü görünürlüğü yoluyla verimli ve güçlü önleyici bakım oluşturmak isteyen ekipler.",
+    "Makine durumu ve personel gücü görünürlüğü yoluyla verimli ve güçlü önleyici bakım oluşturmak isteyen ekipler.",
   PROFESSIONAL_description:
     "Bakım alanında daha fazla büyüme ve üretkenlik sağlamak için öngörülerden ve analizlerden yararlanması gereken departmanlar.",
   BUSINESS_description:
