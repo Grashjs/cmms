@@ -106,6 +106,12 @@ const Downgrade = Loader(
 const SwitchAccount = Loader(
   lazy(() => import('../content/own/SwitchAccount'))
 );
+const SuperAdminCompanies = Loader(
+  lazy(() => import('../content/own/SuperAdmin/Companies'))
+);
+const SuperAdminCompanyDetail = Loader(
+  lazy(() => import('../content/own/SuperAdmin/CompanyDetail'))
+);
 const appRoutes = [
   {
     path: 'settings',
@@ -366,7 +372,14 @@ const appRoutes = [
   },
   { path: 'upgrade', element: <Upgrade /> },
   { path: 'downgrade', element: <Downgrade /> },
-  { path: 'switch-account', element: <SwitchAccount /> }
+  { path: 'switch-account', element: <SwitchAccount /> },
+  {
+    path: 'superadmin',
+    children: [
+      { path: 'companies', element: <SuperAdminCompanies /> },
+      { path: 'companies/:id', element: <SuperAdminCompanyDetail /> }
+    ]
+  }
 ];
 
 export default appRoutes;

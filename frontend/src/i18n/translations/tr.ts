@@ -1838,7 +1838,15 @@ const trJSON = {
   delete_api_key: 'API Anahtarını Sil',
   delete_api_key_confirm:
     'Bu API anahtarını silmek istediğinizden emin misiniz?',
-  upgrade_api: 'API, bağlayıcılar ve webhooklara erişmek için yükseltin'
+  upgrade_api: 'API, bağlayıcılar ve webhooklara erişmek için yükseltin',
+  companies: 'Şirketler',
+  subscription_plan: 'Abonelik Planı',
+  user_count: 'Kullanıcı Sayısı',
+  switch_to_user: 'Kullanıcıya Geç',
+  no_companies: 'Şirket bulunamadı',
+  company_not_found: 'Şirket bulunamadı',
+  Superadmin: 'Superadmin',
+  superadmin_panel: 'Superadmin Paneli'
 };
 
 export default trJSON;

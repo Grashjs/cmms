@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import AnalyticsTwoToneIcon from '@mui/icons-material/AnalyticsTwoTone';
+import BusinessTwoToneIcon from '@mui/icons-material/BusinessTwoTone';
 import InsertChartTwoToneIcon from '@mui/icons-material/InsertChartTwoTone';
 import HealthAndSafetyTwoToneIcon from '@mui/icons-material/HealthAndSafetyTwoTone';
 import AssignmentIndTwoToneIcon from '@mui/icons-material/AssignmentIndTwoTone';
@@ -609,6 +610,19 @@ const templateItems = [
         name: 'Documentation',
         icon: SupportTwoToneIcon,
         link: '/docs'
+      }
+    ]
+  }
+];
+
+export const superAdminMenuItems: MenuItems[] = [
+  {
+    heading: 'Superadmin',
+    items: [
+      {
+        name: 'companies',
+        link: '/app/superadmin/companies',
+        icon: BusinessTwoToneIcon
       }
     ]
   }

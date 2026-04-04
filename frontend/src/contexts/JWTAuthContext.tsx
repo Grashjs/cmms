@@ -51,7 +51,8 @@ export type FieldConfigurationsType = 'workOrder' | 'request';
 
 interface AuthContextValue extends AuthState {
   method: 'JWT';
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, type?: string) => Promise<void>;
+  isSuperAdmin: boolean;
   loginInternal: (accessToken: string) => void;
   logout: () => void;
   register: (
@@ -469,6 +470,7 @@ const reducer = (state: AuthState, action: Action): AuthState =>
 const AuthContext = createContext<AuthContextValue>({
   ...initialAuthState,
   method: 'JWT',
+  isSuperAdmin: false,
   login: () => Promise.resolve(),
   loginInternal: () => null,
   logout: () => Promise.resolve(),
@@ -562,12 +564,12 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       });
     }
   };
-  const login = async (email: string, password: string): Promise<void> => {
+  const login = async (email: string, password: string, type: string = 'client'): Promise<void> => {
     const response = await api.post<{ accessToken: string }>(
       'auth/signin',
       {
         email,
-        type: 'client',
+        type,
         password
       },
       { headers: authHeader(true) }
@@ -931,9 +933,12 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       state.user.role.deleteOtherPermissions.includes(permissionEntity)
     );
   };
+  const isSuperAdmin = state.user?.role?.roleType === 'ROLE_SUPER_ADMIN';
   const hasFeature = (feature: PlanFeature) => {
-    return state.company.subscription.subscriptionPlan.features.includes(
-      feature
+    return (
+      state.company?.subscription?.subscriptionPlan?.features?.includes(
+        feature
+      ) ?? false
     );
   };
   const getFilteredFields = (defaultFields: Array<IField>): IField[] => {
@@ -1029,7 +1034,8 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         downgrade,
         switchAccount,
         loginInternal,
-        patchUiConfiguration
+        patchUiConfiguration,
+        isSuperAdmin
       }}
     >
       {children}

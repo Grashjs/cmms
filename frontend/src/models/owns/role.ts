@@ -54,6 +54,7 @@ export interface Role {
   description?: string;
   paid: boolean;
   code: RoleCode;
+  roleType?: string;
   createPermissions: PermissionEntity[];
   viewPermissions: PermissionEntity[];
   viewOtherPermissions: PermissionEntity[];

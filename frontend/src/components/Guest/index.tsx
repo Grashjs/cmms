@@ -15,7 +15,11 @@ const Guest: FC<GuestProps> = ({ children }) => {
     return (
       <Navigate
         to={
-          user.role.code === 'REQUESTER' ? '/app/requests' : '/app/work-orders'
+          user.role?.roleType === 'ROLE_SUPER_ADMIN'
+            ? '/app/superadmin/companies'
+            : user.role.code === 'REQUESTER'
+            ? '/app/requests'
+            : '/app/work-orders'
         }
       />
     );

@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 import type { FC } from 'react';
 import { useContext, useState } from 'react';
 import { Formik } from 'formik';
-import { Link as RouterLink, useSearchParams } from 'react-router-dom';
+import { Link as RouterLink, useLocation, useSearchParams } from 'react-router-dom';
 
 import {
   Box,
@@ -27,6 +27,10 @@ const LoginJWT: FC = () => {
   const { t }: { t: any } = useTranslation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const loginType = location.pathname.startsWith('/app/superadmin')
+    ? 'SUPER_ADMIN'
+    : 'client';
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   return (
@@ -48,7 +52,7 @@ const LoginJWT: FC = () => {
         { setErrors, setStatus, setSubmitting }
       ): Promise<void> => {
         setSubmitting(true);
-        return login(values.email, values.password)
+        return login(values.email, values.password, loginType)
           .catch((err) => {
             showSnackBar(t('wrong_credentials'), 'error');
             setStatus({ success: false });

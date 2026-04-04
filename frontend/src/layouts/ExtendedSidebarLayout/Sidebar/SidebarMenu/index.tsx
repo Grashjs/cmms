@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { matchPath, useLocation } from 'react-router-dom';
 import SidebarMenuItem from './item';
-import menuItems, { MenuItem } from './items';
+import menuItems, { MenuItem, superAdminMenuItems } from './items';
 import { useTranslation } from 'react-i18next';
 import useAuth from '../../../../hooks/useAuth';
 import { useEffect } from 'react';
@@ -253,9 +253,10 @@ function SidebarMenu() {
   const TRIAL_DAYS = 15;
   const daysPassed = dayjs().diff(dayjs(company.createdAt), 'day');
   const daysLeft = TRIAL_DAYS - daysPassed;
+  const isSuperAdmin = user.role?.roleType === 'ROLE_SUPER_ADMIN';
 
   useEffect(() => {
-    if (user.id) {
+    if (user.id && !isSuperAdmin) {
       dispatch(getUrgentWorkOrdersCount());
       if (user.role.code !== 'REQUESTER') dispatch(getPendingRequestsCount());
     }
@@ -265,7 +266,7 @@ function SidebarMenu() {
       {isCloudVersion &&
         !company.demo &&
         user.ownsCompany &&
-        !company.subscription.activated && (
+        !company.subscription?.activated && (
           <Stack
             sx={{
               backgroundColor: 'rgb(51, 194, 255)',
@@ -282,7 +283,7 @@ function SidebarMenu() {
                 : `Your trial has ended`}
             </Typography>
             <Typography color={'white'} fontSize={'14px'}>
-              You are on the {company.subscription.subscriptionPlan.name} plan
+              You are on the {company.subscription?.subscriptionPlan?.name} plan
             </Typography>
             <Button
               component={Link}
@@ -296,8 +297,12 @@ function SidebarMenu() {
           </Stack>
         )}
       <>
-        {(user.superAccountRelations.length ? [] : menuItems)
-          .map((section, index) => {
+        {(isSuperAdmin
+          ? superAdminMenuItems
+          : user.superAccountRelations.length
+          ? []
+          : menuItems
+        ).map((section, index) => {
             const sectionClone = { ...section };
             sectionClone.items = sectionClone.items.filter((item) => {
               const hasPermission = item.permission
