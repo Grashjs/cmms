@@ -68,6 +68,10 @@ function SuperAdminCompanyDetail() {
     setSwitchingUserId(userId);
     setError(null);
     try {
+      const currentToken = window.localStorage.getItem('accessToken');
+      if (currentToken) {
+        window.localStorage.setItem('superadminToken', currentToken);
+      }
       const response = await api.post<{ accessToken: string }>(
         `superadmin/switch/${userId}`,
         {}
@@ -81,11 +85,27 @@ function SuperAdminCompanyDetail() {
     }
   };
 
+  const handleReturnToSuperAdmin = async () => {
+    const superadminToken = window.localStorage.getItem('superadminToken');
+    if (superadminToken) {
+      window.localStorage.removeItem('superadminToken');
+      await loginInternal(superadminToken);
+      navigate('/app/superadmin/companies');
+    }
+  };
+
   return (
     <>
       <Helmet>
         <title>Superadmin - {company?.name ?? t('company_details')}</title>
       </Helmet>
+      {localStorage.getItem('superadminToken') && (
+        <Box display="flex" justifyContent="flex-end" p={1}>
+          <Button variant="contained" color="warning" onClick={handleReturnToSuperAdmin}>
+            ← Superadmin'e Dön
+          </Button>
+        </Box>
+      )}
       <PageTitleWrapper>
         <Box>
           <Button

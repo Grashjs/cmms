@@ -102,10 +102,11 @@ public class UserController {
     }
 
     @GetMapping("/mini")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_CLIENT') or hasRole('ROLE_SUPER_ADMIN')")
 
     public Collection<UserMiniDTO> getMini(@Parameter(hidden = true) @CurrentUser OwnUser user,
                                            @RequestParam(required = false) Boolean withRequesters) {
+        if (user.getCompany() == null) return java.util.Collections.emptyList();
         return Boolean.TRUE.equals(withRequesters) ?
                 userService.findByCompany(user.getCompany().getId()).stream()
                         .filter(OwnUser::isEnabled).map(userMapper::toMiniDto).collect(Collectors.toList()) :

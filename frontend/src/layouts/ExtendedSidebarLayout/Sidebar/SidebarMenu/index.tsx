@@ -9,7 +9,7 @@ import {
   styled,
   Typography
 } from '@mui/material';
-import { matchPath, useLocation } from 'react-router-dom';
+import { matchPath, useLocation, useNavigate } from "react-router-dom";
 import SidebarMenuItem from './item';
 import menuItems, { MenuItem, superAdminMenuItems } from './items';
 import { useTranslation } from 'react-i18next';
@@ -247,7 +247,8 @@ function SidebarMenu() {
   const location = useLocation();
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
-  const { hasViewPermission, hasFeature, user, company } = useAuth();
+  const { hasViewPermission, hasFeature, user, company, loginInternal } = useAuth();
+  const navigate = useNavigate();
   const { urgentCount } = useSelector((state) => state.workOrders);
   const { pendingCount } = useSelector((state) => state.requests);
   const TRIAL_DAYS = 15;
@@ -297,6 +298,23 @@ function SidebarMenu() {
           </Stack>
         )}
       <>
+        {!isSuperAdmin && window.localStorage.getItem('superadminToken') && (
+          <Box p={2}>
+            <Button
+              fullWidth
+              variant="contained"
+              color="warning"
+              onClick={async () => {
+                const token = window.localStorage.getItem('superadminToken');
+                window.localStorage.removeItem('superadminToken');
+                await loginInternal(token);
+                navigate('/app/superadmin/companies');
+              }}
+            >
+              ← Superadmin'e Dön
+            </Button>
+          </Box>
+        )}
         {(isSuperAdmin
           ? superAdminMenuItems
           : user.superAccountRelations.length
