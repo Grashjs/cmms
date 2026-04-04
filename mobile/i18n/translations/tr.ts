@@ -1529,7 +1529,7 @@ const trJSON = {
   CANCELLED: 'Reddedilmiş',
   max_file_size_error: "Dosya boyutu {{size}} MB'tan büyük olmamalıdır",
   assignedToUser: 'Benim işim',
-  mark_all_as_seen: 'Konuklara teşekkür ederiz',
+  mark_all_as_seen: 'Bildirimleri Temizle',
   estimated_start_date: 'Beklenen Başlangıç Tarihi',
   audio_description: 'Sesli açıklama',
   start_recording: 'Kaydı başlat',

@@ -1435,7 +1435,7 @@ const trJSON = {
   CANCELLED: 'Reddedilmiş',
   uptime_hours: 'Kullanılabilirlik(saat)',
   downtime_hours: 'Kesinti süresi(saat)',
-  mark_all_as_seen: 'Konuklara teşekkür ederiz',
+  mark_all_as_seen: 'Bildirimleri Temizle',
   estimation_accuracy_ratio: 'Tahmin doğruluk oranı',
   download_template: 'Şablonu indir',
   pareto_by_total_price: 'Toplam fiyata göre Pareto',
