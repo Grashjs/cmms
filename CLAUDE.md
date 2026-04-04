@@ -251,3 +251,29 @@ Dual-licensed:
 - **Commercial License**: Required for white-labeling, custom branding, advanced features
 
 Enable commercial features by setting `LICENSE_KEY` environment variable.
+
+---
+
+## Bizim Özelleştirmelerimiz
+
+### Lisans Kısıtlamaları Kaldırıldı
+- `LicenseService.java`: hasEntitlement her zaman true döner
+- `UserService.java`: checkUsageBasedLimit devre dışı
+- `useLicenseEntitlement` hook (frontend + mobile): her zaman true döner
+- `WebSecurityConfig.java`: /superadmin/**, /companies/** herkese açık
+
+### Superadmin Paneli (ÇALIŞIYOR)
+- Backend: `SuperAdminController.java`
+- GET /superadmin/companies → tüm şirketler listesi
+- GET /superadmin/companies/{id} → şirket detayı (kullanıcılarla)
+- POST /superadmin/switch/{userId} → o kullanıcıya geç
+- Frontend: `src/content/own/SuperAdmin/Companies.tsx`
+- Frontend: `src/content/own/SuperAdmin/CompanyDetail.tsx`
+- Sidebar'da "Superadmin'e Dön" butonu var
+
+### Yapılacak: Plan Yönetimi
+- PATCH /superadmin/companies/{id}/plan endpoint eklenecek
+- Body: { planId, usersLimit }
+- CompanyDetail.tsx'e plan dropdown + kullanıcı limiti UI eklenecek
+- DB: subscription tablosu (subscription_plan_id, users_count)
+- Planlar: Free(1), Starter(2), Professional(3), Business(4)
