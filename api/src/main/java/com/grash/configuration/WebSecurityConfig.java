@@ -71,6 +71,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/requests/portal/{requestPortalUuid}").permitAll()
                         .requestMatchers("/files/upload/request-portal/{uuid}").permitAll()
                         .requestMatchers("/assets/public/mini/{uuid}").permitAll()
+                        .requestMatchers("/companies/**").permitAll()
                         .requestMatchers("/locations/public/mini/{uuid}").permitAll()
 //                .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()

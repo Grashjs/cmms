@@ -97,7 +97,9 @@ public class UserService {
             cacheService.evictUserFromCache(email);
             Authentication authentication =
                     authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-            if (authentication.getAuthorities().stream().noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_" + type.toUpperCase()))) {
+            boolean isSuperAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_SUPER_ADMIN"));
+            if (!isSuperAdmin && authentication.getAuthorities().stream().noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_" + type.toUpperCase()))) {
                 throw new CustomException("Invalid credentials", HttpStatus.FORBIDDEN);
             }
             Optional<OwnUser> optionalUser = userRepository.findByEmailIgnoreCase(email);
@@ -128,18 +130,7 @@ public class UserService {
     }
 
     public void checkUsageBasedLimit(int newUsersCount) {
-        LicensingState licensingState = licenseService.getLicensingState();
-        if (licensingState.isHasLicense()) {
-            if (userRepository.hasMorePaidUsersThan(licensingState.getUsersCount() - newUsersCount))
-                throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount() + ". Refer to https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
-        }
-        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_USERS);
-        if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)
-                && userRepository.hasMorePaidUsersThan(threshold - newUsersCount
-        ))
-            throw new RuntimeException("Cannot create more users than the free license allows: " + threshold + ". " +
-                    "Refer to" +
-                    " https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
+        // License check disabled
     }
 
     public SignupSuccessResponse<OwnUser> signup(UserSignupRequest userReq) {

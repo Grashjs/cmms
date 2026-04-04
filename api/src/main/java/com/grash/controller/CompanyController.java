@@ -39,8 +39,6 @@ public class CompanyController {
     @PreAuthorize("permitAll()")
 
     public CompanyShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
-
         Optional<Company> companyOptional = companyService.findById(id);
         if (companyOptional.isPresent()) {
             return companyMapper.toShowDto(companyService.findById(id).get());
