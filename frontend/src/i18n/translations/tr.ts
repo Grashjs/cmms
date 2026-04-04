@@ -358,8 +358,8 @@ const trJSON = {
   parts_and_inventory: 'Parçalar/Envanter',
   purchase_orders: 'Satın alma siparişleri',
   meters: 'Ölçerler',
-  people_teams: 'İnsanlar & Ekipler',
-  people: 'İnsanlar',
+  people_teams: 'Personeler & Ekipler',
+  people: 'Personeller',
   teams: 'Ekipler',
   vendors_customers: 'Tedarikçiler',
   vendors: 'Tedarikçiler',
@@ -715,7 +715,7 @@ const trJSON = {
     'Kullanıcıyı düzenlemek için aşağıdaki alanları doldurun',
   job_title: 'İş unvanı',
   invite_users: 'Kullanıcıları Davet Et',
-  bring_people_team: 'Ekibe yeni insanlar getirin',
+  bring_people_team: 'Ekibe yeni personeller getirin',
   add_20_users:
     "Her e-posta girişinden sonra 'sekme' veya 'enter' tuşuna basarak aynı anda 20 kullanıcı ekleyebilirsiniz. ",
   enter_email: 'Email adresini gir',
@@ -730,7 +730,7 @@ const trJSON = {
   team_delete_success: 'Ekip başarıyla silindi',
   team_delete_failure: 'Ekip silinemedi',
   team_name: 'Ekip adı',
-  people_in_team: 'Ekipdeki insanlar',
+  people_in_team: 'Ekipdeki personeller',
   required_team_name: 'Ekip Adı gerekli',
   create_team: 'Ekip oluştur',
   create_team_description: 'Ekip üyelerini buradan ekleyebilirsiniz',
@@ -759,7 +759,7 @@ const trJSON = {
     'Talepte bulunanlar yalnızca iş isteklerini gönderebilir ve durumlarını görüntüleyebilir',
   select_user_role: 'Kullanıcı rolünü seçin',
   'noRows.team.message':
-    'Ekipler belirli insan gruplarını yönetmenize yardımcı olur.',
+    'Ekipler belirli personel gruplarını yönetmenize yardımcı olur.',
   'noRows.team.action': "Ekip oluşturmak için '' butonuna basın.",
   user_details: 'Kullanıcı detayları',
   file_delete_success: 'Dosya başarıyla silindi',
@@ -1454,7 +1454,7 @@ const trJSON = {
   try_for_free: 'Ücretsiz dene',
   choose_your_plan: 'Planınızı seçin',
   STARTER_description:
-    'Makine durumu ve insan gücü görünürlüğü yoluyla verimli ve güçlü önleyici bakım oluşturmak isteyen ekipler.',
+    'Makine durumu ve personel gücü görünürlüğü yoluyla verimli ve güçlü önleyici bakım oluşturmak isteyen ekipler.',
   PROFESSIONAL_description:
     'Bakım alanında daha fazla büyüme ve üretkenlik sağlamak için öngörülerden ve analizlerden yararlanması gereken departmanlar.',
   BUSINESS_description:
