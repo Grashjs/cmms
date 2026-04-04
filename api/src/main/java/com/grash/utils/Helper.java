@@ -261,7 +261,7 @@ public class Helper {
                 Role.builder()
                         .roleType(RoleType.ROLE_CLIENT)
                         .code(RoleCode.LIMITED_ADMIN)
-                        .name("Limited Administrator")
+                        .name("Sınırlı Yönetici")
                         .paid(true)
                         .createPermissions(new HashSet<>(allEntities.stream().filter(permissionEntity -> !Arrays.asList(PermissionEntity.PEOPLE_AND_TEAMS, PermissionEntity.REQUESTS).contains(permissionEntity)).collect(Collectors.toList())))
                         .editOtherPermissions(new HashSet<>(allEntities.stream().filter(permissionEntity -> !permissionEntity.equals(PermissionEntity.PEOPLE_AND_TEAMS)).collect(Collectors.toList())))
