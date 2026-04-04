@@ -7,11 +7,16 @@ import {
   Chip,
   CircularProgress,
   Container,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
+  TextField,
   Typography
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -32,12 +37,20 @@ interface SuperAdminUserDTO {
   role: { id: number; name: string; code: string };
 }
 
+interface SubscriptionPlan {
+  id: number;
+  name: string;
+  code: string;
+}
+
 interface SuperAdminCompanyDetailDTO {
   id: number;
   name: string;
   email: string;
   createdAt: string;
+  subscriptionPlanId: number | null;
   subscriptionPlanName: string | null;
+  usersLimit: number;
   userCount: number;
   users: SuperAdminUserDTO[];
 }
@@ -53,16 +66,58 @@ function SuperAdminCompanyDetail() {
   const [loading, setLoading] = useState(true);
   const [switchingUserId, setSwitchingUserId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [selectedPlanId, setSelectedPlanId] = useState<number | ''>('');
+  const [usersLimit, setUsersLimit] = useState<number>(1);
+  const [savingPlan, setSavingPlan] = useState(false);
+  const [planSuccess, setPlanSuccess] = useState(false);
 
   useEffect(() => {
     if (id) {
       api
         .get<SuperAdminCompanyDetailDTO>(`superadmin/companies/${id}`)
-        .then(setCompany)
+        .then((data) => {
+          setCompany(data);
+          if (data.subscriptionPlanId) setSelectedPlanId(data.subscriptionPlanId);
+          if (data.usersLimit) setUsersLimit(data.usersLimit);
+        })
         .catch(() => setError(t('error_loading_data')))
         .finally(() => setLoading(false));
     }
+    api
+      .get<SubscriptionPlan[]>('superadmin/subscription-plans')
+      .then(setPlans)
+      .catch(() => {});
   }, [id]);
+
+  const handleSavePlan = async () => {
+    if (!id || selectedPlanId === '') return;
+    setSavingPlan(true);
+    setPlanSuccess(false);
+    setError(null);
+    try {
+      await api.patch(`superadmin/companies/${id}/plan`, {
+        planId: selectedPlanId,
+        usersLimit
+      });
+      setPlanSuccess(true);
+      setCompany((prev) =>
+        prev
+          ? {
+              ...prev,
+              subscriptionPlanId: selectedPlanId as number,
+              subscriptionPlanName:
+                plans.find((p) => p.id === selectedPlanId)?.name ?? prev.subscriptionPlanName,
+              usersLimit
+            }
+          : prev
+      );
+    } catch {
+      setError('Plan güncellenemedi');
+    } finally {
+      setSavingPlan(false);
+    }
+  };
 
   const handleSwitchUser = async (userId: number) => {
     setSwitchingUserId(userId);
@@ -141,7 +196,7 @@ function SuperAdminCompanyDetail() {
                 <Typography variant="h4" gutterBottom>
                   {t('company_details')}
                 </Typography>
-                <Box display="flex" gap={4} flexWrap="wrap">
+                <Box display="flex" gap={4} flexWrap="wrap" mb={3}>
                   <Box>
                     <Typography variant="caption" color="text.secondary">
                       {t('email')}
@@ -171,6 +226,54 @@ function SuperAdminCompanyDetail() {
                     </Typography>
                     <Typography>{company.userCount}</Typography>
                   </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">
+                      Kullanıcı Limiti
+                    </Typography>
+                    <Typography>{company.usersLimit || '-'}</Typography>
+                  </Box>
+                </Box>
+
+                <Typography variant="h6" gutterBottom>
+                  Plan Güncelle
+                </Typography>
+                {planSuccess && (
+                  <Alert severity="success" sx={{ mb: 2 }}>
+                    Plan başarıyla güncellendi.
+                  </Alert>
+                )}
+                <Box display="flex" gap={2} alignItems="flex-end" flexWrap="wrap">
+                  <FormControl size="small" sx={{ minWidth: 200 }}>
+                    <InputLabel>Plan</InputLabel>
+                    <Select
+                      value={selectedPlanId}
+                      label="Plan"
+                      onChange={(e) => setSelectedPlanId(e.target.value as number)}
+                    >
+                      {plans.map((plan) => (
+                        <MenuItem key={plan.id} value={plan.id}>
+                          {plan.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <TextField
+                    size="small"
+                    label="Kullanıcı Limiti"
+                    type="number"
+                    value={usersLimit}
+                    onChange={(e) => setUsersLimit(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                    inputProps={{ min: 1 }}
+                    sx={{ width: 160 }}
+                  />
+                  <Button
+                    variant="contained"
+                    onClick={handleSavePlan}
+                    disabled={savingPlan || selectedPlanId === ''}
+                    startIcon={savingPlan ? <CircularProgress size={14} color="inherit" /> : null}
+                  >
+                    Kaydet
+                  </Button>
                 </Box>
               </CardContent>
             </Card>

@@ -5,11 +5,17 @@ import com.grash.dto.SuperAdminCompanyDetailDTO;
 import com.grash.dto.AuthResponse;
 import com.grash.model.Company;
 import com.grash.model.OwnUser;
+import com.grash.model.Subscription;
+import com.grash.model.SubscriptionPlan;
+import com.grash.repository.SubscriptionRepository;
 import com.grash.repository.UserRepository;
 import com.grash.security.JwtTokenProvider;
 import com.grash.service.CompanyService;
+import com.grash.service.SubscriptionPlanService;
 import com.grash.service.UserService;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +35,8 @@ public class SuperAdminController {
     private final UserRepository userRepository;
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final SubscriptionPlanService subscriptionPlanService;
+    private final SubscriptionRepository subscriptionRepository;
 
     @GetMapping("/companies")
     public ResponseEntity<List<SuperAdminCompanyDTO>> getAllCompanies() {
@@ -57,7 +65,16 @@ public class SuperAdminController {
         dto.setId(company.getId());
         dto.setName(company.getName());
         dto.setEmail(company.getEmail());
+        if (company.getSubscription() != null) {
+            Subscription sub = company.getSubscription();
+            dto.setUsersLimit(sub.getUsersCount());
+            if (sub.getSubscriptionPlan() != null) {
+                dto.setSubscriptionPlanId(sub.getSubscriptionPlan().getId());
+                dto.setSubscriptionPlanName(sub.getSubscriptionPlan().getName());
+            }
+        }
         List<OwnUser> users = new ArrayList<>(userRepository.findByCompany_Id(id));
+        dto.setUserCount(users.size());
         dto.setUsers(users.stream().map(u -> {
             SuperAdminCompanyDetailDTO.SuperAdminUserDTO userDTO = new SuperAdminCompanyDetailDTO.SuperAdminUserDTO();
             userDTO.setId(u.getId());
@@ -68,6 +85,38 @@ public class SuperAdminController {
             return userDTO;
         }).collect(Collectors.toList()));
         return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping("/subscription-plans")
+    public ResponseEntity<List<SubscriptionPlan>> getSubscriptionPlans() {
+        return ResponseEntity.ok(new ArrayList<>(subscriptionPlanService.getAll()));
+    }
+
+    @PatchMapping("/companies/{id}/plan")
+    public ResponseEntity<?> updateCompanyPlan(@PathVariable Long id, @RequestBody PlanUpdateRequest request) {
+        Optional<Company> companyOpt = companyService.findById(id);
+        if (!companyOpt.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        Optional<SubscriptionPlan> planOpt = subscriptionPlanService.findById(request.getPlanId());
+        if (!planOpt.isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Subscription plan not found");
+        }
+        Company company = companyOpt.get();
+        Subscription subscription = company.getSubscription();
+        if (subscription == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Company has no subscription");
+        }
+        subscription.setSubscriptionPlan(planOpt.get());
+        subscription.setUsersCount(request.getUsersLimit());
+        subscriptionRepository.save(subscription);
+        return ResponseEntity.ok().build();
+    }
+
+    @Data
+    public static class PlanUpdateRequest {
+        private Long planId;
+        private int usersLimit;
     }
 
     @PostMapping("/switch/{userId}")

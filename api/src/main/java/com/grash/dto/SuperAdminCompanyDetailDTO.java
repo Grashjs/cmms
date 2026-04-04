@@ -8,6 +8,10 @@ public class SuperAdminCompanyDetailDTO {
     private Long id;
     private String name;
     private String email;
+    private Long subscriptionPlanId;
+    private String subscriptionPlanName;
+    private int usersLimit;
+    private int userCount;
     private List<SuperAdminUserDTO> users;
 
     @Data
