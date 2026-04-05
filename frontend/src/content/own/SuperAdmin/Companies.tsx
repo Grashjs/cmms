@@ -47,6 +47,10 @@ function SuperAdminCompanies() {
   const [createOpen, setCreateOpen] = useState(false);
   const [createName, setCreateName] = useState('');
   const [createEmail, setCreateEmail] = useState('');
+  const [adminFirstName, setAdminFirstName] = useState('');
+  const [adminLastName, setAdminLastName] = useState('');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
   const [creating, setCreating] = useState(false);
 
   // Delete confirmation
@@ -67,12 +71,20 @@ function SuperAdminCompanies() {
     try {
       const created = await api.post<SuperAdminCompanyDTO>('superadmin/companies', {
         name: createName.trim(),
-        email: createEmail.trim()
+        email: createEmail.trim(),
+        adminFirstName: adminFirstName.trim(),
+        adminLastName: adminLastName.trim(),
+        adminEmail: adminEmail.trim(),
+        adminPassword: adminPassword
       });
       setCompanies((prev) => [...prev, created]);
       setCreateOpen(false);
       setCreateName('');
       setCreateEmail('');
+      setAdminFirstName('');
+      setAdminLastName('');
+      setAdminEmail('');
+      setAdminPassword('');
     } catch {
       setError('Şirket oluşturulamadı');
     } finally {
@@ -198,21 +210,60 @@ function SuperAdminCompanies() {
       <Dialog open={createOpen} onClose={() => setCreateOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Yeni Şirket Oluştur</DialogTitle>
         <DialogContent>
+          <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 1, mb: 0.5 }}>
+            Şirket Bilgileri
+          </Typography>
           <TextField
-            label="Şirket Adı"
+            label="Şirket Adı *"
             fullWidth
-            margin="normal"
+            margin="dense"
             value={createName}
             onChange={(e) => setCreateName(e.target.value)}
             autoFocus
           />
           <TextField
-            label="E-posta"
+            label="Şirket E-postası"
             fullWidth
-            margin="normal"
+            margin="dense"
             value={createEmail}
             onChange={(e) => setCreateEmail(e.target.value)}
             type="email"
+          />
+          <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2, mb: 0.5 }}>
+            Admin Kullanıcı (isteğe bağlı)
+          </Typography>
+          <Box display="flex" gap={1}>
+            <TextField
+              label="Ad"
+              fullWidth
+              margin="dense"
+              value={adminFirstName}
+              onChange={(e) => setAdminFirstName(e.target.value)}
+            />
+            <TextField
+              label="Soyad"
+              fullWidth
+              margin="dense"
+              value={adminLastName}
+              onChange={(e) => setAdminLastName(e.target.value)}
+            />
+          </Box>
+          <TextField
+            label="Admin E-postası"
+            fullWidth
+            margin="dense"
+            value={adminEmail}
+            onChange={(e) => setAdminEmail(e.target.value)}
+            type="email"
+          />
+          <TextField
+            label="Admin Şifresi"
+            fullWidth
+            margin="dense"
+            value={adminPassword}
+            onChange={(e) => setAdminPassword(e.target.value)}
+            type="password"
+            helperText="Boş bırakılırsa rastgele şifre atanır"
           />
         </DialogContent>
         <DialogActions>

@@ -120,11 +120,17 @@ function SuperAdminCompanyDetail() {
   const [newUserFirstName, setNewUserFirstName] = useState('');
   const [newUserLastName, setNewUserLastName] = useState('');
   const [newUserRoleId, setNewUserRoleId] = useState<number | ''>('');
+  const [newUserPassword, setNewUserPassword] = useState('');
   const [addingUser, setAddingUser] = useState(false);
 
   // Delete user
   const [deleteUserId, setDeleteUserId] = useState<number | null>(null);
   const [deletingUser, setDeletingUser] = useState(false);
+
+  // Change password
+  const [changePasswordUserId, setChangePasswordUserId] = useState<number | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [savingPassword, setSavingPassword] = useState(false);
 
   // Change role
   const [changeRoleUserId, setChangeRoleUserId] = useState<number | null>(null);
@@ -268,7 +274,8 @@ function SuperAdminCompanyDetail() {
         email: newUserEmail,
         firstName: newUserFirstName,
         lastName: newUserLastName,
-        roleId: newUserRoleId
+        roleId: newUserRoleId,
+        password: newUserPassword || undefined
       });
       setCompany((prev) =>
         prev ? { ...prev, users: [...(prev.users || []), created], userCount: prev.userCount + 1 } : prev
@@ -278,6 +285,7 @@ function SuperAdminCompanyDetail() {
       setNewUserFirstName('');
       setNewUserLastName('');
       setNewUserRoleId('');
+      setNewUserPassword('');
     } catch {
       setError('Kullanıcı eklenemedi. E-posta zaten kullanımda olabilir.');
     } finally {
@@ -325,6 +333,23 @@ function SuperAdminCompanyDetail() {
       setError('Rol değiştirilemedi');
     } finally {
       setSavingRole(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!id || changePasswordUserId === null || !newPassword) return;
+    setSavingPassword(true);
+    setError(null);
+    try {
+      await api.patch(`superadmin/companies/${id}/users/${changePasswordUserId}/password`, {
+        newPassword
+      });
+      setChangePasswordUserId(null);
+      setNewPassword('');
+    } catch {
+      setError('Şifre değiştirilemedi');
+    } finally {
+      setSavingPassword(false);
     }
   };
 
@@ -655,6 +680,16 @@ function SuperAdminCompanyDetail() {
                                 >
                                   {t('switch_to_user')}
                                 </Button>
+                                <Button
+                                  variant="outlined"
+                                  size="small"
+                                  onClick={() => {
+                                    setChangePasswordUserId(user.id);
+                                    setNewPassword('');
+                                  }}
+                                >
+                                  Şifre
+                                </Button>
                                 <IconButton
                                   size="small"
                                   color="error"
@@ -855,9 +890,15 @@ function SuperAdminCompanyDetail() {
               ))}
             </Select>
           </FormControl>
-          <Typography variant="caption" color="text.secondary">
-            Kullanıcı rastgele şifreyle oluşturulur. Kullanıcı "Şifremi Unuttum" ile şifresini sıfırlayabilir.
-          </Typography>
+          <TextField
+            label="Şifre"
+            fullWidth
+            margin="normal"
+            value={newUserPassword}
+            onChange={(e) => setNewUserPassword(e.target.value)}
+            type="password"
+            helperText="Boş bırakılırsa rastgele şifre atanır. Kullanıcı 'Şifremi Unuttum' ile sıfırlayabilir."
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setAddUserOpen(false)}>İptal</Button>
@@ -868,6 +909,33 @@ function SuperAdminCompanyDetail() {
             startIcon={addingUser ? <CircularProgress size={14} color="inherit" /> : null}
           >
             Ekle
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Change password dialog */}
+      <Dialog open={changePasswordUserId !== null} onClose={() => setChangePasswordUserId(null)} maxWidth="xs" fullWidth>
+        <DialogTitle>Şifre Değiştir</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Yeni Şifre *"
+            fullWidth
+            margin="normal"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            type="password"
+            autoFocus
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setChangePasswordUserId(null)}>İptal</Button>
+          <Button
+            variant="contained"
+            onClick={handleChangePassword}
+            disabled={savingPassword || !newPassword}
+            startIcon={savingPassword ? <CircularProgress size={14} color="inherit" /> : null}
+          >
+            Kaydet
           </Button>
         </DialogActions>
       </Dialog>

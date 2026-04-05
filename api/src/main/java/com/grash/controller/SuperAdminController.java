@@ -10,6 +10,8 @@ import com.grash.model.Role;
 import com.grash.model.Subscription;
 import com.grash.model.SubscriptionPlan;
 import com.grash.model.enums.PlanFeatures;
+import com.grash.model.enums.RoleCode;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.CompanyFeatureOverrideRepository;
 import com.grash.repository.SubscriptionRepository;
 import com.grash.repository.UserRepository;
@@ -260,11 +262,42 @@ public class SuperAdminController {
         company.setEmail(request.getEmail());
         companyService.create(company);
 
+        int userCount = 0;
+        if (request.getAdminEmail() != null && !request.getAdminEmail().isBlank()) {
+            if (userRepository.existsByEmailIgnoreCase(request.getAdminEmail())) {
+                return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                        .body("Admin email already in use: " + request.getAdminEmail());
+            }
+            // Use default Administrator role
+            Role adminRole = roleService.findDefaultRoles().stream()
+                    .filter(r -> r.getCode() == RoleCode.ADMIN)
+                    .findFirst()
+                    .orElse(null);
+            if (adminRole == null) {
+                return ResponseEntity.badRequest().body("Default Administrator role not found");
+            }
+            OwnUser admin = new OwnUser();
+            admin.setEmail(request.getAdminEmail().toLowerCase());
+            admin.setFirstName(request.getAdminFirstName() != null ? request.getAdminFirstName() : "");
+            admin.setLastName(request.getAdminLastName() != null ? request.getAdminLastName() : "");
+            admin.setRole(adminRole);
+            admin.setCompany(company);
+            admin.setEnabled(true);
+            admin.setOwnsCompany(true);
+            admin.setUsername(utils.generateStringId());
+            String rawPassword = request.getAdminPassword() != null && !request.getAdminPassword().isBlank()
+                    ? request.getAdminPassword()
+                    : java.util.UUID.randomUUID().toString();
+            admin.setPassword(passwordEncoder.encode(rawPassword));
+            userRepository.save(admin);
+            userCount = 1;
+        }
+
         SuperAdminCompanyDTO dto = new SuperAdminCompanyDTO();
         dto.setId(company.getId());
         dto.setName(company.getName());
         dto.setEmail(company.getEmail());
-        dto.setUserCount(0);
+        dto.setUserCount(userCount);
         return ResponseEntity.ok(dto);
     }
 
@@ -294,6 +327,11 @@ public class SuperAdminController {
         private String email;
         private Long planId;
         private int usersLimit;
+        // Optional admin user
+        private String adminFirstName;
+        private String adminLastName;
+        private String adminEmail;
+        private String adminPassword;
     }
 
     @Data
@@ -340,7 +378,10 @@ public class SuperAdminController {
         user.setCompany(company);
         user.setEnabled(true);
         user.setUsername(utils.generateStringId());
-        user.setPassword(passwordEncoder.encode(java.util.UUID.randomUUID().toString()));
+        String rawPwd = request.getPassword() != null && !request.getPassword().isBlank()
+                ? request.getPassword()
+                : java.util.UUID.randomUUID().toString();
+        user.setPassword(passwordEncoder.encode(rawPwd));
         OwnUser saved = userRepository.save(user);
 
         SuperAdminCompanyDetailDTO.SuperAdminUserDTO dto = new SuperAdminCompanyDetailDTO.SuperAdminUserDTO();
@@ -381,10 +422,31 @@ public class SuperAdminController {
         private String firstName;
         private String lastName;
         private Long roleId;
+        private String password; // optional; random UUID used if blank
     }
 
     @Data
     public static class ChangeRoleRequest {
         private Long roleId;
+    }
+
+    @PatchMapping("/companies/{id}/users/{userId}/password")
+    @Transactional
+    public ResponseEntity<?> changeUserPassword(@PathVariable Long id, @PathVariable Long userId,
+                                                @RequestBody ChangePasswordRequest request) {
+        if (request.getNewPassword() == null || request.getNewPassword().isBlank()) {
+            return ResponseEntity.badRequest().body("Password cannot be empty");
+        }
+        Optional<OwnUser> userOpt = userRepository.findByIdAndCompany_Id(userId, id);
+        if (!userOpt.isPresent()) return ResponseEntity.notFound().build();
+        OwnUser user = userOpt.get();
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        return ResponseEntity.ok().build();
+    }
+
+    @Data
+    public static class ChangePasswordRequest {
+        private String newPassword;
     }
 }
