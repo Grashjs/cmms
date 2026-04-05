@@ -12,6 +12,7 @@ import com.grash.repository.UserRepository;
 import com.grash.security.JwtTokenProvider;
 import com.grash.service.CompanyService;
 import com.grash.service.SubscriptionPlanService;
+import org.springframework.transaction.annotation.Transactional;
 import com.grash.service.UserService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -88,8 +89,17 @@ public class SuperAdminController {
     }
 
     @GetMapping("/subscription-plans")
-    public ResponseEntity<List<SubscriptionPlan>> getSubscriptionPlans() {
-        return ResponseEntity.ok(new ArrayList<>(subscriptionPlanService.getAll()));
+    @Transactional
+    public ResponseEntity<List<java.util.Map<String, Object>>> getSubscriptionPlans() {
+        List<java.util.Map<String, Object>> plans = new ArrayList<>();
+        for (SubscriptionPlan plan : subscriptionPlanService.getAll()) {
+            java.util.Map<String, Object> map = new java.util.HashMap<>();
+            map.put("id", plan.getId());
+            map.put("name", plan.getName());
+            map.put("code", plan.getCode());
+            plans.add(map);
+        }
+        return ResponseEntity.ok(plans);
     }
 
     @PatchMapping("/companies/{id}/plan")
