@@ -343,3 +343,28 @@ DB tabloları:
 - own_user: id, email, first_name, last_name, role_id, company_id, enabled
 - company: id, name, email
 - role: id, name, role_type, company_settings_id
+
+## Yapılacak: Şirket ve Kullanıcı Şifre Yönetimi
+
+### Şirket Oluşturma Akışı:
+- POST /superadmin/companies endpoint'i
+- Body: { name, email, adminFirstName, adminLastName, adminEmail, adminPassword, planId }
+- Backend:
+  1. Yeni şirket oluştur
+  2. Şirket için subscription oluştur (planId ile)
+  3. Administrator rolü oluştur (role_type=1, code=ADMIN)
+  4. Admin kullanıcı oluştur (BCrypt 12 ile şifreyi hash'le)
+  5. Kullanıcıyı şirkete bağla, ownsCompany=true yap
+
+### Kullanıcı Şifre Yönetimi:
+- Kullanıcı eklerken şifre belirleme (POST /superadmin/companies/{id}/users)
+- Mevcut kullanıcı şifresini değiştirme:
+  PATCH /superadmin/companies/{id}/users/{userId}/password
+  Body: { newPassword }
+- Frontend: Her kullanıcı satırında "Şifre Değiştir" butonu + modal
+
+### Şirket Silme:
+- Şirketi silerken tüm kullanıcılar ve veriler de silinmeli
+
+BCrypt strength: 12
+PasswordEncoder: WebSecurityConfig.java içinde bean olarak tanımlı
