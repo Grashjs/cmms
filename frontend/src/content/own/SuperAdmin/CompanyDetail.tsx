@@ -54,6 +54,7 @@ interface SuperAdminCompanyDetailDTO {
   subscriptionPlanName: string | null;
   usersLimit: number;
   userCount: number;
+  expiryDate: string | null;
   users: SuperAdminUserDTO[];
 }
 
@@ -80,8 +81,28 @@ function SuperAdminCompanyDetail() {
   const [usersLimit, setUsersLimit] = useState<number>(1);
   const [savingPlan, setSavingPlan] = useState(false);
   const [planSuccess, setPlanSuccess] = useState(false);
+  const [expiryDate, setExpiryDate] = useState<string>('');
+  const [savingExpiry, setSavingExpiry] = useState(false);
+  const [expirySuccess, setExpirySuccess] = useState(false);
   const [features, setFeatures] = useState<FeatureStatus[]>([]);
   const [savingFeature, setSavingFeature] = useState<string | null>(null);
+
+  const handleSaveExpiry = async () => {
+    if (!id) return;
+    setSavingExpiry(true);
+    setExpirySuccess(false);
+    setError(null);
+    try {
+      await api.patch(`superadmin/companies/${id}/expiry`, {
+        expiryDate: expiryDate ? new Date(expiryDate).toISOString() : null
+      });
+      setExpirySuccess(true);
+    } catch {
+      setError('Bitiş tarihi güncellenemedi');
+    } finally {
+      setSavingExpiry(false);
+    }
+  };
 
   const loadFeatures = () => {
     if (id) {
@@ -100,6 +121,7 @@ function SuperAdminCompanyDetail() {
           setCompany(data);
           if (data.subscriptionPlanId) setSelectedPlanId(data.subscriptionPlanId);
           if (data.usersLimit) setUsersLimit(data.usersLimit);
+          if (data.expiryDate) setExpiryDate(data.expiryDate.slice(0, 10));
         })
         .catch(() => setError(t('error_loading_data')))
         .finally(() => setLoading(false));
@@ -314,6 +336,51 @@ function SuperAdminCompanyDetail() {
                   >
                     Kaydet
                   </Button>
+                </Box>
+
+                <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
+                  Abonelik Bitiş Tarihi
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  Bu tarihten sonra şirket kullanıcıları giriş yapamaz. Boş bırakılırsa kısıtlama olmaz.
+                </Typography>
+                {expirySuccess && (
+                  <Alert severity="success" sx={{ mb: 2 }}>
+                    Bitiş tarihi güncellendi.
+                  </Alert>
+                )}
+                <Box display="flex" gap={2} alignItems="flex-end" flexWrap="wrap">
+                  <TextField
+                    size="small"
+                    label="Bitiş Tarihi"
+                    type="date"
+                    value={expiryDate}
+                    onChange={(e) => setExpiryDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    sx={{ width: 200 }}
+                  />
+                  <Button
+                    variant="contained"
+                    color="warning"
+                    onClick={handleSaveExpiry}
+                    disabled={savingExpiry}
+                    startIcon={savingExpiry ? <CircularProgress size={14} color="inherit" /> : null}
+                  >
+                    Kaydet
+                  </Button>
+                  {expiryDate && (
+                    <Button
+                      variant="outlined"
+                      color="inherit"
+                      disabled={savingExpiry}
+                      onClick={() => {
+                        setExpiryDate('');
+                        api.patch(`superadmin/companies/${id}/expiry`, { expiryDate: null }).catch(() => {});
+                      }}
+                    >
+                      Tarihi Kaldır
+                    </Button>
+                  )}
                 </Box>
               </CardContent>
             </Card>

@@ -105,6 +105,13 @@ public class UserService {
             }
             Optional<OwnUser> optionalUser = userRepository.findByEmailIgnoreCase(email);
             OwnUser user = optionalUser.get();
+            boolean isNonSuperAdmin = user.getRole() != null && !user.getRole().getRoleType().name().equals("ROLE_SUPER_ADMIN");
+            if (isNonSuperAdmin && user.getCompany() != null && user.getCompany().getSubscription() != null) {
+                Date expiryDate = user.getCompany().getSubscription().getExpiryDate();
+                if (expiryDate != null && expiryDate.before(new Date())) {
+                    throw new CustomException("Subscription expired", HttpStatus.FORBIDDEN);
+                }
+            }
             user.setLastLogin(new Date());
             userRepository.save(user);
             return jwtTokenProvider.createToken(email, Collections.singletonList(user.getRole().getRoleType()));

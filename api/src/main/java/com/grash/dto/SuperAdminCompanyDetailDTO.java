@@ -1,6 +1,7 @@
 package com.grash.dto;
 
 import lombok.Data;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -12,6 +13,7 @@ public class SuperAdminCompanyDetailDTO {
     private String subscriptionPlanName;
     private int usersLimit;
     private int userCount;
+    private Date expiryDate;
     private List<SuperAdminUserDTO> users;
 
     @Data

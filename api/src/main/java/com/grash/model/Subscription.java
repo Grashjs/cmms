@@ -50,6 +50,9 @@ public class Subscription extends Audit {
 
     private SubscriptionScheduledChangeType scheduledChangeType;
 
+    /** Superadmin tarafından ayarlanan bitiş tarihi. Dolunca erişim kapanır. */
+    private Date expiryDate;
+
     public void setUsersCount(int usersCount) {
         if (usersCount < 1)
             throw new CustomException("Users count should not be less than 1", HttpStatus.NOT_ACCEPTABLE);

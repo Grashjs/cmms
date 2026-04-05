@@ -71,6 +71,7 @@ public class SuperAdminController {
         if (company.getSubscription() != null) {
             Subscription sub = company.getSubscription();
             dto.setUsersLimit(sub.getUsersCount());
+            dto.setExpiryDate(sub.getExpiryDate());
             if (sub.getSubscriptionPlan() != null) {
                 dto.setSubscriptionPlanId(sub.getSubscriptionPlan().getId());
                 dto.setSubscriptionPlanName(sub.getSubscriptionPlan().getName());
@@ -129,6 +130,25 @@ public class SuperAdminController {
     public static class PlanUpdateRequest {
         private Long planId;
         private int usersLimit;
+    }
+
+    @PatchMapping("/companies/{id}/expiry")
+    public ResponseEntity<?> updateCompanyExpiry(@PathVariable Long id, @RequestBody ExpiryUpdateRequest request) {
+        Optional<Company> companyOpt = companyService.findById(id);
+        if (!companyOpt.isPresent()) return ResponseEntity.notFound().build();
+        Company company = companyOpt.get();
+        Subscription subscription = company.getSubscription();
+        if (subscription == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Company has no subscription");
+        }
+        subscription.setExpiryDate(request.getExpiryDate());
+        subscriptionRepository.save(subscription);
+        return ResponseEntity.ok().build();
+    }
+
+    @Data
+    public static class ExpiryUpdateRequest {
+        private java.util.Date expiryDate;
     }
 
     @GetMapping("/companies/{id}/features")

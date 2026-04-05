@@ -195,4 +195,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_04_05_1744000000_company_feature_overrides.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_04_05_1744000001_subscription_expiry_date.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>
