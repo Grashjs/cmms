@@ -19,6 +19,8 @@ import com.grash.security.JwtTokenProvider;
 import com.grash.service.CompanyService;
 import com.grash.service.RoleService;
 import com.grash.service.SubscriptionPlanService;
+import com.grash.service.CurrencyService;
+import com.grash.service.CompanySettingsService;
 import com.grash.service.SubscriptionService;
 import com.grash.service.UserService;
 import com.grash.utils.Utils;
@@ -45,6 +47,8 @@ public class SuperAdminController {
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
     private final SubscriptionPlanService subscriptionPlanService;
+    private final CurrencyService currencyService;
+    private final CompanySettingsService companySettingsService;
     private final SubscriptionRepository subscriptionRepository;
     private final CompanyFeatureOverrideRepository featureOverrideRepository;
     private final RoleService roleService;
@@ -261,6 +265,11 @@ public class SuperAdminController {
         Company company = new Company(request.getName(), 0, subscription);
         company.setEmail(request.getEmail());
         companyService.create(company);
+        // GeneralPreferences ayarla
+        currencyService.findByCode("$").ifPresent(currency -> {
+            company.getCompanySettings().getGeneralPreferences().setCurrency(currency);
+            companySettingsService.update(company.getCompanySettings());
+        });
 
         int userCount = 0;
         if (request.getAdminEmail() != null && !request.getAdminEmail().isBlank()) {
