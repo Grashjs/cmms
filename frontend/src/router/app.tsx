@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 
 import SuspenseLoader from 'src/components/SuspenseLoader';
 import analyticsRoutes from './analytics';
+import UserFeatureManagement from 'src/components/SuperAdmin/UserFeatureManagement';
 
 const Loader = (Component) => (props) =>
   (
@@ -377,7 +378,13 @@ const appRoutes = [
     path: 'superadmin',
     children: [
       { path: 'companies', element: <SuperAdminCompanies /> },
-      { path: 'companies/:id', element: <SuperAdminCompanyDetail /> }
+      { path: 'path: 'superadmin',
+children: [
+  { path: 'companies', element: <SuperAdminCompanies /> },
+  { path: 'companies/:id', element: <SuperAdminCompanyDetail /> },
+  { path: 'user-features/:userId', element: <UserFeatureManagement /> }
+]
+companies/:id', element: <SuperAdminCompanyDetail /> }
     ]
   }
 ];

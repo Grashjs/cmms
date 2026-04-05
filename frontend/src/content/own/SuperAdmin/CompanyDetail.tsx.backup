@@ -667,14 +667,7 @@ function SuperAdminCompanyDetail() {
                             </TableCell>
                             <TableCell>
                               <Box display="flex" gap={1}>
-                               	<Button
-				variant="outlined"
-  				size="small"
-  				onClick={() => navigate(`/app/superadmin/user-features/${user.id}`)}
-				>
-				  Özellikler
-				</Button>
-				 <Button
+                                <Button
                                   variant="contained"
                                   size="small"
                                   disabled={switchingUserId !== null}
