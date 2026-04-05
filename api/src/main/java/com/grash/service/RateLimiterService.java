@@ -3,6 +3,8 @@ package com.grash.service;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -15,6 +17,27 @@ public class RateLimiterService {
     private final ConcurrentMap<String, Bucket> demoCache = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Bucket> fileUploadCache = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Bucket> publicMiniCache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Bucket> authenticatedUserCache = new ConcurrentHashMap<>();
+
+    /**
+     * -- GETTER --
+     * Check if rate limiting is enabled
+     */
+    @Getter
+    @Value("${security.rate-limit.enabled:true}")
+    private boolean rateLimitEnabled;
+
+    @Value("${security.rate-limit.authenticated.short-term-requests:100}")
+    private int authenticatedShortTermRequests;
+
+    @Value("${security.rate-limit.authenticated.short-term-period-minutes:1}")
+    private int authenticatedShortTermPeriodMinutes;
+
+    @Value("${security.rate-limit.authenticated.long-term-requests:1000}")
+    private int authenticatedLongTermRequests;
+
+    @Value("${security.rate-limit.authenticated.long-term-period-hours:1}")
+    private int authenticatedLongTermPeriodHours;
 
     public Bucket resolveDemoBucket(String key) {
         return demoCache.computeIfAbsent(key, this::newDemoBucket);
@@ -64,6 +87,32 @@ public class RateLimiterService {
         return Bucket.builder()
                 .addLimit(thirtyPerMinute)
                 .addLimit(twoHundredPerHour)
+                .build();
+    }
+
+    /**
+     * Resolve rate limit bucket for authenticated users by user ID
+     */
+    public Bucket resolveAuthenticatedUserBucket(String userId) {
+        return authenticatedUserCache.computeIfAbsent(userId, this::newAuthenticatedUserBucket);
+    }
+
+    private Bucket newAuthenticatedUserBucket(String key) {
+        // Short-term limit: e.g., 100 requests per minute
+        Bandwidth shortTerm = Bandwidth.classic(
+                authenticatedShortTermRequests,
+                Refill.greedy(authenticatedShortTermRequests, Duration.ofMinutes(authenticatedShortTermPeriodMinutes))
+        );
+
+        // Long-term limit: e.g., 1000 requests per hour
+        Bandwidth longTerm = Bandwidth.classic(
+                authenticatedLongTermRequests,
+                Refill.greedy(authenticatedLongTermRequests, Duration.ofHours(authenticatedLongTermPeriodHours))
+        );
+
+        return Bucket.builder()
+                .addLimit(shortTerm)
+                .addLimit(longTerm)
                 .build();
     }
 }

@@ -83,6 +83,13 @@ security:
   recaptcha-secret-key: ${RECAPTCHA_SECRET_KEY:}
   cors:
     enabled: ${ENABLE_CORS:true}
+  rate-limit:
+    enabled: ${RATE_LIMIT_ENABLED:true}
+    authenticated:
+      short-term-requests: ${RATE_LIMIT_AUTHENTICATED_SHORT:100}
+      short-term-period-minutes: ${RATE_LIMIT_AUTHENTICATED_SHORT_PERIOD:1}
+      long-term-requests: ${RATE_LIMIT_AUTHENTICATED_LONG:1000}
+      long-term-period-hours: ${RATE_LIMIT_AUTHENTICATED_LONG_PERIOD:1}
 frontend:
   url: ${PUBLIC_FRONT_URL}
   home-url: ${PUBLIC_HOME_URL:}

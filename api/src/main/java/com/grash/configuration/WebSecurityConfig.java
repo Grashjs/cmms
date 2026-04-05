@@ -33,6 +33,7 @@ public class WebSecurityConfig {
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final LicenseService licenseService;
+    private final RateLimitFilter rateLimitFilter;
     @Value("${enable-sso}")
     private boolean enableSso;
 
@@ -95,6 +96,7 @@ public class WebSecurityConfig {
 
         http.addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class);
 
         http.cors(cors -> {
         }); // Using lambda for cors configuration
