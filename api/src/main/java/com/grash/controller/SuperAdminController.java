@@ -6,6 +6,7 @@ import com.grash.dto.AuthResponse;
 import com.grash.model.Company;
 import com.grash.model.CompanyFeatureOverride;
 import com.grash.model.OwnUser;
+import com.grash.model.Role;
 import com.grash.model.Subscription;
 import com.grash.model.SubscriptionPlan;
 import com.grash.model.enums.PlanFeatures;
@@ -14,13 +15,17 @@ import com.grash.repository.SubscriptionRepository;
 import com.grash.repository.UserRepository;
 import com.grash.security.JwtTokenProvider;
 import com.grash.service.CompanyService;
+import com.grash.service.RoleService;
 import com.grash.service.SubscriptionPlanService;
+import com.grash.service.SubscriptionService;
 import com.grash.service.UserService;
+import com.grash.utils.Utils;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,6 +45,10 @@ public class SuperAdminController {
     private final SubscriptionPlanService subscriptionPlanService;
     private final SubscriptionRepository subscriptionRepository;
     private final CompanyFeatureOverrideRepository featureOverrideRepository;
+    private final RoleService roleService;
+    private final SubscriptionService subscriptionService;
+    private final PasswordEncoder passwordEncoder;
+    private final Utils utils;
 
     @GetMapping("/companies")
     public ResponseEntity<List<SuperAdminCompanyDTO>> getAllCompanies() {
@@ -225,5 +234,157 @@ public class SuperAdminController {
         String token = jwtTokenProvider.createToken(target.getEmail(), List.of(target.getRole().getRoleType()));
         AuthResponse resp = new AuthResponse(token);
         return ResponseEntity.ok(resp);
+    }
+
+    // ── Company CRUD ──────────────────────────────────────────────────────────
+
+    @PostMapping("/companies")
+    @Transactional
+    public ResponseEntity<?> createCompany(@RequestBody CreateCompanyRequest request) {
+        Long planId = request.getPlanId();
+        SubscriptionPlan plan = planId != null
+                ? subscriptionPlanService.findById(planId).orElse(null)
+                : subscriptionPlanService.findByCode("BUSINESS").orElse(null);
+        if (plan == null) return ResponseEntity.badRequest().body("Subscription plan not found");
+
+        Subscription subscription = Subscription.builder()
+                .usersCount(request.getUsersLimit() > 0 ? request.getUsersLimit() : 300)
+                .monthly(false)
+                .activated(true)
+                .startsOn(new java.util.Date())
+                .subscriptionPlan(plan)
+                .build();
+        subscriptionService.create(subscription);
+
+        Company company = new Company(request.getName(), 0, subscription);
+        company.setEmail(request.getEmail());
+        companyService.create(company);
+
+        SuperAdminCompanyDTO dto = new SuperAdminCompanyDTO();
+        dto.setId(company.getId());
+        dto.setName(company.getName());
+        dto.setEmail(company.getEmail());
+        dto.setUserCount(0);
+        return ResponseEntity.ok(dto);
+    }
+
+    @DeleteMapping("/companies/{id}")
+    @Transactional
+    public ResponseEntity<?> deleteCompany(@PathVariable Long id) {
+        if (!companyService.findById(id).isPresent()) return ResponseEntity.notFound().build();
+        companyService.delete(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/companies/{id}/info")
+    @Transactional
+    public ResponseEntity<?> updateCompanyInfo(@PathVariable Long id, @RequestBody UpdateCompanyInfoRequest request) {
+        Optional<Company> companyOpt = companyService.findById(id);
+        if (!companyOpt.isPresent()) return ResponseEntity.notFound().build();
+        Company company = companyOpt.get();
+        if (request.getName() != null) company.setName(request.getName());
+        if (request.getEmail() != null) company.setEmail(request.getEmail());
+        companyService.update(company);
+        return ResponseEntity.ok().build();
+    }
+
+    @Data
+    public static class CreateCompanyRequest {
+        private String name;
+        private String email;
+        private Long planId;
+        private int usersLimit;
+    }
+
+    @Data
+    public static class UpdateCompanyInfoRequest {
+        private String name;
+        private String email;
+    }
+
+    // ── User management ───────────────────────────────────────────────────────
+
+    @GetMapping("/companies/{id}/roles")
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<Map<String, Object>>> getCompanyRoles(@PathVariable Long id) {
+        if (!companyService.findById(id).isPresent()) return ResponseEntity.notFound().build();
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Role role : roleService.findByCompany(id)) {
+            Map<String, Object> m = new HashMap<>();
+            m.put("id", role.getId());
+            m.put("name", role.getName());
+            m.put("roleType", role.getRoleType().name());
+            result.add(m);
+        }
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/companies/{id}/users")
+    @Transactional
+    public ResponseEntity<?> addUserToCompany(@PathVariable Long id, @RequestBody AddUserRequest request) {
+        Optional<Company> companyOpt = companyService.findById(id);
+        if (!companyOpt.isPresent()) return ResponseEntity.notFound().build();
+        Company company = companyOpt.get();
+
+        if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Email already in use");
+        }
+        Optional<Role> roleOpt = roleService.findById(request.getRoleId());
+        if (!roleOpt.isPresent()) return ResponseEntity.badRequest().body("Role not found");
+
+        OwnUser user = new OwnUser();
+        user.setEmail(request.getEmail().toLowerCase());
+        user.setFirstName(request.getFirstName() != null ? request.getFirstName() : "");
+        user.setLastName(request.getLastName() != null ? request.getLastName() : "");
+        user.setRole(roleOpt.get());
+        user.setCompany(company);
+        user.setEnabled(true);
+        user.setUsername(utils.generateStringId());
+        user.setPassword(passwordEncoder.encode(java.util.UUID.randomUUID().toString()));
+        OwnUser saved = userRepository.save(user);
+
+        SuperAdminCompanyDetailDTO.SuperAdminUserDTO dto = new SuperAdminCompanyDetailDTO.SuperAdminUserDTO();
+        dto.setId(saved.getId());
+        dto.setEmail(saved.getEmail());
+        dto.setFirstName(saved.getFirstName());
+        dto.setLastName(saved.getLastName());
+        dto.setRole(saved.getRole().getName());
+        return ResponseEntity.ok(dto);
+    }
+
+    @DeleteMapping("/companies/{id}/users/{userId}")
+    @Transactional
+    public ResponseEntity<?> removeUserFromCompany(@PathVariable Long id, @PathVariable Long userId) {
+        Optional<OwnUser> userOpt = userRepository.findByIdAndCompany_Id(userId, id);
+        if (!userOpt.isPresent()) return ResponseEntity.notFound().build();
+        userRepository.delete(userOpt.get());
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/companies/{id}/users/{userId}/role")
+    @Transactional
+    public ResponseEntity<?> changeUserRole(@PathVariable Long id, @PathVariable Long userId,
+                                            @RequestBody ChangeRoleRequest request) {
+        Optional<OwnUser> userOpt = userRepository.findByIdAndCompany_Id(userId, id);
+        if (!userOpt.isPresent()) return ResponseEntity.notFound().build();
+        Optional<Role> roleOpt = roleService.findById(request.getRoleId());
+        if (!roleOpt.isPresent()) return ResponseEntity.badRequest().body("Role not found");
+        OwnUser user = userOpt.get();
+        user.setRole(roleOpt.get());
+        userRepository.save(user);
+        return ResponseEntity.ok().build();
+    }
+
+    @Data
+    public static class AddUserRequest {
+        private String email;
+        private String firstName;
+        private String lastName;
+        private Long roleId;
+    }
+
+    @Data
+    public static class ChangeRoleRequest {
+        private Long roleId;
     }
 }

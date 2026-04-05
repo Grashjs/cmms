@@ -7,7 +7,12 @@ import {
   Chip,
   CircularProgress,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
@@ -22,6 +27,9 @@ import {
   Typography
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -36,7 +44,13 @@ interface SuperAdminUserDTO {
   email: string;
   firstName: string;
   lastName: string;
-  role: { id: number; name: string; code: string };
+  role: { id: number; name: string; code: string } | string;
+}
+
+interface CompanyRole {
+  id: number;
+  name: string;
+  roleType: string;
 }
 
 interface SubscriptionPlan {
@@ -87,6 +101,36 @@ function SuperAdminCompanyDetail() {
   const [features, setFeatures] = useState<FeatureStatus[]>([]);
   const [savingFeature, setSavingFeature] = useState<string | null>(null);
 
+  // Edit company info
+  const [editInfoOpen, setEditInfoOpen] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [savingInfo, setSavingInfo] = useState(false);
+
+  // Delete company
+  const [deleteCompanyOpen, setDeleteCompanyOpen] = useState(false);
+  const [deletingCompany, setDeletingCompany] = useState(false);
+
+  // Roles for the company
+  const [roles, setRoles] = useState<CompanyRole[]>([]);
+
+  // Add user dialog
+  const [addUserOpen, setAddUserOpen] = useState(false);
+  const [newUserEmail, setNewUserEmail] = useState('');
+  const [newUserFirstName, setNewUserFirstName] = useState('');
+  const [newUserLastName, setNewUserLastName] = useState('');
+  const [newUserRoleId, setNewUserRoleId] = useState<number | ''>('');
+  const [addingUser, setAddingUser] = useState(false);
+
+  // Delete user
+  const [deleteUserId, setDeleteUserId] = useState<number | null>(null);
+  const [deletingUser, setDeletingUser] = useState(false);
+
+  // Change role
+  const [changeRoleUserId, setChangeRoleUserId] = useState<number | null>(null);
+  const [changeRoleValue, setChangeRoleValue] = useState<number | ''>('');
+  const [savingRole, setSavingRole] = useState(false);
+
   const handleSaveExpiry = async () => {
     if (!id) return;
     setSavingExpiry(true);
@@ -131,6 +175,12 @@ function SuperAdminCompanyDetail() {
       .then(setPlans)
       .catch(() => {});
     loadFeatures();
+    if (id) {
+      api
+        .get<CompanyRole[]>(`superadmin/companies/${id}/roles`)
+        .then(setRoles)
+        .catch(() => {});
+    }
   }, [id]);
 
   const handleFeatureOverride = async (feature: string, enabled: boolean | null) => {
@@ -181,6 +231,103 @@ function SuperAdminCompanyDetail() {
     }
   };
 
+  const handleSaveInfo = async () => {
+    if (!id) return;
+    setSavingInfo(true);
+    setError(null);
+    try {
+      await api.patch(`superadmin/companies/${id}/info`, { name: editName, email: editEmail });
+      setCompany((prev) => prev ? { ...prev, name: editName, email: editEmail } : prev);
+      setEditInfoOpen(false);
+    } catch {
+      setError('Şirket bilgileri güncellenemedi');
+    } finally {
+      setSavingInfo(false);
+    }
+  };
+
+  const handleDeleteCompany = async () => {
+    if (!id) return;
+    setDeletingCompany(true);
+    try {
+      await api.deletes(`superadmin/companies/${id}`);
+      navigate('/app/superadmin/companies');
+    } catch {
+      setError('Şirket silinemedi');
+      setDeletingCompany(false);
+      setDeleteCompanyOpen(false);
+    }
+  };
+
+  const handleAddUser = async () => {
+    if (!id || !newUserEmail || newUserRoleId === '') return;
+    setAddingUser(true);
+    setError(null);
+    try {
+      const created = await api.post<SuperAdminUserDTO>(`superadmin/companies/${id}/users`, {
+        email: newUserEmail,
+        firstName: newUserFirstName,
+        lastName: newUserLastName,
+        roleId: newUserRoleId
+      });
+      setCompany((prev) =>
+        prev ? { ...prev, users: [...(prev.users || []), created], userCount: prev.userCount + 1 } : prev
+      );
+      setAddUserOpen(false);
+      setNewUserEmail('');
+      setNewUserFirstName('');
+      setNewUserLastName('');
+      setNewUserRoleId('');
+    } catch {
+      setError('Kullanıcı eklenemedi. E-posta zaten kullanımda olabilir.');
+    } finally {
+      setAddingUser(false);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!id || deleteUserId === null) return;
+    setDeletingUser(true);
+    try {
+      await api.deletes(`superadmin/companies/${id}/users/${deleteUserId}`);
+      setCompany((prev) =>
+        prev
+          ? { ...prev, users: prev.users.filter((u) => u.id !== deleteUserId), userCount: prev.userCount - 1 }
+          : prev
+      );
+      setDeleteUserId(null);
+    } catch {
+      setError('Kullanıcı silinemedi');
+    } finally {
+      setDeletingUser(false);
+    }
+  };
+
+  const handleChangeRole = async () => {
+    if (!id || changeRoleUserId === null || changeRoleValue === '') return;
+    setSavingRole(true);
+    try {
+      await api.patch(`superadmin/companies/${id}/users/${changeRoleUserId}/role`, { roleId: changeRoleValue });
+      const roleName = roles.find((r) => r.id === changeRoleValue)?.name ?? '';
+      setCompany((prev) =>
+        prev
+          ? {
+              ...prev,
+              users: prev.users.map((u) =>
+                u.id === changeRoleUserId ? { ...u, role: roleName } : u
+              )
+            }
+          : prev
+      );
+      setChangeRoleUserId(null);
+      setChangeRoleValue('');
+    } catch {
+      setError('Rol değiştirilemedi');
+    } finally {
+      setSavingRole(false);
+    }
+  };
+
   const handleSwitchUser = async (userId: number) => {
     setSwitchingUserId(userId);
     setError(null);
@@ -224,17 +371,42 @@ function SuperAdminCompanyDetail() {
         </Box>
       )}
       <PageTitleWrapper>
-        <Box>
-          <Button
-            startIcon={<ArrowBackIcon />}
-            onClick={() => navigate('/app/superadmin/companies')}
-            sx={{ mb: 1 }}
-          >
-            {t('companies')}
-          </Button>
-          <Typography variant="h2">
-            {company?.name ?? t('company_details')}
-          </Typography>
+        <Box display="flex" justifyContent="space-between" alignItems="flex-start" width="100%">
+          <Box>
+            <Button
+              startIcon={<ArrowBackIcon />}
+              onClick={() => navigate('/app/superadmin/companies')}
+              sx={{ mb: 1 }}
+            >
+              {t('companies')}
+            </Button>
+            <Typography variant="h2">
+              {company?.name ?? t('company_details')}
+            </Typography>
+          </Box>
+          {company && (
+            <Box display="flex" gap={1} mt={1}>
+              <Button
+                variant="outlined"
+                startIcon={<EditIcon />}
+                onClick={() => {
+                  setEditName(company.name);
+                  setEditEmail(company.email ?? '');
+                  setEditInfoOpen(true);
+                }}
+              >
+                Düzenle
+              </Button>
+              <Button
+                variant="outlined"
+                color="error"
+                startIcon={<DeleteIcon />}
+                onClick={() => setDeleteCompanyOpen(true)}
+              >
+                Şirketi Sil
+              </Button>
+            </Box>
+          )}
         </Box>
       </PageTitleWrapper>
 
@@ -387,9 +559,19 @@ function SuperAdminCompanyDetail() {
 
             <Card>
               <CardContent>
-                <Typography variant="h4" gutterBottom>
-                  {t('users')}
-                </Typography>
+                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                  <Typography variant="h4">
+                    {t('users')} ({company.userCount})
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<PersonAddIcon />}
+                    onClick={() => setAddUserOpen(true)}
+                  >
+                    Kullanıcı Ekle
+                  </Button>
+                </Box>
                 {!company.users || company.users.length === 0 ? (
                   <Typography color="text.secondary">
                     {t('no_users')}
@@ -411,41 +593,80 @@ function SuperAdminCompanyDetail() {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {company.users.map((user) => (
-                        <TableRow key={user.id} hover>
-                          <TableCell>
-                            {user.firstName || user.lastName
-                              ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim()
-                              : user.username ?? '-'}
-                          </TableCell>
-                          <TableCell>{user.email}</TableCell>
-                          <TableCell>
-                            <Chip
-                              label={user.role?.name ?? user.role?.code ?? '-'}
-                              size="small"
-                              variant="outlined"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="contained"
-                              size="small"
-                              disabled={switchingUserId !== null}
-                              startIcon={
-                                switchingUserId === user.id ? (
-                                  <CircularProgress
-                                    size={14}
-                                    color="inherit"
-                                  />
-                                ) : null
-                              }
-                              onClick={() => handleSwitchUser(user.id)}
-                            >
-                              {t('switch_to_user')}
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                      {company.users.map((user) => {
+                        const roleName = typeof user.role === 'string'
+                          ? user.role
+                          : (user.role as any)?.name ?? (user.role as any)?.code ?? '-';
+                        return (
+                          <TableRow key={user.id} hover>
+                            <TableCell>
+                              {user.firstName || user.lastName
+                                ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim()
+                                : user.username ?? '-'}
+                            </TableCell>
+                            <TableCell>{user.email}</TableCell>
+                            <TableCell>
+                              {changeRoleUserId === user.id ? (
+                                <Box display="flex" gap={1} alignItems="center">
+                                  <Select
+                                    size="small"
+                                    value={changeRoleValue}
+                                    onChange={(e) => setChangeRoleValue(e.target.value as number)}
+                                    sx={{ minWidth: 140 }}
+                                  >
+                                    {roles.map((r) => (
+                                      <MenuItem key={r.id} value={r.id}>{r.name}</MenuItem>
+                                    ))}
+                                  </Select>
+                                  <Button
+                                    size="small"
+                                    variant="contained"
+                                    disabled={savingRole || changeRoleValue === ''}
+                                    onClick={handleChangeRole}
+                                  >
+                                    {savingRole ? <CircularProgress size={14} /> : 'Kaydet'}
+                                  </Button>
+                                  <Button size="small" onClick={() => setChangeRoleUserId(null)}>İptal</Button>
+                                </Box>
+                              ) : (
+                                <Chip
+                                  label={roleName}
+                                  size="small"
+                                  variant="outlined"
+                                  onClick={() => {
+                                    setChangeRoleUserId(user.id);
+                                    setChangeRoleValue('');
+                                  }}
+                                />
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <Box display="flex" gap={1}>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  disabled={switchingUserId !== null}
+                                  startIcon={
+                                    switchingUserId === user.id ? (
+                                      <CircularProgress size={14} color="inherit" />
+                                    ) : null
+                                  }
+                                  onClick={() => handleSwitchUser(user.id)}
+                                >
+                                  {t('switch_to_user')}
+                                </Button>
+                                <IconButton
+                                  size="small"
+                                  color="error"
+                                  onClick={() => setDeleteUserId(user.id)}
+                                >
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </Box>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 )}
@@ -538,6 +759,140 @@ function SuperAdminCompanyDetail() {
           </Box>
         )}
       </Container>
+
+      {/* Edit company info dialog */}
+      <Dialog open={editInfoOpen} onClose={() => setEditInfoOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Şirket Bilgilerini Düzenle</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Şirket Adı"
+            fullWidth
+            margin="normal"
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            autoFocus
+          />
+          <TextField
+            label="E-posta"
+            fullWidth
+            margin="normal"
+            value={editEmail}
+            onChange={(e) => setEditEmail(e.target.value)}
+            type="email"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditInfoOpen(false)}>İptal</Button>
+          <Button
+            variant="contained"
+            onClick={handleSaveInfo}
+            disabled={savingInfo || !editName.trim()}
+            startIcon={savingInfo ? <CircularProgress size={14} color="inherit" /> : null}
+          >
+            Kaydet
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete company confirmation */}
+      <Dialog open={deleteCompanyOpen} onClose={() => setDeleteCompanyOpen(false)}>
+        <DialogTitle>Şirketi Sil</DialogTitle>
+        <DialogContent>
+          <Typography>
+            <b>{company?.name}</b> şirketini ve tüm verilerini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteCompanyOpen(false)}>İptal</Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleDeleteCompany}
+            disabled={deletingCompany}
+            startIcon={deletingCompany ? <CircularProgress size={14} color="inherit" /> : null}
+          >
+            Sil
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Add user dialog */}
+      <Dialog open={addUserOpen} onClose={() => setAddUserOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Kullanıcı Ekle</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="E-posta *"
+            fullWidth
+            margin="normal"
+            value={newUserEmail}
+            onChange={(e) => setNewUserEmail(e.target.value)}
+            type="email"
+            autoFocus
+          />
+          <TextField
+            label="Ad"
+            fullWidth
+            margin="normal"
+            value={newUserFirstName}
+            onChange={(e) => setNewUserFirstName(e.target.value)}
+          />
+          <TextField
+            label="Soyad"
+            fullWidth
+            margin="normal"
+            value={newUserLastName}
+            onChange={(e) => setNewUserLastName(e.target.value)}
+          />
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Rol *</InputLabel>
+            <Select
+              value={newUserRoleId}
+              label="Rol *"
+              onChange={(e) => setNewUserRoleId(e.target.value as number)}
+            >
+              {roles.map((r) => (
+                <MenuItem key={r.id} value={r.id}>{r.name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Typography variant="caption" color="text.secondary">
+            Kullanıcı rastgele şifreyle oluşturulur. Kullanıcı "Şifremi Unuttum" ile şifresini sıfırlayabilir.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddUserOpen(false)}>İptal</Button>
+          <Button
+            variant="contained"
+            onClick={handleAddUser}
+            disabled={addingUser || !newUserEmail || newUserRoleId === ''}
+            startIcon={addingUser ? <CircularProgress size={14} color="inherit" /> : null}
+          >
+            Ekle
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete user confirmation */}
+      <Dialog open={deleteUserId !== null} onClose={() => setDeleteUserId(null)}>
+        <DialogTitle>Kullanıcıyı Sil</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Bu kullanıcıyı şirketten silmek istediğinizden emin misiniz?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteUserId(null)}>İptal</Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleDeleteUser}
+            disabled={deletingUser}
+            startIcon={deletingUser ? <CircularProgress size={14} color="inherit" /> : null}
+          >
+            Sil
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
