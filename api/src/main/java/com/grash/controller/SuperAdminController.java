@@ -122,7 +122,7 @@ public class SuperAdminController {
         subscription.setSubscriptionPlan(planOpt.get());
         subscription.setUsersCount(request.getUsersLimit());
         subscriptionRepository.save(subscription);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("{\"success\":true}");
     }
 
     @Data
@@ -186,7 +186,7 @@ public class SuperAdminController {
                         .build());
             }
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("{\"success\":true}");
     }
 
     @Data

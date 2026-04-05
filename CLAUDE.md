@@ -296,3 +296,22 @@ PlanFeatures enum:
 PREVENTIVE_MAINTENANCE, CHECKLIST, FILE, PURCHASE_ORDER, METER,
 REQUEST_CONFIGURATION, ADDITIONAL_TIME, ADDITIONAL_COST, ANALYTICS,
 REQUEST_PORTAL, SIGNATURE, ROLE, WORKFLOW, API_ACCESS, WEBHOOK, IMPORT_CSV
+
+## Yapılacak: Subscription Bitiş Tarihi Sistemi
+
+Süre dolunca tamamen erişim kapanacak.
+
+Gerekli değişiklikler:
+1. DB: subscription tablosuna expiry_date (timestamp) alanı ekle (Liquibase migration)
+2. Backend: UserService.signin() metodunda expiry_date kontrolü ekle — süresi dolmuşsa 403 döndür
+3. Backend: SuperAdminController'a expiry_date güncelleme endpoint'i ekle
+   PATCH /superadmin/companies/{id}/expiry → body: { expiryDate: "2027-01-01" }
+4. Backend: SuperAdminCompanyDetailDTO'ya expiryDate alanı ekle
+5. Frontend: CompanyDetail.tsx'e tarih seçici (DatePicker) ekle
+6. Frontend: Login sırasında "Aboneliğinizin süresi dolmuştur" hata mesajı göster
+
+Mevcut dosyalar:
+- api/src/main/java/com/grash/service/UserService.java (signin metodu)
+- api/src/main/java/com/grash/controller/SuperAdminController.java
+- api/src/main/java/com/grash/dto/SuperAdminCompanyDetailDTO.java
+- frontend/src/content/own/SuperAdmin/CompanyDetail.tsx
