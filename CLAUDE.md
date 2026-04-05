@@ -315,3 +315,31 @@ Mevcut dosyalar:
 - api/src/main/java/com/grash/controller/SuperAdminController.java
 - api/src/main/java/com/grash/dto/SuperAdminCompanyDetailDTO.java
 - frontend/src/content/own/SuperAdmin/CompanyDetail.tsx
+
+## Yapılacak: Superadmin Tam Yönetim Paneli
+
+Superadmin paneline şu özellikler eklenecek:
+
+1. Şirket Yönetimi:
+   - Yeni şirket oluşturma (POST /superadmin/companies)
+   - Şirket silme (DELETE /superadmin/companies/{id})
+   - Şirket bilgisi düzenleme (isim, email)
+
+2. Kullanıcı Yönetimi (şirket bazlı):
+   - Kullanıcı ekleme (POST /superadmin/companies/{id}/users)
+     Body: { email, firstName, lastName, roleId }
+   - Kullanıcı silme (DELETE /superadmin/companies/{id}/users/{userId})
+   - Kullanıcı rolü değiştirme (PATCH /superadmin/companies/{id}/users/{userId}/role)
+     Body: { roleId }
+   - Şirketteki rolleri listeleme (GET /superadmin/companies/{id}/roles)
+
+Mevcut dosyalar:
+- api/src/main/java/com/grash/controller/SuperAdminController.java
+- api/src/main/java/com/grash/dto/SuperAdminCompanyDetailDTO.java
+- frontend/src/content/own/SuperAdmin/CompanyDetail.tsx
+- frontend/src/content/own/SuperAdmin/Companies.tsx
+
+DB tabloları:
+- own_user: id, email, first_name, last_name, role_id, company_id, enabled
+- company: id, name, email
+- role: id, name, role_type, company_settings_id
