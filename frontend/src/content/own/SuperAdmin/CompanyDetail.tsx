@@ -11,12 +11,14 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Switch,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
   TextField,
+  Tooltip,
   Typography
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -55,6 +57,13 @@ interface SuperAdminCompanyDetailDTO {
   users: SuperAdminUserDTO[];
 }
 
+interface FeatureStatus {
+  feature: string;
+  inPlan: boolean;
+  override: boolean | null;
+  effective: boolean;
+}
+
 function SuperAdminCompanyDetail() {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
@@ -71,6 +80,17 @@ function SuperAdminCompanyDetail() {
   const [usersLimit, setUsersLimit] = useState<number>(1);
   const [savingPlan, setSavingPlan] = useState(false);
   const [planSuccess, setPlanSuccess] = useState(false);
+  const [features, setFeatures] = useState<FeatureStatus[]>([]);
+  const [savingFeature, setSavingFeature] = useState<string | null>(null);
+
+  const loadFeatures = () => {
+    if (id) {
+      api
+        .get<FeatureStatus[]>(`superadmin/companies/${id}/features`)
+        .then(setFeatures)
+        .catch(() => {});
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -88,7 +108,27 @@ function SuperAdminCompanyDetail() {
       .get<SubscriptionPlan[]>('superadmin/subscription-plans')
       .then(setPlans)
       .catch(() => {});
+    loadFeatures();
   }, [id]);
+
+  const handleFeatureOverride = async (feature: string, enabled: boolean | null) => {
+    if (!id) return;
+    setSavingFeature(feature);
+    try {
+      await api.patch(`superadmin/companies/${id}/features`, { feature, enabled });
+      setFeatures((prev) =>
+        prev.map((f) =>
+          f.feature === feature
+            ? { ...f, override: enabled, effective: enabled !== null ? enabled : f.inPlan }
+            : f
+        )
+      );
+    } catch {
+      setError('Özellik güncellenemedi');
+    } finally {
+      setSavingFeature(null);
+    }
+  };
 
   const handleSavePlan = async () => {
     if (!id || selectedPlanId === '') return;
@@ -344,6 +384,90 @@ function SuperAdminCompanyDetail() {
                 )}
               </CardContent>
             </Card>
+
+            {features.length > 0 && (
+              <Card>
+                <CardContent>
+                  <Typography variant="h4" gutterBottom>
+                    Özellik Override'ları
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    Toggle kapalı = plandan gelen varsayılan. Açıkça etkinleştir/devre dışı bırakmak için toggle'ı değiştir, sıfırlamak için "Planı Kullan" butonuna bas.
+                  </Typography>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell><b>Özellik</b></TableCell>
+                        <TableCell align="center"><b>Planda Var mı?</b></TableCell>
+                        <TableCell align="center"><b>Override</b></TableCell>
+                        <TableCell align="center"><b>Aktif</b></TableCell>
+                        <TableCell align="center"><b>İşlem</b></TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {features.map((f) => (
+                        <TableRow key={f.feature} hover>
+                          <TableCell>
+                            <Typography variant="body2" fontFamily="monospace">
+                              {f.feature}
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="center">
+                            <Chip
+                              label={f.inPlan ? 'Evet' : 'Hayır'}
+                              size="small"
+                              color={f.inPlan ? 'success' : 'default'}
+                              variant="outlined"
+                            />
+                          </TableCell>
+                          <TableCell align="center">
+                            {f.override !== null ? (
+                              <Chip
+                                label={f.override ? 'Açık' : 'Kapalı'}
+                                size="small"
+                                color={f.override ? 'primary' : 'error'}
+                              />
+                            ) : (
+                              <Typography variant="caption" color="text.secondary">
+                                —
+                              </Typography>
+                            )}
+                          </TableCell>
+                          <TableCell align="center">
+                            {savingFeature === f.feature ? (
+                              <CircularProgress size={20} />
+                            ) : (
+                              <Tooltip title={f.effective ? 'Aktif' : 'Pasif'}>
+                                <Switch
+                                  checked={f.effective}
+                                  size="small"
+                                  onChange={(e) =>
+                                    handleFeatureOverride(f.feature, e.target.checked)
+                                  }
+                                />
+                              </Tooltip>
+                            )}
+                          </TableCell>
+                          <TableCell align="center">
+                            {f.override !== null && (
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                color="inherit"
+                                disabled={savingFeature === f.feature}
+                                onClick={() => handleFeatureOverride(f.feature, null)}
+                              >
+                                Planı Kullan
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            )}
           </Box>
         )}
       </Container>

@@ -1,0 +1,39 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="2026_04_05_company_feature_overrides_01" author="atlas">
+        <createTable tableName="company_feature_override">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="company_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_cfo_company" references="company(id)"
+                             deleteCascade="true"/>
+            </column>
+            <column name="feature" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enabled" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="BIGINT"/>
+            <column name="updated_by" type="BIGINT"/>
+        </createTable>
+        <addUniqueConstraint tableName="company_feature_override"
+                             columnNames="company_id, feature"
+                             constraintName="uq_company_feature_override"/>
+    </changeSet>
+    <changeSet id="2026_04_05_company_feature_overrides_seq" author="atlas">
+        <createSequence sequenceName="company_feature_override_seq" startValue="1" incrementBy="50"/>
+    </changeSet>
+
+</databaseChangeLog>

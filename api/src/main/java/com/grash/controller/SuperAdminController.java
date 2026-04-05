@@ -4,26 +4,27 @@ import com.grash.dto.SuperAdminCompanyDTO;
 import com.grash.dto.SuperAdminCompanyDetailDTO;
 import com.grash.dto.AuthResponse;
 import com.grash.model.Company;
+import com.grash.model.CompanyFeatureOverride;
 import com.grash.model.OwnUser;
 import com.grash.model.Subscription;
 import com.grash.model.SubscriptionPlan;
+import com.grash.model.enums.PlanFeatures;
+import com.grash.repository.CompanyFeatureOverrideRepository;
 import com.grash.repository.SubscriptionRepository;
 import com.grash.repository.UserRepository;
 import com.grash.security.JwtTokenProvider;
 import com.grash.service.CompanyService;
 import com.grash.service.SubscriptionPlanService;
-import org.springframework.transaction.annotation.Transactional;
 import com.grash.service.UserService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -38,6 +39,7 @@ public class SuperAdminController {
     private final JwtTokenProvider jwtTokenProvider;
     private final SubscriptionPlanService subscriptionPlanService;
     private final SubscriptionRepository subscriptionRepository;
+    private final CompanyFeatureOverrideRepository featureOverrideRepository;
 
     @GetMapping("/companies")
     public ResponseEntity<List<SuperAdminCompanyDTO>> getAllCompanies() {
@@ -127,6 +129,70 @@ public class SuperAdminController {
     public static class PlanUpdateRequest {
         private Long planId;
         private int usersLimit;
+    }
+
+    @GetMapping("/companies/{id}/features")
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<Map<String, Object>>> getCompanyFeatures(@PathVariable Long id) {
+        Optional<Company> companyOpt = companyService.findById(id);
+        if (!companyOpt.isPresent()) return ResponseEntity.notFound().build();
+        Company company = companyOpt.get();
+        Set<PlanFeatures> planFeatures = new HashSet<>();
+        if (company.getSubscription() != null && company.getSubscription().getSubscriptionPlan() != null) {
+            planFeatures.addAll(company.getSubscription().getSubscriptionPlan().getFeatures());
+        }
+        Map<PlanFeatures, Boolean> overrideMap = new HashMap<>();
+        for (CompanyFeatureOverride o : featureOverrideRepository.findByCompanyId(id)) {
+            overrideMap.put(o.getFeature(), o.isEnabled());
+        }
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (PlanFeatures feature : PlanFeatures.values()) {
+            Map<String, Object> entry = new HashMap<>();
+            entry.put("feature", feature.name());
+            entry.put("inPlan", planFeatures.contains(feature));
+            Boolean override = overrideMap.getOrDefault(feature, null);
+            entry.put("override", override);
+            boolean effective = override != null ? override : planFeatures.contains(feature);
+            entry.put("effective", effective);
+            result.add(entry);
+        }
+        return ResponseEntity.ok(result);
+    }
+
+    @PatchMapping("/companies/{id}/features")
+    @Transactional
+    public ResponseEntity<?> updateCompanyFeature(@PathVariable Long id, @RequestBody FeatureOverrideRequest request) {
+        Optional<Company> companyOpt = companyService.findById(id);
+        if (!companyOpt.isPresent()) return ResponseEntity.notFound().build();
+        Company company = companyOpt.get();
+        PlanFeatures feature;
+        try {
+            feature = PlanFeatures.valueOf(request.getFeature());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Unknown feature: " + request.getFeature());
+        }
+        if (request.getEnabled() == null) {
+            featureOverrideRepository.deleteByCompanyIdAndFeature(id, feature);
+        } else {
+            Optional<CompanyFeatureOverride> existing = featureOverrideRepository.findByCompanyIdAndFeature(id, feature);
+            if (existing.isPresent()) {
+                existing.get().setEnabled(request.getEnabled());
+                featureOverrideRepository.save(existing.get());
+            } else {
+                featureOverrideRepository.save(CompanyFeatureOverride.builder()
+                        .company(company)
+                        .feature(feature)
+                        .enabled(request.getEnabled())
+                        .build());
+            }
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @Data
+    public static class FeatureOverrideRequest {
+        private String feature;
+        private Boolean enabled; // null = remove override
     }
 
     @PostMapping("/switch/{userId}")

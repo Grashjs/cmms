@@ -935,6 +935,10 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   };
   const isSuperAdmin = state.user?.role?.roleType === 'ROLE_SUPER_ADMIN';
   const hasFeature = (feature: PlanFeature) => {
+    const overrides = state.company?.featureOverrides;
+    if (overrides && feature in overrides) {
+      return overrides[feature];
+    }
     return (
       state.company?.subscription?.subscriptionPlan?.features?.includes(
         feature

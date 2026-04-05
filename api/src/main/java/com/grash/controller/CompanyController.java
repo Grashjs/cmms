@@ -5,14 +5,16 @@ import com.grash.dto.CompanyShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CompanyMapper;
 import com.grash.model.Company;
+import com.grash.model.CompanyFeatureOverride;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.service.CacheService;
 import com.grash.service.CompanyService;
 import com.grash.service.UserService;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,7 +45,14 @@ public class CompanyController {
 
         Optional<Company> companyOptional = companyService.findById(id);
         if (companyOptional.isPresent()) {
-            return companyMapper.toShowDto(companyService.findById(id).get());
+            Company company = companyOptional.get();
+            CompanyShowDTO dto = companyMapper.toShowDto(company);
+            Map<String, Boolean> overrides = new HashMap<>();
+            for (CompanyFeatureOverride o : companyService.getFeatureOverrides(company.getId())) {
+                overrides.put(o.getFeature().name(), o.isEnabled());
+            }
+            dto.setFeatureOverrides(overrides);
+            return dto;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

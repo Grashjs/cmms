@@ -193,4 +193,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_04_02_00000000001_add_api_key.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_04_05_1744000000_company_feature_overrides.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

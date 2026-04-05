@@ -12,4 +12,5 @@ export interface Company extends Audit {
   subscription: OwnSubscription;
   companySettings: CompanySettings;
   demo: boolean;
+  featureOverrides?: Record<string, boolean>;
 }
