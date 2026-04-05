@@ -37,7 +37,10 @@ public class CompanySettingsController {
 
         Optional<CompanySettings> companySettingsOptional = companySettingsService.findById(id);
         if (companySettingsOptional.isPresent()) {
-            return companySettingsService.findById(id).get();
+            CompanySettings savedCompanySettings = companySettingsOptional.get();
+            if (!savedCompanySettings.getCompany().getId().equals(user.getCompany().getId()))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return savedCompanySettings;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 }

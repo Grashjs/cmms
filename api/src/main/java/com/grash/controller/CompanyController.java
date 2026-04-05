@@ -43,7 +43,10 @@ public class CompanyController {
 
         Optional<Company> companyOptional = companyService.findById(id);
         if (companyOptional.isPresent()) {
-            return companyMapper.toShowDto(companyService.findById(id).get());
+            Company savedCompany = companyOptional.get();
+            if (!savedCompany.getId().equals(user.getCompany().getId()))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return companyMapper.toShowDto(savedCompany);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -58,6 +61,8 @@ public class CompanyController {
 
         if (optionalCompany.isPresent()) {
             Company savedCompany = optionalCompany.get();
+            if (!savedCompany.getId().equals(user.getCompany().getId()))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             Company newCompany = companyService.update(id, company);
