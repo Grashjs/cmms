@@ -65,6 +65,7 @@ export interface WebhookEndpointPostDTO {
   workOrderCategories?: { id: number; name: string }[];
   woFields?: WOField[];
   partFields?: PartField[];
+  serialize?: boolean;
 }
 
 export interface WebhookEndpointShowDTO extends Audit {
@@ -78,41 +79,43 @@ export interface WebhookEndpointShowDTO extends Audit {
   workOrderCategories: { id: number; name: string }[];
   woFields: WOField[];
   partFields: PartField[];
+  serialize: boolean;
   lastTriggeredAt: string | null;
   createdBy: number;
   createdByName: string;
 }
 
-export const CHANGE_EVENTS: WebhookEvent[] = [
-  'ASSET_STATUS_CHANGE',
+// Events that ask for asset statuses
+export const EVENT_ASKS_ASSET_STATUSES: WebhookEvent[] = ['ASSET_STATUS_CHANGE'];
+
+// Events that ask for work order statuses
+export const EVENT_ASKS_WO_STATUSES: WebhookEvent[] = [
   'WORK_ORDER_STATUS_CHANGE',
-  'WORK_REQUEST_STATUS_CHANGE',
-  'PURCHASE_ORDER_STATUS_CHANGE',
-  'WORK_ORDER_CHANGE',
-  'PART_CHANGE',
-  'PURCHASE_ORDER_CHANGE'
+  'WORK_REQUEST_STATUS_CHANGE'
 ];
 
-export const EVENT_REQUIRES_STATUS_FILTER: Record<WebhookEvent, boolean> = {
-  ASSET_STATUS_CHANGE: true,
-  WORK_ORDER_STATUS_CHANGE: true,
-  WORK_REQUEST_STATUS_CHANGE: false,
-  PURCHASE_ORDER_STATUS_CHANGE: false,
-  WORK_ORDER_CHANGE: false,
-  PART_CHANGE: false,
-  PURCHASE_ORDER_CHANGE: false,
-  METER_TRIGGER_STATUS_CHANGE: false,
-  NEW_ASSET: false,
-  NEW_CATEGORY_ON_WORK_ORDER: false,
-  NEW_COMMENT_ON_WORK_ORDER: false,
-  NEW_LOCATION: false,
-  NEW_PART: false,
-  NEW_PURCHASE_ORDER: false,
-  NEW_VENDOR: false,
-  NEW_WORK_ORDER: false,
-  NEW_REQUEST: false,
-  PART_DELETE: false,
-  PART_QUANTITY_CHANGED: false,
-  WORK_ORDER_DELETE: false,
-  WORK_ORDER_OVERDUE: false
-};
+// Events that ask for work order categories
+export const EVENT_ASKS_WO_CATEGORIES: WebhookEvent[] = [
+  'NEW_CATEGORY_ON_WORK_ORDER'
+];
+
+// Events that ask for WO fields (only WORK_ORDER_CHANGE)
+export const EVENT_ASKS_WO_FIELDS: WebhookEvent[] = ['WORK_ORDER_CHANGE'];
+
+// Events that ask for part fields
+export const EVENT_ASKS_PART_FIELDS: WebhookEvent[] = ['PART_CHANGE'];
+
+// New and delete events that show a serialize switch
+export const EVENT_ASKS_SERIALIZE: WebhookEvent[] = [
+  'NEW_ASSET',
+  'NEW_CATEGORY_ON_WORK_ORDER',
+  'NEW_COMMENT_ON_WORK_ORDER',
+  'NEW_LOCATION',
+  'NEW_PART',
+  'NEW_PURCHASE_ORDER',
+  'NEW_VENDOR',
+  'NEW_WORK_ORDER',
+  'NEW_REQUEST',
+  'PART_DELETE',
+  'WORK_ORDER_DELETE'
+];

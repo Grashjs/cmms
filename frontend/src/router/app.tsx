@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { Navigate } from 'react-router-dom';
 
 import SuspenseLoader from 'src/components/SuspenseLoader';
 import analyticsRoutes from './analytics';
@@ -39,6 +40,15 @@ const RequestPortalSettings = Loader(
 );
 const IntegrationsSettings = Loader(
   lazy(() => import('../content/own/Settings/Integrations'))
+);
+const ApiKeysPage = Loader(
+  lazy(() => import('../content/own/Settings/Integrations/ApiKeysPage'))
+);
+const WebhooksPage = Loader(
+  lazy(() => import('../content/own/Settings/Integrations/Webhooks'))
+);
+const Connectors = Loader(
+  lazy(() => import('../content/own/Settings/Integrations/Connectors'))
 );
 
 const UserProfile = Loader(lazy(() => import('../content/own/UserProfile')));
@@ -141,7 +151,16 @@ const appRoutes = [
       },
       { path: 'workflows', element: <WorkflowsSettings /> },
       { path: 'ui-configuration', element: <UIConfigurationSettings /> },
-      { path: 'integrations', element: <IntegrationsSettings /> }
+      {
+        path: 'integrations',
+        element: <IntegrationsSettings />,
+        children: [
+          { index: true, element: <Navigate to="api-keys" replace /> },
+          { path: 'connectors', element: <Connectors /> },
+          { path: 'api-keys', element: <ApiKeysPage /> },
+          { path: 'webhooks', element: <WebhooksPage /> }
+        ]
+      }
     ]
   },
   {

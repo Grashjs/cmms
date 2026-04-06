@@ -20,7 +20,10 @@ import {
   OutlinedInput,
   Stack,
   Tooltip,
-  CircularProgress
+  CircularProgress,
+  Switch,
+  FormControlLabel,
+  Checkbox
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import {
@@ -45,8 +48,12 @@ import {
   WebhookEvent,
   WOField,
   PartField,
-  CHANGE_EVENTS,
-  EVENT_REQUIRES_STATUS_FILTER
+  EVENT_ASKS_ASSET_STATUSES,
+  EVENT_ASKS_WO_STATUSES,
+  EVENT_ASKS_WO_CATEGORIES,
+  EVENT_ASKS_WO_FIELDS,
+  EVENT_ASKS_PART_FIELDS,
+  EVENT_ASKS_SERIALIZE
 } from '../../../../models/owns/webhookEndpoint';
 import CustomDatagrid2, {
   CustomDatagridColumn2
@@ -374,7 +381,8 @@ function Webhooks() {
               workOrderStatuses: [] as string[],
               workOrderCategories: [] as { id: number; name: string }[],
               woFields: [] as WOField[],
-              partFields: [] as PartField[]
+              partFields: [] as PartField[],
+              serialize: true
             }}
             validationSchema={Yup.object({
               url: Yup.string()
@@ -392,23 +400,20 @@ function Webhooks() {
               setFieldValue
             }) => {
               const selectedEvent = values.event as WebhookEvent | null;
-              const showStatusFilter =
-                selectedEvent && EVENT_REQUIRES_STATUS_FILTER[selectedEvent];
+              const showAssetStatuses =
+                selectedEvent &&
+                EVENT_ASKS_ASSET_STATUSES.includes(selectedEvent);
+              const showWoStatuses =
+                selectedEvent && EVENT_ASKS_WO_STATUSES.includes(selectedEvent);
+              const showWoCategories =
+                selectedEvent &&
+                EVENT_ASKS_WO_CATEGORIES.includes(selectedEvent);
               const showWoFields =
-                selectedEvent &&
-                CHANGE_EVENTS.includes(selectedEvent as WebhookEvent);
+                selectedEvent && EVENT_ASKS_WO_FIELDS.includes(selectedEvent);
               const showPartFields =
-                selectedEvent &&
-                [
-                  'NEW_PART',
-                  'PART_CHANGE',
-                  'PART_DELETE',
-                  'PART_QUANTITY_CHANGED'
-                ].includes(selectedEvent);
-
-              const isChangeEvent = CHANGE_EVENTS.includes(
-                selectedEvent as WebhookEvent
-              );
+                selectedEvent && EVENT_ASKS_PART_FIELDS.includes(selectedEvent);
+              const showSerialize =
+                selectedEvent && EVENT_ASKS_SERIALIZE.includes(selectedEvent);
 
               return (
                 <Form onSubmit={handleSubmit}>
@@ -457,9 +462,8 @@ function Webhooks() {
                         </FormControl>
                       </Grid>
 
-                      {/* Asset Statuses (conditionally shown) */}
-                      {showStatusFilter &&
-                        selectedEvent === 'ASSET_STATUS_CHANGE' && (
+                      {/* Asset Statuses */}
+                      {showAssetStatuses && (
                           <Grid item xs={12}>
                             <FormControl fullWidth>
                               <InputLabel>
@@ -500,10 +504,8 @@ function Webhooks() {
                           </Grid>
                         )}
 
-                      {/* Work Order Statuses (conditionally shown) */}
-                      {showStatusFilter &&
-                        (selectedEvent === 'WORK_ORDER_STATUS_CHANGE' ||
-                          selectedEvent === 'WORK_ORDER_CHANGE') && (
+                      {/* Work Order Statuses */}
+                      {showWoStatuses && (
                           <Grid item xs={12}>
                             <FormControl fullWidth>
                               <InputLabel>
@@ -552,10 +554,8 @@ function Webhooks() {
                           </Grid>
                         )}
 
-                      {/* Work Order Categories (conditionally shown) */}
-                      {isChangeEvent &&
-                        (selectedEvent === 'NEW_WORK_ORDER' ||
-                          selectedEvent === 'WORK_ORDER_CHANGE') && (
+                      {/* Work Order Categories */}
+                      {showWoCategories && (
                           <Grid item xs={12}>
                             <FormControl fullWidth>
                               <InputLabel>
@@ -702,6 +702,26 @@ function Webhooks() {
                               ))}
                             </Select>
                           </FormControl>
+                        </Grid>
+                      )}
+
+                      {/* Serialize Checkbox */}
+                      {showSerialize && (
+                        <Grid item xs={12}>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={values.serialize}
+                                onChange={(e) =>
+                                  setFieldValue('serialize', e.target.checked)
+                                }
+                              />
+                            }
+                            label={t('webhook_endpoint_serialize')}
+                          />
+                          <FormHelperText>
+                            {t('webhook_endpoint_serialize_description')}
+                          </FormHelperText>
                         </Grid>
                       )}
                     </Grid>

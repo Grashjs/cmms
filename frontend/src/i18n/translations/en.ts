@@ -1757,6 +1757,9 @@ const locale = {
   webhook_endpoint_wo_categories: 'Work Order Categories',
   webhook_endpoint_wo_fields: 'Work Order Fields',
   webhook_endpoint_part_fields: 'Part Fields',
+  webhook_endpoint_serialize: 'Serialize payload',
+  webhook_endpoint_serialize_description:
+    'If checked, the webhook will receive the complete entity data',
   webhook_endpoint_secret: 'Secret',
   webhook_endpoint_show_secret: 'Show Secret',
   webhook_endpoint_hide_secret: 'Hide Secret',

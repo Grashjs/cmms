@@ -26,8 +26,13 @@ function SettingsLayout() {
   
   // Determine the current tab index based on the URL path
   const getCurrentTabIndex = () => {
-    const path = location.pathname.split('/').pop();
-    const index = tabs.findIndex(tab => tab.value === path);
+    const pathSegments = location.pathname.split('/');
+    const lastSegment = pathSegments.pop();
+    // For nested integrations routes (api-keys, webhooks, connectors), map to 'integrations' tab
+    const parentSegment = lastSegment === 'connectors' || lastSegment === 'api-keys' || lastSegment === 'webhooks'
+      ? 'integrations'
+      : lastSegment;
+    const index = tabs.findIndex(tab => tab.value === parentSegment);
     return index >= 0 ? index : 0;
   };
   

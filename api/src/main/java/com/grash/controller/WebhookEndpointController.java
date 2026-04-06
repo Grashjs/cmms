@@ -10,6 +10,7 @@ import com.grash.model.OwnUser;
 import com.grash.model.WebhookEndpoint;
 import com.grash.security.CurrentUser;
 import com.grash.service.WebhookEndpointService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/webhook-endpoints")
 @RequiredArgsConstructor
+@Hidden
 public class WebhookEndpointController {
 
     private final WebhookEndpointService webhookEndpointService;
