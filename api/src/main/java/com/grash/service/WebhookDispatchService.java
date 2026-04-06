@@ -50,7 +50,8 @@ public class WebhookDispatchService {
                 .stream()
                 .filter(endpoint -> endpoint.getEvent().equals(eventType))
                 .toList();
-
+        result.put("occurredAt", new Date());
+        result.put("companyId", company.getId());
         for (WebhookEndpoint endpoint : endpoints) {
             try {
                 result.put(serializedField, endpoint.isSerialize() ? mapper.apply(rawPayload) : null);

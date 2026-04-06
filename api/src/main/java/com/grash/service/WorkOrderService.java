@@ -96,8 +96,6 @@ public class WorkOrderService {
                 workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_CREATED, company.getId());
         workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, savedWorkOrder));
         Map<String, Object> webhookPayload = new HashMap<>();
-        webhookPayload.put("occurredAt", new Date());
-        webhookPayload.put("companyId", company.getId());
         webhookPayload.put("workOrderId", savedWorkOrder.getId());
         webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_WORK_ORDER, webhookPayload,
                 "newWorkOrder", savedWorkOrder, workOrderMapper::toShowDto);
