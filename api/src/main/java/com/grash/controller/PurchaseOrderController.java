@@ -5,11 +5,14 @@ import com.grash.dto.PurchaseOrderPatchDTO;
 import com.grash.dto.PurchaseOrderShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
+import com.grash.mapper.PartMapper;
 import com.grash.mapper.PartQuantityMapper;
 import com.grash.mapper.PurchaseOrderMapper;
 import com.grash.factory.MailServiceFactory;
 import com.grash.model.*;
 import com.grash.model.enums.*;
+import com.grash.model.enums.webhook.PartField;
+import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.service.*;
 import com.grash.utils.Helper;
@@ -27,6 +30,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -48,6 +52,8 @@ public class PurchaseOrderController {
     private final PartService partService;
     private final NotificationService notificationService;
     private final WorkflowService workflowService;
+    private final WebhookDispatchService webhookDispatchService;
+    private final PartMapper partMapper;
 
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -163,8 +169,13 @@ public class PurchaseOrderController {
                                 partQuantityService.findByPurchaseOrder(savedPurchaseOrder.getId());
                         partQuantities.forEach(partQuantity -> {
                             Part part = partQuantity.getPart();
+                            double previousQuantity = part.getQuantity();
                             part.setQuantity(part.getQuantity() + partQuantity.getQuantity());
                             partService.save(part);
+
+                            // Dispatch webhook for part quantity change from purchase order
+                            dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(),
+                                    partQuantity, savedPurchaseOrder, user.getCompany());
                         });
                     }
                     savedPurchaseOrder.setStatus(approved ? ApprovalStatus.APPROVED : ApprovalStatus.REJECTED);
@@ -198,6 +209,23 @@ public class PurchaseOrderController {
         Collection<PartQuantity> partQuantities = partQuantityService.findByPurchaseOrder(purchaseOrderShowDTO.getId());
         purchaseOrderShowDTO.setPartQuantities(partQuantities.stream().map(partQuantityMapper::toShowDto).collect(Collectors.toList()));
         return purchaseOrderShowDTO;
+    }
+
+    private void dispatchPartQuantityChangeWebhook(Part part, double previousQuantity, double newQuantity,
+                                                   PartQuantity partQuantity, PurchaseOrder purchaseOrder,
+                                                   Company company) {
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("partId", part.getId());
+        webhookPayload.put("partName", part.getName());
+        webhookPayload.put("previousQuantity", previousQuantity);
+        webhookPayload.put("newQuantity", newQuantity);
+        webhookPayload.put("changedAmount", partQuantity.getQuantity());
+        webhookPayload.put("purchaseOrderId", purchaseOrder.getId());
+        webhookPayload.put("purchaseOrderName", purchaseOrder.getName());
+        webhookPayload.put("partQuantityId", partQuantity.getId());
+        Collection<PartField> changedFields = Collections.singletonList(PartField.QUANTITY);
+        webhookDispatchService.dispatchWebhook(company, WebhookEvent.PART_QUANTITY_CHANGED, webhookPayload,
+                "changedPartQuantity", part, partMapper::toShowDto, null, null, null, null, changedFields);
     }
 }
 

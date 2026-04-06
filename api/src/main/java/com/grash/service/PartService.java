@@ -94,6 +94,7 @@ public class PartService {
     public void consumePart(Long id, double quantity, WorkOrder workOrder, Locale locale) {
         Part part = findById(id).get();
         if (part.isNonStock()) return;
+        double previousQuantity = part.getQuantity();
         part.setQuantity(part.getQuantity() - quantity);
         if (part.getQuantity() < 0)
             throw new CustomException("There is not enough of this part", HttpStatus.NOT_ACCEPTABLE);
@@ -104,6 +105,9 @@ public class PartService {
             partConsumption.setQuantity(partConsumption.getQuantity() + quantity);
             partRepository.save(part);
             partConsumptionService.save(partConsumption);
+
+            // Dispatch webhook for part quantity change (returning parts)
+            dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(), workOrder);
         } else {
             String message = messageSource.getMessage("notification_part_low", new Object[]{part.getName()}, locale);
             if (part.getQuantity() < part.getMinQuantity() && licenseService.hasEntitlement(LicenseEntitlement.LOW_STOCK_ALERTS)) {
@@ -113,6 +117,9 @@ public class PartService {
             }
             partConsumptionService.create(new PartConsumption(part, workOrder, quantity));
             partRepository.save(part);
+
+            // Dispatch webhook for part quantity change (consuming parts)
+            dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(), workOrder);
         }
     }
 
@@ -281,13 +288,15 @@ public class PartService {
         if (patchDTO.getBarcode() != null && !Objects.equals(original.getBarcode(), patchDTO.getBarcode())) {
             changedFields.add(PartField.BARCODE);
         }
-        if (patchDTO.getDescription() != null && !Objects.equals(original.getDescription(), patchDTO.getDescription())) {
+        if (patchDTO.getDescription() != null && !Objects.equals(original.getDescription(),
+                patchDTO.getDescription())) {
             changedFields.add(PartField.DESCRIPTION);
         }
         if (patchDTO.getQuantity() != 0 && original.getQuantity() != patchDTO.getQuantity()) {
             changedFields.add(PartField.QUANTITY);
         }
-        if (patchDTO.getAdditionalInfos() != null && !Objects.equals(original.getAdditionalInfos(), patchDTO.getAdditionalInfos())) {
+        if (patchDTO.getAdditionalInfos() != null && !Objects.equals(original.getAdditionalInfos(),
+                patchDTO.getAdditionalInfos())) {
             changedFields.add(PartField.ADDITIONAL_INFOS);
         }
         if (patchDTO.getArea() != null && !Objects.equals(original.getArea(), patchDTO.getArea())) {
@@ -296,13 +305,16 @@ public class PartService {
         if (patchDTO.getMinQuantity() != 0 && original.getMinQuantity() != patchDTO.getMinQuantity()) {
             changedFields.add(PartField.MIN_QUANTITY);
         }
-        if (patchDTO.getAssignedTo() != null && !collectionsMatch(original.getAssignedTo(), patchDTO.getAssignedTo(), OwnUser::getId)) {
+        if (patchDTO.getAssignedTo() != null && !collectionsMatch(original.getAssignedTo(), patchDTO.getAssignedTo(),
+                OwnUser::getId)) {
             changedFields.add(PartField.ASSIGNED_TO);
         }
-        if (patchDTO.getCustomers() != null && !collectionsMatch(original.getCustomers(), patchDTO.getCustomers(), Customer::getId)) {
+        if (patchDTO.getCustomers() != null && !collectionsMatch(original.getCustomers(), patchDTO.getCustomers(),
+                Customer::getId)) {
             changedFields.add(PartField.CUSTOMERS);
         }
-        if (patchDTO.getVendors() != null && !collectionsMatch(original.getVendors(), patchDTO.getVendors(), Vendor::getId)) {
+        if (patchDTO.getVendors() != null && !collectionsMatch(original.getVendors(), patchDTO.getVendors(),
+                Vendor::getId)) {
             changedFields.add(PartField.VENDORS);
         }
         if (patchDTO.getTeams() != null && !collectionsMatch(original.getTeams(), patchDTO.getTeams(), Team::getId)) {
@@ -322,6 +334,23 @@ public class PartService {
         return a.stream().allMatch(aItem ->
                 b.stream().anyMatch(bItem ->
                         idExtractor.apply(aItem).equals(idExtractor.apply(bItem))));
+    }
+
+    private void dispatchPartQuantityChangeWebhook(Part part, double previousQuantity, double newQuantity,
+                                                   WorkOrder workOrder) {
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("partId", part.getId());
+        webhookPayload.put("partName", part.getName());
+        webhookPayload.put("previousQuantity", previousQuantity);
+        webhookPayload.put("newQuantity", newQuantity);
+        webhookPayload.put("changedAmount", newQuantity - previousQuantity);
+        if (workOrder != null) {
+            webhookPayload.put("workOrderId", workOrder.getId());
+            webhookPayload.put("workOrderTitle", workOrder.getTitle());
+        }
+        Collection<PartField> changedFields = Collections.singletonList(PartField.QUANTITY);
+        webhookDispatchService.dispatchWebhook(part.getCompany(), WebhookEvent.PART_QUANTITY_CHANGED, webhookPayload,
+                "changedPartQuantity", part, partMapper::toShowDto, null, null, null, null, changedFields);
     }
 }
 
