@@ -8,6 +8,7 @@ import com.grash.model.Schedule;
 import com.grash.model.enums.RoleType;
 import com.grash.service.ScheduleService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -58,7 +59,7 @@ public class ScheduleController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public Schedule patch(@Valid @RequestBody SchedulePatchDTO schedule,
+    public Schedule patch(@Parameter(description = "Schedule fields to update") @Valid @RequestBody SchedulePatchDTO schedule,
                           @PathVariable("id") Long id,
                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

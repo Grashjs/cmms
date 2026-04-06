@@ -3,6 +3,7 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.CompanyAudit;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,7 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
+@Schema(description = "Team entity for grouping users together")
 public class Team extends CompanyAudit {
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -27,8 +29,10 @@ public class Team extends CompanyAudit {
     private List<OwnUser> users = new ArrayList<>();
 
     @NotNull
+    @Schema(description = "Team name", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
+    @Schema(description = "Team description")
     private String description;
 
     @ManyToMany

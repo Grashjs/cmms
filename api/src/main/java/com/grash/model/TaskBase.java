@@ -3,6 +3,7 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.TaskType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,10 +26,13 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @Builder
+@Schema(description = "Task base entity defining task templates")
 public class TaskBase extends CompanyAudit {
     @NotNull
+    @Schema(description = "Task label", requiredMode = Schema.RequiredMode.REQUIRED)
     private String label;
 
+    @Schema(description = "Type of task")
     private TaskType taskType = TaskType.SUBTASK;
 
     @OneToMany(

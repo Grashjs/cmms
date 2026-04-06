@@ -47,7 +47,7 @@ public class PartAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<PartStats> getPartStats(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                  @RequestBody DateRange dateRange) {
+                                                  @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<PartConsumption> partConsumptions =
                     partConsumptionService.findByCompanyAndCreatedAtBetween(user.getCompany().getId(),
@@ -70,7 +70,7 @@ public class PartAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<List<PartConsumptionsByPart>> getPareto(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                  @RequestBody DateRange dateRange) {
+                                                                  @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<PartConsumption> partConsumptions = partConsumptionService.findByCompanyAndCreatedAtBetween
                             (user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd())
@@ -97,7 +97,7 @@ public class PartAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<PartConsumptionsByAsset>> getConsumptionByAsset(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                                     @RequestBody DateRange dateRange) {
+                                                                                     @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(),
                     dateRange.getEnd());
@@ -128,7 +128,7 @@ public class PartAnalyticsController {
     )
     public ResponseEntity<Collection<PartConsumptionByCategory>> getConsumptionByPartCategory(@Parameter(hidden =
                                                                                                       true) @CurrentUser OwnUser user,
-                                                                                              @RequestBody DateRange dateRange) {
+                                                                                              @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<PartCategory> partCategories =
                     partCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
@@ -158,7 +158,7 @@ public class PartAnalyticsController {
     )
     public ResponseEntity<Collection<PartConsumptionByWOCategory>> getConsumptionByWOCategory(@Parameter(hidden =
                                                                                                       true) @CurrentUser OwnUser user,
-                                                                                              @RequestBody DateRange dateRange) {
+                                                                                              @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<WorkOrderCategory> workOrderCategories =
                     workOrderCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
@@ -187,7 +187,7 @@ public class PartAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<List<PartConsumptionsByMonth>> getPartConsumptionsByMonth(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                                    @RequestBody DateRange dateRange) {
+                                                                                    @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             List<PartConsumptionsByMonth> result = new ArrayList<>();
             LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());

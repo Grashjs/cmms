@@ -12,6 +12,7 @@ import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.service.*;
 
 
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -74,7 +75,7 @@ public class TaskController {
 
     @PatchMapping("/preventive-maintenance/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<TaskShowDTO> createByPreventiveMaintenance(@Valid @RequestBody Collection<TaskBaseDTO> taskBasesReq, @PathVariable("id") Long id, HttpServletRequest req) {
+    public Collection<TaskShowDTO> createByPreventiveMaintenance(@Parameter(description = "List of task bases to create") @Valid @RequestBody Collection<TaskBaseDTO> taskBasesReq, @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent() && optionalPreventiveMaintenance.get().canBeEditedBy(user)) {
@@ -96,7 +97,7 @@ public class TaskController {
 
     @PatchMapping("/work-order/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    List<TaskShowDTO> create(@Valid @RequestBody List<TaskBaseDTO> taskBasesReq,
+    List<TaskShowDTO> create(@Parameter(description = "List of task bases to create") @Valid @RequestBody List<TaskBaseDTO> taskBasesReq,
                              @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
@@ -182,7 +183,7 @@ public class TaskController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public TaskShowDTO patch(@Valid @RequestBody TaskPatchDTO task, @PathVariable(
+    public TaskShowDTO patch(@Parameter(description = "Task fields to update") @Valid @RequestBody TaskPatchDTO task, @PathVariable(
                                      "id") Long id,
                              HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

@@ -87,7 +87,7 @@ public class RequestController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<RequestShowDTO>> search(@RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<RequestShowDTO>> search(@Parameter(description = "Search criteria for filtering requests") @RequestBody SearchCriteria searchCriteria,
                                                        HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -153,7 +153,7 @@ public class RequestController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    RequestShowDTO create(@Valid @RequestBody Request requestReq, HttpServletRequest req) {
+    RequestShowDTO create(@Parameter(description = "Request data to create") @Valid @RequestBody Request requestReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.REQUESTS)) {
             Request createdRequest = requestService.create(requestReq, user.getCompany());
@@ -163,7 +163,7 @@ public class RequestController {
     }
 
     @PostMapping("/portal/{requestPortalUuid}")
-    RequestShowDTO createFromPortal(@Valid @RequestBody Request requestReq,
+    RequestShowDTO createFromPortal(@Parameter(description = "Request data to create from portal") @Valid @RequestBody Request requestReq,
                                     @PathVariable("requestPortalUuid") String requestPortalUuid,
                                     @RequestParam(value = "recaptchaToken", required = false) @Parameter (description = "RecaptchaToken value") String recaptchaToken ,
                                     HttpServletRequest req) {
@@ -188,7 +188,7 @@ public class RequestController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public RequestShowDTO patch(@Valid @RequestBody RequestPatchDTO request,
+    public RequestShowDTO patch(@Parameter(description = "Request fields to update") @Valid @RequestBody RequestPatchDTO request,
                                 @PathVariable("id") Long id,
                                 HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
@@ -210,7 +210,7 @@ public class RequestController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public WorkOrderShowDTO approve(@PathVariable("id") Long id,
-                                    @RequestBody RequestApproveDTO requestApproveDTO,
+                                    @Parameter(description = "Request approval data") @RequestBody RequestApproveDTO requestApproveDTO,
                                     HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Request> optionalRequest = requestService.findById(id);

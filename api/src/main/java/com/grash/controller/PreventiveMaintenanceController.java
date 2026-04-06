@@ -20,6 +20,7 @@ import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
 
 
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -54,7 +55,7 @@ public class PreventiveMaintenanceController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<PreventiveMaintenanceShowDTO>> search(@RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<PreventiveMaintenanceShowDTO>> search(@Parameter(description = "Search criteria for filtering preventive maintenances") @RequestBody SearchCriteria searchCriteria,
                                                                      HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -89,7 +90,7 @@ public class PreventiveMaintenanceController {
     @Transactional
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    PreventiveMaintenanceShowDTO create(@Valid @RequestBody PreventiveMaintenancePostDTO preventiveMaintenancePost,
+    PreventiveMaintenanceShowDTO create(@Parameter(description = "Preventive maintenance data to create") @Valid @RequestBody PreventiveMaintenancePostDTO preventiveMaintenancePost,
                                         HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         PreventiveMaintenance preventiveMaintenance = preventiveMaintenanceMapper.toModel(preventiveMaintenancePost);
@@ -114,7 +115,7 @@ public class PreventiveMaintenanceController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public PreventiveMaintenanceShowDTO patch(@Valid @RequestBody PreventiveMaintenancePatchDTO preventiveMaintenance
+    public PreventiveMaintenanceShowDTO patch(@Parameter(description = "Preventive maintenance fields to update") @Valid @RequestBody PreventiveMaintenancePatchDTO preventiveMaintenance
             , @PathVariable("id") Long id,
                                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

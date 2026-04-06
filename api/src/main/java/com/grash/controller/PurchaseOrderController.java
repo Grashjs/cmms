@@ -16,6 +16,7 @@ import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.service.*;
 import com.grash.utils.Helper;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,7 +61,7 @@ public class PurchaseOrderController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<PurchaseOrderShowDTO>> search(@RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<PurchaseOrderShowDTO>> search(@Parameter(description = "Search criteria for filtering purchase orders") @RequestBody SearchCriteria searchCriteria,
                                                              HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -93,7 +94,7 @@ public class PurchaseOrderController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    PurchaseOrderShowDTO create(@Valid @RequestBody PurchaseOrder purchaseOrderReq,
+    PurchaseOrderShowDTO create(@Parameter(description = "Purchase order data to create") @Valid @RequestBody PurchaseOrder purchaseOrderReq,
                                 HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PURCHASE_ORDERS)
@@ -133,7 +134,7 @@ public class PurchaseOrderController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public PurchaseOrderShowDTO patch(@Valid @RequestBody PurchaseOrderPatchDTO purchaseOrder,
+    public PurchaseOrderShowDTO patch(@Parameter(description = "Purchase order fields to update") @Valid @RequestBody PurchaseOrderPatchDTO purchaseOrder,
                                       @PathVariable("id") Long id,
                                       HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
@@ -155,7 +156,7 @@ public class PurchaseOrderController {
     @PatchMapping("/{id}/respond")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public PurchaseOrderShowDTO respond(@RequestParam("approved") boolean approved, @PathVariable("id") Long id,
+    public PurchaseOrderShowDTO respond(@Parameter(description = "Whether the purchase order is approved") @RequestParam("approved") boolean approved, @PathVariable("id") Long id,
                                         HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);

@@ -11,8 +11,7 @@ import com.grash.model.WorkOrderMeterTrigger;
 import com.grash.service.MeterService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderMeterTriggerService;
-
-
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -53,7 +52,7 @@ public class WorkOrderMeterTriggerController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    WorkOrderMeterTrigger create(@Valid @RequestBody WorkOrderMeterTrigger workOrderMeterTriggerReq,
+    WorkOrderMeterTrigger create(@Parameter(description = "Work order meter trigger to create") @Valid @RequestBody WorkOrderMeterTrigger workOrderMeterTriggerReq,
                                  HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         return workOrderMeterTriggerService.create(workOrderMeterTriggerReq);
@@ -76,7 +75,7 @@ public class WorkOrderMeterTriggerController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public WorkOrderMeterTriggerShowDTO patch(@Valid @RequestBody WorkOrderMeterTriggerPatchDTO workOrderMeterTrigger
+    public WorkOrderMeterTriggerShowDTO patch(@Parameter(description = "Work order meter trigger fields to update") @Valid @RequestBody WorkOrderMeterTriggerPatchDTO workOrderMeterTrigger
             , @PathVariable("id") Long id,
                                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

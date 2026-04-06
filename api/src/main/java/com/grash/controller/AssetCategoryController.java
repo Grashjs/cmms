@@ -9,6 +9,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.AssetCategoryService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -59,7 +60,7 @@ public class AssetCategoryController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public AssetCategory create(@Valid @RequestBody AssetCategory assetCategoryReq,
+    public AssetCategory create(@Parameter(description = "Asset category to create") @Valid @RequestBody AssetCategory assetCategoryReq,
                                 HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
@@ -69,7 +70,7 @@ public class AssetCategoryController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public AssetCategory patch(@Valid @RequestBody CategoryPatchDTO assetCategory,
+    public AssetCategory patch(@Parameter(description = "Asset category fields to update") @Valid @RequestBody CategoryPatchDTO assetCategory,
                                @PathVariable("id") Long id,
                                HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

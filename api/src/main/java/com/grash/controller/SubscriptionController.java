@@ -13,6 +13,7 @@ import com.grash.service.SubscriptionService;
 import com.grash.service.UserService;
 
 
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -67,7 +68,7 @@ public class SubscriptionController {
 //    }
     @PostMapping("/upgrade")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public SuccessResponse upgrade(@RequestBody Collection<Long> usersIds,
+    public SuccessResponse upgrade(@Parameter(description = "List of user IDs to upgrade") @RequestBody Collection<Long> usersIds,
                                    HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.isOwnsCompany()) {
@@ -96,7 +97,7 @@ public class SubscriptionController {
 
     @PostMapping("/request-upgrade")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public SuccessResponse requestUpgrade(@RequestBody SubscriptionChangeRequest subscriptionChangeRequest,
+    public SuccessResponse requestUpgrade(@Parameter(description = "Subscription change request details") @RequestBody SubscriptionChangeRequest subscriptionChangeRequest,
                                           HttpServletRequest req) {
         if (recipients == null || recipients.length == 0) {
             throw new CustomException("MAIL_RECIPIENTS env variable not set", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -119,7 +120,7 @@ public class SubscriptionController {
 
     @GetMapping("/downgrade")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public SuccessResponse downgrade(@RequestParam Collection<Long> usersIds,
+    public SuccessResponse downgrade(@Parameter(description = "Collection of user IDs to downgrade") @RequestParam Collection<Long> usersIds,
                                      HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.isOwnsCompany()) {

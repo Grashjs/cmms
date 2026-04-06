@@ -2,6 +2,7 @@ package com.grash.model;
 
 import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.workflow.WFMainCondition;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,10 +21,13 @@ import java.util.Collection;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Schema(description = "Workflow entity for automating actions based on conditions")
 public class Workflow extends CompanyAudit {
     @NotNull
+    @Schema(description = "Workflow title", requiredMode = Schema.RequiredMode.REQUIRED)
     private String title;
     @NotNull
+    @Schema(description = "Main condition for the workflow", requiredMode = Schema.RequiredMode.REQUIRED)
     private WFMainCondition mainCondition;
     @OneToMany(cascade = CascadeType.ALL)
     private Collection<WorkflowCondition> secondaryConditions = new ArrayList<>();
@@ -31,6 +35,7 @@ public class Workflow extends CompanyAudit {
     @NotNull
     private WorkflowAction action;
 
+    @Schema(description = "Whether the workflow is enabled")
     private boolean enabled = true;
 }
 

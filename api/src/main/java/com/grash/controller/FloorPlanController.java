@@ -12,6 +12,7 @@ import com.grash.model.enums.RoleType;
 import com.grash.service.FloorPlanService;
 import com.grash.service.LocationService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -65,7 +66,7 @@ public class FloorPlanController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    FloorPlanShowDTO create(@Valid @RequestBody FloorPlan floorPlanReq,
+    FloorPlanShowDTO create(@Parameter(description = "Floor plan data to create") @Valid @RequestBody FloorPlan floorPlanReq,
                             HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         return floorPlanMapper.toShowDto(floorPlanService.create(floorPlanReq));
@@ -73,7 +74,7 @@ public class FloorPlanController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public FloorPlanShowDTO patch(@Valid @RequestBody FloorPlanPatchDTO floorPlan, @PathVariable("id") Long id,
+    public FloorPlanShowDTO patch(@Parameter(description = "Floor plan fields to update") @Valid @RequestBody FloorPlanPatchDTO floorPlan, @Parameter(description = "Floor plan ID") @PathVariable("id") Long id,
                                   HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<FloorPlan> optionalFloorPlan = floorPlanService.findById(id);

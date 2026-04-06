@@ -12,6 +12,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.UserService;
 import com.grash.service.VendorService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -40,7 +41,7 @@ public class VendorController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<Vendor>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
+    public ResponseEntity<Page<Vendor>> search(@Parameter(description = "Search criteria for filtering vendors") @RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
@@ -74,7 +75,7 @@ public class VendorController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    Vendor create(@Valid @RequestBody Vendor vendorReq, HttpServletRequest req) {
+    Vendor create(@Parameter(description = "Vendor data to create") @Valid @RequestBody Vendor vendorReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
             return vendorService.create(vendorReq);
@@ -84,7 +85,7 @@ public class VendorController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public Vendor patch(@Valid @RequestBody VendorPatchDTO vendor, @PathVariable(
+    public Vendor patch(@Parameter(description = "Vendor fields to update") @Valid @RequestBody VendorPatchDTO vendor, @PathVariable(
                                 "id") Long id,
                         HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

@@ -22,6 +22,7 @@ import com.grash.service.RequestPortalService;
 import com.grash.service.TaskService;
 import com.grash.service.UserService;
 import com.grash.utils.Helper;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -54,11 +55,11 @@ public class FileController {
     private final RateLimiterService rateLimiterService;
 
     @PostMapping(value = "/upload", produces = "application/json")
-    public List<FileShowDTO> handleFileUpload(@RequestParam("files") MultipartFile[] filesReq,
-                                              @RequestParam("folder") String folder,
-                                              @RequestParam("hidden") String hidden, HttpServletRequest req,
-                                              @RequestParam("type") FileType fileType,
-                                              @RequestParam(value = "taskId", required = false) Integer taskId) {
+    public List<FileShowDTO> handleFileUpload(@Parameter(description = "Files to upload") @RequestParam("files") MultipartFile[] filesReq,
+                                              @Parameter(description = "Folder path to store files") @RequestParam("folder") String folder,
+                                              @Parameter(description = "Whether files should be hidden (true/false)") @RequestParam("hidden") String hidden, HttpServletRequest req,
+                                              @Parameter(description = "Type of file") @RequestParam("type") FileType fileType,
+                                              @Parameter(description = "Optional task ID to associate files with") @RequestParam(value = "taskId", required = false) Integer taskId) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.FILE_ATTACHMENTS))
             throw new CustomException("You need a license to add a file", HttpStatus.FORBIDDEN);
         OwnUser user = userService.whoami(req);
@@ -82,9 +83,9 @@ public class FileController {
     }
 
     @PostMapping(value = "/upload/request-portal/{uuid}", produces = "application/json")
-    public ResponseEntity<List<FileShowDTO>> uploadToRequestPortal(@PathVariable("uuid") String uuid,
-                                                                   @RequestParam("files") MultipartFile[] filesReq,
-                                                                   @RequestParam("type") FileType fileType,
+    public ResponseEntity<List<FileShowDTO>> uploadToRequestPortal(@Parameter(description = "Request portal UUID") @PathVariable("uuid") String uuid,
+                                                                   @Parameter(description = "Files to upload") @RequestParam("files") MultipartFile[] filesReq,
+                                                                   @Parameter(description = "Type of file") @RequestParam("type") FileType fileType,
                                                                    HttpServletRequest req) {
         String clientIp = Helper.extractClientIp(req);
         if (!rateLimiterService.resolveFileUploadBucket(clientIp).tryConsume(1)) {
@@ -109,7 +110,7 @@ public class FileController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<FileShowDTO>> search(@RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<FileShowDTO>> search(@Parameter(description = "Search criteria for filtering files") @RequestBody SearchCriteria searchCriteria,
                                                     HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -148,7 +149,7 @@ public class FileController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public FileShowDTO patch(@Valid @RequestBody FilePatchDTO file,
+    public FileShowDTO patch(@Parameter(description = "File fields to update") @Valid @RequestBody FilePatchDTO file,
                              @PathVariable("id") Long id,
                              HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

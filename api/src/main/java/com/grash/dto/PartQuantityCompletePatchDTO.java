@@ -11,12 +11,14 @@ import jakarta.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor
+@Schema(description = "DTO for patching complete part quantity information")
 public class PartQuantityCompletePatchDTO {
+    @Schema(description = "Quantity value (must be positive)")
     @NotNull
     @Min(value = 0L, message = "The value must be positive")
     private double quantity;
 
-    @Schema(implementation = IdDTO.class)
+    @Schema(description = "Part reference", implementation = IdDTO.class)
     @NotNull
     private Part part;
 }

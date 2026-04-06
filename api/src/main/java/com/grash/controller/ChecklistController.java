@@ -12,6 +12,7 @@ import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleType;
 import com.grash.service.ChecklistService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -61,7 +62,7 @@ public class ChecklistController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    Checklist create(@Valid @RequestBody ChecklistPostDTO checklistReq, HttpServletRequest req) {
+    Checklist create(@Parameter(description = "Checklist to create") @Valid @RequestBody ChecklistPostDTO checklistReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.CHECKLIST)) {
@@ -72,7 +73,7 @@ public class ChecklistController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public Checklist patch(@Valid @RequestBody ChecklistPatchDTO checklist,
+    public Checklist patch(@Parameter(description = "Checklist fields to update") @Valid @RequestBody ChecklistPatchDTO checklist,
                            @PathVariable("id") Long id,
                            HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

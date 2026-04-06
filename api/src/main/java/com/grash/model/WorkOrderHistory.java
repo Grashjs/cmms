@@ -2,6 +2,7 @@ package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.Audit;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,12 +18,15 @@ import jakarta.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Schema(description = "Work order history for tracking saved versions of work orders")
 public class WorkOrderHistory extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Schema(description = "Unique identifier", accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
     @NotNull
+    @Schema(description = "Name of the saved work order version", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
     @NotNull

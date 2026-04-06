@@ -12,6 +12,7 @@ import com.grash.service.CompanyService;
 import com.grash.service.ImportService;
 import com.grash.service.IntercomService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
@@ -43,7 +44,7 @@ public class ImportController {
 
     @PostMapping("/work-orders")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ImportResponse importWorkOrders(@Valid @RequestBody List<WorkOrderImportDTO> toImport,
+    public ImportResponse importWorkOrders(@Parameter(description = "List of work orders to import") @Valid @RequestBody List<WorkOrderImportDTO> toImport,
                                            HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
@@ -56,7 +57,7 @@ public class ImportController {
 
     @PostMapping("/assets")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ImportResponse importAssets(@Valid @RequestBody List<AssetImportDTO> toImport, HttpServletRequest req) {
+    public ImportResponse importAssets(@Parameter(description = "List of assets to import") @Valid @RequestBody List<AssetImportDTO> toImport, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.ASSETS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
@@ -84,7 +85,7 @@ public class ImportController {
 
     @PostMapping("/locations")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ImportResponse importLocations(@Valid @RequestBody List<LocationImportDTO> toImport,
+    public ImportResponse importLocations(@Parameter(description = "List of locations to import") @Valid @RequestBody List<LocationImportDTO> toImport,
                                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.LOCATIONS)
@@ -97,7 +98,7 @@ public class ImportController {
 
     @PostMapping("/meters")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ImportResponse importMeters(@Valid @RequestBody List<MeterImportDTO> toImport, HttpServletRequest req) {
+    public ImportResponse importMeters(@Parameter(description = "List of meters to import") @Valid @RequestBody List<MeterImportDTO> toImport, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.METERS) && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
             return importService.importMeters(toImport, user.getCompany());
@@ -108,7 +109,7 @@ public class ImportController {
 
     @PostMapping("/parts")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ImportResponse importParts(@Valid @RequestBody List<PartImportDTO> toImport, HttpServletRequest req) {
+    public ImportResponse importParts(@Parameter(description = "List of parts to import") @Valid @RequestBody List<PartImportDTO> toImport, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
@@ -120,7 +121,7 @@ public class ImportController {
 
     @PostMapping("/preventive-maintenances")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ImportResponse importPreventiveMaintenances(@Valid @RequestBody List<PreventiveMaintenanceImportDTO> toImport,
+    public ImportResponse importPreventiveMaintenances(@Parameter(description = "List of preventive maintenances to import") @Valid @RequestBody List<PreventiveMaintenanceImportDTO> toImport,
                                                        HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)
@@ -133,7 +134,7 @@ public class ImportController {
 
     @GetMapping("/download-template")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public byte[] importMeters(@RequestParam Language language, @RequestParam ImportEntity importEntity,
+    public byte[] importMeters(@Parameter(description = "Language for the import template") @RequestParam Language language, @Parameter(description = "Entity type to import") @RequestParam ImportEntity importEntity,
                                HttpServletRequest req) throws IOException {
         String path =
                 "import-templates/" + language.name().toLowerCase() + "/" + importEntity.name().toLowerCase() + ".csv";

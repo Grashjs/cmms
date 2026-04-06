@@ -14,6 +14,7 @@ import com.grash.model.enums.RoleType;
 import com.grash.service.TeamService;
 import com.grash.service.UserService;
 import com.grash.utils.Helper;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,7 @@ public class TeamController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<TeamShowDTO>> search(@RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<TeamShowDTO>> search(@Parameter(description = "Search criteria for filtering teams") @RequestBody SearchCriteria searchCriteria,
                                                     HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -77,7 +78,7 @@ public class TeamController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    TeamShowDTO create(@Valid @RequestBody Team teamReq, HttpServletRequest req) {
+    TeamShowDTO create(@Parameter(description = "Team data to create") @Valid @RequestBody Team teamReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
             Team savedTeam = teamService.create(teamReq);
@@ -89,7 +90,7 @@ public class TeamController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public TeamShowDTO patch(@Valid @RequestBody TeamPatchDTO team, @PathVariable(
+    public TeamShowDTO patch(@Parameter(description = "Team fields to update") @Valid @RequestBody TeamPatchDTO team, @PathVariable(
                                      "id") Long id,
                              HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

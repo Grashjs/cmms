@@ -8,10 +8,12 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@Schema(description = "DTO for patching a meter reading")
 public class ReadingPatchDTO {
 
+    @Schema(description = "Reading value")
     private Double value;
 
-    @Schema(implementation = IdDTO.class)
+    @Schema(description = "Meter reference", implementation = IdDTO.class)
     private Meter meter;
 }

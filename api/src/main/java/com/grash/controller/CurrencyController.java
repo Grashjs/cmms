@@ -8,6 +8,7 @@ import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.service.CurrencyService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -53,14 +54,14 @@ public class CurrencyController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    Currency create(@Valid @RequestBody Currency currency, HttpServletRequest req) {
+    Currency create(@Parameter(description = "Currency to create") @Valid @RequestBody Currency currency, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         return currencyService.create(currency);
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    public Currency patch(@Valid @RequestBody CurrencyPatchDTO currencyPatchDTO,
+    public Currency patch(@Parameter(description = "Currency fields to update") @Valid @RequestBody CurrencyPatchDTO currencyPatchDTO,
                           @PathVariable("id") Long id,
                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

@@ -51,7 +51,7 @@ public class RequestAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<RequestStats> getRequestStats(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                        @RequestBody DateRange dateRange) {
+                                                        @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<Request> requests = requestService.findByCreatedAtBetweenAndCompany(dateRange.getStart(),
                     dateRange.getEnd(), user.getCompany().getId());
@@ -81,7 +81,7 @@ public class RequestAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<RequestStatsByPriority> getByPriority(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                @RequestBody DateRange dateRange) {
+                                                                @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<Request> requests = requestService.findByCreatedAtBetweenAndCompany(dateRange.getStart(),
                     dateRange.getEnd(), user.getCompany().getId());
@@ -116,7 +116,7 @@ public class RequestAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<List<RequestsByMonth>> getCycleTimeByMonth(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                     @RequestBody DateRange dateRange) {
+                                                                     @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             List<RequestsByMonth> result = new ArrayList<>();
             LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
@@ -154,7 +154,7 @@ public class RequestAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<CountByCategory>> getCountsByCategory(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                           @RequestBody DateRange dateRange) {
+                                                                           @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<WorkOrderCategory> categories =
                     workOrderCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
@@ -179,7 +179,7 @@ public class RequestAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<List<RequestsResolvedByDate>> getReceivedAndResolvedForDateRange(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                                           @RequestBody DateRange dateRange) {
+                                                                                           @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
         if (user.canSeeAnalytics()) {
             List<RequestsResolvedByDate> result = new ArrayList<>();

@@ -61,7 +61,7 @@ public class AssetController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<AssetShowDTO>> search(@RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<AssetShowDTO>> search(@Parameter(description = "Search criteria for filtering assets") @RequestBody SearchCriteria searchCriteria,
                                                      HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -179,7 +179,7 @@ public class AssetController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public AssetShowDTO create(@Valid @RequestBody Asset assetReq, HttpServletRequest req) {
+    public AssetShowDTO create(@Parameter(description = "Asset data to create") @Valid @RequestBody Asset assetReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.ASSETS)) {
             if (assetReq.getBarCode() != null) {
@@ -207,7 +207,7 @@ public class AssetController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public AssetShowDTO patch(@Valid @RequestBody AssetPatchDTO asset,
+    public AssetShowDTO patch(@Parameter(description = "Asset fields to update") @Valid @RequestBody AssetPatchDTO asset,
                               @PathVariable("id") Long id,
                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

@@ -30,7 +30,7 @@ public class RequestPortalController {
 
     @PostMapping("/search")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Page<RequestPortalShowDTO> search(@RequestBody RequestPortalCriteria requestPortalCriteria,
+    public Page<RequestPortalShowDTO> search(@Parameter(description = "Request portal search criteria") @RequestBody RequestPortalCriteria requestPortalCriteria,
                                              @Parameter(hidden = true) @CurrentUser OwnUser user, Pageable pageable) {
         return requestPortalService.findByCriteria(requestPortalCriteria, pageable, user).map(requestPortalMapper::toShowDto);
     }
@@ -38,7 +38,7 @@ public class RequestPortalController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public RequestPortalShowDTO create(@RequestBody @Valid RequestPortalPostDTO requestPortal,
+    public RequestPortalShowDTO create(@Parameter(description = "Request portal to create") @RequestBody @Valid RequestPortalPostDTO requestPortal,
                                        @Parameter(hidden = true) @CurrentUser OwnUser user) {
         return requestPortalMapper.toShowDto(requestPortalService.create(requestPortal, user));
     }
@@ -62,7 +62,7 @@ public class RequestPortalController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public RequestPortalShowDTO update(@PathVariable Long id,
-                                       @RequestBody @Valid RequestPortalPatchDTO requestPortal,
+                                       @Parameter(description = "Request portal fields to update") @RequestBody @Valid RequestPortalPatchDTO requestPortal,
                                        @Parameter(hidden = true) @CurrentUser OwnUser user) {
         return requestPortalMapper.toShowDto(requestPortalService.update(id, requestPortal, user));
     }

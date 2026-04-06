@@ -10,8 +10,7 @@ import com.grash.model.enums.PlanFeatures;
 import com.grash.service.FieldConfigurationService;
 import com.grash.service.LicenseService;
 import com.grash.service.UserService;
-
-
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -36,7 +35,7 @@ public class FieldConfigurationController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public FieldConfiguration patch(@Valid @RequestBody FieldConfigurationPatchDTO fieldConfiguration, @PathVariable(
+    public FieldConfiguration patch(@Parameter(description = "Field configuration fields to update") @Valid @RequestBody FieldConfigurationPatchDTO fieldConfiguration, @PathVariable(
                                             "id") Long id,
                                     HttpServletRequest req) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.FIELD_CONFIGURATION))

@@ -20,6 +20,7 @@ import com.grash.service.MeterService;
 import com.grash.service.ReadingService;
 import com.grash.service.UserService;
 import com.grash.utils.Helper;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -52,7 +53,7 @@ public class MeterController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<MeterShowDTO>> search(@RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<MeterShowDTO>> search(@Parameter(description = "Search criteria for filtering meters") @RequestBody SearchCriteria searchCriteria,
                                                      HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -89,7 +90,7 @@ public class MeterController {
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
 
-    public MeterShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
+    public MeterShowDTO getById(@Parameter(description = "Meter ID") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {
@@ -104,7 +105,7 @@ public class MeterController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    MeterShowDTO create(@Valid @RequestBody Meter meterReq, HttpServletRequest req) {
+    MeterShowDTO create(@Parameter(description = "Meter data to create") @Valid @RequestBody Meter meterReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.METERS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.METER)) {
@@ -117,8 +118,8 @@ public class MeterController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public MeterShowDTO patch(@Valid @RequestBody MeterPatchDTO meter,
-                              @PathVariable("id") Long id,
+    public MeterShowDTO patch(@Parameter(description = "Meter fields to update") @Valid @RequestBody MeterPatchDTO meter,
+                              @Parameter(description = "Meter ID") @PathVariable("id") Long id,
                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
@@ -137,7 +138,7 @@ public class MeterController {
     @GetMapping("/asset/{id}")
     @PreAuthorize("permitAll()")
 
-    public Collection<MeterShowDTO> getByAsset(@PathVariable("id") Long id, HttpServletRequest req) {
+    public Collection<MeterShowDTO> getByAsset(@Parameter(description = "Asset ID") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
@@ -148,7 +149,7 @@ public class MeterController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@Parameter(description = "Meter ID") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Meter> optionalMeter = meterService.findById(id);

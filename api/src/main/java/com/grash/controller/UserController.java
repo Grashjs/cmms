@@ -50,7 +50,7 @@ public class UserController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<UserResponseDTO>> search(@RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<UserResponseDTO>> search(@Parameter(description = "Search criteria for filtering users") @RequestBody SearchCriteria searchCriteria,
                                                         @Parameter(hidden = true) @CurrentUser OwnUser user,
                                                         @RequestParam(defaultValue = "true") @Parameter (description = "show only enabled users") boolean enabledOnly) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -66,7 +66,7 @@ public class UserController {
     @PostMapping("/invite")
     @PreAuthorize("permitAll()")
 
-    public SuccessResponse invite(@RequestBody UserInvitationDTO invitation,
+    public SuccessResponse invite(@Parameter(description = "User invitation data") @RequestBody UserInvitationDTO invitation,
                                   @Parameter(hidden = true) @CurrentUser OwnUser user) {
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
             int companyUsersCount =
@@ -105,7 +105,7 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public Collection<UserMiniDTO> getMini(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                           @RequestParam(required = false) Boolean withRequesters) {
+                                           @Parameter(description = "Include requesters in the response") @RequestParam(required = false) Boolean withRequesters) {
         return Boolean.TRUE.equals(withRequesters) ?
                 userService.findByCompany(user.getCompany().getId()).stream()
                         .filter(OwnUser::isEnabled).map(userMapper::toMiniDto).collect(Collectors.toList()) :
@@ -126,8 +126,8 @@ public class UserController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public UserResponseDTO patch(@Valid @RequestBody UserPatchDTO userReq,
-                                 @PathVariable("id") Long id,
+    public UserResponseDTO patch(@Parameter(description = "User fields to update") @Valid @RequestBody UserPatchDTO userReq,
+                                 @Parameter(description = "User ID") @PathVariable("id") Long id,
                                  @Parameter(hidden = true) @CurrentUser OwnUser requester) {
         Optional<OwnUser> optionalUser = userService.findByIdAndCompany(id, requester.getCompany().getId());
 
@@ -161,8 +161,8 @@ public class UserController {
     @PatchMapping("/{id}/role")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public UserResponseDTO patchRole(@PathVariable("id") Long id,
-                                     @RequestParam("role") Long roleId,
+    public UserResponseDTO patchRole(@Parameter(description = "User ID") @PathVariable("id") Long id,
+                                     @Parameter(description = "Role ID to assign") @RequestParam("role") Long roleId,
                                      @Parameter(hidden = true) @CurrentUser OwnUser requester) {
         Optional<OwnUser> optionalUserToPatch = userService.findByIdAndCompany(id, requester.getCompany().getId());
         Optional<Role> optionalRole = roleService.findById(roleId);

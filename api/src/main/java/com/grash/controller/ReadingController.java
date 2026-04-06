@@ -13,6 +13,7 @@ import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.service.*;
 import com.grash.utils.AuditComparator;
 import com.grash.utils.Helper;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -58,7 +59,7 @@ public class ReadingController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    Reading create(@Valid @RequestBody Reading readingReq, HttpServletRequest req) {
+    Reading create(@Parameter(description = "Reading data to create") @Valid @RequestBody Reading readingReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.METER))
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -119,7 +120,7 @@ public class ReadingController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public Reading patch(@Valid @RequestBody ReadingPatchDTO reading,
+    public Reading patch(@Parameter(description = "Reading fields to update") @Valid @RequestBody ReadingPatchDTO reading,
                          @PathVariable("id") Long id,
                          HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

@@ -9,6 +9,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.service.UiConfigurationService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class UiConfigurationController {
     private final UserService userService;
 
     @PatchMapping()
-    public UiConfiguration patch(@Valid @RequestBody UiConfigurationPatchDTO uiConfiguration,
+    public UiConfiguration patch(@Parameter(description = "UI configuration fields to update") @Valid @RequestBody UiConfigurationPatchDTO uiConfiguration,
                                  HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<UiConfiguration> optionalUiConfiguration =

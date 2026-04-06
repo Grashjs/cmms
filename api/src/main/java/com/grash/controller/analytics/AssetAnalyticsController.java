@@ -52,7 +52,7 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<TimeCostByAsset>> getTimeCostByAsset(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                          @RequestBody DateRange dateRange) {
+                                                                          @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(),
                     dateRange.getEnd());
@@ -82,7 +82,7 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<AssetStats> getOverviewStats(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                       @RequestBody DateRange dateRange) {
+                                                       @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<AssetDowntime> downtimes =
                     assetDowntimeService.findByCompanyAndStartsOnBetween(user.getCompany().getId(),
@@ -108,7 +108,7 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<DowntimesByAsset>> getDowntimesByAsset(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                            @RequestBody DateRange dateRange) {
+                                                                            @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(),
                     dateRange.getEnd());
@@ -136,7 +136,7 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<MTBFByAsset>> getMTBFByAsset(@CurrentUser OwnUser user,
-                                                                  @RequestBody DateRange dateRange) {
+                                                                  @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(),
                     dateRange.getEnd());
@@ -155,7 +155,7 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Meantimes> getMeantimes(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                  @RequestBody DateRange dateRange) {
+                                                  @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<AssetDowntime> downtimes =
                     assetDowntimeService.findByCompanyAndStartsOnBetween(user.getCompany().getId(),
@@ -185,7 +185,7 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<RepairTimeByAsset>> getRepairTimeByAsset(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                              @RequestBody DateRange dateRange) {
+                                                                              @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(),
                     dateRange.getEnd());
@@ -208,7 +208,7 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<List<DowntimesMeantimeByDate>> getDowntimesMeantimeByMonth(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                                     @RequestBody DateRange dateRange) {
+                                                                                     @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
             List<DowntimesMeantimeByDate> result = new ArrayList<>();
@@ -242,7 +242,7 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<AssetsCosts> getAssetsCosts(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                      @RequestBody DateRange dateRange) {
+                                                      @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         boolean includeLaborCost =
                 user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost();
         if (user.canSeeAnalytics()) {
@@ -269,7 +269,7 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<DowntimesAndCostsByAsset>> getDowntimesAndCosts(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                                     @RequestBody DateRange dateRange) {
+                                                                                     @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(),
                     dateRange.getEnd());
@@ -298,7 +298,7 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<List<DowntimesByDate>> getDowntimesByMonth(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                     @RequestBody DateRange dateRange) {
+                                                                     @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             List<DowntimesByDate> result = new ArrayList<>();
             LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
@@ -337,7 +337,7 @@ public class AssetAnalyticsController {
             value = "getDateRangeOverview",
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)+'_'+#id"
     )
-    public ResponseEntity<AssetOverview> getDateRangeOverview(@PathVariable Long id, @RequestBody DateRange dateRange
+    public ResponseEntity<AssetOverview> getDateRangeOverview(@PathVariable Long id, @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange
             , @Parameter(hidden = true) @CurrentUser OwnUser user) {
         Asset savedAsset = assetService.findById(id).get();
         Date start = dateRange.getStart();

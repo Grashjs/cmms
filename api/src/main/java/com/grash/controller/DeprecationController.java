@@ -7,6 +7,7 @@ import com.grash.model.Deprecation;
 import com.grash.model.OwnUser;
 import com.grash.service.DeprecationService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -43,7 +44,7 @@ public class DeprecationController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    Deprecation create(@Valid @RequestBody Deprecation deprecationReq,
+    Deprecation create(@Parameter(description = "Depreciation to create") @Valid @RequestBody Deprecation deprecationReq,
                        HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         return deprecationService.create(deprecationReq);
@@ -52,7 +53,7 @@ public class DeprecationController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public Deprecation patch(@Valid @RequestBody DeprecationPatchDTO deprecation, @PathVariable("id") Long id,
+    public Deprecation patch(@Parameter(description = "Depreciation fields to update") @Valid @RequestBody DeprecationPatchDTO deprecation, @PathVariable("id") Long id,
                              HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Deprecation> optionalDeprecation = deprecationService.findById(id);

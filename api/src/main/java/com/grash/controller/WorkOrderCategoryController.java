@@ -9,8 +9,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderCategoryService;
-
-
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -62,7 +61,7 @@ public class WorkOrderCategoryController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    WorkOrderCategory create(@Valid @RequestBody WorkOrderCategory workOrderCategory,
+    WorkOrderCategory create(@Parameter(description = "Work order category to create") @Valid @RequestBody WorkOrderCategory workOrderCategory,
                              HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
@@ -73,7 +72,7 @@ public class WorkOrderCategoryController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public WorkOrderCategory patch(@Valid @RequestBody CategoryPatchDTO categoryPatchDTO, @PathVariable("id") Long id,
+    public WorkOrderCategory patch(@Parameter(description = "Work order category fields to update") @Valid @RequestBody CategoryPatchDTO categoryPatchDTO, @PathVariable("id") Long id,
                                    HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrderCategory> optionalWorkOrderCategory = workOrderCategoryService.findById(id);

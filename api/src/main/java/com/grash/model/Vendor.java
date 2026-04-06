@@ -2,6 +2,7 @@ package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.BasicInfos;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,20 +14,27 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
+@Schema(description = "Vendor entity for managing supplier information")
 public class Vendor extends BasicInfos {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Schema(description = "Unique identifier", accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
+    @Schema(description = "Type of vendor")
     private String vendorType;
 
     @NotNull
+    @Schema(description = "Company name", requiredMode = Schema.RequiredMode.REQUIRED)
     private String companyName;
 
+    @Schema(description = "Vendor description")
     private String description;
 
+    @Schema(description = "Vendor rate")
     private long rate;
 
+    @Schema(description = "Indicates whether this is a demo vendor")
     private boolean isDemo;
 
     @ManyToMany

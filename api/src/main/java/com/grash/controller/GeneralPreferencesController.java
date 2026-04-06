@@ -8,6 +8,7 @@ import com.grash.model.OwnUser;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.service.GeneralPreferencesService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -54,8 +55,8 @@ public class GeneralPreferencesController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public GeneralPreferences patch(@Valid @RequestBody GeneralPreferencesPatchDTO generalPreferences,
-                                    @PathVariable("id") Long id,
+    public GeneralPreferences patch(@Parameter(description = "General preferences fields to update") @Valid @RequestBody GeneralPreferencesPatchDTO generalPreferences,
+                                    @Parameter(description = "General preferences ID") @PathVariable("id") Long id,
                                     HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 

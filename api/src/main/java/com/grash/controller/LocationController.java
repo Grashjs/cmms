@@ -16,6 +16,7 @@ import com.grash.service.RateLimiterService;
 import com.grash.service.RequestPortalService;
 import com.grash.service.UserService;
 import com.grash.utils.Helper;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -68,7 +69,7 @@ public class LocationController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<LocationShowDTO>> search(@RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<LocationShowDTO>> search(@Parameter(description = "Search criteria for filtering locations") @RequestBody SearchCriteria searchCriteria,
                                                         HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -86,7 +87,7 @@ public class LocationController {
     @GetMapping("/children/{id}")
     @PreAuthorize("permitAll()")
 
-    public Collection<LocationShowDTO> getChildrenById(@PathVariable("id") Long id,
+    public Collection<LocationShowDTO> getChildrenById(@Parameter(description = "Location ID") @PathVariable("id") Long id,
                                                        Pageable pageable,
                                                        HttpServletRequest req) {
         //only sort is used
@@ -112,7 +113,7 @@ public class LocationController {
     }
 
     @GetMapping("/public/mini/{portalUUID}")
-    public Collection<LocationMiniDTO> getMiniPublic(@PathVariable String portalUUID, HttpServletRequest req) {
+    public Collection<LocationMiniDTO> getMiniPublic(@Parameter(description = "Portal UUID") @PathVariable String portalUUID, HttpServletRequest req) {
         String clientIp = Helper.extractClientIp(req);
         if (!rateLimiterService.resolvePublicMiniBucket(clientIp).tryConsume(1)) {
             throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
@@ -121,7 +122,7 @@ public class LocationController {
     }
 
     @GetMapping("/{id}")
-    public LocationShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
+    public LocationShowDTO getById(@Parameter(description = "Location ID") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
@@ -135,7 +136,7 @@ public class LocationController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    LocationShowDTO create(@Valid @RequestBody Location locationReq,
+    LocationShowDTO create(@Parameter(description = "Location data to create") @Valid @RequestBody Location locationReq,
                            HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.LOCATIONS)) {
@@ -148,8 +149,8 @@ public class LocationController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public LocationShowDTO patch(@Valid @RequestBody LocationPatchDTO location,
-                                 @PathVariable("id") Long id,
+    public LocationShowDTO patch(@Parameter(description = "Location fields to update") @Valid @RequestBody LocationPatchDTO location,
+                                 @Parameter(description = "Location ID") @PathVariable("id") Long id,
                                  HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
@@ -170,7 +171,7 @@ public class LocationController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity delete(@Parameter(description = "Location ID") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Location> optionalLocation = locationService.findById(id);

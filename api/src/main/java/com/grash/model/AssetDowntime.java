@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.dto.DateRange;
 import com.grash.model.abstracts.CompanyAudit;
 import com.grash.utils.Helper;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
+@Schema(description = "Asset downtime entity tracking equipment downtime periods")
 public class AssetDowntime extends CompanyAudit {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,9 +33,10 @@ public class AssetDowntime extends CompanyAudit {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Asset asset;
 
-    //seconds can be equal to 0 if created by triggerDowntime
+    @Schema(description = "Duration of the downtime in seconds")
     private long duration = 0;
 
+    @Schema(description = "Start date and time of the downtime")
     private Date startsOn;
 
     public Date getEndsOn() {

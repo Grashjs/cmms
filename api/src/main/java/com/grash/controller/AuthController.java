@@ -57,7 +57,7 @@ public class AuthController {
             }
     )
     public ResponseEntity<AuthResponse> login(
-            @Valid @RequestBody UserLoginRequest userLoginRequest) {
+            @Parameter(description = "User login credentials") @Valid @RequestBody UserLoginRequest userLoginRequest) {
         AuthResponse authResponse = new AuthResponse(userService.signin(userLoginRequest.getEmail().toLowerCase(),
                 userLoginRequest.getPassword(), userLoginRequest.getType()));
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
@@ -68,7 +68,7 @@ public class AuthController {
             produces = {
                     MediaType.APPLICATION_JSON_VALUE
             })
-    public SignupSuccessResponse<UserResponseDTO> signup(@Valid @RequestBody UserSignupRequest user) {
+    public SignupSuccessResponse<UserResponseDTO> signup(@Parameter(description = "User signup data") @Valid @RequestBody UserSignupRequest user) {
         SignupSuccessResponse<OwnUser> response = userService.signup(user);
         return new SignupSuccessResponse<>(response.isSuccess(), response.getMessage(),
                 userMapper.toResponseDto(response.getUser()));
@@ -97,7 +97,7 @@ public class AuthController {
 
     @GetMapping("/activate-account")
     public void activateAcount(
-            @RequestParam String token, HttpServletResponse httpServletResponse
+            @Parameter(description = "Account activation token") @RequestParam String token, HttpServletResponse httpServletResponse
     ) {
         try {
             String email = verificationTokenService.confirmMail(token);
@@ -111,7 +111,7 @@ public class AuthController {
 
     @GetMapping("/reset-pwd-confirm")
     public void resetPasswordConfirm(
-            @RequestParam String token,
+            @Parameter(description = "Password reset token") @RequestParam String token,
             HttpServletResponse httpServletResponse
     ) {
         try {
@@ -150,13 +150,13 @@ public class AuthController {
 
     @PreAuthorize("permitAll()")
     @GetMapping(value = "/resetpwd", produces = "application/json")
-    public SuccessResponse resetPassword(@RequestParam String email) {
+    public SuccessResponse resetPassword(@Parameter(description = "User email address for password reset") @RequestParam String email) {
         return userService.resetPasswordRequest(email);
     }
 
     @PreAuthorize("permitAll()")
     @PostMapping(value = "/updatepwd", produces = "application/json")
-    public ResponseEntity<SuccessResponse> updatePassword(@Valid @RequestBody UpdatePasswordRequest updatePasswordRequest, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> updatePassword(@Parameter(description = "Password update request") @Valid @RequestBody UpdatePasswordRequest updatePasswordRequest, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         String password = user.getPassword();
         String oldPassword = updatePasswordRequest.getOldPassword();
@@ -173,7 +173,7 @@ public class AuthController {
     @GetMapping("/switch-account")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public AuthResponse switchAccount(
-            @RequestParam("id") Long id, @Parameter(hidden = true) @CurrentUser OwnUser user
+            @Parameter(description = "Target user ID to switch to") @RequestParam("id") Long id, @Parameter(hidden = true) @CurrentUser OwnUser user
     ) {
         if (!user.getSuperAccountRelations().isEmpty()) {//user is superUser
             SuperAccountRelation superAccountRelation =

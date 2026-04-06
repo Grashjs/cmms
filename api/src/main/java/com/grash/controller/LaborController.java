@@ -12,6 +12,7 @@ import com.grash.model.enums.TimeStatus;
 import com.grash.service.LaborService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -65,6 +66,7 @@ public class LaborController {
     @PreAuthorize("permitAll()")
 
     public Labor controlTimer(@PathVariable("id") Long id, HttpServletRequest req,
+                              @Parameter(description = "Whether to start the labor timer")
                               @RequestParam(defaultValue = "true") boolean start) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
@@ -108,7 +110,7 @@ public class LaborController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    Labor create(@Valid @RequestBody Labor laborReq, HttpServletRequest req) {
+    Labor create(@Parameter(description = "Labor data to create") @Valid @RequestBody Labor laborReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ADDITIONAL_TIME)) {
             WorkOrder workOrder = workOrderService.findById(laborReq.getWorkOrder().getId()).get();
@@ -123,7 +125,7 @@ public class LaborController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public Labor patch(@Valid @RequestBody LaborPatchDTO labor,
+    public Labor patch(@Parameter(description = "Labor fields to update") @Valid @RequestBody LaborPatchDTO labor,
                        @PathVariable("id") Long id,
                        HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
