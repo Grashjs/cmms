@@ -30,4 +30,6 @@ public class WebhookEndpointPostDTO {
 
     private Collection<PartField> partFields;
 
+    private Boolean approved;//request
+
 }

@@ -51,4 +51,6 @@ public class WebhookEndpoint extends CompanyAudit {
     @ElementCollection(targetClass = PartField.class)
     @Enumerated(EnumType.STRING)
     private Collection<PartField> partFields;
+
+    private Boolean approved;
 }

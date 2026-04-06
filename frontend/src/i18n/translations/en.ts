@@ -1754,6 +1754,9 @@ const locale = {
   webhook_endpoint_select_event: 'Select an event',
   webhook_endpoint_asset_statuses: 'Asset Statuses',
   webhook_endpoint_wo_statuses: 'Work Order Statuses',
+  webhook_endpoint_work_request_approved_only: 'Only approved requests',
+  webhook_endpoint_work_request_approved_only_desc:
+    'Trigger for approved work requests',
   webhook_endpoint_wo_categories: 'Work Order Categories',
   webhook_endpoint_wo_fields: 'Work Order Fields',
   webhook_endpoint_part_fields: 'Part Fields',

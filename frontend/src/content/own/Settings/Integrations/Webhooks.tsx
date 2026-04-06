@@ -1,38 +1,36 @@
 import {
   Box,
   Button,
+  Checkbox,
+  Chip,
+  CircularProgress,
   Dialog,
-  Grid,
-  Slide,
-  styled,
-  Typography,
-  TextField,
   DialogContent,
   DialogTitle,
-  IconButton,
-  InputAdornment,
-  FormHelperText,
-  MenuItem,
-  Chip,
   FormControl,
-  InputLabel,
-  Select,
-  OutlinedInput,
-  Stack,
-  Tooltip,
-  CircularProgress,
-  Switch,
   FormControlLabel,
-  Checkbox
+  FormHelperText,
+  Grid,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  OutlinedInput,
+  Select,
+  Slide,
+  Stack,
+  styled,
+  TextField,
+  Tooltip,
+  Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import {
   forwardRef,
   ReactElement,
   Ref,
-  useState,
   useContext,
-  useEffect
+  useEffect,
+  useState
 } from 'react';
 import { TransitionProps } from '@mui/material/transitions';
 import { useDispatch, useSelector } from '../../../../store';
@@ -43,17 +41,22 @@ import {
   rotateSecret
 } from '../../../../slices/webhookEndpoint';
 import {
-  WebhookEndpointShowDTO,
-  WebhookEndpointPostDTO,
-  WebhookEvent,
-  WOField,
-  PartField,
   EVENT_ASKS_ASSET_STATUSES,
-  EVENT_ASKS_WO_STATUSES,
+  EVENT_ASKS_PART_FIELDS,
+  EVENT_ASKS_SERIALIZE,
   EVENT_ASKS_WO_CATEGORIES,
   EVENT_ASKS_WO_FIELDS,
-  EVENT_ASKS_PART_FIELDS,
-  EVENT_ASKS_SERIALIZE
+  EVENT_ASKS_WO_STATUSES,
+  EVENT_ASKS_WR_APPROVED,
+  PartField,
+  WebhookEndpointPostDTO,
+  WebhookEndpointShowDTO,
+  WebhookEvent,
+  WOField,
+  WEBHOOK_EVENTS,
+  WO_FIELDS,
+  PART_FIELDS,
+  getWebhookEventLabelKey
 } from '../../../../models/owns/webhookEndpoint';
 import CustomDatagrid2, {
   CustomDatagridColumn2
@@ -62,11 +65,9 @@ import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CloseIcon from '@mui/icons-material/Close';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
-import { Formik, Form, Field } from 'formik';
+import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
 import { getCategories } from '../../../../slices/category';
@@ -89,65 +90,6 @@ const Transition = forwardRef(function Transition(
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const WEBHOOK_EVENT_LABELS: Record<WebhookEvent, string> = {
-  ASSET_STATUS_CHANGE: 'WEBHOOK_ASSET_STATUS_CHANGE',
-  METER_TRIGGER_STATUS_CHANGE: 'WEBHOOK_METER_TRIGGER_STATUS_CHANGE',
-  NEW_ASSET: 'WEBHOOK_NEW_ASSET',
-  NEW_CATEGORY_ON_WORK_ORDER: 'WEBHOOK_NEW_CATEGORY_ON_WORK_ORDER',
-  NEW_COMMENT_ON_WORK_ORDER: 'WEBHOOK_NEW_COMMENT_ON_WORK_ORDER',
-  NEW_LOCATION: 'WEBHOOK_NEW_LOCATION',
-  NEW_PART: 'WEBHOOK_NEW_PART',
-  NEW_PURCHASE_ORDER: 'WEBHOOK_NEW_PURCHASE_ORDER',
-  NEW_VENDOR: 'WEBHOOK_NEW_VENDOR',
-  NEW_WORK_ORDER: 'WEBHOOK_NEW_WORK_ORDER',
-  NEW_REQUEST: 'WEBHOOK_NEW_REQUEST',
-  PART_CHANGE: 'WEBHOOK_PART_CHANGE',
-  PART_DELETE: 'WEBHOOK_PART_DELETE',
-  PART_QUANTITY_CHANGED: 'WEBHOOK_PART_QUANTITY_CHANGED',
-  PURCHASE_ORDER_CHANGE: 'WEBHOOK_PURCHASE_ORDER_CHANGE',
-  PURCHASE_ORDER_STATUS_CHANGE: 'WEBHOOK_PURCHASE_ORDER_STATUS_CHANGE',
-  WORK_ORDER_CHANGE: 'WEBHOOK_WORK_ORDER_CHANGE',
-  WORK_ORDER_DELETE: 'WEBHOOK_WORK_ORDER_DELETE',
-  WORK_ORDER_OVERDUE: 'WEBHOOK_WORK_ORDER_OVERDUE',
-  WORK_ORDER_STATUS_CHANGE: 'WEBHOOK_WORK_ORDER_STATUS_CHANGE',
-  WORK_REQUEST_STATUS_CHANGE: 'WEBHOOK_WORK_REQUEST_STATUS_CHANGE'
-};
-
-const WO_FIELD_LABELS: Record<WOField, string> = {
-  ASSET: 'asset',
-  ASSIGNEES: 'assigned_to',
-  CATEGORY: 'category',
-  DESCRIPTION: 'description',
-  DUE_DATE: 'due_date',
-  ESTIMATED_DURATION: 'estimated_duration',
-  LOCATION: 'location',
-  PARTS: 'parts',
-  PRIORITY: 'priority',
-  TITLE: 'title',
-  TEAM: 'team',
-  CUSTOMERS: 'customers'
-};
-
-const PART_FIELD_LABELS: Record<PartField, string> = {
-  NAME: 'name',
-  COST: 'cost',
-  ASSIGNED_TO: 'assigned_to',
-  BARCODE: 'barcode',
-  DESCRIPTION: 'description',
-  CATEGORY: 'category',
-  QUANTITY: 'quantity',
-  AREA: 'area',
-  ADDITIONAL_INFOS: 'additional_information',
-  NON_STOCK: 'non_stock',
-  CUSTOMERS: 'customers',
-  VENDORS: 'vendors',
-  MIN_QUANTITY: 'min_quantity',
-  TEAMS: 'teams',
-  ASSETS: 'assets',
-  MULTI_PARTS: 'multi_parts',
-  UNIT: 'unit'
-};
-
 function Webhooks() {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
@@ -167,13 +109,8 @@ function Webhooks() {
     useState<WebhookEndpointShowDTO | null>(null);
   const [rotatingSecretId, setRotatingSecretId] = useState<number | null>(null);
 
-  const handleOpenCreateModal = () => {
-    setOpenCreateModal(true);
-  };
-
-  const handleCloseCreateModal = () => {
-    setOpenCreateModal(false);
-  };
+  const handleOpenCreateModal = () => setOpenCreateModal(true);
+  const handleCloseCreateModal = () => setOpenCreateModal(false);
 
   const handleCreateEndpoint = async (values: WebhookEndpointPostDTO) => {
     const result = await dispatch(addWebhookEndpoint(values));
@@ -223,10 +160,8 @@ function Webhooks() {
     dispatch(getCategories('work-order-categories'));
   }, []);
 
-  const allWoFields: WOField[] = Object.keys(WO_FIELD_LABELS) as WOField[];
-  const allPartFields: PartField[] = Object.keys(
-    PART_FIELD_LABELS
-  ) as PartField[];
+  const getEventLabel = (event: WebhookEvent) =>
+    t(getWebhookEventLabelKey(event));
 
   const columns: CustomDatagridColumn2<WebhookEndpointShowDTO>[] = [
     {
@@ -265,10 +200,7 @@ function Webhooks() {
     {
       header: t('webhook_endpoint_type'),
       accessorKey: 'event',
-      cell: (info) => {
-        const event = info.getValue() as WebhookEvent;
-        return event ? t(WEBHOOK_EVENT_LABELS[event]) : '-';
-      }
+      cell: (info) => getEventLabel(info.getValue() as WebhookEvent)
     },
     {
       header: t('webhook_endpoint_last_triggered'),
@@ -379,6 +311,7 @@ function Webhooks() {
               event: '' as WebhookEvent | '',
               assetStatuses: [] as string[],
               workOrderStatuses: [] as string[],
+              approved: null,
               workOrderCategories: [] as { id: number; name: string }[],
               woFields: [] as WOField[],
               partFields: [] as PartField[],
@@ -405,6 +338,8 @@ function Webhooks() {
                 EVENT_ASKS_ASSET_STATUSES.includes(selectedEvent);
               const showWoStatuses =
                 selectedEvent && EVENT_ASKS_WO_STATUSES.includes(selectedEvent);
+              const showWrApproved =
+                selectedEvent && EVENT_ASKS_WR_APPROVED.includes(selectedEvent);
               const showWoCategories =
                 selectedEvent &&
                 EVENT_ASKS_WO_CATEGORIES.includes(selectedEvent);
@@ -449,13 +384,9 @@ function Webhooks() {
                               />
                             }
                           >
-                            {(
-                              Object.keys(
-                                WEBHOOK_EVENT_LABELS
-                              ) as WebhookEvent[]
-                            ).map((event) => (
+                            {WEBHOOK_EVENTS.map((event) => (
                               <MenuItem key={event} value={event}>
-                                {t(WEBHOOK_EVENT_LABELS[event])}
+                                {getEventLabel(event)}
                               </MenuItem>
                             ))}
                           </Select>
@@ -464,156 +395,175 @@ function Webhooks() {
 
                       {/* Asset Statuses */}
                       {showAssetStatuses && (
-                          <Grid item xs={12}>
-                            <FormControl fullWidth>
-                              <InputLabel>
-                                {t('webhook_endpoint_asset_statuses')}
-                              </InputLabel>
-                              <Select
-                                multiple
-                                value={values.assetStatuses}
-                                onChange={(e) =>
-                                  setFieldValue('assetStatuses', e.target.value)
-                                }
-                                input={
-                                  <OutlinedInput
-                                    label={t('webhook_endpoint_asset_statuses')}
-                                  />
-                                }
-                                renderValue={(selected) => (
-                                  <Box
-                                    sx={{
-                                      display: 'flex',
-                                      flexWrap: 'wrap',
-                                      gap: 0.5
-                                    }}
-                                  >
-                                    {(selected as string[]).map((value) => (
-                                      <Chip key={value} label={t(value)} />
-                                    ))}
-                                  </Box>
-                                )}
-                              >
-                                {assetStatuses.map((s) => (
-                                  <MenuItem key={s.status} value={s.status}>
-                                    {t(s.status)}
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                            </FormControl>
-                          </Grid>
-                        )}
+                        <Grid item xs={12}>
+                          <FormControl fullWidth>
+                            <InputLabel>
+                              {t('webhook_endpoint_asset_statuses')}
+                            </InputLabel>
+                            <Select
+                              multiple
+                              value={values.assetStatuses}
+                              onChange={(e) =>
+                                setFieldValue('assetStatuses', e.target.value)
+                              }
+                              input={
+                                <OutlinedInput
+                                  label={t('webhook_endpoint_asset_statuses')}
+                                />
+                              }
+                              renderValue={(selected) => (
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    gap: 0.5
+                                  }}
+                                >
+                                  {(selected as string[]).map((value) => (
+                                    <Chip key={value} label={t(value)} />
+                                  ))}
+                                </Box>
+                              )}
+                            >
+                              {assetStatuses.map((s) => (
+                                <MenuItem key={s.status} value={s.status}>
+                                  {t(s.status)}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </Grid>
+                      )}
 
                       {/* Work Order Statuses */}
                       {showWoStatuses && (
-                          <Grid item xs={12}>
-                            <FormControl fullWidth>
-                              <InputLabel>
-                                {t('webhook_endpoint_wo_statuses')}
-                              </InputLabel>
-                              <Select
-                                multiple
-                                value={values.workOrderStatuses}
+                        <Grid item xs={12}>
+                          <FormControl fullWidth>
+                            <InputLabel>
+                              {t('webhook_endpoint_wo_statuses')}
+                            </InputLabel>
+                            <Select
+                              multiple
+                              value={values.workOrderStatuses}
+                              onChange={(e) =>
+                                setFieldValue(
+                                  'workOrderStatuses',
+                                  e.target.value
+                                )
+                              }
+                              input={
+                                <OutlinedInput
+                                  label={t('webhook_endpoint_wo_statuses')}
+                                />
+                              }
+                              renderValue={(selected) => (
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    gap: 0.5
+                                  }}
+                                >
+                                  {(selected as string[]).map((value) => (
+                                    <Chip key={value} label={t(value)} />
+                                  ))}
+                                </Box>
+                              )}
+                            >
+                              {[
+                                'OPEN',
+                                'IN_PROGRESS',
+                                'ON_HOLD',
+                                'COMPLETE'
+                              ].map((s) => (
+                                <MenuItem key={s} value={s}>
+                                  {t(s)}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </Grid>
+                      )}
+
+                      {/* Work Request Approved Checkbox */}
+                      {showWrApproved && (
+                        <Grid item xs={12}>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={values.approved}
                                 onChange={(e) =>
-                                  setFieldValue(
-                                    'workOrderStatuses',
-                                    e.target.value
-                                  )
+                                  setFieldValue('approved', e.target.checked)
                                 }
-                                input={
-                                  <OutlinedInput
-                                    label={t('webhook_endpoint_wo_statuses')}
-                                  />
-                                }
-                                renderValue={(selected) => (
-                                  <Box
-                                    sx={{
-                                      display: 'flex',
-                                      flexWrap: 'wrap',
-                                      gap: 0.5
-                                    }}
-                                  >
-                                    {(selected as string[]).map((value) => (
-                                      <Chip key={value} label={t(value)} />
-                                    ))}
-                                  </Box>
-                                )}
-                              >
-                                {[
-                                  'OPEN',
-                                  'IN_PROGRESS',
-                                  'ON_HOLD',
-                                  'COMPLETE'
-                                ].map((s) => (
-                                  <MenuItem key={s} value={s}>
-                                    {t(s)}
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                            </FormControl>
-                          </Grid>
-                        )}
+                              />
+                            }
+                            label={t(
+                              'webhook_endpoint_work_request_approved_only'
+                            )}
+                          />
+                          <FormHelperText>
+                            {t(
+                              'webhook_endpoint_work_request_approved_only_desc'
+                            )}
+                          </FormHelperText>
+                        </Grid>
+                      )}
 
                       {/* Work Order Categories */}
                       {showWoCategories && (
-                          <Grid item xs={12}>
-                            <FormControl fullWidth>
-                              <InputLabel>
-                                {t('webhook_endpoint_wo_categories')}
-                              </InputLabel>
-                              <Select
-                                multiple
-                                value={values.workOrderCategories.map(
-                                  (c) => c.id
-                                )}
-                                onChange={(e) => {
-                                  const selectedIds = e.target
-                                    .value as number[];
-                                  const selectedCategories =
-                                    categoryList.filter((c: Category) =>
-                                      selectedIds.includes(c.id)
+                        <Grid item xs={12}>
+                          <FormControl fullWidth>
+                            <InputLabel>
+                              {t('webhook_endpoint_wo_categories')}
+                            </InputLabel>
+                            <Select
+                              multiple
+                              value={values.workOrderCategories.map(
+                                (c) => c.id
+                              )}
+                              onChange={(e) => {
+                                const selectedIds = e.target.value as number[];
+                                const selectedCategories = categoryList.filter(
+                                  (c: Category) => selectedIds.includes(c.id)
+                                );
+                                setFieldValue(
+                                  'workOrderCategories',
+                                  selectedCategories
+                                );
+                              }}
+                              input={
+                                <OutlinedInput
+                                  label={t('webhook_endpoint_wo_categories')}
+                                />
+                              }
+                              renderValue={(selected) => (
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    gap: 0.5
+                                  }}
+                                >
+                                  {(selected as number[]).map((id) => {
+                                    const cat = categoryList.find(
+                                      (c: Category) => c.id === id
                                     );
-                                  setFieldValue(
-                                    'workOrderCategories',
-                                    selectedCategories
-                                  );
-                                }}
-                                input={
-                                  <OutlinedInput
-                                    label={t('webhook_endpoint_wo_categories')}
-                                  />
-                                }
-                                renderValue={(selected) => (
-                                  <Box
-                                    sx={{
-                                      display: 'flex',
-                                      flexWrap: 'wrap',
-                                      gap: 0.5
-                                    }}
-                                  >
-                                    {(selected as number[]).map((id) => {
-                                      const cat = categoryList.find(
-                                        (c: Category) => c.id === id
-                                      );
-                                      return (
-                                        <Chip
-                                          key={id}
-                                          label={cat?.name || id}
-                                        />
-                                      );
-                                    })}
-                                  </Box>
-                                )}
-                              >
-                                {categoryList.map((cat: Category) => (
-                                  <MenuItem key={cat.id} value={cat.id}>
-                                    {cat.name}
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                            </FormControl>
-                          </Grid>
-                        )}
+                                    return (
+                                      <Chip key={id} label={cat?.name || id} />
+                                    );
+                                  })}
+                                </Box>
+                              )}
+                            >
+                              {categoryList.map((cat: Category) => (
+                                <MenuItem key={cat.id} value={cat.id}>
+                                  {cat.name}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </Grid>
+                      )}
 
                       {/* WO Fields */}
                       {showWoFields && (
@@ -644,15 +594,18 @@ function Webhooks() {
                                   {(selected as WOField[]).map((value) => (
                                     <Chip
                                       key={value}
-                                      label={t(WO_FIELD_LABELS[value])}
+                                      label={t(
+                                        WO_FIELDS.find((f) => f.value === value)
+                                          ?.labelKey || value
+                                      )}
                                     />
                                   ))}
                                 </Box>
                               )}
                             >
-                              {allWoFields.map((field) => (
-                                <MenuItem key={field} value={field}>
-                                  {t(WO_FIELD_LABELS[field])}
+                              {WO_FIELDS.map((field) => (
+                                <MenuItem key={field.value} value={field.value}>
+                                  {t(field.labelKey)}
                                 </MenuItem>
                               ))}
                             </Select>
@@ -689,15 +642,19 @@ function Webhooks() {
                                   {(selected as PartField[]).map((value) => (
                                     <Chip
                                       key={value}
-                                      label={t(PART_FIELD_LABELS[value])}
+                                      label={t(
+                                        PART_FIELDS.find(
+                                          (f) => f.value === value
+                                        )?.labelKey || value
+                                      )}
                                     />
                                   ))}
                                 </Box>
                               )}
                             >
-                              {allPartFields.map((field) => (
-                                <MenuItem key={field} value={field}>
-                                  {t(PART_FIELD_LABELS[field])}
+                              {PART_FIELDS.map((field) => (
+                                <MenuItem key={field.value} value={field.value}>
+                                  {t(field.labelKey)}
                                 </MenuItem>
                               ))}
                             </Select>

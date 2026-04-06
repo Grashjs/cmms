@@ -128,26 +128,33 @@
                                  referencedColumnNames="id" onDelete="CASCADE"/>
 
         <!-- Drop and recreate FK: fk_we_asset_status_endpoint -->
-        <dropForeignKeyConstraint baseTableName="webhook_endpoint_asset_statuses" constraintName="fk_we_asset_status_endpoint"/>
+        <dropForeignKeyConstraint baseTableName="webhook_endpoint_asset_statuses"
+                                  constraintName="fk_we_asset_status_endpoint"/>
         <addForeignKeyConstraint baseTableName="webhook_endpoint_asset_statuses" baseColumnNames="webhook_endpoint_id"
                                  constraintName="fk_we_asset_status_endpoint" referencedTableName="webhook_endpoint"
                                  referencedColumnNames="id" onDelete="CASCADE"/>
 
         <!-- Drop and recreate FK: fk_we_wo_status_endpoint -->
-        <dropForeignKeyConstraint baseTableName="webhook_endpoint_work_order_statuses" constraintName="fk_we_wo_status_endpoint"/>
-        <addForeignKeyConstraint baseTableName="webhook_endpoint_work_order_statuses" baseColumnNames="webhook_endpoint_id"
+        <dropForeignKeyConstraint baseTableName="webhook_endpoint_work_order_statuses"
+                                  constraintName="fk_we_wo_status_endpoint"/>
+        <addForeignKeyConstraint baseTableName="webhook_endpoint_work_order_statuses"
+                                 baseColumnNames="webhook_endpoint_id"
                                  constraintName="fk_we_wo_status_endpoint" referencedTableName="webhook_endpoint"
                                  referencedColumnNames="id" onDelete="CASCADE"/>
 
         <!-- Drop and recreate FK: fk_wo_category_endpoint -->
-        <dropForeignKeyConstraint baseTableName="webhook_endpoint_work_order_categories" constraintName="fk_wo_category_endpoint"/>
-        <addForeignKeyConstraint baseTableName="webhook_endpoint_work_order_categories" baseColumnNames="webhook_endpoint_id"
+        <dropForeignKeyConstraint baseTableName="webhook_endpoint_work_order_categories"
+                                  constraintName="fk_wo_category_endpoint"/>
+        <addForeignKeyConstraint baseTableName="webhook_endpoint_work_order_categories"
+                                 baseColumnNames="webhook_endpoint_id"
                                  constraintName="fk_wo_category_endpoint" referencedTableName="webhook_endpoint"
                                  referencedColumnNames="id" onDelete="CASCADE"/>
 
         <!-- Drop and recreate FK: fk_wo_category_ref -->
-        <dropForeignKeyConstraint baseTableName="webhook_endpoint_work_order_categories" constraintName="fk_wo_category_ref"/>
-        <addForeignKeyConstraint baseTableName="webhook_endpoint_work_order_categories" baseColumnNames="work_order_categories_id"
+        <dropForeignKeyConstraint baseTableName="webhook_endpoint_work_order_categories"
+                                  constraintName="fk_wo_category_ref"/>
+        <addForeignKeyConstraint baseTableName="webhook_endpoint_work_order_categories"
+                                 baseColumnNames="work_order_categories_id"
                                  constraintName="fk_wo_category_ref" referencedTableName="work_order_category"
                                  referencedColumnNames="id" onDelete="CASCADE"/>
 
@@ -158,9 +165,15 @@
                                  referencedColumnNames="id" onDelete="CASCADE"/>
 
         <!-- Drop and recreate FK: fk_we_part_field_endpoint -->
-        <dropForeignKeyConstraint baseTableName="webhook_endpoint_part_fields" constraintName="fk_we_part_field_endpoint"/>
+        <dropForeignKeyConstraint baseTableName="webhook_endpoint_part_fields"
+                                  constraintName="fk_we_part_field_endpoint"/>
         <addForeignKeyConstraint baseTableName="webhook_endpoint_part_fields" baseColumnNames="webhook_endpoint_id"
                                  constraintName="fk_we_part_field_endpoint" referencedTableName="webhook_endpoint"
                                  referencedColumnNames="id" onDelete="CASCADE"/>
+    </changeSet>
+    <changeSet id="1775478048421-1" author="Ibrahima G. Coulibaly">
+        <addColumn tableName="webhook_endpoint">
+            <column name="approved" type="boolean"/>
+        </addColumn>
     </changeSet>
 </databaseChangeLog>

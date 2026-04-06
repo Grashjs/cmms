@@ -30,4 +30,6 @@ public class WebhookEndpointPatchDTO {
 
     private Collection<PartField> partFields;
 
+    private Boolean approved;
+
 }

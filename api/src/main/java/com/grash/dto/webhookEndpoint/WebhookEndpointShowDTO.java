@@ -2,6 +2,7 @@ package com.grash.dto.webhookEndpoint;
 
 import com.grash.dto.AuditShowDTO;
 import com.grash.model.WorkOrderCategory;
+import com.grash.model.enums.ApprovalStatus;
 import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.Status;
 import com.grash.model.enums.webhook.PartField;
@@ -36,5 +37,7 @@ public class WebhookEndpointShowDTO extends AuditShowDTO {
     private Collection<WOField> woFields;
 
     private Collection<PartField> partFields;
+
+    private Boolean approved;
 
 }
