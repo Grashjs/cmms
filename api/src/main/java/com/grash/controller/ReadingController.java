@@ -2,11 +2,14 @@ package com.grash.controller;
 
 import com.grash.dto.ReadingPatchDTO;
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.workOrder.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.WorkOrderMeterTriggerCondition;
+import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.service.*;
 import com.grash.utils.AuditComparator;
 import com.grash.utils.Helper;
@@ -38,6 +41,8 @@ public class ReadingController {
     private final NotificationService notificationService;
     private final WorkOrderService workOrderService;
     private final MessageSource messageSource;
+    private final WebhookDispatchService webhookDispatchService;
+    private final WorkOrderMapper workOrderMapper;
 
 
     @GetMapping("/meter/{id}")
@@ -91,7 +96,20 @@ public class ReadingController {
                             new Notification(message.toString(), user1, NotificationType.METER, meter.getId())
                     ).collect(Collectors.toList()), true, title);
                     WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(meterTrigger);
-                    workOrderService.create(workOrder, user.getCompany());
+                    WorkOrder createdWorkOrder = workOrderService.create(workOrder, user.getCompany());
+
+                    Map<String, Object> webhookPayload = new HashMap<>();
+                    webhookPayload.put("meterId", meter.getId());
+                    webhookPayload.put("meterName", meter.getName());
+                    webhookPayload.put("meterTriggerId", meterTrigger.getId());
+                    webhookPayload.put("meterTriggerName", meterTrigger.getName());
+                    webhookPayload.put("readingValue", readingReq.getValue());
+                    webhookPayload.put("triggerValue", meterTrigger.getValue());
+                    webhookPayload.put("triggerCondition", meterTrigger.getTriggerCondition().name());
+                    webhookPayload.put("workOrderId", createdWorkOrder.getId());
+                    webhookDispatchService.dispatchWebhook(user.getCompany(),
+                            WebhookEvent.METER_TRIGGER_STATUS_CHANGE, webhookPayload,
+                            "triggeredWorkOrder", createdWorkOrder, workOrderMapper::toShowDto);
                 }
             });
             return readingService.create(readingReq);

@@ -72,7 +72,7 @@ public class PartService {
             Map<String, Object> webhookPayload = new HashMap<>();
             webhookPayload.put("partId", patchedPart.getId());
             webhookDispatchService.dispatchWebhook(patchedPart.getCompany(), WebhookEvent.PART_CHANGE, webhookPayload,
-                    "changedPart", patchedPart, partMapper::toShowDto);
+                    "changedPart", patchedPart, partMapper::toShowDto, null, null, null, null, null);
             
             return patchedPart;
 

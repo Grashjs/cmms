@@ -5,7 +5,11 @@ import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.model.Company;
 import com.grash.model.WebhookEndpoint;
+import com.grash.model.WorkOrderCategory;
+import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.PlanFeatures;
+import com.grash.model.enums.Status;
+import com.grash.model.enums.webhook.PartField;
 import com.grash.model.enums.webhook.WOField;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.WebhookEndpointRepository;
@@ -24,6 +28,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +49,7 @@ public class WebhookDispatchService {
             T rawPayload,
             Function<T, Object> mapper
     ) {
-        dispatchWebhook(company, eventType, result, serializedField, rawPayload, mapper, null);
+        dispatchWebhook(company, eventType, result, serializedField, rawPayload, mapper, null, null, null, null, null);
     }
 
     @Async
@@ -57,6 +62,24 @@ public class WebhookDispatchService {
             Function<T, Object> mapper,
             Collection<WOField> changedFields
     ) {
+        dispatchWebhook(company, eventType, result, serializedField, rawPayload, mapper, changedFields, null, null,
+                null, null);
+    }
+
+    @Async
+    public <T> void dispatchWebhook(
+            Company company,
+            WebhookEvent eventType,
+            Map<String, Object> result,
+            String serializedField,
+            T rawPayload,
+            Function<T, Object> mapper,
+            Collection<WOField> changedFields,
+            AssetStatus assetStatus,
+            Status workOrderStatus,
+            Collection<WorkOrderCategory> workOrderCategories,
+            Collection<PartField> partFields
+    ) {
         if (!(licenseService.hasEntitlement(LicenseEntitlement.WEBHOOK) && company.getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.WEBHOOK)))
             return;
         List<WebhookEndpoint> endpoints = webhookEndpointRepository
@@ -64,13 +87,40 @@ public class WebhookDispatchService {
                 .stream()
                 .filter(endpoint -> endpoint.getEvent().equals(eventType))
                 .filter(endpoint -> {
-                    if (changedFields == null || changedFields.isEmpty()) {
-                        return true;
+                    if (changedFields != null && !changedFields.isEmpty()
+                            && endpoint.getWoFields() != null && !endpoint.getWoFields().isEmpty()) {
+                        if (changedFields.stream().noneMatch(endpoint.getWoFields()::contains)) {
+                            return false;
+                        }
                     }
-                    if (endpoint.getWoFields() == null || endpoint.getWoFields().isEmpty()) {
-                        return true;
+                    if (assetStatus != null
+                            && endpoint.getAssetStatuses() != null && !endpoint.getAssetStatuses().isEmpty()) {
+                        if (!endpoint.getAssetStatuses().contains(assetStatus)) {
+                            return false;
+                        }
                     }
-                    return changedFields.stream().anyMatch(endpoint.getWoFields()::contains);
+                    if (workOrderStatus != null
+                            && endpoint.getWorkOrderStatuses() != null && !endpoint.getWorkOrderStatuses().isEmpty()) {
+                        if (!endpoint.getWorkOrderStatuses().contains(workOrderStatus)) {
+                            return false;
+                        }
+                    }
+                    if (workOrderCategories != null && !workOrderCategories.isEmpty()
+                            && endpoint.getWorkOrderCategories() != null && !endpoint.getWorkOrderCategories().isEmpty()) {
+                        Set<Long> endpointCategoryIds = endpoint.getWorkOrderCategories().stream()
+                                .map(WorkOrderCategory::getId)
+                                .collect(Collectors.toSet());
+                        if (workOrderCategories.stream().noneMatch(cat -> endpointCategoryIds.contains(cat.getId()))) {
+                            return false;
+                        }
+                    }
+                    if (partFields != null && !partFields.isEmpty()
+                            && endpoint.getPartFields() != null && !endpoint.getPartFields().isEmpty()) {
+                        if (partFields.stream().noneMatch(endpoint.getPartFields()::contains)) {
+                            return false;
+                        }
+                    }
+                    return true;
                 })
                 .toList();
         result.put("occurredAt", new Date());
@@ -84,7 +134,6 @@ public class WebhookDispatchService {
 
             } catch (Exception e) {
                 log.error("Failed to send webhook to: {}", endpoint.getUrl(), e);
-                //TODO Consider implementing retry logic or dead letter queue
             }
         }
     }

@@ -136,6 +136,8 @@ public class WorkOrderService {
             if (savedWorkOrder.getFirstTimeToReact() == null) savedWorkOrder.setFirstTimeToReact(new Date());
 
             Collection<WOField> changedFields = detectPatchDTOChangedFields(savedWorkOrder, workOrder);
+            Long previousCategoryId = savedWorkOrder.getCategory() != null ? savedWorkOrder.getCategory().getId() :
+                    null;
 
             WorkOrder updatedWorkOrder =
                     workOrderRepository.saveAndFlush(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
@@ -145,6 +147,23 @@ public class WorkOrderService {
             webhookPayload.put("workOrderTitle", updatedWorkOrder.getTitle());
             webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.WORK_ORDER_CHANGE, webhookPayload,
                     "changedWorkOrder", updatedWorkOrder, workOrderMapper::toShowDto, changedFields);
+
+            Long newCategoryId = updatedWorkOrder.getCategory() != null ? updatedWorkOrder.getCategory().getId() : null;
+            if ((previousCategoryId == null && newCategoryId != null) ||
+                    (previousCategoryId != null && !previousCategoryId.equals(newCategoryId))) {
+                webhookPayload.put("previousCategoryId", previousCategoryId);
+                webhookPayload.put("newCategoryId", newCategoryId);
+                webhookPayload.put("newCategoryName", updatedWorkOrder.getCategory() != null ?
+                        updatedWorkOrder.getCategory().getName() : null);
+                WorkOrderCategory newCategory = updatedWorkOrder.getCategory();
+                Collection<WorkOrderCategory> categories = newCategory != null ?
+                        Collections.singletonList(newCategory) : Collections.emptyList();
+                webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.NEW_CATEGORY_ON_WORK_ORDER,
+                        webhookPayload,
+                        "changedWorkOrder", updatedWorkOrder, workOrderMapper::toShowDto, null, null, null,
+                        categories, null);
+            }
+
             return updatedWorkOrder;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -253,12 +272,16 @@ public class WorkOrderService {
     public List<WorkOrder> saveAll(List<WorkOrder> workOrders) {
         return workOrderRepository.saveAll(workOrders);
     }
-    
+
 
     @Transactional
     public WorkOrder saveAndFlushWithWebhook(WorkOrder workOrder, Company company, WorkOrder originalWorkOrder) {
         Collection<WOField> changedFields = detectChangedFieldsFromEntity(originalWorkOrder, workOrder);
         boolean statusChanged = !Objects.equals(originalWorkOrder.getStatus(), workOrder.getStatus());
+        Long originalCategoryId = originalWorkOrder.getCategory() != null ? originalWorkOrder.getCategory().getId() :
+                null;
+        Long newCategoryId = workOrder.getCategory() != null ? workOrder.getCategory().getId() : null;
+        boolean categoryChanged = !Objects.equals(originalCategoryId, newCategoryId);
         WorkOrder updatedWorkOrder = workOrderRepository.saveAndFlush(workOrder);
         em.refresh(updatedWorkOrder);
         Map<String, Object> webhookPayload = new HashMap<>();
@@ -266,15 +289,29 @@ public class WorkOrderService {
         webhookPayload.put("workOrderTitle", updatedWorkOrder.getTitle());
         webhookPayload.put("previousStatus", originalWorkOrder.getStatus());
         webhookPayload.put("newStatus", updatedWorkOrder.getStatus());
-        
+
         webhookDispatchService.dispatchWebhook(company, WebhookEvent.WORK_ORDER_CHANGE, webhookPayload,
                 "changedWorkOrder", updatedWorkOrder, workOrderMapper::toShowDto, changedFields);
-        
+
         if (statusChanged) {
             webhookDispatchService.dispatchWebhook(company, WebhookEvent.WORK_ORDER_STATUS_CHANGE, webhookPayload,
-                    "changedWorkOrder", updatedWorkOrder, workOrderMapper::toShowDto, changedFields);
+                    "changedWorkOrder", updatedWorkOrder, workOrderMapper::toShowDto, changedFields, null,
+                    updatedWorkOrder.getStatus(), null, null);
         }
-        
+
+        if (categoryChanged) {
+            webhookPayload.put("previousCategoryId", originalCategoryId);
+            webhookPayload.put("newCategoryId", newCategoryId);
+            webhookPayload.put("newCategoryName", updatedWorkOrder.getCategory() != null ?
+                    updatedWorkOrder.getCategory().getName() : null);
+            WorkOrderCategory newCategory = updatedWorkOrder.getCategory();
+            Collection<WorkOrderCategory> categories = newCategory != null ? Collections.singletonList(newCategory) :
+                    Collections.emptyList();
+            webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_CATEGORY_ON_WORK_ORDER, webhookPayload,
+                    "changedWorkOrder", updatedWorkOrder, workOrderMapper::toShowDto, changedFields, null, null,
+                    categories, null);
+        }
+
         return updatedWorkOrder;
     }
 

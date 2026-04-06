@@ -101,8 +101,14 @@ public class AssetService {
                     HttpStatus.FORBIDDEN);
         if (assetRepository.existsById(id)) {
             Asset savedAsset = assetRepository.findById(id).get();
+            AssetStatus previousStatus = savedAsset.getStatus();
             Asset patchedAsset = assetRepository.saveAndFlush(assetMapper.updateAsset(savedAsset, asset));
             em.refresh(patchedAsset);
+
+            if (!previousStatus.equals(patchedAsset.getStatus())) {
+                dispatchAssetStatusChangeWebhook(patchedAsset, previousStatus, patchedAsset.getStatus());
+            }
+
             return patchedAsset;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -198,8 +204,13 @@ public class AssetService {
             assetDowntimeService.save(runningDowntime);
         }
 
+        AssetStatus previousStatus = asset.getStatus();
         asset.setStatus(AssetStatus.OPERATIONAL);
         save(asset);
+
+        if (!previousStatus.equals(AssetStatus.OPERATIONAL)) {
+            dispatchAssetStatusChangeWebhook(asset, previousStatus, AssetStatus.OPERATIONAL);
+        }
     }
 
     private void recursivelyStopChildrenDowntime(Asset parentAsset) {
@@ -222,18 +233,22 @@ public class AssetService {
     public void triggerDownTime(Long id, Locale locale, AssetStatus status) {
         Date now = new Date();
         Asset asset = findById(id).get();
+        AssetStatus previousAssetStatus = asset.getStatus();
         createAssetDowntime(asset, now, asset.getCompany());
         Asset parentAsset = asset.getParentAsset();
         while (parentAsset != null) {
             createAssetDowntime(parentAsset, now, asset.getCompany());
             if (!parentAsset.getStatus().isReallyDown()) {
+                AssetStatus previousParentStatus = parentAsset.getStatus();
                 parentAsset.setStatus(status);
                 save(parentAsset);
+                dispatchAssetStatusChangeWebhook(parentAsset, previousParentStatus, status);
             }
             parentAsset = parentAsset.getParentAsset();
         }
         asset.setStatus(status);
         save(asset);
+        dispatchAssetStatusChangeWebhook(asset, previousAssetStatus, status);
         String message = messageSource.getMessage("notification_asset_down", new Object[]{asset.getName()}, locale);
         notify(asset, message, messageSource.getMessage("asset_status_change", null, locale));
 
@@ -487,6 +502,16 @@ public class AssetService {
     public double getTotalCost(Long assetId, Date start, Date end, Boolean includeLaborCost) {
         Collection<WorkOrder> workOrders = workOrderService.findByAssetAndCreatedAtBetween(assetId, start, end);
         return workOrderService.getAllCost(workOrders, includeLaborCost);
+    }
+
+    private void dispatchAssetStatusChangeWebhook(Asset asset, AssetStatus previousStatus, AssetStatus newStatus) {
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("assetId", asset.getId());
+        webhookPayload.put("assetName", asset.getName());
+        webhookPayload.put("previousStatus", previousStatus);
+        webhookPayload.put("newStatus", newStatus);
+        webhookDispatchService.dispatchWebhook(asset.getCompany(), WebhookEvent.ASSET_STATUS_CHANGE, webhookPayload,
+                "changedAsset", asset, a -> assetMapper.toShowDto(a, this), null, newStatus, null, null, null);
     }
 }
 
