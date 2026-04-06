@@ -76,7 +76,7 @@ const UserFeatureManagement: React.FC<UserFeatureManagementProps> = ({ userId, u
 
     try {
       await api.post(
-        `/api/user-features/user/{userId}/feature/{featureCode}?enabled=${enabled}`,
+        `api/user-features/user/{userId}/feature/{featureCode}?enabled=${enabled}`,
         null
       );
 
