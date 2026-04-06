@@ -140,7 +140,7 @@ paddle:
   environment: ${PADDLE_ENVIRONMENT:sandbox}
   webhook-secret-key: ${PADDLE_WEBHOOK_SECRET_KEY:}
 keygen:
-  product-token: ${KEYGEN_PRODUCT_TOKEN}
+  product-token: ${KEYGEN_PRODUCT_TOKEN:}
   account-id: 1ca3e517-f3d8-473f-a45c-81069900acb7
 sendgrid:
   api:
