@@ -14,6 +14,7 @@ import com.grash.model.*;
 import com.grash.model.abstracts.Cost;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.*;
+import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.repository.WorkOrderHistoryRepository;
 import com.grash.repository.WorkOrderRepository;
@@ -66,6 +67,7 @@ public class WorkOrderService {
     @Value("${frontend.url}")
     private String frontendUrl;
     private final LicenseService licenseService;
+    private WebhookDispatchService webhookDispatchService;
 
     @Autowired
     public void setDeps(@Lazy WorkflowService workflowService
@@ -93,7 +95,12 @@ public class WorkOrderService {
         Collection<Workflow> workflows =
                 workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_CREATED, company.getId());
         workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, savedWorkOrder));
-
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("occurredAt", new Date());
+        webhookPayload.put("companyId", company.getId());
+        webhookPayload.put("workOrderId", savedWorkOrder.getId());
+        webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_WORK_ORDER, webhookPayload,
+                "newWorkOrder", savedWorkOrder, workOrderMapper::toShowDto);
         return savedWorkOrder;
     }
 
@@ -472,5 +479,9 @@ public class WorkOrderService {
         return workOrderRepository.findByAssignedToUserAndCreatedAtBetween(id, start, end);
     }
 
+    @Autowired
+    public void setWebhookDispatchService(WebhookDispatchService webhookDispatchService) {
+        this.webhookDispatchService = webhookDispatchService;
+    }
 }
 
