@@ -7,6 +7,7 @@ import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.VendorMapper;
 import com.grash.model.Vendor;
+import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.VendorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -26,24 +29,18 @@ public class VendorService {
     private final VendorRepository vendorRepository;
     private final CompanyService companyService;
     private final VendorMapper vendorMapper;
-    private AssetService assetService;
-    private LocationService locationService;
-    private PartService partService;
     private final LicenseService licenseService;
-
-    @Autowired
-    public void setDeps(@Lazy PartService partService, @Lazy LocationService locationService,
-                        @Lazy AssetService assetService
-    ) {
-        this.partService = partService;
-        this.locationService = locationService;
-        this.assetService = assetService;
-    }
+    private final WebhookDispatchService webhookDispatchService;
 
     public Vendor create(Vendor Vendor) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.CUSTOMER_VENDOR))
             throw new CustomException("You need a license to create a vendor", HttpStatus.FORBIDDEN);
-        return vendorRepository.save(Vendor);
+        Vendor savedVendor = vendorRepository.save(Vendor);
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("vendorId", savedVendor.getId());
+        webhookDispatchService.dispatchWebhook(savedVendor.getCompany(), WebhookEvent.NEW_VENDOR, webhookPayload,
+                "newVendor", savedVendor, vendor -> vendor);
+        return savedVendor;
     }
 
     public Vendor update(Long id, VendorPatchDTO vendor) {

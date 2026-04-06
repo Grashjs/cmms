@@ -11,6 +11,7 @@ import com.grash.model.*;
 import com.grash.model.enums.PortalFieldType;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.RoleType;
+import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.FieldConfigurationRepository;
 import com.grash.repository.RequestRepository;
 import com.grash.utils.Helper;
@@ -46,6 +47,8 @@ public class RequestService {
     private final LicenseService licenseService;
     private final RequestPortalService requestPortalService;
     private final FieldConfigurationRepository fieldConfigurationRepository;
+    private final WebhookDispatchService webhookDispatchService;
+
 
     @Transactional
     public Request create(Request request, Company company) {
@@ -56,6 +59,10 @@ public class RequestService {
 
         Request savedRequest = requestRepository.saveAndFlush(request);
         em.refresh(savedRequest);
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("requestId", savedRequest.getId());
+        webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_REQUEST, webhookPayload,
+                "newRequest", savedRequest, requestMapper::toShowDto);
         return savedRequest;
     }
 
@@ -78,6 +85,10 @@ public class RequestService {
 
         Request savedRequest = requestRepository.saveAndFlush(request);
         em.refresh(savedRequest);
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("requestId", savedRequest.getId());
+        webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_REQUEST, webhookPayload,
+                "newRequest", savedRequest, requestMapper::toShowDto);
         return savedRequest;
     }
 

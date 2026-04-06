@@ -11,6 +11,7 @@ import com.grash.mapper.AssetMapper;
 import com.grash.model.*;
 import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.NotificationType;
+import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.AssetRepository;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
@@ -56,14 +57,17 @@ public class AssetService {
     private final MessageSource messageSource;
     private final CustomSequenceService customSequenceService;
     private final LicenseService licenseService;
+    private WebhookDispatchService webhookDispatchService;
 
     @Autowired
     public void setDeps(@Lazy LocationService locationService, @Lazy LaborService laborService,
-                        @Lazy WorkOrderService workOrderService
+                        @Lazy WorkOrderService workOrderService,
+                        @Lazy WebhookDispatchService webhookDispatchService
     ) {
         this.locationService = locationService;
         this.laborService = laborService;
         this.workOrderService = workOrderService;
+        this.webhookDispatchService = webhookDispatchService;
     }
 
     @Transactional
@@ -78,6 +82,10 @@ public class AssetService {
 
         Asset savedAsset = assetRepository.saveAndFlush(asset);
         em.refresh(savedAsset);
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("assetId", savedAsset.getId());
+        webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_ASSET, webhookPayload,
+                "newAsset", savedAsset, asset1 -> assetMapper.toShowDto(asset1, this));
         return savedAsset;
     }
 

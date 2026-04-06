@@ -10,6 +10,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.PartMapper;
 import com.grash.model.*;
 import com.grash.model.enums.NotificationType;
+import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.PartRepository;
 import com.grash.utils.AuditComparator;
 import com.grash.utils.Helper;
@@ -46,12 +47,18 @@ public class PartService {
     private final UserService userService;
     private final TeamService teamService;
     private final LicenseService licenseService;
+    private final WebhookDispatchService webhookDispatchService;
+
 
     @Transactional
     public Part create(Part Part, OwnUser user) {
         checkUsageBasedLimit(user.getCompany());
         Part savedPart = partRepository.saveAndFlush(Part);
         em.refresh(savedPart);
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("partId", savedPart.getId());
+        webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.NEW_PART, webhookPayload,
+                "newPart", savedPart, partMapper::toShowDto);
         return savedPart;
     }
 

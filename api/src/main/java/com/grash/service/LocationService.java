@@ -11,8 +11,10 @@ import com.grash.mapper.LocationMapper;
 import com.grash.model.*;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
+import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.LocationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,6 +47,7 @@ public class LocationService {
     private final FileService fileService;
     private final CustomSequenceService customSequenceService;
     private final LicenseService licenseService;
+    private final WebhookDispatchService webhookDispatchService;
 
     @Transactional
     public Location create(Location location, Company company) {
@@ -52,6 +56,10 @@ public class LocationService {
 
         Location savedLocation = locationRepository.saveAndFlush(location);
         em.refresh(savedLocation);
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("locationId", savedLocation.getId());
+        webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_LOCATION, webhookPayload,
+                "newLocation", savedLocation, location1 -> locationMapper.toShowDto(location1, this));
         return savedLocation;
     }
 
@@ -148,7 +156,8 @@ public class LocationService {
         return locationRepository.findByNameIgnoreCaseAndCompany_Id(locationName, companyId);
     }
 
-    public void importLocation(Location location, LocationImportDTO dto, Company company, Map<String, Location> locationsByName) {
+    public void importLocation(Location location, LocationImportDTO dto, Company company,
+                               Map<String, Location> locationsByName) {
         checkUsageBasedLimit(company);
         Long companyId = company.getId();
         location.setName(dto.getName());
