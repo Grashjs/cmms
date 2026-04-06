@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/user-features")
-@CrossOrigin(originPatterns = "*", allowCredentials = "true")
 @RequiredArgsConstructor
 public class UserFeatureController {
     
