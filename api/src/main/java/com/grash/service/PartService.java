@@ -10,6 +10,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.PartMapper;
 import com.grash.model.*;
 import com.grash.model.enums.NotificationType;
+import com.grash.model.enums.webhook.PartField;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.PartRepository;
 import com.grash.utils.AuditComparator;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityManager;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.grash.utils.Consts.usageBasedLicenseLimits;
@@ -66,14 +68,15 @@ public class PartService {
     public Part update(Long id, PartPatchDTO part) {
         if (partRepository.existsById(id)) {
             Part savedPart = partRepository.findById(id).get();
+            Collection<PartField> changedFields = detectPatchDTOChangedFields(savedPart, part);
             Part patchedPart = partRepository.saveAndFlush(partMapper.updatePart(savedPart, part));
             em.refresh(patchedPart);
-            
+
             Map<String, Object> webhookPayload = new HashMap<>();
             webhookPayload.put("partId", patchedPart.getId());
             webhookDispatchService.dispatchWebhook(patchedPart.getCompany(), WebhookEvent.PART_CHANGE, webhookPayload,
-                    "changedPart", patchedPart, partMapper::toShowDto, null, null, null, null, null);
-            
+                    "changedPart", patchedPart, partMapper::toShowDto, null, null, null, null, changedFields);
+
             return patchedPart;
 
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -256,6 +259,69 @@ public class PartService {
 
     public Optional<Part> findByBarcodeAndCompany(String barcode, Long companyId) {
         return partRepository.findByBarcodeAndCompany_Id(barcode, companyId);
+    }
+
+    private Collection<PartField> detectPatchDTOChangedFields(Part original, PartPatchDTO patchDTO) {
+        Collection<PartField> changedFields = new ArrayList<>();
+
+        if (patchDTO.getName() != null && !Objects.equals(original.getName(), patchDTO.getName())) {
+            changedFields.add(PartField.NAME);
+        }
+        if (patchDTO.getCost() != 0 && original.getCost() != patchDTO.getCost()) {
+            changedFields.add(PartField.COST);
+        }
+        if (patchDTO.getCategory() != null && !Objects.equals(
+                original.getCategory() != null ? original.getCategory().getId() : null,
+                patchDTO.getCategory().getId())) {
+            changedFields.add(PartField.CATEGORY);
+        }
+        if (patchDTO.isNonStock() != original.isNonStock()) {
+            changedFields.add(PartField.NON_STOCK);
+        }
+        if (patchDTO.getBarcode() != null && !Objects.equals(original.getBarcode(), patchDTO.getBarcode())) {
+            changedFields.add(PartField.BARCODE);
+        }
+        if (patchDTO.getDescription() != null && !Objects.equals(original.getDescription(), patchDTO.getDescription())) {
+            changedFields.add(PartField.DESCRIPTION);
+        }
+        if (patchDTO.getQuantity() != 0 && original.getQuantity() != patchDTO.getQuantity()) {
+            changedFields.add(PartField.QUANTITY);
+        }
+        if (patchDTO.getAdditionalInfos() != null && !Objects.equals(original.getAdditionalInfos(), patchDTO.getAdditionalInfos())) {
+            changedFields.add(PartField.ADDITIONAL_INFOS);
+        }
+        if (patchDTO.getArea() != null && !Objects.equals(original.getArea(), patchDTO.getArea())) {
+            changedFields.add(PartField.AREA);
+        }
+        if (patchDTO.getMinQuantity() != 0 && original.getMinQuantity() != patchDTO.getMinQuantity()) {
+            changedFields.add(PartField.MIN_QUANTITY);
+        }
+        if (patchDTO.getAssignedTo() != null && !collectionsMatch(original.getAssignedTo(), patchDTO.getAssignedTo(), OwnUser::getId)) {
+            changedFields.add(PartField.ASSIGNED_TO);
+        }
+        if (patchDTO.getCustomers() != null && !collectionsMatch(original.getCustomers(), patchDTO.getCustomers(), Customer::getId)) {
+            changedFields.add(PartField.CUSTOMERS);
+        }
+        if (patchDTO.getVendors() != null && !collectionsMatch(original.getVendors(), patchDTO.getVendors(), Vendor::getId)) {
+            changedFields.add(PartField.VENDORS);
+        }
+        if (patchDTO.getTeams() != null && !collectionsMatch(original.getTeams(), patchDTO.getTeams(), Team::getId)) {
+            changedFields.add(PartField.TEAMS);
+        }
+        if (patchDTO.getUnit() != null && !Objects.equals(original.getUnit(), patchDTO.getUnit())) {
+            changedFields.add(PartField.UNIT);
+        }
+
+        return changedFields;
+    }
+
+    private <T> boolean collectionsMatch(Collection<T> a, Collection<T> b, Function<T, Long> idExtractor) {
+        if (a == null && b == null) return true;
+        if (a == null || b == null) return false;
+        if (a.size() != b.size()) return false;
+        return a.stream().allMatch(aItem ->
+                b.stream().anyMatch(bItem ->
+                        idExtractor.apply(aItem).equals(idExtractor.apply(bItem))));
     }
 }
 
