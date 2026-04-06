@@ -58,7 +58,7 @@ const UserFeatureManagement: React.FC<UserFeatureManagementProps> = ({ userId, u
       setFeatures(featuresData);
 
       // Kullanıcının özelliklerini getir
-      const userData = await api.get<UserFeaturesResponse>(`/api/user-features/user/{userId}`);
+      const userData = await api.get<UserFeaturesResponse>(`api/user-features/user/{userId}`);
       setUserFeatures(userData.features);
       setHasCustomPermissions(userData.hasCustomPermissions);
     } catch (err) {
