@@ -54,7 +54,7 @@ const UserFeatureManagement: React.FC<UserFeatureManagementProps> = ({ userId, u
     setLoading(true);
     try {
       // Tüm özellikleri getir
-      const featuresData = await api.get<Feature[]>('/api/user-features/features');
+      const featuresData = await api.get<Feature[]>('api/user-features/features');
       setFeatures(featuresData);
 
       // Kullanıcının özelliklerini getir
@@ -105,7 +105,7 @@ const UserFeatureManagement: React.FC<UserFeatureManagementProps> = ({ userId, u
     setSuccess(null);
 
     try {
-      await api.deletes(`/api/user-features/user/{userId}/reset`);
+      await api.deletes(`api/user-features/user/{userId}/reset`);
       
       // Tüm özellikleri açık yap (varsayılan durum)
       const allEnabled: Record<string, boolean> = {};
