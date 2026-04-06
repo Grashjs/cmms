@@ -17,6 +17,7 @@ import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.service.*;
 import com.grash.utils.Helper;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.Data;
@@ -36,6 +37,8 @@ import jakarta.validation.Valid;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.bouncycastle.asn1.x500.style.RFC4519Style.description;
 
 @RestController
 @RequestMapping("/requests")
@@ -162,7 +165,7 @@ public class RequestController {
     @PostMapping("/portal/{requestPortalUuid}")
     RequestShowDTO createFromPortal(@Valid @RequestBody Request requestReq,
                                     @PathVariable("requestPortalUuid") String requestPortalUuid,
-                                    @RequestParam(value = "recaptchaToken", required = false) String recaptchaToken,
+                                    @RequestParam(value = "recaptchaToken", required = false) @Parameter (description = "RecaptchaToken value") String recaptchaToken ,
                                     HttpServletRequest req) {
         if (recaptchaSecretKey != null && !recaptchaSecretKey.isBlank()) {
             if (recaptchaToken == null || recaptchaToken.isBlank())
@@ -275,7 +278,7 @@ public class RequestController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public RequestShowDTO cancel(@PathVariable("id") Long id,
-                                 @RequestParam String reason,
+                                 @RequestParam @Parameter (description = "Reason of the request") String reason,
                                  HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Request> optionalRequest = requestService.findById(id);
