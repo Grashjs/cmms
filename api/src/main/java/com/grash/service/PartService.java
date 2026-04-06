@@ -111,8 +111,14 @@ public class PartService {
         return partRepository.findAll();
     }
 
-    public void delete(Long id) {
-        partRepository.deleteById(id);
+
+    @Transactional
+    public void delete(Part part) {
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("partId", part.getId());
+        webhookDispatchService.dispatchWebhook(part.getCompany(), WebhookEvent.PART_DELETE, webhookPayload,
+                "deletePart", part, partMapper::toShowDto);
+        partRepository.deleteById(part.getId());
     }
 
     public Optional<Part> findById(Long id) {

@@ -148,7 +148,7 @@ public class PartController {
         if (optionalPart.isPresent()) {
             Part savedPart = optionalPart.get();
             if (savedPart.getId().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
-                partService.delete(id);
+                partService.delete(savedPart);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
