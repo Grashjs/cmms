@@ -52,7 +52,7 @@ public class UserController {
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<UserResponseDTO>> search(@RequestBody SearchCriteria searchCriteria,
                                                         @Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                        @RequestParam(defaultValue = "true") boolean enabledOnly) {
+                                                        @RequestParam(defaultValue = "true") @Parameter (description = "show only enabled users") boolean enabledOnly) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 searchCriteria.filterCompany(user);
