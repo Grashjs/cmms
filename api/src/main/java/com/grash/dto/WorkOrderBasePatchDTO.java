@@ -12,32 +12,40 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
+@Schema(description = "Base DTO for patching work orders with common fields")
 public class WorkOrderBasePatchDTO {
 
+    @Schema(description = "Due date for the work order")
     private Date dueDate;
+    @Schema(description = "Priority level of the work order")
     private Priority priority = Priority.NONE;
+    @Schema(description = "Estimated duration to complete the work order (in hours)")
     private double estimatedDuration;
+    @Schema(description = "Estimated start date for the work order")
     private Date estimatedStartDate;
+    @Schema(description = "Detailed description of the work order", maxLength = 10000)
     private String description;
+    @Schema(description = "Title of the work order", requiredMode = Schema.RequiredMode.REQUIRED)
     private String title;
+    @Schema(description = "Whether a signature is required upon completion")
     private boolean requiredSignature;
-    @Schema(implementation = IdDTO.class)
+    @Schema(description = "Image attached to the work order", implementation = IdDTO.class)
     private File image;
-    @Schema(implementation = IdDTO.class)
+    @Schema(description = "Category/classification of the work order", implementation = IdDTO.class)
     private WorkOrderCategory category;
-    @Schema(implementation = IdDTO.class)
+    @Schema(description = "Location where the work is to be performed", implementation = IdDTO.class)
     private Location location;
 
-    @Schema(implementation = IdDTO.class)
+    @Schema(description = "Team assigned to the work order", implementation = IdDTO.class)
     private Team team;
-    @Schema(implementation = IdDTO.class)
+    @Schema(description = "Primary user responsible for the work order", implementation = IdDTO.class)
     private OwnUser primaryUser;
-    @ArraySchema(schema = @Schema(implementation = IdDTO.class))
+    @ArraySchema(arraySchema = @Schema(description = "List of users assigned to the work order"), schema = @Schema(implementation = IdDTO.class))
     private List<OwnUser> assignedTo;
-    @ArraySchema(schema = @Schema(implementation = IdDTO.class))
+    @ArraySchema(arraySchema = @Schema(description = "List of customers associated with the work order"), schema = @Schema(implementation = IdDTO.class))
     private List<Customer> customers;
-    @ArraySchema(schema = @Schema(implementation = IdDTO.class))
+    @ArraySchema(arraySchema = @Schema(description = "List of files attached to the work order"), schema = @Schema(implementation = IdDTO.class))
     private List<File> files;
-    @Schema(implementation = IdDTO.class)
+    @Schema(description = "Asset associated with the work order", implementation = IdDTO.class)
     private Asset asset;
 }
