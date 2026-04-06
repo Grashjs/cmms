@@ -11,9 +11,12 @@ import java.util.Date;
 
 @Data
 @NoArgsConstructor
+@Schema(description = "DTO for patching an existing work order")
 public class WorkOrderPatchDTO extends WorkOrderBasePatchDTO {
-    @Schema(implementation = IdDTO.class)
+    @Schema(description = "User who completed the work order", implementation = IdDTO.class)
     private OwnUser completedBy;
+    @Schema(description = "Date and time when the work order was completed")
     private Date completedOn;
+    @Schema(description = "Whether the work order is archived")
     private boolean archived;
 }
