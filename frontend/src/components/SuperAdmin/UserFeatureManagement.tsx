@@ -16,7 +16,7 @@ import {
   Chip,
   FormControlLabel,
 } from '@mui/material';
-import axios from 'axios';
+import api from 'src/utils/api';
 
 interface Feature {
   id: number;
@@ -27,11 +27,9 @@ interface Feature {
   isActive: boolean;
 }
 
-interface User {
-  id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
+interface UserFeaturesResponse {
+  features: Record<string, boolean>;
+  hasCustomPermissions: boolean;
 }
 
 interface UserFeatureManagementProps {
@@ -48,8 +46,6 @@ const UserFeatureManagement: React.FC<UserFeatureManagementProps> = ({ userId, u
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const API_URL = process.env.REACT_APP_API_URL || 'http://192.168.2.185:8080';
-
   useEffect(() => {
     fetchData();
   }, [userId]);
@@ -58,13 +54,13 @@ const UserFeatureManagement: React.FC<UserFeatureManagementProps> = ({ userId, u
     setLoading(true);
     try {
       // Tüm özellikleri getir
-      const featuresResponse = await axios.get(`${API_URL}/api/user-features/features`);
-      setFeatures(featuresResponse.data);
+      const featuresData = await api.get<Feature[]>('user-features/features');
+      setFeatures(featuresData);
 
       // Kullanıcının özelliklerini getir
-      const userResponse = await axios.get(`${API_URL}/api/user-features/user/${userId}`);
-      setUserFeatures(userResponse.data.features);
-      setHasCustomPermissions(userResponse.data.hasCustomPermissions);
+      const userData = await api.get<UserFeaturesResponse>(`user-features/user/${userId}`);
+      setUserFeatures(userData.features);
+      setHasCustomPermissions(userData.hasCustomPermissions);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError('Veriler yüklenirken hata oluştu');
@@ -79,10 +75,9 @@ const UserFeatureManagement: React.FC<UserFeatureManagementProps> = ({ userId, u
     setSuccess(null);
 
     try {
-      await axios.post(
-        `${API_URL}/api/user-features/user/${userId}/feature/${featureCode}`,
-        null,
-        { params: { enabled } }
+      await api.post(
+        `user-features/user/${userId}/feature/${featureCode}?enabled=${enabled}`,
+        null
       );
 
       setUserFeatures((prev) => ({
@@ -94,7 +89,7 @@ const UserFeatureManagement: React.FC<UserFeatureManagementProps> = ({ userId, u
       setSuccess('Özellik güncellendi');
     } catch (err: any) {
       console.error('Error updating feature:', err);
-      setError(err.response?.data?.message || 'Güncelleme başarısız');
+      setError('Güncelleme başarısız');
     } finally {
       setSaving(false);
     }
@@ -110,7 +105,7 @@ const UserFeatureManagement: React.FC<UserFeatureManagementProps> = ({ userId, u
     setSuccess(null);
 
     try {
-      await axios.delete(`${API_URL}/api/user-features/user/${userId}/reset`);
+      await api.deletes(`user-features/user/${userId}/reset`);
       
       // Tüm özellikleri açık yap (varsayılan durum)
       const allEnabled: Record<string, boolean> = {};
@@ -123,7 +118,7 @@ const UserFeatureManagement: React.FC<UserFeatureManagementProps> = ({ userId, u
       setSuccess('Kullanıcı varsayılan izinlere döndürüldü');
     } catch (err: any) {
       console.error('Error resetting permissions:', err);
-      setError(err.response?.data?.message || 'Sıfırlama başarısız');
+      setError('Sıfırlama başarısız');
     } finally {
       setSaving(false);
     }
