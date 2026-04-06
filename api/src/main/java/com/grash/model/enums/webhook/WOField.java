@@ -10,6 +10,7 @@ public enum WOField {
     LOCATION,
     PARTS,
     PRIORITY,
+    STATUS,
     TITLE,
     TEAM,
     CUSTOMERS

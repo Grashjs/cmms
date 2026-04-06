@@ -68,6 +68,12 @@ public class PartService {
             Part savedPart = partRepository.findById(id).get();
             Part patchedPart = partRepository.saveAndFlush(partMapper.updatePart(savedPart, part));
             em.refresh(patchedPart);
+            
+            Map<String, Object> webhookPayload = new HashMap<>();
+            webhookPayload.put("partId", patchedPart.getId());
+            webhookDispatchService.dispatchWebhook(patchedPart.getCompany(), WebhookEvent.PART_CHANGE, webhookPayload,
+                    "changedPart", patchedPart, partMapper::toShowDto);
+            
             return patchedPart;
 
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

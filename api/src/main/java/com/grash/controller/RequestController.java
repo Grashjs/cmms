@@ -12,6 +12,7 @@ import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
+import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.service.*;
 import com.grash.utils.Helper;
@@ -53,6 +54,7 @@ public class RequestController {
     private final MailServiceFactory mailServiceFactory;
     private final AssetService assetService;
     private final RequestPortalService requestPortalService;
+    private final WebhookDispatchService webhookDispatchService;
 
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -228,6 +230,16 @@ public class RequestController {
                 savedRequest.getAsset().setStatus(requestApproveDTO.getAssetStatus());
                 assetService.save(savedRequest.getAsset());
             }
+            
+            Map<String, Object> webhookPayload = new HashMap<>();
+            webhookPayload.put("requestId", savedRequest.getId());
+            webhookPayload.put("requestTitle", savedRequest.getTitle());
+            webhookPayload.put("previousStatus", "PENDING");
+            webhookPayload.put("newStatus", "APPROVED");
+            webhookPayload.put("workOrderId", result.getId());
+            webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.WORK_REQUEST_STATUS_CHANGE, webhookPayload,
+                    "changedRequest", savedRequest, requestMapper::toShowDto);
+            
             List<OwnUser> usersToMail =
                     userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
                             .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
@@ -283,6 +295,15 @@ public class RequestController {
                     workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_REJECTED,
                             user.getCompany().getId());
             workflows.forEach(workflow -> workflowService.runRequest(workflow, savedRequest));
+
+            Map<String, Object> webhookPayload = new HashMap<>();
+            webhookPayload.put("requestId", savedRequest.getId());
+            webhookPayload.put("requestTitle", savedRequest.getTitle());
+            webhookPayload.put("previousStatus", "PENDING");
+            webhookPayload.put("newStatus", "CANCELLED");
+            webhookPayload.put("cancellationReason", reason);
+            webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.WORK_REQUEST_STATUS_CHANGE, webhookPayload,
+                    "changedRequest", savedRequest, requestMapper::toShowDto);
 
             String title = messageSource.getMessage("request_rejected", null, Helper.getLocale(user));
             List<OwnUser> usersToMail =

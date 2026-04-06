@@ -258,13 +258,23 @@ public class WorkOrderService {
     @Transactional
     public WorkOrder saveAndFlushWithWebhook(WorkOrder workOrder, Company company, WorkOrder originalWorkOrder) {
         Collection<WOField> changedFields = detectChangedFieldsFromEntity(originalWorkOrder, workOrder);
+        boolean statusChanged = !Objects.equals(originalWorkOrder.getStatus(), workOrder.getStatus());
         WorkOrder updatedWorkOrder = workOrderRepository.saveAndFlush(workOrder);
         em.refresh(updatedWorkOrder);
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("workOrderId", updatedWorkOrder.getId());
         webhookPayload.put("workOrderTitle", updatedWorkOrder.getTitle());
+        webhookPayload.put("previousStatus", originalWorkOrder.getStatus());
+        webhookPayload.put("newStatus", updatedWorkOrder.getStatus());
+        
         webhookDispatchService.dispatchWebhook(company, WebhookEvent.WORK_ORDER_CHANGE, webhookPayload,
                 "changedWorkOrder", updatedWorkOrder, workOrderMapper::toShowDto, changedFields);
+        
+        if (statusChanged) {
+            webhookDispatchService.dispatchWebhook(company, WebhookEvent.WORK_ORDER_STATUS_CHANGE, webhookPayload,
+                    "changedWorkOrder", updatedWorkOrder, workOrderMapper::toShowDto, changedFields);
+        }
+        
         return updatedWorkOrder;
     }
 
@@ -594,6 +604,9 @@ public class WorkOrderService {
                 original.getTeam() != null ? original.getTeam().getId() : null,
                 updated.getTeam() != null ? updated.getTeam().getId() : null)) {
             changedFields.add(WOField.TEAM);
+        }
+        if (!Objects.equals(original.getStatus(), updated.getStatus())) {
+            changedFields.add(WOField.STATUS);
         }
         if (!collectionsMatch(original.getCustomers(), updated.getCustomers(), Customer::getId)) {
             changedFields.add(WOField.CUSTOMERS);
