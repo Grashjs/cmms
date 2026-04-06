@@ -29,7 +29,7 @@ public class WebhookEndpointController {
 
     @PostMapping
     public ResponseEntity<WebhookEndpointShowDTO> create(
-            @Parameter(hidden = true) OwnUser user,
+            @Parameter(hidden = true) @CurrentUser OwnUser user,
             @RequestBody WebhookEndpointPostDTO request) {
         WebhookEndpoint endpoint = webhookEndpointService.create(request, user);
         return ResponseEntity.ok(webhookEndpointMapper.toShowDto(endpoint));
@@ -37,7 +37,7 @@ public class WebhookEndpointController {
 
     @GetMapping
     public ResponseEntity<List<WebhookEndpointShowDTO>> listEndpoints(
-            @Parameter(hidden = true) OwnUser user) {
+            @Parameter(hidden = true) @CurrentUser OwnUser user) {
 
         List<WebhookEndpoint> endpoints = webhookEndpointService
                 .getActiveEndpointsByCompany(user.getCompany().getId());
@@ -49,7 +49,7 @@ public class WebhookEndpointController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<WebhookEndpointShowDTO> updateEndpoint(
-            @Parameter(hidden = true) OwnUser user,
+            @Parameter(hidden = true) @CurrentUser OwnUser user,
             @PathVariable Long id,
             @RequestBody WebhookEndpointPatchDTO request) {
 
@@ -59,7 +59,7 @@ public class WebhookEndpointController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<SuccessResponse> deleteEndpoint(
-            @Parameter(hidden = true) OwnUser user,
+            @Parameter(hidden = true) @CurrentUser OwnUser user,
             @PathVariable Long id) {
         Optional<WebhookEndpoint> optionalWebhookEndpoint = webhookEndpointService.findById(id);
         if (optionalWebhookEndpoint.isPresent()) {
@@ -72,7 +72,7 @@ public class WebhookEndpointController {
 
     @PatchMapping("/{id}/rotate-secret")
     public ResponseEntity<SuccessResponse> rotateSecret(
-            @Parameter(hidden = true) OwnUser user,
+            @Parameter(hidden = true) @CurrentUser OwnUser user,
             @PathVariable Long id) {
 
         String newSecret = webhookEndpointService.rotateSecret(
