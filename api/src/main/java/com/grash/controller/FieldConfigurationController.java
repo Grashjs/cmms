@@ -46,10 +46,15 @@ public class FieldConfigurationController {
 
         if (optionalFieldConfiguration.isPresent()) {
             FieldConfiguration savedFieldConfiguration = optionalFieldConfiguration.get();
+            CustomException forbidden = new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            if (savedFieldConfiguration.getWorkOrderConfiguration() != null && !savedFieldConfiguration.getWorkOrderConfiguration().getCompanySettings().getCompany().getId().equals(user.getCompany().getId()))
+                throw forbidden;
+            if (savedFieldConfiguration.getWorkOrderRequestConfiguration() != null && !savedFieldConfiguration.getWorkOrderRequestConfiguration().getCompanySettings().getCompany().getId().equals(user.getCompany().getId()))
+                throw forbidden;
             if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
                     && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.REQUEST_CONFIGURATION)) {
                 return fieldConfigurationService.update(id, fieldConfiguration);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            } else throw forbidden;
         } else throw new CustomException("FieldConfiguration not found", HttpStatus.NOT_FOUND);
     }
 
