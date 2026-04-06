@@ -10,7 +10,30 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
 
-            <!--            add columns here-->
+            <column name="url" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="secret" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enabled" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="serialize" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="event" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_triggered_at" type="TIMESTAMP"/>
+            <column name="asset_statuses" type="VARCHAR(255)"/>
+            <column name="work_order_statuses" type="VARCHAR(255)"/>
+            <column name="work_order_categories" type="VARCHAR(255)"/>
+            <column name="wo_fields" type="VARCHAR(255)"/>
+            <column name="part_fields" type="VARCHAR(255)"/>
+
+            <column name="company_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_webhook_endpoint_company" referencedTableName="company"
+                             referencedColumnNames="id"/>
+            </column>
 
             <column name="created_at" type="TIMESTAMP">
                 <constraints nullable="false"/>
@@ -21,5 +44,123 @@
             <column name="created_by" type="BIGINT"/>
             <column name="updated_by" type="BIGINT"/>
         </createTable>
+    </changeSet>
+    <changeSet id="1775471191924-1" author="Ibrahima G. Coulibaly">
+        <dropColumn tableName="webhook_endpoint" columnName="asset_statuses"/>
+        <dropColumn tableName="webhook_endpoint" columnName="work_order_statuses"/>
+        <dropColumn tableName="webhook_endpoint" columnName="work_order_categories"/>
+        <dropColumn tableName="webhook_endpoint" columnName="wo_fields"/>
+        <dropColumn tableName="webhook_endpoint" columnName="part_fields"/>
+        <createTable tableName="webhook_endpoint_asset_statuses">
+            <column name="webhook_endpoint_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_we_asset_status_endpoint"
+                             referencedTableName="webhook_endpoint" referencedColumnNames="id"/>
+            </column>
+            <column name="asset_status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="webhook_endpoint_work_order_statuses">
+            <column name="webhook_endpoint_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_we_wo_status_endpoint"
+                             referencedTableName="webhook_endpoint" referencedColumnNames="id"/>
+            </column>
+            <column name="status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="webhook_endpoint_work_order_categories">
+            <column name="webhook_endpoint_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_wo_category_endpoint"
+                             referencedTableName="webhook_endpoint" referencedColumnNames="id"/>
+            </column>
+            <column name="work_order_category_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_wo_category_ref"
+                             referencedTableName="work_order_category" referencedColumnNames="id"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="webhook_endpoint_wo_fields">
+            <column name="webhook_endpoint_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_we_wo_field_endpoint"
+                             referencedTableName="webhook_endpoint" referencedColumnNames="id"/>
+            </column>
+            <column name="wo_field" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="webhook_endpoint_part_fields">
+            <column name="webhook_endpoint_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_we_part_field_endpoint"
+                             referencedTableName="webhook_endpoint" referencedColumnNames="id"/>
+            </column>
+            <column name="part_field" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1775471391140-1" author="Ibrahima G. Coulibaly">
+        <renameColumn tableName="webhook_endpoint_asset_statuses" oldColumnName="asset_status"
+                      newColumnName="asset_statuses"/>
+        <renameColumn tableName="webhook_endpoint_work_order_statuses" oldColumnName="status"
+                      newColumnName="work_order_statuses"/>
+        <renameColumn tableName="webhook_endpoint_wo_fields" oldColumnName="wo_field"
+                      newColumnName="wo_fields"/>
+        <renameColumn tableName="webhook_endpoint_part_fields" oldColumnName="part_field"
+                      newColumnName="part_fields"/>
+    </changeSet>
+    <changeSet id="1775471818399-1" author="Ibrahima G. Coulibaly">
+        <renameColumn tableName="webhook_endpoint_work_order_categories" oldColumnName="work_order_category_id"
+                      newColumnName="work_order_categories_id"/>
+    </changeSet>
+    <changeSet id="1775471894270-1" author="Ibrahima G. Coulibaly">
+        <createSequence sequenceName="webhook_endpoint_seq" startValue="1" incrementBy="50"/>
+    </changeSet>
+
+    <changeSet id="2026_04_06_add_cascade_delete_to_foreign_keys" author="Ibrahima G. Coulibaly">
+        <!-- Drop and recreate FK: fk_webhook_endpoint_company -->
+        <dropForeignKeyConstraint baseTableName="webhook_endpoint" constraintName="fk_webhook_endpoint_company"/>
+        <addForeignKeyConstraint baseTableName="webhook_endpoint" baseColumnNames="company_id"
+                                 constraintName="fk_webhook_endpoint_company" referencedTableName="company"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <!-- Drop and recreate FK: fk_we_asset_status_endpoint -->
+        <dropForeignKeyConstraint baseTableName="webhook_endpoint_asset_statuses" constraintName="fk_we_asset_status_endpoint"/>
+        <addForeignKeyConstraint baseTableName="webhook_endpoint_asset_statuses" baseColumnNames="webhook_endpoint_id"
+                                 constraintName="fk_we_asset_status_endpoint" referencedTableName="webhook_endpoint"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <!-- Drop and recreate FK: fk_we_wo_status_endpoint -->
+        <dropForeignKeyConstraint baseTableName="webhook_endpoint_work_order_statuses" constraintName="fk_we_wo_status_endpoint"/>
+        <addForeignKeyConstraint baseTableName="webhook_endpoint_work_order_statuses" baseColumnNames="webhook_endpoint_id"
+                                 constraintName="fk_we_wo_status_endpoint" referencedTableName="webhook_endpoint"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <!-- Drop and recreate FK: fk_wo_category_endpoint -->
+        <dropForeignKeyConstraint baseTableName="webhook_endpoint_work_order_categories" constraintName="fk_wo_category_endpoint"/>
+        <addForeignKeyConstraint baseTableName="webhook_endpoint_work_order_categories" baseColumnNames="webhook_endpoint_id"
+                                 constraintName="fk_wo_category_endpoint" referencedTableName="webhook_endpoint"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <!-- Drop and recreate FK: fk_wo_category_ref -->
+        <dropForeignKeyConstraint baseTableName="webhook_endpoint_work_order_categories" constraintName="fk_wo_category_ref"/>
+        <addForeignKeyConstraint baseTableName="webhook_endpoint_work_order_categories" baseColumnNames="work_order_categories_id"
+                                 constraintName="fk_wo_category_ref" referencedTableName="work_order_category"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <!-- Drop and recreate FK: fk_we_wo_field_endpoint -->
+        <dropForeignKeyConstraint baseTableName="webhook_endpoint_wo_fields" constraintName="fk_we_wo_field_endpoint"/>
+        <addForeignKeyConstraint baseTableName="webhook_endpoint_wo_fields" baseColumnNames="webhook_endpoint_id"
+                                 constraintName="fk_we_wo_field_endpoint" referencedTableName="webhook_endpoint"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <!-- Drop and recreate FK: fk_we_part_field_endpoint -->
+        <dropForeignKeyConstraint baseTableName="webhook_endpoint_part_fields" constraintName="fk_we_part_field_endpoint"/>
+        <addForeignKeyConstraint baseTableName="webhook_endpoint_part_fields" baseColumnNames="webhook_endpoint_id"
+                                 constraintName="fk_we_part_field_endpoint" referencedTableName="webhook_endpoint"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
     </changeSet>
 </databaseChangeLog>
