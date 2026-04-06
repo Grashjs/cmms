@@ -78,7 +78,7 @@ public class AssetController {
 
     @GetMapping("/nfc")
     @PreAuthorize("permitAll()")
-    public AssetShowDTO getByNfcId(@RequestParam String nfcId,
+    public AssetShowDTO getByNfcId(@RequestParam @Parameter(description = "NFC identifier of the asset") String nfcId,
                                    @Parameter(hidden = true) @CurrentUser OwnUser user) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.NFC_BARCODE))
             throw new CustomException("You need a license to scan an asset", HttpStatus.FORBIDDEN);
@@ -88,7 +88,7 @@ public class AssetController {
 
     @GetMapping("/barcode")
     @PreAuthorize("permitAll()")
-    public AssetShowDTO getByBarcode(@RequestParam String data,
+    public AssetShowDTO getByBarcode(@RequestParam @Parameter(description = "Barcode of the asset") String data,
                                      @Parameter(hidden = true) @CurrentUser OwnUser user) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.NFC_BARCODE))
             throw new CustomException("You need a license to scan an asset", HttpStatus.FORBIDDEN);
@@ -248,7 +248,7 @@ public class AssetController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<AssetMiniDTO> getMini(@RequestParam(required = false) Long locationId, HttpServletRequest req) {
+    public Collection<AssetMiniDTO> getMini(@RequestParam(required = false) @Parameter(description = "Filter assets by location ID. If not provided, returns all assets") Long locationId, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         List<Asset> assets = new ArrayList<>();
         if (locationId == null) {
@@ -261,7 +261,7 @@ public class AssetController {
 
     @GetMapping("/public/mini/{portalUUID}")
     public Collection<AssetMiniDTO> getMiniPublic(@PathVariable String portalUUID,
-                                                  @RequestParam(required = false) Long locationId,
+                                                  @RequestParam(required = false) @Parameter(description = "Filter assets by location ID. If not provided, returns all assets for the portal") Long locationId,
                                                   HttpServletRequest req) {
         String clientIp = Helper.extractClientIp(req);
         if (!rateLimiterService.resolvePublicMiniBucket(clientIp).tryConsume(1)) {
