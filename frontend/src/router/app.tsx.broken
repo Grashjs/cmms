@@ -1,10 +1,8 @@
 import { lazy, Suspense } from 'react';
-import { useParams } from 'react-router-dom';
 
 import SuspenseLoader from 'src/components/SuspenseLoader';
 import analyticsRoutes from './analytics';
 import UserFeatureManagement from 'src/components/SuperAdmin/UserFeatureManagement';
-import id from 'date-fns/esm/locale/id/index.js';
 
 const Loader = (Component) => (props) =>
   (
@@ -115,13 +113,6 @@ const SuperAdminCompanies = Loader(
 const SuperAdminCompanyDetail = Loader(
   lazy(() => import('../content/own/SuperAdmin/CompanyDetail'))
 );
-
-const UserFeatureManagementWrapper = () => {
-  const { userId } = useParams();
-
-  return <UserFeatureManagement userId={Number(useParams().userId)} />;
-};
-
 const appRoutes = [
   {
     path: 'settings',
@@ -380,15 +371,20 @@ const appRoutes = [
       { path: 'preventive-maintenances', element: <Imports /> }
     ]
   },
-    { path: 'upgrade', element: <Upgrade /> },
+  { path: 'upgrade', element: <Upgrade /> },
   { path: 'downgrade', element: <Downgrade /> },
   { path: 'switch-account', element: <SwitchAccount /> },
   {
     path: 'superadmin',
     children: [
       { path: 'companies', element: <SuperAdminCompanies /> },
-      { path: 'companies/:id', element: <SuperAdminCompanyDetail /> },
-      { path: 'user-features/:userId', element: <UserFeatureManagementWrapper /> }
+      { path: 'path: 'superadmin',
+children: [
+  { path: 'companies', element: <SuperAdminCompanies /> },
+  { path: 'companies/:id', element: <SuperAdminCompanyDetail /> },
+  { path: 'user-features/:userId', element: <UserFeatureManagement /> }
+]
+companies/:id', element: <SuperAdminCompanyDetail /> }
     ]
   }
 ];
