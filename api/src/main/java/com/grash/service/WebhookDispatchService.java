@@ -12,6 +12,7 @@ import com.grash.model.enums.Status;
 import com.grash.model.enums.webhook.PartField;
 import com.grash.model.enums.webhook.WOField;
 import com.grash.model.enums.webhook.WebhookEvent;
+import com.grash.repository.CompanyRepository;
 import com.grash.repository.WebhookEndpointRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
 public class WebhookDispatchService {
 
     private final WebhookEndpointRepository webhookEndpointRepository;
+    private final CompanyRepository companyRepository;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper;
     private final LicenseService licenseService;
@@ -80,10 +82,14 @@ public class WebhookDispatchService {
             Collection<WorkOrderCategory> workOrderCategories,
             Collection<PartField> partFields
     ) {
-        if (!(licenseService.hasEntitlement(LicenseEntitlement.WEBHOOK) && company.getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.WEBHOOK)))
+        // Reload company in the async thread's session to avoid LazyInitializationException
+        Company managedCompany = companyRepository.findByIdWithSubscription(company.getId()).orElse(null);
+        if (managedCompany == null) return;
+
+        if (!(licenseService.hasEntitlement(LicenseEntitlement.WEBHOOK) && managedCompany.getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.WEBHOOK)))
             return;
         List<WebhookEndpoint> endpoints = webhookEndpointRepository
-                .findByCompanyIdAndEnabled(company.getId(), true)
+                .findByCompanyIdAndEnabled(managedCompany.getId(), true)
                 .stream()
                 .filter(endpoint -> endpoint.getEvent().equals(eventType))
                 .filter(endpoint -> {
@@ -124,7 +130,7 @@ public class WebhookDispatchService {
                 })
                 .toList();
         result.put("occurredAt", new Date());
-        result.put("companyId", company.getId());
+        result.put("companyId", managedCompany.getId());
         for (WebhookEndpoint endpoint : endpoints) {
             try {
                 result.put(serializedField, endpoint.isSerialize() ? mapper.apply(rawPayload) : null);

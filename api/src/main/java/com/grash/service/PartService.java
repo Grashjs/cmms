@@ -68,6 +68,7 @@ public class PartService {
     public Part update(Long id, PartPatchDTO part) {
         if (partRepository.existsById(id)) {
             Part savedPart = partRepository.findById(id).get();
+            double originalPartQuantity = savedPart.getQuantity();
             Collection<PartField> changedFields = detectPatchDTOChangedFields(savedPart, part);
             Part patchedPart = partRepository.saveAndFlush(partMapper.updatePart(savedPart, part));
             em.refresh(patchedPart);
@@ -76,6 +77,11 @@ public class PartService {
             webhookPayload.put("partId", patchedPart.getId());
             webhookDispatchService.dispatchWebhook(patchedPart.getCompany(), WebhookEvent.PART_CHANGE, webhookPayload,
                     "changedPart", patchedPart, partMapper::toShowDto, null, null, null, null, changedFields);
+
+            if (changedFields.contains(PartField.QUANTITY)) {
+                dispatchPartQuantityChangeWebhook(patchedPart, originalPartQuantity, patchedPart.getQuantity(),
+                        null, savedPart.getCompany());
+            }
 
             return patchedPart;
 
@@ -107,7 +113,8 @@ public class PartService {
             partConsumptionService.save(partConsumption);
 
             // Dispatch webhook for part quantity change (returning parts)
-            dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(), workOrder);
+            dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(), workOrder,
+                    workOrder.getCompany());
         } else {
             String message = messageSource.getMessage("notification_part_low", new Object[]{part.getName()}, locale);
             if (part.getQuantity() < part.getMinQuantity() && licenseService.hasEntitlement(LicenseEntitlement.LOW_STOCK_ALERTS)) {
@@ -119,7 +126,8 @@ public class PartService {
             partRepository.save(part);
 
             // Dispatch webhook for part quantity change (consuming parts)
-            dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(), workOrder);
+            dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(), workOrder,
+                    workOrder.getCompany());
         }
     }
 
@@ -292,7 +300,7 @@ public class PartService {
                 patchDTO.getDescription())) {
             changedFields.add(PartField.DESCRIPTION);
         }
-        if (patchDTO.getQuantity() != 0 && original.getQuantity() != patchDTO.getQuantity()) {
+        if (original.getQuantity() != patchDTO.getQuantity()) {
             changedFields.add(PartField.QUANTITY);
         }
         if (patchDTO.getAdditionalInfos() != null && !Objects.equals(original.getAdditionalInfos(),
@@ -337,7 +345,8 @@ public class PartService {
     }
 
     private void dispatchPartQuantityChangeWebhook(Part part, double previousQuantity, double newQuantity,
-                                                   WorkOrder workOrder) {
+                                                   WorkOrder workOrder, Company company) {
+        if (previousQuantity == newQuantity) return;
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("partId", part.getId());
         webhookPayload.put("partName", part.getName());
@@ -349,8 +358,8 @@ public class PartService {
             webhookPayload.put("workOrderTitle", workOrder.getTitle());
         }
         Collection<PartField> changedFields = Collections.singletonList(PartField.QUANTITY);
-        webhookDispatchService.dispatchWebhook(part.getCompany(), WebhookEvent.PART_QUANTITY_CHANGED, webhookPayload,
-                "changedPartQuantity", part, partMapper::toShowDto, null, null, null, null, changedFields);
+        webhookDispatchService.dispatchWebhook(company, WebhookEvent.PART_QUANTITY_CHANGED, webhookPayload,
+                "changedPart", part, partMapper::toShowDto, null, null, null, null, changedFields);
     }
 }
 
