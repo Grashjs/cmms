@@ -40,4 +40,6 @@ public class WebhookEndpointShowDTO extends AuditShowDTO {
 
     private Boolean approved;
 
+    private boolean serialize;
+
 }

@@ -104,6 +104,7 @@ function Webhooks() {
   const categoryList = categories['work-order-categories'] || [];
 
   const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [loadingCreate, setLoadingCreate] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [currentEndpoint, setCurrentEndpoint] =
     useState<WebhookEndpointShowDTO | null>(null);
@@ -113,10 +114,15 @@ function Webhooks() {
   const handleCloseCreateModal = () => setOpenCreateModal(false);
 
   const handleCreateEndpoint = async (values: WebhookEndpointPostDTO) => {
-    const result = await dispatch(addWebhookEndpoint(values));
-    if (result) {
-      showSnackBar(t('webhook_endpoint_created_success'), 'success');
-      handleCloseCreateModal();
+    setLoadingCreate(true);
+    try {
+      const result = await dispatch(addWebhookEndpoint(values));
+      if (result) {
+        showSnackBar(t('webhook_endpoint_created_success'), 'success');
+        handleCloseCreateModal();
+      }
+    } finally {
+      setLoadingCreate(false);
     }
   };
 
@@ -315,7 +321,7 @@ function Webhooks() {
               workOrderCategories: [] as { id: number; name: string }[],
               woFields: [] as WOField[],
               partFields: [] as PartField[],
-              serialize: true
+              serialize: false
             }}
             validationSchema={Yup.object({
               url: Yup.string()
@@ -691,8 +697,16 @@ function Webhooks() {
                       >
                         {t('cancel')}
                       </Button>
-                      <Button type="submit" variant="contained">
-                        {t('create')}
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        disabled={loadingCreate}
+                      >
+                        {loadingCreate ? (
+                          <CircularProgress size={24} color="inherit" />
+                        ) : (
+                          t('create')
+                        )}
                       </Button>
                     </Box>
                   </Box>

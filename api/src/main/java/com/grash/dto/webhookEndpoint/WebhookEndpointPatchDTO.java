@@ -30,6 +30,9 @@ public class WebhookEndpointPatchDTO {
 
     private Collection<PartField> partFields;
 
+    private boolean serialize = false;
+    
+
     private Boolean approved;
 
 }

@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
   Grid,
   Slide,
@@ -65,6 +66,7 @@ function ApiKeys() {
   const { apiKeys, loadingGet } = useSelector((state) => state.apiKeys);
   const { getFormattedDate } = useContext(CompanySettingsContext);
   const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [loadingCreate, setLoadingCreate] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [currentApiKey, setCurrentApiKey] = useState<ApiKey | null>(null);
   const [pageable, setPageable] = useState<Pageable>({
@@ -90,11 +92,16 @@ function ApiKeys() {
   };
 
   const handleCreateApiKey = async (values: ApiKeyPostDTO) => {
-    const result = await dispatch(addApiKey(values));
-    if (result) {
-      setCreatedApiKeyCode(result.code || null);
-      setShowCode(true);
-      showSnackBar(t('api_key_created_success'), 'success');
+    setLoadingCreate(true);
+    try {
+      const result = await dispatch(addApiKey(values));
+      if (result) {
+        setCreatedApiKeyCode(result.code || null);
+        setShowCode(true);
+        showSnackBar(t('api_key_created_success'), 'success');
+      }
+    } finally {
+      setLoadingCreate(false);
     }
   };
 
@@ -250,8 +257,16 @@ function ApiKeys() {
                       >
                         {t('cancel')}
                       </Button>
-                      <Button type="submit" variant="contained">
-                        {t('create')}
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        disabled={loadingCreate}
+                      >
+                        {loadingCreate ? (
+                          <CircularProgress size={24} color="inherit" />
+                        ) : (
+                          t('create')
+                        )}
                       </Button>
                     </Box>
                   </Box>

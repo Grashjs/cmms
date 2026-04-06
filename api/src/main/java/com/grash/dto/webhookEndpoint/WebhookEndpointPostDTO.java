@@ -32,4 +32,7 @@ public class WebhookEndpointPostDTO {
 
     private Boolean approved;//request
 
+    private boolean serialize = false;
+    
+
 }
