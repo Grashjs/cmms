@@ -385,7 +385,7 @@ public class WorkOrderController {
                                 .toArray(String[]::new), title, mailVariables, "deleted-work-order.html",
                         Helper.getLocale(user), null);
 
-                workOrderService.delete(id);
+                workOrderService.delete(savedWorkOrder, user.getCompany());
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);

@@ -143,8 +143,14 @@ public class WorkOrderService {
         return workOrderRepository.findAll();
     }
 
-    public void delete(Long id) {
-        workOrderRepository.deleteById(id);
+    @Transactional
+    public void delete(WorkOrder workOrder, Company company) {
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("workOrderId", workOrder.getId());
+        webhookPayload.put("workOrderTitle", workOrder.getTitle());
+        webhookDispatchService.dispatchWebhook(company, WebhookEvent.WORK_ORDER_DELETE, webhookPayload,
+                "deleteWorkOrder", workOrder, workOrderMapper::toShowDto);
+        workOrderRepository.deleteById(workOrder.getId());
     }
 
     public Optional<WorkOrder> findById(Long id) {
