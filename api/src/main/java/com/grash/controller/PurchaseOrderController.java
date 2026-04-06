@@ -225,7 +225,7 @@ public class PurchaseOrderController {
         webhookPayload.put("partQuantityId", partQuantity.getId());
         Collection<PartField> changedFields = Collections.singletonList(PartField.QUANTITY);
         webhookDispatchService.dispatchWebhook(company, WebhookEvent.PART_QUANTITY_CHANGED, webhookPayload,
-                "changedPartQuantity", part, partMapper::toShowDto, null, null, null, null, changedFields);
+                "changedPart", part, partMapper::toShowDto, null, null, null, null, changedFields);
     }
 }
 
