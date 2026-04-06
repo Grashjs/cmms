@@ -58,7 +58,7 @@ const UserFeatureManagement: React.FC<UserFeatureManagementProps> = ({ userId, u
       setFeatures(featuresData);
 
       // Kullanıcının özelliklerini getir
-      const userData = await api.get<UserFeaturesResponse>(`api/user-features/user/{userId}`);
+      const userData = await api.get<UserFeaturesResponse>(`api/user-features/user/${userId}`);
       setUserFeatures(userData.features);
       setHasCustomPermissions(userData.hasCustomPermissions);
     } catch (err) {
@@ -76,7 +76,7 @@ const UserFeatureManagement: React.FC<UserFeatureManagementProps> = ({ userId, u
 
     try {
       await api.post(
-        `api/user-features/user/{userId}/feature/{featureCode}?enabled=${enabled}`,
+        `api/user-features/user/${userId}/feature/${featureCode}?enabled=${enabled}`,
         null
       );
 
@@ -105,7 +105,7 @@ const UserFeatureManagement: React.FC<UserFeatureManagementProps> = ({ userId, u
     setSuccess(null);
 
     try {
-      await api.deletes(`api/user-features/user/{userId}/reset`);
+      await api.deletes(`api/user-features/user/${userId}/reset`);
       
       // Tüm özellikleri açık yap (varsayılan durum)
       const allEnabled: Record<string, boolean> = {};
