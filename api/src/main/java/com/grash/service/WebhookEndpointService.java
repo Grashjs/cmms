@@ -34,6 +34,8 @@ public class WebhookEndpointService {
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures()
                 .contains(PlanFeatures.WEBHOOK)))
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        if (webhookEndpointReq.getEvent().name().contains("_CHANGE"))
+            webhookEndpointReq.setSerialize(true);
         WebhookEndpoint webhookEndpoint = webhookEndpointMapper.fromPostDto(webhookEndpointReq);
         webhookEndpoint.setSecret(generateWebhookSecret());
         return webhookEndpointRepository.save(webhookEndpoint);

@@ -14,6 +14,7 @@ import com.grash.model.*;
 import com.grash.model.abstracts.Cost;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.*;
+import com.grash.model.enums.webhook.WOField;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.repository.WorkOrderHistoryRepository;
@@ -37,6 +38,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.JoinType;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.grash.utils.Consts.usageBasedLicenseLimits;
@@ -132,9 +134,17 @@ public class WorkOrderService {
         if (workOrderRepository.existsById(id)) {
             WorkOrder savedWorkOrder = workOrderRepository.findById(id).get();
             if (savedWorkOrder.getFirstTimeToReact() == null) savedWorkOrder.setFirstTimeToReact(new Date());
+
+            Collection<WOField> changedFields = detectPatchDTOChangedFields(savedWorkOrder, workOrder);
+
             WorkOrder updatedWorkOrder =
                     workOrderRepository.saveAndFlush(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
             em.refresh(updatedWorkOrder);
+            Map<String, Object> webhookPayload = new HashMap<>();
+            webhookPayload.put("workOrderId", updatedWorkOrder.getId());
+            webhookPayload.put("workOrderTitle", updatedWorkOrder.getTitle());
+            webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.WORK_ORDER_CHANGE, webhookPayload,
+                    "changedWorkOrder", updatedWorkOrder, workOrderMapper::toShowDto, changedFields);
             return updatedWorkOrder;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -243,10 +253,18 @@ public class WorkOrderService {
     public List<WorkOrder> saveAll(List<WorkOrder> workOrders) {
         return workOrderRepository.saveAll(workOrders);
     }
+    
 
-    public WorkOrder saveAndFlush(WorkOrder workOrder) {
+    @Transactional
+    public WorkOrder saveAndFlushWithWebhook(WorkOrder workOrder, Company company, WorkOrder originalWorkOrder) {
+        Collection<WOField> changedFields = detectChangedFieldsFromEntity(originalWorkOrder, workOrder);
         WorkOrder updatedWorkOrder = workOrderRepository.saveAndFlush(workOrder);
         em.refresh(updatedWorkOrder);
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("workOrderId", updatedWorkOrder.getId());
+        webhookPayload.put("workOrderTitle", updatedWorkOrder.getTitle());
+        webhookDispatchService.dispatchWebhook(company, WebhookEvent.WORK_ORDER_CHANGE, webhookPayload,
+                "changedWorkOrder", updatedWorkOrder, workOrderMapper::toShowDto, changedFields);
         return updatedWorkOrder;
     }
 
@@ -487,5 +505,109 @@ public class WorkOrderService {
     public void setWebhookDispatchService(WebhookDispatchService webhookDispatchService) {
         this.webhookDispatchService = webhookDispatchService;
     }
-}
 
+    private Collection<WOField> detectPatchDTOChangedFields(WorkOrder original, WorkOrderPatchDTO patch) {
+        Collection<WOField> changedFields = new ArrayList<>();
+
+        if (!Objects.equals(
+                patch.getAsset() != null ? patch.getAsset().getId() : null,
+                original.getAsset() != null ? original.getAsset().getId() : null)) {
+            changedFields.add(WOField.ASSET);
+        }
+        if (!collectionsMatch(patch.getAssignedTo(), original.getAssignedTo(), OwnUser::getId)) {
+            changedFields.add(WOField.ASSIGNEES);
+        }
+        if (!Objects.equals(
+                patch.getCategory() != null ? patch.getCategory().getId() : null,
+                original.getCategory() != null ? original.getCategory().getId() : null)) {
+            changedFields.add(WOField.CATEGORY);
+        }
+        if (!Objects.equals(patch.getDescription(), original.getDescription())) {
+            changedFields.add(WOField.DESCRIPTION);
+        }
+        if (!Objects.equals(patch.getDueDate(), original.getDueDate())) {
+            changedFields.add(WOField.DUE_DATE);
+        }
+        if (!Objects.equals(patch.getEstimatedDuration(), original.getEstimatedDuration())) {
+            changedFields.add(WOField.ESTIMATED_DURATION);
+        }
+        if (!Objects.equals(
+                patch.getLocation() != null ? patch.getLocation().getId() : null,
+                original.getLocation() != null ? original.getLocation().getId() : null)) {
+            changedFields.add(WOField.LOCATION);
+        }
+        if (!Objects.equals(patch.getPriority(), original.getPriority())) {
+            changedFields.add(WOField.PRIORITY);
+        }
+        if (!Objects.equals(patch.getTitle(), original.getTitle())) {
+            changedFields.add(WOField.TITLE);
+        }
+        if (!Objects.equals(
+                patch.getTeam() != null ? patch.getTeam().getId() : null,
+                original.getTeam() != null ? original.getTeam().getId() : null)) {
+            changedFields.add(WOField.TEAM);
+        }
+        if (!collectionsMatch(patch.getCustomers(), original.getCustomers(), Customer::getId)) {
+            changedFields.add(WOField.CUSTOMERS);
+        }
+
+        return changedFields;
+    }
+
+    private Collection<WOField> detectChangedFieldsFromEntity(WorkOrder original, WorkOrder updated) {
+        Collection<WOField> changedFields = new ArrayList<>();
+
+        if (!Objects.equals(
+                original.getAsset() != null ? original.getAsset().getId() : null,
+                updated.getAsset() != null ? updated.getAsset().getId() : null)) {
+            changedFields.add(WOField.ASSET);
+        }
+        if (!collectionsMatch(original.getAssignedTo(), updated.getAssignedTo(), OwnUser::getId)) {
+            changedFields.add(WOField.ASSIGNEES);
+        }
+        if (!Objects.equals(
+                original.getCategory() != null ? original.getCategory().getId() : null,
+                updated.getCategory() != null ? updated.getCategory().getId() : null)) {
+            changedFields.add(WOField.CATEGORY);
+        }
+        if (!Objects.equals(original.getDescription(), updated.getDescription())) {
+            changedFields.add(WOField.DESCRIPTION);
+        }
+        if (!Objects.equals(original.getDueDate(), updated.getDueDate())) {
+            changedFields.add(WOField.DUE_DATE);
+        }
+        if (original.getEstimatedDuration() != updated.getEstimatedDuration()) {
+            changedFields.add(WOField.ESTIMATED_DURATION);
+        }
+        if (!Objects.equals(
+                original.getLocation() != null ? original.getLocation().getId() : null,
+                updated.getLocation() != null ? updated.getLocation().getId() : null)) {
+            changedFields.add(WOField.LOCATION);
+        }
+        if (!Objects.equals(original.getPriority(), updated.getPriority())) {
+            changedFields.add(WOField.PRIORITY);
+        }
+        if (!Objects.equals(original.getTitle(), updated.getTitle())) {
+            changedFields.add(WOField.TITLE);
+        }
+        if (!Objects.equals(
+                original.getTeam() != null ? original.getTeam().getId() : null,
+                updated.getTeam() != null ? updated.getTeam().getId() : null)) {
+            changedFields.add(WOField.TEAM);
+        }
+        if (!collectionsMatch(original.getCustomers(), updated.getCustomers(), Customer::getId)) {
+            changedFields.add(WOField.CUSTOMERS);
+        }
+
+        return changedFields;
+    }
+
+    private <T> boolean collectionsMatch(Collection<T> a, Collection<T> b, Function<T, Long> idExtractor) {
+        if (a == null && b == null) return true;
+        if (a == null || b == null) return false;
+        if (a.size() != b.size()) return false;
+        return a.stream().allMatch(aItem ->
+                b.stream().anyMatch(bItem ->
+                        idExtractor.apply(bItem).equals(idExtractor.apply(aItem))));
+    }
+}

@@ -270,43 +270,48 @@ public class WorkOrderController {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         WorkOrder savedWorkOrder = optionalWorkOrder.get();
-        if (savedWorkOrder.getFirstTimeToReact() == null && !workOrder.getStatus().equals(Status.ON_HOLD))
-            savedWorkOrder.setFirstTimeToReact(new Date());
-        Status savedWorkOrderStatusBefore = savedWorkOrder.getStatus();
+        em.detach(savedWorkOrder); // detach FIRST
+        WorkOrder originalWorkOrder = savedWorkOrder;
+        WorkOrder mutableWO = workOrderService.findById(id).get(); // fresh managed copy
+
+        if (mutableWO.getFirstTimeToReact() == null && !workOrder.getStatus().equals(Status.ON_HOLD))
+            mutableWO.setFirstTimeToReact(new Date());
+        Status savedWorkOrderStatusBefore = mutableWO.getStatus();
 
         if (workOrder.getStatus() == null) throw new CustomException("Status can't be null", HttpStatus.NOT_ACCEPTABLE);
         if (workOrder.getSignature() != null && !licenseService.hasEntitlement(LicenseEntitlement.SIGNATURE_CAPTURE))
             throw new CustomException("You need a license to add signature to work order",
                     HttpStatus.FORBIDDEN);
-        savedWorkOrder.setSignature(workOrder.getSignature());
-        savedWorkOrder.setStatus(workOrder.getStatus());
-        savedWorkOrder.setFeedback(workOrder.getFeedback());
+        mutableWO.setSignature(workOrder.getSignature());
+        mutableWO.setStatus(workOrder.getStatus());
+        mutableWO.setFeedback(workOrder.getFeedback());
 
         if (workOrder.getStatus() != Status.COMPLETE) {
-            savedWorkOrder.setCompletedOn(null);
-            savedWorkOrder.setCompletedBy(null);
+            mutableWO.setCompletedOn(null);
+            mutableWO.setCompletedBy(null);
         }
-        if (savedWorkOrder.canBeEditedBy(user) && (workOrder.getSignature() == null ||
+        if (mutableWO.canBeEditedBy(user) && (workOrder.getSignature() == null ||
                 user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE))) {
             if (!workOrder.getStatus().equals(Status.IN_PROGRESS)) {
                 if (workOrder.getStatus().equals(Status.COMPLETE)) {
-                    savedWorkOrder.setCompletedBy(user);
-                    savedWorkOrder.setCompletedOn(new Date());
-                    if (savedWorkOrder.getAsset() != null) {
-                        Asset asset = savedWorkOrder.getAsset();
+                    mutableWO.setCompletedBy(user);
+                    mutableWO.setCompletedOn(new Date());
+                    if (mutableWO.getAsset() != null) {
+                        Asset asset = mutableWO.getAsset();
                         Collection<WorkOrder> workOrdersOfSameAsset = workOrderService.findByAsset(asset.getId());
                         if (workOrdersOfSameAsset.stream().noneMatch(workOrder1 -> !workOrder1.getId().equals(id) && !workOrder1.getStatus().equals(Status.COMPLETE))) {
                             assetService.stopDownTime(asset.getId(), Helper.getLocale(user));
                         }
                     }
-                    if (savedWorkOrder.getParentPreventiveMaintenance() != null)
-                        scheduleService.scheduleNextWorkOrderJobAfterCompletion(savedWorkOrder.getParentPreventiveMaintenance().getSchedule().getId(), savedWorkOrder.getCompletedOn());
+                    if (mutableWO.getParentPreventiveMaintenance() != null)
+                        scheduleService.scheduleNextWorkOrderJobAfterCompletion(mutableWO.getParentPreventiveMaintenance().getSchedule().getId(), mutableWO.getCompletedOn());
                 }
                 Collection<Labor> labors = laborService.findByWorkOrder(id);
                 Collection<Labor> primaryTimes = labors.stream().filter(Labor::isLogged).collect(Collectors.toList());
                 primaryTimes.forEach(laborService::stop);
             }
-            WorkOrder patchedWorkOrder = workOrderService.saveAndFlush(savedWorkOrder);
+            WorkOrder patchedWorkOrder = workOrderService.saveAndFlushWithWebhook(mutableWO, user.getCompany(),
+                    originalWorkOrder);
 
             if (patchedWorkOrder.getStatus().equals(Status.COMPLETE) && !savedWorkOrderStatusBefore.equals(Status.COMPLETE)) {
                 List<OwnUser> admins =

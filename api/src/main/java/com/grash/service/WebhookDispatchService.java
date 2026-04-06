@@ -6,6 +6,7 @@ import com.grash.exception.CustomException;
 import com.grash.model.Company;
 import com.grash.model.WebhookEndpoint;
 import com.grash.model.enums.PlanFeatures;
+import com.grash.model.enums.webhook.WOField;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.WebhookEndpointRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,12 +44,34 @@ public class WebhookDispatchService {
             T rawPayload,
             Function<T, Object> mapper
     ) {
+        dispatchWebhook(company, eventType, result, serializedField, rawPayload, mapper, null);
+    }
+
+    @Async
+    public <T> void dispatchWebhook(
+            Company company,
+            WebhookEvent eventType,
+            Map<String, Object> result,
+            String serializedField,
+            T rawPayload,
+            Function<T, Object> mapper,
+            Collection<WOField> changedFields
+    ) {
         if (!(licenseService.hasEntitlement(LicenseEntitlement.WEBHOOK) && company.getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.WEBHOOK)))
             return;
         List<WebhookEndpoint> endpoints = webhookEndpointRepository
                 .findByCompanyIdAndEnabled(company.getId(), true)
                 .stream()
                 .filter(endpoint -> endpoint.getEvent().equals(eventType))
+                .filter(endpoint -> {
+                    if (changedFields == null || changedFields.isEmpty()) {
+                        return true;
+                    }
+                    if (endpoint.getWoFields() == null || endpoint.getWoFields().isEmpty()) {
+                        return true;
+                    }
+                    return changedFields.stream().anyMatch(endpoint.getWoFields()::contains);
+                })
                 .toList();
         result.put("occurredAt", new Date());
         result.put("companyId", company.getId());
