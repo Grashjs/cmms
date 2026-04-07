@@ -32,7 +32,7 @@ public class WebhookEndpointController {
     @PostMapping
     public ResponseEntity<WebhookEndpointShowDTO> create(
             @Parameter(hidden = true) @CurrentUser OwnUser user,
-            @RequestBody WebhookEndpointPostDTO request) {
+            @Parameter(description = "Webhook endpoint to create") @RequestBody WebhookEndpointPostDTO request) {
         WebhookEndpoint endpoint = webhookEndpointService.create(request, user);
         return ResponseEntity.ok(webhookEndpointMapper.toShowDto(endpoint));
     }
@@ -53,7 +53,7 @@ public class WebhookEndpointController {
     public ResponseEntity<WebhookEndpointShowDTO> updateEndpoint(
             @Parameter(hidden = true) @CurrentUser OwnUser user,
             @PathVariable Long id,
-            @RequestBody WebhookEndpointPatchDTO request) {
+            @Parameter(description = "Webhook endpoint fields to update") @RequestBody WebhookEndpointPatchDTO request) {
 
         WebhookEndpoint endpoint = webhookEndpointService.update(id, request, user);
         return ResponseEntity.ok(webhookEndpointMapper.toShowDto(endpoint));

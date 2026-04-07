@@ -10,8 +10,7 @@ import com.grash.model.*;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.service.*;
 import com.grash.utils.Helper;
-
-
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -68,7 +67,7 @@ public class PartQuantityController {
     @PatchMapping("/work-order/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public Collection<PartQuantityShowDTO> patchWorkOrder(@Valid @RequestBody List<Long> parts,
+    public Collection<PartQuantityShowDTO> patchWorkOrder(@Parameter(description = "List of part IDs to associate with work order") @Valid @RequestBody List<Long> parts,
                                                           @PathVariable("id") Long id,
                                                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
@@ -109,7 +108,7 @@ public class PartQuantityController {
     @PatchMapping("/purchase-order/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public Collection<PartQuantityShowDTO> patchPurchaseOrder(@Valid @RequestBody List<PartQuantityCompletePatchDTO> partQuantitiesReq, @PathVariable("id") Long id,
+    public Collection<PartQuantityShowDTO> patchPurchaseOrder(@Parameter(description = "List of part quantities to update for purchase order") @Valid @RequestBody List<PartQuantityCompletePatchDTO> partQuantitiesReq, @PathVariable("id") Long id,
                                                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
@@ -165,7 +164,7 @@ public class PartQuantityController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    PartQuantityShowDTO create(@Valid @RequestBody PartQuantity partQuantityReq,
+    PartQuantityShowDTO create(@Parameter(description = "Part quantity to create") @Valid @RequestBody PartQuantity partQuantityReq,
                                HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         PartQuantity savedPartQuantity = partQuantityService.create(partQuantityReq);
@@ -175,7 +174,7 @@ public class PartQuantityController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public PartQuantityShowDTO patch(@Valid @RequestBody PartQuantityPatchDTO partQuantity,
+    public PartQuantityShowDTO patch(@Parameter(description = "Part quantity fields to update") @Valid @RequestBody PartQuantityPatchDTO partQuantity,
                                      @PathVariable("id") Long id,
                                      HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

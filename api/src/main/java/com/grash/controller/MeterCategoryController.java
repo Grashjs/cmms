@@ -9,6 +9,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.MeterCategoryService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -61,7 +62,7 @@ public class MeterCategoryController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    MeterCategory create(@Valid @RequestBody MeterCategory meterCategoryReq,
+    MeterCategory create(@Parameter(description = "Meter category to create") @Valid @RequestBody MeterCategory meterCategoryReq,
                          HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
@@ -72,7 +73,7 @@ public class MeterCategoryController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public MeterCategory patch(@Valid @RequestBody CategoryPatchDTO meterCategory,
+    public MeterCategory patch(@Parameter(description = "Meter category fields to update") @Valid @RequestBody CategoryPatchDTO meterCategory,
                                @PathVariable("id") Long id,
                                HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

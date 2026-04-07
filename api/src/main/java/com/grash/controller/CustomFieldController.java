@@ -8,6 +8,7 @@ import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.service.CustomFieldService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,7 @@ public class CustomFieldController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    CustomField create(@Valid @RequestBody CustomField customFieldReq,
+    CustomField create(@Parameter(description = "Custom field to create") @Valid @RequestBody CustomField customFieldReq,
                        HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         return customFieldService.create(customFieldReq);
@@ -52,7 +53,7 @@ public class CustomFieldController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public CustomField patch(@Valid @RequestBody CustomFieldPatchDTO customField, @PathVariable("id") Long id,
+    public CustomField patch(@Parameter(description = "Custom field fields to update") @Valid @RequestBody CustomFieldPatchDTO customField, @PathVariable("id") Long id,
                              HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<CustomField> optionalCustomField = customFieldService.findById(id);

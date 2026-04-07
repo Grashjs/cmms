@@ -6,6 +6,7 @@ import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
 import com.grash.model.enums.workflow.*;
 import com.grash.utils.Helper;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,11 +26,17 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Schema(description = "Workflow condition defining criteria for triggering actions")
 public class WorkflowCondition extends CompanyAudit {
+    @Schema(description = "Work order condition type")
     private WorkOrderCondition workOrderCondition;
+    @Schema(description = "Request condition type")
     private RequestCondition requestCondition;
+    @Schema(description = "Purchase order condition type")
     private PurchaseOrderCondition purchaseOrderCondition;
+    @Schema(description = "Part condition type")
     private PartCondition partCondition;
+    @Schema(description = "Task condition type")
     private TaskCondition taskCondition;
     private Priority priority;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -56,14 +63,23 @@ public class WorkflowCondition extends CompanyAudit {
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private PurchaseOrderCategory purchaseOrderCategory;
+    @Schema(description = "Work order status to match")
     private Status workOrderStatus;
+    @Schema(description = "Purchase order status to match")
     private ApprovalStatus purchaseOrderStatus;
+    @Schema(description = "Start hour for created time range")
     private Integer createdTimeStart;
+    @Schema(description = "End hour for created time range")
     private Integer createdTimeEnd;
+    @Schema(description = "Start date for date range condition")
     private Date startDate;
+    @Schema(description = "End date for date range condition")
     private Date endDate;
+    @Schema(description = "Label to match for task conditions")
     private String label;
+    @Schema(description = "Value to match for task conditions")
     private String value;
+    @Schema(description = "Numeric value for comparison conditions")
     private Integer numberValue;
 
     public boolean isMetForWorkOrder(WorkOrder workOrder) {

@@ -10,6 +10,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.service.AssetDowntimeService;
 import com.grash.service.AssetService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,7 +53,7 @@ public class AssetDowntimeController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    AssetDowntime create(@Valid @RequestBody AssetDowntime assetDowntimeReq,
+    AssetDowntime create(@Parameter(description = "Asset downtime to create") @Valid @RequestBody AssetDowntime assetDowntimeReq,
                          HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(assetDowntimeReq.getAsset().getId());
@@ -82,7 +83,7 @@ public class AssetDowntimeController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public AssetDowntime patch(@Valid @RequestBody AssetDowntimePatchDTO assetDowntime,
+    public AssetDowntime patch(@Parameter(description = "Asset downtime fields to update") @Valid @RequestBody AssetDowntimePatchDTO assetDowntime,
                                @PathVariable("id") Long id,
                                HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

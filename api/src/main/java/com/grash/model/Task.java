@@ -3,6 +3,7 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.CompanyAudit;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,13 +27,16 @@ import java.util.Locale;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
+@Schema(description = "Task entity representing individual steps within a work order or preventive maintenance")
 public class Task extends CompanyAudit {
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
     private TaskBase taskBase;
 
+    @Schema(description = "Notes for the task")
     private String notes;
 
+    @Schema(description = "Value of the task (status, measurement, etc.)")
     private String value;
 
     @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)

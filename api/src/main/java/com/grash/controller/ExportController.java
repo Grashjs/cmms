@@ -9,6 +9,7 @@ import com.grash.service.*;
 import com.grash.utils.CsvFileGenerator;
 import com.grash.utils.Helper;
 import com.grash.utils.MultipartFileImpl;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +43,7 @@ public class ExportController {
 
     @GetMapping("/work-orders")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> exportWorkOrders(HttpServletRequest req, @RequestParam String uuid) {
+    public ResponseEntity<SuccessResponse> exportWorkOrders(HttpServletRequest req, @Parameter(description = "Unique identifier for tracking the export job") @RequestParam String uuid) {
         OwnUser user = userService.whoami(req);
 
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS)) {
@@ -54,7 +55,7 @@ public class ExportController {
 
     @GetMapping("/assets")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> exportAssets(HttpServletRequest req, @RequestParam String uuid) {
+    public ResponseEntity<SuccessResponse> exportAssets(HttpServletRequest req, @Parameter(description = "Unique identifier for tracking the export job") @RequestParam String uuid) {
         OwnUser user = userService.whoami(req);
 
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS)) {
@@ -66,7 +67,7 @@ public class ExportController {
 
     @GetMapping("/locations")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> exportLocations(HttpServletRequest req, @RequestParam String uuid) {
+    public ResponseEntity<SuccessResponse> exportLocations(HttpServletRequest req, @Parameter(description = "Unique identifier for tracking the export job") @RequestParam String uuid) {
         OwnUser user = userService.whoami(req);
 
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.LOCATIONS)) {
@@ -78,7 +79,7 @@ public class ExportController {
 
     @GetMapping("/parts")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> exportParts(HttpServletRequest req, @RequestParam String uuid) {
+    public ResponseEntity<SuccessResponse> exportParts(HttpServletRequest req, @Parameter(description = "Unique identifier for tracking the export job") @RequestParam String uuid) {
         OwnUser user = userService.whoami(req);
 
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
@@ -90,7 +91,7 @@ public class ExportController {
 
     @GetMapping("/meters")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> exportMeters(HttpServletRequest req, @RequestParam String uuid) {
+    public ResponseEntity<SuccessResponse> exportMeters(HttpServletRequest req, @Parameter(description = "Unique identifier for tracking the export job") @RequestParam String uuid) {
         OwnUser user = userService.whoami(req);
 
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.METERS)) {
@@ -102,7 +103,7 @@ public class ExportController {
 
     @GetMapping("/preventive-maintenances")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> exportPreventiveMaintenances(HttpServletRequest req, @RequestParam String uuid) {
+    public ResponseEntity<SuccessResponse> exportPreventiveMaintenances(HttpServletRequest req, @Parameter(description = "Unique identifier for tracking the export job") @RequestParam String uuid) {
         OwnUser user = userService.whoami(req);
 
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)) {

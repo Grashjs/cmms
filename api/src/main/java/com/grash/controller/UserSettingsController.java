@@ -5,6 +5,7 @@ import com.grash.model.OwnUser;
 import com.grash.model.UserSettings;
 import com.grash.service.UserService;
 import com.grash.service.UserSettingsService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -43,7 +44,7 @@ public class UserSettingsController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public UserSettings patch(@Valid @RequestBody UserSettings userSettings,
+    public UserSettings patch(@Parameter(description = "User settings to update") @Valid @RequestBody UserSettings userSettings,
                               @PathVariable("id") Long id,
                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

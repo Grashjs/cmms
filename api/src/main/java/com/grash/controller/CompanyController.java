@@ -10,8 +10,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.service.CacheService;
 import com.grash.service.CompanyService;
 import com.grash.service.UserService;
-import io.swagger.v3.oas.annotations.tags.Tag;
-
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -53,7 +52,7 @@ public class CompanyController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public CompanyShowDTO patch(@Valid @RequestBody CompanyPatchDTO company,
+    public CompanyShowDTO patch(@Parameter(description = "Company fields to update") @Valid @RequestBody CompanyPatchDTO company,
                                 @PathVariable("id") Long id,
                                 HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

@@ -9,6 +9,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.MultiPartsService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -67,7 +68,7 @@ public class MultiPartsController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    MultiPartsShowDTO create(@Valid @RequestBody MultiParts multiPartsReq,
+    MultiPartsShowDTO create(@Parameter(description = "Multi-part to create") @Valid @RequestBody MultiParts multiPartsReq,
                              HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
@@ -78,7 +79,7 @@ public class MultiPartsController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public MultiPartsShowDTO patch(@Valid @RequestBody MultiPartsPatchDTO multiParts,
+    public MultiPartsShowDTO patch(@Parameter(description = "Multi-part fields to update") @Valid @RequestBody MultiPartsPatchDTO multiParts,
                                    @PathVariable("id") Long id,
                                    HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

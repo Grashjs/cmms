@@ -13,6 +13,7 @@ import com.grash.model.enums.RoleType;
 import com.grash.service.NotificationService;
 import com.grash.service.PushNotificationTokenService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -51,7 +52,7 @@ public class NotificationController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<Notification>> search(@RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<Notification>> search(@Parameter(description = "Notification search criteria") @RequestBody SearchCriteria searchCriteria,
                                                      HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -89,7 +90,7 @@ public class NotificationController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public Notification patch(@Valid @RequestBody NotificationPatchDTO notification,
+    public Notification patch(@Parameter(description = "Notification fields to update") @Valid @RequestBody NotificationPatchDTO notification,
                               @PathVariable("id") Long id,
                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
@@ -104,7 +105,7 @@ public class NotificationController {
 
     @PostMapping("/push-token")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public SuccessResponse savePushToken(@RequestBody @Valid PushTokenPayload tokenPayload, HttpServletRequest req) {
+    public SuccessResponse savePushToken(@Parameter(description = "Push notification token payload") @RequestBody @Valid PushTokenPayload tokenPayload, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         String token = tokenPayload.getToken();
         PushNotificationToken pushNotificationToken;

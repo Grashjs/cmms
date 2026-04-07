@@ -55,7 +55,7 @@ public class WOAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<WOStats> getCompleteStats(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                    @RequestBody DateRange dateRange) {
+                                                    @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<WorkOrder> workOrders =
                     workOrderService.findByCompanyAndCreatedAtBetween(user.getCompany().getId(), dateRange.getStart()
@@ -81,7 +81,7 @@ public class WOAnalyticsController {
     @GetMapping("/mobile/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<MobileWOStats> getMobileOverview(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                           @RequestParam("assignedToMe") boolean assignedToMe) {
+                                                           @Parameter(description = "Filter work orders assigned to current user") @RequestParam("assignedToMe") boolean assignedToMe) {
         Collection<WorkOrder> result;
         Collection<WorkOrder> workOrders;
         Collection<WorkOrder> completeWorkOrders;
@@ -150,7 +150,7 @@ public class WOAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<WOIncompleteStats> getIncompleteStats(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                @RequestBody DateRange dateRange) {
+                                                                @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<WorkOrder> workOrders =
                     workOrderService.findByCompanyAndCreatedAtBetween(user.getCompany().getId(), dateRange.getStart()
@@ -175,7 +175,7 @@ public class WOAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<WOStatsByPriority> getIncompleteByPriority(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                     @RequestBody DateRange dateRange) {
+                                                                     @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<WorkOrder> workOrders =
                     workOrderService.findByCompanyAndCreatedAtBetween(user.getCompany().getId(), dateRange.getStart()
@@ -226,7 +226,7 @@ public class WOAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<WOStatuses> getWOStatuses(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                    @RequestBody DateRange dateRange) {
+                                                    @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<WorkOrder> workOrders =
                     workOrderService.findByCompanyAndCreatedAtBetween(user.getCompany().getId(), dateRange.getStart()
@@ -250,7 +250,7 @@ public class WOAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<IncompleteWOByAsset>> getIncompleteByAsset(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                                @RequestBody DateRange dateRange) {
+                                                                                @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(),
                     dateRange.getEnd());
@@ -280,7 +280,7 @@ public class WOAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<IncompleteWOByUser>> getIncompleteByUser(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                              @RequestBody DateRange dateRange) {
+                                                                              @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<OwnUser> users = userService.findWorkersByCompany(user.getCompany().getId());
             Collection<IncompleteWOByUser> result = new ArrayList<>();
@@ -311,7 +311,7 @@ public class WOAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<WOHours> getHours(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                            @RequestBody DateRange dateRange) {
+                                            @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<WorkOrder> workOrders =
                     workOrderService.findByCompanyAndCreatedAtBetween(user.getCompany().getId(), dateRange.getStart()
@@ -335,7 +335,7 @@ public class WOAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<WOCountByUser>> getCountsByUser(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                     @RequestBody DateRange dateRange) {
+                                                                     @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<OwnUser> users = userService.findWorkersByCompany(user.getCompany().getId());
             Collection<WOCountByUser> results = new ArrayList<>();
@@ -361,7 +361,7 @@ public class WOAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<WOCountByUser>> getCountsByCompletedBy(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                            @RequestBody DateRange dateRange) {
+                                                                            @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<OwnUser> users = userService.findWorkersByCompany(user.getCompany().getId());
             Collection<WOCountByUser> results = new ArrayList<>();
@@ -387,7 +387,7 @@ public class WOAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Map<Priority, Integer>> getCountsByPriority(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                      @RequestBody DateRange dateRange) {
+                                                                      @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Priority[] priorities = Priority.values();
             Map<Priority, Integer> results = new HashMap<>();
@@ -408,7 +408,7 @@ public class WOAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<WOCountByCategory>> getCountsByCategory(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                             @RequestBody DateRange dateRange) {
+                                                                             @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<WorkOrderCategory> categories =
                     workOrderCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
@@ -496,7 +496,7 @@ public class WOAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<WOCostsAndTime> getCompleteCostsAndTime(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                  @RequestBody DateRange dateRange) {
+                                                                  @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompanyAndCreatedAtBetween(
                     user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
@@ -524,7 +524,7 @@ public class WOAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<List<WOCostsByDate>> getCompleteCostsByDate(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                      @RequestBody DateRange dateRange) {
+                                                                      @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
             List<WOCostsByDate> result = new ArrayList<>();
@@ -561,7 +561,7 @@ public class WOAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<List<WOStatusesByDate>> getReceivedAndResolvedForDateRange(@Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                                                     @RequestBody DateRange dateRange) {
+                                                                                     @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
         if (user.canSeeAnalytics()) {
             List<WOStatusesByDate> result = new ArrayList<>();

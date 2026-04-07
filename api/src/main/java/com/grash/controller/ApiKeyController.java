@@ -38,7 +38,7 @@ public class ApiKeyController {
 
     @PostMapping("/search")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Page<ApiKeyShowDTO> search(@RequestBody ApiKeyCriteria apiKeyCriteria,
+    public Page<ApiKeyShowDTO> search(@Parameter(description = "API key search criteria") @RequestBody ApiKeyCriteria apiKeyCriteria,
                                       @Parameter(hidden = true) @CurrentUser OwnUser user, Pageable pageable) {
         return apiKeyService.findByCriteria(apiKeyCriteria, pageable, user).map(apiKeyMapper::toShowDto);
     }
@@ -46,7 +46,7 @@ public class ApiKeyController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ApiKeyShowDTO create(@RequestBody @Valid ApiKeyPostDTO apiKey,
+    public ApiKeyShowDTO create(@Parameter(description = "API key to create") @RequestBody @Valid ApiKeyPostDTO apiKey,
                                 @Parameter(hidden = true) @CurrentUser OwnUser user) {
         Pair<ApiKey, String> savedApiKeyPair = apiKeyService.create(apiKey, user);
         ApiKeyShowDTO result = apiKeyMapper.toShowDto(savedApiKeyPair.getFirst());

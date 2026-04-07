@@ -8,11 +8,12 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@Schema(description = "DTO for patching a work order relation")
 public class RelationPatchDTO {
 
-    @Schema(implementation = IdDTO.class)
+    @Schema(description = "Parent work order", implementation = IdDTO.class)
     private WorkOrder parent;
 
-    @Schema(implementation = IdDTO.class)
+    @Schema(description = "Child work order", implementation = IdDTO.class)
     private WorkOrder child;
 }

@@ -12,6 +12,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.CustomerService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -40,7 +41,7 @@ public class CustomerController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<Customer>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
+    public ResponseEntity<Page<Customer>> search(@Parameter(description = "Customer search criteria") @RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
@@ -74,7 +75,7 @@ public class CustomerController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    Customer create(@Valid @RequestBody Customer customerReq, HttpServletRequest req) {
+    Customer create(@Parameter(description = "Customer to create") @Valid @RequestBody Customer customerReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
             return customerService.create(customerReq);
@@ -84,7 +85,7 @@ public class CustomerController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public Customer patch(@Valid @RequestBody CustomerPatchDTO customer,
+    public Customer patch(@Parameter(description = "Customer fields to update") @Valid @RequestBody CustomerPatchDTO customer,
                           @PathVariable("id") Long id,
                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

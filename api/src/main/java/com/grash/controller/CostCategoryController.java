@@ -12,6 +12,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.CostCategoryService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -66,7 +67,7 @@ public class CostCategoryController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    CostCategory create(@Valid @RequestBody CostCategory costCategoryReq,
+    CostCategory create(@Parameter(description = "Cost category to create") @Valid @RequestBody CostCategory costCategoryReq,
                         HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
@@ -77,7 +78,7 @@ public class CostCategoryController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public CostCategory patch(@Valid @RequestBody CategoryPatchDTO costCategory, @PathVariable("id") Long id,
+    public CostCategory patch(@Parameter(description = "Cost category fields to update") @Valid @RequestBody CategoryPatchDTO costCategory, @PathVariable("id") Long id,
                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {

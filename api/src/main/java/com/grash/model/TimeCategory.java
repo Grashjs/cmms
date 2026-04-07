@@ -1,6 +1,7 @@
 package com.grash.model;
 
 import com.grash.model.abstracts.CategoryAbstract;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,9 +13,11 @@ import jakarta.persistence.Id;
 @Entity
 @Data
 @NoArgsConstructor
+@Schema(description = "Time category for classifying labor time entries")
 public class TimeCategory extends CategoryAbstract {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Schema(description = "Unique identifier", accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
     public TimeCategory(String name, CompanySettings companySettings) {

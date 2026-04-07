@@ -8,12 +8,15 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@Schema(description = "DTO for patching an existing floor plan")
 public class FloorPlanPatchDTO {
 
+    @Schema(description = "Name")
     private String name;
 
-    @Schema(implementation = IdDTO.class)
+    @Schema(description = "Floor plan image", implementation = IdDTO.class)
     private File image;
 
+    @Schema(description = "Area size")
     private long area;
 }

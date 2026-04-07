@@ -9,6 +9,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.PartCategoryService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -59,7 +60,7 @@ public class PartCategoryController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    PartCategory create(@Valid @RequestBody PartCategory partCategoryReq,
+    PartCategory create(@Parameter(description = "Part category to create") @Valid @RequestBody PartCategory partCategoryReq,
                         HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
@@ -70,7 +71,7 @@ public class PartCategoryController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public PartCategory patch(@Valid @RequestBody CategoryPatchDTO partCategory,
+    public PartCategory patch(@Parameter(description = "Part category fields to update") @Valid @RequestBody CategoryPatchDTO partCategory,
                               @PathVariable("id") Long id,
                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

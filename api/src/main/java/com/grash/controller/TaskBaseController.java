@@ -10,6 +10,7 @@ import com.grash.model.OwnUser;
 import com.grash.model.TaskBase;
 import com.grash.service.TaskBaseService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -47,7 +48,7 @@ public class TaskBaseController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public TaskBaseShowDTO create(@Valid @RequestBody TaskBaseDTO taskBaseReq, HttpServletRequest req) {
+    public TaskBaseShowDTO create(@Parameter(description = "Task template to create") @Valid @RequestBody TaskBaseDTO taskBaseReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         return taskBaseMapper.toShowDto(taskBaseService.createFromTaskBaseDTO(taskBaseReq, user.getCompany()));
     }
@@ -55,7 +56,7 @@ public class TaskBaseController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public TaskBaseShowDTO patch(@Valid @RequestBody TaskBasePatchDTO taskBase,
+    public TaskBaseShowDTO patch(@Parameter(description = "Task template fields to update") @Valid @RequestBody TaskBasePatchDTO taskBase,
                                  @PathVariable("id") Long id,
                                  HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

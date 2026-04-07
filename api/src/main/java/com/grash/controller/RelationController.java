@@ -10,6 +10,7 @@ import com.grash.model.WorkOrder;
 import com.grash.service.RelationService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -68,7 +69,7 @@ public class RelationController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    Relation create(@Valid @RequestBody RelationPostDTO relationReq, HttpServletRequest req) {
+    Relation create(@Parameter(description = "Work order relation to create") @Valid @RequestBody RelationPostDTO relationReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Long parentId = relationReq.getParent().getId();
         Long childId = relationReq.getChild().getId();
@@ -82,7 +83,7 @@ public class RelationController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public Relation patch(@Valid @RequestBody RelationPatchDTO relation,
+    public Relation patch(@Parameter(description = "Relation fields to update") @Valid @RequestBody RelationPatchDTO relation,
                           @PathVariable("id") Long id,
                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

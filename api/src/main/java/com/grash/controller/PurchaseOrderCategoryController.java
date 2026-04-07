@@ -9,8 +9,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.PurchaseOrderCategoryService;
 import com.grash.service.UserService;
-
-
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -62,7 +61,7 @@ public class PurchaseOrderCategoryController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    PurchaseOrderCategory create(@Valid @RequestBody PurchaseOrderCategory PurchaseOrderCategoryReq,
+    PurchaseOrderCategory create(@Parameter(description = "Purchase order category to create") @Valid @RequestBody PurchaseOrderCategory PurchaseOrderCategoryReq,
                                  HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
@@ -73,7 +72,7 @@ public class PurchaseOrderCategoryController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public PurchaseOrderCategory patch(@Valid @RequestBody CategoryPatchDTO categoryPatchDTO,
+    public PurchaseOrderCategory patch(@Parameter(description = "Purchase order category fields to update") @Valid @RequestBody CategoryPatchDTO categoryPatchDTO,
                                        @PathVariable("id") Long id,
                                        HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

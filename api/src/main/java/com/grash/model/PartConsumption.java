@@ -1,6 +1,7 @@
 package com.grash.model;
 
 import com.grash.model.abstracts.CompanyAudit;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
@@ -15,9 +16,11 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Data
 @NoArgsConstructor
+@Schema(description = "Part consumption entity tracking part usage on work orders")
 public class PartConsumption extends CompanyAudit {
     @NotNull
     @Min(value = 0L, message = "The value must be positive")
+    @Schema(description = "Quantity consumed", requiredMode = Schema.RequiredMode.REQUIRED)
     private double quantity;
 
     @ManyToOne(fetch = FetchType.LAZY)

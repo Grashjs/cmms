@@ -11,6 +11,7 @@ import com.grash.service.PaddleService;
 import com.grash.service.SubscriptionService;
 import com.grash.service.UserService;
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -76,7 +77,7 @@ public class PaddleController {
     }
 
     @PostMapping("/create-checkout-session")
-    public CheckoutResponse createCheckoutSession(@Valid @RequestBody CheckoutRequest request) {
+    public CheckoutResponse createCheckoutSession(@Parameter(description = "Checkout session request") @Valid @RequestBody CheckoutRequest request) {
         return paddleService.createCheckoutSession(request);
     }
 }

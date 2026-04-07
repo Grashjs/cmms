@@ -18,6 +18,7 @@ import com.grash.service.PartService;
 import com.grash.service.UserService;
 import com.grash.service.WorkflowService;
 import com.grash.utils.Helper;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -50,7 +51,7 @@ public class PartController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<PartShowDTO>> search(@RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<PartShowDTO>> search(@Parameter(description = "Search criteria for filtering parts") @RequestBody SearchCriteria searchCriteria,
                                                     HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -69,7 +70,7 @@ public class PartController {
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
 
-    public PartShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
+    public PartShowDTO getById(@Parameter(description = "Part ID") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
@@ -83,7 +84,7 @@ public class PartController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    PartShowDTO create(@Valid @RequestBody Part partReq, HttpServletRequest req) {
+    PartShowDTO create(@Parameter(description = "Part data to create") @Valid @RequestBody Part partReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
             if (partReq.getBarcode() != null) {
@@ -102,7 +103,7 @@ public class PartController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public PartShowDTO patch(@Valid @RequestBody PartPatchDTO part, @PathVariable(
+    public PartShowDTO patch(@Parameter(description = "Part fields to update") @Valid @RequestBody PartPatchDTO part, @Parameter(description = "Part ID") @PathVariable(
                                      "id") Long id,
                              HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
@@ -141,7 +142,7 @@ public class PartController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity delete(@Parameter(description = "Part ID") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Part> optionalPart = partService.findById(id);

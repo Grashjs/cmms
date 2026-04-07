@@ -13,6 +13,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleType;
 import com.grash.service.*;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -57,7 +58,7 @@ public class WorkflowController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public WorkflowShowDTO create(@Valid @RequestBody WorkflowPostDTO workflowReq,
+    public WorkflowShowDTO create(@Parameter(description = "Workflow data to create") @Valid @RequestBody WorkflowPostDTO workflowReq,
                                   HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
@@ -85,7 +86,7 @@ public class WorkflowController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public WorkflowShowDTO patch(@Valid @RequestBody WorkflowPostDTO workflow,
+    public WorkflowShowDTO patch(@Parameter(description = "Workflow fields to update") @Valid @RequestBody WorkflowPostDTO workflow,
                                  @PathVariable("id") Long id,
                                  HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

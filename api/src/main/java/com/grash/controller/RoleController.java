@@ -10,6 +10,7 @@ import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleType;
 import com.grash.service.RoleService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -61,7 +62,7 @@ public class RoleController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    Role create(@Valid @RequestBody Role roleReq, HttpServletRequest req) {
+    Role create(@Parameter(description = "Role data to create") @Valid @RequestBody Role roleReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         roleReq.setPaid(true);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
@@ -73,7 +74,7 @@ public class RoleController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public Role patch(@Valid @RequestBody RolePatchDTO role,
+    public Role patch(@Parameter(description = "Role fields to update") @Valid @RequestBody RolePatchDTO role,
                       @PathVariable("id") Long id,
                       HttpServletRequest req) {
         OwnUser user = userService.whoami(req);

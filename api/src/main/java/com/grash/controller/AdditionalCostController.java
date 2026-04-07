@@ -10,6 +10,7 @@ import com.grash.model.enums.PlanFeatures;
 import com.grash.service.AdditionalCostService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -64,7 +65,7 @@ public class AdditionalCostController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public AdditionalCost create(@Valid @RequestBody AdditionalCost additionalCostReq,
+    public AdditionalCost create(@Parameter(description = "Additional cost to create") @Valid @RequestBody AdditionalCost additionalCostReq,
                                  HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ADDITIONAL_COST)) {
@@ -79,7 +80,7 @@ public class AdditionalCostController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public AdditionalCost patch(@Valid @RequestBody AdditionalCostPatchDTO additionalCost, @PathVariable("id") Long id,
+    public AdditionalCost patch(@Parameter(description = "Additional cost fields to update") @Valid @RequestBody AdditionalCostPatchDTO additionalCost, @PathVariable("id") Long id,
                                 HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);

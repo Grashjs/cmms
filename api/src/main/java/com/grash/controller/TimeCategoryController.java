@@ -9,6 +9,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.TimeCategoryService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -61,7 +62,7 @@ public class TimeCategoryController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    TimeCategory create(@Valid @RequestBody TimeCategory timeCategoryReq,
+    TimeCategory create(@Parameter(description = "Time category to create") @Valid @RequestBody TimeCategory timeCategoryReq,
                         HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
@@ -72,7 +73,7 @@ public class TimeCategoryController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public TimeCategory patch(@Valid @RequestBody CategoryPatchDTO timeCategory, @PathVariable("id") Long id,
+    public TimeCategory patch(@Parameter(description = "Time category fields to update") @Valid @RequestBody CategoryPatchDTO timeCategory, @PathVariable("id") Long id,
                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<TimeCategory> optionalTimeCategory = timeCategoryService.findById(id);

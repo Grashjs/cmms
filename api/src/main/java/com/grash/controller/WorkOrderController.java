@@ -22,6 +22,7 @@ import com.grash.utils.Utils;
 import com.itextpdf.html2pdf.HtmlConverter;
 
 
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -96,7 +97,7 @@ public class WorkOrderController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<WorkOrderShowDTO>> search(@RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<WorkOrderShowDTO>> search(@Parameter(description = "Search criteria for filtering work orders") @RequestBody SearchCriteria searchCriteria,
                                                          HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         return ResponseEntity.ok(workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user,
@@ -105,7 +106,7 @@ public class WorkOrderController {
 
     @PostMapping("/search/mini")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<WorkOrderBaseMiniDTO>> searchMini(@RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<WorkOrderBaseMiniDTO>> searchMini(@Parameter(description = "Search criteria for filtering work orders") @RequestBody SearchCriteria searchCriteria,
                                                                  HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         return ResponseEntity.ok(workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user,
@@ -115,7 +116,7 @@ public class WorkOrderController {
 
     @PostMapping("/events")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<CalendarEvent<WorkOrderBaseMiniDTO>> getEvents(@Valid @RequestBody DateRange
+    public Collection<CalendarEvent<WorkOrderBaseMiniDTO>> getEvents(@Parameter(description = "Date range for calendar events") @Valid @RequestBody DateRange
                                                                              dateRange, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
@@ -182,7 +183,7 @@ public class WorkOrderController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    WorkOrderShowDTO create(@Valid @RequestBody WorkOrderPostDTO
+    WorkOrderShowDTO create(@Parameter(description = "Work order data to create") @Valid @RequestBody WorkOrderPostDTO
                                     workOrderReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
@@ -234,7 +235,7 @@ public class WorkOrderController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public WorkOrderShowDTO patch(@Valid @RequestBody WorkOrderPatchDTO
+    public WorkOrderShowDTO patch(@Parameter(description = "Work order fields to update") @Valid @RequestBody WorkOrderPatchDTO
                                           workOrder, @PathVariable("id") Long id,
                                   HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
@@ -264,7 +265,7 @@ public class WorkOrderController {
     @PatchMapping("/{id}/change-status")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public WorkOrderShowDTO changeStatus(@Valid @RequestBody WorkOrderChangeStatusDTO
+    public WorkOrderShowDTO changeStatus(@Parameter(description = "Work order status change data") @Valid @RequestBody WorkOrderChangeStatusDTO
                                                  workOrder, @PathVariable("id") Long id,
                                          HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
@@ -486,7 +487,7 @@ public class WorkOrderController {
 
     @PatchMapping("/files/{id}/add")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<File> addFilesToWorkOrder(@PathVariable("id") Long id, @RequestBody List<File> files,
+    public List<File> addFilesToWorkOrder(@PathVariable("id") Long id, @Parameter(description = "List of files to add") @RequestBody List<File> files,
                                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);

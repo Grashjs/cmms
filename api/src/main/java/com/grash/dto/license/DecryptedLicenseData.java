@@ -2,6 +2,7 @@ package com.grash.dto.license;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.*;
@@ -13,24 +14,28 @@ import java.util.stream.Collectors;
  */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Schema(description = "Decrypted license data from a license.lic file, following Keygen.sh payload format")
 public class DecryptedLicenseData {
 
     /**
      * The license data object containing license attributes and relationships.
      */
     @JsonProperty("data")
+    @Schema(description = "The primary license data object")
     private LicenseDataObject data;
 
     /**
      * Included related resources (licenses, products, etc.).
      */
     @JsonProperty("included")
+    @Schema(description = "Included related resources such as licenses and products")
     private List<IncludedResource> included;
 
     /**
      * Metadata about the license file including issued and expiry timestamps.
      */
     @JsonProperty("meta")
+    @Schema(description = "Metadata about the license file including issued and expiry timestamps")
     private LicenseFileMeta meta;
 
     /**
@@ -104,20 +109,26 @@ public class DecryptedLicenseData {
      */
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
+    @Schema(description = "Primary license data object containing ID, type, attributes, relationships, and links")
     public static class LicenseDataObject {
         @JsonProperty("id")
+        @Schema(description = "Unique identifier for the license")
         private String id;
 
         @JsonProperty("type")
+        @Schema(description = "Resource type, typically 'machine' or 'license'")
         private String type;
 
         @JsonProperty("attributes")
+        @Schema(description = "Dynamic attributes map containing license properties")
         private Map<String, Object> attributes;
 
         @JsonProperty("relationships")
+        @Schema(description = "Dynamic relationships map to related resources")
         private Map<String, Object> relationships;
 
         @JsonProperty("links")
+        @Schema(description = "HATEOAS links for the resource")
         private Map<String, String> links;
     }
 
@@ -126,20 +137,26 @@ public class DecryptedLicenseData {
      */
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
+    @Schema(description = "Included resource representing a related entity in the license payload")
     public static class IncludedResource {
         @JsonProperty("id")
+        @Schema(description = "Unique identifier for the resource")
         private String id;
 
         @JsonProperty("type")
+        @Schema(description = "Resource type (e.g., 'licenses', 'products', 'entitlements')")
         private String type;
 
         @JsonProperty("attributes")
+        @Schema(description = "Attributes specific to this resource type")
         private LicenseAttributes attributes;
 
         @JsonProperty("relationships")
+        @Schema(description = "Relationships to other resources")
         private Map<String, Object> relationships;
 
         @JsonProperty("links")
+        @Schema(description = "HATEOAS links for the resource")
         private Map<String, String> links;
     }
 
@@ -148,21 +165,30 @@ public class DecryptedLicenseData {
      */
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
+    @Schema(description = "Attributes of an included license resource")
     public static class LicenseAttributes {
+        @Schema(description = "Display name of the resource")
         private String name;
 
+        @Schema(description = "License key value")
         private String key;
 
+        @Schema(description = "Unique code identifier")
         private String code;
 
+        @Schema(description = "Expiration timestamp")
         private String expiry;
 
+        @Schema(description = "Status of the resource")
         private String status;
 
+        @Schema(description = "Additional metadata")
         private Map<String, Object> metadata;
 
+        @Schema(description = "Creation timestamp")
         private String created;
 
+        @Schema(description = "Last updated timestamp")
         private String updated;
     }
 
@@ -171,14 +197,18 @@ public class DecryptedLicenseData {
      */
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
+    @Schema(description = "Metadata about the license file including issued and expiry timestamps")
     public static class LicenseFileMeta {
         @JsonProperty("issued")
+        @Schema(description = "Timestamp when the license was issued")
         private String issued;
 
         @JsonProperty("expiry")
+        @Schema(description = "Timestamp when the license expires")
         private String expiry;
 
         @JsonProperty("ttl")
+        @Schema(description = "Time-to-live in seconds for the license file")
         private Long ttl;
 
         /**
