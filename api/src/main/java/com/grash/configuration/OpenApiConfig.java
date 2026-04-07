@@ -20,6 +20,8 @@ import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.ExternalDocumentation;
+import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -132,162 +134,109 @@ import java.util.LinkedHashMap;
                 " CMMS account."
 )
 public class OpenApiConfig {
-
+    
     @Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .info(new io.swagger.v3.oas.models.info.Info()
-                        .title("Atlas CMMS Webhooks")
-                        .version("v1")
-                        .description("""
-                                ## Webhooks in Atlas CMMS
-                                
-                                Webhooks are HTTP callbacks that allow different systems to communicate with each other in real-time.
-                                They're like automated messengers that deliver information when something happens, rather than requiring
-                                you to ask for it.
-                                
-                                In the context of Atlas CMMS, webhooks are a way for our system to automatically notify your application
-                                when specific events occur in your account. Instead of your application repeatedly checking our API for
-                                updates (a process known as "polling"), webhooks allow you to receive real-time notifications about important
-                                events like work order status changes, new work orders, asset updates, and more.
-                                
-                                When an event occurs, Atlas CMMS sends an HTTP POST request to the endpoint you specify.
-                                The request contains details about the event. It allows your application to react immediately
-                                to changes in Atlas CMMS.
-                                
-                                ### Set Up Webhooks
-                                
-                                You can configure webhooks the following ways:
-                                
-                                **From the Atlas CMMS Web Application:**
-                                1. From the sidebar, select Settings > Integrations. Then, on the Integrations page, select Webhooks
-                                2. Click + New Webhook
-                                3. Configure a webhook endpoint and select the events you want to receive
-                                4. Save the configuration
-                                
-                                **Via the REST API:**
-                                You can configure webhooks using our REST API if you want to integrate programmatically.
-                                See the `/webhook-endpoints` endpoints for details.
-                                
-                                ### Security and Verification
-                                
-                                To verify that webhook requests come from Atlas CMMS and haven't been tampered with,
-                                we include security signatures in each webhook request.
-                                
-                                All webhook HTTP requests sent by Atlas CMMS include headers containing a timestamp and an HMAC signature:
-                                - `X-Webhook-Signature`: `t=<timestamp>,v1=<signature>`
-                                - `X-Webhook-Timestamp`: Unix timestamp
-                                - `X-Webhook-Id`: Unique delivery identifier
-                                - `X-Webhook-Event`: Event type name
-                                
-                                ### Best Practices
-                                - Always verify webhook signatures to ensure requests are genuine
-                                - Return a 2xx status code as quickly as possible to acknowledge receipt
-                                - Process webhook events asynchronously after acknowledging receipt
-                                - Implement proper error handling for failed webhook deliveries
-                                - Implement idempotency in your webhook handler to prevent duplicate processing
-                                - Set up monitoring for your webhook endpoint to detect failures
-                                
-                                ### Limitations
-                                - Webhook calls will timeout after 10 seconds
-                                - Webhook URLs are limited to a maximum of 512 characters
-                                - Webhooks that don't get a successful response over long periods might be disabled
-                                """))
-                .externalDocs(new ExternalDocumentation()
-                        .description("Webhook Security Documentation")
-                        .url("https://docs.atlas-cmms.com/webhooks/security"))
-                .webhooks(Map.ofEntries(
-                        Map.entry("workOrderStatusChange", createWebhookOperation(
-                                "Work Order Status Change",
-                                "Triggered when a work order status changes (e.g., OPEN -> IN_PROGRESS, IN_PROGRESS " +
-                                        "-> COMPLETE)",
-                                "workOrderStatusChangePayload"
-                        )),
-                        Map.entry("workRequestStatusChange", createWebhookOperation(
-                                "Work Request Status Change",
-                                "Triggered when a work request is approved or cancelled",
-                                "workRequestStatusChangePayload"
-                        )),
-                        Map.entry("partQuantityChanged", createWebhookOperation(
-                                "Part Quantity Changed",
-                                "Triggered when a part's quantity changes (through consumption, purchase order, or " +
-                                        "direct update)",
-                                "partQuantityChangedPayload"
-                        )),
-                        Map.entry("partChange", createWebhookOperation(
-                                "Part Change",
-                                "Triggered when a part is updated",
-                                "partChangePayload"
-                        )),
-                        Map.entry("assetStatusChange", createWebhookOperation(
-                                "Asset Status Change",
-                                "Triggered when an asset's status changes (e.g., OPERATIONAL -> DOWN)",
-                                "assetStatusChangePayload"
-                        )),
-                        Map.entry("meterTriggerStatusChange", createWebhookOperation(
-                                "Meter Trigger Status Change",
-                                "Triggered when a meter reading triggers a work order based on threshold conditions",
-                                "meterTriggerStatusChangePayload"
-                        )),
-                        Map.entry("newCategoryOnWorkOrder", createWebhookOperation(
-                                "New Category on Work Order",
-                                "Triggered when a category is added or changed on a work order",
-                                "newCategoryOnWorkOrderPayload"
-                        )),
-                        Map.entry("newWorkOrder", createWebhookOperation(
-                                "New Work Order",
-                                "Triggered when a new work order is created",
-                                "newWorkOrderPayload"
-                        )),
-                        Map.entry("workOrderChange", createWebhookOperation(
-                                "Work Order Change",
-                                "Triggered when a work order is updated",
-                                "workOrderChangePayload"
-                        )),
-                        Map.entry("workOrderDelete", createWebhookOperation(
-                                "Work Order Delete",
-                                "Triggered when a work order is deleted",
-                                "workOrderDeletePayload"
-                        )),
-                        Map.entry("newAsset", createWebhookOperation(
-                                "New Asset",
-                                "Triggered when a new asset is created",
-                                "newAssetPayload"
-                        )),
-                        Map.entry("newPart", createWebhookOperation(
-                                "New Part",
-                                "Triggered when a new part is created",
-                                "newPartPayload"
-                        )),
-                        Map.entry("partDelete", createWebhookOperation(
-                                "Part Delete",
-                                "Triggered when a part is deleted",
-                                "partDeletePayload"
-                        )),
-                        Map.entry("newRequest", createWebhookOperation(
-                                "New Request",
-                                "Triggered when a new work request is created",
-                                "newRequestPayload"
-                        )),
-                        Map.entry("newLocation", createWebhookOperation(
-                                "New Location",
-                                "Triggered when a new location is created",
-                                "newLocationPayload"
-                        )),
-                        Map.entry("newVendor", createWebhookOperation(
-                                "New Vendor",
-                                "Triggered when a new vendor is created",
-                                "newVendorPayload"
-                        ))
-                ))
-                .components(new io.swagger.v3.oas.models.Components()
-                        .schemas(createWebhookSchemas()));
+    public GlobalOpenApiCustomizer webhookCustomiser() {
+        return openApi -> {
+            // 1. Add schemas
+            if (openApi.getComponents() == null) {
+                openApi.setComponents(new io.swagger.v3.oas.models.Components());
+            }
+            if (openApi.getComponents().getSchemas() == null) {
+                openApi.getComponents().setSchemas(new LinkedHashMap<>());
+            }
+            openApi.getComponents().getSchemas().putAll(createWebhookSchemas());
+
+            // 2. Add webhooks
+            Map<String, PathItem> webhooks = new LinkedHashMap<>();
+            webhooks.put("workOrderStatusChange", createWebhookOperation(
+                    "Work Order Status Change",
+                    "Triggered when a work order status changes (e.g., OPEN -> IN_PROGRESS, IN_PROGRESS -> COMPLETE)",
+                    "workOrderStatusChangePayload"
+            ));
+            webhooks.put("workRequestStatusChange", createWebhookOperation(
+                    "Work Request Status Change",
+                    "Triggered when a work request is approved or cancelled",
+                    "workRequestStatusChangePayload"
+            ));
+            webhooks.put("partQuantityChanged", createWebhookOperation(
+                    "Part Quantity Changed",
+                    "Triggered when a part's quantity changes (through consumption, purchase order, or direct update)",
+                    "partQuantityChangedPayload"
+            ));
+            webhooks.put("partChange", createWebhookOperation(
+                    "Part Change",
+                    "Triggered when a part is updated",
+                    "partChangePayload"
+            ));
+            webhooks.put("assetStatusChange", createWebhookOperation(
+                    "Asset Status Change",
+                    "Triggered when an asset's status changes (e.g., OPERATIONAL -> DOWN)",
+                    "assetStatusChangePayload"
+            ));
+            webhooks.put("meterTriggerStatusChange", createWebhookOperation(
+                    "Meter Trigger Status Change",
+                    "Triggered when a meter reading triggers a work order based on threshold conditions",
+                    "meterTriggerStatusChangePayload"
+            ));
+            webhooks.put("newCategoryOnWorkOrder", createWebhookOperation(
+                    "New Category on Work Order",
+                    "Triggered when a category is added or changed on a work order",
+                    "newCategoryOnWorkOrderPayload"
+            ));
+            webhooks.put("newWorkOrder", createWebhookOperation(
+                    "New Work Order",
+                    "Triggered when a new work order is created",
+                    "newWorkOrderPayload"
+            ));
+            webhooks.put("workOrderChange", createWebhookOperation(
+                    "Work Order Change",
+                    "Triggered when a work order is updated",
+                    "workOrderChangePayload"
+            ));
+            webhooks.put("workOrderDelete", createWebhookOperation(
+                    "Work Order Delete",
+                    "Triggered when a work order is deleted",
+                    "workOrderDeletePayload"
+            ));
+            webhooks.put("newAsset", createWebhookOperation(
+                    "New Asset",
+                    "Triggered when a new asset is created",
+                    "newAssetPayload"
+            ));
+            webhooks.put("newPart", createWebhookOperation(
+                    "New Part",
+                    "Triggered when a new part is created",
+                    "newPartPayload"
+            ));
+            webhooks.put("partDelete", createWebhookOperation(
+                    "Part Delete",
+                    "Triggered when a part is deleted",
+                    "partDeletePayload"
+            ));
+            webhooks.put("newRequest", createWebhookOperation(
+                    "New Request",
+                    "Triggered when a new work request is created",
+                    "newRequestPayload"
+            ));
+            webhooks.put("newLocation", createWebhookOperation(
+                    "New Location",
+                    "Triggered when a new location is created",
+                    "newLocationPayload"
+            ));
+            webhooks.put("newVendor", createWebhookOperation(
+                    "New Vendor",
+                    "Triggered when a new vendor is created",
+                    "newVendorPayload"
+            ));
+            openApi.setWebhooks(webhooks);
+        };
     }
 
     private io.swagger.v3.oas.models.PathItem createWebhookOperation(
             String summary, String description, String schemaRef) {
-        Schema<?> payloadSchema = new ObjectSchema()
-                .raw$ref("#/components/schemas/" + schemaRef);
+
+        Schema<?> payloadSchema = new Schema<>().$ref("#/components/schemas/" + schemaRef);
 
         MediaType mediaType = new MediaType()
                 .schema(payloadSchema)
