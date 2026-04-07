@@ -21,7 +21,7 @@ public interface VendorRepository extends JpaRepository<Vendor, Long>, JpaSpecif
                 ORDER BY v.createdAt ASC
                 LIMIT 1
             """)
-    Optional<Vendor> findByNameIgnoreCaseAndCompanyId(@Param("name") String name, @Param("companyId") Long companyId);
+    Optional<Vendor> findByNameIgnoreCaseAndCompany_Id(@Param("name") String name, @Param("companyId") Long companyId);
 
     void deleteByCompany_IdAndIsDemoTrue(Long companyId);
 }
