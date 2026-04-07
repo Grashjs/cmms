@@ -58,8 +58,9 @@ public class LocationService {
         em.refresh(savedLocation);
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("locationId", savedLocation.getId());
+        Object serializedLocation = locationMapper.toShowDto(savedLocation, this);
         webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_LOCATION, webhookPayload,
-                "newLocation", savedLocation, location1 -> locationMapper.toShowDto(location1, this));
+                "newLocation", serializedLocation, null, null, null, null, null);
         return savedLocation;
     }
 

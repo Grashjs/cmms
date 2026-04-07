@@ -365,7 +365,7 @@ function Webhooks() {
                         <TextField
                           name="url"
                           label={t('webhook_endpoint_url')}
-                          placeholder={t('webhook_endpoint_url_placeholder')}
+                          placeholder={'https://example.com/webhook'}
                           value={values.url}
                           onChange={handleChange}
                           error={touched.url && Boolean(errors.url)}

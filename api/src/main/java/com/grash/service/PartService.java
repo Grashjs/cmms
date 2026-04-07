@@ -59,8 +59,9 @@ public class PartService {
         em.refresh(savedPart);
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("partId", savedPart.getId());
+        Object serializedPart = partMapper.toShowDto(savedPart);
         webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.NEW_PART, webhookPayload,
-                "newPart", savedPart, partMapper::toShowDto);
+                "newPart", serializedPart, null, null, null, null, null);
         return savedPart;
     }
 
@@ -75,8 +76,9 @@ public class PartService {
 
             Map<String, Object> webhookPayload = new HashMap<>();
             webhookPayload.put("partId", patchedPart.getId());
+            Object serializedPart = partMapper.toShowDto(patchedPart);
             webhookDispatchService.dispatchWebhook(patchedPart.getCompany(), WebhookEvent.PART_CHANGE, webhookPayload,
-                    "changedPart", patchedPart, partMapper::toShowDto, null, null, null, null, changedFields);
+                    "changedPart", serializedPart, null, null, null, null, changedFields);
 
             if (changedFields.contains(PartField.QUANTITY)) {
                 dispatchPartQuantityChangeWebhook(patchedPart, originalPartQuantity, patchedPart.getQuantity(),
@@ -140,8 +142,9 @@ public class PartService {
     public void delete(Part part) {
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("partId", part.getId());
+        Object serializedPart = partMapper.toShowDto(part);
         webhookDispatchService.dispatchWebhook(part.getCompany(), WebhookEvent.PART_DELETE, webhookPayload,
-                "deletePart", part, partMapper::toShowDto);
+                "deletePart", serializedPart, null, null, null, null, null);
         partRepository.deleteById(part.getId());
     }
 
@@ -358,8 +361,9 @@ public class PartService {
             webhookPayload.put("workOrderTitle", workOrder.getTitle());
         }
         Collection<PartField> changedFields = Collections.singletonList(PartField.QUANTITY);
+        Object serializedPart = partMapper.toShowDto(part);
         webhookDispatchService.dispatchWebhook(company, WebhookEvent.PART_QUANTITY_CHANGED, webhookPayload,
-                "changedPart", part, partMapper::toShowDto, null, null, null, null, changedFields);
+                "changedPart", serializedPart, null, null, null, null, changedFields);
     }
 }
 

@@ -61,8 +61,9 @@ public class RequestService {
         em.refresh(savedRequest);
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("requestId", savedRequest.getId());
+        Object serializedRequest = requestMapper.toShowDto(savedRequest);
         webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_REQUEST, webhookPayload,
-                "newRequest", savedRequest, requestMapper::toShowDto);
+                "newRequest", serializedRequest, null, null, null, null, null);
         return savedRequest;
     }
 
@@ -87,8 +88,9 @@ public class RequestService {
         em.refresh(savedRequest);
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("requestId", savedRequest.getId());
+        Object serializedRequest2 = requestMapper.toShowDto(savedRequest);
         webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_REQUEST, webhookPayload,
-                "newRequest", savedRequest, requestMapper::toShowDto);
+                "newRequest", serializedRequest2, null, null, null, null, null);
         return savedRequest;
     }
 

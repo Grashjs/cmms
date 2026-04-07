@@ -39,7 +39,7 @@ public class VendorService {
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("vendorId", savedVendor.getId());
         webhookDispatchService.dispatchWebhook(savedVendor.getCompany(), WebhookEvent.NEW_VENDOR, webhookPayload,
-                "newVendor", savedVendor, vendor -> vendor);
+                "newVendor", savedVendor, null, null, null, null, null);
         return savedVendor;
     }
 

@@ -99,8 +99,9 @@ public class WorkOrderService {
         workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, savedWorkOrder));
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("workOrderId", savedWorkOrder.getId());
+        Object serializedWorkOrder = workOrderMapper.toShowDto(savedWorkOrder);
         webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_WORK_ORDER, webhookPayload,
-                "newWorkOrder", savedWorkOrder, workOrderMapper::toShowDto);
+                "newWorkOrder", serializedWorkOrder, null, null, null, null, null);
         return savedWorkOrder;
     }
 
@@ -142,11 +143,12 @@ public class WorkOrderService {
             WorkOrder updatedWorkOrder =
                     workOrderRepository.saveAndFlush(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
             em.refresh(updatedWorkOrder);
+            Object serializedWorkOrder = workOrderMapper.toShowDto(updatedWorkOrder);
             Map<String, Object> webhookPayload = new HashMap<>();
             webhookPayload.put("workOrderId", updatedWorkOrder.getId());
             webhookPayload.put("workOrderTitle", updatedWorkOrder.getTitle());
             webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.WORK_ORDER_CHANGE, webhookPayload,
-                    "changedWorkOrder", updatedWorkOrder, workOrderMapper::toShowDto, changedFields);
+                    "changedWorkOrder", serializedWorkOrder, changedFields, null, null, null, null);
 
             Long newCategoryId = updatedWorkOrder.getCategory() != null ? updatedWorkOrder.getCategory().getId() : null;
             if ((previousCategoryId == null && newCategoryId != null) ||
@@ -160,8 +162,7 @@ public class WorkOrderService {
                         Collections.singletonList(newCategory) : Collections.emptyList();
                 webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.NEW_CATEGORY_ON_WORK_ORDER,
                         webhookPayload,
-                        "changedWorkOrder", updatedWorkOrder, workOrderMapper::toShowDto, null, null, null,
-                        categories, null);
+                        "changedWorkOrder", serializedWorkOrder, changedFields, null, null, categories, null);
             }
 
             return updatedWorkOrder;
@@ -177,8 +178,9 @@ public class WorkOrderService {
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("workOrderId", workOrder.getId());
         webhookPayload.put("workOrderTitle", workOrder.getTitle());
+        Object serializedWorkOrder = workOrderMapper.toShowDto(workOrder);
         webhookDispatchService.dispatchWebhook(company, WebhookEvent.WORK_ORDER_DELETE, webhookPayload,
-                "deleteWorkOrder", workOrder, workOrderMapper::toShowDto);
+                "deleteWorkOrder", serializedWorkOrder, null, null, null, null, null);
         workOrderRepository.deleteById(workOrder.getId());
     }
 
@@ -284,6 +286,7 @@ public class WorkOrderService {
         boolean categoryChanged = !Objects.equals(originalCategoryId, newCategoryId);
         WorkOrder updatedWorkOrder = workOrderRepository.saveAndFlush(workOrder);
         em.refresh(updatedWorkOrder);
+        Object serializedWorkOrder = workOrderMapper.toShowDto(updatedWorkOrder);
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("workOrderId", updatedWorkOrder.getId());
         webhookPayload.put("workOrderTitle", updatedWorkOrder.getTitle());
@@ -291,11 +294,11 @@ public class WorkOrderService {
         webhookPayload.put("newStatus", updatedWorkOrder.getStatus());
 
         webhookDispatchService.dispatchWebhook(company, WebhookEvent.WORK_ORDER_CHANGE, webhookPayload,
-                "changedWorkOrder", updatedWorkOrder, workOrderMapper::toShowDto, changedFields);
+                "changedWorkOrder", serializedWorkOrder, changedFields, null, null, null, null);
 
         if (statusChanged) {
             webhookDispatchService.dispatchWebhook(company, WebhookEvent.WORK_ORDER_STATUS_CHANGE, webhookPayload,
-                    "changedWorkOrder", updatedWorkOrder, workOrderMapper::toShowDto, changedFields, null,
+                    "changedWorkOrder", serializedWorkOrder, changedFields, null,
                     updatedWorkOrder.getStatus(), null, null);
         }
 
@@ -308,8 +311,7 @@ public class WorkOrderService {
             Collection<WorkOrderCategory> categories = newCategory != null ? Collections.singletonList(newCategory) :
                     Collections.emptyList();
             webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_CATEGORY_ON_WORK_ORDER, webhookPayload,
-                    "changedWorkOrder", updatedWorkOrder, workOrderMapper::toShowDto, changedFields, null, null,
-                    categories, null);
+                    "changedWorkOrder", serializedWorkOrder, changedFields, null, null, categories, null);
         }
 
         return updatedWorkOrder;

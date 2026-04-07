@@ -84,8 +84,9 @@ public class AssetService {
         em.refresh(savedAsset);
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("assetId", savedAsset.getId());
+        Object serializedAsset = assetMapper.toShowDto(savedAsset, this);
         webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_ASSET, webhookPayload,
-                "newAsset", savedAsset, asset1 -> assetMapper.toShowDto(asset1, this));
+                "newAsset", serializedAsset, null, null, null, null, null);
         return savedAsset;
     }
 
@@ -510,8 +511,9 @@ public class AssetService {
         webhookPayload.put("assetName", asset.getName());
         webhookPayload.put("previousStatus", previousStatus);
         webhookPayload.put("newStatus", newStatus);
+        Object serializedAsset = assetMapper.toShowDto(asset, this);
         webhookDispatchService.dispatchWebhook(asset.getCompany(), WebhookEvent.ASSET_STATUS_CHANGE, webhookPayload,
-                "changedAsset", asset, a -> assetMapper.toShowDto(a, this), null, newStatus, null, null, null);
+                "changedAsset", serializedAsset, null, newStatus, null, null, null);
     }
 }
 

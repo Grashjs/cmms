@@ -1869,7 +1869,60 @@ const deJSON = {
   delete_api_key_confirm:
     'Sind Sie sicher, dass Sie diesen API-Schlüssel löschen möchten?',
   upgrade_api:
-    'Upgrade durchführen, um Zugriff auf API, Konnektoren und Webhooks zu erhalten'
+    'Upgrade durchführen, um Zugriff auf API, Konnektoren und Webhooks zu erhalten',
+  // Webhooks
+  webhook_endpoints: 'Webhook-Endpunkte',
+  create_webhook_endpoint: 'Webhook-Endpunkt erstellen',
+  delete_webhook_endpoint: 'Webhook-Endpunkt löschen',
+  delete_webhook_endpoint_confirm:
+    'Sind Sie sicher, dass Sie diesen Webhook-Endpunkt löschen möchten?',
+  webhook_endpoint_created_success: 'Webhook-Endpunkt erfolgreich erstellt',
+  webhook_endpoint_deleted_success: 'Webhook-Endpunkt erfolgreich gelöscht',
+  webhook_endpoint_url: 'URL',
+  webhook_endpoint_event: 'Ereignis',
+  webhook_endpoint_select_event: 'Ein Ereignis auswählen',
+  webhook_endpoint_asset_statuses: 'Anlagenstatus',
+  webhook_endpoint_wo_statuses: 'Arbeitsauftragsstatus',
+  webhook_endpoint_work_request_approved_only: 'Nur genehmigte Anfragen',
+  webhook_endpoint_work_request_approved_only_desc:
+    'Auslöser für genehmigte Arbeitsanfragen',
+  webhook_endpoint_wo_categories: 'Arbeitsauftragskategorien',
+  webhook_endpoint_wo_fields: 'Arbeitsauftragsfelder',
+  webhook_endpoint_part_fields: 'Ersatzteilfelder',
+  webhook_endpoint_serialize: 'Payload serialisieren',
+  webhook_endpoint_serialize_description:
+    'Wenn aktiviert, erhält der Webhook die vollständigen Entitätsdaten',
+  webhook_endpoint_secret: 'Geheimnis',
+  webhook_endpoint_show_secret: 'Geheimnis anzeigen',
+  webhook_endpoint_hide_secret: 'Geheimnis verbergen',
+  webhook_endpoint_copy_secret: 'Geheimnis kopieren',
+  webhook_endpoint_rotate_secret: 'Geheimnis rotieren',
+  webhook_endpoint_secret_rotated: 'Geheimnis erfolgreich rotiert',
+  webhook_endpoint_secret_copied: 'Geheimnis in die Zwischenablage kopiert',
+  webhook_endpoint_last_triggered: 'Zuletzt ausgelöst',
+  webhook_endpoint_never_triggered: 'Nie ausgelöst',
+  webhook_endpoint_type: 'Typ',
+  WEBHOOK_ASSET_STATUS_CHANGE: 'Anlagenstatusänderung',
+  WEBHOOK_METER_TRIGGER_STATUS_CHANGE: 'Zählerauslöser-Statusänderung',
+  WEBHOOK_NEW_ASSET: 'Neue Anlage',
+  WEBHOOK_NEW_CATEGORY_ON_WORK_ORDER: 'Neue Kategorie auf Arbeitsauftrag',
+  WEBHOOK_NEW_COMMENT_ON_WORK_ORDER: 'Neuer Kommentar auf Arbeitsauftrag',
+  WEBHOOK_NEW_LOCATION: 'Neuer Standort',
+  WEBHOOK_NEW_PART: 'Neues Ersatzteil',
+  WEBHOOK_NEW_PURCHASE_ORDER: 'Neue Bestellung',
+  WEBHOOK_NEW_VENDOR: 'Neuer Anbieter',
+  WEBHOOK_NEW_WORK_ORDER: 'Neuer Arbeitsauftrag',
+  WEBHOOK_NEW_REQUEST: 'Neue Anfrage',
+  WEBHOOK_PART_CHANGE: 'Ersatzteiländerung',
+  WEBHOOK_PART_DELETE: 'Ersatzteillöschung',
+  WEBHOOK_PART_QUANTITY_CHANGED: 'Ersatzteilmenge geändert',
+  WEBHOOK_PURCHASE_ORDER_CHANGE: 'Bestellungsänderung',
+  WEBHOOK_PURCHASE_ORDER_STATUS_CHANGE: 'Bestellungsstatusänderung',
+  WEBHOOK_WORK_ORDER_CHANGE: 'Arbeitsauftragsänderung',
+  WEBHOOK_WORK_ORDER_DELETE: 'Arbeitsauftragslöschung',
+  WEBHOOK_WORK_ORDER_OVERDUE: 'Arbeitsauftrag überfällig',
+  WEBHOOK_WORK_ORDER_STATUS_CHANGE: 'Arbeitsauftragsstatusänderung',
+  WEBHOOK_WORK_REQUEST_STATUS_CHANGE: 'Arbeitsanfragenstatusänderung'
 };
 
 export default deJSON;

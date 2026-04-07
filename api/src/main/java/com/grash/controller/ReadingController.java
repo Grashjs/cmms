@@ -108,9 +108,10 @@ public class ReadingController {
                     webhookPayload.put("triggerValue", meterTrigger.getValue());
                     webhookPayload.put("triggerCondition", meterTrigger.getTriggerCondition().name());
                     webhookPayload.put("workOrderId", createdWorkOrder.getId());
+                    Object serializedWorkOrder = workOrderMapper.toShowDto(createdWorkOrder);
                     webhookDispatchService.dispatchWebhook(user.getCompany(),
                             WebhookEvent.METER_TRIGGER_STATUS_CHANGE, webhookPayload,
-                            "triggeredWorkOrder", createdWorkOrder, workOrderMapper::toShowDto);
+                            "triggeredWorkOrder", serializedWorkOrder, null, null, null, null, null);
                 }
             });
             return readingService.create(readingReq);

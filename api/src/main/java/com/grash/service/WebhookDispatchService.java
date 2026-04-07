@@ -28,7 +28,6 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,39 +42,12 @@ public class WebhookDispatchService {
     private final LicenseService licenseService;
 
     @Async
-    public <T> void dispatchWebhook(
+    public void dispatchWebhook(
             Company company,
             WebhookEvent eventType,
             Map<String, Object> result,
             String serializedField,
-            T rawPayload,
-            Function<T, Object> mapper
-    ) {
-        dispatchWebhook(company, eventType, result, serializedField, rawPayload, mapper, null, null, null, null, null);
-    }
-
-    @Async
-    public <T> void dispatchWebhook(
-            Company company,
-            WebhookEvent eventType,
-            Map<String, Object> result,
-            String serializedField,
-            T rawPayload,
-            Function<T, Object> mapper,
-            Collection<WOField> changedFields
-    ) {
-        dispatchWebhook(company, eventType, result, serializedField, rawPayload, mapper, changedFields, null, null,
-                null, null);
-    }
-
-    @Async
-    public <T> void dispatchWebhook(
-            Company company,
-            WebhookEvent eventType,
-            Map<String, Object> result,
-            String serializedField,
-            T rawPayload,
-            Function<T, Object> mapper,
+            Object serializedPayload,
             Collection<WOField> changedFields,
             AssetStatus assetStatus,
             Status workOrderStatus,
@@ -133,7 +105,7 @@ public class WebhookDispatchService {
         result.put("companyId", managedCompany.getId());
         for (WebhookEndpoint endpoint : endpoints) {
             try {
-                result.put(serializedField, endpoint.isSerialize() ? mapper.apply(rawPayload) : null);
+                result.put(serializedField, endpoint.isSerialize() ? serializedPayload : null);
                 sendWebhook(endpoint, eventType, result);
                 endpoint.setLastTriggeredAt(new Date());
                 webhookEndpointRepository.save(endpoint);

@@ -240,8 +240,9 @@ public class RequestController {
             webhookPayload.put("previousStatus", "PENDING");
             webhookPayload.put("newStatus", "APPROVED");
             webhookPayload.put("workOrderId", result.getId());
+            Object serializedRequest = requestMapper.toShowDto(savedRequest);
             webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.WORK_REQUEST_STATUS_CHANGE, webhookPayload,
-                    "changedRequest", savedRequest, requestMapper::toShowDto, null, null, null, null, null);
+                    "changedRequest", serializedRequest, null, null, null, null, null);
             
             List<OwnUser> usersToMail =
                     userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
@@ -305,8 +306,9 @@ public class RequestController {
             webhookPayload.put("previousStatus", "PENDING");
             webhookPayload.put("newStatus", "CANCELLED");
             webhookPayload.put("cancellationReason", reason);
+            Object serializedRequest = requestMapper.toShowDto(savedRequest);
             webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.WORK_REQUEST_STATUS_CHANGE, webhookPayload,
-                    "changedRequest", savedRequest, requestMapper::toShowDto, null, null, null, null, null);
+                    "changedRequest", serializedRequest, null, null, null, null, null);
 
             String title = messageSource.getMessage("request_rejected", null, Helper.getLocale(user));
             List<OwnUser> usersToMail =

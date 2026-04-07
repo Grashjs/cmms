@@ -1749,7 +1749,6 @@ const locale = {
   webhook_endpoint_created_success: 'Webhook endpoint created successfully',
   webhook_endpoint_deleted_success: 'Webhook endpoint deleted successfully',
   webhook_endpoint_url: 'URL',
-  webhook_endpoint_url_placeholder: 'https://example.com/webhook',
   webhook_endpoint_event: 'Event',
   webhook_endpoint_select_event: 'Select an event',
   webhook_endpoint_asset_statuses: 'Asset Statuses',
