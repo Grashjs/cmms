@@ -74,6 +74,8 @@ import { getCategories } from '../../../../slices/category';
 import Category from '../../../../models/owns/category';
 import { assetStatuses } from '../../../../models/owns/asset';
 import { RotateLeft } from '@mui/icons-material';
+import { onOpenApiDocs } from '../../../../utils/overall';
+import { apiUrl } from '../../../../config';
 
 const DialogWrapper = styled(Dialog)(
   () => `
@@ -268,10 +270,13 @@ function Webhooks() {
       size: 80
     }
   ];
-
+  const onOpenWebhookDocs = async () => {
+    window.open(apiUrl + 'api-docs.html#tag/webhook-subscriptions', '_blank');
+  };
   return (
     <Box>
-      <Box display="flex" justifyContent="flex-end" mb={3}>
+      <Box display="flex" justifyContent="flex-end" mb={3} gap={1}>
+        <Button onClick={onOpenWebhookDocs}>{t('open_api_docs')}</Button>
         <Button
           variant="contained"
           startIcon={<AddTwoToneIcon />}
