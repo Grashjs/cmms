@@ -151,5 +151,7 @@ sendgrid:
 intercom:
   token: ${INTERCOM_TOKEN:}
 springdoc:
+  api-docs:
+    version: openapi_3_1
   swagger-ui:
     tags-sorter: alpha
