@@ -7,23 +7,23 @@ import com.grash.model.Deprecation;
 import com.grash.model.OwnUser;
 import com.grash.service.DeprecationService;
 import com.grash.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/deprecations")
-@Api(tags = "deprecation")
+@Tag(name = "Depreciation", description = "Operations on asset depreciation")
 @RequiredArgsConstructor
 public class DeprecationController {
 
@@ -32,11 +32,8 @@ public class DeprecationController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Deprecation not found")})
-    public Deprecation getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public Deprecation getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Deprecation> optionalDeprecation = deprecationService.findById(id);
         if (optionalDeprecation.isPresent()) {
@@ -47,21 +44,16 @@ public class DeprecationController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public Deprecation create(@ApiParam("Deprecation") @Valid @RequestBody Deprecation deprecationReq, HttpServletRequest req) {
+    Deprecation create(@Parameter(description = "Depreciation to create") @Valid @RequestBody Deprecation deprecationReq,
+                       HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         return deprecationService.create(deprecationReq);
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Deprecation not found")})
-    public Deprecation patch(@ApiParam("Deprecation") @Valid @RequestBody DeprecationPatchDTO deprecation, @ApiParam("id") @PathVariable("id") Long id,
+
+    public Deprecation patch(@Parameter(description = "Depreciation fields to update") @Valid @RequestBody DeprecationPatchDTO deprecation, @PathVariable("id") Long id,
                              HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Deprecation> optionalDeprecation = deprecationService.findById(id);
@@ -74,11 +66,8 @@ public class DeprecationController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Deprecation not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Deprecation> optionalDeprecation = deprecationService.findById(id);
@@ -92,3 +81,5 @@ public class DeprecationController {
 
 
 }
+
+

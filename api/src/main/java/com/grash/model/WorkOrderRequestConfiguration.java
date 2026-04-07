@@ -1,11 +1,12 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,9 +17,11 @@ import static com.grash.model.FieldConfiguration.createFieldConfigurations;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(exclude = "companySettings")
+@Schema(description = "Work order request configuration for customizing request fields")
 public class WorkOrderRequestConfiguration {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Schema(description = "Unique identifier", accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "workOrderRequestConfiguration", fetch = FetchType.LAZY)
@@ -33,3 +36,4 @@ public class WorkOrderRequestConfiguration {
     }
 
 }
+

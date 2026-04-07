@@ -1432,6 +1432,17 @@ const locale = {
   power: 'Teljesítmény',
   library: 'Könyvtár',
   camera: 'Kamera',
+  media_library: 'Médiatár',
+  permission_required_title: 'Engedély szükséges',
+  permission_required_message:
+    'A(z) {{permission}} hozzáférés szükséges. Kérjük, engedélyezd az alkalmazás beállításaiban.',
+  permission_denied_title: 'Engedély megtagadva',
+  permission_denied_message:
+    'A(z) {{permission}} hozzáférés szükséges a folytatáshoz.',
+  unable_to_request_permission:
+    'Nem sikerült kérni a(z) {{permission}} engedélyt.',
+  open_settings: 'Beállítások megnyitása',
+  ok: 'OK',
   CANCELLED: 'Elutasítva',
   max_file_size_error: 'A fájl mérete nem haladhatja meg a {{size}} MB-ot',
   assignedToUser: 'Saját munkák',

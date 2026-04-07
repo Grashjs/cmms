@@ -11,7 +11,7 @@ import {
 import UserSettings from 'src/models/owns/userSettings';
 import CompanySettings from 'src/models/owns/companySettings';
 import { GeneralPreferences } from '../models/owns/generalPreferences';
-import internationalization from '../i18n/i18n';
+import internationalization, { loadLanguage } from '../i18n/i18n';
 import {
   FieldConfiguration,
   FieldType
@@ -35,6 +35,8 @@ import ReactGA from 'react-ga4';
 import { getLicenseValidity } from '../slices/license';
 import { fireGa4Event } from '../utils/overall';
 import { useUtmTracker } from '@nik0di3m/utm-tracker-hook';
+import { addDays } from 'date-fns';
+import { shutdown } from '@intercom/messenger-js-sdk';
 
 interface AuthState {
   isInitialized: boolean;
@@ -330,7 +332,14 @@ const handlers: Record<
       ...state,
       company: {
         ...state.company,
-        subscription: { ...state.company.subscription, cancelled: true }
+        subscription: {
+          ...state.company.subscription,
+          scheduledChangeType: 'RESET_TO_FREE',
+          scheduledChangeDate: addDays(
+            new Date(),
+            state.company.subscription.monthly ? 30 : 365
+          ).toString()
+        }
       }
     };
   },
@@ -342,7 +351,10 @@ const handlers: Record<
       ...state,
       company: {
         ...state.company,
-        subscription: { ...state.company.subscription, cancelled: false }
+        subscription: {
+          ...state.company.subscription,
+          scheduledChangeType: null
+        }
       }
     };
   },
@@ -494,7 +506,8 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   const [state, dispatch] = useReducer(reducer, initialAuthState);
   const { loginUser: loginZendesk, logoutUser: logoutZendesk } = useZendesk();
   const utmParams = useUtmTracker();
-  const switchLanguage = ({ lng }: { lng: any }) => {
+  const switchLanguage = async ({ lng }: { lng: any }) => {
+    await loadLanguage(lng);
     internationalization.changeLanguage(lng);
   };
   const updateUserInfos = async () => {
@@ -597,6 +610,11 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     } catch (err) {
       console.error(err);
     }
+    try {
+      shutdown();
+    } catch (err) {
+      console.error(err);
+    }
     //TODO this is not working
     // caches.keys().then((names) => {
     //   names.forEach((name) => {
@@ -619,6 +637,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       },
       conversionKey
     );
+    if (!values.role) fireGa4Event('company_signup');
     // @ts-ignore
     if (window.lintrk) {
       // @ts-ignore
@@ -630,8 +649,9 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         ...values,
         utmParams: {
           ...utmParams,
-          referrer: localStorage.getItem('referrerData')
-        }
+          referrer: utmParams.ref || localStorage.getItem('referrerData')
+        },
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
       },
       { headers: authHeader(true) }
     );
@@ -691,7 +711,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     });
   };
   const cancelSubscription = async (): Promise<void> => {
-    const response = await api.get<{ success: boolean }>(`fast-spring/cancel`);
+    const response = await api.get<{ success: boolean }>(`paddle/cancel`);
     const { success } = response;
     if (success) {
       dispatch({
@@ -701,7 +721,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     }
   };
   const resumeSubscription = async (): Promise<void> => {
-    const response = await api.get<{ success: boolean }>(`fast-spring/resume`);
+    const response = await api.get<{ success: boolean }>(`paddle/resume`);
     const { success } = response;
     if (success) {
       dispatch({

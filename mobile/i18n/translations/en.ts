@@ -1429,6 +1429,16 @@ const locale = {
   power: 'Power',
   library: 'Library',
   camera: 'Camera',
+  media_library: 'Media Library',
+  permission_required_title: 'Permission Required',
+  permission_required_message:
+    '{{permission}} access is needed. Please enable it in app settings.',
+  permission_denied_title: 'Permission Denied',
+  permission_denied_message: '{{permission}} access is needed to continue.',
+  unable_to_request_permission:
+    'Unable to request {{permission}} permission.',
+  open_settings: 'Open Settings',
+  ok: 'OK',
   CANCELLED: 'Rejected',
   max_file_size_error: 'The file size should not be greater than {{size}} MB',
   assignedToUser: 'My Work',
@@ -1461,6 +1471,7 @@ const locale = {
   top_level: 'Top Level',
   no_results_found: 'No results found',
   no_sub_assets: 'No sub-assets',
-  no_assets_available: 'No assets available'
+  no_assets_available: 'No assets available',
+  you_need_a_license: 'You need a license to access this feature'
 };
 export default locale;

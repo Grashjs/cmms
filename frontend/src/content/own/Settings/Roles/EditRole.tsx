@@ -22,6 +22,7 @@ import { useContext } from 'react';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 import { useDispatch } from '../../../../store';
 import { useBrand } from '../../../../hooks/useBrand';
+import { getErrorMessage } from '../../../../utils/api';
 
 interface EditRoleProps {
   role: Role;
@@ -38,7 +39,8 @@ function EditRole({ role, open, onClose, formatValues }: EditRoleProps) {
     onClose();
     showSnackBar(t('changes_saved_success'), 'success');
   };
-  const onEditFailure = (err) => showSnackBar(t('role_edit_failure'), 'error');
+  const onEditFailure = (err) =>
+    showSnackBar(getErrorMessage(err, t('role_edit_failure')), 'error');
 
   return (
     <Dialog fullWidth maxWidth="md" open={open} onClose={onClose}>

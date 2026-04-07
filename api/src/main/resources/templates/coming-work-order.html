@@ -1,11 +1,9 @@
 <!--/*@thymesVar id="pmTitle" type="java.lang.String"*/-->
 <!--/*@thymesVar id="pmLink" type="java.lang.String"*/-->
-<!--/*@thymesVar id="featuresLink" type="java.lang.String"*/-->
 <div th:replace="fragments/main-layout :: emailTemplate(
     #{coming_wo},
     #{comingWorkOrderHeader},
     #{coming_wo_message(${pmTitle})},
     #{seeDetails},
-    ${pmLink},
-    ${featuresLink}
+    ${pmLink}
 )"></div>

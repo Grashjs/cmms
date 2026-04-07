@@ -5,6 +5,9 @@ spring:
     username: ${DB_USER}
     password: ${DB_PWD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      leak-detection-threshold: 60000
+      maximum-pool-size: 20
   #    init:
   #      data-locations: classpath:data-preprod.sql
   #    tomcat:
@@ -15,6 +18,12 @@ spring:
   jackson:
     serialization:
       fail-on-empty-beans: false
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: never
+    properties:
+      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
   liquibase:
     change-log: classpath:/db/master.xml
     enabled: true
@@ -22,8 +31,8 @@ spring:
     encoding: UTF-8
   servlet:
     multipart:
-      max-request-size: 7MB
-      max-file-size: 7MB
+      max-request-size: 100MB
+      max-file-size: 35MB
   profiles:
     active: dev
   mvc:
@@ -62,8 +71,6 @@ spring:
       ssl.trust: ${SMTP_HOST:smtp.gmail.com}
   cache:
     type: caffeine
-    caffeine:
-      spec: maximumSize=1000,expireAfterWrite=20m
 server:
   port: 8080 # This is the default port anyway, but you can change it here
 
@@ -73,17 +80,26 @@ security:
       secret-key: ${JWT_SECRET_KEY}
       expire-length: 1209600000 # 1000*60*60*24*14
   invitation-via-email: ${INVITATION_VIA_EMAIL}
+  recaptcha-secret-key: ${RECAPTCHA_SECRET_KEY:}
+  cors:
+    enabled: ${ENABLE_CORS:true}
+  rate-limit:
+    enabled: ${RATE_LIMIT_ENABLED:true}
+    authenticated:
+      short-term-requests: ${RATE_LIMIT_AUTHENTICATED_SHORT:100}
+      short-term-period-minutes: ${RATE_LIMIT_AUTHENTICATED_SHORT_PERIOD:1}
+      long-term-requests: ${RATE_LIMIT_AUTHENTICATED_LONG:1000}
+      long-term-period-hours: ${RATE_LIMIT_AUTHENTICATED_LONG_PERIOD:1}
 frontend:
   url: ${PUBLIC_FRONT_URL}
+  home-url: ${PUBLIC_HOME_URL:}
 mail:
   recipients: ${MAIL_RECIPIENTS}
   enable: ${ENABLE_EMAIL_NOTIFICATIONS}
+  type: ${MAIL_TYPE:SMTP}
 superAdmin:
   role:
     name: SuperAdministratorGrash@p;l
-fast-spring:
-  username: ${FASTSPRING_USER}
-  password: ${FASTSPRING_PWD}
 management:
   health:
     mail:
@@ -113,7 +129,29 @@ oauth2:
   provider: ${OAUTH2_PROVIDER}
 license-key: ${LICENSE_KEY:}
 license-fingerprint-required: ${LICENSE_FINGERPRINT_REQUIRED:true}
+license-file-path: ${LICENSE_FILE_PATH:}
 white-labeling:
   logo-paths: ${LOGO_PATHS:}
   custom-colors: ${CUSTOM_COLORS:}
   brand-config: ${BRAND_CONFIG:}
+
+paddle:
+  api-key: ${PADDLE_API_KEY:}
+  environment: ${PADDLE_ENVIRONMENT:sandbox}
+  webhook-secret-key: ${PADDLE_WEBHOOK_SECRET_KEY:}
+keygen:
+  product-token: ${KEYGEN_PRODUCT_TOKEN:}
+  account-id: 1ca3e517-f3d8-473f-a45c-81069900acb7
+sendgrid:
+  api:
+    key: ${SENDGRID_API_KEY:}
+  contact-list-id: ${SENDGRID_CONTACT_LIST_ID:}
+  from:
+    email: ${SENDGRID_FROM_EMAIL:}
+intercom:
+  token: ${INTERCOM_TOKEN:}
+springdoc:
+  api-docs:
+    version: openapi_3_1
+  swagger-ui:
+    tags-sorter: alpha

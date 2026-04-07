@@ -2,12 +2,15 @@ package com.grash.controller;
 
 import com.grash.dto.SuccessResponse;
 import com.grash.service.CustomHealthIndicator;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.Status;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,14 +20,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/health-check")
 @RequiredArgsConstructor
+@Hidden
 public class HealthCheckController {
 
-    private final CustomHealthIndicator healthIndicator;
+    @Autowired
+    @Lazy
+    private CustomHealthIndicator healthIndicator;
+
     @GetMapping("")
     public ResponseEntity<SuccessResponse> healthCheck() {
         Health health = healthIndicator.health();
         if (health.getStatus().equals(Status.DOWN)) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new SuccessResponse(false,"Service Unavailable"));
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new SuccessResponse(false, "Service " +
+                    "Unavailable"));
         } else {
             return ResponseEntity.ok().body(new SuccessResponse(true, "Service is up and running"));
         }

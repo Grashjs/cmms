@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Card,
   Divider,
   Grid,
@@ -25,6 +26,13 @@ import { useContext } from 'react';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
 import AssetStatusTag from '../components/AssetStatusTag';
 import Loading from '../../Analytics/Loading';
+import { PermissionEntity } from '../../../../models/owns/role';
+import SplitButton from '../../components/SplitButton';
+import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
+import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
+import * as React from 'react';
+import useAuth from '../../../../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 interface PropsType {
   asset: AssetDTO;
@@ -44,6 +52,8 @@ const LabelWrapper = styled(Box)(
 const AssetDetails = ({ asset, loading }: PropsType) => {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
+  const { hasCreatePermission } = useAuth();
+  const navigate = useNavigate();
   const { getFormattedDate, getFormattedCurrency } = useContext(
     CompanySettingsContext
   );
@@ -158,9 +168,24 @@ const AssetDetails = ({ asset, loading }: PropsType) => {
                 </Grid>
               )}
               <Grid item xs={12}>
-                <Stack direction={'row'} spacing={2} alignItems={'center'}>
-                  <Typography variant="h3">{t('asset_information')}</Typography>
-                  {asset && <AssetStatusTag status={asset.status} />}
+                <Stack direction={'row'} justifyContent={'space-between'}>
+                  <Stack direction={'row'} spacing={2} alignItems={'center'}>
+                    <Typography variant="h3">
+                      {t('asset_information')}
+                    </Typography>
+                    {asset && <AssetStatusTag status={asset.status} />}
+                  </Stack>
+                  {hasCreatePermission(PermissionEntity.WORK_ORDERS) && (
+                    <Button
+                      onClick={() =>
+                        navigate(`/app/work-orders?asset=${asset.id}`)
+                      }
+                      startIcon={<AddTwoToneIcon />}
+                      variant={'contained'}
+                    >
+                      {t('work_order')}
+                    </Button>
+                  )}
                 </Stack>
               </Grid>
               {informationFields.map((field) => (

@@ -5,11 +5,13 @@ import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.AssetPatchDTO;
 import com.grash.dto.AssetShowDTO;
 import com.grash.dto.imports.AssetImportDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetMapper;
 import com.grash.model.*;
 import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.NotificationType;
+import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.AssetRepository;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +25,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityNotFoundException;
-import javax.transaction.Transactional;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static com.grash.utils.Consts.usageBasedLicenseLimits;
 
 @Service
 @RequiredArgsConstructor
@@ -51,24 +56,37 @@ public class AssetService {
     private WorkOrderService workOrderService;
     private final MessageSource messageSource;
     private final CustomSequenceService customSequenceService;
+    private final LicenseService licenseService;
+    private WebhookDispatchService webhookDispatchService;
 
     @Autowired
     public void setDeps(@Lazy LocationService locationService, @Lazy LaborService laborService,
-                        @Lazy WorkOrderService workOrderService
+                        @Lazy WorkOrderService workOrderService,
+                        @Lazy WebhookDispatchService webhookDispatchService
     ) {
         this.locationService = locationService;
         this.laborService = laborService;
         this.workOrderService = workOrderService;
+        this.webhookDispatchService = webhookDispatchService;
     }
 
     @Transactional
     public Asset create(Asset asset, OwnUser user) {
+        checkUsageBasedLimit(user.getCompany());
+        if (asset.getParentAsset() != null && !licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY))
+            throw new CustomException("You need a license to add a child asset to another asset.",
+                    HttpStatus.FORBIDDEN);
         // Generate custom ID
         Company company = user.getCompany();
         asset.setCustomId(getAssetNumber(company));
 
         Asset savedAsset = assetRepository.saveAndFlush(asset);
         em.refresh(savedAsset);
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("assetId", savedAsset.getId());
+        Object serializedAsset = assetMapper.toShowDto(savedAsset, this);
+        webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_ASSET, webhookPayload,
+                "newAsset", serializedAsset, null, null, null, null, null);
         return savedAsset;
     }
 
@@ -79,16 +97,38 @@ public class AssetService {
 
     @Transactional
     public Asset update(Long id, AssetPatchDTO asset) {
+        if (asset.getParentAsset() != null && !licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY))
+            throw new CustomException("You need a license to add a child asset to another asset.",
+                    HttpStatus.FORBIDDEN);
         if (assetRepository.existsById(id)) {
             Asset savedAsset = assetRepository.findById(id).get();
+            AssetStatus previousStatus = savedAsset.getStatus();
             Asset patchedAsset = assetRepository.saveAndFlush(assetMapper.updateAsset(savedAsset, asset));
             em.refresh(patchedAsset);
+
+            if (!previousStatus.equals(patchedAsset.getStatus())) {
+                dispatchAssetStatusChangeWebhook(patchedAsset, previousStatus, patchedAsset.getStatus());
+            }
+
             return patchedAsset;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
+    private void checkUsageBasedLimit(Company company) {
+        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ASSETS);
+        if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ASSETS)
+                && assetRepository.hasMoreThan(company.getId(), threshold.longValue() - 1
+        ))
+            throw new CustomException("You need a license to add a new asset. Free Limit reached: " + threshold,
+                    HttpStatus.FORBIDDEN);
+    }
+
     public Asset save(Asset asset) {
         return assetRepository.save(asset);
+    }
+
+    public List<Asset> saveAll(List<Asset> assets) {
+        return assetRepository.saveAll(assets);
     }
 
     public Collection<Asset> getAll() {
@@ -111,12 +151,16 @@ public class AssetService {
         return assetRepository.findByCompany_Id(id);
     }
 
+    public List<Asset> findByCompanyForExport(Long companyId) {
+        return assetRepository.findByCompanyForExport(companyId);
+    }
+
     public List<Asset> findByCompany(Long id, Sort sort) {
         return assetRepository.findByCompany_Id(id, sort);
     }
 
     public List<Asset> findByCompanyAndParentAssetNull(Long id, Pageable pageable) {
-        return assetRepository.findByCompany_IdAndParentAssetIsNull(id, pageable);
+        return assetRepository.findByCompany_IdAndParentAssetIsNull(id, pageable).toList();
     }
 
 
@@ -126,6 +170,10 @@ public class AssetService {
 
     public List<Asset> findAssetChildren(Long id, Sort sort) {
         return assetRepository.findByParentAsset_Id(id, sort);
+    }
+
+    public Page<Asset> findAssetChildren(Long id, Pageable pageable) {
+        return assetRepository.findByParentAsset_Id(id, pageable);
     }
 
     public void notify(Asset asset, String title, String message) {
@@ -157,12 +205,17 @@ public class AssetService {
             assetDowntimeService.save(runningDowntime);
         }
 
+        AssetStatus previousStatus = asset.getStatus();
         asset.setStatus(AssetStatus.OPERATIONAL);
         save(asset);
+
+        if (!previousStatus.equals(AssetStatus.OPERATIONAL)) {
+            dispatchAssetStatusChangeWebhook(asset, previousStatus, AssetStatus.OPERATIONAL);
+        }
     }
 
     private void recursivelyStopChildrenDowntime(Asset parentAsset) {
-        List<Asset> children = findAssetChildren(parentAsset.getId(), null);
+        List<Asset> children = findAssetChildren(parentAsset.getId(), (Sort) null);
         for (Asset child : children) {
             stopAssetDowntime(child);
             recursivelyStopChildrenDowntime(child);
@@ -181,18 +234,22 @@ public class AssetService {
     public void triggerDownTime(Long id, Locale locale, AssetStatus status) {
         Date now = new Date();
         Asset asset = findById(id).get();
+        AssetStatus previousAssetStatus = asset.getStatus();
         createAssetDowntime(asset, now, asset.getCompany());
         Asset parentAsset = asset.getParentAsset();
         while (parentAsset != null) {
             createAssetDowntime(parentAsset, now, asset.getCompany());
             if (!parentAsset.getStatus().isReallyDown()) {
+                AssetStatus previousParentStatus = parentAsset.getStatus();
                 parentAsset.setStatus(status);
                 save(parentAsset);
+                dispatchAssetStatusChangeWebhook(parentAsset, previousParentStatus, status);
             }
             parentAsset = parentAsset.getParentAsset();
         }
         asset.setStatus(status);
         save(asset);
+        dispatchAssetStatusChangeWebhook(asset, previousAssetStatus, status);
         String message = messageSource.getMessage("notification_asset_down", new Object[]{asset.getName()}, locale);
         notify(asset, message, messageSource.getMessage("asset_status_change", null, locale));
 
@@ -204,7 +261,7 @@ public class AssetService {
                 .asset(asset)
                 .build();
         downtime.setCompany(company);
-        assetDowntimeService.create(downtime);
+        assetDowntimeService.create(downtime, false);
     }
 
     public boolean isAssetInCompany(Asset asset, long companyId, boolean optional) {
@@ -229,11 +286,16 @@ public class AssetService {
         return assetRepository.findByNameIgnoreCaseAndCompany_Id(assetName, companyId);
     }
 
-    public void importAsset(Asset asset, AssetImportDTO dto, Company company) {
+    public void setAssetFieldsFromImportDto(Asset asset, AssetImportDTO dto, Company company,
+                                            Map<String, Asset> assetsByName) {
+        checkUsageBasedLimit(company);
+        if (!licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY) && dto.getParentAssetName() != null && !dto.getParentAssetName().isEmpty())
+            throw new CustomException("You need a license to import assets with hierarchy", HttpStatus.FORBIDDEN);
         Long companySettingsId = company.getCompanySettings().getId();
         Long companyId = company.getId();
+        asset.setCompany(company);
         asset.setArea(dto.getArea());
-        if (dto.getBarCode() != null) {
+        if (dto.getBarCode() != null && !dto.getBarCode().trim().isEmpty()) {
             Optional<Asset> optionalAssetWithSameBarCode = findByBarcodeAndCompany(dto.getBarCode(), company.getId());
             if (optionalAssetWithSameBarCode.isPresent()) {
                 boolean hasError = false;
@@ -260,9 +322,15 @@ public class AssetService {
         Optional<Location> optionalLocation = locationService.findByNameIgnoreCaseAndCompany(dto.getLocationName(),
                 companyId).stream().findFirst();
         optionalLocation.ifPresent(asset::setLocation);
-        Optional<Asset> optionalAsset =
-                findByNameIgnoreCaseAndCompany(dto.getParentAssetName(), companyId).stream().findFirst();
-        optionalAsset.ifPresent(asset::setParentAsset);
+        // Check parent asset in batch first, then in database
+        if (dto.getParentAssetName() != null && !dto.getParentAssetName().isEmpty()) {
+            Asset parentAsset = assetsByName != null ? assetsByName.get(dto.getParentAssetName()) : null;
+            if (parentAsset == null) {
+                parentAsset = findByNameIgnoreCaseAndCompany(dto.getParentAssetName(), companyId)
+                        .stream().findFirst().orElse(null);
+            }
+            asset.setParentAsset(parentAsset);
+        }
         Optional<AssetCategory> optionalAssetCategory =
                 assetCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
         optionalAssetCategory.ifPresent(asset::setCategory);
@@ -306,11 +374,15 @@ public class AssetService {
         });
         asset.setParts(parts);
 
-        assetRepository.save(asset);
+//        assetRepository.save(asset);
     }
 
     public Optional<Asset> findByIdAndCompany(Long id, Long companyId) {
         return assetRepository.findByIdAndCompany_Id(id, companyId);
+    }
+
+    public List<Asset> findByIdsAndCompany(List<Long> ids, Long companyId) {
+        return assetRepository.findByIdInAndCompany_Id(ids, companyId);
     }
 
     public Optional<Asset> findByBarcodeAndCompany(String data, Long id) {
@@ -434,4 +506,16 @@ public class AssetService {
         Collection<WorkOrder> workOrders = workOrderService.findByAssetAndCreatedAtBetween(assetId, start, end);
         return workOrderService.getAllCost(workOrders, includeLaborCost);
     }
+
+    private void dispatchAssetStatusChangeWebhook(Asset asset, AssetStatus previousStatus, AssetStatus newStatus) {
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("assetId", asset.getId());
+        webhookPayload.put("assetName", asset.getName());
+        webhookPayload.put("previousStatus", previousStatus);
+        webhookPayload.put("newStatus", newStatus);
+        Object serializedAsset = assetMapper.toShowDto(asset, this);
+        webhookDispatchService.dispatchWebhook(asset.getCompany(), WebhookEvent.ASSET_STATUS_CHANGE, webhookPayload,
+                "changedAsset", serializedAsset, null, newStatus, null, null, null);
+    }
 }
+

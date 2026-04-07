@@ -111,7 +111,7 @@ function Status500() {
                   {t('Refresh view')}
                 </LoadingButton>
                 <Button
-                  href="/overview"
+                  href="/"
                   variant="contained"
                   sx={{
                     ml: 1
@@ -152,7 +152,7 @@ function Status500() {
                 >
                   {t('High performance CMMS')}
                 </TypographySecondary>
-                <Button href="/overview" size="large" variant="contained">
+                <Button href="/" size="large" variant="contained">
                   {t('Overview')}
                 </Button>
               </Box>

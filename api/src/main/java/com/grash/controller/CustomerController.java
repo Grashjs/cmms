@@ -12,10 +12,9 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.CustomerService;
 import com.grash.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -23,15 +22,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/customers")
-@Api(tags = "customer")
+@Tag(name = "Customers", description = "Operations on customers")
 @RequiredArgsConstructor
 public class CustomerController {
 
@@ -41,7 +41,7 @@ public class CustomerController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<Customer>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
+    public ResponseEntity<Page<Customer>> search(@Parameter(description = "Customer search criteria") @RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
@@ -53,10 +53,7 @@ public class CustomerController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "AssetCategory not found")})
+
     public Collection<CustomerMiniDTO> getMini(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         return customerService.findByCompany(user.getCompany().getId()).stream().map(customerMapper::toMiniDto).collect(Collectors.toList());
@@ -64,11 +61,8 @@ public class CustomerController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Customer not found")})
-    public Customer getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public Customer getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Customer> optionalCustomer = customerService.findById(id);
         if (optionalCustomer.isPresent()) {
@@ -81,10 +75,7 @@ public class CustomerController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public Customer create(@ApiParam("Customer") @Valid @RequestBody Customer customerReq, HttpServletRequest req) {
+    Customer create(@Parameter(description = "Customer to create") @Valid @RequestBody Customer customerReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
             return customerService.create(customerReq);
@@ -93,12 +84,9 @@ public class CustomerController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Customer not found")})
-    public Customer patch(@ApiParam("Customer") @Valid @RequestBody CustomerPatchDTO customer,
-                          @ApiParam("id") @PathVariable("id") Long id,
+
+    public Customer patch(@Parameter(description = "Customer fields to update") @Valid @RequestBody CustomerPatchDTO customer,
+                          @PathVariable("id") Long id,
                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Customer> optionalCustomer = customerService.findById(id);
@@ -113,11 +101,8 @@ public class CustomerController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Customer not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Customer> optionalCustomer = customerService.findById(id);
@@ -133,3 +118,5 @@ public class CustomerController {
     }
 
 }
+
+

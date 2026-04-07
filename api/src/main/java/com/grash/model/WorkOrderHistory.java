@@ -2,6 +2,7 @@ package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.Audit;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,20 +10,23 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Schema(description = "Work order history for tracking saved versions of work orders")
 public class WorkOrderHistory extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Schema(description = "Unique identifier", accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
     @NotNull
+    @Schema(description = "Name of the saved work order version", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
     @NotNull
@@ -35,3 +39,5 @@ public class WorkOrderHistory extends Audit {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private WorkOrder workOrder;
 }
+
+

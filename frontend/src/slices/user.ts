@@ -123,12 +123,12 @@ export const slice = createSlice({
 export const reducer = slice.reducer;
 
 export const getUsers =
-  (criteria: SearchCriteria): AppThunk =>
+  (criteria: SearchCriteria, enabledOnly: boolean = true): AppThunk =>
   async (dispatch) => {
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
       const users = await api.post<Page<UserResponseDTO>>(
-        `${basePath}/search`,
+        `${basePath}/search?enabledOnly=${enabledOnly}`,
         criteria
       );
       dispatch(slice.actions.getUsers({ users }));
@@ -214,13 +214,14 @@ export const deleteUser =
   };
 
 export const inviteUsers =
-  (roleId: number, emails: string[]): AppThunk =>
+  (roleId: number, emails: string[], disableSendingEmail: boolean): AppThunk =>
   async (dispatch) => {
     const successResponse = await api.post<{ success: boolean }>(
       'users/invite',
       {
         role: { id: roleId },
-        emails
+        emails,
+        disableSendingEmail
       }
     );
   };

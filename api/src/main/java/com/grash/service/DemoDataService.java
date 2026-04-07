@@ -50,11 +50,15 @@ public class DemoDataService {
     @Autowired
     @Lazy
     private RequestService requestService;
+    @Autowired
+    @Lazy
+    private PaddleService paddleService;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async
     public void handleUserCreated(CompanyCreatedEvent event) {
         createDemoData(event.getUser(), event.getUser().getCompany());
+        if (!event.getUser().getCompany().isDemo()) paddleService.createCustomer(event.getUser());
     }
 
     @Transactional
@@ -160,12 +164,13 @@ public class DemoDataService {
 
         // Work Orders
         WorkOrder wo1 = createWorkOrder("Fix leaking pipe", "A pipe is leaking in the main building", woCategory5,
-                asset1, location1, user, new Date(), Status.IN_PROGRESS, Priority.HIGH, company, user);
+                asset1, location1, user, new Date(), Status.IN_PROGRESS, Priority.HIGH, company, user,
+                Helper.incrementDays(new Date(), 2));
         WorkOrder wo2 = createWorkOrder("Replace air filter", "Replace the air filter in HVAC-001", woCategory3,
-                asset1, location2, user, new Date(), Status.ON_HOLD, Priority.LOW, company, user);
+                asset1, location2, user, new Date(), Status.ON_HOLD, Priority.LOW, company, user, null);
         WorkOrder wo3 = createWorkOrder("Perform annual inspection", "Annual inspection of the backup generator",
                 woCategory4, asset3, location3, user, new Date(), Status.COMPLETE, Priority.LOW,
-                company, user);
+                company, user, null);
 
         // Work Order Details
         addLaborToWorkOrder(wo1, user, timeCategory1, 50, 2, company);
@@ -344,25 +349,26 @@ public class DemoDataService {
         pm.setDemo(true);
 
         Schedule schedule = new Schedule(pm);
+        schedule.setDisabled(true);
         schedule.setFrequency(frequency);
         schedule.setCreatedBy(user.getId());
         schedule.setRecurrenceType(recurrenceType);
         schedule.setRecurrenceBasedOn(recurrenceBasedOn);
         schedule.setDaysOfWeek(daysOfWeek);
         schedule.setDueDateDelay(1);
-        schedule.setEndsOn(Helper.incrementDays(new Date(), 100));
+        schedule.setEndsOn(Helper.incrementDays(new Date(), 1));
         schedule.setDemo(true);
 
         pm.setSchedule(schedule);
 
         pm = preventiveMaintenanceRepository.save(pm);
-        scheduleService.scheduleWorkOrder(pm.getSchedule());
+//        scheduleService.scheduleWorkOrder(pm.getSchedule());
         return pm;
     }
 
     private WorkOrder createWorkOrder(String title, String description, WorkOrderCategory category, Asset asset,
                                       Location location, OwnUser assignedTo, Date creationDate,
-                                      Status status, Priority priority, Company company, OwnUser user) {
+                                      Status status, Priority priority, Company company, OwnUser user, Date dueDate) {
         WorkOrder workOrder = new WorkOrder();
         workOrder.setTitle(title);
         workOrder.setDescription(description);
@@ -375,6 +381,7 @@ public class DemoDataService {
         workOrder.setPriority(priority);
         workOrder.setCompany(company);
         workOrder.setCreatedBy(user.getId());
+        workOrder.setDueDate(dueDate);
         workOrder.setDemo(true);
         workOrder.setCustomId(workOrderService.getWorkOrderNumber(company));
         return workOrderRepository.save(workOrder);

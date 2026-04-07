@@ -7,6 +7,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -16,8 +18,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.PostConstruct;
+
+import javax.crypto.SecretKey;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
@@ -28,16 +34,19 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
 
-    /**
-     * THIS IS NOT A SECURE PRACTICE! For simplicity, we are storing a static key here. Ideally, in a
-     * microservices environment, this key would be kept on a config-server.
-     */
     @Value("${security.jwt.token.secret-key:secret-key}")
     private String secretKey;
 
     @Value("${security.jwt.token.expire-length:3600000}")
     private long validityInMilliseconds = 3600000; // 1h
 
+    private SecretKey key;
+
+    @PostConstruct
+    protected void init() {
+        byte[] keyBytes = Base64.getDecoder().decode(secretKey);
+        this.key = Keys.hmacShaKeyFor(keyBytes);
+    }
 
     private final CustomUserDetailsService customUserDetailsService;
 
@@ -54,7 +63,7 @@ public class JwtTokenProvider {
                 .setClaims(claims)//
                 .setIssuedAt(now)//
                 .setExpiration(validity)//
-                .signWith(SignatureAlgorithm.HS256, secretKey)//
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -67,7 +76,10 @@ public class JwtTokenProvider {
     }
 
     public String getUsername(String token) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token).getBody().getSubject();
     }
 
     public String resolveToken(HttpServletRequest req) {
@@ -75,12 +87,23 @@ public class JwtTokenProvider {
         if (bearerToken != null && bearerToken.startsWith(Consts.TOKEN_PREFIX)) {
             return bearerToken.substring(7);
         }
+        Cookie[] cookies = req.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("swagger_jwt".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
         return null;
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             throw new CustomException("Expired or invalid JWT token", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -88,3 +111,4 @@ public class JwtTokenProvider {
     }
 
 }
+

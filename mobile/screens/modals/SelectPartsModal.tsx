@@ -2,6 +2,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   useWindowDimensions
 } from 'react-native';
 import { View } from '../../components/Themed';
@@ -15,9 +16,12 @@ import { PartMiniDTO } from '../../models/part';
 import { getPartsMini } from '../../slices/part';
 import {
   ActivityIndicator,
+  Avatar,
   Button,
-  Checkbox, Searchbar,
-  Text, TextInput,
+  Checkbox,
+  Searchbar,
+  Text,
+  TextInput,
   useTheme
 } from 'react-native-paper';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
@@ -25,11 +29,11 @@ import { getMultiParts, getMultiPartsMini } from '../../slices/multipart';
 import SetType from '../../models/setType';
 
 const PartsRoute = ({
-                      toggle,
-                      partsMini,
-                      navigation,
-                      selectedIds
-                    }: {
+  toggle,
+  partsMini,
+  navigation,
+  selectedIds
+}: {
   toggle: (id: number) => void;
   partsMini: PartMiniDTO[];
   selectedIds: number[];
@@ -46,56 +50,72 @@ const PartsRoute = ({
         onChangeText={setSearchQuery}
         value={searchQuery}
         style={{ backgroundColor: theme.colors.background }}
-
       />
 
       <ScrollView style={{ flex: 1 }}>
-        {partsMini.filter(part => part.name.toLowerCase().includes(searchQuery.toLowerCase().trim())).map((part) => (
-          <View
-            key={part.id}
-            style={{
-              padding: 10,
-              display: 'flex',
-              borderRadius: 5,
-              flexDirection: 'row',
-              elevation: 2,
-              justifyContent: 'space-between'
-            }}
-          >
-            <Checkbox
-              status={selectedIds.includes(part.id) ? 'checked' : 'unchecked'}
+        {partsMini
+          .filter((part) =>
+            part.name.toLowerCase().includes(searchQuery.toLowerCase().trim())
+          )
+          .map((part) => (
+            <Pressable
+              key={part.id}
               onPress={() => {
                 toggle(part.id);
               }}
-            />
-            <View
-              style={{ display: 'flex', flexDirection: 'column', width: '50%' }}
             >
-              <Text variant={'labelMedium'}>{part.name}</Text>
-              <Text variant={'bodyMedium'}>
-                {getFormattedCurrency(part.cost)}
-              </Text>
-            </View>
-            <Button
-              style={{ width: '40%' }}
-              mode='outlined'
-              buttonColor={'white'}
-              onPress={() => navigation.navigate('PartDetails', { id: part.id })}
-            >
-              {t('details')}
-            </Button>
-          </View>
-        ))}
+              <View style={styles.card}>
+                <View style={styles.cardRow}>
+                  <Checkbox
+                    status={
+                      selectedIds.includes(part.id) ? 'checked' : 'unchecked'
+                    }
+                  />
+                  <Avatar.Icon
+                    size={50}
+                    icon="archive-outline"
+                    style={{ backgroundColor: theme.colors.primaryContainer }}
+                  />
+                  <View style={{ flex: 1 }}>
+                    <View style={styles.cardHeader}>
+                      <View style={{ flex: 1 }}>
+                        <Text variant="titleMedium" style={styles.cardTitle}>
+                          {part.name}
+                        </Text>
+                        <Text variant={'bodyMedium'} style={{ color: 'grey' }}>
+                          {getFormattedCurrency(part.cost)}
+                        </Text>
+                      </View>
+                      <View
+                        style={{ flexDirection: 'row', alignItems: 'center' }}
+                      >
+                        <Button
+                          mode="text"
+                          buttonColor={'white'}
+                          onPress={() => {
+                            navigation.navigate('PartDetails', { id: part.id });
+                          }}
+                          style={{ marginRight: 8 }}
+                        >
+                          {t('details')}
+                        </Button>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </Pressable>
+          ))}
       </ScrollView>
     </View>
   );
 };
 
 const SetsRoute = ({
-                     toggle,
-                     multiParts,
-                     selectedIds
-                   }: {
+  toggle,
+  multiParts,
+  selectedIds
+}: {
   toggle: (multiPart: SetType, checked: boolean) => void;
   multiParts: SetType[];
   selectedIds: number[];
@@ -105,8 +125,10 @@ const SetsRoute = ({
   const theme = useTheme();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const selectedMultiParts = multiParts
-    .filter((multiPart) =>
-      multiPart.parts.every((part) => selectedIds.includes(part.id))
+    .filter(
+      (multiPart) =>
+        multiPart.parts.length > 0 &&
+        multiPart.parts.every((part) => selectedIds.includes(part.id))
     )
     .map((multiPart) => multiPart.id);
   return (
@@ -118,45 +140,58 @@ const SetsRoute = ({
         style={{ backgroundColor: theme.colors.background }}
       />
       <ScrollView style={{ flex: 1 }}>
-        {multiParts.filter(multiPart => multiPart.name.toLowerCase().includes(searchQuery.toLowerCase().trim())).map((multiPart) => (
-          <View
-            key={multiPart.id}
-            style={{
-              padding: 10,
-              display: 'flex',
-              flexDirection: 'row',
-              elevation: 2,
-              justifyContent: 'space-between'
-            }}
-          >
-            <Checkbox
-              status={
-                selectedMultiParts.includes(multiPart.id)
-                  ? 'checked'
-                  : 'unchecked'
-              }
+        {multiParts
+          .filter((multiPart) =>
+            multiPart.name
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase().trim())
+          )
+          .map((multiPart) => (
+            <TouchableOpacity
+              key={multiPart.id}
               onPress={() => {
                 toggle(multiPart, selectedMultiParts.includes(multiPart.id));
               }}
-            />
-            <Text style={{ flexShrink: 1 }} variant={'labelMedium'}>{multiPart.name}</Text>
-            <Button
-              style={{ width: '40%' }}
-              mode='outlined'
-              buttonColor={'white'}
             >
-              {t('details')}
-            </Button>
-          </View>
-        ))}
+              <View style={styles.card}>
+                <View style={styles.cardRow}>
+                  <Avatar.Icon
+                    size={50}
+                    icon="archive-outline"
+                    style={{ backgroundColor: theme.colors.primaryContainer }}
+                  />
+                  <View style={{ flex: 1 }}>
+                    <View style={styles.cardHeader}>
+                      <View style={{ flex: 1 }}>
+                        <Text variant="titleMedium" style={styles.cardTitle}>
+                          {multiPart.name}
+                        </Text>
+                      </View>
+                      <View
+                        style={{ flexDirection: 'row', alignItems: 'center' }}
+                      >
+                        <Checkbox
+                          status={
+                            selectedMultiParts.includes(multiPart.id)
+                              ? 'checked'
+                              : 'unchecked'
+                          }
+                        />
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
       </ScrollView>
     </View>
   );
 };
 export default function SelectParts({
-                                      navigation,
-                                      route
-                                    }: RootStackScreenProps<'SelectParts'>) {
+  navigation,
+  route
+}: RootStackScreenProps<'SelectParts'>) {
   const { onChange, selected } = route.params;
   const theme = useTheme();
   const { t }: { t: any } = useTranslation();
@@ -199,7 +234,7 @@ export default function SelectParts({
             navigation.goBack();
           }}
         >
-          <Text variant='titleMedium'>{t('add')}</Text>
+          <Text variant="titleMedium">{t('add')}</Text>
         </Pressable>
       )
     });
@@ -224,10 +259,10 @@ export default function SelectParts({
       onSelect([id]);
     }
   };
-  const toggleMultipart = (multiPart: SetType, checked: boolean) => {
-    if (checked) {
-      onSelect(multiPart.parts.map((part) => part.id));
-    } else onUnSelect(multiPart.parts.map((part) => part.id));
+  const toggleMultipart = (multiPart: SetType, isCurrentlyChecked: boolean) => {
+    if (isCurrentlyChecked) {
+      onUnSelect(multiPart.parts.map((part) => part.id));
+    } else onSelect(multiPart.parts.map((part) => part.id));
   };
   const renderScene = ({ route, jumpTo }) => {
     switch (route.key) {
@@ -265,7 +300,7 @@ export default function SelectParts({
         (loadingMultiparts && tabIndex === 1)) && (
         <ActivityIndicator
           style={{ position: 'absolute', top: '45%', left: '45%', zIndex: 10 }}
-          size='large'
+          size="large"
         />
       )}
       <TabView
@@ -282,5 +317,25 @@ export default function SelectParts({
 const styles = StyleSheet.create({
   container: {
     flex: 1
+  },
+  card: {
+    backgroundColor: 'white',
+    marginBottom: 1,
+    padding: 10
+  },
+  cardRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 6,
+    alignItems: 'center'
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  cardTitle: {
+    fontWeight: 'bold',
+    flexShrink: 1
   }
 });

@@ -3,6 +3,7 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.TaskType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,12 +11,12 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -25,10 +26,13 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @Builder
+@Schema(description = "Task base entity defining task templates")
 public class TaskBase extends CompanyAudit {
     @NotNull
+    @Schema(description = "Task label", requiredMode = Schema.RequiredMode.REQUIRED)
     private String label;
 
+    @Schema(description = "Type of task")
     private TaskType taskType = TaskType.SUBTASK;
 
     @OneToMany(
@@ -50,3 +54,5 @@ public class TaskBase extends CompanyAudit {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Meter meter;
 }
+
+

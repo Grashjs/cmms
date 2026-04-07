@@ -5,40 +5,36 @@ import com.grash.dto.AssetMiniDTO;
 import com.grash.dto.AssetPatchDTO;
 import com.grash.dto.AssetShowDTO;
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetMapper;
 import com.grash.model.Asset;
 import com.grash.model.Location;
 import com.grash.model.OwnUser;
 import com.grash.model.Part;
-import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.PermissionEntity;
-import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
+import com.grash.repository.AssetRepository;
 import com.grash.security.CurrentUser;
-import com.grash.service.AssetService;
-import com.grash.service.LocationService;
-import com.grash.service.PartService;
-import com.grash.service.UserService;
+import com.grash.service.*;
 import com.grash.utils.Helper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
-import javax.el.ELManager;
-import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.persistence.EntityManager;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -47,7 +43,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/assets")
-@Api(tags = "asset")
+@Tag(name = "Assets", description = "Operations on assets")
 @RequiredArgsConstructor
 public class AssetController {
 
@@ -58,10 +54,14 @@ public class AssetController {
     private final PartService partService;
     private final MessageSource messageSource;
     private final EntityManager em;
+    private final LicenseService licenseService;
+    private final RateLimiterService rateLimiterService;
+    private final RequestPortalService requestPortalService;
+    private final AssetRepository assetRepository;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<AssetShowDTO>> search(@RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<AssetShowDTO>> search(@Parameter(description = "Search criteria for filtering assets") @RequestBody SearchCriteria searchCriteria,
                                                      HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -78,35 +78,27 @@ public class AssetController {
 
     @GetMapping("/nfc")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Asset not found")})
-    public AssetShowDTO getByNfcId(@RequestParam String nfcId,
-                                   @ApiIgnore @CurrentUser OwnUser user) {
+    public AssetShowDTO getByNfcId(@RequestParam @Parameter(description = "NFC identifier of the asset") String nfcId,
+                                   @Parameter(hidden = true) @CurrentUser OwnUser user) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.NFC_BARCODE))
+            throw new CustomException("You need a license to scan an asset", HttpStatus.FORBIDDEN);
         Optional<Asset> optionalAsset = assetService.findByNfcIdAndCompany(nfcId, user.getCompany().getId());
         return getAsset(optionalAsset, user);
     }
 
     @GetMapping("/barcode")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Asset not found")})
-    public AssetShowDTO getByBarcode(@RequestParam String data,
-                                     @ApiIgnore @CurrentUser OwnUser user) {
+    public AssetShowDTO getByBarcode(@RequestParam @Parameter(description = "Barcode of the asset") String data,
+                                     @Parameter(hidden = true) @CurrentUser OwnUser user) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.NFC_BARCODE))
+            throw new CustomException("You need a license to scan an asset", HttpStatus.FORBIDDEN);
         Optional<Asset> optionalAsset = assetService.findByBarcodeAndCompany(data, user.getCompany().getId());
         return getAsset(optionalAsset, user);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Asset not found")})
-    public AssetShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public AssetShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
         return getAsset(optionalAsset, user);
@@ -124,11 +116,7 @@ public class AssetController {
 
     @GetMapping("/location/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Asset not found")})
-    public Collection<AssetShowDTO> getByLocation(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public Collection<AssetShowDTO> getByLocation(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
@@ -139,11 +127,7 @@ public class AssetController {
 
     @GetMapping("/part/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Assets for this part not found")})
-    public Collection<AssetShowDTO> getByPart(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public Collection<AssetShowDTO> getByPart(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
@@ -153,11 +137,7 @@ public class AssetController {
 
     @GetMapping("/children/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Asset not found")})
-    public List<AssetShowDTO> getChildrenById(@ApiParam("id") @PathVariable("id") Long id,
+    public List<AssetShowDTO> getChildrenById(@PathVariable("id") Long id,
                                               Pageable pageable,
                                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
@@ -175,12 +155,31 @@ public class AssetController {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping("/children/{id}/paginated")
+    @PreAuthorize("permitAll()")
+    public Page<AssetShowDTO> getChildrenByIdPaginated(@PathVariable("id") Long id,
+                                                       Pageable pageable,
+                                                       HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            Page<Asset> assetsPage = assetRepository.findByCompany_IdAndParentAssetIsNull(user.getCompany().getId(),
+                    pageable);
+            return assetsPage.map(asset -> assetMapper.toShowDto(asset, assetService));
+        }
+        Optional<Asset> optionalAsset = assetService.findById(id);
+        if (optionalAsset.isPresent()) {
+            Asset savedAsset = optionalAsset.get();
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
+                Page<Asset> assetsPage = assetService.findAssetChildren(id, pageable);
+                return assetsPage.map(asset -> assetMapper.toShowDto(asset, assetService));
+            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public AssetShowDTO create(@ApiParam("Asset") @Valid @RequestBody Asset assetReq, HttpServletRequest req) {
+    public AssetShowDTO create(@Parameter(description = "Asset data to create") @Valid @RequestBody Asset assetReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.ASSETS)) {
             if (assetReq.getBarCode() != null) {
@@ -208,12 +207,8 @@ public class AssetController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Asset not found")})
-    public AssetShowDTO patch(@ApiParam("Asset") @Valid @RequestBody AssetPatchDTO asset,
-                              @ApiParam("id") @PathVariable("id") Long id,
+    public AssetShowDTO patch(@Parameter(description = "Asset fields to update") @Valid @RequestBody AssetPatchDTO asset,
+                              @PathVariable("id") Long id,
                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
@@ -253,11 +248,7 @@ public class AssetController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-    })
-    public Collection<AssetMiniDTO> getMini(@RequestParam(required = false) Long locationId, HttpServletRequest req) {
+    public Collection<AssetMiniDTO> getMini(@RequestParam(required = false) @Parameter(description = "Filter assets by location ID. If not provided, returns all assets") Long locationId, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         List<Asset> assets = new ArrayList<>();
         if (locationId == null) {
@@ -268,13 +259,27 @@ public class AssetController {
         return assets.stream().map(assetMapper::toMiniDto).collect(Collectors.toList());
     }
 
+    @GetMapping("/public/mini/{portalUUID}")
+    public Collection<AssetMiniDTO> getMiniPublic(@PathVariable String portalUUID,
+                                                  @RequestParam(required = false) @Parameter(description = "Filter assets by location ID. If not provided, returns all assets for the portal") Long locationId,
+                                                  HttpServletRequest req) {
+        String clientIp = Helper.extractClientIp(req);
+        if (!rateLimiterService.resolvePublicMiniBucket(clientIp).tryConsume(1)) {
+            throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
+        }
+        List<Asset> assets = new ArrayList<>();
+        Long companyId = requestPortalService.findByUuidByUser(portalUUID).get().getCompany().getId();
+        if (locationId == null) {
+            assets = assetService.findByCompany(companyId);
+        } else {
+            assets = assetService.findByLocation(locationId);
+        }
+        return assets.stream().map(assetMapper::toMiniDto).collect(Collectors.toList());
+    }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Asset not found")})
-    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Asset> optionalAsset = assetService.findById(id);
@@ -290,3 +295,6 @@ public class AssetController {
     }
 
 }
+
+
+

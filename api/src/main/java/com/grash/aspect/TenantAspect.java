@@ -20,7 +20,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -45,7 +46,8 @@ public class TenantAspect {
         ignoreCompanyCheck.set(false);
     }
 
-    @Before("@annotation(org.springframework.web.bind.annotation.PostMapping) || @annotation(org.springframework.web.bind.annotation.PatchMapping)")
+    @Before("@annotation(org.springframework.web.bind.annotation.PostMapping) || @annotation(org.springframework.web" +
+            ".bind.annotation.PatchMapping)")
     public void validateTenant(JoinPoint joinPoint) {
         if (ignoreCompanyCheck.get()) return;
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
@@ -87,7 +89,10 @@ public class TenantAspect {
     private void validateFieldElement(Object object) {
         if (object instanceof CompanyAudit) {
             CompanyAudit companyAudit = (CompanyAudit) object;
-            entityManager.find(object.getClass(), companyAudit.getId()); // should fail here if from other company because of @PostLoad
+            if (companyAudit.getId() == null) return;
+            entityManager.find(object.getClass(), companyAudit.getId()); // should fail here if from other company
+            // because of @PostLoad
         }
     }
 }
+

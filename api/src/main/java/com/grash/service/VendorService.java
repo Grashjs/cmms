@@ -3,15 +3,13 @@ package com.grash.service;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.VendorPatchDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.VendorMapper;
-import com.grash.model.OwnUser;
 import com.grash.model.Vendor;
-import com.grash.model.enums.RoleType;
+import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.VendorRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -27,21 +27,18 @@ public class VendorService {
     private final VendorRepository vendorRepository;
     private final CompanyService companyService;
     private final VendorMapper vendorMapper;
-    private AssetService assetService;
-    private LocationService locationService;
-    private PartService partService;
-
-    @Autowired
-    public void setDeps(@Lazy PartService partService, @Lazy LocationService locationService,
-                        @Lazy AssetService assetService
-    ) {
-        this.partService = partService;
-        this.locationService = locationService;
-        this.assetService = assetService;
-    }
+    private final LicenseService licenseService;
+    private final WebhookDispatchService webhookDispatchService;
 
     public Vendor create(Vendor Vendor) {
-        return vendorRepository.save(Vendor);
+        if (!licenseService.hasEntitlement(LicenseEntitlement.CUSTOMER_VENDOR))
+            throw new CustomException("You need a license to create a vendor", HttpStatus.FORBIDDEN);
+        Vendor savedVendor = vendorRepository.save(Vendor);
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("vendorId", savedVendor.getId());
+        webhookDispatchService.dispatchWebhook(savedVendor.getCompany(), WebhookEvent.NEW_VENDOR, webhookPayload,
+                "newVendor", savedVendor, null, null, null, null, null);
+        return savedVendor;
     }
 
     public Vendor update(Long id, VendorPatchDTO vendor) {
@@ -88,4 +85,5 @@ public class VendorService {
     public Optional<Vendor> findByNameIgnoreCaseAndCompany(String name, Long companyId) {
         return vendorRepository.findByNameIgnoreCaseAndCompany_Id(name, companyId);
     }
+
 }

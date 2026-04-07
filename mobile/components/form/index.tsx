@@ -38,6 +38,8 @@ import DateRangePicker from './DateRangePicker';
 import AudioRecorder from './AudioRecorder';
 import SignaturePad from './SignaturePad';
 import { SheetManager } from 'react-native-actions-sheet';
+import File, { IFile } from '../../models/file';
+import mime from 'mime';
 
 interface OwnProps {
   fields: Array<IField>;
@@ -148,7 +150,10 @@ export default function Form(props: OwnProps) {
             }}
           >
             <Text>{field.label}</Text>
-            <IconButton icon={selectedValue ? 'check-circle' : 'plus-circle'} />
+            <IconButton
+              iconColor={theme.colors.primary}
+              icon={selectedValue ? 'check-circle' : 'plus-circle'}
+            />
           </View>
           {selectedValue && (
             <Text style={{ color: theme.colors.primary }}>
@@ -355,7 +360,12 @@ export default function Form(props: OwnProps) {
             }}
           >
             <Text>{field.label}</Text>
-            {!values && <IconButton icon={'plus-circle'} />}
+            {!values && (
+              <IconButton
+                iconColor={theme.colors.primary}
+                icon={'plus-circle'}
+              />
+            )}
           </View>
           {field.multiple
             ? Array.isArray(values) &&
@@ -389,7 +399,12 @@ export default function Form(props: OwnProps) {
             }}
           >
             <Text>{field.label}</Text>
-            {!values && <IconButton icon={'plus-circle'} />}
+            {!values && (
+              <IconButton
+                iconColor={theme.colors.primary}
+                icon={'plus-circle'}
+              />
+            )}
           </View>
           {/*@ts-ignore*/}
           {values &&
@@ -487,7 +502,7 @@ export default function Form(props: OwnProps) {
 
               return (
                 <View
-                  key={index}
+                  key={field.name}
                   style={{
                     width: '100%',
                     backgroundColor: 'white',
@@ -495,144 +510,161 @@ export default function Form(props: OwnProps) {
                     paddingVertical: 10
                   }}
                 >
-                {field.type === 'text' ? (
-                  <TextInput
-                    style={{ width: '100%' }}
-                    mode="outlined"
-                    error={!!formik.errors[field.name] || field.error}
-                    label={field.label}
-                    placeholder={field.placeholder ?? field.label}
-                    onBlur={formik.handleBlur(field.name)}
-                    onChangeText={(text) =>
-                      handleChange(formik, field.name, text)
-                    }
-                    value={formik.values[field.name]}
-                    disabled={formik.isSubmitting}
-                    multiline={field.multiple}
-                  />
-                ) : field.type === 'number' ? (
-                  <NumberInput
-                    style={{ width: '100%' }}
-                    mode="outlined"
-                    error={!!formik.errors[field.name] || field.error}
-                    label={field.label}
-                    defaultValue={formik.values[field.name]}
-                    placeholder={field.placeholder ?? field.label}
-                    onBlur={formik.handleBlur(field.name)}
-                    onChangeText={(newValue) => {
-                      handleChange(formik, field.name, newValue);
-                    }}
-                    disabled={formik.isSubmitting}
-                    multiline={field.multiple}
-                  />
-                ) : field.type === 'file' ? (
-                  <FileUpload
-                    multiple={field.multiple}
-                    title={field.label}
-                    type={field.fileType || 'file'}
-                    description={t('upload')}
-                    onChange={(files) => {
-                      formik.setFieldValue(field.name, files);
-                    }}
-                  />
-                ) : field.type === 'date' ? (
-                  <CustomDateTimePicker
-                    label={field.label}
-                    onChange={(date) => handleChange(formik, field.name, date)}
-                    value={
-                      formik.values[field.name]
-                        ? new Date(formik.values[field.name])
-                        : null
-                    }
-                  />
-                ) : field.type === 'switch' ? (
-                  <View
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center'
-                    }}
-                  >
-                    <Text>{field.label}</Text>
-                    <Switch
+                  {field.type === 'text' ? (
+                    <TextInput
+                      style={{ width: '100%' }}
+                      mode="outlined"
+                      error={!!formik.errors[field.name] || field.error}
+                      label={field.label}
+                      placeholder={field.placeholder ?? field.label}
+                      onBlur={formik.handleBlur(field.name)}
+                      onChangeText={(text) =>
+                        handleChange(formik, field.name, text)
+                      }
                       value={formik.values[field.name]}
-                      onValueChange={(value) => {
-                        handleChange(formik, field.name, value);
-                      }}
+                      disabled={formik.isSubmitting}
+                      multiline={field.multiple}
                     />
-                  </View>
-                ) : field.type === 'titleGroupField' ? (
-                  <Text
-                    variant={'titleMedium'}
-                    style={{ color: theme.colors.primary }}
-                  >
-                    {field.label}
-                  </Text>
-                ) : field.type === 'dateRange' ? (
-                  <View>
-                    <Text style={{ fontWeight: 'bold' }}>{field.label}</Text>
-                    <DateRangePicker
-                      value={formik.values[field.name] ?? [null, null]}
-                      onChange={(newValue) => {
+                  ) : field.type === 'number' ? (
+                    <NumberInput
+                      style={{ width: '100%' }}
+                      mode="outlined"
+                      error={!!formik.errors[field.name] || field.error}
+                      label={field.label}
+                      defaultValue={formik.values[field.name]}
+                      placeholder={field.placeholder ?? field.label}
+                      onBlur={formik.handleBlur(field.name)}
+                      onChangeText={(newValue) => {
                         handleChange(formik, field.name, newValue);
                       }}
+                      disabled={formik.isSubmitting}
+                      multiline={field.multiple}
                     />
-                  </View>
-                ) : field.type === 'nfc' ? (
-                  <View>
-                    <TouchableOpacity
-                      onPress={() =>
-                        props.navigation.navigate('SelectNfc', {
-                          onChange: (value) => {
-                            handleChange(formik, field.name, value);
-                            props.navigation.goBack();
-                          }
-                        })
+                  ) : field.type === 'file' ? (
+                    <FileUpload
+                      multiple={field.multiple}
+                      title={field.label}
+                      type={field.fileType || 'file'}
+                      description={t('upload')}
+                      files={
+                        (Array.isArray(formik.values[field.name])
+                          ? formik.values[field.name]
+                          : formik.values[field.name]
+                          ? [formik.values[field.name]]
+                          : []
+                        ).map(
+                          (file: File) =>
+                            ({
+                              uri: file.url,
+                              type: mime.getType(file.name),
+                              name: file.name
+                            } as IFile)
+                        ) ?? []
                       }
+                      onChange={(files) => {
+                        formik.setFieldValue(field.name, files);
+                      }}
+                    />
+                  ) : field.type === 'date' ? (
+                    <CustomDateTimePicker
+                      label={field.label}
+                      onChange={(date) =>
+                        handleChange(formik, field.name, date)
+                      }
+                      value={
+                        formik.values[field.name]
+                          ? new Date(formik.values[field.name])
+                          : null
+                      }
+                    />
+                  ) : field.type === 'switch' ? (
+                    <View
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}
                     >
                       <Text>{field.label}</Text>
-                    </TouchableOpacity>
-                    <Text style={{ color: theme.colors.primary }}>
-                      {formik.values[field.name]}
-                    </Text>
-                  </View>
-                ) : field.type === 'barcode' ? (
-                  <View>
-                    <TouchableOpacity
-                      onPress={() =>
-                        props.navigation.navigate('SelectBarcode', {
-                          onChange: (value) => {
-                            handleChange(formik, field.name, value);
-                            props.navigation.goBack();
-                          }
-                        })
-                      }
+                      <Switch
+                        value={formik.values[field.name]}
+                        onValueChange={(value) => {
+                          handleChange(formik, field.name, value);
+                        }}
+                      />
+                    </View>
+                  ) : field.type === 'titleGroupField' ? (
+                    <Text
+                      variant={'titleMedium'}
+                      style={{ color: theme.colors.primary }}
                     >
-                      <Text>{field.label}</Text>
-                    </TouchableOpacity>
-                    <Text style={{ color: theme.colors.primary }}>
-                      {formik.values[field.name]}
+                      {field.label}
                     </Text>
-                  </View>
-                ) : field.type === 'audio' ? (
-                  <AudioRecorder
-                    title={field.label}
-                    onChange={(audio) => {
-                      formik.setFieldValue(field.name, audio);
-                    }}
-                  />
-                ) : field.type === 'signature' ? (
-                  <SignaturePad
-                    label={field.label}
-                    value={formik.values[field.name]}
-                    onChange={(signature) => {
-                      formik.setFieldValue(field.name, signature);
-                    }}
-                  />
-                ) : (
-                  renderSelect(formik, field)
-                )}
+                  ) : field.type === 'dateRange' ? (
+                    <View>
+                      <Text style={{ fontWeight: 'bold' }}>{field.label}</Text>
+                      <DateRangePicker
+                        value={formik.values[field.name] ?? [null, null]}
+                        onChange={(newValue) => {
+                          handleChange(formik, field.name, newValue);
+                        }}
+                      />
+                    </View>
+                  ) : field.type === 'nfc' ? (
+                    <View>
+                      <TouchableOpacity
+                        onPress={() =>
+                          props.navigation.navigate('SelectNfc', {
+                            onChange: (value) => {
+                              handleChange(formik, field.name, value);
+                              props.navigation.goBack();
+                            }
+                          })
+                        }
+                      >
+                        <Text>{field.label}</Text>
+                      </TouchableOpacity>
+                      <Text style={{ color: theme.colors.primary }}>
+                        {formik.values[field.name]}
+                      </Text>
+                    </View>
+                  ) : field.type === 'barcode' ? (
+                    <View>
+                      <TouchableOpacity
+                        onPress={() =>
+                          props.navigation.navigate('SelectBarcode', {
+                            onChange: (value) => {
+                              handleChange(formik, field.name, value);
+                              props.navigation.goBack();
+                            }
+                          })
+                        }
+                      >
+                        <Text>{field.label}</Text>
+                      </TouchableOpacity>
+                      <Text style={{ color: theme.colors.primary }}>
+                        {formik.values[field.name]}
+                      </Text>
+                    </View>
+                  ) : field.type === 'audio' ? (
+                    <AudioRecorder
+                      title={field.label}
+                      onChange={(audio) => {
+                        formik.setFieldValue(field.name, audio);
+                      }}
+                    />
+                  ) : field.type === 'signature' ? (
+                    <SignaturePad
+                      label={field.label}
+                      value={formik.values[field.name]}
+                      onChange={(signature) => {
+                        formik.setFieldValue(field.name, signature);
+                      }}
+                    />
+                  ) : (
+                    renderSelect(formik, field)
+                  )}
                   {Boolean(formik.errors[field.name]) && (
                     <HelperText type="error">
                       {t(formik.errors[field.name]?.toString())}

@@ -125,11 +125,25 @@ export const getLocationsMini = (): AppThunk => async (dispatch) => {
     dispatch(slice.actions.setLoadingGet({ loading: false }));
   }
 };
+export const getPublicLocationsMini =
+  (portalUUID: string): AppThunk =>
+  async (dispatch) => {
+    try {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      const locations = await api.get<LocationMiniDTO[]>(
+        `locations/public/mini/${portalUUID}`
+      );
+      dispatch(slice.actions.getLocationsMini({ locations }));
+    } finally {
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    }
+  };
 export const addLocation =
   (location): AppThunk =>
   async (dispatch) => {
     const locationResponse = await api.post<Location>('locations', location);
     dispatch(slice.actions.addLocation({ location: locationResponse }));
+    return locationResponse;
   };
 export const editLocation =
   (id: number, location): AppThunk =>

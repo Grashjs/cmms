@@ -9,22 +9,22 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.service.UiConfigurationService;
 import com.grash.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/ui-configurations")
-@Api(tags = "uiConfiguration")
+@Tag(name = "UI Configuration", description = "Operations on UI configuration")
 @RequiredArgsConstructor
 public class UiConfigurationController {
 
@@ -32,7 +32,7 @@ public class UiConfigurationController {
     private final UserService userService;
 
     @PatchMapping()
-    public UiConfiguration patch(@ApiParam("UiConfiguration") @Valid @RequestBody UiConfigurationPatchDTO uiConfiguration,
+    public UiConfiguration patch(@Parameter(description = "UI configuration fields to update") @Valid @RequestBody UiConfigurationPatchDTO uiConfiguration,
                                  HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<UiConfiguration> optionalUiConfiguration =
@@ -46,3 +46,5 @@ public class UiConfigurationController {
         } else throw new CustomException("UiConfiguration not found", HttpStatus.NOT_FOUND);
     }
 }
+
+

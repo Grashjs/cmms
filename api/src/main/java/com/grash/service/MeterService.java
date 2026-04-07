@@ -5,6 +5,7 @@ import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.MeterPatchDTO;
 import com.grash.dto.MeterShowDTO;
 import com.grash.dto.imports.MeterImportDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MeterMapper;
 import com.grash.model.*;
@@ -20,9 +21,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
+
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.grash.utils.Consts.usageBasedLicenseLimits;
 
 @Service
 @RequiredArgsConstructor
@@ -39,12 +43,23 @@ public class MeterService {
     private final MeterMapper meterMapper;
     private final NotificationService notificationService;
     private final ReadingService readingService;
+    private final LicenseService licenseService;
 
     @Transactional
-    public Meter create(Meter meter) {
+    public Meter create(Meter meter, OwnUser user) {
+        checkUsageBasedLimit(user.getCompany());
         Meter savedMeter = meterRepository.saveAndFlush(meter);
         em.refresh(savedMeter);
         return savedMeter;
+    }
+
+    private void checkUsageBasedLimit(Company company) {
+        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_METERS);
+        if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_METERS)
+                && meterRepository.hasMoreThan(company.getId(), threshold.longValue() - 1
+        ))
+            throw new CustomException("You need a license to add a new meter. Free Limit reached: " + threshold,
+                    HttpStatus.FORBIDDEN);
     }
 
     @Transactional
@@ -71,6 +86,10 @@ public class MeterService {
 
     public Collection<Meter> findByCompany(Long id) {
         return meterRepository.findByCompany_Id(id);
+    }
+
+    public List<Meter> findByCompanyForExport(Long companyId) {
+        return meterRepository.findByCompanyForExport(companyId);
     }
 
     public void notify(Meter meter, Locale locale) {
@@ -118,8 +137,10 @@ public class MeterService {
     }
 
     public void importMeter(Meter meter, MeterImportDTO dto, Company company) {
+        checkUsageBasedLimit(company);
         Long companyId = company.getId();
         Long companySettingsId = company.getCompanySettings().getId();
+        meter.setCompany(company);
         meter.setName(dto.getName());
         meter.setUnit(dto.getUnit());
         meter.setUpdateFrequency(dto.getUpdateFrequency());
@@ -138,10 +159,18 @@ public class MeterService {
             optionalUser1.ifPresent(users::add);
         });
         meter.setUsers(users);
-        meterRepository.save(meter);
     }
 
     public Optional<Meter> findByIdAndCompany(Long id, Long companyId) {
         return meterRepository.findByIdAndCompany_Id(id, companyId);
     }
+
+    public List<Meter> saveAll(List<Meter> meters) {
+        return meterRepository.saveAll(meters);
+    }
+
+    public List<Meter> findByIdsAndCompany(List<Long> ids, Long companyId) {
+        return meterRepository.findByIdInAndCompany_Id(ids, companyId);
+    }
 }
+

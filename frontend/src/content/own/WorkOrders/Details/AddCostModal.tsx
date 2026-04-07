@@ -9,6 +9,9 @@ import { createAdditionalCost } from '../../../../slices/additionalCost';
 import useAuth from '../../../../hooks/useAuth';
 import FeatureErrorMessage from '../../components/FeatureErrorMessage';
 import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
+import { getErrorMessage } from '../../../../utils/api';
+import { useContext } from 'react';
+import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 
 interface AddCostProps {
   open: boolean;
@@ -23,6 +26,8 @@ export default function AddCostModal({
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { hasFeature } = useAuth();
+  const { showSnackBar } = useContext(CustomSnackBarContext);
+
   const fields: Array<IField> = [
     {
       name: 'description',
@@ -101,7 +106,9 @@ export default function AddCostModal({
               formattedValues.category = formatSelect(formattedValues.category);
               return dispatch(
                 createAdditionalCost(workOrderId, formattedValues)
-              ).finally(() => onClose());
+              )
+                .then(() => onClose())
+                .catch((err) => showSnackBar(getErrorMessage(err), 'error'));
             }}
           />
         ) : (

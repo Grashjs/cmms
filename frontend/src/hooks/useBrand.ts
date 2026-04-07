@@ -5,6 +5,7 @@ import {
   customLogoPaths
 } from '../config';
 import { useSelector } from '../store';
+import { useLicenseEntitlement } from './useLicenseEntitlement';
 
 const DEFAULT_WHITE_LOGO = '/static/images/logo/logo-white.png';
 const DEFAULT_DARK_LOGO = '/static/images/logo/logo.png';
@@ -24,7 +25,7 @@ export function useBrand(): BrandConfig {
     addressStreet: '410, Boulevard Zerktouni, Hamad, №1',
     addressCity: 'Casablanca-Morocco 20040'
   };
-  const { isLicenseValid } = useSelector((state) => state.license);
+  const isLicenseValid = useLicenseEntitlement('BRANDING');
   return {
     logo: {
       white: customLogoPaths

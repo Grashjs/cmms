@@ -6,7 +6,8 @@ import com.grash.model.enums.Status;
 import com.grash.utils.Helper;
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.*;
+import jakarta.persistence.criteria.*;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -44,12 +45,26 @@ public class WrapperSpecification<T> implements Specification<T> {
             case DOES_NOT_END_WITH:
                 result = cb.notLike(cb.lower(root.get(filterField.getField())), "%" + strToSearch);
                 break;
-            case EQUAL:
-                result = cb.equal(getFieldPath(root, filterField.getField()), filterField.getValue());
+            case EQUAL: {
+                Path<?> path = getFieldPath(root, filterField.getField());
+
+                if (path.getJavaType().isAnnotationPresent(jakarta.persistence.Entity.class)) {
+                    result = cb.equal(path.get("id"), filterField.getValue());
+                } else {
+                    result = cb.equal(path, filterField.getValue());
+                }
                 break;
-            case NOT_EQUAL:
-                result = cb.notEqual(root.get(filterField.getField()), filterField.getValue());
+            }
+            case NOT_EQUAL: {
+                Path<?> path = getFieldPath(root, filterField.getField());
+
+                if (path.getJavaType().isAnnotationPresent(jakarta.persistence.Entity.class)) {
+                    result = cb.notEqual(path.get("id"), filterField.getValue());
+                } else {
+                    result = cb.notEqual(path, filterField.getValue());
+                }
                 break;
+            }
             case NUL:
                 result = cb.isNull(root.get(filterField.getField()));
                 break;
@@ -61,9 +76,11 @@ public class WrapperSpecification<T> implements Specification<T> {
                 break;
             case GREATER_THAN_EQUAL:
                 if (filterField.getEnumName() != null && filterField.getEnumName().equals(EnumName.JS_DATE)) {
-                    result = cb.greaterThanOrEqualTo(root.get(filterField.getField()), Helper.getDateFromJsString(filterField.getValue().toString()));
+                    result = cb.greaterThanOrEqualTo(root.get(filterField.getField()),
+                            Helper.getDateFromJsString(filterField.getValue().toString()));
                 } else {
-                    result = cb.greaterThanOrEqualTo(root.get(filterField.getField()), (Comparable) filterField.getValue());
+                    result = cb.greaterThanOrEqualTo(root.get(filterField.getField()),
+                            (Comparable) filterField.getValue());
                 }
                 break;
             case LESS_THAN:
@@ -71,20 +88,32 @@ public class WrapperSpecification<T> implements Specification<T> {
                 break;
             case LESS_THAN_EQUAL:
                 if (filterField.getEnumName() != null && filterField.getEnumName().equals(EnumName.JS_DATE)) {
-                    result = cb.lessThanOrEqualTo(root.get(filterField.getField()), Helper.getDateFromJsString(filterField.getValue().toString()));
+                    result = cb.lessThanOrEqualTo(root.get(filterField.getField()),
+                            Helper.getDateFromJsString(filterField.getValue().toString()));
                 } else {
-                    result = cb.lessThanOrEqualTo(root.get(filterField.getField()), (Comparable) filterField.getValue());
+                    result = cb.lessThanOrEqualTo(root.get(filterField.getField()),
+                            (Comparable) filterField.getValue());
                 }
                 break;
-            case IN:
-                CriteriaBuilder.In<Object> inClause = cb.in(root.get(filterField.getField()));
-                filterField.getValues().forEach(value -> inClause.value(getRealValue(filterField.getEnumName(), value)));
+            case IN: {
+                Path<?> path = getFieldPath(root, filterField.getField());
+                CriteriaBuilder.In<Object> inClause;
+
+                if (path.getJavaType().isAnnotationPresent(jakarta.persistence.Entity.class)) {
+                    inClause = cb.in(path.get("id"));
+                } else {
+                    inClause = cb.in(path);
+                }
+                filterField.getValues().forEach(value -> inClause.value(getRealValue(filterField.getEnumName(),
+                        value)));
                 result = inClause;
                 break;
+            }
             case IN_MANY_TO_MANY:
                 Join<Object, Object> join = root.join(filterField.getField(), filterField.getJoinType());
                 CriteriaBuilder.In<Object> inClause1 = cb.in(join.get("id"));
-                filterField.getValues().forEach(inClause1::value);
+                filterField.getValues().forEach(value -> inClause1.value(getRealValue(filterField.getEnumName(),
+                        value)));
                 result = inClause1;
                 break;
         }
@@ -95,12 +124,14 @@ public class WrapperSpecification<T> implements Specification<T> {
         if (filterField.getAlternatives() == null || filterField.getAlternatives().size() == 0) {
             return result;
         } else {
-            List<SpecificationBuilder<T>> specificationBuilders = filterField.getAlternatives().stream().map(alternative -> {
-                SpecificationBuilder<T> builder = new SpecificationBuilder<>();
-                builder.with(alternative);
-                return builder;
-            }).collect(Collectors.toList());
-            List<Predicate> predicates = specificationBuilders.stream().map(specificationBuilder -> specificationBuilder.build().toPredicate(root, query, cb)).collect(Collectors.toList());
+            List<SpecificationBuilder<T>> specificationBuilders =
+                    filterField.getAlternatives().stream().map(alternative -> {
+                        SpecificationBuilder<T> builder = new SpecificationBuilder<>();
+                        builder.with(alternative);
+                        return builder;
+                    }).collect(Collectors.toList());
+            List<Predicate> predicates =
+                    specificationBuilders.stream().map(specificationBuilder -> specificationBuilder.build().toPredicate(root, query, cb)).collect(Collectors.toList());
             predicates.add(result);
             Predicate[] predicatesArray = predicates.toArray(new Predicate[0]);
             return cb.or(predicatesArray);
@@ -138,3 +169,4 @@ public class WrapperSpecification<T> implements Specification<T> {
         return path;
     }
 }
+

@@ -6,12 +6,11 @@ import com.grash.dto.CalendarEvent;
 import com.grash.dto.PreventiveMaintenancePatchDTO;
 import com.grash.dto.PreventiveMaintenanceShowDTO;
 import com.grash.dto.imports.PreventiveMaintenanceImportDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.model.*;
-import com.grash.model.enums.Priority;
-import com.grash.model.enums.RecurrenceBasedOn;
-import com.grash.model.enums.RecurrenceType;
+import com.grash.model.enums.*;
 import com.grash.repository.PreventiveMaintenanceRepository;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +27,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
+
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.grash.utils.Consts.usageBasedLicenseLimits;
 
 @Service
 @RequiredArgsConstructor
@@ -47,11 +51,16 @@ public class PreventiveMaintenanceService {
     private final AssetService assetService;
     private final WorkOrderCategoryService workOrderCategoryService;
     private final ScheduleService scheduleService;
+    private final LicenseService licenseService;
 
 
     @Transactional
     public PreventiveMaintenance create(PreventiveMaintenance preventiveMaintenance, OwnUser user) {
-        // Generate custom ID
+        if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PREVENTIVE_MAINTENANCE)) {
+            throw new CustomException("Preventive maintenance feature is not enabled for this subscription plan.",
+                    HttpStatus.FORBIDDEN);
+        }
+        checkUsageBasedLimit(user.getCompany());
         Company company = user.getCompany();
         Long nextSequence = customSequenceService.getNextPreventiveMaintenanceSequence(company);
         preventiveMaintenance.setCustomId("PM" + String.format("%06d", nextSequence));
@@ -62,7 +71,11 @@ public class PreventiveMaintenanceService {
     }
 
     @Transactional
-    public PreventiveMaintenance update(Long id, PreventiveMaintenancePatchDTO preventiveMaintenance) {
+    public PreventiveMaintenance update(Long id, PreventiveMaintenancePatchDTO preventiveMaintenance, OwnUser user) {
+        if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PREVENTIVE_MAINTENANCE)) {
+            throw new CustomException("Preventive maintenance feature is not enabled for this subscription plan.",
+                    HttpStatus.FORBIDDEN);
+        }
         if (preventiveMaintenanceRepository.existsById(id)) {
             PreventiveMaintenance savedPreventiveMaintenance = preventiveMaintenanceRepository.findById(id).get();
             PreventiveMaintenance pmToSave =
@@ -92,6 +105,20 @@ public class PreventiveMaintenanceService {
         return preventiveMaintenanceRepository.findByCompany_Id(id);
     }
 
+    public List<PreventiveMaintenance> findByCompanyForExport(Long companyId) {
+        return preventiveMaintenanceRepository.findByCompanyForExport(companyId);
+    }
+
+    private void checkUsageBasedLimit(Company company) {
+        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_PM_SCHEDULES);
+        if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_PM_SCHEDULES)
+                && preventiveMaintenanceRepository.hasMoreThan(company.getId(), threshold.longValue() - 1
+        ))
+            throw new CustomException("You need a license to add a new PM schedule. Free Limit reached: " + threshold,
+                    HttpStatus.FORBIDDEN);
+
+    }
+
     public Page<PreventiveMaintenanceShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<PreventiveMaintenance> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
@@ -113,6 +140,8 @@ public class PreventiveMaintenanceService {
     }
 
     public List<CalendarEvent<PreventiveMaintenance>> getEvents(Date end, Long companyId) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.PM_CALENDAR))
+            return Collections.emptyList();
         List<PreventiveMaintenance> preventiveMaintenances =
                 preventiveMaintenanceRepository.findByCreatedAtBeforeAndCompany_Id(end, companyId);
         List<CalendarEvent<PreventiveMaintenance>> result = new ArrayList<>();
@@ -147,7 +176,9 @@ public class PreventiveMaintenanceService {
                     // Compute fire times
                     Date fireTime = operableTrigger.getFireTimeAfter(startTime);
                     while (fireTime != null && (fireTime.before(end) || fireTime.equals(end))) {
-                        fireTimes.add(fireTime);
+                        if (shouldFireOnDate(schedule, fireTime)) {
+                            fireTimes.add(fireTime);
+                        }
                         fireTime = operableTrigger.getFireTimeAfter(fireTime);
 
                         // Safety limit to prevent infinite loops
@@ -171,18 +202,45 @@ public class PreventiveMaintenanceService {
         return result;
     }
 
+    private boolean shouldFireOnDate(Schedule schedule, Date fireTime) {
+        if (schedule.getRecurrenceType() != RecurrenceType.WEEKLY || schedule.getFrequency() <= 1) {
+            return true;
+        }
+
+        String tzId = schedule.getPreventiveMaintenance()
+                .getCompany().getCompanySettings()
+                .getGeneralPreferences().getTimeZone();
+        ZoneId zoneId = ZoneId.of(tzId);
+
+        long daysSinceStart = ChronoUnit.DAYS.between(
+                schedule.getStartsOn().toInstant().atZone(zoneId).toLocalDate(),
+                fireTime.toInstant().atZone(zoneId).toLocalDate()
+        );
+        long weeksSinceStart = daysSinceStart / 7;
+
+        return weeksSinceStart % schedule.getFrequency() == 0;
+    }
+
     public Optional<PreventiveMaintenance> findByIdAndCompany(Long id, Long companyId) {
         return preventiveMaintenanceRepository.findByIdAndCompany_Id(id, companyId);
     }
 
+    public List<PreventiveMaintenance> saveAll(List<PreventiveMaintenance> preventiveMaintenances) {
+        return preventiveMaintenanceRepository.saveAll(preventiveMaintenances);
+    }
+
+    public List<PreventiveMaintenance> findByIdsAndCompany(List<Long> ids, Long companyId) {
+        return preventiveMaintenanceRepository.findByIdInAndCompany_Id(ids, companyId);
+    }
+
     public void importPreventiveMaintenance(PreventiveMaintenance preventiveMaintenance,
                                             PreventiveMaintenanceImportDTO pmImportDTO, Company company) {
-
+        checkUsageBasedLimit(company);
         Helper.populateWorkOrderBaseFromImportDTO(preventiveMaintenance, pmImportDTO, company, locationService,
                 teamService, userService, assetService, workOrderCategoryService);
 
         preventiveMaintenance.setName(pmImportDTO.getName());
-
+        preventiveMaintenance.setCompany(company);
         Schedule schedule = preventiveMaintenance.getSchedule();
         schedule.setStartsOn(Helper.getDateFromExcelDate(pmImportDTO.getStartsOn()));
         schedule.setFrequency((int) pmImportDTO.getFrequency());
@@ -222,3 +280,4 @@ public class PreventiveMaintenanceService {
         }
     }
 }
+

@@ -4,15 +4,14 @@ import com.grash.dto.CompanyPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CompanyMapper;
 import com.grash.model.Company;
-import com.grash.model.OwnUser;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.CompanyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
+
 import java.util.Collection;
 import java.util.Optional;
 
@@ -22,10 +21,10 @@ public class CompanyService {
     private final CompanyRepository companyRepository;
     private final CompanyMapper companyMapper;
     private final EntityManager em;
-    private final RoleService roleService;
+//    private final RoleService roleService;
 
     public Company create(Company company) {
-        company.getCompanySettings().setRoleList(roleService.findDefaultRoles());
+//        company.getCompanySettings().setRoleList(roleService.findDefaultRoles());
         return companyRepository.save(company);
     }
 
@@ -55,4 +54,9 @@ public class CompanyService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
+    public boolean existsAtLeastOneWithMinWorkOrders() {//superAdmin and user's company
+        return companyRepository.existsAtLeastOneWithMinWorkOrders();
+    }
+
 }
+

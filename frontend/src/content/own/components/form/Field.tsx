@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 interface PropsType extends IField {
   onChange: (event: any) => void;
   onBlur?: (event: any) => any;
+  onKeyDown?: (event: React.KeyboardEvent) => void;
   value: any | '';
   placeholder?: string;
   error?: any;
@@ -31,6 +32,7 @@ export default (props: PropsType) => {
       onBlur={props.onBlur}
       type={props.type}
       onChange={props.onChange}
+      onKeyDown={props.onKeyDown}
       value={props.value ?? ''}
       variant={'outlined'}
       disabled={props.isDisabled}

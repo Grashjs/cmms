@@ -12,24 +12,25 @@ import com.grash.model.OwnUser;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.LocationService;
+import com.grash.service.RateLimiterService;
+import com.grash.service.RequestPortalService;
 import com.grash.service.UserService;
 import com.grash.utils.Helper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.persistence.EntityManager;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -37,7 +38,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/locations")
-@Api(tags = "location")
+@Tag(name = "Locations", description = "Operations on locations")
 @RequiredArgsConstructor
 public class LocationController {
 
@@ -45,13 +46,12 @@ public class LocationController {
     private final LocationMapper locationMapper;
     private final UserService userService;
     private final EntityManager em;
+    private final RateLimiterService rateLimiterService;
+    private final RequestPortalService requestPortalService;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "LocationCategory not found")})
+
     public List<LocationShowDTO> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -69,7 +69,7 @@ public class LocationController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<LocationShowDTO>> search(@RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<LocationShowDTO>> search(@Parameter(description = "Search criteria for filtering locations") @RequestBody SearchCriteria searchCriteria,
                                                         HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -86,11 +86,8 @@ public class LocationController {
 
     @GetMapping("/children/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Location not found")})
-    public Collection<LocationShowDTO> getChildrenById(@ApiParam("id") @PathVariable("id") Long id,
+
+    public Collection<LocationShowDTO> getChildrenById(@Parameter(description = "Location ID") @PathVariable("id") Long id,
                                                        Pageable pageable,
                                                        HttpServletRequest req) {
         //only sort is used
@@ -110,22 +107,22 @@ public class LocationController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-    })
     public Collection<LocationMiniDTO> getMini(HttpServletRequest req) {
         OwnUser location = userService.whoami(req);
         return locationService.findByCompany(location.getCompany().getId()).stream().map(locationMapper::toMiniDto).collect(Collectors.toList());
     }
 
+    @GetMapping("/public/mini/{portalUUID}")
+    public Collection<LocationMiniDTO> getMiniPublic(@Parameter(description = "Portal UUID") @PathVariable String portalUUID, HttpServletRequest req) {
+        String clientIp = Helper.extractClientIp(req);
+        if (!rateLimiterService.resolvePublicMiniBucket(clientIp).tryConsume(1)) {
+            throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
+        }
+        return locationService.findByCompany(requestPortalService.findByUuidByUser(portalUUID).get().getCompany().getId()).stream().map(locationMapper::toMiniDto).collect(Collectors.toList());
+    }
+
     @GetMapping("/{id}")
-    @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Location not found")})
-    public LocationShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public LocationShowDTO getById(@Parameter(description = "Location ID") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
@@ -139,11 +136,8 @@ public class LocationController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public LocationShowDTO create(@ApiParam("Location") @Valid @RequestBody Location locationReq,
-                                  HttpServletRequest req) {
+    LocationShowDTO create(@Parameter(description = "Location data to create") @Valid @RequestBody Location locationReq,
+                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.LOCATIONS)) {
             Location savedLocation = locationService.create(locationReq, user.getCompany());
@@ -154,12 +148,9 @@ public class LocationController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Location not found")})
-    public LocationShowDTO patch(@ApiParam("Location") @Valid @RequestBody LocationPatchDTO location,
-                                 @ApiParam("id") @PathVariable("id") Long id,
+
+    public LocationShowDTO patch(@Parameter(description = "Location fields to update") @Valid @RequestBody LocationPatchDTO location,
+                                 @Parameter(description = "Location ID") @PathVariable("id") Long id,
                                  HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
@@ -179,11 +170,8 @@ public class LocationController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Location not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public ResponseEntity delete(@Parameter(description = "Location ID") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Location> optionalLocation = locationService.findById(id);
@@ -199,3 +187,6 @@ public class LocationController {
     }
 
 }
+
+
+

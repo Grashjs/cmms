@@ -1,9 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
-import { Audio } from 'expo-av';
 import { IFile } from '../../models/file';
 import { IconButton, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import {
+  AudioQuality,
+  IOSOutputFormat,
+  requestRecordingPermissionsAsync,
+  setAudioModeAsync,
+  useAudioPlayer,
+  useAudioPlayerStatus,
+  useAudioRecorder,
+  type RecordingOptions
+} from 'expo-audio';
 
 export default function AudioRecorder({
   title,
@@ -12,18 +21,69 @@ export default function AudioRecorder({
   title: string;
   onChange: (audio: IFile) => void;
 }) {
-  const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [recordingURI, setRecordingURI] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [playbackStatus, setPlaybackStatus] = useState<
     'idle' | 'playing' | 'paused'
   >('idle');
   const theme = useTheme();
   const { t } = useTranslation();
+  const recordingOptions = useMemo<RecordingOptions>(
+    () => ({
+      extension: '.m4a',
+      sampleRate: 44100,
+      numberOfChannels: 2,
+      bitRate: 128000,
+      android: {
+        extension: '.m4a',
+        outputFormat: 'mpeg4',
+        audioEncoder: 'aac',
+        sampleRate: 44100
+      },
+      ios: {
+        extension: '.m4a',
+        outputFormat: IOSOutputFormat.MPEG4AAC,
+        audioQuality: AudioQuality.MEDIUM,
+        sampleRate: 44100
+      },
+      web: {}
+    }),
+    []
+  );
+  const recorder = useAudioRecorder(recordingOptions);
+  const player = useAudioPlayer(recordingURI ? { uri: recordingURI } : null);
+  const playerStatus = useAudioPlayerStatus(player);
+
+  useEffect(() => {
+    if (recordingURI) {
+      player.replace({ uri: recordingURI });
+    }
+  }, [player, recordingURI]);
+
+  useEffect(() => {
+    if (!playerStatus) return;
+
+    if (playerStatus.didJustFinish) {
+      player.pause();
+      player
+        .seekTo(0)
+        .catch((error) => console.error('Failed to reset playback', error));
+      setPlaybackStatus('idle');
+      return;
+    }
+
+    if (playerStatus.playing) {
+      setPlaybackStatus('playing');
+    } else if (playerStatus.currentTime > 0) {
+      setPlaybackStatus('paused');
+    } else {
+      setPlaybackStatus('idle');
+    }
+  }, [player, playerStatus]);
+
   const startRecording = async () => {
     try {
-      const permissionResponse = await Audio.requestPermissionsAsync();
+      const permissionResponse = await requestRecordingPermissionsAsync();
 
       if (permissionResponse.status !== 'granted') {
         Alert.alert(
@@ -34,39 +94,18 @@ export default function AudioRecorder({
       }
 
       // Set audio mode
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true
+      await setAudioModeAsync({
+        allowsRecording: true,
+        playsInSilentMode: true,
+        interruptionMode: 'mixWithOthers',
+        shouldPlayInBackground: false,
+        shouldRouteThroughEarpiece: false
       });
-      if (sound) {
-        await sound.unloadAsync();
-        setSound(null);
-      }
       setPlaybackStatus('idle');
       setRecordingURI(null);
 
-      const recording = new Audio.Recording();
-      await recording.prepareToRecordAsync({
-        web: undefined,
-        android: {
-          extension: '.m4a',
-          outputFormat: Audio.AndroidOutputFormat.MPEG_4,
-          audioEncoder: Audio.AndroidAudioEncoder.AAC,
-          sampleRate: 44100,
-          numberOfChannels: 2,
-          bitRate: 128000
-        },
-        ios: {
-          extension: '.m4a',
-          outputFormat: Audio.IOSOutputFormat.MPEG4AAC,
-          audioQuality: Audio.IOSAudioQuality.MEDIUM,
-          sampleRate: 44100,
-          numberOfChannels: 2,
-          bitRate: 128000
-        }
-      });
-      await recording.startAsync();
-      setRecording(recording);
+      await recorder.prepareToRecordAsync(recordingOptions);
+      recorder.record();
       setIsRecording(true);
     } catch (error) {
       console.error('Failed to start recording', error);
@@ -74,12 +113,10 @@ export default function AudioRecorder({
   };
 
   const stopRecording = async () => {
-    if (!recording) return;
-
     try {
       setIsRecording(false);
-      await recording.stopAndUnloadAsync();
-      const uri = recording.getURI();
+      await recorder.stop();
+      const uri = recorder.uri;
       if (uri) {
         setRecordingURI(uri);
         const sanitizedTitle = title
@@ -93,8 +130,6 @@ export default function AudioRecorder({
       }
     } catch (error) {
       console.error('Failed to stop recording', error);
-    } finally {
-      setRecording(null);
     }
   };
 
@@ -102,66 +137,28 @@ export default function AudioRecorder({
     try {
       if (!recordingURI) return;
 
-      let playbackSound = sound;
-      if (!playbackSound) {
-        const createdSound = await Audio.Sound.createAsync({
-          uri: recordingURI
-        });
-        playbackSound = createdSound.sound;
-        playbackSound.setOnPlaybackStatusUpdate(async (status) => {
-          if (!status.isLoaded) return;
-          if (status.didJustFinish) {
-            await playbackSound.stopAsync();
-            await playbackSound.setPositionAsync(0);
-            setPlaybackStatus('idle');
-          } else if (!status.isPlaying && status.positionMillis > 0) {
-            setPlaybackStatus('paused');
-          }
-        });
-        setSound(playbackSound);
-      }
-
-      if (!playbackSound) return;
-
-      await playbackSound.playAsync();
-      setPlaybackStatus('playing');
+      player.play();
     } catch (error) {
       console.error('Failed to play recording', error);
     }
   };
 
   const pausePlayback = async () => {
-    if (!sound) return;
-
     try {
-      await sound.pauseAsync();
-      setPlaybackStatus('paused');
+      player.pause();
     } catch (error) {
       console.error('Failed to pause playback', error);
     }
   };
 
   const stopPlayback = async () => {
-    if (!sound) return;
-
     try {
-      await sound.stopAsync();
-      await sound.setPositionAsync(0);
-      setPlaybackStatus('idle');
+      player.pause();
+      await player.seekTo(0);
     } catch (error) {
       console.error('Failed to stop playback', error);
     }
   };
-
-  useEffect(() => {
-    return () => {
-      if (sound) {
-        sound
-          .unloadAsync()
-          .catch((error) => console.error('Failed to unload sound', error));
-      }
-    };
-  }, [sound]);
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

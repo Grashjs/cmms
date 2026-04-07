@@ -12,6 +12,7 @@ import { useContext } from 'react';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 import { getImageAndFiles } from '../../../utils/overall';
+import { getErrorMessage } from '../../../utils/api';
 
 interface AddTriggerProps {
   open: boolean;
@@ -82,7 +83,7 @@ export default function AddTriggerModal({
     showSnackBar(t('wo_trigger_create_success'), 'success');
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('wo_trigger_create_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('wo_trigger_create_failure')), 'error');
 
   return (
     <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
@@ -112,32 +113,27 @@ export default function AddTriggerModal({
           onChange={({ field, e }) => {}}
           onSubmit={async (values) => {
             let formattedValues = formatValues(values);
-            return new Promise<void>((resolve, rej) => {
-              uploadFiles(formattedValues.files, formattedValues.image)
-                .then((files) => {
-                  const imageAndFiles = getImageAndFiles(files);
-                  formattedValues = {
-                    ...formattedValues,
-                    image: imageAndFiles.image,
-                    files: imageAndFiles.files
-                  };
-                  dispatch(
-                    createWorkOrderMeterTrigger(meter.id, formattedValues)
-                  )
-                    .then(() => {
-                      onCreationSuccess();
-                      resolve();
-                    })
-                    .catch((err) => {
-                      onCreationFailure(err);
-                      rej();
-                    });
-                })
-                .catch((err) => {
-                  onCreationFailure(err);
-                  rej();
-                });
-            });
+            try {
+              const uploadedFiles = await uploadFiles(
+                formattedValues.files,
+                formattedValues.image
+              );
+
+              const imageAndFiles = getImageAndFiles(uploadedFiles);
+              formattedValues = {
+                ...formattedValues,
+                image: imageAndFiles.image,
+                files: imageAndFiles.files
+              };
+
+              await dispatch(
+                createWorkOrderMeterTrigger(meter.id, formattedValues)
+              );
+              onCreationSuccess();
+            } catch (err) {
+              onCreationFailure(err);
+              throw err;
+            }
           }}
         />
       </DialogContent>

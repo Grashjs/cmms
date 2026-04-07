@@ -2,17 +2,19 @@ package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.CompanyAudit;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Data
 @NoArgsConstructor
+@Schema(description = "Multi-parts entity for grouping multiple parts together")
 public class MultiParts extends CompanyAudit {
 
     @ManyToMany
@@ -27,6 +29,9 @@ public class MultiParts extends CompanyAudit {
     private List<Part> parts = new ArrayList<>();
 
     @NotNull
+    @Schema(description = "Name of the multi-parts group", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
 }
+
+

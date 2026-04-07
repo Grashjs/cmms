@@ -2,17 +2,20 @@ package com.grash.controller;
 
 import com.grash.dto.ReadingPatchDTO;
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.workOrder.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
 import com.grash.model.enums.NotificationType;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.WorkOrderMeterTriggerCondition;
+import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.service.*;
 import com.grash.utils.AuditComparator;
 import com.grash.utils.Helper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
@@ -20,14 +23,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/readings")
-@Api(tags = "reading")
+@Tag(name = "Readings", description = "Operations on meter readings")
 @RequiredArgsConstructor
 public class ReadingController {
 
@@ -38,15 +42,14 @@ public class ReadingController {
     private final NotificationService notificationService;
     private final WorkOrderService workOrderService;
     private final MessageSource messageSource;
+    private final WebhookDispatchService webhookDispatchService;
+    private final WorkOrderMapper workOrderMapper;
 
 
     @GetMapping("/meter/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Reading not found")})
-    public Collection<Reading> getByMeter(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public Collection<Reading> getByMeter(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {
@@ -56,11 +59,10 @@ public class ReadingController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public Reading create(@ApiParam("Reading") @Valid @RequestBody Reading readingReq, HttpServletRequest req) {
+    Reading create(@Parameter(description = "Reading data to create") @Valid @RequestBody Reading readingReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
+        if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.METER))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         Optional<Meter> optionalMeter = meterService.findById(readingReq.getMeter().getId());
         if (optionalMeter.isPresent()) {
             Meter meter = optionalMeter.get();
@@ -95,7 +97,21 @@ public class ReadingController {
                             new Notification(message.toString(), user1, NotificationType.METER, meter.getId())
                     ).collect(Collectors.toList()), true, title);
                     WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(meterTrigger);
-                    workOrderService.create(workOrder, user.getCompany());
+                    WorkOrder createdWorkOrder = workOrderService.create(workOrder, user.getCompany());
+
+                    Map<String, Object> webhookPayload = new HashMap<>();
+                    webhookPayload.put("meterId", meter.getId());
+                    webhookPayload.put("meterName", meter.getName());
+                    webhookPayload.put("meterTriggerId", meterTrigger.getId());
+                    webhookPayload.put("meterTriggerName", meterTrigger.getName());
+                    webhookPayload.put("readingValue", readingReq.getValue());
+                    webhookPayload.put("triggerValue", meterTrigger.getValue());
+                    webhookPayload.put("triggerCondition", meterTrigger.getTriggerCondition().name());
+                    webhookPayload.put("workOrderId", createdWorkOrder.getId());
+                    Object serializedWorkOrder = workOrderMapper.toShowDto(createdWorkOrder);
+                    webhookDispatchService.dispatchWebhook(user.getCompany(),
+                            WebhookEvent.METER_TRIGGER_STATUS_CHANGE, webhookPayload,
+                            "triggeredWorkOrder", serializedWorkOrder, null, null, null, null, null);
                 }
             });
             return readingService.create(readingReq);
@@ -104,12 +120,9 @@ public class ReadingController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Reading not found")})
-    public Reading patch(@ApiParam("Reading") @Valid @RequestBody ReadingPatchDTO reading,
-                         @ApiParam("id") @PathVariable("id") Long id,
+
+    public Reading patch(@Parameter(description = "Reading fields to update") @Valid @RequestBody ReadingPatchDTO reading,
+                         @PathVariable("id") Long id,
                          HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Reading> optionalReading = readingService.findById(id);
@@ -122,11 +135,8 @@ public class ReadingController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Reading not found")})
-    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Reading> optionalReading = readingService.findById(id);
@@ -137,3 +147,5 @@ public class ReadingController {
         } else throw new CustomException("Reading not found", HttpStatus.NOT_FOUND);
     }
 }
+
+

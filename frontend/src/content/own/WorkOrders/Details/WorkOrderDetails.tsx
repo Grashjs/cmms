@@ -94,6 +94,8 @@ import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
 import PartQuantitiesList from '../../components/PartQuantitiesList';
 import AddFileModal from './AddFileModal';
 import { useBrand } from '../../../../hooks/useBrand';
+import { useLicenseEntitlement } from '../../../../hooks/useLicenseEntitlement';
+import { getErrorMessage } from '../../../../utils/api';
 
 const LabelWrapper = styled(Box)(
   ({ theme }) => `
@@ -122,6 +124,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const { t }: { t: any } = useTranslation();
   const { user, hasEditPermission, hasDeletePermission } = useAuth();
   const brandConfig = useBrand();
+  const hasWOHistoryEntitlement = useLicenseEntitlement('WORK_ORDER_HISTORY');
   const [openAddTimeModal, setOpenAddTimeModal] = useState<boolean>(false);
   const [openAddFileModal, setOpenAddFileModal] = useState<boolean>(false);
   const [openAddCostModal, setOpenAddCostModal] = useState<boolean>(false);
@@ -243,9 +246,10 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
       },
       {
         name: 'completeTime',
-        condition: labors
-          .filter((labor) => labor.logged)
-          .some((labor) => !labor.duration),
+        condition:
+          labors
+            .filter((labor) => labor.logged)
+            .filter((labor) => labor.duration).length === 0,
         message: 'required_labor_on_completion'
       },
       {
@@ -558,7 +562,17 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
               >
                 <Box>
                   {changingStatus ? (
-                    <CircularProgress size={'2rem'} />
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        width: 100,
+                        height: 30
+                      }}
+                    >
+                      <CircularProgress size={'1rem'} />
+                    </Box>
                   ) : (
                     <Select
                       onChange={(event) => {
@@ -642,9 +656,11 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
                     }
                     onClick={() => {
                       setControllingTime(true);
-                      dispatch(
-                        controlTimer(!runningTimer, workOrder.id)
-                      ).finally(() => setControllingTime(false));
+                      dispatch(controlTimer(!runningTimer, workOrder.id))
+                        .catch((err) =>
+                          showSnackBar(getErrorMessage(err), 'error')
+                        )
+                        .finally(() => setControllingTime(false));
                     }}
                     variant={runningTimer ? 'contained' : 'outlined'}
                   >
@@ -1319,23 +1335,30 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
             </Box>
           </Box>
         )}
-        {currentTab == 'updates' && (
-          <List>
-            {[...currentWorkOrderHistories]
-              .reverse()
-              .map((workOrderHistory) => (
-                <ListItem
-                  key={workOrderHistory.id}
-                  secondaryAction={getFormattedDate(workOrderHistory.createdAt)}
-                >
-                  <ListItemText
-                    primary={`${workOrderHistory.user.firstName} ${workOrderHistory.user.lastName}`}
-                    secondary={workOrderHistory.name}
-                  />
-                </ListItem>
-              ))}
-          </List>
-        )}
+        {currentTab == 'updates' &&
+          (hasWOHistoryEntitlement ? (
+            <List>
+              {[...currentWorkOrderHistories]
+                .reverse()
+                .map((workOrderHistory) => (
+                  <ListItem
+                    key={workOrderHistory.id}
+                    secondaryAction={getFormattedDate(
+                      workOrderHistory.createdAt
+                    )}
+                  >
+                    <ListItemText
+                      primary={`${workOrderHistory.user.firstName} ${workOrderHistory.user.lastName}`}
+                      secondary={workOrderHistory.name}
+                    />
+                  </ListItem>
+                ))}
+            </List>
+          ) : (
+            <Typography textAlign={'center'}>
+              You need a license to see Work Order history
+            </Typography>
+          ))}
       </Grid>
       <AddTimeModal
         open={openAddTimeModal}

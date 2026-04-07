@@ -8,9 +8,12 @@ import { useContext } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import { useDispatch } from '../../store';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
-import { formatLocationValues, getLocationFields } from '../../utils/fields';
+import { getImageAndFiles } from '../../utils/overall';
 import useAuth from '../../hooks/useAuth';
 import { addLocation, getLocationChildren } from '../../slices/location';
+import { getErrorMessage } from '../../utils/api';
+import { formatLocationValues, getLocationFields } from '../../utils/fields';
+
 
 export default function CreateLocationScreen({
   navigation,
@@ -26,7 +29,7 @@ export default function CreateLocationScreen({
     navigation.goBack();
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('location_create_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('location_create_failure')), 'error');
 
   const shape = {
     name: Yup.string().required(t('required_location_name'))
@@ -43,29 +46,24 @@ export default function CreateLocationScreen({
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           let formattedValues = formatLocationValues(values);
-          return new Promise<void>((resolve, rej) => {
-            uploadFiles(formattedValues.files, formattedValues.image)
-              .then((files) => {
-                formattedValues = {
-                  ...formattedValues,
-                  image: files.length ? { id: files[0].id } : null,
-                  files: files.map((file) => {
-                    return { id: file.id };
-                  })
-                };
-                dispatch(addLocation(formattedValues))
-                  .then(onCreationSuccess)
-                  .then(() => {
-                    dispatch(getLocationChildren(0, []));
-                  })
-                  .catch(onCreationFailure)
-                  .finally(resolve);
-              })
-              .catch((err) => {
-                onCreationFailure(err);
-                rej(err);
-              });
-          });
+          try {
+            const uploadedFiles = await uploadFiles(
+              formattedValues.files,
+              formattedValues.image
+            );
+            const imageAndFiles = getImageAndFiles(uploadedFiles);
+            formattedValues = {
+              ...formattedValues,
+              image: imageAndFiles.image,
+              files: imageAndFiles.files
+            };
+            await dispatch(addLocation(formattedValues));
+            onCreationSuccess();
+            dispatch(getLocationChildren(0, []));
+          } catch (err) {
+            onCreationFailure(err);
+            throw err;
+          }
         }}
       />
     </View>

@@ -1,9 +1,11 @@
 package com.grash.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
+
 import java.io.Serializable;
 
 @Data
@@ -16,5 +18,7 @@ public class UserLoginRequest implements Serializable {
     @NotNull
     private String password;
     @NotNull
-    private String type;
+    @Schema(hidden = true)
+    private String type = "CLIENT";
 }
+

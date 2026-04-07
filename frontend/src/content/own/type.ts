@@ -49,7 +49,7 @@ export interface IField {
     | 'meter-categories'
     | 'part-categories'
     | 'asset-categories';
-  name?: string;
+  name: string;
   placeholder?: string;
   fileType?: 'file' | 'image';
   helperText?: string;

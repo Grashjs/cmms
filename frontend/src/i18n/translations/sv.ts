@@ -885,6 +885,7 @@ const locale = {
     'Användare får uppdateringar för de arbetsordrar de begärt',
   language: 'Språk',
   date_format: 'Datumformat',
+  time_zone: 'Tidszon',
   business_type: 'Företagstyp',
   general_asset_management: 'Allmän kapitalförvaltning',
   physical_asset_management: 'Förvaltning av fysiska tillgångar',
@@ -1456,7 +1457,357 @@ const locale = {
   'schedule.monthly_one': 'Var {{count}} månad',
   'schedule.monthly_other': 'Var {{count}} månader',
   'schedule.yearly_one': 'Var {{count}} år',
-  'schedule.yearly_other': 'Var {{count}} år'
+  'schedule.yearly_other': 'Var {{count}} år',
+  csv_separator: 'CSV-separator',
+  open_source_cmms: 'CMMS med öppen källkod',
+  'main.title':
+    'Gratis CMMS med öppen källkod (programvara för underhållshantering)',
+  'home.h1':
+    'Gratis och open-source CMMS som du kan vara värd för själv eller använda i molnet',
+  'home.h2': 'Kraftfullt underhåll till låg kostnad',
+  'home.h3':
+    'Sluta förlita dig på kalkylblad och whiteboards. {{brandName}} hjälper underhållsteam att planera interventioner, spåra utrustning och förbli kompatibla. Var värd på din egen server eller börja direkt i molnet.',
+  talk_to_sales: 'Prata med försäljning',
+  'pricing.choose_plan_and_get_started': 'Välj din plan och kom igång',
+  'pricing.slogan_effective_maintenance':
+    'Vår programvara ger underhålls- och tillförlitlighetsteam de verktyg de behöver för att driva verksamheten effektivt och ändamålsenligt.',
+  'pricing.compare_plans_and_pricing': 'Jämför abonnemang och priser',
+  'pricing.see_which_plan_is_right_for_you': 'Se vilken plan som passar dig',
+  'pricing.select_two_plans_to_compare': 'Välj 2 planer att jämföra',
+  'pricing.select_three_plans_to_compare': 'Välj 3 planer att jämföra',
+  'pricing.month_per_user': 'månad per användare',
+  'pricing.year_per_user': 'år per användare',
+  'pricing.plan_basic_name': 'Grundläggande',
+  'pricing.plan_basic_description':
+    'Team som vill spåra tillgångar och skapa grundläggande förebyggande underhållsscheman med procedurer.',
+  'pricing.feature_unlimited_work_orders': 'Obegränsade arbetsordrar',
+  'pricing.feature_custom_tasks': 'Anpassade uppgifter',
+  'pricing.feature_unlimited_request_user_licenses':
+    'Obegränsade begärda användarlicenser',
+  'pricing.plan_starter_name': 'Starter',
+  'pricing.plan_starter_description':
+    'Team som vill bygga effektivt och starkt förebyggande underhåll genom att se över maskinens status och personalstyrka.',
+  'pricing.feature_everything_in_basic_plus': 'Allt i Basic plus:',
+  'pricing.feature_preventive_maintenance_recurring_work_orders':
+    'Förebyggande underhåll/återkommande arbetsordrar',
+  'pricing.feature_custom_checklists': 'Anpassade checklistor',
+  'pricing.feature_inventory_management_costing':
+    'Lagerhantering/Kostnadsberäkning',
+  'pricing.feature_time_and_manpower_tracking':
+    'Tids- och arbetskraftsspårning',
+  'pricing.feature_thirty_day_analytics_reporting':
+    '30 dagars analys och rapportering',
+  'pricing.plan_professional_name': 'Professionell',
+  'pricing.plan_professional_description':
+    'Avdelningar som behöver utnyttja insikter och analyser för att driva ytterligare tillväxt och produktivitet inom underhåll.',
+  'pricing.feature_everything_in_starter_plus': 'Allt i Starter plus:',
+  'pricing.feature_multiple_inventory_lines': 'Flera lagerrader',
+  'pricing.feature_customizable_request_portal':
+    'Anpassningsbar förfrågningsportal',
+  'pricing.feature_mobile_offline_mode': 'Mobilt offline-läge',
+  'pricing.feature_advanced_analytics_reporting':
+    'Avancerad analys och rapportering',
+  'pricing.plan_business_name': 'Företag',
+  'pricing.plan_business_description':
+    'Organisationer redo att samla in underhålls- och driftsdata för att hantera flera platser och systemanpassning.',
+  'pricing.feature_everything_in_professional_plus':
+    'Allt i Professional plus:',
+  'pricing.feature_purchase_order_management': 'Hantering av inköpsorder',
+  'pricing.feature_multi_site_module_support':
+    'Stöd för moduler för flera platser',
+  'pricing.feature_custom_work_order_statuses':
+    'Status för anpassade arbetsordrar',
+  'pricing.feature_custom_integrations_support':
+    'Stöd för anpassade integrationer',
+  'pricing.feature_work_order_management': 'Hantering av arbetsordrar',
+  'pricing.feature_recurring_work_orders': 'Återkommande arbetsordrar',
+  'pricing.feature_custom_categories': 'Anpassade kategorier',
+  'pricing.feature_data_importing': 'Dataimport',
+  'pricing.feature_time_and_cost_tracking': 'Tids- och kostnadsspårning',
+  'pricing.feature_work_order_configuration': 'Konfiguration av arbetsorder',
+  'pricing.feature_internal_requests': 'Interna förfrågningar',
+  'pricing.feature_external_request_portal': 'Extern förfrågningsportal',
+  'pricing.category_locations_assets_parts': 'Platser, tillgångar och delar',
+  'pricing.feature_location_management': 'Platshantering',
+  'pricing.feature_barcode_scanning': 'Streckkodsskanning',
+  'pricing.feature_inventory_management': 'Lagerhantering',
+  'pricing.feature_custom_asset_statuses': 'Anpassade tillgångsstatusar',
+  'pricing.feature_asset_downtime_tracking':
+    'Spårning av driftstopp i tillgångar',
+  'pricing.feature_asset_depreciation_tracking':
+    'Uppföljning av tillgångsavskrivningar',
+  'pricing.feature_asset_warranty_tracking': 'Spårning av tillgångsgaranti',
+  'pricing.feature_purchase_orders_management': 'Inköpsordrar',
+  'pricing.feature_asset_check_in_out': 'Incheckning/utcheckning av tillgångar',
+  'pricing.category_mobile_offline': 'Mobil offline',
+  'pricing.feature_work_order_availability': 'Tillgänglighet för arbetsorder',
+  'pricing.feature_updating_status': 'Uppdaterar status',
+  'pricing.feature_updating_tasks': 'Uppdatering av uppgifter',
+  'pricing.feature_work_order_drafts': 'Utkast till arbetsordrar',
+  'pricing.feature_full_drill_down_reporting_history':
+    'Fullständig detaljerad rapportering och historik',
+  'pricing.period_thirty_days': '30 dagar',
+  'pricing.period_full': 'Full',
+  'pricing.feature_pdf_csv_exporting': 'PDF- och CSV-export',
+  'pricing.feature_itemized_time_reporting': 'Specificerad tidsrapportering',
+  'pricing.feature_user_login_reports': 'Rapporter för användarinloggning',
+  'pricing.feature_parts_consumption_reports': 'Rapporter om delförbrukning',
+  'pricing.feature_asset_downtime_reports':
+    'Rapporter om driftstopp i tillgångar',
+  'pricing.feature_equipment_reliability_reports':
+    'Rapporter om utrustningens tillförlitlighet',
+  'pricing.feature_multi_site_modules': 'Moduler för flera platser',
+  'pricing.category_integrations': 'Integrationer',
+  'pricing.feature_business_integrations':
+    'Affärsintegrationer (SAP/Oracle/Causal AI...)',
+  'pricing.feature_custom_integrations': 'Anpassade integrationer',
+  'pricing.feature_unlimited_view_only_users':
+    'Obegränsat antal skrivskyddade användare',
+  'pricing.feature_unlimited_requesters': 'Obegränsat antal förfrågningar',
+  'pricing.feature_unlimited_vendors': 'Obegränsat antal leverantörer',
+  'pricing.feature_unlimited_customers': 'Obegränsade kunder',
+  'pricing.category_support': 'Stöd',
+  'pricing.feature_daily_email_digest': 'Daglig e-postsammanfattning',
+  'pricing.feature_articles': 'Artiklar',
+  'pricing.feature_training_webinars': 'Utbildningswebbinarier',
+  'pricing.feature_community_support_discord': 'Gemenskapsstöd (Discord)',
+  'pricing.feature_email_support': 'E-postsupport',
+  'pricing.feature_chat_phone_support': 'Chatt-/telefonsupport',
+  'pricing.feature_priority_support': 'Prioriterat stöd',
+  'pricing.feature_implementation_training': 'Implementering och utbildning',
+  'pricing.feature_dedicated_account_manager': 'Dedikerad kontoansvarig',
+  'pricing.category_customization': 'Anpassning',
+  'pricing.feature_custom_development': 'Anpassad utveckling',
+  'pricing.sh_plan_basic_name': 'Grundläggande',
+  'pricing.sh_plan_basic_description':
+    'För små team som behöver full datasuveränitet och grundläggande underhållsspårning på sin egen infrastruktur.',
+  'pricing.sh_feature_core_work_order_management':
+    'Hantering av kärnarbetsordrar',
+  'pricing.sh_feature_asset_inventory_tracking':
+    'Spårning av tillgångar och lager',
+  'pricing.sh_feature_local_data_storage': 'Lokal datalagring',
+  'pricing.sh_plan_professional_name': 'Professionell',
+  'pricing.sh_plan_professional_description':
+    'Idealisk för odling av växter som kräver avancerade checklistor, arbetsflöden och djupare systemintegration.',
+  'pricing.sh_feature_everything_in_basic_plus': 'Allt i Basic plus:',
+  'pricing.sh_feature_unlimited_assets_checklists':
+    'Obegränsade tillgångar/checklistor',
+  'pricing.sh_feature_nfc_barcode_scanning': 'NFC och streckkodsläsning',
+  'pricing.sh_feature_email_support': 'E-postsupport',
+  'pricing.sh_plan_business_name': 'Företag',
+  'pricing.sh_plan_business_description':
+    'Fullskaliga operationer som kräver hantering av flera instanser, anpassad varumärkesbyggande och säkerhet i toppklass.',
+  'pricing.sh_feature_everything_in_professional_plus':
+    'Allt i Professional plus:',
+  'pricing.sh_feature_multi_instance_management': 'Flerinstanshantering',
+  'pricing.sh_feature_custom_user_roles': 'Anpassade användarroller',
+  'pricing.sh_feature_priority_implementation_support':
+    'Prioriterat implementeringsstöd',
+  'pricing.faq_free_users_q':
+    'Vilka typer av användare betraktas som gratisanvändare?',
+  'pricing.faq_free_users_a1':
+    'Det finns tre användartyper som inte kräver en betald licens:',
+  'pricing.faq_view_only_users_title': 'Endast visningsanvändare',
+  'pricing.faq_view_only_users_description':
+    'Dessa användare är vanligtvis handledare som loggar in sällan för att se en ögonblicksbild av underhållsaktiviteten. De kan också skicka in arbetsförfrågningar och köra rapporter.',
+  'pricing.faq_requester_users_title': 'Begärande användare',
+  'pricing.faq_requester_users_description':
+    'Dessa användare kan bara skicka in arbetsförfrågningar och se statusen för dessa förfrågningar. De kan inte se arbetsordrar, tillgångar, delar eller andra data som lagras i CMMS.',
+  'pricing.faq_third_party_users_title': 'Tredjepartsanvändare',
+  'pricing.faq_third_party_users_description':
+    'Dessa användare är vanligtvis leverantörer och entreprenörer. De kan inte logga in i systemet. De kan bara skicka uppdateringar till en specifik arbetsorder som de är taggade på via en offentlig länk.',
+  'pricing.faq_paid_users_q':
+    'Vilka typer av användare betraktas som betalande användare?',
+  'pricing.faq_paid_users_a1':
+    'Det finns tre användartyper som kräver en betald licens:',
+  'pricing.faq_admin_users_title': 'Administratörsanvändare',
+  'pricing.faq_admin_users_description':
+    'Dessa användare har möjlighet att lägga till andra till kontot, acceptera eller neka arbetsförfrågningar och redigera arbetsorderuppgifter. Det är de användare som kontrollerar kontot. Du kan ha flera administratörer per konto.',
+  'pricing.faq_technical_users_title': 'Tekniska användare',
+  'pricing.faq_technical_users_description':
+    'Dessa användare är vanligtvis tekniker som avslutar arbetsordrar ute på fältet. De kan redigera arbetsordrar som de skapar men inte andra arbetsordrar. De kan lägga till bilder och statusuppdateringar till arbetsordrar och skapa nya arbetsordrar.',
+  'pricing.faq_limited_technical_users_title': 'Begränsade tekniska användare',
+  'pricing.faq_limited_technical_users_description':
+    'Dessa användare har samma behörigheter som den tekniska användaren. Det enda undantaget är att de bara kan se arbetsordrar som tilldelats dem – inte andra tekniska användare på kontot.',
+  'pricing.faq_change_plans_q': 'Kan jag ändra planer senare?',
+  'pricing.faq_change_plans_a':
+    'Ja, du kan uppgradera eller nedgradera ditt abonnemang när som helst. Ändringarna träder i kraft i början av din nästa faktureringscykel.',
+  'pricing.faq_free_trial_q': 'Finns det en gratis provperiod?',
+  'pricing.faq_free_trial_a':
+    'Ja, vi erbjuder en 15-dagars gratis provperiod av Business-planen så att du kan uppleva alla funktioner innan du fattar ett beslut.',
+  'pricing.faq_non_profit_discounts_q':
+    'Erbjuder ni rabatter för ideella organisationer?',
+  'pricing.faq_non_profit_discounts_a':
+    'Ja, vi erbjuder specialpriser för ideella organisationer. Kontakta vår säljavdelning för mer information.',
+  'pricing.faq_payment_methods_q': 'Vilka betalningsmetoder accepterar ni?',
+  'pricing.faq_payment_methods_a':
+    'Vi accepterar alla större kreditkort, banköverföringar och PayPal. För Enterprise-abonnemang kan vi även ordna fakturering.',
+  'pricing.faq_cancel_subscription_q': 'Kan jag avbryta min prenumeration?',
+  'pricing.faq_cancel_subscription_a':
+    'Ja, du kan avsluta din prenumeration när som helst. Du kommer att ha tillgång till den till slutet av din nuvarande faktureringsperiod.',
+  'pricing.faq_data_secure_q': 'Är mina uppgifter säkra?',
+  'pricing.faq_data_secure_a':
+    'Ja, vi tar datasäkerhet på största allvar. All data krypteras under överföring och i vila, och vi utför regelbundna säkerhetsrevisioner.',
+  'pricing.faq_title': 'Vanliga frågor',
+  'pricing.annually_save_two_months': 'Årligen (spara 2 månader)',
+  'pricing.most_popular': 'Mest populära',
+  'pricing.get_your_license': 'Få din licens',
+  get_started: 'Kom igång',
+  workflow_automation: 'Arbetsflödesautomatisering',
+  push_notifications: 'Push-meddelanden',
+  cloud: 'Moln',
+  self_hosted: 'Självhostad',
+  full: 'Full',
+  pricing: 'Prissättning',
+  industries: 'Branscher',
+  work_order_management: 'Arbetsorderhantering',
+  inventory_management: 'Lagerhantering',
+  analytics_and_reporting: 'Analys och rapportering',
+  manufacturing: 'Tillverkning',
+  facility_management: 'Fastighetsförvaltning',
+  food_and_beverage: 'Livsmedel och dryck',
+  healthcare: 'Sjukvård',
+  energy_and_utilities: 'Energi och försörjning',
+  education: 'Utbildning',
+  hospitality: 'Hotell och restaurang',
+  construction: 'Byggbranschen',
+  trusted_by_maintenance_teams: 'Betrodd av underhållsteam i flera branscher',
+  cut_costs_performance:
+    'Sänk kostnaderna för underhållsprogramvara utan att offra prestanda',
+  'free_cmms.title': 'Atlas Gratis CMMS-programvara | Inget kreditkort krävs',
+  'free_cmms.description':
+    'Gratis CMMS-programvara — inte en testversion. Hantera underhåll, tillgångar och arbetsordrar omedelbart. Inget kreditkort krävs.',
+  'free_cmms.keywords':
+    'gratis cmms, programvara för underhållshantering, gratis arbetsorderprogramvara, tillgångsspårning, förebyggande underhåll',
+  'overview.description':
+    'Atlas CMMS är ett gratis, open-source CMMS för att hantera arbetsordrar, förebyggande underhåll, tillgångar och anläggningar. Effektivisera din underhållsverksamhet idag.',
+  'overview.keywords':
+    'CMMS, datoriserat underhållssystem, EAM, enterprise asset management, open source cmms, gratis underhållsprogramvara, arbetsorderhantering, förebyggande underhåll, tillgångsspårning, fastighetsförvaltning, programvara för underhållsspårning, utrustningsunderhåll, Atlas CMMS',
+  'pricing.title': 'Prissättning - Atlas CMMS',
+  'pricing.description':
+    'Flexibla prisplaner för Atlas CMMS. Välj mellan Cloud- och Self-Hosted-versioner av vårt open-source CMMS för att optimera din underhållsverksamhet.',
+  'free_cmms.hero.subtitle': 'Gratis CMMS-programvara',
+  'free_cmms.hero.title':
+    'Hantera Arbetsordrar och Tillgångar - Gratis för alltid',
+  'free_cmms.hero.description':
+    'Sluta jonglera med kalkylblad och föråldrade verktyg. Uppgradera till en modern CMMS-programvara - gratis.',
+  'free_cmms.hero.start_free': 'Starta Gratis Nu',
+  'free_cmms.hero.work_orders_alt': 'Arbetsordrar',
+  'free_cmms.hero.mobile_app_alt': 'Mobilapp',
+  'free_cmms.features.work_orders.title': 'Enkla Arbetsordrar',
+  'free_cmms.features.work_orders.p1':
+    'Skapa, tilldela och spåra arbetsordrar på några sekunder.',
+  'free_cmms.features.work_orders.p2':
+    'Bifoga foton, manualer och checklistor till alla uppgifter.',
+  'free_cmms.features.work_orders.p3':
+    'Övervaka framsteg i realtid med omedelbara statusupdates.',
+  'free_cmms.features.work_orders.alt': 'Arbetsorderhantering',
+  'free_cmms.features.asset_tracking.title':
+    'Spårning av Tillgångars Livscykel',
+  'free_cmms.features.asset_tracking.p1':
+    'Håll en komplett digital historik för varje tillgång.',
+  'free_cmms.features.asset_tracking.p2':
+    'Fatta datadrivna beslut om reparation kontra byte.',
+  'free_cmms.features.asset_tracking.p3':
+    'Håll dig redo för revisioner med automatiserade efterlevnadsloggar.',
+  'free_cmms.features.asset_tracking.alt': 'Tillgångshantering',
+  'free_cmms.features.inventory.title': 'Lager & Delar',
+  'free_cmms.features.inventory.p1':
+    'Spåra lagernivåer på flera platser i realtid.',
+  'free_cmms.features.inventory.p2':
+    'Skanna QR-koder för omedelbar sökning och användning av delar.',
+  'free_cmms.features.inventory.p3':
+    'Få automatiska varningar om lågt lager och beställ omedelbart.',
+  'free_cmms.features.inventory.alt': 'Lagerhantering',
+  'free_cmms.features.mobile.title': 'Underhåll på Språng',
+  'free_cmms.features.mobile.p1':
+    'Fullständig mobilapp-funktionalitet för iOS och Android.',
+  'free_cmms.features.mobile.p2':
+    'Ta bilder och skanna streckkoder direkt ute på fältet.',
+  'free_cmms.features.mobile.p3':
+    'Synkronisera data omedelbart och arbeta offline vid behov.',
+  'free_cmms.features.mobile.alt': 'Mobil CMMS-app',
+  'free_cmms.features.get_started_free': 'Kom igång gratis',
+  'free_cmms.features.ready_to_optimize': 'Redo att optimera ditt underhåll?',
+  'free_cmms.features.join_thousands':
+    'Gå med i tusentals underhållsproffs som använder världens mest intuitiva gratis CMMS.',
+  'free_cmms.features.get_started_no_card':
+    'Kom igång gratis - Inget kreditkort krävs',
+  create_request_portal: 'Skapa begäringsportal',
+  edit_request_portal: 'Redigera begäringsportal',
+  welcome_message: 'Välkomstmeddelande',
+  fields: 'Fält',
+  field_settings: 'Fältinställningar',
+  contact: 'Kontakt',
+  required_title: 'Titel krävs',
+  untitled_portal: 'Namnlös portal',
+  no_welcome_message: 'Inget välkomstmeddelande',
+  request_portal_create_success: 'Begäringsportal skapad framgångsrikt',
+  request_portal_edit_success: 'Begäringsportal uppdaterad framgångsrikt',
+  request_portal_delete_success: 'Begäringsportal borttagen framgångsrikt',
+  request_portal_create_failure: 'Misslyckades skapa begäringsportal',
+  request_portal_edit_failure: 'Misslyckades uppdatera begäringsportal',
+  request_portal_delete_failure: 'Misslyckades ta bort begäringsportal',
+  no_access_request_portals: 'Du har inte tillgång till begäringsportaler',
+  'noRows.request_portal.message':
+    'Det ser ut som att du inte har några begäringsportaler än.',
+  'noRows.request_portal.action': 'Skapa din första begäringsportal',
+  request_title: 'Begäranstitel',
+  configure_form_fields: 'Konfigurera formulärfält',
+  allow_selection_from_all_locations: 'Tillåt val från alla platser',
+  allow_selection_from_all_assets: 'Tillåt val från alla tillgångar',
+  restrict_to_a_specific_location: 'Begränsa till en specifik plats',
+  restrict_to_a_specific_asset: 'Begränsa till en specifik tillgång',
+  portal_public_asset_warning:
+    'Denna portal är offentlig och kräver ingen autentisering. De listade tillgångarna kommer att vara synliga för alla med länken.',
+  portal_public_location_warning:
+    'Denna portal är offentlig och kräver ingen autentisering. De listade platserna kommer att vara synliga för alla med länken.',
+  submit_request: 'Skicka begäran',
+  share_portal: 'Dela portal',
+  get_portal_link: 'Hämta portallänk',
+  portal_link_description:
+    'Endast personer med denna länk kan komma åt portalen.',
+  print_qr_code: 'Skriv ut QR-kod',
+  qr_code_description:
+    'Ladda ner QR-koden och klistra den på installationen, så att användare kan skanna den och komma åt portalen.',
+  copied: 'Kopierad!',
+  copy: 'Kopiera',
+  download: 'Ladda ner',
+  share: 'Dela',
+  delete: 'Ta bort',
+  portal_not_found: 'Portal hittades inte',
+  request_submitted_success: 'Din begäran har skickats framgångsrikt',
+  request_submit_failure: 'Misslyckades skicka begäran. Försök igen.',
+  required_description: 'Beskrivning krävs',
+  required_contact: 'Kontakt krävs',
+  required_location: 'Plats krävs',
+  upload_files: 'Ladda upp filer',
+  request_portal: 'Begäringsportal',
+  required_image: 'Bild krävs',
+  requested_from_portal: 'Denna begäran skapades från portalen: ',
+  request_portals: 'Begäringsportaler',
+  recaptcha_failed: 'reCAPTCHA-verifiering misslyckades. Försök igen.',
+  select_date_range: 'Välj datumintervall',
+  get_mobile_app: 'Hämta mobilappen',
+  scan_qr_to_download: 'Skanna QR-koden för att ladda ner mobilappen',
+  integrations: 'Integrationer',
+  api_keys: 'API-nycklar',
+  connectors: 'Kopplingar',
+  webhooks: 'Webhooks',
+  create_api_key: 'Skapa API-nyckel',
+  api_key_label: 'API-nyckelns etikett',
+  api_key_created_success: 'API-nyckel skapad framgångsrikt',
+  api_key_code_copied: 'API-nyckelkod kopierad till urklipp',
+  api_key_code_view_once:
+    'Den här koden kan bara visas en gång. Kopiera den nu eftersom du inte kan se den igen.',
+  api_key_code: 'API-nyckelkod',
+  copy_code: 'Kopiera kod',
+  last_used: 'Senast använd',
+  never: 'Aldrig',
+  delete_api_key: 'Ta bort API-nyckel',
+  delete_api_key_confirm:
+    'Är du säker på att du vill ta bort denna API-nyckel?',
+  upgrade_api: 'Uppgradera för att få åtkomst till API, kopplingar och webhooks'
 };
 
 export default locale;

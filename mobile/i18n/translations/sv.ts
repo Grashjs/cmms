@@ -1256,6 +1256,16 @@ const locale = {
   "power": "Driva",
   "library": "Bibliotek",
   "camera": "Kamera",
+  media_library: 'Bildbibliotek',
+  permission_required_title: 'Behörighet krävs',
+  permission_required_message:
+    'Åtkomst till {{permission}} krävs. Aktivera detta i appens inställningar.',
+  permission_denied_title: 'Behörighet nekad',
+  permission_denied_message: 'Åtkomst till {{permission}} krävs för att fortsätta.',
+  unable_to_request_permission:
+    'Det gick inte att begära behörighet för {{permission}}.',
+  open_settings: 'Öppna inställningar',
+  ok: 'OK',
   "CANCELLED": "Avvisad",
   "max_file_size_error": "Filstorleken bör inte vara större än {{size}} MB",
   "assignedToUser": "Mitt arbete",

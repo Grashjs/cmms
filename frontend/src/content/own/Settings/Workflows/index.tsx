@@ -60,11 +60,11 @@ import { VendorMiniDTO } from '../../../../models/owns/vendor';
 import { TeamMiniDTO } from '../../../../models/owns/team';
 import Category from '../../../../models/owns/category';
 import DateTimePicker from '@mui/lab/DateTimePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers-pro';
-import { AdapterDayjs } from '@mui/x-date-pickers-pro/AdapterDayjs';
-import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import { useBrand } from '../../../../hooks/useBrand';
+import { getErrorMessage } from '../../../../utils/api';
+import DateRangePicker from '../../components/form/DateRangePicker';
+import HourRangePicker from '../../components/form/HourRangePicker';
 
 interface UICondition {
   type: WorkflowConditionType;
@@ -76,7 +76,14 @@ interface UIAction {
   value: string | number;
   values?: (string | number)[];
 }
-type FieldType = 'simple' | 'text' | 'number' | 'select' | 'date' | 'dateRange';
+type FieldType =
+  | 'simple'
+  | 'text'
+  | 'number'
+  | 'select'
+  | 'date'
+  | 'dateRange'
+  | 'hourRange';
 
 interface Field<T, C> {
   type: FieldType;
@@ -234,8 +241,8 @@ function Workflows() {
       apiFormatter: objectFormatter
     },
     CREATED_AT_BETWEEN: {
-      type: 'dateRange',
-      accessors: ['startDate', 'endDate']
+      type: 'hourRange',
+      accessors: ['createdTimeStart', 'createdTimeEnd']
     },
     DUE_DATE_AFTER: { type: 'date', accessor: 'endDate' },
     DUE_DATE_BETWEEN: {
@@ -458,7 +465,10 @@ function Workflows() {
     newConditions[index].value = value;
     setCurrentConditions(newConditions);
   };
-  const handleConditionValuesChange = (values: string[], index: number) => {
+  const handleConditionValuesChange = (
+    values: (string | number)[],
+    index: number
+  ) => {
     const newConditions = [...currentConditions];
     newConditions[index].values = values;
     setCurrentConditions(newConditions);
@@ -484,7 +494,7 @@ function Workflows() {
       value
     }));
   };
-  const handleActionValuesChange = (values: string[]) => {
+  const handleActionValuesChange = (values: (string | number)[]) => {
     setCurrentAction((action) => ({
       ...action,
       values
@@ -570,6 +580,8 @@ function Workflows() {
       let result = [];
       if (condition.startDate && condition.endDate) {
         result = [condition.startDate, condition.endDate];
+      } else if (condition.createdTimeStart && condition.createdTimeEnd) {
+        result = [condition.createdTimeStart, condition.createdTimeEnd];
       }
       return result;
     };
@@ -634,6 +646,7 @@ function Workflows() {
   ): boolean => {
     switch (fieldType) {
       case 'dateRange':
+      case 'hourRange':
         return (
           field.values?.length == 2 && field.values.every((value) => !!value)
         );
@@ -678,7 +691,7 @@ function Workflows() {
               [config.accessor]: formattedValue
             };
             config.accessors?.forEach((accessor, index) => {
-              result[accessor] = condition.values[index];
+              result[accessor] = condition.values?.[index] as string | number;
             });
             return result;
           }),
@@ -699,11 +712,11 @@ function Workflows() {
               ? onWorkflowCreationSuccess
               : onWorkflowEditSuccess
           )
-          .catch(() =>
+          .catch((err) =>
             showSnackBar(
               t(
                 view === 'create'
-                  ? 'workflow_creation_failure'
+                  ? getErrorMessage(err, 'workflow_creation_failure')
                   : 'workflow_edit_failure'
               ),
               'error'
@@ -787,28 +800,33 @@ function Workflows() {
                 )}
               />
             ) : config.type === 'dateRange' ? (
-              <LocalizationProvider
-                localeText={{ start: t('start'), end: t('end') }}
-                dateAdapter={AdapterDayjs}
-              >
-                <DateRangePicker
-                  value={
-                    condition.values?.length > 1
-                      ? [condition.values[0], condition.values[1]]
-                      : [null, null]
-                  }
-                  onChange={(newValues) => {
-                    handleConditionValuesChange(newValues as string[], index);
-                  }}
-                  renderInput={(startProps, endProps) => (
-                    <>
-                      <TextField {...startProps} />
-                      <Box sx={{ mx: 2 }}> {t('to')} </Box>
-                      <TextField {...endProps} />
-                    </>
-                  )}
-                />
-              </LocalizationProvider>
+              <DateRangePicker
+                value={
+                  condition.values?.length > 1
+                    ? [
+                        new Date(condition.values[0]),
+                        new Date(condition.values[1])
+                      ]
+                    : [null, null]
+                }
+                onChange={(newValues) => {
+                  handleConditionValuesChange(
+                    newValues.map((value) => value.toISOString()),
+                    index
+                  );
+                }}
+              />
+            ) : config.type === 'hourRange' ? (
+              <HourRangePicker
+                value={
+                  condition.values?.length > 1
+                    ? [Number(condition.values[0]), Number(condition.values[1])]
+                    : [undefined, undefined]
+                }
+                onChange={(newValues) => {
+                  handleConditionValuesChange(newValues, index);
+                }}
+              />
             ) : null}
           </Box>
         </Box>
@@ -855,28 +873,29 @@ function Workflows() {
               )}
             />
           ) : config.type === 'dateRange' ? (
-            <LocalizationProvider
-              localeText={{ start: t('start'), end: t('end') }}
-              dateAdapter={AdapterDayjs}
-            >
-              <DateRangePicker
-                value={
-                  action.values?.length > 1
-                    ? [action.values[0], action.values[1]]
-                    : [null, null]
-                }
-                onChange={(newValues) => {
-                  handleActionValuesChange(newValues as string[]);
-                }}
-                renderInput={(startProps, endProps) => (
-                  <>
-                    <TextField {...startProps} />
-                    <Box sx={{ mx: 2 }}> {t('to')} </Box>
-                    <TextField {...endProps} />
-                  </>
-                )}
-              />
-            </LocalizationProvider>
+            <DateRangePicker
+              value={
+                action.values?.length > 1
+                  ? [new Date(action.values[0]), new Date(action.values[1])]
+                  : [null, null]
+              }
+              onChange={(newValues) => {
+                handleActionValuesChange(
+                  newValues.map((value) => value.toISOString())
+                );
+              }}
+            />
+          ) : config.type === 'hourRange' ? (
+            <HourRangePicker
+              value={
+                action.values?.length > 1
+                  ? [Number(action.values[0]), Number(action.values[1])]
+                  : [undefined, undefined]
+              }
+              onChange={(newValues) => {
+                handleActionValuesChange(newValues);
+              }}
+            />
           ) : null}
         </Box>
       </Box>

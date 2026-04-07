@@ -3,19 +3,24 @@ package com.grash.service;
 import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
-import com.grash.dto.WorkOrderPatchDTO;
+import com.grash.dto.workOrder.WorkOrderPatchDTO;
 import com.grash.dto.imports.WorkOrderImportDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
+import com.grash.factory.MailServiceFactory;
 import com.grash.model.*;
 import com.grash.model.abstracts.Cost;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.*;
+import com.grash.model.enums.webhook.WOField;
+import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.repository.WorkOrderHistoryRepository;
 import com.grash.repository.WorkOrderRepository;
 import com.grash.utils.Helper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,11 +34,14 @@ import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.JoinType;
-import javax.transaction.Transactional;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.JoinType;
+
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.grash.utils.Consts.usageBasedLicenseLimits;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +60,7 @@ public class WorkOrderService {
     private final NotificationService notificationService;
     private final WorkOrderMapper workOrderMapper;
     private final EntityManager em;
-    private final EmailService2 emailService2;
+    private final MailServiceFactory mailServiceFactory;
     private final WorkOrderCategoryService workOrderCategoryService;
     private WorkflowService workflowService;
     private final MessageSource messageSource;
@@ -60,6 +68,8 @@ public class WorkOrderService {
 
     @Value("${frontend.url}")
     private String frontendUrl;
+    private final LicenseService licenseService;
+    private WebhookDispatchService webhookDispatchService;
 
     @Autowired
     public void setDeps(@Lazy WorkflowService workflowService
@@ -69,6 +79,7 @@ public class WorkOrderService {
 
     @Transactional
     public WorkOrder create(WorkOrder workOrder, Company company) {
+        checkUsageBasedLimit(company);
         if (workOrder instanceof WorkOrderPostDTO) {
             WorkOrderPostDTO workOrderPostDTO = (WorkOrderPostDTO) workOrder;
             workOrder = workOrderMapper.fromPostDto(workOrderPostDTO);
@@ -86,7 +97,11 @@ public class WorkOrderService {
         Collection<Workflow> workflows =
                 workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_CREATED, company.getId());
         workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, savedWorkOrder));
-
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("workOrderId", savedWorkOrder.getId());
+        Object serializedWorkOrder = workOrderMapper.toShowDto(savedWorkOrder);
+        webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_WORK_ORDER, webhookPayload,
+                "newWorkOrder", serializedWorkOrder, null, null, null, null, null);
         return savedWorkOrder;
     }
 
@@ -104,14 +119,52 @@ public class WorkOrderService {
         this.partQuantityService = partQuantityService;
     }
 
+    private void checkUsageBasedLimit(Company company) {
+        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS);
+        if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)
+                && workOrderRepository.hasMoreActiveThan(company.getId(), threshold.longValue() - 1
+        ))
+            throw new CustomException("You need a license to add a new work order. Free Limit of " + threshold + " " +
+                    "incomplete " +
+                    "work orders reached",
+                    HttpStatus.FORBIDDEN);
+    }
+
     @Transactional
     public WorkOrder update(Long id, WorkOrderPatchDTO workOrder, OwnUser user) {
         if (workOrderRepository.existsById(id)) {
             WorkOrder savedWorkOrder = workOrderRepository.findById(id).get();
             if (savedWorkOrder.getFirstTimeToReact() == null) savedWorkOrder.setFirstTimeToReact(new Date());
+
+            Collection<WOField> changedFields = detectPatchDTOChangedFields(savedWorkOrder, workOrder);
+            Long previousCategoryId = savedWorkOrder.getCategory() != null ? savedWorkOrder.getCategory().getId() :
+                    null;
+
             WorkOrder updatedWorkOrder =
                     workOrderRepository.saveAndFlush(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
             em.refresh(updatedWorkOrder);
+            Object serializedWorkOrder = workOrderMapper.toShowDto(updatedWorkOrder);
+            Map<String, Object> webhookPayload = new HashMap<>();
+            webhookPayload.put("workOrderId", updatedWorkOrder.getId());
+            webhookPayload.put("workOrderTitle", updatedWorkOrder.getTitle());
+            webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.WORK_ORDER_CHANGE, webhookPayload,
+                    "changedWorkOrder", serializedWorkOrder, changedFields, null, null, null, null);
+
+            Long newCategoryId = updatedWorkOrder.getCategory() != null ? updatedWorkOrder.getCategory().getId() : null;
+            if ((previousCategoryId == null && newCategoryId != null) ||
+                    (previousCategoryId != null && !previousCategoryId.equals(newCategoryId))) {
+                webhookPayload.put("previousCategoryId", previousCategoryId);
+                webhookPayload.put("newCategoryId", newCategoryId);
+                webhookPayload.put("newCategoryName", updatedWorkOrder.getCategory() != null ?
+                        updatedWorkOrder.getCategory().getName() : null);
+                WorkOrderCategory newCategory = updatedWorkOrder.getCategory();
+                Collection<WorkOrderCategory> categories = newCategory != null ?
+                        Collections.singletonList(newCategory) : Collections.emptyList();
+                webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.NEW_CATEGORY_ON_WORK_ORDER,
+                        webhookPayload,
+                        "changedWorkOrder", serializedWorkOrder, changedFields, null, null, categories, null);
+            }
+
             return updatedWorkOrder;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -120,8 +173,15 @@ public class WorkOrderService {
         return workOrderRepository.findAll();
     }
 
-    public void delete(Long id) {
-        workOrderRepository.deleteById(id);
+    @Transactional
+    public void delete(WorkOrder workOrder, Company company) {
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("workOrderId", workOrder.getId());
+        webhookPayload.put("workOrderTitle", workOrder.getTitle());
+        Object serializedWorkOrder = workOrderMapper.toShowDto(workOrder);
+        webhookDispatchService.dispatchWebhook(company, WebhookEvent.WORK_ORDER_DELETE, webhookPayload,
+                "deleteWorkOrder", serializedWorkOrder, null, null, null, null, null);
+        workOrderRepository.deleteById(workOrder.getId());
     }
 
     public Optional<WorkOrder> findById(Long id) {
@@ -132,8 +192,16 @@ public class WorkOrderService {
         return workOrderRepository.findByIdAndCompany_Id(id, companyId);
     }
 
+    public Collection<WorkOrder> findByIdsAndCompany(List<Long> ids, Long companyId) {
+        return workOrderRepository.findByIdInAndCompany_Id(ids, companyId);
+    }
+
     public Collection<WorkOrder> findByCompany(Long id) {
         return workOrderRepository.findByCompany_Id(id);
+    }
+
+    public List<WorkOrder> findByCompanyForExport(Long companyId) {
+        return workOrderRepository.findByCompanyForExport(companyId);
     }
 
     public void notify(WorkOrder workOrder, Locale locale) {
@@ -146,13 +214,12 @@ public class WorkOrderService {
 
         Map<String, Object> mailVariables = new HashMap<String, Object>() {{
             put("workOrderLink", frontendUrl + "/app/work-orders/" + workOrder.getId());
-            put("featuresLink", frontendUrl + "/#key-features");
             put("workOrderTitle", workOrder.getTitle());
         }};
         Collection<OwnUser> usersToMail =
                 users.stream().filter(user -> user.isEnabled() && user.getUserSettings().shouldEmailUpdatesForWorkOrders()).collect(Collectors.toList());
         if (!usersToMail.isEmpty()) {
-            emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_wo", null, locale), mailVariables, "new-work-order.html", Helper.getLocale(users.stream().findFirst().get()));
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_wo", null, locale), mailVariables, "new-work-order.html", Helper.getLocale(users.stream().findFirst().get()));
         }
     }
 
@@ -166,13 +233,12 @@ public class WorkOrderService {
 
         Map<String, Object> mailVariables = new HashMap<String, Object>() {{
             put("workOrderLink", frontendUrl + "/app/work-orders/" + newWorkOrder.getId());
-            put("featuresLink", frontendUrl + "/#key-features");
             put("workOrderTitle", newWorkOrder.getTitle());
         }};
         Collection<OwnUser> usersToMail =
                 usersToNotify.stream().filter(user -> user.isEnabled() && user.getUserSettings().shouldEmailUpdatesForWorkOrders()).collect(Collectors.toList());
         if (!usersToMail.isEmpty()) {
-            emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_wo", null, locale), mailVariables, "new-work-order.html", Helper.getLocale(usersToMail.stream().findFirst().get()));
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_wo", null, locale), mailVariables, "new-work-order.html", Helper.getLocale(usersToMail.stream().findFirst().get()));
         }
     }
 
@@ -205,9 +271,49 @@ public class WorkOrderService {
         workOrderRepository.save(workOrder);
     }
 
-    public WorkOrder saveAndFlush(WorkOrder workOrder) {
+    public List<WorkOrder> saveAll(List<WorkOrder> workOrders) {
+        return workOrderRepository.saveAll(workOrders);
+    }
+
+
+    @Transactional
+    public WorkOrder saveAndFlushWithWebhook(WorkOrder workOrder, Company company, WorkOrder originalWorkOrder) {
+        Collection<WOField> changedFields = detectChangedFieldsFromEntity(originalWorkOrder, workOrder);
+        boolean statusChanged = !Objects.equals(originalWorkOrder.getStatus(), workOrder.getStatus());
+        Long originalCategoryId = originalWorkOrder.getCategory() != null ? originalWorkOrder.getCategory().getId() :
+                null;
+        Long newCategoryId = workOrder.getCategory() != null ? workOrder.getCategory().getId() : null;
+        boolean categoryChanged = !Objects.equals(originalCategoryId, newCategoryId);
         WorkOrder updatedWorkOrder = workOrderRepository.saveAndFlush(workOrder);
         em.refresh(updatedWorkOrder);
+        Object serializedWorkOrder = workOrderMapper.toShowDto(updatedWorkOrder);
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("workOrderId", updatedWorkOrder.getId());
+        webhookPayload.put("workOrderTitle", updatedWorkOrder.getTitle());
+        webhookPayload.put("previousStatus", originalWorkOrder.getStatus());
+        webhookPayload.put("newStatus", updatedWorkOrder.getStatus());
+
+        webhookDispatchService.dispatchWebhook(company, WebhookEvent.WORK_ORDER_CHANGE, webhookPayload,
+                "changedWorkOrder", serializedWorkOrder, changedFields, null, null, null, null);
+
+        if (statusChanged) {
+            webhookDispatchService.dispatchWebhook(company, WebhookEvent.WORK_ORDER_STATUS_CHANGE, webhookPayload,
+                    "changedWorkOrder", serializedWorkOrder, changedFields, null,
+                    updatedWorkOrder.getStatus(), null, null);
+        }
+
+        if (categoryChanged) {
+            webhookPayload.put("previousCategoryId", originalCategoryId);
+            webhookPayload.put("newCategoryId", newCategoryId);
+            webhookPayload.put("newCategoryName", updatedWorkOrder.getCategory() != null ?
+                    updatedWorkOrder.getCategory().getName() : null);
+            WorkOrderCategory newCategory = updatedWorkOrder.getCategory();
+            Collection<WorkOrderCategory> categories = newCategory != null ? Collections.singletonList(newCategory) :
+                    Collections.emptyList();
+            webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_CATEGORY_ON_WORK_ORDER, webhookPayload,
+                    "changedWorkOrder", serializedWorkOrder, changedFields, null, null, categories, null);
+        }
+
         return updatedWorkOrder;
     }
 
@@ -216,7 +322,7 @@ public class WorkOrderService {
         workOrder.setTitle(workOrderBase.getTitle());
         workOrder.setDescription(workOrderBase.getDescription());
         workOrder.setPriority(workOrderBase.getPriority());
-        workOrder.setImage(workOrder.getImage());
+        workOrder.setImage(workOrderBase.getImage());
         workOrder.setCompany(workOrderBase.getCompany());
         workOrder.getFiles().addAll(workOrderBase.getFiles());
         workOrder.setAsset(workOrderBase.getAsset());
@@ -323,9 +429,10 @@ public class WorkOrderService {
     }
 
     public void importWorkOrder(WorkOrder workOrder, WorkOrderImportDTO dto, Company company) {
+        checkUsageBasedLimit(company);
         Helper.populateWorkOrderBaseFromImportDTO(workOrder, dto, company, locationService, teamService, userService,
                 assetService, workOrderCategoryService);
-
+        workOrder.setCompany(company);
         workOrder.setDueDate(Helper.getDateFromExcelDate(dto.getDueDate()));
         workOrder.setCustomId(getWorkOrderNumber(company));
         workOrder.setRequiredSignature(Helper.getBooleanFromString(dto.getRequiredSignature()));
@@ -343,7 +450,6 @@ public class WorkOrderService {
             optionalCustomer.ifPresent(customers::add);
         });
         workOrder.setCustomers(customers);
-        workOrderRepository.save(workOrder);
     }
 
     public Collection<WorkOrder> findByCreatedByAndCreatedAtBetween(Long id, Date date1, Date date2) {
@@ -442,5 +548,118 @@ public class WorkOrderService {
 
     public Collection<WorkOrder> findByAssignedToUserAndCreatedAtBetween(Long id, Date start, Date end) {
         return workOrderRepository.findByAssignedToUserAndCreatedAtBetween(id, start, end);
+    }
+
+    @Autowired
+    public void setWebhookDispatchService(WebhookDispatchService webhookDispatchService) {
+        this.webhookDispatchService = webhookDispatchService;
+    }
+
+    private Collection<WOField> detectPatchDTOChangedFields(WorkOrder original, WorkOrderPatchDTO patch) {
+        Collection<WOField> changedFields = new ArrayList<>();
+
+        if (!Objects.equals(
+                patch.getAsset() != null ? patch.getAsset().getId() : null,
+                original.getAsset() != null ? original.getAsset().getId() : null)) {
+            changedFields.add(WOField.ASSET);
+        }
+        if (!collectionsMatch(patch.getAssignedTo(), original.getAssignedTo(), OwnUser::getId)) {
+            changedFields.add(WOField.ASSIGNEES);
+        }
+        if (!Objects.equals(
+                patch.getCategory() != null ? patch.getCategory().getId() : null,
+                original.getCategory() != null ? original.getCategory().getId() : null)) {
+            changedFields.add(WOField.CATEGORY);
+        }
+        if (!Objects.equals(patch.getDescription(), original.getDescription())) {
+            changedFields.add(WOField.DESCRIPTION);
+        }
+        if (!Objects.equals(patch.getDueDate(), original.getDueDate())) {
+            changedFields.add(WOField.DUE_DATE);
+        }
+        if (!Objects.equals(patch.getEstimatedDuration(), original.getEstimatedDuration())) {
+            changedFields.add(WOField.ESTIMATED_DURATION);
+        }
+        if (!Objects.equals(
+                patch.getLocation() != null ? patch.getLocation().getId() : null,
+                original.getLocation() != null ? original.getLocation().getId() : null)) {
+            changedFields.add(WOField.LOCATION);
+        }
+        if (!Objects.equals(patch.getPriority(), original.getPriority())) {
+            changedFields.add(WOField.PRIORITY);
+        }
+        if (!Objects.equals(patch.getTitle(), original.getTitle())) {
+            changedFields.add(WOField.TITLE);
+        }
+        if (!Objects.equals(
+                patch.getTeam() != null ? patch.getTeam().getId() : null,
+                original.getTeam() != null ? original.getTeam().getId() : null)) {
+            changedFields.add(WOField.TEAM);
+        }
+        if (!collectionsMatch(patch.getCustomers(), original.getCustomers(), Customer::getId)) {
+            changedFields.add(WOField.CUSTOMERS);
+        }
+
+        return changedFields;
+    }
+
+    private Collection<WOField> detectChangedFieldsFromEntity(WorkOrder original, WorkOrder updated) {
+        Collection<WOField> changedFields = new ArrayList<>();
+
+        if (!Objects.equals(
+                original.getAsset() != null ? original.getAsset().getId() : null,
+                updated.getAsset() != null ? updated.getAsset().getId() : null)) {
+            changedFields.add(WOField.ASSET);
+        }
+        if (!collectionsMatch(original.getAssignedTo(), updated.getAssignedTo(), OwnUser::getId)) {
+            changedFields.add(WOField.ASSIGNEES);
+        }
+        if (!Objects.equals(
+                original.getCategory() != null ? original.getCategory().getId() : null,
+                updated.getCategory() != null ? updated.getCategory().getId() : null)) {
+            changedFields.add(WOField.CATEGORY);
+        }
+        if (!Objects.equals(original.getDescription(), updated.getDescription())) {
+            changedFields.add(WOField.DESCRIPTION);
+        }
+        if (!Objects.equals(original.getDueDate(), updated.getDueDate())) {
+            changedFields.add(WOField.DUE_DATE);
+        }
+        if (original.getEstimatedDuration() != updated.getEstimatedDuration()) {
+            changedFields.add(WOField.ESTIMATED_DURATION);
+        }
+        if (!Objects.equals(
+                original.getLocation() != null ? original.getLocation().getId() : null,
+                updated.getLocation() != null ? updated.getLocation().getId() : null)) {
+            changedFields.add(WOField.LOCATION);
+        }
+        if (!Objects.equals(original.getPriority(), updated.getPriority())) {
+            changedFields.add(WOField.PRIORITY);
+        }
+        if (!Objects.equals(original.getTitle(), updated.getTitle())) {
+            changedFields.add(WOField.TITLE);
+        }
+        if (!Objects.equals(
+                original.getTeam() != null ? original.getTeam().getId() : null,
+                updated.getTeam() != null ? updated.getTeam().getId() : null)) {
+            changedFields.add(WOField.TEAM);
+        }
+        if (!Objects.equals(original.getStatus(), updated.getStatus())) {
+            changedFields.add(WOField.STATUS);
+        }
+        if (!collectionsMatch(original.getCustomers(), updated.getCustomers(), Customer::getId)) {
+            changedFields.add(WOField.CUSTOMERS);
+        }
+
+        return changedFields;
+    }
+
+    private <T> boolean collectionsMatch(Collection<T> a, Collection<T> b, Function<T, Long> idExtractor) {
+        if (a == null && b == null) return true;
+        if (a == null || b == null) return false;
+        if (a.size() != b.size()) return false;
+        return a.stream().allMatch(aItem ->
+                b.stream().anyMatch(bItem ->
+                        idExtractor.apply(bItem).equals(idExtractor.apply(aItem))));
     }
 }

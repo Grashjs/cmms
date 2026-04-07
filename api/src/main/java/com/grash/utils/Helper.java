@@ -22,6 +22,7 @@ import com.grash.service.UserService;
 import com.grash.service.AssetService;
 import com.grash.service.WorkOrderCategoryService;
 import com.grash.security.CustomUserDetail;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.CacheControl;
@@ -32,12 +33,16 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
+
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -159,6 +164,9 @@ public class Helper {
                 return new Locale("zh", "CN");
             case ZH:
                 return new Locale("zh", "CN");
+            case BA:
+                return new Locale("ba", "BA");
+
             default:
                 return Locale.getDefault();
         }
@@ -394,4 +402,30 @@ public class Helper {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
+    public static String extractClientIp(HttpServletRequest req) {
+        String[] headerCandidates = {
+                "X-Forwarded-For",
+                "X-Real-IP",
+                "CF-Connecting-IP",   // Cloudflare
+                "True-Client-IP"
+        };
+
+        for (String header : headerCandidates) {
+            String ip = req.getHeader(header);
+            if (ip != null && !ip.isBlank() && !"unknown".equalsIgnoreCase(ip)) {
+                // X-Forwarded-For can be a comma-separated chain: "clientIp, proxy1, proxy2"
+                return ip.split(",")[0].trim();
+            }
+        }
+
+        String remoteAddr = req.getRemoteAddr();
+        return (remoteAddr != null && !remoteAddr.isBlank()) ? remoteAddr : "unknown";
+    }
+
+    public static String hashKey(String raw) throws NoSuchAlgorithmException {
+        // Use SHA-256
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hash = digest.digest(raw.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(hash);
+    }
 }

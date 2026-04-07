@@ -3,11 +3,10 @@ package com.grash;
 import com.grash.dto.UserSignupRequest;
 import com.grash.model.*;
 import com.grash.model.enums.*;
+import com.grash.repository.GeneralPreferencesRepository;
 import com.grash.service.*;
-import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,9 +14,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 
+import java.time.ZoneId;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @SpringBootApplication
 @RequiredArgsConstructor
@@ -27,13 +25,12 @@ public class ApiApplication implements SmartInitializingSingleton {
 
     private final UserService userService;
     private final UserInvitationService userInvitationService;
+    private final GeneralPreferencesRepository generalPreferencesRepository;
     @Value("${superAdmin.role.name}")
     private String superAdminRole;
     private final RoleService roleService;
     private final CompanyService companyService;
     private final SubscriptionPlanService subscriptionPlanService;
-    private final SubscriptionService subscriptionService;
-    private final ScheduleService scheduleService;
 
     public static void main(String[] args) {
         SpringApplication.run(ApiApplication.class, args);
@@ -50,12 +47,12 @@ public class ApiApplication implements SmartInitializingSingleton {
             log.info("Initializing subscription plans...");
             initializeSubscriptionPlans();
 
-            log.info("Scheduling existing work orders and subscriptions...");
-            scheduleExistingItems();
-
             log.info("Updating default roles...");
             roleService.updateDefaultRoles();
 
+            userService.checkUsageBasedLimit(0);
+
+            generalPreferencesRepository.updateTemporaryTimeZones(ZoneId.systemDefault().getId());
             log.info("Application initialization completed successfully");
         } catch (Exception e) {
             log.error("Application initialization failed", e);
@@ -129,7 +126,8 @@ public class ApiApplication implements SmartInitializingSingleton {
                             PlanFeatures.REQUEST_CONFIGURATION,
                             PlanFeatures.SIGNATURE,
                             PlanFeatures.ANALYTICS,
-                            PlanFeatures.IMPORT_CSV
+                            PlanFeatures.IMPORT_CSV,
+                            PlanFeatures.REQUEST_PORTAL
                     )))
                     .yearlyCostPerUser(150).build());
         }
@@ -139,33 +137,12 @@ public class ApiApplication implements SmartInitializingSingleton {
             subscriptionPlanService.create(SubscriptionPlan.builder()
                     .code("BUSINESS")
                     .name("Business")
-                    .monthlyCostPerUser(80)
+                    .monthlyCostPerUser(40)
                     .features(new HashSet<>(Arrays.asList(PlanFeatures.values())))
-                    .yearlyCostPerUser(800).build());
+                    .yearlyCostPerUser(400).build());
         }
     }
 
-    private void scheduleExistingItems() {
-        Collection<Schedule> schedules = scheduleService.getAll();
-        log.info("Scheduling {} work orders...", schedules.size());
-        schedules.forEach(schedule -> {
-            try {
-                scheduleService.scheduleWorkOrder(schedule);
-            } catch (Exception e) {
-                log.error("Failed to schedule work order for schedule ID: {}", schedule.getId(), e);
-            }
-        });
-
-        Collection<Subscription> subscriptions = subscriptionService.getAll();
-        log.info("Scheduling {} subscription ends...", subscriptions.size());
-        subscriptions.forEach(subscription -> {
-            try {
-                subscriptionService.scheduleEnd(subscription);
-            } catch (Exception e) {
-                log.error("Failed to schedule subscription end for subscription ID: {}", subscription.getId(), e);
-            }
-        });
-    }
 
     @NotNull
     private static UserSignupRequest getSuperAdminSignupRequest(Role savedSuperAdminRole) {

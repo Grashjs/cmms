@@ -22,6 +22,8 @@ interface AssetState {
   assetsByPart: { [key: number]: AssetDTO[] };
   assetsMini: AssetMiniDTO[];
   loadingGet: boolean;
+  loadingHierarchy: boolean;
+  childrenPages: { [key: number]: Page<AssetDTO> };
 }
 
 const initialState: AssetState = {
@@ -31,7 +33,9 @@ const initialState: AssetState = {
   assetsByLocation: {},
   assetsByPart: {},
   assetsMini: [],
-  loadingGet: false
+  loadingGet: false,
+  loadingHierarchy: false,
+  childrenPages: {}
 };
 
 const slice = createSlice({
@@ -77,6 +81,13 @@ const slice = createSlice({
       const { loading } = action.payload;
       state.loadingGet = loading;
     },
+    setLoadingHierarchy(
+      state: AssetState,
+      action: PayloadAction<{ loading: boolean }>
+    ) {
+      const { loading } = action.payload;
+      state.loadingHierarchy = loading;
+    },
     getAssetChildren(
       state: AssetState,
       action: PayloadAction<{ assets: AssetRow[]; id: number }>
@@ -98,6 +109,27 @@ const slice = createSlice({
         acc[assetInState] = asset;
         return acc;
       }, state.assetsHierarchy);
+    },
+    getAssetChildrenPaginated(
+      state: AssetState,
+      action: PayloadAction<{ assets: Page<AssetDTO>; id: number }>
+    ) {
+      const { assets, id } = action.payload;
+      const parent = state.assetsHierarchy.findIndex(
+        (asset) => asset.id === id
+      );
+      if (parent !== -1) state.assetsHierarchy[parent].childrenFetched = true;
+
+      state.assetsHierarchy = assets.content.reduce((acc, asset) => {
+        const assetInState = state.assetsHierarchy.findIndex(
+          (asset1) => asset1.id === asset.id
+        );
+        if (assetInState === -1) return [...acc, asset];
+        acc[assetInState] = asset;
+        return acc;
+      }, state.assetsHierarchy);
+
+      state.childrenPages[id] = assets;
     },
     getAssetDetails(
       state: AssetState,
@@ -166,11 +198,26 @@ export const getAssetsMini =
       dispatch(slice.actions.setLoadingGet({ loading: false }));
     }
   };
+
+export const getPublicAssetsMini =
+  (portalUUID: string, locationId?: number): AppThunk =>
+  async (dispatch) => {
+    try {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      const assets = await api.get<AssetMiniDTO[]>(
+        `${basePath}/public/mini/${portalUUID}?locationId=${locationId ?? ''}`
+      );
+      dispatch(slice.actions.getAssetsMini({ assets }));
+    } finally {
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    }
+  };
 export const addAsset =
   (asset): AppThunk =>
   async (dispatch) => {
     const assetResponse = await api.post<AssetDTO>(basePath, asset);
     dispatch(slice.actions.addAsset({ asset: assetResponse }));
+    return assetResponse;
   };
 export const editAsset =
   (id: number, asset: Partial<AssetDTO>): AppThunk =>
@@ -197,21 +244,19 @@ export const deleteAsset =
   };
 
 export const getAssetChildren =
-  (id: number, parents: number[], pageable: Pageable): AppThunk =>
+  (id: number, pageable: Pageable): AppThunk =>
   async (dispatch) => {
-    dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const assets = await api.get<AssetDTO[]>(
-      `${basePath}/children/${id}?${pageableToQueryParams(pageable)}`
+    dispatch(slice.actions.setLoadingHierarchy({ loading: true }));
+    const assets = await api.get<Page<AssetDTO>>(
+      `${basePath}/children/${id}/paginated?${pageableToQueryParams(pageable)}`
     );
     dispatch(
-      slice.actions.getAssetChildren({
+      slice.actions.getAssetChildrenPaginated({
         id,
-        assets: assets.map((asset) => {
-          return { ...asset, hierarchy: [...parents, asset.id] };
-        })
+        assets
       })
     );
-    dispatch(slice.actions.setLoadingGet({ loading: false }));
+    dispatch(slice.actions.setLoadingHierarchy({ loading: false }));
   };
 
 export const getAssetDetails =
@@ -275,6 +320,6 @@ export const resetAssetsHierarchy =
   (callApi: boolean): AppThunk =>
   async (dispatch) => {
     dispatch(slice.actions.resetHierarchy({}));
-    if (callApi) dispatch(getAssetChildren(0, [], { page: 0, size: 1000 }));
+    if (callApi) dispatch(getAssetChildren(0, { page: 0, size: 10 }));
   };
 export default slice;

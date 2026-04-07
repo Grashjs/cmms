@@ -5,10 +5,13 @@ import { SidebarContext } from 'src/contexts/SidebarContext';
 import {
   alpha,
   Box,
+  Button,
   darken,
   Divider,
   Drawer,
   lighten,
+  Link,
+  Stack,
   styled,
   Typography,
   useTheme
@@ -16,7 +19,9 @@ import {
 import SidebarMenu from './SidebarMenu';
 import SidebarFooter from './SidebarFooter';
 import Logo from 'src/components/LogoSign';
-import { isWhiteLabeled } from '../../../config';
+import { isCloudVersion, isWhiteLabeled } from '../../../config';
+import useAuth from '../../../hooks/useAuth';
+import dayjs from 'dayjs';
 
 const SidebarWrapper = styled(Box)(
   ({ theme }) => `

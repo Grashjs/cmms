@@ -14,6 +14,7 @@ import { Helmet } from 'react-helmet-async';
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 
 import { useTranslation } from 'react-i18next';
+import { homeUrl } from '../../../../config';
 
 const MainContent = styled(Box)(
   () => `
@@ -46,6 +47,8 @@ function Status404() {
     <>
       <Helmet>
         <title>Status - 404</title>
+        <meta name="robots" content="noindex, nofollow" />
+        <meta name="prerender-status-code" content="404" />
       </Helmet>
       <MainContent>
         <Container maxWidth="md">
@@ -105,7 +108,7 @@ function Status404() {
               >
                 OR
               </Divider>
-              <Button href="/overview" variant="outlined">
+              <Button href={homeUrl || '/'} variant="outlined">
                 {t('Go to homepage')}
               </Button>
             </Card>

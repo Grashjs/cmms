@@ -48,7 +48,7 @@ function CompanyProfile() {
           <Grid item xs={12}>
             <CompanyDetails company={company} />
           </Grid>
-          {isCloudVersion && user.ownsCompany && (
+          {user.ownsCompany && (
             <Grid item xs={12}>
               <CompanyPlan plan={company.subscription.subscriptionPlan} />
             </Grid>

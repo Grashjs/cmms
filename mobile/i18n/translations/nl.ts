@@ -1433,6 +1433,17 @@ const locale = {
   power: 'Vermogen',
   library: 'Bibliotheek',
   camera: 'Camera',
+  media_library: 'Fotobibliotheek',
+  permission_required_title: 'Toestemming vereist',
+  permission_required_message:
+    'Toegang tot {{permission}} is vereist. Schakel dit in bij de app-instellingen.',
+  permission_denied_title: 'Toestemming geweigerd',
+  permission_denied_message:
+    'Toegang tot {{permission}} is nodig om door te gaan.',
+  unable_to_request_permission:
+    'Kon geen toestemming voor {{permission}} aanvragen.',
+  open_settings: 'Instellingen openen',
+  ok: 'OK',
   CANCELLED: 'Geweigerd',
   max_file_size_error:
     'De bestandsgrootte mag niet groter zijn dan {{size}} MB',

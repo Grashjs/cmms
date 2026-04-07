@@ -9,24 +9,26 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.AssetCategoryService;
 import com.grash.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/asset-categories")
-@Api(tags = "assetCategory")
+@Tag(name = "Asset Categories", description = "Operations on asset categories")
 @RequiredArgsConstructor
 public class AssetCategoryController {
 
@@ -35,10 +37,6 @@ public class AssetCategoryController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "AssetCategory not found")})
     public Collection<AssetCategory> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -50,11 +48,7 @@ public class AssetCategoryController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "AssetCategory not found")})
-    public AssetCategory getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public AssetCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
             Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(id);
@@ -66,10 +60,8 @@ public class AssetCategoryController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public AssetCategory create(@ApiParam("AssetCategory") @Valid @RequestBody AssetCategory assetCategoryReq, HttpServletRequest req) {
+    public AssetCategory create(@Parameter(description = "Asset category to create") @Valid @RequestBody AssetCategory assetCategoryReq,
+                                HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             return assetCategoryService.create(assetCategoryReq);
@@ -78,12 +70,8 @@ public class AssetCategoryController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "AssetCategory not found")})
-    public AssetCategory patch(@ApiParam("AssetCategory") @Valid @RequestBody CategoryPatchDTO assetCategory,
-                               @ApiParam("id") @PathVariable("id") Long id,
+    public AssetCategory patch(@Parameter(description = "Asset category fields to update") @Valid @RequestBody CategoryPatchDTO assetCategory,
+                               @PathVariable("id") Long id,
                                HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(id);
@@ -98,11 +86,7 @@ public class AssetCategoryController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "AssetCategory not found")})
-    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(id);
@@ -116,3 +100,5 @@ public class AssetCategoryController {
     }
 
 }
+
+

@@ -6,7 +6,7 @@ import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
-import { getImageAndFiles } from '../../utils/overall';
+import { getImageAndFiles, handleFileUpload } from '../../utils/overall';
 import { useDispatch } from '../../store';
 import { editAsset } from '../../slices/asset';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
@@ -104,28 +104,25 @@ export default function EditAssetScreen({
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           let formattedValues = formatAssetValues(values);
-          const files = formattedValues.files.find((file) => file.id)
-            ? []
-            : formattedValues.files;
-          return new Promise<void>((resolve, rej) => {
-            uploadFiles(files, formattedValues.image)
-              .then((files) => {
-                const imageAndFiles = getImageAndFiles(files, asset.image);
-                formattedValues = {
-                  ...formattedValues,
-                  image: imageAndFiles.image,
-                  files: [...asset.files, ...imageAndFiles.files]
-                };
-                dispatch(editAsset(asset.id, formattedValues))
-                  .then(onEditSuccess)
-                  .catch(onEditFailure)
-                  .finally(resolve);
-              })
-              .catch((err) => {
-                onEditFailure(err);
-                rej(err);
-              });
-          });
+          try {
+            const imageAndFiles = await handleFileUpload(
+              {
+                files: formattedValues.files,
+                image: formattedValues.image
+              },
+              uploadFiles
+            );
+            formattedValues = {
+              ...formattedValues,
+              image: imageAndFiles.image,
+              files: imageAndFiles.files
+            };
+            await dispatch(editAsset(asset.id, formattedValues));
+            onEditSuccess();
+          } catch (err) {
+            onEditFailure(err);
+            throw err;
+          }
         }}
       />
     </View>

@@ -28,7 +28,7 @@ export const getImageAndFiles = (
       ? { id: files.find((file) => file.type === 'IMAGE').id }
       : imageFallback ?? null,
     files: files
-      .filter((file) => file.type === 'OTHER')
+      .filter((file) => file.type !== 'IMAGE')
       .map((file) => {
         return { id: file.id };
       })
@@ -184,4 +184,41 @@ export const isCloseToBottom = ({
   return (
     layoutMeasurement.height + contentOffset.y >= contentSize.height - threshold
   );
+};
+
+export interface FileUploadInput {
+  files: { id: number; type: FileType }[];
+  image: { id: number; type: FileType } | File[];
+}
+
+export interface FileUploadOutput {
+  image?: { id: number } | null;
+  files: Array<{ id: number }>;
+}
+export const handleFileUpload = async (
+  formattedValues: FileUploadInput,
+  uploadFiles: (
+    files: any[],
+    images: any[]
+  ) => Promise<{ id: number; type: FileType }[]>
+): Promise<FileUploadOutput> => {
+  const filesToUpload = formattedValues.files.filter((file) => !file.id);
+  const existingFiles = formattedValues.files.filter((file) => file.id);
+
+  const existingImage =
+    formattedValues.image && 'id' in formattedValues.image
+      ? formattedValues.image
+      : null;
+
+  const uploadedFiles = await uploadFiles(
+    filesToUpload,
+    existingImage ? [] : (formattedValues.image as File[])
+  );
+
+  const imageAndFiles = getImageAndFiles([...existingFiles, ...uploadedFiles]);
+
+  return {
+    image: existingImage || imageAndFiles.image,
+    files: imageAndFiles.files
+  };
 };

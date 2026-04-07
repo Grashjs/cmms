@@ -35,10 +35,9 @@ public class NotificationService {
     private final SimpMessageSendingOperations messagingTemplate;
 
     @Async
-    public Notification create(Notification notification) {
+    public void create(Notification notification) {
         Notification savedNotification = notificationRepository.save(notification);
         messagingTemplate.convertAndSend("/notifications/" + notification.getUser().getId(), savedNotification);
-        return savedNotification;
     }
 
     @Async

@@ -10,25 +10,26 @@ import com.grash.model.enums.PlanFeatures;
 import com.grash.service.AdditionalCostService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/additional-costs")
-@Api(tags = "additionalCost")
+@Tag(name = "Additional Costs", description = "Operations on additional costs")
 @RequiredArgsConstructor
 public class AdditionalCostController {
 
@@ -39,39 +40,33 @@ public class AdditionalCostController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "AdditionalCost not found")})
-    public AdditionalCost getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public AdditionalCost getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
+            checkAccessToAdditionalCost(savedAdditionalCost, user);
             return savedAdditionalCost;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/work-order/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "AdditionalCost not found")})
-    public Collection<AdditionalCost> getByWorkOrder(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public Collection<AdditionalCost> getByWorkOrder(@PathVariable("id") Long id,
+                                                     HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
+            WorkOrder workOrder = optionalWorkOrder.get();
+            checkAccessToWorkOrder(workOrder, user);
             return additionalCostService.findByWorkOrder(id);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public AdditionalCost create(@ApiParam("AdditionalCost") @Valid @RequestBody AdditionalCost additionalCostReq, HttpServletRequest req) {
+    public AdditionalCost create(@Parameter(description = "Additional cost to create") @Valid @RequestBody AdditionalCost additionalCostReq,
+                                 HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ADDITIONAL_COST)) {
             WorkOrder workOrder = workOrderService.findById(additionalCostReq.getWorkOrder().getId()).get();
@@ -85,37 +80,45 @@ public class AdditionalCostController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "AdditionalCost not found")})
-    public AdditionalCost patch(@ApiParam("AdditionalCost") @Valid @RequestBody AdditionalCostPatchDTO additionalCost, @ApiParam("id") @PathVariable("id") Long id,
+    public AdditionalCost patch(@Parameter(description = "Additional cost fields to update") @Valid @RequestBody AdditionalCostPatchDTO additionalCost, @PathVariable("id") Long id,
                                 HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
 
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
+            checkAccessToAdditionalCost(savedAdditionalCost, user);
             return additionalCostService.update(id, additionalCost);
         } else throw new CustomException("AdditionalCost not found", HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "AdditionalCost not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
+            checkAccessToAdditionalCost(savedAdditionalCost, user);
             additionalCostService.delete(id);
             return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                     HttpStatus.OK);
         } else throw new CustomException("AdditionalCost not found", HttpStatus.NOT_FOUND);
     }
 
+    private void checkAccessToAdditionalCost(AdditionalCost additionalCost, OwnUser user) {
+        if (!additionalCost.getWorkOrder().getCompany().getId().equals(user.getCompany().getId())) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
+    }
+
+    private void checkAccessToWorkOrder(WorkOrder workOrder, OwnUser user) {
+        if (!workOrder.getCompany().getId().equals(user.getCompany().getId())) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
+    }
+
 }
+
+

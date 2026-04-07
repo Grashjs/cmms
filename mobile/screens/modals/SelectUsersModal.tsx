@@ -129,38 +129,45 @@ export default function SelectUsersModal({
                 toggle(user.id);
               }}
               key={user.id}
-              style={{
-                borderRadius: 5,
-                padding: 15,
-                backgroundColor: 'white',
-                display: 'flex',
-                flexDirection: 'row',
-                elevation: 2,
-                alignItems: 'center',
-                gap: 12
-              }}
             >
-              {multiple && (
-                <Checkbox
-                  status={
-                    selectedIds.includes(user.id) ? 'checked' : 'unchecked'
-                  }
-                  onPress={() => {
-                    toggle(user.id);
-                  }}
-                />
-              )}
-
-              {user.image ? (
-                <Avatar.Image size={40} source={{ uri: user.image.url }} />
-              ) : (
-                <Avatar.Text size={40} label={getUserInitials(user)} />
-              )}
-              <Text
-                style={{ flexShrink: 1 }}
-                variant={'titleMedium'}
-              >{`${user.firstName} ${user.lastName}`}</Text>
-              <Divider />
+              <View style={styles.card}>
+                <View style={styles.cardRow}>
+                  {user.image ? (
+                    <Avatar.Image size={50} source={{ uri: user.image.url }} />
+                  ) : (
+                    <Avatar.Text
+                      size={50}
+                      label={getUserInitials(user)}
+                      style={{ backgroundColor: theme.colors.primaryContainer }}
+                    />
+                  )}
+                  <View style={{ flex: 1 }}>
+                    <View style={styles.cardHeader}>
+                      <View style={{ flex: 1 }}>
+                        <Text variant="titleMedium" style={styles.cardTitle}>
+                          {`${user.firstName} ${user.lastName}`}
+                        </Text>
+                        <Text
+                          variant={'bodySmall'}
+                          style={{ color: 'grey' }}
+                        >{`#${user.id}`}</Text>
+                      </View>
+                      {multiple && (
+                        <Checkbox
+                          status={
+                            selectedIds.includes(user.id)
+                              ? 'checked'
+                              : 'unchecked'
+                          }
+                          onPress={() => {
+                            toggle(user.id);
+                          }}
+                        />
+                      )}
+                    </View>
+                  </View>
+                </View>
+              </View>
             </TouchableOpacity>
           ))}
       </ScrollView>
@@ -171,5 +178,25 @@ export default function SelectUsersModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1
+  },
+  card: {
+    backgroundColor: 'white',
+    marginBottom: 1,
+    padding: 10
+  },
+  cardRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 6,
+    alignItems: 'center'
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  cardTitle: {
+    fontWeight: 'bold',
+    flexShrink: 1
   }
 });

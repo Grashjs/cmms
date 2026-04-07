@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -58,7 +59,7 @@ public class ScheduleService {
 
     public void delete(Long id) {
         // Ensure jobs are killed before deleting data
-        stopScheduleTimers(id);
+        stopScheduleJobs(id);
         scheduleRepository.deleteById(id);
     }
 
@@ -71,10 +72,11 @@ public class ScheduleService {
     }
 
     public void scheduleWorkOrder(Schedule schedule) {
-        int limit = 10;
+        int limit = 5;
         PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
         Page<WorkOrder> workOrdersPage = workOrderService.findLastByPM(preventiveMaintenance.getId(), limit);
-
+        TimeZone timeZone = TimeZone.getTimeZone(preventiveMaintenance.getCompany()
+                .getCompanySettings().getGeneralPreferences().getTimeZone());
         boolean isStale = false;
         if (workOrdersPage.getTotalElements() >= limit && workOrdersPage.getContent().stream().allMatch(workOrder -> workOrder.getFirstTimeToReact() == null)) {
             isStale = true;
@@ -106,7 +108,7 @@ public class ScheduleService {
                         return; // Exit after scheduling completion-based job
                     }
                 } else { // SCHEDULED_DATE
-                    Calendar cal = Calendar.getInstance();
+                    Calendar cal = Calendar.getInstance(timeZone);
                     cal.setTime(startsOn);
                     int hour = cal.get(Calendar.HOUR_OF_DAY);
                     int minute = cal.get(Calendar.MINUTE);
@@ -134,7 +136,7 @@ public class ScheduleService {
                             String cronExpression = String.format("0 %d %d ? * %s", minute, hour, daysOfWeekCron);
                             scheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression)
                                     .withMisfireHandlingInstructionDoNothing()
-                                    .inTimeZone(TimeZone.getDefault());
+                                    .inTimeZone(timeZone);
 
                             // Store the frequency in the job data so the job can handle it
                             // The cron will fire every week on specified days, but the job will check frequency
@@ -201,7 +203,8 @@ public class ScheduleService {
                             trueStartsOnForNotif, // Pass the date the WO is scheduled to run
                             scheduleBuilder,
                             schedule,
-                            daysBeforePMNotification
+                            daysBeforePMNotification,
+                            timeZone
                     );
                 }
 
@@ -215,21 +218,21 @@ public class ScheduleService {
     public void reScheduleWorkOrder(Schedule newSchedule) {
         // Quartz "reschedule" is best handled by deleting and recreating
         // to ensure all parameters (trigger times, data map) are fresh.
-        stopScheduleTimers(newSchedule.getId());
+        stopScheduleJobs(newSchedule.getId());
         scheduleWorkOrder(newSchedule);
     }
 
-    public void stopScheduleTimers(Long id) {
+    public void stopScheduleJobs(Long scheduleId) {
         try {
             // Delete Work Order Job
-            scheduler.deleteJob(new JobKey("wo-job-" + id, "wo-group"));
+            scheduler.deleteJob(new JobKey("wo-job-" + scheduleId, "wo-group"));
 
             // Delete Notification Job (it might not exist, but Quartz handles that gracefully usually, or returns
             // false)
-            scheduler.deleteJob(new JobKey("notif-job-" + id, "notif-group"));
+            scheduler.deleteJob(new JobKey("notif-job-" + scheduleId, "notif-group"));
 
         } catch (SchedulerException e) {
-            log.error("Error stopping quartz jobs for schedule " + id, e);
+            log.error("Error stopping quartz jobs for schedule " + scheduleId, e);
         }
     }
 
@@ -237,11 +240,11 @@ public class ScheduleService {
             Date woStartOn,
             ScheduleBuilder<?> woScheduleBuilder,
             Schedule schedule,
-            int daysBeforeNotification) throws SchedulerException {
+            int daysBeforeNotification, TimeZone timeZone) throws SchedulerException {
         Long scheduleId = schedule.getId();
         Date endsOn = schedule.getEndsOn();
         // 1. Calculate the actual start date for the FIRST notification
-        Calendar notifCal = Calendar.getInstance();
+        Calendar notifCal = Calendar.getInstance(timeZone);
         notifCal.setTime(woStartOn);
         notifCal.add(Calendar.DATE, -daysBeforeNotification);
         Date notificationStart = notifCal.getTime();
@@ -257,8 +260,9 @@ public class ScheduleService {
         }
 
         ScheduleBuilder<?> notificationScheduleBuilder;
-
-        if (schedule.getRecurrenceType() == RecurrenceType.WEEKLY) {
+        if (schedule.getRecurrenceBasedOn() == RecurrenceBasedOn.COMPLETED_DATE) {
+            notificationScheduleBuilder = SimpleScheduleBuilder.simpleSchedule().withRepeatCount(0);
+        } else if (schedule.getRecurrenceType() == RecurrenceType.WEEKLY) {
             // WEEKLY needs special handling because notification days differ from WO days
             if (schedule.getDaysOfWeek() == null || schedule.getDaysOfWeek().isEmpty()) {
                 throw new CustomException("Days of week are required for weekly recurrence.",
@@ -266,7 +270,7 @@ public class ScheduleService {
             }
 
             // Extract hour and minute from the notification start date
-            Calendar notifTimeCal = Calendar.getInstance();
+            Calendar notifTimeCal = Calendar.getInstance(timeZone);
             notifTimeCal.setTime(notificationStart);
             int notifHour = notifTimeCal.get(Calendar.HOUR_OF_DAY);
             int notifMinute = notifTimeCal.get(Calendar.MINUTE);
@@ -293,7 +297,7 @@ public class ScheduleService {
             String cronExpression = String.format("0 %d %d ? * %s", notifMinute, notifHour, notifDaysOfWeekCron);
             notificationScheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression)
                     .withMisfireHandlingInstructionDoNothing()
-                    .inTimeZone(TimeZone.getDefault());
+                    .inTimeZone(timeZone);
         } else {
             // For DAILY, MONTHLY, YEARLY: use the same recurrence pattern as the WO
             // The different startAt() date will handle the offset
@@ -324,12 +328,15 @@ public class ScheduleService {
         if (!scheduleOpt.isPresent()) return;
 
         Schedule schedule = scheduleOpt.get();
+        PreventiveMaintenance pm = schedule.getPreventiveMaintenance();
+        TimeZone timeZone = TimeZone.getTimeZone(pm.getCompany()
+                .getCompanySettings().getGeneralPreferences().getTimeZone());
 
         // Only applies to COMPLETED_DATE schedules
         if (schedule.getRecurrenceBasedOn() != RecurrenceBasedOn.COMPLETED_DATE) return;
 
         // 1. Calculate the next run date based on Frequency
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance(timeZone);
         cal.setTime(completedDate);
 
         switch (schedule.getRecurrenceType()) {
@@ -369,7 +376,6 @@ public class ScheduleService {
             scheduler.scheduleJob(woJob, woTrigger);
             log.info("Chained next schedule for Schedule ID {} at {}", schedule.getId(), nextRunDate);
 
-            PreventiveMaintenance pm = schedule.getPreventiveMaintenance();
             int daysBeforePMNotification = pm.getCompany()
                     .getCompanySettings().getGeneralPreferences().getDaysBeforePrevMaintNotification();
 
@@ -378,8 +384,8 @@ public class ScheduleService {
                         nextRunDate, // The calculated WO start date
                         oneShotSchedule,
                         schedule,
-                        daysBeforePMNotification
-                );
+                        daysBeforePMNotification,
+                        timeZone);
             }
 
         } catch (SchedulerException e) {
@@ -397,18 +403,29 @@ public class ScheduleService {
 
     public void checkIfWeeklyShouldRun(Schedule schedule) {
         if (schedule.getRecurrenceType() == RecurrenceType.WEEKLY && schedule.getFrequency() > 1) {
-            // Calculate weeks since startsOn
+            String tzId = schedule.getPreventiveMaintenance()
+                    .getCompany().getCompanySettings()
+                    .getGeneralPreferences().getTimeZone();
+            ZoneId zoneId = ZoneId.of(tzId);
+
             long daysSinceStart = ChronoUnit.DAYS.between(
-                    schedule.getStartsOn().toInstant(),
-                    new Date().toInstant()
+                    schedule.getStartsOn().toInstant().atZone(zoneId).toLocalDate(),
+                    new Date().toInstant().atZone(zoneId).toLocalDate()
             );
             long weeksSinceStart = daysSinceStart / 7;
 
-            // Only execute if we're on the correct week interval
             if (weeksSinceStart % schedule.getFrequency() != 0) {
                 log.info("Skipping execution - not on correct week interval for schedule {}", schedule.getId());
                 return;
             }
         }
+    }
+
+    public Collection<Schedule> findActive() {
+        return scheduleRepository.findByActive();
+    }
+
+    public void disableByCompany(Long companyId) {
+        scheduleRepository.updateDisabledTrueByCompanyId(companyId);
     }
 }

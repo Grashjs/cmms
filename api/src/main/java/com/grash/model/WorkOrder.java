@@ -1,10 +1,12 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.grash.dto.IdDTO;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.Status;
 import com.grash.utils.Helper;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +18,8 @@ import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -31,40 +34,55 @@ import static java.util.stream.Collectors.toCollection;
 @AllArgsConstructor
 @Audited(withModifiedFlag = true)
 @AuditOverride(forClass = WorkOrderBase.class)
+@Schema(description = "Work order entity representing a maintenance or repair task")
 public class WorkOrder extends WorkOrderBase {
+    
+    @Schema(description = "Unique identifier of the work order", accessMode = Schema.AccessMode.READ_ONLY)
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Schema(description = "Custom identifier for the work order", accessMode = Schema.AccessMode.READ_ONLY)
     @Audited(withModifiedFlag = true)
     private String customId;
 
+    @Schema(description = "The user who completed the work order", implementation = IdDTO.class)
     @ManyToOne(fetch = FetchType.LAZY)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private OwnUser completedBy;
 
+    @Schema(description = "The date and time when the work order was completed")
     private Date completedOn;
 
+    @Schema(description = "The current status of the work order")
     private Status status = Status.OPEN;
 
+    @Schema(description = "Signature captured upon work order completion")
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private String signature;
 
+    @Schema(description = "Indicates whether the work order is archived")
     private boolean archived;
 
+    @Schema(description = "Indicates whether this is a demo work order")
     private boolean isDemo;
+
+    @Schema(description = "The parent request from which this work order was created", implementation = IdDTO.class)
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private Request parentRequest;
 
+    @Schema(description = "Feedback provided upon work order completion")
     private String feedback;
 
 
+    @Schema(description = "The preventive maintenance schedule that generated this work order", implementation = IdDTO.class)
     @ManyToOne(fetch = FetchType.LAZY)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private PreventiveMaintenance parentPreventiveMaintenance;
 
+    @Schema(description = "The first time the work order was reacted to", accessMode = Schema.AccessMode.READ_ONLY)
     @NotAudited
     private Date firstTimeToReact;
 
@@ -108,3 +126,4 @@ public class WorkOrder extends WorkOrderBase {
                 completionTimes.stream().mapToLong(value -> value).sum() / completionTimes.size();
     }
 }
+

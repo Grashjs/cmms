@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import MultipleTabsLayout from '../components/MultipleTabsLayout';
 import { TitleContext } from '../../../contexts/TitleContext';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import People from './People';
 import Teams from './Teams';
 import useAuth from '../../../hooks/useAuth';
@@ -17,6 +17,7 @@ const PeopleAndTeams = ({}: PropsType) => {
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
   const { setTitle } = useContext(TitleContext);
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { hasViewPermission, hasCreatePermission } = useAuth();
 
   const handleOpenAddModal = () => setOpenAddModal(true);
@@ -25,6 +26,14 @@ const PeopleAndTeams = ({}: PropsType) => {
   useEffect(() => {
     setTitle(t('people_teams'));
   }, []);
+
+  useEffect(() => {
+    const inviteParam = searchParams.get('invite');
+
+    if (inviteParam === 'true') {
+      setOpenAddModal(true);
+    }
+  }, [searchParams]);
 
   let regex = /(\/app\/people-teams\/teams)(\/.*)?$/;
   const tabIndex = regex.test(location.pathname) ? 1 : 0;
@@ -51,6 +60,7 @@ const PeopleAndTeams = ({}: PropsType) => {
         {tabIndex === 0 ? (
           <People
             openModal={openAddModal}
+            initialEmail={searchParams.get('email')}
             handleCloseModal={handleCloseAddModal}
           />
         ) : (

@@ -11,10 +11,22 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, JpaSpecificationExecutor<WorkOrder> {
     Collection<WorkOrder> findByCompany_Id(Long id);
+
+    @Query("SELECT w FROM WorkOrder w " +
+            "LEFT JOIN FETCH w.asset " +
+            "LEFT JOIN FETCH w.location " +
+            "LEFT JOIN FETCH w.assignedTo " +
+            "LEFT JOIN FETCH w.completedBy " +
+            "LEFT JOIN FETCH w.parentPreventiveMaintenance " +
+            "WHERE w.company.id = :companyId")
+    List<WorkOrder> findByCompanyForExport(@Param("companyId") Long companyId);
+
+    Collection<WorkOrder> findByIdInAndCompany_Id(List<Long> ids, Long companyId);
 
     Collection<WorkOrder> findByAsset_Id(Long id);
 
@@ -69,4 +81,9 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
     Collection<WorkOrder> findByCategory_IdAndCreatedAtBetween(Long id, Date start, Date end);
 
     void deleteByCompany_IdAndIsDemoTrue(Long companyId);
+
+    @Query("SELECT CASE WHEN COUNT(wo) > :threshold THEN true ELSE false END " +
+            "FROM WorkOrder wo WHERE wo.company.id = :companyId AND wo.status!=com.grash.model.enums.Status" +
+            ".COMPLETE")
+    boolean hasMoreActiveThan(@Param("companyId") Long companyId, @Param("threshold") Long threshold);
 }

@@ -17,7 +17,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   onChange,
   value
 }) => {
-  const ref = useRef<SignatureViewRef>();
+  const ref = useRef<SignatureViewRef>(null);
   const theme = useTheme();
   const [hasChanged, setHasChanged] = useState(false);
 

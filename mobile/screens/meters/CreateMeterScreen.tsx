@@ -11,6 +11,8 @@ import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { formatMeterValues, getMeterFields } from '../../utils/fields';
 import useAuth from '../../hooks/useAuth';
 import { addMeter } from '../../slices/meter';
+import { getErrorMessage } from '../../utils/api';
+import { getImageAndFiles } from '../../utils/overall';
 
 export default function CreateMeterScreen({
   navigation,
@@ -26,7 +28,7 @@ export default function CreateMeterScreen({
     navigation.goBack();
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('meter_create_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('meter_create_failure')), 'error');
 
   const shape = {
     name: Yup.string().required(t('required_meter_name')),
@@ -48,22 +50,19 @@ export default function CreateMeterScreen({
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           let formattedValues = formatMeterValues(values);
-          return new Promise<void>((resolve, rej) => {
-            uploadFiles([], values.image)
-              .then((files) => {
-                formattedValues = {
-                  ...formattedValues,
-                  image: files.length ? { id: files[0].id } : null
-                };
-                dispatch(addMeter(formattedValues))
-                  .then(onCreationSuccess)
-                  .catch(onCreationFailure)
-                  .finally(resolve);
-              })
-              .catch((err) => {
-                rej(err);
-              });
-          });
+          try {
+            const uploadedFiles = await uploadFiles([], values.image);
+            const imageAndFiles = getImageAndFiles(uploadedFiles);
+            formattedValues = {
+              ...formattedValues,
+              image: imageAndFiles.image
+            };
+            await dispatch(addMeter(formattedValues));
+            onCreationSuccess();
+          } catch (err) {
+            onCreationFailure(err);
+            throw err;
+          }
         }}
       />
     </View>

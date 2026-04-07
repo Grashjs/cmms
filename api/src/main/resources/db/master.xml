@@ -166,4 +166,33 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2025_12_09_1765200000_add_is_demo_column.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_01_03_1767462867_subscription_paddle.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_01_04_1767500000_quartz_tables.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_01_10_1768015926_enums_type.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_01_10_1768023821_missing_seq.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_01_26_1769462724_paddle_user_id.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_01_29_1769663726_company_delete_cascade.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_01_29_change_on_delete_set_null_to_cascade.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_02_03_1770129474_csv_sep_settings.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_02_18_1771453794_timezone.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_03_04_00000000001_add_request_portal.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/2026_03_04_00000000002_add_request_portal_id_to_request.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_03_09_1773073802_remove_duplicate_roles.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_03_31_1775000000_add_company_activation_flags.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_04_02_00000000001_add_api_key.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_04_06_00000000001_add_webhook_endpoint.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

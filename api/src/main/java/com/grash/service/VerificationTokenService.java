@@ -1,6 +1,7 @@
 package com.grash.service;
 
 import com.grash.dto.AuthResponse;
+import com.grash.factory.MailServiceFactory;
 import com.grash.model.OwnUser;
 import com.grash.model.VerificationToken;
 import com.grash.repository.UserRepository;
@@ -23,6 +24,7 @@ public class VerificationTokenService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final MailServiceFactory mailServiceFactory;
 
 
     public VerificationToken getVerificationTokenEntity(String token) {
@@ -54,15 +56,13 @@ public class VerificationTokenService {
         return verificationToken;
     }
 
-    public AuthResponse confirmMail(String token) throws Exception {
+    public String confirmMail(String token) throws Exception {
 
         OwnUser user = verifyToken(token).getUser();
         //valid token
         userService.enableUser(user.getEmail());
-        String message = "Account successfully activated !";
-
-        return new AuthResponse(jwtTokenProvider.createToken(user.getEmail(),
-                Arrays.asList(user.getRole().getRoleType())));
+        if (!user.getCompany().isDemo()) mailServiceFactory.getMailService().addToContactList(user);
+        return user.getEmail();
     }
 
     public OwnUser confirmResetPassword(String token) throws Exception {

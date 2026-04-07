@@ -2,37 +2,47 @@ package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.BasicInfos;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Data
 @NoArgsConstructor
+@Schema(description = "Customer entity for managing client information and associations")
 public class Customer extends BasicInfos {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Schema(description = "Unique identifier", accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
+    @Schema(description = "Type of customer")
     private String customerType;
 
+    @Schema(description = "Customer description")
     private String description;
 
+    @Schema(description = "Customer rate")
     private long rate;
 
 
+    @Schema(description = "Billing name")
     private String billingName;
 
+    @Schema(description = "Billing address line 1")
     private String billingAddress;
 
+    @Schema(description = "Billing address line 2")
     private String billingAddress2;
 
     @OneToOne(fetch = FetchType.LAZY)
     private Currency billingCurrency;
 
+    @Schema(description = "Indicates whether this is a demo customer")
     private boolean isDemo;
 
     @ManyToMany
@@ -69,3 +79,4 @@ public class Customer extends BasicInfos {
     private List<Asset> assets = new ArrayList<>();
 
 }
+

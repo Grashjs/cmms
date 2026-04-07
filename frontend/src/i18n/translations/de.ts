@@ -940,6 +940,7 @@ const deJSON = {
     'Benutzer erhalten Aktualisierungen für die von ihnen angeforderten Arbeitsaufträge',
   language: 'Sprache',
   date_format: 'Datumsformat',
+  time_zone: 'Zeitzone',
   business_type: 'Geschäftstyp',
   general_asset_management: 'Allgemeine Anlagenverwaltung',
   physical_asset_management: 'Physische Anlagenverwaltung',
@@ -1508,7 +1509,420 @@ const deJSON = {
   upgrade_request_success:
     'Upgrade-Anfrage erhalten! Wir kontaktieren Sie in Kürze mit den Zahlungsdetails',
   continue_with_sso: 'Weiter mit SSO',
-  see_live_demo: 'Live-Demo ansehen'
+  see_live_demo: 'Live-Demo ansehen',
+  delete_account: 'Konto löschen',
+  csv_separator: 'CSV-Trennzeichen',
+  open_source_cmms: 'Open-Source-CMMS',
+  'main.title':
+    'Kostenlose Open-Source-CMMS (Instandhaltungsmanagement-Software)',
+  'home.h1':
+    'Kostenloses und Open-Source-CMMS, das Sie selbst hosten oder in der Cloud nutzen können',
+  'home.h2': 'Leistungsstarke Wartung zu geringen Kosten',
+  'home.h3':
+    'Verlassen Sie sich nicht mehr auf Tabellenkalkulationen und Whiteboards. {{brandName}} hilft Wartungsteams bei der Planung von Interventionen, der Verfolgung von Geräten und der Einhaltung von Vorschriften. Hosten Sie es selbst auf Ihrem Server oder starten Sie sofort in der Cloud.',
+  talk_to_sales: 'Kontaktieren Sie den Vertrieb',
+  'pricing.choose_plan_and_get_started':
+    'Wählen Sie Ihren Tarif und legen Sie los!',
+  'pricing.slogan_effective_maintenance':
+    'Unsere Software bietet Wartungs- und Zuverlässigkeitsteams die Werkzeuge, die sie benötigen, um den Betrieb effizient und effektiv durchzuführen.',
+  'pricing.compare_plans_and_pricing': 'Tarife und Preise vergleichen',
+  'pricing.see_which_plan_is_right_for_you':
+    'Finden Sie heraus, welcher Tarif für Sie der richtige ist.',
+  'pricing.select_two_plans_to_compare':
+    'Wählen Sie 2 Tarife zum Vergleich aus.',
+  'pricing.select_three_plans_to_compare':
+    'Wählen Sie 3 Tarife zum Vergleich aus.',
+  'pricing.month_per_user': 'Monat pro Nutzer',
+  'pricing.year_per_user': 'Jahr pro Nutzer',
+  'pricing.plan_basic_name': 'Basic',
+  'pricing.plan_basic_description':
+    'Teams, die Anlagen verfolgen und grundlegende vorbeugende Wartungspläne mit entsprechenden Verfahren erstellen möchten.',
+  'pricing.feature_unlimited_work_orders': 'Unbegrenzte Arbeitsaufträge',
+  'pricing.feature_custom_tasks': 'Benutzerdefinierte Aufgaben',
+  'pricing.feature_unlimited_request_user_licenses':
+    'Unbegrenzte Benutzerlizenzen anfordern',
+  'pricing.plan_starter_name': 'Anlasser',
+  'pricing.plan_starter_description':
+    'Teams, die eine effiziente und effektive vorbeugende Instandhaltung durch Transparenz des Maschinenstatus und des Personaleinsatzes anstreben.',
+  'pricing.feature_everything_in_basic_plus': 'Alles aus Basic plus:',
+  'pricing.feature_preventive_maintenance_recurring_work_orders':
+    'Vorbeugende Wartung/Wiederkehrende Arbeitsaufträge',
+  'pricing.feature_custom_checklists': 'Benutzerdefinierte Checklisten',
+  'pricing.feature_inventory_management_costing':
+    'Bestandsverwaltung/Kostenrechnung',
+  'pricing.feature_time_and_manpower_tracking': 'Zeit- und Personalerfassung',
+  'pricing.feature_thirty_day_analytics_reporting':
+    '30-Tage-Analyse & Berichterstattung',
+  'pricing.plan_professional_name': 'Professional',
+  'pricing.plan_professional_description':
+    'Abteilungen, die Erkenntnisse und Analysen nutzen müssen, um das Wachstum und die Produktivität im Bereich Instandhaltung weiter voranzutreiben.',
+  'pricing.feature_everything_in_starter_plus':
+    'Alles aus dem Starter-Paket plus:',
+  'pricing.feature_multiple_inventory_lines': 'Mehrere Lagerpositionen',
+  'pricing.feature_customizable_request_portal': 'Anpassbares Anfrageportal',
+  'pricing.feature_mobile_offline_mode': 'Mobiler Offline-Modus',
+  'pricing.feature_advanced_analytics_reporting':
+    'Erweiterte Analysen und Berichte',
+  'pricing.plan_business_name': 'Geschäft',
+  'pricing.plan_business_description':
+    'Organisationen, die bereit sind, Wartungs- und Betriebsdaten zu erfassen, um mehrere Standorte zu verwalten und Systemanpassungen vorzunehmen.',
+  'pricing.feature_everything_in_professional_plus':
+    'Alles aus der Professional-Plus-Suite:',
+  'pricing.feature_purchase_order_management': 'Bestellmanagement',
+  'pricing.feature_multi_site_module_support':
+    'Unterstützung für Multi-Site-Module',
+  'pricing.feature_custom_work_order_statuses':
+    'Status benutzerdefinierter Arbeitsaufträge',
+  'pricing.feature_custom_integrations_support':
+    'Unterstützung für kundenspezifische Integrationen',
+  'pricing.feature_work_order_management': 'Auftragsverwaltung',
+  'pricing.feature_recurring_work_orders': 'Wiederkehrende Arbeitsaufträge',
+  'pricing.feature_custom_categories': 'Benutzerdefinierte Kategorien',
+  'pricing.feature_data_importing': 'Datenimport',
+  'pricing.feature_time_and_cost_tracking': 'Zeit- und Kostenverfolgung',
+  'pricing.feature_work_order_configuration': 'Arbeitsauftragskonfiguration',
+  'pricing.feature_internal_requests': 'Interne Anfragen',
+  'pricing.feature_external_request_portal': 'Externes Anfrageportal',
+  'pricing.category_locations_assets_parts': 'Standorte, Anlagen und Teile',
+  'pricing.feature_location_management': 'Standortmanagement',
+  'pricing.feature_barcode_scanning': 'Barcode-Scanning',
+  'pricing.feature_inventory_management': 'Bestandsverwaltung',
+  'pricing.feature_custom_asset_statuses': 'Benutzerdefinierte Anlagenstatus',
+  'pricing.feature_asset_downtime_tracking': 'Anlagenausfallzeitverfolgung',
+  'pricing.feature_asset_depreciation_tracking':
+    'Anlagenabschreibungsverfolgung',
+  'pricing.feature_asset_warranty_tracking': 'Anlagengarantieverfolgung',
+  'pricing.feature_purchase_orders_management': 'Bestellungen',
+  'pricing.feature_asset_check_in_out': 'Anlagenübergabe/-ausgabe',
+  'pricing.category_mobile_offline': 'Mobile Offline',
+  'pricing.feature_work_order_availability':
+    'Verfügbarkeit von Arbeitsaufträgen',
+  'pricing.feature_updating_status': 'Aktualisierungsstatus',
+  'pricing.feature_updating_tasks': 'Aufgaben aktualisieren',
+  'pricing.feature_work_order_drafts': 'Arbeitsauftragsentwürfe',
+  'pricing.feature_full_drill_down_reporting_history':
+    'Vollständige Drill-Down-Berichte und Historie',
+  'pricing.period_thirty_days': '30 Tage',
+  'pricing.period_full': 'Voll',
+  'pricing.feature_pdf_csv_exporting': 'PDF- und CSV-Export',
+  'pricing.feature_itemized_time_reporting': 'Detaillierte Zeiterfassung',
+  'pricing.feature_user_login_reports': 'Benutzeranmeldeberichte',
+  'pricing.feature_parts_consumption_reports': 'Teileverbrauchsberichte',
+  'pricing.feature_asset_downtime_reports':
+    'Berichte über Anlagenausfallzeiten',
+  'pricing.feature_equipment_reliability_reports':
+    'Berichte zur Gerätezuverlässigkeit',
+  'pricing.feature_multi_site_modules': 'Multi-Site-Module',
+  'pricing.category_integrations': 'Integrationen',
+  'pricing.feature_business_integrations':
+    'Geschäftsintegrationen (SAP/Oracle/Causal AI...)',
+  'pricing.feature_custom_integrations': 'Benutzerdefinierte Integrationen',
+  'pricing.feature_unlimited_view_only_users':
+    'Unbegrenzte Anzahl an Nutzern mit reiner Ansicht',
+  'pricing.feature_unlimited_requesters': 'Unbegrenzte Anfragende',
+  'pricing.feature_unlimited_vendors': 'Unbegrenzte Händler',
+  'pricing.feature_unlimited_customers': 'Unbegrenzte Kunden',
+  'pricing.category_support': 'Unterstützung',
+  'pricing.feature_daily_email_digest': 'Tägliche E-Mail-Zusammenfassung',
+  'pricing.feature_articles': 'Artikel',
+  'pricing.feature_training_webinars': 'Schulungswebinare',
+  'pricing.feature_community_support_discord': 'Community-Support (Discord)',
+  'pricing.feature_email_support': 'E-Mail-Support',
+  'pricing.feature_chat_phone_support': 'Chat-/Telefon-Support',
+  'pricing.feature_priority_support': 'Prioritätsunterstützung',
+  'pricing.feature_implementation_training': 'Implementierung & Schulung',
+  'pricing.feature_dedicated_account_manager': 'Persönlicher Kundenbetreuer',
+  'pricing.category_customization': 'Anpassung',
+  'pricing.feature_custom_development': 'Kundenspezifische Entwicklung',
+  'pricing.sh_plan_basic_name': 'Basic',
+  'pricing.sh_plan_basic_description':
+    'Für kleine Teams, die volle Datensouveränität und grundlegende Wartungsnachverfolgung für ihre eigene Infrastruktur benötigen.',
+  'pricing.sh_feature_core_work_order_management': 'Kernauftragsmanagement',
+  'pricing.sh_feature_asset_inventory_tracking':
+    'Anlagen- und Bestandsverfolgung',
+  'pricing.sh_feature_local_data_storage': 'Lokaler Datenspeicher',
+  'pricing.sh_plan_professional_name': 'Professional',
+  'pricing.sh_plan_professional_description':
+    'Ideal für den Anbau von Pflanzen, die anspruchsvolle Checklisten, Arbeitsabläufe und eine tiefere Systemintegration erfordern.',
+  'pricing.sh_feature_everything_in_basic_plus': 'Alles aus Basic plus:',
+  'pricing.sh_feature_unlimited_assets_checklists':
+    'Unbegrenzte Ressourcen/Checklisten',
+  'pricing.sh_feature_nfc_barcode_scanning': 'NFC- und Barcode-Scanning',
+  'pricing.sh_feature_email_support': 'E-Mail-Support',
+  'pricing.sh_plan_business_name': 'Geschäft',
+  'pricing.sh_plan_business_description':
+    'Vollständiger Betrieb, der Multi-Instanz-Management, individuelles Branding und höchste Sicherheitsstandards erfordert.',
+  'pricing.sh_feature_everything_in_professional_plus':
+    'Alles aus der Professional-Plus-Suite:',
+  'pricing.sh_feature_multi_instance_management': 'Multi-Instanz-Management',
+  'pricing.sh_feature_custom_user_roles': 'Benutzerdefinierte Benutzerrollen',
+  'pricing.sh_feature_priority_implementation_support':
+    'Priorisierte Implementierungsunterstützung',
+  'pricing.faq_free_users_q':
+    'Welche Benutzertypen gelten als kostenlose Benutzer?',
+  'pricing.faq_free_users_a1':
+    'Es gibt drei Benutzertypen, die keine kostenpflichtige Lizenz benötigen:',
+  'pricing.faq_view_only_users_title': 'Nur Benutzer anzeigen',
+  'pricing.faq_view_only_users_description':
+    'Diese Benutzer sind typischerweise Vorgesetzte, die sich nur gelegentlich anmelden, um einen Überblick über die Wartungsaktivitäten zu erhalten. Sie können außerdem Arbeitsaufträge einreichen und Berichte erstellen.',
+  'pricing.faq_requester_users_title': 'Anfordernde Benutzer',
+  'pricing.faq_requester_users_description':
+    'Diese Benutzer können lediglich Arbeitsanfragen einreichen und deren Status einsehen. Sie haben keinen Zugriff auf Arbeitsaufträge, Anlagen, Teile oder sonstige im CMMS gespeicherte Daten.',
+  'pricing.faq_third_party_users_title': 'Drittanbieter',
+  'pricing.faq_third_party_users_description':
+    'Bei diesen Nutzern handelt es sich typischerweise um Lieferanten und Auftragnehmer. Sie können sich nicht direkt im System anmelden. Aktualisierungen zu einem bestimmten Arbeitsauftrag, dem sie zugeordnet sind, können sie lediglich über einen öffentlichen Link einreichen.',
+  'pricing.faq_paid_users_q': 'Welche Nutzertypen gelten als zahlende Nutzer?',
+  'pricing.faq_paid_users_a1':
+    'Es gibt drei Benutzertypen, die eine kostenpflichtige Lizenz benötigen:',
+  'pricing.faq_admin_users_title': 'Administratorbenutzer',
+  'pricing.faq_admin_users_description':
+    'Diese Benutzer können weitere Personen zum Konto hinzufügen, Arbeitsanfragen annehmen oder ablehnen und Auftragsdetails bearbeiten. Sie sind die Benutzer, die das Konto verwalten. Pro Konto können mehrere Administratoren eingerichtet werden.',
+  'pricing.faq_technical_users_title': 'Technische Anwender',
+  'pricing.faq_technical_users_description':
+    'Diese Benutzer sind typischerweise Techniker, die Arbeitsaufträge vor Ort abschließen. Sie können von ihnen erstellte Arbeitsaufträge bearbeiten, jedoch keine anderen. Sie können Arbeitsaufträgen Bilder und Statusaktualisierungen hinzufügen und neue Arbeitsaufträge erstellen.',
+  'pricing.faq_limited_technical_users_title':
+    'Beschränkte technische Benutzer',
+  'pricing.faq_limited_technical_users_description':
+    'Diese Benutzer haben die gleichen Berechtigungen wie der technische Benutzer. Die einzige Ausnahme besteht darin, dass sie nur die ihnen zugewiesenen Arbeitsaufträge sehen können – nicht die anderer technischer Benutzer des Kontos.',
+  'pricing.faq_change_plans_q': 'Kann ich meine Pläne später ändern?',
+  'pricing.faq_change_plans_a':
+    'Ja, Sie können Ihren Tarif jederzeit upgraden oder downgraden. Änderungen werden zu Beginn Ihres nächsten Abrechnungszeitraums wirksam.',
+  'pricing.faq_free_trial_q': 'Gibt es eine kostenlose Testversion?',
+  'pricing.faq_free_trial_a':
+    'Ja, wir bieten eine 15-tägige kostenlose Testphase des Business-Tarifs an, damit Sie alle Funktionen ausprobieren können, bevor Sie eine Entscheidung treffen.',
+  'pricing.faq_non_profit_discounts_q':
+    'Gewähren Sie Rabatte für gemeinnützige Organisationen?',
+  'pricing.faq_non_profit_discounts_a':
+    'Ja, wir bieten Sonderpreise für gemeinnützige Organisationen an. Bitte kontaktieren Sie unser Vertriebsteam für weitere Informationen.',
+  'pricing.faq_payment_methods_q': 'Welche Zahlungsmethoden akzeptieren Sie?',
+  'pricing.faq_payment_methods_a':
+    'Wir akzeptieren alle gängigen Kreditkarten, Banküberweisungen und PayPal. Für Unternehmenskunden bieten wir auch die Möglichkeit der Rechnungsstellung.',
+  'pricing.faq_cancel_subscription_q': 'Kann ich mein Abonnement kündigen?',
+  'pricing.faq_cancel_subscription_a':
+    'Ja, Sie können Ihr Abonnement jederzeit kündigen. Sie haben weiterhin Zugriff bis zum Ende Ihres aktuellen Abrechnungszeitraums.',
+  'pricing.faq_data_secure_q': 'Sind meine Daten sicher?',
+  'pricing.faq_data_secure_a':
+    'Ja, wir nehmen Datensicherheit sehr ernst. Alle Daten werden sowohl während der Übertragung als auch im Ruhezustand verschlüsselt, und wir führen regelmäßig Sicherheitsüberprüfungen durch.',
+  'pricing.faq_title': 'Häufig gestellte Fragen',
+  'pricing.annually_save_two_months': 'Jährlich (Sparen Sie 2 Monate)',
+  'pricing.most_popular': 'Am beliebtesten',
+  'pricing.get_your_license': 'Hol dir deinen Führerschein',
+  get_started: "Los geht's",
+  workflow_automation: 'Workflow-Automatisierung',
+  push_notifications: 'Push-Benachrichtigungen',
+  cloud: 'Wolke',
+  self_hosted: 'Selbstgehostet',
+  full: 'Voll',
+  pricing: 'Preise',
+  industries: 'Branchen',
+  work_order_management: 'Instandhaltungsmanagement',
+  inventory_management: 'Bestandsverwaltung',
+  analytics_and_reporting: 'Analysen und Berichte',
+  manufacturing: 'Fertigung',
+  facility_management: 'Facility Management',
+  food_and_beverage: 'Lebensmittel & Getränke',
+  healthcare: 'Gesundheitswesen',
+  energy_and_utilities: 'Energie & Versorgungsunternehmen',
+  education: 'Bildung',
+  hospitality: 'Gastgewerbe',
+  construction: 'Baugewerbe',
+  installation_docs: 'Installationsdokumentation',
+  trusted_by_maintenance_teams:
+    'Verwendet von Wartungsteams in verschiedenen Branchen',
+  cut_costs_performance: 'Kosten sparen, ohne Leistung zu verlieren',
+  'free_cmms.title':
+    'Atlas Kostenlose CMMS-Software | Keine Kreditkarte erforderlich',
+  'free_cmms.description':
+    'Kostenlose CMMS-Software — keine Testversion. Verwalten Sie Wartung, Anlagen und Arbeitsaufträge sofort. Keine Kreditkarte erforderlich.',
+  'free_cmms.keywords':
+    'kostenloses cmms, wartungsmanagement-software, kostenlose arbeitsauftrag-software, anlagenverfolgung, vorbeugende wartung',
+  'overview.description':
+    'Atlas CMMS ist ein kostenloses Open-Source-CMMS zur Verwaltung von Arbeitsaufträgen, vorbeugender Wartung, Anlagen und Einrichtungen. Optimieren Sie noch heute Ihre Wartungsarbeiten.',
+  'overview.keywords':
+    'CMMS, computergestütztes wartungsmanagementsystem, EAM, enterprise asset management, open-source-cmms, kostenlose wartungssoftware, arbeitsauftragsverwaltung, vorbeugende wartung, anlagenverfolgung, facility management, wartungsverfolgungssoftware, gerätewartung, Atlas CMMS',
+  'pricing.title': 'Preise - Atlas CMMS',
+  'pricing.description':
+    'Flexible Preispläne für Atlas CMMS. Wählen Sie zwischen Cloud- und selbstgehosteten Versionen unseres Open-Source-CMMS, um Ihre Wartungsarbeiten zu optimieren.',
+  'free_cmms.hero.subtitle': 'Kostenlose CMMS-Software',
+  'free_cmms.hero.title':
+    'Verwalten Sie Arbeitsaufträge und Anlagen - Für immer kostenlos',
+  'free_cmms.hero.description':
+    'Hören Sie auf, mit Tabellenkalkulationen und veralteten Tools zu jonglieren. Wechseln Sie zu einer modernen CMMS-Software - kostenlos.',
+  'free_cmms.hero.start_free': 'Jetzt kostenlos starten',
+  'free_cmms.hero.work_orders_alt': 'Arbeitsaufträge',
+  'free_cmms.hero.mobile_app_alt': 'Mobile App',
+  'free_cmms.features.work_orders.title': 'Mühelose Arbeitsaufträge',
+  'free_cmms.features.work_orders.p1':
+    'Erstellen, zuweisen und verfolgen Sie Arbeitsaufträge in Sekundenschnelle.',
+  'free_cmms.features.work_orders.p2':
+    'Hängen Sie Fotos, Handbücher und Checklisten an jede Aufgabe an.',
+  'free_cmms.features.work_orders.p3':
+    'Verfolgen Sie den Fortschritt in Echtzeit mit sofortigen Statusaktualisierungen.',
+  'free_cmms.features.work_orders.alt': 'Arbeitsauftragsverwaltung',
+  'free_cmms.features.asset_tracking.title': 'Anlagenlebenszyklus-Verfolgung',
+  'free_cmms.features.asset_tracking.p1':
+    'Führen Sie eine vollständige digitale Historie für jede Anlage.',
+  'free_cmms.features.asset_tracking.p2':
+    'Treffen Sie datengestützte Entscheidungen bezüglich Reparatur oder Austausch.',
+  'free_cmms.features.asset_tracking.p3':
+    'Bleiben Sie prüfbereit mit automatisierten Compliance-Protokollen.',
+  'free_cmms.features.asset_tracking.alt': 'Anlagenverwaltung',
+  'free_cmms.features.inventory.title': 'Inventar & Ersatzteile',
+  'free_cmms.features.inventory.p1':
+    'Verfolgen Sie die Lagerbestände über mehrere Standorte in Echtzeit.',
+  'free_cmms.features.inventory.p2':
+    'Scannen Sie QR-Codes für eine sofortige Teilesuche und -nutzung.',
+  'free_cmms.features.inventory.p3':
+    'Erhalten Sie automatische Warnungen bei niedrigem Lagerbestand und bestellen Sie sofort nach.',
+  'free_cmms.features.inventory.alt': 'Bestandsverwaltung',
+  'free_cmms.features.mobile.title': 'Wartung von unterwegs',
+  'free_cmms.features.mobile.p1':
+    'Volle Mobile-App-Funktionalität für iOS und Android.',
+  'free_cmms.features.mobile.p2':
+    'Nehmen Sie Fotos auf und scannen Sie Barcodes direkt vor Ort.',
+  'free_cmms.features.mobile.p3':
+    'Synchronisieren Sie Daten sofort und arbeiten Sie bei Bedarf offline.',
+  'free_cmms.features.mobile.alt': 'Mobile CMMS App',
+  'free_cmms.features.get_started_free': 'Kostenlos starten',
+  'free_cmms.features.ready_to_optimize': 'Bereit, Ihre Wartung zu optimieren?',
+  'free_cmms.features.join_thousands':
+    'Schließen Sie sich Tausenden von Wartungsprofis an, die das intuitivste kostenlose CMMS der Welt nutzen.',
+  'free_cmms.features.get_started_no_card':
+    'Kostenlos starten - Keine Kreditkarte erforderlich',
+  create_request_portal: 'Anfrageportal erstellen',
+  edit_request_portal: 'Anfrageportal bearbeiten',
+  welcome_message: 'Willkommensnachricht',
+  fields: 'Felder',
+  field_settings: 'Feldeinstellungen',
+  contact: 'Kontakt',
+  required_title: 'Titel ist erforderlich',
+  untitled_portal: 'Unbenanntes Portal',
+  no_welcome_message: 'Keine Willkommensnachricht',
+  request_portal_create_success: 'Anfrageportal erfolgreich erstellt',
+  request_portal_edit_success: 'Anfrageportal erfolgreich aktualisiert',
+  request_portal_delete_success: 'Anfrageportal erfolgreich gelöscht',
+  request_portal_create_failure: 'Erstellen des Anfrageportals fehlgeschlagen',
+  request_portal_edit_failure:
+    'Aktualisieren des Anfrageportals fehlgeschlagen',
+  request_portal_delete_failure: 'Löschen des Anfrageportals fehlgeschlagen',
+  no_access_request_portals: 'Sie haben keinen Zugriff auf Anfrageportale',
+  'noRows.request_portal.message':
+    'Sieht aus, als hätten Sie noch keine Anfrageportale.',
+  'noRows.request_portal.action': 'Erstellen Sie Ihr erstes Anfrageportal',
+  request_title: 'Anfragetitel',
+  configure_form_fields: 'Formularfelder konfigurieren',
+  allow_selection_from_all_locations:
+    'Auswahl aus allen Standorten ermöglichen',
+  allow_selection_from_all_assets: 'Auswahl aus allen Anlagen ermöglichen',
+  restrict_to_a_specific_location: 'Auf einen bestimmten Standort beschränken',
+  restrict_to_a_specific_asset: 'Auf eine bestimmte Anlage beschränken',
+  portal_public_asset_warning:
+    'Dieses Portal ist öffentlich und erfordert keine Authentifizierung. Die aufgelisteten Anlagen sind für alle Personen mit dem Link sichtbar.',
+  portal_public_location_warning:
+    'Dieses Portal ist öffentlich und erfordert keine Authentifizierung. Die aufgelisteten Standorte sind für alle Personen mit dem Link sichtbar.',
+  submit_request: 'Anfrage einreichen',
+  share_portal: 'Portal teilen',
+  get_portal_link: 'Portal-Link erhalten',
+  portal_link_description:
+    'Nur Personen mit diesem Link können auf das Portal zugreifen.',
+  print_qr_code: 'QR-Code drucken',
+  qr_code_description:
+    'Laden Sie den QR-Code herunter und kleben Sie ihn auf die Anlage, damit Benutzer ihn scannen und auf das Portal zugreifen können.',
+  copied: 'Kopiert!',
+  copy: 'Kopieren',
+  download: 'Herunterladen',
+  share: 'Teilen',
+  delete: 'Löschen',
+  portal_not_found: 'Portal nicht gefunden',
+  request_submitted_success: 'Ihre Anfrage wurde erfolgreich eingereicht',
+  request_submit_failure:
+    'Anfrage konnte nicht eingereicht werden. Bitte versuchen Sie es erneut.',
+  required_description: 'Beschreibung ist erforderlich',
+  required_contact: 'Kontakt ist erforderlich',
+  required_location: 'Standort ist erforderlich',
+  upload_files: 'Dateien hochladen',
+  request_portal: 'Anfrageportal',
+  required_image: 'Bild ist erforderlich',
+  requested_from_portal: 'Diese Anfrage wurde vom Portal erstellt: ',
+  request_portals: 'Anfrageportale',
+  recaptcha_failed:
+    'reCAPTCHA-Verifizierung fehlgeschlagen. Bitte versuchen Sie es erneut.',
+  select_date_range: 'Datumsbereich auswählen',
+  get_mobile_app: 'Mobile App herunterladen',
+  scan_qr_to_download:
+    'Scannen Sie den QR-Code zum Herunterladen der mobilen App',
+  integrations: 'Integrationen',
+  api_keys: 'API-Schlüssel',
+  connectors: 'Konnektoren',
+  webhooks: 'Webhooks',
+  create_api_key: 'API-Schlüssel erstellen',
+  api_key_label: 'API-Schlüssel Bezeichnung',
+  api_key_created_success: 'API-Schlüssel erfolgreich erstellt',
+  api_key_code_copied: 'API-Schlüssel wurde in die Zwischenablage kopiert',
+  api_key_code_view_once:
+    'Dieser Code kann nur einmal angezeigt werden. Bitte kopieren Sie ihn jetzt, da Sie ihn später nicht mehr sehen können.',
+  api_key_code: 'API-Schlüsselcode',
+  copy_code: 'Code kopieren',
+  last_used: 'Zuletzt verwendet',
+  never: 'Nie',
+  delete_api_key: 'API-Schlüssel löschen',
+  delete_api_key_confirm:
+    'Sind Sie sicher, dass Sie diesen API-Schlüssel löschen möchten?',
+  upgrade_api:
+    'Upgrade durchführen, um Zugriff auf API, Konnektoren und Webhooks zu erhalten',
+  // Webhooks
+  webhook_endpoints: 'Webhook-Endpunkte',
+  create_webhook_endpoint: 'Webhook-Endpunkt erstellen',
+  delete_webhook_endpoint: 'Webhook-Endpunkt löschen',
+  delete_webhook_endpoint_confirm:
+    'Sind Sie sicher, dass Sie diesen Webhook-Endpunkt löschen möchten?',
+  webhook_endpoint_created_success: 'Webhook-Endpunkt erfolgreich erstellt',
+  webhook_endpoint_deleted_success: 'Webhook-Endpunkt erfolgreich gelöscht',
+  webhook_endpoint_url: 'URL',
+  webhook_endpoint_event: 'Ereignis',
+  webhook_endpoint_select_event: 'Ein Ereignis auswählen',
+  webhook_endpoint_asset_statuses: 'Anlagenstatus',
+  webhook_endpoint_wo_statuses: 'Arbeitsauftragsstatus',
+  webhook_endpoint_work_request_approved_only: 'Nur genehmigte Anfragen',
+  webhook_endpoint_work_request_approved_only_desc:
+    'Auslöser für genehmigte Arbeitsanfragen',
+  webhook_endpoint_wo_categories: 'Arbeitsauftragskategorien',
+  webhook_endpoint_wo_fields: 'Arbeitsauftragsfelder',
+  webhook_endpoint_part_fields: 'Ersatzteilfelder',
+  webhook_endpoint_serialize: 'Payload serialisieren',
+  webhook_endpoint_serialize_description:
+    'Wenn aktiviert, erhält der Webhook die vollständigen Entitätsdaten',
+  webhook_endpoint_secret: 'Geheimnis',
+  webhook_endpoint_show_secret: 'Geheimnis anzeigen',
+  webhook_endpoint_hide_secret: 'Geheimnis verbergen',
+  webhook_endpoint_copy_secret: 'Geheimnis kopieren',
+  webhook_endpoint_rotate_secret: 'Geheimnis rotieren',
+  webhook_endpoint_secret_rotated: 'Geheimnis erfolgreich rotiert',
+  webhook_endpoint_secret_copied: 'Geheimnis in die Zwischenablage kopiert',
+  webhook_endpoint_last_triggered: 'Zuletzt ausgelöst',
+  webhook_endpoint_never_triggered: 'Nie ausgelöst',
+  webhook_endpoint_type: 'Typ',
+  WEBHOOK_ASSET_STATUS_CHANGE: 'Anlagenstatusänderung',
+  WEBHOOK_METER_TRIGGER_STATUS_CHANGE: 'Zählerauslöser-Statusänderung',
+  WEBHOOK_NEW_ASSET: 'Neue Anlage',
+  WEBHOOK_NEW_CATEGORY_ON_WORK_ORDER: 'Neue Kategorie auf Arbeitsauftrag',
+  WEBHOOK_NEW_COMMENT_ON_WORK_ORDER: 'Neuer Kommentar auf Arbeitsauftrag',
+  WEBHOOK_NEW_LOCATION: 'Neuer Standort',
+  WEBHOOK_NEW_PART: 'Neues Ersatzteil',
+  WEBHOOK_NEW_PURCHASE_ORDER: 'Neue Bestellung',
+  WEBHOOK_NEW_VENDOR: 'Neuer Anbieter',
+  WEBHOOK_NEW_WORK_ORDER: 'Neuer Arbeitsauftrag',
+  WEBHOOK_NEW_REQUEST: 'Neue Anfrage',
+  WEBHOOK_PART_CHANGE: 'Ersatzteiländerung',
+  WEBHOOK_PART_DELETE: 'Ersatzteillöschung',
+  WEBHOOK_PART_QUANTITY_CHANGED: 'Ersatzteilmenge geändert',
+  WEBHOOK_PURCHASE_ORDER_CHANGE: 'Bestellungsänderung',
+  WEBHOOK_PURCHASE_ORDER_STATUS_CHANGE: 'Bestellungsstatusänderung',
+  WEBHOOK_WORK_ORDER_CHANGE: 'Arbeitsauftragsänderung',
+  WEBHOOK_WORK_ORDER_DELETE: 'Arbeitsauftragslöschung',
+  WEBHOOK_WORK_ORDER_OVERDUE: 'Arbeitsauftrag überfällig',
+  WEBHOOK_WORK_ORDER_STATUS_CHANGE: 'Arbeitsauftragsstatusänderung',
+  WEBHOOK_WORK_REQUEST_STATUS_CHANGE: 'Arbeitsanfragenstatusänderung'
 };
 
 export default deJSON;

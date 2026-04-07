@@ -761,6 +761,9 @@ const locale = {
   acquisition_cost: 'Beszerzési költség',
   //settings
   general_settings: 'Általános Beállítások',
+  language: 'Nyelv',
+  date_format: 'Dátumformátum',
+  time_zone: 'Időzóna',
   request_form_configuration: 'Kéreleműrlap konfiguráció',
   roles: 'Szerepek',
   checklists: 'Ellenőrzőlisták',
@@ -1327,7 +1330,370 @@ const locale = {
   settings: 'Beállítások',
   people: 'Személyek',
   teams: 'Csapatok',
-  vendors: 'Beszállítók'
+  vendors: 'Beszállítók',
+  csv_separator: 'CSV elválasztó',
+  open_source_cmms: 'Nyílt forráskódú CMMS',
+  'main.title': 'Ingyenes nyílt forráskódú CMMS (karbantartáskezelő szoftver)',
+  'home.h1':
+    'Ingyenes és nyílt forráskódú CMMS, amelyet saját maga is üzemeltethet, vagy használhat a felhőben',
+  'home.h2': 'Erőteljes karbantartás alacsony költséggel',
+  'home.h3':
+    'Ne hagyatkozzon többé táblázatokra és fehértáblákra. A {{brandName}} segít a karbantartó csapatoknak a beavatkozások tervezésében, a berendezések nyomon követésében és a megfelelőség fenntartásában. Üzemeltesse saját szerverén, vagy kezdje el azonnal a felhőben.',
+  talk_to_sales: 'Beszéljen az értékesítéssel',
+  'pricing.choose_plan_and_get_started':
+    'Válaszd ki a csomagodat, és kezdj bele',
+  'pricing.slogan_effective_maintenance':
+    'Szoftverünk biztosítja a karbantartási és megbízhatósági csapatok számára a hatékony és eredményes működéshez szükséges eszközöket.',
+  'pricing.compare_plans_and_pricing': 'Csomagok és árak összehasonlítása',
+  'pricing.see_which_plan_is_right_for_you':
+    'Nézd meg, melyik csomag a megfelelő számodra',
+  'pricing.select_two_plans_to_compare':
+    'Válasszon ki 2 csomagot az összehasonlításhoz',
+  'pricing.select_three_plans_to_compare':
+    'Válasszon ki 3 csomagot az összehasonlításhoz',
+  'pricing.month_per_user': 'havonta felhasználónként',
+  'pricing.year_per_user': 'év felhasználónként',
+  'pricing.plan_basic_name': 'Alapvető',
+  'pricing.plan_basic_description':
+    'Csapatok, akik nyomon szeretnék követni az eszközöket, és alapvető megelőző karbantartási ütemterveket szeretnének készíteni eljárásokkal együtt.',
+  'pricing.feature_unlimited_work_orders': 'Korlátlan számú munkamegbízás',
+  'pricing.feature_custom_tasks': 'Egyéni feladatok',
+  'pricing.feature_unlimited_request_user_licenses':
+    'Korlátlan számú felhasználói licenc kérése',
+  'pricing.plan_starter_name': 'Indító',
+  'pricing.plan_starter_description':
+    'Csapatok, amelyek hatékony és erős megelőző karbantartást szeretnének kiépíteni a gépek állapotának és a munkaerő láthatóságának nyomon követése révén.',
+  'pricing.feature_everything_in_basic_plus':
+    'Minden, ami az Alapszintben van, plusz:',
+  'pricing.feature_preventive_maintenance_recurring_work_orders':
+    'Megelőző karbantartás/Ismétlődő munkamegrendelések',
+  'pricing.feature_custom_checklists': 'Egyéni ellenőrzőlisták',
+  'pricing.feature_inventory_management_costing':
+    'Készletgazdálkodás/Költségszámítás',
+  'pricing.feature_time_and_manpower_tracking': 'Idő- és munkaerő-követés',
+  'pricing.feature_thirty_day_analytics_reporting':
+    '30 napos elemzés és jelentéskészítés',
+  'pricing.plan_professional_name': 'Szakmai',
+  'pricing.plan_professional_description':
+    'Azok a részlegek, amelyeknek hasznosítaniuk kell az elemzéseket és az információkat a karbantartás további növekedésének és termelékenységének előmozdítása érdekében.',
+  'pricing.feature_everything_in_starter_plus':
+    'Minden, ami a Starterben van, plusz:',
+  'pricing.feature_multiple_inventory_lines': 'Több készletsor',
+  'pricing.feature_customizable_request_portal': 'Testreszabható kérésportál',
+  'pricing.feature_mobile_offline_mode': 'Mobil offline mód',
+  'pricing.feature_advanced_analytics_reporting':
+    'Speciális elemzés és jelentéskészítés',
+  'pricing.plan_business_name': 'Üzleti',
+  'pricing.plan_business_description':
+    'Szervezetek, amelyek készen állnak karbantartási és üzemeltetési adatok rögzítésére több helyszín és rendszer testreszabásának kezelése érdekében.',
+  'pricing.feature_everything_in_professional_plus':
+    'Minden, ami a Professional kategóriában van, plusz:',
+  'pricing.feature_purchase_order_management':
+    'Beszerzési megrendelések kezelése',
+  'pricing.feature_multi_site_module_support':
+    'Több telephelyes modul támogatása',
+  'pricing.feature_custom_work_order_statuses':
+    'Egyéni munkarendelések állapotai',
+  'pricing.feature_custom_integrations_support':
+    'Egyedi integrációk támogatása',
+  'pricing.feature_work_order_management': 'Munkarendelés-kezelés',
+  'pricing.feature_recurring_work_orders': 'Ismétlődő munkamegrendelések',
+  'pricing.feature_custom_categories': 'Egyéni kategóriák',
+  'pricing.feature_data_importing': 'Adatok importálása',
+  'pricing.feature_time_and_cost_tracking': 'Idő- és költségkövetés',
+  'pricing.feature_work_order_configuration': 'Munkarendelés konfigurációja',
+  'pricing.feature_internal_requests': 'Belső kérések',
+  'pricing.feature_external_request_portal': 'Külső kérések portálja',
+  'pricing.category_locations_assets_parts':
+    'Helyszínek, eszközök és alkatrészek',
+  'pricing.feature_location_management': 'Helyszínkezelés',
+  'pricing.feature_barcode_scanning': 'Vonalkódolvasás',
+  'pricing.feature_inventory_management': 'Készletgazdálkodás',
+  'pricing.feature_custom_asset_statuses': 'Egyéni eszközállapotok',
+  'pricing.feature_asset_downtime_tracking': 'Eszközleállás-követés',
+  'pricing.feature_asset_depreciation_tracking':
+    'Eszközértékcsökkenés nyomon követése',
+  'pricing.feature_asset_warranty_tracking': 'Eszközgarancia-követés',
+  'pricing.feature_purchase_orders_management': 'Beszerzési megrendelések',
+  'pricing.feature_asset_check_in_out': 'Eszközök be-/kiadása',
+  'pricing.category_mobile_offline': 'Mobil offline',
+  'pricing.feature_work_order_availability': 'Munkarendelés elérhetősége',
+  'pricing.feature_updating_status': 'Állapot frissítése',
+  'pricing.feature_updating_tasks': 'Feladatok frissítése',
+  'pricing.feature_work_order_drafts': 'Munkarendelés-tervezetek',
+  'pricing.feature_full_drill_down_reporting_history':
+    'Teljes körű részletes jelentéskészítés és előzmények',
+  'pricing.period_thirty_days': '30 nap',
+  'pricing.period_full': 'Tele',
+  'pricing.feature_pdf_csv_exporting': 'PDF és CSV exportálás',
+  'pricing.feature_itemized_time_reporting': 'Tételes időjelentés',
+  'pricing.feature_user_login_reports':
+    'Felhasználói bejelentkezési jelentések',
+  'pricing.feature_parts_consumption_reports':
+    'Alkatrész-fogyasztási jelentések',
+  'pricing.feature_asset_downtime_reports': 'Eszközleállási jelentések',
+  'pricing.feature_equipment_reliability_reports':
+    'Berendezések megbízhatósági jelentései',
+  'pricing.feature_multi_site_modules': 'Több telephelyes modulok',
+  'pricing.category_integrations': 'Integrációk',
+  'pricing.feature_business_integrations':
+    'Üzleti integrációk (SAP/Oracle/Causal AI...)',
+  'pricing.feature_custom_integrations': 'Egyéni integrációk',
+  'pricing.feature_unlimited_view_only_users':
+    'Korlátlan számú csak megtekintésre jogosult felhasználó',
+  'pricing.feature_unlimited_requesters': 'Korlátlan számú kérelmező',
+  'pricing.feature_unlimited_vendors': 'Korlátlan számú szállító',
+  'pricing.feature_unlimited_customers': 'Korlátlan ügyfél',
+  'pricing.category_support': 'Támogatás',
+  'pricing.feature_daily_email_digest': 'Napi e-mail összefoglaló',
+  'pricing.feature_articles': 'Cikkek',
+  'pricing.feature_training_webinars': 'Képzési webináriumok',
+  'pricing.feature_community_support_discord': 'Közösségi támogatás (Discord)',
+  'pricing.feature_email_support': 'E-mailes támogatás',
+  'pricing.feature_chat_phone_support': 'Csevegés/Telefonos támogatás',
+  'pricing.feature_priority_support': 'Elsőbbségi támogatás',
+  'pricing.feature_implementation_training': 'Megvalósítás és képzés',
+  'pricing.feature_dedicated_account_manager':
+    'Dedikált ügyfélkapcsolati menedzser',
+  'pricing.category_customization': 'Testreszabás',
+  'pricing.feature_custom_development': 'Egyedi fejlesztés',
+  'pricing.sh_plan_basic_name': 'Alapvető',
+  'pricing.sh_plan_basic_description':
+    'Kis csapatok számára, akiknek teljes adatszuverenitásra és alapvető karbantartás-követésre van szükségük a saját infrastruktúrájukon.',
+  'pricing.sh_feature_core_work_order_management':
+    'Alapvető munkarendelés-kezelés',
+  'pricing.sh_feature_asset_inventory_tracking':
+    'Eszköz- és készletnyilvántartás',
+  'pricing.sh_feature_local_data_storage': 'Helyi adattárolás',
+  'pricing.sh_plan_professional_name': 'Szakmai',
+  'pricing.sh_plan_professional_description':
+    'Ideális olyan növények termesztéséhez, amelyek fejlett ellenőrzőlistákat, munkafolyamatokat és mélyebb rendszerintegrációt igényelnek.',
+  'pricing.sh_feature_everything_in_basic_plus':
+    'Minden, ami az Alapszintű csomagban van, plusz:',
+  'pricing.sh_feature_unlimited_assets_checklists':
+    'Korlátlan eszközök/ellenőrzőlisták',
+  'pricing.sh_feature_nfc_barcode_scanning': 'NFC és vonalkód-leolvasás',
+  'pricing.sh_feature_email_support': 'E-mailes támogatás',
+  'pricing.sh_plan_business_name': 'Üzleti',
+  'pricing.sh_plan_business_description':
+    'Teljes körű műveletek, amelyek több példányos felügyeletet, egyedi arculatot és felső szintű biztonságot igényelnek.',
+  'pricing.sh_feature_everything_in_professional_plus':
+    'Minden, ami a Professional kategóriában van, plusz:',
+  'pricing.sh_feature_multi_instance_management': 'Többpéldányos felügyelet',
+  'pricing.sh_feature_custom_user_roles': 'Egyéni felhasználói szerepkörök',
+  'pricing.sh_feature_priority_implementation_support':
+    'Elsőbbségi megvalósítási támogatás',
+  'pricing.faq_free_users_q':
+    'Milyen típusú felhasználók tekinthetők ingyenes felhasználóknak?',
+  'pricing.faq_free_users_a1':
+    'Három olyan felhasználói típus van, amelyek nem igényelnek fizetős licencet:',
+  'pricing.faq_view_only_users_title': 'Csak felhasználók megtekintése',
+  'pricing.faq_view_only_users_description':
+    'Ezek a felhasználók jellemzően felügyelők, akik ritkán jelentkeznek be, hogy pillanatképet tekintsenek meg a karbantartási tevékenységekről. Emellett munkakérelmeket is küldhetnek és jelentéseket futtathatnak.',
+  'pricing.faq_requester_users_title': 'Kérő felhasználók',
+  'pricing.faq_requester_users_description':
+    'Ezek a felhasználók csak munkakérelmeket küldhetnek be, és megtekinthetik azok állapotát. Nem láthatják a munkarendeléseket, eszközöket, alkatrészeket vagy a CMMS-ben tárolt egyéb adatokat.',
+  'pricing.faq_third_party_users_title':
+    'Harmadik féltől származó felhasználók',
+  'pricing.faq_third_party_users_description':
+    'Ezek a felhasználók jellemzően szállítók és alvállalkozók. Valójában nem tudnak bejelentkezni a rendszerbe. Csak egy nyilvános linken keresztül küldhetnek frissítéseket egy adott munkamegrendeléshez, amelyhez hozzá vannak rendelve.',
+  'pricing.faq_paid_users_q':
+    'Milyen típusú felhasználókat tekintünk fizetős felhasználóknak?',
+  'pricing.faq_paid_users_a1':
+    'Háromféle felhasználói típushoz szükséges fizetős licenc:',
+  'pricing.faq_admin_users_title': 'Adminisztrátori felhasználók',
+  'pricing.faq_admin_users_description':
+    'Ezek a felhasználók képesek másokat hozzáadni a fiókhoz, elfogadni vagy elutasítani a munkakérelmeket, és szerkeszteni a munkarendelés részleteit. Ők azok a felhasználók, akik felügyelik a fiókot. Fiókonként több adminisztrátor is lehet.',
+  'pricing.faq_technical_users_title': 'Műszaki felhasználók',
+  'pricing.faq_technical_users_description':
+    'Ezek a felhasználók jellemzően technikusok, akik terepen zárják le a munkamegrendeléseket. Szerkeszthetik az általuk létrehozott munkamegrendeléseket, de más munkamegrendeléseket nem. Képeket és állapotfrissítéseket adhatnak hozzá a munkamegrendelésekhez, és új munkamegrendeléseket hozhatnak létre.',
+  'pricing.faq_limited_technical_users_title':
+    'Korlátozott technikai felhasználók',
+  'pricing.faq_limited_technical_users_description':
+    'Ezek a felhasználók ugyanazokkal a jogosultságokkal rendelkeznek, mint a technikai felhasználó. Az egyetlen kivétel az, hogy csak a hozzájuk rendelt munkamegrendeléseket láthatják – a fiók többi technikai felhasználóját nem.',
+  'pricing.faq_change_plans_q': 'Később módosíthatom a terveket?',
+  'pricing.faq_change_plans_a':
+    'Igen, bármikor válthat magasabb vagy alacsonyabb csomagra. A változások a következő számlázási ciklus kezdetén lépnek életbe.',
+  'pricing.faq_free_trial_q': 'Van ingyenes próbaverzió?',
+  'pricing.faq_free_trial_a':
+    'Igen, 15 napos ingyenes próbaidőszakot kínálunk az Üzleti csomagra, így a döntés meghozatala előtt kipróbálhatja az összes funkciót.',
+  'pricing.faq_non_profit_discounts_q':
+    'Kínálnak kedvezményeket non-profit szervezeteknek?',
+  'pricing.faq_non_profit_discounts_a':
+    'Igen, non-profit szervezetek számára különleges árakat kínálunk. További információért kérjük, vegye fel a kapcsolatot értékesítési csapatunkkal.',
+  'pricing.faq_payment_methods_q': 'Milyen fizetési módokat fogadnak el?',
+  'pricing.faq_payment_methods_a':
+    'Elfogadjuk az összes főbb hitelkártyát, banki átutalást és PayPalt. Vállalati csomagok esetén számlázást is tudunk intézni.',
+  'pricing.faq_cancel_subscription_q': 'Lemondhatom az előfizetésemet?',
+  'pricing.faq_cancel_subscription_a':
+    'Igen, bármikor lemondhatja az előfizetését. A jelenlegi számlázási időszak végéig továbbra is hozzáférhet.',
+  'pricing.faq_data_secure_q': 'Biztonságban vannak az adataim?',
+  'pricing.faq_data_secure_a':
+    'Igen, nagyon komolyan vesszük az adatbiztonságot. Minden adatot titkosítunk átvitel és tárolás közben, és rendszeres biztonsági ellenőrzéseket végzünk.',
+  'pricing.faq_title': 'Gyakran ismételt kérdések',
+  'pricing.annually_save_two_months': 'Évente (2 hónap megtakarítás)',
+  'pricing.most_popular': 'Legnépszerűbb',
+  'pricing.get_your_license': 'Szerezd meg a jogosítványodat',
+  get_started: 'Kezdés',
+  workflow_automation: 'Munkafolyamat-automatizálás',
+  push_notifications: 'Push értesítések',
+  cloud: 'Felhő',
+  self_hosted: 'Saját üzemeltetésű',
+  full: 'Tele',
+  pricing: 'Árazás',
+  industries: 'Iparágak',
+  work_order_management: 'Munkarend-kezelés',
+  inventory_management: 'Készletkezelés',
+  analytics_and_reporting: 'Analitika és jelentéskészítés',
+  manufacturing: 'Gyártás',
+  facility_management: 'Létesítményüzemeltetés',
+  food_and_beverage: 'Élelmiszer és ital',
+  healthcare: 'Egészségügy',
+  energy_and_utilities: 'Energia és közművek',
+  education: 'Oktatás',
+  hospitality: 'Vendéglátás',
+  construction: 'Építőipar',
+  trusted_by_maintenance_teams:
+    'A karbantartási csapatok bizalmát élvezve számos iparágban',
+  cut_costs_performance:
+    'Csökkentse a karbantartási szoftverköltségeket a teljesítmény feláldozása nélkül',
+  'free_cmms.title':
+    'Atlas Ingyenes GMAO Szoftver | Nincs szükség hitelkártyára',
+  'free_cmms.description':
+    'Ingyenes GMAO szoftver — nem próbaverzió. Karbantartás, eszközök és munkarendelések kezelése azonnal. Nincs szükség hitelkártyára.',
+  'free_cmms.keywords':
+    'ingyenes gmao, karbantartás-kezelő szoftver, ingyenes munkarendelés szoftver, eszköz-követés, megelőző karbantartás',
+  'overview.description':
+    'Az Atlas CMMS egy ingyenes, nyílt forráskódú GMAO a munkarendelések, a megelőző karbantartás, az eszközök és a létesítmények kezelésére. Egyszerűsítse karbantartási folyamatait még ma.',
+  'overview.keywords':
+    'GMAO, számítógépes karbantartás-kezelő rendszer, EAM, vállalati eszközkezelés, nyílt forráskódú GMAO, ingyenes karbantartási szoftver, munkarendelés-kezelés, megelőző karbantartás, eszköz-követés, létesítménykezelés, karbantartás-követő szoftver, berendezés-karbantartás, Atlas CMMS',
+  'pricing.title': 'Árazás - Atlas CMMS',
+  'pricing.description':
+    'Rugalmas árazási tervek az Atlas CMMS-hez. Válasszon nyílt forráskódú GMAO rendszerünk Cloud és Self-Hosted verziói közül a karbantartási folyamatok optimalizálásához.',
+  'free_cmms.hero.subtitle': 'Ingyenes GMAO Szoftver',
+  'free_cmms.hero.title':
+    'Munkarendelések és eszközök kezelése - Örökké ingyenes',
+  'free_cmms.hero.description':
+    'Hagyja abba a táblázatokkal és elavult eszközökkel való zsonglőrködést. Váltson egy modern GMAO szoftverre - ingyen.',
+  'free_cmms.hero.start_free': 'Kezdje el ingyen most',
+  'free_cmms.hero.work_orders_alt': 'Munkarendelések',
+  'free_cmms.hero.mobile_app_alt': 'Mobilalkalmazás',
+  'free_cmms.features.work_orders.title': 'Munkarendelések könnyedén',
+  'free_cmms.features.work_orders.p1':
+    'Munkarendelések létrehozása, kiosztása és nyomon követése másodpercek alatt.',
+  'free_cmms.features.work_orders.p2':
+    'Fotók, kézikönyvek és ellenőrzőlisták csatolása bármilyen feladathoz.',
+  'free_cmms.features.work_orders.p3':
+    'A folyamatok valós idejű nyomon követése azonnali állapotfrissítésekkel.',
+  'free_cmms.features.work_orders.alt': 'Munkarendelés-kezelés',
+  'free_cmms.features.asset_tracking.title': 'Eszköz életciklus követése',
+  'free_cmms.features.asset_tracking.p1':
+    'Vezessen teljes digitális előzményt minden eszközről.',
+  'free_cmms.features.asset_tracking.p2':
+    'Hozzon adatvezérelt döntéseket a javítás vagy csere kérdésében.',
+  'free_cmms.features.asset_tracking.p3':
+    'Maradjon audit-kész az automatizált megfelelőségi naplókkal.',
+  'free_cmms.features.asset_tracking.alt': 'Eszközkezelés',
+  'free_cmms.features.inventory.title': 'Készlet és alkatrészek',
+  'free_cmms.features.inventory.p1':
+    'A készletszintek valós idejű nyomon követése több helyszínen.',
+  'free_cmms.features.inventory.p2':
+    'QR-kódok beolvasása az azonnali alkatrész-kereséshez és felhasználáshoz.',
+  'free_cmms.features.inventory.p3':
+    'Automatikus értesítések alacsony készletszint esetén és azonnali utánrendelés.',
+  'free_cmms.features.inventory.alt': 'Készletkezelés',
+  'free_cmms.features.mobile.title': 'Karbantartás útközben',
+  'free_cmms.features.mobile.p1':
+    'Teljes mobilalkalmazás-funkcionalitás iOS és Android rendszerekre.',
+  'free_cmms.features.mobile.p2':
+    'Fotók készítése és vonalkódok beolvasása közvetlenül a terepen.',
+  'free_cmms.features.mobile.p3':
+    'Azonnali adatszinkronizálás és offline munkavégzés, ha szükséges.',
+  'free_cmms.features.mobile.alt': 'Mobil GMAO alkalmazás',
+  'free_cmms.features.get_started_free': 'Kezdés ingyenesen',
+  'free_cmms.features.ready_to_optimize':
+    'Készen áll a karbantartás optimalizálására?',
+  'free_cmms.features.join_thousands':
+    'Csatlakozzon a világ legintuitívabb ingyenes GMAO-ját használó karbantartási szakemberek ezreihez.',
+  'free_cmms.features.get_started_no_card':
+    'Kezdés ingyenesen - Nincs szükség hitelkártyára',
+  create_request_portal: 'Kérési portál létrehozása',
+  edit_request_portal: 'Kérési portál szerkesztése',
+  welcome_message: 'Üdvözlő üzenet',
+  fields: 'Mezők',
+  field_settings: 'Mező beállítások',
+  contact: 'Kapcsolat',
+  required_title: 'A cím kötelező',
+  untitled_portal: 'Névtelen portál',
+  no_welcome_message: 'Nincs üdvözlő üzenet',
+  request_portal_create_success: 'Kérési portál sikeresen létrehozva',
+  request_portal_edit_success: 'Kérési portál sikeresen frissítve',
+  request_portal_delete_success: 'Kérési portál sikeresen törölve',
+  request_portal_create_failure: 'Kérési portál létrehozása sikertelen',
+  request_portal_edit_failure: 'Kérési portál frissítése sikertelen',
+  request_portal_delete_failure: 'Kérési portál törlése sikertelen',
+  no_access_request_portals: 'Nincs hozzáférése a kérési portálokhoz',
+  'noRows.request_portal.message': 'Úgy tűnik, még nincs kérési portálja.',
+  'noRows.request_portal.action': 'Hozza létre az első kérési portálját',
+  request_title: 'Kérés címe',
+  configure_form_fields: 'Űrlapmezők konfigurálása',
+  allow_selection_from_all_locations:
+    'Kiválasztás engedélyezése az összes helyszín közül',
+  allow_selection_from_all_assets:
+    'Kiválasztás engedélyezése az összes eszköz közül',
+  restrict_to_a_specific_location: 'Korlátozás egy adott helyszínre',
+  restrict_to_a_specific_asset: 'Korlátozás egy adott eszközre',
+  portal_public_asset_warning:
+    'Ez a portál nyilvános, és nem igényel hitelesítést. A felsorolt eszközök mindenki számára láthatóak lesznek, aki rendelkezik a linkkel.',
+  portal_public_location_warning:
+    'Ez a portál nyilvános, és nem igényel hitelesítést. A felsorolt helyszínek mindenki számára láthatóak lesznek, aki rendelkezik a linkkel.',
+  submit_request: 'Kérés beküldése',
+  share_portal: 'Portál megosztása',
+  get_portal_link: 'Portál hivatkozás kérése',
+  portal_link_description:
+    'Csak azok férhetnek hozzá a portálhoz, akik rendelkeznek ezzel a hivatkozással.',
+  print_qr_code: 'QR-kód nyomtatása',
+  qr_code_description:
+    'Töltse le a QR-kódot, és ragassza fel a létesítményre, így a felhasználók beolvashatják és elérhetik a portált.',
+  copied: 'Másolva!',
+  copy: 'Másolás',
+  download: 'Letöltés',
+  share: 'Megosztás',
+  delete: 'Törlés',
+  portal_not_found: 'Portál nem található',
+  request_submitted_success: 'A kérését sikeresen beküldte',
+  request_submit_failure:
+    'A kérés beküldése sikertelen. Kérjük, próbálja újra.',
+  required_description: 'A leírás kötelező',
+  required_contact: 'A kapcsolat kötelező',
+  required_location: 'A helyszín kötelező',
+  upload_files: 'Fájlok feltöltése',
+  request_portal: 'Kérési portál',
+  required_image: 'A kép kötelező',
+  requested_from_portal: 'Ez a kérés a portálból jött létre: ',
+  request_portals: 'Kérési portálok',
+  recaptcha_failed: 'A reCAPTCHA ellenőrzés sikertelen. Kérjük, próbálja újra.',
+  select_date_range: 'Dátumtartomány kiválasztása',
+  get_mobile_app: 'Mobilalkalmazás letöltése',
+  scan_qr_to_download: 'Olvassa be a QR-kódot a mobilalkalmazás letöltéséhez',
+  integrations: 'Integrációk',
+  api_keys: 'API kulcsok',
+  connectors: 'Csatlakozók',
+  webhooks: 'Webhookok',
+  create_api_key: 'API kulcs létrehozása',
+  api_key_label: 'API kulcs megnevezése',
+  api_key_created_success: 'Az API kulcs sikeresen létrejött',
+  api_key_code_copied: 'Az API kulcs kódja a vágólapra másolva',
+  api_key_code_view_once:
+    'Ez a kód csak egyszer jeleníthető meg. Kérjük, másolja ki most, mert később nem lesz látható.',
+  api_key_code: 'API kulcs kód',
+  copy_code: 'Kód másolása',
+  last_used: 'Utoljára használva',
+  never: 'Soha',
+  delete_api_key: 'API kulcs törlése',
+  delete_api_key_confirm: 'Biztosan törölni szeretné ezt az API kulcsot?',
+  upgrade_api:
+    'Frissítsen a csomagra az API, csatlakozók és webhookok eléréséhez'
 };
 
 export default locale;

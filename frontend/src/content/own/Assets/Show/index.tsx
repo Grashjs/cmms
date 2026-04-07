@@ -34,7 +34,7 @@ import useAuth from '../../../../hooks/useAuth';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import AssetMeters from './AssetMeters';
-import { getImageAndFiles } from '../../../../utils/overall';
+import { handleFileUpload } from '../../../../utils/overall';
 import AssetDowntimes from './AssetDowntimes';
 import AssetAnalytics from './AssetAnalytics';
 
@@ -378,28 +378,27 @@ const ShowAsset = ({}: PropsType) => {
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatAssetValues(values);
-              const files = formattedValues.files.find((file) => file.id)
-                ? []
-                : formattedValues.files;
-              return new Promise<void>((resolve, rej) => {
-                uploadFiles(files, formattedValues.image)
-                  .then((files) => {
-                    const imageAndFiles = getImageAndFiles(files, asset.image);
-                    formattedValues = {
-                      ...formattedValues,
-                      image: imageAndFiles.image,
-                      files: [...asset.files, ...imageAndFiles.files]
-                    };
-                    dispatch(editAsset(Number(assetId), formattedValues))
-                      .then(onEditSuccess)
-                      .catch(onEditFailure)
-                      .finally(resolve);
-                  })
-                  .catch((err) => {
-                    onEditFailure(err);
-                    rej(err);
-                  });
-              });
+              try {
+                const imageAndFiles = await handleFileUpload(
+                  {
+                    files: formattedValues.files,
+                    image: formattedValues.image
+                  },
+                  uploadFiles
+                );
+
+                formattedValues = {
+                  ...formattedValues,
+                  image: imageAndFiles.image,
+                  files: imageAndFiles.files
+                };
+
+                await dispatch(editAsset(Number(assetId), formattedValues));
+                await onEditSuccess();
+              } catch (err) {
+                onEditFailure(err);
+                throw err;
+              }
             }}
           />
         </Box>

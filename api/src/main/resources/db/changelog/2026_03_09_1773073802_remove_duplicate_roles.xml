@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="1773073802-1" author="Ibrahima G. Coulibaly">
+        <validCheckSum>ANY</validCheckSum>
+        <sql>
+            UPDATE "own_user" u
+            SET role_id = sub.min_role_id FROM (
+    -- Identify the 'primary' ID for each default role code
+    SELECT
+        id as bad_role_id,
+        MIN(id) OVER (PARTITION BY code) as min_role_id
+    FROM role
+    WHERE company_settings_id IS NULL AND code !=6
+) sub
+            WHERE u.role_id = sub.bad_role_id
+              AND sub.bad_role_id != sub.min_role_id;
+            DELETE
+            FROM role
+            WHERE company_settings_id IS NULL
+              AND code !=6
+              AND id NOT IN (SELECT MIN(id)
+                             FROM role
+                             WHERE company_settings_id IS NULL
+                             GROUP BY code);
+        </sql>
+    </changeSet>
+</databaseChangeLog>

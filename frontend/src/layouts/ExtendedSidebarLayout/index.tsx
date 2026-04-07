@@ -1,9 +1,12 @@
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useEffect } from 'react';
 import { alpha, Box, lighten, useTheme } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 
 import Sidebar from './Sidebar';
 import Header from './Header';
+import Intercom from '@intercom/messenger-js-sdk';
+import useAuth from '../../hooks/useAuth';
+import { intercomId, isCloudVersion } from '../../config';
 
 interface ExtendedSidebarLayoutProps {
   children?: ReactNode;
@@ -11,6 +14,19 @@ interface ExtendedSidebarLayoutProps {
 
 const ExtendedSidebarLayout: FC<ExtendedSidebarLayoutProps> = () => {
   const theme = useTheme();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user && user.ownsCompany && isCloudVersion && intercomId)
+      Intercom({
+        app_id: intercomId,
+        user_id: user.email,
+        name: `${user.firstName} ${user.lastName}`,
+        // intercom_user_jwt: localStorage.getItem('intercomAccessToken'),
+        email: user.email,
+        created_at: Math.floor(new Date(user.createdAt).getTime() / 1000)
+      });
+  }, [user?.id]);
 
   return (
     <>

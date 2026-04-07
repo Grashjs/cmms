@@ -1,4 +1,5 @@
 import {
+  Alert,
   Box,
   Button,
   CircularProgress,
@@ -106,6 +107,10 @@ export default function RequestDetails({
   const fieldsToRender = (
     request: Request
   ): { label: string; value: string | number }[] => [
+    {
+      label: t('contact'),
+      value: request.contact
+    },
     {
       label: t('description'),
       value: request.description
@@ -292,6 +297,27 @@ export default function RequestDetails({
                     onClick={() => setIsImageViewerOpen(true)}
                   />
                 </Grid>
+              )}
+              {request.requestPortal && (
+                <Box
+                  sx={{
+                    mt: 1,
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <Alert severity={'info'}>
+                    {t('requested_from_portal')}{' '}
+                    {
+                      <Link
+                        href={`/app/settings/request-portals/${request.requestPortal.id}`}
+                      >
+                        {request.requestPortal.title}
+                      </Link>
+                    }
+                  </Alert>
+                </Box>
               )}
               {fieldsToRender(request).map((field) => (
                 <BasicField

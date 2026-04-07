@@ -5,7 +5,6 @@ import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
 import { Provider } from 'react-redux';
-import { Subscription } from 'expo-modules-core';
 import store, { persistor } from './store';
 import { CompanySettingsProvider } from './contexts/CompanySettingsContext';
 import { CustomSnackbarProvider } from './contexts/CustomSnackBarContext';
@@ -32,12 +31,16 @@ import { navigate } from './navigation/RootNavigation';
 import subscriptionPlan from './slices/subscriptionPlan';
 import { isNumeric } from './utils/validators';
 import { customTheme } from './custom-theme';
+import { RootLayout } from './components/RootLayout';
+import { Subscription } from 'expo-notifications';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
     shouldPlaySound: true,
-    shouldSetBadge: false
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true
   })
 });
 
@@ -46,8 +49,8 @@ export default function App() {
   const colorScheme = useColorScheme();
   const [notification, setNotification] =
     useState<Notifications.Notification>(null);
-  const notificationListener = useRef<Subscription>();
-  const responseListener = useRef<Subscription>();
+  const notificationListener = useRef<Subscription>(undefined);
+  const responseListener = useRef<Subscription>(undefined);
 
   useEffect(() => {
     LogBox.ignoreLogs([
@@ -131,12 +134,14 @@ export default function App() {
                 <PaperProvider theme={customTheme}>
                   <CustomSnackbarProvider>
                     <SheetProvider>
-                      <Navigation colorScheme={colorScheme} />
+                      <RootLayout>
+                        <FlashMessage
+                          position="top"
+                          statusBarHeight={Constants.statusBarHeight}
+                        />
+                        <Navigation colorScheme={colorScheme} />
+                      </RootLayout>
                       <StatusBar />
-                      <FlashMessage
-                        position="top"
-                        statusBarHeight={Constants.statusBarHeight}
-                      />
                     </SheetProvider>
                   </CustomSnackbarProvider>
                 </PaperProvider>

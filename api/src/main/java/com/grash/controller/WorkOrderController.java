@@ -2,11 +2,15 @@ package com.grash.controller;
 
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.*;
+import com.grash.dto.license.LicenseEntitlement;
+import com.grash.dto.workOrder.WorkOrderPatchDTO;
 import com.grash.dto.workOrder.WorkOrderPostDTO;
+import com.grash.dto.workOrder.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.factory.StorageServiceFactory;
 import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.mapper.WorkOrderMapper;
+import com.grash.factory.MailServiceFactory;
 import com.grash.model.*;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.*;
@@ -14,11 +18,12 @@ import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.service.*;
 import com.grash.utils.Helper;
 import com.grash.utils.MultipartFileImpl;
+import com.grash.utils.Utils;
 import com.itextpdf.html2pdf.HtmlConverter;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+
+
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -32,11 +37,14 @@ import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
-import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.transaction.Transactional;
-import javax.validation.Valid;
+import jakarta.persistence.EntityManager;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import jakarta.transaction.Transactional;
+
+import jakarta.validation.Valid;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
@@ -48,7 +56,7 @@ import static java.util.stream.Collectors.toCollection;
 
 @RestController
 @RequestMapping("/work-orders")
-@Api(tags = "workOrder")
+@Tag(name = "Work Orders", description = "Operations on work orders")
 @RequiredArgsConstructor
 @Transactional
 public class WorkOrderController {
@@ -64,8 +72,8 @@ public class WorkOrderController {
     private final FileService fileService;
     private final PartQuantityService partQuantityService;
     private final NotificationService notificationService;
-    private final EmailService2 emailService2;
-    private final TeamService teamService;
+    private final MailServiceFactory mailServiceFactory;
+    private final Utils utils;
     private final TaskService taskService;
     private final RelationService relationService;
     private final AdditionalCostService additionalCostService;
@@ -79,6 +87,9 @@ public class WorkOrderController {
     private final PreventiveMaintenanceMapper preventiveMaintenanceMapper;
     private final BrandingService brandingService;
     private final ScheduleService scheduleService;
+    private final LicenseService licenseService;
+    private final IntercomService intercomService;
+    private final CompanyService companyService;
 
 
     @Value("${frontend.url}")
@@ -86,7 +97,7 @@ public class WorkOrderController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<WorkOrderShowDTO>> search(@RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<WorkOrderShowDTO>> search(@Parameter(description = "Search criteria for filtering work orders") @RequestBody SearchCriteria searchCriteria,
                                                          HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         return ResponseEntity.ok(workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user,
@@ -95,7 +106,7 @@ public class WorkOrderController {
 
     @PostMapping("/search/mini")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<WorkOrderBaseMiniDTO>> searchMini(@RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<WorkOrderBaseMiniDTO>> searchMini(@Parameter(description = "Search criteria for filtering work orders") @RequestBody SearchCriteria searchCriteria,
                                                                  HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         return ResponseEntity.ok(workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user,
@@ -105,7 +116,7 @@ public class WorkOrderController {
 
     @PostMapping("/events")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<CalendarEvent<WorkOrderBaseMiniDTO>> getEvents(@Valid @RequestBody DateRange
+    public Collection<CalendarEvent<WorkOrderBaseMiniDTO>> getEvents(@Parameter(description = "Date range for calendar events") @Valid @RequestBody DateRange
                                                                              dateRange, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
@@ -134,7 +145,7 @@ public class WorkOrderController {
 
     @GetMapping("/asset/{id}")
     @PreAuthorize("permitAll()")
-    public Collection<WorkOrderShowDTO> getByAsset(@ApiParam("id") @PathVariable("id") Long id,
+    public Collection<WorkOrderShowDTO> getByAsset(@PathVariable("id") Long id,
                                                    HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
@@ -145,7 +156,7 @@ public class WorkOrderController {
 
     @GetMapping("/location/{id}")
     @PreAuthorize("permitAll()")
-    public Collection<WorkOrderShowDTO> getByLocation(@ApiParam("id") @PathVariable("id") Long id,
+    public Collection<WorkOrderShowDTO> getByLocation(@PathVariable("id") Long id,
                                                       HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
@@ -156,7 +167,7 @@ public class WorkOrderController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public WorkOrderShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public WorkOrderShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
@@ -172,11 +183,8 @@ public class WorkOrderController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public WorkOrderShowDTO create(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrderPostDTO
-                                           workOrderReq, HttpServletRequest req) {
+    WorkOrderShowDTO create(@Parameter(description = "Work order data to create") @Valid @RequestBody WorkOrderPostDTO
+                                    workOrderReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
                 && (workOrderReq.getSignature() == null ||
@@ -187,17 +195,29 @@ public class WorkOrderController {
             }
             WorkOrder createdWorkOrder = workOrderService.create(workOrderReq, user.getCompany());
 
+            // Fire Intercom event for first work order creation
+            if (!user.getCompany().isFirstWorkOrderCreated()) {
+                user.getCompany().setFirstWorkOrderCreated(true);
+                companyService.update(user.getCompany());
+                Map<String, Object> metadata = new HashMap<>();
+                metadata.put("work_order_id", createdWorkOrder.getId());
+                metadata.put("work_order_title", createdWorkOrder.getTitle());
+                intercomService.createCompanyActivationEvent(
+                        "first-work-order-created",
+                        user.getCompany().getId(),
+                        user.getEmail(),
+                        metadata
+                );
+            }
+
             return workOrderMapper.toShowDto(createdWorkOrder);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/part/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "WorkOrders for this part not found")})
-    public Collection<WorkOrderShowDTO> getByPart(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public Collection<WorkOrderShowDTO> getByPart(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
@@ -214,12 +234,9 @@ public class WorkOrderController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "WorkOrder not found")})
-    public WorkOrderShowDTO patch(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrderPatchDTO
-                                          workOrder, @ApiParam("id") @PathVariable("id") Long id,
+
+    public WorkOrderShowDTO patch(@Parameter(description = "Work order fields to update") @Valid @RequestBody WorkOrderPatchDTO
+                                          workOrder, @PathVariable("id") Long id,
                                   HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
@@ -248,47 +265,54 @@ public class WorkOrderController {
     @PatchMapping("/{id}/change-status")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public WorkOrderShowDTO changeStatus(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrderChangeStatusDTO
-                                                 workOrder, @ApiParam("id") @PathVariable("id") Long id,
+    public WorkOrderShowDTO changeStatus(@Parameter(description = "Work order status change data") @Valid @RequestBody WorkOrderChangeStatusDTO
+                                                 workOrder, @PathVariable("id") Long id,
                                          HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         WorkOrder savedWorkOrder = optionalWorkOrder.get();
-        if (savedWorkOrder.getFirstTimeToReact() == null && !workOrder.getStatus().equals(Status.ON_HOLD))
-            savedWorkOrder.setFirstTimeToReact(new Date());
-        Status savedWorkOrderStatusBefore = savedWorkOrder.getStatus();
+        em.detach(savedWorkOrder); // detach FIRST
+        WorkOrder originalWorkOrder = savedWorkOrder;
+        WorkOrder mutableWO = workOrderService.findById(id).get(); // fresh managed copy
+
+        if (mutableWO.getFirstTimeToReact() == null && !workOrder.getStatus().equals(Status.ON_HOLD))
+            mutableWO.setFirstTimeToReact(new Date());
+        Status savedWorkOrderStatusBefore = mutableWO.getStatus();
 
         if (workOrder.getStatus() == null) throw new CustomException("Status can't be null", HttpStatus.NOT_ACCEPTABLE);
-
-        savedWorkOrder.setSignature(workOrder.getSignature());
-        savedWorkOrder.setStatus(workOrder.getStatus());
-        savedWorkOrder.setFeedback(workOrder.getFeedback());
+        if (workOrder.getSignature() != null && !licenseService.hasEntitlement(LicenseEntitlement.SIGNATURE_CAPTURE))
+            throw new CustomException("You need a license to add signature to work order",
+                    HttpStatus.FORBIDDEN);
+        mutableWO.setSignature(workOrder.getSignature());
+        mutableWO.setStatus(workOrder.getStatus());
+        mutableWO.setFeedback(workOrder.getFeedback());
 
         if (workOrder.getStatus() != Status.COMPLETE) {
-            savedWorkOrder.setCompletedOn(null);
-            savedWorkOrder.setCompletedBy(null);
+            mutableWO.setCompletedOn(null);
+            mutableWO.setCompletedBy(null);
         }
-        if (savedWorkOrder.canBeEditedBy(user) && (workOrder.getSignature() == null ||
+        if (mutableWO.canBeEditedBy(user) && (workOrder.getSignature() == null ||
                 user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE))) {
             if (!workOrder.getStatus().equals(Status.IN_PROGRESS)) {
                 if (workOrder.getStatus().equals(Status.COMPLETE)) {
-                    savedWorkOrder.setCompletedBy(user);
-                    savedWorkOrder.setCompletedOn(new Date());
-                    if (savedWorkOrder.getAsset() != null) {
-                        Asset asset = savedWorkOrder.getAsset();
+                    mutableWO.setCompletedBy(user);
+                    mutableWO.setCompletedOn(new Date());
+                    if (mutableWO.getAsset() != null) {
+                        Asset asset = mutableWO.getAsset();
                         Collection<WorkOrder> workOrdersOfSameAsset = workOrderService.findByAsset(asset.getId());
                         if (workOrdersOfSameAsset.stream().noneMatch(workOrder1 -> !workOrder1.getId().equals(id) && !workOrder1.getStatus().equals(Status.COMPLETE))) {
                             assetService.stopDownTime(asset.getId(), Helper.getLocale(user));
                         }
                     }
-                    if (savedWorkOrder.getParentPreventiveMaintenance() != null)
-                        scheduleService.scheduleNextWorkOrderJobAfterCompletion(savedWorkOrder.getParentPreventiveMaintenance().getSchedule().getId(), savedWorkOrder.getCompletedOn());
+                    if (mutableWO.getParentPreventiveMaintenance() != null)
+                        scheduleService.scheduleNextWorkOrderJobAfterCompletion(mutableWO.getParentPreventiveMaintenance().getSchedule().getId(), mutableWO.getCompletedOn());
                 }
                 Collection<Labor> labors = laborService.findByWorkOrder(id);
                 Collection<Labor> primaryTimes = labors.stream().filter(Labor::isLogged).collect(Collectors.toList());
                 primaryTimes.forEach(laborService::stop);
             }
-            WorkOrder patchedWorkOrder = workOrderService.saveAndFlush(savedWorkOrder);
+            WorkOrder patchedWorkOrder = workOrderService.saveAndFlushWithWebhook(mutableWO, user.getCompany(),
+                    originalWorkOrder);
 
             if (patchedWorkOrder.getStatus().equals(Status.COMPLETE) && !savedWorkOrderStatusBefore.equals(Status.COMPLETE)) {
                 List<OwnUser> admins =
@@ -305,22 +329,34 @@ public class WorkOrderController {
                     && savedWorkOrderStatusBefore != patchedWorkOrder.getStatus()
                     && patchedWorkOrder.getParentRequest() != null) {
                 Long requesterId = patchedWorkOrder.getParentRequest().getCreatedBy();
-                OwnUser requester = userService.findById(requesterId).get();
+                String requesterEmail = null;
+                OwnUser requester = null;
+                if (requesterId == null) {
+                    String contact = patchedWorkOrder.getParentRequest().getContact();
+                    if (contact != null && Helper.isValidEmailAddress(contact)) {
+                        requesterEmail = contact;
+                    }
+                } else {
+                    requester = userService.findById(requesterId).get();
+                    requesterEmail = requester.getEmail();
+                }
                 Locale locale = Helper.getLocale(user);
                 String message = messageSource.getMessage("notification_wo_request",
                         new Object[]{patchedWorkOrder.getTitle(),
                                 messageSource.getMessage(patchedWorkOrder.getStatus().toString(), null, locale)},
                         locale);
-                notificationService.create(new Notification(message, userService.findById(requesterId).get(),
-                        NotificationType.WORK_ORDER, id));
-                if (requester.getUserSettings().shouldEmailUpdatesForRequests() && requester.isEnabled()) {
+                if (requester != null) {
+                    notificationService.create(new Notification(message, requester,
+                            NotificationType.WORK_ORDER, id));
+                }
+                if ((requester != null && requester.getUserSettings().shouldEmailUpdatesForRequests() && requester.isEnabled()) || requesterEmail != null) {
                     Map<String, Object> mailVariables = new HashMap<String, Object>() {{
                         put("workOrderLink", frontendUrl + "/app/work-orders/" + id);
                         put("message", message);
                     }};
-                    emailService2.sendMessageUsingThymeleafTemplate(new String[]{requester.getEmail()},
+                    mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{requesterEmail},
                             messageSource.getMessage("request_update", null, locale), mailVariables, "requester" +
-                                    "-update.html", Helper.getLocale(user));
+                                    "-update.html", Helper.getLocale(user), null);
                 }
             }
             return workOrderMapper.toShowDto(patchedWorkOrder);
@@ -329,11 +365,8 @@ public class WorkOrderController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "WorkOrder not found")})
-    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
@@ -343,7 +376,6 @@ public class WorkOrderController {
                     user.getId().equals(savedWorkOrder.getCreatedBy()) ||
                             user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.WORK_ORDERS)) {
                 Map<String, Object> mailVariables = new HashMap<String, Object>() {{
-                    put("featuresLink", frontendUrl + "/#key-features");
                     put("workOrdersLink", frontendUrl + "/app/work-orders");
                     put("workOrderTitle", savedWorkOrder.getTitle());
                     put("deleter", user.getFullName());
@@ -355,21 +387,21 @@ public class WorkOrderController {
                                         .getViewPermissions().contains(PermissionEntity.SETTINGS))
                                 .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
 
-                emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
+                mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
                                 .toArray(String[]::new), title, mailVariables, "deleted-work-order.html",
-                        Helper.getLocale(user));
+                        Helper.getLocale(user), null);
 
-                workOrderService.delete(id);
+                workOrderService.delete(savedWorkOrder, user.getCompany());
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND);
     }
 
-    @RequestMapping(path = "/report/{id}")
+    @GetMapping(path = "/report/{id}")
     @Transactional
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<?> getPDF(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req,
+    public ResponseEntity<?> getPDF(@PathVariable("id") Long id, HttpServletRequest req,
                                     HttpServletResponse response) throws IOException {
         OwnUser user = userService.whoami(req);
         StorageService storageService = storageServiceFactory.getStorageService();
@@ -398,8 +430,13 @@ public class WorkOrderController {
                 Map<String, Object> variables = new HashMap<String, Object>() {{
                     put("companyName", user.getCompany().getName());
                     put("companyPhone", user.getCompany().getPhone());
+                    put("companyLogo", user.getCompany().getLogo() == null ? null :
+                            storageService.generateSignedUrl(user.getCompany().getLogo(), 5));
                     put("currency",
                             user.getCompany().getCompanySettings().getGeneralPreferences().getCurrency().getCode());
+                    put("utils", utils);
+                    put("dateFormat", user.getCompany().getCompanySettings().getGeneralPreferences().getDateFormat());
+                    put("timeZone", user.getCompany().getCompanySettings().getGeneralPreferences().getTimeZone());
                     put("assignedTo",
                             Helper.enumerate(savedWorkOrder.getAssignedTo().stream().map(OwnUser::getFullName).collect(Collectors.toList())));
                     put("customers",
@@ -450,7 +487,7 @@ public class WorkOrderController {
 
     @PatchMapping("/files/{id}/add")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<File> addFilesToWorkOrder(@ApiParam("id") @PathVariable("id") Long id, @RequestBody List<File> files,
+    public List<File> addFilesToWorkOrder(@PathVariable("id") Long id, @Parameter(description = "List of files to add") @RequestBody List<File> files,
                                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
@@ -466,7 +503,7 @@ public class WorkOrderController {
 
     @DeleteMapping("/files/{id}/{fileId}/remove")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<File> removeFileFromWorkOrder(@ApiParam("id") @PathVariable("id") Long id,
+    public List<File> removeFileFromWorkOrder(@PathVariable("id") Long id,
                                               @PathVariable("fileId") Long fileId, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
@@ -481,3 +518,6 @@ public class WorkOrderController {
     }
 
 }
+
+
+

@@ -16,7 +16,9 @@ import {
   googleTrackingId,
   IS_LOCALHOST,
   isCloudVersion,
-  isWhiteLabeled
+  isWhiteLabeled,
+  PADDLE_SECRET_TOKEN,
+  paddleEnvironment
 } from './config';
 import { useEffect, useState } from 'react';
 import { CompanySettingsProvider } from './contexts/CompanySettingsContext';
@@ -25,6 +27,11 @@ import { useDispatch, useSelector } from './store';
 import { useBrand } from './hooks/useBrand';
 import { useTranslation } from 'react-i18next';
 import { UtmTrackerProvider } from '@nik0di3m/utm-tracker-hook';
+import { useLicenseEntitlement } from './hooks/useLicenseEntitlement';
+import { initializePaddle } from '@paddle/paddle-js';
+import { loadLanguage, supportedLanguages } from './i18n/i18n';
+import MobileAppDownloadDialog from './components/MobileAppDownloadDialog';
+import { useMobileAppPrompt } from './hooks/useMobileAppPrompt';
 
 if (!IS_LOCALHOST && googleTrackingId) ReactGA.initialize(googleTrackingId);
 
@@ -96,8 +103,16 @@ function App() {
   const dispatch = useDispatch();
   const { logo } = useBrand();
   const { isInitialized, company, isAuthenticated, user } = useAuth();
-  const { isLicenseValid } = useSelector((state) => state.license);
+  const { state: licensingState } = useSelector((state) => state.license);
+  const hasBrandingEntitlement = useLicenseEntitlement('BRANDING');
+  const { i18n } = useTranslation();
   let location = useLocation();
+  const { shouldShowPrompt, dismissPrompt } = useMobileAppPrompt();
+
+  useEffect(() => {
+    loadLanguage(i18n.language || 'en');
+  }, [i18n.language]);
+
   useEffect(() => {
     if (!IS_LOCALHOST && googleTrackingId)
       ReactGA.send({
@@ -132,11 +147,11 @@ function App() {
   }, [user, isInitialized, isAuthenticated, location]);
 
   useEffect(() => {
-    if (isWhiteLabeled) dispatch(getLicenseValidity());
+    dispatch(getLicenseValidity());
   }, []);
 
   useEffect(() => {
-    if (customLogoPaths && isLicenseValid) {
+    if (customLogoPaths && hasBrandingEntitlement) {
       let link: HTMLLinkElement = document.querySelector("link[rel~='icon']");
       if (!link) {
         link = document.createElement('link');
@@ -145,7 +160,7 @@ function App() {
       }
       link.href = logo.dark;
     }
-  }, [logo.dark, isLicenseValid]);
+  }, [logo.dark, hasBrandingEntitlement]);
 
   useEffect(() => {
     if (isCloudVersion) {
@@ -154,8 +169,19 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+    if (isCloudVersion) {
+      if (user && !user.paddleUserId) return;
+      initializePaddle({
+        environment: paddleEnvironment,
+        token: PADDLE_SECRET_TOKEN,
+        pwCustomer: user ? { id: user.paddleUserId } : undefined
+      });
+    }
+  }, [user]);
+
   return (
-    <UtmTrackerProvider customParams={['msclkid']}>
+    <UtmTrackerProvider customParams={['msclkid', 'ref']}>
       <ThemeProvider>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <SnackbarProvider
@@ -171,6 +197,10 @@ function App() {
                 {isInitialized ? content : <AppInit />}
                 {user && company?.demo && <DemoAlert />}
                 <DemoCleaningAlert />
+                <MobileAppDownloadDialog
+                  open={shouldShowPrompt}
+                  onClose={dismissPrompt}
+                />
               </CompanySettingsProvider>
             </CustomSnackBarProvider>
           </SnackbarProvider>

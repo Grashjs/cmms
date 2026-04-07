@@ -14,16 +14,17 @@ import com.grash.service.RequestService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderCategoryService;
 import com.grash.utils.Helper;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.Parameter;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/analytics/requests")
-@Api(tags = "RequestAnalytics")
+@Tag(name = "Request Analytics", description = "Analytics operations on requests")
 @RequiredArgsConstructor
 public class RequestAnalyticsController {
 
@@ -49,8 +50,8 @@ public class RequestAnalyticsController {
             value = "getRequestStats",
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
-    public ResponseEntity<RequestStats> getRequestStats(@ApiIgnore @CurrentUser OwnUser user,
-                                                        @RequestBody DateRange dateRange) {
+    public ResponseEntity<RequestStats> getRequestStats(@Parameter(hidden = true) @CurrentUser OwnUser user,
+                                                        @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<Request> requests = requestService.findByCreatedAtBetweenAndCompany(dateRange.getStart(),
                     dateRange.getEnd(), user.getCompany().getId());
@@ -79,8 +80,8 @@ public class RequestAnalyticsController {
             value = "getRequestByPriority",
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
-    public ResponseEntity<RequestStatsByPriority> getByPriority(@ApiIgnore @CurrentUser OwnUser user,
-                                                                @RequestBody DateRange dateRange) {
+    public ResponseEntity<RequestStatsByPriority> getByPriority(@Parameter(hidden = true) @CurrentUser OwnUser user,
+                                                                @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<Request> requests = requestService.findByCreatedAtBetweenAndCompany(dateRange.getStart(),
                     dateRange.getEnd(), user.getCompany().getId());
@@ -114,8 +115,8 @@ public class RequestAnalyticsController {
             value = "getCycleTimeByMonth",
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
-    public ResponseEntity<List<RequestsByMonth>> getCycleTimeByMonth(@ApiIgnore @CurrentUser OwnUser user,
-                                                                     @RequestBody DateRange dateRange) {
+    public ResponseEntity<List<RequestsByMonth>> getCycleTimeByMonth(@Parameter(hidden = true) @CurrentUser OwnUser user,
+                                                                     @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             List<RequestsByMonth> result = new ArrayList<>();
             LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
@@ -152,8 +153,8 @@ public class RequestAnalyticsController {
             value = "getRequestCountsByCategory",
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
-    public ResponseEntity<Collection<CountByCategory>> getCountsByCategory(@ApiIgnore @CurrentUser OwnUser user,
-                                                                           @RequestBody DateRange dateRange) {
+    public ResponseEntity<Collection<CountByCategory>> getCountsByCategory(@Parameter(hidden = true) @CurrentUser OwnUser user,
+                                                                           @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             Collection<WorkOrderCategory> categories =
                     workOrderCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
@@ -177,8 +178,8 @@ public class RequestAnalyticsController {
             value = "getReceivedAndResolvedRequests",
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
-    public ResponseEntity<List<RequestsResolvedByDate>> getReceivedAndResolvedForDateRange(@ApiIgnore @CurrentUser OwnUser user,
-                                                                                           @RequestBody DateRange dateRange) {
+    public ResponseEntity<List<RequestsResolvedByDate>> getReceivedAndResolvedForDateRange(@Parameter(hidden = true) @CurrentUser OwnUser user,
+                                                                                           @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
         LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
         if (user.canSeeAnalytics()) {
             List<RequestsResolvedByDate> result = new ArrayList<>();
@@ -216,3 +217,4 @@ public class RequestAnalyticsController {
         return (int) requests.stream().filter(request -> request.getPriority().equals(priority)).count();
     }
 }
+
