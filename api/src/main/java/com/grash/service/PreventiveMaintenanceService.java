@@ -240,7 +240,7 @@ public class PreventiveMaintenanceService {
                 teamService, userService, assetService, workOrderCategoryService);
 
         preventiveMaintenance.setName(pmImportDTO.getName());
-
+        preventiveMaintenance.setCompany(company);
         Schedule schedule = preventiveMaintenance.getSchedule();
         schedule.setStartsOn(Helper.getDateFromExcelDate(pmImportDTO.getStartsOn()));
         schedule.setFrequency((int) pmImportDTO.getFrequency());

@@ -39,13 +39,12 @@ import {
   ImportKeys,
   ImportResponse
 } from '../../../models/owns/imports';
-import { useDispatch } from '../../../store';
-import { importEntity } from '../../../slices/imports';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import FeatureErrorMessage from '../components/FeatureErrorMessage';
 import api from '../../../utils/api';
 import i18n from 'i18next';
 import downloadFile from 'downloadjs';
+import useImport, { EntityType } from 'src/hooks/useImport';
 
 interface OwnProps {}
 
@@ -56,17 +55,10 @@ export interface OwnHeader {
   formatter?: (value: any) => any;
 }
 
-export type EntityType =
-  | 'work-orders'
-  | 'locations'
-  | 'assets'
-  | 'parts'
-  | 'meters'
-  | 'preventive-maintenances';
-
 const Import = ({}: OwnProps) => {
   const { hasViewPermission, hasFeature } = useAuth();
   const { t }: { t: any } = useTranslation();
+  const { importEntity: importEntityHook, loadingImport } = useImport();
   const entityFromUrl = window.location.href.substring(
     window.location.href.lastIndexOf('/') + 1
   );
@@ -78,8 +70,6 @@ const Import = ({}: OwnProps) => {
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const [jsonData, setJsonData] = useState<{}[]>();
   const headerKeysConfig = getOwnHeadersConfig(t);
-  const dispatch = useDispatch();
-  const [loadingImport, setLoadingImport] = useState<boolean>(false);
   const [matches, setMatches] = useState<
     { ownHeader: OwnHeader; userHeader: string }[]
   >([]);
@@ -234,7 +224,6 @@ const Import = ({}: OwnProps) => {
     return result;
   };
   const onImport = () => {
-    setLoadingImport(true);
     const data = [...jsonData];
     const payload: ImportDTO[] = data.map((userElement) => {
       let result = {} as ImportDTO;
@@ -255,7 +244,8 @@ const Import = ({}: OwnProps) => {
       });
       return result;
     });
-    dispatch(importEntity(payload, entity))
+
+    importEntityHook(entity, payload)
       .then((response: ImportResponse) => {
         showSnackBar(
           t(getResponseMessage(entity), {
@@ -269,9 +259,6 @@ const Import = ({}: OwnProps) => {
       })
       .catch((error) => {
         showSnackBar(t('import_error'), 'error');
-      })
-      .finally(() => {
-        setLoadingImport(false);
       });
   };
   const match = (data: { userHeader: string; keyName: string }[]) => {

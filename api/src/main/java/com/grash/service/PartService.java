@@ -206,6 +206,7 @@ public class PartService {
         checkUsageBasedLimit(company);
         Long companyId = company.getId();
         Long companySettingsId = company.getCompanySettings().getId();
+        part.setCompany(company);
         part.setName(dto.getName());
         part.setCost(dto.getCost());
         Optional<PartCategory> optionalPartCategory =

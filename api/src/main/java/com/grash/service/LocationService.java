@@ -159,6 +159,7 @@ public class LocationService {
                                                Map<String, Location> locationsByName) {
         checkUsageBasedLimit(company);
         Long companyId = company.getId();
+        location.setCompany(company);
         location.setName(dto.getName());
         location.setAddress(dto.getAddress());
         location.setLongitude(dto.getLongitude());

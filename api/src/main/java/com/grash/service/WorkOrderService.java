@@ -432,7 +432,7 @@ public class WorkOrderService {
         checkUsageBasedLimit(company);
         Helper.populateWorkOrderBaseFromImportDTO(workOrder, dto, company, locationService, teamService, userService,
                 assetService, workOrderCategoryService);
-
+        workOrder.setCompany(company);
         workOrder.setDueDate(Helper.getDateFromExcelDate(dto.getDueDate()));
         workOrder.setCustomId(getWorkOrderNumber(company));
         workOrder.setRequiredSignature(Helper.getBooleanFromString(dto.getRequiredSignature()));

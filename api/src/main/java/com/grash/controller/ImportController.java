@@ -1,22 +1,24 @@
 package com.grash.controller;
 
+import com.grash.dto.SuccessResponse;
 import com.grash.dto.imports.*;
 import com.grash.exception.CustomException;
-import com.grash.factory.StorageServiceFactory;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.ImportEntity;
 import com.grash.model.enums.Language;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
+import com.grash.service.AsyncImportService;
 import com.grash.service.CompanyService;
-import com.grash.service.ImportService;
 import com.grash.service.IntercomService;
 import com.grash.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StreamUtils;
@@ -26,30 +28,34 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/import")
 @Tag(name = "Import", description = "Operations for importing data")
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class ImportController {
 
     private final UserService userService;
-    private final ImportService importService;
+    private final AsyncImportService asyncImportService;
     private final IntercomService intercomService;
     private final CompanyService companyService;
 
     @PostMapping("/work-orders")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ImportResponse importWorkOrders(@Parameter(description = "List of work orders to import") @Valid @RequestBody List<WorkOrderImportDTO> toImport,
-                                           HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> importWorkOrders(@Parameter(description = "List of work orders to import") @Valid @RequestBody List<WorkOrderImportDTO> toImport,
+                                                            HttpServletRequest req,
+                                                            @Parameter(description = "Unique identifier for tracking " +
+                                                                    "the import job") @RequestParam String uuid) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
-            return importService.importWorkOrders(toImport, user.getCompany());
+            asyncImportService.importWorkOrders(user, toImport, uuid);
+            return ResponseEntity.ok()
+                    .body(new SuccessResponse(true, uuid));
         } else {
             throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
@@ -57,27 +63,16 @@ public class ImportController {
 
     @PostMapping("/assets")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ImportResponse importAssets(@Parameter(description = "List of assets to import") @Valid @RequestBody List<AssetImportDTO> toImport, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> importAssets(@Parameter(description = "List of assets to import") @Valid @RequestBody List<AssetImportDTO> toImport,
+                                                        HttpServletRequest req,
+                                                        @Parameter(description = "Unique identifier for tracking the " +
+                                                                "import job") @RequestParam String uuid) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.ASSETS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
-            ImportResponse response = importService.importAssets(toImport, user.getCompany());
-
-            // Fire Intercom event for first asset import
-            if (!user.getCompany().isImportedAssets() && response.getCreated() > 0) {
-                user.getCompany().setImportedAssets(true);
-                companyService.update(user.getCompany());
-                Map<String, Object> metadata = new HashMap<>();
-                metadata.put("imported_count", response.getCreated());
-                intercomService.createCompanyActivationEvent(
-                        "first-assets-imported",
-                        user.getCompany().getId(),
-                        user.getEmail(),
-                        metadata
-                );
-            }
-
-            return response;
+            asyncImportService.importAssets(user, toImport, uuid);
+            return ResponseEntity.ok()
+                    .body(new SuccessResponse(true, uuid));
         } else {
             throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
@@ -85,12 +80,16 @@ public class ImportController {
 
     @PostMapping("/locations")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ImportResponse importLocations(@Parameter(description = "List of locations to import") @Valid @RequestBody List<LocationImportDTO> toImport,
-                                          HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> importLocations(@Parameter(description = "List of locations to import") @Valid @RequestBody List<LocationImportDTO> toImport,
+                                                           HttpServletRequest req,
+                                                           @Parameter(description = "Unique identifier for tracking " +
+                                                                   "the import job") @RequestParam String uuid) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.LOCATIONS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
-            return importService.importLocations(toImport, user.getCompany());
+            asyncImportService.importLocations(user, toImport, uuid);
+            return ResponseEntity.ok()
+                    .body(new SuccessResponse(true, uuid));
         } else {
             throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
@@ -98,10 +97,16 @@ public class ImportController {
 
     @PostMapping("/meters")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ImportResponse importMeters(@Parameter(description = "List of meters to import") @Valid @RequestBody List<MeterImportDTO> toImport, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> importMeters(@Parameter(description = "List of meters to import") @Valid @RequestBody List<MeterImportDTO> toImport,
+                                                        HttpServletRequest req,
+                                                        @Parameter(description = "Unique identifier for tracking the " +
+                                                                "import job") @RequestParam String uuid) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.METERS) && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
-            return importService.importMeters(toImport, user.getCompany());
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.METERS)
+                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
+            asyncImportService.importMeters(user, toImport, uuid);
+            return ResponseEntity.ok()
+                    .body(new SuccessResponse(true, uuid));
         } else {
             throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
@@ -109,11 +114,16 @@ public class ImportController {
 
     @PostMapping("/parts")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ImportResponse importParts(@Parameter(description = "List of parts to import") @Valid @RequestBody List<PartImportDTO> toImport, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> importParts(@Parameter(description = "List of parts to import") @Valid @RequestBody List<PartImportDTO> toImport,
+                                                       HttpServletRequest req,
+                                                       @Parameter(description = "Unique identifier for tracking the " +
+                                                               "import job") @RequestParam String uuid) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
-            return importService.importParts(toImport, user.getCompany());
+            asyncImportService.importParts(user, toImport, uuid);
+            return ResponseEntity.ok()
+                    .body(new SuccessResponse(true, uuid));
         } else {
             throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
@@ -121,12 +131,17 @@ public class ImportController {
 
     @PostMapping("/preventive-maintenances")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ImportResponse importPreventiveMaintenances(@Parameter(description = "List of preventive maintenances to import") @Valid @RequestBody List<PreventiveMaintenanceImportDTO> toImport,
-                                                       HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> importPreventiveMaintenances(@Parameter(description = "List of preventive " +
+                                                                                    "maintenances to import") @Valid @RequestBody List<PreventiveMaintenanceImportDTO> toImport,
+                                                                        HttpServletRequest req,
+                                                                        @Parameter(description = "Unique identifier " +
+                                                                                "for tracking the import job") @RequestParam String uuid) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
-            return importService.importPreventiveMaintenances(toImport, user.getCompany());
+            asyncImportService.importPreventiveMaintenances(user, toImport, uuid);
+            return ResponseEntity.ok()
+                    .body(new SuccessResponse(true, uuid));
         } else {
             throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }

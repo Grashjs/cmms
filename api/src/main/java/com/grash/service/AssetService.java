@@ -293,6 +293,7 @@ public class AssetService {
             throw new CustomException("You need a license to import assets with hierarchy", HttpStatus.FORBIDDEN);
         Long companySettingsId = company.getCompanySettings().getId();
         Long companyId = company.getId();
+        asset.setCompany(company);
         asset.setArea(dto.getArea());
         if (dto.getBarCode() != null && !dto.getBarCode().trim().isEmpty()) {
             Optional<Asset> optionalAssetWithSameBarCode = findByBarcodeAndCompany(dto.getBarCode(), company.getId());

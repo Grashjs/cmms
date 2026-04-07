@@ -140,6 +140,7 @@ public class MeterService {
         checkUsageBasedLimit(company);
         Long companyId = company.getId();
         Long companySettingsId = company.getCompanySettings().getId();
+        meter.setCompany(company);
         meter.setName(dto.getName());
         meter.setUnit(dto.getUnit());
         meter.setUpdateFrequency(dto.getUpdateFrequency());
