@@ -68,6 +68,6 @@ public class CustomerService {
     }
 
     public Optional<Customer> findByNameIgnoreCaseAndCompany(String name, Long companyId) {
-        return customerRepository.findByNameIgnoreCaseAndCompany_Id(name, companyId);
+        return customerRepository.findByNameIgnoreCaseAndCompany_Id(name, companyId).stream().findFirst();
     }
 }
