@@ -34,22 +34,23 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Tag(name = "Webhook Subscriptions", description = """
         Manage webhook subscriptions to receive real-time notifications when events occur in Atlas CMMS.
-
+        
         ## What are Webhooks?
         Webhooks are HTTP callbacks that allow Atlas CMMS to automatically notify your application when specific events occur,
         such as work order status changes, new assets, part updates, and more.
-
+        
         ## How it Works
         1. Create a webhook subscription with your endpoint URL and the events you want to receive
         2. When an event occurs, Atlas CMMS sends an HTTP POST request to your endpoint
         3. Each request includes a signature you can use to verify the request came from Atlas CMMS
         4. Your application should return a 2xx status code to acknowledge receipt
-
+        
         ## Security
         All webhook requests include an `X-Webhook-Signature` header containing an HMAC-SHA256 signature.
         Verify this signature using the webhook secret provided when you create the subscription.
-
-        See the `/webhook-docs/*` endpoints for comprehensive documentation and examples.
+        
+        ## Full events list
+        See the [endpoints](#webhook/undefined/) for comprehensive documentation and examples.
         """)
 public class WebhookEndpointController {
 
@@ -61,10 +62,10 @@ public class WebhookEndpointController {
             summary = "Create a webhook subscription",
             description = """
                     Create a new webhook subscription to receive notifications for specific events.
-
+                    
                     When creating a webhook, you'll receive a secret that should be securely stored on your end.
                     This secret is essential for signature verification and can also be accessed later.
-
+                    
                     **Supported Events:**
                     - `WORK_ORDER_STATUS_CHANGE` - Work order status changes
                     - `WORK_REQUEST_STATUS_CHANGE` - Request approval/cancellation
@@ -76,7 +77,7 @@ public class WebhookEndpointController {
                     - `NEW_WORK_ORDER`, `WORK_ORDER_CHANGE`, `WORK_ORDER_DELETE`
                     - `NEW_ASSET`, `NEW_PART`, `PART_DELETE`
                     - `NEW_REQUEST`, `NEW_LOCATION`, `NEW_VENDOR`
-
+                    
                     **Filtering:**
                     You can filter events by specific fields (e.g., only trigger when WOField.STATUS changes).
                     """
@@ -85,7 +86,8 @@ public class WebhookEndpointController {
             @ApiResponse(responseCode = "200", description = "Webhook created successfully",
                     content = @Content(schema = @Schema(implementation = WebhookEndpointShowDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid request"),
-            @ApiResponse(responseCode = "403", description = "Access denied or webhook feature not available in your plan")
+            @ApiResponse(responseCode = "403", description = "Access denied or webhook feature not available in your " +
+                    "plan")
     })
     public ResponseEntity<WebhookEndpointShowDTO> create(
             @Parameter(hidden = true) @CurrentUser OwnUser user,
@@ -128,7 +130,8 @@ public class WebhookEndpointController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "List of webhook subscriptions",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = WebhookEndpointShowDTO.class))))
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation =
+                            WebhookEndpointShowDTO.class))))
     })
     public ResponseEntity<List<WebhookEndpointShowDTO>> listEndpoints(
             @Parameter(hidden = true) @CurrentUser OwnUser user) {
@@ -185,7 +188,7 @@ public class WebhookEndpointController {
             summary = "Delete a webhook subscription",
             description = """
                     Delete a webhook subscription. The webhook will no longer receive notifications.
-
+                    
                     ⚠️ **Warning:** This action cannot be undone. You'll need to create a new webhook subscription to receive notifications again.
                     """
     )
@@ -210,10 +213,10 @@ public class WebhookEndpointController {
             summary = "Rotate webhook secret",
             description = """
                     Generate a new signing secret for the webhook subscription.
-
+                    
                     After rotating the secret, you must update your application to use the new secret
                     for signature verification. The old secret will no longer be valid.
-
+                    
                     **Security Best Practices:**
                     - Store secrets securely (environment variables, secret managers)
                     - Rotate secrets periodically
