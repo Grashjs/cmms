@@ -314,7 +314,7 @@ function Webhooks() {
           <Formik
             initialValues={{
               url: '',
-              event: '' as WebhookEvent | '',
+              event: '' as unknown as WebhookEvent,
               assetStatuses: [] as string[],
               workOrderStatuses: [] as string[],
               approved: null,
