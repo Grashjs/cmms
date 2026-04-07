@@ -1,5 +1,6 @@
-import { EntityType, OwnHeader } from 'src/content/own/Imports';
+import { OwnHeader } from 'src/content/own/Imports';
 import { WorkOrderImportDTO } from '../models/owns/imports';
+import { EntityType } from '../hooks/useImport';
 
 export const getOwnHeadersConfig = (
   t: any
