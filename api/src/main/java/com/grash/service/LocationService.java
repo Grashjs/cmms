@@ -10,11 +10,9 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.LocationMapper;
 import com.grash.model.*;
 import com.grash.model.enums.NotificationType;
-import com.grash.model.enums.RoleType;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.LocationRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -157,8 +155,8 @@ public class LocationService {
         return locationRepository.findByNameIgnoreCaseAndCompany_Id(locationName, companyId);
     }
 
-    public void importLocation(Location location, LocationImportDTO dto, Company company,
-                               Map<String, Location> locationsByName) {
+    public void setLocationFieldsFromImportDto(Location location, LocationImportDTO dto, Company company,
+                                               Map<String, Location> locationsByName) {
         checkUsageBasedLimit(company);
         Long companyId = company.getId();
         location.setName(dto.getName());
@@ -199,7 +197,7 @@ public class LocationService {
             optionalVendor.ifPresent(vendors::add);
         });
         location.setVendors(vendors);
-        locationRepository.save(location);
+//        locationRepository.save(location);
     }
 
     public Optional<Location> findByIdAndCompany(Long id, Long companyId) {

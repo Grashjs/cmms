@@ -286,7 +286,8 @@ public class AssetService {
         return assetRepository.findByNameIgnoreCaseAndCompany_Id(assetName, companyId);
     }
 
-    public void importAsset(Asset asset, AssetImportDTO dto, Company company, Map<String, Asset> assetsByName) {
+    public void setAssetFieldsFromImportDto(Asset asset, AssetImportDTO dto, Company company,
+                                            Map<String, Asset> assetsByName) {
         checkUsageBasedLimit(company);
         if (!licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY) && dto.getParentAssetName() != null && !dto.getParentAssetName().isEmpty())
             throw new CustomException("You need a license to import assets with hierarchy", HttpStatus.FORBIDDEN);
@@ -372,7 +373,7 @@ public class AssetService {
         });
         asset.setParts(parts);
 
-        assetRepository.save(asset);
+//        assetRepository.save(asset);
     }
 
     public Optional<Asset> findByIdAndCompany(Long id, Long companyId) {

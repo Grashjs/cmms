@@ -6,10 +6,8 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -101,7 +99,7 @@ public class ImportService {
                 created++;
             }
 
-            assetService.importAsset(asset, dto, company, assetsByName);
+            assetService.setAssetFieldsFromImportDto(asset, dto, company, assetsByName);
             assetsToSave.add(asset);
             assetsByName.put(asset.getName(), asset);
         }
@@ -149,7 +147,7 @@ public class ImportService {
                 created++;
             }
 
-            locationService.importLocation(location, dto, company, locationsByName);
+            locationService.setLocationFieldsFromImportDto(location, dto, company, locationsByName);
             locationsToSave.add(location);
             locationsByName.put(location.getName(), location);
         }
