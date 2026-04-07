@@ -134,7 +134,7 @@ import java.util.LinkedHashMap;
                 " CMMS account."
 )
 public class OpenApiConfig {
-    
+
     @Bean
     public GlobalOpenApiCustomizer webhookCustomiser() {
         return openApi -> {
@@ -262,6 +262,12 @@ public class OpenApiConfig {
                     "workOrderTitle", "HVAC Maintenance",
                     "previousStatus", "OPEN",
                     "newStatus", "IN_PROGRESS",
+                    "changedWorkOrder", Map.of(
+                            "id", 12345,
+                            "title", "HVAC Maintenance",
+                            "status", "IN_PROGRESS",
+                            "description", "Regular maintenance for HVAC system"
+                    ),
                     "occurredAt", "2024-01-15T10:30:00Z",
                     "companyId", 1001
             );
@@ -271,6 +277,11 @@ public class OpenApiConfig {
                     "previousStatus", "PENDING",
                     "newStatus", "APPROVED",
                     "workOrderId", 12345,
+                    "changedRequest", Map.of(
+                            "id", 67890,
+                            "title", "Light bulb replacement request",
+                            "status", "APPROVED"
+                    ),
                     "occurredAt", "2024-01-15T10:30:00Z",
                     "companyId", 1001
             );
@@ -281,11 +292,29 @@ public class OpenApiConfig {
                     "newQuantity", 45.0,
                     "changedAmount", -5.0,
                     "workOrderId", 12345,
+                    "changedPart", Map.of(
+                            "id", 111,
+                            "name", "Air Filter",
+                            "quantity", 45.0
+                    ),
                     "occurredAt", "2024-01-15T10:30:00Z",
                     "companyId", 1001
             );
-            case "partChangePayload", "partDeletePayload" -> Map.of(
+            case "partChangePayload" -> Map.of(
                     "partId", 111,
+                    "changedPart", Map.of(
+                            "id", 111,
+                            "name", "Air Filter"
+                    ),
+                    "occurredAt", "2024-01-15T10:30:00Z",
+                    "companyId", 1001
+            );
+            case "partDeletePayload" -> Map.of(
+                    "partId", 111,
+                    "deletePart", Map.of(
+                            "id", 111,
+                            "name", "Air Filter"
+                    ),
                     "occurredAt", "2024-01-15T10:30:00Z",
                     "companyId", 1001
             );
@@ -294,20 +323,30 @@ public class OpenApiConfig {
                     "assetName", "Conveyor Belt A",
                     "previousStatus", "OPERATIONAL",
                     "newStatus", "DOWN",
+                    "changedAsset", Map.of(
+                            "id", 222,
+                            "name", "Conveyor Belt A",
+                            "status", "DOWN"
+                    ),
                     "occurredAt", "2024-01-15T10:30:00Z",
                     "companyId", 1001
             );
-            case "meterTriggerStatusChangePayload" -> Map.of(
-                    "meterId", 333,
-                    "meterName", "Temperature Gauge",
-                    "meterTriggerId", 444,
-                    "meterTriggerName", "High Temperature Alert",
-                    "readingValue", 85.5,
-                    "triggerValue", 80.0,
-                    "triggerCondition", "MORE_THAN",
-                    "workOrderId", 12345,
-                    "occurredAt", "2024-01-15T10:30:00Z",
-                    "companyId", 1001
+            case "meterTriggerStatusChangePayload" -> Map.ofEntries(
+                    Map.entry("meterId", 333),
+                    Map.entry("meterName", "Temperature Gauge"),
+                    Map.entry("meterTriggerId", 444),
+                    Map.entry("meterTriggerName", "High Temperature Alert"),
+                    Map.entry("readingValue", 85.5),
+                    Map.entry("triggerValue", 80.0),
+                    Map.entry("triggerCondition", "MORE_THAN"),
+                    Map.entry("workOrderId", 12345),
+                    Map.entry("triggeredWorkOrder", Map.of(
+                            "id", 12345,
+                            "title", "HVAC Maintenance",
+                            "status", "OPEN"
+                    )),
+                    Map.entry("occurredAt", "2024-01-15T10:30:00Z"),
+                    Map.entry("companyId", 1001)
             );
             case "newCategoryOnWorkOrderPayload" -> Map.of(
                     "workOrderId", 12345,
@@ -315,42 +354,98 @@ public class OpenApiConfig {
                     "previousCategoryId", 153,
                     "newCategoryId", 555,
                     "newCategoryName", "Preventive Maintenance",
+                    "changedWorkOrder", Map.of(
+                            "id", 12345,
+                            "title", "HVAC Maintenance",
+                            "category", Map.of("id", 555, "name", "Preventive Maintenance")
+                    ),
                     "occurredAt", "2024-01-15T10:30:00Z",
                     "companyId", 1001
             );
-            case "newWorkOrderPayload", "workOrderChangePayload", "workOrderDeletePayload" -> Map.of(
+            case "newWorkOrderPayload" -> Map.of(
                     "workOrderId", 12345,
                     "workOrderTitle", "HVAC Maintenance",
+                    "newWorkOrder", Map.of(
+                            "id", 12345,
+                            "title", "HVAC Maintenance",
+                            "status", "OPEN"
+                    ),
+                    "occurredAt", "2024-01-15T10:30:00Z",
+                    "companyId", 1001
+            );
+            case "workOrderChangePayload" -> Map.of(
+                    "workOrderId", 12345,
+                    "workOrderTitle", "HVAC Maintenance",
+                    "changedWorkOrder", Map.of(
+                            "id", 12345,
+                            "title", "HVAC Maintenance",
+                            "status", "IN_PROGRESS"
+                    ),
+                    "occurredAt", "2024-01-15T10:30:00Z",
+                    "companyId", 1001
+            );
+            case "workOrderDeletePayload" -> Map.of(
+                    "workOrderId", 12345,
+                    "workOrderTitle", "HVAC Maintenance",
+                    "deleteWorkOrder", Map.of(
+                            "id", 12345,
+                            "title", "HVAC Maintenance"
+                    ),
                     "occurredAt", "2024-01-15T10:30:00Z",
                     "companyId", 1001
             );
             case "newAssetPayload" -> Map.of(
                     "assetId", 222,
                     "assetName", "Conveyor Belt A",
+                    "newAsset", Map.of(
+                            "id", 222,
+                            "name", "Conveyor Belt A",
+                            "status", "OPERATIONAL"
+                    ),
                     "occurredAt", "2024-01-15T10:30:00Z",
                     "companyId", 1001
             );
             case "newPartPayload" -> Map.of(
                     "partId", 111,
                     "partName", "Air Filter",
+                    "newPart", Map.of(
+                            "id", 111,
+                            "name", "Air Filter",
+                            "quantity", 50.0
+                    ),
                     "occurredAt", "2024-01-15T10:30:00Z",
                     "companyId", 1001
             );
             case "newRequestPayload" -> Map.of(
                     "requestId", 67890,
                     "requestTitle", "Light bulb replacement",
+                    "newRequest", Map.of(
+                            "id", 67890,
+                            "title", "Light bulb replacement",
+                            "status", "PENDING"
+                    ),
                     "occurredAt", "2024-01-15T10:30:00Z",
                     "companyId", 1001
             );
             case "newLocationPayload" -> Map.of(
                     "locationId", 777,
                     "locationName", "Building A - Floor 1",
+                    "newLocation", Map.of(
+                            "id", 777,
+                            "name", "Building A - Floor 1"
+                    ),
                     "occurredAt", "2024-01-15T10:30:00Z",
                     "companyId", 1001
             );
             case "newVendorPayload" -> Map.of(
                     "vendorId", 888,
                     "vendorName", "HVAC Supplies Co.",
+                    "newVendor", Map.of(
+                            "id", 888,
+                            "name", "HVAC Supplies Co.",
+                            "email", "contact@hvacsupplies.com",
+                            "phone", "+1-555-0123"
+                    ),
                     "occurredAt", "2024-01-15T10:30:00Z",
                     "companyId", 1001
             );
@@ -381,6 +476,9 @@ public class OpenApiConfig {
                 .addProperty("newStatus", new StringSchema()
                         .description("New status of the work order")
                         .example("IN_PROGRESS"))
+                .addProperty("changedWorkOrder", new Schema<>()
+                        .$ref("#/components/schemas/WorkOrderShowDTO")
+                        .description("Serialized work order object (sent when endpoint serialization is enabled)"))
                 .addProperty("occurredAt", new StringSchema().format("date-time")
                         .description("Date & time at which the work order status was changed"))
                 .addProperty("companyId", new io.swagger.v3.oas.models.media.IntegerSchema()
@@ -402,6 +500,9 @@ public class OpenApiConfig {
                         .example("APPROVED"))
                 .addProperty("workOrderId", new io.swagger.v3.oas.models.media.IntegerSchema()
                         .description("Global ID of the created work order (if approved)"))
+                .addProperty("changedRequest", new Schema<>()
+                        .$ref("#/components/schemas/RequestShowDTO")
+                        .description("Serialized request object (sent when endpoint serialization is enabled)"))
                 .addProperty("occurredAt", new StringSchema().format("date-time")
                         .description("Date & time at which the request status was changed"))
                 .addProperty("companyId", new io.swagger.v3.oas.models.media.IntegerSchema()
@@ -423,6 +524,9 @@ public class OpenApiConfig {
                         .description("Amount changed (positive for additions, negative for deductions)"))
                 .addProperty("workOrderId", new io.swagger.v3.oas.models.media.IntegerSchema()
                         .description("Global ID of the work order (if applicable)"))
+                .addProperty("changedPart", new Schema<>()
+                        .$ref("#/components/schemas/PartShowDTO")
+                        .description("Serialized part object (sent when endpoint serialization is enabled)"))
                 .addProperty("occurredAt", new StringSchema().format("date-time")
                         .description("Date & time at which the part quantity was changed"))
                 .addProperty("companyId", new io.swagger.v3.oas.models.media.IntegerSchema()
@@ -434,6 +538,9 @@ public class OpenApiConfig {
         schemas.put("partChangePayload", new ObjectSchema()
                 .addProperty("partId", new io.swagger.v3.oas.models.media.IntegerSchema()
                         .description("Global ID of the part"))
+                .addProperty("changedPart", new Schema<>()
+                        .$ref("#/components/schemas/PartShowDTO")
+                        .description("Serialized part object (sent when endpoint serialization is enabled)"))
                 .addProperty("occurredAt", new StringSchema().format("date-time")
                         .description("Date & time at which the part was changed"))
                 .addProperty("companyId", new io.swagger.v3.oas.models.media.IntegerSchema()
@@ -444,6 +551,9 @@ public class OpenApiConfig {
         schemas.put("partDeletePayload", new ObjectSchema()
                 .addProperty("partId", new io.swagger.v3.oas.models.media.IntegerSchema()
                         .description("Global ID of the deleted part"))
+                .addProperty("deletePart", new Schema<>()
+                        .$ref("#/components/schemas/PartShowDTO")
+                        .description("Serialized part object (sent when endpoint serialization is enabled)"))
                 .addProperty("occurredAt", new StringSchema().format("date-time")
                         .description("Date & time at which the part was deleted"))
                 .addProperty("companyId", new io.swagger.v3.oas.models.media.IntegerSchema()
@@ -462,6 +572,9 @@ public class OpenApiConfig {
                 .addProperty("newStatus", new StringSchema()
                         .description("New status of the asset")
                         .example("DOWN"))
+                .addProperty("changedAsset", new Schema<>()
+                        .$ref("#/components/schemas/AssetShowDTO")
+                        .description("Serialized asset object (sent when endpoint serialization is enabled)"))
                 .addProperty("occurredAt", new StringSchema().format("date-time")
                         .description("Date & time at which the asset status was changed"))
                 .addProperty("companyId", new io.swagger.v3.oas.models.media.IntegerSchema()
@@ -486,6 +599,9 @@ public class OpenApiConfig {
                         .description("The condition that was met (e.g., MORE_THAN, LESS_THAN)"))
                 .addProperty("workOrderId", new io.swagger.v3.oas.models.media.IntegerSchema()
                         .description("Global ID of the created work order"))
+                .addProperty("triggeredWorkOrder", new Schema<>()
+                        .$ref("#/components/schemas/WorkOrderShowDTO")
+                        .description("Serialized work order object (sent when endpoint serialization is enabled)"))
                 .addProperty("occurredAt", new StringSchema().format("date-time")
                         .description("Date & time at which the meter trigger fired"))
                 .addProperty("companyId", new io.swagger.v3.oas.models.media.IntegerSchema()
@@ -505,6 +621,9 @@ public class OpenApiConfig {
                         .description("New category ID"))
                 .addProperty("newCategoryName", new StringSchema()
                         .description("Name of the new category"))
+                .addProperty("changedWorkOrder", new Schema<>()
+                        .$ref("#/components/schemas/WorkOrderShowDTO")
+                        .description("Serialized work order object (sent when endpoint serialization is enabled)"))
                 .addProperty("occurredAt", new StringSchema().format("date-time")
                         .description("Date & time at which the category was changed"))
                 .addProperty("companyId", new io.swagger.v3.oas.models.media.IntegerSchema()
@@ -518,6 +637,9 @@ public class OpenApiConfig {
                         .description("Global ID of the work order"))
                 .addProperty("workOrderTitle", new StringSchema()
                         .description("Title of the work order"))
+                .addProperty("newWorkOrder", new Schema<>()
+                        .$ref("#/components/schemas/WorkOrderShowDTO")
+                        .description("Serialized work order object (sent when endpoint serialization is enabled)"))
                 .addProperty("occurredAt", new StringSchema().format("date-time")
                         .description("Date & time at which the work order was created"))
                 .addProperty("companyId", new io.swagger.v3.oas.models.media.IntegerSchema()
@@ -530,6 +652,9 @@ public class OpenApiConfig {
                         .description("Global ID of the work order"))
                 .addProperty("workOrderTitle", new StringSchema()
                         .description("Title of the work order"))
+                .addProperty("changedWorkOrder", new Schema<>()
+                        .$ref("#/components/schemas/WorkOrderShowDTO")
+                        .description("Serialized work order object (sent when endpoint serialization is enabled)"))
                 .addProperty("occurredAt", new StringSchema().format("date-time")
                         .description("Date & time at which the work order was changed"))
                 .addProperty("companyId", new io.swagger.v3.oas.models.media.IntegerSchema()
@@ -542,6 +667,9 @@ public class OpenApiConfig {
                         .description("Global ID of the deleted work order"))
                 .addProperty("workOrderTitle", new StringSchema()
                         .description("Title of the deleted work order"))
+                .addProperty("deleteWorkOrder", new Schema<>()
+                        .$ref("#/components/schemas/WorkOrderShowDTO")
+                        .description("Serialized work order object (sent when endpoint serialization is enabled)"))
                 .addProperty("occurredAt", new StringSchema().format("date-time")
                         .description("Date & time at which the work order was deleted"))
                 .addProperty("companyId", new io.swagger.v3.oas.models.media.IntegerSchema()
@@ -554,6 +682,9 @@ public class OpenApiConfig {
                         .description("Global ID of the asset"))
                 .addProperty("assetName", new StringSchema()
                         .description("Name of the asset"))
+                .addProperty("newAsset", new Schema<>()
+                        .$ref("#/components/schemas/AssetShowDTO")
+                        .description("Serialized asset object (sent when endpoint serialization is enabled)"))
                 .addProperty("occurredAt", new StringSchema().format("date-time")
                         .description("Date & time at which the asset was created"))
                 .addProperty("companyId", new io.swagger.v3.oas.models.media.IntegerSchema()
@@ -566,6 +697,9 @@ public class OpenApiConfig {
                         .description("Global ID of the part"))
                 .addProperty("partName", new StringSchema()
                         .description("Name of the part"))
+                .addProperty("newPart", new Schema<>()
+                        .$ref("#/components/schemas/PartShowDTO")
+                        .description("Serialized part object (sent when endpoint serialization is enabled)"))
                 .addProperty("occurredAt", new StringSchema().format("date-time")
                         .description("Date & time at which the part was created"))
                 .addProperty("companyId", new io.swagger.v3.oas.models.media.IntegerSchema()
@@ -578,6 +712,9 @@ public class OpenApiConfig {
                         .description("Global ID of the request"))
                 .addProperty("requestTitle", new StringSchema()
                         .description("Title of the request"))
+                .addProperty("newRequest", new Schema<>()
+                        .$ref("#/components/schemas/RequestShowDTO")
+                        .description("Serialized request object (sent when endpoint serialization is enabled)"))
                 .addProperty("occurredAt", new StringSchema().format("date-time")
                         .description("Date & time at which the request was created"))
                 .addProperty("companyId", new io.swagger.v3.oas.models.media.IntegerSchema()
@@ -590,6 +727,9 @@ public class OpenApiConfig {
                         .description("Global ID of the location"))
                 .addProperty("locationName", new StringSchema()
                         .description("Name of the location"))
+                .addProperty("newLocation", new Schema<>()
+                        .$ref("#/components/schemas/LocationShowDTO")
+                        .description("Serialized location object (sent when endpoint serialization is enabled)"))
                 .addProperty("occurredAt", new StringSchema().format("date-time")
                         .description("Date & time at which the location was created"))
                 .addProperty("companyId", new io.swagger.v3.oas.models.media.IntegerSchema()
@@ -602,6 +742,9 @@ public class OpenApiConfig {
                         .description("Global ID of the vendor"))
                 .addProperty("vendorName", new StringSchema()
                         .description("Name of the vendor"))
+                .addProperty("newVendor", new Schema<>()
+                        .$ref("#/components/schemas/Vendor")
+                        .description("Serialized vendor object (sent when endpoint serialization is enabled)"))
                 .addProperty("occurredAt", new StringSchema().format("date-time")
                         .description("Date & time at which the vendor was created"))
                 .addProperty("companyId", new io.swagger.v3.oas.models.media.IntegerSchema()
