@@ -1,11 +1,13 @@
 package com.grash.dto.webhookEndpoint;
 
+import com.grash.dto.IdDTO;
 import com.grash.model.WorkOrderCategory;
 import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.Status;
 import com.grash.model.enums.webhook.PartField;
 import com.grash.model.enums.webhook.WOField;
 import com.grash.model.enums.webhook.WebhookEvent;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -32,6 +34,10 @@ public class WebhookEndpointPostDTO {
     private Collection<Status> workOrderStatuses;
 
     @Schema(description = "Filter by work order categories")
+    @ArraySchema(
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of work order categories", writeOnly = true)
+    )
     private Collection<WorkOrderCategory> workOrderCategories;
 
     @Schema(description = "Work order fields to include")

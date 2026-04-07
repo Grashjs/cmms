@@ -91,34 +91,7 @@ public class WebhookEndpointController {
     })
     public ResponseEntity<WebhookEndpointShowDTO> create(
             @Parameter(hidden = true) @CurrentUser OwnUser user,
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Webhook subscription configuration",
-                    required = true,
-                    content = @Content(examples = {
-                            @ExampleObject(
-                                    name = "Work Order Status Change",
-                                    value = """
-                                            {
-                                              "url": "https://your-app.com/webhooks/atlas-cmms",
-                                              "event": "WORK_ORDER_STATUS_CHANGE",
-                                              "enabled": true,
-                                              "serialize": true
-                                            }
-                                            """
-                            ),
-                            @ExampleObject(
-                                    name = "Part Quantity Change with Field Filter",
-                                    value = """
-                                            {
-                                              "url": "https://your-app.com/webhooks/parts",
-                                              "event": "PART_QUANTITY_CHANGED",
-                                              "enabled": true,
-                                              "serialize": true
-                                            }
-                                            """
-                            )
-                    })
-            ) @RequestBody WebhookEndpointPostDTO request) {
+            @RequestBody WebhookEndpointPostDTO request) {
         WebhookEndpoint endpoint = webhookEndpointService.create(request, user);
         return ResponseEntity.ok(webhookEndpointMapper.toShowDto(endpoint));
     }
