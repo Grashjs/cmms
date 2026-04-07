@@ -10,8 +10,6 @@ import com.grash.model.Vendor;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.VendorRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
