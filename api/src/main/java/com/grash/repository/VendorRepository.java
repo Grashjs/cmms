@@ -12,11 +12,12 @@ public interface VendorRepository extends JpaRepository<Vendor, Long>, JpaSpecif
     Collection<Vendor> findByCompany_Id(Long id);
 
     @Query("""
-                SELECT v 
+                SELECT MIN(v) 
                 FROM Vendor v
                 WHERE (LOWER(v.companyName) = LOWER(:name)
                     OR LOWER(v.name) = LOWER(:name))
                   AND v.company.id = :companyId
+                ORDER BY v.createdAt
             """)
     Optional<Vendor> findByNameIgnoreCaseAndCompany_Id(String name, Long companyId);
 
