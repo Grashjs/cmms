@@ -1,4 +1,4 @@
-package com.grash.controller;
+package com.grash.controller.zapier;
 
 import com.grash.model.enums.webhook.WebhookEvent;
 import io.swagger.v3.oas.annotations.Hidden;
