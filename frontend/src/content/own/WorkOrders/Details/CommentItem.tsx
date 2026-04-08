@@ -6,7 +6,8 @@ import {
   Stack,
   styled,
   TextField,
-  Button
+  Button,
+  Link
 } from '@mui/material';
 import Comment from '../../../../models/owns/comment';
 import { useContext, useState } from 'react';
@@ -25,6 +26,8 @@ import ArchiveTwoToneIcon from '@mui/icons-material/ArchiveTwoTone';
 import ImageViewer from 'react-simple-image-viewer';
 import mime from 'mime';
 import { InsertDriveFile } from '@mui/icons-material';
+import { getUserUrl } from '../../../../utils/urlPaths';
+import { useNavigate } from 'react-router-dom';
 
 const CommentWrapper = styled(Box)(
   ({ theme }) => `
@@ -50,6 +53,7 @@ export default function CommentItem(props: CommentItemProps) {
   const { comment, workOrderId } = props;
   const { t } = useTranslation();
   const { getFormattedDate } = useContext(CompanySettingsContext);
+  const navigate = useNavigate();
   const { user } = useAuth();
   const dispatch = useDispatch();
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -118,8 +122,11 @@ export default function CommentItem(props: CommentItemProps) {
             sx={{
               width: 40,
               height: 40,
-              bgcolor: 'primary.main'
+              bgcolor: 'primary.main',
+              cursor: 'pointer'
             }}
+            onClick={() => navigate(getUserUrl(comment.user.id))}
+            src={comment.user.image?.url}
           >
             {`${comment.user?.firstName?.charAt(0) || ''}${
               comment.user?.lastName?.charAt(0) || ''
@@ -133,7 +140,12 @@ export default function CommentItem(props: CommentItemProps) {
               sx={{ mb: 1 }}
             >
               <Box>
-                <Typography variant="subtitle1" fontWeight="bold">
+                <Typography
+                  onClick={() => navigate(getUserUrl(comment.user.id))}
+                  variant="subtitle1"
+                  fontWeight="bold"
+                  sx={{ cursor: 'pointer' }}
+                >
                   {getUserName()}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
