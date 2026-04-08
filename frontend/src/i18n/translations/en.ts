@@ -1792,7 +1792,12 @@ const locale = {
   WEBHOOK_WORK_ORDER_DELETE: 'Work Order Delete',
   WEBHOOK_WORK_ORDER_OVERDUE: 'Work Order Overdue',
   WEBHOOK_WORK_ORDER_STATUS_CHANGE: 'Work Order Status Change',
-  WEBHOOK_WORK_REQUEST_STATUS_CHANGE: 'Work Request Status Change'
+  WEBHOOK_WORK_REQUEST_STATUS_CHANGE: 'Work Request Status Change',
+  comments: 'Comments',
+  add_comment_placeholder: 'Add a comment...',
+  post_comment: 'Post Comment',
+  no_comments: 'No comments yet',
+  confirm_delete_comment: 'Are you sure you want to delete this comment?'
 };
 
 export default locale;

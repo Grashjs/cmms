@@ -8,10 +8,10 @@ import jakarta.validation.Valid;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {FileMapper.class, UserMapper.class})
 public interface CommentMapper {
     Comment updateComment(@MappingTarget Comment entity,
-                                                        CommentPatchDTO dto);
+                          CommentPatchDTO dto);
 
     Comment fromPostDto(@Valid CommentPostDTO dto);
 

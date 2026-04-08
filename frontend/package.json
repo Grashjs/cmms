@@ -67,6 +67,7 @@
     "lodash": "^4.17.21",
     "lodash.debounce": "^4.0.8",
     "mailto-link": "^2.0.0",
+    "mime": "^4.1.0",
     "notistack": "2.0.5",
     "nprogress": "0.2.0",
     "numeral": "2.0.6",

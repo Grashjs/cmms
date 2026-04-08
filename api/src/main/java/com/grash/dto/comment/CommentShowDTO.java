@@ -19,15 +19,12 @@ import java.util.List;
 @Data
 public class CommentShowDTO extends AuditShowDTO {
 
-    @ManyToOne
-    @NotNull
     private UserMiniDTO user;
 
-    @NotBlank
-    @Column(columnDefinition = "TEXT")
     private String content;
 
-    @OneToMany
     private List<FileShowDTO> files = new ArrayList<>();
+
+    private boolean system;
 
 }

@@ -9,6 +9,7 @@ import com.grash.model.Comment;
 import com.grash.model.Comment_;
 import com.grash.model.User;
 import com.grash.repository.CommentRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,13 +31,16 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
     private final WorkOrderService workOrderService;
+    private final EntityManager em;
 
     public Comment create(@Valid CommentPostDTO commentReq, User user) {
         Comment comment =
                 commentMapper.fromPostDto(commentReq);
         workOrderService.checkAccessToWorkOrderId(commentReq.getWorkOrder().getId(), user);
         comment.setUser(user);
-        return commentRepository.save(comment);
+        Comment savedComment = commentRepository.saveAndFlush(comment);
+        em.refresh(savedComment);
+        return savedComment;
     }
 
 
@@ -62,7 +66,7 @@ public class CommentService {
         return commentRepository.save(commentMapper.updateComment(savedComment, commentPatchDTO));
     }
 
-    public Page<Comment> findByCriteria(CommentCriteria criteria, Pageable pageable, User user) {
+    public List<Comment> findByCriteria(CommentCriteria criteria, User user) {
         Specification<Comment> specification = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get(Comment_.company).get("id"), user.getCompany().getId()));
@@ -70,6 +74,6 @@ public class CommentService {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
-        return commentRepository.findAll(specification, pageable);
+        return commentRepository.findAll(specification);
     }
 }

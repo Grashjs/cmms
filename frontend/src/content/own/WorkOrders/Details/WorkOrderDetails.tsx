@@ -93,6 +93,7 @@ import FilesList from '../../components/FilesList';
 import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
 import PartQuantitiesList from '../../components/PartQuantitiesList';
 import AddFileModal from './AddFileModal';
+import CommentsSection from './CommentsSection';
 import { useBrand } from '../../../../hooks/useBrand';
 import { useLicenseEntitlement } from '../../../../hooks/useLicenseEntitlement';
 import { getErrorMessage } from '../../../../utils/api';
@@ -372,7 +373,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const workOrderStatuses = ['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETE'];
   const tabs = [
     { value: 'details', label: t('details') },
-    { value: 'updates', label: t('updates') }
+    { value: 'comments', label: t('comments') }
   ];
 
   const getPath = (resource, id) => {
@@ -429,8 +430,6 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   };
   const handleTabsChange = (_event: ChangeEvent<{}>, value: string): void => {
     setCurrentTab(value);
-    if (value === 'updates' && !currentWorkOrderHistories.length)
-      dispatch(getWorkOrderHistories(workOrder.id));
   };
   const detailsFieldsToRender = (
     workOrder: WorkOrder
@@ -1335,30 +1334,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
             </Box>
           </Box>
         )}
-        {currentTab == 'updates' &&
-          (hasWOHistoryEntitlement ? (
-            <List>
-              {[...currentWorkOrderHistories]
-                .reverse()
-                .map((workOrderHistory) => (
-                  <ListItem
-                    key={workOrderHistory.id}
-                    secondaryAction={getFormattedDate(
-                      workOrderHistory.createdAt
-                    )}
-                  >
-                    <ListItemText
-                      primary={`${workOrderHistory.user.firstName} ${workOrderHistory.user.lastName}`}
-                      secondary={workOrderHistory.name}
-                    />
-                  </ListItem>
-                ))}
-            </List>
-          ) : (
-            <Typography textAlign={'center'}>
-              You need a license to see Work Order history
-            </Typography>
-          ))}
+        {currentTab == 'comments' && <CommentsSection workOrderId={workOrder.id} />}
       </Grid>
       <AddTimeModal
         open={openAddTimeModal}
