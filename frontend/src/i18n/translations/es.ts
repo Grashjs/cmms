@@ -14,12 +14,12 @@ const esJSON = {
   COMPLETE: 'Completa',
   'home.built': 'Diseñado para facilitar la gestión del mantenimiento',
   home_description:
-    'Cuando las pizarras y las notas adhesivas son un caos y necesitas un CMMS que sea fácil de usar por tu equipo, prueba {{shortBrandName}} ',
-  try_grash: 'Prueba {{shortBrandName}}',
+    'Cuando las pizarras y las notas adhesivas son un caos y necesita un CMMS que sea fácil de usar por su equipo, pruebe {{shortBrandName}} ',
+  try_grash: 'Pruebe {{shortBrandName}}',
   login: 'Iniciar sesión',
-  start_trial: 'Comienza una prueba gratis',
-  'home.what': 'Que',
-  'home.you_will_have': 'Tendrás',
+  start_trial: 'Comience una prueba gratis',
+  'home.what': 'Qué',
+  'home.you_will_have': 'Tendrá',
   'home.you_will_have_description':
     'Cree flujos de trabajo eficientes y confiables que le permitan controlar el mantenimiento. Genere, asigne y realice un seguimiento de órdenes de trabajo. Controlar el inventario. Y obtenga informes automatizados confiables que mejoren la visibilidad y generen responsabilidad.',
   key_features: 'Características clave',
@@ -33,8 +33,8 @@ const esJSON = {
   preventive_maintenance: 'Mantenimiento preventivo',
   parts_inventory: 'Inventario',
   custom_dashboards: 'Tableros personalizados',
-  'work-orders.title': 'Administra tus órdenes de trabajo como un profesional',
-  'work-orders.description.short': 'Visualiza y gestiona todas tus tareas',
+  'work-orders.title': 'Administre sus órdenes de trabajo como un profesional',
+  'work-orders.description.short': 'Visualice y gestione todas sus tareas',
   'work-orders.descriptions.0':
     '¿Está cansado de la gran cantidad de papeles y de las órdenes de trabajo perdidas? Todo esto afecta directamente la obtención de resultados y su reputación.',
   'work-orders.descriptions.1':
@@ -54,11 +54,11 @@ const esJSON = {
     '¿Está cansado de usar el antiguo sistema de teléfono y correos electrónicos que resulta en solicitudes PERDIDAS, constantes interrupciones diarias y trabajo duplicado?',
   'work-requests.descriptions.1':
     'La de gestión de mantenimiento a través de {{shortBrandName}} permite a cualquier persona que esté autorizada a enviar un problema a su departamento de mantenimiento simplemente escaneando un código QR o visitando una URL y escribiendo su solicitud a través de sus dispositivos móviles.',
-  'work-requests.checks.0': 'Nunca pierdas un trabajo de nuevo.',
+  'work-requests.checks.0': 'Nunca pierda un trabajo de nuevo.',
   'work-requests.checks.1':
     'Reduzca el tiempo dedicado a gestionar solicitudes de trabajo hasta en un 34 %.',
   'work-requests.checks.2':
-    'Reduzca el tiempo de comunicación con quiénes soliciten una tarea hasta en un 41% (llamadas, correos electrónicos, mensajes de texto).',
+    'Reduzca el tiempo de comunicación con quienes soliciten una tarea hasta en un 41% (llamadas, correos electrónicos, mensajes de texto).',
   'mobile-app.title':
     'Una aplicación CMMS móvil que jerarquiza a su equipo de mantenimiento',
   'mobile-app.descriptions.0':
@@ -71,9 +71,9 @@ const esJSON = {
   'mobile-app.checks.2':
     'Recibir comunicaciones instantáneas a través de notificaciones y correos electrónicos.',
   'mobile-app.checks.3':
-    'Iniciar nuevas órdenes de trabajo mientras te encuentres en el campo.',
+    'Iniciar nuevas órdenes de trabajo mientras se encuentre en el campo.',
   'mobile-app.checks.4':
-    'Responder y registrar problemas mientras te encuentres trabajando en ello',
+    'Responder y registrar problemas mientras se encuentre trabajando en ello',
   'mobile-app.checks.5':
     'Buscar información crítica sobre sus activos mientras diagnostica un fallo.',
   'eam.title': 'Gestión de activos empresariales',
@@ -110,7 +110,7 @@ const esJSON = {
   'part.title': 'Obtenga el control de su inventario de repuestos',
   'part.description.short': 'Sepa cuándo se acabarán sus repuestos',
   'part.descriptions.0':
-    '¿No está seguro de qué repuestos tiene en stock o dónde se utilizan? ¿No sabes cuándo se acabarán tus repuestos o si tus técnicos tendrán los repuestos necesarios para hacer su trabajo?',
+    '¿No está seguro de qué repuestos tiene en stock o dónde se utilizan? ¿No sabe cuándo se acabarán sus repuestos o si sus técnicos tendrán los repuestos necesarios para hacer su trabajo?',
   'part.descriptions.1':
     'Diseñamos la gestión de repuestos de {{shortBrandName}} para resolver esos problemas y más:',
   'part.checks.0':
@@ -130,9 +130,9 @@ const esJSON = {
   'part.checks.7':
     'Búsqueda a través de códigos de barra. Haga que su inventario sea fácil de rastrear y acceder con códigos QR personalizados',
   'dashboard.title':
-    'Tus datos a tu manera, gracias a la implementación de tableros presonalizados',
+    'Sus datos a su manera, gracias a la implementación de tableros personalizados',
   'dashboard.descriptions.0':
-    'Seamos realistas, el primer paso para mejorar tus operaciones es conocer lo bueno, lo malo y lo feo.',
+    'Seamos realistas, el primer paso para mejorar sus operaciones es conocer lo bueno, lo malo y lo feo.',
   'dashboard.descriptions.1':
     'Con los tableros personalizados de {{shortBrandName}}, finalmente puede comenzar a comprender ese infame "agujero negro del mantenimiento" y comenzar a poner en práctica planes respaldados por datos, lo que resulta en menores costos laborales, menor tiempo de inactividad y más.',
   'dashboard.descriptions.2':
@@ -186,10 +186,10 @@ const esJSON = {
   register: 'Registrarse',
   login_description:
     'Complete los datos a continuación para iniciar sesión con su cuenta.',
-  no_account_yet: '¿Todavía no tienes una cuenta?',
-  signup_here: 'Registrate aquí',
+  no_account_yet: '¿Todavía no tiene una cuenta?',
+  signup_here: 'Regístrese aquí',
   wrong_credentials: 'Los datos proporcionados son incorrectos',
-  lost_password: '¿Olvido su contraseña?',
+  lost_password: '¿Olvidó su contraseña?',
   link_wo: 'Vincular Órdenes de Trabajo',
   link_wo_description: 'Crear relaciones entre Órdenes de Trabajo',
   required_relationType: 'Por favor seleccione el tipo de relación.',
@@ -225,7 +225,7 @@ const esJSON = {
   add_time_description:
     'Complete los campos a continuación para crear y agregar tiempo',
   feedback: 'Comentarios',
-  feedback_description: 'Danos tu opinión',
+  feedback_description: 'Denos su opinión',
   required_feedback: 'El campo comentario es requerido',
   signature: 'Firma',
   required_signature: 'La firma es obligatoria',
@@ -322,18 +322,18 @@ const esJSON = {
   confirm_delete_wo:
     '¿Está seguro de que desea eliminar esta orden de trabajo?',
   no_access_wo:
-    'No tienes acceso a las Órdenes de Trabajo. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a las Órdenes de Trabajo. Comuníquese con su administrador si necesita tener acceso',
   cancel: 'Cancelar',
   select_parts: 'Seleccionar repuesto',
   sets_of_parts: 'Conjunto de repuestos',
   paused: 'Pausado',
   trigger_details: 'Detalles del origen',
-  starts_on: 'Comienza el',
+  starts_on: 'Comience el',
   ends_on: 'Finaliza el',
   frequency: 'Frecuencia',
   every_frequency_days: 'Cada {{frequency}} días',
   wo_details: 'Detalles de la Orden de Trabajo',
-  confirm_delete_file: '¿Estás seguro de que quieres eliminar este archivo?',
+  confirm_delete_file: '¿Está seguro de que quiere eliminar este archivo?',
   wo_schedule_success: 'Orden de Trabajo programada exitosamente',
   wo_schedule_failure: 'La Orden de Trabajo no pudo ser programada',
   wo_trigger_edit_failure:
@@ -365,7 +365,7 @@ const esJSON = {
   confirm_delete_pm:
     '¿Está seguro de que desea eliminar este disparador de la Orden de Trabajo?',
   no_access_pm:
-    'No tienes acceso a la sección de Mantenimiento Preventivo. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a la sección de Mantenimiento Preventivo. Comuníquese con su administrador si necesita tener acceso',
   enter_wo_title: 'Ingrese el título de la Orden de Trabajo',
   status_report: 'Informe de estado',
   wo_analysis: 'Análisis de Orden de Trabajo',
@@ -432,7 +432,7 @@ const esJSON = {
   asset_information: 'información',
   more_informations: 'Más información',
   confirm_delete_asset_downtime:
-    '¿Estás seguro de que quieres eliminar este tiempo de inactividad?',
+    '¿Está seguro de que quiere eliminar este tiempo de inactividad?',
   create_downtime_success:
     'El tiempo de inactividad se ha agregado correctamente',
   create_downtime_failure: 'El tiempo de inactividad no pudo ser agregado',
@@ -506,7 +506,7 @@ const esJSON = {
   edit_location_description:
     'Complete los campos a continuación para actualizar la ubicación',
   confirm_delete_location:
-    '¿Estás seguro de que deseas eliminar esta ubicación?',
+    '¿Está seguro de que desea eliminar esta ubicación?',
   floor_plans: 'Planos de planta',
   floor_plan: 'Plano de planta',
   floor_plan_name_description: 'Nombre del plano de planta',
@@ -524,30 +524,30 @@ const esJSON = {
   assigned_customers: 'Contratistas asignados',
   assigned_vendors: 'Proveedores asignados',
   no_access_location:
-    'No tienes acceso a Ubicaciones. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a Ubicaciones. Comuníquese con su administrador si necesita tener acceso',
   no_access_vendors_customers:
-    'No tienes acceso a Proveedores y Contratistass. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a Proveedores y Contratistas. Comuníquese con su administrador si necesita tener acceso',
   no_access_people_team:
-    'No tienes acceso a Personas y Equipos. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a Personas y Equipos. Comuníquese con su administrador si necesita tener acceso',
   no_access_analytics:
-    'No tienes acceso a las Estadísticas. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a las Estadísticas. Comuníquese con su administrador si necesita tener acceso',
   no_access_assets:
-    'No tienes acceso a Activos. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a Activos. Comuníquese con su administrador si necesita tener acceso',
   no_access_categories:
-    'No tienes acceso a Categorías. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a Categorías. Comuníquese con su administrador si necesita tener acceso',
   no_access_files:
-    'No tienes acceso a Archivos. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a Archivos. Comuníquese con su administrador si necesita tener acceso',
   no_access_inventory:
-    'No tienes acceso al Inventario. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso al Inventario. Comuníquese con su administrador si necesita tener acceso',
   no_access_meters:
-    'No tienes acceso a Mediciones. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a Mediciones. Comuníquese con su administrador si necesita tener acceso',
   no_access_purchase_orders:
-    'No puedes crear una orden de compra. Comuníquese con su administrador si necesita tener acceso',
+    'No puede crear una orden de compra. Comuníquese con su administrador si necesita tener acceso',
   no_access_requests:
-    'No tienes acceso a las Solicitudes. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a las Solicitudes. Comuníquese con su administrador si necesita tener acceso',
   no_access_settings:
-    'No tienes acceso a Configuraciones. Comuníquese con su administrador si necesita tener acceso',
-  no_access_page: 'No tienes acceso a esta página',
+    'No tiene acceso a Configuraciones. Comuníquese con su administrador si necesita tener acceso',
+  no_access_page: 'No tiene acceso a esta página',
   file: 'Archivo',
   'noRows.location.message':
     'Las ubicaciones le permiten gestionar activos y trabajadores de forma más eficiente',
@@ -569,7 +569,7 @@ const esJSON = {
   edit_set: 'Editar conjunto',
   edit_set_description:
     'Complete los campos a continuación para editar el conjunto',
-  confirm_delete_set: '¿Estás seguro de que quieres eliminar este conjunto?',
+  confirm_delete_set: '¿Está seguro de que quiere eliminar este conjunto?',
   part_create_success: 'El repuesto ha sido creado',
   part_create_failure: 'El repuesto no pudo ser creado',
   part_edit_failure: 'El repuesto no pudo ser editado',
@@ -634,7 +634,7 @@ const esJSON = {
   edit_po_description:
     'Complete los campos a continuación para actualizar la orden de compra',
   purchase_order: 'Orden de compra',
-  'noRows.po.message': 'Gestiona tus órdenes de compra en un solo lugar',
+  'noRows.po.message': 'Gestione sus órdenes de compra en un solo lugar',
   'noRows.po.action': "Presiona el botón  '+' para crear una orden de compra.",
   confirm_delete_po: '¿Está seguro de que desea eliminar esta orden de compra?',
   upgrade_po: 'Actualizar para crear orden de compras',
@@ -705,7 +705,7 @@ const esJSON = {
   drag_one_file: 'Arrastre un único archivo aquí',
   drag_many_files: 'Arrastre y suelte archivos aquí',
   drop_to_start: 'Suelte los archivos para comenzar la carga',
-  invalid_files_type: 'No puedes subir estos tipos de archivos.',
+  invalid_files_type: 'No puede subir estos tipos de archivos.',
   you_have_uploaded: 'Has subido',
   upload: 'Subido',
   Vendors_Customers: 'Proveedores y contratistas',
@@ -780,8 +780,8 @@ const esJSON = {
   people_in_team: 'Personas en el equipo',
   required_team_name: 'El nombre del equipo es obligatorio',
   create_team: 'Crear equipo',
-  create_team_description: 'Puedes agregar miembros del equipo desde aquí',
-  confirm_delete_team: '¿Estás seguro de que deseas eliminar este equipo?',
+  create_team_description: 'Puede agregar miembros del equipo desde aquí',
+  confirm_delete_team: '¿Está seguro de que desea eliminar este equipo?',
   overview: 'Decripción general',
   activity: 'Actividad',
   wo_complete_last_14_days:
@@ -842,7 +842,7 @@ const esJSON = {
     "Presione el botón '+' para agregar la primera categoría.",
   confirm_delete_category: '¿Está seguro de que desea eliminar esta categoría?',
   no_category_message:
-    'Parece que no tienes ninguna categoría {{categoryName}} aún.',
+    'Parece que no tiene ninguna categoría {{categoryName}} aún.',
   acquisition_cost: 'Costo de adquisición',
   general_settings: 'Configuraciones generales',
   request_form_configuration: 'Ajustes del formulario de solicitud',
@@ -868,7 +868,7 @@ const esJSON = {
   role_delete_success: 'El rol ha sido eliminado',
   role_delete_failure: 'El rol no pudo ser eliminado',
   confirm_delete_role:
-    '¿Estás seguro de que deseas eliminar permanentemente este rol?',
+    '¿Está seguro de que desea eliminar permanentemente este rol?',
   users: 'Usuarios',
   paid: 'Pago',
   free: 'Gratis',
@@ -1017,7 +1017,7 @@ const esJSON = {
   total_time_spent_in_hours: 'Tiempo total empleado (Horas)',
   estimated_hours: 'Horas estimadas',
   total_purchase_price: 'Precio total de compra',
-  you_have: 'Tienes',
+  you_have: 'Tiene',
   new_messages: 'nuevos mensajes',
   company: 'Empresa',
   change_cover: 'Cambiar portada',
@@ -1050,14 +1050,14 @@ const esJSON = {
   change_password: 'Cambiar contraseña',
   notification_settings: 'Configuración de notificaciones',
   notification_settings_description:
-    'Gestiona los detalles relacionados con tus notificaciones.',
+    'Gestione los detalles relacionados con sus notificaciones.',
   recent_activity: 'Actividad reciente',
   created: 'Creada',
   completed: 'Completada',
   my_account: 'Mi cuenta',
   my_company: 'Mi Empresa',
   you_are_using_plan:
-    'Actualmente estás utilizando el plan {{planName}}. Caducará el {{expiration}}. Actualice ahora para obtener acceso a más funciones.',
+    'Actualmente está utilizando el plan {{planName}}. Caducará el {{expiration}}. Actualice ahora para obtener acceso a más funciones.',
   upgrade_plan: 'Actualizar plan',
   plans: 'Planes',
   monthly: 'Mensual',
@@ -1090,7 +1090,7 @@ const esJSON = {
   requester_role: 'Solicitud',
   view_only_role: 'Solo visualización',
   how_will_you_be_billed: '¿Cómo le gustaría que se le facture?',
-  which_plan_fits_you: '¿Qué plan se adapta mejor a ti?',
+  which_plan_fits_you: '¿Qué plan se adapta mejor a usted?',
   per_user_month: 'Por usuario/mes',
   per_user_year: 'Por usuario/año',
   you_will_be_charged: 'Se le cobrará',
@@ -1111,7 +1111,7 @@ const esJSON = {
   recover_password_description:
     'Ingrese el correo electrónico utilizado para el registro para restablecer su contraseña.',
   send_me_new_password: 'Envíenme una nueva contraseña',
-  want_to_sign_in_again: '¿Quieres intentar iniciar sesión nuevamente?',
+  want_to_sign_in_again: '¿Quiere intentar iniciar sesión nuevamente?',
   check_mails_for_instructions:
     'Revise su correo electrónico para obtener más instrucciones.',
   pdf_report: 'Reporte en PDF',
@@ -1146,7 +1146,7 @@ const esJSON = {
   customer: 'Contratista',
   to: 'a',
   dates: 'Fechas',
-  start: 'Comienza',
+  start: 'Comience',
   end: 'Termina',
   longitude: 'Longitud',
   latitude: 'Latitud',
@@ -1237,7 +1237,7 @@ const esJSON = {
   cancel_subscription: 'Cancelar suscripciónn',
   resume_subscription: 'Reanudar suscripción',
   confirm_cancel_subscription:
-    '¿Estás seguro de que deseas cancelar la suscripción?',
+    '¿Está seguro de que desea cancelar la suscripción?',
   workflows: 'Flujo de trabajo',
   create_workflow: 'Crear flujo de trabajo',
   if: 'Si',
@@ -1300,11 +1300,11 @@ const esJSON = {
   workflow_delete_success: 'El flujo de trabajo se ha eliminado',
   workflow_delete_failure: 'El flujo de trabajo no pudo ser eliminado',
   confirm_delete_workflow:
-    '¿Estás seguro de que quieres eliminar este flujo de trabajo?',
+    '¿Está seguro de que quiere eliminar este flujo de trabajo?',
   click_here: 'Haga clic aquí',
   verify_email_title: 'Verificar correo electrónico',
   verify_email_description:
-    'Se te ha enviado un correo electrónico de verificación. Revisa la carpeta de spam si no lo ves en tu bandeja de entrada.',
+    'Se se ha enviado un correo electrónico de verificación. Revisa la carpeta de spam si no lo ves en su bandeja de entrada.',
   upgrade: 'Upgrade',
   downgrade: 'Downgrade',
   upgrade_description:
@@ -1312,7 +1312,7 @@ const esJSON = {
   enable_users: 'Habilitar usuarios',
   max_users_description: 'Puede habilitar hasta {{maxUsers}} usuarios',
   downgrade_description:
-    'Acabas de cambiar a una versión inferior de tu plan de suscripción. Debes desactivar algunos usuarios para continuar. Solo puedes hacerlo una vez para la suscripción actual. Elija con cuidado.',
+    'Acabas de cambiar a una versión inferior de su plan de suscripción. Debes desactivar algunos usuarios para continuar. Solo puede hacerlo una vez para la suscripción actual. Elija con cuidado.',
   disable_users: 'Deshabilitar usuarios',
   min_users_description: 'Debes desactivar un mìnimo de {{minUsers}} usuarios',
   downgrade_description_no_owner:
@@ -1378,7 +1378,7 @@ const esJSON = {
   switch_account_description: 'Seleccione una cuenta para continuar',
   put_location_in_map: 'Poner ubicación en el mapa',
   confirm_disable_user:
-    '¿Estás seguro de que deseas desactivar {{user}}? Solo podrás habilitarlo después de un mes',
+    '¿Está seguro de que desea desactivar {{user}}? Solo podrá habilitarlo después de un mes',
   user_disabled_success: 'Usuario deshabilitado exitosamente',
   disable: 'Desactivado',
   manufacturer: 'Fabricante',
@@ -1405,8 +1405,8 @@ const esJSON = {
   estimated_start_date: 'Fecha de inicio prevista',
   no_file_linked_to_wo: 'No hay ningún archivo adjunto a esta Orden de Trabajo',
   add_file: 'Agregar archivo',
-  try_for_free: 'Prueba gratis',
-  choose_your_plan: 'Elige tu plan',
+  try_for_free: 'Pruebe gratis',
+  choose_your_plan: 'Elige su plan',
   STARTER_description:
     'Equipos que buscan desarrollar un mantenimiento preventivo eficiente y sólido a través del estado de las máquinas y la visibilidad de la mano de obra.',
   PROFESSIONAL_description:
@@ -1475,9 +1475,9 @@ const esJSON = {
   asset_status: 'Estado del activo',
   ui_configuration: 'Configuración de la interfaz',
   password_leave_empty_if_you_dont_want_to_change:
-    'Contraseña: déjalo vacío si no quieres cambiarla',
+    'Contraseña: déjalo vacío si no quiere cambiarla',
   upgrade_request_success:
-    '¡Solicitud de actualización recibida! Nos pondremos en contacto contigo pronto con los detalles de pago',
+    '¡Solicitud de actualización recibida! Nos pondremos en contacto con usted pronto con los detalles de pago',
   continue_with_sso: 'Continuar con SSO',
   see_live_demo: 'Ver demostración en vivo',
   days: 'Días',
@@ -1507,7 +1507,7 @@ const esJSON = {
   'home.h3':
     'Deje de depender de hojas de cálculo y pizarras. {{brandName}} ayuda a los equipos de mantenimiento a planificar intervenciones, rastrear equipos y mantenerse en cumplimiento. Alójelo en su propio servidor o comience instantáneamente en la nube.',
   talk_to_sales: 'Hablar con ventas',
-  'pricing.choose_plan_and_get_started': 'Elige tu plan y empieza',
+  'pricing.choose_plan_and_get_started': 'Elige su plan y empieza',
   'pricing.slogan_effective_maintenance':
     'Nuestro software brinda a los equipos de mantenimiento y confiabilidad las herramientas que necesitan para ejecutar las operaciones de manera eficiente y eficaz.',
   'pricing.compare_plans_and_pricing': 'Comparar planes y precios',
@@ -1677,7 +1677,7 @@ const esJSON = {
     'Estos usuarios tienen los mismos privilegios que el usuario técnico. La única excepción es que solo pueden ver las órdenes de trabajo que les han sido asignadas, no las de otros usuarios técnicos de la cuenta.',
   'pricing.faq_change_plans_q': '¿Puedo cambiar de planes más adelante?',
   'pricing.faq_change_plans_a':
-    'Sí, puedes cambiar a un plan superior o inferior en cualquier momento. Los cambios entran en vigor al inicio de tu próximo ciclo de facturación.',
+    'Sí, puede cambiar a un plan superior o inferior en cualquier momento. Los cambios entran en vigor al inicio de su próximo ciclo de facturación.',
   'pricing.faq_free_trial_q': '¿Hay una prueba gratuita?',
   'pricing.faq_free_trial_a':
     'Sí, ofrecemos una prueba gratuita de 15 días del plan Business para que pueda experimentar todas las funciones antes de tomar una decisión.',
@@ -1690,7 +1690,7 @@ const esJSON = {
     'Aceptamos todas las principales tarjetas de crédito, transferencias bancarias y PayPal. Para planes Enterprise, también gestionamos la facturación.',
   'pricing.faq_cancel_subscription_q': '¿Puedo cancelar mi suscripción?',
   'pricing.faq_cancel_subscription_a':
-    'Sí, puedes cancelar tu suscripción en cualquier momento. Seguirás teniendo acceso hasta el final de tu periodo de facturación actual.',
+    'Sí, puede cancelar su suscripción en cualquier momento. Seguirás teniendo acceso hasta el final de su periodo de facturación actual.',
   'pricing.faq_data_secure_q': '¿Están seguros mis datos?',
   'pricing.faq_data_secure_a':
     'Sí, nos tomamos muy en serio la seguridad de los datos. Todos los datos están cifrados, tanto en tránsito como en reposo, y realizamos auditorías de seguridad periódicas.',
@@ -1805,8 +1805,8 @@ const esJSON = {
   request_portal_delete_failure: 'Error al eliminar el portal de solicitudes',
   no_access_request_portals: 'No tiene acceso a los portales de solicitudes',
   'noRows.request_portal.message':
-    'Parece que aún no tienes ningún portal de solicitudes.',
-  'noRows.request_portal.action': 'Crea tu primer portal de solicitudes',
+    'Parece que aún no tiene ningún portal de solicitudes.',
+  'noRows.request_portal.action': 'Crea su primer portal de solicitudes',
   request_title: 'Título de la solicitud',
   configure_form_fields: 'Configurar campos del formulario',
   allow_selection_from_all_locations:
