@@ -635,6 +635,7 @@ export const CustomSelect = ({
             renderOption={(props, option) => {
               const isCreateOption = (option as CreateOptionType)
                 .__createOption__;
+              // @ts-ignore
               const { key, ...restProps } = props;
               return (
                 <Box
