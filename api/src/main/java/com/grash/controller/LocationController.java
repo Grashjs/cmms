@@ -51,7 +51,6 @@ public class LocationController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-
     public List<LocationShowDTO> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {

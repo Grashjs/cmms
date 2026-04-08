@@ -304,10 +304,13 @@ export const CustomSelect = ({
             renderOption={(props, option) => {
               const isInviteOption = (option as InviteUserOptionType)
                 .__inviteOption__;
+              // @ts-ignore
+              const { key, ...restProps } = props;
               return (
                 <Box
+                  key={option.value ?? key}
                   component="li"
-                  {...props}
+                  {...restProps}
                   sx={{
                     color: isInviteOption ? 'primary.main' : 'inherit',
                     fontWeight: isInviteOption ? 600 : 400
@@ -462,10 +465,13 @@ export const CustomSelect = ({
             renderOption={(props, option) => {
               const isCreateOption = (option as CreateOptionType)
                 .__createOption__;
+              // @ts-ignore
+              const { key, ...restProps } = props;
               return (
                 <Box
+                  key={option.value ?? key}
                   component="li"
-                  {...props}
+                  {...restProps}
                   sx={{
                     color: isCreateOption ? 'primary.main' : 'inherit',
                     fontWeight: isCreateOption ? 600 : 400
@@ -635,10 +641,13 @@ export const CustomSelect = ({
             renderOption={(props, option) => {
               const isCreateOption = (option as CreateOptionType)
                 .__createOption__;
+              // @ts-ignore
+              const { key, ...restProps } = props;
               return (
                 <Box
+                  key={option.value ?? key}
                   component="li"
-                  {...props}
+                  {...restProps}
                   sx={{
                     color: isCreateOption ? 'primary.main' : 'inherit',
                     fontWeight: isCreateOption ? 600 : 400
@@ -821,10 +830,14 @@ export const CustomSelect = ({
             renderOption={(props, option) => {
               const isCreateOption = (option as CreateCategoryOptionType)
                 .__createCategoryOption__;
+              //@ts-ignore
+              const { key, ...restProps } = props;
+
               return (
                 <Box
+                  key={option.value ?? key}
                   component="li"
-                  {...props}
+                  {...restProps}
                   sx={{
                     color: isCreateOption ? 'primary.main' : 'inherit',
                     fontWeight: isCreateOption ? 600 : 400

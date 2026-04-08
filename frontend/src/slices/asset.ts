@@ -12,6 +12,7 @@ import {
   SearchCriteria
 } from 'src/models/owns/page';
 import { revertAll } from 'src/utils/redux';
+import { createCancellableRequest, isAbortError } from 'src/utils/cancellableRequest';
 
 const basePath = 'assets';
 interface AssetState {
@@ -174,13 +175,18 @@ export const reducer = slice.reducer;
 export const getAssets =
   (criteria: SearchCriteria): AppThunk =>
   async (dispatch) => {
+    const { signal } = createCancellableRequest();
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
       const assets = await api.post<Page<AssetDTO>>(
         `${basePath}/search`,
-        criteria
+        criteria,
+        { signal }
       );
       dispatch(slice.actions.getAssets({ assets }));
+    } catch (error) {
+      if (isAbortError(error)) return;
+      throw error;
     } finally {
       dispatch(slice.actions.setLoadingGet({ loading: false }));
     }
@@ -188,12 +194,17 @@ export const getAssets =
 export const getAssetsMini =
   (locationId?: number): AppThunk =>
   async (dispatch) => {
+    const { signal } = createCancellableRequest();
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
       const assets = await api.get<AssetMiniDTO[]>(
-        `${basePath}/mini?locationId=${locationId ?? ''}`
+        `${basePath}/mini?locationId=${locationId ?? ''}`,
+        { signal }
       );
       dispatch(slice.actions.getAssetsMini({ assets }));
+    } catch (error) {
+      if (isAbortError(error)) return;
+      throw error;
     } finally {
       dispatch(slice.actions.setLoadingGet({ loading: false }));
     }
