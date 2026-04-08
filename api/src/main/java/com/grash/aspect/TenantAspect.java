@@ -1,22 +1,11 @@
 package com.grash.aspect;
 
-import com.grash.exception.CustomException;
-import com.grash.model.File;
-import com.grash.model.OwnUser;
 import com.grash.model.abstracts.CompanyAudit;
-import com.grash.model.enums.RoleType;
-import com.grash.security.CustomUserDetail;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -26,7 +15,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.List;
-import java.util.Optional;
 
 import static org.apache.commons.lang3.reflect.FieldUtils.getAllFields;
 

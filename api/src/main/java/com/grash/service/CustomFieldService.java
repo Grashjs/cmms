@@ -4,8 +4,6 @@ import com.grash.dto.CustomFieldPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CustomFieldMapper;
 import com.grash.model.CustomField;
-import com.grash.model.OwnUser;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.CustomFieldRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

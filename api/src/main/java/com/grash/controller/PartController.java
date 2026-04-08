@@ -7,8 +7,7 @@ import com.grash.dto.PartShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PartMapper;
-import com.grash.model.Asset;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.Part;
 import com.grash.model.Workflow;
 import com.grash.model.enums.PermissionEntity;
@@ -53,7 +52,7 @@ public class PartController {
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<PartShowDTO>> search(@Parameter(description = "Search criteria for filtering parts") @RequestBody SearchCriteria searchCriteria,
                                                     HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
                 searchCriteria.filterCompany(user);
@@ -70,8 +69,9 @@ public class PartController {
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
 
-    public PartShowDTO getById(@Parameter(description = "Part ID") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    public PartShowDTO getById(@Parameter(description = "Part ID") @PathVariable("id") Long id,
+                               HttpServletRequest req) {
+        User user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
             Part savedPart = optionalPart.get();
@@ -84,8 +84,9 @@ public class PartController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    PartShowDTO create(@Parameter(description = "Part data to create") @Valid @RequestBody Part partReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    PartShowDTO create(@Parameter(description = "Part data to create") @Valid @RequestBody Part partReq,
+                       HttpServletRequest req) {
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
             if (partReq.getBarcode() != null) {
                 Optional<Part> optionalPartWithSameBarCode = partService.findByBarcodeAndCompany(partReq.getBarcode()
@@ -103,10 +104,11 @@ public class PartController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public PartShowDTO patch(@Parameter(description = "Part fields to update") @Valid @RequestBody PartPatchDTO part, @Parameter(description = "Part ID") @PathVariable(
+    public PartShowDTO patch(@Parameter(description = "Part fields to update") @Valid @RequestBody PartPatchDTO part,
+                             @Parameter(description = "Part ID") @PathVariable(
                                      "id") Long id,
                              HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
 
         if (optionalPart.isPresent()) {
@@ -135,15 +137,16 @@ public class PartController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public Collection<PartMiniDTO> getMini(HttpServletRequest req) {
-        OwnUser part = userService.whoami(req);
+        User part = userService.whoami(req);
         return partService.findByCompany(part.getCompany().getId()).stream().map(partMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public ResponseEntity delete(@Parameter(description = "Part ID") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    public ResponseEntity delete(@Parameter(description = "Part ID") @PathVariable("id") Long id,
+                                 HttpServletRequest req) {
+        User user = userService.whoami(req);
 
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {

@@ -10,6 +10,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.Date;
 
 @Entity
@@ -26,7 +27,7 @@ public class AdditionalCost extends Cost {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private OwnUser assignedTo;
+    private User assignedTo;
 
     @Schema(description = "Whether to include this cost in the total")
     private boolean includeToTotalCost;

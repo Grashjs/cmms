@@ -7,7 +7,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CustomerMapper;
 import com.grash.model.Customer;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.CustomerService;
@@ -42,7 +42,7 @@ public class CustomerController {
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<Customer>> search(@Parameter(description = "Customer search criteria") @RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
                 searchCriteria.filterCompany(user);
@@ -55,7 +55,7 @@ public class CustomerController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public Collection<CustomerMiniDTO> getMini(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         return customerService.findByCompany(user.getCompany().getId()).stream().map(customerMapper::toMiniDto).collect(Collectors.toList());
     }
 
@@ -63,7 +63,7 @@ public class CustomerController {
     @PreAuthorize("permitAll()")
 
     public Customer getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Customer> optionalCustomer = customerService.findById(id);
         if (optionalCustomer.isPresent()) {
             Customer savedCustomer = optionalCustomer.get();
@@ -75,8 +75,9 @@ public class CustomerController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    Customer create(@Parameter(description = "Customer to create") @Valid @RequestBody Customer customerReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    Customer create(@Parameter(description = "Customer to create") @Valid @RequestBody Customer customerReq,
+                    HttpServletRequest req) {
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
             return customerService.create(customerReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -88,7 +89,7 @@ public class CustomerController {
     public Customer patch(@Parameter(description = "Customer fields to update") @Valid @RequestBody CustomerPatchDTO customer,
                           @PathVariable("id") Long id,
                           HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Customer> optionalCustomer = customerService.findById(id);
 
         if (optionalCustomer.isPresent()) {
@@ -103,7 +104,7 @@ public class CustomerController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<Customer> optionalCustomer = customerService.findById(id);
         if (optionalCustomer.isPresent()) {

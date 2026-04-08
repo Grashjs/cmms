@@ -3,7 +3,7 @@ package com.grash.controller;
 import com.grash.dto.CategoryPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.TimeCategory;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
@@ -37,7 +37,7 @@ public class TimeCategoryController {
     @PreAuthorize("permitAll()")
 
     public Collection<TimeCategory> getAll(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
                 return timeCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
@@ -49,7 +49,7 @@ public class TimeCategoryController {
     @PreAuthorize("permitAll()")
 
     public TimeCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
             Optional<TimeCategory> optionalTimeCategory = timeCategoryService.findById(id);
             if (optionalTimeCategory.isPresent()) {
@@ -64,7 +64,7 @@ public class TimeCategoryController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     TimeCategory create(@Parameter(description = "Time category to create") @Valid @RequestBody TimeCategory timeCategoryReq,
                         HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             return timeCategoryService.create(timeCategoryReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -75,7 +75,7 @@ public class TimeCategoryController {
 
     public TimeCategory patch(@Parameter(description = "Time category fields to update") @Valid @RequestBody CategoryPatchDTO timeCategory, @PathVariable("id") Long id,
                               HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<TimeCategory> optionalTimeCategory = timeCategoryService.findById(id);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             if (optionalTimeCategory.isPresent()) {
@@ -90,7 +90,7 @@ public class TimeCategoryController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<TimeCategory> optionalTimeCategory = timeCategoryService.findById(id);
         if (optionalTimeCategory.isPresent()) {

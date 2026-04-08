@@ -6,7 +6,7 @@ import com.grash.dto.WorkOrderMeterTriggerShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMeterTriggerMapper;
 import com.grash.model.Meter;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.WorkOrderMeterTrigger;
 import com.grash.service.MeterService;
 import com.grash.service.UserService;
@@ -42,7 +42,7 @@ public class WorkOrderMeterTriggerController {
     @PreAuthorize("permitAll()")
 
     public WorkOrderMeterTrigger getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<WorkOrderMeterTrigger> optionalWorkOrderMeterTrigger = workOrderMeterTriggerService.findById(id);
         if (optionalWorkOrderMeterTrigger.isPresent()) {
             WorkOrderMeterTrigger savedWorkOrderMeterTrigger = optionalWorkOrderMeterTrigger.get();
@@ -54,7 +54,7 @@ public class WorkOrderMeterTriggerController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     WorkOrderMeterTrigger create(@Parameter(description = "Work order meter trigger to create") @Valid @RequestBody WorkOrderMeterTrigger workOrderMeterTriggerReq,
                                  HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         return workOrderMeterTriggerService.create(workOrderMeterTriggerReq);
     }
 
@@ -64,7 +64,7 @@ public class WorkOrderMeterTriggerController {
 
     public Collection<WorkOrderMeterTriggerShowDTO> getByMeter(@PathVariable("id") Long id,
                                                                HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {
             return workOrderMeterTriggerService.findByMeter(id).stream().map(workOrderMeterTriggerMapper::toShowDto).collect(Collectors.toList());
@@ -78,7 +78,7 @@ public class WorkOrderMeterTriggerController {
     public WorkOrderMeterTriggerShowDTO patch(@Parameter(description = "Work order meter trigger fields to update") @Valid @RequestBody WorkOrderMeterTriggerPatchDTO workOrderMeterTrigger
             , @PathVariable("id") Long id,
                                               HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<WorkOrderMeterTrigger> optionalWorkOrderMeterTrigger = workOrderMeterTriggerService.findById(id);
 
         if (optionalWorkOrderMeterTrigger.isPresent()) {
@@ -92,7 +92,7 @@ public class WorkOrderMeterTriggerController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<WorkOrderMeterTrigger> optionalWorkOrderMeterTrigger = workOrderMeterTriggerService.findById(id);
         if (optionalWorkOrderMeterTrigger.isPresent()) {

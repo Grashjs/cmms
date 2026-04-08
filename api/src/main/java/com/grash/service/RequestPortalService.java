@@ -8,7 +8,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.RequestPortalMapper;
 import com.grash.model.RequestPortal;
 import com.grash.model.RequestPortal_;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.repository.RequestPortalRepository;
@@ -35,7 +35,7 @@ public class RequestPortalService {
     private final RequestPortalMapper requestPortalMapper;
     private final LicenseService licenseService;
 
-    public RequestPortal create(@Valid RequestPortalPostDTO requestPortalReq, OwnUser user) {
+    public RequestPortal create(@Valid RequestPortalPostDTO requestPortalReq, User user) {
         if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.REQUEST_PORTAL) || !user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) || !licenseService.hasEntitlement(LicenseEntitlement.REQUEST_PORTAL))
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         RequestPortal requestPortal =
@@ -59,7 +59,7 @@ public class RequestPortalService {
         return requestPortalRepository.findById(id);
     }
 
-    public RequestPortal update(Long id, RequestPortalPatchDTO requestPortalPatchDTO, OwnUser user) {
+    public RequestPortal update(Long id, RequestPortalPatchDTO requestPortalPatchDTO, User user) {
         RequestPortal savedRequestPortal =
                 requestPortalRepository.findById(id).orElseThrow(() -> new CustomException("Not found",
                         HttpStatus.NOT_FOUND));
@@ -69,7 +69,7 @@ public class RequestPortalService {
         return requestPortalRepository.save(newRequestPortal);
     }
 
-    public Page<RequestPortal> findByCriteria(RequestPortalCriteria criteria, Pageable pageable, OwnUser user) {
+    public Page<RequestPortal> findByCriteria(RequestPortalCriteria criteria, Pageable pageable, User user) {
         Specification<RequestPortal> specification = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get(RequestPortal_.company).get("id"), user.getCompany().getId()));

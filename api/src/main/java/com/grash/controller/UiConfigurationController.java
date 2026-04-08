@@ -3,10 +3,8 @@ package com.grash.controller;
 import com.grash.dto.UiConfigurationPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.UiConfiguration;
-import com.grash.model.OwnUser;
-import com.grash.model.UiConfiguration;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
-import com.grash.model.enums.PlanFeatures;
 import com.grash.service.UiConfigurationService;
 import com.grash.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,7 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,7 +31,7 @@ public class UiConfigurationController {
     @PatchMapping()
     public UiConfiguration patch(@Parameter(description = "UI configuration fields to update") @Valid @RequestBody UiConfigurationPatchDTO uiConfiguration,
                                  HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<UiConfiguration> optionalUiConfiguration =
                 uiConfigurationService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
 

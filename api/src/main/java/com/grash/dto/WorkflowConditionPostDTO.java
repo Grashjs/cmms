@@ -5,7 +5,6 @@ import com.grash.model.enums.ApprovalStatus;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
 import com.grash.model.enums.workflow.*;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import jakarta.validation.constraints.NotNull;
+
 import java.util.Date;
 
 @Data
@@ -32,7 +32,7 @@ public class WorkflowConditionPostDTO {
     @Schema(implementation = IdDTO.class)
     private Location location;
     @Schema(implementation = IdDTO.class)
-    private OwnUser user;
+    private User user;
     @Schema(implementation = IdDTO.class)
     private Team team;
     @Schema(implementation = IdDTO.class)

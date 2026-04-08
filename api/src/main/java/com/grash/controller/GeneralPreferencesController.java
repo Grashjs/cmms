@@ -4,7 +4,7 @@ import com.grash.dto.GeneralPreferencesPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.CompanySettings;
 import com.grash.model.GeneralPreferences;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.service.GeneralPreferencesService;
 import com.grash.service.UserService;
@@ -36,7 +36,7 @@ public class GeneralPreferencesController {
     @PreAuthorize("permitAll()")
 
     public Collection<GeneralPreferences> getAll(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         CompanySettings companySettings = user.getCompany().getCompanySettings();
         return generalPreferencesService.findByCompanySettings(companySettings.getId());
     }
@@ -45,7 +45,7 @@ public class GeneralPreferencesController {
     @PreAuthorize("permitAll()")
 
     public GeneralPreferences getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<GeneralPreferences> optionalGeneralPreferences = generalPreferencesService.findById(id);
         if (optionalGeneralPreferences.isPresent()) {
             return generalPreferencesService.findById(id).get();
@@ -58,7 +58,7 @@ public class GeneralPreferencesController {
     public GeneralPreferences patch(@Parameter(description = "General preferences fields to update") @Valid @RequestBody GeneralPreferencesPatchDTO generalPreferences,
                                     @Parameter(description = "General preferences ID") @PathVariable("id") Long id,
                                     HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<GeneralPreferences> optionalGeneralPreferences = generalPreferencesService.findById(id);
 

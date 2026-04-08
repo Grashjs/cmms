@@ -6,7 +6,7 @@ import com.grash.dto.NotificationPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.NotificationMapper;
 import com.grash.model.Notification;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.PushNotificationToken;
 import com.grash.repository.NotificationRepository;
 import io.github.jav.exposerversdk.*;
@@ -89,7 +89,7 @@ public class NotificationService {
         return notificationRepository.findAll(builder.build(), page);
     }
 
-    public void sendPushNotifications(Collection<OwnUser> users, String title, String message,
+    public void sendPushNotifications(Collection<User> users, String title, String message,
                                       Map<String, Object> data) throws PushClientException, InterruptedException {
 
         List<String> tokens = new ArrayList<>();

@@ -53,7 +53,7 @@ public class PartService {
 
 
     @Transactional
-    public Part create(Part Part, OwnUser user) {
+    public Part create(Part Part, User user) {
         checkUsageBasedLimit(user.getCompany());
         Part savedPart = partRepository.saveAndFlush(Part);
         em.refresh(savedPart);
@@ -238,9 +238,9 @@ public class PartService {
 //        Optional<Location> optionalLocation = locationService.findByNameIgnoreCaseAndCompany(dto.getLocationName(),
 //        companyId);
 //        optionalLocation.ifPresent(part::setLocation);
-        List<OwnUser> users = new ArrayList<>();
+        List<User> users = new ArrayList<>();
         dto.getAssignedToEmails().forEach(email -> {
-            Optional<OwnUser> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
+            Optional<User> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
             optionalUser1.ifPresent(users::add);
         });
         part.setAssignedTo(users);
@@ -318,7 +318,7 @@ public class PartService {
             changedFields.add(PartField.MIN_QUANTITY);
         }
         if (patchDTO.getAssignedTo() != null && !collectionsMatch(original.getAssignedTo(), patchDTO.getAssignedTo(),
-                OwnUser::getId)) {
+                User::getId)) {
             changedFields.add(PartField.ASSIGNED_TO);
         }
         if (patchDTO.getCustomers() != null && !collectionsMatch(original.getCustomers(), patchDTO.getCustomers(),

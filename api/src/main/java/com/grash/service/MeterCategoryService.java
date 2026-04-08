@@ -1,12 +1,9 @@
 package com.grash.service;
 
 import com.grash.dto.CategoryPatchDTO;
-import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MeterCategoryMapper;
 import com.grash.model.MeterCategory;
-import com.grash.model.OwnUser;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.MeterCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

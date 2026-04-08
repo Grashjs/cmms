@@ -71,7 +71,7 @@ public class AssetService {
     }
 
     @Transactional
-    public Asset create(Asset asset, OwnUser user) {
+    public Asset create(Asset asset, User user) {
         checkUsageBasedLimit(user.getCompany());
         if (asset.getParentAsset() != null && !licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY))
             throw new CustomException("You need a license to add a child asset to another asset.",
@@ -335,14 +335,14 @@ public class AssetService {
                 assetCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
         optionalAssetCategory.ifPresent(asset::setCategory);
         asset.setName(dto.getName());
-        Optional<OwnUser> optionalPrimaryUser = userService.findByEmailAndCompany(dto.getPrimaryUserEmail(), companyId);
+        Optional<User> optionalPrimaryUser = userService.findByEmailAndCompany(dto.getPrimaryUserEmail(), companyId);
         optionalPrimaryUser.ifPresent(asset::setPrimaryUser);
         asset.setWarrantyExpirationDate(Helper.getDateFromExcelDate(dto.getWarrantyExpirationDate()));
         asset.setAdditionalInfos(dto.getAdditionalInfos());
         asset.setSerialNumber(dto.getSerialNumber());
-        List<OwnUser> assignedTo = new ArrayList<>();
+        List<User> assignedTo = new ArrayList<>();
         dto.getAssignedToEmails().forEach(email -> {
-            Optional<OwnUser> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
+            Optional<User> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
             optionalUser1.ifPresent(assignedTo::add);
         });
         asset.setAssignedTo(assignedTo);

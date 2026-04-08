@@ -55,7 +55,7 @@ public class PreventiveMaintenanceService {
 
 
     @Transactional
-    public PreventiveMaintenance create(PreventiveMaintenance preventiveMaintenance, OwnUser user) {
+    public PreventiveMaintenance create(PreventiveMaintenance preventiveMaintenance, User user) {
         if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PREVENTIVE_MAINTENANCE)) {
             throw new CustomException("Preventive maintenance feature is not enabled for this subscription plan.",
                     HttpStatus.FORBIDDEN);
@@ -71,7 +71,7 @@ public class PreventiveMaintenanceService {
     }
 
     @Transactional
-    public PreventiveMaintenance update(Long id, PreventiveMaintenancePatchDTO preventiveMaintenance, OwnUser user) {
+    public PreventiveMaintenance update(Long id, PreventiveMaintenancePatchDTO preventiveMaintenance, User user) {
         if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PREVENTIVE_MAINTENANCE)) {
             throw new CustomException("Preventive maintenance feature is not enabled for this subscription plan.",
                     HttpStatus.FORBIDDEN);

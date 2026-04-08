@@ -1,6 +1,6 @@
 package com.grash.repository;
 
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.RoleCode;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -13,32 +13,32 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<OwnUser, Long>, JpaSpecificationExecutor<OwnUser> {
+public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
     boolean existsByUsername(String username);
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    Optional<OwnUser> findByEmailIgnoreCase(String email);
+    Optional<User> findByEmailIgnoreCase(String email);
 
     @Transactional
     void deleteByUsername(String username);
 
     boolean existsByEmailIgnoreCase(String email);
 
-    Collection<OwnUser> findByCompany_Id(Long id);
+    Collection<User> findByCompany_Id(Long id);
 
-    Collection<OwnUser> findByLocation_Id(Long id);
+    Collection<User> findByLocation_Id(Long id);
 
-    Optional<OwnUser> findByEmailIgnoreCaseAndCompany_Id(String email, Long companyId);
+    Optional<User> findByEmailIgnoreCaseAndCompany_Id(String email, Long companyId);
 
-    Optional<OwnUser> findByIdAndCompany_Id(Long id, Long companyId);
+    Optional<User> findByIdAndCompany_Id(Long id, Long companyId);
 
-    @Query("select u from OwnUser u where u.company.id=:id and u.role.code not in :roleCodes")
-    Collection<OwnUser> findWorkersByCompany(@Param("id") Long id, @Param("roleCodes") List<RoleCode> roleCodes);
+    @Query("select u from User u where u.company.id=:id and u.role.code not in :roleCodes")
+    Collection<User> findWorkersByCompany(@Param("id") Long id, @Param("roleCodes") List<RoleCode> roleCodes);
 
-    @Query("select u from OwnUser u where u.createdViaSso=true and lower(u.email) like concat('%@',lower" +
+    @Query("select u from User u where u.createdViaSso=true and lower(u.email) like concat('%@',lower" +
             "(:emailDomain))")
-    List<OwnUser> findBySSOCompany(@Param("emailDomain") String emailDomain);
+    List<User> findBySSOCompany(@Param("emailDomain") String emailDomain);
 
     @Query(value = "SELECT EXISTS(SELECT 1 FROM own_user RIGHT JOIN company" +
             " ON own_user.company_id = company.id RIGHT JOIN role ON own_user.role_id = role.id" +

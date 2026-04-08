@@ -6,9 +6,8 @@ import com.grash.dto.webhookEndpoint.WebhookEndpointPostDTO;
 import com.grash.dto.webhookEndpoint.WebhookEndpointShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WebhookEndpointMapper;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.WebhookEndpoint;
-import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.security.CurrentUser;
 import com.grash.service.WebhookEndpointService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,7 +18,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -90,7 +88,7 @@ public class WebhookEndpointController {
                     "plan")
     })
     public ResponseEntity<WebhookEndpointShowDTO> create(
-            @Parameter(hidden = true) @CurrentUser OwnUser user,
+            @Parameter(hidden = true) @CurrentUser User user,
             @RequestBody WebhookEndpointPostDTO request) {
         WebhookEndpoint endpoint = webhookEndpointService.create(request, user);
         return ResponseEntity.ok(webhookEndpointMapper.toShowDto(endpoint));
@@ -107,7 +105,7 @@ public class WebhookEndpointController {
                             WebhookEndpointShowDTO.class))))
     })
     public ResponseEntity<List<WebhookEndpointShowDTO>> listEndpoints(
-            @Parameter(hidden = true) @CurrentUser OwnUser user) {
+            @Parameter(hidden = true) @CurrentUser User user) {
 
         List<WebhookEndpoint> endpoints = webhookEndpointService
                 .getActiveEndpointsByCompany(user.getCompany().getId());
@@ -128,7 +126,7 @@ public class WebhookEndpointController {
             @ApiResponse(responseCode = "404", description = "Webhook not found")
     })
     public ResponseEntity<WebhookEndpointShowDTO> updateEndpoint(
-            @Parameter(hidden = true) @CurrentUser OwnUser user,
+            @Parameter(hidden = true) @CurrentUser User user,
             @PathVariable Long id,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Webhook fields to update",
@@ -171,7 +169,7 @@ public class WebhookEndpointController {
             @ApiResponse(responseCode = "404", description = "Webhook not found")
     })
     public ResponseEntity<SuccessResponse> deleteEndpoint(
-            @Parameter(hidden = true) @CurrentUser OwnUser user,
+            @Parameter(hidden = true) @CurrentUser User user,
             @PathVariable Long id) {
         Optional<WebhookEndpoint> optionalWebhookEndpoint = webhookEndpointService.findById(id);
         if (optionalWebhookEndpoint.isPresent()) {
@@ -208,7 +206,7 @@ public class WebhookEndpointController {
             @ApiResponse(responseCode = "404", description = "Webhook not found")
     })
     public ResponseEntity<SuccessResponse> rotateSecret(
-            @Parameter(hidden = true) @CurrentUser OwnUser user,
+            @Parameter(hidden = true) @CurrentUser User user,
             @PathVariable Long id) {
 
         String newSecret = webhookEndpointService.rotateSecret(

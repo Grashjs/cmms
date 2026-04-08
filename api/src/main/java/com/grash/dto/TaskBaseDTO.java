@@ -2,14 +2,14 @@ package com.grash.dto;
 
 import com.grash.model.Asset;
 import com.grash.model.Meter;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.TaskType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import jakarta.validation.constraints.NotNull;
-import java.util.Collection;
+
 import java.util.List;
 
 @Data
@@ -24,7 +24,7 @@ public class TaskBaseDTO {
     private TaskType taskType = TaskType.SUBTASK;
 
     @Schema(description = "Assigned user")
-    private OwnUser user;
+    private User user;
 
     @Schema(description = "Associated asset")
     private Asset asset;

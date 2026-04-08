@@ -1,7 +1,7 @@
 package com.grash.controller;
 
 import com.grash.exception.CustomException;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.WorkOrderConfiguration;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderConfigurationService;
@@ -32,7 +32,7 @@ public class WorkOrderConfigurationController {
     @PreAuthorize("permitAll()")
 
     public WorkOrderConfiguration getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<WorkOrderConfiguration> optionalWorkOrderConfiguration = workOrderConfigurationService.findById(id);
         if (optionalWorkOrderConfiguration.isPresent()) {
             WorkOrderConfiguration savedWorkOrderConfiguration = optionalWorkOrderConfiguration.get();

@@ -6,7 +6,7 @@ import com.grash.dto.TaskBasePatchDTO;
 import com.grash.dto.TaskBaseShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TaskBaseMapper;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.TaskBase;
 import com.grash.service.TaskBaseService;
 import com.grash.service.UserService;
@@ -38,7 +38,7 @@ public class TaskBaseController {
     @PreAuthorize("permitAll()")
 
     public TaskBaseShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<TaskBase> optionalTaskBase = taskBaseService.findById(id);
         if (optionalTaskBase.isPresent()) {
             TaskBase savedTaskBase = optionalTaskBase.get();
@@ -49,7 +49,7 @@ public class TaskBaseController {
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public TaskBaseShowDTO create(@Parameter(description = "Task template to create") @Valid @RequestBody TaskBaseDTO taskBaseReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         return taskBaseMapper.toShowDto(taskBaseService.createFromTaskBaseDTO(taskBaseReq, user.getCompany()));
     }
 
@@ -59,7 +59,7 @@ public class TaskBaseController {
     public TaskBaseShowDTO patch(@Parameter(description = "Task template fields to update") @Valid @RequestBody TaskBasePatchDTO taskBase,
                                  @PathVariable("id") Long id,
                                  HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<TaskBase> optionalTaskBase = taskBaseService.findById(id);
 
         if (optionalTaskBase.isPresent()) {
@@ -72,7 +72,7 @@ public class TaskBaseController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<TaskBase> optionalTaskBase = taskBaseService.findById(id);
         if (optionalTaskBase.isPresent()) {

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class Team extends CompanyAudit {
                     @Index(name = "idx_team_user_team_id", columnList = "id_team"),
                     @Index(name = "idx_team_user_user_id", columnList = "id_user")
             })
-    private List<OwnUser> users = new ArrayList<>();
+    private List<User> users = new ArrayList<>();
 
     @NotNull
     @Schema(description = "Team name", requiredMode = Schema.RequiredMode.REQUIRED)

@@ -3,7 +3,7 @@ package com.grash.controller.analytics;
 import com.grash.dto.analytics.users.UserWOStats;
 import com.grash.dto.analytics.users.WOStatsByDay;
 import com.grash.exception.CustomException;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.security.CurrentUser;
@@ -21,8 +21,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Parameter;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -42,7 +40,7 @@ public class UserAnalyticsController {
             value = "getUserWOStats",
             key = "#user.id"
     )
-    public ResponseEntity<UserWOStats> getWOStats(@Parameter(hidden = true) @CurrentUser OwnUser user) {
+    public ResponseEntity<UserWOStats> getWOStats(@Parameter(hidden = true) @CurrentUser User user) {
         Collection<WorkOrder> createdWorkOrders = workOrderService.findByCreatedBy(user.getId());
         Collection<WorkOrder> completedWorkOrders = workOrderService.findByCompletedBy(user.getId());
         return ResponseEntity.ok(UserWOStats.builder()
@@ -54,9 +52,9 @@ public class UserAnalyticsController {
     @GetMapping("/two-weeks/work-orders/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<List<WOStatsByDay>> getWoStatsByUserFor2Weeks(@PathVariable("id") Long id,
-                                                                        @Parameter(hidden = true) @CurrentUser OwnUser user) {
+                                                                        @Parameter(hidden = true) @CurrentUser User user) {
         if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
-            Optional<OwnUser> optionalUser = userService.findByIdAndCompany(id, user.getCompany().getId());
+            Optional<User> optionalUser = userService.findByIdAndCompany(id, user.getCompany().getId());
             if (optionalUser.isPresent()) {
                 Date firstDay = Helper.localDateToDate(LocalDate.now().minusDays(14));
                 Collection<WorkOrder> createdWorkOrders = workOrderService.findByCreatedByAndCreatedAtBetween(id,

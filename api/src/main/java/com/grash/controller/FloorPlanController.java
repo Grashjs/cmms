@@ -7,8 +7,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.FloorPlanMapper;
 import com.grash.model.FloorPlan;
 import com.grash.model.Location;
-import com.grash.model.OwnUser;
-import com.grash.model.enums.RoleType;
+import com.grash.model.User;
 import com.grash.service.FloorPlanService;
 import com.grash.service.LocationService;
 import com.grash.service.UserService;
@@ -42,7 +41,7 @@ public class FloorPlanController {
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
     public FloorPlanShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<FloorPlan> optionalFloorPlan = floorPlanService.findById(id);
         if (optionalFloorPlan.isPresent()) {
             FloorPlan savedFloorPlan = optionalFloorPlan.get();
@@ -55,7 +54,7 @@ public class FloorPlanController {
     @PreAuthorize("permitAll()")
     public Collection<FloorPlanShowDTO> getByLocation(@PathVariable("id") Long id,
                                                       HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
             Location location = optionalLocation.get();
@@ -68,7 +67,7 @@ public class FloorPlanController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     FloorPlanShowDTO create(@Parameter(description = "Floor plan data to create") @Valid @RequestBody FloorPlan floorPlanReq,
                             HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         return floorPlanMapper.toShowDto(floorPlanService.create(floorPlanReq));
     }
 
@@ -76,7 +75,7 @@ public class FloorPlanController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public FloorPlanShowDTO patch(@Parameter(description = "Floor plan fields to update") @Valid @RequestBody FloorPlanPatchDTO floorPlan, @Parameter(description = "Floor plan ID") @PathVariable("id") Long id,
                                   HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<FloorPlan> optionalFloorPlan = floorPlanService.findById(id);
 
         if (optionalFloorPlan.isPresent()) {
@@ -89,7 +88,7 @@ public class FloorPlanController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<FloorPlan> optionalFloorPlan = floorPlanService.findById(id);
         if (optionalFloorPlan.isPresent()) {
@@ -101,13 +100,13 @@ public class FloorPlanController {
         } else throw new CustomException("FloorPlan not found", HttpStatus.NOT_FOUND);
     }
 
-    private void checkAccessToFloorPlan(FloorPlan floorPlan, OwnUser user) {
+    private void checkAccessToFloorPlan(FloorPlan floorPlan, User user) {
         if (!floorPlan.getLocation().getCompany().getId().equals(user.getCompany().getId())) {
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         }
     }
 
-    private void checkAccessToLocation(Location location, OwnUser user) {
+    private void checkAccessToLocation(Location location, User user) {
         if (!location.getCompany().getId().equals(user.getCompany().getId())) {
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         }

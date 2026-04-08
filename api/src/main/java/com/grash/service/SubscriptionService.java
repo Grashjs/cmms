@@ -5,7 +5,7 @@ import com.grash.exception.CustomException;
 import com.grash.job.SubscriptionEndJob;
 import com.grash.mapper.SubscriptionMapper;
 import com.grash.model.Company;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.Subscription;
 import com.grash.repository.CompanyRepository;
 import com.grash.repository.ScheduleRepository;
@@ -116,7 +116,7 @@ public class SubscriptionService {
 //        subscription.setPaddleSubscriptionId(null);
         Long companyId = optionalCompany.get().getId();
         int currentUsersCount =
-                (int) userRepository.findByCompany_Id(companyId).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
+                (int) userRepository.findByCompany_Id(companyId).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
         if (currentUsersCount > subscription.getUsersCount()) {
             subscription.setDowngradeNeeded(true);
         }

@@ -1,13 +1,12 @@
 package com.grash.controller;
 
 import com.grash.dto.CategoryPatchDTO;
-import com.grash.dto.CategoryPostDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CostCategoryMapper;
 import com.grash.model.CompanySettings;
 import com.grash.model.CostCategory;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.CostCategoryService;
@@ -41,7 +40,7 @@ public class CostCategoryController {
     @PreAuthorize("permitAll()")
 
     public Collection<CostCategory> getAll(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
                 CompanySettings companySettings = user.getCompany().getCompanySettings();
@@ -54,7 +53,7 @@ public class CostCategoryController {
     @PreAuthorize("permitAll()")
 
     public CostCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
             Optional<CostCategory> costCategoryOptional = costCategoryService.findById(id);
             if (costCategoryOptional.isPresent()) {
@@ -69,7 +68,7 @@ public class CostCategoryController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     CostCategory create(@Parameter(description = "Cost category to create") @Valid @RequestBody CostCategory costCategoryReq,
                         HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             return costCategoryService.create(costCategoryReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -80,7 +79,7 @@ public class CostCategoryController {
 
     public CostCategory patch(@Parameter(description = "Cost category fields to update") @Valid @RequestBody CategoryPatchDTO costCategory, @PathVariable("id") Long id,
                               HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             if (costCategoryService.findById(id).isPresent()) {
                 CostCategory savedCostCategory = costCategoryService.findById(id).get();
@@ -97,7 +96,7 @@ public class CostCategoryController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<CostCategory> optionalCostCategory = costCategoryService.findById(id);
         if (optionalCostCategory.isPresent()) {
