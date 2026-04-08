@@ -3,11 +3,9 @@ import {
   Button,
   CircularProgress,
   Divider,
-  Stack,
-  TextField,
-  Typography,
   IconButton,
-  styled
+  Stack,
+  Typography
 } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +19,8 @@ import { CompanySettingsContext } from '../../../../contexts/CompanySettingsCont
 import FileUpload from '../../components/FileUpload';
 import SendTwoToneIcon from '@mui/icons-material/SendTwoTone';
 import AttachFileTwoToneIcon from '@mui/icons-material/AttachFileTwoTone';
+import { MentionsTextField } from '@jackstenglein/mui-mentions';
+import { getUsersMini } from '../../../../slices/user';
 
 interface CommentsSectionProps {
   workOrderId: number;
@@ -34,8 +34,10 @@ export default function CommentsSection(props: CommentsSectionProps) {
   const { commentsByWorkOrder, loadingComments, loadingCreate } = useSelector(
     (state) => state.comments
   );
+  const { usersMini } = useSelector((state) => state.users);
 
   const [content, setContent] = useState<string>('');
+  const [plainTextContent, setPlainTextContent] = useState<string>('');
   const [files, setFiles] = useState<any[]>([]);
   const [showFileUpload, setShowFileUpload] = useState<boolean>(false);
 
@@ -43,10 +45,13 @@ export default function CommentsSection(props: CommentsSectionProps) {
 
   useEffect(() => {
     dispatch(getCommentsByWorkOrder(workOrderId));
-  }, [workOrderId, dispatch]);
+    if (!usersMini.length) {
+      dispatch(getUsersMini());
+    }
+  }, [workOrderId, dispatch, usersMini.length]);
 
   const handleSubmit = async () => {
-    if (!content.trim()) return;
+    if (!plainTextContent.trim()) return;
 
     try {
       let fileIds: { id: number }[] = [];
@@ -56,6 +61,8 @@ export default function CommentsSection(props: CommentsSectionProps) {
         fileIds = uploadedFiles.map((f) => ({ id: f.id }));
       }
 
+      // Content is already in the correct format: @[display](user:id)
+      // because we configured the markup template as '@[__display__](user:__id__)'
       dispatch(
         createComment({
           workOrder: { id: workOrderId },
@@ -65,6 +72,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
       );
 
       setContent('');
+      setPlainTextContent('');
       setFiles([]);
       setShowFileUpload(false);
     } catch (error) {
@@ -84,14 +92,42 @@ export default function CommentsSection(props: CommentsSectionProps) {
     <Box sx={{ p: 2 }}>
       {/* Add Comment Section */}
       <Box sx={{ mb: 3 }}>
-        <TextField
+        <MentionsTextField
           fullWidth
           multiline
           minRows={3}
           maxRows={6}
           placeholder={t('add_comment_placeholder') || 'Add a comment...'}
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={(newValue, newPlainText, mentions) => {
+            setContent(newValue);
+            setPlainTextContent(newPlainText);
+            console.log(mentions, newValue, newPlainText);
+          }}
+          dataSources={[
+            {
+              trigger: '@',
+              markup: '@[__display__](user:__id__)',
+              // displayTransform: (id, display) => display || id,
+              data: async (query) => {
+                const filteredUsers = usersMini.filter((user) =>
+                  `${user.firstName} ${user.lastName}`
+                    .toLowerCase()
+                    .includes(query.toLowerCase())
+                );
+
+                return filteredUsers.map((user) => ({
+                  id: user.id.toString(),
+                  display: `${user.firstName} ${user.lastName}`
+                }));
+              },
+              appendSpaceOnAdd: true,
+              allowSpaceInQuery: true
+            }
+          ]}
+          slotProps={{
+            suggestionsOverlay: { popper: { sx: { zIndex: 99999 } } }
+          }}
           sx={{ mb: 2 }}
         />
 
@@ -131,9 +167,9 @@ export default function CommentsSection(props: CommentsSectionProps) {
               )
             }
             onClick={handleSubmit}
-            disabled={!content.trim() || loadingCreate}
+            disabled={!plainTextContent.trim() || loadingCreate}
           >
-            {t('post_comment') || 'Post Comment'}
+            {t('post_comment')}
           </Button>
         </Stack>
       </Box>

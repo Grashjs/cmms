@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(www.npmjs.com)",
+      "WebFetch(github.com)",
+      "Bash(npx *)"
+    ]
+  },
+  "$version": 3
+}

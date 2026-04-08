@@ -15,6 +15,7 @@
     "@fullcalendar/react": "5.11.1",
     "@fullcalendar/timegrid": "5.11.0",
     "@intercom/messenger-js-sdk": "^0.0.18",
+    "@jackstenglein/mui-mentions": "^0.1.12",
     "@mui/core": "5.0.0-alpha.54",
     "@mui/icons-material": "5.8.2",
     "@mui/lab": "5.0.0-alpha.84",

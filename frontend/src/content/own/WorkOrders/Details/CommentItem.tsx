@@ -114,6 +114,53 @@ export default function CommentItem(props: CommentItemProps) {
     return `${comment.user.firstName} ${comment.user.lastName}`.trim();
   };
 
+  // Parse mentions from content and render with links
+  const renderContentWithMentions = (content: string) => {
+    // Regex to match @[DisplayName](user:id)
+    const mentionRegex = /@\[([^\]]+)\]\(user:(\d+)\)/g;
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = mentionRegex.exec(content)) !== null) {
+      // Add text before the mention
+      if (match.index > lastIndex) {
+        parts.push(content.slice(lastIndex, match.index));
+      }
+
+      // Add the mention as a link
+      const [, displayName, userId] = match;
+      parts.push(
+        <Link
+          key={`mention-${match.index}`}
+          component="button"
+          variant="body1"
+          sx={{
+            textDecoration: 'none',
+            fontWeight: 600,
+            color: 'primary.main',
+            cursor: 'pointer',
+            '&:hover': {
+              textDecoration: 'underline'
+            }
+          }}
+          onClick={() => navigate(getUserUrl(Number(userId)))}
+        >
+          @{displayName}
+        </Link>
+      );
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text
+    if (lastIndex < content.length) {
+      parts.push(content.slice(lastIndex));
+    }
+
+    return parts.length > 0 ? parts : content;
+  };
+
   return (
     <>
       <CommentWrapper>
@@ -205,7 +252,7 @@ export default function CommentItem(props: CommentItemProps) {
                 }}
                 color={comment.system ? 'grey.600' : undefined}
               >
-                {comment.content}
+                {renderContentWithMentions(comment.content)}
               </Typography>
             )}
             {comment.files?.length > 0 && !isEditing && (
