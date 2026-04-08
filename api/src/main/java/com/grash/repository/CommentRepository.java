@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface CommentRepository extends JpaRepository<Comment, Long>,
         JpaSpecificationExecutor<Comment> {
+    
+    long countByWorkOrderId(Long workOrderId);
 }

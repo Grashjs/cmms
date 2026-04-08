@@ -112,4 +112,12 @@ public class CommentController {
         commentService.delete(id);
         return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"), HttpStatus.OK);
     }
+
+    @GetMapping("/count/{workOrderId}")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public SuccessResponse countByWorkOrder(@PathVariable Long workOrderId,
+                                            @Parameter(hidden = true) @CurrentUser User user) {
+        long count = commentService.countByWorkOrderId(workOrderId, user);
+        return new SuccessResponse(true, String.valueOf(count));
+    }
 }

@@ -97,6 +97,7 @@ import CommentsSection from './CommentsSection';
 import { useBrand } from '../../../../hooks/useBrand';
 import { useLicenseEntitlement } from '../../../../hooks/useLicenseEntitlement';
 import { getErrorMessage } from '../../../../utils/api';
+import { getCommentsCountByWorkOrder } from '../../../../slices/comment';
 
 const LabelWrapper = styled(Box)(
   ({ theme }) => `
@@ -158,6 +159,8 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
     (state) => state.additionalCosts
   );
   const additionalCosts = costsByWorkOrder[workOrder.id] ?? [];
+  const { commentsCountByWorkOrder } = useSelector((state) => state.comments);
+  const commentsCount = commentsCountByWorkOrder[workOrder.id] ?? 0;
   const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
@@ -169,6 +172,11 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const [primaryTimeHours, setPrimaryTimeHours] = useState<number>();
   const [primaryTimeMinutes, setPrimaryTimeMinutes] = useState<number>();
   const [savingPrimaryTime, setSavingPrimaryTime] = useState<boolean>(false);
+
+  useEffect(() => {
+    dispatch(getCommentsCountByWorkOrder(workOrder.id));
+  }, [workOrder.id, dispatch]);
+
   useEffect(() => {
     [workOrder.createdBy, workOrder.parentRequest?.createdBy].forEach(
       (createdBy) => {
@@ -373,7 +381,10 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const workOrderStatuses = ['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETE'];
   const tabs = [
     { value: 'details', label: t('details') },
-    { value: 'comments', label: t('comments') }
+    {
+      value: 'comments',
+      label: `${t('comments')}${commentsCount > 0 ? ` (${commentsCount})` : ''}`
+    }
   ];
 
   const getPath = (resource, id) => {
@@ -1334,7 +1345,9 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
             </Box>
           </Box>
         )}
-        {currentTab == 'comments' && <CommentsSection workOrderId={workOrder.id} />}
+        {currentTab == 'comments' && (
+          <CommentsSection workOrderId={workOrder.id} />
+        )}
       </Grid>
       <AddTimeModal
         open={openAddTimeModal}

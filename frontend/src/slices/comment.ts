@@ -12,6 +12,7 @@ const basePath = 'comments';
 
 interface CommentState {
   commentsByWorkOrder: { [key: number]: Comment[] };
+  commentsCountByWorkOrder: { [key: number]: number };
   loadingComments: boolean;
   loadingCreate: boolean;
   loadingUpdate: boolean;
@@ -20,6 +21,7 @@ interface CommentState {
 
 const initialState: CommentState = {
   commentsByWorkOrder: {},
+  commentsCountByWorkOrder: {},
   loadingComments: false,
   loadingCreate: false,
   loadingUpdate: false,
@@ -100,6 +102,13 @@ const slice = createSlice({
     ) {
       const { loading } = action.payload;
       state.loadingDelete = loading;
+    },
+    setCommentsCount(
+      state: CommentState,
+      action: PayloadAction<{ workOrderId: number; count: number }>
+    ) {
+      const { workOrderId, count } = action.payload;
+      state.commentsCountByWorkOrder[workOrderId] = count;
     }
   }
 });
@@ -168,6 +177,20 @@ export const deleteComment =
       dispatch(slice.actions.deleteComment({ workOrderId, commentId: id }));
     } finally {
       dispatch(slice.actions.setLoadingDelete({ loading: false }));
+    }
+  };
+
+export const getCommentsCountByWorkOrder =
+  (workOrderId: number): AppThunk =>
+  async (dispatch) => {
+    try {
+      const response = await api.get<{ success: boolean; message: string }>(
+        `${basePath}/count/${workOrderId}`
+      );
+      const count = parseInt(response.message, 10);
+      dispatch(slice.actions.setCommentsCount({ workOrderId, count }));
+    } catch (error) {
+      console.error('Failed to fetch comments count:', error);
     }
   };
 

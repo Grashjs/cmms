@@ -76,4 +76,9 @@ public class CommentService {
 
         return commentRepository.findAll(specification);
     }
+
+    public long countByWorkOrderId(Long workOrderId, User user) {
+        workOrderService.checkAccessToWorkOrderId(workOrderId, user);
+        return commentRepository.countByWorkOrderId(workOrderId);
+    }
 }
