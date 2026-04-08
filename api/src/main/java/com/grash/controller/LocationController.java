@@ -51,7 +51,6 @@ public class LocationController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-
     public List<LocationShowDTO> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -69,7 +68,8 @@ public class LocationController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<LocationShowDTO>> search(@Parameter(description = "Search criteria for filtering locations") @RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<LocationShowDTO>> search(@Parameter(description = "Search criteria for filtering " +
+                                                                    "locations") @RequestBody SearchCriteria searchCriteria,
                                                         HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -122,7 +122,8 @@ public class LocationController {
     }
 
     @GetMapping("/{id}")
-    public LocationShowDTO getById(@Parameter(description = "Location ID") @PathVariable("id") Long id, HttpServletRequest req) {
+    public LocationShowDTO getById(@Parameter(description = "Location ID") @PathVariable("id") Long id,
+                                   HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
@@ -171,7 +172,8 @@ public class LocationController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public ResponseEntity delete(@Parameter(description = "Location ID") @PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity delete(@Parameter(description = "Location ID") @PathVariable("id") Long id,
+                                 HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Location> optionalLocation = locationService.findById(id);

@@ -635,10 +635,12 @@ export const CustomSelect = ({
             renderOption={(props, option) => {
               const isCreateOption = (option as CreateOptionType)
                 .__createOption__;
+              const { key, ...restProps } = props;
               return (
                 <Box
+                  key={option.value ?? key}
                   component="li"
-                  {...props}
+                  {...restProps}
                   sx={{
                     color: isCreateOption ? 'primary.main' : 'inherit',
                     fontWeight: isCreateOption ? 600 : 400
