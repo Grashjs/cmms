@@ -1842,7 +1842,12 @@ const locale = {
   never: 'Mai',
   delete_api_key: 'Elimina chiave API',
   delete_api_key_confirm: 'Sei sicuro di voler eliminare questa chiave API?',
-  upgrade_api: 'Aggiorna per accedere a API, connettori e webhook'
+  upgrade_api: 'Aggiorna per accedere a API, connettori e webhook',
+  comments: 'Commenti',
+  add_comment_placeholder: 'Aggiungi un commento...',
+  post_comment: 'Pubblica commento',
+  no_comments: 'Ancora nessun commento',
+  confirm_delete_comment: 'Sei sicuro di voler eliminare questo commento?'
 };
 
 export default locale;

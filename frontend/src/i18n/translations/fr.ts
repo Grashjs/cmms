@@ -1951,14 +1951,17 @@ const frJSON = {
   delete_webhook_endpoint: 'Supprimer le point de terminaison Webhook',
   delete_webhook_endpoint_confirm:
     'Êtes-vous sûr de vouloir supprimer ce point de terminaison Webhook ?',
-  webhook_endpoint_created_success: 'Point de terminaison Webhook créé avec succès',
-  webhook_endpoint_deleted_success: 'Point de terminaison Webhook supprimé avec succès',
+  webhook_endpoint_created_success:
+    'Point de terminaison Webhook créé avec succès',
+  webhook_endpoint_deleted_success:
+    'Point de terminaison Webhook supprimé avec succès',
   webhook_endpoint_url: 'URL',
   webhook_endpoint_event: 'Événement',
   webhook_endpoint_select_event: 'Sélectionner un événement',
   webhook_endpoint_asset_statuses: "Statuts de l'équipement",
   webhook_endpoint_wo_statuses: "Statuts de l'ordre de travail",
-  webhook_endpoint_work_request_approved_only: 'Uniquement les demandes approuvées',
+  webhook_endpoint_work_request_approved_only:
+    'Uniquement les demandes approuvées',
   webhook_endpoint_work_request_approved_only_desc:
     'Déclencher pour les demandes de travail approuvées',
   webhook_endpoint_wo_categories: "Catégories de l'ordre de travail",
@@ -1978,26 +1981,37 @@ const frJSON = {
   webhook_endpoint_never_triggered: 'Jamais déclenché',
   webhook_endpoint_type: 'Type',
   WEBHOOK_ASSET_STATUS_CHANGE: "Changement de statut de l'équipement",
-  WEBHOOK_METER_TRIGGER_STATUS_CHANGE: 'Changement de statut du déclencheur de compteur',
+  WEBHOOK_METER_TRIGGER_STATUS_CHANGE:
+    'Changement de statut du déclencheur de compteur',
   WEBHOOK_NEW_ASSET: 'Nouvel équipement',
-  WEBHOOK_NEW_CATEGORY_ON_WORK_ORDER: "Nouvelle catégorie sur l'ordre de travail",
-  WEBHOOK_NEW_COMMENT_ON_WORK_ORDER: "Nouveau commentaire sur l'ordre de travail",
+  WEBHOOK_NEW_CATEGORY_ON_WORK_ORDER:
+    "Nouvelle catégorie sur l'ordre de travail",
+  WEBHOOK_NEW_COMMENT_ON_WORK_ORDER:
+    "Nouveau commentaire sur l'ordre de travail",
   WEBHOOK_NEW_LOCATION: 'Nouvel emplacement',
   WEBHOOK_NEW_PART: 'Nouvelle pièce',
   WEBHOOK_NEW_PURCHASE_ORDER: "Nouvel ordre d'achat",
   WEBHOOK_NEW_VENDOR: 'Nouveau fournisseur',
-  WEBHOOK_NEW_WORK_ORDER: "Nouvel ordre de travail",
+  WEBHOOK_NEW_WORK_ORDER: 'Nouvel ordre de travail',
   WEBHOOK_NEW_REQUEST: 'Nouvelle demande',
   WEBHOOK_PART_CHANGE: 'Modification de pièce',
   WEBHOOK_PART_DELETE: 'Suppression de pièce',
   WEBHOOK_PART_QUANTITY_CHANGED: 'Quantité de pièce modifiée',
   WEBHOOK_PURCHASE_ORDER_CHANGE: "Modification de l'ordre d'achat",
-  WEBHOOK_PURCHASE_ORDER_STATUS_CHANGE: "Changement de statut de l'ordre d'achat",
+  WEBHOOK_PURCHASE_ORDER_STATUS_CHANGE:
+    "Changement de statut de l'ordre d'achat",
   WEBHOOK_WORK_ORDER_CHANGE: "Modification de l'ordre de travail",
   WEBHOOK_WORK_ORDER_DELETE: "Suppression de l'ordre de travail",
-  WEBHOOK_WORK_ORDER_OVERDUE: "Ordre de travail en retard",
-  WEBHOOK_WORK_ORDER_STATUS_CHANGE: "Changement de statut de l'ordre de travail",
-  WEBHOOK_WORK_REQUEST_STATUS_CHANGE: 'Changement de statut de la demande de travail'
+  WEBHOOK_WORK_ORDER_OVERDUE: 'Ordre de travail en retard',
+  WEBHOOK_WORK_ORDER_STATUS_CHANGE:
+    "Changement de statut de l'ordre de travail",
+  WEBHOOK_WORK_REQUEST_STATUS_CHANGE:
+    'Changement de statut de la demande de travail',
+  comments: 'Commentaires',
+  add_comment_placeholder: 'Ajouter un commentaire...',
+  post_comment: 'Publier le commentaire',
+  no_comments: 'Pas encore de commentaires',
+  confirm_delete_comment: 'Êtes-vous sûr de vouloir supprimer ce commentaire?'
 };
 
 export default frJSON;

@@ -1824,7 +1824,12 @@ const locale = {
   delete_api_key: 'Obriši API ključ',
   delete_api_key_confirm:
     'Da li ste sigurni da želite obrisati ovaj API ključ?',
-  upgrade_api: 'Nadogradite za pristup API-ju, konektorima i webhookovima'
+  upgrade_api: 'Nadogradite za pristup API-ju, konektorima i webhookovima',
+  comments: 'Komentari',
+  add_comment_placeholder: 'Dodaj komentar...',
+  post_comment: 'Objavi komentar',
+  no_comments: 'Još nema komentara',
+  confirm_delete_comment: 'Da li ste sigurni da želite obrisati ovaj komentar?'
 };
 
 export default locale;

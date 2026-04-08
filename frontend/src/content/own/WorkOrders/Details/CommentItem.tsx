@@ -181,7 +181,6 @@ export default function CommentItem(props: CommentItemProps) {
                   <Button
                     size="small"
                     variant="contained"
-                    startIcon={<SaveTwoToneIcon />}
                     onClick={handleUpdate}
                     disabled={!editContent.trim()}
                   >
@@ -190,7 +189,6 @@ export default function CommentItem(props: CommentItemProps) {
                   <Button
                     size="small"
                     variant="outlined"
-                    startIcon={<CancelTwoToneIcon />}
                     onClick={handleCancelEdit}
                   >
                     {t('cancel')}
