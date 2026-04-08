@@ -5,7 +5,8 @@ import {
   Divider,
   IconButton,
   Stack,
-  Typography
+  Typography,
+  useTheme
 } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -40,7 +41,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
   const [plainTextContent, setPlainTextContent] = useState<string>('');
   const [files, setFiles] = useState<any[]>([]);
   const [showFileUpload, setShowFileUpload] = useState<boolean>(false);
-
+  const theme = useTheme();
   const comments = commentsByWorkOrder[workOrderId] ?? [];
 
   useEffect(() => {
@@ -102,7 +103,6 @@ export default function CommentsSection(props: CommentsSectionProps) {
           onChange={(newValue, newPlainText, mentions) => {
             setContent(newValue);
             setPlainTextContent(newPlainText);
-            console.log(mentions, newValue, newPlainText);
           }}
           dataSources={[
             {
@@ -128,6 +128,8 @@ export default function CommentsSection(props: CommentsSectionProps) {
           slotProps={{
             suggestionsOverlay: { popper: { sx: { zIndex: 99999 } } }
           }}
+          highlightColor={theme.palette.primary.main}
+          highlightTextColor
           sx={{ mb: 2 }}
         />
 

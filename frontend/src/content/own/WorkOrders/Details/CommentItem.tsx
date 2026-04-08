@@ -5,12 +5,14 @@ import {
   Avatar,
   Stack,
   styled,
-  TextField,
   Button,
-  Link
+  Link,
+  CircularProgress,
+  useTheme
 } from '@mui/material';
+import { MentionsTextField } from '@jackstenglein/mui-mentions';
 import Comment from '../../../../models/owns/comment';
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
@@ -19,6 +21,7 @@ import CancelTwoToneIcon from '@mui/icons-material/CancelTwoTone';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
 import { useDispatch, useSelector } from '../../../../store';
 import { deleteComment, updateComment } from '../../../../slices/comment';
+import { getUsersMini } from '../../../../slices/user';
 import useAuth from '../../../../hooks/useAuth';
 import File from '../../../../models/owns/file';
 import PictureAsPdfTwoToneIcon from '@mui/icons-material/PictureAsPdfTwoTone';
@@ -58,10 +61,23 @@ export default function CommentItem(props: CommentItemProps) {
   const dispatch = useDispatch();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editContent, setEditContent] = useState<string>(comment.content);
+  const [editPlainTextContent, setEditPlainTextContent] = useState<string>(
+    comment.content
+  );
+  const theme = useTheme();
   const [isImageViewerOpen, setIsImageViewerOpen] = useState<boolean>(false);
   const [currentImage, setCurrentImage] = useState<string>();
   const [currentImages, setCurrentImages] = useState<string[]>();
-  const { loadingDelete } = useSelector((state) => state.comments);
+  const { loadingDelete, loadingUpdate } = useSelector(
+    (state) => state.comments
+  );
+  const { usersMini } = useSelector((state) => state.users);
+
+  useEffect(() => {
+    if (!usersMini.length) {
+      dispatch(getUsersMini());
+    }
+  }, [dispatch, usersMini.length]);
 
   const isOwner = comment.user?.id === user.id;
   const isSystem = comment.system;
@@ -73,7 +89,7 @@ export default function CommentItem(props: CommentItemProps) {
   };
 
   const handleUpdate = () => {
-    if (editContent.trim()) {
+    if (editPlainTextContent.trim()) {
       dispatch(
         updateComment(
           comment.id,
@@ -89,6 +105,7 @@ export default function CommentItem(props: CommentItemProps) {
 
   const handleCancelEdit = () => {
     setEditContent(comment.content);
+    setEditPlainTextContent(comment.content);
     setIsEditing(false);
   };
 
@@ -216,12 +233,40 @@ export default function CommentItem(props: CommentItemProps) {
             </Stack>
             {isEditing ? (
               <Box>
-                <TextField
+                <MentionsTextField
                   fullWidth
                   multiline
                   minRows={2}
                   value={editContent}
-                  onChange={(e) => setEditContent(e.target.value)}
+                  onChange={(newValue, newPlainText) => {
+                    setEditContent(newValue);
+                    setEditPlainTextContent(newPlainText);
+                  }}
+                  dataSources={[
+                    {
+                      trigger: '@',
+                      markup: '@[__display__](user:__id__)',
+                      data: async (query) => {
+                        const filteredUsers = usersMini.filter((user) =>
+                          `${user.firstName} ${user.lastName}`
+                            .toLowerCase()
+                            .includes(query.toLowerCase())
+                        );
+
+                        return filteredUsers.map((user) => ({
+                          id: user.id.toString(),
+                          display: `${user.firstName} ${user.lastName}`
+                        }));
+                      },
+                      appendSpaceOnAdd: true,
+                      allowSpaceInQuery: true
+                    }
+                  ]}
+                  highlightColor={theme.palette.primary.main}
+                  highlightTextColor
+                  slotProps={{
+                    suggestionsOverlay: { popper: { sx: { zIndex: 99999 } } }
+                  }}
                   sx={{ mb: 1 }}
                 />
                 <Stack direction="row" spacing={1}>
@@ -229,7 +274,12 @@ export default function CommentItem(props: CommentItemProps) {
                     size="small"
                     variant="contained"
                     onClick={handleUpdate}
-                    disabled={!editContent.trim()}
+                    disabled={!editPlainTextContent.trim() || loadingUpdate}
+                    startIcon={
+                      loadingUpdate ? (
+                        <CircularProgress size="1rem" />
+                      ) : undefined
+                    }
                   >
                     {t('save')}
                   </Button>

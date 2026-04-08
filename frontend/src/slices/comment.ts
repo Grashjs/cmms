@@ -52,6 +52,7 @@ const slice = createSlice({
         comment,
         ...state.commentsByWorkOrder[workOrderId]
       ];
+      state.commentsCountByWorkOrder[workOrderId]++;
     },
     updateComment(
       state: CommentState,
@@ -73,6 +74,7 @@ const slice = createSlice({
         state.commentsByWorkOrder[workOrderId] = state.commentsByWorkOrder[
           workOrderId
         ].filter((c) => c.id !== commentId);
+        state.commentsCountByWorkOrder[workOrderId]--;
       }
     },
     setLoadingComments(
