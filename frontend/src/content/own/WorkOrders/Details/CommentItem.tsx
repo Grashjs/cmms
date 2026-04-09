@@ -91,10 +91,6 @@ export default function CommentItem(props: CommentItemProps) {
     }
   }, [highlighted]);
 
-  useEffect(() => {
-    dispatch(getUsersMini());
-  }, [dispatch]);
-
   const isOwner = comment.user?.id === user.id;
   const isSystem = comment.system;
 
