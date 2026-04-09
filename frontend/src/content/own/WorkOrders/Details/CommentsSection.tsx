@@ -46,10 +46,8 @@ export default function CommentsSection(props: CommentsSectionProps) {
 
   useEffect(() => {
     dispatch(getCommentsByWorkOrder(workOrderId));
-    if (!usersMini.length) {
-      dispatch(getUsersMini());
-    }
-  }, [workOrderId, dispatch, usersMini.length]);
+    dispatch(getUsersMini());
+  }, [workOrderId, dispatch]);
 
   const handleSubmit = async () => {
     if (!plainTextContent.trim()) return;

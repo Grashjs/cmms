@@ -81,7 +81,8 @@ public class CommentService {
 
         // Send email notifications
         String commentContent = formatCommentContent(savedComment.getContent());
-        String commentLink = frontendUrl + "/app/work-orders/" + workOrder.getId();
+        String commentLink =
+                frontendUrl + "/app/work-orders/" + workOrder.getId() + "?commentId=" + savedComment.getId();
 
         Map<String, Object> mailVariables = new HashMap<>();
         mailVariables.put("userFullName", user.getFullName());
@@ -90,7 +91,7 @@ public class CommentService {
         mailVariables.put("commentLink", commentLink);
 
         Collection<User> usersToMail = notifiedUsers.stream()
-                .filter(u -> u.isEnabled() && u.getUserSettings() != null 
+                .filter(u -> u.isEnabled() && u.getUserSettings() != null
                         && u.getUserSettings().shouldEmailUpdatesForWorkOrders())
                 .collect(Collectors.toList());
 
@@ -148,7 +149,7 @@ public class CommentService {
 
     private String formatCommentContent(String content) {
         // Convert @[name](user:id) mentions to clickable links
-        return content.replaceAll("@\\[(.*?)\\]\\(user:(\\d+)\\)", 
-                "<a href=\"#\">@$1</a>");
+        return content.replaceAll("@\\[(.*?)\\]\\(user:(\\d+)\\)",
+                "<a href=\"" + frontendUrl + "/app/people-teams/people/$0\">@$1</a>");
     }
 }

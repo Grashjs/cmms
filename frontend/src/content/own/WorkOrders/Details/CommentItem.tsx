@@ -74,10 +74,8 @@ export default function CommentItem(props: CommentItemProps) {
   const { usersMini } = useSelector((state) => state.users);
 
   useEffect(() => {
-    if (!usersMini.length) {
-      dispatch(getUsersMini());
-    }
-  }, [dispatch, usersMini.length]);
+    dispatch(getUsersMini());
+  }, [dispatch]);
 
   const isOwner = comment.user?.id === user.id;
   const isSystem = comment.system;
