@@ -81,10 +81,6 @@ export default function CommentsSection(props: CommentsSectionProps) {
     setFiles(droppedFiles);
   };
 
-  const handleRemoveFile = (index: number) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-  };
-
   return (
     <Box sx={{ p: 2 }}>
       {/* Add Comment Section */}
