@@ -64,4 +64,11 @@
     <changeSet id="1775637489683-1" author="Ibrahima G. Coulibaly">
         <createSequence sequenceName="comment_seq" startValue="1" incrementBy="50"/>
     </changeSet>
+    <changeSet id="1775742811662-1" author="Ibrahima G. Coulibaly">
+        <sql>
+            update notification
+            set notification_type=2
+            where notification_type = 9;
+        </sql>
+    </changeSet>
 </databaseChangeLog>
