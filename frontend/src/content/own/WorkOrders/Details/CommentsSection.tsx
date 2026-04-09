@@ -89,6 +89,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
     <Box sx={{ p: 2 }}>
       {/* Add Comment Section */}
       <Box sx={{ mb: 3 }}>
+        {/*@ts-ignore*/}
         <MentionsTextField
           fullWidth
           multiline
@@ -128,7 +129,6 @@ export default function CommentsSection(props: CommentsSectionProps) {
           highlightTextColor
           sx={{ mb: 2 }}
         />
-
         {showFileUpload && (
           <Box mb={2}>
             <FileUpload
@@ -141,7 +141,6 @@ export default function CommentsSection(props: CommentsSectionProps) {
             />
           </Box>
         )}
-
         <Stack
           direction="row"
           spacing={1}
