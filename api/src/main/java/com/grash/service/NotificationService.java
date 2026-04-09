@@ -42,6 +42,7 @@ public class NotificationService {
 
     @Async
     public void createMultiple(List<Notification> notifications, boolean mobile, String title) {
+        if (notifications.isEmpty()) return;
         List<Notification> savedNotifications = notificationRepository.saveAll(notifications);
         savedNotifications.forEach(notification ->
                 messagingTemplate.convertAndSend("/notifications/" + notification.getUser().getId(), notification));

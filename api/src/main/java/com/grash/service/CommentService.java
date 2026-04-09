@@ -4,6 +4,7 @@ import com.grash.dto.comment.CommentCriteria;
 import com.grash.dto.comment.CommentPatchDTO;
 import com.grash.dto.comment.CommentPostDTO;
 import com.grash.exception.CustomException;
+import com.grash.factory.MailServiceFactory;
 import com.grash.mapper.CommentMapper;
 import com.grash.model.*;
 import com.grash.model.enums.NotificationType;
@@ -14,6 +15,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,6 +39,10 @@ public class CommentService {
     private final UserRepository userRepository;
     private final NotificationService notificationService;
     private final MessageSource messageSource;
+    private final MailServiceFactory mailServiceFactory;
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     public Comment create(@Valid CommentPostDTO commentReq, User user) {
         Comment comment = commentMapper.fromPostDto(commentReq);
@@ -72,6 +78,31 @@ public class CommentService {
 
         notificationService.createMultiple(notifications, true,
                 messageSource.getMessage("new_comment", null, locale));
+
+        // Send email notifications
+        String commentContent = formatCommentContent(savedComment.getContent());
+        String commentLink = frontendUrl + "/app/work-orders/" + workOrder.getId();
+
+        Map<String, Object> mailVariables = new HashMap<>();
+        mailVariables.put("userFullName", user.getFullName());
+        mailVariables.put("workOrderTitle", workOrder.getTitle());
+        mailVariables.put("commentContent", commentContent);
+        mailVariables.put("commentLink", commentLink);
+
+        Collection<User> usersToMail = notifiedUsers.stream()
+                .filter(u -> u.isEnabled() && u.getUserSettings() != null 
+                        && u.getUserSettings().shouldEmailUpdatesForWorkOrders())
+                .collect(Collectors.toList());
+
+        if (!usersToMail.isEmpty()) {
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(
+                    usersToMail.stream().map(User::getEmail).toArray(String[]::new),
+                    messageSource.getMessage("new_comment", null, locale),
+                    mailVariables,
+                    "new-comment.html",
+                    Helper.getLocale(usersToMail.stream().findFirst().get())
+            );
+        }
 
         return savedComment;
     }
@@ -113,5 +144,11 @@ public class CommentService {
     public long countByWorkOrderId(Long workOrderId, User user) {
         workOrderService.checkAccessToWorkOrderId(workOrderId, user);
         return commentRepository.countByWorkOrderId(workOrderId);
+    }
+
+    private String formatCommentContent(String content) {
+        // Convert @[name](user:id) mentions to clickable links
+        return content.replaceAll("@\\[(.*?)\\]\\(user:(\\d+)\\)", 
+                "<a href=\"#\">@$1</a>");
     }
 }
