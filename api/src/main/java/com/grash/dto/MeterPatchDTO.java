@@ -3,7 +3,7 @@ package com.grash.dto;
 import com.grash.model.File;
 import com.grash.model.Location;
 import com.grash.model.MeterCategory;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -34,9 +34,9 @@ public class MeterPatchDTO {
     private Location location;
 
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of users who have access to the meter", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of users who have access to the meter", writeOnly = true)
     )
-    private Collection<OwnUser> users;
+    private Collection<User> users;
 
 }

@@ -6,7 +6,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Checklist;
 import com.grash.model.CompanySettings;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleType;
@@ -40,7 +40,7 @@ public class ChecklistController {
     @PreAuthorize("permitAll()")
 
     public Collection<Checklist> getAll(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             CompanySettings companySettings = user.getCompany().getCompanySettings();
             return checklistService.findByCompanySettings(companySettings.getId());
@@ -51,7 +51,7 @@ public class ChecklistController {
     @PreAuthorize("permitAll()")
 
     public Checklist getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Checklist> optionalChecklist = checklistService.findById(id);
         if (optionalChecklist.isPresent()) {
             Checklist savedChecklist = optionalChecklist.get();
@@ -63,7 +63,7 @@ public class ChecklistController {
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     Checklist create(@Parameter(description = "Checklist to create") @Valid @RequestBody ChecklistPostDTO checklistReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.CHECKLIST)) {
             return checklistService.createPost(checklistReq, user.getCompany());
@@ -76,7 +76,7 @@ public class ChecklistController {
     public Checklist patch(@Parameter(description = "Checklist fields to update") @Valid @RequestBody ChecklistPatchDTO checklist,
                            @PathVariable("id") Long id,
                            HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Checklist> optionalChecklist = checklistService.findById(id);
 
         if (optionalChecklist.isPresent()) {
@@ -92,7 +92,7 @@ public class ChecklistController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<Checklist> optionalChecklist = checklistService.findById(id);
         if (optionalChecklist.isPresent()) {
@@ -106,7 +106,7 @@ public class ChecklistController {
         } else throw new CustomException("Checklist not found", HttpStatus.NOT_FOUND);
     }
 
-    private void checkAccessToChecklist(Checklist checklist, OwnUser user) {
+    private void checkAccessToChecklist(Checklist checklist, User user) {
         if (!checklist.getCompanySettings().getCompany().getId().equals(user.getCompany().getId()))
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }

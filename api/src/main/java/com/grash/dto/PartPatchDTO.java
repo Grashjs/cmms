@@ -50,32 +50,32 @@ public class PartPatchDTO {
     private File image;
 
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of users assigned to the part", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of users assigned to the part", writeOnly = true)
     )
-    private Collection<OwnUser> assignedTo;
+    private Collection<User> assignedTo;
 
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of files attached to the part", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of files attached to the part", writeOnly = true)
     )
     private Collection<File> files;
 
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of customers associated with the part", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of customers associated with the part", writeOnly = true)
     )
     private Collection<Customer> customers;
 
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of vendors associated with the part", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of vendors associated with the part", writeOnly = true)
     )
     private Collection<Vendor> vendors;
 
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of teams assigned to the part", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of teams assigned to the part", writeOnly = true)
     )
     private Collection<Team> teams;
 

@@ -100,8 +100,8 @@ public class UserService {
             if (authentication.getAuthorities().stream().noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_" + type.toUpperCase()))) {
                 throw new CustomException("Invalid credentials", HttpStatus.FORBIDDEN);
             }
-            Optional<OwnUser> optionalUser = userRepository.findByEmailIgnoreCase(email);
-            OwnUser user = optionalUser.get();
+            Optional<User> optionalUser = userRepository.findByEmailIgnoreCase(email);
+            User user = optionalUser.get();
             user.setLastLogin(new Date());
             userRepository.save(user);
             return jwtTokenProvider.createToken(email, Collections.singletonList(user.getRole().getRoleType()));
@@ -110,14 +110,14 @@ public class UserService {
         }
     }
 
-    private void onCompanyAndUserCreation(OwnUser user) {
+    private void onCompanyAndUserCreation(User user) {
         if (cloudVersion && user.isOwnsCompany()) {
             applicationEventPublisher.publishEvent(new CompanyCreatedEvent(user));
         }
     }
 
-    private SignupSuccessResponse<OwnUser> enableAndReturnToken(OwnUser user, boolean sendEmailToSuperAdmins,
-                                                                UserSignupRequest userSignupRequest) {
+    private SignupSuccessResponse<User> enableAndReturnToken(User user, boolean sendEmailToSuperAdmins,
+                                                             UserSignupRequest userSignupRequest) {
         user.setEnabled(true);
         userRepository.save(user);
         if (sendEmailToSuperAdmins)
@@ -142,8 +142,8 @@ public class UserService {
                     " https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
     }
 
-    public SignupSuccessResponse<OwnUser> signup(UserSignupRequest userReq) {
-        OwnUser user = userMapper.toModel(userReq);
+    public SignupSuccessResponse<User> signup(UserSignupRequest userReq) {
+        User user = userMapper.toModel(userReq);
         user.setEmail(user.getEmail().toLowerCase());
         if (userRepository.existsByEmailIgnoreCase(user.getEmail())) {
             throw new CustomException("Email is already in use", HttpStatus.UNPROCESSABLE_ENTITY);
@@ -193,7 +193,7 @@ public class UserService {
             userInvitations.sort(Comparator.comparing(UserInvitation::getCreatedAt).reversed());
             user.setRole(role);
             if (role.getCompanySettings() == null) {
-                Optional<OwnUser> optionalInviter = findById(userInvitations.get(0).getCreatedBy());
+                Optional<User> optionalInviter = findById(userInvitations.get(0).getCreatedBy());
                 if (!optionalInviter.isPresent())
                     throw new CustomException("Inviter not found", HttpStatus.NOT_ACCEPTABLE);
                 user.setCompany(optionalInviter.get().getCompany());
@@ -245,23 +245,23 @@ public class UserService {
         userRepository.deleteByUsername(username);
     }
 
-    public Optional<OwnUser> findByEmail(String email) {
+    public Optional<User> findByEmail(String email) {
         return userRepository.findByEmailIgnoreCase(email);
     }
 
-    public Optional<OwnUser> findByEmailAndCompany(String email, Long companyId) {
+    public Optional<User> findByEmailAndCompany(String email, Long companyId) {
         return userRepository.findByEmailIgnoreCaseAndCompany_Id(email, companyId);
     }
 
-    public Optional<OwnUser> findByIdAndCompany(Long id, Long companyId) {
+    public Optional<User> findByIdAndCompany(Long id, Long companyId) {
         return userRepository.findByIdAndCompany_Id(id, companyId);
     }
 
-    public OwnUser whoami(HttpServletRequest req) {
+    public User whoami(HttpServletRequest req) {
         return whoami(req, true);
     }
 
-    public OwnUser whoami(HttpServletRequest req, boolean cached) {
+    public User whoami(HttpServletRequest req, boolean cached) {
         String token = jwtTokenProvider.resolveToken(req);
         if (token == null || token.isEmpty()) {
             // API key authentication - get user from SecurityContext
@@ -275,19 +275,19 @@ public class UserService {
         return whoami(username, cached);
     }
 
-    public OwnUser whoami(String username, boolean cached) {
+    public User whoami(String username, boolean cached) {
         return cached ? findByEmailWithRolesCached(username).get() :
                 findByEmail(username).get();
     }
 
-    public Optional<OwnUser> findByEmailWithRolesCached(String email) {
+    public Optional<User> findByEmailWithRolesCached(String email) {
         if (email == null || email.trim().isEmpty()) {
             return Optional.empty();
         }
-        Optional<OwnUser> cachedUser = cacheService.getUserFromCache(email);
+        Optional<User> cachedUser = cacheService.getUserFromCache(email);
         if (cachedUser.isPresent()) return cachedUser;
 
-        Optional<OwnUser> userOptional = userRepository.findByEmailIgnoreCase(email.toLowerCase().trim());
+        Optional<User> userOptional = userRepository.findByEmailIgnoreCase(email.toLowerCase().trim());
         userOptional.ifPresent(cacheService::putUserInCache);
 
         return userOptional;
@@ -298,7 +298,7 @@ public class UserService {
                 Arrays.asList(userRepository.findByEmailIgnoreCase(username).get().getRole().getRoleType()));
     }
 
-    public List<OwnUser> getAll() {
+    public List<User> getAll() {
         return userRepository.findAll();
     }
 
@@ -306,12 +306,12 @@ public class UserService {
         return userRepository.count();
     }
 
-    public Optional<OwnUser> findById(Long id) {
+    public Optional<User> findById(Long id) {
         return userRepository.findById(id);
     }
 
     public void enableUser(String email) {
-        OwnUser user = userRepository.findByEmailIgnoreCase(email).get();
+        User user = userRepository.findByEmailIgnoreCase(email).get();
         if (user.getRole().isPaid()) {
             checkUsageBasedLimit(1);
             int companyUsersCount =
@@ -327,7 +327,7 @@ public class UserService {
     public SuccessResponse resetPasswordRequest(String email) {
         throwIfEmailNotificationsNotEnabled();
         email = email.toLowerCase();
-        OwnUser user = findByEmail(email).get();
+        User user = findByEmail(email).get();
         Helper helper = new Helper();
         String password = helper.generateString().replace("-", "").substring(0, 8).toUpperCase();
 
@@ -345,15 +345,15 @@ public class UserService {
         return new SuccessResponse(true, "Password changed successfully");
     }
 
-    public Collection<OwnUser> findByCompany(Long id) {
+    public Collection<User> findByCompany(Long id) {
         return userRepository.findByCompany_Id(id);
     }
 
-    public Collection<OwnUser> findWorkersByCompany(Long id) {
+    public Collection<User> findWorkersByCompany(Long id) {
         return userRepository.findWorkersByCompany(id, Arrays.asList(RoleCode.REQUESTER, RoleCode.VIEW_ONLY));
     }
 
-    public Collection<OwnUser> findByLocation(Long id) {
+    public Collection<User> findByLocation(Long id) {
         return userRepository.findByLocation_Id(id);
     }
 
@@ -363,7 +363,7 @@ public class UserService {
                     HttpStatus.NOT_ACCEPTABLE);
     }
 
-    public void invite(String email, Role role, OwnUser inviter, Boolean disableSendingMails) {
+    public void invite(String email, Role role, User inviter, Boolean disableSendingMails) {
         if (!userRepository.existsByEmailIgnoreCase(email) && Helper.isValidEmailAddress(email)) {
             if (role.isPaid()) checkUsageBasedLimit(1);
             userInvitationService.create(new UserInvitation(email, role));
@@ -383,9 +383,9 @@ public class UserService {
     }
 
     @org.springframework.transaction.annotation.Transactional
-    public OwnUser update(Long id, UserPatchDTO userReq) {
+    public User update(Long id, UserPatchDTO userReq) {
         if (userRepository.existsById(id)) {
-            OwnUser savedUser = userRepository.findById(id).get();
+            User savedUser = userRepository.findById(id).get();
             if (userReq.getNewPassword() != null) {
                 if (userReq.getNewPassword().length() < 8)
                     throw new CustomException("Password must be at least 8 characters", HttpStatus.NOT_ACCEPTABLE);
@@ -394,18 +394,18 @@ public class UserService {
 
                 savedUser.setPassword(passwordEncoder.encode(userReq.getNewPassword()));
             }
-            OwnUser updatedUser = userRepository.saveAndFlush(userMapper.updateUser(savedUser, userReq));
+            User updatedUser = userRepository.saveAndFlush(userMapper.updateUser(savedUser, userReq));
             em.refresh(updatedUser);
             cacheService.putUserInCache(updatedUser);
             return updatedUser;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    public OwnUser save(OwnUser user) {
+    public User save(User user) {
         return userRepository.save(user);
     }
 
-    public Collection<OwnUser> saveAll(Collection<OwnUser> users) {
+    public Collection<User> saveAll(Collection<User> users) {
         return userRepository.saveAll(users);
     }
 
@@ -413,19 +413,19 @@ public class UserService {
         return userRepository.existsByEmailIgnoreCase(email);
     }
 
-    public boolean isUserInCompany(OwnUser user, long companyId, boolean optional) {
+    public boolean isUserInCompany(User user, long companyId, boolean optional) {
         if (optional) {
-            Optional<OwnUser> optionalUser = user == null ? Optional.empty() : findById(user.getId());
+            Optional<User> optionalUser = user == null ? Optional.empty() : findById(user.getId());
             return user == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
         } else {
-            Optional<OwnUser> optionalUser = findById(user.getId());
+            Optional<User> optionalUser = findById(user.getId());
             return optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId);
         }
     }
 
 
-    public Page<OwnUser> findBySearchCriteria(SearchCriteria searchCriteria) {
-        SpecificationBuilder<OwnUser> builder = new SpecificationBuilder<>();
+    public Page<User> findBySearchCriteria(SearchCriteria searchCriteria) {
+        SpecificationBuilder<User> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
                 searchCriteria.getDirection(), searchCriteria.getSortField());
@@ -433,7 +433,7 @@ public class UserService {
     }
 
     @Async
-    void sendRegistrationMailToSuperAdmins(OwnUser user, UserSignupRequest userSignupRequest) {
+    void sendRegistrationMailToSuperAdmins(User user, UserSignupRequest userSignupRequest) {
         if (user.getEmail().equals("superadmin@test.com")) return;
         if (user.getCompany() != null && user.getCompany().isDemo()) return;
         if (recipients == null || recipients.length == 0) {
@@ -459,7 +459,7 @@ public class UserService {
         return String.format("%s plan %s used", brandName, request.getSubscriptionPlanId());
     }
 
-    private String buildRegistrationEmailBody(OwnUser user, UserSignupRequest request) {
+    private String buildRegistrationEmailBody(User user, UserSignupRequest request) {
         StringBuilder body = new StringBuilder();
 
         // User basic info

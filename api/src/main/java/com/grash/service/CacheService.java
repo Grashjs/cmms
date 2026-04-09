@@ -1,6 +1,6 @@
 package com.grash.service;
 
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.cache.Cache;
@@ -22,7 +22,7 @@ public class CacheService {
         }
     }
 
-    public void putUserInCache(OwnUser user) {
+    public void putUserInCache(User user) {
         if (user != null) {
             Cache usersCache = cacheManager.getCache(USERS_CACHE);
             if (usersCache != null) {
@@ -43,10 +43,10 @@ public class CacheService {
         }
     }
 
-    public Optional<OwnUser> getUserFromCache(String email) {
+    public Optional<User> getUserFromCache(String email) {
         Cache usersCache = cacheManager.getCache(USERS_CACHE);
         if (usersCache == null) return Optional.empty();
-        OwnUser cachedUser = usersCache.get(getCacheKey(email), OwnUser.class);
+        User cachedUser = usersCache.get(getCacheKey(email), User.class);
 
         return cachedUser == null ? Optional.empty() : Optional.of(cachedUser);
     }

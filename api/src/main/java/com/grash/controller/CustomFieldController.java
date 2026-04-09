@@ -4,8 +4,7 @@ import com.grash.dto.CustomFieldPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.CustomField;
-import com.grash.model.OwnUser;
-import com.grash.model.enums.RoleType;
+import com.grash.model.User;
 import com.grash.service.CustomFieldService;
 import com.grash.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,7 +33,7 @@ public class CustomFieldController {
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
     public CustomField getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<CustomField> optionalCustomField = customFieldService.findById(id);
         if (optionalCustomField.isPresent()) {
             CustomField savedCustomField = optionalCustomField.get();
@@ -47,7 +46,7 @@ public class CustomFieldController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     CustomField create(@Parameter(description = "Custom field to create") @Valid @RequestBody CustomField customFieldReq,
                        HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         return customFieldService.create(customFieldReq);
     }
 
@@ -55,7 +54,7 @@ public class CustomFieldController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public CustomField patch(@Parameter(description = "Custom field fields to update") @Valid @RequestBody CustomFieldPatchDTO customField, @PathVariable("id") Long id,
                              HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<CustomField> optionalCustomField = customFieldService.findById(id);
 
         if (optionalCustomField.isPresent()) {
@@ -68,7 +67,7 @@ public class CustomFieldController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<CustomField> optionalCustomField = customFieldService.findById(id);
         if (optionalCustomField.isPresent()) {
@@ -80,7 +79,7 @@ public class CustomFieldController {
         } else throw new CustomException("CustomField not found", HttpStatus.NOT_FOUND);
     }
 
-    private void checkAccessToCustomField(CustomField customField, OwnUser user) {
+    private void checkAccessToCustomField(CustomField customField, User user) {
         if (!customField.getVendor().getCompany().getId().equals(user.getCompany().getId())) {
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         }

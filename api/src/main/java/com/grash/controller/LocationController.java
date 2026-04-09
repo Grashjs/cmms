@@ -8,7 +8,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.mapper.LocationMapper;
 import com.grash.model.Location;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.LocationService;
@@ -52,7 +52,7 @@ public class LocationController {
     @GetMapping("")
     @PreAuthorize("permitAll()")
     public List<LocationShowDTO> getAll(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS)) {
                 return locationService.findByCompany(user.getCompany().getId()).stream().filter(location -> {
@@ -71,7 +71,7 @@ public class LocationController {
     public ResponseEntity<Page<LocationShowDTO>> search(@Parameter(description = "Search criteria for filtering " +
                                                                     "locations") @RequestBody SearchCriteria searchCriteria,
                                                         HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS)) {
                 searchCriteria.filterCompany(user);
@@ -91,7 +91,7 @@ public class LocationController {
                                                        Pageable pageable,
                                                        HttpServletRequest req) {
         //only sort is used
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return locationService.findByCompany(user.getCompany().getId(), pageable.getSort()).stream().filter(location -> location.getParentLocation() == null).map(location -> locationMapper.toShowDto(location, locationService)).collect(Collectors.toList());
         }
@@ -108,7 +108,7 @@ public class LocationController {
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public Collection<LocationMiniDTO> getMini(HttpServletRequest req) {
-        OwnUser location = userService.whoami(req);
+        User location = userService.whoami(req);
         return locationService.findByCompany(location.getCompany().getId()).stream().map(locationMapper::toMiniDto).collect(Collectors.toList());
     }
 
@@ -124,7 +124,7 @@ public class LocationController {
     @GetMapping("/{id}")
     public LocationShowDTO getById(@Parameter(description = "Location ID") @PathVariable("id") Long id,
                                    HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
@@ -139,7 +139,7 @@ public class LocationController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     LocationShowDTO create(@Parameter(description = "Location data to create") @Valid @RequestBody Location locationReq,
                            HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.LOCATIONS)) {
             Location savedLocation = locationService.create(locationReq, user.getCompany());
             locationService.notify(savedLocation, Helper.getLocale(user));
@@ -153,7 +153,7 @@ public class LocationController {
     public LocationShowDTO patch(@Parameter(description = "Location fields to update") @Valid @RequestBody LocationPatchDTO location,
                                  @Parameter(description = "Location ID") @PathVariable("id") Long id,
                                  HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
@@ -174,7 +174,7 @@ public class LocationController {
 
     public ResponseEntity delete(@Parameter(description = "Location ID") @PathVariable("id") Long id,
                                  HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {

@@ -39,12 +39,15 @@ public class WorkOrderBasePatchDTO {
     @Schema(description = "Team assigned to the work order", implementation = IdDTO.class)
     private Team team;
     @Schema(description = "Primary user responsible for the work order", implementation = IdDTO.class)
-    private OwnUser primaryUser;
-    @ArraySchema(arraySchema = @Schema(description = "List of users assigned to the work order"), schema = @Schema(implementation = IdDTO.class))
-    private List<OwnUser> assignedTo;
-    @ArraySchema(arraySchema = @Schema(description = "List of customers associated with the work order"), schema = @Schema(implementation = IdDTO.class))
+    private User primaryUser;
+    @ArraySchema(arraySchema = @Schema(description = "List of users assigned to the work order"), schema =
+    @Schema(implementation = IdDTO.class))
+    private List<User> assignedTo;
+    @ArraySchema(arraySchema = @Schema(description = "List of customers associated with the work order"), schema =
+    @Schema(implementation = IdDTO.class))
     private List<Customer> customers;
-    @ArraySchema(arraySchema = @Schema(description = "List of files attached to the work order"), schema = @Schema(implementation = IdDTO.class))
+    @ArraySchema(arraySchema = @Schema(description = "List of files attached to the work order"), schema =
+    @Schema(implementation = IdDTO.class))
     private List<File> files;
     @Schema(description = "Asset associated with the work order", implementation = IdDTO.class)
     private Asset asset;

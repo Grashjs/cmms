@@ -2,7 +2,7 @@ package com.grash.dto.workOrder;
 
 import com.grash.dto.IdDTO;
 import com.grash.dto.WorkOrderBasePatchDTO;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +14,7 @@ import java.util.Date;
 @Schema(description = "DTO for patching an existing work order")
 public class WorkOrderPatchDTO extends WorkOrderBasePatchDTO {
     @Schema(description = "User who completed the work order", implementation = IdDTO.class)
-    private OwnUser completedBy;
+    private User completedBy;
     @Schema(description = "Date and time when the work order was completed")
     private Date completedOn;
     @Schema(description = "Whether the work order is archived")

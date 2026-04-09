@@ -4,7 +4,7 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.PartCategory;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.PartCategoryService;
@@ -37,7 +37,7 @@ public class PartCategoryController {
     @PreAuthorize("permitAll()")
 
     public Collection<PartCategory> getAll(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
                 return partCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
@@ -49,7 +49,7 @@ public class PartCategoryController {
     @PreAuthorize("permitAll()")
 
     public PartCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
             Optional<PartCategory> optionalPartCategory = partCategoryService.findById(id);
             if (optionalPartCategory.isPresent()) {
@@ -62,7 +62,7 @@ public class PartCategoryController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     PartCategory create(@Parameter(description = "Part category to create") @Valid @RequestBody PartCategory partCategoryReq,
                         HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             return partCategoryService.create(partCategoryReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -74,7 +74,7 @@ public class PartCategoryController {
     public PartCategory patch(@Parameter(description = "Part category fields to update") @Valid @RequestBody CategoryPatchDTO partCategory,
                               @PathVariable("id") Long id,
                               HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<PartCategory> optionalPartCategory = partCategoryService.findById(id);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             if (optionalPartCategory.isPresent()) {
@@ -89,7 +89,7 @@ public class PartCategoryController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<PartCategory> optionalPartCategory = partCategoryService.findById(id);
         if (optionalPartCategory.isPresent()) {

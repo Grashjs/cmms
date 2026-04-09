@@ -1,3 +1,5 @@
+import { FileMiniDTO } from './file';
+
 export default interface User {
   id: number;
   firstName: string;
@@ -16,6 +18,7 @@ export interface UserMiniDTO {
   firstName: string;
   lastName: string;
   email: string;
+  image: FileMiniDTO;
 }
 
 export const users: User[] = [

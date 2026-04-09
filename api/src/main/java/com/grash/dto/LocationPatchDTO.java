@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -31,26 +30,26 @@ public class LocationPatchDTO {
     private Location parentLocation;
 
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of workers assigned to the location", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of workers assigned to the location", writeOnly = true)
     )
-    private Collection<OwnUser> workers;
+    private Collection<User> workers;
 
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of teams assigned to the location", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of teams assigned to the location", writeOnly = true)
     )
     private Collection<Team> teams;
 
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of vendors associated with the location", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of vendors associated with the location", writeOnly = true)
     )
     private Collection<Vendor> vendors;
 
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of customers associated with the location", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of customers associated with the location", writeOnly = true)
     )
     private Collection<Customer> customers;
 
@@ -58,8 +57,8 @@ public class LocationPatchDTO {
     private File image;
 
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of files attached to the location", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of files attached to the location", writeOnly = true)
     )
     private List<File> files = new ArrayList<>();
 

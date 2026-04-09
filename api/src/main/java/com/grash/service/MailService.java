@@ -1,7 +1,7 @@
 package com.grash.service;
 
 import com.grash.dto.EmailAttachmentDTO;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import jakarta.mail.MessagingException;
 
 import java.io.IOException;
@@ -35,5 +35,5 @@ public interface MailService {
 
     void removeUserFromContactList(String email);
 
-    void addToContactList(OwnUser user);
+    void addToContactList(User user);
 }

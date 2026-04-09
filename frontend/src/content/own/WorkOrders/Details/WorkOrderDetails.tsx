@@ -32,6 +32,7 @@ import {
   useState
 } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import AddTimeModal from './AddTimeModal';
@@ -93,9 +94,11 @@ import FilesList from '../../components/FilesList';
 import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
 import PartQuantitiesList from '../../components/PartQuantitiesList';
 import AddFileModal from './AddFileModal';
+import CommentsSection from './CommentsSection';
 import { useBrand } from '../../../../hooks/useBrand';
 import { useLicenseEntitlement } from '../../../../hooks/useLicenseEntitlement';
 import { getErrorMessage } from '../../../../utils/api';
+import { getCommentsCountByWorkOrder } from '../../../../slices/comment';
 
 const LabelWrapper = styled(Box)(
   ({ theme }) => `
@@ -125,6 +128,8 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const { user, hasEditPermission, hasDeletePermission } = useAuth();
   const brandConfig = useBrand();
   const hasWOHistoryEntitlement = useLicenseEntitlement('WORK_ORDER_HISTORY');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const commentIdParam = searchParams.get('commentId');
   const [openAddTimeModal, setOpenAddTimeModal] = useState<boolean>(false);
   const [openAddFileModal, setOpenAddFileModal] = useState<boolean>(false);
   const [openAddCostModal, setOpenAddCostModal] = useState<boolean>(false);
@@ -157,6 +162,8 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
     (state) => state.additionalCosts
   );
   const additionalCosts = costsByWorkOrder[workOrder.id] ?? [];
+  const { commentsCountByWorkOrder } = useSelector((state) => state.comments);
+  const commentsCount = commentsCountByWorkOrder[workOrder.id] ?? 0;
   const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
@@ -168,6 +175,23 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const [primaryTimeHours, setPrimaryTimeHours] = useState<number>();
   const [primaryTimeMinutes, setPrimaryTimeMinutes] = useState<number>();
   const [savingPrimaryTime, setSavingPrimaryTime] = useState<boolean>(false);
+  const [commentId, setCommentId] = useState<number>(null);
+
+  useEffect(() => {
+    dispatch(getCommentsCountByWorkOrder(workOrder.id));
+  }, [workOrder.id, dispatch]);
+
+  useEffect(() => {
+    if (commentIdParam) {
+      setCurrentTab('comments');
+      setCommentId(Number(commentIdParam));
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('commentId');
+
+      setSearchParams(newParams);
+    }
+  }, [commentIdParam]);
+
   useEffect(() => {
     [workOrder.createdBy, workOrder.parentRequest?.createdBy].forEach(
       (createdBy) => {
@@ -372,7 +396,10 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const workOrderStatuses = ['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETE'];
   const tabs = [
     { value: 'details', label: t('details') },
-    { value: 'updates', label: t('updates') }
+    {
+      value: 'comments',
+      label: `${t('comments')}${commentsCount > 0 ? ` (${commentsCount})` : ''}`
+    }
   ];
 
   const getPath = (resource, id) => {
@@ -429,8 +456,6 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   };
   const handleTabsChange = (_event: ChangeEvent<{}>, value: string): void => {
     setCurrentTab(value);
-    if (value === 'updates' && !currentWorkOrderHistories.length)
-      dispatch(getWorkOrderHistories(workOrder.id));
   };
   const detailsFieldsToRender = (
     workOrder: WorkOrder
@@ -1335,30 +1360,9 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
             </Box>
           </Box>
         )}
-        {currentTab == 'updates' &&
-          (hasWOHistoryEntitlement ? (
-            <List>
-              {[...currentWorkOrderHistories]
-                .reverse()
-                .map((workOrderHistory) => (
-                  <ListItem
-                    key={workOrderHistory.id}
-                    secondaryAction={getFormattedDate(
-                      workOrderHistory.createdAt
-                    )}
-                  >
-                    <ListItemText
-                      primary={`${workOrderHistory.user.firstName} ${workOrderHistory.user.lastName}`}
-                      secondary={workOrderHistory.name}
-                    />
-                  </ListItem>
-                ))}
-            </List>
-          ) : (
-            <Typography textAlign={'center'}>
-              You need a license to see Work Order history
-            </Typography>
-          ))}
+        {currentTab == 'comments' && (
+          <CommentsSection workOrderId={workOrder.id} commentId={commentId} />
+        )}
       </Grid>
       <AddTimeModal
         open={openAddTimeModal}

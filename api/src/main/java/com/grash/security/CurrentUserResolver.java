@@ -1,6 +1,6 @@
 package com.grash.security;
 
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -30,8 +30,9 @@ public class CurrentUserResolver implements HandlerMethodArgumentResolver {
     }
 
     @Override
-    public OwnUser resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
-                                   WebDataBinderFactory binderFactory) throws Exception {
+    public User resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+                                NativeWebRequest webRequest,
+                                WebDataBinderFactory binderFactory) throws Exception {
         return userService.whoami(webRequest.getNativeRequest(HttpServletRequest.class));
     }
 }

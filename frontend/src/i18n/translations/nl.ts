@@ -1832,6 +1832,12 @@ const locale = {
   delete_api_key: 'API-sleutel verwijderen',
   delete_api_key_confirm:
     'Weet je zeker dat je deze API-sleutel wilt verwijderen?',
-  upgrade_api: 'Upgrade om toegang te krijgen tot API, connectors en webhooks'
+  upgrade_api: 'Upgrade om toegang te krijgen tot API, connectors en webhooks',
+  comments: 'Opmerkingen',
+  add_comment_placeholder: 'Voeg een opmerking toe...',
+  post_comment: 'Opmerking plaatsen',
+  no_comments: 'Nog geen opmerkingen',
+  confirm_delete_comment:
+    'Weet je zeker dat je deze opmerking wilt verwijderen?'
 };
 export default locale;

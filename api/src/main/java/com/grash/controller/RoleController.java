@@ -3,7 +3,7 @@ package com.grash.controller;
 import com.grash.dto.RolePatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.Role;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
@@ -38,7 +38,7 @@ public class RoleController {
     @PreAuthorize("permitAll()")
 
     public Collection<Role> getAll(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
                 return roleService.findByCompany(user.getCompany().getId());
@@ -50,7 +50,7 @@ public class RoleController {
     @PreAuthorize("permitAll()")
 
     public Role getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Role> optionalRole = roleService.findById(id);
         if (optionalRole.isPresent()) {
             Role savedRole = optionalRole.get();
@@ -62,8 +62,9 @@ public class RoleController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    Role create(@Parameter(description = "Role data to create") @Valid @RequestBody Role roleReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    Role create(@Parameter(description = "Role data to create") @Valid @RequestBody Role roleReq,
+                HttpServletRequest req) {
+        User user = userService.whoami(req);
         roleReq.setPaid(true);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ROLE)) {
@@ -77,7 +78,7 @@ public class RoleController {
     public Role patch(@Parameter(description = "Role fields to update") @Valid @RequestBody RolePatchDTO role,
                       @PathVariable("id") Long id,
                       HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Role> optionalRole = roleService.findById(id);
 
         if (optionalRole.isPresent()) {
@@ -92,7 +93,7 @@ public class RoleController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<Role> optionalRole = roleService.findById(id);
         if (optionalRole.isPresent()) {

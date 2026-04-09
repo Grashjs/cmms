@@ -16,6 +16,7 @@ import org.hibernate.annotations.BatchSize;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -67,7 +68,7 @@ public class Asset extends CompanyAudit {
 
     @Schema(description = "The primary user responsible for the asset", implementation = IdDTO.class)
     @ManyToOne(fetch = FetchType.LAZY)
-    private OwnUser primaryUser;
+    private User primaryUser;
 
     @Schema(description = "The acquisition cost of the asset")
     private Double acquisitionCost;
@@ -88,10 +89,10 @@ public class Asset extends CompanyAudit {
                     @Index(name = "idx_asset_user_user_id", columnList = "id_user")
             })
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of users assigned to the asset", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of users assigned to the asset", writeOnly = true)
     )
-    private List<OwnUser> assignedTo = new ArrayList<>();
+    private List<User> assignedTo = new ArrayList<>();
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -103,8 +104,8 @@ public class Asset extends CompanyAudit {
                     @Index(name = "idx_asset_team_team_id", columnList = "id_team")
             })
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of teams assigned to the asset", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of teams assigned to the asset", writeOnly = true)
     )
     private List<Team> teams = new ArrayList<>();
 
@@ -119,8 +120,8 @@ public class Asset extends CompanyAudit {
             })
     @BatchSize(size = 64)
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of vendors associated with the asset", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of vendors associated with the asset", writeOnly = true)
     )
     private List<Vendor> vendors = new ArrayList<>();
 
@@ -134,8 +135,8 @@ public class Asset extends CompanyAudit {
                     @Index(name = "idx_asset_customer_customer_id", columnList = "id_customer")
             })
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of customers associated with the asset", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of customers associated with the asset", writeOnly = true)
     )
     private List<Customer> customers = new ArrayList<>();
 
@@ -149,8 +150,8 @@ public class Asset extends CompanyAudit {
                     @Index(name = "idx_asset_part_part_id", columnList = "id_part")
             })
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of parts associated with the asset", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of parts associated with the asset", writeOnly = true)
     )
     private List<Part> parts = new ArrayList<>();
 
@@ -187,8 +188,8 @@ public class Asset extends CompanyAudit {
             })
     @BatchSize(size = 64)
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of files attached to the asset", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of files attached to the asset", writeOnly = true)
     )
     private List<File> files = new ArrayList<>();
 
@@ -198,27 +199,27 @@ public class Asset extends CompanyAudit {
     @Schema(description = "The manufacturer of the asset")
     private String manufacturer;
 
-    public Collection<OwnUser> getUsers() {
-        Collection<OwnUser> users = new ArrayList<>();
+    public Collection<User> getUsers() {
+        Collection<User> users = new ArrayList<>();
         if (this.getPrimaryUser() != null) {
             users.add(this.getPrimaryUser());
         }
         if (this.getTeams() != null) {
-            Collection<OwnUser> teamsUsers = new ArrayList<>();
+            Collection<User> teamsUsers = new ArrayList<>();
             this.getTeams().forEach(team -> teamsUsers.addAll(team.getUsers()));
             users.addAll(teamsUsers);
         }
         if (this.getAssignedTo() != null) {
             users.addAll(this.getAssignedTo());
         }
-        return users.stream().collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(OwnUser::getId))),
+        return users.stream().collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(User::getId))),
                 ArrayList::new));
     }
 
-    public List<OwnUser> getNewUsersToNotify(Collection<OwnUser> newUsers) {
-        Collection<OwnUser> oldUsers = getUsers();
+    public List<User> getNewUsersToNotify(Collection<User> newUsers) {
+        Collection<User> oldUsers = getUsers();
         return newUsers.stream().filter(newUser -> oldUsers.stream().noneMatch(user -> user.getId().equals(newUser.getId()))).
-                collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(OwnUser::getId))),
+                collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(User::getId))),
                         ArrayList::new));
     }
 

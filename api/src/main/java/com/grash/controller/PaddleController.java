@@ -4,7 +4,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.dto.checkout.CheckoutRequest;
 import com.grash.dto.checkout.CheckoutResponse;
 import com.grash.exception.CustomException;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.Subscription;
 import com.grash.model.enums.SubscriptionScheduledChangeType;
 import com.grash.service.PaddleService;
@@ -39,7 +39,7 @@ public class PaddleController {
     @GetMapping("/cancel")
     public SuccessResponse cancel(HttpServletRequest req) {
         checkIfCloudVersion();
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Subscription> optionalSubscription =
                 subscriptionService.findById(user.getCompany().getSubscription().getId());
         if (optionalSubscription.isPresent()) {
@@ -59,7 +59,7 @@ public class PaddleController {
     @GetMapping("/resume")
     public SuccessResponse resume(HttpServletRequest req) {
         checkIfCloudVersion();
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Subscription> optionalSubscription =
                 subscriptionService.findById(user.getCompany().getSubscription().getId());
         if (optionalSubscription.isPresent()) {

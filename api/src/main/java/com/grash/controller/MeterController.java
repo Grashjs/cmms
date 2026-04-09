@@ -10,8 +10,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.MeterMapper;
 import com.grash.model.Asset;
 import com.grash.model.Meter;
-import com.grash.model.OwnUser;
-import com.grash.model.Team;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleType;
@@ -55,7 +54,7 @@ public class MeterController {
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<MeterShowDTO>> search(@Parameter(description = "Search criteria for filtering meters") @RequestBody SearchCriteria searchCriteria,
                                                      HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.METERS)) {
                 searchCriteria.filterCompany(user);
@@ -83,15 +82,16 @@ public class MeterController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public Collection<MeterMiniDTO> getMini(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         return meterService.findByCompany(user.getCompany().getId()).stream().map(meterMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
 
-    public MeterShowDTO getById(@Parameter(description = "Meter ID") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    public MeterShowDTO getById(@Parameter(description = "Meter ID") @PathVariable("id") Long id,
+                                HttpServletRequest req) {
+        User user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {
             Meter savedMeter = optionalMeter.get();
@@ -105,8 +105,9 @@ public class MeterController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    MeterShowDTO create(@Parameter(description = "Meter data to create") @Valid @RequestBody Meter meterReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    MeterShowDTO create(@Parameter(description = "Meter data to create") @Valid @RequestBody Meter meterReq,
+                        HttpServletRequest req) {
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.METERS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.METER)) {
             Meter savedMeter = meterService.create(meterReq, user);
@@ -121,7 +122,7 @@ public class MeterController {
     public MeterShowDTO patch(@Parameter(description = "Meter fields to update") @Valid @RequestBody MeterPatchDTO meter,
                               @Parameter(description = "Meter ID") @PathVariable("id") Long id,
                               HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
 
         if (optionalMeter.isPresent()) {
@@ -138,8 +139,9 @@ public class MeterController {
     @GetMapping("/asset/{id}")
     @PreAuthorize("permitAll()")
 
-    public Collection<MeterShowDTO> getByAsset(@Parameter(description = "Asset ID") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    public Collection<MeterShowDTO> getByAsset(@Parameter(description = "Asset ID") @PathVariable("id") Long id,
+                                               HttpServletRequest req) {
+        User user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             return meterService.findByAsset(id).stream().map(meter -> meterMapper.toShowDto(meter, readingService)).collect(Collectors.toList());
@@ -149,8 +151,9 @@ public class MeterController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public ResponseEntity<SuccessResponse> delete(@Parameter(description = "Meter ID") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    public ResponseEntity<SuccessResponse> delete(@Parameter(description = "Meter ID") @PathVariable("id") Long id,
+                                                  HttpServletRequest req) {
+        User user = userService.whoami(req);
 
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {

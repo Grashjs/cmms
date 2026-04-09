@@ -173,9 +173,9 @@ public class LocationService {
             }
             location.setParentLocation(parentLocation);
         }
-        List<OwnUser> workers = new ArrayList<>();
+        List<User> workers = new ArrayList<>();
         dto.getWorkersEmails().forEach(email -> {
-            Optional<OwnUser> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
+            Optional<User> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
             optionalUser1.ifPresent(workers::add);
         });
         location.setWorkers(workers);

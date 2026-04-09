@@ -4,8 +4,6 @@ import com.grash.dto.FloorPlanPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.FloorPlanMapper;
 import com.grash.model.FloorPlan;
-import com.grash.model.OwnUser;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.FloorPlanRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
+
 import java.util.Collection;
 import java.util.Optional;
 
@@ -36,7 +35,8 @@ public class FloorPlanService {
     public FloorPlan update(Long id, FloorPlanPatchDTO floorPlan) {
         if (floorPlanRepository.existsById(id)) {
             FloorPlan savedFloorPlan = floorPlanRepository.findById(id).get();
-            FloorPlan updatedFloorPlan = floorPlanRepository.saveAndFlush(floorPlanMapper.updateFloorPlan(savedFloorPlan, floorPlan));
+            FloorPlan updatedFloorPlan =
+                    floorPlanRepository.saveAndFlush(floorPlanMapper.updateFloorPlan(savedFloorPlan, floorPlan));
             em.refresh(updatedFloorPlan);
             return updatedFloorPlan;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

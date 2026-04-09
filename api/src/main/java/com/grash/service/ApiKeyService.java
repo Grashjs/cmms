@@ -8,7 +8,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.ApiKeyMapper;
 import com.grash.model.ApiKey;
 import com.grash.model.ApiKey_;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.repository.ApiKeyRepository;
@@ -39,7 +39,7 @@ public class ApiKeyService {
     private final ApiKeyMapper apiKeyMapper;
     private final LicenseService licenseService;
 
-    public Pair<ApiKey, String> create(@Valid ApiKeyPostDTO apiKeyReq, OwnUser user) {
+    public Pair<ApiKey, String> create(@Valid ApiKeyPostDTO apiKeyReq, User user) {
         if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
                 || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.API_ACCESS)
                 || !licenseService.hasEntitlement(LicenseEntitlement.API_ACCESS))
@@ -74,14 +74,14 @@ public class ApiKeyService {
         return apiKeyRepository.findById(id);
     }
 
-    public ApiKey update(Long id, ApiKeyPatchDTO apiKeyPatchDTO, OwnUser user) {
+    public ApiKey update(Long id, ApiKeyPatchDTO apiKeyPatchDTO, User user) {
         ApiKey savedApiKey =
                 apiKeyRepository.findById(id).orElseThrow(() -> new CustomException("Not found",
                         HttpStatus.NOT_FOUND));
         return apiKeyRepository.save(apiKeyMapper.updateApiKey(savedApiKey, apiKeyPatchDTO));
     }
 
-    public Page<ApiKey> findByCriteria(ApiKeyCriteria criteria, Pageable pageable, OwnUser user) {
+    public Page<ApiKey> findByCriteria(ApiKeyCriteria criteria, Pageable pageable, User user) {
         Specification<ApiKey> specification = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get(ApiKey_.company).get("id"), user.getCompany().getId()));

@@ -1507,7 +1507,12 @@ const locale = {
   never: '从不',
   delete_api_key: '删除 API 密钥',
   delete_api_key_confirm: '您确定要删除此 API 密钥吗？',
-  upgrade_api: '升级以访问 API、连接器和 Webhook'
+  upgrade_api: '升级以访问 API、连接器和 Webhook',
+  comments: '评论',
+  add_comment_placeholder: '添加评论...',
+  post_comment: '发表评论',
+  no_comments: '暂无评论',
+  confirm_delete_comment: '您确定要删除此评论吗？'
 };
 
 export default locale;

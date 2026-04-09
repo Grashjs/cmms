@@ -23,7 +23,7 @@ public class ApiKey extends CompanyAudit {
     private String code;
     @ManyToOne
     @NotNull
-    private OwnUser user;
+    private User user;
     @Schema(description = "Last usage date", accessMode = Schema.AccessMode.READ_ONLY)
     private Date lastUsed;
 }

@@ -1,7 +1,7 @@
 package com.grash.service;
 
 import com.grash.factory.StorageServiceFactory;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.utils.CsvFileGenerator;
 import com.grash.utils.Helper;
 import com.grash.utils.MultipartFileImpl;
@@ -32,7 +32,7 @@ public class AsyncExportService {
     private final SimpMessageSendingOperations messagingTemplate;
 
     @Async
-    public void exportWorkOrders(OwnUser user, String uuid) {
+    public void exportWorkOrders(User user, String uuid) {
         try {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
@@ -54,7 +54,7 @@ public class AsyncExportService {
     }
 
     @Async
-    public void exportAssets(OwnUser user, String uuid) {
+    public void exportAssets(User user, String uuid) {
         try {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
@@ -76,7 +76,7 @@ public class AsyncExportService {
     }
 
     @Async
-    public void exportLocations(OwnUser user, String uuid) {
+    public void exportLocations(User user, String uuid) {
         try {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
@@ -98,7 +98,7 @@ public class AsyncExportService {
     }
 
     @Async
-    public void exportParts(OwnUser user, String uuid) {
+    public void exportParts(User user, String uuid) {
         try {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
@@ -120,7 +120,7 @@ public class AsyncExportService {
     }
 
     @Async
-    public void exportMeters(OwnUser user, String uuid) {
+    public void exportMeters(User user, String uuid) {
         try {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
@@ -142,7 +142,7 @@ public class AsyncExportService {
     }
 
     @Async
-    public void exportPreventiveMaintenances(OwnUser user, String uuid) {
+    public void exportPreventiveMaintenances(User user, String uuid) {
         try {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);

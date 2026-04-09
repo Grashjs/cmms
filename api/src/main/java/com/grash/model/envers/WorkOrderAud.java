@@ -5,11 +5,10 @@ import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
 import org.springframework.context.MessageSource;
 
 import jakarta.persistence.*;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Locale;
@@ -65,11 +64,11 @@ public class WorkOrderAud implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "primary_user_id")
-    private OwnUser primaryUser;
+    private User primaryUser;
 
     @ManyToOne
     @JoinColumn(name = "completed_by_id")
-    private OwnUser completedBy;
+    private User completedBy;
 
     @Column(name = "completed_on")
     private Date completedOn;

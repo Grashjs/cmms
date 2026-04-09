@@ -33,7 +33,7 @@ public class PreventiveMaintenance extends WorkOrderBase {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Schedule schedule = new Schedule(this);
 
-    public boolean canBeEditedBy(OwnUser user) {
+    public boolean canBeEditedBy(User user) {
         return user.getRole().getEditOtherPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)
                 || this.getCreatedBy().equals(user.getId());
     }

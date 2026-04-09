@@ -1776,7 +1776,12 @@ const locale = {
   WEBHOOK_WORK_ORDER_DELETE: 'حذف أمر العمل',
   WEBHOOK_WORK_ORDER_OVERDUE: 'أمر عمل متأخر',
   WEBHOOK_WORK_ORDER_STATUS_CHANGE: 'تغيير حالة أمر العمل',
-  WEBHOOK_WORK_REQUEST_STATUS_CHANGE: 'تغيير حالة طلب العمل'
+  WEBHOOK_WORK_REQUEST_STATUS_CHANGE: 'تغيير حالة طلب العمل',
+  comments: 'التعليقات',
+  add_comment_placeholder: 'أضف تعليقاً...',
+  post_comment: 'نشر التعليق',
+  no_comments: 'لا توجد تعليقات بعد',
+  confirm_delete_comment: 'هل أنت متأكد أنك تريد حذف هذا التعليق؟'
 };
 
 export default locale;

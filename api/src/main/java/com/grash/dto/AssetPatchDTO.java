@@ -42,7 +42,7 @@ public class AssetPatchDTO {
     private String name;
 
     @Schema(description = "The primary user responsible for the asset", implementation = IdDTO.class)
-    private OwnUser primaryUser;
+    private User primaryUser;
 
     @Schema(description = "Depreciation configuration for the asset", implementation = IdDTO.class)
     private Deprecation deprecation;
@@ -57,38 +57,38 @@ public class AssetPatchDTO {
     private String serialNumber;
 
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of users assigned to the asset", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of users assigned to the asset", writeOnly = true)
     )
-    private Collection<OwnUser> assignedTo;
+    private Collection<User> assignedTo;
 
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of customers associated with the asset", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of customers associated with the asset", writeOnly = true)
     )
     private Collection<Customer> customers;
 
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of vendors associated with the asset", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of vendors associated with the asset", writeOnly = true)
     )
     private Collection<Vendor> vendors;
 
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of teams assigned to the asset", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of teams assigned to the asset", writeOnly = true)
     )
     private Collection<Team> teams;
 
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of files attached to the asset", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of files attached to the asset", writeOnly = true)
     )
     private Collection<File> files;
 
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of parts associated with the asset", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of parts associated with the asset", writeOnly = true)
     )
     private Collection<Part> parts;
 

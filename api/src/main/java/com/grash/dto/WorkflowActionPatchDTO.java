@@ -4,7 +4,6 @@ import com.grash.model.*;
 import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.workflow.*;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,7 +22,7 @@ public class WorkflowActionPatchDTO {
     @Schema(implementation = IdDTO.class)
     private Location location;
     @Schema(implementation = IdDTO.class)
-    private OwnUser user;
+    private User user;
     @Schema(implementation = IdDTO.class)
     private Team team;
     @Schema(implementation = IdDTO.class)

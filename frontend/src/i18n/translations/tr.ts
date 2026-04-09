@@ -1838,7 +1838,12 @@ const trJSON = {
   delete_api_key: 'API Anahtarını Sil',
   delete_api_key_confirm:
     'Bu API anahtarını silmek istediğinizden emin misiniz?',
-  upgrade_api: 'API, bağlayıcılar ve webhooklara erişmek için yükseltin'
+  upgrade_api: 'API, bağlayıcılar ve webhooklara erişmek için yükseltin',
+  comments: 'Yorumlar',
+  add_comment_placeholder: 'Yorum ekle...',
+  post_comment: 'Yorum Gönder',
+  no_comments: 'Henüz yorum yok',
+  confirm_delete_comment: 'Bu yorumu silmek istediğinizden emin misiniz?'
 };
 
 export default trJSON;

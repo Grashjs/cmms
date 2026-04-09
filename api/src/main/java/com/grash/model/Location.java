@@ -12,6 +12,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -55,10 +56,10 @@ public class Location extends CompanyAudit {
                     @Index(name = "idx_location_worker_worker_id", columnList = "id_user")
             })
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of workers assigned to the location", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of workers assigned to the location", writeOnly = true)
     )
-    private List<OwnUser> workers = new ArrayList<>();
+    private List<User> workers = new ArrayList<>();
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -70,8 +71,8 @@ public class Location extends CompanyAudit {
                     @Index(name = "idx_location_team_team_id", columnList = "id_team")
             })
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of teams assigned to the location", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of teams assigned to the location", writeOnly = true)
     )
     private List<Team> teams = new ArrayList<>();
 
@@ -94,8 +95,8 @@ public class Location extends CompanyAudit {
                     @Index(name = "idx_location_vendor_vendor_id", columnList = "id_vendor")
             })
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of vendors associated with the location", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of vendors associated with the location", writeOnly = true)
     )
     private List<Vendor> vendors = new ArrayList<>();
 
@@ -109,8 +110,8 @@ public class Location extends CompanyAudit {
                     @Index(name = "idx_location_customer_customer_id", columnList = "id_customer")
             })
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of customers associated with the location", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of customers associated with the location", writeOnly = true)
     )
     private List<Customer> customers = new ArrayList<>();
 
@@ -124,29 +125,29 @@ public class Location extends CompanyAudit {
                     @Index(name = "idx_location_file_file_id", columnList = "id_file")
             })
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of files attached to the location", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of files attached to the location", writeOnly = true)
     )
     private List<File> files = new ArrayList<>();
 
-    public Collection<OwnUser> getUsers() {
-        Collection<OwnUser> users = new ArrayList<>();
+    public Collection<User> getUsers() {
+        Collection<User> users = new ArrayList<>();
         if (this.getTeams() != null) {
-            Collection<OwnUser> teamsUsers = new ArrayList<>();
+            Collection<User> teamsUsers = new ArrayList<>();
             this.getTeams().forEach(team -> teamsUsers.addAll(team.getUsers()));
             users.addAll(teamsUsers);
         }
         if (this.getWorkers() != null) {
             users.addAll(this.getWorkers());
         }
-        return users.stream().collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(OwnUser::getId))),
+        return users.stream().collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(User::getId))),
                 ArrayList::new));
     }
 
-    public List<OwnUser> getNewUsersToNotify(Collection<OwnUser> newUsers) {
-        Collection<OwnUser> oldUsers = getUsers();
+    public List<User> getNewUsersToNotify(Collection<User> newUsers) {
+        Collection<User> oldUsers = getUsers();
         return newUsers.stream().filter(newUser -> oldUsers.stream().noneMatch(user -> user.getId().equals(newUser.getId()))).
-                collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(OwnUser::getId))),
+                collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(User::getId))),
                         ArrayList::new));
     }
 }

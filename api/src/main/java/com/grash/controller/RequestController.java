@@ -38,8 +38,6 @@ import jakarta.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.bouncycastle.asn1.x500.style.RFC4519Style.description;
-
 @RestController
 @RequestMapping("/requests")
 @Tag(name = "Requests", description = "Operations on maintenance requests")
@@ -87,9 +85,10 @@ public class RequestController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<RequestShowDTO>> search(@Parameter(description = "Search criteria for filtering requests") @RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<RequestShowDTO>> search(@Parameter(description = "Search criteria for filtering " +
+                                                                   "requests") @RequestBody SearchCriteria searchCriteria,
                                                        HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.REQUESTS)) {
                 searchCriteria.filterCompany(user);
@@ -105,7 +104,7 @@ public class RequestController {
     @GetMapping("/pending")
     @PreAuthorize("permitAll()")
     public SuccessResponse getPending(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT) && user.getRole().getViewPermissions().contains(PermissionEntity.REQUESTS)) {
             return new SuccessResponse(true, requestService.countPending(user.getCompany().getId()).toString());
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
@@ -115,7 +114,7 @@ public class RequestController {
     @PreAuthorize("permitAll()")
 
     public RequestShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Request> optionalRequest = requestService.findById(id);
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
@@ -129,7 +128,7 @@ public class RequestController {
     private void onRequestCreation(Request createdRequest, Company company, String requesterName) {
         String title = messageSource.getMessage("new_request", null, Helper.getLocale(company));
         String message = messageSource.getMessage("notification_new_request", null, Helper.getLocale(company));
-        List<OwnUser> usersToNotify = userService.findByCompany(company.getId()).stream()
+        List<User> usersToNotify = userService.findByCompany(company.getId()).stream()
                 .filter(user1 -> user1.isEnabled() && user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
                         || user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN)).collect(Collectors.toList());
         notificationService.createMultiple(usersToNotify
@@ -140,7 +139,7 @@ public class RequestController {
             put("requestTitle", createdRequest.getTitle());
             put("requester", requesterName);
         }};
-        mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToNotify.stream().map(OwnUser::getEmail)
+        mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToNotify.stream().map(User::getEmail)
                 .toArray(String[]::new), messageSource.getMessage("new_request", null,
                 Helper.getLocale(company)), mailVariables, "new-request.html", Helper.getLocale(company), null);
 
@@ -153,8 +152,9 @@ public class RequestController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    RequestShowDTO create(@Parameter(description = "Request data to create") @Valid @RequestBody Request requestReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    RequestShowDTO create(@Parameter(description = "Request data to create") @Valid @RequestBody Request requestReq,
+                          HttpServletRequest req) {
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.REQUESTS)) {
             Request createdRequest = requestService.create(requestReq, user.getCompany());
             onRequestCreation(createdRequest, user.getCompany(), user.getFullName());
@@ -165,7 +165,8 @@ public class RequestController {
     @PostMapping("/portal/{requestPortalUuid}")
     RequestShowDTO createFromPortal(@Parameter(description = "Request data to create from portal") @Valid @RequestBody Request requestReq,
                                     @PathVariable("requestPortalUuid") String requestPortalUuid,
-                                    @RequestParam(value = "recaptchaToken", required = false) @Parameter (description = "RecaptchaToken value") String recaptchaToken ,
+                                    @RequestParam(value = "recaptchaToken", required = false) @Parameter(description
+                                            = "RecaptchaToken value") String recaptchaToken,
                                     HttpServletRequest req) {
         if (recaptchaSecretKey != null && !recaptchaSecretKey.isBlank()) {
             if (recaptchaToken == null || recaptchaToken.isBlank())
@@ -181,7 +182,7 @@ public class RequestController {
         onRequestCreation(createdRequest, requestPortal.getCompany(),
                 requestReq.getContact() == null || requestReq.getContact().isBlank() ? messageSource.getMessage(
                         "someone", null
-                , Helper.getLocale(requestPortal.getCompany())) : requestReq.getContact());
+                        , Helper.getLocale(requestPortal.getCompany())) : requestReq.getContact());
         return requestMapper.toShowDto(createdRequest);
     }
 
@@ -191,7 +192,7 @@ public class RequestController {
     public RequestShowDTO patch(@Parameter(description = "Request fields to update") @Valid @RequestBody RequestPatchDTO request,
                                 @PathVariable("id") Long id,
                                 HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Request> optionalRequest = requestService.findById(id);
 
         if (optionalRequest.isPresent()) {
@@ -212,7 +213,7 @@ public class RequestController {
     public WorkOrderShowDTO approve(@PathVariable("id") Long id,
                                     @Parameter(description = "Request approval data") @RequestBody RequestApproveDTO requestApproveDTO,
                                     HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Request> optionalRequest = requestService.findById(id);
         if (!(user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) || user.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))) {
             throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
@@ -233,7 +234,7 @@ public class RequestController {
                 savedRequest.getAsset().setStatus(requestApproveDTO.getAssetStatus());
                 assetService.save(savedRequest.getAsset());
             }
-            
+
             Map<String, Object> webhookPayload = new HashMap<>();
             webhookPayload.put("requestId", savedRequest.getId());
             webhookPayload.put("requestTitle", savedRequest.getTitle());
@@ -241,16 +242,17 @@ public class RequestController {
             webhookPayload.put("newStatus", "APPROVED");
             webhookPayload.put("workOrderId", result.getId());
             Object serializedRequest = requestMapper.toShowDto(savedRequest);
-            webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.WORK_REQUEST_STATUS_CHANGE, webhookPayload,
+            webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.WORK_REQUEST_STATUS_CHANGE,
+                    webhookPayload,
                     "changedRequest", serializedRequest, null, null, null, null, null);
-            
-            List<OwnUser> usersToMail =
+
+            List<User> usersToMail =
                     userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
                             .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
             String title = messageSource.getMessage("request_approved", null, Helper.getLocale(user));
 
             if (savedRequest.getCreatedBy() != null) {
-                OwnUser requester = userService.findById(savedRequest.getCreatedBy()).get();
+                User requester = userService.findById(savedRequest.getCreatedBy()).get();
                 String message = messageSource.getMessage("request_approved_description",
                         new Object[]{savedRequest.getTitle()}, Helper.getLocale(user));
                 notificationService.createMultiple(Collections.singletonList(new Notification(message, requester,
@@ -266,7 +268,7 @@ public class RequestController {
                 put("workOrderLink", frontendUrl + "/app/work-orders/" + result.getId());
                 put("workOrderTitle", result.getTitle());
             }};
-            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(User::getEmail)
                             .toArray(String[]::new), title, mailVariables, "approved-request.html",
                     Helper.getLocale(user),
                     null);
@@ -279,9 +281,9 @@ public class RequestController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public RequestShowDTO cancel(@PathVariable("id") Long id,
-                                 @RequestParam @Parameter (description = "Reason of the request") String reason,
+                                 @RequestParam @Parameter(description = "Reason of the request") String reason,
                                  HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Request> optionalRequest = requestService.findById(id);
         if (!(user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) || user.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))) {
             throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
@@ -307,16 +309,17 @@ public class RequestController {
             webhookPayload.put("newStatus", "CANCELLED");
             webhookPayload.put("cancellationReason", reason);
             Object serializedRequest = requestMapper.toShowDto(savedRequest);
-            webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.WORK_REQUEST_STATUS_CHANGE, webhookPayload,
+            webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.WORK_REQUEST_STATUS_CHANGE,
+                    webhookPayload,
                     "changedRequest", serializedRequest, null, null, null, null, null);
 
             String title = messageSource.getMessage("request_rejected", null, Helper.getLocale(user));
-            List<OwnUser> usersToMail =
+            List<User> usersToMail =
                     userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
                             .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
 
             if (savedRequest.getCreatedBy() != null) {
-                OwnUser requester = userService.findById(savedRequest.getCreatedBy()).get();
+                User requester = userService.findById(savedRequest.getCreatedBy()).get();
 
                 String message = messageSource.getMessage("request_rejected_description",
                         new Object[]{savedRequest.getTitle()}, Helper.getLocale(user));
@@ -333,7 +336,7 @@ public class RequestController {
                 put("requestLink", frontendUrl + "/app/requests/" + savedRequest.getId());
                 put("requestTitle", savedRequest.getTitle());
             }};
-            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(User::getEmail)
                             .toArray(String[]::new), title, mailVariables, "rejected-request.html",
                     Helper.getLocale(user),
                     null);
@@ -346,7 +349,7 @@ public class RequestController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<Request> optionalRequest = requestService.findById(id);
         if (optionalRequest.isPresent()) {

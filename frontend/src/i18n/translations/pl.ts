@@ -1838,7 +1838,12 @@ const plJSON = {
   never: 'Nigdy',
   delete_api_key: 'Usuń klucz API',
   delete_api_key_confirm: 'Czy na pewno chcesz usunąć ten klucz API?',
-  upgrade_api: 'Uaktualnij, aby uzyskać dostęp do API, konektorów i webhooków'
+  upgrade_api: 'Uaktualnij, aby uzyskać dostęp do API, konektorów i webhooków',
+  comments: 'Komentarze',
+  add_comment_placeholder: 'Dodaj komentarz...',
+  post_comment: 'Opublikuj komentarz',
+  no_comments: 'Brak komentarzy',
+  confirm_delete_comment: 'Czy na pewno chcesz usunąć ten komentarz?'
 };
 
 export default plJSON;

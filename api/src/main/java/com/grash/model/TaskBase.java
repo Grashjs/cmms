@@ -17,8 +17,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -44,7 +44,7 @@ public class TaskBase extends CompanyAudit {
     private List<TaskOption> options = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private OwnUser user;
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)

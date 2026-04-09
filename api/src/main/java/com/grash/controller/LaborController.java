@@ -4,7 +4,7 @@ import com.grash.dto.LaborPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Labor;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.Status;
@@ -42,7 +42,7 @@ public class LaborController {
     @PreAuthorize("permitAll()")
 
     public Labor getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Labor> optionalLabor = laborService.findById(id);
         if (optionalLabor.isPresent()) {
             Labor savedLabor = optionalLabor.get();
@@ -55,7 +55,7 @@ public class LaborController {
     @PreAuthorize("permitAll()")
 
     public Collection<Labor> getByWorkOrder(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
             return laborService.findByWorkOrder(id);
@@ -68,7 +68,7 @@ public class LaborController {
     public Labor controlTimer(@PathVariable("id") Long id, HttpServletRequest req,
                               @Parameter(description = "Whether to start the labor timer")
                               @RequestParam(defaultValue = "true") boolean start) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent() && optionalWorkOrder.get().canBeEditedBy(user)) {
             Optional<Labor> optionalLabor =
@@ -110,8 +110,9 @@ public class LaborController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    Labor create(@Parameter(description = "Labor data to create") @Valid @RequestBody Labor laborReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    Labor create(@Parameter(description = "Labor data to create") @Valid @RequestBody Labor laborReq,
+                 HttpServletRequest req) {
+        User user = userService.whoami(req);
         if (user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ADDITIONAL_TIME)) {
             WorkOrder workOrder = workOrderService.findById(laborReq.getWorkOrder().getId()).get();
             if (workOrder.getFirstTimeToReact() == null) {
@@ -128,7 +129,7 @@ public class LaborController {
     public Labor patch(@Parameter(description = "Labor fields to update") @Valid @RequestBody LaborPatchDTO labor,
                        @PathVariable("id") Long id,
                        HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Labor> optionalLabor = laborService.findById(id);
 
         if (optionalLabor.isPresent()) {
@@ -141,7 +142,7 @@ public class LaborController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<Labor> optionalLabor = laborService.findById(id);
         if (optionalLabor.isPresent()) {

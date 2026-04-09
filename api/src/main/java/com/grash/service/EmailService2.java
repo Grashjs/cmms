@@ -2,7 +2,7 @@ package com.grash.service;
 
 import com.grash.dto.EmailAttachmentDTO;
 import com.grash.exception.CustomException;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -177,7 +177,7 @@ public class EmailService2 implements MailService {
     }
 
     @Async
-    public void addToContactList(OwnUser user) {
+    public void addToContactList(User user) {
         throw new RuntimeException("Not implemented");
     }
 

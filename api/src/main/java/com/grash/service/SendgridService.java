@@ -3,9 +3,8 @@ package com.grash.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grash.dto.EmailAttachmentDTO;
-import com.grash.event.CompanyCreatedEvent;
 import com.grash.exception.CustomException;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.sendgrid.*;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Attachments;
@@ -21,8 +20,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
@@ -81,7 +78,7 @@ public class SendgridService implements MailService {
 
     @Override
     @Async
-    public void addToContactList(OwnUser user) {
+    public void addToContactList(User user) {
         if (shouldSkipSendingEmail() || !cloudVersion) {
             return;
         }

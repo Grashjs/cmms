@@ -28,7 +28,7 @@ public class WebhookEndpointService {
     private final WebhookEndpointMapper webhookEndpointMapper;
     private final LicenseService licenseService;
 
-    public WebhookEndpoint create(WebhookEndpointPostDTO webhookEndpointReq, OwnUser user) {
+    public WebhookEndpoint create(WebhookEndpointPostDTO webhookEndpointReq, User user) {
         if (!(licenseService.hasEntitlement(LicenseEntitlement.WEBHOOK)
                 && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures()
@@ -45,7 +45,7 @@ public class WebhookEndpointService {
         return webhookEndpointRepository.findByCompanyIdAndEnabled(companyId, true);
     }
 
-    public WebhookEndpoint update(Long id, WebhookEndpointPatchDTO webhookEndpointReq, OwnUser user) {
+    public WebhookEndpoint update(Long id, WebhookEndpointPatchDTO webhookEndpointReq, User user) {
         WebhookEndpoint savedWebhookEndpoint = webhookEndpointRepository.findById(id).orElse(null);
         if (savedWebhookEndpoint != null) {
             WebhookEndpoint webhookEndpoint1 = webhookEndpointMapper.updateWebhookEndpoint(savedWebhookEndpoint,

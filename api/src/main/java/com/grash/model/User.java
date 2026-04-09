@@ -19,8 +19,9 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
+@Table(name = "own_user")
 @Schema(description = "User entity representing a user account in the CMMS system")
-public class OwnUser extends Audit {
+public class User extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Schema(description = "Unique identifier", accessMode = Schema.AccessMode.READ_ONLY)
@@ -87,70 +88,7 @@ public class OwnUser extends Audit {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Location location;
-
-    @ManyToMany
-    @JsonIgnore
-    @JoinTable(name = "T_Asset_User_Associations",
-            joinColumns = @JoinColumn(name = "id_user"),
-            inverseJoinColumns = @JoinColumn(name = "id_asset"),
-            indexes = {
-                    @Index(name = "idx_user_asset_user_id", columnList = "id_user"),
-                    @Index(name = "idx_user_asset_asset_id", columnList = "id_asset")
-            })
-    private List<Asset> asset = new ArrayList<>();
-
-    @ManyToMany
-    @JsonIgnore
-    @JoinTable(name = "T_Location_User_Associations",
-            joinColumns = @JoinColumn(name = "id_user"),
-            inverseJoinColumns = @JoinColumn(name = "id_location"),
-            indexes = {
-                    @Index(name = "idx_user_location_user_id", columnList = "id_user"),
-                    @Index(name = "idx_user_location_location_id", columnList = "id_location")
-            })
-    private List<Location> locations = new ArrayList<>();
-
-    @ManyToMany
-    @JsonIgnore
-    @JoinTable(name = "T_Meter_User_Associations",
-            joinColumns = @JoinColumn(name = "id_user"),
-            inverseJoinColumns = @JoinColumn(name = "id_meter"),
-            indexes = {
-                    @Index(name = "idx_user_meter_user_id", columnList = "id_user"),
-                    @Index(name = "idx_user_meter_meter_id", columnList = "id_meter")
-            })
-    private List<Meter> meters = new ArrayList<>();
-
-    @ManyToMany
-    @JsonIgnore
-    @JoinTable(name = "T_Part_User_Associations",
-            joinColumns = @JoinColumn(name = "id_user"),
-            inverseJoinColumns = @JoinColumn(name = "id_part"),
-            indexes = {
-                    @Index(name = "idx_user_part_user_id", columnList = "id_user"),
-                    @Index(name = "idx_user_part_part_id", columnList = "id_part")
-            })
-    private List<Part> parts = new ArrayList<>();
-
-    @ManyToMany
-    @JsonIgnore
-    @JoinTable(name = "T_Team_User_Associations",
-            joinColumns = @JoinColumn(name = "id_user"),
-            inverseJoinColumns = @JoinColumn(name = "id_team"),
-            indexes = {
-                    @Index(name = "idx_user_team_user_id", columnList = "id_user"),
-                    @Index(name = "idx_user_team_team_id", columnList = "id_team")
-            })
-    private List<Team> teams = new ArrayList<>();
-
-    @ManyToMany
-    @JsonIgnore
-    private List<PreventiveMaintenance> preventiveMaintenances = new ArrayList<>();
-
-    @ManyToMany
-    @JsonIgnore
-    private List<WorkOrder> workOrders = new ArrayList<>();
-
+    
     @OneToMany(mappedBy = "superUser", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<SuperAccountRelation> superAccountRelations = new ArrayList<>();

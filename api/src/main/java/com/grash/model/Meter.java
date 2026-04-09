@@ -14,13 +14,15 @@ import org.springframework.http.HttpStatus;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Data
 @NoArgsConstructor
-@Schema(description = "Meter entity representing a measurement device or gauge for tracking readings in the CMMS system")
+@Schema(description = "Meter entity representing a measurement device or gauge for tracking readings in the CMMS " +
+        "system")
 public class Meter extends CompanyAudit {
 
     @Schema(description = "The name of the meter", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -55,10 +57,10 @@ public class Meter extends CompanyAudit {
                     @Index(name = "idx_meter_user_user_id", columnList = "id_user")
             })
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of users who have access to the meter", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of users who have access to the meter", writeOnly = true)
     )
-    private List<OwnUser> users = new ArrayList<>();
+    private List<User> users = new ArrayList<>();
 
     @Schema(description = "The location where the meter is installed", implementation = IdDTO.class)
     @ManyToOne(fetch = FetchType.LAZY)

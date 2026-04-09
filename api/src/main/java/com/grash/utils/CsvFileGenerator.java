@@ -2,7 +2,6 @@ package com.grash.utils;
 
 import com.grash.model.*;
 import com.grash.service.AssetDowntimeService;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -48,7 +47,7 @@ public class CsvFileGenerator {
                         workOrder.getLocation() == null ? null : workOrder.getLocation().getName(),
                         workOrder.getTeam() == null ? null : workOrder.getTeam().getName(),
                         workOrder.getPrimaryUser() == null ? null : workOrder.getPrimaryUser().getEmail(),
-                        Helper.enumerate(workOrder.getAssignedTo().stream().map(OwnUser::getEmail).collect(Collectors.toList())),
+                        Helper.enumerate(workOrder.getAssignedTo().stream().map(User::getEmail).collect(Collectors.toList())),
                         workOrder.getAsset() == null ? null : workOrder.getAsset().getName(),
                         workOrder.getCompletedBy() == null ? null : workOrder.getCompletedBy().getEmail(),
                         workOrder.getCompletedOn(),
@@ -107,7 +106,7 @@ public class CsvFileGenerator {
                         asset.getWarrantyExpirationDate(),
                         asset.getAdditionalInfos(),
                         asset.getSerialNumber(),
-                        Helper.enumerate(asset.getAssignedTo().stream().map(OwnUser::getEmail).collect(Collectors.toList())),
+                        Helper.enumerate(asset.getAssignedTo().stream().map(User::getEmail).collect(Collectors.toList())),
                         Helper.enumerate(asset.getTeams().stream().map(Team::getName).collect(Collectors.toList())),
                         Helper.enumerate(asset.getParts().stream().map(Part::getName).collect(Collectors.toList())),
                         Helper.enumerate(asset.getVendors().stream().map(Vendor::getName).collect(Collectors.toList())),
@@ -138,7 +137,7 @@ public class CsvFileGenerator {
                         location.getName(),
                         location.getAddress(),
                         location.getParentLocation() == null ? null : location.getParentLocation().getName(),
-                        Helper.enumerate(location.getWorkers().stream().map(OwnUser::getEmail).collect(Collectors.toList())),
+                        Helper.enumerate(location.getWorkers().stream().map(User::getEmail).collect(Collectors.toList())),
                         Helper.enumerate(location.getTeams().stream().map(Team::getName).collect(Collectors.toList())),
                         Helper.enumerate(location.getVendors().stream().map(Vendor::getName).collect(Collectors.toList())),
                         Helper.enumerate(location.getCustomers().stream().map(Customer::getName).collect(Collectors.toList()))
@@ -182,7 +181,7 @@ public class CsvFileGenerator {
                         part.getAdditionalInfos(),
                         part.getArea(),
                         part.getMinQuantity(),
-                        Helper.enumerate(part.getAssignedTo().stream().map(OwnUser::getEmail).collect(Collectors.toList())),
+                        Helper.enumerate(part.getAssignedTo().stream().map(User::getEmail).collect(Collectors.toList())),
                         Helper.enumerate(part.getCustomers().stream().map(Customer::getName).collect(Collectors.toList())),
                         Helper.enumerate(part.getVendors().stream().map(Vendor::getName).collect(Collectors.toList())),
                         Helper.enumerate(part.getTeams().stream().map(Team::getName).collect(Collectors.toList()))
@@ -215,7 +214,7 @@ public class CsvFileGenerator {
                         meter.getMeterCategory() == null ? null : meter.getMeterCategory().getName(),
                         meter.getAsset() == null ? null : meter.getAsset().getName(),
                         meter.getLocation() == null ? null : meter.getLocation().getName(),
-                        Helper.enumerate(meter.getUsers().stream().map(OwnUser::getEmail).collect(Collectors.toList())));
+                        Helper.enumerate(meter.getUsers().stream().map(User::getEmail).collect(Collectors.toList())));
             }
             writer.close();
         } catch (IOException e) {

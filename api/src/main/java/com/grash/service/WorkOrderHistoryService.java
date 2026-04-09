@@ -1,7 +1,7 @@
 package com.grash.service;
 
 import com.grash.dto.license.LicenseEntitlement;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.WorkOrder;
 import com.grash.model.WorkOrderHistory;
 import com.grash.repository.WorkOrderAudRepository;
@@ -51,7 +51,7 @@ public class WorkOrderHistoryService {
         if (!licenseService.hasEntitlement(LicenseEntitlement.WORK_ORDER_HISTORY)) return new ArrayList<>();
         return workOrderAudRepository.findByIdAndRevtype(id, 1).stream().map(workOrderAud -> {
             WorkOrder workOrder = workOrderRepository.findById(id).get();
-            OwnUser user = workOrderAud.getWorkOrderAudId().getRev().getUser();
+            User user = workOrderAud.getWorkOrderAudId().getRev().getUser();
             WorkOrderHistory workOrderHistory = WorkOrderHistory.builder()
                     .workOrder(workOrder)
                     .name(workOrderAud.getSummary(messageSource, Helper.getLocale(user)))

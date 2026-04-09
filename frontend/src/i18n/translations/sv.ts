@@ -1807,7 +1807,13 @@ const locale = {
   delete_api_key: 'Ta bort API-nyckel',
   delete_api_key_confirm:
     'Är du säker på att du vill ta bort denna API-nyckel?',
-  upgrade_api: 'Uppgradera för att få åtkomst till API, kopplingar och webhooks'
+  upgrade_api:
+    'Uppgradera för att få åtkomst till API, kopplingar och webhooks',
+  comments: 'Kommentarer',
+  add_comment_placeholder: 'Lägg till en kommentar...',
+  post_comment: 'Publicera kommentar',
+  no_comments: 'Inga kommentarer än',
+  confirm_delete_comment: 'Är du säker på att du vill ta bort denna kommentar?'
 };
 
 export default locale;

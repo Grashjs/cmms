@@ -1,15 +1,15 @@
 package com.grash.event;
 
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import lombok.Data;
 import lombok.Getter;
 
 @Getter
 @Data
 public class CompanyCreatedEvent {
-    private final OwnUser user;
+    private final User user;
 
-    public CompanyCreatedEvent(OwnUser user) {
+    public CompanyCreatedEvent(User user) {
         this.user = user;
     }
 

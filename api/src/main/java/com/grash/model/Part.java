@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -48,10 +49,10 @@ public class Part extends CompanyAudit {
                     @Index(name = "idx_part_user_user_id", columnList = "id_user")
             })
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of users assigned to the part", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of users assigned to the part", writeOnly = true)
     )
-    private List<OwnUser> assignedTo = new ArrayList<>();
+    private List<User> assignedTo = new ArrayList<>();
 
     @Schema(description = "Barcode identifier for the part")
     private String barcode;
@@ -85,8 +86,8 @@ public class Part extends CompanyAudit {
                     @Index(name = "idx_part_file_file_id", columnList = "id_file")
             })
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of files attached to the part", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of files attached to the part", writeOnly = true)
     )
     private List<File> files = new ArrayList<>();
 
@@ -104,8 +105,8 @@ public class Part extends CompanyAudit {
                     @Index(name = "idx_part_customer_customer_id", columnList = "id_customer")
             })
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of customers associated with the part", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of customers associated with the part", writeOnly = true)
     )
     private List<Customer> customers = new ArrayList<>();
 
@@ -119,8 +120,8 @@ public class Part extends CompanyAudit {
                     @Index(name = "idx_part_vendor_vendor_id", columnList = "id_vendor")
             })
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of vendors associated with the part", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of vendors associated with the part", writeOnly = true)
     )
     private List<Vendor> vendors = new ArrayList<>();
 
@@ -141,8 +142,8 @@ public class Part extends CompanyAudit {
                     @Index(name = "idx_part_team_team_id", columnList = "id_team")
             })
     @ArraySchema(
-        schema = @Schema(implementation = IdDTO.class),
-        arraySchema = @Schema(description = "List of teams assigned to the part", writeOnly = true)
+            schema = @Schema(implementation = IdDTO.class),
+            arraySchema = @Schema(description = "List of teams assigned to the part", writeOnly = true)
     )
     private List<Team> teams = new ArrayList<>();
 
@@ -172,26 +173,26 @@ public class Part extends CompanyAudit {
     private String unit;
 
     @JsonIgnore
-    public Collection<OwnUser> getUsers() {
-        Collection<OwnUser> users = new ArrayList<>();
+    public Collection<User> getUsers() {
+        Collection<User> users = new ArrayList<>();
 
         if (this.getTeams() != null) {
-            Collection<OwnUser> teamsUsers = new ArrayList<>();
+            Collection<User> teamsUsers = new ArrayList<>();
             this.getTeams().forEach(team -> teamsUsers.addAll(team.getUsers()));
             users.addAll(teamsUsers);
         }
         if (this.getAssignedTo() != null) {
             users.addAll(this.getAssignedTo());
         }
-        return users.stream().collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(OwnUser::getId))),
+        return users.stream().collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(User::getId))),
                 ArrayList::new));
     }
 
     @JsonIgnore
-    public List<OwnUser> getNewUsersToNotify(Collection<OwnUser> newUsers) {
-        Collection<OwnUser> oldUsers = getUsers();
+    public List<User> getNewUsersToNotify(Collection<User> newUsers) {
+        Collection<User> oldUsers = getUsers();
         return newUsers.stream().filter(newUser -> oldUsers.stream().noneMatch(user -> user.getId().equals(newUser.getId()))).
-                collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(OwnUser::getId))),
+                collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(User::getId))),
                         ArrayList::new));
     }
 

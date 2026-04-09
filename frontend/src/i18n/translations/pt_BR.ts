@@ -1868,7 +1868,12 @@ const ptBRJSON = {
   never: 'Nunca',
   delete_api_key: 'Excluir chave API',
   delete_api_key_confirm: 'Tem certeza de que deseja excluir esta chave API?',
-  upgrade_api: 'Faça upgrade para acessar a API, conectores e webhooks'
+  upgrade_api: 'Faça upgrade para acessar a API, conectores e webhooks',
+  comments: 'Comentários',
+  add_comment_placeholder: 'Adicionar um comentário...',
+  post_comment: 'Publicar comentário',
+  no_comments: 'Nenhum comentário ainda',
+  confirm_delete_comment: 'Tem certeza de que deseja excluir este comentário?'
 };
 
 export default ptBRJSON;

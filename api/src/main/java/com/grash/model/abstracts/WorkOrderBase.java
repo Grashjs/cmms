@@ -73,7 +73,7 @@ public abstract class WorkOrderBase extends CompanyAudit {
     @Schema(description = "The primary user responsible for the work order", implementation = IdDTO.class)
     @ManyToOne
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
-    private OwnUser primaryUser;
+    private User primaryUser;
 
     @ManyToMany
     @NotAudited
@@ -82,7 +82,7 @@ public abstract class WorkOrderBase extends CompanyAudit {
             schema = @Schema(implementation = IdDTO.class),
             arraySchema = @Schema(description = "List of users assigned to the work order", writeOnly = true)
     )
-    private List<OwnUser> assignedTo = new ArrayList<>();
+    private List<User> assignedTo = new ArrayList<>();
 
     @ManyToMany
     @NotAudited
@@ -108,8 +108,8 @@ public abstract class WorkOrderBase extends CompanyAudit {
     private Asset asset;
 
     @JsonIgnore
-    public Collection<OwnUser> getUsers() {
-        Collection<OwnUser> users = new ArrayList<>();
+    public Collection<User> getUsers() {
+        Collection<User> users = new ArrayList<>();
         if (this.getPrimaryUser() != null) {
             users.add(this.getPrimaryUser());
         }
@@ -119,7 +119,7 @@ public abstract class WorkOrderBase extends CompanyAudit {
         if (this.getAssignedTo() != null) {
             users.addAll(this.getAssignedTo());
         }
-        return users.stream().collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(OwnUser::getId))),
+        return users.stream().collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(User::getId))),
                 ArrayList::new));
     }
 
@@ -129,8 +129,8 @@ public abstract class WorkOrderBase extends CompanyAudit {
         this.estimatedDuration = estimatedDuration;
     }
 
-    public boolean isAssignedTo(OwnUser user) {
-        Collection<OwnUser> users = getUsers();
+    public boolean isAssignedTo(User user) {
+        Collection<User> users = getUsers();
         return users.stream().anyMatch(user1 -> user1.getId().equals(user.getId()));
     }
 }

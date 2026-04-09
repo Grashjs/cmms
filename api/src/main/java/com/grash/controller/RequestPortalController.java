@@ -5,7 +5,7 @@ import com.grash.dto.requestPortal.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RequestPortalMapper;
 import com.grash.model.RequestPortal;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.security.CurrentUser;
 import com.grash.service.RequestPortalService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,7 +31,7 @@ public class RequestPortalController {
     @PostMapping("/search")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public Page<RequestPortalShowDTO> search(@Parameter(description = "Request portal search criteria") @RequestBody RequestPortalCriteria requestPortalCriteria,
-                                             @Parameter(hidden = true) @CurrentUser OwnUser user, Pageable pageable) {
+                                             @Parameter(hidden = true) @CurrentUser User user, Pageable pageable) {
         return requestPortalService.findByCriteria(requestPortalCriteria, pageable, user).map(requestPortalMapper::toShowDto);
     }
 
@@ -39,13 +39,13 @@ public class RequestPortalController {
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public RequestPortalShowDTO create(@Parameter(description = "Request portal to create") @RequestBody @Valid RequestPortalPostDTO requestPortal,
-                                       @Parameter(hidden = true) @CurrentUser OwnUser user) {
+                                       @Parameter(hidden = true) @CurrentUser User user) {
         return requestPortalMapper.toShowDto(requestPortalService.create(requestPortal, user));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public RequestPortalShowDTO getById(@PathVariable Long id, @Parameter(hidden = true) @CurrentUser OwnUser user) {
+    public RequestPortalShowDTO getById(@PathVariable Long id, @Parameter(hidden = true) @CurrentUser User user) {
         return requestPortalMapper.toShowDto(requestPortalService.findById(id).orElseThrow(() -> new CustomException(
                 "Not found",
                 HttpStatus.NOT_FOUND)));
@@ -63,14 +63,14 @@ public class RequestPortalController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public RequestPortalShowDTO update(@PathVariable Long id,
                                        @Parameter(description = "Request portal fields to update") @RequestBody @Valid RequestPortalPatchDTO requestPortal,
-                                       @Parameter(hidden = true) @CurrentUser OwnUser user) {
+                                       @Parameter(hidden = true) @CurrentUser User user) {
         return requestPortalMapper.toShowDto(requestPortalService.update(id, requestPortal, user));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id,
-                                                  @Parameter(hidden = true) @CurrentUser OwnUser user) {
+                                                  @Parameter(hidden = true) @CurrentUser User user) {
 
         RequestPortal savedRequestPortal =
                 requestPortalService.findById(id).orElseThrow(() -> new CustomException("Not found",

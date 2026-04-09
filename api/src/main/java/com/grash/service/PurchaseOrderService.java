@@ -6,9 +6,7 @@ import com.grash.dto.PurchaseOrderPatchDTO;
 import com.grash.dto.PurchaseOrderShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PurchaseOrderMapper;
-import com.grash.model.OwnUser;
 import com.grash.model.PurchaseOrder;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.PurchaseOrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
+
 import java.util.Collection;
 import java.util.Optional;
 

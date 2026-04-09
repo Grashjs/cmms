@@ -1901,7 +1901,12 @@ const ruJSON = {
   never: 'Никогда',
   delete_api_key: 'Удалить API ключ',
   delete_api_key_confirm: 'Вы уверены, что хотите удалить этот API ключ?',
-  upgrade_api: 'Обновите, чтобы получить доступ к API, коннекторам и вебхукам'
+  upgrade_api: 'Обновите, чтобы получить доступ к API, коннекторам и вебхукам',
+  comments: 'Комментарии',
+  add_comment_placeholder: 'Добавить комментарий...',
+  post_comment: 'Опубликовать комментарий',
+  no_comments: 'Пока нет комментариев',
+  confirm_delete_comment: 'Вы уверены, что хотите удалить этот комментарий?'
 };
 
 export default ruJSON;

@@ -9,7 +9,7 @@ import com.grash.dto.workOrder.WorkOrderMiniDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.mapper.WorkOrderMapper;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
 import com.grash.model.enums.PermissionEntity;
@@ -55,9 +55,10 @@ public class PreventiveMaintenanceController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<PreventiveMaintenanceShowDTO>> search(@Parameter(description = "Search criteria for filtering preventive maintenances") @RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<PreventiveMaintenanceShowDTO>> search(@Parameter(description = "Search criteria for " +
+                                                                                 "filtering preventive maintenances") @RequestBody SearchCriteria searchCriteria,
                                                                      HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)) {
                 searchCriteria.filterCompany(user);
@@ -70,7 +71,7 @@ public class PreventiveMaintenanceController {
     @PreAuthorize("permitAll()")
 
     public PreventiveMaintenanceShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent()) {
             PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
@@ -92,7 +93,7 @@ public class PreventiveMaintenanceController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     PreventiveMaintenanceShowDTO create(@Parameter(description = "Preventive maintenance data to create") @Valid @RequestBody PreventiveMaintenancePostDTO preventiveMaintenancePost,
                                         HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         PreventiveMaintenance preventiveMaintenance = preventiveMaintenanceMapper.toModel(preventiveMaintenancePost);
         preventiveMaintenance = preventiveMaintenanceService.create(preventiveMaintenance, user);
 
@@ -118,7 +119,7 @@ public class PreventiveMaintenanceController {
     public PreventiveMaintenanceShowDTO patch(@Parameter(description = "Preventive maintenance fields to update") @Valid @RequestBody PreventiveMaintenancePatchDTO preventiveMaintenance
             , @PathVariable("id") Long id,
                                               HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
 
         if (optionalPreventiveMaintenance.isPresent()) {
@@ -133,7 +134,7 @@ public class PreventiveMaintenanceController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent()) {

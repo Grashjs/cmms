@@ -10,7 +10,6 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.MeterMapper;
 import com.grash.model.*;
 import com.grash.model.enums.NotificationType;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.MeterRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -46,7 +45,7 @@ public class MeterService {
     private final LicenseService licenseService;
 
     @Transactional
-    public Meter create(Meter meter, OwnUser user) {
+    public Meter create(Meter meter, User user) {
         checkUsageBasedLimit(user.getCompany());
         Meter savedMeter = meterRepository.saveAndFlush(meter);
         em.refresh(savedMeter);
@@ -106,7 +105,7 @@ public class MeterService {
         String message = messageSource.getMessage("notification_meter_assigned", new Object[]{newMeter.getName()},
                 locale);
         if (newMeter.getUsers() != null) {
-            List<OwnUser> newUsers = newMeter.getUsers().stream().filter(
+            List<User> newUsers = newMeter.getUsers().stream().filter(
                     user -> oldMeter.getUsers().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
             notificationService.createMultiple(newUsers.stream().map(newUser ->
                     new Notification(message, newUser, NotificationType.ASSET, newMeter.getId())).collect(Collectors.toList()), true, title);
@@ -153,9 +152,9 @@ public class MeterService {
         Optional<MeterCategory> optionalMeterCategory =
                 meterCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getMeterCategory(), companySettingsId);
         optionalMeterCategory.ifPresent(meter::setMeterCategory);
-        List<OwnUser> users = new ArrayList<>();
+        List<User> users = new ArrayList<>();
         dto.getUsersEmails().forEach(email -> {
-            Optional<OwnUser> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
+            Optional<User> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
             optionalUser1.ifPresent(users::add);
         });
         meter.setUsers(users);

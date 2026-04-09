@@ -3,7 +3,7 @@ package com.grash.controller;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.imports.*;
 import com.grash.exception.CustomException;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.ImportEntity;
 import com.grash.model.enums.Language;
 import com.grash.model.enums.PermissionEntity;
@@ -29,7 +29,6 @@ import jakarta.validation.Valid;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/import")
@@ -50,7 +49,7 @@ public class ImportController {
                                                             HttpServletRequest req,
                                                             @Parameter(description = "Unique identifier for tracking " +
                                                                     "the import job") @RequestParam String uuid) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
             asyncImportService.importWorkOrders(user, toImport, uuid);
@@ -67,7 +66,7 @@ public class ImportController {
                                                         HttpServletRequest req,
                                                         @Parameter(description = "Unique identifier for tracking the " +
                                                                 "import job") @RequestParam String uuid) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.ASSETS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
             asyncImportService.importAssets(user, toImport, uuid);
@@ -84,7 +83,7 @@ public class ImportController {
                                                            HttpServletRequest req,
                                                            @Parameter(description = "Unique identifier for tracking " +
                                                                    "the import job") @RequestParam String uuid) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.LOCATIONS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
             asyncImportService.importLocations(user, toImport, uuid);
@@ -101,7 +100,7 @@ public class ImportController {
                                                         HttpServletRequest req,
                                                         @Parameter(description = "Unique identifier for tracking the " +
                                                                 "import job") @RequestParam String uuid) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.METERS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
             asyncImportService.importMeters(user, toImport, uuid);
@@ -118,7 +117,7 @@ public class ImportController {
                                                        HttpServletRequest req,
                                                        @Parameter(description = "Unique identifier for tracking the " +
                                                                "import job") @RequestParam String uuid) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
             asyncImportService.importParts(user, toImport, uuid);
@@ -132,11 +131,11 @@ public class ImportController {
     @PostMapping("/preventive-maintenances")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> importPreventiveMaintenances(@Parameter(description = "List of preventive " +
-                                                                                    "maintenances to import") @Valid @RequestBody List<PreventiveMaintenanceImportDTO> toImport,
+                                                                                "maintenances to import") @Valid @RequestBody List<PreventiveMaintenanceImportDTO> toImport,
                                                                         HttpServletRequest req,
                                                                         @Parameter(description = "Unique identifier " +
                                                                                 "for tracking the import job") @RequestParam String uuid) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
             asyncImportService.importPreventiveMaintenances(user, toImport, uuid);

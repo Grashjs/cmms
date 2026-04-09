@@ -9,7 +9,7 @@ import com.grash.dto.paddle.subscription.PaddleSubscriptionStatus;
 import com.grash.dto.paddle.subscription.PaddleSubscriptionWebhookEvent;
 import com.grash.exception.CustomException;
 import com.grash.factory.MailServiceFactory;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.Subscription;
 import com.grash.model.enums.SubscriptionScheduledChangeType;
 import com.grash.service.*;
@@ -136,12 +136,12 @@ class WebhookController {
         if (data.getStatus() != PaddleSubscriptionStatus.active) return;
         long userId = Long.parseLong(data.getCustomData().get("userId"));
 
-        Optional<OwnUser> optionalOwnUser = userService.findById(userId);
+        Optional<User> optionalOwnUser = userService.findById(userId);
         if (!optionalOwnUser.isPresent()) {
             throw new CustomException("User Not Found", HttpStatus.NOT_FOUND);
         }
 
-        OwnUser user = optionalOwnUser.get();
+        User user = optionalOwnUser.get();
         Subscription savedSubscription = user.getCompany().getSubscription();
         if (isNewSubscription) {
             if (savedSubscription.getPaddleSubscriptionId() != null)
@@ -212,12 +212,12 @@ class WebhookController {
         checkIfCloudVersion();
         long userId = Long.parseLong(data.getCustomData().get("userId"));
 
-        Optional<OwnUser> optionalOwnUser = userService.findById(userId);
+        Optional<User> optionalOwnUser = userService.findById(userId);
         if (!optionalOwnUser.isPresent()) {
             throw new CustomException("User Not Found", HttpStatus.NOT_FOUND);
         }
 
-        OwnUser user = optionalOwnUser.get();
+        User user = optionalOwnUser.get();
         Subscription subscription = user.getCompany().getSubscription();
 
         if (subscription == null) {

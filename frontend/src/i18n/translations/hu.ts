@@ -1693,7 +1693,12 @@ const locale = {
   delete_api_key: 'API kulcs törlése',
   delete_api_key_confirm: 'Biztosan törölni szeretné ezt az API kulcsot?',
   upgrade_api:
-    'Frissítsen a csomagra az API, csatlakozók és webhookok eléréséhez'
+    'Frissítsen a csomagra az API, csatlakozók és webhookok eléréséhez',
+  comments: 'Hozzászólások',
+  add_comment_placeholder: 'Hozzászólás hozzáadása...',
+  post_comment: 'Hozzászólás közzététele',
+  no_comments: 'Még nincsenek hozzászólások',
+  confirm_delete_comment: 'Biztosan törölni szeretné ezt a hozzászólást?'
 };
 
 export default locale;

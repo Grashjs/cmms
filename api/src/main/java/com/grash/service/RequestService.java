@@ -10,11 +10,9 @@ import com.grash.mapper.RequestMapper;
 import com.grash.model.*;
 import com.grash.model.enums.PortalFieldType;
 import com.grash.model.enums.Priority;
-import com.grash.model.enums.RoleType;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.FieldConfigurationRepository;
 import com.grash.repository.RequestRepository;
-import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -120,10 +118,10 @@ public class RequestService {
         return requestRepository.findByCompany_Id(id);
     }
 
-    public WorkOrder createWorkOrderFromRequest(Request request, OwnUser creator) {
+    public WorkOrder createWorkOrderFromRequest(Request request, User creator) {
         WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(request);
         if (creator.getCompany().getCompanySettings().getGeneralPreferences().isAutoAssignRequests()) {
-            OwnUser primaryUser = workOrder.getPrimaryUser();
+            User primaryUser = workOrder.getPrimaryUser();
             workOrder.setPrimaryUser(primaryUser == null ? creator : primaryUser);
         }
         workOrder.setParentRequest(request);

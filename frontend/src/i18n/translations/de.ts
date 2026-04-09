@@ -1922,7 +1922,13 @@ const deJSON = {
   WEBHOOK_WORK_ORDER_DELETE: 'Arbeitsauftragslöschung',
   WEBHOOK_WORK_ORDER_OVERDUE: 'Arbeitsauftrag überfällig',
   WEBHOOK_WORK_ORDER_STATUS_CHANGE: 'Arbeitsauftragsstatusänderung',
-  WEBHOOK_WORK_REQUEST_STATUS_CHANGE: 'Arbeitsanfragenstatusänderung'
+  WEBHOOK_WORK_REQUEST_STATUS_CHANGE: 'Arbeitsanfragenstatusänderung',
+  comments: 'Kommentare',
+  add_comment_placeholder: 'Kommentar hinzufügen...',
+  post_comment: 'Kommentar posten',
+  no_comments: 'Noch keine Kommentare',
+  confirm_delete_comment:
+    'Sind Sie sicher, dass Sie diesen Kommentar löschen möchten?'
 };
 
 export default deJSON;

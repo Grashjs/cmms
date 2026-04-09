@@ -6,7 +6,7 @@ import com.grash.dto.UserSignupRequest;
 import com.grash.dto.imports.*;
 import com.grash.model.Asset;
 import com.grash.model.Company;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.Language;
 import com.grash.security.CurrentUser;
 import com.grash.security.CustomUserDetail;
@@ -68,10 +68,10 @@ public class DemoController {
             userSignupRequest.setLanguage(Language.EN);
             userSignupRequest.setDemo(true);
             userSignupRequest.setSkipMailSending(true);
-            SignupSuccessResponse<OwnUser> response = userService.signup(userSignupRequest);
+            SignupSuccessResponse<User> response = userService.signup(userSignupRequest);
 
             if (response.isSuccess()) {
-                OwnUser user = response.getUser();
+                User user = response.getUser();
                 CustomUserDetail customUserDetail =
                         CustomUserDetail.builder().user(user).build();
                 Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -92,7 +92,7 @@ public class DemoController {
 
     @DeleteMapping("/demo-data")
     @PreAuthorize("permitAll()")
-    public SuccessResponse deleteDemoData(@Parameter(hidden = true) @CurrentUser OwnUser user) {
+    public SuccessResponse deleteDemoData(@Parameter(hidden = true) @CurrentUser User user) {
         demoDataService.deleteDemoData(user.getCompany().getId());
         return new SuccessResponse(true, "Demo data deleted successfully");
     }

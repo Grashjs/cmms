@@ -131,7 +131,7 @@ public class WorkOrderService {
     }
 
     @Transactional
-    public WorkOrder update(Long id, WorkOrderPatchDTO workOrder, OwnUser user) {
+    public WorkOrder update(Long id, WorkOrderPatchDTO workOrder, User user) {
         if (workOrderRepository.existsById(id)) {
             WorkOrder savedWorkOrder = workOrderRepository.findById(id).get();
             if (savedWorkOrder.getFirstTimeToReact() == null) savedWorkOrder.setFirstTimeToReact(new Date());
@@ -188,6 +188,14 @@ public class WorkOrderService {
         return workOrderRepository.findById(id);
     }
 
+    public WorkOrder checkAccessToWorkOrderId(Long workOrderId, User user) {
+        WorkOrder workOrder = findById(workOrderId).orElseThrow(() -> new CustomException("Patient not found",
+                HttpStatus.NOT_FOUND));
+        if (!workOrder.isAccessibleBy(user))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        return workOrder;
+    }
+
     public Optional<WorkOrder> findByIdAndCompany(Long id, Long companyId) {
         return workOrderRepository.findByIdAndCompany_Id(id, companyId);
     }
@@ -208,7 +216,7 @@ public class WorkOrderService {
         String title = messageSource.getMessage("new_wo", null, locale);
         String message = messageSource.getMessage("notification_wo_assigned", new Object[]{workOrder.getTitle()},
                 locale);
-        Collection<OwnUser> users = workOrder.getUsers();
+        Collection<User> users = workOrder.getUsers();
         notificationService.createMultiple(users.stream().map(user -> new Notification(message, user,
                 NotificationType.WORK_ORDER, workOrder.getId())).collect(Collectors.toList()), true, title);
 
@@ -216,10 +224,10 @@ public class WorkOrderService {
             put("workOrderLink", frontendUrl + "/app/work-orders/" + workOrder.getId());
             put("workOrderTitle", workOrder.getTitle());
         }};
-        Collection<OwnUser> usersToMail =
+        Collection<User> usersToMail =
                 users.stream().filter(user -> user.isEnabled() && user.getUserSettings().shouldEmailUpdatesForWorkOrders()).collect(Collectors.toList());
         if (!usersToMail.isEmpty()) {
-            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_wo", null, locale), mailVariables, "new-work-order.html", Helper.getLocale(users.stream().findFirst().get()));
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(User::getEmail).toArray(String[]::new), messageSource.getMessage("new_wo", null, locale), mailVariables, "new-work-order.html", Helper.getLocale(users.stream().findFirst().get()));
         }
     }
 
@@ -227,7 +235,7 @@ public class WorkOrderService {
         String title = messageSource.getMessage("new_assignment", null, locale);
         String message = messageSource.getMessage("notification_wo_assigned", new Object[]{newWorkOrder.getTitle()},
                 Helper.getLocale(newWorkOrder.getCompany()));
-        List<OwnUser> usersToNotify = oldWorkOrder.getNewUsersToNotify(newWorkOrder.getUsers());
+        List<User> usersToNotify = oldWorkOrder.getNewUsersToNotify(newWorkOrder.getUsers());
         notificationService.createMultiple(usersToNotify.stream().map(user ->
                 new Notification(message, user, NotificationType.WORK_ORDER, newWorkOrder.getId())).collect(Collectors.toList()), true, title);
 
@@ -235,10 +243,10 @@ public class WorkOrderService {
             put("workOrderLink", frontendUrl + "/app/work-orders/" + newWorkOrder.getId());
             put("workOrderTitle", newWorkOrder.getTitle());
         }};
-        Collection<OwnUser> usersToMail =
+        Collection<User> usersToMail =
                 usersToNotify.stream().filter(user -> user.isEnabled() && user.getUserSettings().shouldEmailUpdatesForWorkOrders()).collect(Collectors.toList());
         if (!usersToMail.isEmpty()) {
-            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_wo", null, locale), mailVariables, "new-work-order.html", Helper.getLocale(usersToMail.stream().findFirst().get()));
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(User::getEmail).toArray(String[]::new), messageSource.getMessage("new_wo", null, locale), mailVariables, "new-work-order.html", Helper.getLocale(usersToMail.stream().findFirst().get()));
         }
     }
 
@@ -437,7 +445,7 @@ public class WorkOrderService {
         workOrder.setCustomId(getWorkOrderNumber(company));
         workOrder.setRequiredSignature(Helper.getBooleanFromString(dto.getRequiredSignature()));
 
-        Optional<OwnUser> optionalCompletedBy = userService.findByEmailAndCompany(dto.getCompletedByEmail(),
+        Optional<User> optionalCompletedBy = userService.findByEmailAndCompany(dto.getCompletedByEmail(),
                 company.getId());
         optionalCompletedBy.ifPresent(workOrder::setCompletedBy);
         workOrder.setCompletedOn(dto.getCompletedOn() == null ? null : Helper.addSeconds(new Date(), 60 * 10));
@@ -460,7 +468,7 @@ public class WorkOrderService {
         return workOrderRepository.findByCompletedBy_IdAndCreatedAtBetween(id, date1, date2);
     }
 
-    public SearchCriteria getSearchCriteria(OwnUser user, SearchCriteria searchCriteria) {
+    public SearchCriteria getSearchCriteria(User user, SearchCriteria searchCriteria) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             searchCriteria.filterCompany(user);
             if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
@@ -526,7 +534,7 @@ public class WorkOrderService {
         return searchCriteria;
     }
 
-    public Integer countUrgent(OwnUser user) {
+    public Integer countUrgent(User user) {
         SpecificationBuilder<WorkOrder> builder = new SpecificationBuilder<>();
         SearchCriteria searchCriteria = new SearchCriteria();
         searchCriteria.getFilterFields().addAll(Arrays.asList(FilterField.builder()
@@ -563,7 +571,7 @@ public class WorkOrderService {
                 original.getAsset() != null ? original.getAsset().getId() : null)) {
             changedFields.add(WOField.ASSET);
         }
-        if (!collectionsMatch(patch.getAssignedTo(), original.getAssignedTo(), OwnUser::getId)) {
+        if (!collectionsMatch(patch.getAssignedTo(), original.getAssignedTo(), User::getId)) {
             changedFields.add(WOField.ASSIGNEES);
         }
         if (!Objects.equals(
@@ -611,7 +619,7 @@ public class WorkOrderService {
                 updated.getAsset() != null ? updated.getAsset().getId() : null)) {
             changedFields.add(WOField.ASSET);
         }
-        if (!collectionsMatch(original.getAssignedTo(), updated.getAssignedTo(), OwnUser::getId)) {
+        if (!collectionsMatch(original.getAssignedTo(), updated.getAssignedTo(), User::getId)) {
             changedFields.add(WOField.ASSIGNEES);
         }
         if (!Objects.equals(
