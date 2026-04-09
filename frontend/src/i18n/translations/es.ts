@@ -18,7 +18,7 @@ const esJSON = {
   try_grash: 'Pruebe {{shortBrandName}}',
   login: 'Iniciar sesión',
   start_trial: 'Comience una prueba gratis',
-  'home.what': 'Qué',
+  'home.what': '¿Qué?',
   'home.you_will_have': 'Tendrá',
   'home.you_will_have_description':
     'Cree flujos de trabajo eficientes y confiables que le permitan controlar el mantenimiento. Genere, asigne y realice un seguimiento de órdenes de trabajo. Controlar el inventario. Y obtenga informes automatizados confiables que mejoren la visibilidad y generen responsabilidad.',
@@ -42,23 +42,23 @@ const esJSON = {
   'work-orders.checks.0':
     'Ver todas sus tareas, incluidas las órdenes y solicitudes de trabajo y el mantenimiento preventivo',
   'work-orders.checks.1':
-    'Establecer prioridades a sus tareas para que el trabajo más importante se realice primero.',
-  'work-orders.checks.2': 'Ver un calendario de tareas presentes y futuras.',
+    'Establezca prioridades a sus tareas para que el trabajo más importante se realice primero.',
+  'work-orders.checks.2': 'Vea un calendario de tareas presentes y futuras.',
   'work-orders.checks.3':
     'Vea órdenes de trabajo con información crítica, como detalles de activos, fecha de vencimiento, prioridad y más.',
   'work-orders.checks.4':
-    'Vea indicadores críticos, como el trabajo completado, el tiempo invertido y el trabajo planificado frente al no planificado..',
+    'Vea indicadores críticos, como el trabajo completado, el tiempo invertido y el trabajo planificado frente al no planificado.',
   'work-requests.title':
     'Una plataforma móvil optimizada que permite realizar solicitudes de trabajo',
   'work-requests.descriptions.0':
     '¿Está cansado de usar el antiguo sistema de teléfono y correos electrónicos que resulta en solicitudes PERDIDAS, constantes interrupciones diarias y trabajo duplicado?',
   'work-requests.descriptions.1':
     'La de gestión de mantenimiento a través de {{shortBrandName}} permite a cualquier persona que esté autorizada a enviar un problema a su departamento de mantenimiento simplemente escaneando un código QR o visitando una URL y escribiendo su solicitud a través de sus dispositivos móviles.',
-  'work-requests.checks.0': 'Nunca pierda un trabajo de nuevo.',
+  'work-requests.checks.0': 'Nunca pierdas un trabajo de nuevo.',
   'work-requests.checks.1':
     'Reduzca el tiempo dedicado a gestionar solicitudes de trabajo hasta en un 34 %.',
   'work-requests.checks.2':
-    'Reduzca el tiempo de comunicación con quienes soliciten una tarea hasta en un 41% (llamadas, correos electrónicos, mensajes de texto).',
+    'Reduzca el tiempo de comunicación con quiénes soliciten una tarea hasta en un 41% (llamadas, correos electrónicos, mensajes de texto).',
   'mobile-app.title':
     'Una aplicación CMMS móvil que jerarquiza a su equipo de mantenimiento',
   'mobile-app.descriptions.0':
@@ -189,7 +189,7 @@ const esJSON = {
   no_account_yet: '¿Todavía no tiene una cuenta?',
   signup_here: 'Regístrese aquí',
   wrong_credentials: 'Los datos proporcionados son incorrectos',
-  lost_password: '¿Olvidó su contraseña?',
+  lost_password: '¿Olvido su contraseña?',
   link_wo: 'Vincular Órdenes de Trabajo',
   link_wo_description: 'Crear relaciones entre Órdenes de Trabajo',
   required_relationType: 'Por favor seleccione el tipo de relación.',
@@ -306,7 +306,7 @@ const esJSON = {
   select_team: 'Seleccionar equipo',
   select_location: 'Seleccionar ubicación',
   select_asset: 'Seleccionar activo',
-  select_tasks: 'Selecccionar tareas',
+  select_tasks: 'Seleccionar tareas',
   requires_signature: 'Firma requerida',
   required_wo_title: 'Se requiere el título de la Orden de Trabajo',
   add_wo: 'Agregar Orden de Trabajo',
@@ -328,7 +328,7 @@ const esJSON = {
   sets_of_parts: 'Conjunto de repuestos',
   paused: 'Pausado',
   trigger_details: 'Detalles del origen',
-  starts_on: 'Comience el',
+  starts_on: 'Comienza el',
   ends_on: 'Finaliza el',
   frequency: 'Frecuencia',
   every_frequency_days: 'Cada {{frequency}} días',
@@ -445,7 +445,7 @@ const esJSON = {
   reading: 'Lectura',
   added_by: 'Agregado por',
   enter_meter_value: 'Introduzca el valor de la medición',
-  add_reading: 'Agregar lectura',
+  add_reading: 'Agregar medidor',
   select_meter: 'Seleccionar lectura',
   confirm_delete_part_asset:
     '¿Está seguro de que desea eliminar este repuesto de este activo?',
@@ -540,13 +540,13 @@ const esJSON = {
   no_access_inventory:
     'No tiene acceso al Inventario. Comuníquese con su administrador si necesita tener acceso',
   no_access_meters:
-    'No tiene acceso a Mediciones. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a Medidores. Comuníquese con su administrador si necesita tener acceso',
   no_access_purchase_orders:
     'No puede crear una orden de compra. Comuníquese con su administrador si necesita tener acceso',
   no_access_requests:
     'No tiene acceso a las Solicitudes. Comuníquese con su administrador si necesita tener acceso',
   no_access_settings:
-    'No tiene acceso a Configuraciones. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a Ajustes. Comuníquese con su administrador si necesita tener acceso',
   no_access_page: 'No tiene acceso a esta página',
   file: 'Archivo',
   'noRows.location.message':
@@ -596,7 +596,7 @@ const esJSON = {
   'noRows.part.message':
     'Los repuestos se pueden combinar en activos o usarse solos',
   'noRows.part.action': "Presione el botón '+' para crear un repuesto",
-  confirm_delete_part: '¿Está seguro de que desea eliminar esta parte?',
+  confirm_delete_part: '¿Está seguro de que desea eliminar este repuesto?',
   part_details: 'Detalles del repuesto',
   area_details: 'Detalles del área',
   assigned_people: 'Personas asignadas',
@@ -604,7 +604,7 @@ const esJSON = {
   no_file_found: 'Ningún archivo encontrado',
   no_wo_found: 'No se encontró ninguna Orden de Trabajo',
   workers: 'Trabajadores',
-  Parts_and_Inventory: 'Partes e inventario',
+  Parts_and_Inventory: 'Repuestos e inventario',
   po_edit_failure: 'La orden de compra no se pudo editar',
   po_delete_success: 'La orden de compra ha sido borrada',
   po_delete_failure: 'La orden de compra no pudo ser borrada',
@@ -634,7 +634,7 @@ const esJSON = {
   edit_po_description:
     'Complete los campos a continuación para actualizar la orden de compra',
   purchase_order: 'Orden de compra',
-  'noRows.po.message': 'Gestione sus órdenes de compra en un solo lugar',
+  'noRows.po.message': 'Gestione tus órdenes de compra en un solo lugar',
   'noRows.po.action': "Presiona el botón  '+' para crear una orden de compra.",
   confirm_delete_po: '¿Está seguro de que desea eliminar esta orden de compra?',
   upgrade_po: 'Actualizar para crear orden de compras',
@@ -667,37 +667,37 @@ const esJSON = {
     'Complete los campos a continuación para crear y agregar un disparador a la Orden de Trabajo',
   wo_trigger_edit_success:
     'El disparador de la Orden de Trabajo se ha actualizado correctamente',
-  meter_create_success: 'La lectura ha sido creado exitosamente',
-  meter_create_failure: 'La lectura no pudo ser creada ',
+  meter_create_success: 'La lectura ha sido creada exitosamente',
+  meter_create_failure: 'La lectura no pudo ser creada.',
   meter_edit_failure: 'La lectura no pudo ser editada',
   meter_delete_success: 'La lectura ha sido borrada',
   meter_delete_failure: 'La lectura no pudo ser borrada',
   next_reading_due: 'Próxima lectura pendiente',
   unit_of_measurement: 'Unidad de medida',
   last_reading: 'Última lectura',
-  enter_meter_name: 'Ingrese el nombre de la lectura',
+  enter_meter_name: 'Ingrese el nombre del medidor',
   unit: 'Unidad',
   update_frequency: 'Frecuencia de actualización',
   update_frequency_in_days: 'Frecuencia de actualización en días',
-  required_meter_name: 'El nombre de la lectura es obligatorio',
+  required_meter_name: 'El nombre del medidor es obligatorio',
   required_meter_unit: 'La Unidad de medida es obligatoria',
   required_meter_update_frequency:
     'La frecuencia de actualización de la lectura es obligatoria',
   required_asset: 'El activo es obligatorio',
-  add_meter: 'Agregar lectura',
+  add_meter: 'Agregar medidor',
   add_meter_description:
     'Complete los campos a continuación para crear y agregar una nueva lectura',
-  edit_meter: 'Editar lectura',
+  edit_meter: 'Editar medidor',
   edit_meter_description:
     'Complete los campos a continuación para editar la lectura',
-  confirm_delete_meter: '¿Está seguro de que desea eliminar esta lectura?',
-  upgrade_create_meter: 'Actualice para crear lecturas',
+  confirm_delete_meter: '¿Está seguro de que desea eliminar este medidor?',
+  upgrade_create_meter: 'Actualice para crear medidores',
   history: 'Historial',
   reading_frequency: 'Frecuencia de lectura',
-  required_reading_value: 'Valor de lectura es obligatoria',
+  required_reading_value: 'El valor de lectura es obligatorio',
   wo_triggers: 'Desencadente de la Orden de Trabajo',
   add_trigger: 'Agregar disparador',
-  meter_details: 'Detalles de lectura',
+  meter_details: 'Detalles del medidor',
   'noRows.meter.message':
     'Las lecturas de medidores le brindan la capacidad de monitorear activos y activar nuevas órdenes de trabajo basadas en condiciones definidas.',
   'noRows.meter.action': "Presione el botón '+' para crear un medidor",
@@ -705,7 +705,7 @@ const esJSON = {
   drag_one_file: 'Arrastre un único archivo aquí',
   drag_many_files: 'Arrastre y suelte archivos aquí',
   drop_to_start: 'Suelte los archivos para comenzar la carga',
-  invalid_files_type: 'No puede subir estos tipos de archivos.',
+  invalid_files_type: 'No puede subir estos tipos de archivo.',
   you_have_uploaded: 'Has subido',
   upload: 'Subido',
   Vendors_Customers: 'Proveedores y contratistas',
@@ -782,7 +782,7 @@ const esJSON = {
   create_team: 'Crear equipo',
   create_team_description: 'Puede agregar miembros del equipo desde aquí',
   confirm_delete_team: '¿Está seguro de que desea eliminar este equipo?',
-  overview: 'Decripción general',
+  overview: 'Descripción general',
   activity: 'Actividad',
   wo_complete_last_14_days:
     'Órdenes de Trabajo completadas en los últimos 14 días',
@@ -1024,7 +1024,7 @@ const esJSON = {
   required_address: 'La dirección es obligatoria',
   company_details: 'Detalles de la Empresa',
   company_details_description:
-    'Gestionar información relacionada con su Empresa',
+    'Gestionar información relacionada con su empresa',
   learn_more: 'Aprenda más',
   profile: 'Perfil',
   email_notifications: 'Notificaciones por correo electrónico',
@@ -1050,7 +1050,7 @@ const esJSON = {
   change_password: 'Cambiar contraseña',
   notification_settings: 'Configuración de notificaciones',
   notification_settings_description:
-    'Gestione los detalles relacionados con sus notificaciones.',
+    'Gestiona los detalles relacionados con sus notificaciones.',
   recent_activity: 'Actividad reciente',
   created: 'Creada',
   completed: 'Completada',
@@ -1097,7 +1097,7 @@ const esJSON = {
   proceed_to_payment: 'Proceder al pago',
   pay_only_for_roles:
     'Pague solo por usuarios <strong>Administrador</strong>, <strong>Técnico</strong> y <strong>Técnico limitado</strong>, y use usuarios <strong>Solicitante</strong> y <strong>Solo visualización</strong> ilimitados de forma gratuita.',
-  checkout_our: 'Echa un vistazo a nuestra',
+  checkout_our: 'Eche un vistazo a nuestra',
   pricing_page: 'página de precios',
   for_more_details: 'para más detalles',
   users_count_display: '{{count}} usuarios',
@@ -1146,7 +1146,7 @@ const esJSON = {
   customer: 'Contratista',
   to: 'a',
   dates: 'Fechas',
-  start: 'Comience',
+  start: 'Comienza',
   end: 'Termina',
   longitude: 'Longitud',
   latitude: 'Latitud',
@@ -1179,7 +1179,7 @@ const esJSON = {
   density: 'Densidad',
   compact: 'Compacto',
   standard: 'Estándar',
-  comfortable: 'Comfortable',
+  comfortable: 'Cómodo',
   columns: 'Columnas',
   select_columns: 'Seleccionar columnas',
   show_filters: 'Mostrar filtros',
@@ -1220,7 +1220,7 @@ const esJSON = {
   menu: 'Menú',
   show_columns: 'Mostrar columnas',
   hide: 'Ocultar',
-  unsort: 'Desclasificar',
+  unsort: 'Quitar orden',
   sort_by_ASC: 'Ordenar por ASC',
   sort_by_DESC: 'Ordenar por DESC',
   sort: 'Ordenar',
@@ -1234,10 +1234,10 @@ const esJSON = {
   expand: 'Expandir',
   collapse: 'Colapsar',
   detail_panel_toggle: 'Alternar panel de detalles',
-  cancel_subscription: 'Cancelar suscripciónn',
+  cancel_subscription: 'Cancelar suscripción,
   resume_subscription: 'Reanudar suscripción',
   confirm_cancel_subscription:
-    '¿Está seguro de que desea cancelar la suscripción?',
+    '¿Está seguro de que deseas cancelar la suscripción?',
   workflows: 'Flujo de trabajo',
   create_workflow: 'Crear flujo de trabajo',
   if: 'Si',
@@ -1304,7 +1304,7 @@ const esJSON = {
   click_here: 'Haga clic aquí',
   verify_email_title: 'Verificar correo electrónico',
   verify_email_description:
-    'Se se ha enviado un correo electrónico de verificación. Revisa la carpeta de spam si no lo ves en su bandeja de entrada.',
+    'Se le ha enviado un correo electrónico de verificación. Revisa la carpeta de spam si no lo ve en su bandeja de entrada.',
   upgrade: 'Upgrade',
   downgrade: 'Downgrade',
   upgrade_description:
@@ -1312,7 +1312,7 @@ const esJSON = {
   enable_users: 'Habilitar usuarios',
   max_users_description: 'Puede habilitar hasta {{maxUsers}} usuarios',
   downgrade_description:
-    'Acabas de cambiar a una versión inferior de su plan de suscripción. Debes desactivar algunos usuarios para continuar. Solo puede hacerlo una vez para la suscripción actual. Elija con cuidado.',
+    'Acaba de cambiar a una versión inferior de su plan de suscripción. Debe desactivar algunos usuarios para continuar. Solo puedes hacerlo una vez para la suscripción actual. Elija con cuidado.',
   disable_users: 'Deshabilitar usuarios',
   min_users_description: 'Debes desactivar un mìnimo de {{minUsers}} usuarios',
   downgrade_description_no_owner:
@@ -1321,7 +1321,7 @@ const esJSON = {
   due_date_delay: 'Retraso en la fecha de vencimiento',
   due_date_delay_description: 'Retraso de fecha de vencimiento en días',
   days_count: '{{days}} días',
-  trigger_configuration: 'Configuración de los diparadores',
+  trigger_configuration: 'Configuración de los disparadores',
   WORK_ORDER_feature: 'Órdenes de Trabajo',
   REQUEST_feature: 'Solicitudes de trabajo',
   PART_feature: 'Gestión de repuestos',
@@ -1378,7 +1378,7 @@ const esJSON = {
   switch_account_description: 'Seleccione una cuenta para continuar',
   put_location_in_map: 'Poner ubicación en el mapa',
   confirm_disable_user:
-    '¿Está seguro de que desea desactivar {{user}}? Solo podrá habilitarlo después de un mes',
+    '¿Estáa seguro de que desea desactivar {{user}}? Solo podrá habilitarlo después de un mes',
   user_disabled_success: 'Usuario deshabilitado exitosamente',
   disable: 'Desactivado',
   manufacturer: 'Fabricante',
@@ -1406,7 +1406,7 @@ const esJSON = {
   no_file_linked_to_wo: 'No hay ningún archivo adjunto a esta Orden de Trabajo',
   add_file: 'Agregar archivo',
   try_for_free: 'Pruebe gratis',
-  choose_your_plan: 'Elige su plan',
+  choose_your_plan: 'Elija su plan',
   STARTER_description:
     'Equipos que buscan desarrollar un mantenimiento preventivo eficiente y sólido a través del estado de las máquinas y la visibilidad de la mano de obra.',
   PROFESSIONAL_description:
@@ -1507,7 +1507,7 @@ const esJSON = {
   'home.h3':
     'Deje de depender de hojas de cálculo y pizarras. {{brandName}} ayuda a los equipos de mantenimiento a planificar intervenciones, rastrear equipos y mantenerse en cumplimiento. Alójelo en su propio servidor o comience instantáneamente en la nube.',
   talk_to_sales: 'Hablar con ventas',
-  'pricing.choose_plan_and_get_started': 'Elige su plan y empieza',
+  'pricing.choose_plan_and_get_started': 'Elija tu plan y empiece',
   'pricing.slogan_effective_maintenance':
     'Nuestro software brinda a los equipos de mantenimiento y confiabilidad las herramientas que necesitan para ejecutar las operaciones de manera eficiente y eficaz.',
   'pricing.compare_plans_and_pricing': 'Comparar planes y precios',
@@ -1524,7 +1524,7 @@ const esJSON = {
   'pricing.feature_custom_tasks': 'Tareas personalizadas',
   'pricing.feature_unlimited_request_user_licenses':
     'Solicitudes de licencias de usuario ilimitadas',
-  'pricing.plan_starter_name': 'Motor de arranque',
+  'pricing.plan_starter_name': 'Starter',
   'pricing.plan_starter_description':
     'Equipos que buscan construir un mantenimiento preventivo eficiente y sólido a través del estado de las máquinas y la visibilidad de la mano de obra.',
   'pricing.feature_everything_in_basic_plus': 'Todo lo del plan Básico más:',
@@ -1532,11 +1532,11 @@ const esJSON = {
     'Mantenimiento preventivo/Órdenes de trabajo recurrentes',
   'pricing.feature_custom_checklists': 'Listas de verificación personalizadas',
   'pricing.feature_inventory_management_costing':
-    'Gestión de inventario/Costes',
+    'Gestión de inventario/Costos',
   'pricing.feature_time_and_manpower_tracking':
     'Seguimiento del tiempo y la mano de obra',
   'pricing.feature_thirty_day_analytics_reporting':
-    'Análisis e informes de 30 días',
+    'Análisis e informes (30 días)',
   'pricing.plan_professional_name': 'Profesional',
   'pricing.plan_professional_description':
     'Departamentos que necesitan aprovechar conocimientos y análisis para impulsar un mayor crecimiento y productividad del mantenimiento.',
@@ -1588,9 +1588,9 @@ const esJSON = {
   'pricing.feature_updating_tasks': 'Actualización de tareas',
   'pricing.feature_work_order_drafts': 'Borradores de órdenes de trabajo',
   'pricing.feature_full_drill_down_reporting_history':
-    'Informes y historial completos y detallados',
+    'Informes e historial completos y detallados',
   'pricing.period_thirty_days': '30 días',
-  'pricing.period_full': 'Lleno',
+  'pricing.period_full': 'Completo',
   'pricing.feature_pdf_csv_exporting': 'Exportación de PDF y CSV',
   'pricing.feature_itemized_time_reporting': 'Informes de tiempo detallados',
   'pricing.feature_user_login_reports':
@@ -1608,11 +1608,11 @@ const esJSON = {
   'pricing.feature_unlimited_view_only_users':
     'Usuarios ilimitados de solo lectura',
   'pricing.feature_unlimited_requesters': 'Solicitantes ilimitados',
-  'pricing.feature_unlimited_vendors': 'Vendedores ilimitados',
-  'pricing.feature_unlimited_customers': 'Clientes ilimitados',
+  'pricing.feature_unlimited_vendors': 'Proveedores ilimitados',
+  'pricing.feature_unlimited_customers': 'Contratistas ilimitados',
   'pricing.category_support': 'Apoyo',
   'pricing.feature_daily_email_digest': 'Resumen diario por correo electrónico',
-  'pricing.feature_articles': 'Artículos',
+  'pricing.feature_articles': 'Base de conocimientos',
   'pricing.feature_training_webinars': 'Seminarios web de capacitación',
   'pricing.feature_community_support_discord': 'Soporte comunitario (Discord)',
   'pricing.feature_email_support': 'Soporte por correo electrónico',
@@ -1632,7 +1632,7 @@ const esJSON = {
   'pricing.sh_feature_local_data_storage': 'Almacenamiento de datos local',
   'pricing.sh_plan_professional_name': 'Profesional',
   'pricing.sh_plan_professional_description':
-    'Ideal para el cultivo de plantas que requieren listas de verificación avanzadas, flujos de trabajo y una integración más profunda del sistema.',
+    'Ideal para plantas de producción que requieren listas de verificación avanzadas, flujos de trabajo y una integración más profunda del sistema.',
   'pricing.sh_feature_everything_in_basic_plus': 'Todo lo del plan Básico más:',
   'pricing.sh_feature_unlimited_assets_checklists':
     'Activos/Listas de verificación ilimitados',
@@ -1658,7 +1658,7 @@ const esJSON = {
     'Estos usuarios suelen ser supervisores que inician sesión con poca frecuencia para ver un resumen de la actividad de mantenimiento. También pueden enviar solicitudes de trabajo y generar informes.',
   'pricing.faq_requester_users_title': 'Usuarios solicitantes',
   'pricing.faq_requester_users_description':
-    'Estos usuarios solo pueden enviar solicitudes de trabajo y ver su estado. No pueden ver órdenes de trabajo, activos, piezas ni ningún otro dato almacenado en el GMAO.',
+    'Estos usuarios solo pueden enviar solicitudes de trabajo y ver su estado. No pueden visualizar órdenes de trabajo, activos, repuestos ni ningún otro dato almacenado en el GMAO.',
   'pricing.faq_third_party_users_title': 'Usuarios de terceros',
   'pricing.faq_third_party_users_description':
     'Estos usuarios suelen ser proveedores y contratistas. No pueden iniciar sesión en el sistema. Solo pueden enviar actualizaciones a una orden de trabajo específica en la que están asignados a través de un enlace público.',
@@ -1690,7 +1690,7 @@ const esJSON = {
     'Aceptamos todas las principales tarjetas de crédito, transferencias bancarias y PayPal. Para planes Enterprise, también gestionamos la facturación.',
   'pricing.faq_cancel_subscription_q': '¿Puedo cancelar mi suscripción?',
   'pricing.faq_cancel_subscription_a':
-    'Sí, puede cancelar su suscripción en cualquier momento. Seguirás teniendo acceso hasta el final de su periodo de facturación actual.',
+    'Sí, puede cancelar su suscripción en cualquier momento. Seguirá teniendo acceso hasta el final de su periodo de facturación actual.',
   'pricing.faq_data_secure_q': '¿Están seguros mis datos?',
   'pricing.faq_data_secure_a':
     'Sí, nos tomamos muy en serio la seguridad de los datos. Todos los datos están cifrados, tanto en tránsito como en reposo, y realizamos auditorías de seguridad periódicas.',
@@ -1703,7 +1703,7 @@ const esJSON = {
   push_notifications: 'Notificaciones push',
   cloud: 'Nube',
   self_hosted: 'Autoalojado',
-  full: 'Lleno',
+  full: 'Completo',
   pricing: 'Precios',
   industries: 'Industrias',
   work_order_management: 'Gestión de órdenes de trabajo',
@@ -1806,7 +1806,7 @@ const esJSON = {
   no_access_request_portals: 'No tiene acceso a los portales de solicitudes',
   'noRows.request_portal.message':
     'Parece que aún no tiene ningún portal de solicitudes.',
-  'noRows.request_portal.action': 'Crea su primer portal de solicitudes',
+  'noRows.request_portal.action': 'Cree su primer portal de solicitudes',
   request_title: 'Título de la solicitud',
   configure_form_fields: 'Configurar campos del formulario',
   allow_selection_from_all_locations:
@@ -1893,8 +1893,7 @@ const esJSON = {
   webhook_endpoint_never_triggered: 'Nunca ejecutado',
   webhook_endpoint_type: 'Tipo',
   WEBHOOK_ASSET_STATUS_CHANGE: 'Cambio de estado del activo',
-  WEBHOOK_METER_TRIGGER_STATUS_CHANGE:
-    'Cambio de estado del disparador del medidor',
+  WEBHOOK_METER_TRIGGER_STATUS_CHANGE: 'Cambio de estado del disparador del medidor',
   WEBHOOK_NEW_ASSET: 'Nuevo activo',
   WEBHOOK_NEW_CATEGORY_ON_WORK_ORDER: 'Nueva categoría en la orden de trabajo',
   WEBHOOK_NEW_COMMENT_ON_WORK_ORDER: 'Nuevo comentario en la orden de trabajo',
@@ -1908,14 +1907,12 @@ const esJSON = {
   WEBHOOK_PART_DELETE: 'Eliminación de repuesto',
   WEBHOOK_PART_QUANTITY_CHANGED: 'Cantidad de repuesto cambiada',
   WEBHOOK_PURCHASE_ORDER_CHANGE: 'Cambio de orden de compra',
-  WEBHOOK_PURCHASE_ORDER_STATUS_CHANGE:
-    'Cambio de estado de la orden de compra',
+  WEBHOOK_PURCHASE_ORDER_STATUS_CHANGE: 'Cambio de estado de la orden de compra',
   WEBHOOK_WORK_ORDER_CHANGE: 'Cambio de orden de trabajo',
   WEBHOOK_WORK_ORDER_DELETE: 'Eliminación de orden de trabajo',
   WEBHOOK_WORK_ORDER_OVERDUE: 'Orden de trabajo vencida',
   WEBHOOK_WORK_ORDER_STATUS_CHANGE: 'Cambio de estado de la orden de trabajo',
-  WEBHOOK_WORK_REQUEST_STATUS_CHANGE:
-    'Cambio de estado de la solicitud de trabajo',
+  WEBHOOK_WORK_REQUEST_STATUS_CHANGE: 'Cambio de estado de la solicitud de trabajo'
   comments: 'Comentarios',
   add_comment_placeholder: 'Añadir un comentario...',
   post_comment: 'Publicar comentario',
