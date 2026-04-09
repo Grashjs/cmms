@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @Schema(description = "DTO containing a unique identifier reference")
 public class IdDTO {
-    @Schema(description = "Unique identifier", accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(description = "Unique identifier")
     private Long id;
 }
