@@ -22,13 +22,15 @@ import SendTwoToneIcon from '@mui/icons-material/SendTwoTone';
 import AttachFileTwoToneIcon from '@mui/icons-material/AttachFileTwoTone';
 import { MentionsTextField } from '@jackstenglein/mui-mentions';
 import { getUsersMini } from '../../../../slices/user';
+import { useSearchParams } from 'react-router-dom';
 
 interface CommentsSectionProps {
   workOrderId: number;
+  commentId?: number;
 }
 
 export default function CommentsSection(props: CommentsSectionProps) {
-  const { workOrderId } = props;
+  const { workOrderId, commentId } = props;
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { uploadFiles } = useContext(CompanySettingsContext);
@@ -36,7 +38,6 @@ export default function CommentsSection(props: CommentsSectionProps) {
     (state) => state.comments
   );
   const { usersMini } = useSelector((state) => state.users);
-
   const [content, setContent] = useState<string>('');
   const [plainTextContent, setPlainTextContent] = useState<string>('');
   const [files, setFiles] = useState<any[]>([]);
@@ -59,9 +60,6 @@ export default function CommentsSection(props: CommentsSectionProps) {
         const uploadedFiles = await uploadFiles(files, [], false);
         fileIds = uploadedFiles.map((f) => ({ id: f.id }));
       }
-
-      // Content is already in the correct format: @[display](user:id)
-      // because we configured the markup template as '@[__display__](user:__id__)'
       dispatch(
         createComment({
           workOrder: { id: workOrderId },
@@ -200,6 +198,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
               key={comment.id}
               comment={comment}
               workOrderId={workOrderId}
+              highlighted={commentId && comment.id === Number(commentId)}
             />
           ))}
         </Stack>

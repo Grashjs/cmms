@@ -32,6 +32,7 @@ import {
   useState
 } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import AddTimeModal from './AddTimeModal';
@@ -127,6 +128,8 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const { user, hasEditPermission, hasDeletePermission } = useAuth();
   const brandConfig = useBrand();
   const hasWOHistoryEntitlement = useLicenseEntitlement('WORK_ORDER_HISTORY');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const commentIdParam = searchParams.get('commentId');
   const [openAddTimeModal, setOpenAddTimeModal] = useState<boolean>(false);
   const [openAddFileModal, setOpenAddFileModal] = useState<boolean>(false);
   const [openAddCostModal, setOpenAddCostModal] = useState<boolean>(false);
@@ -172,10 +175,22 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const [primaryTimeHours, setPrimaryTimeHours] = useState<number>();
   const [primaryTimeMinutes, setPrimaryTimeMinutes] = useState<number>();
   const [savingPrimaryTime, setSavingPrimaryTime] = useState<boolean>(false);
+  const [commentId, setCommentId] = useState<number>(null);
 
   useEffect(() => {
     dispatch(getCommentsCountByWorkOrder(workOrder.id));
   }, [workOrder.id, dispatch]);
+
+  useEffect(() => {
+    if (commentIdParam) {
+      setCurrentTab('comments');
+      setCommentId(Number(commentIdParam));
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('commentId');
+
+      setSearchParams(newParams);
+    }
+  }, [commentIdParam]);
 
   useEffect(() => {
     [workOrder.createdBy, workOrder.parentRequest?.createdBy].forEach(
@@ -1346,7 +1361,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
           </Box>
         )}
         {currentTab == 'comments' && (
-          <CommentsSection workOrderId={workOrder.id} />
+          <CommentsSection workOrderId={workOrder.id} commentId={commentId} />
         )}
       </Grid>
       <AddTimeModal

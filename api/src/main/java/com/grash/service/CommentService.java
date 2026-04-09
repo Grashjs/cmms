@@ -150,6 +150,6 @@ public class CommentService {
     private String formatCommentContent(String content) {
         // Convert @[name](user:id) mentions to clickable links
         return content.replaceAll("@\\[(.*?)\\]\\(user:(\\d+)\\)",
-                "<a href=\"" + frontendUrl + "/app/people-teams/people/$0\">@$1</a>");
+                "<a href=\"" + frontendUrl + "/app/people-teams/people/$2\">@$1</a>");
     }
 }

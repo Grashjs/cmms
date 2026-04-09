@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { MentionsTextField } from '@jackstenglein/mui-mentions';
 import Comment from '../../../../models/owns/comment';
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
@@ -39,7 +39,22 @@ const CommentWrapper = styled(Box)(
     background: ${theme.colors.alpha.white[100]};
     border: 1px solid ${theme.colors.alpha.black[10]};
     transition: all 0.2s ease-in-out;
-    
+
+    &:hover .comment-actions {
+      opacity: 1;
+    }
+  `
+);
+
+const HighlightedCommentWrapper = styled(Box)(
+  ({ theme }) => `
+    padding: ${theme.spacing(2)};
+    border-radius: ${theme.general.borderRadius};
+    background: ${theme.colors.alpha.white[100]};
+    border: 2px solid ${theme.palette.primary.main};
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 0 8px ${theme.palette.primary.main}40;
+
     &:hover .comment-actions {
       opacity: 1;
     }
@@ -49,11 +64,12 @@ const CommentWrapper = styled(Box)(
 interface CommentItemProps {
   comment: Comment;
   workOrderId: number;
+  highlighted?: boolean;
 }
 
 const isImage = (file: File) => mime.getType(file.name)?.startsWith('image/');
 export default function CommentItem(props: CommentItemProps) {
-  const { comment, workOrderId } = props;
+  const { comment, workOrderId, highlighted = false } = props;
   const { t } = useTranslation();
   const { getFormattedDate } = useContext(CompanySettingsContext);
   const navigate = useNavigate();
@@ -72,6 +88,22 @@ export default function CommentItem(props: CommentItemProps) {
     (state) => state.comments
   );
   const { usersMini } = useSelector((state) => state.users);
+  const commentRef = useRef<HTMLDivElement>(null);
+  const [isHighlighted, setIsHighlighted] = useState<boolean>(highlighted);
+
+  useEffect(() => {
+    if (highlighted && commentRef.current) {
+      // Scroll to the comment
+      commentRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Set highlight state
+      setIsHighlighted(true);
+      // Remove highlight after 5 seconds
+      const timer = setTimeout(() => {
+        setIsHighlighted(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [highlighted]);
 
   useEffect(() => {
     dispatch(getUsersMini());
@@ -178,198 +210,395 @@ export default function CommentItem(props: CommentItemProps) {
 
   return (
     <>
-      <CommentWrapper>
-        <Stack direction="row" spacing={2} alignItems="flex-start">
-          <Avatar
-            sx={{
-              width: 40,
-              height: 40,
-              bgcolor: 'primary.main',
-              cursor: 'pointer'
-            }}
-            onClick={() => navigate(getUserUrl(comment.user.id))}
-            src={comment.user.image?.url}
-          >
-            {`${comment.user?.firstName?.charAt(0) || ''}${
-              comment.user?.lastName?.charAt(0) || ''
-            }`}
-          </Avatar>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-              sx={{ mb: 1 }}
-            >
-              <Box>
-                <Typography
-                  onClick={() => navigate(getUserUrl(comment.user.id))}
-                  variant="subtitle1"
-                  fontWeight="bold"
-                  sx={{ cursor: 'pointer' }}
-                >
-                  {getUserName()}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {getFormattedDate(comment.createdAt)}
-                </Typography>
-              </Box>
-              {!isSystem && isOwner && !isEditing && (
-                <Box className="comment-actions" sx={{ opacity: 0 }}>
-                  <IconButton
-                    size="small"
-                    onClick={() => setIsEditing(true)}
-                    sx={{ mr: 0.5 }}
-                  >
-                    <EditTwoToneIcon fontSize="small" color="primary" />
-                  </IconButton>
-                  <IconButton size="small" onClick={handleDelete}>
-                    <DeleteTwoToneIcon fontSize="small" color="error" />
-                  </IconButton>
-                </Box>
-              )}
-            </Stack>
-            {isEditing ? (
-              <Box>
-                <MentionsTextField
-                  fullWidth
-                  multiline
-                  minRows={2}
-                  value={editContent}
-                  onChange={(newValue, newPlainText) => {
-                    setEditContent(newValue);
-                    setEditPlainTextContent(newPlainText);
-                  }}
-                  dataSources={[
-                    {
-                      trigger: '@',
-                      markup: '@[__display__](user:__id__)',
-                      data: async (query) => {
-                        const filteredUsers = usersMini.filter((user) =>
-                          `${user.firstName} ${user.lastName}`
-                            .toLowerCase()
-                            .includes(query.toLowerCase())
-                        );
-
-                        return filteredUsers.map((user) => ({
-                          id: user.id.toString(),
-                          display: `${user.firstName} ${user.lastName}`
-                        }));
-                      },
-                      appendSpaceOnAdd: true,
-                      allowSpaceInQuery: true
-                    }
-                  ]}
-                  highlightColor={theme.palette.primary.main}
-                  highlightTextColor
-                  slotProps={{
-                    suggestionsOverlay: { popper: { sx: { zIndex: 99999 } } }
-                  }}
-                  sx={{ mb: 1 }}
-                />
-                <Stack direction="row" spacing={1}>
-                  <Button
-                    size="small"
-                    variant="contained"
-                    onClick={handleUpdate}
-                    disabled={!editPlainTextContent.trim() || loadingUpdate}
-                    startIcon={
-                      loadingUpdate ? (
-                        <CircularProgress size="1rem" />
-                      ) : undefined
-                    }
-                  >
-                    {t('save')}
-                  </Button>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    onClick={handleCancelEdit}
-                  >
-                    {t('cancel')}
-                  </Button>
-                </Stack>
-              </Box>
-            ) : (
-              <Typography
-                variant="body1"
+      <Box ref={commentRef}>
+        {isHighlighted ? (
+          <HighlightedCommentWrapper>
+            <Stack direction="row" spacing={2} alignItems="flex-start">
+              <Avatar
                 sx={{
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word',
-                  mb: comment.files?.length > 0 ? 1 : 0
+                  width: 40,
+                  height: 40,
+                  bgcolor: 'primary.main',
+                  cursor: 'pointer'
                 }}
-                color={comment.system ? 'grey.600' : undefined}
+                onClick={() => navigate(getUserUrl(comment.user.id))}
+                src={comment.user.image?.url}
               >
-                {renderContentWithMentions(comment.content)}
-              </Typography>
-            )}
-            {comment.files?.length > 0 && !isEditing && (
-              <Box sx={{ mt: 1 }}>
-                {imageFiles.length > 0 && (
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: 1,
-                      mb: otherFiles.length > 0 ? 1 : 0
-                    }}
-                  >
-                    {imageFiles.map((file) => (
-                      <img
-                        key={file.id}
-                        src={file.url}
-                        alt={file.name}
-                        style={{
-                          width: 100,
-                          height: 100,
-                          objectFit: 'cover',
-                          borderRadius: 4,
-                          cursor: 'pointer'
-                        }}
-                        onClick={() => openImageViewer(imageUrls, file.url)}
-                      />
-                    ))}
+                {`${comment.user?.firstName?.charAt(0) || ''}${
+                  comment.user?.lastName?.charAt(0) || ''
+                }`}
+              </Avatar>
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  sx={{ mb: 1 }}
+                >
+                  <Box>
+                    <Typography
+                      onClick={() => navigate(getUserUrl(comment.user.id))}
+                      variant="subtitle1"
+                      fontWeight="bold"
+                      sx={{ cursor: 'pointer' }}
+                    >
+                      {getUserName()}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {getFormattedDate(comment.createdAt)}
+                    </Typography>
                   </Box>
+                  {!isSystem && isOwner && !isEditing && (
+                    <Box className="comment-actions" sx={{ opacity: 0 }}>
+                      <IconButton
+                        size="small"
+                        onClick={() => setIsEditing(true)}
+                        sx={{ mr: 0.5 }}
+                      >
+                        <EditTwoToneIcon fontSize="small" color="primary" />
+                      </IconButton>
+                      <IconButton size="small" onClick={handleDelete}>
+                        <DeleteTwoToneIcon fontSize="small" color="error" />
+                      </IconButton>
+                    </Box>
+                  )}
+                </Stack>
+                {isEditing ? (
+                  <Box>
+                    <MentionsTextField
+                      fullWidth
+                      multiline
+                      minRows={2}
+                      value={editContent}
+                      onChange={(newValue, newPlainText) => {
+                        setEditContent(newValue);
+                        setEditPlainTextContent(newPlainText);
+                      }}
+                      dataSources={[
+                        {
+                          trigger: '@',
+                          markup: '@[__display__](user:__id__)',
+                          data: async (query) => {
+                            const filteredUsers = usersMini.filter((user) =>
+                              `${user.firstName} ${user.lastName}`
+                                .toLowerCase()
+                                .includes(query.toLowerCase())
+                            );
+
+                            return filteredUsers.map((user) => ({
+                              id: user.id.toString(),
+                              display: `${user.firstName} ${user.lastName}`
+                            }));
+                          },
+                          appendSpaceOnAdd: true,
+                          allowSpaceInQuery: true
+                        }
+                      ]}
+                      highlightColor={theme.palette.primary.main}
+                      highlightTextColor
+                      slotProps={{
+                        suggestionsOverlay: { popper: { sx: { zIndex: 99999 } } }
+                      }}
+                      sx={{ mb: 1 }}
+                    />
+                    <Stack direction="row" spacing={1}>
+                      <Button
+                        size="small"
+                        variant="contained"
+                        onClick={handleUpdate}
+                        disabled={!editPlainTextContent.trim() || loadingUpdate}
+                        startIcon={
+                          loadingUpdate ? (
+                            <CircularProgress size="1rem" />
+                          ) : undefined
+                        }
+                      >
+                        {t('save')}
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={handleCancelEdit}
+                      >
+                        {t('cancel')}
+                      </Button>
+                    </Stack>
+                  </Box>
+                ) : (
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word',
+                      mb: comment.files?.length > 0 ? 1 : 0
+                    }}
+                    color={comment.system ? 'grey.600' : undefined}
+                  >
+                    {renderContentWithMentions(comment.content)}
+                  </Typography>
                 )}
-                {otherFiles.length > 0 && (
-                  <Stack spacing={1}>
-                    {otherFiles.map((file) => (
+                {comment.files?.length > 0 && !isEditing && (
+                  <Box sx={{ mt: 1 }}>
+                    {imageFiles.length > 0 && (
                       <Box
-                        key={file.id}
                         sx={{
                           display: 'flex',
-                          alignItems: 'center',
+                          flexWrap: 'wrap',
                           gap: 1,
-                          p: 1,
-                          borderRadius: 1,
-                          bgcolor: 'background.default'
+                          mb: otherFiles.length > 0 ? 1 : 0
                         }}
                       >
-                        <InsertDriveFile color="error" />
-                        <Typography
-                          variant="body2"
-                          sx={{ flex: 1, minWidth: 0 }}
-                          noWrap
-                        >
-                          {file.name}
-                        </Typography>
-                        <IconButton
-                          size="small"
-                          component="a"
-                          href={file.url}
-                          download={file.name}
-                        >
-                          <ArchiveTwoToneIcon fontSize="small" />
-                        </IconButton>
+                        {imageFiles.map((file) => (
+                          <img
+                            key={file.id}
+                            src={file.url}
+                            alt={file.name}
+                            style={{
+                              width: 100,
+                              height: 100,
+                              objectFit: 'cover',
+                              borderRadius: 4,
+                              cursor: 'pointer'
+                            }}
+                            onClick={() => openImageViewer(imageUrls, file.url)}
+                          />
+                        ))}
                       </Box>
-                    ))}
-                  </Stack>
+                    )}
+                    {otherFiles.length > 0 && (
+                      <Stack spacing={1}>
+                        {otherFiles.map((file) => (
+                          <Box
+                            key={file.id}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 1,
+                              p: 1,
+                              borderRadius: 1,
+                              bgcolor: 'background.default'
+                            }}
+                          >
+                            <InsertDriveFile color="error" />
+                            <Typography
+                              variant="body2"
+                              sx={{ flex: 1, minWidth: 0 }}
+                              noWrap
+                            >
+                              {file.name}
+                            </Typography>
+                            <IconButton
+                              size="small"
+                              component="a"
+                              href={file.url}
+                              download={file.name}
+                            >
+                              <ArchiveTwoToneIcon fontSize="small" />
+                            </IconButton>
+                          </Box>
+                        ))}
+                      </Stack>
+                    )}
+                  </Box>
                 )}
               </Box>
-            )}
-          </Box>
-        </Stack>
-      </CommentWrapper>
+            </Stack>
+          </HighlightedCommentWrapper>
+        ) : (
+          <CommentWrapper>
+            <Stack direction="row" spacing={2} alignItems="flex-start">
+              <Avatar
+                sx={{
+                  width: 40,
+                  height: 40,
+                  bgcolor: 'primary.main',
+                  cursor: 'pointer'
+                }}
+                onClick={() => navigate(getUserUrl(comment.user.id))}
+                src={comment.user.image?.url}
+              >
+                {`${comment.user?.firstName?.charAt(0) || ''}${
+                  comment.user?.lastName?.charAt(0) || ''
+                }`}
+              </Avatar>
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  sx={{ mb: 1 }}
+                >
+                  <Box>
+                    <Typography
+                      onClick={() => navigate(getUserUrl(comment.user.id))}
+                      variant="subtitle1"
+                      fontWeight="bold"
+                      sx={{ cursor: 'pointer' }}
+                    >
+                      {getUserName()}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {getFormattedDate(comment.createdAt)}
+                    </Typography>
+                  </Box>
+                  {!isSystem && isOwner && !isEditing && (
+                    <Box className="comment-actions" sx={{ opacity: 0 }}>
+                      <IconButton
+                        size="small"
+                        onClick={() => setIsEditing(true)}
+                        sx={{ mr: 0.5 }}
+                      >
+                        <EditTwoToneIcon fontSize="small" color="primary" />
+                      </IconButton>
+                      <IconButton size="small" onClick={handleDelete}>
+                        <DeleteTwoToneIcon fontSize="small" color="error" />
+                      </IconButton>
+                    </Box>
+                  )}
+                </Stack>
+                {isEditing ? (
+                  <Box>
+                    <MentionsTextField
+                      fullWidth
+                      multiline
+                      minRows={2}
+                      value={editContent}
+                      onChange={(newValue, newPlainText) => {
+                        setEditContent(newValue);
+                        setEditPlainTextContent(newPlainText);
+                      }}
+                      dataSources={[
+                        {
+                          trigger: '@',
+                          markup: '@[__display__](user:__id__)',
+                          data: async (query) => {
+                            const filteredUsers = usersMini.filter((user) =>
+                              `${user.firstName} ${user.lastName}`
+                                .toLowerCase()
+                                .includes(query.toLowerCase())
+                            );
+
+                            return filteredUsers.map((user) => ({
+                              id: user.id.toString(),
+                              display: `${user.firstName} ${user.lastName}`
+                            }));
+                          },
+                          appendSpaceOnAdd: true,
+                          allowSpaceInQuery: true
+                        }
+                      ]}
+                      highlightColor={theme.palette.primary.main}
+                      highlightTextColor
+                      slotProps={{
+                        suggestionsOverlay: { popper: { sx: { zIndex: 99999 } } }
+                      }}
+                      sx={{ mb: 1 }}
+                    />
+                    <Stack direction="row" spacing={1}>
+                      <Button
+                        size="small"
+                        variant="contained"
+                        onClick={handleUpdate}
+                        disabled={!editPlainTextContent.trim() || loadingUpdate}
+                        startIcon={
+                          loadingUpdate ? (
+                            <CircularProgress size="1rem" />
+                          ) : undefined
+                        }
+                      >
+                        {t('save')}
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={handleCancelEdit}
+                      >
+                        {t('cancel')}
+                      </Button>
+                    </Stack>
+                  </Box>
+                ) : (
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word',
+                      mb: comment.files?.length > 0 ? 1 : 0
+                    }}
+                    color={comment.system ? 'grey.600' : undefined}
+                  >
+                    {renderContentWithMentions(comment.content)}
+                  </Typography>
+                )}
+                {comment.files?.length > 0 && !isEditing && (
+                  <Box sx={{ mt: 1 }}>
+                    {imageFiles.length > 0 && (
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: 1,
+                          mb: otherFiles.length > 0 ? 1 : 0
+                        }}
+                      >
+                        {imageFiles.map((file) => (
+                          <img
+                            key={file.id}
+                            src={file.url}
+                            alt={file.name}
+                            style={{
+                              width: 100,
+                              height: 100,
+                              objectFit: 'cover',
+                              borderRadius: 4,
+                              cursor: 'pointer'
+                            }}
+                            onClick={() => openImageViewer(imageUrls, file.url)}
+                          />
+                        ))}
+                      </Box>
+                    )}
+                    {otherFiles.length > 0 && (
+                      <Stack spacing={1}>
+                        {otherFiles.map((file) => (
+                          <Box
+                            key={file.id}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 1,
+                              p: 1,
+                              borderRadius: 1,
+                              bgcolor: 'background.default'
+                            }}
+                          >
+                            <InsertDriveFile color="error" />
+                            <Typography
+                              variant="body2"
+                              sx={{ flex: 1, minWidth: 0 }}
+                              noWrap
+                            >
+                              {file.name}
+                            </Typography>
+                            <IconButton
+                              size="small"
+                              component="a"
+                              href={file.url}
+                              download={file.name}
+                            >
+                              <ArchiveTwoToneIcon fontSize="small" />
+                            </IconButton>
+                          </Box>
+                        ))}
+                      </Stack>
+                    )}
+                  </Box>
+                )}
+              </Box>
+            </Stack>
+          </CommentWrapper>
+        )}
+      </Box>
       {isImageViewerOpen && (
         <ImageViewer
           src={currentImages || []}
