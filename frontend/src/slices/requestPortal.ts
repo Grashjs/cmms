@@ -5,7 +5,7 @@ import {
   RequestPortal,
   RequestPortalPostDTO
 } from '../models/owns/requestPortal';
-import api from '../utils/api';
+import api, { authHeader } from '../utils/api';
 import { getInitialPage, Page, SearchCriteria } from '../models/owns/page';
 import { revertAll } from 'src/utils/redux';
 
@@ -173,7 +173,8 @@ export const getRequestPortalPublic =
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
       const requestPortal = await api.get<RequestPortal>(
-        `${basePath}/public/${uuid}`
+        `${basePath}/public/${uuid}`,
+        { headers: authHeader(true) }
       );
       dispatch(slice.actions.getSingleRequestPortal({ requestPortal }));
     } finally {
