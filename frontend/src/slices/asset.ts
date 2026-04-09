@@ -2,7 +2,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 import type { AppThunk } from 'src/store';
 import { AssetDTO, AssetMiniDTO, AssetRow } from '../models/owns/asset';
-import api from '../utils/api';
+import api, { authHeader } from '../utils/api';
 import WorkOrder from '../models/owns/workOrder';
 import {
   getInitialPage,
@@ -12,7 +12,10 @@ import {
   SearchCriteria
 } from 'src/models/owns/page';
 import { revertAll } from 'src/utils/redux';
-import { createCancellableRequest, isAbortError } from 'src/utils/cancellableRequest';
+import {
+  createCancellableRequest,
+  isAbortError
+} from 'src/utils/cancellableRequest';
 
 const basePath = 'assets';
 interface AssetState {
@@ -216,7 +219,8 @@ export const getPublicAssetsMini =
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
       const assets = await api.get<AssetMiniDTO[]>(
-        `${basePath}/public/mini/${portalUUID}?locationId=${locationId ?? ''}`
+        `${basePath}/public/mini/${portalUUID}?locationId=${locationId ?? ''}`,
+        { headers: authHeader(true) }
       );
       dispatch(slice.actions.getAssetsMini({ assets }));
     } finally {
