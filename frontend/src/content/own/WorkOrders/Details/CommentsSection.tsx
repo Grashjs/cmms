@@ -78,7 +78,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
   };
 
   const handleFileDrop = (droppedFiles: any[]) => {
-    setFiles((prev) => [...prev, ...droppedFiles]);
+    setFiles(droppedFiles);
   };
 
   const handleRemoveFile = (index: number) => {
