@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,62 +49,12 @@ public class CommentService {
         Comment comment = commentMapper.fromPostDto(commentReq);
         WorkOrder workOrder = workOrderService.checkAccessToWorkOrderId(commentReq.getWorkOrder().getId(), user);
 
-        Stream<User> workOrderUsers = workOrder.getUsers().stream();
-
-        Stream<User> creatorStream = workOrder.getCreatedBy() == null
-                ? Stream.empty()
-                : userRepository.findByIdAndCompany_Id(workOrder.getCreatedBy(), user.getCompany().getId()).stream();
-
-        Stream<User> taggedUsers = userRepository
-                .findByIdInAndCompany_Id(comment.extractTaggedUserIds(), user.getCompany().getId())
-                .stream();
-
-        Set<User> notifiedUsers = Stream.of(workOrderUsers, creatorStream, taggedUsers)
-                .flatMap(s -> s)
-                .filter(u -> !u.getId().equals(user.getId()))
-                .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(User::getId))));
-
         comment.setUser(user);
         Comment savedComment = commentRepository.saveAndFlush(comment);
         em.refresh(savedComment);
 
-        Locale locale = Helper.getLocale(user);
-        String message = messageSource.getMessage("notification_new_comment",
-                new String[]{user.getFullName(), workOrder.getTitle()}, locale);
-
-        List<Notification> notifications = notifiedUsers.stream()
-                .map(notifiedUser -> new Notification(message, notifiedUser, NotificationType.COMMENT,
-                        savedComment.getId()))
-                .toList();
-
-        notificationService.createMultiple(notifications, true,
-                messageSource.getMessage("new_comment", null, locale));
-
-        // Send email notifications
-        String commentContent = formatCommentContent(savedComment.getContent());
-        String commentLink =
-                frontendUrl + "/app/work-orders/" + workOrder.getId() + "?commentId=" + savedComment.getId();
-
-        Map<String, Object> mailVariables = new HashMap<>();
-        mailVariables.put("userFullName", user.getFullName());
-        mailVariables.put("workOrderTitle", workOrder.getTitle());
-        mailVariables.put("commentContent", commentContent);
-        mailVariables.put("commentLink", commentLink);
-
-        Collection<User> usersToMail = notifiedUsers.stream()
-                .filter(u -> u.isEnabled() && u.getUserSettings() != null
-                        && u.getUserSettings().shouldEmailUpdatesForWorkOrders())
-                .collect(Collectors.toList());
-
-        if (!usersToMail.isEmpty()) {
-            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(
-                    usersToMail.stream().map(User::getEmail).toArray(String[]::new),
-                    messageSource.getMessage("new_comment", null, locale),
-                    mailVariables,
-                    "new-comment.html",
-                    Helper.getLocale(usersToMail.stream().findFirst().get())
-            );
-        }
+        Set<User> notifiedUsers = getNotifiedUsers(savedComment, workOrder, user);
+        sendCommentNotifications(savedComment, workOrder, notifiedUsers, user, false);
 
         return savedComment;
     }
@@ -128,7 +79,16 @@ public class CommentService {
         if (!savedComment.getUser().getId().equals(user.getId()))
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
 
-        return commentRepository.save(commentMapper.updateComment(savedComment, commentPatchDTO));
+        WorkOrder workOrder = savedComment.getWorkOrder();
+
+        Comment updatedComment = commentRepository.saveAndFlush(commentMapper.updateComment(savedComment,
+                commentPatchDTO));
+        em.refresh(updatedComment);
+
+        Set<User> notifiedUsers = getNotifiedUsers(updatedComment, workOrder, user);
+        sendCommentNotifications(updatedComment, workOrder, notifiedUsers, user, true);
+
+        return updatedComment;
     }
 
     public List<Comment> findByCriteria(CommentCriteria criteria, User user) {
@@ -147,9 +107,73 @@ public class CommentService {
         return commentRepository.countByWorkOrderId(workOrderId);
     }
 
+    private Set<User> getNotifiedUsers(Comment comment, WorkOrder workOrder, User user) {
+        Stream<User> workOrderUsers = workOrder.getUsers().stream();
+        Stream<User> creatorStream = workOrder.getCreatedBy() == null
+                ? Stream.empty()
+                : userRepository.findByIdAndCompany_Id(workOrder.getCreatedBy(), user.getCompany().getId()).stream();
+        Stream<User> taggedUsers = userRepository
+                .findByIdInAndCompany_Id(comment.extractTaggedUserIds(), user.getCompany().getId())
+                .stream();
+
+        return Stream.of(workOrderUsers, creatorStream, taggedUsers)
+                .flatMap(s -> s)
+                .filter(u -> !u.getId().equals(user.getId()))
+                .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(User::getId))));
+    }
+
     private String formatCommentContent(String content) {
         // Convert @[name](user:id) mentions to clickable links
         return content.replaceAll("@\\[(.*?)\\]\\(user:(\\d+)\\)",
                 "<a href=\"" + frontendUrl + "/app/people-teams/people/$2\">@$1</a>");
+    }
+
+    @Async
+    public void sendCommentNotifications(Comment comment, WorkOrder workOrder, Set<User> notifiedUsers, User actor,
+                                         boolean isUpdate) {
+        Locale locale = Helper.getLocale(actor);
+        String notificationKey = isUpdate ? "notification_comment_updated" : "notification_new_comment";
+        String emailTitleKey = isUpdate ? "comment_updated" : "new_comment";
+        String emailTemplate = isUpdate ? "comment-updated.html" : "new-comment.html";
+
+        String message = messageSource.getMessage(notificationKey,
+                new String[]{actor.getFullName(), workOrder.getTitle()}, locale);
+
+        List<Notification> notifications = notifiedUsers.stream()
+                .map(notifiedUser -> new Notification(message, notifiedUser, NotificationType.COMMENT, comment.getId()))
+                .toList();
+
+        notificationService.createMultiple(notifications, true,
+                messageSource.getMessage(emailTitleKey, null, locale));
+
+        sendCommentEmail(comment, workOrder, notifiedUsers, actor, locale, emailTitleKey, emailTemplate);
+    }
+
+    private void sendCommentEmail(Comment comment, WorkOrder workOrder, Set<User> notifiedUsers, User actor,
+                                  Locale locale, String emailTitleKey, String emailTemplate) {
+        String commentContent = formatCommentContent(comment.getContent());
+        String commentLink =
+                frontendUrl + "/app/work-orders/" + workOrder.getId() + "?commentId=" + comment.getId();
+
+        Map<String, Object> mailVariables = new HashMap<>();
+        mailVariables.put("userFullName", actor.getFullName());
+        mailVariables.put("workOrderTitle", workOrder.getTitle());
+        mailVariables.put("commentContent", commentContent);
+        mailVariables.put("commentLink", commentLink);
+
+        Collection<User> usersToMail = notifiedUsers.stream()
+                .filter(u -> u.isEnabled() && u.getUserSettings() != null
+                        && u.getUserSettings().shouldEmailUpdatesForWorkOrders())
+                .collect(Collectors.toList());
+
+        if (!usersToMail.isEmpty()) {
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(
+                    usersToMail.stream().map(User::getEmail).toArray(String[]::new),
+                    messageSource.getMessage(emailTitleKey, null, locale),
+                    mailVariables,
+                    emailTemplate,
+                    Helper.getLocale(usersToMail.stream().findFirst().get())
+            );
+        }
     }
 }

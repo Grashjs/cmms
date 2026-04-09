@@ -19,10 +19,8 @@ import java.util.List;
 public class CommentPatchDTO {
 
     @NotBlank
-    @Column(columnDefinition = "TEXT")
     private String content;
 
-    @OneToMany
     private List<File> files = new ArrayList<>();
 
 }
