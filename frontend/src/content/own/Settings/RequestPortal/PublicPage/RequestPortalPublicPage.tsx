@@ -97,9 +97,9 @@ export default function RequestPortalPublicPage() {
     if (uuid) {
       dispatch(getRequestPortalPublic(uuid));
     }
-    // return () => {
-    //   dispatch(clearSingleRequestPortal());
-    // };
+    return () => {
+      dispatch(clearSingleRequestPortal());
+    };
   }, [uuid, dispatch]);
 
   useEffect(() => {
