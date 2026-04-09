@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
@@ -46,4 +47,6 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
             "role.role_type!=0 AND " +
             "company.demo=false OFFSET :threshold LIMIT 1)", nativeQuery = true)
     boolean hasMorePaidUsersThan(@Param("threshold") int threshold);
+
+    List<User> findByIdInAndCompany_Id(Collection<Long> longs, Long id);
 }

@@ -5,14 +5,16 @@ import com.grash.dto.comment.CommentPatchDTO;
 import com.grash.dto.comment.CommentPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CommentMapper;
-import com.grash.model.Comment;
-import com.grash.model.Comment_;
-import com.grash.model.User;
+import com.grash.model.*;
+import com.grash.model.enums.NotificationType;
 import com.grash.repository.CommentRepository;
+import com.grash.repository.UserRepository;
+import com.grash.utils.Helper;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -20,9 +22,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -32,14 +34,45 @@ public class CommentService {
     private final CommentMapper commentMapper;
     private final WorkOrderService workOrderService;
     private final EntityManager em;
+    private final UserRepository userRepository;
+    private final NotificationService notificationService;
+    private final MessageSource messageSource;
 
     public Comment create(@Valid CommentPostDTO commentReq, User user) {
-        Comment comment =
-                commentMapper.fromPostDto(commentReq);
-        workOrderService.checkAccessToWorkOrderId(commentReq.getWorkOrder().getId(), user);
+        Comment comment = commentMapper.fromPostDto(commentReq);
+        WorkOrder workOrder = workOrderService.checkAccessToWorkOrderId(commentReq.getWorkOrder().getId(), user);
+
+        Stream<User> workOrderUsers = workOrder.getUsers().stream();
+
+        Stream<User> creatorStream = workOrder.getCreatedBy() == null
+                ? Stream.empty()
+                : userRepository.findByIdAndCompany_Id(workOrder.getCreatedBy(), user.getCompany().getId()).stream();
+
+        Stream<User> taggedUsers = userRepository
+                .findByIdInAndCompany_Id(comment.extractTaggedUserIds(), user.getCompany().getId())
+                .stream();
+
+        Set<User> notifiedUsers = Stream.of(workOrderUsers, creatorStream, taggedUsers)
+                .flatMap(s -> s)
+                .filter(u -> !u.getId().equals(user.getId()))
+                .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(User::getId))));
+
         comment.setUser(user);
         Comment savedComment = commentRepository.saveAndFlush(comment);
         em.refresh(savedComment);
+
+        Locale locale = Helper.getLocale(user);
+        String message = messageSource.getMessage("notification_new_comment",
+                new String[]{user.getFullName(), workOrder.getTitle()}, locale);
+
+        List<Notification> notifications = notifiedUsers.stream()
+                .map(notifiedUser -> new Notification(message, notifiedUser, NotificationType.COMMENT,
+                        savedComment.getId()))
+                .toList();
+
+        notificationService.createMultiple(notifications, true,
+                messageSource.getMessage("new_comment", null, locale));
+
         return savedComment;
     }
 
