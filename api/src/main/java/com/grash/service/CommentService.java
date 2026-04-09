@@ -140,7 +140,8 @@ public class CommentService {
                 new String[]{actor.getFullName(), workOrder.getTitle()}, locale);
 
         List<Notification> notifications = notifiedUsers.stream()
-                .map(notifiedUser -> new Notification(message, notifiedUser, NotificationType.COMMENT, comment.getId()))
+                .map(notifiedUser -> new Notification(message, notifiedUser, NotificationType.WORK_ORDER,
+                        workOrder.getId()))
                 .toList();
 
         notificationService.createMultiple(notifications, true,

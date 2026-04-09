@@ -10,5 +10,5 @@ public enum NotificationType {
     TEAM,
     REQUEST,
     PURCHASE_ORDER,
-    COMMENT
+    COMMENT//unused for now
 }
