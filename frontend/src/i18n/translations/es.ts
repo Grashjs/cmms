@@ -505,8 +505,7 @@ const esJSON = {
   edit_location: 'Editar ubicación',
   edit_location_description:
     'Complete los campos a continuación para actualizar la ubicación',
-  confirm_delete_location:
-    '¿Está seguro de que desea eliminar esta ubicación?',
+  confirm_delete_location: '¿Está seguro de que desea eliminar esta ubicación?',
   floor_plans: 'Planos de planta',
   floor_plan: 'Plano de planta',
   floor_plan_name_description: 'Nombre del plano de planta',
@@ -1234,7 +1233,7 @@ const esJSON = {
   expand: 'Expandir',
   collapse: 'Colapsar',
   detail_panel_toggle: 'Alternar panel de detalles',
-  cancel_subscription: 'Cancelar suscripción,
+  cancel_subscription: 'Cancelar suscripción',
   resume_subscription: 'Reanudar suscripción',
   confirm_cancel_subscription:
     '¿Está seguro de que deseas cancelar la suscripción?',
@@ -1893,7 +1892,8 @@ const esJSON = {
   webhook_endpoint_never_triggered: 'Nunca ejecutado',
   webhook_endpoint_type: 'Tipo',
   WEBHOOK_ASSET_STATUS_CHANGE: 'Cambio de estado del activo',
-  WEBHOOK_METER_TRIGGER_STATUS_CHANGE: 'Cambio de estado del disparador del medidor',
+  WEBHOOK_METER_TRIGGER_STATUS_CHANGE:
+    'Cambio de estado del disparador del medidor',
   WEBHOOK_NEW_ASSET: 'Nuevo activo',
   WEBHOOK_NEW_CATEGORY_ON_WORK_ORDER: 'Nueva categoría en la orden de trabajo',
   WEBHOOK_NEW_COMMENT_ON_WORK_ORDER: 'Nuevo comentario en la orden de trabajo',
@@ -1907,12 +1907,14 @@ const esJSON = {
   WEBHOOK_PART_DELETE: 'Eliminación de repuesto',
   WEBHOOK_PART_QUANTITY_CHANGED: 'Cantidad de repuesto cambiada',
   WEBHOOK_PURCHASE_ORDER_CHANGE: 'Cambio de orden de compra',
-  WEBHOOK_PURCHASE_ORDER_STATUS_CHANGE: 'Cambio de estado de la orden de compra',
+  WEBHOOK_PURCHASE_ORDER_STATUS_CHANGE:
+    'Cambio de estado de la orden de compra',
   WEBHOOK_WORK_ORDER_CHANGE: 'Cambio de orden de trabajo',
   WEBHOOK_WORK_ORDER_DELETE: 'Eliminación de orden de trabajo',
   WEBHOOK_WORK_ORDER_OVERDUE: 'Orden de trabajo vencida',
   WEBHOOK_WORK_ORDER_STATUS_CHANGE: 'Cambio de estado de la orden de trabajo',
-  WEBHOOK_WORK_REQUEST_STATUS_CHANGE: 'Cambio de estado de la solicitud de trabajo'
+  WEBHOOK_WORK_REQUEST_STATUS_CHANGE:
+    'Cambio de estado de la solicitud de trabajo',
   comments: 'Comentarios',
   add_comment_placeholder: 'Añadir un comentario...',
   post_comment: 'Publicar comentario',
