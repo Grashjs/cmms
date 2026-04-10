@@ -25,7 +25,7 @@ public interface PartRepository extends JpaRepository<Part, Long>, JpaSpecificat
             "WHERE p.company.id = :companyId")
     List<Part> findByCompanyForExport(@Param("companyId") Long companyId);
 
-    List<Part> findByBarcodeAndCompany_Id(String barcode, Long companyId);
+    Optional<Part> findByBarcodeAndCompany_Id(String barcode, Long companyId);
 
     void deleteByCompany_IdAndIsDemoTrue(Long companyId);
 
