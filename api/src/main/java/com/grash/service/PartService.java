@@ -277,7 +277,7 @@ public class PartService {
     }
 
     public Optional<Part> findByBarcodeAndCompany(String barcode, Long companyId) {
-        return partRepository.findByBarcodeAndCompany_Id(barcode, companyId);
+        return partRepository.findByBarcodeAndCompany_Id(barcode, companyId).stream().findFirst();
     }
 
     private Collection<PartField> detectPatchDTOChangedFields(Part original, PartPatchDTO patchDTO) {

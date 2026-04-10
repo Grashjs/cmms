@@ -68,6 +68,16 @@ public class ImportService {
 
     @Transactional
     public ImportResponse importAssets(List<AssetImportDTO> toImport, Company company) {
+        // Check for duplicate non-null barcodes
+        Set<String> seenBarcodes = new java.util.HashSet<>();
+        for (AssetImportDTO dto : toImport) {
+            if (dto.getBarCode() != null && !dto.getBarCode().isEmpty()) {
+                if (!seenBarcodes.add(dto.getBarCode())) {
+                    throw new IllegalArgumentException("Duplicate barcode found: " + dto.getBarCode());
+                }
+            }
+        }
+
         List<Long> idsToCheck = toImport.stream()
                 .map(AssetImportDTO::getId)
                 .filter(Objects::nonNull)
@@ -210,6 +220,16 @@ public class ImportService {
 
     @Transactional
     public ImportResponse importParts(List<PartImportDTO> toImport, Company company) {
+        // Check for duplicate non-null barcodes
+        Set<String> seenBarcodes = new java.util.HashSet<>();
+        for (PartImportDTO dto : toImport) {
+            if (dto.getBarcode() != null && !dto.getBarcode().isEmpty()) {
+                if (!seenBarcodes.add(dto.getBarcode())) {
+                    throw new IllegalArgumentException("Duplicate barcode found: " + dto.getBarcode());
+                }
+            }
+        }
+
         List<Long> idsToCheck = toImport.stream()
                 .map(PartImportDTO::getId)
                 .filter(Objects::nonNull)
