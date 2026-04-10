@@ -236,7 +236,7 @@ public class CsvFileGenerator {
             for (PreventiveMaintenance pm : preventiveMaintenances) {
                 printer.printRecord(pm.getId(),
                         pm.getTitle(),
-                        pm.getSchedule().getStartsOn(),
+                        pm.getSchedule() == null ? null : pm.getSchedule().getStartsOn(),
                         pm.getPriority() == null ? null :
                                 messageSource.getMessage(pm.getPriority().toString(), null, locale),
                         pm.getDescription(),
