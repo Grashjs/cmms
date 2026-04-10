@@ -228,13 +228,15 @@ public class CsvFileGenerator {
         try {
             CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
             CSVPrinter printer = new CSVPrinter(writer, csvFormat);
-            List<String> headers = Arrays.asList("ID", "Title", "Priority", "Description", "Estimated_Duration",
+            List<String> headers = Arrays.asList("ID", "Title", "Starts_On", "Priority", "Description",
+                    "Estimated_Duration",
                     "Requires_Signature", "Category", "Location_Name", "Team_Name",
                     "Primary_User_Email", "Asset_Name", "Frequency", "Recurrence_Type");
             printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
             for (PreventiveMaintenance pm : preventiveMaintenances) {
                 printer.printRecord(pm.getId(),
                         pm.getTitle(),
+                        pm.getSchedule().getStartsOn(),
                         pm.getPriority() == null ? null :
                                 messageSource.getMessage(pm.getPriority().toString(), null, locale),
                         pm.getDescription(),
