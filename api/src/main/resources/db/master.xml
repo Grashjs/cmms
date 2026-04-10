@@ -197,4 +197,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_04_08_00000000001_add_comment.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_04_10_1775841064_deduplicate_barcode.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>
