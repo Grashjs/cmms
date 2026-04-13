@@ -67,5 +67,9 @@
         <createSequence sequenceName="company_custom_field_seq"
                         startValue="1" incrementBy="50"/>
     </changeSet>
+    <changeSet id="1776074524677-1" author="Ibrahima G. Coulibaly">
+        <dropTable tableName="custom_field"/>
+        <renameTable oldTableName="company_custom_field" newTableName="custom_field"/>
+    </changeSet>
 </databaseChangeLog>
 

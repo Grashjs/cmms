@@ -1,17 +1,29 @@
 package com.grash.dto;
 
+import com.grash.model.enums.CustomFieldType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
-@Schema(description = "DTO for patching an existing custom field")
+@Schema(description = "DTO for patching an existing company custom field")
 public class CustomFieldPatchDTO {
+    @Schema(description = "Field label")
+    private String label;
 
-    @Schema(description = "Name")
-    private String name;
+    @Schema(description = "Field type")
+    private CustomFieldType fieldType;
 
-    @Schema(description = "Value")
-    private String value;
+    @Schema(description = "Whether this field is required")
+    private Boolean required;
+
+    @Schema(description = "Whether to copy this field value when repeating work orders")
+    private Boolean copyOnRepeat;
+
+    @Schema(description = "Options for single choice fields")
+    private List<String> options;
 }
+
