@@ -21,10 +21,10 @@ const FeaturesSettings = Loader(
   lazy(() => import('../content/own/Settings/Features'))
 );
 const WorkOrderSettings = Loader(
-  lazy(() => import('../content/own/Settings/WorkOrder'))
+  lazy(() => import('../content/own/Settings/Features/WorkOrder'))
 );
 const RequestSettings = Loader(
-  lazy(() => import('../content/own/Settings/Request'))
+  lazy(() => import('../content/own/Settings/Features/Request'))
 );
 const RolesSettings = Loader(
   lazy(() => import('../content/own/Settings/Roles'))
@@ -33,11 +33,11 @@ const ChecklistsSettings = Loader(
   lazy(() => import('../content/own/Settings/Checklists'))
 );
 const WorkflowsSettings = Loader(
-  lazy(() => import('../content/own/Settings/Workflows'))
+  lazy(() => import('../content/own/Settings/Features/Workflows'))
 );
 
 const RequestPortalSettings = Loader(
-  lazy(() => import('../content/own/Settings/RequestPortal'))
+  lazy(() => import('../content/own/Settings/Features/RequestPortal'))
 );
 const IntegrationsSettings = Loader(
   lazy(() => import('../content/own/Settings/Integrations'))
@@ -134,7 +134,7 @@ const appRoutes = [
           { path: 'request', element: <RequestSettings /> },
           { path: 'request-portals', element: <RequestPortalSettings /> },
           { path: 'request-portals/:id', element: <RequestPortalSettings /> },
-          { path: 'workflows', element: <WorkflowsSettings /> },
+          { path: 'workflows', element: <WorkflowsSettings /> }
         ]
       },
       {

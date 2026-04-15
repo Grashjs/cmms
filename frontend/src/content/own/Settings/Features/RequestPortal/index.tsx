@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
-import { RequestPortal } from '../../../../models/owns/requestPortal';
+import { RequestPortal } from '../../../../../models/owns/requestPortal';
 import RequestPortalTable from './components/RequestPortalTable';
-import { getSingleRequestPortal } from '../../../../slices/requestPortal';
-import { useDispatch } from '../../../../store';
+import { getSingleRequestPortal } from '../../../../../slices/requestPortal';
+import { useDispatch } from '../../../../../store';
 
 function RequestPortalSettings() {
   const { t }: { t: any } = useTranslation();

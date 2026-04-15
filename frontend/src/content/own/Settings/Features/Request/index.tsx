@@ -1,10 +1,9 @@
 import { Box, Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import SettingsLayout from '../SettingsLayout';
-import FieldsConfigurationForm from '../FieldsConfigurationForm';
-import useAuth from '../../../../hooks/useAuth';
-import FeatureErrorMessage from '../../components/FeatureErrorMessage';
-import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
+import FieldsConfigurationForm from '../../FieldsConfigurationForm';
+import useAuth from '../../../../../hooks/useAuth';
+import FeatureErrorMessage from '../../../components/FeatureErrorMessage';
+import { PlanFeature } from '../../../../../models/owns/subscriptionPlan';
 
 function WorkOrderSettings() {
   const { t }: { t: any } = useTranslation();

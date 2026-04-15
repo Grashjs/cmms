@@ -12,20 +12,20 @@ import {
   Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import SettingsLayout from '../SettingsLayout';
+import SettingsLayout from '../../SettingsLayout';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import { useContext, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from '../../../../store';
-import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
-import ConfirmDialog from '../../components/ConfirmDialog';
-import useAuth from '../../../../hooks/useAuth';
-import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
+import { useDispatch, useSelector } from '../../../../../store';
+import { CustomSnackBarContext } from '../../../../../contexts/CustomSnackBarContext';
+import ConfirmDialog from '../../../components/ConfirmDialog';
+import useAuth from '../../../../../hooks/useAuth';
+import { PlanFeature } from '../../../../../models/owns/subscriptionPlan';
 import {
   addWorkflow,
   deleteWorkflow,
   editWorkflow,
   getWorkflows
-} from '../../../../slices/workflow';
+} from '../../../../../slices/workflow';
 import {
   mainConditions,
   partActions,
@@ -44,27 +44,27 @@ import {
   WorkflowConditionType,
   workOrderActions,
   workOrderConditions
-} from '../../../../models/owns/workflow';
-import { getVendorsMini } from '../../../../slices/vendor';
-import { getUsersMini } from '../../../../slices/user';
-import { getLocationsMini } from '../../../../slices/location';
-import { getCategories } from '../../../../slices/category';
-import { getAssetsMini } from '../../../../slices/asset';
-import { getTeamsMini } from '../../../../slices/team';
-import { AssetMiniDTO } from '../../../../models/owns/asset';
-import { LocationMiniDTO } from '../../../../models/owns/location';
-import { PartMiniDTO } from '../../../../models/owns/part';
-import { getPartsMini } from '../../../../slices/part';
-import { UserMiniDTO } from '../../../../models/user';
-import { VendorMiniDTO } from '../../../../models/owns/vendor';
-import { TeamMiniDTO } from '../../../../models/owns/team';
-import Category from '../../../../models/owns/category';
+} from '../../../../../models/owns/workflow';
+import { getVendorsMini } from '../../../../../slices/vendor';
+import { getUsersMini } from '../../../../../slices/user';
+import { getLocationsMini } from '../../../../../slices/location';
+import { getCategories } from '../../../../../slices/category';
+import { getAssetsMini } from '../../../../../slices/asset';
+import { getTeamsMini } from '../../../../../slices/team';
+import { AssetMiniDTO } from '../../../../../models/owns/asset';
+import { LocationMiniDTO } from '../../../../../models/owns/location';
+import { PartMiniDTO } from '../../../../../models/owns/part';
+import { getPartsMini } from '../../../../../slices/part';
+import { UserMiniDTO } from '../../../../../models/user';
+import { VendorMiniDTO } from '../../../../../models/owns/vendor';
+import { TeamMiniDTO } from '../../../../../models/owns/team';
+import Category from '../../../../../models/owns/category';
 import DateTimePicker from '@mui/lab/DateTimePicker';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
-import { useBrand } from '../../../../hooks/useBrand';
-import { getErrorMessage } from '../../../../utils/api';
-import DateRangePicker from '../../components/form/DateRangePicker';
-import HourRangePicker from '../../components/form/HourRangePicker';
+import { useBrand } from '../../../../../hooks/useBrand';
+import { getErrorMessage } from '../../../../../utils/api';
+import DateRangePicker from '../../../components/form/DateRangePicker';
+import HourRangePicker from '../../../components/form/HourRangePicker';
 
 interface UICondition {
   type: WorkflowConditionType;

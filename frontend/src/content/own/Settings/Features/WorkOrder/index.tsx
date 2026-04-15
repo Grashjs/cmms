@@ -1,10 +1,10 @@
 import { Box, Divider, Grid, Tab, Tabs } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { ChangeEvent, useState } from 'react';
-import FieldsConfigurationForm from '../FieldsConfigurationForm';
-import FeatureErrorMessage from '../../components/FeatureErrorMessage';
-import useAuth from '../../../../hooks/useAuth';
-import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
+import FieldsConfigurationForm from '../../FieldsConfigurationForm';
+import FeatureErrorMessage from '../../../components/FeatureErrorMessage';
+import useAuth from '../../../../../hooks/useAuth';
+import { PlanFeature } from '../../../../../models/owns/subscriptionPlan';
 
 function WorkOrderSettings() {
   const { t }: { t: any } = useTranslation();

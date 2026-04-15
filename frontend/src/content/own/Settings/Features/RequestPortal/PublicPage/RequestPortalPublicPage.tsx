@@ -26,32 +26,32 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import i18n from 'i18next';
 import ReCAPTCHA from 'react-google-recaptcha';
-import FileUpload from '../../../components/FileUpload';
+import FileUpload from '../../../../components/FileUpload';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import {
   clearSingleRequestPortal,
   getRequestPortalPublic
-} from '../../../../../slices/requestPortal';
+} from '../../../../../../slices/requestPortal';
 import {
   AssetLocationClause,
   buildDefaultConfigs,
   PreviewFieldConfig
 } from 'src/content/own/components/form/RequestPortalPreview';
-import RequestPortalPreview from '../../../components/form/RequestPortalPreview';
-import { LocationMiniDTO } from '../../../../../models/owns/location';
-import { AssetMiniDTO } from '../../../../../models/owns/asset';
-import { useDispatch, useSelector } from '../../../../../store';
+import RequestPortalPreview from '../../../../components/form/RequestPortalPreview';
+import { LocationMiniDTO } from '../../../../../../models/owns/location';
+import { AssetMiniDTO } from '../../../../../../models/owns/asset';
+import { useDispatch, useSelector } from '../../../../../../store';
 import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
 import { Business } from '@mui/icons-material';
 import BusinessTwoToneIcon from '@mui/icons-material/BusinessTwoTone';
 import LanguageIcon from '@mui/icons-material/Language';
 import { useSnackbar } from 'notistack';
-import { submitPublicRequest } from '../../../../../slices/request';
-import api from '../../../../../utils/api';
-import { uploadToRequestPortal } from '../../../../../slices/file';
-import { supportedLanguages } from '../../../../../i18n/i18n';
-import { useBrand } from '../../../../../hooks/useBrand';
-import { recaptchaSiteKey } from '../../../../../config';
+import { submitPublicRequest } from '../../../../../../slices/request';
+import api from '../../../../../../utils/api';
+import { uploadToRequestPortal } from '../../../../../../slices/file';
+import { supportedLanguages } from '../../../../../../i18n/i18n';
+import { useBrand } from '../../../../../../hooks/useBrand';
+import { recaptchaSiteKey } from '../../../../../../config';
 import { Helmet } from 'react-helmet-async';
 
 interface FormValues {
