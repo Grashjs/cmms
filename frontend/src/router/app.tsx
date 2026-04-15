@@ -17,6 +17,9 @@ const SettingsLayout = Loader(
 const GeneralSettings = Loader(
   lazy(() => import('../content/own/Settings/General'))
 );
+const FeaturesSettings = Loader(
+  lazy(() => import('../content/own/Settings/Features'))
+);
 const WorkOrderSettings = Loader(
   lazy(() => import('../content/own/Settings/WorkOrder'))
 );
@@ -32,9 +35,7 @@ const ChecklistsSettings = Loader(
 const WorkflowsSettings = Loader(
   lazy(() => import('../content/own/Settings/Workflows'))
 );
-const UIConfigurationSettings = Loader(
-  lazy(() => import('../content/own/Settings/UiConfiguration'))
-);
+
 const RequestPortalSettings = Loader(
   lazy(() => import('../content/own/Settings/RequestPortal'))
 );
@@ -126,20 +127,15 @@ const appRoutes = [
         element: <GeneralSettings />
       },
       {
-        path: 'work-order',
-        element: <WorkOrderSettings />
-      },
-      {
-        path: 'request',
-        element: <RequestSettings />
-      },
-      {
-        path: 'request-portals',
-        element: <RequestPortalSettings />
-      },
-      {
-        path: 'request-portals/:id',
-        element: <RequestPortalSettings />
+        path: 'features',
+        children: [
+          { index: true, element: <FeaturesSettings /> },
+          { path: 'work-order', element: <WorkOrderSettings /> },
+          { path: 'request', element: <RequestSettings /> },
+          { path: 'request-portals', element: <RequestPortalSettings /> },
+          { path: 'request-portals/:id', element: <RequestPortalSettings /> },
+          { path: 'workflows', element: <WorkflowsSettings /> },
+        ]
       },
       {
         path: 'roles',
@@ -149,8 +145,6 @@ const appRoutes = [
         path: 'checklists',
         element: <ChecklistsSettings />
       },
-      { path: 'workflows', element: <WorkflowsSettings /> },
-      { path: 'ui-configuration', element: <UIConfigurationSettings /> },
       {
         path: 'integrations',
         element: <IntegrationsSettings />,

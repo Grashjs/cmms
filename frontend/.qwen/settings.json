@@ -4,7 +4,8 @@
       "WebSearch",
       "WebFetch(www.npmjs.com)",
       "WebFetch(github.com)",
-      "Bash(npx *)"
+      "Bash(npx *)",
+      "Bash(mkdir *)"
     ]
   },
   "$version": 3

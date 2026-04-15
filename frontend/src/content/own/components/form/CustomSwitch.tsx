@@ -1,4 +1,4 @@
-import { Box, Grid, Switch, Typography } from '@mui/material';
+import { Box, Grid, Switch, SxProps, Theme, Typography } from '@mui/material';
 import { Field } from 'formik';
 import { ChangeEvent } from 'react';
 
@@ -8,11 +8,12 @@ interface CustomSwitchProps {
   name: string;
   handleChange: (event: ChangeEvent<HTMLInputElement>) => void;
   checked: boolean;
+  sx?: SxProps<Theme>;
 }
 export default function CustomSwitch(props: CustomSwitchProps) {
-  const { name, title, description, handleChange, checked } = props;
+  const { name, title, description, handleChange, checked, sx } = props;
   return (
-    <Grid item xs={12} sx={{ mb: 2 }}>
+    <Grid item xs={12} sx={{ mb: 2, ...sx }}>
       <Box display="flex" flexDirection="row" alignItems="center">
         <Field
           onChange={handleChange}
@@ -21,12 +22,18 @@ export default function CustomSwitch(props: CustomSwitchProps) {
           name={name}
         />
         <Box display="flex" flexDirection="column">
-          <Typography variant="h6" fontWeight="bold" sx={{ mb: 0.5 }}>
+          <Typography
+            variant="h6"
+            fontWeight="bold"
+            sx={{ mb: description ? 0.5 : 0 }}
+          >
             {title}
           </Typography>
-          <Typography variant="h6" fontStyle="italic">
-            {description}
-          </Typography>
+          {description && (
+            <Typography variant="h6" fontStyle="italic">
+              {description}
+            </Typography>
+          )}
         </Box>
       </Box>
     </Grid>

@@ -1797,7 +1797,27 @@ const locale = {
   add_comment_placeholder: 'Add a comment...',
   post_comment: 'Post Comment',
   no_comments: 'No comments yet',
-  confirm_delete_comment: 'Are you sure you want to delete this comment?'
+  confirm_delete_comment: 'Are you sure you want to delete this comment?',
+  work_orders_settings_description:
+    'Customize Work Order preferences like Time & Cost Tracking, and more.',
+  requests_settings_description:
+    'Customize Request preferences like routing and required fields',
+  assets_settings_description:
+    'Customize Assets-related settings like Barcode Generation or Assets creation form.',
+  locations_settings_description:
+    'Create, manage and edit Locations within your Organization.',
+  parts_inventory_settings_description:
+    'Customize Parts Inventory form and preferences',
+  meters_settings_description: 'Customize Meters form and preferences',
+  vendors_contractors_settings_description:
+    'Manage external contractors and vendors your organization works with',
+  workflows_settings_description: 'Create and manage automated workflows',
+  request_portals_settings_description:
+    'Create, manage, and edit all Request Portals in your organization.',
+  set_preferences: 'Set Preferences',
+  enabled: 'Enabled',
+  disabled: 'Disabled',
+  go_to_request_portals: 'Go to Request Portals'
 };
 
 export default locale;
