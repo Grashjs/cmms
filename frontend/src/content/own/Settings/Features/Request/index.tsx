@@ -4,10 +4,13 @@ import FieldsConfigurationForm from '../../FieldsConfigurationForm';
 import useAuth from '../../../../../hooks/useAuth';
 import FeatureErrorMessage from '../../../components/FeatureErrorMessage';
 import { PlanFeature } from '../../../../../models/owns/subscriptionPlan';
+import { useContext, useEffect } from 'react';
+import { TitleContext } from '../../../../../contexts/TitleContext';
 
 function WorkOrderSettings() {
   const { t }: { t: any } = useTranslation();
   const { hasFeature } = useAuth();
+  const { setTitle } = useContext(TitleContext);
 
   const fields = [
     { label: t('asset'), name: 'asset' },
@@ -20,6 +23,10 @@ function WorkOrderSettings() {
     { label: t('category'), name: 'category' },
     { label: t('team'), name: 'team' }
   ];
+
+  useEffect(() => {
+    setTitle(t('requests'));
+  }, []);
 
   return (
     <Grid item xs={12}>

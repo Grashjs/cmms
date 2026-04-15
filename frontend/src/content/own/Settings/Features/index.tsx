@@ -33,6 +33,8 @@ import LocationOnTwoToneIcon from '@mui/icons-material/LocationOnTwoTone';
 import HandymanTwoToneIcon from '@mui/icons-material/HandymanTwoTone';
 import SpeedTwoToneIcon from '@mui/icons-material/SpeedTwoTone';
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
+import { useContext, useEffect } from 'react';
+import { TitleContext } from '../../../../contexts/TitleContext';
 
 interface FeatureModule {
   id: string;
@@ -53,6 +55,7 @@ function FeaturesSettings() {
     patchUiConfiguration,
     user
   } = useAuth();
+  const { setTitle } = useContext(TitleContext);
   const { generalPreferences } = companySettings;
   const { uiConfiguration } = user;
 
@@ -126,6 +129,10 @@ function FeaturesSettings() {
       preferencesPath: '/app/settings/features/workflows'
     }
   ];
+
+  useEffect(() => {
+    setTitle(t('features'));
+  }, []);
 
   const handleToggleChange = (
     feature: FeatureModule,

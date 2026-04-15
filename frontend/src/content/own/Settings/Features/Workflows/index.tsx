@@ -65,6 +65,7 @@ import { useBrand } from '../../../../../hooks/useBrand';
 import { getErrorMessage } from '../../../../../utils/api';
 import DateRangePicker from '../../../components/form/DateRangePicker';
 import HourRangePicker from '../../../components/form/HourRangePicker';
+import { TitleContext } from '../../../../../contexts/TitleContext';
 
 interface UICondition {
   type: WorkflowConditionType;
@@ -99,6 +100,7 @@ function Workflows() {
   const [view, setView] = useState<'list' | 'create' | 'update'>('list');
   const [currentMainCondition, setCurrentMainCondition] =
     useState<WFMainCondition>(mainConditions[0]);
+  const { setTitle } = useContext(TitleContext);
 
   const [currentConditions, setCurrentConditions] = useState<UICondition[]>([]);
   const [saving, setSaving] = useState<boolean>(false);
@@ -438,6 +440,7 @@ function Workflows() {
 
   useEffect(() => {
     dispatch(getWorkflows());
+    setTitle(t('workflows'));
   }, []);
   const onDeleteSuccess = () => {
     showSnackBar(t('workflow_delete_success'), 'success');

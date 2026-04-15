@@ -1,14 +1,16 @@
 import { Box, Divider, Grid, Tab, Tabs } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useContext, useEffect, useState } from 'react';
 import FieldsConfigurationForm from '../../FieldsConfigurationForm';
 import FeatureErrorMessage from '../../../components/FeatureErrorMessage';
 import useAuth from '../../../../../hooks/useAuth';
 import { PlanFeature } from '../../../../../models/owns/subscriptionPlan';
+import { TitleContext } from '../../../../../contexts/TitleContext';
 
 function WorkOrderSettings() {
   const { t }: { t: any } = useTranslation();
   const [currentTab, setCurrentTab] = useState<string>('create');
+  const { setTitle } = useContext(TitleContext);
   const { hasFeature } = useAuth();
   const tabs = [
     { value: 'create', label: t('creating_wo') },
@@ -48,6 +50,9 @@ function WorkOrderSettings() {
     { label: t('cost'), name: 'completeCost' }
   ];
 
+  useEffect(() => {
+    setTitle(t('work_orders'));
+  }, []);
   return (
     <Grid item xs={12}>
       <Box p={4}>
