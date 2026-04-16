@@ -34,5 +34,7 @@ public class CustomFieldShowDTO extends AuditShowDTO {
 
     @Schema(description = "Options for single choice fields")
     private List<String> options;
+
+    private int order;
 }
 

@@ -48,6 +48,10 @@ public class CustomField extends Audit {
     @Schema(description = "Whether to copy this field value when repeating work orders")
     private boolean copyOnRepeat = false;
 
+    @NotNull
+    @Column(name = "field_order")
+    private int order;
+
     @ElementCollection
     @CollectionTable(name = "company_custom_field_options", joinColumns = @JoinColumn(name = "field_id"))
     @Column(name = "option_value")

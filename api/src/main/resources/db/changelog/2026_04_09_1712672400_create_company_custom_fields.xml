@@ -71,5 +71,15 @@
         <dropTable tableName="custom_field"/>
         <renameTable oldTableName="company_custom_field" newTableName="custom_field"/>
     </changeSet>
+    <changeSet id="1776352578703-1" author="Ibrahima G. Coulibaly">
+        <addColumn tableName="custom_field">
+            <column name="order" type="integer" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1776353939519-1" author="Ibrahima G. Coulibaly">
+        <renameColumn tableName="custom_field" oldColumnName="order" newColumnName="field_order"/>
+    </changeSet>
 </databaseChangeLog>
 

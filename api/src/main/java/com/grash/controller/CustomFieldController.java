@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -52,6 +53,7 @@ public class CustomFieldController {
             List<CustomField> fields = customFieldService.getAllByCompanySettings(companySettings);
             return fields.stream()
                     .map(customFieldMapper::toShowDto)
+                    .sorted(Comparator.comparing(CustomFieldShowDTO::getOrder))
                     .collect(Collectors.toList());
         } else throw new CustomException("Company Settings not found", HttpStatus.NOT_FOUND);
     }
@@ -134,6 +136,19 @@ public class CustomFieldController {
         if (!companySettings.getCompany().getId().equals(user.getCompany().getId())) {
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         }
+    }
+
+    @PatchMapping("/reorder")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public SuccessResponse reorder(
+            @RequestBody List<Long> reorderList,
+            HttpServletRequest req) {
+        User user = userService.whoami(req);
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        }
+        customFieldService.reorder(reorderList, user.getCompany().getCompanySettings());
+        return new SuccessResponse(true, "Reordered successfully");
     }
 }
 

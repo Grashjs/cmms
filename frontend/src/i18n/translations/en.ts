@@ -525,7 +525,7 @@ const locale = {
   file: 'File',
   'noRows.location.message':
     'Locations let you manage more efficiently assets and workers',
-  'noRows.location.action': "Press the '+' button to create a Location",
+  'noRows.location.action': "Press the '+' button to create a location",
   card_view: 'Card View',
   set_create_success: 'The Set has been created successfully',
   set_create_failure: "The Set couldn't be created",
@@ -1821,7 +1821,16 @@ const locale = {
   preferences: 'Preferences',
   customize_work_order_form: 'Customize Work order form',
   custom_fields: 'Custom Fields',
-  configure_fields: 'Configure fields'
+  configure_fields: 'Configure fields',
+  add_custom_field: 'Add Custom Field',
+  edit_custom_field: 'Edit Custom Field',
+  confirm_delete_custom_field: 'Are you sure you want to delete this custom field?',
+  type: 'Type',
+  copy_on_repeat: 'Copy on repeat',
+  do_not_copy: 'Do not copy',
+  enter_options_comma_separated: 'Enter options separated by commas',
+  field_type: 'Field Type',
+  options: 'Options'
 };
 
 export default locale;
