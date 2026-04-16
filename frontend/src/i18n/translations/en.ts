@@ -1838,7 +1838,10 @@ const locale = {
   single_choice: 'Single Choice',
   label: 'Label',
   customize_form: 'Customize the form',
-  type_enter_to_add_option: 'Type and press enter to add an option'
+  type_enter_to_add_option: 'Type and press enter to add an option',
+  customers_settings_description:
+    'Manage external contractors your organization works with.',
+  vendors_settings_description: 'Customize vendor-related settings'
 };
 
 export default locale;

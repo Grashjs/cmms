@@ -103,22 +103,30 @@ function FeaturesSettings() {
       icon: HandymanTwoToneIcon,
       titleKey: 'parts_inventory',
       descriptionKey: 'parts_inventory_settings_description',
-      preferencesPath: '/app/settings'
+      preferencesPath: '/app/settings/features/parts'
     },
     {
       id: 'meters',
       icon: SpeedTwoToneIcon,
       titleKey: 'meters',
       descriptionKey: 'meters_settings_description',
-      preferencesPath: '/app/settings',
+      preferencesPath: '/app/settings/features/meters',
       toggleKey: 'meters'
     },
     {
+      id: 'contractors',
+      icon: Engineering,
+      titleKey: 'customers',
+      descriptionKey: 'customers_settings_description',
+      preferencesPath: '/app/settings/features/contractors',
+      toggleKey: 'vendorsAndCustomers'
+    },
+    {
       id: 'vendors',
-      icon: GroupsTwoTone,
-      titleKey: 'vendors_customers',
-      descriptionKey: 'vendors_contractors_settings_description',
-      preferencesPath: '/app/settings',
+      icon: Business,
+      titleKey: 'vendors',
+      descriptionKey: 'vendors_settings_description',
+      preferencesPath: '/app/settings/features/vendors',
       toggleKey: 'vendorsAndCustomers'
     },
     {
