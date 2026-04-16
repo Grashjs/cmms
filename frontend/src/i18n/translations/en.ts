@@ -1837,7 +1837,8 @@ const locale = {
   date_time: 'Date & Time',
   single_choice: 'Single Choice',
   label: 'Label',
-  customize_form: 'Customize the form'
+  customize_form: 'Customize the form',
+  type_enter_to_add_option: 'Type and press enter to add an option'
 };
 
 export default locale;

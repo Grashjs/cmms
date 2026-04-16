@@ -38,6 +38,18 @@ const WorkOrderCustomFields = Loader(
 const RequestSettings = Loader(
   lazy(() => import('../content/own/Settings/Features/Request'))
 );
+const AssetSettings = Loader(
+  lazy(() => import('../content/own/Settings/Features/Asset'))
+);
+const AssetCustomFields = Loader(
+  lazy(() => import('../content/own/Settings/Features/Asset/CustomFields'))
+);
+const LocationSettings = Loader(
+  lazy(() => import('../content/own/Settings/Features/Location'))
+);
+const LocationCustomFields = Loader(
+  lazy(() => import('../content/own/Settings/Features/Location/CustomFields'))
+);
 const RolesSettings = Loader(
   lazy(() => import('../content/own/Settings/Roles'))
 );
@@ -155,6 +167,20 @@ const appRoutes = [
             children: [
               { index: true, element: <RequestSettings /> },
               { path: 'configure-fields', element: <RequestConfigureFields /> }
+            ]
+          },
+          {
+            path: 'asset',
+            children: [
+              { index: true, element: <AssetSettings /> },
+              { path: 'custom-fields', element: <AssetCustomFields /> }
+            ]
+          },
+          {
+            path: 'location',
+            children: [
+              { index: true, element: <LocationSettings /> },
+              { path: 'custom-fields', element: <LocationCustomFields /> }
             ]
           },
           { path: 'request-portals', element: <RequestPortalSettings /> },

@@ -451,7 +451,7 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
                             <TextField
                               {...params}
                               label={t('options')}
-                              helperText={t('enter_options_comma_separated')}
+                              helperText={t('type_enter_to_add_option')}
                             />
                           )}
                         />
@@ -621,7 +621,7 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
                             <TextField
                               {...params}
                               label={t('options')}
-                              helperText={t('enter_options_comma_separated')}
+                              helperText={t('type_enter_to_add_option')}
                             />
                           )}
                         />

@@ -80,14 +80,14 @@ function FeaturesSettings() {
       icon: Inventory2TwoToneIcon,
       titleKey: 'assets',
       descriptionKey: 'assets_settings_description',
-      preferencesPath: '/app/settings'
+      preferencesPath: '/app/settings/features/asset'
     },
     {
       id: 'locations',
       icon: LocationOnTwoToneIcon,
       titleKey: 'locations',
       descriptionKey: 'locations_settings_description',
-      preferencesPath: '/app/settings',
+      preferencesPath: '/app/settings/features/location',
       toggleKey: 'locations'
     },
     {
