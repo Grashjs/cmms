@@ -211,6 +211,20 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
                               px: 0
                             }}
                           >
+                            <Box
+                              sx={{
+                                cursor: 'grab',
+                                '&:active': {
+                                  cursor: 'grabbing'
+                                },
+                                mr: 2,
+                                display: 'flex',
+                                alignItems: 'center'
+                              }}
+                              {...provided.dragHandleProps}
+                            >
+                              <DragIndicatorIcon />
+                            </Box>
                             <ListItemText
                               primary={
                                 <Typography variant="h6" gutterBottom>
@@ -278,17 +292,6 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
                                   <ClearTwoToneIcon fontSize="small" />
                                 </IconButtonWrapper>
                               )}
-                              <Box
-                                sx={{
-                                  cursor: 'grab',
-                                  '&:active': {
-                                    cursor: 'grabbing'
-                                  }
-                                }}
-                                {...provided.dragHandleProps}
-                              >
-                                <DragIndicatorIcon />
-                              </Box>
                             </Box>
                           </ListItem>
                           <Divider />
