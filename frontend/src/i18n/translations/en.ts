@@ -1824,13 +1824,19 @@ const locale = {
   configure_fields: 'Configure fields',
   add_custom_field: 'Add Custom Field',
   edit_custom_field: 'Edit Custom Field',
-  confirm_delete_custom_field: 'Are you sure you want to delete this custom field?',
-  type: 'Type',
-  copy_on_repeat: 'Copy on repeat',
+  confirm_delete_custom_field:
+    'Are you sure you want to delete this custom field?',
+  copy_on_repeat_wo: 'Copy the values of this field on repeating Work Orders',
   do_not_copy: 'Do not copy',
   enter_options_comma_separated: 'Enter options separated by commas',
   field_type: 'Field Type',
-  options: 'Options'
+  options: 'Options',
+  short_text: 'Short Text',
+  long_text: 'Long Text',
+  number: 'Number',
+  date_time: 'Date & Time',
+  single_choice: 'Single Choice',
+  label: 'Label'
 };
 
 export default locale;

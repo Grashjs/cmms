@@ -2,6 +2,7 @@ import { Fragment, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import {
+  Autocomplete,
   Box,
   Button,
   CircularProgress,
@@ -166,11 +167,10 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
       <Box p={4}>
         <Box
           display="flex"
-          justifyContent="space-between"
+          justifyContent="flex-end"
           alignItems="center"
           mb={3}
         >
-          <Typography variant="h4">{t('custom_fields')}</Typography>
           {hasCreatePermission(PermissionEntity.SETTINGS) && (
             <Button
               variant="contained"
@@ -222,9 +222,18 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
                                   variant="body2"
                                   color="text.secondary"
                                 >
-                                  {t('type')}: {customField.fieldType} |{' '}
+                                  {t('type')}:{' '}
+                                  {t(customField.fieldType.toLowerCase())} |{' '}
                                   {t('required')}:{' '}
                                   {customField.required ? t('yes') : t('no')}
+                                  {entityType ===
+                                    CustomFieldEntityType.WORK_ORDER &&
+                                    customField.copyOnRepeat && (
+                                      <>
+                                        {' '}
+                                        | {t('copy_on_repeat_wo')}: {t('yes')}
+                                      </>
+                                    )}
                                 </Typography>
                               }
                             />
@@ -373,7 +382,7 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
                         >
                           {Object.values(CustomFieldType).map((type) => (
                             <MenuItem key={type} value={type}>
-                              {type.replace('_', ' ')}
+                              {t(type.toLowerCase())}
                             </MenuItem>
                           ))}
                         </Select>
@@ -410,7 +419,7 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
                               }
                             />
                           }
-                          label={t('copy_on_repeat')}
+                          label={t('copy_on_repeat_wo')}
                         />
                         <FormControlLabel
                           control={
@@ -427,19 +436,21 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
                     )}
                     {values.fieldType === CustomFieldType.SINGLE_CHOICE && (
                       <Grid item xs={12}>
-                        <TextField
-                          fullWidth
-                          label={t('options')}
-                          multiline
-                          rows={3}
-                          helperText={t('enter_options_comma_separated')}
-                          onChange={(e) =>
-                            setFieldValue(
-                              'options',
-                              e.target.value.split(',').map((s) => s.trim())
-                            )
+                        <Autocomplete
+                          freeSolo
+                          multiple
+                          options={[]}
+                          value={values.options}
+                          onChange={(event, newValue) =>
+                            setFieldValue('options', newValue)
                           }
-                          value={values.options.join(', ')}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label={t('options')}
+                              helperText={t('enter_options_comma_separated')}
+                            />
+                          )}
                         />
                       </Grid>
                     )}
@@ -541,7 +552,7 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
                         >
                           {Object.values(CustomFieldType).map((type) => (
                             <MenuItem key={type} value={type}>
-                              {type.replace('_', ' ')}
+                              {t(type.toLowerCase())}
                             </MenuItem>
                           ))}
                         </Select>
@@ -578,7 +589,7 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
                               }
                             />
                           }
-                          label={t('copy_on_repeat')}
+                          label={t('copy_on_repeat_wo')}
                         />
                         <FormControlLabel
                           control={
@@ -595,19 +606,21 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
                     )}
                     {values.fieldType === CustomFieldType.SINGLE_CHOICE && (
                       <Grid item xs={12}>
-                        <TextField
-                          fullWidth
-                          label={t('options')}
-                          multiline
-                          rows={3}
-                          helperText={t('enter_options_comma_separated')}
-                          onChange={(e) =>
-                            setFieldValue(
-                              'options',
-                              e.target.value.split(',').map((s) => s.trim())
-                            )
+                        <Autocomplete
+                          freeSolo
+                          multiple
+                          options={[]}
+                          value={values.options}
+                          onChange={(event, newValue) =>
+                            setFieldValue('options', newValue)
                           }
-                          value={values.options.join(', ')}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label={t('options')}
+                              helperText={t('enter_options_comma_separated')}
+                            />
+                          )}
                         />
                       </Grid>
                     )}
