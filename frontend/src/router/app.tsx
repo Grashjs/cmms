@@ -23,6 +23,12 @@ const FeaturesSettings = Loader(
 const WorkOrderSettings = Loader(
   lazy(() => import('../content/own/Settings/Features/WorkOrder'))
 );
+const ConfigureFields = Loader(
+  lazy(() => import('../content/own/Settings/Features/WorkOrder/ConfigureFields'))
+);
+const CustomFields = Loader(
+  lazy(() => import('../content/own/Settings/Features/WorkOrder/CustomFields'))
+);
 const RequestSettings = Loader(
   lazy(() => import('../content/own/Settings/Features/Request'))
 );
@@ -130,7 +136,7 @@ const appRoutes = [
         path: 'features',
         children: [
           { index: true, element: <FeaturesSettings /> },
-          { path: 'work-order', element: <WorkOrderSettings /> },
+          { path: 'work-order', children: [ { index: true, element: <WorkOrderSettings /> }, { path: 'configure-fields', element: <ConfigureFields /> }, { path: 'custom-fields', element: <CustomFields /> } ] },
           { path: 'request', element: <RequestSettings /> },
           { path: 'request-portals', element: <RequestPortalSettings /> },
           { path: 'request-portals/:id', element: <RequestPortalSettings /> },

@@ -1,98 +1,140 @@
-import { Box, Divider, Grid, Tab, Tabs } from '@mui/material';
+import { Box, Button, Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { ChangeEvent, useContext, useEffect, useState } from 'react';
-import FieldsConfigurationForm from '../../FieldsConfigurationForm';
-import FeatureErrorMessage from '../../../components/FeatureErrorMessage';
+import { useNavigate } from 'react-router-dom';
+import { Formik } from 'formik';
+import CustomSwitch from '../../../components/form/CustomSwitch';
 import useAuth from '../../../../../hooks/useAuth';
-import { PlanFeature } from '../../../../../models/owns/subscriptionPlan';
-import { TitleContext } from '../../../../../contexts/TitleContext';
+import { GeneralPreferences } from '../../../../../models/owns/generalPreferences';
+import Section from './Section';
+import { ChevronRight } from '@mui/icons-material';
 
 function WorkOrderSettings() {
   const { t }: { t: any } = useTranslation();
-  const [currentTab, setCurrentTab] = useState<string>('create');
-  const { setTitle } = useContext(TitleContext);
-  const { hasFeature } = useAuth();
-  const tabs = [
-    { value: 'create', label: t('creating_wo') },
-    { value: 'complete', label: t('completing_wo') }
-  ];
-  const handleTabsChange = (_event: ChangeEvent<{}>, value: string): void => {
-    setCurrentTab(value);
-  };
+  const navigate = useNavigate();
+  const { patchGeneralPreferences, companySettings } = useAuth();
+  const { generalPreferences } = companySettings;
 
-  const createFields = [
-    { label: t('description'), name: 'description' },
+  const switches: {
+    title: string;
+    description: string;
+    name: keyof GeneralPreferences;
+  }[] = [
     {
-      label: t('priority'),
-      name: 'priority'
+      title: t('auto_assign_wo'),
+      description: t('auto_assign_wo_description'),
+      name: 'autoAssignWorkOrders'
     },
-    { label: t('images'), name: 'images' },
-    { label: t('asset'), name: 'asset' },
-    { label: t('primary_worker'), name: 'primaryUser' },
-    { label: t('additional_workers'), name: 'assignedTo' },
-    { label: t('team'), name: 'team' },
-    { label: t('location'), name: 'location' },
-    { label: t('due_date'), name: 'dueDate' },
-    { label: t('category'), name: 'category' },
-    { label: t('purchase_order'), name: 'purchaseOrder' },
-    { label: t('files'), name: 'files' },
-    { label: t('signature'), name: 'signature' }
-  ];
-
-  const completeFields = [
-    { label: t('files'), name: 'completeFiles' },
     {
-      label: t('tasks'),
-      name: 'completeTasks'
+      title: t('auto_assign_requests'),
+      description: t('auto_assign_requests_description'),
+      name: 'autoAssignRequests'
     },
-    { label: t('time'), name: 'completeTime' },
-    { label: t('parts'), name: 'completeParts' },
-    { label: t('cost'), name: 'completeCost' }
+    {
+      title: t('disable_closed_wo_notification'),
+      description: t('disable_closed_wo_notification_description'),
+      name: 'disableClosedWorkOrdersNotif'
+    },
+    {
+      title: t('ask_feedback_wo_closed'),
+      description: t('ask_feedback_wo_closed_description'),
+      name: 'askFeedBackOnWOClosed'
+    },
+    {
+      title: t('include_labor_in_total_cost'),
+      description: t('include_labor_in_total_cost_description'),
+      name: 'laborCostInTotalCost'
+    },
+    {
+      title: t('enable_wo_updates_requesters'),
+      description: t('enable_wo_updates_requesters_description'),
+      name: 'woUpdateForRequesters'
+    },
+    {
+      title: t('simplify_wo'),
+      description: t('simplify_wo_description'),
+      name: 'simplifiedWorkOrder'
+    }
   ];
 
-  useEffect(() => {
-    setTitle(t('work_orders'));
-  }, []);
+  const onSubmit = async (
+    _values,
+    { resetForm, setErrors, setStatus, setSubmitting }
+  ) => {};
+
   return (
     <Grid item xs={12}>
       <Box p={4}>
-        <Box>
-          <Tabs
-            onChange={handleTabsChange}
-            value={currentTab}
-            variant="scrollable"
-            scrollButtons="auto"
-            textColor="primary"
-            indicatorColor="primary"
-          >
-            {tabs.map((tab) => (
-              <Tab key={tab.value} label={tab.label} value={tab.value} />
-            ))}
-          </Tabs>
-          <Divider sx={{ mt: 1 }} />
-          {!hasFeature(PlanFeature.REQUEST_CONFIGURATION) ? (
-            <FeatureErrorMessage message="Upgrade to configure the work orders" />
-          ) : (
-            <Box p={3}>
-              {currentTab === 'create' && (
-                <FieldsConfigurationForm
-                  initialValues={{}}
-                  fields={createFields.map((field) => {
-                    return { ...field, type: 'workOrder' };
-                  })}
-                />
-              )}
-              {currentTab === 'complete' && (
-                <FieldsConfigurationForm
-                  initialValues={{}}
-                  fields={completeFields.map((field) => {
-                    return { ...field, type: 'workOrder' };
-                  })}
-                />
-              )}
-            </Box>
+        <Formik
+          initialValues={generalPreferences}
+          validationSchema={undefined}
+          onSubmit={onSubmit}
+        >
+          {({
+            errors,
+            handleBlur,
+            handleChange,
+            handleSubmit,
+            isSubmitting,
+            touched,
+            values
+          }) => (
+            <form onSubmit={handleSubmit}>
+              <Section title={t('preferences')}>
+                <Grid container spacing={2}>
+                  {switches.map((element) => (
+                    <CustomSwitch
+                      key={element.name}
+                      title={element.title}
+                      description={element.description}
+                      checked={values[element.name]}
+                      name={element.name}
+                      handleChange={(event) => {
+                        handleChange(event);
+                        patchGeneralPreferences({
+                          [element.name]: event.target.checked
+                        });
+                      }}
+                    />
+                  ))}
+                </Grid>
+              </Section>
+              <Section title={t('customize_work_order_form')}>
+                <Box display="flex" flexDirection="column" gap={2}>
+                  <Button
+                    variant="text"
+                    endIcon={<ChevronRight />}
+                    onClick={() =>
+                      navigate(
+                        '/app/settings/features/work-order/custom-fields'
+                      )
+                    }
+                    sx={{
+                      justifyContent: 'space-between',
+                      textTransform: 'none'
+                    }}
+                  >
+                    {t('custom_fields')}
+                  </Button>
+                  <Button
+                    variant="text"
+                    endIcon={<ChevronRight />}
+                    onClick={() =>
+                      navigate(
+                        '/app/settings/features/work-order/configure-fields'
+                      )
+                    }
+                    sx={{
+                      justifyContent: 'space-between',
+                      textTransform: 'none'
+                    }}
+                  >
+                    {t('configure_fields')}
+                  </Button>
+                </Box>
+              </Section>
+            </form>
           )}
-        </Box>
+        </Formik>
       </Box>
     </Grid>
   );
