@@ -1817,7 +1817,11 @@ const locale = {
   set_preferences: 'Set Preferences',
   enabled: 'Enabled',
   disabled: 'Disabled',
-  go_to_request_portals: 'Go to Request Portals'
+  go_to_request_portals: 'Go to Request Portals',
+  preferences: 'Preferences',
+  customize_work_order_form: 'Customize Work order form',
+  custom_fields: 'Custom Fields',
+  configure_fields: 'Configure fields'
 };
 
 export default locale;
