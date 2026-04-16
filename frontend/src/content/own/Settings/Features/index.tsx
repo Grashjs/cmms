@@ -16,6 +16,7 @@ import {
   Business,
   ElectricalServices,
   Engineering,
+  EngineeringTwoTone,
   GroupsTwoTone,
   Inventory,
   LocationOn,
@@ -35,6 +36,7 @@ import SpeedTwoToneIcon from '@mui/icons-material/SpeedTwoTone';
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
 import { useContext, useEffect } from 'react';
 import { TitleContext } from '../../../../contexts/TitleContext';
+import BusinessTwoToneIcon from '@mui/icons-material/BusinessTwoTone';
 
 interface FeatureModule {
   id: string;
@@ -115,7 +117,7 @@ function FeaturesSettings() {
     },
     {
       id: 'contractors',
-      icon: Engineering,
+      icon: EngineeringTwoTone,
       titleKey: 'customers',
       descriptionKey: 'customers_settings_description',
       preferencesPath: '/app/settings/features/contractors',
@@ -123,7 +125,7 @@ function FeaturesSettings() {
     },
     {
       id: 'vendors',
-      icon: Business,
+      icon: BusinessTwoToneIcon,
       titleKey: 'vendors',
       descriptionKey: 'vendors_settings_description',
       preferencesPath: '/app/settings/features/vendors',
@@ -238,6 +240,7 @@ function FeaturesSettings() {
                                 }
                                 description=""
                                 sx={{ m: 0 }}
+                                titleSx={{ fontWeight: 'normal' }}
                                 name={feature.toggleKey}
                                 checked={getToggleValue(feature)}
                                 handleChange={() => {

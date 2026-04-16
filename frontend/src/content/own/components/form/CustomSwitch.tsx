@@ -9,9 +9,11 @@ interface CustomSwitchProps {
   handleChange: (event: ChangeEvent<HTMLInputElement>) => void;
   checked: boolean;
   sx?: SxProps<Theme>;
+  titleSx?: SxProps<Theme>;
 }
 export default function CustomSwitch(props: CustomSwitchProps) {
-  const { name, title, description, handleChange, checked, sx } = props;
+  const { name, title, description, handleChange, checked, sx, titleSx } =
+    props;
   return (
     <Grid item xs={12} sx={{ mb: 2, ...sx }}>
       <Box display="flex" flexDirection="row" alignItems="center">
@@ -25,7 +27,7 @@ export default function CustomSwitch(props: CustomSwitchProps) {
           <Typography
             variant="h6"
             fontWeight="bold"
-            sx={{ mb: description ? 0.5 : 0 }}
+            sx={{ mb: description ? 0.5 : 0, ...titleSx }}
           >
             {title}
           </Typography>
