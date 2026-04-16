@@ -1,53 +1,103 @@
-import { Box, Grid } from '@mui/material';
+import { Box, Button, Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import FieldsConfigurationForm from '../../FieldsConfigurationForm';
+import { useNavigate } from 'react-router-dom';
+import { Formik } from 'formik';
+import CustomSwitch from '../../../components/form/CustomSwitch';
 import useAuth from '../../../../../hooks/useAuth';
-import FeatureErrorMessage from '../../../components/FeatureErrorMessage';
-import { PlanFeature } from '../../../../../models/owns/subscriptionPlan';
-import { useContext, useEffect } from 'react';
-import { TitleContext } from '../../../../../contexts/TitleContext';
+import { GeneralPreferences } from '../../../../../models/owns/generalPreferences';
+import { ChevronRight } from '@mui/icons-material';
+import SettingsSection from '../../components/SettingsSection';
 
-function WorkOrderSettings() {
+function RequestSettings() {
   const { t }: { t: any } = useTranslation();
-  const { hasFeature } = useAuth();
-  const { setTitle } = useContext(TitleContext);
+  const navigate = useNavigate();
+  const { patchGeneralPreferences, companySettings } = useAuth();
+  const { generalPreferences } = companySettings;
 
-  const fields = [
-    { label: t('asset'), name: 'asset' },
+  const switches: {
+    title: string;
+    description: string;
+    name: keyof GeneralPreferences;
+  }[] = [
     {
-      label: t('location'),
-      name: 'location'
+      title: t('auto_assign_requests'),
+      description: t('auto_assign_requests_description'),
+      name: 'autoAssignRequests'
     },
-    { label: t('primary_worker'), name: 'primaryUser' },
-    { label: t('due_date'), name: 'dueDate' },
-    { label: t('category'), name: 'category' },
-    { label: t('team'), name: 'team' }
+    {
+      title: t('enable_wo_updates_requesters'),
+      description: t('enable_wo_updates_requesters_description'),
+      name: 'woUpdateForRequesters'
+    }
   ];
 
-  useEffect(() => {
-    setTitle(t('requests'));
-  }, []);
+  const onSubmit = async (
+    _values,
+    { resetForm, setErrors, setStatus, setSubmitting }
+  ) => {};
 
   return (
     <Grid item xs={12}>
       <Box p={4}>
-        {hasFeature(PlanFeature.REQUEST_CONFIGURATION) ? (
-          <Box>
-            <Box p={3}>
-              <FieldsConfigurationForm
-                initialValues={{}}
-                fields={fields.map((field) => {
-                  return { ...field, type: 'request' };
-                })}
-              />
-            </Box>
-          </Box>
-        ) : (
-          <FeatureErrorMessage message="Upgrade to configure the Request Form" />
-        )}
+        <Formik
+          initialValues={generalPreferences}
+          validationSchema={undefined}
+          onSubmit={onSubmit}
+        >
+          {({
+            errors,
+            handleBlur,
+            handleChange,
+            handleSubmit,
+            isSubmitting,
+            touched,
+            values
+          }) => (
+            <form onSubmit={handleSubmit}>
+              <SettingsSection title={t('preferences')}>
+                <Grid container spacing={2}>
+                  {switches.map((element) => (
+                    <CustomSwitch
+                      key={element.name}
+                      title={element.title}
+                      description={element.description}
+                      checked={values[element.name]}
+                      name={element.name}
+                      handleChange={(event) => {
+                        handleChange(event);
+                        patchGeneralPreferences({
+                          [element.name]: event.target.checked
+                        });
+                      }}
+                    />
+                  ))}
+                </Grid>
+              </SettingsSection>
+              <SettingsSection title={t('customize_form')}>
+                <Box display="flex" flexDirection="column" gap={2}>
+                  <Button
+                    variant="text"
+                    endIcon={<ChevronRight />}
+                    onClick={() =>
+                      navigate(
+                        '/app/settings/features/request/configure-fields'
+                      )
+                    }
+                    sx={{
+                      justifyContent: 'space-between',
+                      textTransform: 'none'
+                    }}
+                  >
+                    {t('configure_fields')}
+                  </Button>
+                </Box>
+              </SettingsSection>
+            </form>
+          )}
+        </Formik>
       </Box>
     </Grid>
   );
 }
 
-export default WorkOrderSettings;
+export default RequestSettings;

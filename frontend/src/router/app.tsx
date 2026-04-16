@@ -24,11 +24,17 @@ const WorkOrderSettings = Loader(
   lazy(() => import('../content/own/Settings/Features/WorkOrder'))
 );
 const ConfigureFields = Loader(
-  lazy(() => import('../content/own/Settings/Features/WorkOrder/ConfigureFields'))
+  lazy(
+    () => import('../content/own/Settings/Features/WorkOrder/ConfigureFields')
+  )
 );
-const CustomFields = Loader(
+const RequestConfigureFields = Loader(
+  lazy(() => import('../content/own/Settings/Features/Request/ConfigureFields'))
+);
+const WorkOrderCustomFields = Loader(
   lazy(() => import('../content/own/Settings/Features/WorkOrder/CustomFields'))
 );
+
 const RequestSettings = Loader(
   lazy(() => import('../content/own/Settings/Features/Request'))
 );
@@ -136,8 +142,21 @@ const appRoutes = [
         path: 'features',
         children: [
           { index: true, element: <FeaturesSettings /> },
-          { path: 'work-order', children: [ { index: true, element: <WorkOrderSettings /> }, { path: 'configure-fields', element: <ConfigureFields /> }, { path: 'custom-fields', element: <CustomFields /> } ] },
-          { path: 'request', element: <RequestSettings /> },
+          {
+            path: 'work-order',
+            children: [
+              { index: true, element: <WorkOrderSettings /> },
+              { path: 'configure-fields', element: <ConfigureFields /> },
+              { path: 'custom-fields', element: <WorkOrderCustomFields /> }
+            ]
+          },
+          {
+            path: 'request',
+            children: [
+              { index: true, element: <RequestSettings /> },
+              { path: 'configure-fields', element: <RequestConfigureFields /> }
+            ]
+          },
           { path: 'request-portals', element: <RequestPortalSettings /> },
           { path: 'request-portals/:id', element: <RequestPortalSettings /> },
           { path: 'workflows', element: <WorkflowsSettings /> }

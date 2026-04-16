@@ -6,7 +6,7 @@ interface SectionProps {
   children: ReactNode;
 }
 
-function Section({ title, children }: SectionProps) {
+function SettingsSection({ title, children }: SectionProps) {
   return (
     <Box sx={{ mb: 4 }}>
       <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
@@ -17,4 +17,4 @@ function Section({ title, children }: SectionProps) {
   );
 }
 
-export default Section;
+export default SettingsSection;

@@ -5,7 +5,7 @@ import { Formik } from 'formik';
 import CustomSwitch from '../../../components/form/CustomSwitch';
 import useAuth from '../../../../../hooks/useAuth';
 import { GeneralPreferences } from '../../../../../models/owns/generalPreferences';
-import Section from './Section';
+import SettingsSection from '../../components/SettingsSection';
 import { ChevronRight } from '@mui/icons-material';
 
 function WorkOrderSettings() {
@@ -25,11 +25,6 @@ function WorkOrderSettings() {
       name: 'autoAssignWorkOrders'
     },
     {
-      title: t('auto_assign_requests'),
-      description: t('auto_assign_requests_description'),
-      name: 'autoAssignRequests'
-    },
-    {
       title: t('disable_closed_wo_notification'),
       description: t('disable_closed_wo_notification_description'),
       name: 'disableClosedWorkOrdersNotif'
@@ -43,11 +38,6 @@ function WorkOrderSettings() {
       title: t('include_labor_in_total_cost'),
       description: t('include_labor_in_total_cost_description'),
       name: 'laborCostInTotalCost'
-    },
-    {
-      title: t('enable_wo_updates_requesters'),
-      description: t('enable_wo_updates_requesters_description'),
-      name: 'woUpdateForRequesters'
     },
     {
       title: t('simplify_wo'),
@@ -79,7 +69,7 @@ function WorkOrderSettings() {
             values
           }) => (
             <form onSubmit={handleSubmit}>
-              <Section title={t('preferences')}>
+              <SettingsSection title={t('preferences')}>
                 <Grid container spacing={2}>
                   {switches.map((element) => (
                     <CustomSwitch
@@ -97,8 +87,8 @@ function WorkOrderSettings() {
                     />
                   ))}
                 </Grid>
-              </Section>
-              <Section title={t('customize_work_order_form')}>
+              </SettingsSection>
+              <SettingsSection title={t('customize_work_order_form')}>
                 <Box display="flex" flexDirection="column" gap={2}>
                   <Button
                     variant="text"
@@ -131,7 +121,7 @@ function WorkOrderSettings() {
                     {t('configure_fields')}
                   </Button>
                 </Box>
-              </Section>
+              </SettingsSection>
             </form>
           )}
         </Formik>
