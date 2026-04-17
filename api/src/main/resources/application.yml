@@ -104,6 +104,8 @@ management:
   health:
     mail:
       enabled: ${ENABLE_MAIL_HEALTH_CHECK:true}
+    ldap:
+      enabled: ${LDAP_ENABLED:false}
 api:
   host: ${PUBLIC_API_URL}
 storage:

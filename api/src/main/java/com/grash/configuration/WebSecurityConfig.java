@@ -21,6 +21,8 @@ import org.springframework.security.ldap.authentication.LdapAuthenticationProvid
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.Optional;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -33,7 +35,7 @@ public class WebSecurityConfig {
     private final LicenseService licenseService;
     private final RateLimitFilter rateLimitFilter;
     private final CustomUserDetailsService customUserDetailsService;
-    private final LdapAuthenticationProvider ldapAuthenticationProvider;
+    private final Optional<LdapAuthenticationProvider> ldapAuthenticationProvider;
     @Value("${enable-sso}")
     private boolean enableSso;
     @Value("${ldap.enabled:false}")
@@ -129,8 +131,8 @@ public class WebSecurityConfig {
         daoProvider.setUserDetailsService(customUserDetailsService);
         daoProvider.setPasswordEncoder(passwordEncoder());
 
-        if (ldapEnabled && ldapAuthenticationProvider != null) {
-            return new ProviderManager(daoProvider, ldapAuthenticationProvider);
+        if (ldapEnabled && ldapAuthenticationProvider.isPresent()) {
+            return new ProviderManager(daoProvider, ldapAuthenticationProvider.get());
         } else {
             return new ProviderManager(daoProvider);
         }
