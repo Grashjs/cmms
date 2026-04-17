@@ -29,4 +29,6 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
             AND wo.parent_preventive_maintenance_id is null and c.demo=false group by c.id having count(wo.id) >= 5)
             """, nativeQuery = true)
     boolean existsAtLeastOneWithMinWorkOrders();
+
+    boolean existsByLdapDomain(String ldapDomain);
 }

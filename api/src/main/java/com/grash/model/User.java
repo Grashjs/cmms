@@ -88,7 +88,7 @@ public class User extends Audit {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Location location;
-    
+
     @OneToMany(mappedBy = "superUser", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<SuperAccountRelation> superAccountRelations = new ArrayList<>();
@@ -104,6 +104,8 @@ public class User extends Audit {
     private String ssoProviderId;
     @Schema(description = "Whether the account was created via SSO")
     private boolean createdViaSso = false;
+
+    private String ldapId;
 
     @Schema(description = "UTM source for tracking")
     private String utmSource;

@@ -58,5 +58,7 @@ public class CompanyService {
         return companyRepository.existsAtLeastOneWithMinWorkOrders();
     }
 
+    public boolean existsByLdapDomain(String ldapDomain) {
+        return companyRepository.existsByLdapDomain(ldapDomain);
+    }
 }
-

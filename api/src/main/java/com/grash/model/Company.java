@@ -63,6 +63,8 @@ public class Company extends Audit {
     @Schema(description = "Whether assets have been imported")
     private boolean importedAssets = false;
 
+    private String ldapDomain;
+
     public Company(String companyName, int employeesCount, Subscription subscription) {
         this.name = companyName;
         this.employeesCount = employeesCount;

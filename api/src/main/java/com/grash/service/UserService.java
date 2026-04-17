@@ -10,8 +10,8 @@ import com.grash.dto.license.LicenseEntitlement;
 import com.grash.dto.license.LicensingState;
 import com.grash.event.CompanyCreatedEvent;
 import com.grash.exception.CustomException;
-import com.grash.mapper.UserMapper;
 import com.grash.factory.MailServiceFactory;
+import com.grash.mapper.UserMapper;
 import com.grash.model.*;
 import com.grash.model.enums.RoleCode;
 import com.grash.repository.UserRepository;
@@ -20,6 +20,10 @@ import com.grash.security.CustomUserDetail;
 import com.grash.security.JwtTokenProvider;
 import com.grash.utils.Helper;
 import com.grash.utils.Utils;
+import jakarta.mail.MessagingException;
+import jakarta.persistence.EntityManager;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -36,12 +40,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import jakarta.mail.MessagingException;
-
-import jakarta.persistence.EntityManager;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.transaction.Transactional;
 
 import java.io.IOException;
 import java.util.*;
@@ -247,6 +245,10 @@ public class UserService {
 
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmailIgnoreCase(email);
+    }
+
+    public User findByLdapId(String ldapId) {
+        return userRepository.findByLdapId(ldapId).orElse(null);
     }
 
     public Optional<User> findByEmailAndCompany(String email, Long companyId) {
@@ -516,5 +518,4 @@ public class UserService {
         }
     }
 }
-
 

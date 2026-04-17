@@ -135,6 +135,19 @@ white-labeling:
   custom-colors: ${CUSTOM_COLORS:}
   brand-config: ${BRAND_CONFIG:}
 
+ldap:
+  enabled: ${LDAP_ENABLED:false}
+  url: ${LDAP_URL:}
+  base-dn: ${LDAP_BASE_DN:}
+  user-dn-pattern: ${LDAP_USER_DN_PATTERN:}
+  group-search-base: ${LDAP_GROUP_SEARCH_BASE:}
+  group-search-filter: ${LDAP_GROUP_SEARCH_FILTER:}
+  user-search-base: ${LDAP_USER_SEARCH_BASE:}
+  user-search-filter: ${LDAP_USER_SEARCH_FILTER:}
+  manager-dn: ${LDAP_MANAGER_DN:}
+  manager-password: ${LDAP_MANAGER_PASSWORD:}
+  domain: ${LDAP_DOMAIN:}
+
 paddle:
   api-key: ${PADDLE_API_KEY:}
   environment: ${PADDLE_ENVIRONMENT:sandbox}

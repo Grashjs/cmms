@@ -49,4 +49,6 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     boolean hasMorePaidUsersThan(@Param("threshold") int threshold);
 
     List<User> findByIdInAndCompany_Id(Collection<Long> longs, Long id);
+
+    Optional<User> findByLdapId(String ldapId);
 }
