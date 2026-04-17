@@ -1,26 +1,17 @@
 import {
   Autocomplete,
   Box,
+  Button,
   CircularProgress,
   IconButton,
   InputAdornment,
   Stack,
   TextField,
-  Typography,
-  alpha,
-  useTheme,
-  Button
+  useTheme
 } from '@mui/material';
 import { FormikProvider, useFormik } from 'formik';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
-import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
-import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
-import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined';
 import SearchIcon from '@mui/icons-material/Search';
 import {
   PortalFieldType,
@@ -37,9 +28,7 @@ import {
   getPublicLocationsMini
 } from '../../../../slices/location';
 import { getAssetsMini, getPublicAssetsMini } from '../../../../slices/asset';
-import debounce from 'lodash.debounce';
-import { boolean, number, string } from 'yup';
-import { FIELD_DEFS } from '../../Settings/RequestPortal/components/RequestPortalModal';
+import { FIELD_DEFS } from '../../Settings/Features/RequestPortal/components/RequestPortalModal';
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------

@@ -28,7 +28,7 @@ import {
   RequestPortalField,
   RequestPortalPostDTO,
   PortalFieldType
-} from '../../../../../models/owns/requestPortal';
+} from '../../../../../../models/owns/requestPortal';
 
 import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined';
 import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
@@ -48,10 +48,10 @@ import {
   configsToFields,
   PreviewFieldConfig,
   SelectionMode
-} from '../../../components/form/RequestPortalPreview';
-import { AssetMiniDTO } from '../../../../../models/owns/asset';
-import { LocationMiniDTO } from '../../../../../models/owns/location';
-import RequestPortalPreview from '../../../components/form/RequestPortalPreview';
+} from '../../../../components/form/RequestPortalPreview';
+import { AssetMiniDTO } from '../../../../../../models/owns/asset';
+import { LocationMiniDTO } from '../../../../../../models/owns/location';
+import RequestPortalPreview from '../../../../components/form/RequestPortalPreview';
 
 // ---------------------------------------------------------------------------
 // Types

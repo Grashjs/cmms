@@ -17,11 +17,62 @@ const SettingsLayout = Loader(
 const GeneralSettings = Loader(
   lazy(() => import('../content/own/Settings/General'))
 );
-const WorkOrderSettings = Loader(
-  lazy(() => import('../content/own/Settings/WorkOrder'))
+const FeaturesSettings = Loader(
+  lazy(() => import('../content/own/Settings/Features'))
 );
+const WorkOrderSettings = Loader(
+  lazy(() => import('../content/own/Settings/Features/WorkOrder'))
+);
+const ConfigureFields = Loader(
+  lazy(
+    () => import('../content/own/Settings/Features/WorkOrder/ConfigureFields')
+  )
+);
+const RequestConfigureFields = Loader(
+  lazy(() => import('../content/own/Settings/Features/Request/ConfigureFields'))
+);
+const WorkOrderCustomFields = Loader(
+  lazy(() => import('../content/own/Settings/Features/WorkOrder/CustomFields'))
+);
+
 const RequestSettings = Loader(
-  lazy(() => import('../content/own/Settings/Request'))
+  lazy(() => import('../content/own/Settings/Features/Request'))
+);
+const AssetSettings = Loader(
+  lazy(() => import('../content/own/Settings/Features/Asset'))
+);
+const AssetCustomFields = Loader(
+  lazy(() => import('../content/own/Settings/Features/Asset/CustomFields'))
+);
+const LocationSettings = Loader(
+  lazy(() => import('../content/own/Settings/Features/Location'))
+);
+const LocationCustomFields = Loader(
+  lazy(() => import('../content/own/Settings/Features/Location/CustomFields'))
+);
+const PartsSettings = Loader(
+  lazy(() => import('../content/own/Settings/Features/Parts'))
+);
+const PartsCustomFields = Loader(
+  lazy(() => import('../content/own/Settings/Features/Parts/CustomFields'))
+);
+const MetersSettings = Loader(
+  lazy(() => import('../content/own/Settings/Features/Meters'))
+);
+const MetersCustomFields = Loader(
+  lazy(() => import('../content/own/Settings/Features/Meters/CustomFields'))
+);
+const ContractorsSettings = Loader(
+  lazy(() => import('../content/own/Settings/Features/Contractors'))
+);
+const ContractorsCustomFields = Loader(
+  lazy(() => import('../content/own/Settings/Features/Contractors/CustomFields'))
+);
+const VendorsSettings = Loader(
+  lazy(() => import('../content/own/Settings/Features/Vendors'))
+);
+const VendorsCustomFields = Loader(
+  lazy(() => import('../content/own/Settings/Features/Vendors/CustomFields'))
 );
 const RolesSettings = Loader(
   lazy(() => import('../content/own/Settings/Roles'))
@@ -30,13 +81,11 @@ const ChecklistsSettings = Loader(
   lazy(() => import('../content/own/Settings/Checklists'))
 );
 const WorkflowsSettings = Loader(
-  lazy(() => import('../content/own/Settings/Workflows'))
+  lazy(() => import('../content/own/Settings/Features/Workflows'))
 );
-const UIConfigurationSettings = Loader(
-  lazy(() => import('../content/own/Settings/UiConfiguration'))
-);
+
 const RequestPortalSettings = Loader(
-  lazy(() => import('../content/own/Settings/RequestPortal'))
+  lazy(() => import('../content/own/Settings/Features/RequestPortal'))
 );
 const IntegrationsSettings = Loader(
   lazy(() => import('../content/own/Settings/Integrations'))
@@ -126,20 +175,70 @@ const appRoutes = [
         element: <GeneralSettings />
       },
       {
-        path: 'work-order',
-        element: <WorkOrderSettings />
-      },
-      {
-        path: 'request',
-        element: <RequestSettings />
-      },
-      {
-        path: 'request-portals',
-        element: <RequestPortalSettings />
-      },
-      {
-        path: 'request-portals/:id',
-        element: <RequestPortalSettings />
+        path: 'features',
+        children: [
+          { index: true, element: <FeaturesSettings /> },
+          {
+            path: 'work-order',
+            children: [
+              { index: true, element: <WorkOrderSettings /> },
+              { path: 'configure-fields', element: <ConfigureFields /> },
+              { path: 'custom-fields', element: <WorkOrderCustomFields /> }
+            ]
+          },
+          {
+            path: 'request',
+            children: [
+              { index: true, element: <RequestSettings /> },
+              { path: 'configure-fields', element: <RequestConfigureFields /> }
+            ]
+          },
+          {
+            path: 'asset',
+            children: [
+              { index: true, element: <AssetSettings /> },
+              { path: 'custom-fields', element: <AssetCustomFields /> }
+            ]
+          },
+          {
+            path: 'location',
+            children: [
+              { index: true, element: <LocationSettings /> },
+              { path: 'custom-fields', element: <LocationCustomFields /> }
+            ]
+          },
+          {
+            path: 'parts',
+            children: [
+              { index: true, element: <PartsSettings /> },
+              { path: 'custom-fields', element: <PartsCustomFields /> }
+            ]
+          },
+          {
+            path: 'meters',
+            children: [
+              { index: true, element: <MetersSettings /> },
+              { path: 'custom-fields', element: <MetersCustomFields /> }
+            ]
+          },
+          {
+            path: 'contractors',
+            children: [
+              { index: true, element: <ContractorsSettings /> },
+              { path: 'custom-fields', element: <ContractorsCustomFields /> }
+            ]
+          },
+          {
+            path: 'vendors',
+            children: [
+              { index: true, element: <VendorsSettings /> },
+              { path: 'custom-fields', element: <VendorsCustomFields /> }
+            ]
+          },
+          { path: 'request-portals', element: <RequestPortalSettings /> },
+          { path: 'request-portals/:id', element: <RequestPortalSettings /> },
+          { path: 'workflows', element: <WorkflowsSettings /> }
+        ]
       },
       {
         path: 'roles',
@@ -149,8 +248,6 @@ const appRoutes = [
         path: 'checklists',
         element: <ChecklistsSettings />
       },
-      { path: 'workflows', element: <WorkflowsSettings /> },
-      { path: 'ui-configuration', element: <UIConfigurationSettings /> },
       {
         path: 'integrations',
         element: <IntegrationsSettings />,

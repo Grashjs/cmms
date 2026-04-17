@@ -1,0 +1,85 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="createCompanyCustomFieldTable" author="Ibrahima">
+        <createTable tableName="company_custom_field">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="label" type="VARCHAR(255)" remarks="Field label">
+                <constraints nullable="false"/>
+            </column>
+            <column name="field_type" type="VARCHAR(50)" remarks="Field type enum">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entity_type" type="VARCHAR(50)" remarks="Entity type enum (WORK_ORDER, ASSET)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="required" type="BOOLEAN" defaultValue="false" remarks="Whether this field is required">
+                <constraints nullable="false"/>
+            </column>
+            <column name="copy_on_repeat" type="BOOLEAN" defaultValue="false"
+                    remarks="Whether to copy field value on repeating work orders">
+                <constraints nullable="false"/>
+            </column>
+            <column name="company_settings_id" type="BIGINT" remarks="Foreign key to company_settings">
+                <constraints nullable="false" foreignKeyName="fk_company_custom_field_settings"
+                             references="company_settings(id)" deleteCascade="true"/>
+            </column>
+            <column name="created_by" type="BIGINT" remarks="User ID who created this record"/>
+            <column name="updated_by" type="BIGINT" remarks="User ID who updated this record"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueDate="CURRENT_TIMESTAMP"
+                    remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueDate="CURRENT_TIMESTAMP"
+                    remarks="Last update timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex tableName="company_custom_field" indexName="idx_company_custom_field_settings">
+            <column name="company_settings_id"/>
+        </createIndex>
+        <createIndex tableName="company_custom_field" indexName="idx_company_custom_field_type">
+            <column name="field_type"/>
+        </createIndex>
+        <createIndex tableName="company_custom_field" indexName="idx_company_custom_field_entity_type">
+            <column name="entity_type"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="createCompanyCustomFieldOptionsTable" author="Ibrahima">
+        <createTable tableName="company_custom_field_options">
+            <column name="field_id" type="BIGINT" remarks="Foreign key to company_custom_field">
+                <constraints nullable="false" foreignKeyName="fk_field_options_field"
+                             references="company_custom_field(id)" deleteCascade="true"/>
+            </column>
+            <column name="option_value" type="VARCHAR(255)" remarks="Option value">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex tableName="company_custom_field_options" indexName="idx_field_options_field_id">
+            <column name="field_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="1775756935263-1" author="Ibrahima G. Coulibaly">
+        <createSequence sequenceName="company_custom_field_seq"
+                        startValue="1" incrementBy="50"/>
+    </changeSet>
+    <changeSet id="1776074524677-1" author="Ibrahima G. Coulibaly">
+        <dropTable tableName="custom_field"/>
+        <renameTable oldTableName="company_custom_field" newTableName="custom_field"/>
+    </changeSet>
+    <changeSet id="1776352578703-1" author="Ibrahima G. Coulibaly">
+        <addColumn tableName="custom_field">
+            <column name="order" type="integer" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1776353939519-1" author="Ibrahima G. Coulibaly">
+        <renameColumn tableName="custom_field" oldColumnName="order" newColumnName="field_order"/>
+    </changeSet>
+</databaseChangeLog>
+

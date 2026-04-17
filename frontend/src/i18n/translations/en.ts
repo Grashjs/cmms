@@ -525,7 +525,7 @@ const locale = {
   file: 'File',
   'noRows.location.message':
     'Locations let you manage more efficiently assets and workers',
-  'noRows.location.action': "Press the '+' button to create a Location",
+  'noRows.location.action': "Press the '+' button to create a location",
   card_view: 'Card View',
   set_create_success: 'The Set has been created successfully',
   set_create_failure: "The Set couldn't be created",
@@ -1797,7 +1797,51 @@ const locale = {
   add_comment_placeholder: 'Add a comment...',
   post_comment: 'Post Comment',
   no_comments: 'No comments yet',
-  confirm_delete_comment: 'Are you sure you want to delete this comment?'
+  confirm_delete_comment: 'Are you sure you want to delete this comment?',
+  work_orders_settings_description:
+    'Customize Work Order preferences like Time & Cost Tracking, and more.',
+  requests_settings_description:
+    'Customize Request preferences like routing and required fields',
+  assets_settings_description:
+    'Customize Assets-related settings like Barcode Generation or Assets creation form.',
+  locations_settings_description:
+    'Create, manage and edit Locations within your Organization.',
+  parts_inventory_settings_description:
+    'Customize Parts Inventory form and preferences',
+  meters_settings_description: 'Customize Meters form and preferences',
+  vendors_contractors_settings_description:
+    'Manage external contractors and vendors your organization works with',
+  workflows_settings_description: 'Create and manage automated workflows',
+  request_portals_settings_description:
+    'Create, manage, and edit all Request Portals in your organization.',
+  set_preferences: 'Set Preferences',
+  enabled: 'Enabled',
+  disabled: 'Disabled',
+  go_to_request_portals: 'Go to Request Portals',
+  preferences: 'Preferences',
+  customize_work_order_form: 'Customize Work order form',
+  custom_fields: 'Custom Fields',
+  configure_fields: 'Configure fields',
+  add_custom_field: 'Add Custom Field',
+  edit_custom_field: 'Edit Custom Field',
+  confirm_delete_custom_field:
+    'Are you sure you want to delete this custom field?',
+  copy_on_repeat_wo: 'Copy the values of this field on repeating Work Orders',
+  do_not_copy: 'Do not copy',
+  enter_options_comma_separated: 'Enter options separated by commas',
+  field_type: 'Field Type',
+  options: 'Options',
+  short_text: 'Short Text',
+  long_text: 'Long Text',
+  number: 'Number',
+  date_time: 'Date & Time',
+  single_choice: 'Single Choice',
+  label: 'Label',
+  customize_form: 'Customize the form',
+  type_enter_to_add_option: 'Type and press enter to add an option',
+  customers_settings_description:
+    'Manage external contractors your organization works with.',
+  vendors_settings_description: 'Customize vendor-related settings'
 };
 
 export default locale;

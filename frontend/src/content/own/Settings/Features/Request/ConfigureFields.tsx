@@ -1,14 +1,16 @@
 import { Box, Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import SettingsLayout from '../SettingsLayout';
-import FieldsConfigurationForm from '../FieldsConfigurationForm';
-import useAuth from '../../../../hooks/useAuth';
-import FeatureErrorMessage from '../../components/FeatureErrorMessage';
-import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
+import FieldsConfigurationForm from '../../FieldsConfigurationForm';
+import useAuth from '../../../../../hooks/useAuth';
+import FeatureErrorMessage from '../../../components/FeatureErrorMessage';
+import { PlanFeature } from '../../../../../models/owns/subscriptionPlan';
+import { useContext, useEffect } from 'react';
+import { TitleContext } from '../../../../../contexts/TitleContext';
 
-function WorkOrderSettings() {
+function ConfigureRequestFields() {
   const { t }: { t: any } = useTranslation();
   const { hasFeature } = useAuth();
+  const { setTitle } = useContext(TitleContext);
 
   const fields = [
     { label: t('asset'), name: 'asset' },
@@ -21,6 +23,10 @@ function WorkOrderSettings() {
     { label: t('category'), name: 'category' },
     { label: t('team'), name: 'team' }
   ];
+
+  useEffect(() => {
+    setTitle(t('requests'));
+  }, []);
 
   return (
     <Grid item xs={12}>
@@ -44,4 +50,4 @@ function WorkOrderSettings() {
   );
 }
 
-export default WorkOrderSettings;
+export default ConfigureRequestFields;

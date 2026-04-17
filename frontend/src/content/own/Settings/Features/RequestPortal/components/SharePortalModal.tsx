@@ -18,7 +18,7 @@ import QrCodeIcon from '@mui/icons-material/QrCode';
 import DownloadIcon from '@mui/icons-material/Download';
 import PrintIcon from '@mui/icons-material/Print';
 import { QRCodeSVG } from 'qrcode.react';
-import { RequestPortal } from '../../../../../models/owns/requestPortal';
+import { RequestPortal } from '../../../../../../models/owns/requestPortal';
 
 interface SharePortalModalProps {
   open: boolean;

@@ -195,6 +195,10 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_04_06_00000000001_add_webhook_endpoint.xml"
              relativeToChangelogFile="true"/>
+     <include file="changelog/2026_04_08_00000000001_add_comment.xml"
+              relativeToChangelogFile="true"/>
+     <include file="changelog/2026_04_09_1712672400_create_company_custom_fields.xml"
+              relativeToChangelogFile="true"/>
     <include file="changelog/2026_04_08_00000000001_add_comment.xml"
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_04_10_1775841064_deduplicate_barcode.xml"
