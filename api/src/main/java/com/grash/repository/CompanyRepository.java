@@ -31,4 +31,6 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
     boolean existsAtLeastOneWithMinWorkOrders();
 
     boolean existsByLdapDomain(String ldapDomain);
+
+    Optional<Company> findByLdapDomain(String ldapDomain);
 }

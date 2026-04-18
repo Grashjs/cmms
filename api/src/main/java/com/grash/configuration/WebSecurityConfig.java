@@ -53,6 +53,7 @@ public class WebSecurityConfig {
         // Entry points
         http.authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/signin").permitAll()
+                        .requestMatchers("/auth/signin-ldap").permitAll()
                         .requestMatchers("/auth/signup").permitAll()
                         .requestMatchers("/auth/sso/**").permitAll()
                         .requestMatchers("/auth/sendMail").permitAll()

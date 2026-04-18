@@ -62,6 +62,18 @@ public class AuthController {
     }
 
     @PostMapping(
+            path = "/signin-ldap",
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public ResponseEntity<AuthResponse> signinLdap(
+            @Parameter(description = "LDAP login credentials") @Valid @RequestBody LdapLoginRequest ldapLoginRequest) {
+        AuthResponse authResponse = new AuthResponse(userService.signinLdap(ldapLoginRequest));
+        return new ResponseEntity<>(authResponse, HttpStatus.OK);
+    }
+
+    @PostMapping(
             path = "/signup",
             produces = {
                     MediaType.APPLICATION_JSON_VALUE

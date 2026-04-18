@@ -4,13 +4,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.support.LdapContextSource;
+import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.ldap.authentication.BindAuthenticator;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.security.ldap.authentication.LdapAuthenticator;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Configuration
 @ConditionalOnProperty(name = "ldap.enabled", havingValue = "true")
@@ -31,31 +39,32 @@ public class LdapSecurityConfig {
     @Value("${ldap.user-search-filter:}")
     private String ldapUserSearchFilter;
 
-    @Value("${ldap.group-search-base:}")
-    private String ldapGroupSearchBase;
-
-    @Value("${ldap.group-search-filter:}")
-    private String ldapGroupSearchFilter;
-
     @Value("${ldap.manager-dn:}")
     private String ldapManagerDn;
 
     @Value("${ldap.manager-password:}")
     private String ldapManagerPassword;
 
-    private final LdapUserDetailsMapper ldapUserDetailsMapper;
+    @Value("${ldap.attributes.email:mail}")
+    private String emailAttr;
 
-    public LdapSecurityConfig(LdapUserDetailsMapper ldapUserDetailsMapper) {
-        this.ldapUserDetailsMapper = ldapUserDetailsMapper;
-    }
+    @Value("${ldap.attributes.first-name:givenName}")
+    private String firstNameAttr;
 
+    @Value("${ldap.attributes.last-name:sn}")
+    private String lastNameAttr;
+
+    // ========================
+    // Context Source
+    // ========================
     @Bean
     public LdapContextSource contextSource() {
         LdapContextSource contextSource = new LdapContextSource();
         contextSource.setUrl(ldapUrl);
         contextSource.setBase(ldapBaseDn);
 
-        if (!ldapManagerDn.isBlank()) {
+        // Optional service account (needed for search mode)
+        if (ldapManagerDn != null && !ldapManagerDn.isBlank()) {
             contextSource.setUserDn(ldapManagerDn);
             contextSource.setPassword(ldapManagerPassword);
         }
@@ -64,23 +73,37 @@ public class LdapSecurityConfig {
         return contextSource;
     }
 
+    // ========================
+    // LDAP Template (optional)
+    // ========================
+    @Bean
+    public LdapTemplate ldapTemplate(LdapContextSource contextSource) {
+        return new LdapTemplate(contextSource);
+    }
+
+    // ========================
+    // Authenticator
+    // ========================
     @Bean
     public LdapAuthenticator ldapAuthenticator(LdapContextSource contextSource) {
 
-        // CASE 1: User search (recommended for AD / enterprise LDAP)
-        if (!ldapUserSearchBase.isBlank() && !ldapUserSearchFilter.isBlank()) {
-            return new BindAuthenticator(contextSource) {{
-                setUserSearch(new FilterBasedLdapUserSearch(
-                        ldapUserSearchBase,
-                        ldapUserSearchFilter,
-                        contextSource
-                ));
-            }};
+        if (ldapUserSearchBase != null && !ldapUserSearchBase.isBlank()
+                && ldapUserSearchFilter != null && !ldapUserSearchFilter.isBlank()) {
+
+            BindAuthenticator authenticator = new BindAuthenticator(contextSource);
+
+            authenticator.setUserSearch(new FilterBasedLdapUserSearch(
+                    ldapUserSearchBase,
+                    ldapUserSearchFilter,
+                    contextSource
+            ));
+
+            return authenticator;
         }
 
-        // CASE 2: DN pattern (simple LDAP)
         BindAuthenticator authenticator = new BindAuthenticator(contextSource);
-        if (!ldapUserDnPattern.isBlank()) {
+
+        if (ldapUserDnPattern != null && !ldapUserDnPattern.isBlank()) {
             authenticator.setUserDnPatterns(new String[]{ldapUserDnPattern});
         }
 
@@ -88,20 +111,67 @@ public class LdapSecurityConfig {
     }
 
     @Bean
+    public DefaultLdapAuthoritiesPopulator authoritiesPopulator(LdapContextSource contextSource) {
+        DefaultLdapAuthoritiesPopulator populator =
+                new DefaultLdapAuthoritiesPopulator(contextSource, null) {
+                    @Override
+                    protected Set<GrantedAuthority> getAdditionalRoles(DirContextOperations user, String username) {
+                        return new HashSet<>();
+                    }
+                };
+
+        populator.setIgnorePartialResultException(true);
+
+        return populator;
+    }
+
+    // ========================
+    // Attribute Mapper (ENV driven)
+    // ========================
+    @Bean
+    public LdapUserDetailsMapper ldapUserDetailsMapper() {
+        return new LdapUserDetailsMapper() {
+
+            @Override
+            public UserDetails mapUserFromContext(
+                    DirContextOperations ctx,
+                    String username,
+                    Collection<? extends GrantedAuthority> authorities
+            ) {
+
+                String email = getAttr(ctx, emailAttr);
+                String firstName = getAttr(ctx, firstNameAttr);
+                String lastName = getAttr(ctx, lastNameAttr);
+
+                return new CustomLdapUserDetails(
+                        username,
+                        "",
+                        authorities,
+                        firstName,
+                        lastName,
+                        email
+                );
+            }
+
+            private String getAttr(DirContextOperations ctx, String attr) {
+                try {
+                    return ctx.getStringAttribute(attr);
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+        };
+    }
+
+    // ========================
+    // Authentication Provider
+    // ========================
+    @Bean
     public LdapAuthenticationProvider ldapAuthenticationProvider(
             LdapAuthenticator authenticator,
-            LdapContextSource contextSource
+            DefaultLdapAuthoritiesPopulator authoritiesPopulator,
+            LdapUserDetailsMapper ldapUserDetailsMapper
     ) {
-
-        DefaultLdapAuthoritiesPopulator authoritiesPopulator =
-                new DefaultLdapAuthoritiesPopulator(
-                        contextSource,
-                        ldapGroupSearchBase
-                );
-
-        if (!ldapGroupSearchFilter.isBlank()) {
-            authoritiesPopulator.setGroupSearchFilter(ldapGroupSearchFilter);
-        }
 
         LdapAuthenticationProvider provider =
                 new LdapAuthenticationProvider(authenticator, authoritiesPopulator);
@@ -109,5 +179,38 @@ public class LdapSecurityConfig {
         provider.setUserDetailsContextMapper(ldapUserDetailsMapper);
 
         return provider;
+    }
+
+    public class CustomLdapUserDetails extends org.springframework.security.core.userdetails.User {
+
+        private final String firstName;
+        private final String lastName;
+        private final String email;
+
+        public CustomLdapUserDetails(
+                String username,
+                String password,
+                Collection<? extends GrantedAuthority> authorities,
+                String firstName,
+                String lastName,
+                String email
+        ) {
+            super(username, password, authorities);
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.email = email;
+        }
+
+        public String getFirstName() {
+            return firstName;
+        }
+
+        public String getLastName() {
+            return lastName;
+        }
+
+        public String getEmail() {
+            return email;
+        }
     }
 }

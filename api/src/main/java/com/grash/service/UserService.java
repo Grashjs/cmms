@@ -2,6 +2,7 @@ package com.grash.service;
 
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
+import com.grash.dto.LdapLoginRequest;
 import com.grash.dto.SignupSuccessResponse;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.UserPatchDTO;
@@ -25,6 +26,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
@@ -39,8 +41,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
+import org.springframework.ldap.core.AttributesMapper;
+import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.core.support.LdapContextSource;
+import org.springframework.ldap.filter.AndFilter;
+import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.stereotype.Service;
 
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 import java.io.IOException;
 import java.util.*;
 
@@ -74,6 +84,12 @@ public class UserService {
     private final LicenseService licenseService;
     private final CacheService cacheService;
 
+    @Autowired(required = false)
+    private LdapAuthenticationProvider ldapAuthenticationProvider;
+
+    @Autowired(required = false)
+    private LdapTemplate ldapTemplate;
+
     @Value("${api.host}")
     private String PUBLIC_API_URL;
     @Value("${frontend.url}")
@@ -88,6 +104,9 @@ public class UserService {
     private boolean cloudVersion;
     @Value("${allowed-organization-admins}")
     private String[] allowedOrganizationAdmins;
+
+    @Value("${ldap.domain:}")
+    private String ldapDomain;
 
 
     public String signin(String email, String password, String type) {
@@ -106,6 +125,119 @@ public class UserService {
         } catch (AuthenticationException e) {
             throw new CustomException("Invalid credentials", HttpStatus.FORBIDDEN);
         }
+    }
+
+    public String signinLdap(LdapLoginRequest ldapRequest) {
+        try {
+            if (ldapAuthenticationProvider == null) {
+                throw new CustomException("LDAP authentication is not enabled", HttpStatus.FORBIDDEN);
+            }
+
+            cacheService.evictUserFromCache(ldapRequest.getUsername());
+
+            UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(ldapRequest.getUsername(), ldapRequest.getPassword());
+            ldapAuthenticationProvider.authenticate(authToken); // throws AuthenticationException if fails
+
+            Map<String, String> ldapUserDetails = extractLdapUserDetails(ldapRequest.getUsername());
+
+            User user = findByLdapId(ldapRequest.getUsername());
+
+            if (user == null) {
+                user = new User();
+                user.setUsername(utils.generateStringId());
+                user.setLdapId(ldapRequest.getUsername());
+                user.setEmail(ldapUserDetails.get("email"));
+                user.setFirstName(ldapUserDetails.get("firstName"));
+                user.setLastName(ldapUserDetails.get("lastName"));
+                user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+                user.setEnabled(true);
+                user.setCreatedViaSso(true);
+                user.setSsoProvider("LDAP");
+                user.setLastLogin(new Date());
+
+                Role defaultRole = roleService.findDefaultRoles().stream()
+                        .filter(role -> role.getCode().equals(RoleCode.LIMITED_TECHNICIAN))
+                        .findFirst()
+                        .orElseThrow(() -> new CustomException("Default role not found",
+                                HttpStatus.INTERNAL_SERVER_ERROR));
+                user.setRole(defaultRole);
+
+                Company company = companyService.findByLdapDomain(ldapDomain)
+                        .orElseThrow(() -> new CustomException("No company available for LDAP user",
+                                HttpStatus.INTERNAL_SERVER_ERROR));
+                user.setCompany(company);
+            } else {
+                user.setLastLogin(new Date());
+            }
+
+            user = userRepository.save(user);
+            cacheService.putUserInCache(user);
+            return jwtTokenProvider.createToken(user.getEmail(),
+                    Collections.singletonList(user.getRole().getRoleType()));
+        } catch (AuthenticationException e) {
+            throw new CustomException("LDAP authentication failed: " + e.getMessage(), HttpStatus.FORBIDDEN);
+        }
+    }
+
+    private Map<String, String> extractLdapUserDetails(String username) {
+        Map<String, String> userDetails = new HashMap<>();
+
+        try {
+            AndFilter filter = new AndFilter();
+            filter.and(new EqualsFilter("objectClass", "person"));
+            filter.and(new EqualsFilter("sAMAccountName", username));
+
+            List<String> results = ldapTemplate.search("", filter.encode(), new AttributesMapper<String>() {
+                @Override
+                public String mapFromAttributes(Attributes attrs) throws NamingException {
+                    return attrs.get("dn").get().toString();
+                }
+            });
+
+            if (!results.isEmpty()) {
+                ldapTemplate.lookup(results.get(0), new String[]{"mail", "givenName", "sn"},
+                        new AttributesMapper<Object>() {
+                            @Override
+                            public Object mapFromAttributes(Attributes attrs) throws NamingException {
+                                String email = null;
+                                try {
+                                    email = (String) attrs.get("mail").get();
+                                } catch (Exception e) {
+                                    // mail attribute not found
+                                }
+                                String firstName = null;
+                                try {
+                                    firstName = (String) attrs.get("givenName").get();
+                                } catch (Exception e) {
+                                    // givenName attribute not found
+                                }
+                                String lastName = null;
+                                try {
+                                    lastName = (String) attrs.get("sn").get();
+                                } catch (Exception e) {
+                                    // sn (surname) attribute not found
+                                }
+
+                                userDetails.put("email", email != null ? email : username.toLowerCase() + "@ldap" +
+                                        ".local");
+                                userDetails.put("firstName", firstName != null ? firstName : username);
+                                userDetails.put("lastName", lastName != null ? lastName : "");
+                                return null;
+                            }
+                        });
+            } else {
+                userDetails.put("email", username.toLowerCase() + "@ldap.local");
+                userDetails.put("firstName", username);
+                userDetails.put("lastName", "");
+            }
+        } catch (Exception e) {
+            userDetails.put("email", username.toLowerCase() + "@ldap.local");
+            userDetails.put("firstName", username);
+            userDetails.put("lastName", "");
+        }
+
+        return userDetails;
     }
 
     private void onCompanyAndUserCreation(User user) {
