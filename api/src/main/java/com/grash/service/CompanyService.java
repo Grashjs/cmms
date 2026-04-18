@@ -44,10 +44,6 @@ public class CompanyService {
         return companyRepository.findById(id);
     }
 
-    public Optional<Company> findByLdapDomain(String domain) {
-        return companyRepository.findByLdapDomain(domain);
-    }
-
     @Transactional
     public Company update(Long id, CompanyPatchDTO company) {
         if (companyRepository.existsById(id)) {
@@ -62,7 +58,7 @@ public class CompanyService {
         return companyRepository.existsAtLeastOneWithMinWorkOrders();
     }
 
-    public boolean existsByLdapDomain(String ldapDomain) {
-        return companyRepository.existsByLdapDomain(ldapDomain);
+    public Optional<Company> findByOwnerEmailAndOwnsCompany(String email) {
+        return companyRepository.findByOwnerEmailAndOwnsCompany(email);
     }
 }

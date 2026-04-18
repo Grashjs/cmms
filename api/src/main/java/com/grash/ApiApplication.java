@@ -33,11 +33,6 @@ public class ApiApplication implements SmartInitializingSingleton {
     private final SubscriptionPlanService subscriptionPlanService;
     private final SubscriptionService subscriptionService;
 
-    @Value("${ldap.enabled:false}")
-    private boolean ldapEnabled;
-    @Value("${ldap.domain:}")
-    private String ldapDomain;
-
     public static void main(String[] args) {
         SpringApplication.run(ApiApplication.class, args);
     }
@@ -59,11 +54,6 @@ public class ApiApplication implements SmartInitializingSingleton {
             userService.checkUsageBasedLimit(0);
 
             generalPreferencesRepository.updateTemporaryTimeZones(ZoneId.systemDefault().getId());
-
-            if (ldapEnabled && ldapDomain != null && !ldapDomain.isEmpty() && !companyService.existsByLdapDomain(ldapDomain)) {
-                log.info("Initializing LDAP company...");
-                initializeLdapCompany(ldapDomain);
-            }
 
             log.info("Application initialization completed successfully");
         } catch (Exception e) {
@@ -169,20 +159,5 @@ public class ApiApplication implements SmartInitializingSingleton {
         signupRequest.setEmployeesCount(3);
         signupRequest.setLanguage(Language.EN);
         return signupRequest;
-    }
-
-    private void initializeLdapCompany(String ldapDomain) {
-        Subscription subscription = Subscription.builder()
-                .usersCount(300)
-                .monthly(true)
-                .startsOn(new Date())
-                .endsOn(null)
-                .subscriptionPlan(subscriptionPlanService.findByCode("BUSINESS").get())
-                .build();
-        subscriptionService.create(subscription);
-
-        Company company = new Company(ldapDomain, 100, subscription);
-        company.setLdapDomain(ldapDomain);
-        companyService.create(company);
     }
 }

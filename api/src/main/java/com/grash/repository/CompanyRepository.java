@@ -30,7 +30,6 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
             """, nativeQuery = true)
     boolean existsAtLeastOneWithMinWorkOrders();
 
-    boolean existsByLdapDomain(String ldapDomain);
-
-    Optional<Company> findByLdapDomain(String ldapDomain);
+    @Query("SELECT u.company from User u WHERE lower(u.email) = lower(:email) AND u.ownsCompany = true")
+    Optional<Company> findByOwnerEmailAndOwnsCompany(@Param("email") String email);
 }

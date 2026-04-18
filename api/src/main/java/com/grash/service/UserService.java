@@ -49,6 +49,7 @@ import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.stereotype.Service;
 
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import java.io.IOException;
@@ -105,8 +106,23 @@ public class UserService {
     @Value("${allowed-organization-admins}")
     private String[] allowedOrganizationAdmins;
 
-    @Value("${ldap.domain:}")
-    private String ldapDomain;
+    @Value("${ldap.org-admin:}")
+    private String ldapOrgAdmin;
+
+    @Value("${LDAP_ATTR_EMAIL:mail}")
+    private String ldapAttrEmail;
+
+    @Value("${LDAP_ATTR_FIRSTNAME:givenName}")
+    private String ldapAttrFirstName;
+
+    @Value("${LDAP_ATTR_LASTNAME:sn}")
+    private String ldapAttrLastName;
+
+    @Value("${ldap.attributes.username:uid}")
+    private String usernameAttr;
+
+    @Value("${ldap.attributes.object-class:inetOrgPerson}")
+    private String objectClassAttr;
 
 
     public String signin(String email, String password, String type) {
@@ -139,11 +155,11 @@ public class UserService {
                     new UsernamePasswordAuthenticationToken(ldapRequest.getUsername(), ldapRequest.getPassword());
             ldapAuthenticationProvider.authenticate(authToken); // throws AuthenticationException if fails
 
-            Map<String, String> ldapUserDetails = extractLdapUserDetails(ldapRequest.getUsername());
 
             User user = findByLdapId(ldapRequest.getUsername());
 
             if (user == null) {
+                Map<String, String> ldapUserDetails = extractLdapUserDetails(ldapRequest.getUsername());
                 user = new User();
                 user.setUsername(utils.generateStringId());
                 user.setLdapId(ldapRequest.getUsername());
@@ -163,7 +179,7 @@ public class UserService {
                                 HttpStatus.INTERNAL_SERVER_ERROR));
                 user.setRole(defaultRole);
 
-                Company company = companyService.findByLdapDomain(ldapDomain)
+                Company company = companyService.findByOwnerEmailAndOwnsCompany(ldapOrgAdmin)
                         .orElseThrow(() -> new CustomException("No company available for LDAP user",
                                 HttpStatus.INTERNAL_SERVER_ERROR));
                 user.setCompany(company);
@@ -183,58 +199,71 @@ public class UserService {
     private Map<String, String> extractLdapUserDetails(String username) {
         Map<String, String> userDetails = new HashMap<>();
 
+        // ALWAYS derived from username (single source of truth)
+        String safeUsername = (username == null || username.isBlank()) ? "unknown" : username;
+        String safeEmail = safeUsername.contains("@") ? safeUsername : safeUsername + "@local";
+
+        userDetails.put("email", safeEmail);
+        userDetails.put("firstName", safeUsername);
+        userDetails.put("lastName", "");
+        userDetails.put("source", "fallback");
+
         try {
-            AndFilter filter = new AndFilter();
-            filter.and(new EqualsFilter("objectClass", "person"));
-            filter.and(new EqualsFilter("sAMAccountName", username));
-
-            List<String> results = ldapTemplate.search("", filter.encode(), new AttributesMapper<String>() {
-                @Override
-                public String mapFromAttributes(Attributes attrs) throws NamingException {
-                    return attrs.get("dn").get().toString();
-                }
-            });
-
-            if (!results.isEmpty()) {
-                ldapTemplate.lookup(results.get(0), new String[]{"mail", "givenName", "sn"},
-                        new AttributesMapper<Object>() {
-                            @Override
-                            public Object mapFromAttributes(Attributes attrs) throws NamingException {
-                                String email = null;
-                                try {
-                                    email = (String) attrs.get("mail").get();
-                                } catch (Exception e) {
-                                    // mail attribute not found
-                                }
-                                String firstName = null;
-                                try {
-                                    firstName = (String) attrs.get("givenName").get();
-                                } catch (Exception e) {
-                                    // givenName attribute not found
-                                }
-                                String lastName = null;
-                                try {
-                                    lastName = (String) attrs.get("sn").get();
-                                } catch (Exception e) {
-                                    // sn (surname) attribute not found
-                                }
-
-                                userDetails.put("email", email != null ? email : username.toLowerCase() + "@ldap" +
-                                        ".local");
-                                userDetails.put("firstName", firstName != null ? firstName : username);
-                                userDetails.put("lastName", lastName != null ? lastName : "");
-                                return null;
-                            }
-                        });
-            } else {
-                userDetails.put("email", username.toLowerCase() + "@ldap.local");
-                userDetails.put("firstName", username);
-                userDetails.put("lastName", "");
+            if (ldapTemplate == null || usernameAttr == null || objectClassAttr == null) {
+                return userDetails;
             }
-        } catch (Exception e) {
-            userDetails.put("email", username.toLowerCase() + "@ldap.local");
-            userDetails.put("firstName", username);
-            userDetails.put("lastName", "");
+
+            EqualsFilter filter = new EqualsFilter(usernameAttr, safeUsername);
+
+            AndFilter andFilter = new AndFilter();
+            andFilter.and(new EqualsFilter("objectClass", objectClassAttr));
+            andFilter.and(filter);
+
+            List<Map<String, String>> results = ldapTemplate.search(
+                    "",
+                    andFilter.encode(),
+                    (AttributesMapper<Map<String, String>>) attrs -> {
+                        Map<String, String> details = new HashMap<>();
+
+                        try {
+                            if (attrs.get(ldapAttrEmail) != null && attrs.get(ldapAttrEmail).get() != null) {
+                                details.put("email", attrs.get(ldapAttrEmail).get().toString());
+                            }
+                            if (attrs.get(ldapAttrFirstName) != null && attrs.get(ldapAttrFirstName).get() != null) {
+                                details.put("firstName", attrs.get(ldapAttrFirstName).get().toString());
+                            }
+                            if (attrs.get(ldapAttrLastName) != null && attrs.get(ldapAttrLastName).get() != null) {
+                                details.put("lastName", attrs.get(ldapAttrLastName).get().toString());
+                            }
+                        } catch (Exception ignored) {
+                            // ignore attribute errors
+                        }
+
+                        return details;
+                    }
+            );
+
+            if (results != null && !results.isEmpty() && results.get(0) != null) {
+                Map<String, String> ldapData = results.get(0);
+
+                if (ldapData.get("email") != null && !ldapData.get("email").isBlank()) {
+                    userDetails.put("email", ldapData.get("email"));
+                }
+
+                if (ldapData.get("firstName") != null && !ldapData.get("firstName").isBlank()) {
+                    userDetails.put("firstName", ldapData.get("firstName"));
+                }
+
+                if (ldapData.get("lastName") != null && !ldapData.get("lastName").isBlank()) {
+                    userDetails.put("lastName", ldapData.get("lastName"));
+                }
+
+                userDetails.put("source", "ldap");
+            }
+
+        } catch (Throwable ignored) {
+            // NEVER BREAK LOGIN FLOW
+            userDetails.put("source", "fallback");
         }
 
         return userDetails;

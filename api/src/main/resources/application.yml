@@ -156,7 +156,7 @@ ldap:
   manager-password: ${LDAP_MANAGER_PASSWORD:}
 
   # Multi-tenant
-  domain: ${LDAP_DOMAIN:}
+  org-admin: ${LDAP_ORG_ADMIN:}
 
   #  # Connection
   #  connect-timeout: ${LDAP_CONNECT_TIMEOUT:5000}
@@ -167,6 +167,8 @@ ldap:
     email: ${LDAP_ATTR_EMAIL:mail}
     first-name: ${LDAP_ATTR_FIRSTNAME:givenName}
     last-name: ${LDAP_ATTR_LASTNAME:sn}
+    username: ${LDAP_ATTR_USERNAME:uid}
+    object-class: ${LDAP_OBJECT_CLASS:inetOrgPerson}
 
 paddle:
   api-key: ${PADDLE_API_KEY:}
