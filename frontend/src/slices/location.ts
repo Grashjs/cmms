@@ -5,9 +5,13 @@ import Location, {
   LocationMiniDTO,
   LocationRow
 } from '../models/owns/location';
-import api from '../utils/api';
+import api, { authHeader } from '../utils/api';
 import { revertAll } from 'src/utils/redux';
 import { Pageable, pageableToQueryParams } from '../models/owns/page';
+import {
+  createCancellableRequest,
+  isAbortError
+} from 'src/utils/cancellableRequest';
 
 interface LocationState {
   locations: Location[];
@@ -112,24 +116,51 @@ const slice = createSlice({
 export const reducer = slice.reducer;
 
 export const getLocations = (): AppThunk => async (dispatch) => {
-  const locations = await api.get<Location[]>('locations');
-  dispatch(slice.actions.getLocations({ locations }));
+  const { signal } = createCancellableRequest();
+  try {
+    const locations = await api.get<Location[]>('locations', { signal });
+    dispatch(slice.actions.getLocations({ locations }));
+  } catch (error) {
+    if (isAbortError(error)) return;
+    throw error;
+  }
 };
 export const getLocationsMini = (): AppThunk => async (dispatch) => {
+  const { signal } = createCancellableRequest();
   try {
     dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const locations = await api.get<LocationMiniDTO[]>('locations/mini');
+    const locations = await api.get<LocationMiniDTO[]>('locations/mini', {
+      signal
+    });
 
     dispatch(slice.actions.getLocationsMini({ locations }));
+  } catch (error) {
+    if (isAbortError(error)) return;
+    throw error;
   } finally {
     dispatch(slice.actions.setLoadingGet({ loading: false }));
   }
 };
+export const getPublicLocationsMini =
+  (portalUUID: string): AppThunk =>
+  async (dispatch) => {
+    try {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      const locations = await api.get<LocationMiniDTO[]>(
+        `locations/public/mini/${portalUUID}`,
+        { headers: authHeader(true) }
+      );
+      dispatch(slice.actions.getLocationsMini({ locations }));
+    } finally {
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    }
+  };
 export const addLocation =
   (location): AppThunk =>
   async (dispatch) => {
     const locationResponse = await api.post<Location>('locations', location);
     dispatch(slice.actions.addLocation({ location: locationResponse }));
+    return locationResponse;
   };
 export const editLocation =
   (id: number, location): AppThunk =>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="1765045582-1" author="Ibrahima">
+        <addColumn tableName="work_order">
+            <column name="signature" type="text"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1765045919612-1" author="Ibrahima G. Coulibaly">
+        <addColumn tableName="work_order_aud">
+            <column name="signature" type="text"></column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

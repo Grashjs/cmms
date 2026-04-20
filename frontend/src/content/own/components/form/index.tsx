@@ -1,56 +1,29 @@
 import {
-  Autocomplete,
   Box,
   Button,
-  Card,
   CircularProgress,
   Grid,
-  IconButton,
-  Link,
   TextField,
-  Typography
+  Typography,
+  useTheme
 } from '@mui/material';
-import { ErrorMessage, Formik, FormikProps, useFormikContext } from 'formik';
+import { Formik, FormikProps } from 'formik';
 import { useTranslation } from 'react-i18next';
 import FormikErrorFocus from 'formik-error-focus';
 import * as Yup from 'yup';
 import { ObjectSchema } from 'yup';
 import { IField, IHash } from '../../type';
-import { InputAdornment } from '@mui/material'; // Added InputAdornment
-import SearchIcon from '@mui/icons-material/Search'; // Added SearchIcon
 import CheckBoxForm from './CheckBoxForm';
 import Field from './Field';
-import SelectForm from './SelectForm';
 import FileUpload from '../FileUpload';
 import DateTimePicker from '@mui/lab/DateTimePicker';
-import SelectParts from './SelectParts';
-import { useDispatch, useSelector } from '../../../../store';
 import CustomSwitch from './CustomSwitch';
-import SelectTasksModal from './SelectTasks';
 import SelectMapCoordinates from './SelectMapCoordinates';
-import SelectAssetModal from './SelectAssetModal'; // Import the new modal
-import { getCustomersMini } from '../../../../slices/customer';
-import { getVendorsMini } from '../../../../slices/vendor';
-import { getLocationChildren, getLocationsMini } from 'src/slices/location';
-import { getUsersMini } from '../../../../slices/user';
-import { getAssetsMini } from '../../../../slices/asset';
-import { getTeamsMini } from '../../../../slices/team';
-import AssignmentTwoToneIcon from '@mui/icons-material/AssignmentTwoTone';
-import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
-import { useState } from 'react';
-import { getPriorityLabel } from '../../../../utils/formatters';
-import { getCategories } from '../../../../slices/category';
 import SelectPartQuantities from './SelectPartQuantities';
-import { getRoles } from '../../../../slices/role';
-import { getCurrencies } from '../../../../slices/currency';
-import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers-pro';
-import { AdapterDayjs } from '@mui/x-date-pickers-pro/AdapterDayjs';
 import useAuth from '../../../../hooks/useAuth';
-import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
-import ClearTwoToneIcon from '@mui/icons-material/ClearTwoTone';
 import { CustomSelect } from './CustomSelect2';
+import SignaturePad from './SignaturePad';
+import DateRangePicker from './DateRangePicker';
 
 interface PropsType {
   fields: Array<IField>;
@@ -66,6 +39,7 @@ interface PropsType {
 
 export default (props: PropsType) => {
   const { t }: { t: any } = useTranslation();
+  const theme = useTheme();
   const shape: IHash<any> = {};
   const {
     companySettings: { generalPreferences }
@@ -90,6 +64,15 @@ export default (props: PropsType) => {
     return formik.handleChange(field);
   };
 
+  const handleKeyDown =
+    (formik: FormikProps<IHash<any>>, multiple: boolean) =>
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey && !multiple) {
+        e.preventDefault();
+        formik.handleSubmit();
+      }
+    };
+
   const filterRelatedFields = (fields: IField[], formik): IField[] => {
     const fieldsClone = [...fields];
     const withRelatedFields = fields.filter(
@@ -99,6 +82,7 @@ export default (props: PropsType) => {
       relatedFields.forEach((relatedField) => {
         if (
           formik.values[name] === relatedField.value ||
+          formik.values[name]?.value === relatedField.value ||
           (type === 'switch' &&
             formik.values[name] &&
             (formik.values[name][0] === 'on') === relatedField.value) ||
@@ -138,7 +122,12 @@ export default (props: PropsType) => {
           <Grid container spacing={2}>
             {filterRelatedFields(props.fields, formik).map((field, index) => {
               return (
-                <Grid item xs={12} lg={field.midWidth ? 6 : 12} key={index}>
+                <Grid
+                  item
+                  xs={12}
+                  lg={field.midWidth ? 6 : 12}
+                  key={field.name}
+                >
                   {field.type === 'select' ? (
                     <CustomSelect field={field} handleChange={handleChange} />
                   ) : field.type === 'checkbox' ? (
@@ -175,9 +164,17 @@ export default (props: PropsType) => {
                         title={field.label}
                         type={field.fileType || 'file'}
                         description={t('upload')}
+                        files={
+                          Array.isArray(formik.values[field.name])
+                            ? formik.values[field.name]
+                            : formik.values[field.name]
+                            ? [formik.values[field.name]]
+                            : []
+                        }
                         onDrop={(files) => {
                           formik.setFieldValue(field.name, files);
                         }}
+                        error={formik.errors[field.name] || field.error}
                       />
                     </Box>
                   ) : field.type === 'date' ? (
@@ -204,8 +201,8 @@ export default (props: PropsType) => {
                             required={field?.required}
                             error={!!formik.errors[field.name] || field.error}
                             helperText={
-                              !!formik.errors[field.name] || field.error
-                                ? formik.errors[field.name]
+                              typeof formik.errors[field.name] === 'string'
+                                ? (formik.errors[field.name] as string)
                                 : ''
                             }
                           />
@@ -217,24 +214,21 @@ export default (props: PropsType) => {
                       <Box pb={1}>
                         <b>{field.label}:</b>
                       </Box>
-                      <LocalizationProvider
-                        localeText={{ start: t('start'), end: t('end') }}
-                        dateAdapter={AdapterDayjs}
-                      >
-                        <DateRangePicker
-                          value={formik.values[field.name] ?? [null, null]}
-                          onChange={(newValue) => {
-                            handleChange(formik, field.name, newValue);
-                          }}
-                          renderInput={(startProps, endProps) => (
-                            <>
-                              <TextField {...startProps} />
-                              <Box sx={{ mx: 2 }}> {t('to')} </Box>
-                              <TextField {...endProps} />
-                            </>
-                          )}
-                        />
-                      </LocalizationProvider>
+                      <DateRangePicker
+                        value={formik.values[field.name]}
+                        onChange={(range) => {
+                          handleChange(formik, field.name, range);
+                        }}
+                        fullWidth
+                        placeholder={t('select_date_range')}
+                        required={field?.required}
+                        error={!!formik.errors[field.name] || field.error}
+                        helperText={
+                          typeof formik.errors[field.name] === 'string'
+                            ? (formik.errors[field.name] as string)
+                            : ''
+                        }
+                      />
                     </Box>
                   ) : field.type === 'coordinates' ? (
                     <SelectMapCoordinates
@@ -248,6 +242,14 @@ export default (props: PropsType) => {
                       selected={formik.values[field.name] ?? []}
                       onChange={(newPartQuantities) => {
                         handleChange(formik, field.name, newPartQuantities);
+                      }}
+                    />
+                  ) : field.type === 'signature' ? (
+                    <SignaturePad
+                      label={field.label}
+                      value={formik.values[field.name]}
+                      onChange={(signature) => {
+                        formik.setFieldValue(field.name, signature);
                       }}
                     />
                   ) : (
@@ -264,6 +266,7 @@ export default (props: PropsType) => {
                       onChange={(e) => {
                         handleChange(formik, field.name, e.target.value);
                       }}
+                      onKeyDown={handleKeyDown(formik, field.multiple)}
                       error={!!formik.errors[field.name] || field.error}
                       errorMessage={formik.errors[field.name]}
                       fullWidth={field.fullWidth}

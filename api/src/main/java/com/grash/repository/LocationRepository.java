@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
@@ -18,9 +20,23 @@ public interface LocationRepository extends JpaRepository<Location, Long>, JpaSp
 
     List<Location> findByParentLocation_Id(Long id, Sort sort);
 
+    @Query("SELECT l FROM Location l " +
+            "LEFT JOIN FETCH l.parentLocation " +
+            "LEFT JOIN FETCH l.image " +
+            "WHERE l.company.id = :companyId")
+    List<Location> findByCompanyForExport(@Param("companyId") Long companyId);
+
     List<Location> findByNameIgnoreCaseAndCompany_Id(String locationName, Long companyId);
 
     Optional<Location> findByIdAndCompany_Id(Long id, Long companyId);
 
+    List<Location> findByIdInAndCompany_Id(List<Long> ids, Long companyId);
+
     int countByParentLocation_Id(Long locationId);
+
+    void deleteByCompany_IdAndIsDemoTrue(Long companyId);
+
+    @Query("SELECT CASE WHEN COUNT(l) > :threshold THEN true ELSE false END " +
+            "FROM Location l WHERE l.company.id = :companyId")
+    boolean hasMoreThan(@Param("companyId") Long companyId, @Param("threshold") Long threshold);
 }

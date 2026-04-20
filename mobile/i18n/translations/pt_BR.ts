@@ -188,6 +188,7 @@ const ptBRJSON = {
   employeesCount: 'Número de Funcionários',
   i_accept: 'Eu aceito os',
   terms_conditions: 'termos e condições',
+  required_fields_notice: 'Todos os campos marcados com * são obrigatórios.',
   create_your_account: 'Crie sua conta',
   register: 'Registrar',
   //signin
@@ -1061,6 +1062,12 @@ const ptBRJSON = {
   personal_details_description:
     'Gerencie informações relacionadas aos seus detalhes pessoais',
   change_password: 'Alterar Senha',
+  delete_account: 'Excluir conta',
+  delete_account_confirmation:
+    'Tem certeza de que deseja excluir sua conta? Essa ação não pode ser desfeita.',
+  account_deleted: 'Conta excluída com sucesso',
+  account_delete_error: 'Erro ao excluir a conta',
+  confirm_delete_account: 'Excluir conta',
   notification_settings: 'Configurações de Notificações',
   notification_settings_description:
     'Gerencie detalhes relacionados às suas notificações',
@@ -1469,6 +1476,17 @@ const ptBRJSON = {
   power: 'Potência',
   library: 'Biblioteca',
   camera: 'Câmera',
+  media_library: 'Biblioteca de fotos',
+  permission_required_title: 'Permissão necessária',
+  permission_required_message:
+    'O acesso a {{permission}} é necessário. Ative-o nas configurações do aplicativo.',
+  permission_denied_title: 'Permissão negada',
+  permission_denied_message:
+    'O acesso a {{permission}} é necessário para continuar.',
+  unable_to_request_permission:
+    'Não foi possível solicitar a permissão de {{permission}}.',
+  open_settings: 'Abrir configurações',
+  ok: 'OK',
   CANCELLED: 'Rejeitado',
   max_file_size_error:
     'O tamanho do arquivo não deve ser maior que {{size}} MB',

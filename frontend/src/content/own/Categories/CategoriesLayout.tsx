@@ -76,7 +76,7 @@ function CategoriesLayout(props: CategoriesLayoutProps) {
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const handleOpenAdd = () => setOpenAddCategoryModal(true);
   const handleCloseAdd = () => setOpenAddCategoryModal(false);
-  const { categories } = useSelector((state) => state.categories);
+  const { categories, loading } = useSelector((state) => state.categories);
   const { setTitle } = useContext(TitleContext);
   const dispatch = useDispatch();
   const {
@@ -496,6 +496,10 @@ function CategoriesLayout(props: CategoriesLayoutProps) {
                   </Fragment>
                 ))}
               </ListWrapper>
+            ) : loading[basePath] ? (
+              <Box display="flex" flexDirection="column" alignItems="center">
+                <CircularProgress />
+              </Box>
             ) : (
               <Box display="flex" flexDirection="column" alignItems="center">
                 <Typography variant="h4">

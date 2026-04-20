@@ -16,8 +16,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.ValidationException;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.xml.bind.ValidationException;
+
 import java.util.Map;
 
 @RestControllerAdvice
@@ -73,3 +74,4 @@ public class GlobalExceptionHandlerController {
     }
 
 }
+

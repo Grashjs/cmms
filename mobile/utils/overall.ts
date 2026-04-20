@@ -7,16 +7,16 @@ import { Priority, WorkOrderStatus } from '../models/workOrder';
 import { MD3Theme } from 'react-native-paper';
 import mime from 'mime';
 import ImagePicker from 'expo-image-picker';
+import { NativeSyntheticEvent } from 'react-native/Libraries/Types/CoreEventTypes';
+import { NativeScrollEvent } from 'react-native/Libraries/Components/ScrollView/ScrollView';
 
 export const canAddReading = (meter: Meter): boolean => {
   if (!meter) {
     return false;
   }
   if (!meter.nextReading) return true;
-  return (
-    sameDay(new Date(), new Date(meter.nextReading)) &&
-    !sameDay(new Date(), new Date(meter.lastReading))
-  );
+
+  return new Date() >= new Date(meter.nextReading);
 };
 
 export const getImageAndFiles = (
@@ -28,7 +28,7 @@ export const getImageAndFiles = (
       ? { id: files.find((file) => file.type === 'IMAGE').id }
       : imageFallback ?? null,
     files: files
-      .filter((file) => file.type === 'OTHER')
+      .filter((file) => file.type !== 'IMAGE')
       .map((file) => {
         return { id: file.id };
       })
@@ -174,3 +174,51 @@ export function formatImages(
     };
   });
 }
+
+export const isCloseToBottom = ({
+  layoutMeasurement,
+  contentOffset,
+  contentSize
+}: NativeSyntheticEvent<NativeScrollEvent>['nativeEvent']) => {
+  const threshold = layoutMeasurement.height * 0.5;
+  return (
+    layoutMeasurement.height + contentOffset.y >= contentSize.height - threshold
+  );
+};
+
+export interface FileUploadInput {
+  files: { id: number; type: FileType }[];
+  image: { id: number; type: FileType } | File[];
+}
+
+export interface FileUploadOutput {
+  image?: { id: number } | null;
+  files: Array<{ id: number }>;
+}
+export const handleFileUpload = async (
+  formattedValues: FileUploadInput,
+  uploadFiles: (
+    files: any[],
+    images: any[]
+  ) => Promise<{ id: number; type: FileType }[]>
+): Promise<FileUploadOutput> => {
+  const filesToUpload = formattedValues.files.filter((file) => !file.id);
+  const existingFiles = formattedValues.files.filter((file) => file.id);
+
+  const existingImage =
+    formattedValues.image && 'id' in formattedValues.image
+      ? formattedValues.image
+      : null;
+
+  const uploadedFiles = await uploadFiles(
+    filesToUpload,
+    existingImage ? [] : (formattedValues.image as File[])
+  );
+
+  const imageAndFiles = getImageAndFiles([...existingFiles, ...uploadedFiles]);
+
+  return {
+    image: existingImage || imageAndFiles.image,
+    files: imageAndFiles.files
+  };
+};

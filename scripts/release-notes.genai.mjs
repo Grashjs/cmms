@@ -1,13 +1,13 @@
 script({
     system: ["system"],
     temperature: 0.5,
-    model:"google:gemini-2.0-flash"
+    model:"google:gemini-2.5-flash"
 })
 
 const product = env.vars.product || "GenAIScript"
 
 // find previous tag
-const version  = "1.2.0"
+const version  = "1.5.0"
 const tag = await git.lastTag()
 const excludedPaths = [
     "package.json",
@@ -53,7 +53,7 @@ You are an expert software developer and release manager.
 ## Task
 
 Generate a clear, exciting, relevant, useful release notes
-for the upcoming release ${version} of ${product} on GitHub. 
+for the upcoming release ${version} of ${product} on GitHub for the selfhosted and cloud users. 
 
 - The commits in the release are in ${commitsName}.
 - The diff of the changes are in ${diffName}.

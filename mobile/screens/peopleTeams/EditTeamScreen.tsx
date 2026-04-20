@@ -35,17 +35,15 @@ export default function EditTeamScreen({
         validation={Yup.object().shape(shape)}
         navigation={navigation}
         submitText={t('save')}
-        values={
-          {
-            ...team,
-            users: team.users.map((user) => {
-              return {
-                label: `${user.firstName} ${user.lastName}`,
-                value: user.id
-              };
-            })
-          } || {}
-        }
+        values={{
+          ...team,
+          users: team.users.map((user) => {
+            return {
+              label: `${user.firstName} ${user.lastName}`,
+              value: user.id
+            };
+          })
+        }}
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           const newValues = { ...values };

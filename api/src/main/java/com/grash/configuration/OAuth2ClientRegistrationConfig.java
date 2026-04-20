@@ -29,34 +29,29 @@ public class OAuth2ClientRegistrationConfig {
         ClientRegistration registration;
         String clientId = System.getenv("OAUTH2_CLIENT_ID");
         String clientSecret = System.getenv("OAUTH2_CLIENT_SECRET");
-        switch (provider) {
-            case GOOGLE:
-                registration = CommonOAuth2Provider.GOOGLE
-                        .getBuilder("google")
-                        .clientId(clientId)
-                        .clientSecret(clientSecret)
-                        .redirectUri(PUBLIC_API_URL + "/oauth2/callback/{registrationId}")
-                        .scope("email", "profile")
-                        .build();
-                break;
-            case MICROSOFT:
-                registration = ClientRegistration.withRegistrationId("microsoft")
-                        .clientId(clientId)
-                        .clientSecret(clientSecret)
-                        .redirectUri(PUBLIC_API_URL + "/oauth2/callback/{registrationId}")
-                        .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                        .clientAuthenticationMethod(ClientAuthenticationMethod.POST)
-                        .scope("email", "profile", "openid")
-                        .authorizationUri("https://login.microsoftonline.com/common/oauth2/v2.0/authorize")
-                        .tokenUri("https://login.microsoftonline.com/common/oauth2/v2.0/token")
-                        .jwkSetUri("https://login.microsoftonline.com/common/discovery/v2.0/keys")
-                        .userInfoUri("https://graph.microsoft.com/oidc/userinfo")
-                        .userNameAttributeName("sub")
-                        .build();
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported provider: " + provider);
-        }
+        registration = switch (provider) {
+            case GOOGLE -> CommonOAuth2Provider.GOOGLE
+                    .getBuilder("google")
+                    .clientId(clientId)
+                    .clientSecret(clientSecret)
+                    .redirectUri(PUBLIC_API_URL + "/oauth2/callback/{registrationId}")
+                    .scope("email", "profile")
+                    .build();
+            case MICROSOFT -> ClientRegistration.withRegistrationId("microsoft")
+                    .clientId(clientId)
+                    .clientSecret(clientSecret)
+                    .redirectUri(PUBLIC_API_URL + "/oauth2/callback/{registrationId}")
+                    .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                    .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
+                    .scope("email", "profile", "openid")
+                    .authorizationUri("https://login.microsoftonline.com/common/oauth2/v2.0/authorize")
+                    .tokenUri("https://login.microsoftonline.com/common/oauth2/v2.0/token")
+                    .jwkSetUri("https://login.microsoftonline.com/common/discovery/v2.0/keys")
+                    .userInfoUri("https://graph.microsoft.com/oidc/userinfo")
+                    .userNameAttributeName("sub")
+                    .build();
+            default -> throw new IllegalArgumentException("Unsupported provider: " + provider);
+        };
         return new InMemoryClientRegistrationRepository(registration);
     }
 }

@@ -6,16 +6,15 @@ import com.grash.dto.VendorMiniDTO;
 import com.grash.dto.VendorPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.VendorMapper;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.Vendor;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.UserService;
 import com.grash.service.VendorService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -23,15 +22,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/vendors")
-@Api(tags = "vendor")
+@Tag(name = "Vendors", description = "Operations on vendors")
 @RequiredArgsConstructor
 public class VendorController {
 
@@ -41,8 +41,8 @@ public class VendorController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<Vendor>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    public ResponseEntity<Page<Vendor>> search(@Parameter(description = "Search criteria for filtering vendors") @RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
                 searchCriteria.filterCompany(user);
@@ -53,12 +53,9 @@ public class VendorController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Vendor not found")})
-    public Vendor getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+
+    public Vendor getById(@PathVariable("id") Long id, HttpServletRequest req) {
+        User user = userService.whoami(req);
         Optional<Vendor> optionalVendor = vendorService.findById(id);
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
@@ -70,22 +67,17 @@ public class VendorController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "AssetCategory not found")})
+
     public Collection<VendorMiniDTO> getMini(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         return vendorService.findByCompany(user.getCompany().getId()).stream().map(vendorMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public Vendor create(@ApiParam("Vendor") @Valid @RequestBody Vendor vendorReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    Vendor create(@Parameter(description = "Vendor data to create") @Valid @RequestBody Vendor vendorReq,
+                  HttpServletRequest req) {
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
             return vendorService.create(vendorReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -93,13 +85,12 @@ public class VendorController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Vendor not found")})
-    public Vendor patch(@ApiParam("Vendor") @Valid @RequestBody VendorPatchDTO vendor, @ApiParam("id") @PathVariable("id") Long id,
+
+    public Vendor patch(@Parameter(description = "Vendor fields to update") @Valid @RequestBody VendorPatchDTO vendor
+            , @PathVariable(
+                                "id") Long id,
                         HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Vendor> optionalVendor = vendorService.findById(id);
 
         if (optionalVendor.isPresent()) {
@@ -112,17 +103,14 @@ public class VendorController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Vendor not found")})
-    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
+        User user = userService.whoami(req);
 
         Optional<Vendor> optionalVendor = vendorService.findById(id);
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
-            if (savedVendor.getCreatedBy().equals(user.getId()) ||
+            if (user.getId().equals(savedVendor.getCreatedBy()) ||
                     user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
                 vendorService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
@@ -132,3 +120,5 @@ public class VendorController {
     }
 
 }
+
+

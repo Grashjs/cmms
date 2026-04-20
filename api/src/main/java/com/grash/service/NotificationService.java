@@ -6,7 +6,7 @@ import com.grash.dto.NotificationPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.NotificationMapper;
 import com.grash.model.Notification;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.PushNotificationToken;
 import com.grash.repository.NotificationRepository;
 import io.github.jav.exposerversdk.*;
@@ -35,14 +35,14 @@ public class NotificationService {
     private final SimpMessageSendingOperations messagingTemplate;
 
     @Async
-    public Notification create(Notification notification) {
+    public void create(Notification notification) {
         Notification savedNotification = notificationRepository.save(notification);
         messagingTemplate.convertAndSend("/notifications/" + notification.getUser().getId(), savedNotification);
-        return savedNotification;
     }
 
     @Async
     public void createMultiple(List<Notification> notifications, boolean mobile, String title) {
+        if (notifications.isEmpty()) return;
         List<Notification> savedNotifications = notificationRepository.saveAll(notifications);
         savedNotifications.forEach(notification ->
                 messagingTemplate.convertAndSend("/notifications/" + notification.getUser().getId(), notification));
@@ -90,7 +90,7 @@ public class NotificationService {
         return notificationRepository.findAll(builder.build(), page);
     }
 
-    public void sendPushNotifications(Collection<OwnUser> users, String title, String message,
+    public void sendPushNotifications(Collection<User> users, String title, String message,
                                       Map<String, Object> data) throws PushClientException, InterruptedException {
 
         List<String> tokens = new ArrayList<>();

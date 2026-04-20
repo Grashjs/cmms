@@ -37,10 +37,13 @@ import { reducer as assetAnalyticsReducer } from 'src/slices/analytics/asset';
 import { reducer as partAnalyticsReducer } from 'src/slices/analytics/part';
 import { reducer as requestAnalyticsReducer } from 'src/slices/analytics/request';
 import { reducer as userAnalyticsReducer } from 'src/slices/analytics/user';
-import { reducer as importsReducer } from 'src/slices/imports';
 import { reducer as exportsReducer } from 'src/slices/exports';
 import { reducer as workflowReducer } from 'src/slices/workflow';
 import { reducer as licenseReducer } from 'src/slices/license';
+import { reducer as requestPortalReducer } from 'src/slices/requestPortal';
+import { reducer as apiKeyReducer } from 'src/slices/apiKey';
+import { reducer as webhookEndpointReducer } from 'src/slices/webhookEndpoint';
+import { reducer as commentReducer } from 'src/slices/comment';
 
 const rootReducer = combineReducers({
   calendar: calendarReducer,
@@ -81,10 +84,13 @@ const rootReducer = combineReducers({
   partAnalytics: partAnalyticsReducer,
   requestAnalytics: requestAnalyticsReducer,
   userAnalytics: userAnalyticsReducer,
-  imports: importsReducer,
   exports: exportsReducer,
   workflows: workflowReducer,
-  license: licenseReducer
+  license: licenseReducer,
+  requestPortals: requestPortalReducer,
+  apiKeys: apiKeyReducer,
+  webhookEndpoints: webhookEndpointReducer,
+  comments: commentReducer
 });
 
 export default rootReducer;

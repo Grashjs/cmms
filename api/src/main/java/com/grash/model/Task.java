@@ -3,6 +3,7 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.CompanyAudit;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,11 +12,11 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.context.MessageSource;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,24 +27,27 @@ import java.util.Locale;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
+@Schema(description = "Task entity representing individual steps within a work order or preventive maintenance")
 public class Task extends CompanyAudit {
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
     private TaskBase taskBase;
 
+    @Schema(description = "Notes for the task")
     private String notes;
 
+    @Schema(description = "Value of the task (status, measurement, etc.)")
     private String value;
 
     @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
     private List<File> images = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private WorkOrder workOrder;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private PreventiveMaintenance preventiveMaintenance;
@@ -63,3 +67,5 @@ public class Task extends CompanyAudit {
         } else return value;
     }
 }
+
+

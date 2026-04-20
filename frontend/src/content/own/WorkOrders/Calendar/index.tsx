@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import frLocale from '@fullcalendar/core/locales/fr';
 import enLocale from '@fullcalendar/core/locales/en-gb';
-import FullCalendar from '@fullcalendar/react';
+import FullCalendar, { LocaleSingularArg } from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -27,7 +27,15 @@ import Actions from './Actions';
 import i18n from 'i18next';
 import PreventiveMaintenance from 'src/models/owns/preventiveMaintenance';
 import { usePrevious } from '../../../../hooks/usePrevious';
-import { supportedLanguages } from '../../../../i18n/i18n';
+import {
+  getCalendarLocale,
+  getDateLocale,
+  getSupportedLanguage,
+  supportedLanguages
+} from '../../../../i18n/i18n';
+import { Locale as DateLocale } from 'date-fns';
+import enGb from '@fullcalendar/core/locales/en-gb';
+import { useTranslation } from 'react-i18next';
 
 const FullCalendarWrapper = styled(Box)(
   ({ theme }) => `
@@ -135,7 +143,7 @@ function ApplicationsCalendar({
   handleOpenDetails
 }: OwnProps) {
   const theme = useTheme();
-
+  const { i18n } = useTranslation();
   const calendarRef = useRef<FullCalendar | null>(null);
   const mobile = useMediaQuery(theme.breakpoints.down('md'));
   const dispatch = useDispatch();
@@ -143,6 +151,12 @@ function ApplicationsCalendar({
   const [date, setDate] = useState<Date>(new Date());
   const [view, setView] = useState<View>('timeGridWeek');
   const getLanguage = i18n.language;
+  const [calendarLocale, setCalendarLocale] = useState<LocaleSingularArg>(enGb);
+
+  useEffect(() => {
+    getCalendarLocale(i18n.language).then(setCalendarLocale);
+  }, [i18n.language]);
+
   const viewsOrder: View[] = [
     'dayGridMonth',
     'timeGridWeek',
@@ -170,7 +184,11 @@ function ApplicationsCalendar({
     return {
       id: eventPayload.event.id.toString(),
       allDay: false,
-      color: getColor(eventPayload.event.priority),
+      color:
+        'status' in eventPayload.event &&
+        eventPayload.event.status === 'COMPLETE'
+          ? theme.colors.alpha.black[30]
+          : getColor(eventPayload.event.priority),
       description: eventPayload.event?.description,
       end: new Date(eventPayload.date),
       start: new Date(eventPayload.date),
@@ -242,59 +260,54 @@ function ApplicationsCalendar({
 
   return (
     <Grid item xs={12}>
-      <Card>
-        <Box p={3}>
-          <Actions
-            date={date}
-            onNext={handleDateNext}
-            onPrevious={handleDatePrev}
-            onToday={handleDateToday}
-            changeView={changeView}
-            view={view}
-          />
-        </Box>
-        <Divider />
-        <FullCalendarWrapper>
-          {loadingGet && (
-            <Stack position="absolute" top={'45%'} left={'45%'} zIndex={10}>
-              <CircularProgress size={64} />
-            </Stack>
+      <Box p={3}>
+        <Actions
+          date={date}
+          onNext={handleDateNext}
+          onPrevious={handleDatePrev}
+          onToday={handleDateToday}
+          changeView={changeView}
+          view={view}
+        />
+      </Box>
+      <Divider />
+      <FullCalendarWrapper>
+        {loadingGet && (
+          <Stack position="absolute" top={'45%'} left={'45%'} zIndex={10}>
+            <CircularProgress size={64} />
+          </Stack>
+        )}
+        <FullCalendar
+          allDayMaintainDuration
+          initialDate={date}
+          initialView={view}
+          locale={calendarLocale}
+          droppable
+          eventDisplay="block"
+          eventClick={(arg) =>
+            handleOpenDetails(
+              Number(arg.event.id),
+              arg.event.extendedProps.type
+            )
+          }
+          dateClick={(event) => handleAddWorkOrder(event.date)}
+          dayMaxEventRows={4}
+          events={calendar.events.map((eventPayload) =>
+            getEventFromWO(eventPayload)
           )}
-          <FullCalendar
-            allDayMaintainDuration
-            initialDate={date}
-            initialView={view}
-            locale={
-              supportedLanguages.find(({ code }) => code === getLanguage)
-                .calendarLocale
-            }
-            droppable
-            eventDisplay="block"
-            eventClick={(arg) =>
-              handleOpenDetails(
-                Number(arg.event.id),
-                arg.event.extendedProps.type
-              )
-            }
-            dateClick={(event) => handleAddWorkOrder(event.date)}
-            dayMaxEventRows={4}
-            events={calendar.events.map((eventPayload) =>
-              getEventFromWO(eventPayload)
-            )}
-            headerToolbar={false}
-            height={660}
-            ref={calendarRef}
-            rerenderDelay={10}
-            weekends
-            plugins={[
-              dayGridPlugin,
-              timeGridPlugin,
-              interactionPlugin,
-              listPlugin
-            ]}
-          />
-        </FullCalendarWrapper>
-      </Card>
+          headerToolbar={false}
+          height={660}
+          ref={calendarRef}
+          rerenderDelay={10}
+          weekends
+          plugins={[
+            dayGridPlugin,
+            timeGridPlugin,
+            interactionPlugin,
+            listPlugin
+          ]}
+        />
+      </FullCalendarWrapper>
     </Grid>
   );
 }

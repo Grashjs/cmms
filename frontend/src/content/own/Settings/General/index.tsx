@@ -1,35 +1,41 @@
 import {
   Box,
+  Button,
   debounce,
   Divider,
   Grid,
   MenuItem,
   Select,
+  Stack,
   TextField,
   Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import SettingsLayout from '../SettingsLayout';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import CustomSwitch from '../../components/form/CustomSwitch';
 import useAuth from '../../../../hooks/useAuth';
 import internationalization, {
+  loadLanguage,
   supportedLanguages
 } from '../../../../i18n/i18n';
 import { useDispatch, useSelector } from '../../../../store';
 import { getCurrencies } from '../../../../slices/currency';
-import { useContext, useEffect, useMemo } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { GeneralPreferences } from '../../../../models/owns/generalPreferences';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
+import ConfirmDialog from '../../components/ConfirmDialog';
+import api from '../../../../utils/api';
 
 function GeneralSettings() {
   const { t }: { t: any } = useTranslation();
-  const switchLanguage = ({ lng }: { lng: any }) => {
+  const [openDeleteDemo, setOpenDeleteDemo] = useState<boolean>(false);
+  const switchLanguage = async ({ lng }: { lng: any }) => {
+    await loadLanguage(lng);
     internationalization.changeLanguage(lng);
   };
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const { patchGeneralPreferences, companySettings } = useAuth();
+  const { patchGeneralPreferences, companySettings, hasFeature } = useAuth();
   const { generalPreferences } = companySettings;
   const dispatch = useDispatch();
   const { currencies } = useSelector((state) => state.currencies);
@@ -46,7 +52,24 @@ function GeneralSettings() {
     () => debounce(onDaysBeforePMNotifChange, 1300),
     []
   );
-
+  const onCsvSeparatorChange = (event) =>
+    patchGeneralPreferences({
+      csvSeparator: event.target.value
+    }).then(() => showSnackBar(t('changes_saved_success'), 'success'));
+  const debouncedCsvSeparatorChange = useMemo(
+    () => debounce(onCsvSeparatorChange, 1300),
+    []
+  );
+  const onDeleteDemoData = async () => {
+    const { success, message } = await api.deletes<{
+      success: boolean;
+      message: string;
+    }>('demo/demo-data');
+    if (success) {
+      showSnackBar('Demo data deleted successfully', 'success');
+      setOpenDeleteDemo(false);
+    }
+  };
   const switches: {
     title: string;
     description: string;
@@ -92,6 +115,14 @@ function GeneralSettings() {
     _values,
     { resetForm, setErrors, setStatus, setSubmitting }
   ) => {};
+
+  const timezones = useMemo(() => {
+    const supported = (Intl as any).supportedValuesOf('timeZone');
+    const current = generalPreferences.timeZone;
+    return current && !supported.includes(current)
+      ? [current, ...supported]
+      : supported;
+  }, [generalPreferences.timeZone]);
   return (
     <Grid item xs={12}>
       <Box p={4}>
@@ -100,6 +131,7 @@ function GeneralSettings() {
           validationSchema={Yup.object().shape({
             language: Yup.string(),
             dateFormat: Yup.string(),
+            timeZone: Yup.string(),
             currency: Yup.string(),
             businessType: Yup.string(),
             autoAssignWorkOrders: Yup.bool(),
@@ -171,6 +203,27 @@ function GeneralSettings() {
                     </Grid>
                     <Grid item xs={12}>
                       <Typography variant="h6" sx={{ mb: 0.5 }}>
+                        {t('time_zone')}
+                      </Typography>
+                      <Field
+                        onChange={(event) =>
+                          patchGeneralPreferences({
+                            timeZone: event.target.value
+                          })
+                        }
+                        value={generalPreferences.timeZone}
+                        as={Select}
+                        name="timeZone"
+                      >
+                        {timezones.map((timezone) => (
+                          <MenuItem key={timezone} value={timezone}>
+                            {timezone}
+                          </MenuItem>
+                        ))}
+                      </Field>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="h6" sx={{ mb: 0.5 }}>
                         {t('currency')}
                       </Typography>
                       <Field
@@ -219,6 +272,18 @@ function GeneralSettings() {
                         ))}
                       </TextField>
                     </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="h6" sx={{ mb: 0.5 }}>
+                        {t('csv_separator')}
+                      </Typography>
+                      <TextField
+                        onChange={debouncedCsvSeparatorChange}
+                        type={'text'}
+                        defaultValue={generalPreferences.csvSeparator}
+                        name="csvSeparator"
+                        sx={{ maxWidth: '50px' }}
+                      />
+                    </Grid>
                     {/*<Grid item xs={12}>
                         <Typography variant="h6" sx={{ mb: 0.5 }}>
                           {t('business_type')}
@@ -260,6 +325,23 @@ function GeneralSettings() {
                       />
                     ))}
                   </Grid>
+                  <Divider sx={{ my: 3 }} />
+                  <Stack direction={'row'} spacing={2}>
+                    <Button
+                      onClick={() => setOpenDeleteDemo(true)}
+                      variant={'outlined'}
+                      color={'error'}
+                    >
+                      {t('delete_demo_data')}
+                    </Button>
+                  </Stack>
+                  <ConfirmDialog
+                    open={openDeleteDemo}
+                    onCancel={() => setOpenDeleteDemo(false)}
+                    onConfirm={onDeleteDemoData}
+                    confirmText={'Delete'}
+                    question={'Are you sure you want to delete demo data?'}
+                  />
                 </Grid>
               </Grid>
             </form>

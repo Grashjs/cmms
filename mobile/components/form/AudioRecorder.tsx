@@ -1,9 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Button, View, Text, TouchableOpacity, Alert } from 'react-native';
-import { Audio } from 'expo-av';
+import React, { useMemo, useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { IFile } from '../../models/file';
 import { IconButton, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import {
+  AudioQuality,
+  IOSOutputFormat,
+  requestRecordingPermissionsAsync,
+  setAudioModeAsync,
+  useAudioPlayer,
+  useAudioPlayerStatus,
+  useAudioRecorder,
+  type RecordingOptions
+} from 'expo-audio';
 
 export default function AudioRecorder({
   title,
@@ -12,16 +21,69 @@ export default function AudioRecorder({
   title: string;
   onChange: (audio: IFile) => void;
 }) {
-  const [recording, setRecording] = useState(null);
-  const [recordingURI, setRecordingURI] = useState(null);
+  const [recordingURI, setRecordingURI] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
-  const [sound, setSound] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackStatus, setPlaybackStatus] = useState<
+    'idle' | 'playing' | 'paused'
+  >('idle');
   const theme = useTheme();
   const { t } = useTranslation();
+  const recordingOptions = useMemo<RecordingOptions>(
+    () => ({
+      extension: '.m4a',
+      sampleRate: 44100,
+      numberOfChannels: 2,
+      bitRate: 128000,
+      android: {
+        extension: '.m4a',
+        outputFormat: 'mpeg4',
+        audioEncoder: 'aac',
+        sampleRate: 44100
+      },
+      ios: {
+        extension: '.m4a',
+        outputFormat: IOSOutputFormat.MPEG4AAC,
+        audioQuality: AudioQuality.MEDIUM,
+        sampleRate: 44100
+      },
+      web: {}
+    }),
+    []
+  );
+  const recorder = useAudioRecorder(recordingOptions);
+  const player = useAudioPlayer(recordingURI ? { uri: recordingURI } : null);
+  const playerStatus = useAudioPlayerStatus(player);
+
+  useEffect(() => {
+    if (recordingURI) {
+      player.replace({ uri: recordingURI });
+    }
+  }, [player, recordingURI]);
+
+  useEffect(() => {
+    if (!playerStatus) return;
+
+    if (playerStatus.didJustFinish) {
+      player.pause();
+      player
+        .seekTo(0)
+        .catch((error) => console.error('Failed to reset playback', error));
+      setPlaybackStatus('idle');
+      return;
+    }
+
+    if (playerStatus.playing) {
+      setPlaybackStatus('playing');
+    } else if (playerStatus.currentTime > 0) {
+      setPlaybackStatus('paused');
+    } else {
+      setPlaybackStatus('idle');
+    }
+  }, [player, playerStatus]);
+
   const startRecording = async () => {
     try {
-      const permissionResponse = await Audio.requestPermissionsAsync();
+      const permissionResponse = await requestRecordingPermissionsAsync();
 
       if (permissionResponse.status !== 'granted') {
         Alert.alert(
@@ -32,31 +94,18 @@ export default function AudioRecorder({
       }
 
       // Set audio mode
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true
+      await setAudioModeAsync({
+        allowsRecording: true,
+        playsInSilentMode: true,
+        interruptionMode: 'mixWithOthers',
+        shouldPlayInBackground: false,
+        shouldRouteThroughEarpiece: false
       });
-      const recording = new Audio.Recording();
-      await recording.prepareToRecordAsync({
-        web: undefined,
-        android: {
-          extension: '.m4a',
-          outputFormat: Audio.AndroidOutputFormat.AMR_NB,
-          audioEncoder: Audio.AndroidAudioEncoder.AMR_NB,
-          sampleRate: 44100,
-          numberOfChannels: 2,
-          bitRate: 128000
-        },
-        ios: {
-          extension: '.caf',
-          audioQuality: Audio.IOSAudioQuality.MEDIUM,
-          sampleRate: 44100,
-          numberOfChannels: 2,
-          bitRate: 128000
-        }
-      });
-      await recording.startAsync();
-      setRecording(recording);
+      setPlaybackStatus('idle');
+      setRecordingURI(null);
+
+      await recorder.prepareToRecordAsync(recordingOptions);
+      recorder.record();
       setIsRecording(true);
     } catch (error) {
       console.error('Failed to start recording', error);
@@ -64,41 +113,50 @@ export default function AudioRecorder({
   };
 
   const stopRecording = async () => {
-    setIsRecording(false);
-    await recording.stopAndUnloadAsync();
-    const uri = recording.getURI();
-    setRecordingURI(uri);
-    onChange({ uri, name: title, type: 'audio/mp4' });
-    setRecording(null);
+    try {
+      setIsRecording(false);
+      await recorder.stop();
+      const uri = recorder.uri;
+      if (uri) {
+        setRecordingURI(uri);
+        const sanitizedTitle = title
+          ? title.replace(/[^a-z0-9]/gi, '_').toLowerCase()
+          : 'audio_recording';
+        onChange({
+          uri,
+          name: `${sanitizedTitle}.m4a`,
+          type: 'audio/m4a'
+        });
+      }
+    } catch (error) {
+      console.error('Failed to stop recording', error);
+    }
   };
 
   const playRecording = async () => {
     try {
-      const { sound } = await Audio.Sound.createAsync({ uri: recordingURI });
-      setSound(sound);
-      await sound.playAsync();
-      setIsPlaying(true);
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if ('isPlaying' in status && !status.isPlaying) {
-          setIsPlaying(false);
-        }
-      });
+      if (!recordingURI) return;
+
+      player.play();
     } catch (error) {
       console.error('Failed to play recording', error);
     }
   };
 
   const pausePlayback = async () => {
-    if (sound) {
-      await sound.pauseAsync();
-      setIsPlaying(false);
+    try {
+      player.pause();
+    } catch (error) {
+      console.error('Failed to pause playback', error);
     }
   };
 
   const stopPlayback = async () => {
-    if (sound) {
-      await sound.stopAsync();
-      setIsPlaying(false);
+    try {
+      player.pause();
+      await player.seekTo(0);
+    } catch (error) {
+      console.error('Failed to stop playback', error);
     }
   };
 
@@ -117,21 +175,31 @@ export default function AudioRecorder({
         <Text>{isRecording ? t('stop_recording') : t('start_recording')}</Text>
       </TouchableOpacity>
 
-      {recordingURI && !isPlaying && (
-        <IconButton
-          icon="play"
-          iconColor={theme.colors.primary}
-          onPress={playRecording}
-        />
-      )}
-      {isPlaying && (
-        <View style={{ display: 'flex', flexDirection: 'row' }}>
-          <IconButton icon="pause" onPress={pausePlayback} />
-          <IconButton
-            icon="stop"
-            iconColor={theme.colors.error}
-            onPress={stopPlayback}
-          />
+      {recordingURI && (
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center'
+          }}
+        >
+          {playbackStatus !== 'playing' && (
+            <IconButton
+              icon="play"
+              iconColor={theme.colors.primary}
+              onPress={playRecording}
+            />
+          )}
+          {playbackStatus === 'playing' && (
+            <IconButton icon="pause" onPress={pausePlayback} />
+          )}
+          {(playbackStatus === 'playing' || playbackStatus === 'paused') && (
+            <IconButton
+              icon="stop"
+              iconColor={theme.colors.error}
+              onPress={stopPlayback}
+            />
+          )}
         </View>
       )}
     </View>

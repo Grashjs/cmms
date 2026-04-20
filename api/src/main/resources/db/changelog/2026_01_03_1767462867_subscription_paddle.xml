@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="1767462867-1" author="Ibrahima G. Coulibaly">
+        <dropColumn tableName="subscription" columnName="fast_spring_id"/>
+        <addColumn tableName="subscription">
+            <column name="paddle_subscription_id" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1767464810979-1" author="Ibrahima (generated)">
+        <addColumn tableName="subscription_plan">
+            <column name="monthly_paddle_price_id" type="varchar"/>
+            <column name="yearly_paddle_price_id" type="varchar"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1767471062837-1" author="Ibrahima (generated)">
+        <addColumn tableName="subscription">
+            <column name="scheduled_change_date" type="timestamp"/>
+            <column name="scheduled_change_type" type="integer"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1767471412649-1" author="Ibrahima (generated)">
+        <dropColumn tableName="subscription" columnName="cancelled"/>
+    </changeSet>
+</databaseChangeLog>

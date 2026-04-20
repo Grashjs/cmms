@@ -9,12 +9,10 @@ import {
   DialogContent,
   DialogTitle,
   Drawer,
-  Grid,
   IconButton,
   Menu,
   MenuItem,
   Stack,
-  styled,
   Typography,
   useTheme
 } from '@mui/material';
@@ -26,36 +24,21 @@ import {
   getAssets,
   resetAssetsHierarchy
 } from '../../../slices/asset';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useDispatch, useSelector } from '../../../store';
 import * as React from 'react';
-import ReplayTwoToneIcon from '@mui/icons-material/ReplayTwoTone';
 import { useContext, useEffect, useMemo, useState } from 'react';
+import ReplayTwoToneIcon from '@mui/icons-material/ReplayTwoTone';
 import { TitleContext } from '../../../contexts/TitleContext';
-import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import CustomDataGrid, {
-  CustomDatagridColumn
-} from '../components/CustomDatagrid';
-import {
-  GridEventListener,
-  GridRenderCellParams,
-  GridRow,
-  GridToolbar,
-  GridValueGetterParams
-} from '@mui/x-data-grid';
+import CustomDatagrid2, {
+  CustomDatagridColumn2
+} from '../components/CustomDatagrid2';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
-import {
-  AssetDTO,
-  AssetMiniDTO,
-  AssetRow,
-  AssetStatus
-} from '../../../models/owns/asset';
+import { AssetDTO, AssetRow } from '../../../models/owns/asset';
 import Form from '../components/form';
 import * as Yup from 'yup';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { DataGridProProps, useGridApiRef } from '@mui/x-data-grid-pro';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { formatAssetValues } from '../../../utils/formatters';
-import { GroupingCellWithLazyLoading } from './GroupingCellWithLazyLoading';
-import { UserMiniDTO } from '../../../models/user';
 import UserAvatars from '../components/UserAvatars';
 import { enumerate } from '../../../utils/displayers';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
@@ -64,14 +47,9 @@ import { getAssetUrl } from '../../../utils/urlPaths';
 import useAuth from '../../../hooks/useAuth';
 import { PermissionEntity } from '../../../models/owns/role';
 import PermissionErrorMessage from '../components/PermissionErrorMessage';
-import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
 import { isNumeric } from '../../../utils/validators';
 import { getSingleLocation } from '../../../slices/location';
-import { LocationMiniDTO } from '../../../models/owns/location';
-import { TeamMiniDTO } from '../../../models/owns/team';
-import { VendorMiniDTO } from '../../../models/owns/vendor';
-import Category from '../../../models/owns/category';
-import { exportEntity } from '../../../slices/exports';
+import { useExport } from '../../../hooks/useExport';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import {
   FilterField,
@@ -80,15 +58,30 @@ import {
   Sort
 } from '../../../models/owns/page';
 import Filters from './Filters';
-import { getRandomColor, onSearchQueryChange } from '../../../utils/overall';
+import {
+  fireGa4Event,
+  getImageAndFiles,
+  onSearchQueryChange
+} from '../../../utils/overall';
 import SearchInput from '../components/SearchInput';
-import File from '../../../models/owns/file';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
-import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import AssetStatusTag from './components/AssetStatusTag';
+import { getErrorMessage } from '../../../utils/api';
+import SplitButton from '../components/SplitButton';
+import {
+  createColumnHelper,
+  SortingState,
+  Updater
+} from '@tanstack/react-table';
+import useTableState from '../../../hooks/useTableState';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+const PAGE_SIZE = 40;
 
 function Assets() {
   const { t }: { t: any } = useTranslation();
+  const location = useLocation();
   const { setTitle } = useContext(TitleContext);
   const { uploadFiles } = useContext(CompanySettingsContext);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -103,11 +96,14 @@ function Assets() {
   } = useAuth();
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
   const dispatch = useDispatch();
-  const { assetsHierarchy, loadingGet, assets } = useSelector(
-    (state) => state.assets
-  );
-  const { loadingExport } = useSelector((state) => state.exports);
-  const apiRef = useGridApiRef();
+  const {
+    assetsHierarchy,
+    loadingGet,
+    loadingHierarchy,
+    assets,
+    childrenPages
+  } = useSelector((state) => state.assets);
+  const { exportEntity, loadingExport } = useExport();
   const { getFormattedDate } = useContext(CompanySettingsContext);
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { locations } = useSelector((state) => state.locations);
@@ -119,9 +115,10 @@ function Assets() {
   type ViewType = 'hierarchy' | 'list';
   const theme = useTheme();
   const [view, setView] = useState<ViewType>('hierarchy');
+  const [hierarchySorting, setHierarchySorting] = useState<SortingState>([]);
   const [pageable, setPageable] = useState<Pageable>({
     page: 0,
-    size: 1000
+    size: PAGE_SIZE
   });
   const initialCriteria: SearchCriteria = {
     filterFields: [
@@ -131,7 +128,7 @@ function Assets() {
         value: false
       }
     ],
-    pageSize: 10,
+    pageSize: 50,
     pageNum: 0,
     direction: 'DESC'
   };
@@ -144,7 +141,11 @@ function Assets() {
       'model',
       'additionalInfos',
       'barCode',
-      'area'
+      'area',
+      'serialNumber',
+      'manufacturer',
+      'power',
+      'customId'
     ]);
   };
   const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
@@ -153,14 +154,65 @@ function Assets() {
     newCriteria.filterFields = newFilters;
     setCriteria(newCriteria);
   };
-  const [deployedAssets, setDeployedAssets] = useState<
-    { id: number; hierarchy: number[] }[]
-  >([
+  const [deployedAssets, setDeployedAssets] = useState<{ id: number }[]>([
     {
-      id: 0,
-      hierarchy: []
+      id: 0
     }
   ]);
+
+  // Expanding state for hierarchy view
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [subRowsMap, setSubRowsMap] = useState<Record<number, AssetRow[]>>({});
+  // State for pre-filling asset name from query params
+  const [initialAssetName, setInitialAssetName] = useState<string>('');
+  const [returnPath, setReturnPath] = useState<string>('');
+  const [returnField, setReturnField] = useState<string>('');
+
+  const fetchMoreForParent = (parentId: number) => {
+    const parentPage = childrenPages[parentId];
+    if (parentPage && !parentPage.last) {
+      dispatch(
+        getAssetChildren(parentId, {
+          ...pageable,
+          page: (parentPage.number || 0) + 1
+        })
+      );
+    }
+  };
+
+  const handleToggleExpand = async (row: AssetRow) => {
+    const isExpanded = expanded[row.id];
+
+    if (!isExpanded) {
+      // Check if we already have children for this row in the Redux store
+      const hasChildrenLoaded = assetsHierarchy.some(
+        (a) => a.parentAsset?.id === row.id
+      );
+
+      if (!hasChildrenLoaded && row.hasChildren) {
+        // Set temporary loading row
+        const loadingRow: AssetRow = {
+          id: `loading-${row.id}`,
+          name: t('loading_assets', { name: row.name, id: row.id })
+        } as unknown as AssetRow;
+
+        setSubRowsMap((prev) => ({ ...prev, [row.id]: [loadingRow] }));
+        // Fetch the children
+        await dispatch(getAssetChildren(row.id, pageable));
+        setDeployedAssets((prevState) => [...prevState, row]);
+
+        // Clean up the loading row once the fetch is complete
+        setSubRowsMap((prev) => {
+          const newMap = { ...prev };
+          delete newMap[row.id];
+          return newMap;
+        });
+      }
+    }
+
+    // Toggle expand/collapse state
+    setExpanded((prev) => ({ ...prev, [row.id]: !isExpanded }));
+  };
   const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -175,7 +227,7 @@ function Assets() {
   useEffect(() => {
     if (hasViewPermission(PermissionEntity.ASSETS)) {
       handleReset(false);
-      dispatch(getAssetChildren(0, [], pageable));
+      dispatch(getAssetChildren(0, pageable));
     }
   }, [pageable]);
   useEffect(() => {
@@ -192,24 +244,43 @@ function Assets() {
     }
   }, [locationParamObject]);
 
+  // Handle query params for inline creation (new=true&name=${name})
   useEffect(() => {
-    if (hasViewPermission(PermissionEntity.ASSETS))
-      dispatch(getAssets(criteria));
-  }, [criteria]);
+    const isNew = searchParams.get('new') === 'true';
+    const nameParam = searchParams.get('name');
+    const state = location.state as any;
+    if (isNew && hasCreatePermission(PermissionEntity.ASSETS)) {
+      setInitialAssetName(nameParam || '');
+      setReturnPath(state?.returnPath || '');
+      setReturnField(state?.returnField || '');
+      setOpenAddModal(true);
+      // Clear query params after opening modal
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams]);
 
-  const onCreationSuccess = () => {
+  useEffect(() => {
+    if (view === 'list' && hasViewPermission(PermissionEntity.ASSETS))
+      dispatch(getAssets(criteria));
+  }, [criteria, view]);
+
+  const onCreationSuccess = (createdAsset?: AssetDTO) => {
     setOpenAddModal(false);
+    setInitialAssetName('');
     showSnackBar(t('asset_create_success'), 'success');
+
+    if (returnField && createdAsset) {
+      // Navigate back to the return path with query params
+      navigate({
+        pathname: returnPath || '/',
+        search: `?${returnField}=${createdAsset.id}`
+      });
+    }
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('asset_create_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('asset_create_failure')), 'error');
   const handleCloseFilterDrawer = () => setOpenFilterDrawer(false);
-  const onPageSizeChange = (size: number) => {
-    setCriteria({ ...criteria, pageSize: size });
-  };
-  const onPageChange = (number: number) => {
-    setCriteria({ ...criteria, pageNum: number });
-  };
+
   const renderMenu = () => (
     <Menu
       id="basic-menu"
@@ -223,24 +294,18 @@ function Assets() {
       {hasViewOtherPermission(PermissionEntity.ASSETS) && (
         <MenuItem
           disabled={loadingExport['assets']}
-          onClick={() => {
-            dispatch(exportEntity('assets')).then((url: string) => {
-              window.open(url);
-            });
+          onClick={async () => {
+            try {
+              await exportEntity('assets');
+            } catch (error) {
+              showSnackBar(t('Export failed'), 'error');
+            }
           }}
         >
           <Stack spacing={2} direction="row">
             {loadingExport['assets'] && <CircularProgress size="1rem" />}
             <Typography>{t('to_export')}</Typography>
           </Stack>
-        </MenuItem>
-      )}
-      {hasViewPermission(PermissionEntity.SETTINGS) && (
-        <MenuItem
-          onClick={() => navigate('/app/imports/assets')}
-          disabled={!hasFeature(PlanFeature.IMPORT_CSV)}
-        >
-          {t('to_import')}
         </MenuItem>
       )}
       <MenuItem
@@ -253,135 +318,6 @@ function Assets() {
       </MenuItem>
     </Menu>
   );
-  const columns: CustomDatagridColumn[] = [
-    {
-      field: 'customId',
-      headerName: t('id'),
-      description: t('id'),
-      width: 150
-    },
-    {
-      field: 'name',
-      headerName: t('name'),
-      description: t('name'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
-      )
-    },
-    {
-      field: 'status',
-      headerName: t('status'),
-      description: t('status'),
-      renderCell: (params: GridRenderCellParams<AssetStatus>) => (
-        <AssetStatusTag status={params.value} />
-      )
-    },
-    {
-      field: 'location',
-      headerName: t('location'),
-      description: t('location'),
-      width: 150,
-      uiConfigKey: 'locations',
-      valueGetter: (params: GridValueGetterParams<LocationMiniDTO>) =>
-        params.value?.name
-    },
-    {
-      field: 'image',
-      headerName: t('image'),
-      description: t('image'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<any, any, File>) =>
-        params.value && (
-          <img width="100%" height="100%" src={params.value.url} />
-        )
-    },
-    {
-      field: 'area',
-      headerName: t('area'),
-      description: t('area'),
-      width: 150
-    },
-    {
-      field: 'model',
-      headerName: t('model'),
-      description: t('model'),
-      width: 150
-    },
-    {
-      field: 'barCode',
-      headerName: t('barcode'),
-      description: t('barcode'),
-      width: 150
-    },
-    {
-      field: 'category',
-      headerName: t('category'),
-      description: t('category'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<Category>) =>
-        params.value?.name
-    },
-    {
-      field: 'description',
-      headerName: t('description'),
-      description: t('description'),
-      width: 300
-    },
-    {
-      field: 'primaryUser',
-      headerName: t('primary_worker'),
-      description: t('primary_worker'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<UserMiniDTO>) =>
-        params.value
-          ? `${params.value.firstName} ${params.value.lastName}`
-          : null
-    },
-    {
-      field: 'assignedTo',
-      headerName: t('assigned_to'),
-      description: t('assigned_to'),
-      width: 170,
-      renderCell: (params: GridRenderCellParams<UserMiniDTO[]>) => (
-        <UserAvatars users={params.value ?? []} />
-      )
-    },
-    {
-      field: 'teams',
-      headerName: t('teams'),
-      description: t('teams'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<TeamMiniDTO[]>) =>
-        enumerate(params.value?.map((team) => team.name) ?? [])
-    },
-    {
-      field: 'vendors',
-      headerName: t('vendors'),
-      description: t('vendors'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<VendorMiniDTO[]>) =>
-        enumerate(params.value?.map((vendor) => vendor.companyName) ?? []),
-      uiConfigKey: 'vendorsAndCustomers'
-    },
-    {
-      field: 'parentAsset',
-      headerName: t('parent_asset'),
-      description: t('parent_asset'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<AssetMiniDTO>) =>
-        params.value?.name
-    },
-    {
-      field: 'createdAt',
-      headerName: t('created_at'),
-      description: t('created_at'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<string>) =>
-        getFormattedDate(params.value)
-    }
-  ];
-  useGridStatePersist(apiRef, columns, 'asset');
 
   // Mapping for column fields to API field names for sorting
   const fieldMapping: Record<string, string> = {
@@ -407,6 +343,216 @@ function Assets() {
     setCriteria(initialCriteria);
     setView('hierarchy');
   };
+
+  const columnHelper = createColumnHelper<AssetDTO>();
+
+  const columns: CustomDatagridColumn2<AssetDTO | AssetRow>[] = [
+    columnHelper.display({
+      id: 'expander',
+      header: '',
+      meta: { enableReordering: false },
+      cell: ({ row }) => {
+        const isExpanded = expanded[row.original.id];
+        const hasSubRows =
+          row.original.hasChildren || subRowsMap[row.original.id]?.length > 0;
+
+        if (!hasSubRows && view === 'hierarchy') {
+          return <Box sx={{ width: 24 }} />;
+        }
+
+        return (
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleExpand(row.original as AssetRow);
+            }}
+            sx={{ padding: 0.5 }}
+          >
+            {isExpanded ? (
+              <ExpandMoreIcon fontSize="small" />
+            ) : (
+              <ChevronRightIcon fontSize="small" />
+            )}
+          </IconButton>
+        );
+      },
+      size: 50
+    }),
+    columnHelper.accessor('customId', {
+      id: 'customId',
+      header: () => t('id'),
+      cell: (info) => info.getValue() || '',
+      size: 100
+    }),
+    columnHelper.accessor('name', {
+      id: 'name',
+      header: () => t('name'),
+      cell: (info) => {
+        const row = info.row.original as AssetRow & {
+          depth: number;
+          isLoadMoreRow?: boolean;
+          parentId?: number;
+        };
+        // Render "Load More" row as a clickable button
+        if (row.isLoadMoreRow) {
+          return (
+            <Box
+              sx={{
+                py: 1,
+                fontWeight: 'bold'
+              }}
+            >
+              <Button
+                size="small"
+                variant="text"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (row.parentId) {
+                    fetchMoreForParent(row.parentId);
+                  }
+                }}
+                disabled={loadingHierarchy}
+                endIcon={
+                  loadingHierarchy ? (
+                    <CircularProgress size="1rem" />
+                  ) : (
+                    <MoreHorizIcon />
+                  )
+                }
+              >
+                {t('fetch_more')}
+              </Button>
+            </Box>
+          );
+        }
+
+        return (
+          <Box
+            sx={{
+              py: 1,
+              fontWeight: 'bold',
+              ml: view === 'hierarchy' ? (info.row.depth || 0) * 24 : 0
+            }}
+          >
+            {info.getValue()}
+          </Box>
+        );
+      },
+      size: 200
+    }),
+    columnHelper.accessor('status', {
+      id: 'status',
+      header: () => t('status'),
+      cell: (info) => <AssetStatusTag status={info.getValue()} />,
+      size: 120
+    }),
+    columnHelper.accessor((row) => row.location?.name, {
+      id: 'location',
+      header: () => t('location'),
+      cell: (info) => info.getValue() || '',
+      size: 150,
+      meta: {
+        uiConfigKey: 'locations'
+      }
+    }),
+    columnHelper.accessor('image', {
+      id: 'image',
+      header: () => t('image'),
+      cell: (info) =>
+        info.getValue() ? (
+          <img
+            width="100%"
+            height="100%"
+            src={info.getValue().url}
+            alt={info.row.original.name}
+          />
+        ) : null,
+      size: 100
+    }),
+    columnHelper.accessor('area', {
+      id: 'area',
+      header: () => t('area'),
+      cell: (info) => info.getValue() || '',
+      size: 100
+    }),
+    columnHelper.accessor('model', {
+      id: 'model',
+      header: () => t('model'),
+      cell: (info) => info.getValue() || '',
+      size: 120
+    }),
+    columnHelper.accessor('barCode', {
+      id: 'barCode',
+      header: () => t('barcode'),
+      cell: (info) => info.getValue() || '',
+      size: 120
+    }),
+    columnHelper.accessor((row) => row.category?.name, {
+      id: 'category',
+      header: () => t('category'),
+      cell: (info) => info.getValue() || '',
+      size: 120
+    }),
+    columnHelper.accessor('description', {
+      id: 'description',
+      header: () => t('description'),
+      cell: (info) => info.getValue() || '',
+      size: 250
+    }),
+    columnHelper.accessor(
+      (row) =>
+        row.primaryUser
+          ? `${row.primaryUser.firstName} ${row.primaryUser.lastName}`
+          : null,
+      {
+        id: 'primaryUser',
+        header: () => t('primary_worker'),
+        cell: (info) => info.getValue() || '',
+        size: 150
+      }
+    ),
+    columnHelper.accessor('assignedTo', {
+      id: 'assignedTo',
+      header: () => t('assigned_to'),
+      cell: (info) => <UserAvatars users={info.getValue() ?? []} />,
+      size: 150
+    }),
+    columnHelper.accessor(
+      (row) => enumerate(row.teams?.map((team) => team.name) ?? []),
+      {
+        id: 'teams',
+        header: () => t('teams'),
+        cell: (info) => info.getValue(),
+        size: 150
+      }
+    ),
+    columnHelper.accessor(
+      (row) =>
+        enumerate(row.vendors?.map((vendor) => vendor.companyName) ?? []),
+      {
+        id: 'vendors',
+        header: () => t('vendors'),
+        cell: (info) => info.getValue() || '',
+        size: 150,
+        meta: {
+          uiConfigKey: 'vendorsAndCustomers'
+        }
+      }
+    ),
+    columnHelper.accessor((row) => row.parentAsset?.name, {
+      id: 'parentAsset',
+      header: () => t('parent_asset'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor('createdAt', {
+      id: 'createdAt',
+      header: () => t('created_at'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 140
+    })
+  ];
   const defaultFields: Array<IField> = [
     {
       name: 'assetInfo',
@@ -426,7 +572,6 @@ function Assets() {
       type2: 'location',
       label: t('location'),
       placeholder: t('select_asset_location'),
-      required: true,
       midWidth: true
     },
     {
@@ -462,6 +607,13 @@ function Assets() {
       type: 'text',
       label: t('model'),
       placeholder: t('model'),
+      midWidth: true
+    },
+    {
+      name: 'barCode',
+      type: 'text',
+      label: t('barcode'),
+      placeholder: t('barcode'),
       midWidth: true
     },
     {
@@ -587,72 +739,16 @@ function Assets() {
   const handleReset = (callApi: boolean) => {
     dispatch(resetAssetsHierarchy(callApi));
   };
-  useEffect(() => {
-    if (apiRef.current.getRow) {
-      const handleRowExpansionChange: GridEventListener<
-        'rowExpansionChange'
-      > = async (node) => {
-        const row = apiRef.current.getRow(node.id) as AssetRow | null;
-        if (!node.childrenExpanded || !row || row.childrenFetched) {
-          return;
-        }
-        apiRef.current.updateRows([
-          {
-            id: t('loading_assets', { name: row.name, id: node.id }),
-            hierarchy: [...row.hierarchy, '']
-          }
-        ]);
-        if (
-          !deployedAssets.find((deployedAsset) => deployedAsset.id === row.id)
-        )
-          setDeployedAssets(
-            deployedAssets.concat({
-              id: row.id,
-              hierarchy: row.hierarchy
-            })
-          );
-        dispatch(getAssetChildren(row.id, row.hierarchy, pageable));
-      };
-      /**
-       * By default, the grid does not toggle the expansion of rows with 0 children
-       * We need to override the `cellKeyDown` event listener to force the expansion if there are children on the server
-       */
-      const handleCellKeyDown: GridEventListener<'cellKeyDown'> = (
-        params,
-        event
-      ) => {
-        const cellParams = apiRef.current.getCellParams(
-          params.id,
-          params.field
-        );
-        if (cellParams.colDef.type === 'treeDataGroup' && event.key === ' ') {
-          event.stopPropagation();
-          event.preventDefault();
-          event.defaultMuiPrevented = true;
-
-          apiRef.current.setRowChildrenExpansion(
-            params.id,
-            !params.rowNode.childrenExpanded
-          );
-        }
-      };
-
-      apiRef.current.subscribeEvent(
-        'rowExpansionChange',
-        handleRowExpansionChange
-      );
-      apiRef.current.subscribeEvent('cellKeyDown', handleCellKeyDown, {
-        isFirst: true
-      });
-    }
-  }, [apiRef]);
 
   const renderAssetAddModal = () => (
     <Dialog
       fullWidth
       maxWidth="md"
       open={openAddModal}
-      onClose={() => setOpenAddModal(false)}
+      onClose={() => {
+        setOpenAddModal(false);
+        setInitialAssetName('');
+      }}
     >
       <DialogTitle
         sx={{
@@ -678,6 +774,7 @@ function Assets() {
             validation={Yup.object().shape(shape)}
             submitText={t('create_asset')}
             values={{
+              name: initialAssetName || undefined,
               inServiceDate: null,
               warrantyExpirationDate: null,
               location: locationParamObject
@@ -689,38 +786,32 @@ function Assets() {
             }}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
+              if (assetsHierarchy.length === 0)
+                fireGa4Event('first_asset_creation');
               let formattedValues = formatAssetValues(values);
-              return new Promise<void>((resolve, rej) => {
-                uploadFiles(formattedValues.files, formattedValues.image)
-                  .then((files) => {
-                    formattedValues = {
-                      ...formattedValues,
-                      image: files.length ? { id: files[0].id } : null,
-                      files: files.map((file) => {
-                        return { id: file.id };
-                      })
-                    };
-                    dispatch(addAsset(formattedValues))
-                      .then(onCreationSuccess)
-                      .then(() => {
-                        deployedAssets.forEach((deployedAsset) =>
-                          dispatch(
-                            getAssetChildren(
-                              deployedAsset.id,
-                              deployedAsset.hierarchy,
-                              pageable
-                            )
-                          )
-                        );
-                      })
-                      .catch(onCreationFailure)
-                      .finally(resolve);
-                  })
-                  .catch((err) => {
-                    onCreationFailure(err);
-                    rej(err);
-                  });
-              });
+              try {
+                const uploadedFiles = await uploadFiles(
+                  formattedValues.files,
+                  formattedValues.image
+                );
+
+                const imageAndFiles = getImageAndFiles(uploadedFiles);
+                formattedValues = {
+                  ...formattedValues,
+                  image: imageAndFiles.image,
+                  files: imageAndFiles.files
+                };
+
+                const createdAsset = await dispatch(addAsset(formattedValues));
+                onCreationSuccess(createdAsset);
+                deployedAssets.forEach((deployedAsset) =>
+                  dispatch(getAssetChildren(deployedAsset.id, pageable))
+                );
+                return createdAsset;
+              } catch (err) {
+                onCreationFailure(err);
+                throw err;
+              }
             }}
           />
         </Box>
@@ -728,31 +819,120 @@ function Assets() {
     </Dialog>
   );
 
-  const groupingColDef: DataGridProProps['groupingColDef'] = {
-    headerName: t('hierarchy'),
-    renderCell: (params) => <GroupingCellWithLazyLoading {...params} />
-  };
-  const CustomRow = (props: React.ComponentProps<typeof GridRow>) => {
-    const rowNode = apiRef.current.getRowNode(props.rowId);
-    const theme = useTheme();
+  // Flatten hierarchy based on expanded state and parent-child relationships
+  const getHierarchicalData = (
+    flatList: AssetRow[],
+    expanded: Record<string, boolean>,
+    subRowsMap: Record<number, AssetRow[]>,
+    parentId: number | null = null,
+    depth: number = 0
+  ): AssetRow[] => {
+    let result: AssetRow[] = [];
 
-    return (
-      <GridRow
-        {...props}
-        style={
-          (rowNode?.depth ?? 0) > 0
-            ? {
-                backgroundColor:
-                  rowNode.depth % 2 === 0
-                    ? theme.colors.primary.light
-                    : theme.colors.primary.main,
-                color: 'white'
-              }
-            : undefined
+    // 1. Find the children of the current parent
+    const nodes = flatList.filter((item) => {
+      if (parentId === null) {
+        return !item.parentAsset; // Root nodes have no parent
+      }
+      return item.parentAsset?.id === parentId; // Child nodes
+    });
+
+    for (const node of nodes) {
+      // 2. Add the current node
+      result.push({ ...node, depth });
+
+      // 3. If expanded, add its children right below it
+      if (expanded[node.id]) {
+        const children = getHierarchicalData(
+          flatList,
+          expanded,
+          subRowsMap,
+          node.id,
+          depth + 1
+        );
+
+        if (children.length > 0) {
+          result = [...result, ...children];
+          // Add "Load More" row after children if there are more pages
+          if (hasMorePages(node.id)) {
+            result.push({
+              id: `load-more-${node.id}`,
+              name: t('fetch_more'),
+              depth: 0,
+              isLoadMoreRow: true,
+              parentId: node.id
+            } as unknown as AssetRow);
+          }
         }
-      />
-    );
+      }
+    }
+
+    return result;
   };
+
+  // Check if a parent has more pages to load
+  const hasMorePages = (parentId: number): boolean => {
+    const childrenPage = childrenPages[parentId];
+    return childrenPage ? !childrenPage.last : false;
+  };
+
+  // Use table state for list view (server-side pagination and sorting)
+  const tableState = useTableState({
+    prefix: 'assets',
+    setCriteria,
+    fieldMapping,
+    initialPagination: { pageIndex: 0, pageSize: criteria.pageSize }
+  });
+
+  // Prepare data for the table based on view type
+  const tableData: (AssetRow | AssetDTO)[] =
+    view === 'hierarchy'
+      ? getHierarchicalData(assetsHierarchy, expanded, subRowsMap)
+      : assets.content || [];
+
+  // Handle pagination change based on view type
+  const handlePaginationChange = (newPagination: {
+    pageIndex: number;
+    pageSize: number;
+  }) => {
+    if (view === 'hierarchy') {
+      setPageable((prev) => ({
+        ...prev,
+        page: newPagination.pageIndex,
+        size: newPagination.pageSize
+      }));
+    } else {
+      tableState.setPagination(newPagination);
+    }
+  };
+
+  // Handle sorting change based on view type
+  const handleSortingChange = (newSorting: Updater<SortingState>) => {
+    if (view === 'hierarchy') {
+      // Resolve the sorting value (handle both direct value and updater function)
+      const resolvedSorting: SortingState =
+        typeof newSorting === 'function'
+          ? newSorting(hierarchySorting)
+          : newSorting;
+      setHierarchySorting(newSorting);
+      const sortParams =
+        resolvedSorting.length > 0
+          ? resolvedSorting.map(
+              (sort) =>
+                `${fieldMapping[sort.id] || sort.id},${
+                  sort.desc ? 'desc' : 'asc'
+                }` as Sort
+            )
+          : [];
+      setPageable((prev) => ({
+        ...prev,
+        sort: sortParams.length > 0 ? [...sortParams] : undefined
+      }));
+    } else {
+      tableState.setSorting(newSorting);
+    }
+  };
+
   if (hasViewPermission(PermissionEntity.ASSETS))
     return (
       <>
@@ -760,16 +940,9 @@ function Assets() {
         <Helmet>
           <title>{t('assets')}</title>
         </Helmet>
-        <Grid
-          container
-          justifyContent="center"
-          alignItems="stretch"
-          spacing={1}
-          paddingX={4}
-        >
-          <Grid
-            item
-            xs={12}
+        <Box justifyContent="center" alignItems="stretch" paddingX={4}>
+          <Box
+            my={1}
             display="flex"
             flexDirection="row"
             justifyContent="space-between"
@@ -789,99 +962,78 @@ function Assets() {
                 </Button>
               )}
               {hasCreatePermission(PermissionEntity.ASSETS) && (
-                <Button
-                  onClick={() => setOpenAddModal(true)}
+                <SplitButton
+                  onMainClick={() => setOpenAddModal(true)}
                   startIcon={<AddTwoToneIcon />}
                   sx={{ mx: 6, my: 1 }}
-                  variant="contained"
-                >
-                  {t('asset')}
-                </Button>
+                  label={t('asset')}
+                  menuItems={
+                    hasViewPermission(PermissionEntity.SETTINGS) &&
+                    hasFeature(PlanFeature.IMPORT_CSV)
+                      ? [
+                          {
+                            label: t('to_import'),
+                            onClick: () => navigate('/app/imports/assets')
+                          }
+                        ]
+                      : []
+                  }
+                />
               )}
             </Stack>
-          </Grid>
-          <Grid item xs={12}>
-            <Card
-              sx={{
-                p: 2,
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}
-            >
-              <Box sx={{ width: '95%' }}>
-                <CustomDataGrid
-                  pro
-                  treeData={view === 'hierarchy'}
-                  columns={columns}
-                  rows={view === 'hierarchy' ? assetsHierarchy : assets.content}
-                  apiRef={apiRef}
-                  getRowHeight={() => 'auto'}
-                  getTreeDataPath={(row) =>
-                    view === 'hierarchy'
-                      ? row.hierarchy.map((id) => id.toString())
-                      : [row.id.toString()]
-                  }
-                  disableColumnFilter
-                  loading={loadingGet}
-                  groupingColDef={
-                    view === 'hierarchy' ? groupingColDef : undefined
-                  }
-                  paginationMode={view === 'hierarchy' ? undefined : 'server'}
-                  sortingMode={view === 'hierarchy' ? 'client' : undefined}
-                  onSortModelChange={(model) => {
-                    if (view !== 'hierarchy') return;
-
-                    if (model.length === 0) {
-                      setCriteria({
-                        ...criteria,
-                        sortField: undefined,
-                        direction: undefined
-                      });
-                      return;
-                    }
-
-                    const field = model[0].field;
-                    const mappedField = fieldMapping[field];
-
-                    // Only proceed if we have a mapping for this field
-                    if (!mappedField) return;
-
-                    setPageable((prevState) => ({
-                      ...prevState,
-                      sort: model.length
-                        ? [`${mappedField},${model[0].sort}` as Sort]
-                        : []
-                    }));
-                  }}
-                  onPageSizeChange={onPageSizeChange}
-                  onPageChange={onPageChange}
-                  rowsPerPageOptions={
-                    view === 'list' ? [10, 20, 50] : undefined
-                  }
-                  components={{
-                    Row: CustomRow,
-                    NoRowsOverlay: () => (
-                      <NoRowsMessageWrapper
-                        message={t('noRows.asset.message')}
-                        action={t('noRows.asset.action')}
-                      />
-                    )
-                  }}
-                  onRowClick={(params) => {
-                    navigate(getAssetUrl(params.id));
-                  }}
-                  initialState={{
-                    columns: {
-                      columnVisibilityModel: {}
-                    }
-                  }}
-                />
-              </Box>
-            </Card>
-          </Grid>
-        </Grid>
+          </Box>
+          <Card
+            sx={{
+              py: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}
+          >
+            <Box sx={{ width: '95%' }}>
+              <CustomDatagrid2
+                columns={view === 'hierarchy' ? columns : columns.slice(1)}
+                data={tableData}
+                loading={view === 'hierarchy' ? loadingHierarchy : loadingGet}
+                pagination={
+                  view === 'hierarchy'
+                    ? { pageIndex: pageable.page, pageSize: pageable.size }
+                    : tableState.pagination
+                }
+                onPaginationChange={handlePaginationChange}
+                totalRows={
+                  view === 'hierarchy'
+                    ? childrenPages[0]?.totalElements || assetsHierarchy.length
+                    : assets.totalElements
+                }
+                pageSizeOptions={
+                  view === 'list'
+                    ? [10, 20, 50]
+                    : Array.from({ length: 4 }, (_, i) => PAGE_SIZE * (i + 1))
+                }
+                sorting={
+                  view === 'hierarchy' ? hierarchySorting : tableState.sorting
+                }
+                onSortingChange={handleSortingChange}
+                columnOrder={tableState.columnOrder}
+                onColumnOrderChange={tableState.setColumnOrder}
+                columnSizing={tableState.columnSizing}
+                onColumnSizingChange={tableState.setColumnSizing}
+                columnVisibility={tableState.columnVisibility}
+                onColumnVisibilityChange={tableState.setColumnVisibility}
+                pinnedColumns={tableState.pinnedColumns}
+                onPinnedColumnsChange={tableState.setPinnedColumns}
+                noRowsMessage={t('noRows.asset.message')}
+                noRowsAction={t('noRows.asset.action')}
+                onRowClick={(row) => {
+                  if ('isLoadMoreRow' in row && row.isLoadMoreRow) return;
+                  navigate(getAssetUrl(row.id));
+                }}
+              />
+            </Box>
+          </Card>
+        </Box>
         {renderMenu()}
         <Drawer
           anchor="left"

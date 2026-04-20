@@ -119,7 +119,7 @@ const frJSON = {
   IN_PROGRESS: 'En cours',
   ON_HOLD: 'En attente',
   COMPLETE: 'Terminé',
-  //home
+  fetch_more: 'Charger plus',
   'home.built': 'Conçu pour faciliter la gestion de la maintenance',
   home_description:
     "Lorsque les tableaux blancs et les notes autocollantes sont chaotiques et que vous avez besoin d'un logiciel de GMAO suffisamment facile à utiliser pour votre équipe, essayez {{shortBrandName}}",
@@ -1022,6 +1022,7 @@ const frJSON = {
     "Les utilisateurs reçoivent des mises à jour pour les ordres de travail qu'ils ont demandés",
   language: 'Langue',
   date_format: 'Format de date',
+  time_zone: 'Fuseau horaire',
   business_type: "Type d'entreprise",
   general_asset_management: 'Gestion générale des équipements',
   physical_asset_management: 'Gestion des équipements physiques',
@@ -1412,6 +1413,9 @@ const frJSON = {
   verify_email_title: "Vérifier l'e-mail",
   verify_email_description:
     'Un e-mail de vérification vous a été envoyé. Vérifiez les spams si vous ne le voyez pas dans votre boîte de réception.',
+  payment_success_title: 'Paiement réussi !',
+  payment_success_description:
+    'Votre paiement a été traité avec succès. Veuillez vérifier votre e-mail pour les détails de votre licence.',
   upgrade: 'Mise à niveau',
   downgrade: 'Rétrograder',
   upgrade_description:
@@ -1543,7 +1547,471 @@ const frJSON = {
     'Demande de mise à niveau reçue ! Nous vous contacterons bientôt avec les détails de paiement',
   continue_with_sso: 'Continuer avec SSO',
   demo_warning:
-    "Cette instance est en mode démo. N'utilisez pas cela pour de vraies données ! Tout sera supprimé à intervalles réguliers !"
+    "Cette instance est en mode démo. N'utilisez pas cela pour de vraies données ! Tout sera supprimé à intervalles réguliers !",
+  days: 'Jours',
+  weeks: 'Semaines',
+  months: 'Mois',
+  years: 'Années',
+  based_on: 'Basé sur',
+  scheduled_date: 'Date prévue',
+  on: 'Sur',
+  required_days_of_week: 'Jours de la semaine requis',
+  'schedule.daily_one': 'Chaque {{count}} jour',
+  'schedule.daily_other': 'Chaque {{count}} jours',
+  'schedule.weekly_one': 'Chaque {{count}} semaine le {{days}}',
+  'schedule.weekly_other': 'Chaque {{count}} semaines le {{days}}',
+  'schedule.monthly_one': 'Chaque {{count}} mois',
+  'schedule.monthly_other': 'Chaque {{count}} mois',
+  'schedule.yearly_one': 'Chaque {{count}} an',
+  'schedule.yearly_other': 'Chaque {{count}} ans',
+  recent_work_orders: 'Ordres de travail récents',
+  no_recent_work_orders: 'Aucun ordre de travail',
+  delete_account: 'Supprimer le compte',
+  csv_separator: 'Séparateur CSV',
+  open_source_cmms: 'GMAO Open Source',
+  'main.title':
+    'GMAO open source gratuite (logiciel de gestion de la maintenance)',
+  'home.h1':
+    'GMAO gratuite et open source que vous pouvez héberger vous-même ou utiliser dans le cloud',
+  'home.h2': 'Une maintenance puissante à faible coût',
+  'home.h3':
+    'Arrêtez de compter sur les feuilles de calcul et les tableaux blancs. {{brandName}} aide les équipes de maintenance à planifier les interventions, à suivre les équipements et à rester conformes. Hébergez vous-même sur votre serveur ou commencez instantanément dans le cloud.',
+  talk_to_sales: 'Parler à un expert',
+  'pricing.choose_plan_and_get_started': 'Choisissez votre plan et commencez',
+  'pricing.slogan_effective_maintenance':
+    'Notre logiciel offre aux équipes de maintenance et de fiabilité les outils dont elles ont besoin pour gérer les opérations de manière efficace et efficiente.',
+  'pricing.compare_plans_and_pricing': 'Comparer les plans et les prix',
+  'pricing.see_which_plan_is_right_for_you':
+    'Découvrez quel plan vous convient le mieux',
+  'pricing.select_two_plans_to_compare': 'Sélectionnez 2 plans à comparer',
+  'pricing.select_three_plans_to_compare': 'Sélectionnez 3 plans à comparer',
+  'pricing.month_per_user': 'mois par utilisateur',
+  'pricing.year_per_user': 'an par utilisateur',
+  'pricing.plan_basic_name': 'Basique',
+  'pricing.plan_basic_description':
+    'Équipes cherchant à suivre les actifs et à créer des plannings de maintenance préventive fondamentaux avec des procédures.',
+  'pricing.feature_unlimited_work_orders': 'Ordres de travail illimités',
+  'pricing.feature_custom_tasks': 'Tâches personnalisées',
+  'pricing.feature_unlimited_request_user_licenses':
+    'Licences utilisateur de demande illimitées',
+  'pricing.plan_starter_name': 'Starter',
+  'pricing.plan_starter_description':
+    "Équipes cherchant à bâtir une maintenance préventive efficace et solide grâce à la visibilité de l'état des machines et de la main-d'œuvre.",
+  'pricing.feature_everything_in_basic_plus':
+    'Tout ce qui est inclus dans le plan Basique, plus :',
+  'pricing.feature_preventive_maintenance_recurring_work_orders':
+    'Maintenance préventive/Ordres de travail récurrents',
+  'pricing.feature_custom_checklists': 'Listes de contrôle personnalisées',
+  'pricing.feature_inventory_management_costing': 'Gestion des stocks/Coûts',
+  'pricing.feature_time_and_manpower_tracking':
+    "Suivi du temps et de la main-d'œuvre",
+  'pricing.feature_thirty_day_analytics_reporting':
+    'Rapports et analyses sur 30 jours',
+  'pricing.plan_professional_name': 'Professionnel',
+  'pricing.plan_professional_description':
+    'Services qui doivent exploiter les informations et les analyses pour stimuler davantage la croissance et la productivité de la maintenance.',
+  'pricing.feature_everything_in_starter_plus':
+    'Tout ce qui est inclus dans le plan Starter, plus :',
+  'pricing.feature_multiple_inventory_lines': "Plusieurs lignes d'inventaire",
+  'pricing.feature_customizable_request_portal':
+    'Portail de demande personnalisable',
+  'pricing.feature_mobile_offline_mode': 'Mode hors ligne mobile',
+  'pricing.feature_advanced_analytics_reporting':
+    'Rapports et analyses avancés',
+  'pricing.plan_business_name': 'Business',
+  'pricing.plan_business_description':
+    "Organisations prêtes à capturer les données de maintenance et d'opérations pour gérer plusieurs sites et la personnalisation du système.",
+  'pricing.feature_everything_in_professional_plus':
+    'Tout ce qui est inclus dans le plan Professionnel, plus :',
+  'pricing.feature_purchase_order_management': 'Gestion des bons de commande',
+  'pricing.feature_multi_site_module_support': 'Support du module multi-site',
+  'pricing.feature_custom_work_order_statuses':
+    "Statuts d'ordres de travail personnalisés",
+  'pricing.feature_custom_integrations_support':
+    'Support des intégrations personnalisées',
+  'pricing.feature_work_order_management': 'Gestion des ordres de travail',
+  'pricing.feature_recurring_work_orders': 'Ordres de travail récurrents',
+  'pricing.feature_custom_categories': 'Catégories personnalisées',
+  'pricing.feature_data_importing': 'Importation de données',
+  'pricing.feature_time_and_cost_tracking': 'Suivi du temps et des coûts',
+  'pricing.feature_work_order_configuration':
+    'Configuration des ordres de travail',
+  'pricing.feature_internal_requests': 'Demandes internes',
+  'pricing.feature_external_request_portal': 'Portail de demande externe',
+  'pricing.category_locations_assets_parts': 'Emplacements, actifs et pièces',
+  'pricing.feature_location_management': 'Gestion des emplacements',
+  'pricing.feature_barcode_scanning': 'Scan de codes-barres',
+  'pricing.feature_inventory_management': 'Gestion des stocks',
+  'pricing.feature_custom_asset_statuses': "Statuts d'actifs personnalisés",
+  'pricing.feature_asset_downtime_tracking':
+    "Suivi des temps d'arrêt des actifs",
+  'pricing.feature_asset_depreciation_tracking':
+    'Suivi de la dépréciation des actifs',
+  'pricing.feature_asset_warranty_tracking': 'Suivi de la garantie des actifs',
+  'pricing.feature_purchase_orders_management': 'Bons de commande',
+  'pricing.feature_asset_check_in_out':
+    'Enregistrement/Désenregistrement des actifs',
+  'pricing.category_mobile_offline': 'Mobile hors ligne',
+  'pricing.feature_work_order_availability':
+    'Disponibilité des ordres de travail',
+  'pricing.feature_updating_status': 'Mise à jour du statut',
+  'pricing.feature_updating_tasks': 'Mise à jour des tâches',
+  'pricing.feature_work_order_drafts': "Brouillons d'ordres de travail",
+  'pricing.feature_full_drill_down_reporting_history':
+    "Historique et rapports d'exploration complète",
+  'pricing.period_thirty_days': '30 jours',
+  'pricing.period_full': 'Complet',
+  'pricing.feature_pdf_csv_exporting': 'Exportation PDF et CSV',
+  'pricing.feature_itemized_time_reporting': 'Rapports de temps détaillés',
+  'pricing.feature_user_login_reports': 'Rapports de connexion utilisateur',
+  'pricing.feature_parts_consumption_reports':
+    'Rapports de consommation de pièces',
+  'pricing.feature_asset_downtime_reports':
+    "Rapports de temps d'arrêt des actifs",
+  'pricing.feature_equipment_reliability_reports':
+    'Rapports de fiabilité des équipements',
+  'pricing.feature_multi_site_modules': 'Modules multi-sites',
+  'pricing.category_integrations': 'Intégrations',
+  'pricing.feature_business_integrations':
+    'Intégrations métier (SAP/Oracle/Causal AI...)',
+  'pricing.feature_custom_integrations': 'Intégrations personnalisées',
+  'pricing.feature_unlimited_view_only_users':
+    'Utilisateurs en lecture seule illimités',
+  'pricing.feature_unlimited_requesters': 'Demandeurs illimités',
+  'pricing.feature_unlimited_vendors': 'Fournisseurs illimités',
+  'pricing.feature_unlimited_customers': 'Clients illimités',
+  'pricing.category_support': 'Support',
+  'pricing.feature_daily_email_digest': 'Résumé quotidien par e-mail',
+  'pricing.feature_articles': 'Articles',
+  'pricing.feature_training_webinars': 'Webinaires de formation',
+  'pricing.feature_community_support_discord':
+    'Support communautaire (Discord)',
+  'pricing.feature_email_support': 'Support par e-mail',
+  'pricing.feature_chat_phone_support': 'Support par chat/téléphone',
+  'pricing.feature_priority_support': 'Support prioritaire',
+  'pricing.feature_implementation_training': 'Mise en œuvre et formation',
+  'pricing.feature_dedicated_account_manager': 'Gestionnaire de compte dédié',
+  'pricing.category_customization': 'Personnalisation',
+  'pricing.feature_custom_development': 'Développement personnalisé',
+  'pricing.sh_plan_basic_name': 'Basique',
+  'pricing.sh_plan_basic_description':
+    'Pour les petites équipes nécessitant une souveraineté totale des données et un suivi de maintenance de base sur leur propre infrastructure.',
+  'pricing.sh_feature_core_work_order_management':
+    'Gestion des ordres de travail de base',
+  'pricing.sh_feature_asset_inventory_tracking':
+    "Suivi des actifs et de l'inventaire",
+  'pricing.sh_feature_local_data_storage': 'Stockage de données local',
+  'pricing.sh_plan_professional_name': 'Professionnel',
+  'pricing.sh_plan_professional_description':
+    'Idéal pour les usines en croissance qui nécessitent des listes de contrôle avancées, des flux de travail et une intégration système plus approfondie.',
+  'pricing.sh_feature_everything_in_basic_plus':
+    'Tout ce qui est inclus dans le plan Basique, plus :',
+  'pricing.sh_feature_unlimited_assets_checklists':
+    'Actifs/Listes de contrôle illimités',
+  'pricing.sh_feature_nfc_barcode_scanning': 'Scan NFC et codes-barres',
+  'pricing.sh_feature_email_support': 'Support par e-mail',
+  'pricing.sh_plan_business_name': 'Affaires',
+  'pricing.sh_plan_business_description':
+    'Opérations à grande échelle nécessitant une gestion multi-instance, une image de marque personnalisée et une sécurité de premier ordre.',
+  'pricing.sh_feature_everything_in_professional_plus':
+    'Tout ce qui est inclus dans le plan Professionnel, plus :',
+  'pricing.sh_feature_multi_instance_management': 'Gestion multi-instance',
+  'pricing.sh_feature_custom_user_roles': 'Rôles utilisateur personnalisés',
+  'pricing.sh_feature_priority_implementation_support':
+    'Support prioritaire pour la mise en œuvre',
+  'pricing.faq_free_users_q':
+    "Quels types d'utilisateurs sont considérés comme des utilisateurs gratuits ?",
+  'pricing.faq_free_users_a1':
+    "Il existe trois types d'utilisateurs qui ne nécessitent pas de licence payante :",
+  'pricing.faq_view_only_users_title': 'Utilisateurs en lecture seule',
+  'pricing.faq_view_only_users_description':
+    "Ces utilisateurs sont généralement des superviseurs qui se connectent rarement pour avoir un aperçu de l'activité de maintenance. Ils peuvent également soumettre des demandes de travail et exécuter des rapports.",
+  'pricing.faq_requester_users_title': 'Utilisateurs demandeurs',
+  'pricing.faq_requester_users_description':
+    'Ces utilisateurs peuvent uniquement soumettre des demandes de travail et consulter le statut de ces demandes. Ils ne peuvent pas voir les ordres de travail, les actifs, les pièces ou toute autre donnée stockée dans le CMMS.',
+  'pricing.faq_third_party_users_title': 'Utilisateurs tiers',
+  'pricing.faq_third_party_users_description':
+    'Ces utilisateurs sont généralement des vendeurs et des entrepreneurs. Ils ne peuvent pas réellement se connecter au système. Ils ne peuvent soumettre des mises à jour à un ordre de travail spécifique auquel ils sont liés que via un lien public.',
+  'pricing.faq_paid_users_q':
+    "Quels types d'utilisateurs sont considérés comme des utilisateurs payants ?",
+  'pricing.faq_paid_users_a1':
+    "Il existe trois types d'utilisateurs qui nécessitent une licence payante :",
+  'pricing.faq_admin_users_title': 'Utilisateurs administrateurs',
+  'pricing.faq_admin_users_description':
+    "Ces utilisateurs ont la possibilité d'ajouter d'autres personnes au compte, d'accepter ou de refuser des demandes de travail et de modifier les détails des ordres de travail. Ce sont les utilisateurs qui contrôlent le compte. Vous pouvez avoir plusieurs administrateurs par compte.",
+  'pricing.faq_technical_users_title': 'Utilisateurs techniques',
+  'pricing.faq_technical_users_description':
+    "Ces utilisateurs sont généralement des techniciens qui clôturent les ordres de travail sur le terrain. Ils peuvent modifier les ordres de travail qu'ils créent mais pas les autres ordres de travail. Ils peuvent ajouter des images et des mises à jour de statut aux ordres de travail et créer de nouveaux ordres de travail.",
+  'pricing.faq_limited_technical_users_title':
+    'Utilisateurs techniques limités',
+  'pricing.faq_limited_technical_users_description':
+    "Ces utilisateurs ont les mêmes privilèges que l'utilisateur technique. La seule exception est qu'ils ne peuvent voir que les ordres de travail qui leur sont attribués — pas les autres utilisateurs techniques du compte.",
+  'pricing.faq_change_plans_q': 'Puis-je changer de plan plus tard ?',
+  'pricing.faq_change_plans_a':
+    'Oui, vous pouvez mettre à niveau ou rétrograder votre plan à tout moment. Les modifications prendront effet au début de votre prochain cycle de facturation.',
+  'pricing.faq_free_trial_q': 'Y a-t-il un essai gratuit ?',
+  'pricing.faq_free_trial_a':
+    'Oui, nous offrons un essai gratuit de 15 jours du plan Business afin que vous puissiez découvrir toutes les fonctionnalités avant de prendre une décision.',
+  'pricing.faq_non_profit_discounts_q':
+    'Offrez-vous des réductions pour les organisations à but non lucratif ?',
+  'pricing.faq_non_profit_discounts_a':
+    "Oui, nous offrons des tarifs spéciaux pour les organisations à but non lucratif. Veuillez contacter notre équipe commerciale pour plus d'informations.",
+  'pricing.faq_payment_methods_q': 'Quels modes de paiement acceptez-vous ?',
+  'pricing.faq_payment_methods_a':
+    'Nous acceptons toutes les principales cartes de crédit, les virements bancaires et PayPal. Pour les plans Enterprise, nous pouvons également organiser la facturation.',
+  'pricing.faq_cancel_subscription_q': 'Puis-je annuler mon abonnement ?',
+  'pricing.faq_cancel_subscription_a':
+    "Oui, vous pouvez annuler votre abonnement à tout moment. Vous continuerez à avoir accès jusqu'à la fin de votre période de facturation actuelle.",
+  'pricing.faq_data_secure_q': 'Mes données sont-elles sécurisées ?',
+  'pricing.faq_data_secure_a':
+    'Oui, nous prenons la sécurité des données très au sérieux. Toutes les données sont cryptées en transit et au repos, et nous effectuons des audits de sécurité réguliers.',
+  'pricing.faq_title': 'Foire aux questions',
+  'pricing.annually_save_two_months': 'Annuel (Économisez 2 mois)',
+  'pricing.most_popular': 'Le plus populaire',
+  'pricing.get_your_license': 'Obtenez votre licence',
+  get_started: 'Commencer',
+  workflow_automation: 'Automatisation des flux de travail',
+  push_notifications: 'Notifications push',
+  cloud: 'Cloud',
+  self_hosted: 'Auto-hébergé',
+  full: 'Complet',
+  pricing: 'Tarification',
+  industries: "Secteurs d'activité",
+  work_order_management: 'Gestion des bons de travail',
+  inventory_management: 'Gestion des stocks',
+  analytics_and_reporting: 'Analyses et rapports',
+  manufacturing: 'Fabrication',
+  facility_management: 'Gestion des installations',
+  food_and_beverage: 'Alimentation et boissons',
+  healthcare: 'Santé',
+  energy_and_utilities: 'Énergie et services publics',
+  education: 'Éducation',
+  hospitality: 'Hôtellerie',
+  construction: 'Construction',
+  installation_docs: 'Documentation d’installation',
+  trusted_by_maintenance_teams:
+    'Approuvé par les équipes de maintenance dans plusieurs secteurs',
+  cut_costs_performance:
+    'Réduisez les coûts de logiciel de maintenance sans sacrifier la performance',
+  'free_cmms.title':
+    'Logiciel de GMAO gratuit Atlas | Aucune carte de crédit requise',
+  'free_cmms.description':
+    "Logiciel de GMAO gratuit — pas une version d'essai. Gérez la maintenance, les actifs et les bons de travail instantanément. Aucune carte de crédit requise.",
+  'free_cmms.keywords':
+    'gmao gratuite, logiciel de gestion de maintenance, logiciel de bons de travail gratuit, suivi des actifs, maintenance préventive',
+  'overview.description':
+    "Atlas CMMS est une GMAO gratuite et open-source pour gérer les bons de travail, la maintenance préventive, les actifs et les installations. Simplifiez vos opérations de maintenance dès aujourd'hui.",
+  'overview.keywords':
+    "GMAO, système de gestion de maintenance assistée par ordinateur, EAM, gestion des actifs d'entreprise, GMAO open source, logiciel de maintenance gratuit, gestion des bons de travail, maintenance préventive, suivi des actifs, gestion des installations, logiciel de suivi de maintenance, maintenance des équipements, Atlas CMMS",
+  'pricing.title': 'Tarification - Atlas CMMS',
+  'pricing.description':
+    'Plans tarifaires flexibles pour Atlas CMMS. Choisissez entre les versions Cloud et Auto-hébergée de notre GMAO open-source pour optimiser vos opérations de maintenance.',
+  'free_cmms.hero.subtitle': 'Logiciel de GMAO gratuit',
+  'free_cmms.hero.title':
+    'Gérez vos bons de travail et actifs - Gratuit pour toujours',
+  'free_cmms.hero.description':
+    'Arrêtez de jongler avec des feuilles de calcul et des outils obsolètes. Passez à un logiciel de GMAO moderne - gratuitement.',
+  'free_cmms.hero.start_free': 'Commencez gratuitement maintenant',
+  'free_cmms.hero.work_orders_alt': 'Bons de travail',
+  'free_cmms.hero.mobile_app_alt': 'Application mobile',
+  'free_cmms.features.work_orders.title': 'Des bons de travail sans effort',
+  'free_cmms.features.work_orders.p1':
+    'Créez, assignez et suivez les bons de travail en quelques secondes.',
+  'free_cmms.features.work_orders.p2':
+    "Joignez des photos, des manuels et des listes de contrôle à n'importe quelle tâche.",
+  'free_cmms.features.work_orders.p3':
+    'Suivez les progrès en temps réel avec des mises à jour de statut instantanées.',
+  'free_cmms.features.work_orders.alt': 'Gestion des bons de travail',
+  'free_cmms.features.asset_tracking.title': 'Suivi du cycle de vie des actifs',
+  'free_cmms.features.asset_tracking.p1':
+    'Maintenez un historique numérique complet de chaque actif.',
+  'free_cmms.features.asset_tracking.p2':
+    'Prenez des décisions basées sur les données : réparer ou remplacer.',
+  'free_cmms.features.asset_tracking.p3':
+    'Restez prêt pour les audits grâce aux journaux de conformité automatisés.',
+  'free_cmms.features.asset_tracking.alt': 'Gestion des actifs',
+  'free_cmms.features.inventory.title': 'Inventaire et pièces',
+  'free_cmms.features.inventory.p1':
+    'Suivez les niveaux de stock sur plusieurs sites en temps réel.',
+  'free_cmms.features.inventory.p2':
+    'Scannez les codes QR pour rechercher et utiliser instantanément les pièces.',
+  'free_cmms.features.inventory.p3':
+    'Recevez des alertes automatiques de stock bas et recommandez instantanément.',
+  'free_cmms.features.inventory.alt': 'Gestion des stocks',
+  'free_cmms.features.mobile.title': 'La maintenance en déplacement',
+  'free_cmms.features.mobile.p1':
+    "Fonctionnalité complète de l'application mobile pour iOS et Android.",
+  'free_cmms.features.mobile.p2':
+    'Prenez des photos et scannez des codes-barres directement sur le terrain.',
+  'free_cmms.features.mobile.p3':
+    'Synchronisez les données instantanément et travaillez hors ligne si nécessaire.',
+  'free_cmms.features.mobile.alt': 'Application GMAO mobile',
+  'free_cmms.features.get_started_free': 'Commencez gratuitement',
+  'free_cmms.features.ready_to_optimize':
+    'Prêt à optimiser votre maintenance ?',
+  'free_cmms.features.join_thousands':
+    'Rejoignez des milliers de professionnels de la maintenance utilisant la GMAO gratuite la plus intuitive au monde.',
+  'free_cmms.features.get_started_no_card':
+    'Commencez gratuitement - Aucune carte de crédit requise',
+  portal_public_asset_warning:
+    'Ce portail est public et ne nécessite pas d’authentification. Les Équipements listés seront visibles par toute personne possédant le lien.',
+  portal_public_location_warning:
+    'Ce portail est public et ne nécessite pas d’authentification. Les Emplacements listés seront visibles par toute personne possédant le lien.',
+  create_request_portal: 'Créer un portail de demande',
+  edit_request_portal: 'Modifier le portail de demande',
+  request_portal_create_success: 'Portail de demande créé avec succès',
+  request_portal_edit_success: 'Portail de demande modifié avec succès',
+  request_portal_delete_success: 'Portail de demande supprimé avec succès',
+  request_portal_delete_failure:
+    'Échec de la suppression du portail de demande',
+  confirm_delete_request_portal:
+    'Voulez-vous vraiment supprimer ce portail de demande ?',
+  share_portal: 'Partager le portail',
+  get_portal_link: 'Obtenir le lien du portail',
+  portal_link_description:
+    'Seules les personnes disposant de ce lien pourront accéder au portail.',
+  print_qr_code: 'Imprimer le QR code',
+  qr_code_description:
+    "Téléchargez le QR code et collez-le sur l'installation, afin que les utilisateurs puissent le scanner et accéder au portail.",
+  copied: 'Copié !',
+  copy: 'Copier',
+  download: 'Télécharger',
+  share: 'Partager',
+  noRows: {
+    request_portal: {
+      message: 'Aucun portail de demande trouvé',
+      action: 'Créer un portail'
+    }
+  },
+  portal_not_found: 'Portail non trouvé',
+  request_submitted_success: 'Votre demande a été soumise avec succès',
+  request_submit_failure:
+    'Échec de la soumission de la demande. Veuillez réessayer.',
+  required_title: 'Le titre est obligatoire',
+  required_description: 'La description est obligatoire',
+  required_contact: 'Le contact est obligatoire',
+  required_location: "L'emplacement est obligatoire",
+  company_info: "Informations sur l'entreprise",
+  required_information: 'Informations requises',
+  upload_files: 'Télécharger des fichiers',
+  delete: 'Supprimer',
+  request_portal: 'Portail de demandes',
+  required_image: "L'image est obligatoire",
+  requested_from_portal: 'Cette demande a été créée depuis le portail : ',
+  request_portals: 'Portails de demandes',
+  welcome_message: "Message d'accueil",
+  fields: 'Champs',
+  field_settings: 'Paramètres des champs',
+  contact: 'Contact',
+  untitled_portal: 'Portail sans titre',
+  no_welcome_message: "Aucun message d'accueil",
+  request_portal_create_failure: 'Échec de la création du portail de demandes',
+  request_portal_edit_failure:
+    'Échec de la modification du portail de demandes',
+  no_access_request_portals: "Vous n'avez pas accès aux portails de demandes",
+  'noRows.request_portal.message':
+    "Il semble que vous n'ayez pas encore de portails de demandes.",
+  'noRows.request_portal.action': 'Créez votre premier portail de demandes',
+  request_title: 'Titre de la demande',
+  configure_form_fields: 'Configurer les champs du formulaire',
+  allow_selection_from_all_locations:
+    'Autoriser la sélection de tous les emplacements',
+  allow_selection_from_all_assets:
+    'Autoriser la sélection de tous les équipements',
+  restrict_to_a_specific_location: 'Restreindre à un emplacement spécifique',
+  restrict_to_a_specific_asset: 'Restreindre à un équipement spécifique',
+  submit_request: 'Soumettre la demande',
+  company_logo: "Logo de l'entreprise",
+  recaptcha_failed: 'La vérification reCAPTCHA a échoué. Veuillez réessayer.',
+  select_date_range: 'Sélectionner la plage de dates',
+  get_mobile_app: "Obtenir l'application mobile",
+  scan_qr_to_download:
+    'Scannez le code QR pour télécharger lapplication mobile',
+  integrations: 'Intégrations',
+  api_keys: 'Clés API',
+  connectors: 'Connecteurs',
+  webhooks: 'Webhooks',
+  create_api_key: 'Créer une clé API',
+  api_key_label: 'Libellé de la clé API',
+  api_key_created_success: 'Clé API créée avec succès',
+  api_key_code_copied: 'Code de la clé API copié dans le presse-papiers',
+  api_key_code_view_once:
+    "Ce code ne peut être affiché qu'une seule fois. Veuillez le copier maintenant car vous ne pourrez plus le voir.",
+  api_key_code: 'Code de la clé API',
+  copy_code: 'Copier le code',
+  last_used: 'Dernière utilisation',
+  never: 'Jamais',
+  delete_api_key: 'Supprimer la clé API',
+  delete_api_key_confirm: 'Êtes-vous sûr de vouloir supprimer cette clé API ?',
+  upgrade_api:
+    "Passez à une version supérieure pour accéder à l'API, aux connecteurs et aux webhooks",
+  // Webhooks
+  webhook_endpoints: 'Points de terminaison Webhook',
+  create_webhook_endpoint: 'Créer un point de terminaison Webhook',
+  delete_webhook_endpoint: 'Supprimer le point de terminaison Webhook',
+  delete_webhook_endpoint_confirm:
+    'Êtes-vous sûr de vouloir supprimer ce point de terminaison Webhook ?',
+  webhook_endpoint_created_success:
+    'Point de terminaison Webhook créé avec succès',
+  webhook_endpoint_deleted_success:
+    'Point de terminaison Webhook supprimé avec succès',
+  webhook_endpoint_url: 'URL',
+  webhook_endpoint_event: 'Événement',
+  webhook_endpoint_select_event: 'Sélectionner un événement',
+  webhook_endpoint_asset_statuses: "Statuts de l'équipement",
+  webhook_endpoint_wo_statuses: "Statuts de l'ordre de travail",
+  webhook_endpoint_work_request_approved_only:
+    'Uniquement les demandes approuvées',
+  webhook_endpoint_work_request_approved_only_desc:
+    'Déclencher pour les demandes de travail approuvées',
+  webhook_endpoint_wo_categories: "Catégories de l'ordre de travail",
+  webhook_endpoint_wo_fields: "Champs de l'ordre de travail",
+  webhook_endpoint_part_fields: 'Champs de la pièce',
+  webhook_endpoint_serialize: 'Sérialiser le payload',
+  webhook_endpoint_serialize_description:
+    "Si coché, le webhook recevra les données complètes de l'entité",
+  webhook_endpoint_secret: 'Secret',
+  webhook_endpoint_show_secret: 'Afficher le secret',
+  webhook_endpoint_hide_secret: 'Masquer le secret',
+  webhook_endpoint_copy_secret: 'Copier le secret',
+  webhook_endpoint_rotate_secret: 'Renouveler le secret',
+  webhook_endpoint_secret_rotated: 'Secret renouvelé avec succès',
+  webhook_endpoint_secret_copied: 'Secret copié dans le presse-papiers',
+  webhook_endpoint_last_triggered: 'Dernier déclenchement',
+  webhook_endpoint_never_triggered: 'Jamais déclenché',
+  webhook_endpoint_type: 'Type',
+  WEBHOOK_ASSET_STATUS_CHANGE: "Changement de statut de l'équipement",
+  WEBHOOK_METER_TRIGGER_STATUS_CHANGE:
+    'Changement de statut du déclencheur de compteur',
+  WEBHOOK_NEW_ASSET: 'Nouvel équipement',
+  WEBHOOK_NEW_CATEGORY_ON_WORK_ORDER:
+    "Nouvelle catégorie sur l'ordre de travail",
+  WEBHOOK_NEW_COMMENT_ON_WORK_ORDER:
+    "Nouveau commentaire sur l'ordre de travail",
+  WEBHOOK_NEW_LOCATION: 'Nouvel emplacement',
+  WEBHOOK_NEW_PART: 'Nouvelle pièce',
+  WEBHOOK_NEW_PURCHASE_ORDER: "Nouvel ordre d'achat",
+  WEBHOOK_NEW_VENDOR: 'Nouveau fournisseur',
+  WEBHOOK_NEW_WORK_ORDER: 'Nouvel ordre de travail',
+  WEBHOOK_NEW_REQUEST: 'Nouvelle demande',
+  WEBHOOK_PART_CHANGE: 'Modification de pièce',
+  WEBHOOK_PART_DELETE: 'Suppression de pièce',
+  WEBHOOK_PART_QUANTITY_CHANGED: 'Quantité de pièce modifiée',
+  WEBHOOK_PURCHASE_ORDER_CHANGE: "Modification de l'ordre d'achat",
+  WEBHOOK_PURCHASE_ORDER_STATUS_CHANGE:
+    "Changement de statut de l'ordre d'achat",
+  WEBHOOK_WORK_ORDER_CHANGE: "Modification de l'ordre de travail",
+  WEBHOOK_WORK_ORDER_DELETE: "Suppression de l'ordre de travail",
+  WEBHOOK_WORK_ORDER_OVERDUE: 'Ordre de travail en retard',
+  WEBHOOK_WORK_ORDER_STATUS_CHANGE:
+    "Changement de statut de l'ordre de travail",
+  WEBHOOK_WORK_REQUEST_STATUS_CHANGE:
+    'Changement de statut de la demande de travail',
+  comments: 'Commentaires',
+  add_comment_placeholder: 'Ajouter un commentaire...',
+  post_comment: 'Publier le commentaire',
+  no_comments: 'Pas encore de commentaires',
+  confirm_delete_comment: 'Êtes-vous sûr de vouloir supprimer ce commentaire?'
 };
 
 export default frJSON;

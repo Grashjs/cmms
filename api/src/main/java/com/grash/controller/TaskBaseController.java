@@ -1,85 +1,78 @@
 package com.grash.controller;
 
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.TaskBaseDTO;
 import com.grash.dto.TaskBasePatchDTO;
+import com.grash.dto.TaskBaseShowDTO;
 import com.grash.exception.CustomException;
-import com.grash.model.OwnUser;
+import com.grash.mapper.TaskBaseMapper;
+import com.grash.model.User;
 import com.grash.model.TaskBase;
 import com.grash.service.TaskBaseService;
 import com.grash.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/task-bases")
-@Api(tags = "taskBase")
+@Tag(name = "Task Templates", description = "Operations on task templates")
 @RequiredArgsConstructor
 public class TaskBaseController {
 
     private final TaskBaseService taskBaseService;
     private final UserService userService;
+    private final TaskBaseMapper taskBaseMapper;
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "TaskBase not found")})
-    public TaskBase getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+
+    public TaskBaseShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
+        User user = userService.whoami(req);
         Optional<TaskBase> optionalTaskBase = taskBaseService.findById(id);
         if (optionalTaskBase.isPresent()) {
             TaskBase savedTaskBase = optionalTaskBase.get();
-            return savedTaskBase;
+            return taskBaseMapper.toShowDto(savedTaskBase);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public TaskBase create(@ApiParam("TaskBase") @Valid @RequestBody TaskBase taskBaseReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
-        return taskBaseService.create(taskBaseReq);
+    public TaskBaseShowDTO create(@Parameter(description = "Task template to create") @Valid @RequestBody TaskBaseDTO taskBaseReq, HttpServletRequest req) {
+        User user = userService.whoami(req);
+        return taskBaseMapper.toShowDto(taskBaseService.createFromTaskBaseDTO(taskBaseReq, user.getCompany()));
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "TaskBase not found")})
-    public TaskBase patch(@ApiParam("TaskBase") @Valid @RequestBody TaskBasePatchDTO taskBase, @ApiParam("id") @PathVariable("id") Long id,
-                          HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+
+    public TaskBaseShowDTO patch(@Parameter(description = "Task template fields to update") @Valid @RequestBody TaskBasePatchDTO taskBase,
+                                 @PathVariable("id") Long id,
+                                 HttpServletRequest req) {
+        User user = userService.whoami(req);
         Optional<TaskBase> optionalTaskBase = taskBaseService.findById(id);
 
         if (optionalTaskBase.isPresent()) {
             TaskBase savedTaskBase = optionalTaskBase.get();
-            return taskBaseService.update(id, taskBase);
+            return taskBaseMapper.toShowDto(taskBaseService.update(id, taskBase));
         } else throw new CustomException("TaskBase not found", HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "TaskBase not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+
+    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
+        User user = userService.whoami(req);
 
         Optional<TaskBase> optionalTaskBase = taskBaseService.findById(id);
         if (optionalTaskBase.isPresent()) {
@@ -91,3 +84,5 @@ public class TaskBaseController {
     }
 
 }
+
+

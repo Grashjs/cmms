@@ -25,13 +25,12 @@ import {
   Text,
   useTheme
 } from 'react-native-paper';
-import Dropdown from 'react-native-dropdown-picker';
 import { useTranslation } from 'react-i18next';
 import * as React from 'react';
 import { Fragment, useContext, useEffect, useState } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import Tag from '../../components/Tag';
-import { getPriorityColor } from '../../utils/overall';
+import { getPriorityColor, getStatusColor } from '../../utils/overall';
 import { PermissionEntity } from '../../models/role';
 import useAuth from '../../hooks/useAuth';
 import { controlTimer, getLabors } from '../../slices/labor';
@@ -61,14 +60,32 @@ import PartQuantities from '../../components/PartQuantities';
 import { SheetManager } from 'react-native-actions-sheet';
 import LoadingDialog from '../../components/LoadingDialog';
 import WorkOrder from '../../models/workOrder';
-import {
-  DownloadDirectoryPath,
-  downloadFile,
-  DownloadFileOptions
-} from 'react-native-fs';
+import * as FileSystem from 'expo-file-system';
 import Labor from '../../models/labor';
 import { AudioPlayer } from '../../components/AudioPlayer';
+import { Task } from '../../models/tasks';
+import { getErrorMessage } from '../../utils/api';
+import ImageView from 'react-native-image-viewing';
 
+const getRemainingTasksLength = (tasks: Task[]): number => {
+  const SECONDS_MS = 5_000;
+
+  const mappedTasks = tasks.map((task) => {
+    const createdAt = new Date(task.createdAt).getTime();
+    const updatedAt = new Date(task.updatedAt).getTime();
+
+    const updatedAfterMoreThanThreshold = updatedAt - createdAt > SECONDS_MS;
+
+    return {
+      ...task,
+      updatedAfterMoreThanThreshold
+    };
+  });
+
+  return mappedTasks.filter(
+    (task) => !task.value || !task.updatedAfterMoreThanThreshold
+  ).length;
+};
 export default function WODetailsScreen({
   navigation,
   route
@@ -79,7 +96,6 @@ export default function WODetailsScreen({
   );
   const workOrder = workOrderInfos[id]?.workOrder ?? workOrderProp;
   const { t } = useTranslation();
-  const [openDropDown, setOpenDropDown] = useState<boolean>(false);
   const [dropDownValue, setDropdownValue] = useState<string>(
     workOrder?.status ?? ''
   );
@@ -95,6 +111,7 @@ export default function WODetailsScreen({
   const { workOrderConfiguration, generalPreferences } = companySettings;
   const [loading, setLoading] = useState<boolean>(false);
   const theme = useTheme();
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState<boolean>(false);
   const dispatch = useDispatch();
   const { partQuantitiesByWorkOrder, loadingPartQuantities } = useSelector(
     (state) => state.partQuantities
@@ -133,6 +150,7 @@ export default function WODetailsScreen({
   );
   const [openDelete, setOpenDelete] = React.useState(false);
   const [openArchive, setOpenArchive] = React.useState(false);
+  const remainingTasksLength = getRemainingTasksLength(tasks);
   const loadingDetails =
     loadingPartQuantities[id] ||
     loadingTasks[id] ||
@@ -269,25 +287,30 @@ export default function WODetailsScreen({
     };
   }, [primaryTime, runningTimer]); // Run effect whenever runningTimer changes
 
-  const actualDownload = (uri: string): Promise<any> => {
-    const fileName = workOrder.title;
-    //Define path to store file along with the extension
-    const path = `${DownloadDirectoryPath}/${fileName}.pdf`;
-    //Define options
-    const options: DownloadFileOptions = {
-      fromUrl: uri,
-      toFile: path
-    };
-    //Call downloadFile
-    const response = downloadFile(options);
-    return response.promise.then(async (res) => {
-      //Transform response
-      if (res && res.statusCode === 200 && res.bytesWritten > 0) {
-        Linking.openURL(uri);
-      } else {
-        console.log(res);
+  const actualDownload = async (uri: string): Promise<void> => {
+    const rawFileName = workOrder?.title ?? `work-order-${id}`;
+    const fileName = rawFileName.replace(/[\\/:*?"<>|]/g, '_');
+    const directoryUri =
+      FileSystem.documentDirectory ?? FileSystem.cacheDirectory;
+    if (!directoryUri) {
+      throw new Error('Missing download directory path');
+    }
+    const fileUri = `${directoryUri}${fileName}.pdf`;
+    const res = await FileSystem.downloadAsync(uri, fileUri);
+
+    if (res && res.status === 200) {
+      try {
+        await Linking.openURL(res.uri);
+      } catch (error) {
+        console.error(
+          'Failed to open local file, falling back to remote URL',
+          error
+        );
+        await Linking.openURL(uri);
       }
-    });
+    } else {
+      throw new Error('Unable to download work order report');
+    }
   };
   const getRunningTimerDuration = (labor: Labor) => {
     return durationToHours(
@@ -324,7 +347,8 @@ export default function WODetailsScreen({
         if (Platform.OS === 'ios') {
           await actualDownload(uri);
         } else {
-          if (Platform.Version >= 29) await actualDownload(uri);
+          if (Platform.OS === 'android' && Platform.Version >= 29)
+            await actualDownload(uri);
           else {
             try {
               const granted = await PermissionsAndroid.request(
@@ -400,14 +424,14 @@ export default function WODetailsScreen({
     setIsExtended(currentScrollPosition <= 0);
   };
   const onCompleteWO = (
-    signatureId: number | undefined,
+    signature: string | undefined,
     feedback: string | undefined
   ): Promise<any> => {
     return dispatch(
       changeWorkOrderStatus(id, {
         status: 'COMPLETE',
         feedback: feedback ?? null,
-        signature: signatureId ? { id: signatureId } : null
+        signature
       })
     ).then(() => navigation.navigate('Root'));
   };
@@ -640,6 +664,9 @@ export default function WODetailsScreen({
       </Portal>
     );
   };
+  const statusColor = workOrder
+    ? getStatusColor(workOrder.status, theme)
+    : null;
   if (workOrder)
     return (
       <View style={styles.container}>
@@ -647,6 +674,7 @@ export default function WODetailsScreen({
           {renderConfirmDelete()}
           {renderConfirmArchive()}
           <ScrollView
+            contentContainerStyle={{ paddingBottom: 100 }}
             onScroll={onScroll}
             style={{
               paddingHorizontal: 20
@@ -658,37 +686,66 @@ export default function WODetailsScreen({
               />
             }
           >
-            <Text variant="displaySmall">{workOrder.title}</Text>
+            <Text style={{ marginTop: 5 }} variant="displaySmall">
+              {workOrder.title}
+            </Text>
             <View style={styles.row}>
               <Text
                 variant="titleMedium"
-                style={{ marginRight: 10 }}
+                style={{ marginRight: 10, color: 'grey' }}
               >{`#${workOrder.customId}`}</Text>
-              <Tag
-                text={t('priority_label', { priority: t(workOrder.priority) })}
-                color="white"
-                backgroundColor={getPriorityColor(workOrder.priority, theme)}
-              />
+              {workOrder.priority !== 'NONE' && (
+                <Tag
+                  text={t('priority_label', {
+                    priority: t(workOrder.priority)
+                  })}
+                  color="white"
+                  backgroundColor={getPriorityColor(workOrder.priority, theme)}
+                />
+              )}
             </View>
             {workOrder.image && (
-              <Image
-                style={{ height: 200, marginTop: 20 }}
-                source={{ uri: workOrder.image.url }}
-              />
+              <TouchableOpacity onPress={() => setIsImageViewerOpen(true)}>
+                <Image
+                  style={{ height: 200, marginTop: 20 }}
+                  source={{ uri: workOrder.image.url }}
+                />
+              </TouchableOpacity>
             )}
             <View style={{ marginTop: 20 }}>
-              <View style={styles.dropdown}>
-                <Dropdown
-                  disabled={
-                    !hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder)
-                  }
-                  value={workOrder.status}
-                  items={statuses}
-                  open={openDropDown}
-                  setOpen={setOpenDropDown}
-                  setValue={setDropdownValue}
+              <TouchableOpacity
+                disabled={
+                  !hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder)
+                }
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: 12,
+                  borderWidth: 1,
+                  borderColor: statusColor,
+                  borderRadius: 4
+                }}
+                onPress={() =>
+                  SheetManager.show('dropdown-sheet', {
+                    payload: {
+                      items: statuses,
+                      value: workOrder.status,
+                      setValue: setDropdownValue
+                    }
+                  })
+                }
+              >
+                <Text style={{ color: statusColor }}>
+                  {statuses.find((s) => s.value === workOrder.status)?.label}
+                </Text>
+                <IconButton
+                  iconColor={statusColor}
+                  icon="menu-down"
+                  size={24}
+                  style={{ margin: -5 }}
                 />
-              </View>
+              </TouchableOpacity>
               {workOrder.audioDescription && (
                 <View style={{ backgroundColor: 'white', paddingVertical: 20 }}>
                   <Text>{t('audio_description')}</Text>
@@ -757,7 +814,7 @@ export default function WODetailsScreen({
                         {t('signature')}
                       </Text>
                       <Image
-                        source={{ uri: workOrder.signature.url }}
+                        source={{ uri: workOrder.signature }}
                         style={{ height: 200 }}
                       />
                     </View>
@@ -955,13 +1012,13 @@ export default function WODetailsScreen({
                     <Text variant="titleLarge" style={{ fontWeight: 'bold' }}>
                       {' '}
                       {t('remaining_tasks', {
-                        count: tasks.filter((task) => !task.value).length
+                        count: remainingTasksLength
                       })}
                     </Text>
                     <Text variant="bodyMedium">
                       {t('complete_tasks_percent', {
                         percent: (
-                          (tasks.filter((task) => task.value).length * 100) /
+                          ((tasks.length - remainingTasksLength) * 100) /
                           tasks.length
                         ).toFixed(0)
                       })}
@@ -969,7 +1026,7 @@ export default function WODetailsScreen({
                     <Divider style={{ marginTop: 5 }} />
                     <ProgressBar
                       progress={
-                        tasks.filter((task) => task.value).length / tasks.length
+                        (tasks.length - remainingTasksLength) / tasks.length
                       }
                     />
                   </TouchableOpacity>
@@ -1129,14 +1186,22 @@ export default function WODetailsScreen({
                 color="white"
                 onPress={() => {
                   setControllingTime(true);
-                  dispatch(controlTimer(!runningTimer, id)).finally(() =>
-                    setControllingTime(false)
-                  );
+                  dispatch(controlTimer(!runningTimer, id))
+                    .catch((err) => showSnackBar(getErrorMessage(err), 'error'))
+                    .finally(() => setControllingTime(false));
                 }}
                 visible={true}
                 style={[styles.fabStyle]}
               />
             )}
+          {workOrder.image && (
+            <ImageView
+              images={[{ uri: workOrder.image.url }]}
+              imageIndex={0}
+              visible={isImageViewerOpen}
+              onRequestClose={() => setIsImageViewerOpen(false)}
+            />
+          )}
         </Provider>
       </View>
     );
@@ -1169,6 +1234,5 @@ const styles = StyleSheet.create({
     bottom: 16,
     right: 16,
     position: 'absolute'
-  },
-  dropdown: { zIndex: 10 }
+  }
 });

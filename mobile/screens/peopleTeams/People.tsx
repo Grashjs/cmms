@@ -14,31 +14,26 @@ import useAuth from '../../hooks/useAuth';
 import { PermissionEntity } from '../../models/role';
 import { getMoreUsers, getUsers } from '../../slices/user';
 import { FilterField, SearchCriteria } from '../../models/page';
-import {
-  Avatar,
-  Divider,
-  IconButton,
-  Searchbar,
-  Text,
-  useTheme
-} from 'react-native-paper';
+import { Avatar, IconButton, Searchbar, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import User from '../../models/user';
-import { onSearchQueryChange } from '../../utils/overall';
+import { isCloseToBottom, onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 import { getUserInitials } from '../../utils/displayers';
+import { useAppTheme } from '../../custom-theme';
+import { IconWithLabel } from '../../components/IconWithLabel';
 
 export default function People({
-                                 navigation
-                               }: RootStackScreenProps<'PeopleTeams'>) {
+  navigation
+}: RootStackScreenProps<'PeopleTeams'>) {
   const { t } = useTranslation();
   const currentUser = useAuth().user;
   const [startedSearch, setStartedSearch] = useState<boolean>(false);
   const { users, loadingGet, currentPageNum, lastPage } = useSelector(
     (state) => state.users
   );
-  const theme = useTheme();
+  const theme = useAppTheme();
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
   const { getFormattedDate, getUserNameById } = useContext(
@@ -80,17 +75,6 @@ export default function People({
     setCriteria(getCriteriaFromFilterFields([]));
   };
 
-  const isCloseToBottom = ({
-                             layoutMeasurement,
-                             contentOffset,
-                             contentSize
-                           }) => {
-    const paddingToBottom = 20;
-    return (
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom
-    );
-  };
   const onQueryChange = (query) => {
     onSearchQueryChange<User>(query, criteria, setCriteria, setSearchQuery, [
       'firstName',
@@ -142,35 +126,68 @@ export default function People({
               onPress={() => {
                 if (user.id === currentUser.id) {
                   navigation.navigate('UserProfile');
-                } else navigation.push('UserDetails', { id: user.id, userProp: user });
+                } else
+                  navigation.push('UserDetails', {
+                    id: user.id,
+                    userProp: user
+                  });
               }}
             >
-              <View
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  padding: 20,
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  backgroundColor: 'white'
-                }}
-              >
-                {user.image ? (
-                  <Avatar.Image source={{ uri: user.image.url }} />
-                ) : (
-                  <Avatar.Text size={50} label={getUserInitials(user)} />
-                )}
-                <Text>{`${user.firstName} ${user.lastName}`}</Text>
-                <View>
-                  {user.phone && (
-                    <IconButton
-                      onPress={() => Linking.openURL(`tel:${user.phone}`)}
-                      icon={'phone'}
+              <View style={styles.card}>
+                <View
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: 6
+                  }}
+                >
+                  {user.image ? (
+                    <Avatar.Image source={{ uri: user.image.url }} size={50} />
+                  ) : (
+                    <Avatar.Text
+                      size={50}
+                      label={getUserInitials(user)}
+                      style={{ backgroundColor: theme.colors.background }}
                     />
                   )}
+                  <View style={{ flex: 1 }}>
+                    <View style={styles.cardHeader}>
+                      <View style={{ flex: 1 }}>
+                        <Text variant="titleMedium" style={styles.cardTitle}>
+                          {`${user.firstName} ${user.lastName}`}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.cardBody}>
+                      {user.email && (
+                        <IconWithLabel
+                          label={user.email}
+                          icon="email-outline"
+                          color={theme.colors.grey}
+                        />
+                      )}
+                      {user.phone && (
+                        <IconWithLabel
+                          label={user.phone}
+                          icon="phone-outline"
+                          color={theme.colors.grey}
+                        />
+                      )}
+                    </View>
+                    <View style={styles.cardFooter}>
+                      <View style={{ flex: 1 }} />
+                      {user.phone && (
+                        <IconButton
+                          onPress={() => Linking.openURL(`tel:${user.phone}`)}
+                          icon={'phone'}
+                          style={{ margin: 0 }}
+                          iconColor={theme.colors.primary}
+                        />
+                      )}
+                    </View>
+                  </View>
                 </View>
               </View>
-              <Divider />
             </TouchableOpacity>
           ))
         ) : loadingGet ? null : (
@@ -188,7 +205,7 @@ export default function People({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
+    // alignItems: 'center',
     justifyContent: 'center'
   },
   title: {
@@ -197,12 +214,36 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     width: '100%',
-    height: '100%',
-    padding: 5
+    height: '100%'
   },
   row: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center'
+  },
+  card: {
+    backgroundColor: 'white',
+    marginBottom: 1,
+    padding: 10
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8
+  },
+  cardTitle: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+    flexShrink: 1
+  },
+  cardBody: {
+    gap: 10
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10
   }
 });

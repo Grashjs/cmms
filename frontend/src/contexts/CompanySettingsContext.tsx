@@ -10,6 +10,8 @@ import { useTranslation } from 'react-i18next';
 import { CustomSnackBarContext } from './CustomSnackBarContext';
 import mailToLink from 'mailto-link';
 import { useBrand } from '../hooks/useBrand';
+import { format } from 'date-fns';
+import { utcToZonedTime } from 'date-fns-tz';
 
 type CompanySettingsContext = {
   getFormattedDate: (dateString: string, hideTime?: boolean) => string;
@@ -38,7 +40,8 @@ export const CompanySettingsProvider: FC = ({ children }) => {
   const dispatch = useDispatch();
   const { generalPreferences } = companySettings ?? {
     dateFormat: 'DDMMYY',
-    currency: { code: '$' }
+    currency: { code: '$' },
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
   };
   const { allUsersMini } = useSelector((state) => state.users);
   const { workOrderConfiguration } = companySettings ?? {
@@ -50,18 +53,17 @@ export const CompanySettingsProvider: FC = ({ children }) => {
 
   const getFormattedDate = (dateString: string, hideTime?: boolean) => {
     if (!dateString) return '';
-    const date = new Date(dateString);
-    const month = ('0' + (date.getMonth() + 1).toString()).substr(-2);
-    const day = ('0' + date.getDate().toString()).substr(-2);
-    const year = date.getFullYear().toString().substr(2);
-    const time = hideTime
-      ? ''
-      : (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) +
-        ':' +
-        (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
+
+    const tz = generalPreferences.timeZone;
+    const date = utcToZonedTime(new Date(dateString), tz);
+
+    const timeStr = hideTime ? '' : format(date, ' HH:mm');
+
     if (generalPreferences.dateFormat === 'MMDDYY') {
-      return month + '/' + day + '/' + year + ' ' + time;
-    } else return day + '/' + month + '/' + year + ' ' + time;
+      return format(date, 'MM/dd/yy') + timeStr;
+    } else {
+      return format(date, 'dd/MM/yy') + timeStr;
+    }
   };
   const getFormattedCurrency = (amount: number): string => {
     const code = generalPreferences.currency.code;
@@ -134,13 +136,15 @@ export const CompanySettingsProvider: FC = ({ children }) => {
       'files',
       'signature'
     ];
+    const fieldMap = { images: 'image' };
     fieldsToConfigure.forEach((name) => {
+      const trueFieldName = fieldMap[name] || name;
       const fieldConfig =
         workOrderConfiguration.workOrderFieldConfigurations.find(
           (woFC) => woFC.fieldName === name
         );
       const fieldIndexInFields = fields.findIndex(
-        (field) => field.name === name
+        (field) => field.name === trueFieldName
       );
       if (fieldIndexInFields !== -1) {
         if (fieldConfig.fieldType === 'REQUIRED') {
@@ -152,16 +156,16 @@ export const CompanySettingsProvider: FC = ({ children }) => {
           let yupSchema;
           switch (fields[fieldIndexInFields].type) {
             case 'text':
-              yupSchema = Yup.string().required(requiredMessage);
+              yupSchema = Yup.string().required(requiredMessage).nullable();
               break;
             case 'date':
-              yupSchema = Yup.string().required(requiredMessage);
+              yupSchema = Yup.string().required(requiredMessage).nullable();
               break;
             case 'file':
               yupSchema = Yup.array().required(requiredMessage);
               break;
             case 'number':
-              yupSchema = Yup.number().required(requiredMessage);
+              yupSchema = Yup.number().required(requiredMessage).nullable();
               break;
             case 'select':
               if (fields[fieldIndexInFields].multiple) {
@@ -174,7 +178,7 @@ export const CompanySettingsProvider: FC = ({ children }) => {
               yupSchema = Yup.object().required(requiredMessage).nullable();
               break;
           }
-          shape[name] = yupSchema;
+          shape[trueFieldName] = yupSchema;
         } else if (fieldConfig.fieldType === 'HIDDEN') {
           fields.splice(fieldIndexInFields, 1);
         }

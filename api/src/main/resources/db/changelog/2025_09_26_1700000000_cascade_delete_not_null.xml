@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="20250926-01-fk-work_order_files" author="Ibrahima G. Coulibaly">
+        <!-- Drop existing foreign key constraints -->
+        <dropForeignKeyConstraint
+                baseTableName="work_order_files"
+                constraintName="fkdoggd73pxsy9naoq00g3epsg1"/>
+
+        <dropForeignKeyConstraint
+                baseTableName="work_order_files"
+                constraintName="fkccol3khq2jntfddtvcfv8hk56"/>
+
+        <!-- Recreate foreign key constraints with ON DELETE CASCADE -->
+        <addForeignKeyConstraint
+                baseTableName="work_order_files"
+                baseColumnNames="work_order_id"
+                constraintName="fkdoggd73pxsy9naoq00g3epsg1"
+                referencedTableName="work_order"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                baseTableName="work_order_files"
+                baseColumnNames="files_id"
+                constraintName="fkccol3khq2jntfddtvcfv8hk56"
+                referencedTableName="file"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+    <changeSet id="20250926-02-fk-work_order_assigned_to" author="Ibrahima G. Coulibaly">
+        <!-- Drop existing foreign key constraints -->
+        <dropForeignKeyConstraint
+                baseTableName="work_order_assigned_to"
+                constraintName="fkmfhu1adi2mobtmdpsprmuo267"/>
+
+        <dropForeignKeyConstraint
+                baseTableName="work_order_assigned_to"
+                constraintName="fks2pjdwafjgekyxtwj4f82qn4q"/>
+
+        <!-- Recreate foreign key constraints with ON DELETE CASCADE -->
+        <addForeignKeyConstraint
+                baseTableName="work_order_assigned_to"
+                baseColumnNames="work_order_id"
+                constraintName="fkmfhu1adi2mobtmdpsprmuo267"
+                referencedTableName="work_order"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                baseTableName="work_order_assigned_to"
+                baseColumnNames="assigned_to_id"
+                constraintName="fks2pjdwafjgekyxtwj4f82qn4q"
+                referencedTableName="own_user"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+</databaseChangeLog>

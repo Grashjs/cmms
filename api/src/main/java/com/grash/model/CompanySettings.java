@@ -6,33 +6,36 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import com.grash.utils.Helper;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
 @Data
 @NoArgsConstructor
+@Schema(description = "Company settings and configuration entity")
 public class CompanySettings {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Schema(description = "Unique identifier", accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private GeneralPreferences generalPreferences = new GeneralPreferences(this);
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private WorkOrderConfiguration workOrderConfiguration = new WorkOrderConfiguration(this);
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private WorkOrderRequestConfiguration WorkOrderRequestConfiguration = new WorkOrderRequestConfiguration(this);
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "companySettings")
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     private UiConfiguration uiConfiguration = new UiConfiguration(this);
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Company company;
 
@@ -41,7 +44,7 @@ public class CompanySettings {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<Role> roleList = getDefaultRoles();
+    private List<Role> roleList = new ArrayList<>();
 
     public CompanySettings(Company company) {
         this.company = company;
@@ -64,10 +67,5 @@ public class CompanySettings {
         return timeCategories.stream().map(timeCategory -> new TimeCategory(timeCategory, this)).collect(Collectors.toList());
     }
 
-    private Set<Role> getDefaultRoles() {
-        return Helper.getDefaultRoles().stream().peek(role -> {
-            role.setCompanySettings(this);
-            role.setRoleType(RoleType.ROLE_CLIENT);
-        }).collect(Collectors.toSet());
-    }
 }
+

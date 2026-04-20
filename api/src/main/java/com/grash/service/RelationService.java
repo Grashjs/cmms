@@ -2,8 +2,10 @@ package com.grash.service;
 
 import com.grash.dto.RelationPatchDTO;
 import com.grash.dto.RelationPostDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RelationMapper;
+import com.grash.model.User;
 import com.grash.model.Relation;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.RelationType;
@@ -14,7 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
@@ -29,6 +32,7 @@ public class RelationService {
     private final WorkOrderService workOrderService;
     private final RelationMapper relationMapper;
     private final EntityManager em;
+    private final LicenseService licenseService;
 
     public Relation create(Relation relation) {
         Relation savedRelation = relationRepository.saveAndFlush(relation);
@@ -41,7 +45,8 @@ public class RelationService {
     public Relation update(Long id, RelationPatchDTO relation) {
         if (relationRepository.existsById(id)) {
             Relation savedRelation = relationRepository.findById(id).get();
-            Relation updatedRelation = relationRepository.saveAndFlush(relationMapper.updateRelation(savedRelation, relation));
+            Relation updatedRelation = relationRepository.saveAndFlush(relationMapper.updateRelation(savedRelation,
+                    relation));
             em.refresh(updatedRelation);
             return updatedRelation;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -63,12 +68,16 @@ public class RelationService {
         return relationRepository.findByCompany_Id(id);
     }
 
-    public Relation createPost(RelationPostDTO relationReq) {
+    public Relation createPost(RelationPostDTO relationReq, User user) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.WORK_ORDER_LINKING))
+            throw new CustomException("You need a license to link work orders", HttpStatus.FORBIDDEN);
+
         WorkOrder parent = relationReq.getParent();
         WorkOrder child = relationReq.getChild();
         RelationTypeInternal relationType = getRelationTypeInternal(relationReq.getRelationType());
 
-        Collection<RelationType> toReverse = Arrays.asList(RelationType.BLOCKED_BY, RelationType.DUPLICATED_BY, RelationType.SPLIT_TO);
+        Collection<RelationType> toReverse = Arrays.asList(RelationType.BLOCKED_BY, RelationType.DUPLICATED_BY,
+                RelationType.SPLIT_TO);
         if (toReverse.contains(relationReq.getRelationType())) {
             WorkOrder intermediate = child;
             child = parent;
@@ -78,6 +87,7 @@ public class RelationService {
                 .parent(parent)
                 .child(child)
                 .relationType(relationType).build();
+        relation.setCompany(user.getCompany());
         return create(relation);
     }
 
@@ -115,3 +125,4 @@ public class RelationService {
     }
 
 }
+

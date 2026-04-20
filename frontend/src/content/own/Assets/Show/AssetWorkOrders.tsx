@@ -1,11 +1,12 @@
 import Asset from '../../../../models/owns/asset';
-import { Box, Card, Grid, Typography } from '@mui/material';
+import { Box, Card, CircularProgress, Grid, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from '../../../../store';
 import { useContext, useEffect } from 'react';
 import { getAssetWorkOrders } from '../../../../slices/asset';
 import { useNavigate } from 'react-router-dom';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
+import Loading from '../../Analytics/Loading';
 
 interface PropsType {
   asset: Asset;
@@ -14,7 +15,7 @@ interface PropsType {
 const AssetWorkOrders = ({ asset }: PropsType) => {
   const { t }: { t: any } = useTranslation();
   const { getFormattedDate } = useContext(CompanySettingsContext);
-  const { assetInfos } = useSelector((state) => state.assets);
+  const { assetInfos, loadingGet } = useSelector((state) => state.assets);
   const workOrders = assetInfos[asset?.id]?.workOrders;
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -23,6 +24,19 @@ const AssetWorkOrders = ({ asset }: PropsType) => {
     if (asset) dispatch(getAssetWorkOrders(asset.id));
   }, [asset]);
 
+  if (loadingGet)
+    return (
+      <Box
+        sx={{
+          height: '50vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <Loading />
+      </Box>
+    );
   return (
     <Box sx={{ px: 4 }}>
       <Grid container spacing={2}>

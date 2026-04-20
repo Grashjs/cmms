@@ -7,11 +7,22 @@ import createCache from '@emotion/cache';
 import stylisRTLPlugin from 'stylis-plugin-rtl';
 import { useTranslation } from 'react-i18next';
 
+const isPrerender =
+  typeof navigator !== 'undefined' &&
+  navigator.userAgent.toLowerCase().indexOf('prerender') !== -1;
+
 const cacheRtl = createCache({
-  key: 'bloom-ui',
+  key: 'bloom-ui-rtl',
   prepend: true,
+  speedy: !isPrerender,
   // @ts-ignore
   stylisPlugins: [stylisRTLPlugin]
+});
+
+const cacheLtr = createCache({
+  key: 'bloom-ui-ltr',
+  prepend: true,
+  speedy: !isPrerender
 });
 
 export const ThemeContext = React.createContext(
@@ -41,11 +52,9 @@ const ThemeProviderWrapper: React.FC = (props) => {
   );
   return (
     <StylesProvider injectFirst>
-      {rtl ? (
-        <CacheProvider value={cacheRtl}>{providers}</CacheProvider>
-      ) : (
-        providers
-      )}
+      <CacheProvider value={rtl ? cacheRtl : cacheLtr}>
+        {providers}
+      </CacheProvider>
     </StylesProvider>
   );
 };

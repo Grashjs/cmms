@@ -1,31 +1,20 @@
 package com.grash.aspect;
 
-import com.grash.exception.CustomException;
-import com.grash.model.File;
-import com.grash.model.OwnUser;
 import com.grash.model.abstracts.CompanyAudit;
-import com.grash.model.enums.RoleType;
-import com.grash.security.CustomUserDetail;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.List;
-import java.util.Optional;
 
 import static org.apache.commons.lang3.reflect.FieldUtils.getAllFields;
 
@@ -45,7 +34,8 @@ public class TenantAspect {
         ignoreCompanyCheck.set(false);
     }
 
-    @Before("@annotation(org.springframework.web.bind.annotation.PostMapping) || @annotation(org.springframework.web.bind.annotation.PatchMapping)")
+    @Before("@annotation(org.springframework.web.bind.annotation.PostMapping) || @annotation(org.springframework.web" +
+            ".bind.annotation.PatchMapping)")
     public void validateTenant(JoinPoint joinPoint) {
         if (ignoreCompanyCheck.get()) return;
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
@@ -87,7 +77,10 @@ public class TenantAspect {
     private void validateFieldElement(Object object) {
         if (object instanceof CompanyAudit) {
             CompanyAudit companyAudit = (CompanyAudit) object;
-            entityManager.find(object.getClass(), companyAudit.getId()); // should fail here if from other company because of @PostLoad
+            if (companyAudit.getId() == null) return;
+            entityManager.find(object.getClass(), companyAudit.getId()); // should fail here if from other company
+            // because of @PostLoad
         }
     }
 }
+

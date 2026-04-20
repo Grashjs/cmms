@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="2026_01_29_subscription_subscription_plan_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="subscription" constraintName="fkhn8hnxbdoi29nb4m7ojkocqfm"/>
+        <addForeignKeyConstraint baseColumnNames="subscription_plan_id" baseTableName="subscription"
+                                 constraintName="fkhn8hnxbdoi29nb4m7ojkocqfm" referencedColumnNames="id"
+                                 referencedTableName="subscription_plan" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_subscription_plan_features_subscription_plan_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="subscription_plan_features"
+                                  constraintName="fkt9uih9cwfu9enes7yueekd2rx"/>
+        <addForeignKeyConstraint baseColumnNames="subscription_plan_id" baseTableName="subscription_plan_features"
+                                 constraintName="fkt9uih9cwfu9enes7yueekd2rx" referencedColumnNames="id"
+                                 referencedTableName="subscription_plan" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_preventive_maintenance_customers_preventive_maintenance_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="preventive_maintenance_customers"
+                                  constraintName="fkjihm0pei7bll8d9oim1v4edjo"/>
+        <addForeignKeyConstraint baseColumnNames="preventive_maintenance_id"
+                                 baseTableName="preventive_maintenance_customers"
+                                 constraintName="fkjihm0pei7bll8d9oim1v4edjo" referencedColumnNames="id"
+                                 referencedTableName="preventive_maintenance" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_preventive_maintenance_customers_customers_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="preventive_maintenance_customers"
+                                  constraintName="fkm4lsl8y9ttb1jvliu0af15mh3"/>
+        <addForeignKeyConstraint baseColumnNames="customers_id" baseTableName="preventive_maintenance_customers"
+                                 constraintName="fkm4lsl8y9ttb1jvliu0af15mh3" referencedColumnNames="id"
+                                 referencedTableName="customer" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_request_customers_request_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="request_customers" constraintName="fklbeh6vh70b2pqoj6lri2ua4fk"/>
+        <addForeignKeyConstraint baseColumnNames="request_id" baseTableName="request_customers"
+                                 constraintName="fklbeh6vh70b2pqoj6lri2ua4fk" referencedColumnNames="id"
+                                 referencedTableName="request" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_request_customers_customers_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="request_customers" constraintName="fk676vq0swlk6qsrpecgud7rdww"/>
+        <addForeignKeyConstraint baseColumnNames="customers_id" baseTableName="request_customers"
+                                 constraintName="fk676vq0swlk6qsrpecgud7rdww" referencedColumnNames="id"
+                                 referencedTableName="customer" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_work_order_meter_trigger_customers_work_order_meter_trigger_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="work_order_meter_trigger_customers"
+                                  constraintName="fkkvfp8se58k6wyyt8ctgv4r3f0"/>
+        <addForeignKeyConstraint baseColumnNames="work_order_meter_trigger_id"
+                                 baseTableName="work_order_meter_trigger_customers"
+                                 constraintName="fkkvfp8se58k6wyyt8ctgv4r3f0" referencedColumnNames="id"
+                                 referencedTableName="work_order_meter_trigger" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_work_order_meter_trigger_customers_customers_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="work_order_meter_trigger_customers"
+                                  constraintName="fk6tm1ncq9jkxakgv2imdbwnntj"/>
+        <addForeignKeyConstraint baseColumnNames="customers_id" baseTableName="work_order_meter_trigger_customers"
+                                 constraintName="fk6tm1ncq9jkxakgv2imdbwnntj" referencedColumnNames="id"
+                                 referencedTableName="customer" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_own_user_role_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="own_user" constraintName="fkrlvsrdrcmmbtbgeqr8y4j69p4"/>
+        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="own_user"
+                                 constraintName="fkrlvsrdrcmmbtbgeqr8y4j69p4" referencedColumnNames="id"
+                                 referencedTableName="role" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_own_user_preventive_maintenances_preventive_maintenances_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="own_user_preventive_maintenances"
+                                  constraintName="fkcppm5srhdsuc9di027fiv62aa"/>
+        <addForeignKeyConstraint baseColumnNames="preventive_maintenances_id"
+                                 baseTableName="own_user_preventive_maintenances"
+                                 constraintName="fkcppm5srhdsuc9di027fiv62aa" referencedColumnNames="id"
+                                 referencedTableName="preventive_maintenance" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_part_preventive_maintenances_part_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="part_preventive_maintenances"
+                                  constraintName="fkcec0nx6ooubsuiwcwg23jod93"/>
+        <addForeignKeyConstraint baseColumnNames="part_id" baseTableName="part_preventive_maintenances"
+                                 constraintName="fkcec0nx6ooubsuiwcwg23jod93" referencedColumnNames="id"
+                                 referencedTableName="part" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_part_preventive_maintenances_preventive_maintenances_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="part_preventive_maintenances"
+                                  constraintName="fk5cmcx8pexxynebufh9lh49vl6"/>
+        <addForeignKeyConstraint baseColumnNames="preventive_maintenances_id"
+                                 baseTableName="part_preventive_maintenances"
+                                 constraintName="fk5cmcx8pexxynebufh9lh49vl6" referencedColumnNames="id"
+                                 referencedTableName="preventive_maintenance" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_preventive_maintenance_assigned_to_preventive_maintenance_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="preventive_maintenance_assigned_to"
+                                  constraintName="fk8s7h4xe4shx1myrlnum9wj23h"/>
+        <addForeignKeyConstraint baseColumnNames="preventive_maintenance_id"
+                                 baseTableName="preventive_maintenance_assigned_to"
+                                 constraintName="fk8s7h4xe4shx1myrlnum9wj23h" referencedColumnNames="id"
+                                 referencedTableName="preventive_maintenance" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_preventive_maintenance_assigned_to_assigned_to_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="preventive_maintenance_assigned_to"
+                                  constraintName="fkjqfkojt6e6my5qxjgirsg6v8"/>
+        <addForeignKeyConstraint baseColumnNames="assigned_to_id" baseTableName="preventive_maintenance_assigned_to"
+                                 constraintName="fkjqfkojt6e6my5qxjgirsg6v8" referencedColumnNames="id"
+                                 referencedTableName="own_user" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_preventive_maintenance_files_preventive_maintenance_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="preventive_maintenance_files"
+                                  constraintName="fkqhoc4ma9gysgmv2445yitvs8f"/>
+        <addForeignKeyConstraint baseColumnNames="preventive_maintenance_id"
+                                 baseTableName="preventive_maintenance_files"
+                                 constraintName="fkqhoc4ma9gysgmv2445yitvs8f" referencedColumnNames="id"
+                                 referencedTableName="preventive_maintenance" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_preventive_maintenance_files_files_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="preventive_maintenance_files"
+                                  constraintName="fk8mtccux67q9rtp914y4n7jvom"/>
+        <addForeignKeyConstraint baseColumnNames="files_id" baseTableName="preventive_maintenance_files"
+                                 constraintName="fk8mtccux67q9rtp914y4n7jvom" referencedColumnNames="id"
+                                 referencedTableName="file" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_work_order_meter_trigger_assigned_to_work_order_meter_trigger_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="work_order_meter_trigger_assigned_to"
+                                  constraintName="fk42orqs7y05ghgkis54tathjv"/>
+        <addForeignKeyConstraint baseColumnNames="work_order_meter_trigger_id"
+                                 baseTableName="work_order_meter_trigger_assigned_to"
+                                 constraintName="fk42orqs7y05ghgkis54tathjv" referencedColumnNames="id"
+                                 referencedTableName="work_order_meter_trigger" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_work_order_meter_trigger_assigned_to_assigned_to_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="work_order_meter_trigger_assigned_to"
+                                  constraintName="fkbjgihoivnrlo4tnjf3mlb93e8"/>
+        <addForeignKeyConstraint baseColumnNames="assigned_to_id" baseTableName="work_order_meter_trigger_assigned_to"
+                                 constraintName="fkbjgihoivnrlo4tnjf3mlb93e8" referencedColumnNames="id"
+                                 referencedTableName="own_user" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_work_order_meter_trigger_files_work_order_meter_trigger_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="work_order_meter_trigger_files"
+                                  constraintName="fkol2wwydmtktqbnc7lvv23r5jy"/>
+        <addForeignKeyConstraint baseColumnNames="work_order_meter_trigger_id"
+                                 baseTableName="work_order_meter_trigger_files"
+                                 constraintName="fkol2wwydmtktqbnc7lvv23r5jy" referencedColumnNames="id"
+                                 referencedTableName="work_order_meter_trigger" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_work_order_meter_trigger_files_files_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="work_order_meter_trigger_files"
+                                  constraintName="fk48ipt6j68d2prhkoeo6tv7toc"/>
+        <addForeignKeyConstraint baseColumnNames="files_id" baseTableName="work_order_meter_trigger_files"
+                                 constraintName="fk48ipt6j68d2prhkoeo6tv7toc" referencedColumnNames="id"
+                                 referencedTableName="file" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_workflow_action_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="workflow" constraintName="fk5bqe81hkk7jfmavn55a8yvca7"/>
+        <addForeignKeyConstraint baseColumnNames="action_id" baseTableName="workflow"
+                                 constraintName="fk5bqe81hkk7jfmavn55a8yvca7" referencedColumnNames="id"
+                                 referencedTableName="workflow_action" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_own_user_work_orders_work_orders_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="own_user_work_orders" constraintName="fkcgnpjx8ahn3ptxpl9ucot819u"/>
+        <addForeignKeyConstraint baseColumnNames="work_orders_id" baseTableName="own_user_work_orders"
+                                 constraintName="fkcgnpjx8ahn3ptxpl9ucot819u" referencedColumnNames="id"
+                                 referencedTableName="work_order" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_relation_child_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="relation" constraintName="fkmn3265pc5poqrn82h1j75if3p"/>
+        <addForeignKeyConstraint baseColumnNames="child_id" baseTableName="relation"
+                                 constraintName="fkmn3265pc5poqrn82h1j75if3p" referencedColumnNames="id"
+                                 referencedTableName="work_order" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_relation_parent_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="relation" constraintName="fkfi6xl41fol251r2391ypx9ga5"/>
+        <addForeignKeyConstraint baseColumnNames="parent_id" baseTableName="relation"
+                                 constraintName="fkfi6xl41fol251r2391ypx9ga5" referencedColumnNames="id"
+                                 referencedTableName="work_order" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_request_assigned_to_request_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="request_assigned_to" constraintName="fkeg8mmectqp7vcxgxw7k64wt1h"/>
+        <addForeignKeyConstraint baseColumnNames="request_id" baseTableName="request_assigned_to"
+                                 constraintName="fkeg8mmectqp7vcxgxw7k64wt1h" referencedColumnNames="id"
+                                 referencedTableName="request" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_request_assigned_to_assigned_to_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="request_assigned_to" constraintName="fkqlbo8p3wkhw4ddewc0cx4d28q"/>
+        <addForeignKeyConstraint baseColumnNames="assigned_to_id" baseTableName="request_assigned_to"
+                                 constraintName="fkqlbo8p3wkhw4ddewc0cx4d28q" referencedColumnNames="id"
+                                 referencedTableName="own_user" onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="2026_01_29_task_task_base_id_cascade" author="junie">
+        <dropForeignKeyConstraint baseTableName="task" constraintName="fk40yui5s4d1qatg5yv31py6fr2"/>
+        <addForeignKeyConstraint baseColumnNames="task_base_id" baseTableName="task"
+                                 constraintName="fk40yui5s4d1qatg5yv31py6fr2" referencedColumnNames="id"
+                                 referencedTableName="task_base" onDelete="CASCADE"/>
+    </changeSet>
+
+</databaseChangeLog>

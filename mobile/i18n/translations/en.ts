@@ -177,6 +177,7 @@ const locale = {
   employeesCount: 'Number of Employees',
   i_accept: 'I accept the',
   terms_conditions: 'terms and conditions',
+  required_fields_notice: 'All fields marked with * are required.',
   create_your_account: 'Create your account',
   register: 'Register',
   //signin
@@ -223,7 +224,7 @@ const locale = {
   feedback_description: 'Give your feedback',
   required_feedback: 'Feedback is required',
   signature: 'Signature',
-  required_signature: 'Image is required',
+  required_signature: 'Signature is required',
   close_wo: 'Close Work Order',
   close: 'Close',
   task_update_success: 'Task updated successfully',
@@ -1019,6 +1020,12 @@ const locale = {
   personal_details_description:
     'Manage informations related to your personal details',
   change_password: 'Change password',
+  delete_account: 'Delete account',
+  delete_account_confirmation:
+    'Are you sure you want to delete your account? This action cannot be undone.',
+  account_deleted: 'Account deleted successfully',
+  account_delete_error: 'Error deleting account',
+  confirm_delete_account: 'Delete account',
   notification_settings: 'Notifications Settings',
   notification_settings_description:
     'Manage details related to your notifications',
@@ -1422,6 +1429,16 @@ const locale = {
   power: 'Power',
   library: 'Library',
   camera: 'Camera',
+  media_library: 'Media Library',
+  permission_required_title: 'Permission Required',
+  permission_required_message:
+    '{{permission}} access is needed. Please enable it in app settings.',
+  permission_denied_title: 'Permission Denied',
+  permission_denied_message: '{{permission}} access is needed to continue.',
+  unable_to_request_permission:
+    'Unable to request {{permission}} permission.',
+  open_settings: 'Open Settings',
+  ok: 'OK',
   CANCELLED: 'Rejected',
   max_file_size_error: 'The file size should not be greater than {{size}} MB',
   assignedToUser: 'My Work',
@@ -1454,6 +1471,7 @@ const locale = {
   top_level: 'Top Level',
   no_results_found: 'No results found',
   no_sub_assets: 'No sub-assets',
-  no_assets_available: 'No assets available'
+  no_assets_available: 'No assets available',
+  you_need_a_license: 'You need a license to access this feature'
 };
 export default locale;

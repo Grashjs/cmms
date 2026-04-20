@@ -34,12 +34,11 @@ import useAuth from '../../../../hooks/useAuth';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import AssetMeters from './AssetMeters';
-import { getImageAndFiles } from '../../../../utils/overall';
+import { handleFileUpload } from '../../../../utils/overall';
 import AssetDowntimes from './AssetDowntimes';
 import AssetAnalytics from './AssetAnalytics';
 
-interface PropsType {
-}
+interface PropsType {}
 
 const ShowAsset = ({}: PropsType) => {
   const { t }: { t: any } = useTranslation();
@@ -49,7 +48,7 @@ const ShowAsset = ({}: PropsType) => {
   const { uploadFiles } = useContext(CompanySettingsContext);
   const location = useLocation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const { assetInfos } = useSelector((state) => state.assets);
+  const { assetInfos, loadingGet } = useSelector((state) => state.assets);
   const asset: AssetDTO = assetInfos[assetId]?.asset;
   const navigate = useNavigate();
   const [openDelete, setOpenDelete] = useState<boolean>(false);
@@ -150,6 +149,13 @@ const ShowAsset = ({}: PropsType) => {
       type: 'text',
       label: t('model'),
       placeholder: t('model'),
+      midWidth: true
+    },
+    {
+      name: 'barCode',
+      type: 'text',
+      label: t('barcode'),
+      placeholder: t('barcode'),
       midWidth: true
     },
     {
@@ -315,21 +321,21 @@ const ShowAsset = ({}: PropsType) => {
               ...asset,
               location: asset?.location
                 ? {
-                  label: asset?.location.name,
-                  value: asset?.location.id
-                }
+                    label: asset?.location.name,
+                    value: asset?.location.id
+                  }
                 : null,
               category: asset?.category
                 ? {
-                  label: asset.category.name,
-                  value: asset.category.id
-                }
+                    label: asset.category.name,
+                    value: asset.category.id
+                  }
                 : null,
               primaryUser: asset?.primaryUser
                 ? {
-                  label: `${asset?.primaryUser.firstName} ${asset?.primaryUser.lastName}`,
-                  value: asset?.primaryUser.id
-                }
+                    label: `${asset?.primaryUser.firstName} ${asset?.primaryUser.lastName}`,
+                    value: asset?.primaryUser.id
+                  }
                 : null,
               assignedTo: asset?.assignedTo?.map((user) => {
                 return {
@@ -364,37 +370,35 @@ const ShowAsset = ({}: PropsType) => {
                 }) ?? [],
               parentAsset: asset?.parentAsset
                 ? {
-                  label: asset.parentAsset.name,
-                  value: asset.parentAsset.id
-                }
+                    label: asset.parentAsset.name,
+                    value: asset.parentAsset.id
+                  }
                 : null
             }}
-            onChange={({ field, e }) => {
-            }}
+            onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatAssetValues(values);
-              const files = formattedValues.files.find((file) => file.id)
-                ? []
-                : formattedValues.files;
-              return new Promise<void>((resolve, rej) => {
-                uploadFiles(files, formattedValues.image)
-                  .then((files) => {
-                    const imageAndFiles = getImageAndFiles(files, asset.image);
-                    formattedValues = {
-                      ...formattedValues,
-                      image: imageAndFiles.image,
-                      files: [...asset.files, ...imageAndFiles.files]
-                    };
-                    dispatch(editAsset(Number(assetId), formattedValues))
-                      .then(onEditSuccess)
-                      .catch(onEditFailure)
-                      .finally(resolve);
-                  })
-                  .catch((err) => {
-                    onEditFailure(err);
-                    rej(err);
-                  });
-              });
+              try {
+                const imageAndFiles = await handleFileUpload(
+                  {
+                    files: formattedValues.files,
+                    image: formattedValues.image
+                  },
+                  uploadFiles
+                );
+
+                formattedValues = {
+                  ...formattedValues,
+                  image: imageAndFiles.image,
+                  files: imageAndFiles.files
+                };
+
+                await dispatch(editAsset(Number(assetId), formattedValues));
+                await onEditSuccess();
+              } catch (err) {
+                onEditFailure(err);
+                throw err;
+              }
             }}
           />
         </Box>
@@ -428,7 +432,7 @@ const ShowAsset = ({}: PropsType) => {
       >
         {isNumeric(assetId) ? (
           tabIndex === 0 ? (
-            <AssetDetails asset={asset} />
+            <AssetDetails asset={asset} loading={loadingGet} />
           ) : tabIndex === 1 ? (
             <AssetWorkOrders asset={asset} />
           ) : tabIndex === 2 ? (
@@ -437,9 +441,10 @@ const ShowAsset = ({}: PropsType) => {
             <AssetFiles asset={asset} />
           ) : tabIndex === 4 ? (
             <AssetMeters asset={asset} />
+          ) : tabIndex === 5 ? (
+            <AssetDowntimes asset={asset} />
           ) : (
-            tabIndex === 5 ? <AssetDowntimes asset={asset} /> :
-              tabIndex === 6 && <AssetAnalytics id={Number(assetId)} />
+            tabIndex === 6 && <AssetAnalytics id={Number(assetId)} />
           )
         ) : null}
         <ConfirmDialog

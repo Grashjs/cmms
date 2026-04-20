@@ -6,20 +6,25 @@ import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.FilePatchDTO;
 import com.grash.dto.FileShowDTO;
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.factory.StorageServiceFactory;
 import com.grash.mapper.FileMapper;
 import com.grash.model.File;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
+import com.grash.model.RequestPortal;
 import com.grash.model.Task;
 import com.grash.model.enums.*;
 import com.grash.service.FileService;
+import com.grash.service.LicenseService;
+import com.grash.service.RateLimiterService;
+import com.grash.service.RequestPortalService;
 import com.grash.service.TaskService;
 import com.grash.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import com.grash.utils.Helper;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -28,14 +33,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 
 @RestController
-@Api(tags = "file")
+@Tag(name = "Files", description = "Operations on files")
 @RequestMapping("/files")
 @RequiredArgsConstructor
 public class FileController {
@@ -44,14 +50,20 @@ public class FileController {
     private final UserService userService;
     private final TaskService taskService;
     private final FileMapper fileMapper;
+    private final LicenseService licenseService;
+    private final RequestPortalService requestPortalService;
+    private final RateLimiterService rateLimiterService;
 
     @PostMapping(value = "/upload", produces = "application/json")
-    public List<FileShowDTO> handleFileUpload(@RequestParam("files") MultipartFile[] filesReq,
-                                              @RequestParam("folder") String folder,
-                                              @RequestParam("hidden") String hidden, HttpServletRequest req,
-                                              @RequestParam("type") FileType fileType,
-                                              @RequestParam(value = "taskId", required = false) Integer taskId) {
-        OwnUser user = userService.whoami(req);
+    public List<FileShowDTO> handleFileUpload(@Parameter(description = "Files to upload") @RequestParam("files") MultipartFile[] filesReq,
+                                              @Parameter(description = "Folder path to store files") @RequestParam(
+                                                      "folder") String folder,
+                                              @Parameter(description = "Whether files should be hidden (true/false)") @RequestParam("hidden") String hidden, HttpServletRequest req,
+                                              @Parameter(description = "Type of file") @RequestParam("type") FileType fileType,
+                                              @Parameter(description = "Optional task ID to associate files with") @RequestParam(value = "taskId", required = false) Integer taskId) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.FILE_ATTACHMENTS))
+            throw new CustomException("You need a license to add a file", HttpStatus.FORBIDDEN);
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.FILES) &&
                 user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.FILE)) {
             Collection<File> result = new ArrayList<>();
@@ -71,11 +83,37 @@ public class FileController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
+    @PostMapping(value = "/upload/request-portal/{uuid}", produces = "application/json")
+    public ResponseEntity<List<FileShowDTO>> uploadToRequestPortal(@Parameter(description = "Request portal UUID") @PathVariable("uuid") String uuid,
+                                                                   @Parameter(description = "Files to upload") @RequestParam("files") MultipartFile[] filesReq,
+                                                                   @Parameter(description = "Type of file") @RequestParam("type") FileType fileType,
+                                                                   HttpServletRequest req) {
+        String clientIp = Helper.extractClientIp(req);
+        if (!rateLimiterService.resolveFileUploadBucket(clientIp).tryConsume(1)) {
+            throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
+        }
+
+        RequestPortal requestPortal = requestPortalService.findByUuidByUser(uuid).orElseThrow(() -> new CustomException(
+                "Request Portal not found", HttpStatus.NOT_FOUND));
+
+        String folder = "company " + requestPortal.getCompany().getId() + "/request-portal/" + requestPortal.getUuid();
+
+        Collection<File> result = new ArrayList<>();
+        Arrays.asList(filesReq).forEach(fileReq -> {
+            String filePath = storageServiceFactory.getStorageService().upload(fileReq, folder);
+            File file = new File(fileReq.getOriginalFilename(), filePath, fileType, null, true);
+            file.setCompany(requestPortal.getCompany());
+            result.add(fileService.create(file));
+        });
+        List<FileShowDTO> response = result.stream().map(fileMapper::toShowDto).collect(Collectors.toList());
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<FileShowDTO>> search(@RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<FileShowDTO>> search(@Parameter(description = "Search criteria for filtering files") @RequestBody SearchCriteria searchCriteria,
                                                     HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.FILES)) {
                 searchCriteria.filterCompany(user);
@@ -96,12 +134,9 @@ public class FileController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "File not found")})
-    public FileShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+
+    public FileShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
+        User user = userService.whoami(req);
         Optional<File> optionalFile = fileService.findById(id);
         if (optionalFile.isPresent()) {
             File savedFile = optionalFile.get();
@@ -114,14 +149,11 @@ public class FileController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "File not found")})
-    public FileShowDTO patch(@ApiParam("File") @Valid @RequestBody FilePatchDTO file,
-                             @ApiParam("id") @PathVariable("id") Long id,
+
+    public FileShowDTO patch(@Parameter(description = "File fields to update") @Valid @RequestBody FilePatchDTO file,
+                             @PathVariable("id") Long id,
                              HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<File> optionalFile = fileService.findById(id);
 
         if (optionalFile.isPresent()) {
@@ -135,12 +167,9 @@ public class FileController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "File not found")})
-    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
+        User user = userService.whoami(req);
 
         Optional<File> optionalFile = fileService.findById(id);
         if (optionalFile.isPresent()) {
@@ -165,3 +194,5 @@ public class FileController {
 //        return storageServiceFactory.getStorageService().download("terms and privacy/Atlas CMMS privacy policy.pdf");
 //    }
 }
+
+

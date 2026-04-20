@@ -29,7 +29,12 @@ export const apiUrl = rawApiUrl
     : rawApiUrl + '/'
   : 'http://localhost:8080/';
 
-export const muiLicense = getRuntimeValue('MUI_X_LICENSE');
+const rawHomeUrl = getRuntimeValue('HOME_URL');
+export const homeUrl = rawHomeUrl
+  ? rawHomeUrl.endsWith('/')
+    ? rawHomeUrl
+    : rawHomeUrl + '/'
+  : 'http://localhost:4000/';
 
 export const zendeskKey = '';
 
@@ -82,4 +87,20 @@ export const brandRawConfig: BrandRawConfig = getRuntimeValue('BRAND_CONFIG')
   ? JSON.parse(getRuntimeValue('BRAND_CONFIG'))
   : null;
 
+export const demoLink: string = getRuntimeValue('DEMO_LINK');
+
 export const isWhiteLabeled: boolean = !!(customLogoPaths || brandRawConfig);
+
+export const IS_ORIGINAL_CLOUD = !isWhiteLabeled && isCloudVersion;
+
+export const PADDLE_SECRET_TOKEN: string = getRuntimeValue(
+  'PADDLE_SECRET_TOKEN'
+);
+
+export const paddleEnvironment = getRuntimeValue('PADDLE_ENVIRONMENT') as
+  | 'sandbox'
+  | 'production';
+
+export const recaptchaSiteKey = getRuntimeValue('RECAPTCHA_SITE_KEY');
+
+export const intercomId = getRuntimeValue('INTERCOM_ID');

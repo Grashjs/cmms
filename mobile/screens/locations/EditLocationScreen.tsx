@@ -6,7 +6,7 @@ import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
-import { getImageAndFiles } from '../../utils/overall';
+import { getImageAndFiles, handleFileUpload } from '../../utils/overall';
 import { useDispatch } from '../../store';
 import { editLocation } from '../../slices/location';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
@@ -26,8 +26,7 @@ export default function EditLocationScreen({
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
   const shape = {
-    name: Yup.string().required(t('required_location_name')),
-    address: Yup.string().required(t('required_location_address'))
+    name: Yup.string().required(t('required_location_name'))
   };
   const getEditFields = () => {
     const fieldsClone = [...getFilteredFields(getLocationFields(t))];
@@ -84,34 +83,25 @@ export default function EditLocationScreen({
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           let formattedValues = formatLocationValues(values);
-          //differentiate files from api and formattedValues
-          const files = formattedValues.files.find((file) => file.id)
-            ? []
-            : formattedValues.files;
-          return new Promise<void>((resolve, rej) => {
-            uploadFiles(files, formattedValues.image)
-              .then((files) => {
-                const imageAndFiles = getImageAndFiles(files, location.image);
-                formattedValues = {
-                  ...formattedValues,
-                  image: imageAndFiles.image,
-                  files: [...location.files, ...imageAndFiles.files]
-                };
-                dispatch(editLocation(location.id, formattedValues))
-                  .then(() => {
-                    resolve();
-                    onEditSuccess();
-                  })
-                  .catch((err) => {
-                    onEditFailure(err);
-                    rej(err);
-                  });
-              })
-              .catch((err) => {
-                onEditFailure(err);
-                rej(err);
-              });
-          });
+          try {
+            const imageAndFiles = await handleFileUpload(
+              {
+                files: formattedValues.files,
+                image: formattedValues.image
+              },
+              uploadFiles
+            );
+            formattedValues = {
+              ...formattedValues,
+              image: imageAndFiles.image,
+              files: imageAndFiles.files
+            };
+            await dispatch(editLocation(location.id, formattedValues));
+            onEditSuccess();
+          } catch (err) {
+            onEditFailure(err);
+            throw err;
+          }
         }}
       />
     </View>

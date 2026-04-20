@@ -1,4 +1,10 @@
-import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View
+} from 'react-native';
 import { useDispatch, useSelector } from '../../store';
 import * as React from 'react';
 import { useContext, useEffect, useState } from 'react';
@@ -12,26 +18,29 @@ import {
   IconButton,
   Searchbar,
   Text,
-  useTheme
+  Avatar,
+  TouchableRipple
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Meter from '../../models/meter';
-import { IconSource } from 'react-native-paper/src/components/Icon';
-import { onSearchQueryChange } from '../../utils/overall';
+import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
+import { isCloseToBottom, onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 import { IconWithLabel } from '../../components/IconWithLabel';
+import { useAppTheme } from '../../custom-theme';
+import _ from 'lodash';
 
 export default function MetersScreen({
-                                       navigation,
-                                       route
-                                     }: RootStackScreenProps<'Meters'>) {
+  navigation,
+  route
+}: RootStackScreenProps<'Meters'>) {
   const { t } = useTranslation();
   const [startedSearch, setStartedSearch] = useState<boolean>(false);
   const { meters, loadingGet, currentPageNum, lastPage } = useSelector(
     (state) => state.meters
   );
-  const theme = useTheme();
+  const theme = useAppTheme();
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
   const { getFormattedDate, getUserNameById } = useContext(
@@ -73,17 +82,6 @@ export default function MetersScreen({
     setCriteria(getCriteriaFromFilterFields([]));
   };
 
-  const isCloseToBottom = ({
-                             layoutMeasurement,
-                             contentOffset,
-                             contentSize
-                           }) => {
-    const paddingToBottom = 20;
-    return (
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom
-    );
-  };
   const onQueryChange = (query) => {
     onSearchQueryChange<Meter>(query, criteria, setCriteria, setSearchQuery, [
       'name',
@@ -110,6 +108,7 @@ export default function MetersScreen({
         style={{ backgroundColor: theme.colors.background }}
       />
       <ScrollView
+        contentContainerStyle={{ paddingBottom: 100 }}
         style={styles.scrollView}
         onScroll={({ nativeEvent }) => {
           if (isCloseToBottom(nativeEvent)) {
@@ -128,31 +127,66 @@ export default function MetersScreen({
       >
         {!!meters.content.length ? (
           meters.content.map((meter) => (
-            <Card
-              style={{
-                padding: 5,
-                marginVertical: 5,
-                backgroundColor: 'white'
-              }}
+            <TouchableOpacity
+              onPress={() =>
+                navigation.push('MeterDetails', {
+                  id: meter.id,
+                  meterProp: meter
+                })
+              }
               key={meter.id}
-              onPress={() => navigation.push('MeterDetails', { id: meter.id, meterProp: meter })}
             >
-              <Card.Content>
-                <Text variant='titleMedium'>{meter.name}</Text>
-                {meter.asset && (
-                  <IconWithLabel
-                    label={meter.asset.name}
-                    icon='package-variant-closed'
-                  />
-                )}
-                {meter.location && (
-                  <IconWithLabel
-                    label={meter.location.name}
-                    icon='map-marker-outline'
-                  />
-                )}
-              </Card.Content>
-            </Card>
+              <View style={styles.card}>
+                <View
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: 6
+                  }}
+                >
+                  {meter.image ? (
+                    <Avatar.Image
+                      size={50}
+                      source={{ uri: meter.image?.url }}
+                    />
+                  ) : (
+                    <Avatar.Icon
+                      style={{
+                        backgroundColor: theme.colors.background
+                      }}
+                      color={'white'}
+                      icon={'gauge'}
+                      size={50}
+                    />
+                  )}
+                  <View style={{ flex: 1 }}>
+                    <View style={styles.cardHeader}>
+                      <View style={{ flex: 1 }}>
+                        <Text variant="titleMedium" style={styles.cardTitle}>
+                          {meter.name}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.cardBody}>
+                      {meter.asset && (
+                        <IconWithLabel
+                          label={meter.asset.name}
+                          icon="package-variant-closed"
+                          color={theme.colors.grey}
+                        />
+                      )}
+                      {meter.location && (
+                        <IconWithLabel
+                          label={meter.location.name}
+                          icon="map-marker-outline"
+                          color={theme.colors.grey}
+                        />
+                      )}
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
           ))
         ) : loadingGet ? null : (
           <View
@@ -169,7 +203,7 @@ export default function MetersScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
+    // alignItems: 'center',
     justifyContent: 'center'
   },
   title: {
@@ -178,12 +212,36 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     width: '100%',
-    height: '100%',
-    padding: 5
+    height: '100%'
   },
   row: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center'
+  },
+  card: {
+    backgroundColor: 'white',
+    marginBottom: 1,
+    padding: 10
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8
+  },
+  cardTitle: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+    flexShrink: 1
+  },
+  cardBody: {
+    gap: 10
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10
   }
 });

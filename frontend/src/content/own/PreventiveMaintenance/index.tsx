@@ -1,14 +1,19 @@
+import SplitButton from '../components/SplitButton';
 import { Helmet } from 'react-helmet-async';
 import {
   Box,
   Button,
   Card,
+  CircularProgress,
   debounce,
   Dialog,
   DialogContent,
   DialogTitle,
   Drawer,
   Grid,
+  IconButton,
+  Menu,
+  MenuItem,
   Stack,
   Typography
 } from '@mui/material';
@@ -27,17 +32,15 @@ import {
 } from '../../../slices/preventiveMaintenance';
 import { useDispatch, useSelector } from '../../../store';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import CustomDataGrid, {
-  CustomDatagridColumn
-} from '../components/CustomDatagrid';
+import CustomDatagrid2, {
+  CustomDatagridColumn2
+} from '../components/CustomDatagrid2';
 import {
   FilterField,
   SearchCriteria,
   SearchOperator,
   SortDirection
 } from '../../../models/owns/page';
-import { GridRenderCellParams, GridValueGetterParams } from '@mui/x-data-grid';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import Form from '../components/form';
 import * as Yup from 'yup';
@@ -56,6 +59,7 @@ import PermissionErrorMessage from '../components/PermissionErrorMessage';
 import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
 import {
   getImageAndFiles,
+  handleFileUpload,
   getNextOccurence,
   onSearchQueryChange
 } from '../../../utils/overall';
@@ -66,24 +70,41 @@ import Category from '../../../models/owns/category';
 import { LocationMiniDTO } from '../../../models/owns/location';
 import { AssetMiniDTO } from '../../../models/owns/asset';
 import { patchTasksOfPreventiveMaintenance } from '../../../slices/task';
-import { useGridApiRef } from '@mui/x-data-grid-pro';
-import useGridStatePersist from '../../../hooks/useGridStatePersist';
+import { createColumnHelper } from '@tanstack/react-table';
+import useTableState from '../../../hooks/useTableState';
 import EnumFilter from '../WorkOrders/Filters/EnumFilter';
 import SignalCellularAltTwoToneIcon from '@mui/icons-material/SignalCellularAltTwoTone';
 import SearchInput from '../components/SearchInput';
 import WorkOrder from '../../../models/owns/workOrder';
+import { getWeekdays } from '../../../utils/dates';
+import {
+  getDateLocale,
+  getSupportedLanguage,
+  supportedLanguages
+} from '../../../i18n/i18n';
+import i18n from 'i18next';
+import Schedule from '../../../models/owns/schedule';
+import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
+import { useExport } from '../../../hooks/useExport';
+import { PlanFeature } from '../../../models/owns/subscriptionPlan';
+import { getErrorMessage } from '../../../utils/api';
+import useDateLocale from '../../../hooks/useDateLocale';
 
-function Files() {
+function PMs() {
   const { t }: { t: any } = useTranslation();
   const { setTitle } = useContext(TitleContext);
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
+  const getLanguage = i18n.language;
+  const dateLocale = useDateLocale();
   const {
     companySettings,
     hasViewPermission,
     hasCreatePermission,
-    getFilteredFields
+    getFilteredFields,
+    hasViewOtherPermission,
+    hasFeature
   } = useAuth();
   const [currentPM, setCurrentPM] = useState<PreventiveMaintenance>();
   const { tasksByPreventiveMaintenance } = useSelector((state) => state.tasks);
@@ -112,9 +133,67 @@ function Files() {
     pageNum: 0,
     direction: 'DESC'
   });
-  const { showSnackBar } = useContext(CustomSnackBarContext);
-  const navigate = useNavigate();
 
+  // Mapping for column fields to API field names for sorting
+  const fieldMapping: Record<string, string> = {
+    customId: 'customId',
+    name: 'name',
+    title: 'title',
+    priority: 'priority',
+    description: 'description',
+    next: 'schedule.startsOn',
+    primaryUser: 'primaryUser.firstName',
+    assignedTo: 'assignedTo',
+    location: 'location.name',
+    category: 'category.name',
+    asset: 'asset.name'
+  };
+
+  // Use the table state hook for TanStack Table
+  const {
+    sorting,
+    setSorting,
+    pagination,
+    setPagination,
+    columnOrder,
+    setColumnOrder,
+    columnSizing,
+    setColumnSizing,
+    columnVisibility,
+    setColumnVisibility,
+    pinnedColumns,
+    setPinnedColumns
+  } = useTableState({
+    prefix: 'pm',
+    initialSorting: [{ id: 'next', desc: true }],
+    initialPagination: {
+      pageSize: criteria.pageSize,
+      pageIndex: criteria.pageNum
+    },
+    setCriteria,
+    fieldMapping
+  });
+  const { showSnackBar } = useContext(CustomSnackBarContext);
+  const { exportEntity, loadingExport } = useExport();
+  const navigate = useNavigate();
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const openMenu = Boolean(anchorEl);
+  const basedOnArray: {
+    label: string;
+    value: Schedule['recurrenceBasedOn'];
+  }[] = [
+    { label: t('scheduled_date'), value: 'SCHEDULED_DATE' },
+    { label: t('completed_on'), value: 'COMPLETED_DATE' }
+  ];
+  const recurrenceTypes: {
+    label: string;
+    value: Schedule['recurrenceType'];
+  }[] = [
+    { label: t('days'), value: 'DAILY' },
+    { label: t('weeks'), value: 'WEEKLY' },
+    { label: t('months'), value: 'MONTHLY' },
+    { label: t('years'), value: 'YEARLY' }
+  ];
   useEffect(() => {
     setTitle(t('preventive_maintenance'));
   }, []);
@@ -151,12 +230,6 @@ function Files() {
     };
   }, [singlePreventiveMaintenance, preventiveMaintenances]);
 
-  const onPageSizeChange = (size: number) => {
-    setCriteria({ ...criteria, pageSize: size });
-  };
-  const onPageChange = (number: number) => {
-    setCriteria({ ...criteria, pageNum: number });
-  };
   const handleOpenDrawer = (preventiveMaintenance: PreventiveMaintenance) => {
     setCurrentPM(preventiveMaintenance);
     window.history.replaceState(
@@ -182,7 +255,7 @@ function Files() {
     showSnackBar(t('wo_schedule_success'), 'success');
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('wo_schedule_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('wo_schedule_failure')), 'error');
   const onEditSuccess = () => {
     setOpenUpdateModal(false);
     showSnackBar(t('changes_saved_success'), 'success');
@@ -211,6 +284,12 @@ function Files() {
     );
     setOpenDrawer(false);
   };
+  const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
   const onQueryChange = (event) => {
     onSearchQueryChange<PreventiveMaintenance>(event, criteria, setCriteria, [
       'title',
@@ -234,123 +313,86 @@ function Files() {
     newValues.assignedTo = formatSelectMultiple(newValues.assignedTo);
     newValues.priority = newValues.priority?.value;
     newValues.category = formatSelect(newValues.category);
+    newValues.daysOfWeek = newValues.daysOfWeek?.map((day) => day.value) ?? [];
+    newValues.recurrenceBasedOn = newValues.recurrenceBasedOn?.value;
+    newValues.recurrenceType = newValues.recurrenceType?.value;
     return newValues;
   };
-  const columns: CustomDatagridColumn[] = [
-    {
-      field: 'customId',
-      headerName: t('id'),
-      description: t('id')
-    },
-    {
-      field: 'name',
-      headerName: t('name'),
-      description: t('name'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
-      )
-    },
-    {
-      field: 'title',
-      headerName: t('wo_title'),
-      description: t('wo_title'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
-      )
-    },
 
-    {
-      field: 'priority',
-      headerName: t('priority'),
-      description: t('priority'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <PriorityWrapper priority={params.value} />
-      )
-    },
-    {
-      field: 'description',
-      headerName: t('description'),
-      description: t('description'),
-      width: 300
-    },
-    {
-      field: 'next',
-      headerName: t('next_wo'),
-      description: t('next_wo'),
-      width: 150,
-      valueGetter: (
-        params: GridValueGetterParams<null, PreventiveMaintenance>
-      ) =>
-        getFormattedDate(
-          getNextOccurence(
-            new Date(params.row.schedule?.startsOn),
-            params.row.schedule.frequency
-          ).toString()
-        )
-    },
-    {
-      field: 'primaryUser',
-      headerName: t('worker'),
-      description: t('worker'),
-      width: 170,
-      renderCell: (params: GridRenderCellParams<UserMiniDTO>) =>
-        params.value ? <UserAvatars users={[params.value]} /> : null
-    },
-    {
-      field: 'assignedTo',
-      headerName: t('assigned_to'),
-      description: t('assigned_to'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<UserMiniDTO[]>) => (
-        <UserAvatars users={params.value} />
-      )
-    },
-    {
-      field: 'location',
-      headerName: t('location_name'),
-      description: t('location_name'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<LocationMiniDTO>) =>
-        params.value?.name,
-      uiConfigKey: 'locations'
-    },
-    {
-      field: 'category',
-      headerName: t('category'),
-      description: t('category'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<Category>) =>
-        params.value?.name
-    },
-    {
-      field: 'asset',
-      headerName: t('asset_name'),
-      description: t('asset_name'),
-      width: 150,
-      valueGetter: (params: GridValueGetterParams<AssetMiniDTO>) =>
-        params.value?.name
-    }
+  const columnHelper = createColumnHelper<PreventiveMaintenance>();
+
+  const columns: CustomDatagridColumn2<PreventiveMaintenance>[] = [
+    columnHelper.accessor('customId', {
+      id: 'customId',
+      header: () => t('id'),
+      cell: (info) => info.getValue(),
+      size: 80
+    }),
+    columnHelper.accessor('name', {
+      id: 'name',
+      header: () => t('name'),
+      cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>,
+      size: 150
+    }),
+    columnHelper.accessor('title', {
+      id: 'title',
+      header: () => t('wo_title'),
+      cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>,
+      size: 150
+    }),
+    columnHelper.accessor('priority', {
+      id: 'priority',
+      header: () => t('priority'),
+      cell: (info) => <PriorityWrapper priority={info.getValue()} />,
+      size: 150
+    }),
+    columnHelper.accessor('description', {
+      id: 'description',
+      header: () => t('description'),
+      cell: (info) => info.getValue(),
+      size: 300
+    }),
+    columnHelper.accessor('schedule', {
+      id: 'next',
+      header: () => t('next_wo'),
+      cell: (info) => getFormattedDate(info.row.original.nextWorkOrderDate),
+      size: 150
+    }),
+    columnHelper.accessor('primaryUser', {
+      id: 'primaryUser',
+      header: () => t('worker'),
+      cell: (info) =>
+        info.getValue() ? <UserAvatars users={[info.getValue()]} /> : null,
+      size: 170
+    }),
+    columnHelper.accessor('assignedTo', {
+      id: 'assignedTo',
+      header: () => t('assigned_to'),
+      cell: (info) => <UserAvatars users={info.getValue()} />,
+      size: 150
+    }),
+    columnHelper.accessor((row) => row.location?.name, {
+      id: 'location',
+      header: () => t('location_name'),
+      cell: (info) => info.getValue() || '',
+      size: 150,
+      meta: {
+        uiConfigKey: 'locations'
+      }
+    }),
+    columnHelper.accessor((row) => row.category?.name, {
+      id: 'category',
+      header: () => t('category'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor((row) => row.asset?.name, {
+      id: 'asset',
+      header: () => t('asset_name'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    })
   ];
-  const apiRef = useGridApiRef();
-  useGridStatePersist(apiRef, columns, 'pm');
-
-  // Mapping for column fields to API field names for sorting
-  const fieldMapping: Record<string, string> = {
-    customId: 'customId',
-    name: 'name',
-    title: 'title',
-    priority: 'priority',
-    description: 'description',
-    next: 'schedule.startsOn',
-    primaryUser: 'primaryUser.firstName',
-    assignedTo: 'assignedTo',
-    location: 'location.name',
-    category: 'category.name',
-    asset: 'asset.name'
-  };
 
   const defaultFields: Array<IField> = [
     {
@@ -364,6 +406,20 @@ function Files() {
       label: t('trigger_name'),
       placeholder: t('enter_trigger_name'),
       required: true
+    },
+    {
+      name: 'recurrenceBasedOn',
+      type: 'select',
+      label: t('based_on'),
+      items: basedOnArray,
+      required: true,
+      relatedFields: [
+        {
+          field: 'daysOfWeek',
+          value: 'COMPLETED_DATE',
+          hide: true
+        }
+      ]
     },
     {
       name: 'startsOn',
@@ -381,8 +437,32 @@ function Files() {
     {
       name: 'frequency',
       type: 'number',
-      label: t('frequency_description'),
-      required: true
+      label: t('frequency'),
+      required: true,
+      midWidth: true
+    },
+    {
+      name: 'recurrenceType',
+      type: 'select',
+      label: '',
+      items: recurrenceTypes,
+      required: true,
+      midWidth: true,
+      relatedFields: ['DAILY', 'MONTHLY', 'YEARLY'].map((item) => ({
+        field: 'daysOfWeek',
+        value: item,
+        hide: true
+      }))
+    },
+    {
+      name: 'daysOfWeek',
+      type: 'select',
+      multiple: true,
+      label: t('on'),
+      items: getWeekdays(dateLocale).map((day, index) => ({
+        label: day,
+        value: index
+      }))
     },
     {
       name: 'titleGroup',
@@ -407,7 +487,21 @@ function Files() {
         'test-frequency', // this is used internally by yup
         t('invalid_frequency'),
         (value) => value > 0
-      )
+      ),
+    daysOfWeek: Yup.array().test(
+      'test-days-of-week',
+      t('required_days_of_week'),
+      function (value) {
+        const { recurrenceBasedOn, recurrenceType } = this.parent;
+        if (
+          recurrenceBasedOn?.value === 'SCHEDULED_DATE' &&
+          recurrenceType?.value === 'WEEKLY'
+        ) {
+          return value && value.length > 0;
+        }
+        return true;
+      }
+    )
   };
   const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
     return getWOFieldsAndShapes(defaultFields, defaultShape);
@@ -442,29 +536,35 @@ function Files() {
             fields={getFieldsAndShapes()[0]}
             validation={Yup.object().shape(getFieldsAndShapes()[1])}
             submitText={t('add')}
-            values={{ startsOn: null, endsOn: null, dueDate: null }}
+            values={{
+              startsOn: null,
+              endsOn: null,
+              dueDate: null,
+              recurrenceBasedOn: basedOnArray[0],
+              recurrenceType: recurrenceTypes[0]
+            }}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
-              return new Promise<void>((resolve, rej) => {
-                uploadFiles(formattedValues.files, formattedValues.image)
-                  .then((files) => {
-                    const imageAndFiles = getImageAndFiles(files);
-                    formattedValues = {
-                      ...formattedValues,
-                      image: imageAndFiles.image,
-                      files: imageAndFiles.files
-                    };
-                    dispatch(addPreventiveMaintenance(formattedValues))
-                      .then(onCreationSuccess)
-                      .catch(onCreationFailure)
-                      .finally(resolve);
-                  })
-                  .catch((err) => {
-                    onCreationFailure(err);
-                    rej(err);
-                  });
-              });
+              try {
+                const uploadedFiles = await uploadFiles(
+                  formattedValues.files,
+                  formattedValues.image
+                );
+
+                const imageAndFiles = getImageAndFiles(uploadedFiles);
+                formattedValues = {
+                  ...formattedValues,
+                  image: imageAndFiles.image,
+                  files: imageAndFiles.files
+                };
+
+                await dispatch(addPreventiveMaintenance(formattedValues));
+                onCreationSuccess();
+              } catch (err) {
+                onCreationFailure(err);
+                throw err;
+              }
             }}
           />
         </Box>
@@ -506,74 +606,75 @@ function Files() {
               ...getWOBaseValues(t, currentPM),
               startsOn: currentPM?.schedule.startsOn,
               endsOn: currentPM?.schedule.endsOn,
+              recurrenceBasedOn: currentPM?.schedule.recurrenceBasedOn
+                ? basedOnArray.find(
+                    ({ value }) =>
+                      value === currentPM.schedule.recurrenceBasedOn
+                  )
+                : null,
+              recurrenceType: currentPM?.schedule.recurrenceType
+                ? recurrenceTypes.find(
+                    ({ value }) => value === currentPM.schedule.recurrenceType
+                  )
+                : null,
+              daysOfWeek: currentPM?.schedule.daysOfWeek?.map((dayOfWeek) => ({
+                label: getWeekdays(dateLocale).find(
+                  (day, index) => index === dayOfWeek
+                ),
+                value: dayOfWeek
+              })),
               frequency: Number(currentPM?.schedule.frequency),
               dueDateDelay: currentPM?.schedule.dueDateDelay,
               tasks
             }}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
-              let formattedValues = formatValues(values);
-              return new Promise<void>((resolve, rej) => {
-                const files = formattedValues.files.find((file) => file.id)
-                  ? []
-                  : formattedValues.files;
-                uploadFiles(files, formattedValues.image)
-                  .then((files) => {
-                    const imageAndFiles = getImageAndFiles(
-                      files,
-                      currentPM.image
-                    );
-                    formattedValues = {
-                      ...formattedValues,
-                      image: imageAndFiles.image,
-                      files: [...currentPM.files, ...imageAndFiles.files]
-                    };
-                    dispatch(
-                      patchTasksOfPreventiveMaintenance(
-                        currentPM?.id,
-                        formattedValues.tasks.map((task) => {
-                          return {
-                            ...task.taskBase,
-                            options: task.taskBase.options.map(
-                              (option) => option.label
-                            )
-                          };
-                        })
+              try {
+                let formattedValues = formatValues(values);
+
+                const imageAndFiles = await handleFileUpload(
+                  {
+                    files: formattedValues.files,
+                    image: formattedValues.image
+                  },
+                  uploadFiles
+                );
+
+                formattedValues = {
+                  ...formattedValues,
+                  image: imageAndFiles.image,
+                  files: imageAndFiles.files
+                };
+
+                await dispatch(
+                  patchTasksOfPreventiveMaintenance(
+                    currentPM?.id,
+                    formattedValues.tasks.map((task) => ({
+                      ...task.taskBase,
+                      options: task.taskBase.options.map(
+                        (option) => option.label
                       )
-                    )
-                      .then(() =>
-                        dispatch(
-                          editPreventiveMaintenance(
-                            currentPM?.id,
-                            formattedValues
-                          )
-                        )
-                          .then(() => {
-                            dispatch(
-                              patchSchedule(
-                                currentPM.schedule.id,
-                                currentPM.id,
-                                {
-                                  ...currentPM.schedule,
-                                  ...formattedValues
-                                }
-                              )
-                            );
-                          })
-                          .then(onEditSuccess)
-                          .catch(onEditFailure)
-                          .finally(resolve)
-                      )
-                      .catch((err) => {
-                        onEditFailure(err);
-                        rej();
-                      });
+                    }))
+                  )
+                );
+
+                await dispatch(
+                  editPreventiveMaintenance(currentPM?.id, formattedValues)
+                );
+
+                await dispatch(
+                  patchSchedule(currentPM.schedule.id, currentPM.id, {
+                    ...currentPM.schedule,
+                    ...formattedValues
                   })
-                  .catch((err) => {
-                    onEditFailure(err);
-                    rej(err);
-                  });
-              });
+                );
+                if (hasViewPermission(PermissionEntity.PREVENTIVE_MAINTENANCES))
+                  dispatch(getPreventiveMaintenances(criteria));
+                onEditSuccess();
+              } catch (err) {
+                onEditFailure(err);
+                throw err;
+              }
             }}
           />
         </Box>
@@ -588,36 +689,41 @@ function Files() {
         </Helmet>
         {renderAddModal()}
         {renderUpdateModal()}
-        <Grid
-          container
+        <Stack
           justifyContent="center"
           alignItems="stretch"
           spacing={1}
           paddingX={4}
         >
-          {hasCreatePermission(PermissionEntity.PREVENTIVE_MAINTENANCES) && (
-            <Grid
-              item
-              xs={12}
-              display="flex"
-              flexDirection="row"
-              justifyContent="right"
-              alignItems="center"
-            >
-              <Button
+          <Stack direction={'row'} alignSelf={'flex-end'} spacing={1} mt={1}>
+            <IconButton onClick={handleOpenMenu} color="primary">
+              <MoreVertTwoToneIcon />
+            </IconButton>
+            {hasCreatePermission(PermissionEntity.PREVENTIVE_MAINTENANCES) && (
+              <SplitButton
+                label={t('create_trigger')}
                 startIcon={<AddTwoToneIcon />}
-                sx={{ mx: 6, my: 1 }}
-                variant="contained"
-                onClick={() => setOpenAddModal(true)}
-              >
-                {t('create_trigger')}
-              </Button>
-            </Grid>
-          )}
-          <Grid item xs={12}>
+                onMainClick={() => setOpenAddModal(true)}
+                sx={{ mt: 1, alignSelf: 'flex-end' }}
+                menuItems={
+                  hasViewPermission(PermissionEntity.SETTINGS) &&
+                  hasFeature(PlanFeature.IMPORT_CSV)
+                    ? [
+                        {
+                          label: t('to_import'),
+                          onClick: () =>
+                            navigate('/app/imports/preventive-maintenances')
+                        }
+                      ]
+                    : []
+                }
+              />
+            )}
+          </Stack>
+          <Box>
             <Card
               sx={{
-                p: 2,
+                py: 2,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -641,68 +747,40 @@ function Files() {
                 <SearchInput onChange={debouncedQueryChange} />
               </Stack>
               <Box sx={{ width: '95%' }}>
-                <CustomDataGrid
-                  apiRef={apiRef}
+                <CustomDatagrid2
                   columns={columns}
+                  data={preventiveMaintenances.content}
                   loading={loadingGet}
-                  pageSize={criteria.pageSize}
-                  page={criteria.pageNum}
-                  rows={preventiveMaintenances.content}
-                  rowCount={preventiveMaintenances.totalElements}
-                  pagination
-                  paginationMode="server"
-                  sortingMode="server"
-                  onSortModelChange={(model) => {
-                    if (model.length === 0) {
-                      setCriteria((prevState) => ({
-                        ...prevState,
-                        sortField: undefined,
-                        direction: undefined
-                      }));
-                      return;
-                    }
-
-                    const field = model[0].field;
-                    const mappedField = fieldMapping[field];
-
-                    // Only proceed if we have a mapping for this field
-                    if (!mappedField) return;
-
-                    setCriteria({
-                      ...criteria,
-                      sortField: mappedField,
-                      direction: (model[0].sort?.toUpperCase() ||
-                        'ASC') as SortDirection
-                    });
-                  }}
-                  initialState={{
-                    columns: {
-                      columnVisibilityModel: {}
-                    }
-                  }}
-                  onPageSizeChange={onPageSizeChange}
-                  onPageChange={onPageChange}
-                  rowsPerPageOptions={[10, 20, 50]}
-                  onRowClick={({ id }) => handleOpenDetails(Number(id))}
-                  components={{
-                    NoRowsOverlay: () => (
-                      <NoRowsMessageWrapper
-                        message={t('noRows.pm.message')}
-                        action={t('noRows.pm.action')}
-                      />
-                    )
-                  }}
+                  pagination={pagination}
+                  onPaginationChange={setPagination}
+                  totalRows={preventiveMaintenances.totalElements}
+                  pageSizeOptions={[10, 20, 50]}
+                  sorting={sorting}
+                  onSortingChange={setSorting}
+                  columnOrder={columnOrder}
+                  onColumnOrderChange={setColumnOrder}
+                  columnSizing={columnSizing}
+                  onColumnSizingChange={setColumnSizing}
+                  columnVisibility={columnVisibility}
+                  onColumnVisibilityChange={setColumnVisibility}
+                  onRowClick={(row) => handleOpenDetails(row.id)}
+                  noRowsMessage={t('noRows.pm.message')}
+                  noRowsAction={t('noRows.pm.action')}
+                  enableColumnReordering
+                  enableColumnResizing
+                  pinnedColumns={pinnedColumns}
+                  onPinnedColumnsChange={setPinnedColumns}
                 />
               </Box>
             </Card>
-          </Grid>
-        </Grid>
+          </Box>
+        </Stack>
         <Drawer
           anchor="right"
           open={openDrawer}
           onClose={handleCloseDetails}
           PaperProps={{
-            sx: { width: '50%' }
+            sx: { width: { xs: '90%', sm: '70%', md: '50%' } }
           }}
         >
           <PMDetails
@@ -723,9 +801,39 @@ function Files() {
           confirmText={t('to_delete')}
           question={t('confirm_delete_pm')}
         />
+        <Menu
+          id="basic-menu"
+          anchorEl={anchorEl}
+          open={openMenu}
+          onClose={handleCloseMenu}
+          MenuListProps={{
+            'aria-labelledby': 'basic-button'
+          }}
+        >
+          {hasViewOtherPermission(PermissionEntity.PREVENTIVE_MAINTENANCES) && (
+            <MenuItem
+              disabled={loadingExport['preventive-maintenances']}
+              onClick={async () => {
+                try {
+                  await exportEntity('preventive-maintenances');
+                } catch (error) {
+                  showSnackBar(t('Export failed'), 'error');
+                }
+                handleCloseMenu();
+              }}
+            >
+              <Stack spacing={2} direction="row">
+                {loadingExport['preventive-maintenances'] && (
+                  <CircularProgress size="1rem" />
+                )}
+                <Typography>{t('to_export')}</Typography>
+              </Stack>
+            </MenuItem>
+          )}
+        </Menu>
       </>
     );
   else return <PermissionErrorMessage message={'no_access_pm'} />;
 }
 
-export default Files;
+export default PMs;

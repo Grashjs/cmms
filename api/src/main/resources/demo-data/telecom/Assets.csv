@@ -1,6 +1,6 @@
 ID,Name,Description,Status,Area,Location Name,Parent Asset,Barcode,Category,Assigned To,Warranty Expiry Date,Additional Info,Serial Number,Workers,Teams names,Associated Parts,Vendor,Contractor
-,Router-1,Cisco ASR 9000 Series Router,Operational,,Network Operations Center (NOC),,RTR-001,Network Equipment,Network Engineer,01/01/2028,Core network router,RTR1-12345,NOC Team,Network Operations,"Line Cards, Power Supplies",Cisco,
-,Switch-1,Juniper QFX5100 Switch,Operational,,Server Room 1,,SW-001,Network Equipment,Network Engineer,01/01/2027,Top-of-rack switch,SW1-67890,Data Center Team,Network Operations,"Transceivers, Fans",Juniper,
+,Router-1,Cisco ASR 9000 Series Router,Operational,,Network Operations Center (NOC),Switch-1,RTR-001,Network Equipment,Network Engineer,01/01/2028,Core network router,RTR1-12345,NOC Team,Network Operations,"Line Cards, Power Supplies",Cisco,
+,Switch-1,Juniper QFX5100 Switch,Operational,,Server Room 1,Server-1,SW-001,Network Equipment,Network Engineer,01/01/2027,Top-of-rack switch,SW1-67890,Data Center Team,Network Operations,"Transceivers, Fans",Juniper,
 ,Server-1,Dell PowerEdge R740,Operational,,Server Room 1,,SRV-001,Servers,System Administrator,01/01/2026,Virtualization host,SRV1-54321,Data Center Team,Server Operations,"RAM, Hard Drives",Dell,
 ,CCTV-Camera-1,Hikvision DS-2CD2143G0-I,Operational,,Video Surveillance Room,,CCTV-001,Security,Security Officer,01/01/2025,4MP dome camera,CCTV1-98765,Security Team,Security Operations,Mounting Bracket,Hikvision,
 ,Access-Control-Panel-1,Paxton Net2 Plus,Operational,,Access Control Room,,ACP-001,Security,Security Officer,01/01/2026,1-door access control panel,ACP1-24680,Security Team,Security Operations,Power Supply,Paxton,

@@ -4,8 +4,6 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MeterCategoryMapper;
 import com.grash.model.MeterCategory;
-import com.grash.model.OwnUser;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.MeterCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,9 +19,12 @@ public class MeterCategoryService {
 
     private final CompanySettingsService companySettingsService;
     private final MeterCategoryMapper meterCategoryMapper;
+    private final LicenseService licenseService;
 
     public MeterCategory create(MeterCategory meterCategory) {
-        Optional<MeterCategory> categoryWithSameName = meterCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(meterCategory.getName(), meterCategory.getCompanySettings().getId());
+        Optional<MeterCategory> categoryWithSameName =
+                meterCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(meterCategory.getName(),
+                        meterCategory.getCompanySettings().getId());
         if (categoryWithSameName.isPresent()) {
             throw new CustomException("MeterCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }
@@ -33,7 +34,8 @@ public class MeterCategoryService {
     public MeterCategory update(Long id, CategoryPatchDTO meterCategory) {
         if (meterCategoryRepository.existsById(id)) {
             MeterCategory savedMeterCategory = meterCategoryRepository.findById(id).get();
-            return meterCategoryRepository.save(meterCategoryMapper.updateMeterCategory(savedMeterCategory, meterCategory));
+            return meterCategoryRepository.save(meterCategoryMapper.updateMeterCategory(savedMeterCategory,
+                    meterCategory));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

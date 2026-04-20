@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useEffect, useMemo, useState } from 'react';
 import useAuth from '../hooks/useAuth';
 import debounce from 'lodash.debounce';
-import Dropdown from 'react-native-dropdown-picker';
+import { SheetManager } from 'react-native-actions-sheet';
 import { PermissionEntity } from '../models/role';
 import { PlanFeature } from '../models/subscriptionPlan';
 import { Image, StyleSheet, TouchableOpacity } from 'react-native';
@@ -41,8 +41,6 @@ export default function SingleTask({
 }: SingleTaskProps) {
   const theme = useTheme();
   const { t }: { t: any } = useTranslation();
-  const [openDropDown, setOpenDropDown] = useState<boolean>(false);
-  const [dropDownValue, setDropdownValue] = useState<string>();
   const [savingNotes, setSavingNotes] = useState<boolean>(false);
   const { user, hasCreatePermission, hasFeature } = useAuth();
   const [inputValue, setInputValue] = useState<string>('');
@@ -69,13 +67,6 @@ export default function SingleTask({
       !(task.taskBase.user && task.taskBase.user.id !== user.id) &&
       handleChange(value, task.id);
   };
-  useEffect(() => {
-    const oldValue = preview
-      ? getOptions(task.taskBase.taskType, task.taskBase.options)[0].value
-      : task.value;
-    if (dropDownValue && dropDownValue !== oldValue)
-      onDropdownValueChange(dropDownValue);
-  }, [dropDownValue]);
 
   const subtaskOptions = ['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETE'];
   const inspectionOptions = ['PASS', 'FLAG', 'FAIL'];
@@ -141,22 +132,43 @@ export default function SingleTask({
       {['SUBTASK', 'INSPECTION', 'MULTIPLE'].includes(
         task.taskBase.taskType
       ) ? (
-        <View style={openDropDown ? { zIndex: 10, height: '100%' } : undefined}>
-          <Dropdown
-            value={
-              preview
-                ? getOptions(task.taskBase.taskType, task.taskBase.options)[0]
-                    .value
-                : task.value
-            }
-            zIndex={3000}
-            zIndexInverse={1000}
-            items={getOptions(task.taskBase.taskType, task.taskBase.options)}
-            setValue={setDropdownValue}
-            open={openDropDown}
-            setOpen={setOpenDropDown}
-          />
-        </View>
+        <TouchableOpacity
+          onPress={() => {
+            SheetManager.show('dropdown-sheet', {
+              payload: {
+                value: preview
+                  ? getOptions(task.taskBase.taskType, task.taskBase.options)[0]
+                      .value
+                  : task.value,
+                items: getOptions(
+                  task.taskBase.taskType,
+                  task.taskBase.options
+                ),
+                setValue: onDropdownValueChange
+              }
+            });
+          }}
+        >
+          <View pointerEvents="none">
+            <TextInput
+              editable={false}
+              value={
+                getOptions(task.taskBase.taskType, task.taskBase.options).find(
+                  (o) =>
+                    o.value ===
+                    (preview
+                      ? getOptions(
+                          task.taskBase.taskType,
+                          task.taskBase.options
+                        )[0].value
+                      : task.value)
+                )?.label
+              }
+              mode="outlined"
+              right={<TextInput.Icon icon="menu-down" />}
+            />
+          </View>
+        </TouchableOpacity>
       ) : task.taskBase.taskType === 'METER' ||
         task.taskBase.taskType === 'NUMBER' ? (
         <TextInput

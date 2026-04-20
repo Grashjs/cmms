@@ -1,9 +1,9 @@
 import {
   RefreshControl,
   ScrollView,
-  StyleSheet,
+  TouchableOpacity,
   View,
-  Image
+  StyleSheet
 } from 'react-native';
 import { useDispatch, useSelector } from '../../store';
 import * as React from 'react';
@@ -12,10 +12,22 @@ import useAuth from '../../hooks/useAuth';
 import { PermissionEntity } from '../../models/role';
 import { getAssetChildren, getAssets, getMoreAssets } from '../../slices/asset';
 import { FilterField, SearchCriteria } from '../../models/page';
-import { Button, Card, Searchbar, Text, useTheme } from 'react-native-paper';
+import {
+  Avatar,
+  Button,
+  Card,
+  Searchbar,
+  Text,
+  useTheme
+} from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { AssetDTO, AssetRow } from '../../models/asset';
-import { onSearchQueryChange } from '../../utils/overall';
+import {
+  AssetDTO,
+  AssetRow,
+  assetStatuses,
+  getAssetStatusConfig
+} from '../../models/asset';
+import { isCloseToBottom, onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import Tag from '../../components/Tag';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
@@ -38,69 +50,75 @@ const AssetCard = ({
   const theme = useAppTheme();
 
   return (
-    <Card
-      style={{
-        padding: 5,
-        marginVertical: 5,
-        backgroundColor: 'white'
-      }}
-      key={asset.id}
+    <TouchableOpacity
       onPress={() =>
         navigation.push('AssetDetails', {
           id: asset.id,
           assetProp: asset
         })
       }
+      key={asset.id}
     >
-      <Card.Content>
-        <View style={{ ...styles.row, justifyContent: 'space-between' }}>
-          <View style={{ ...styles.row, justifyContent: 'space-between' }}>
-            <View style={{ marginRight: 10 }}>
+      <View style={styles.card}>
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: 6
+          }}
+        >
+          {asset.image ? (
+            <Avatar.Image size={50} source={{ uri: asset.image.url }} />
+          ) : (
+            <Avatar.Icon
+              style={{
+                backgroundColor: theme.colors.background
+              }}
+              color={'white'}
+              icon={'package-variant-closed'}
+              size={50}
+            />
+          )}
+          <View style={{ flex: 1 }}>
+            <View style={styles.cardHeader}>
+              <View style={{ flex: 1 }}>
+                <Text variant="titleMedium" style={styles.cardTitle}>
+                  {asset.name}
+                </Text>
+                <Text
+                  variant={'bodySmall'}
+                  style={{ color: 'grey' }}
+                >{`#${asset.customId}`}</Text>
+              </View>
               <Tag
-                text={`#${asset.customId}`}
+                text={t(asset?.status)}
+                backgroundColor={getAssetStatusConfig(asset?.status).color(
+                  theme
+                )}
                 color="white"
-                backgroundColor="#545454"
               />
             </View>
-            <Tag
-              text={
-                asset?.status === 'OPERATIONAL' ? t('operational') : t('down')
-              }
-              backgroundColor={
-                asset.status === 'OPERATIONAL'
-                  ? theme.colors.success
-                  : theme.colors.error
-              }
-              color="white"
-            />
+            <View style={styles.cardBody}>
+              {asset.location && (
+                <IconWithLabel
+                  label={asset.location.name}
+                  icon="map-marker-outline"
+                  color={theme.colors.grey}
+                />
+              )}
+            </View>
+            {showChildrenButton && asset.hasChildren && (
+              <View style={styles.cardFooter}>
+                <View style={{ flex: 1 }} />
+                <Button compact onPress={onViewChildren}>
+                  {t('view_children')}
+                </Button>
+              </View>
+            )}
           </View>
         </View>
-        <View style={{ ...styles.row, marginTop: 5 }}>
-          <Image
-            style={{ height: 70, width: 70, borderRadius: 35, marginRight: 10 }}
-            source={
-              asset.image
-                ? {
-                    uri: asset.image.url
-                  }
-                : Asset.fromModule(require('../../assets/images/no-image.png'))
-            }
-          />
-          <Text variant="titleMedium">{asset.name}</Text>
-        </View>
-        {asset.location && (
-          <IconWithLabel
-            label={asset.location.name}
-            icon="map-marker-outline"
-          />
-        )}
-      </Card.Content>
-      {showChildrenButton && asset.hasChildren && (
-        <Card.Actions>
-          <Button onPress={onViewChildren}>{t('view_children')}</Button>
-        </Card.Actions>
-      )}
-    </Card>
+      </View>
+    </TouchableOpacity>
   );
 };
 
@@ -168,24 +186,24 @@ export default function AssetsScreen({
     setCriteria(getCriteriaFromFilterFields([]));
   };
 
-  const isCloseToBottom = ({
-    layoutMeasurement,
-    contentOffset,
-    contentSize
-  }) => {
-    const paddingToBottom = 20;
-    return (
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom
-    );
-  };
   const onQueryChange = (query) => {
     onSearchQueryChange<AssetDTO>(
       query,
       criteria,
       setCriteria,
       setSearchQuery,
-      ['name', 'model', 'description', 'additionalInfos']
+      [
+        'name',
+        'description',
+        'model',
+        'additionalInfos',
+        'barCode',
+        'area',
+        'serialNumber',
+        'manufacturer',
+        'power',
+        'customId'
+      ]
     );
     setView('list');
   };
@@ -294,7 +312,7 @@ export default function AssetsScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
+    // alignItems: 'center',
     justifyContent: 'center'
   },
   title: {
@@ -303,12 +321,36 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     width: '100%',
-    height: '100%',
-    padding: 5
+    height: '100%'
   },
   row: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center'
+  },
+  card: {
+    backgroundColor: 'white',
+    marginBottom: 1,
+    padding: 10
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8
+  },
+  cardTitle: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+    flexShrink: 1
+  },
+  cardBody: {
+    gap: 10
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10
   }
 });

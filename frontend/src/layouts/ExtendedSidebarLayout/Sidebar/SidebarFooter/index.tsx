@@ -15,7 +15,7 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import useAuth from 'src/hooks/useAuth';
 import UpgradeTwoToneIcon from '@mui/icons-material/UpgradeTwoTone';
 import QuestionMarkTwoToneIcon from '@mui/icons-material/QuestionMarkTwoTone';
-import { isCloudVersion } from '../../../../config';
+import { homeUrl, isCloudVersion } from '../../../../config';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
 
@@ -59,7 +59,7 @@ function SidebarFooter() {
       alignItems="center"
       justifyContent="center"
     >
-      {isCloudVersion && user.ownsCompany && (
+      {user.ownsCompany && (
         <LightTooltip placement="top" arrow title={t('upgrade_now')}>
           <IconButton
             sx={{
@@ -72,9 +72,14 @@ function SidebarFooter() {
                 color: `${theme.colors.alpha.trueWhite[100]}`
               }
             }}
-            // onClick={requestSubscriptionChange}
-            to="/app/subscription/plans"
-            component={RouterLink}
+            component={isCloudVersion ? RouterLink : 'a'}
+            {...(isCloudVersion
+              ? { to: '/app/subscription/plans' }
+              : {
+                  href: 'https://atlas-cmms.com/pricing?type=selfhosted',
+                  target: '_blank',
+                  rel: 'noopener noreferrer'
+                })}
           >
             <UpgradeTwoToneIcon fontSize="small" />
           </IconButton>
@@ -97,24 +102,26 @@ function SidebarFooter() {
           <QuestionMarkTwoToneIcon fontSize="small" />
         </IconButton>
       </LightTooltip>
-      <LightTooltip placement="top" arrow title={t('wo_calendar')}>
-        <IconButton
-          sx={{
-            background: `${theme.colors.alpha.trueWhite[10]}`,
-            color: `${theme.colors.alpha.trueWhite[70]}`,
-            transition: `${theme.transitions.create(['all'])}`,
+      {user.superAccountRelations.length === 0 && (
+        <LightTooltip placement="top" arrow title={t('wo_calendar')}>
+          <IconButton
+            sx={{
+              background: `${theme.colors.alpha.trueWhite[10]}`,
+              color: `${theme.colors.alpha.trueWhite[70]}`,
+              transition: `${theme.transitions.create(['all'])}`,
 
-            '&:hover': {
-              background: `${alpha(theme.colors.alpha.trueWhite[100], 0.2)}`,
-              color: `${theme.colors.alpha.trueWhite[100]}`
-            }
-          }}
-          to="/app/work-orders?view=calendar"
-          component={RouterLink}
-        >
-          <EventTwoToneIcon fontSize="small" />
-        </IconButton>
-      </LightTooltip>
+              '&:hover': {
+                background: `${alpha(theme.colors.alpha.trueWhite[100], 0.2)}`,
+                color: `${theme.colors.alpha.trueWhite[100]}`
+              }
+            }}
+            to="/app/work-orders?view=calendar"
+            component={RouterLink}
+          >
+            <EventTwoToneIcon fontSize="small" />
+          </IconButton>
+        </LightTooltip>
+      )}
       <LightTooltip placement="top" arrow title={t('Logout')}>
         <IconButton
           sx={{

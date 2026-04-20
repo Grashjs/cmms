@@ -14,12 +14,12 @@ const esJSON = {
   COMPLETE: 'Completa',
   'home.built': 'Diseñado para facilitar la gestión del mantenimiento',
   home_description:
-    'Cuando las pizarras y las notas adhesivas son un caos y necesitas un CMMS que sea fácil de usar por tu equipo, prueba {{shortBrandName}} ',
-  try_grash: 'Prueba {{shortBrandName}}',
+    'Cuando las pizarras y las notas adhesivas son un caos y necesita un CMMS que sea fácil de usar por su equipo, pruebe {{shortBrandName}} ',
+  try_grash: 'Pruebe {{shortBrandName}}',
   login: 'Iniciar sesión',
-  start_trial: 'Comienza una prueba gratis',
-  'home.what': 'Que',
-  'home.you_will_have': 'Tendrás',
+  start_trial: 'Comience una prueba gratis',
+  'home.what': '¿Qué?',
+  'home.you_will_have': 'Tendrá',
   'home.you_will_have_description':
     'Cree flujos de trabajo eficientes y confiables que le permitan controlar el mantenimiento. Genere, asigne y realice un seguimiento de órdenes de trabajo. Controlar el inventario. Y obtenga informes automatizados confiables que mejoren la visibilidad y generen responsabilidad.',
   key_features: 'Características clave',
@@ -33,8 +33,8 @@ const esJSON = {
   preventive_maintenance: 'Mantenimiento preventivo',
   parts_inventory: 'Inventario',
   custom_dashboards: 'Tableros personalizados',
-  'work-orders.title': 'Administra tus órdenes de trabajo como un profesional',
-  'work-orders.description.short': 'Visualiza y gestiona todas tus tareas',
+  'work-orders.title': 'Administre sus órdenes de trabajo como un profesional',
+  'work-orders.description.short': 'Visualice y gestione todas sus tareas',
   'work-orders.descriptions.0':
     '¿Está cansado de la gran cantidad de papeles y de las órdenes de trabajo perdidas? Todo esto afecta directamente la obtención de resultados y su reputación.',
   'work-orders.descriptions.1':
@@ -42,12 +42,12 @@ const esJSON = {
   'work-orders.checks.0':
     'Ver todas sus tareas, incluidas las órdenes y solicitudes de trabajo y el mantenimiento preventivo',
   'work-orders.checks.1':
-    'Establecer prioridades a sus tareas para que el trabajo más importante se realice primero.',
-  'work-orders.checks.2': 'Ver un calendario de tareas presentes y futuras.',
+    'Establezca prioridades a sus tareas para que el trabajo más importante se realice primero.',
+  'work-orders.checks.2': 'Vea un calendario de tareas presentes y futuras.',
   'work-orders.checks.3':
     'Vea órdenes de trabajo con información crítica, como detalles de activos, fecha de vencimiento, prioridad y más.',
   'work-orders.checks.4':
-    'Vea indicadores críticos, como el trabajo completado, el tiempo invertido y el trabajo planificado frente al no planificado..',
+    'Vea indicadores críticos, como el trabajo completado, el tiempo invertido y el trabajo planificado frente al no planificado.',
   'work-requests.title':
     'Una plataforma móvil optimizada que permite realizar solicitudes de trabajo',
   'work-requests.descriptions.0':
@@ -71,9 +71,9 @@ const esJSON = {
   'mobile-app.checks.2':
     'Recibir comunicaciones instantáneas a través de notificaciones y correos electrónicos.',
   'mobile-app.checks.3':
-    'Iniciar nuevas órdenes de trabajo mientras te encuentres en el campo.',
+    'Iniciar nuevas órdenes de trabajo mientras se encuentre en el campo.',
   'mobile-app.checks.4':
-    'Responder y registrar problemas mientras te encuentres trabajando en ello',
+    'Responder y registrar problemas mientras se encuentre trabajando en ello',
   'mobile-app.checks.5':
     'Buscar información crítica sobre sus activos mientras diagnostica un fallo.',
   'eam.title': 'Gestión de activos empresariales',
@@ -110,7 +110,7 @@ const esJSON = {
   'part.title': 'Obtenga el control de su inventario de repuestos',
   'part.description.short': 'Sepa cuándo se acabarán sus repuestos',
   'part.descriptions.0':
-    '¿No está seguro de qué repuestos tiene en stock o dónde se utilizan? ¿No sabes cuándo se acabarán tus repuestos o si tus técnicos tendrán los repuestos necesarios para hacer su trabajo?',
+    '¿No está seguro de qué repuestos tiene en stock o dónde se utilizan? ¿No sabe cuándo se acabarán sus repuestos o si sus técnicos tendrán los repuestos necesarios para hacer su trabajo?',
   'part.descriptions.1':
     'Diseñamos la gestión de repuestos de {{shortBrandName}} para resolver esos problemas y más:',
   'part.checks.0':
@@ -130,9 +130,9 @@ const esJSON = {
   'part.checks.7':
     'Búsqueda a través de códigos de barra. Haga que su inventario sea fácil de rastrear y acceder con códigos QR personalizados',
   'dashboard.title':
-    'Tus datos a tu manera, gracias a la implementación de tableros presonalizados',
+    'Sus datos a su manera, gracias a la implementación de tableros personalizados',
   'dashboard.descriptions.0':
-    'Seamos realistas, el primer paso para mejorar tus operaciones es conocer lo bueno, lo malo y lo feo.',
+    'Seamos realistas, el primer paso para mejorar sus operaciones es conocer lo bueno, lo malo y lo feo.',
   'dashboard.descriptions.1':
     'Con los tableros personalizados de {{shortBrandName}}, finalmente puede comenzar a comprender ese infame "agujero negro del mantenimiento" y comenzar a poner en práctica planes respaldados por datos, lo que resulta en menores costos laborales, menor tiempo de inactividad y más.',
   'dashboard.descriptions.2':
@@ -186,8 +186,8 @@ const esJSON = {
   register: 'Registrarse',
   login_description:
     'Complete los datos a continuación para iniciar sesión con su cuenta.',
-  no_account_yet: '¿Todavía no tienes una cuenta?',
-  signup_here: 'Registrate aquí',
+  no_account_yet: '¿Todavía no tiene una cuenta?',
+  signup_here: 'Regístrese aquí',
   wrong_credentials: 'Los datos proporcionados son incorrectos',
   lost_password: '¿Olvido su contraseña?',
   link_wo: 'Vincular Órdenes de Trabajo',
@@ -225,7 +225,7 @@ const esJSON = {
   add_time_description:
     'Complete los campos a continuación para crear y agregar tiempo',
   feedback: 'Comentarios',
-  feedback_description: 'Danos tu opinión',
+  feedback_description: 'Denos su opinión',
   required_feedback: 'El campo comentario es requerido',
   signature: 'Firma',
   required_signature: 'La firma es obligatoria',
@@ -306,7 +306,7 @@ const esJSON = {
   select_team: 'Seleccionar equipo',
   select_location: 'Seleccionar ubicación',
   select_asset: 'Seleccionar activo',
-  select_tasks: 'Selecccionar tareas',
+  select_tasks: 'Seleccionar tareas',
   requires_signature: 'Firma requerida',
   required_wo_title: 'Se requiere el título de la Orden de Trabajo',
   add_wo: 'Agregar Orden de Trabajo',
@@ -322,7 +322,7 @@ const esJSON = {
   confirm_delete_wo:
     '¿Está seguro de que desea eliminar esta orden de trabajo?',
   no_access_wo:
-    'No tienes acceso a las Órdenes de Trabajo. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a las Órdenes de Trabajo. Comuníquese con su administrador si necesita tener acceso',
   cancel: 'Cancelar',
   select_parts: 'Seleccionar repuesto',
   sets_of_parts: 'Conjunto de repuestos',
@@ -333,7 +333,7 @@ const esJSON = {
   frequency: 'Frecuencia',
   every_frequency_days: 'Cada {{frequency}} días',
   wo_details: 'Detalles de la Orden de Trabajo',
-  confirm_delete_file: '¿Estás seguro de que quieres eliminar este archivo?',
+  confirm_delete_file: '¿Está seguro de que quiere eliminar este archivo?',
   wo_schedule_success: 'Orden de Trabajo programada exitosamente',
   wo_schedule_failure: 'La Orden de Trabajo no pudo ser programada',
   wo_trigger_edit_failure:
@@ -365,7 +365,7 @@ const esJSON = {
   confirm_delete_pm:
     '¿Está seguro de que desea eliminar este disparador de la Orden de Trabajo?',
   no_access_pm:
-    'No tienes acceso a la sección de Mantenimiento Preventivo. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a la sección de Mantenimiento Preventivo. Comuníquese con su administrador si necesita tener acceso',
   enter_wo_title: 'Ingrese el título de la Orden de Trabajo',
   status_report: 'Informe de estado',
   wo_analysis: 'Análisis de Orden de Trabajo',
@@ -432,7 +432,7 @@ const esJSON = {
   asset_information: 'información',
   more_informations: 'Más información',
   confirm_delete_asset_downtime:
-    '¿Estás seguro de que quieres eliminar este tiempo de inactividad?',
+    '¿Está seguro de que quiere eliminar este tiempo de inactividad?',
   create_downtime_success:
     'El tiempo de inactividad se ha agregado correctamente',
   create_downtime_failure: 'El tiempo de inactividad no pudo ser agregado',
@@ -445,7 +445,7 @@ const esJSON = {
   reading: 'Lectura',
   added_by: 'Agregado por',
   enter_meter_value: 'Introduzca el valor de la medición',
-  add_reading: 'Agregar lectura',
+  add_reading: 'Agregar medidor',
   select_meter: 'Seleccionar lectura',
   confirm_delete_part_asset:
     '¿Está seguro de que desea eliminar este repuesto de este activo?',
@@ -505,8 +505,7 @@ const esJSON = {
   edit_location: 'Editar ubicación',
   edit_location_description:
     'Complete los campos a continuación para actualizar la ubicación',
-  confirm_delete_location:
-    '¿Estás seguro de que deseas eliminar esta ubicación?',
+  confirm_delete_location: '¿Está seguro de que desea eliminar esta ubicación?',
   floor_plans: 'Planos de planta',
   floor_plan: 'Plano de planta',
   floor_plan_name_description: 'Nombre del plano de planta',
@@ -524,30 +523,30 @@ const esJSON = {
   assigned_customers: 'Contratistas asignados',
   assigned_vendors: 'Proveedores asignados',
   no_access_location:
-    'No tienes acceso a Ubicaciones. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a Ubicaciones. Comuníquese con su administrador si necesita tener acceso',
   no_access_vendors_customers:
-    'No tienes acceso a Proveedores y Contratistass. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a Proveedores y Contratistas. Comuníquese con su administrador si necesita tener acceso',
   no_access_people_team:
-    'No tienes acceso a Personas y Equipos. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a Personas y Equipos. Comuníquese con su administrador si necesita tener acceso',
   no_access_analytics:
-    'No tienes acceso a las Estadísticas. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a las Estadísticas. Comuníquese con su administrador si necesita tener acceso',
   no_access_assets:
-    'No tienes acceso a Activos. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a Activos. Comuníquese con su administrador si necesita tener acceso',
   no_access_categories:
-    'No tienes acceso a Categorías. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a Categorías. Comuníquese con su administrador si necesita tener acceso',
   no_access_files:
-    'No tienes acceso a Archivos. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a Archivos. Comuníquese con su administrador si necesita tener acceso',
   no_access_inventory:
-    'No tienes acceso al Inventario. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso al Inventario. Comuníquese con su administrador si necesita tener acceso',
   no_access_meters:
-    'No tienes acceso a Mediciones. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a Medidores. Comuníquese con su administrador si necesita tener acceso',
   no_access_purchase_orders:
-    'No puedes crear una orden de compra. Comuníquese con su administrador si necesita tener acceso',
+    'No puede crear una orden de compra. Comuníquese con su administrador si necesita tener acceso',
   no_access_requests:
-    'No tienes acceso a las Solicitudes. Comuníquese con su administrador si necesita tener acceso',
+    'No tiene acceso a las Solicitudes. Comuníquese con su administrador si necesita tener acceso',
   no_access_settings:
-    'No tienes acceso a Configuraciones. Comuníquese con su administrador si necesita tener acceso',
-  no_access_page: 'No tienes acceso a esta página',
+    'No tiene acceso a Ajustes. Comuníquese con su administrador si necesita tener acceso',
+  no_access_page: 'No tiene acceso a esta página',
   file: 'Archivo',
   'noRows.location.message':
     'Las ubicaciones le permiten gestionar activos y trabajadores de forma más eficiente',
@@ -569,7 +568,7 @@ const esJSON = {
   edit_set: 'Editar conjunto',
   edit_set_description:
     'Complete los campos a continuación para editar el conjunto',
-  confirm_delete_set: '¿Estás seguro de que quieres eliminar este conjunto?',
+  confirm_delete_set: '¿Está seguro de que quiere eliminar este conjunto?',
   part_create_success: 'El repuesto ha sido creado',
   part_create_failure: 'El repuesto no pudo ser creado',
   part_edit_failure: 'El repuesto no pudo ser editado',
@@ -596,7 +595,7 @@ const esJSON = {
   'noRows.part.message':
     'Los repuestos se pueden combinar en activos o usarse solos',
   'noRows.part.action': "Presione el botón '+' para crear un repuesto",
-  confirm_delete_part: '¿Está seguro de que desea eliminar esta parte?',
+  confirm_delete_part: '¿Está seguro de que desea eliminar este repuesto?',
   part_details: 'Detalles del repuesto',
   area_details: 'Detalles del área',
   assigned_people: 'Personas asignadas',
@@ -604,7 +603,7 @@ const esJSON = {
   no_file_found: 'Ningún archivo encontrado',
   no_wo_found: 'No se encontró ninguna Orden de Trabajo',
   workers: 'Trabajadores',
-  Parts_and_Inventory: 'Partes e inventario',
+  Parts_and_Inventory: 'Repuestos e inventario',
   po_edit_failure: 'La orden de compra no se pudo editar',
   po_delete_success: 'La orden de compra ha sido borrada',
   po_delete_failure: 'La orden de compra no pudo ser borrada',
@@ -634,7 +633,7 @@ const esJSON = {
   edit_po_description:
     'Complete los campos a continuación para actualizar la orden de compra',
   purchase_order: 'Orden de compra',
-  'noRows.po.message': 'Gestiona tus órdenes de compra en un solo lugar',
+  'noRows.po.message': 'Gestione tus órdenes de compra en un solo lugar',
   'noRows.po.action': "Presiona el botón  '+' para crear una orden de compra.",
   confirm_delete_po: '¿Está seguro de que desea eliminar esta orden de compra?',
   upgrade_po: 'Actualizar para crear orden de compras',
@@ -667,37 +666,37 @@ const esJSON = {
     'Complete los campos a continuación para crear y agregar un disparador a la Orden de Trabajo',
   wo_trigger_edit_success:
     'El disparador de la Orden de Trabajo se ha actualizado correctamente',
-  meter_create_success: 'La lectura ha sido creado exitosamente',
-  meter_create_failure: 'La lectura no pudo ser creada ',
+  meter_create_success: 'La lectura ha sido creada exitosamente',
+  meter_create_failure: 'La lectura no pudo ser creada.',
   meter_edit_failure: 'La lectura no pudo ser editada',
   meter_delete_success: 'La lectura ha sido borrada',
   meter_delete_failure: 'La lectura no pudo ser borrada',
   next_reading_due: 'Próxima lectura pendiente',
   unit_of_measurement: 'Unidad de medida',
   last_reading: 'Última lectura',
-  enter_meter_name: 'Ingrese el nombre de la lectura',
+  enter_meter_name: 'Ingrese el nombre del medidor',
   unit: 'Unidad',
   update_frequency: 'Frecuencia de actualización',
   update_frequency_in_days: 'Frecuencia de actualización en días',
-  required_meter_name: 'El nombre de la lectura es obligatorio',
+  required_meter_name: 'El nombre del medidor es obligatorio',
   required_meter_unit: 'La Unidad de medida es obligatoria',
   required_meter_update_frequency:
     'La frecuencia de actualización de la lectura es obligatoria',
   required_asset: 'El activo es obligatorio',
-  add_meter: 'Agregar lectura',
+  add_meter: 'Agregar medidor',
   add_meter_description:
     'Complete los campos a continuación para crear y agregar una nueva lectura',
-  edit_meter: 'Editar lectura',
+  edit_meter: 'Editar medidor',
   edit_meter_description:
     'Complete los campos a continuación para editar la lectura',
-  confirm_delete_meter: '¿Está seguro de que desea eliminar esta lectura?',
-  upgrade_create_meter: 'Actualice para crear lecturas',
+  confirm_delete_meter: '¿Está seguro de que desea eliminar este medidor?',
+  upgrade_create_meter: 'Actualice para crear medidores',
   history: 'Historial',
   reading_frequency: 'Frecuencia de lectura',
-  required_reading_value: 'Valor de lectura es obligatoria',
+  required_reading_value: 'El valor de lectura es obligatorio',
   wo_triggers: 'Desencadente de la Orden de Trabajo',
   add_trigger: 'Agregar disparador',
-  meter_details: 'Detalles de lectura',
+  meter_details: 'Detalles del medidor',
   'noRows.meter.message':
     'Las lecturas de medidores le brindan la capacidad de monitorear activos y activar nuevas órdenes de trabajo basadas en condiciones definidas.',
   'noRows.meter.action': "Presione el botón '+' para crear un medidor",
@@ -705,7 +704,7 @@ const esJSON = {
   drag_one_file: 'Arrastre un único archivo aquí',
   drag_many_files: 'Arrastre y suelte archivos aquí',
   drop_to_start: 'Suelte los archivos para comenzar la carga',
-  invalid_files_type: 'No puedes subir estos tipos de archivos.',
+  invalid_files_type: 'No puede subir estos tipos de archivo.',
   you_have_uploaded: 'Has subido',
   upload: 'Subido',
   Vendors_Customers: 'Proveedores y contratistas',
@@ -780,9 +779,9 @@ const esJSON = {
   people_in_team: 'Personas en el equipo',
   required_team_name: 'El nombre del equipo es obligatorio',
   create_team: 'Crear equipo',
-  create_team_description: 'Puedes agregar miembros del equipo desde aquí',
-  confirm_delete_team: '¿Estás seguro de que deseas eliminar este equipo?',
-  overview: 'Decripción general',
+  create_team_description: 'Puede agregar miembros del equipo desde aquí',
+  confirm_delete_team: '¿Está seguro de que desea eliminar este equipo?',
+  overview: 'Descripción general',
   activity: 'Actividad',
   wo_complete_last_14_days:
     'Órdenes de Trabajo completadas en los últimos 14 días',
@@ -842,7 +841,7 @@ const esJSON = {
     "Presione el botón '+' para agregar la primera categoría.",
   confirm_delete_category: '¿Está seguro de que desea eliminar esta categoría?',
   no_category_message:
-    'Parece que no tienes ninguna categoría {{categoryName}} aún.',
+    'Parece que no tiene ninguna categoría {{categoryName}} aún.',
   acquisition_cost: 'Costo de adquisición',
   general_settings: 'Configuraciones generales',
   request_form_configuration: 'Ajustes del formulario de solicitud',
@@ -868,7 +867,7 @@ const esJSON = {
   role_delete_success: 'El rol ha sido eliminado',
   role_delete_failure: 'El rol no pudo ser eliminado',
   confirm_delete_role:
-    '¿Estás seguro de que deseas eliminar permanentemente este rol?',
+    '¿Está seguro de que desea eliminar permanentemente este rol?',
   users: 'Usuarios',
   paid: 'Pago',
   free: 'Gratis',
@@ -911,6 +910,7 @@ const esJSON = {
     'Los usuarios obtienen actualizaciones de las Órdenes de Trabajo que solicitaron.',
   language: 'Idioma',
   date_format: 'Formato de fecha',
+  time_zone: 'Zona horaria',
   business_type: 'Tipo de negocio',
   general_asset_management: 'Gestión general de activos',
   physical_asset_management: 'Gestión de activos físicos',
@@ -1016,14 +1016,14 @@ const esJSON = {
   total_time_spent_in_hours: 'Tiempo total empleado (Horas)',
   estimated_hours: 'Horas estimadas',
   total_purchase_price: 'Precio total de compra',
-  you_have: 'Tienes',
+  you_have: 'Tiene',
   new_messages: 'nuevos mensajes',
   company: 'Empresa',
   change_cover: 'Cambiar portada',
   required_address: 'La dirección es obligatoria',
   company_details: 'Detalles de la Empresa',
   company_details_description:
-    'Gestionar información relacionada con su Empresa',
+    'Gestionar información relacionada con su empresa',
   learn_more: 'Aprenda más',
   profile: 'Perfil',
   email_notifications: 'Notificaciones por correo electrónico',
@@ -1049,14 +1049,14 @@ const esJSON = {
   change_password: 'Cambiar contraseña',
   notification_settings: 'Configuración de notificaciones',
   notification_settings_description:
-    'Gestiona los detalles relacionados con tus notificaciones.',
+    'Gestiona los detalles relacionados con sus notificaciones.',
   recent_activity: 'Actividad reciente',
   created: 'Creada',
   completed: 'Completada',
   my_account: 'Mi cuenta',
   my_company: 'Mi Empresa',
   you_are_using_plan:
-    'Actualmente estás utilizando el plan {{planName}}. Caducará el {{expiration}}. Actualice ahora para obtener acceso a más funciones.',
+    'Actualmente está utilizando el plan {{planName}}. Caducará el {{expiration}}. Actualice ahora para obtener acceso a más funciones.',
   upgrade_plan: 'Actualizar plan',
   plans: 'Planes',
   monthly: 'Mensual',
@@ -1089,14 +1089,14 @@ const esJSON = {
   requester_role: 'Solicitud',
   view_only_role: 'Solo visualización',
   how_will_you_be_billed: '¿Cómo le gustaría que se le facture?',
-  which_plan_fits_you: '¿Qué plan se adapta mejor a ti?',
+  which_plan_fits_you: '¿Qué plan se adapta mejor a usted?',
   per_user_month: 'Por usuario/mes',
   per_user_year: 'Por usuario/año',
   you_will_be_charged: 'Se le cobrará',
   proceed_to_payment: 'Proceder al pago',
   pay_only_for_roles:
     'Pague solo por usuarios <strong>Administrador</strong>, <strong>Técnico</strong> y <strong>Técnico limitado</strong>, y use usuarios <strong>Solicitante</strong> y <strong>Solo visualización</strong> ilimitados de forma gratuita.',
-  checkout_our: 'Echa un vistazo a nuestra',
+  checkout_our: 'Eche un vistazo a nuestra',
   pricing_page: 'página de precios',
   for_more_details: 'para más detalles',
   users_count_display: '{{count}} usuarios',
@@ -1110,7 +1110,7 @@ const esJSON = {
   recover_password_description:
     'Ingrese el correo electrónico utilizado para el registro para restablecer su contraseña.',
   send_me_new_password: 'Envíenme una nueva contraseña',
-  want_to_sign_in_again: '¿Quieres intentar iniciar sesión nuevamente?',
+  want_to_sign_in_again: '¿Quiere intentar iniciar sesión nuevamente?',
   check_mails_for_instructions:
     'Revise su correo electrónico para obtener más instrucciones.',
   pdf_report: 'Reporte en PDF',
@@ -1178,7 +1178,7 @@ const esJSON = {
   density: 'Densidad',
   compact: 'Compacto',
   standard: 'Estándar',
-  comfortable: 'Comfortable',
+  comfortable: 'Cómodo',
   columns: 'Columnas',
   select_columns: 'Seleccionar columnas',
   show_filters: 'Mostrar filtros',
@@ -1219,7 +1219,7 @@ const esJSON = {
   menu: 'Menú',
   show_columns: 'Mostrar columnas',
   hide: 'Ocultar',
-  unsort: 'Desclasificar',
+  unsort: 'Quitar orden',
   sort_by_ASC: 'Ordenar por ASC',
   sort_by_DESC: 'Ordenar por DESC',
   sort: 'Ordenar',
@@ -1233,10 +1233,10 @@ const esJSON = {
   expand: 'Expandir',
   collapse: 'Colapsar',
   detail_panel_toggle: 'Alternar panel de detalles',
-  cancel_subscription: 'Cancelar suscripciónn',
+  cancel_subscription: 'Cancelar suscripción',
   resume_subscription: 'Reanudar suscripción',
   confirm_cancel_subscription:
-    '¿Estás seguro de que deseas cancelar la suscripción?',
+    '¿Está seguro de que deseas cancelar la suscripción?',
   workflows: 'Flujo de trabajo',
   create_workflow: 'Crear flujo de trabajo',
   if: 'Si',
@@ -1299,11 +1299,11 @@ const esJSON = {
   workflow_delete_success: 'El flujo de trabajo se ha eliminado',
   workflow_delete_failure: 'El flujo de trabajo no pudo ser eliminado',
   confirm_delete_workflow:
-    '¿Estás seguro de que quieres eliminar este flujo de trabajo?',
+    '¿Está seguro de que quiere eliminar este flujo de trabajo?',
   click_here: 'Haga clic aquí',
   verify_email_title: 'Verificar correo electrónico',
   verify_email_description:
-    'Se te ha enviado un correo electrónico de verificación. Revisa la carpeta de spam si no lo ves en tu bandeja de entrada.',
+    'Se le ha enviado un correo electrónico de verificación. Revisa la carpeta de spam si no lo ve en su bandeja de entrada.',
   upgrade: 'Upgrade',
   downgrade: 'Downgrade',
   upgrade_description:
@@ -1311,7 +1311,7 @@ const esJSON = {
   enable_users: 'Habilitar usuarios',
   max_users_description: 'Puede habilitar hasta {{maxUsers}} usuarios',
   downgrade_description:
-    'Acabas de cambiar a una versión inferior de tu plan de suscripción. Debes desactivar algunos usuarios para continuar. Solo puedes hacerlo una vez para la suscripción actual. Elija con cuidado.',
+    'Acaba de cambiar a una versión inferior de su plan de suscripción. Debe desactivar algunos usuarios para continuar. Solo puedes hacerlo una vez para la suscripción actual. Elija con cuidado.',
   disable_users: 'Deshabilitar usuarios',
   min_users_description: 'Debes desactivar un mìnimo de {{minUsers}} usuarios',
   downgrade_description_no_owner:
@@ -1320,7 +1320,7 @@ const esJSON = {
   due_date_delay: 'Retraso en la fecha de vencimiento',
   due_date_delay_description: 'Retraso de fecha de vencimiento en días',
   days_count: '{{days}} días',
-  trigger_configuration: 'Configuración de los diparadores',
+  trigger_configuration: 'Configuración de los disparadores',
   WORK_ORDER_feature: 'Órdenes de Trabajo',
   REQUEST_feature: 'Solicitudes de trabajo',
   PART_feature: 'Gestión de repuestos',
@@ -1377,7 +1377,7 @@ const esJSON = {
   switch_account_description: 'Seleccione una cuenta para continuar',
   put_location_in_map: 'Poner ubicación en el mapa',
   confirm_disable_user:
-    '¿Estás seguro de que deseas desactivar {{user}}? Solo podrás habilitarlo después de un mes',
+    '¿Estáa seguro de que desea desactivar {{user}}? Solo podrá habilitarlo después de un mes',
   user_disabled_success: 'Usuario deshabilitado exitosamente',
   disable: 'Desactivado',
   manufacturer: 'Fabricante',
@@ -1404,8 +1404,8 @@ const esJSON = {
   estimated_start_date: 'Fecha de inicio prevista',
   no_file_linked_to_wo: 'No hay ningún archivo adjunto a esta Orden de Trabajo',
   add_file: 'Agregar archivo',
-  try_for_free: 'Prueba gratis',
-  choose_your_plan: 'Elige tu plan',
+  try_for_free: 'Pruebe gratis',
+  choose_your_plan: 'Elija su plan',
   STARTER_description:
     'Equipos que buscan desarrollar un mantenimiento preventivo eficiente y sólido a través del estado de las máquinas y la visibilidad de la mano de obra.',
   PROFESSIONAL_description:
@@ -1474,11 +1474,452 @@ const esJSON = {
   asset_status: 'Estado del activo',
   ui_configuration: 'Configuración de la interfaz',
   password_leave_empty_if_you_dont_want_to_change:
-    'Contraseña: déjalo vacío si no quieres cambiarla',
+    'Contraseña: déjalo vacío si no quiere cambiarla',
   upgrade_request_success:
-    '¡Solicitud de actualización recibida! Nos pondremos en contacto contigo pronto con los detalles de pago',
+    '¡Solicitud de actualización recibida! Nos pondremos en contacto con usted pronto con los detalles de pago',
   continue_with_sso: 'Continuar con SSO',
-  see_live_demo: 'Ver demostración en vivo'
+  see_live_demo: 'Ver demostración en vivo',
+  days: 'Días',
+  weeks: 'Semanas',
+  months: 'Meses',
+  years: 'Años',
+  based_on: 'Basado en',
+  scheduled_date: 'Fecha programada',
+  on: 'En',
+  required_days_of_week: 'Días de la semana requeridos',
+  'schedule.daily_one': 'Cada {{count}} día',
+  'schedule.daily_other': 'Cada {{count}} días',
+  'schedule.weekly_one': 'Cada {{count}} semana en {{days}}',
+  'schedule.weekly_other': 'Cada {{count}} semanas en {{days}}',
+  'schedule.monthly_one': 'Cada {{count}} mes',
+  'schedule.monthly_other': 'Cada {{count}} meses',
+  'schedule.yearly_one': 'Cada {{count}} año',
+  'schedule.yearly_other': 'Cada {{count}} años',
+  delete_account: 'Eliminar cuenta',
+  csv_separator: 'Separador CSV',
+  open_source_cmms: 'GMAO de código abierto',
+  'main.title':
+    'GMAO gratuito de código abierto (software de gestión de mantenimiento)',
+  'home.h1':
+    'GMAO gratuito y de código abierto que puede alojar usted mismo o usar en la nube',
+  'home.h2': 'Mantenimiento potente a bajo coste',
+  'home.h3':
+    'Deje de depender de hojas de cálculo y pizarras. {{brandName}} ayuda a los equipos de mantenimiento a planificar intervenciones, rastrear equipos y mantenerse en cumplimiento. Alójelo en su propio servidor o comience instantáneamente en la nube.',
+  talk_to_sales: 'Hablar con ventas',
+  'pricing.choose_plan_and_get_started': 'Elija tu plan y empiece',
+  'pricing.slogan_effective_maintenance':
+    'Nuestro software brinda a los equipos de mantenimiento y confiabilidad las herramientas que necesitan para ejecutar las operaciones de manera eficiente y eficaz.',
+  'pricing.compare_plans_and_pricing': 'Comparar planes y precios',
+  'pricing.see_which_plan_is_right_for_you':
+    'Vea qué plan es adecuado para usted',
+  'pricing.select_two_plans_to_compare': 'Seleccione 2 planes para comparar',
+  'pricing.select_three_plans_to_compare': 'Seleccione 3 planes para comparar',
+  'pricing.month_per_user': 'mes por usuario',
+  'pricing.year_per_user': 'año por usuario',
+  'pricing.plan_basic_name': 'Básico',
+  'pricing.plan_basic_description':
+    'Equipos que buscan rastrear activos y crear cronogramas fundamentales de mantenimiento preventivo con procedimientos.',
+  'pricing.feature_unlimited_work_orders': 'Órdenes de trabajo ilimitadas',
+  'pricing.feature_custom_tasks': 'Tareas personalizadas',
+  'pricing.feature_unlimited_request_user_licenses':
+    'Solicitudes de licencias de usuario ilimitadas',
+  'pricing.plan_starter_name': 'Starter',
+  'pricing.plan_starter_description':
+    'Equipos que buscan construir un mantenimiento preventivo eficiente y sólido a través del estado de las máquinas y la visibilidad de la mano de obra.',
+  'pricing.feature_everything_in_basic_plus': 'Todo lo del plan Básico más:',
+  'pricing.feature_preventive_maintenance_recurring_work_orders':
+    'Mantenimiento preventivo/Órdenes de trabajo recurrentes',
+  'pricing.feature_custom_checklists': 'Listas de verificación personalizadas',
+  'pricing.feature_inventory_management_costing':
+    'Gestión de inventario/Costos',
+  'pricing.feature_time_and_manpower_tracking':
+    'Seguimiento del tiempo y la mano de obra',
+  'pricing.feature_thirty_day_analytics_reporting':
+    'Análisis e informes (30 días)',
+  'pricing.plan_professional_name': 'Profesional',
+  'pricing.plan_professional_description':
+    'Departamentos que necesitan aprovechar conocimientos y análisis para impulsar un mayor crecimiento y productividad del mantenimiento.',
+  'pricing.feature_everything_in_starter_plus':
+    'Todo lo incluido en Starter más:',
+  'pricing.feature_multiple_inventory_lines': 'Múltiples líneas de inventario',
+  'pricing.feature_customizable_request_portal':
+    'Portal de solicitudes personalizable',
+  'pricing.feature_mobile_offline_mode': 'Modo móvil sin conexión',
+  'pricing.feature_advanced_analytics_reporting':
+    'Análisis e informes avanzados',
+  'pricing.plan_business_name': 'Negocio',
+  'pricing.plan_business_description':
+    'Organizaciones listas para capturar datos de mantenimiento y operaciones para administrar múltiples ubicaciones y personalizar el sistema.',
+  'pricing.feature_everything_in_professional_plus':
+    'Todo lo del plan Profesional más:',
+  'pricing.feature_purchase_order_management': 'Gestión de órdenes de compra',
+  'pricing.feature_multi_site_module_support': 'Soporte de módulos multisitio',
+  'pricing.feature_custom_work_order_statuses':
+    'Estados de órdenes de trabajo personalizadas',
+  'pricing.feature_custom_integrations_support':
+    'Soporte para integraciones personalizadas',
+  'pricing.feature_work_order_management': 'Gestión de órdenes de trabajo',
+  'pricing.feature_recurring_work_orders': 'Órdenes de trabajo recurrentes',
+  'pricing.feature_custom_categories': 'Categorías personalizadas',
+  'pricing.feature_data_importing': 'Importación de datos',
+  'pricing.feature_time_and_cost_tracking': 'Seguimiento de tiempo y costos',
+  'pricing.feature_work_order_configuration':
+    'Configuración de órdenes de trabajo',
+  'pricing.feature_internal_requests': 'Solicitudes internas',
+  'pricing.feature_external_request_portal': 'Portal de solicitudes externas',
+  'pricing.category_locations_assets_parts': 'Ubicaciones, activos y piezas',
+  'pricing.feature_location_management': 'Gestión de ubicaciones',
+  'pricing.feature_barcode_scanning': 'Escaneo de código de barras',
+  'pricing.feature_inventory_management': 'Gestión de inventario',
+  'pricing.feature_custom_asset_statuses': 'Estados de activos personalizados',
+  'pricing.feature_asset_downtime_tracking':
+    'Seguimiento del tiempo de inactividad de los activos',
+  'pricing.feature_asset_depreciation_tracking':
+    'Seguimiento de la depreciación de activos',
+  'pricing.feature_asset_warranty_tracking':
+    'Seguimiento de la garantía de activos',
+  'pricing.feature_purchase_orders_management': 'Órdenes de compra',
+  'pricing.feature_asset_check_in_out': 'Registro de entrada/salida de activos',
+  'pricing.category_mobile_offline': 'Móvil sin conexión',
+  'pricing.feature_work_order_availability':
+    'Disponibilidad de órdenes de trabajo',
+  'pricing.feature_updating_status': 'Actualización de estado',
+  'pricing.feature_updating_tasks': 'Actualización de tareas',
+  'pricing.feature_work_order_drafts': 'Borradores de órdenes de trabajo',
+  'pricing.feature_full_drill_down_reporting_history':
+    'Informes e historial completos y detallados',
+  'pricing.period_thirty_days': '30 días',
+  'pricing.period_full': 'Completo',
+  'pricing.feature_pdf_csv_exporting': 'Exportación de PDF y CSV',
+  'pricing.feature_itemized_time_reporting': 'Informes de tiempo detallados',
+  'pricing.feature_user_login_reports':
+    'Informes de inicio de sesión de usuario',
+  'pricing.feature_parts_consumption_reports': 'Informes de consumo de piezas',
+  'pricing.feature_asset_downtime_reports':
+    'Informes de tiempo de inactividad de activos',
+  'pricing.feature_equipment_reliability_reports':
+    'Informes de confiabilidad de equipos',
+  'pricing.feature_multi_site_modules': 'Módulos multisitio',
+  'pricing.category_integrations': 'Integraciones',
+  'pricing.feature_business_integrations':
+    'Integraciones empresariales (SAP/Oracle/Causal AI...)',
+  'pricing.feature_custom_integrations': 'Integraciones personalizadas',
+  'pricing.feature_unlimited_view_only_users':
+    'Usuarios ilimitados de solo lectura',
+  'pricing.feature_unlimited_requesters': 'Solicitantes ilimitados',
+  'pricing.feature_unlimited_vendors': 'Proveedores ilimitados',
+  'pricing.feature_unlimited_customers': 'Contratistas ilimitados',
+  'pricing.category_support': 'Apoyo',
+  'pricing.feature_daily_email_digest': 'Resumen diario por correo electrónico',
+  'pricing.feature_articles': 'Base de conocimientos',
+  'pricing.feature_training_webinars': 'Seminarios web de capacitación',
+  'pricing.feature_community_support_discord': 'Soporte comunitario (Discord)',
+  'pricing.feature_email_support': 'Soporte por correo electrónico',
+  'pricing.feature_chat_phone_support': 'Soporte por chat/teléfono',
+  'pricing.feature_priority_support': 'Soporte prioritario',
+  'pricing.feature_implementation_training': 'Implementación y capacitación',
+  'pricing.feature_dedicated_account_manager': 'Gerente de cuenta dedicado',
+  'pricing.category_customization': 'Personalización',
+  'pricing.feature_custom_development': 'Desarrollo personalizado',
+  'pricing.sh_plan_basic_name': 'Básico',
+  'pricing.sh_plan_basic_description':
+    'Para equipos pequeños que necesitan soberanía total de datos y seguimiento básico del mantenimiento en su propia infraestructura.',
+  'pricing.sh_feature_core_work_order_management':
+    'Gestión de órdenes de trabajo básicas',
+  'pricing.sh_feature_asset_inventory_tracking':
+    'Seguimiento de activos e inventario',
+  'pricing.sh_feature_local_data_storage': 'Almacenamiento de datos local',
+  'pricing.sh_plan_professional_name': 'Profesional',
+  'pricing.sh_plan_professional_description':
+    'Ideal para plantas de producción que requieren listas de verificación avanzadas, flujos de trabajo y una integración más profunda del sistema.',
+  'pricing.sh_feature_everything_in_basic_plus': 'Todo lo del plan Básico más:',
+  'pricing.sh_feature_unlimited_assets_checklists':
+    'Activos/Listas de verificación ilimitados',
+  'pricing.sh_feature_nfc_barcode_scanning':
+    'NFC y escaneo de códigos de barras',
+  'pricing.sh_feature_email_support': 'Soporte por correo electrónico',
+  'pricing.sh_plan_business_name': 'Negocio',
+  'pricing.sh_plan_business_description':
+    'Operaciones a gran escala que requieren gestión de múltiples instancias, marca personalizada y seguridad de primer nivel.',
+  'pricing.sh_feature_everything_in_professional_plus':
+    'Todo lo del plan Profesional más:',
+  'pricing.sh_feature_multi_instance_management':
+    'Gestión de múltiples instancias',
+  'pricing.sh_feature_custom_user_roles': 'Roles de usuario personalizados',
+  'pricing.sh_feature_priority_implementation_support':
+    'Apoyo a la implementación prioritaria',
+  'pricing.faq_free_users_q':
+    '¿Qué tipos de usuarios se consideran usuarios gratuitos?',
+  'pricing.faq_free_users_a1':
+    'Hay tres tipos de usuarios que no requieren una licencia paga:',
+  'pricing.faq_view_only_users_title': 'Ver solo usuarios',
+  'pricing.faq_view_only_users_description':
+    'Estos usuarios suelen ser supervisores que inician sesión con poca frecuencia para ver un resumen de la actividad de mantenimiento. También pueden enviar solicitudes de trabajo y generar informes.',
+  'pricing.faq_requester_users_title': 'Usuarios solicitantes',
+  'pricing.faq_requester_users_description':
+    'Estos usuarios solo pueden enviar solicitudes de trabajo y ver su estado. No pueden visualizar órdenes de trabajo, activos, repuestos ni ningún otro dato almacenado en el GMAO.',
+  'pricing.faq_third_party_users_title': 'Usuarios de terceros',
+  'pricing.faq_third_party_users_description':
+    'Estos usuarios suelen ser proveedores y contratistas. No pueden iniciar sesión en el sistema. Solo pueden enviar actualizaciones a una orden de trabajo específica en la que están asignados a través de un enlace público.',
+  'pricing.faq_paid_users_q':
+    '¿Qué tipos de usuarios se consideran usuarios de pago?',
+  'pricing.faq_paid_users_a1':
+    'Hay tres tipos de usuarios que requieren una licencia paga:',
+  'pricing.faq_admin_users_title': 'Usuarios administradores',
+  'pricing.faq_admin_users_description':
+    'Estos usuarios pueden agregar a otros a la cuenta, aceptar o rechazar solicitudes de trabajo y editar los detalles de las órdenes de trabajo. Son los usuarios que controlan la cuenta. Puede tener varios administradores por cuenta.',
+  'pricing.faq_technical_users_title': 'Usuarios técnicos',
+  'pricing.faq_technical_users_description':
+    'Estos usuarios suelen ser técnicos que cierran órdenes de trabajo en campo. Pueden editar las órdenes de trabajo que crean, pero no otras. Pueden agregar imágenes y actualizaciones de estado a las órdenes de trabajo, así como crear nuevas.',
+  'pricing.faq_limited_technical_users_title': 'Usuarios técnicos limitados',
+  'pricing.faq_limited_technical_users_description':
+    'Estos usuarios tienen los mismos privilegios que el usuario técnico. La única excepción es que solo pueden ver las órdenes de trabajo que les han sido asignadas, no las de otros usuarios técnicos de la cuenta.',
+  'pricing.faq_change_plans_q': '¿Puedo cambiar de planes más adelante?',
+  'pricing.faq_change_plans_a':
+    'Sí, puede cambiar a un plan superior o inferior en cualquier momento. Los cambios entran en vigor al inicio de su próximo ciclo de facturación.',
+  'pricing.faq_free_trial_q': '¿Hay una prueba gratuita?',
+  'pricing.faq_free_trial_a':
+    'Sí, ofrecemos una prueba gratuita de 15 días del plan Business para que pueda experimentar todas las funciones antes de tomar una decisión.',
+  'pricing.faq_non_profit_discounts_q':
+    '¿Ofrecen descuentos para organizaciones sin fines de lucro?',
+  'pricing.faq_non_profit_discounts_a':
+    'Sí, ofrecemos precios especiales para organizaciones sin fines de lucro. Para más información, contacte con nuestro equipo de ventas.',
+  'pricing.faq_payment_methods_q': '¿Qué métodos de pago aceptan?',
+  'pricing.faq_payment_methods_a':
+    'Aceptamos todas las principales tarjetas de crédito, transferencias bancarias y PayPal. Para planes Enterprise, también gestionamos la facturación.',
+  'pricing.faq_cancel_subscription_q': '¿Puedo cancelar mi suscripción?',
+  'pricing.faq_cancel_subscription_a':
+    'Sí, puede cancelar su suscripción en cualquier momento. Seguirá teniendo acceso hasta el final de su periodo de facturación actual.',
+  'pricing.faq_data_secure_q': '¿Están seguros mis datos?',
+  'pricing.faq_data_secure_a':
+    'Sí, nos tomamos muy en serio la seguridad de los datos. Todos los datos están cifrados, tanto en tránsito como en reposo, y realizamos auditorías de seguridad periódicas.',
+  'pricing.faq_title': 'Preguntas frecuentes',
+  'pricing.annually_save_two_months': 'Anualmente (Ahorra 2 meses)',
+  'pricing.most_popular': 'Más populares',
+  'pricing.get_your_license': 'Obtenga su licencia',
+  get_started: 'Empezar',
+  workflow_automation: 'Automatización del flujo de trabajo',
+  push_notifications: 'Notificaciones push',
+  cloud: 'Nube',
+  self_hosted: 'Autoalojado',
+  full: 'Completo',
+  pricing: 'Precios',
+  industries: 'Industrias',
+  work_order_management: 'Gestión de órdenes de trabajo',
+  inventory_management: 'Gestión de inventarios',
+  analytics_and_reporting: 'Análisis e informes',
+  manufacturing: 'Fabricación',
+  facility_management: 'Gestión de instalaciones',
+  food_and_beverage: 'Alimentos y bebidas',
+  healthcare: 'Salud',
+  energy_and_utilities: 'Energía y servicios públicos',
+  education: 'Educación',
+  hospitality: 'Hostelería',
+  construction: 'Construcción',
+  installation_docs: 'Documentación de instalación',
+  trusted_by_maintenance_teams:
+    'Aprobado por equipos de mantenimiento en varios sectores',
+  cut_costs_performance:
+    'Reduce los costos de software de mantenimiento sin sacrificar el rendimiento',
+  'free_cmms.title':
+    'Software GMAO Gratis Atlas | No se requiere tarjeta de crédito',
+  'free_cmms.description':
+    'Software GMAO gratuito — no es una versión de prueba. Gestione el mantenimiento, los activos y las órdenes de trabajo al instante. No se requiere tarjeta de crédito.',
+  'free_cmms.keywords':
+    'gmao gratis, software de gestión de mantenimiento, software de órdenes de trabajo gratis, seguimiento de activos, mantenimiento preventivo',
+  'overview.description':
+    'Atlas CMMS es un GMAO gratuito y de código abierto para gestionar órdenes de trabajo, mantenimiento preventivo, activos e instalaciones. Optimice sus operaciones de mantenimiento hoy.',
+  'overview.keywords':
+    'GMAO, sistema de gestión de mantenimiento computarizado, EAM, gestión de activos empresariales, gmao de código abierto, software de mantenimiento gratis, gestión de órdenes de trabajo, mantenimiento preventivo, seguimiento de activos, gestión de instalaciones, software de seguimiento de mantenimiento, mantenimiento de equipos, Atlas CMMS',
+  'pricing.title': 'Precios - Atlas CMMS',
+  'pricing.description':
+    'Planes de precios flexibles para Atlas CMMS. Elija entre las versiones en la nube y autoalojadas de nuestro GMAO de código abierto para optimizar sus operaciones de mantenimiento.',
+  'free_cmms.hero.subtitle': 'Software GMAO Gratuito',
+  'free_cmms.hero.title':
+    'Gestione Órdenes de Trabajo y Activos - Gratis para siempre',
+  'free_cmms.hero.description':
+    'Deje de hacer malabares con hojas de cálculo y herramientas obsoletas. Actualice a un moderno software GMAO - gratis.',
+  'free_cmms.hero.start_free': 'Comience Gratis Ahora',
+  'free_cmms.hero.work_orders_alt': 'Órdenes de Trabajo',
+  'free_cmms.hero.mobile_app_alt': 'Aplicación Móvil',
+  'free_cmms.features.work_orders.title': 'Órdenes de Trabajo sin Esfuerzo',
+  'free_cmms.features.work_orders.p1':
+    'Cree, asigne y realice un seguimiento de las órdenes de trabajo en segundos.',
+  'free_cmms.features.work_orders.p2':
+    'Adjunte fotos, manuales y listas de verificación a cualquier tarea.',
+  'free_cmms.features.work_orders.p3':
+    'Supervise el progreso en tiempo real con actualizaciones de estado instantáneas.',
+  'free_cmms.features.work_orders.alt': 'Gestión de Órdenes de Trabajo',
+  'free_cmms.features.asset_tracking.title':
+    'Seguimiento del Ciclo de Vida de los Activos',
+  'free_cmms.features.asset_tracking.p1':
+    'Mantenga un historial digital completo de cada activo.',
+  'free_cmms.features.asset_tracking.p2':
+    'Tome decisiones basadas en datos sobre reparar o reemplazar.',
+  'free_cmms.features.asset_tracking.p3':
+    'Manténgase listo para auditorías con registros de cumplimiento automatizados.',
+  'free_cmms.features.asset_tracking.alt': 'Gestión de Activos',
+  'free_cmms.features.inventory.title': 'Inventario y Piezas',
+  'free_cmms.features.inventory.p1':
+    'Rastree los niveles de stock en múltiples ubicaciones en tiempo real.',
+  'free_cmms.features.inventory.p2':
+    'Escanee códigos QR para buscar y usar piezas instantáneamente.',
+  'free_cmms.features.inventory.p3':
+    'Reciba alertas automáticas de bajo stock y reordene al instante.',
+  'free_cmms.features.inventory.alt': 'Gestión de Inventario',
+  'free_cmms.features.mobile.title': 'Mantenimiento en Movimiento',
+  'free_cmms.features.mobile.p1':
+    'Funcionalidad completa de la aplicación móvil para iOS y Android.',
+  'free_cmms.features.mobile.p2':
+    'Capture fotos y escanee códigos de barras directamente en el campo.',
+  'free_cmms.features.mobile.p3':
+    'Sincronice datos al instante y trabaje sin conexión cuando sea necesario.',
+  'free_cmms.features.mobile.alt': 'Aplicación GMAO Móvil',
+  'free_cmms.features.get_started_free': 'Comience gratis',
+  'free_cmms.features.ready_to_optimize':
+    '¿Listo para optimizar su mantenimiento?',
+  'free_cmms.features.join_thousands':
+    'Únase a miles de profesionales del mantenimiento que utilizan el GMAO gratuito más intuitivo del mundo.',
+  'free_cmms.features.get_started_no_card':
+    'Comience gratis - No se requiere tarjeta de crédito',
+  portal_public_asset_warning:
+    'Este portal es público y no requiere autenticación. Los activos listados serán visibles para cualquier persona con el enlace.',
+  portal_public_location_warning:
+    'Este portal es público y no requiere autenticación. Las ubicaciones listadas serán visibles para cualquier persona con el enlace.',
+  create_request_portal: 'Crear portal de solicitudes',
+  edit_request_portal: 'Editar portal de solicitudes',
+  welcome_message: 'Mensaje de bienvenida',
+  uuid: 'UUID',
+  fields: 'Campos',
+  field_settings: 'Configuración de campos',
+  contact: 'Contacto',
+  required_title: 'El título es obligatorio',
+  untitled_portal: 'Portal sin título',
+  no_welcome_message: 'Sin mensaje de bienvenida',
+  request_portal_create_success: 'Portal de solicitudes creado exitosamente',
+  request_portal_edit_success: 'Portal de solicitudes actualizado exitosamente',
+  request_portal_delete_success: 'Portal de solicitudes eliminado exitosamente',
+  request_portal_create_failure: 'Error al crear el portal de solicitudes',
+  request_portal_edit_failure: 'Error al actualizar el portal de solicitudes',
+  request_portal_delete_failure: 'Error al eliminar el portal de solicitudes',
+  no_access_request_portals: 'No tiene acceso a los portales de solicitudes',
+  'noRows.request_portal.message':
+    'Parece que aún no tiene ningún portal de solicitudes.',
+  'noRows.request_portal.action': 'Cree su primer portal de solicitudes',
+  request_title: 'Título de la solicitud',
+  configure_form_fields: 'Configurar campos del formulario',
+  allow_selection_from_all_locations:
+    'Permitir selección de todas las ubicaciones',
+  allow_selection_from_all_assets: 'Permitir selección de todos los activos',
+  restrict_to_a_specific_location: 'Restringir a una ubicación específica',
+  restrict_to_a_specific_asset: 'Restringir a un activo específico',
+  submit_request: 'Enviar solicitud',
+  share_portal: 'Compartir portal',
+  get_portal_link: 'Obtener enlace del portal',
+  portal_link_description:
+    'Solo las personas con este enlace pueden acceder al portal.',
+  print_qr_code: 'Imprimir código QR',
+  qr_code_description:
+    'Descargue el código QR y péguelo en la instalación para que los usuarios puedan escanearlo y acceder al portal.',
+  copied: '¡Copiado!',
+  copy: 'Copiar',
+  download: 'Descargar',
+  share: 'Compartir',
+  delete: 'Eliminar',
+  portal_not_found: 'Portal no encontrado',
+  request_submitted_success: 'Su solicitud ha sido enviada exitosamente',
+  request_submit_failure:
+    'Error al enviar la solicitud. Por favor, inténtelo de nuevo.',
+  required_description: 'La descripción es obligatoria',
+  required_contact: 'El contacto es obligatorio',
+  required_location: 'La ubicación es obligatoria',
+  required_image: 'La imagen es obligatoria',
+  upload_files: 'Subir archivos',
+  request_portal: 'Portal de solicitudes',
+  requested_from_portal: 'Esta solicitud fue creada desde el portal: ',
+  request_portals: 'Portales de solicitudes',
+  select_date_range: 'Seleccionar rango de fechas',
+  get_mobile_app: 'Obtener aplicación móvil',
+  scan_qr_to_download:
+    'Escanea el código QR para descargar la aplicación móvil',
+  integrations: 'Integraciones',
+  api_keys: 'Claves API',
+  connectors: 'Conectores',
+  webhooks: 'Webhooks',
+  create_api_key: 'Crear clave API',
+  api_key_label: 'Etiqueta de la clave API',
+  api_key_created_success: 'Clave API creada con éxito',
+  api_key_code_copied: 'Código de la clave API copiado al portapapeles',
+  api_key_code_view_once:
+    'Este código solo puede verse una vez. Por favor, cópielo ahora ya que no podrá verlo de nuevo.',
+  api_key_code: 'Código de la clave API',
+  copy_code: 'Copiar código',
+  last_used: 'Último uso',
+  never: 'Nunca',
+  delete_api_key: 'Eliminar clave API',
+  delete_api_key_confirm: '¿Está seguro de que desea eliminar esta clave API?',
+  upgrade_api: 'Actualice para obtener acceso a la API, conectores y webhooks',
+  // Webhooks
+  webhook_endpoints: 'Endpoints de Webhook',
+  create_webhook_endpoint: 'Crear Endpoint de Webhook',
+  delete_webhook_endpoint: 'Eliminar Endpoint de Webhook',
+  delete_webhook_endpoint_confirm:
+    '¿Está seguro de que desea eliminar este endpoint de webhook?',
+  webhook_endpoint_created_success: 'Endpoint de webhook creado con éxito',
+  webhook_endpoint_deleted_success: 'Endpoint de webhook eliminado con éxito',
+  webhook_endpoint_url: 'URL',
+  webhook_endpoint_event: 'Evento',
+  webhook_endpoint_select_event: 'Seleccionar un evento',
+  webhook_endpoint_asset_statuses: 'Estados del activo',
+  webhook_endpoint_wo_statuses: 'Estados de la orden de trabajo',
+  webhook_endpoint_work_request_approved_only: 'Solo solicitudes aprobadas',
+  webhook_endpoint_work_request_approved_only_desc:
+    'Desencadenar para solicitudes de trabajo aprobadas',
+  webhook_endpoint_wo_categories: 'Categorías de la orden de trabajo',
+  webhook_endpoint_wo_fields: 'Campos de la orden de trabajo',
+  webhook_endpoint_part_fields: 'Campos del repuesto',
+  webhook_endpoint_serialize: 'Serializar payload',
+  webhook_endpoint_serialize_description:
+    'Si está marcado, el webhook recibirá los datos completos de la entidad',
+  webhook_endpoint_secret: 'Secreto',
+  webhook_endpoint_show_secret: 'Mostrar secreto',
+  webhook_endpoint_hide_secret: 'Ocultar secreto',
+  webhook_endpoint_copy_secret: 'Copiar secreto',
+  webhook_endpoint_rotate_secret: 'Rotar secreto',
+  webhook_endpoint_secret_rotated: 'Secreto rotado con éxito',
+  webhook_endpoint_secret_copied: 'Secreto copiado al portapapeles',
+  webhook_endpoint_last_triggered: 'Última ejecución',
+  webhook_endpoint_never_triggered: 'Nunca ejecutado',
+  webhook_endpoint_type: 'Tipo',
+  WEBHOOK_ASSET_STATUS_CHANGE: 'Cambio de estado del activo',
+  WEBHOOK_METER_TRIGGER_STATUS_CHANGE:
+    'Cambio de estado del disparador del medidor',
+  WEBHOOK_NEW_ASSET: 'Nuevo activo',
+  WEBHOOK_NEW_CATEGORY_ON_WORK_ORDER: 'Nueva categoría en la orden de trabajo',
+  WEBHOOK_NEW_COMMENT_ON_WORK_ORDER: 'Nuevo comentario en la orden de trabajo',
+  WEBHOOK_NEW_LOCATION: 'Nueva ubicación',
+  WEBHOOK_NEW_PART: 'Nuevo repuesto',
+  WEBHOOK_NEW_PURCHASE_ORDER: 'Nueva orden de compra',
+  WEBHOOK_NEW_VENDOR: 'Nuevo proveedor',
+  WEBHOOK_NEW_WORK_ORDER: 'Nueva orden de trabajo',
+  WEBHOOK_NEW_REQUEST: 'Nueva solicitud',
+  WEBHOOK_PART_CHANGE: 'Cambio de repuesto',
+  WEBHOOK_PART_DELETE: 'Eliminación de repuesto',
+  WEBHOOK_PART_QUANTITY_CHANGED: 'Cantidad de repuesto cambiada',
+  WEBHOOK_PURCHASE_ORDER_CHANGE: 'Cambio de orden de compra',
+  WEBHOOK_PURCHASE_ORDER_STATUS_CHANGE:
+    'Cambio de estado de la orden de compra',
+  WEBHOOK_WORK_ORDER_CHANGE: 'Cambio de orden de trabajo',
+  WEBHOOK_WORK_ORDER_DELETE: 'Eliminación de orden de trabajo',
+  WEBHOOK_WORK_ORDER_OVERDUE: 'Orden de trabajo vencida',
+  WEBHOOK_WORK_ORDER_STATUS_CHANGE: 'Cambio de estado de la orden de trabajo',
+  WEBHOOK_WORK_REQUEST_STATUS_CHANGE:
+    'Cambio de estado de la solicitud de trabajo',
+  comments: 'Comentarios',
+  add_comment_placeholder: 'Añadir un comentario...',
+  post_comment: 'Publicar comentario',
+  no_comments: 'Aún no hay comentarios',
+  confirm_delete_comment: '¿Está seguro de que desea eliminar este comentario?'
 };
 
 export default esJSON;

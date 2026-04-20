@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <link href="https://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 <style th:inline="css">
-    .invoice-title h2, .invoice-title h3 {
+    .invoice-title {
         display: inline-block;
     }
 </style>
@@ -10,6 +10,7 @@
 <!--@thymesVar id="workOrder" type="com.grash.model.WorkOrder"-->
 <!--/*@thymesVar id="backgroundColor" type="java.lang.String"*/-->
 <!--@thymesVar id="companyName" type="java.lang.String"-->
+<!--@thymesVar id="companyLogo" type="java.lang.String"-->
 <!--/*@thymesVar id="relations" type="java.util.List<com.grash.model.Relation>"*/-->
 <!--/*@thymesVar id="tasks" type="java.util.List<com.grash.model.Task>"*/-->
 <!--/*@thymesVar id="tasksImagesUrls" type="java.util.Map<java.lang.Long, java.lang.String[]>"*/-->
@@ -24,12 +25,19 @@
 <!--/*@thymesVar id="labors" type="java.util.List<com.grash.model.Labor>"*/-->
 <!--/*@thymesVar id="messageSource" type="org.springframework.context.MessageSource"*/-->
 <!--/*@thymesVar id="locale" type="java.util.Locale"*/-->
+<!--/*@thymesVar id="utils" type="com.grash.utils.Utils"*/-->
+<!--/*@thymesVar id="dateFormat" type="java.lang.String"*/-->
+<!--/*@thymesVar id="timeZone" type="java.lang.String"*/-->
+
 <div class="container">
     <div class="row">
         <div class="col-xs-12">
-            <div class="invoice-title">
-                <h3 th:text="${companyName}"></h3>
-                <h3 th:class="pull-right" th:style="'color:'+${backgroundColor}"
+            <div>
+                <div class="invoice-title">
+                    <h3 th:text="${companyName}"></h3>
+                    <img th:if="${companyLogo!=null}" th:src="@{${companyLogo}}" height="50">
+                </div>
+                <h3 class='pull-right invoice-title' th:style="'color:'+${backgroundColor}"
                     th:text="#{wo_number(${workOrder.customId})}"></h3>
             </div>
             <hr>
@@ -38,10 +46,10 @@
                     <address>
                         <div th:text="${companyPhone}"></div>
                         <strong th:text="#{created_at}+': '"> </strong>
-                        <span th:text="${workOrder.createdAt}"></span>
+                        <span th:text="${utils.getFormattedDate(workOrder.createdAt, dateFormat, timeZone)}"></span>
                         <br>
                         <strong th:text="#{last_updated}+': '"></strong><span
-                            th:text="${workOrder.updatedAt}"></span><br>
+                            th:text="${utils.getFormattedDate(workOrder.updatedAt, dateFormat, timeZone)}"></span><br>
                     </address>
                 </div>
                 <div class="col-xs-6 text-right">
@@ -157,7 +165,7 @@
                             <div th:if="${workOrder.completedOn}">
                                 <strong th:text="#{completed_on}+': '"></strong>
                                 <span
-                                        th:text="${workOrder.completedOn}">
+                                        th:text="${utils.getFormattedDate(workOrder.completedOn, dateFormat, timeZone)}">
                                 </span>
                             </div>
                             <div th:if="${workOrder.feedback}">
@@ -260,7 +268,7 @@
                                 th:text="${workOrderHistory.getUser().getFullName()}"></span>
                         </div>
                         <div th:text="${workOrderHistory.getName()}"></div>
-                        <div th:text="${workOrderHistory.getCreatedAt()}"></div>
+                        <div th:text="${utils.getFormattedDate(workOrderHistory.getCreatedAt(), dateFormat, timeZone)}"></div>
                         <br>
                     </th:block>
                 </div>
@@ -293,18 +301,22 @@
     <div class="row">
         <div class="col-xs-6">
             <strong th:text="#{signature}+': '"> </strong><br>
+            <img th:if="${workOrder.signature!=null}" th:src="@{${workOrder.signature}}"
+                 height="100">
         </div>
         <div class="col-xs-6">
             <strong th:text="#{date}+': '"> </strong><br>
+            <span th:if="${workOrder.signature!=null && workOrder.completedOn!=null}"
+                  th:text="${utils.getFormattedDate(workOrder.completedOn, dateFormat, timeZone)}"></span>
         </div>
     </div>
     <br>
     <hr>
-    <div style="display: flex; align-items: center; justify-content: center;">
-        <span th:text="#{this_wo_created}" style="margin-right: 20px;"></span>
+    <div class="text-center">
+        <span th:text="#{this_wo_created}"></span><br/>
         <img th:src="@{${#strings.isEmpty(environment.getProperty('white-labeling.logo-paths')) ?
-    environment.getProperty('api.host') + '/images/logo.png' :
-    environment.getProperty('api.host') + '/images/custom-logo.png'}}" width="75" height="75"/>
+environment.getProperty('api.host') + '/images/logo.png' :
+environment.getProperty('api.host') + '/images/custom-logo.png'}}" width="75" height="75" style="margin-top: 10px;"/>
     </div>
 </div>
 </body>

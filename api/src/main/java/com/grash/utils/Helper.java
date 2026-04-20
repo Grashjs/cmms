@@ -2,26 +2,43 @@ package com.grash.utils;
 
 
 import com.grash.exception.CustomException;
-import com.grash.model.Company;
-import com.grash.model.OwnUser;
-import com.grash.model.Role;
+import com.grash.model.*;
+import com.grash.model.User;
 import com.grash.model.enums.Language;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
+import com.grash.model.abstracts.WorkOrderBase;
+import com.grash.dto.imports.WorkOrderImportDTO;
+import com.grash.model.enums.Priority;
+import com.grash.model.WorkOrderCategory;
+import com.grash.service.LocationService;
+import com.grash.service.TeamService;
+import com.grash.service.UserService;
+import com.grash.service.AssetService;
+import com.grash.service.WorkOrderCategoryService;
+import com.grash.security.CustomUserDetail;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
+
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -76,17 +93,17 @@ public class Helper {
         return c.getTime();
     }
 
-    public static Date getNextOccurence(Date date, int days) {
+    public static Date getNextOccurrence(Date date, int days) {
         if (days == 0)
             throw new CustomException("getNextOccurence should not have 0 as parameter",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         Date result = date;
-        if (result.after(new Date())) {
+        Date now = new Date();
+
+        while (!result.after(now)) {
             result = incrementDays(result, days);
-        } else
-            while (result.before(new Date())) {
-                result = incrementDays(result, days);
-            }
+        }
+
         return result;
     }
 
@@ -106,7 +123,7 @@ public class Helper {
         return new Date(date.getTime() + seconds * 1000);
     }
 
-    public static Locale getLocale(OwnUser user) {
+    public static Locale getLocale(User user) {
         return getLocale(user.getCompany());
     }
 
@@ -121,6 +138,8 @@ public class Helper {
                 return new Locale("es", "ES");
             case PT_BR:
                 return new Locale("pt", "BR");
+            case PT:
+                return new Locale("pt", "BR");
             case PL:
                 return new Locale("pl", "PL");
             case DE:
@@ -131,6 +150,19 @@ public class Helper {
                 return new Locale("it", "IT");
             case SV:
                 return new Locale("sv", "SE");
+            case RU:
+                return new Locale("ru", "RU");
+            case HU:
+                return new Locale("hu", "HU");
+            case NL:
+                return new Locale("nl", "NL");
+            case ZH_CN:
+                return new Locale("zh", "CN");
+            case ZH:
+                return new Locale("zh", "CN");
+            case BA:
+                return new Locale("ba", "BA");
+
             default:
                 return Locale.getDefault();
         }
@@ -311,4 +343,85 @@ public class Helper {
         return false;
     }
 
+    public static void populateWorkOrderBaseFromImportDTO(
+            WorkOrderBase workOrderBase,
+            WorkOrderImportDTO dto,
+            Company company,
+            LocationService locationService,
+            TeamService teamService,
+            UserService userService,
+            AssetService assetService,
+            WorkOrderCategoryService workOrderCategoryService
+    ) {
+        Long companyId = company.getId();
+        Long companySettingsId = company.getCompanySettings().getId();
+
+        workOrderBase.setTitle(dto.getTitle());
+        workOrderBase.setDescription(dto.getDescription());
+        workOrderBase.setPriority(Priority.getPriorityFromString(dto.getPriority()));
+        workOrderBase.setEstimatedDuration(dto.getEstimatedDuration());
+
+        Optional<WorkOrderCategory> optionalWorkOrderCategory =
+                workOrderCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
+        optionalWorkOrderCategory.ifPresent(workOrderBase::setCategory);
+
+        Optional<Location> optionalLocation = locationService.findByNameIgnoreCaseAndCompany(dto.getLocationName(),
+                companyId).stream().findFirst();
+        optionalLocation.ifPresent(workOrderBase::setLocation);
+
+        Optional<Team> optionalTeam = teamService.findByNameIgnoreCaseAndCompany(dto.getTeamName(), companyId);
+        optionalTeam.ifPresent(workOrderBase::setTeam);
+
+        Optional<User> optionalPrimaryUser = userService.findByEmailAndCompany(dto.getPrimaryUserEmail(), companyId);
+        optionalPrimaryUser.ifPresent(workOrderBase::setPrimaryUser);
+
+        List<User> assignedTo = new ArrayList<>();
+        dto.getAssignedToEmails().forEach(email -> {
+            Optional<User> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
+            optionalUser1.ifPresent(assignedTo::add);
+        });
+        workOrderBase.setAssignedTo(assignedTo);
+
+        Optional<Asset> optionalAsset =
+                assetService.findByNameIgnoreCaseAndCompany(dto.getAssetName(), companyId).stream().findFirst();
+        optionalAsset.ifPresent(workOrderBase::setAsset);
+    }
+
+    public static void setCurrentUser(User user) {
+        CustomUserDetail customUserDetail =
+                CustomUserDetail.builder().user(user).build();
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                customUserDetail,
+                null,
+                customUserDetail.getAuthorities()
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    public static String extractClientIp(HttpServletRequest req) {
+        String[] headerCandidates = {
+                "X-Forwarded-For",
+                "X-Real-IP",
+                "CF-Connecting-IP",   // Cloudflare
+                "True-Client-IP"
+        };
+
+        for (String header : headerCandidates) {
+            String ip = req.getHeader(header);
+            if (ip != null && !ip.isBlank() && !"unknown".equalsIgnoreCase(ip)) {
+                // X-Forwarded-For can be a comma-separated chain: "clientIp, proxy1, proxy2"
+                return ip.split(",")[0].trim();
+            }
+        }
+
+        String remoteAddr = req.getRemoteAddr();
+        return (remoteAddr != null && !remoteAddr.isBlank()) ? remoteAddr : "unknown";
+    }
+
+    public static String hashKey(String raw) throws NoSuchAlgorithmException {
+        // Use SHA-256
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hash = digest.digest(raw.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(hash);
+    }
 }

@@ -9,5 +9,5 @@ public enum NotificationType {
     LOCATION,
     TEAM,
     REQUEST,
-    PURCHASE_ORDER
+    PURCHASE_ORDER,
 }

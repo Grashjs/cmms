@@ -22,6 +22,22 @@ export const getWOBaseFields = (
       multiple: true
     },
     {
+      name: 'location',
+      type: 'select',
+      type2: 'location',
+      label: t('location'),
+      placeholder: 'Select location'
+    },
+    {
+      name: 'asset',
+      type: 'select',
+      type2: 'asset',
+      label: t('asset'),
+      placeholder: 'Select Asset',
+      relatedFields: [{ field: 'location' }],
+      required: true
+    },
+    {
       name: 'priority',
       type: 'select',
       type2: 'priority',
@@ -50,22 +66,6 @@ export const getWOBaseFields = (
       label: t('category'),
       type2: 'category',
       category: 'work-order-categories'
-    },
-    {
-      name: 'location',
-      type: 'select',
-      type2: 'location',
-      label: t('location'),
-      placeholder: 'Select location'
-    },
-    {
-      name: 'asset',
-      type: 'select',
-      type2: 'asset',
-      label: t('asset'),
-      placeholder: 'Select Asset',
-      relatedFields: [{ field: 'location' }],
-      required: true
     },
     {
       name: 'primaryUser',
@@ -110,21 +110,21 @@ export const getWOBaseValues = <T extends WorkOrderBase>(t: any, entity: T) => {
   return {
     priority: entity?.priority
       ? {
-        label: getPriorityLabel(entity?.priority, t),
-        value: entity?.priority
-      }
+          label: getPriorityLabel(entity?.priority, t),
+          value: entity?.priority
+        }
       : null,
     category: entity?.category
       ? {
-        label: entity?.category?.name,
-        value: entity?.category?.id
-      }
+          label: entity?.category?.name,
+          value: entity?.category?.id
+        }
       : null,
     primaryUser: entity?.primaryUser
       ? {
-        label: `${entity.primaryUser.firstName} ${entity.primaryUser.lastName}`,
-        value: entity.primaryUser.id.toString()
-      }
+          label: `${entity.primaryUser.firstName} ${entity.primaryUser.lastName}`,
+          value: entity.primaryUser.id.toString()
+        }
       : null,
     assignedTo: entity?.assignedTo.map((worker) => {
       return {
@@ -140,21 +140,23 @@ export const getWOBaseValues = <T extends WorkOrderBase>(t: any, entity: T) => {
     }),
     team: entity?.team
       ? {
-        label: entity.team?.name,
-        value: entity.team?.id.toString()
-      }
+          label: entity.team?.name,
+          value: entity.team?.id.toString()
+        }
       : null,
     location: entity?.location
       ? {
-        label: entity.location.name,
-        value: entity.location.id.toString()
-      }
+          label: entity.location.name,
+          value: entity.location.id.toString()
+        }
       : null,
     asset: entity?.asset
       ? {
-        label: entity.asset?.name,
-        value: entity.asset?.id.toString()
-      }
-      : null
+          label: entity.asset?.name,
+          value: entity.asset?.id.toString()
+        }
+      : null,
+    image: entity?.image,
+    files: entity?.files
   };
 };

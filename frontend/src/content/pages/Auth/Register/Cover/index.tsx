@@ -19,13 +19,15 @@ import { useTranslation } from 'react-i18next';
 import CheckCircleOutlineTwoToneIcon from '@mui/icons-material/CheckCircleOutlineTwoTone';
 import Scrollbar from 'src/components/Scrollbar';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper';
+import { Autoplay, Navigation, Pagination } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import ChevronRightTwoToneIcon from '@mui/icons-material/ChevronRightTwoTone';
 import ChevronLeftTwoToneIcon from '@mui/icons-material/ChevronLeftTwoTone';
 import { useBrand } from '../../../../../hooks/useBrand';
+import CompanyLogos from 'src/components/CompanyLogos';
+import { isCloudVersion } from '../../../../../config';
 
 const Content = styled(Box)(
   () => `
@@ -61,7 +63,7 @@ const SidebarContent = styled(Box)(
   ({ theme }) => `
   display: flex;
   flex-direction: column;
-  padding: ${theme.spacing(6)};
+  padding: ${theme.spacing(2, 6)};
 `
 );
 
@@ -74,8 +76,8 @@ const CardImg = styled(Card)(
     position: relative;
     border: 11px solid ${theme.colors.alpha.trueWhite[10]};
     transition: ${theme.transitions.create(['border'])};
-    width: ${theme.spacing(16)};
-    height: ${theme.spacing(16)};
+    width: ${theme.spacing(8)};
+    height: ${theme.spacing(8)};
     margin-bottom: ${theme.spacing(3)};
 `
 );
@@ -193,6 +195,7 @@ function RegisterCover() {
     <>
       <Helmet>
         <title>{t('register')}</title>
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
       <Content>
         <SidebarWrapper
@@ -225,12 +228,16 @@ function RegisterCover() {
                   spaceBetween={30}
                   slidesPerView={1}
                   loop
+                  autoplay={{
+                    delay: 2000,
+                    disableOnInteraction: false
+                  }}
                   navigation={{
                     nextEl: '.MuiSwipe-right',
                     prevEl: '.MuiSwipe-left'
                   }}
                   // @ts-ignore
-                  modules={[Navigation, Pagination]}
+                  modules={[Navigation, Pagination, Autoplay]}
                   pagination={{
                     clickable: true,
                     dynamicBullets: true
@@ -241,7 +248,7 @@ function RegisterCover() {
                       <Box textAlign="center">
                         <CardImg>
                           <img
-                            height={80}
+                            height={40}
                             alt="JSON Web Token"
                             src={slider.image}
                           />
@@ -269,49 +276,43 @@ function RegisterCover() {
                   ))}
                 </Swiper>
               </SwiperWrapper>
-
-              <DividerWrapper
-                sx={{
-                  mt: 3,
-                  mb: 4
-                }}
-              />
-              <Box>
-                <TypographyPrimary
-                  variant="h3"
-                  sx={{
-                    mb: 3
-                  }}
-                >
-                  {t('register')}
-                </TypographyPrimary>
-
-                <List
-                  dense
-                  sx={{
-                    mb: 3
-                  }}
-                >
-                  <ListItem disableGutters>
-                    <ListItemIconWrapper>
-                      <CheckCircleOutlineTwoToneIcon />
-                    </ListItemIconWrapper>
-                    <ListItemTextWrapper
-                      primaryTypographyProps={{ variant: 'h6' }}
-                      primary={t('premium_included')}
-                    />
-                  </ListItem>
-                  <ListItem disableGutters>
-                    <ListItemIconWrapper>
-                      <CheckCircleOutlineTwoToneIcon />
-                    </ListItemIconWrapper>
-                    <ListItemTextWrapper
-                      primaryTypographyProps={{ variant: 'h6' }}
-                      primary={t('no_credit_card')}
-                    />
-                  </ListItem>
-                </List>
-              </Box>
+              {isCloudVersion && (
+                <>
+                  <DividerWrapper
+                    sx={{
+                      my: 1
+                    }}
+                  />
+                  <Box>
+                    <List
+                      dense
+                      sx={{
+                        mb: 1
+                      }}
+                    >
+                      <ListItem disableGutters>
+                        <ListItemIconWrapper>
+                          <CheckCircleOutlineTwoToneIcon />
+                        </ListItemIconWrapper>
+                        <ListItemTextWrapper
+                          primaryTypographyProps={{ variant: 'h6' }}
+                          primary={t('premium_included')}
+                        />
+                      </ListItem>
+                      <ListItem disableGutters>
+                        <ListItemIconWrapper>
+                          <CheckCircleOutlineTwoToneIcon />
+                        </ListItemIconWrapper>
+                        <ListItemTextWrapper
+                          primaryTypographyProps={{ variant: 'h6' }}
+                          primary={t('no_credit_card')}
+                        />
+                      </ListItem>
+                    </List>
+                  </Box>
+                  <CompanyLogos white sx={{ mt: 2 }} compact />
+                </>
+              )}
             </SidebarContent>
           </Scrollbar>
         </SidebarWrapper>

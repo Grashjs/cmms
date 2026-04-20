@@ -46,6 +46,8 @@ import Meter from '../models/meter';
 import { AssetDTO } from '../models/asset';
 import Location from '../models/location';
 import { UiConfiguration } from '../models/uiConfiguration';
+import Constants from 'expo-constants';
+import moment from 'moment-timezone';
 
 interface AuthState {
   isInitialized: boolean;
@@ -64,6 +66,7 @@ interface AuthContextValue extends AuthState {
   logout: () => void;
   register: (values: any) => Promise<void>;
   getInfos: () => void;
+  deleteAccount: () => Promise<void>;
   switchAccount: (id: number) => Promise<void>;
   patchUserSettings: (values: Partial<UserSettings>) => Promise<UserSettings>;
   patchUser: (values: Partial<OwnUser>) => Promise<void>;
@@ -469,6 +472,7 @@ const AuthContext = createContext<AuthContextValue>({
   logout: () => Promise.resolve(),
   register: () => Promise.resolve(),
   getInfos: () => Promise.resolve(),
+  deleteAccount: () => Promise.resolve(),
   patchUserSettings: () => Promise.resolve(null),
   patchCompany: () => Promise.resolve(),
   patchUser: () => Promise.resolve(),
@@ -580,7 +584,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   };
 
   async function registerForPushNotificationsAsync() {
-    let token;
+    let token: string;
     if (Device.isDevice) {
       const { status: existingStatus } =
         await Notifications.getPermissionsAsync();
@@ -593,7 +597,11 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         Alert.alert(t('error'), t('failed_push_notification'));
         return;
       }
-      token = (await Notifications.getExpoPushTokenAsync()).data;
+      const projectId =
+        Constants?.expoConfig?.extra?.eas?.projectId ??
+        Constants?.easConfig?.projectId;
+
+      token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
     } else {
       Alert.alert('Must use physical device for Push Notifications');
     }
@@ -741,10 +749,22 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     dispatch({ type: 'LOGOUT' });
   };
 
+  const deleteAccount = async (): Promise<void> => {
+    if (!state.user) {
+      return;
+    }
+
+    await api.deletes<{ success: boolean }>(`auth`);
+  };
+
   const register = async (values): Promise<void> => {
     const response = await api.post<{ message: string; success: boolean }>(
       'auth/signup',
-      values,
+      {
+        ...values,
+        timeZone: moment.tz.guess(),
+        utmParams: { referrer: `${Platform.OS}_app` }
+      },
       { headers: await authHeader(true) }
     );
     const { message, success } = response;
@@ -1116,6 +1136,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         logout,
         register,
         getInfos,
+        deleteAccount,
         patchUser,
         patchSubscription,
         cancelSubscription,

@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Card,
   Divider,
   Grid,
@@ -10,7 +11,7 @@ import {
   useTheme
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { AssetDTO, assetStatuses } from '../../../../models/owns/asset';
+import { AssetDTO } from '../../../../models/owns/asset';
 import { UserMiniDTO } from '../../../../models/user';
 import { Customer } from '../../../../models/owns/customer';
 import { Vendor } from '../../../../models/owns/vendor';
@@ -24,9 +25,18 @@ import {
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
 import AssetStatusTag from '../components/AssetStatusTag';
+import Loading from '../../Analytics/Loading';
+import { PermissionEntity } from '../../../../models/owns/role';
+import SplitButton from '../../components/SplitButton';
+import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
+import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
+import * as React from 'react';
+import useAuth from '../../../../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 interface PropsType {
   asset: AssetDTO;
+  loading: boolean;
 }
 
 const LabelWrapper = styled(Box)(
@@ -39,9 +49,11 @@ const LabelWrapper = styled(Box)(
     line-height: 1;
   `
 );
-const AssetDetails = ({ asset }: PropsType) => {
+const AssetDetails = ({ asset, loading }: PropsType) => {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
+  const { hasCreatePermission } = useAuth();
+  const navigate = useNavigate();
   const { getFormattedDate, getFormattedCurrency } = useContext(
     CompanySettingsContext
   );
@@ -131,6 +143,19 @@ const AssetDetails = ({ asset }: PropsType) => {
       )
     );
   };
+  if (loading)
+    return (
+      <Box
+        sx={{
+          height: '50vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <Loading />
+      </Box>
+    );
   return (
     <Box sx={{ px: 4 }}>
       <Grid container spacing={2}>
@@ -143,9 +168,24 @@ const AssetDetails = ({ asset }: PropsType) => {
                 </Grid>
               )}
               <Grid item xs={12}>
-                <Stack direction={'row'} spacing={2} alignItems={'center'}>
-                  <Typography variant="h3">{t('asset_information')}</Typography>
-                  {asset && <AssetStatusTag status={asset.status} />}
+                <Stack direction={'row'} justifyContent={'space-between'}>
+                  <Stack direction={'row'} spacing={2} alignItems={'center'}>
+                    <Typography variant="h3">
+                      {t('asset_information')}
+                    </Typography>
+                    {asset && <AssetStatusTag status={asset.status} />}
+                  </Stack>
+                  {hasCreatePermission(PermissionEntity.WORK_ORDERS) && (
+                    <Button
+                      onClick={() =>
+                        navigate(`/app/work-orders?asset=${asset.id}`)
+                      }
+                      startIcon={<AddTwoToneIcon />}
+                      variant={'contained'}
+                    >
+                      {t('work_order')}
+                    </Button>
+                  )}
                 </Stack>
               </Grid>
               {informationFields.map((field) => (

@@ -11,4 +11,5 @@ public interface TimeCategoryRepository extends JpaRepository<TimeCategory, Long
 
     Optional<TimeCategory> findByNameIgnoreCaseAndCompanySettings_Id(String name, Long id);
 
+    void deleteByCompanySettings_Company_IdAndIsDemoTrue(Long companyId);
 }

@@ -1,0 +1,388 @@
+import {
+  Box,
+  Typography,
+  IconButton,
+  Avatar,
+  Stack,
+  styled,
+  Button,
+  Link,
+  CircularProgress,
+  useTheme
+} from '@mui/material';
+import { MentionsTextField } from '@jackstenglein/mui-mentions';
+import Comment from '../../../../models/owns/comment';
+import { useContext, useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
+import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
+import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
+import { useDispatch, useSelector } from '../../../../store';
+import { deleteComment, updateComment } from '../../../../slices/comment';
+import { getUsersMini } from '../../../../slices/user';
+import useAuth from '../../../../hooks/useAuth';
+import File from '../../../../models/owns/file';
+import ArchiveTwoToneIcon from '@mui/icons-material/ArchiveTwoTone';
+import ImageViewer from 'react-simple-image-viewer';
+import mime from 'mime';
+import { InsertDriveFile } from '@mui/icons-material';
+import { getUserUrl } from '../../../../utils/urlPaths';
+import { useNavigate } from 'react-router-dom';
+
+const CommentWrapper = styled(Box)<{ highlighted?: boolean }>(
+  ({ theme, highlighted }) => `
+    padding: ${theme.spacing(2)};
+    border-radius: ${theme.general.borderRadius};
+    background: ${theme.colors.alpha.white[100]};
+    border: ${
+      highlighted
+        ? `2px solid ${theme.palette.primary.main}`
+        : `1px solid ${theme.colors.alpha.black[10]}`
+    };
+    transition: all 0.2s ease-in-out;
+    ${highlighted ? `box-shadow: 0 0 8px ${theme.palette.primary.main}40;` : ''}
+
+    &:hover .comment-actions {
+      opacity: 1;
+    }
+  `
+);
+
+interface CommentItemProps {
+  comment: Comment;
+  workOrderId: number;
+  highlighted?: boolean;
+}
+
+const isImage = (file: File) => mime.getType(file.name)?.startsWith('image/');
+
+export default function CommentItem(props: CommentItemProps) {
+  const { comment, workOrderId, highlighted = false } = props;
+  const { t } = useTranslation();
+  const { getFormattedDate } = useContext(CompanySettingsContext);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const dispatch = useDispatch();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(comment.content);
+  const [editPlainTextContent, setEditPlainTextContent] = useState(
+    comment.content
+  );
+  const theme = useTheme();
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+  const [currentImage, setCurrentImage] = useState<string>();
+  const [currentImages, setCurrentImages] = useState<string[]>();
+  const { loadingDelete, loadingUpdate } = useSelector(
+    (state) => state.comments
+  );
+  const { usersMini } = useSelector((state) => state.users);
+  const commentRef = useRef<HTMLDivElement>(null);
+  const [isHighlighted, setIsHighlighted] = useState(highlighted);
+
+  useEffect(() => {
+    if (highlighted && commentRef.current) {
+      commentRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+      setIsHighlighted(true);
+      const timer = setTimeout(() => setIsHighlighted(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [highlighted]);
+
+  const isOwner = comment.user?.id === user.id;
+  const isSystem = comment.system;
+
+  const handleDelete = () => {
+    if (window.confirm(t('confirm_delete_comment'))) {
+      dispatch(deleteComment(comment.id, workOrderId));
+    }
+  };
+
+  const handleUpdate = () => {
+    if (editPlainTextContent.trim()) {
+      dispatch(
+        updateComment(
+          comment.id,
+          {
+            content: editContent,
+            files: comment.files.map((f) => ({ id: f.id }))
+          },
+          workOrderId
+        )
+      ).then(() => setIsEditing(false));
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditContent(comment.content);
+    setEditPlainTextContent(comment.content);
+    setIsEditing(false);
+  };
+
+  const openImageViewer = (images: string[], image: string) => {
+    setCurrentImage(image);
+    setCurrentImages(images);
+    setIsImageViewerOpen(true);
+  };
+
+  const imageFiles = comment.files.filter(isImage);
+  const otherFiles = comment.files.filter((f) => !isImage(f));
+  const imageUrls = imageFiles.map((file) => file.url);
+
+  const getUserName = () =>
+    `${comment.user.firstName} ${comment.user.lastName}`.trim();
+
+  const renderContentWithMentions = (content: string) => {
+    const mentionRegex = /@\[([^\]]+)\]\(user:(\d+)\)/g;
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = mentionRegex.exec(content)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(content.slice(lastIndex, match.index));
+      }
+      const [, displayName, userId] = match;
+      parts.push(
+        <Link
+          key={`mention-${match.index}`}
+          component="button"
+          variant="body1"
+          sx={{
+            textDecoration: 'none',
+            fontWeight: 600,
+            color: 'primary.main',
+            cursor: 'pointer',
+            '&:hover': { textDecoration: 'underline' }
+          }}
+          onClick={() => navigate(getUserUrl(Number(userId)))}
+        >
+          @{displayName}
+        </Link>
+      );
+      lastIndex = match.index + match[0].length;
+    }
+
+    if (lastIndex < content.length) {
+      parts.push(content.slice(lastIndex));
+    }
+
+    return parts.length > 0 ? parts : content;
+  };
+
+  const mentionDataSources = [
+    {
+      trigger: '@',
+      markup: '@[__display__](user:__id__)',
+      data: async (query: string) =>
+        usersMini
+          .filter((u) =>
+            `${u.firstName} ${u.lastName}`
+              .toLowerCase()
+              .includes(query.toLowerCase())
+          )
+          .map((u) => ({
+            id: u.id.toString(),
+            display: `${u.firstName} ${u.lastName}`
+          })),
+      appendSpaceOnAdd: true,
+      allowSpaceInQuery: true
+    }
+  ];
+
+  return (
+    <>
+      <Box ref={commentRef}>
+        <CommentWrapper highlighted={isHighlighted}>
+          <Stack direction="row" spacing={2} alignItems="flex-start">
+            <Avatar
+              sx={{
+                width: 40,
+                height: 40,
+                bgcolor: 'primary.main',
+                cursor: 'pointer'
+              }}
+              onClick={() => navigate(getUserUrl(comment.user.id))}
+              src={comment.user.image?.url}
+            >
+              {`${comment.user?.firstName?.charAt(0) || ''}${
+                comment.user?.lastName?.charAt(0) || ''
+              }`}
+            </Avatar>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+                sx={{ mb: 1 }}
+              >
+                <Box>
+                  <Typography
+                    onClick={() => navigate(getUserUrl(comment.user.id))}
+                    variant="subtitle1"
+                    fontWeight="bold"
+                    sx={{ cursor: 'pointer' }}
+                  >
+                    {getUserName()}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {getFormattedDate(comment.createdAt)}
+                  </Typography>
+                </Box>
+                {!isSystem && isOwner && !isEditing && (
+                  <Box className="comment-actions" sx={{ opacity: 0 }}>
+                    <IconButton
+                      size="small"
+                      onClick={() => setIsEditing(true)}
+                      sx={{ mr: 0.5 }}
+                    >
+                      <EditTwoToneIcon fontSize="small" color="primary" />
+                    </IconButton>
+                    <IconButton size="small" onClick={handleDelete}>
+                      <DeleteTwoToneIcon fontSize="small" color="error" />
+                    </IconButton>
+                  </Box>
+                )}
+              </Stack>
+
+              {isEditing ? (
+                <Box>
+                  {/*@ts-ignore*/}
+                  <MentionsTextField
+                    fullWidth
+                    multiline
+                    minRows={2}
+                    value={editContent}
+                    onChange={(newValue, newPlainText) => {
+                      setEditContent(newValue);
+                      setEditPlainTextContent(newPlainText);
+                    }}
+                    dataSources={mentionDataSources}
+                    highlightColor={theme.palette.primary.main}
+                    highlightTextColor
+                    slotProps={{
+                      suggestionsOverlay: { popper: { sx: { zIndex: 99999 } } }
+                    }}
+                    sx={{ mb: 1 }}
+                  />
+                  <Stack direction="row" spacing={1}>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      onClick={handleUpdate}
+                      disabled={!editPlainTextContent.trim() || loadingUpdate}
+                      startIcon={
+                        loadingUpdate ? (
+                          <CircularProgress size="1rem" />
+                        ) : undefined
+                      }
+                    >
+                      {t('save')}
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={handleCancelEdit}
+                    >
+                      {t('cancel')}
+                    </Button>
+                  </Stack>
+                </Box>
+              ) : (
+                <Typography
+                  variant="body1"
+                  sx={{
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    mb: comment.files?.length > 0 ? 1 : 0
+                  }}
+                  color={comment.system ? 'grey.600' : undefined}
+                >
+                  {renderContentWithMentions(comment.content)}
+                </Typography>
+              )}
+
+              {comment.files?.length > 0 && !isEditing && (
+                <Box sx={{ mt: 1 }}>
+                  {imageFiles.length > 0 && (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 1,
+                        mb: otherFiles.length > 0 ? 1 : 0
+                      }}
+                    >
+                      {imageFiles.map((file) => (
+                        <img
+                          key={file.id}
+                          src={file.url}
+                          alt={file.name}
+                          style={{
+                            width: 100,
+                            height: 100,
+                            objectFit: 'cover',
+                            borderRadius: 4,
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => openImageViewer(imageUrls, file.url)}
+                        />
+                      ))}
+                    </Box>
+                  )}
+                  {otherFiles.length > 0 && (
+                    <Stack spacing={1}>
+                      {otherFiles.map((file) => (
+                        <Box
+                          key={file.id}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                            p: 1,
+                            borderRadius: 1,
+                            bgcolor: 'background.default'
+                          }}
+                        >
+                          <InsertDriveFile color="error" />
+                          <Typography
+                            variant="body2"
+                            sx={{ flex: 1, minWidth: 0 }}
+                            noWrap
+                          >
+                            {file.name}
+                          </Typography>
+                          <IconButton
+                            size="small"
+                            component="a"
+                            href={file.url}
+                            download={file.name}
+                          >
+                            <ArchiveTwoToneIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      ))}
+                    </Stack>
+                  )}
+                </Box>
+              )}
+            </Box>
+          </Stack>
+        </CommentWrapper>
+      </Box>
+
+      {isImageViewerOpen && (
+        <ImageViewer
+          src={currentImages || []}
+          currentIndex={imageUrls.indexOf(currentImage || '')}
+          onClose={() => setIsImageViewerOpen(false)}
+          backgroundStyle={{ backgroundColor: 'rgba(0,0,0,0.9)' }}
+          disableScroll
+          closeOnClickOutside
+        />
+      )}
+    </>
+  );
+}

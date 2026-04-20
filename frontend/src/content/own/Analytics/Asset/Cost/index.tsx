@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import { Box, Card, CardContent, Grid, TextField } from '@mui/material';
+import { Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useContext, useEffect, useState } from 'react';
 import { TitleContext } from '../../../../../contexts/TitleContext';
@@ -7,9 +7,6 @@ import Overview from './Overview';
 import DowntimesAndCosts from './DowntimesAndCosts';
 import { Filter } from '../WOModal';
 import DowntimesByDate from './DowntimesByDate';
-import { AdapterDayjs } from '@mui/x-date-pickers-pro/AdapterDayjs';
-import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers-pro';
 import CustomDateRangePicker from '../../CustomDateRangePicker';
 
 interface WOStatusStatsProps {
@@ -46,16 +43,33 @@ function AssetCost({ handleOpenWOModal }: WOStatusStatsProps) {
         paddingX={1}
       >
         <Grid item xs={6}>
-          <CustomDateRangePicker start={start} end={end} setStart={setStart} setEnd={setEnd} />
+          <CustomDateRangePicker
+            start={start}
+            end={end}
+            setStart={setStart}
+            setEnd={setEnd}
+          />
         </Grid>
         <Grid item xs={12} md={12}>
-          <Overview handleOpenModal={handleOpenWOModal} start={start} end={end} />
+          <Overview
+            handleOpenModal={handleOpenWOModal}
+            start={start}
+            end={end}
+          />
         </Grid>
         <Grid item xs={12} md={6}>
-          <DowntimesAndCosts handleOpenModal={handleOpenWOModal} start={start} end={end} />
+          <DowntimesAndCosts
+            handleOpenModal={handleOpenWOModal}
+            start={start}
+            end={end}
+          />
         </Grid>
         <Grid item xs={12} md={6}>
-          <DowntimesByDate handleOpenModal={handleOpenWOModal} start={start} end={end} />
+          <DowntimesByDate
+            handleOpenModal={handleOpenWOModal}
+            start={start}
+            end={end}
+          />
         </Grid>
       </Grid>
     </>

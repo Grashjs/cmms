@@ -4,8 +4,6 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetCategoryMapper;
 import com.grash.model.AssetCategory;
-import com.grash.model.OwnUser;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.AssetCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,7 +20,9 @@ public class AssetCategoryService {
     private final AssetCategoryMapper assetCategoryMapper;
 
     public AssetCategory create(AssetCategory assetCategory) {
-        Optional<AssetCategory> categoryWithSameName = assetCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(assetCategory.getName(), assetCategory.getCompanySettings().getId());
+        Optional<AssetCategory> categoryWithSameName =
+                assetCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(assetCategory.getName(),
+                        assetCategory.getCompanySettings().getId());
         if (categoryWithSameName.isPresent()) {
             throw new CustomException("AssetCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }
@@ -32,7 +32,8 @@ public class AssetCategoryService {
     public AssetCategory update(Long id, CategoryPatchDTO assetCategory) {
         if (assetCategoryRepository.existsById(id)) {
             AssetCategory savedAssetCategory = assetCategoryRepository.findById(id).get();
-            return assetCategoryRepository.save(assetCategoryMapper.updateAssetCategory(savedAssetCategory, assetCategory));
+            return assetCategoryRepository.save(assetCategoryMapper.updateAssetCategory(savedAssetCategory,
+                    assetCategory));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -54,7 +55,8 @@ public class AssetCategoryService {
 
     public boolean isAssetCategoryInCompany(AssetCategory assetCategory, long companyId, boolean optional) {
         if (optional) {
-            Optional<AssetCategory> optionalAssetCategory = assetCategory == null ? Optional.empty() : findById(assetCategory.getId());
+            Optional<AssetCategory> optionalAssetCategory = assetCategory == null ? Optional.empty() :
+                    findById(assetCategory.getId());
             return assetCategory == null || (optionalAssetCategory.isPresent() && optionalAssetCategory.get().getCompanySettings().getCompany().getId().equals(companyId));
         } else {
             Optional<AssetCategory> optionalAssetCategory = findById(assetCategory.getId());

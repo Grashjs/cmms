@@ -6,7 +6,7 @@ import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
-import { getImageAndFiles } from '../../utils/overall';
+import { getImageAndFiles, handleFileUpload } from '../../utils/overall';
 import { useDispatch } from '../../store';
 import { editRequest } from '../../slices/request';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
@@ -14,9 +14,9 @@ import { formatRequestValues } from '../../utils/fields';
 import { getWOBaseValues } from '../../utils/woBase';
 
 export default function EditRequestScreen({
-                                            navigation,
-                                            route
-                                          }: RootStackScreenProps<'EditRequest'>) {
+  navigation,
+  route
+}: RootStackScreenProps<'EditRequest'>) {
   const { t } = useTranslation();
   const { request } = route.params;
   const { uploadFiles, getRequestFieldsAndShapes } = useContext(
@@ -44,24 +44,29 @@ export default function EditRequestScreen({
           ...request,
           ...getWOBaseValues(t, request)
         }}
-        onChange={({ field, e }) => {
-        }}
+        onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           try {
             let formattedValues = formatRequestValues(values);
-            const filesToUpload = formattedValues.files.some((file) => file.id) ? [] : formattedValues.files;
-
-            const uploadedFiles = await uploadFiles(filesToUpload, formattedValues.image);
-            const imageAndFiles = getImageAndFiles(uploadedFiles, request.image);
+            const imageAndFiles = await handleFileUpload(
+              {
+                files: formattedValues.files,
+                image: formattedValues.image
+              },
+              uploadFiles
+            );
             if (values.audioDescription) {
-              const audioFiles = await uploadFiles([values.audioDescription], []);
-              const imageAndFiles = getImageAndFiles(audioFiles);
-              formattedValues.audioDescription = imageAndFiles.files[0];
+              const audioFiles = await uploadFiles(
+                [values.audioDescription],
+                []
+              );
+              const audioImageAndFiles = getImageAndFiles(audioFiles);
+              formattedValues.audioDescription = audioImageAndFiles.files[0];
             }
             formattedValues = {
               ...formattedValues,
               image: imageAndFiles.image,
-              files: [...request.files, ...imageAndFiles.files]
+              files: imageAndFiles.files
             };
 
             await dispatch(editRequest(request?.id, formattedValues));

@@ -170,6 +170,7 @@ const trJSON = {
   employeesCount: 'Çalışan Sayısı',
   i_accept: 'Kabul ediyorum',
   terms_conditions: 'Şartlar ve koşullar',
+  required_fields_notice: '* ile işaretlenen tüm alanlar zorunludur.',
   create_your_account: 'Hesabını oluştur',
   register: 'Kayıt ol',
   login_description:
@@ -1002,6 +1003,12 @@ const trJSON = {
   personal_details_description:
     'Kişisel bilgilerinizle ilgili bilgileri yönetin',
   change_password: 'Şifre değiştir',
+  delete_account: 'Hesabı sil',
+  delete_account_confirmation:
+    'Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.',
+  account_deleted: 'Hesap başarıyla silindi',
+  account_delete_error: 'Hesap silinirken hata oluştu',
+  confirm_delete_account: 'Hesabı sil',
   notification_settings: 'Bildirim Ayarları',
   notification_settings_description:
     'Bildirimlerinizle ilgili ayrıntıları yönetin',
@@ -1509,6 +1516,16 @@ const trJSON = {
   power: 'Güç',
   library: 'Fotoğraf Kütüphanesi',
   camera: 'Kamera',
+  media_library: 'Medya kitaplığı',
+  permission_required_title: 'İzin gerekli',
+  permission_required_message:
+    '{{permission}} erişimi gerekli. Lütfen uygulama ayarlarından etkinleştirin.',
+  permission_denied_title: 'İzin reddedildi',
+  permission_denied_message: 'Devam etmek için {{permission}} erişimi gerekli.',
+  unable_to_request_permission:
+    '{{permission}} izni istenemedi.',
+  open_settings: 'Ayarları aç',
+  ok: 'Tamam',
   CANCELLED: 'Reddedilmiş',
   max_file_size_error: "Dosya boyutu {{size}} MB'tan büyük olmamalıdır",
   assignedToUser: 'Benim işim',

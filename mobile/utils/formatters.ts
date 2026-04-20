@@ -37,7 +37,17 @@ export const getPriorityLabel = (str: string, t: any) => {
 };
 
 export const getTaskFromTaskBase = (taskBase: TaskBase): Task => {
-  return { taskBase, id: randomInt(), notes: '', value: '', images: [] };
+  return {
+    createdAt: null,
+    createdBy: null,
+    updatedAt: null,
+    updatedBy: null,
+    taskBase,
+    id: randomInt(),
+    notes: null,
+    value: null,
+    images: []
+  };
 };
 
 export const durationToHours = (duration: number) => {

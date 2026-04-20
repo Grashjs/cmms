@@ -10,8 +10,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.MeterMapper;
 import com.grash.model.Asset;
 import com.grash.model.Meter;
-import com.grash.model.OwnUser;
-import com.grash.model.Team;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleType;
@@ -20,10 +19,9 @@ import com.grash.service.MeterService;
 import com.grash.service.ReadingService;
 import com.grash.service.UserService;
 import com.grash.utils.Helper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -31,16 +29,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.JoinType;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/meters")
-@Api(tags = "meter")
+@Tag(name = "Meters", description = "Operations on meters")
 @RequiredArgsConstructor
 public class MeterController {
 
@@ -53,8 +52,9 @@ public class MeterController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<MeterShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    public ResponseEntity<Page<MeterShowDTO>> search(@Parameter(description = "Search criteria for filtering meters") @RequestBody SearchCriteria searchCriteria,
+                                                     HttpServletRequest req) {
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.METERS)) {
                 searchCriteria.filterCompany(user);
@@ -80,23 +80,18 @@ public class MeterController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "AssetCategory not found")})
+
     public Collection<MeterMiniDTO> getMini(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         return meterService.findByCompany(user.getCompany().getId()).stream().map(meterMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Meter not found")})
-    public MeterShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+
+    public MeterShowDTO getById(@Parameter(description = "Meter ID") @PathVariable("id") Long id,
+                                HttpServletRequest req) {
+        User user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {
             Meter savedMeter = optionalMeter.get();
@@ -110,14 +105,12 @@ public class MeterController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public MeterShowDTO create(@ApiParam("Meter") @Valid @RequestBody Meter meterReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    MeterShowDTO create(@Parameter(description = "Meter data to create") @Valid @RequestBody Meter meterReq,
+                        HttpServletRequest req) {
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.METERS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.METER)) {
-            Meter savedMeter = meterService.create(meterReq);
+            Meter savedMeter = meterService.create(meterReq, user);
             meterService.notify(savedMeter, Helper.getLocale(user));
             return meterMapper.toShowDto(savedMeter, readingService);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -125,13 +118,11 @@ public class MeterController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Meter not found")})
-    public MeterShowDTO patch(@ApiParam("Meter") @Valid @RequestBody MeterPatchDTO meter, @ApiParam("id") @PathVariable("id") Long id,
+
+    public MeterShowDTO patch(@Parameter(description = "Meter fields to update") @Valid @RequestBody MeterPatchDTO meter,
+                              @Parameter(description = "Meter ID") @PathVariable("id") Long id,
                               HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
 
         if (optionalMeter.isPresent()) {
@@ -147,12 +138,10 @@ public class MeterController {
 
     @GetMapping("/asset/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "WorkOrderHistory not found")})
-    public Collection<MeterShowDTO> getByAsset(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+
+    public Collection<MeterShowDTO> getByAsset(@Parameter(description = "Asset ID") @PathVariable("id") Long id,
+                                               HttpServletRequest req) {
+        User user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             return meterService.findByAsset(id).stream().map(meter -> meterMapper.toShowDto(meter, readingService)).collect(Collectors.toList());
@@ -161,12 +150,10 @@ public class MeterController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Meter not found")})
-    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+
+    public ResponseEntity<SuccessResponse> delete(@Parameter(description = "Meter ID") @PathVariable("id") Long id,
+                                                  HttpServletRequest req) {
+        User user = userService.whoami(req);
 
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {
@@ -180,3 +167,6 @@ public class MeterController {
         } else throw new CustomException("Meter not found", HttpStatus.NOT_FOUND);
     }
 }
+
+
+

@@ -5,17 +5,19 @@ import com.grash.dto.PurchaseOrderPatchDTO;
 import com.grash.dto.PurchaseOrderShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
+import com.grash.mapper.PartMapper;
 import com.grash.mapper.PartQuantityMapper;
 import com.grash.mapper.PurchaseOrderMapper;
+import com.grash.factory.MailServiceFactory;
 import com.grash.model.*;
 import com.grash.model.enums.*;
+import com.grash.model.enums.webhook.PartField;
+import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.service.*;
 import com.grash.utils.Helper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -25,9 +27,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -35,7 +39,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/purchase-orders")
-@Api(tags = "purchaseOrder")
+@Tag(name = "Purchase Orders", description = "Operations on purchase orders")
 @RequiredArgsConstructor
 public class PurchaseOrderController {
 
@@ -45,19 +49,22 @@ public class PurchaseOrderController {
     private final MessageSource messageSource;
     private final PartQuantityMapper partQuantityMapper;
     private final PurchaseOrderMapper purchaseOrderMapper;
+    private final MailServiceFactory mailServiceFactory;
     private final PartService partService;
     private final NotificationService notificationService;
-    private final EmailService2 emailService2;
     private final WorkflowService workflowService;
+    private final WebhookDispatchService webhookDispatchService;
+    private final PartMapper partMapper;
 
     @Value("${frontend.url}")
     private String frontendUrl;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<PurchaseOrderShowDTO>> search(@RequestBody SearchCriteria searchCriteria,
+    public ResponseEntity<Page<PurchaseOrderShowDTO>> search(@Parameter(description = "Search criteria for filtering " +
+                                                                         "purchase orders") @RequestBody SearchCriteria searchCriteria,
                                                              HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PURCHASE_ORDERS)) {
                 searchCriteria.filterCompany(user);
@@ -73,12 +80,9 @@ public class PurchaseOrderController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "PurchaseOrder not found")})
-    public PurchaseOrderShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+
+    public PurchaseOrderShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
+        User user = userService.whoami(req);
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
         if (optionalPurchaseOrder.isPresent()) {
             PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
@@ -91,12 +95,9 @@ public class PurchaseOrderController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public PurchaseOrderShowDTO create(@ApiParam("PurchaseOrder") @Valid @RequestBody PurchaseOrder purchaseOrderReq,
-                                       HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    PurchaseOrderShowDTO create(@Parameter(description = "Purchase order data to create") @Valid @RequestBody PurchaseOrder purchaseOrderReq,
+                                HttpServletRequest req) {
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PURCHASE_ORDERS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PURCHASE_ORDER)) {
             PurchaseOrder savedPurchaseOrder = purchaseOrderService.create(purchaseOrderReq);
@@ -116,14 +117,14 @@ public class PurchaseOrderController {
                 put("purchaseOrderLink", frontendUrl + "/app/purchase-orders/" + result.getId());
                 put("message", message);
             }};
-            Collection<OwnUser> usersToNotify = userService.findByCompany(user.getCompany().getId()).stream()
+            Collection<User> usersToNotify = userService.findByCompany(user.getCompany().getId()).stream()
                     .filter(user1 -> user1.isEnabled() && user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) ||
                             user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN)).collect(Collectors.toList());
             notificationService.createMultiple(usersToNotify.stream().map(user1 -> new Notification(message, user1,
                     NotificationType.PURCHASE_ORDER, result.getId())).collect(Collectors.toList()), true, title);
-            Collection<OwnUser> usersToMail =
+            Collection<User> usersToMail =
                     usersToNotify.stream().filter(user1 -> user1.getUserSettings().shouldEmailUpdatesForPurchaseOrders()).collect(Collectors.toList());
-            emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_po", null, Helper.getLocale(user)), mailVariables, "new-purchase-order.html", Helper.getLocale(user));
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(User::getEmail).toArray(String[]::new), messageSource.getMessage("new_po", null, Helper.getLocale(user)), mailVariables, "new-purchase-order.html", Helper.getLocale(user), null);
             return result;
         } else throw new
 
@@ -133,13 +134,11 @@ public class PurchaseOrderController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "PurchaseOrder not found")})
-    public PurchaseOrderShowDTO patch(@ApiParam("PurchaseOrder") @Valid @RequestBody PurchaseOrderPatchDTO purchaseOrder, @ApiParam("id") @PathVariable("id") Long id,
+
+    public PurchaseOrderShowDTO patch(@Parameter(description = "Purchase order fields to update") @Valid @RequestBody PurchaseOrderPatchDTO purchaseOrder,
+                                      @PathVariable("id") Long id,
                                       HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
 
         if (optionalPurchaseOrder.isPresent()) {
@@ -157,14 +156,10 @@ public class PurchaseOrderController {
 
     @PatchMapping("/{id}/respond")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "PurchaseOrder not found")})
-    public PurchaseOrderShowDTO respond(@ApiParam("approved") @RequestParam("approved") boolean approved, @ApiParam(
-                                                "id") @PathVariable("id") Long id,
+
+    public PurchaseOrderShowDTO respond(@Parameter(description = "Whether the purchase order is approved") @RequestParam("approved") boolean approved, @PathVariable("id") Long id,
                                         HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
 
         if (optionalPurchaseOrder.isPresent()) {
@@ -176,8 +171,13 @@ public class PurchaseOrderController {
                                 partQuantityService.findByPurchaseOrder(savedPurchaseOrder.getId());
                         partQuantities.forEach(partQuantity -> {
                             Part part = partQuantity.getPart();
+                            double previousQuantity = part.getQuantity();
                             part.setQuantity(part.getQuantity() + partQuantity.getQuantity());
                             partService.save(part);
+
+                            // Dispatch webhook for part quantity change from purchase order
+                            dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(),
+                                    partQuantity, savedPurchaseOrder, user.getCompany());
                         });
                     }
                     savedPurchaseOrder.setStatus(approved ? ApprovalStatus.APPROVED : ApprovalStatus.REJECTED);
@@ -191,12 +191,9 @@ public class PurchaseOrderController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "PurchaseOrder not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+
+    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
+        User user = userService.whoami(req);
 
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
         if (optionalPurchaseOrder.isPresent()) {
@@ -215,4 +212,24 @@ public class PurchaseOrderController {
         purchaseOrderShowDTO.setPartQuantities(partQuantities.stream().map(partQuantityMapper::toShowDto).collect(Collectors.toList()));
         return purchaseOrderShowDTO;
     }
+
+    private void dispatchPartQuantityChangeWebhook(Part part, double previousQuantity, double newQuantity,
+                                                   PartQuantity partQuantity, PurchaseOrder purchaseOrder,
+                                                   Company company) {
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("partId", part.getId());
+        webhookPayload.put("partName", part.getName());
+        webhookPayload.put("previousQuantity", previousQuantity);
+        webhookPayload.put("newQuantity", newQuantity);
+        webhookPayload.put("changedAmount", partQuantity.getQuantity());
+        webhookPayload.put("purchaseOrderId", purchaseOrder.getId());
+        webhookPayload.put("purchaseOrderName", purchaseOrder.getName());
+        webhookPayload.put("partQuantityId", partQuantity.getId());
+        Collection<PartField> changedFields = Collections.singletonList(PartField.QUANTITY);
+        Object serializedPart = partMapper.toShowDto(part);
+        webhookDispatchService.dispatchWebhook(company, WebhookEvent.PART_QUANTITY_CHANGED, webhookPayload,
+                "changedPart", serializedPart, null, null, null, null, changedFields);
+    }
 }
+
+

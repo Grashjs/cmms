@@ -184,6 +184,7 @@ const plJSON = {
   employeesCount: 'Liczba pracowników',
   i_accept: 'Akceptuję',
   terms_conditions: 'warunki i postanowienia',
+  required_fields_notice: 'Wszystkie pola oznaczone * są obowiązkowe.',
   create_your_account: 'Utwórz swoje konto',
   register: 'Rejestr',
   login_description:
@@ -1026,6 +1027,12 @@ const plJSON = {
   personal_details_description:
     'Zarządzaj informacjami związanymi z Twoimi danymi osobowymi',
   change_password: 'Zmień hasło',
+  delete_account: 'Usuń konto',
+  delete_account_confirmation:
+    'Czy na pewno chcesz usunąć swoje konto? Tej czynności nie można cofnąć.',
+  account_deleted: 'Konto zostało pomyślnie usunięte',
+  account_delete_error: 'Błąd podczas usuwania konta',
+  confirm_delete_account: 'Usuń konto',
   notification_settings: 'Ustawienia powiadomień',
   notification_settings_description:
     'Zarządzaj szczegółami związanymi z powiadomieniami',
@@ -1433,6 +1440,17 @@ const plJSON = {
   power: 'Moc',
   library: 'Biblioteka',
   camera: 'Kamera',
+  media_library: 'Biblioteka zdjęć',
+  permission_required_title: 'Wymagane uprawnienie',
+  permission_required_message:
+    'Dostęp do {{permission}} jest wymagany. Włącz go w ustawieniach aplikacji.',
+  permission_denied_title: 'Odmowa uprawnienia',
+  permission_denied_message:
+    'Dostęp do {{permission}} jest wymagany, aby kontynuować.',
+  unable_to_request_permission:
+    'Nie udało się poprosić o uprawnienie do {{permission}}.',
+  open_settings: 'Otwórz ustawienia',
+  ok: 'OK',
   CANCELLED: 'Odrzucony',
   max_file_size_error: 'Rozmiar pliku nie powinien być większy niż {{size}} MB',
   assignedToUser: 'Moja praca',

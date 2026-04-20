@@ -24,13 +24,10 @@ import { IField } from '../type';
 import ConfirmDialog from '../components/ConfirmDialog';
 import * as React from 'react';
 import { useContext, useEffect, useMemo, useState } from 'react';
-import CustomDataGrid from '../components/CustomDatagrid';
+import CustomDatagrid2, {
+  CustomDatagridColumn2
+} from '../components/CustomDatagrid2';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
-import {
-  GridEnrichedColDef,
-  GridRenderCellParams,
-  GridToolbar
-} from '@mui/x-data-grid';
 import {
   emailRegExp,
   isNumeric,
@@ -46,15 +43,26 @@ import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
 import { SearchCriteria, SortDirection } from '../../../models/owns/page';
 import { onSearchQueryChange } from '../../../utils/overall';
 import SearchInput from '../components/SearchInput';
-import { useGridApiRef } from '@mui/x-data-grid-pro';
-import useGridStatePersist from '../../../hooks/useGridStatePersist';
+import { createColumnHelper } from '@tanstack/react-table';
+import useTableState from '../../../hooks/useTableState';
 import { useBrand } from '../../../hooks/useBrand';
+import { getErrorMessage } from '../../../utils/api';
 
 interface PropsType {
   values?: any;
   openModal: boolean;
   handleCloseModal: () => void;
 }
+
+const fieldMapping: Record<string, string> = {
+  companyName: 'companyName',
+  name: 'name',
+  vendorType: 'vendorType',
+  email: 'email',
+  phone: 'phone',
+  website: 'website',
+  rate: 'rate'
+};
 
 const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
   const { t }: { t: any } = useTranslation();
@@ -73,6 +81,31 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
     pageSize: 10,
     pageNum: 0,
     direction: 'DESC'
+  });
+
+  // Use the table state hook for TanStack Table
+  const {
+    sorting,
+    setSorting,
+    pagination,
+    setPagination,
+    columnOrder,
+    setColumnOrder,
+    columnSizing,
+    setColumnSizing,
+    columnVisibility,
+    setColumnVisibility,
+    pinnedColumns,
+    setPinnedColumns
+  } = useTableState({
+    prefix: 'vendors',
+    initialSorting: [],
+    initialPagination: {
+      pageSize: criteria.pageSize,
+      pageIndex: criteria.pageNum
+    },
+    setCriteria,
+    fieldMapping
   });
   const [currentVendor, setCurrentVendor] = useState<Vendor>();
   const [viewOrUpdate, setViewOrUpdate] = useState<'view' | 'update'>('view');
@@ -99,7 +132,7 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
     showSnackBar(t('vendor_create_success'), 'success');
   };
   const onCreationFailure = (err) =>
-    showSnackBar(t('vendor_create_failure'), 'error');
+    showSnackBar(getErrorMessage(err, t('vendor_create_failure')), 'error');
   const onEditSuccess = () => {
     setViewOrUpdate('view');
     showSnackBar(t('changes_saved_success'), 'success');
@@ -245,67 +278,66 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
     email: Yup.string().matches(emailRegExp, t('invalid_email')).nullable()
   };
 
-  const columns: GridEnrichedColDef[] = [
-    {
-      field: 'companyName',
-      headerName: t('company_name'),
-      description: t('company_name'),
-      width: 150,
-      renderCell: (params: GridRenderCellParams<string>) => (
-        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
-      )
-    },
-    {
-      field: 'address',
-      headerName: t('address'),
-      description: t('address'),
-      width: 150
-    },
-    {
-      field: 'phone',
-      headerName: t('phone'),
-      description: t('phone'),
-      width: 150
-    },
-    {
-      field: 'website',
-      headerName: t('website'),
-      description: t('website'),
-      width: 150
-    },
-    {
-      field: 'name',
-      headerName: t('name'),
-      description: t('name'),
-      width: 150
-    },
-    {
-      field: 'email',
-      headerName: t('email'),
-      description: t('email'),
-      width: 150
-    },
-    {
-      field: 'vendorType',
-      headerName: t('vendor_type'),
-      description: t('vendor_type'),
-      width: 150
-    },
-    {
-      field: 'description',
-      headerName: t('description'),
-      description: t('description'),
-      width: 300
-    },
-    {
-      field: 'rate',
-      headerName: t('hourly_rate'),
-      description: t('hourly_rate'),
-      width: 150
-    }
+  const columnHelper = createColumnHelper<Vendor>();
+
+  const columns: CustomDatagridColumn2<Vendor>[] = [
+    columnHelper.accessor('companyName', {
+      id: 'companyName',
+      header: () => t('company_name'),
+      cell: (info) => (
+        <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>
+      ),
+      size: 150
+    }),
+    columnHelper.accessor('address', {
+      id: 'address',
+      header: () => t('address'),
+      cell: (info) => info.getValue(),
+      size: 150
+    }),
+    columnHelper.accessor('phone', {
+      id: 'phone',
+      header: () => t('phone'),
+      cell: (info) => info.getValue(),
+      size: 150
+    }),
+    columnHelper.accessor('website', {
+      id: 'website',
+      header: () => t('website'),
+      cell: (info) => info.getValue(),
+      size: 150
+    }),
+    columnHelper.accessor('name', {
+      id: 'name',
+      header: () => t('name'),
+      cell: (info) => info.getValue(),
+      size: 150
+    }),
+    columnHelper.accessor('email', {
+      id: 'email',
+      header: () => t('email'),
+      cell: (info) => info.getValue(),
+      size: 150
+    }),
+    columnHelper.accessor('vendorType', {
+      id: 'vendorType',
+      header: () => t('vendor_type'),
+      cell: (info) => info.getValue(),
+      size: 150
+    }),
+    columnHelper.accessor('description', {
+      id: 'description',
+      header: () => t('description'),
+      cell: (info) => info.getValue(),
+      size: 300
+    }),
+    columnHelper.accessor('rate', {
+      id: 'rate',
+      header: () => t('hourly_rate'),
+      cell: (info) => info.getValue(),
+      size: 150
+    })
   ];
-  const apiRef = useGridApiRef();
-  useGridStatePersist(apiRef, columns, 'vendor');
 
   // const searchFilterProperties = ['name', 'companyName', 'vendorType', 'email'];
   const fieldsToRender = [
@@ -389,65 +421,29 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
         width: '95%'
       }}
     >
-      <CustomDataGrid
-        apiRef={apiRef}
-        pageSize={criteria.pageSize}
-        page={criteria.pageNum}
-        rows={vendors.content}
-        rowCount={vendors.totalElements}
-        pagination
-        paginationMode="server"
-        sortingMode="server"
-        onPageSizeChange={onPageSizeChange}
-        onPageChange={onPageChange}
-        rowsPerPageOptions={[10, 20, 50]}
+      <CustomDatagrid2
         columns={columns}
+        data={vendors.content}
         loading={loadingGet}
-        onSortModelChange={(model) => {
-          if (model.length === 0) {
-            setCriteria({
-              ...criteria,
-              sortField: undefined,
-              direction: undefined
-            });
-            return;
-          }
-
-          const fieldMapping = {
-            companyName: 'companyName',
-            name: 'name',
-            vendorType: 'vendorType',
-            email: 'email',
-            phone: 'phone',
-            website: 'website',
-            rate: 'rate'
-          };
-
-          const field = model[0].field;
-          const mappedField = fieldMapping[field];
-
-          if (!mappedField) return;
-
-          setCriteria({
-            ...criteria,
-            sortField: mappedField,
-            direction: (model[0].sort?.toUpperCase() || 'ASC') as SortDirection
-          });
-        }}
-        components={{
-          NoRowsOverlay: () => (
-            <NoRowsMessageWrapper
-              message={t('noRows.vendor.message')}
-              action={t('noRows.vendor.action')}
-            />
-          )
-        }}
-        initialState={{
-          columns: {
-            columnVisibilityModel: {}
-          }
-        }}
-        onRowClick={(params) => handleOpenDetails(Number(params.id))}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        totalRows={vendors.totalElements}
+        pageSizeOptions={[10, 20, 50]}
+        sorting={sorting}
+        onSortingChange={setSorting}
+        columnOrder={columnOrder}
+        onColumnOrderChange={setColumnOrder}
+        columnSizing={columnSizing}
+        onColumnSizingChange={setColumnSizing}
+        columnVisibility={columnVisibility}
+        onColumnVisibilityChange={setColumnVisibility}
+        onRowClick={(row) => handleOpenDetails(row.id)}
+        noRowsMessage={t('noRows.vendor.message')}
+        noRowsAction={t('noRows.vendor.action')}
+        enableColumnReordering
+        enableColumnResizing
+        pinnedColumns={pinnedColumns}
+        onPinnedColumnsChange={setPinnedColumns}
       />
     </Box>
   );

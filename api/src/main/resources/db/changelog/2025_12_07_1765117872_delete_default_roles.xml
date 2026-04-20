@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="1765301322587-1" author="Ibrahima G. Coulibaly">
+        <sql>
+            WITH ranked_roles AS (
+                SELECT DISTINCT ON (code) id
+            FROM role
+            WHERE role_type = 1
+              AND code BETWEEN 0 AND 5
+            ORDER BY code, id
+                )
+            UPDATE role
+            SET company_settings_id = NULL
+                FROM ranked_roles
+            WHERE role.id = ranked_roles.id;
+        </sql>
+    </changeSet>
+    <changeSet id="1765117872-1" author="Ibrahima G. Coulibaly">
+        <validCheckSum>ANY</validCheckSum>
+        <addColumn tableName="own_user">
+            <column name="role_code" type="int"/>
+            <column name="role_type" type="int"/>
+        </addColumn>
+        <sql>
+            UPDATE own_user ou
+            SET role_code = (SELECT r.code FROM role r WHERE r.id = ou.role_id),
+                role_type = (SELECT r.role_type FROM role r WHERE r.id = ou.role_id)
+            WHERE ou.role_id IS NOT NULL
+        </sql>
+        <sql>
+            update own_user ou
+            set role_id=(
+                select MIN(r.id)
+                from role r
+                where r.code=ou.role_code
+                  and r.role_type=ou.role_type
+                  and r.company_settings_id is null
+            )
+            where ou.role_type !=0 and ou.role_code !=6
+        </sql>
+    </changeSet>
+    <changeSet id="update-role-permissions-fk-cascade" author="Ibrahima G. Coulibaly">
+
+        <!-- role_view_other_permissions -->
+        <dropForeignKeyConstraint
+                baseTableName="role_view_other_permissions"
+                constraintName="fk2o0cjn2xwd4jkb5bsukxlnod8"/>
+
+        <addForeignKeyConstraint
+                baseTableName="role_view_other_permissions"
+                baseColumnNames="role_id"
+                referencedTableName="role"
+                referencedColumnNames="id"
+                constraintName="fk2o0cjn2xwd4jkb5bsukxlnod8"
+                onDelete="CASCADE"/>
+
+
+        <!-- role_create_permissions -->
+        <dropForeignKeyConstraint
+                baseTableName="role_create_permissions"
+                constraintName="fktncs84qs8gmbgb3qsula45o4r"/>
+
+        <addForeignKeyConstraint
+                baseTableName="role_create_permissions"
+                baseColumnNames="role_id"
+                referencedTableName="role"
+                referencedColumnNames="id"
+                constraintName="fktncs84qs8gmbgb3qsula45o4r"
+                onDelete="CASCADE"/>
+
+
+        <!-- role_delete_other_permissions -->
+        <dropForeignKeyConstraint
+                baseTableName="role_delete_other_permissions"
+                constraintName="fk3cjdng98d8kdkyhqniaatb1nq"/>
+
+        <addForeignKeyConstraint
+                baseTableName="role_delete_other_permissions"
+                baseColumnNames="role_id"
+                referencedTableName="role"
+                referencedColumnNames="id"
+                constraintName="fk3cjdng98d8kdkyhqniaatb1nq"
+                onDelete="CASCADE"/>
+
+
+        <!-- role_edit_other_permissions -->
+        <dropForeignKeyConstraint
+                baseTableName="role_edit_other_permissions"
+                constraintName="fk7rf93e2irl5320ogujwr8wcgt"/>
+
+        <addForeignKeyConstraint
+                baseTableName="role_edit_other_permissions"
+                baseColumnNames="role_id"
+                referencedTableName="role"
+                referencedColumnNames="id"
+                constraintName="fk7rf93e2irl5320ogujwr8wcgt"
+                onDelete="CASCADE"/>
+
+
+        <!-- role_view_permissions -->
+        <dropForeignKeyConstraint
+                baseTableName="role_view_permissions"
+                constraintName="fkdcn9sty6hgjhdocywpdyqbl8s"/>
+
+        <addForeignKeyConstraint
+                baseTableName="role_view_permissions"
+                baseColumnNames="role_id"
+                referencedTableName="role"
+                referencedColumnNames="id"
+                constraintName="fkdcn9sty6hgjhdocywpdyqbl8s"
+                onDelete="CASCADE"/>
+
+    </changeSet>
+    <changeSet id="update-user-invitation-role-fk-cascade" author="Ibrahima G. Coulibaly">
+
+        <!-- Drop old foreign key -->
+        <dropForeignKeyConstraint
+                baseTableName="user_invitation"
+                constraintName="fkf77hi4ixclj9edbkfheps1sv9"/>
+
+        <!-- Add new FK with cascading delete -->
+        <addForeignKeyConstraint
+                baseTableName="user_invitation"
+                baseColumnNames="role_id"
+                referencedTableName="role"
+                referencedColumnNames="id"
+                constraintName="fkf77hi4ixclj9edbkfheps1sv9"
+                onDelete="CASCADE"/>
+
+    </changeSet>
+    <changeSet id="1765118942092-1" author="Ibrahima G. Coulibaly">
+        <sql>
+            delete from role r where r.company_settings_id is not null and r.role_type=1 and r.code!=6
+        </sql>
+    </changeSet>
+    <changeSet id="1765120833958-1" author="Ibrahima G. Coulibaly">
+        <dropColumn tableName="own_user" columnName="role_code"/>
+        <dropColumn tableName="own_user" columnName="role_type"/>
+    </changeSet>
+</databaseChangeLog>

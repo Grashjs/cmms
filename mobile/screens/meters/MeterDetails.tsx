@@ -11,6 +11,7 @@ import {
   IconButton,
   Portal,
   Text,
+  TextInput,
   useTheme
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -30,9 +31,9 @@ import BasicField from '../../components/BasicField';
 import useAuth from '../../hooks/useAuth';
 
 export default function MeterDetails({
-                                       navigation,
-                                       route
-                                     }: RootStackScreenProps<'MeterDetails'>) {
+  navigation,
+  route
+}: RootStackScreenProps<'MeterDetails'>) {
   const { id, meterProp } = route.params;
   const { loadingGet, meterInfos } = useSelector((state) => state.meters);
   const { readingsByMeter } = useSelector((state) => state.readings);
@@ -44,7 +45,7 @@ export default function MeterDetails({
   const [openModal, setOpenModal] = useState<boolean>(false);
   const meter = meterInfos[id]?.meter ?? meterProp;
   const theme = useTheme();
-  const [readingValue, setReadingValue] = useState<number>(0);
+  const [readingValue, setReadingValue] = useState<string>('0');
   const [addedReading, setAddedReading] = useState<boolean>(false);
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { getFormattedDate } = useContext(CompanySettingsContext);
@@ -86,7 +87,7 @@ export default function MeterDetails({
         <Dialog visible={openDelete} onDismiss={() => setOpenDelete(false)}>
           <Dialog.Title>{t('confirmation')}</Dialog.Title>
           <Dialog.Content>
-            <Text variant='bodyMedium'>{t('confirm_delete_meter')}</Text>
+            <Text variant="bodyMedium">{t('confirm_delete_meter')}</Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setOpenDelete(false)}>{t('cancel')}</Button>
@@ -99,8 +100,7 @@ export default function MeterDetails({
 
   useEffect(() => {
     const { id, meterProp } = route.params;
-    if (!meterProp)
-      dispatch(getMeterDetails(id));
+    if (!meterProp) dispatch(getMeterDetails(id));
     dispatch(getWorkOrderMeterTriggers(id));
     dispatch(getReadings(id));
   }, [route]);
@@ -120,7 +120,7 @@ export default function MeterDetails({
             });
           }}
         >
-          <IconButton icon='dots-vertical' />
+          <IconButton icon="dots-vertical" />
         </Pressable>
       )
     });
@@ -128,14 +128,13 @@ export default function MeterDetails({
 
   const onAddReading = () => {
     setIsSubmitting(true);
-    dispatch(createReading(meter.id, { value: readingValue }))
+    dispatch(createReading(meter.id, { value: parseFloat(readingValue) }))
       .then(() => {
         setAddedReading(true);
         setOpenModal(false);
       })
       .finally(() => setIsSubmitting(false));
   };
-
 
   const renderAddReading = () => {
     return (
@@ -147,19 +146,18 @@ export default function MeterDetails({
         >
           <Dialog.Title>{t('add_reading')}</Dialog.Title>
           <Dialog.Content>
-            <NumberInput
+            <TextInput
               style={{ width: '100%' }}
-              mode='outlined'
+              mode="outlined"
               label={t('reading')}
               defaultValue={'0'}
               placeholder={t('meter_reading')}
               onChangeText={(newValue) => {
-                setReadingValue(Number(newValue));
+                setReadingValue(newValue);
               }}
               disabled={isSubmitting}
               error={false}
-              onBlur={function(e: any): void {
-              }}
+              onBlur={function (e: any): void {}}
               multiline={false}
             />
           </Dialog.Content>
@@ -200,15 +198,17 @@ export default function MeterDetails({
             `${user.firstName} ${user.lastName}`
           }
         />
-        {canAddReading(meter) && !addedReading && user.role.code !== 'VIEW_ONLY' && (
-          <Button
-            onPress={() => setOpenModal(true)}
-            mode={'contained'}
-            style={{ marginHorizontal: 20, marginVertical: 20 }}
-          >
-            {t('add_reading')}
-          </Button>
-        )}
+        {canAddReading(meter) &&
+          !addedReading &&
+          user.role.code !== 'VIEW_ONLY' && (
+            <Button
+              onPress={() => setOpenModal(true)}
+              mode={'contained'}
+              style={{ marginHorizontal: 20, marginVertical: 20 }}
+            >
+              {t('add_reading')}
+            </Button>
+          )}
         {!!currentMeterTriggers.length && (
           <Text
             variant={'titleMedium'}

@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { Navigate } from 'react-router-dom';
 
 import SuspenseLoader from 'src/components/SuspenseLoader';
 import analyticsRoutes from './analytics';
@@ -33,6 +34,21 @@ const WorkflowsSettings = Loader(
 );
 const UIConfigurationSettings = Loader(
   lazy(() => import('../content/own/Settings/UiConfiguration'))
+);
+const RequestPortalSettings = Loader(
+  lazy(() => import('../content/own/Settings/RequestPortal'))
+);
+const IntegrationsSettings = Loader(
+  lazy(() => import('../content/own/Settings/Integrations'))
+);
+const ApiKeysPage = Loader(
+  lazy(() => import('../content/own/Settings/Integrations/ApiKeysPage'))
+);
+const WebhooksPage = Loader(
+  lazy(() => import('../content/own/Settings/Integrations/Webhooks'))
+);
+const Connectors = Loader(
+  lazy(() => import('../content/own/Settings/Integrations/Connectors'))
 );
 
 const UserProfile = Loader(lazy(() => import('../content/own/UserProfile')));
@@ -118,6 +134,14 @@ const appRoutes = [
         element: <RequestSettings />
       },
       {
+        path: 'request-portals',
+        element: <RequestPortalSettings />
+      },
+      {
+        path: 'request-portals/:id',
+        element: <RequestPortalSettings />
+      },
+      {
         path: 'roles',
         element: <RolesSettings />
       },
@@ -126,7 +150,17 @@ const appRoutes = [
         element: <ChecklistsSettings />
       },
       { path: 'workflows', element: <WorkflowsSettings /> },
-      { path: 'ui-configuration', element: <UIConfigurationSettings /> }
+      { path: 'ui-configuration', element: <UIConfigurationSettings /> },
+      {
+        path: 'integrations',
+        element: <IntegrationsSettings />,
+        children: [
+          { index: true, element: <Navigate to="api-keys" replace /> },
+          { path: 'connectors', element: <Connectors /> },
+          { path: 'api-keys', element: <ApiKeysPage /> },
+          { path: 'webhooks', element: <WebhooksPage /> }
+        ]
+      }
     ]
   },
   {
@@ -345,7 +379,8 @@ const appRoutes = [
       { path: 'assets', element: <Imports /> },
       { path: 'locations', element: <Imports /> },
       { path: 'parts', element: <Imports /> },
-      { path: 'meters', element: <Imports /> }
+      { path: 'meters', element: <Imports /> },
+      { path: 'preventive-maintenances', element: <Imports /> }
     ]
   },
   { path: 'upgrade', element: <Upgrade /> },

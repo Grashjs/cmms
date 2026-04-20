@@ -6,13 +6,15 @@ import { IField } from '../../type';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
 import { StoreReturnType } from '../../../../store';
+import { getErrorMessage } from '../../../../utils/api';
+import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 
 interface SignatureProps {
   open: boolean;
   onClose: () => void;
   fieldsConfig: { feedback: boolean; signature: boolean };
   onComplete: (
-    id: number | undefined,
+    signature: string | undefined,
     feedback: string
   ) => Promise<StoreReturnType>;
 }
@@ -24,9 +26,10 @@ export default function CompleteWOModal({
 }: SignatureProps) {
   const { t }: { t: any } = useTranslation();
   const { uploadFiles } = useContext(CompanySettingsContext);
+  const { showSnackBar } = useContext(CustomSnackBarContext);
 
   const getFieldsAndShape = (): [Array<IField>, { [key: string]: any }] => {
-    let fields = [];
+    let fields: IField[] = [];
     let shape = {};
     if (fieldsConfig.feedback) {
       fields.push({
@@ -41,13 +44,12 @@ export default function CompleteWOModal({
     if (fieldsConfig.signature) {
       fields.push({
         name: 'signature',
-        type: 'file',
-        label: t('signature'),
-        fileType: 'image'
+        type: 'signature',
+        label: t('signature')
       });
       shape = {
         ...shape,
-        signature: Yup.array().required(t('required_signature'))
+        signature: Yup.string().required(t('required_signature'))
       };
     }
     return [fields, shape];
@@ -76,17 +78,9 @@ export default function CompleteWOModal({
           values={{}}
           onChange={({ field, e }) => {}}
           onSubmit={async (values) => {
-            return new Promise<void>((resolve, rej) => {
-              uploadFiles([], values.signature ?? [])
-                .then((files) => {
-                  onComplete(files[0]?.id, values?.feedback)
-                    .then(onClose)
-                    .finally(resolve);
-                })
-                .catch((err) => {
-                  rej(err);
-                });
-            });
+            return onComplete(values.signature, values.feedback)
+              .then(onClose)
+              .catch((err) => showSnackBar(getErrorMessage(err), 'error'));
           }}
         />
       </DialogContent>

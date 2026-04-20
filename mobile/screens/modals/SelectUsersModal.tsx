@@ -13,12 +13,20 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from '../../store';
 import { UserMiniDTO } from '../../models/user';
 import { getUsersMini } from '../../slices/user';
-import { Checkbox, Divider, Searchbar, Text, useTheme } from 'react-native-paper';
+import {
+  Avatar,
+  Checkbox,
+  Divider,
+  Searchbar,
+  Text,
+  useTheme
+} from 'react-native-paper';
+import { getUserInitials } from '../../utils/displayers';
 
 export default function SelectUsersModal({
-                                           navigation,
-                                           route
-                                         }: RootStackScreenProps<'SelectUsers'>) {
+  navigation,
+  route
+}: RootStackScreenProps<'SelectUsers'>) {
   const { onChange, selected, multiple } = route.params;
   const theme = useTheme();
   const { t }: { t: any } = useTranslation();
@@ -54,7 +62,7 @@ export default function SelectUsersModal({
               navigation.goBack();
             }}
           >
-            <Text variant='titleMedium'>{t('add')}</Text>
+            <Text variant="titleMedium">{t('add')}</Text>
           </Pressable>
         )
       });
@@ -84,7 +92,9 @@ export default function SelectUsersModal({
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <Searchbar
         placeholder={t('search')}
         onChangeText={setSearchQuery}
@@ -103,38 +113,63 @@ export default function SelectUsersModal({
           backgroundColor: theme.colors.background
         }}
       >
-        {usersMini.filter(user => user.firstName.toLowerCase()
-            .includes(searchQuery.toLowerCase().trim())
-          || user.lastName.toLowerCase().includes(searchQuery.toLowerCase().trim())).map((user) => (
-          <TouchableOpacity
-            onPress={() => {
-              toggle(user.id);
-            }}
-            key={user.id}
-            style={{
-              borderRadius: 5,
-              padding: 15,
-              backgroundColor: 'white',
-              display: 'flex',
-              flexDirection: 'row',
-              elevation: 2,
-              alignItems: 'center'
-            }}
-          >
-            {multiple && (
-              <Checkbox
-                status={selectedIds.includes(user.id) ? 'checked' : 'unchecked'}
-                onPress={() => {
-                  toggle(user.id);
-                }}
-              />
-            )}
-            <Text style={{ flexShrink: 1 }}
-                  variant={'titleMedium'}
-            >{`${user.firstName} ${user.lastName}`}</Text>
-            <Divider />
-          </TouchableOpacity>
-        ))}
+        {usersMini
+          .filter(
+            (user) =>
+              user.firstName
+                .toLowerCase()
+                .includes(searchQuery.toLowerCase().trim()) ||
+              user.lastName
+                .toLowerCase()
+                .includes(searchQuery.toLowerCase().trim())
+          )
+          .map((user) => (
+            <TouchableOpacity
+              onPress={() => {
+                toggle(user.id);
+              }}
+              key={user.id}
+            >
+              <View style={styles.card}>
+                <View style={styles.cardRow}>
+                  {user.image ? (
+                    <Avatar.Image size={50} source={{ uri: user.image.url }} />
+                  ) : (
+                    <Avatar.Text
+                      size={50}
+                      label={getUserInitials(user)}
+                      style={{ backgroundColor: theme.colors.primaryContainer }}
+                    />
+                  )}
+                  <View style={{ flex: 1 }}>
+                    <View style={styles.cardHeader}>
+                      <View style={{ flex: 1 }}>
+                        <Text variant="titleMedium" style={styles.cardTitle}>
+                          {`${user.firstName} ${user.lastName}`}
+                        </Text>
+                        <Text
+                          variant={'bodySmall'}
+                          style={{ color: 'grey' }}
+                        >{`#${user.id}`}</Text>
+                      </View>
+                      {multiple && (
+                        <Checkbox
+                          status={
+                            selectedIds.includes(user.id)
+                              ? 'checked'
+                              : 'unchecked'
+                          }
+                          onPress={() => {
+                            toggle(user.id);
+                          }}
+                        />
+                      )}
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
       </ScrollView>
     </View>
   );
@@ -143,5 +178,25 @@ export default function SelectUsersModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1
+  },
+  card: {
+    backgroundColor: 'white',
+    marginBottom: 1,
+    padding: 10
+  },
+  cardRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 6,
+    alignItems: 'center'
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  cardTitle: {
+    fontWeight: 'bold',
+    flexShrink: 1
   }
 });

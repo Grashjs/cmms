@@ -4,13 +4,15 @@ import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.RequestPatchDTO;
 import com.grash.dto.RequestShowDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RequestMapper;
 import com.grash.model.*;
+import com.grash.model.enums.PortalFieldType;
 import com.grash.model.enums.Priority;
-import com.grash.model.enums.RoleType;
+import com.grash.model.enums.webhook.WebhookEvent;
+import com.grash.repository.FieldConfigurationRepository;
 import com.grash.repository.RequestRepository;
-import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,8 +22,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.*;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,14 +42,53 @@ public class RequestService {
     private final RequestMapper requestMapper;
     private final EntityManager em;
     private final CustomSequenceService customSequenceService;
+    private final LicenseService licenseService;
+    private final RequestPortalService requestPortalService;
+    private final FieldConfigurationRepository fieldConfigurationRepository;
+    private final WebhookDispatchService webhookDispatchService;
+
 
     @Transactional
     public Request create(Request request, Company company) {
+        if (request.getAudioDescription() != null && !licenseService.hasEntitlement(LicenseEntitlement.VOICE_NOTES))
+            throw new CustomException("You need a license to add voice notes", HttpStatus.FORBIDDEN);
         Long nextSequence = customSequenceService.getNextRequestSequence(company);
         request.setCustomId("R" + String.format("%06d", nextSequence));
 
         Request savedRequest = requestRepository.saveAndFlush(request);
         em.refresh(savedRequest);
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("requestId", savedRequest.getId());
+        Object serializedRequest = requestMapper.toShowDto(savedRequest);
+        webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_REQUEST, webhookPayload,
+                "newRequest", serializedRequest, null, null, null, null, null);
+        return savedRequest;
+    }
+
+    @Transactional
+    public Request create(Request request, Company company, RequestPortal requestPortal) {
+        if (request.getAudioDescription() != null && !licenseService.hasEntitlement(LicenseEntitlement.VOICE_NOTES))
+            throw new CustomException("You need a license to add voice notes", HttpStatus.FORBIDDEN);
+        Long nextSequence = customSequenceService.getNextRequestSequence(company);
+        request.setCustomId("R" + String.format("%06d", nextSequence));
+        request.setRequestPortal(requestPortal);
+        request.setCompany(requestPortal.getCompany());
+        RequestPortalField assetField =
+                requestPortal.getFields().stream().filter(field -> field.getType().equals(PortalFieldType.ASSET) && field.getAsset() != null).findFirst().orElse(null);
+        RequestPortalField locationField =
+                requestPortal.getFields().stream().filter(field -> field.getType().equals(PortalFieldType.LOCATION) && field.getLocation() != null).findFirst().orElse(null);
+
+        if (assetField != null) request.setAsset(assetField.getAsset());
+        if (locationField != null) request.setLocation(locationField.getLocation());
+
+
+        Request savedRequest = requestRepository.saveAndFlush(request);
+        em.refresh(savedRequest);
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("requestId", savedRequest.getId());
+        Object serializedRequest2 = requestMapper.toShowDto(savedRequest);
+        webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_REQUEST, webhookPayload,
+                "newRequest", serializedRequest2, null, null, null, null, null);
         return savedRequest;
     }
 
@@ -76,10 +118,10 @@ public class RequestService {
         return requestRepository.findByCompany_Id(id);
     }
 
-    public WorkOrder createWorkOrderFromRequest(Request request, OwnUser creator) {
+    public WorkOrder createWorkOrderFromRequest(Request request, User creator) {
         WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(request);
         if (creator.getCompany().getCompanySettings().getGeneralPreferences().isAutoAssignRequests()) {
-            OwnUser primaryUser = workOrder.getPrimaryUser();
+            User primaryUser = workOrder.getPrimaryUser();
             workOrder.setPrimaryUser(primaryUser == null ? creator : primaryUser);
         }
         workOrder.setParentRequest(request);
@@ -166,3 +208,4 @@ public class RequestService {
         return requestRepository.findByCategory_IdAndCreatedAtBetween(id, start, end);
     }
 }
+

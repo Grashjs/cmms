@@ -6,30 +6,30 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Checklist;
 import com.grash.model.CompanySettings;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleType;
 import com.grash.service.ChecklistService;
 import com.grash.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
 import java.util.Collection;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/checklists")
-@Api(tags = "checklist")
+@Tag(name = "Checklists", description = "Operations on checklists")
 @RequiredArgsConstructor
 public class ChecklistController {
 
@@ -38,12 +38,9 @@ public class ChecklistController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "AssetCategory not found")})
+
     public Collection<Checklist> getAll(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             CompanySettings companySettings = user.getCompany().getCompanySettings();
             return checklistService.findByCompanySettings(companySettings.getId());
@@ -52,26 +49,21 @@ public class ChecklistController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Checklist not found")})
-    public Checklist getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+
+    public Checklist getById(@PathVariable("id") Long id, HttpServletRequest req) {
+        User user = userService.whoami(req);
         Optional<Checklist> optionalChecklist = checklistService.findById(id);
         if (optionalChecklist.isPresent()) {
             Checklist savedChecklist = optionalChecklist.get();
+            checkAccessToChecklist(savedChecklist, user);
             return savedChecklist;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public Checklist create(@ApiParam("Checklist") @Valid @RequestBody ChecklistPostDTO checklistReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    Checklist create(@Parameter(description = "Checklist to create") @Valid @RequestBody ChecklistPostDTO checklistReq, HttpServletRequest req) {
+        User user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.CHECKLIST)) {
             return checklistService.createPost(checklistReq, user.getCompany());
@@ -80,17 +72,16 @@ public class ChecklistController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Checklist not found")})
-    public Checklist patch(@ApiParam("Checklist") @Valid @RequestBody ChecklistPatchDTO checklist, @ApiParam("id") @PathVariable("id") Long id,
+
+    public Checklist patch(@Parameter(description = "Checklist fields to update") @Valid @RequestBody ChecklistPatchDTO checklist,
+                           @PathVariable("id") Long id,
                            HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Checklist> optionalChecklist = checklistService.findById(id);
 
         if (optionalChecklist.isPresent()) {
             Checklist savedChecklist = optionalChecklist.get();
+            checkAccessToChecklist(savedChecklist, user);
             if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
                 return checklistService.update(id, checklist, user.getCompany());
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
@@ -99,16 +90,14 @@ public class ChecklistController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Checklist not found")})
-    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
+        User user = userService.whoami(req);
 
         Optional<Checklist> optionalChecklist = checklistService.findById(id);
         if (optionalChecklist.isPresent()) {
             Checklist savedChecklist = optionalChecklist.get();
+            checkAccessToChecklist(savedChecklist, user);
             if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
                 checklistService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
@@ -117,4 +106,10 @@ public class ChecklistController {
         } else throw new CustomException("Checklist not found", HttpStatus.NOT_FOUND);
     }
 
+    private void checkAccessToChecklist(Checklist checklist, User user) {
+        if (!checklist.getCompanySettings().getCompany().getId().equals(user.getCompany().getId()))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    }
 }
+
+

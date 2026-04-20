@@ -1256,6 +1256,17 @@ const locale = {
   "power": "Energia",
   "library": "Biblioteca",
   "camera": "Telecamera",
+  media_library: 'Libreria foto',
+  permission_required_title: 'Autorizzazione richiesta',
+  permission_required_message:
+    "L'accesso a {{permission}} è necessario. Abilitalo nelle impostazioni dell'app.",
+  permission_denied_title: 'Autorizzazione negata',
+  permission_denied_message:
+    "L'accesso a {{permission}} è necessario per continuare.",
+  unable_to_request_permission:
+    "Impossibile richiedere l'autorizzazione per {{permission}}.",
+  open_settings: 'Apri impostazioni',
+  ok: 'OK',
   "CANCELLED": "Respinto",
   "max_file_size_error": "La dimensione del file non deve essere maggiore di {{size}} MB",
   "assignedToUser": "Il mio lavoro",

@@ -3,32 +3,38 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.FileType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Data
 @NoArgsConstructor
+@Schema(description = "File entity representing an attachment or document")
 public class File extends CompanyAudit {
+    @Schema(description = "Name of the file")
     @NotNull
     private String name;
 
+    @Schema(description = "Storage path of the file")
     @NotNull
     private String path;
 
 
+    @Schema(description = "Type/category of the file")
     private FileType type = FileType.OTHER;
 
+    @Schema(description = "Indicates whether the file is hidden")
     private boolean hidden = false;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private Task task;
@@ -96,3 +102,5 @@ public class File extends CompanyAudit {
         this.hidden = hidden;
     }
 }
+
+

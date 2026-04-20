@@ -900,6 +900,7 @@ const plJSON = {
     'Użytkownicy otrzymują aktualizacje dotyczące zleceń pracy, które zgłosili',
   language: 'Język',
   date_format: 'Format daty',
+  time_zone: 'Strefa czasowa',
   business_type: 'Rodzaj działalności',
   general_asset_management: 'Ogólne zarządzanie zasobami',
   physical_asset_management: 'Fizyczne zarządzanie zasobami',
@@ -1464,7 +1465,385 @@ const plJSON = {
   upgrade_request_success:
     'Otrzymano prośbę o uaktualnienie! Wkrótce skontaktujemy się z Tobą w sprawie szczegółów płatności',
   continue_with_sso: 'Kontynuuj z wykorzystaniem SSO',
-  see_live_demo: 'Zobacz pokaz na żywo'
+  see_live_demo: 'Zobacz pokaz na żywo',
+  days: 'Dni',
+  weeks: 'Tygodnie',
+  months: 'Miesiące',
+  years: 'Lata',
+  based_on: 'Na podstawie',
+  scheduled_date: 'Zaplanowana data',
+  on: 'W dniu',
+  required_days_of_week: 'Wymagane dni tygodnia',
+  'schedule.daily_one': 'Co {{count}} dzień',
+  'schedule.daily_other': 'Co {{count}} dni',
+  'schedule.weekly_one': 'Co {{count}} tydzień w {{days}}',
+  'schedule.weekly_other': 'Co {{count}} tygodni w {{days}}',
+  'schedule.monthly_one': 'Co {{count}} miesiąc',
+  'schedule.monthly_other': 'Co {{count}} miesięcy',
+  'schedule.yearly_one': 'Co {{count}} rok',
+  'schedule.yearly_other': 'Co {{count}} lat',
+  csv_separator: 'Separator CSV',
+  open_source_cmms: 'CMMS open source',
+  'main.title':
+    'Darmowy CMMS open source (oprogramowanie do zarządzania utrzymaniem ruchu)',
+  'home.h1':
+    'Darmowy CMMS o otwartym kodzie źródłowym, który możesz hostować samodzielnie lub w chmurze',
+  'home.h2': 'Potężna konserwacja przy niskich kosztach',
+  'home.h3':
+    'Przestań polegać na arkuszach kalkulacyjnych i tablicach. {{brandName}} pomaga zespołom ds. utrzymania ruchu planować interwencje, śledzić sprzęt i zachować zgodność z przepisami. Hostuj na własnym serwerze lub zacznij natychmiast w chmurze.',
+  talk_to_sales: 'Porozmawiaj z działem sprzedaży',
+  'pricing.choose_plan_and_get_started': 'Wybierz swój plan i zacznij',
+  'pricing.slogan_effective_maintenance':
+    'Nasze oprogramowanie zapewnia zespołom ds. utrzymania ruchu i niezawodności narzędzia niezbędne do wydajnego i efektywnego prowadzenia operacji.',
+  'pricing.compare_plans_and_pricing': 'Porównaj plany i ceny',
+  'pricing.see_which_plan_is_right_for_you':
+    'Sprawdź, który plan jest dla Ciebie odpowiedni',
+  'pricing.select_two_plans_to_compare': 'Wybierz 2 plany do porównania',
+  'pricing.select_three_plans_to_compare': 'Wybierz 3 plany do porównania',
+  'pricing.month_per_user': 'miesiąc na użytkownika',
+  'pricing.year_per_user': 'rok na użytkownika',
+  'pricing.plan_basic_name': 'Podstawowy',
+  'pricing.plan_basic_description':
+    'Zespoły chcące śledzić zasoby i tworzyć podstawowe harmonogramy konserwacji zapobiegawczej wraz z procedurami.',
+  'pricing.feature_unlimited_work_orders': 'Nieograniczona liczba zleceń',
+  'pricing.feature_custom_tasks': 'Zadania niestandardowe',
+  'pricing.feature_unlimited_request_user_licenses':
+    'Nieograniczona liczba licencji użytkownika na żądanie',
+  'pricing.plan_starter_name': 'Rozrusznik',
+  'pricing.plan_starter_description':
+    'Zespoły chcące wdrożyć skuteczną i skuteczną konserwację zapobiegawczą dzięki wglądowi w stan maszyn i zasoby ludzkie.',
+  'pricing.feature_everything_in_basic_plus': 'Wszystko w pakiecie Basic plus:',
+  'pricing.feature_preventive_maintenance_recurring_work_orders':
+    'Konserwacja zapobiegawcza/Powtarzające się zlecenia robocze',
+  'pricing.feature_custom_checklists': 'Niestandardowe listy kontrolne',
+  'pricing.feature_inventory_management_costing':
+    'Zarządzanie zapasami/Kosztowanie',
+  'pricing.feature_time_and_manpower_tracking':
+    'Śledzenie czasu i siły roboczej',
+  'pricing.feature_thirty_day_analytics_reporting':
+    '30-dniowa analiza i raportowanie',
+  'pricing.plan_professional_name': 'Profesjonalny',
+  'pricing.plan_professional_description':
+    'Działy, które muszą wykorzystywać wnioski i analizy w celu zwiększenia wydajności i wzrostu działań konserwacyjnych.',
+  'pricing.feature_everything_in_starter_plus':
+    'Wszystko w pakiecie Starter plus:',
+  'pricing.feature_multiple_inventory_lines': 'Wiele linii zapasów',
+  'pricing.feature_customizable_request_portal':
+    'Portal żądań konfigurowalnych',
+  'pricing.feature_mobile_offline_mode': 'Tryb mobilny offline',
+  'pricing.feature_advanced_analytics_reporting':
+    'Zaawansowana analityka i raportowanie',
+  'pricing.plan_business_name': 'Biznes',
+  'pricing.plan_business_description':
+    'Organizacje gotowe do gromadzenia danych dotyczących konserwacji i operacji w celu zarządzania wieloma lokalizacjami i dostosowywania systemów.',
+  'pricing.feature_everything_in_professional_plus':
+    'Wszystko w wersji Professional plus:',
+  'pricing.feature_purchase_order_management':
+    'Zarządzanie zamówieniami zakupu',
+  'pricing.feature_multi_site_module_support':
+    'Obsługa modułu wielostanowiskowego',
+  'pricing.feature_custom_work_order_statuses':
+    'Niestandardowe statusy zleceń roboczych',
+  'pricing.feature_custom_integrations_support':
+    'Wsparcie integracji niestandardowych',
+  'pricing.feature_work_order_management': 'Zarządzanie zleceniami roboczymi',
+  'pricing.feature_recurring_work_orders': 'Powtarzające się zlecenia robocze',
+  'pricing.feature_custom_categories': 'Kategorie niestandardowe',
+  'pricing.feature_data_importing': 'Importowanie danych',
+  'pricing.feature_time_and_cost_tracking': 'Śledzenie czasu i kosztów',
+  'pricing.feature_work_order_configuration': 'Konfiguracja zlecenia roboczego',
+  'pricing.feature_internal_requests': 'Żądania wewnętrzne',
+  'pricing.feature_external_request_portal': 'Zewnętrzny portal żądań',
+  'pricing.category_locations_assets_parts': 'Lokalizacje, zasoby i części',
+  'pricing.feature_location_management': 'Zarządzanie lokalizacją',
+  'pricing.feature_barcode_scanning': 'Skanowanie kodów kreskowych',
+  'pricing.feature_inventory_management': 'Zarządzanie zapasami',
+  'pricing.feature_custom_asset_statuses': 'Niestandardowe statusy zasobów',
+  'pricing.feature_asset_downtime_tracking': 'Śledzenie przestojów aktywów',
+  'pricing.feature_asset_depreciation_tracking':
+    'Śledzenie amortyzacji aktywów',
+  'pricing.feature_asset_warranty_tracking': 'Śledzenie gwarancji aktywów',
+  'pricing.feature_purchase_orders_management': 'Zamówienia zakupu',
+  'pricing.feature_asset_check_in_out': 'Odbiór/wymeldowanie aktywów',
+  'pricing.category_mobile_offline': 'Mobilny tryb offline',
+  'pricing.feature_work_order_availability': 'Dostępność zlecenia roboczego',
+  'pricing.feature_updating_status': 'Aktualizacja statusu',
+  'pricing.feature_updating_tasks': 'Aktualizowanie zadań',
+  'pricing.feature_work_order_drafts': 'Wersje robocze zleceń roboczych',
+  'pricing.feature_full_drill_down_reporting_history':
+    'Pełne raportowanie i historia',
+  'pricing.period_thirty_days': '30 dni',
+  'pricing.period_full': 'Pełny',
+  'pricing.feature_pdf_csv_exporting': 'Eksportowanie plików PDF i CSV',
+  'pricing.feature_itemized_time_reporting': 'Raportowanie szczegółowe czasu',
+  'pricing.feature_user_login_reports': 'Raporty logowania użytkowników',
+  'pricing.feature_parts_consumption_reports': 'Raporty zużycia części',
+  'pricing.feature_asset_downtime_reports': 'Raporty o przestojach zasobów',
+  'pricing.feature_equipment_reliability_reports':
+    'Raporty dotyczące niezawodności sprzętu',
+  'pricing.feature_multi_site_modules': 'Moduły wielostanowiskowe',
+  'pricing.category_integrations': 'Integracje',
+  'pricing.feature_business_integrations':
+    'Integracje biznesowe (SAP/Oracle/Causal AI...)',
+  'pricing.feature_custom_integrations': 'Niestandardowe integracje',
+  'pricing.feature_unlimited_view_only_users':
+    'Nieograniczona liczba użytkowników z uprawnieniami tylko do przeglądania',
+  'pricing.feature_unlimited_requesters': 'Nieograniczona liczba wnioskodawców',
+  'pricing.feature_unlimited_vendors': 'Nieograniczona liczba dostawców',
+  'pricing.feature_unlimited_customers': 'Nieograniczona liczba klientów',
+  'pricing.category_support': 'Wsparcie',
+  'pricing.feature_daily_email_digest': 'Codzienny przegląd wiadomości e-mail',
+  'pricing.feature_articles': 'Artykuły',
+  'pricing.feature_training_webinars': 'Webinaria szkoleniowe',
+  'pricing.feature_community_support_discord':
+    'Wsparcie społeczności (Discord)',
+  'pricing.feature_email_support': 'Wsparcie e-mailowe',
+  'pricing.feature_chat_phone_support': 'Wsparcie przez czat/telefon',
+  'pricing.feature_priority_support': 'Wsparcie priorytetowe',
+  'pricing.feature_implementation_training': 'Wdrażanie i szkolenia',
+  'pricing.feature_dedicated_account_manager': 'Dedykowany Menedżer Kont',
+  'pricing.category_customization': 'Personalizacja',
+  'pricing.feature_custom_development': 'Rozwój niestandardowy',
+  'pricing.sh_plan_basic_name': 'Podstawowy',
+  'pricing.sh_plan_basic_description':
+    'Dla małych zespołów potrzebujących pełnej suwerenności danych i podstawowego śledzenia konserwacji własnej infrastruktury.',
+  'pricing.sh_feature_core_work_order_management':
+    'Zarządzanie podstawowymi zleceniami roboczymi',
+  'pricing.sh_feature_asset_inventory_tracking': 'Śledzenie aktywów i zapasów',
+  'pricing.sh_feature_local_data_storage': 'Lokalne przechowywanie danych',
+  'pricing.sh_plan_professional_name': 'Profesjonalny',
+  'pricing.sh_plan_professional_description':
+    'Idealne do uprawy roślin wymagających zaawansowanych list kontrolnych, przepływów pracy i głębszej integracji systemów.',
+  'pricing.sh_feature_everything_in_basic_plus':
+    'Wszystko w pakiecie Basic plus:',
+  'pricing.sh_feature_unlimited_assets_checklists':
+    'Nieograniczone zasoby/listy kontrolne',
+  'pricing.sh_feature_nfc_barcode_scanning':
+    'NFC i skanowanie kodów kreskowych',
+  'pricing.sh_feature_email_support': 'Wsparcie e-mailowe',
+  'pricing.sh_plan_business_name': 'Biznes',
+  'pricing.sh_plan_business_description':
+    'Pełnoskalowe operacje wymagające zarządzania wieloma instancjami, niestandardowego brandingu i najwyższego poziomu bezpieczeństwa.',
+  'pricing.sh_feature_everything_in_professional_plus':
+    'Wszystko w wersji Professional plus:',
+  'pricing.sh_feature_multi_instance_management':
+    'Zarządzanie wieloma instancjami',
+  'pricing.sh_feature_custom_user_roles': 'Niestandardowe role użytkowników',
+  'pricing.sh_feature_priority_implementation_support':
+    'Priorytetowe wsparcie wdrażania',
+  'pricing.faq_free_users_q':
+    'Jakie typy użytkowników są uważane za użytkowników darmowych?',
+  'pricing.faq_free_users_a1':
+    'Istnieją trzy typy użytkowników, do których nie jest potrzebna płatna licencja:',
+  'pricing.faq_view_only_users_title': 'Tylko użytkownicy widoku',
+  'pricing.faq_view_only_users_description':
+    'Ci użytkownicy to zazwyczaj kierownicy, którzy logują się rzadko, aby przeglądać stan prac konserwacyjnych. Mogą również zgłaszać zlecenia i generować raporty.',
+  'pricing.faq_requester_users_title': 'Użytkownicy żądający',
+  'pricing.faq_requester_users_description':
+    'Ci użytkownicy mogą jedynie przesyłać zlecenia robocze i przeglądać ich status. Nie mają dostępu do zleceń roboczych, zasobów, części ani żadnych innych danych przechowywanych w systemie CMMS.',
+  'pricing.faq_third_party_users_title': 'Użytkownicy zewnętrzni',
+  'pricing.faq_third_party_users_description':
+    'Ci użytkownicy to zazwyczaj dostawcy i wykonawcy. Nie mogą się logować do systemu. Mogą jedynie przesyłać aktualizacje do konkretnego zlecenia, do którego zostali przypisani, za pośrednictwem publicznego linku.',
+  'pricing.faq_paid_users_q':
+    'Jakie typy użytkowników są uważane za użytkowników płacących?',
+  'pricing.faq_paid_users_a1':
+    'Istnieją trzy typy użytkowników, do których potrzebna jest płatna licencja:',
+  'pricing.faq_admin_users_title': 'Użytkownicy administratorzy',
+  'pricing.faq_admin_users_description':
+    'Ci użytkownicy mogą dodawać innych użytkowników do konta, akceptować lub odrzucać zlecenia pracy oraz edytować szczegóły zleceń. To oni kontrolują konto. Na jednym koncie może być wielu administratorów.',
+  'pricing.faq_technical_users_title': 'Użytkownicy techniczni',
+  'pricing.faq_technical_users_description':
+    'Ci użytkownicy to zazwyczaj technicy, którzy zamykają zlecenia robocze w terenie. Mogą edytować utworzone przez siebie zlecenia robocze, ale nie inne zlecenia robocze. Mogą dodawać zdjęcia i aktualizacje statusu do zleceń roboczych oraz tworzyć nowe zlecenia robocze.',
+  'pricing.faq_limited_technical_users_title':
+    'Ograniczona liczba użytkowników technicznych',
+  'pricing.faq_limited_technical_users_description':
+    'Ci użytkownicy mają takie same uprawnienia jak użytkownik techniczny. Jedynym wyjątkiem jest to, że widzą tylko zlecenia robocze przypisane do nich – a nie innych użytkowników technicznych na koncie.',
+  'pricing.faq_change_plans_q': 'Czy mogę później zmienić plan?',
+  'pricing.faq_change_plans_a':
+    'Tak, możesz w dowolnym momencie zmienić plan na wyższy lub niższy. Zmiany zaczną obowiązywać od początku kolejnego cyklu rozliczeniowego.',
+  'pricing.faq_free_trial_q': 'Czy istnieje bezpłatny okres próbny?',
+  'pricing.faq_free_trial_a':
+    'Tak, oferujemy 15-dniowy bezpłatny okres próbny planu Business, dzięki czemu możesz zapoznać się ze wszystkimi funkcjami przed podjęciem decyzji.',
+  'pricing.faq_non_profit_discounts_q':
+    'Czy oferujecie zniżki dla organizacji non-profit?',
+  'pricing.faq_non_profit_discounts_a':
+    'Tak, oferujemy specjalne ceny dla organizacji non-profit. Aby uzyskać więcej informacji, skontaktuj się z naszym działem sprzedaży.',
+  'pricing.faq_payment_methods_q': 'Jakie metody płatności akceptujecie?',
+  'pricing.faq_payment_methods_a':
+    'Akceptujemy wszystkie główne karty kredytowe, przelewy bankowe i PayPal. W przypadku planów Enterprise możemy również zorganizować fakturowanie.',
+  'pricing.faq_cancel_subscription_q': 'Czy mogę anulować subskrypcję?',
+  'pricing.faq_cancel_subscription_a':
+    'Tak, możesz anulować subskrypcję w dowolnym momencie. Dostęp do niej będzie możliwy do końca bieżącego okresu rozliczeniowego.',
+  'pricing.faq_data_secure_q': 'Czy moje dane są bezpieczne?',
+  'pricing.faq_data_secure_a':
+    'Tak, bezpieczeństwo danych traktujemy bardzo poważnie. Wszystkie dane są szyfrowane w trakcie przesyłu i przechowywania, a my regularnie przeprowadzamy audyty bezpieczeństwa.',
+  'pricing.faq_title': 'Często zadawane pytania',
+  'pricing.annually_save_two_months': 'Rocznie (oszczędzasz 2 miesiące)',
+  'pricing.most_popular': 'Najpopularniejsze',
+  'pricing.get_your_license': 'Zdobądź licencję',
+  get_started: 'Rozpocznij',
+  workflow_automation: 'Automatyzacja przepływu pracy',
+  push_notifications: 'Powiadomienia push',
+  cloud: 'Chmura',
+  self_hosted: 'Samodzielnie hostowany',
+  full: 'Pełny',
+  pricing: 'Cennik',
+  industries: 'Branże',
+  work_order_management: 'Zarządzanie zleceniami',
+  inventory_management: 'Zarządzanie zapasami',
+  analytics_and_reporting: 'Analityka i raportowanie',
+  manufacturing: 'Produkcja',
+  facility_management: 'Zarządzanie obiektami',
+  food_and_beverage: 'Żywność i napoje',
+  healthcare: 'Opieka zdrowotna',
+  energy_and_utilities: 'Energetyka i media',
+  education: 'Edukacja',
+  hospitality: 'Horeca i hotelarstwo',
+  construction: 'Budownictwo',
+  trusted_by_maintenance_teams:
+    'Zaufany przez zespoły ds. utrzymania ruchu w różnych branżach',
+  cut_costs_performance: 'Zredukuj koszty bez utraty wydajności',
+  'free_cmms.title':
+    'Atlas Darmowe Oprogramowanie CMMS | Karta kredytowa nie jest wymagana',
+  'free_cmms.description':
+    'Darmowe oprogramowanie CMMS — to nie jest wersja próbna. Zarządzaj konserwacją, zasobami i zleceniami pracy błyskawicznie. Nie wymagamy karty kredytowej.',
+  'free_cmms.keywords':
+    'darmowy cmms, oprogramowanie do zarządzania konserwacją, darmowe oprogramowanie do zleceń pracy, śledzenie zasobów, konserwacja zapobiegawcza',
+  'overview.description':
+    'Atlas CMMS to darmowy system CMMS o otwartym kodzie źródłowym do zarządzania zleceniami pracy, konserwacją zapobiegawczą, zasobami i obiektami. Usprawnij swoje operacje konserwacyjne już dziś.',
+  'overview.keywords':
+    'CMMS, komputerowy system zarządzania konserwacją, EAM, zarządzanie majątkiem przedsiębiorstwa, cmms open source, darmowe oprogramowanie do konserwacji, zarządzanie zleceniami pracy, konserwacja zapobiegawcza, śledzenie zasobów, zarządzanie obiektami, oprogramowanie do śledzenia konserwacji, konserwacja sprzętu, Atlas CMMS',
+  'pricing.title': 'Cennik - Atlas CMMS',
+  'pricing.description':
+    'Elastyczne plany cenowe dla Atlas CMMS. Wybierz między wersją w chmurze a wersją samodzielnie hostowaną naszego CMMS typu open source, aby zoptymalizować swoje operacje konserwacyjne.',
+  'free_cmms.hero.subtitle': 'Darmowe Oprogramowanie CMMS',
+  'free_cmms.hero.title':
+    'Zarządzaj Zleceniami Pracy i Zasobami - Zawsze Za Darmo',
+  'free_cmms.hero.description':
+    'Przestań żonglować arkuszami kalkulacyjnymi i przestarzałymi narzędziami. Przejdź na nowoczesne oprogramowanie CMMS - za darmo.',
+  'free_cmms.hero.start_free': 'Rozpocznij Za Darmo Teraz',
+  'free_cmms.hero.work_orders_alt': 'Zlecenia Pracy',
+  'free_cmms.hero.mobile_app_alt': 'Aplikacja Mobilna',
+  'free_cmms.features.work_orders.title': 'Zlecenia Pracy Bez Wysiłku',
+  'free_cmms.features.work_orders.p1':
+    'Twórz, przypisuj i śledź zlecenia pracy w kilka sekund.',
+  'free_cmms.features.work_orders.p2':
+    'Dołączaj zdjęcia, instrukcje i listy kontrolne do każdego zadania.',
+  'free_cmms.features.work_orders.p3':
+    'Monitoruj postępy w czasie rzeczywistym dzięki błyskawicznym aktualizacjom statusu.',
+  'free_cmms.features.work_orders.alt': 'Zarządzanie Zleceniami Pracy',
+  'free_cmms.features.asset_tracking.title': 'Śledzenie Cyklu Życia Zasobów',
+  'free_cmms.features.asset_tracking.p1':
+    'Utrzymuj kompletną cyfrową historię każdego zasobu.',
+  'free_cmms.features.asset_tracking.p2':
+    'Podejmuj oparte na danych decyzje dotyczące naprawy lub wymiany.',
+  'free_cmms.features.asset_tracking.p3':
+    'Bądź gotowy na audyty dzięki automatycznym dziennikom zgodności.',
+  'free_cmms.features.asset_tracking.alt': 'Zarządzanie Zasobami',
+  'free_cmms.features.inventory.title': 'Zapasy i Części',
+  'free_cmms.features.inventory.p1':
+    'Śledź poziomy zapasów w wielu lokalizacjach w czasie rzeczywistym.',
+  'free_cmms.features.inventory.p2':
+    'Skanuj kody QR w celu natychmiastowego wyszukiwania i użycia części.',
+  'free_cmms.features.inventory.p3':
+    'Otrzymuj zautomatyzowane alerty o niskim poziomie zapasów i zamawiaj natychmiast.',
+  'free_cmms.features.inventory.alt': 'Zarządzanie Zapasami',
+  'free_cmms.features.mobile.title': 'Konserwacja w Terenie',
+  'free_cmms.features.mobile.p1':
+    'Pełna funkcjonalność aplikacji mobilnej na iOS i Android.',
+  'free_cmms.features.mobile.p2':
+    'Rób zdjęcia i skanuj kody kreskowe bezpośrednio w terenie.',
+  'free_cmms.features.mobile.p3':
+    'Synchronizuj dane natychmiastowo i pracuj offline w razie potrzeby.',
+  'free_cmms.features.mobile.alt': 'Mobilna Aplikacja CMMS',
+  'free_cmms.features.get_started_free': 'Rozpocznij za darmo',
+  'free_cmms.features.ready_to_optimize':
+    'Gotowy na optymalizację konserwacji?',
+  'free_cmms.features.join_thousands':
+    'Dołącz do tysięcy profesjonalistów ds. utrzymania ruchu, którzy korzystają z najbardziej intuicyjnego darmowego CMMS na świecie.',
+  'free_cmms.features.get_started_no_card':
+    'Rozpocznij za darmo - Bez podawania karty kredytowej',
+  create_request_portal: 'Utwórz portal zgłoszeń',
+  edit_request_portal: 'Edytuj portal zgłoszeń',
+  welcome_message: 'Wiadomość powitalna',
+  fields: 'Pola',
+  field_settings: 'Ustawienia pól',
+  contact: 'Kontakt',
+  required_title: 'Tytuł jest wymagany',
+  untitled_portal: 'Portal bez tytułu',
+  no_welcome_message: 'Brak wiadomości powitalnej',
+  request_portal_create_success: 'Portal zgłoszeń utworzony pomyślnie',
+  request_portal_edit_success: 'Portal zgłoszeń zaktualizowany pomyślnie',
+  request_portal_delete_success: 'Portal zgłoszeń usunięty pomyślnie',
+  request_portal_create_failure: 'Nie udało się utworzyć portalu zgłoszeń',
+  request_portal_edit_failure: 'Nie udało się zaktualizować portalu zgłoszeń',
+  request_portal_delete_failure: 'Nie udało się usunąć portalu zgłoszeń',
+  no_access_request_portals: 'Nie masz dostępu do portali zgłoszeń',
+  'noRows.request_portal.message':
+    'Wygląda na to, że nie masz jeszcze żadnych portali zgłoszeń.',
+  'noRows.request_portal.action': 'Utwórz swój pierwszy portal zgłoszeń',
+  request_title: 'Tytuł zgłoszenia',
+  configure_form_fields: 'Konfiguruj pola formularza',
+  allow_selection_from_all_locations:
+    'Zezwól na wybór ze wszystkich lokalizacji',
+  allow_selection_from_all_assets: 'Zezwól na wybór ze wszystkich zasobów',
+  restrict_to_a_specific_location: 'Ogranicz do określonej lokalizacji',
+  restrict_to_a_specific_asset: 'Ogranicz do określonego zasobu',
+  portal_public_asset_warning:
+    'Ten portal jest publiczny i nie wymaga uwierzytelnienia. Wyświetlane zasoby będą widoczne dla każdej osoby mającej link.',
+  portal_public_location_warning:
+    'Ten portal jest publiczny i nie wymaga uwierzytelnienia. Wyświetlane lokalizacje będą widoczne dla każdej osoby mającej link.',
+  submit_request: 'Prześlij zgłoszenie',
+  share_portal: 'Udostępnij portal',
+  get_portal_link: 'Pobierz link do portalu',
+  portal_link_description:
+    'Tylko osoby posiadające ten link mogą uzyskać dostęp do portalu.',
+  print_qr_code: 'Drukuj kod QR',
+  qr_code_description:
+    'Pobierz kod QR i przyklej go na instalacji, aby użytkownicy mogli go zeskanować i uzyskać dostęp do portalu.',
+  copied: 'Skopiowano!',
+  copy: 'Kopiuj',
+  download: 'Pobierz',
+  share: 'Udostępnij',
+  delete: 'Usuń',
+  portal_not_found: 'Nie znaleziono portalu',
+  request_submitted_success: 'Twoje zgłoszenie zostało pomyślnie przesłane',
+  request_submit_failure:
+    'Nie udało się przesłać zgłoszenia. Spróbuj ponownie.',
+  required_description: 'Opis jest wymagany',
+  required_contact: 'Kontakt jest wymagany',
+  required_location: 'Lokalizacja jest wymagana',
+  upload_files: 'Prześlij pliki',
+  request_portal: 'Portal zgłoszeń',
+  required_image: 'Obraz jest wymagany',
+  requested_from_portal: 'To zgłoszenie zostało utworzone z portalu: ',
+  request_portals: 'Portale zgłoszeń',
+  recaptcha_failed: 'Weryfikacja reCAPTCHA nie powiodła się. Spróbuj ponownie.',
+  select_date_range: 'Wybierz zakres dat',
+  get_mobile_app: 'Pobierz aplikację mobilną',
+  scan_qr_to_download: 'Zeskanuj kod QR, aby pobrać aplikację mobilną',
+  integrations: 'Integracje',
+  api_keys: 'Klucze API',
+  connectors: 'Konektory',
+  webhooks: 'Webhooki',
+  create_api_key: 'Utwórz klucz API',
+  api_key_label: 'Etykieta klucza API',
+  api_key_created_success: 'Klucz API został pomyślnie utworzony',
+  api_key_code_copied: 'Kod klucza API skopiowany do schowka',
+  api_key_code_view_once:
+    'Ten kod można wyświetlić tylko raz. Skopiuj go teraz, ponieważ później nie będziesz mógł go zobaczyć.',
+  api_key_code: 'Kod klucza API',
+  copy_code: 'Kopiuj kod',
+  last_used: 'Ostatnio używany',
+  never: 'Nigdy',
+  delete_api_key: 'Usuń klucz API',
+  delete_api_key_confirm: 'Czy na pewno chcesz usunąć ten klucz API?',
+  upgrade_api: 'Uaktualnij, aby uzyskać dostęp do API, konektorów i webhooków',
+  comments: 'Komentarze',
+  add_comment_placeholder: 'Dodaj komentarz...',
+  post_comment: 'Opublikuj komentarz',
+  no_comments: 'Brak komentarzy',
+  confirm_delete_comment: 'Czy na pewno chcesz usunąć ten komentarz?'
 };
 
 export default plJSON;

@@ -184,12 +184,16 @@ export const getMoreAssets =
       dispatch(slice.actions.setLoadingGet({ loading: false }));
     }
   };
-export const getAssetsMini = (locationId?: number|null): AppThunk => async (dispatch) => {
-  dispatch(slice.actions.setLoadingGet({ loading: true }));
-  const assets = await api.get<AssetMiniDTO[]>(`${basePath}/mini?locationId=${locationId??""}`);
-  dispatch(slice.actions.getAssetsMini({ assets }));
-  dispatch(slice.actions.setLoadingGet({ loading: false }));
-};
+export const getAssetsMini =
+  (locationId?: number | null): AppThunk =>
+  async (dispatch) => {
+    dispatch(slice.actions.setLoadingGet({ loading: true }));
+    const assets = await api.get<AssetMiniDTO[]>(
+      `${basePath}/mini?locationId=${locationId ?? ''}`
+    );
+    dispatch(slice.actions.getAssetsMini({ assets }));
+    dispatch(slice.actions.setLoadingGet({ loading: false }));
+  };
 export const addAsset =
   (asset): AppThunk =>
   async (dispatch) => {
@@ -253,7 +257,7 @@ export const getAssetByNfc =
   (nfcId: string): AppThunk =>
   async (dispatch) => {
     dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const asset = await api.get<AssetDTO>(`${basePath}/nfc/${nfcId}`);
+    const asset = await api.get<AssetDTO>(`${basePath}/nfc?nfcId=${nfcId}`);
     dispatch(slice.actions.setLoadingGet({ loading: false }));
     return asset.id;
   };
@@ -261,7 +265,9 @@ export const getAssetByBarcode =
   (barCode: string): AppThunk =>
   async (dispatch) => {
     dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const asset = await api.get<AssetDTO>(`${basePath}/barcode/${barCode}`);
+    const asset = await api.get<AssetDTO>(
+      `${basePath}/barcode?data=${barCode}`
+    );
     dispatch(slice.actions.setLoadingGet({ loading: false }));
     return asset.id;
   };

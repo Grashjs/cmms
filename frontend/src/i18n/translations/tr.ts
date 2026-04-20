@@ -858,6 +858,7 @@ const trJSON = {
     'Kullanıcılar talep ettikleri iş emirlerine ilişkin güncellemeleri alır',
   language: 'Dil',
   date_format: 'Tarih formatı',
+  time_zone: 'Saat dilimi',
   business_type: 'İş Tipi',
   general_asset_management: 'Genel varlık yönetimi',
   physical_asset_management: 'Fiziksel varlık yönetimi',
@@ -1475,7 +1476,374 @@ const trJSON = {
   upgrade_request_success:
     'Yükseltme talebiniz alındı! Ödeme detaylarıyla yakında sizinle iletişime geçeceğiz',
   continue_with_sso: 'SSO ile devam etmek',
-  see_live_demo: 'Canlı demoyu gör'
+  see_live_demo: 'Canlı demoyu gör',
+  days: 'Günler',
+  weeks: 'Haftalar',
+  months: 'Aylar',
+  years: 'Yıllar',
+  based_on: 'Dayalı',
+  scheduled_date: 'Planlanan tarih',
+  on: 'Açık',
+  required_days_of_week: 'Haftanın gerekli günleri',
+  'schedule.daily_one': 'Her {{count}} gün',
+  'schedule.daily_other': 'Her {{count}} gün',
+  'schedule.weekly_one': 'Her {{count}} hafta {{days}} üzerinde',
+  'schedule.weekly_other': 'Her {{count}} hafta {{days}} üzerinde',
+  'schedule.monthly_one': 'Her {{count}} ay',
+  'schedule.monthly_other': 'Her {{count}} ay',
+  'schedule.yearly_one': 'Her {{count}} yıl',
+  'schedule.yearly_other': 'Her {{count}} yıl',
+  csv_separator: 'CSV ayırıcı',
+  open_source_cmms: 'Açık kaynaklı CMMS',
+  'main.title': 'Ücretsiz açık kaynaklı CMMS (bakım yönetimi yazılımı)',
+  'home.h1':
+    'Kendi sunucunuzda barındırabileceğiniz veya bulutta kullanabileceğiniz ücretsiz ve açık kaynaklı CMMS',
+  'home.h2': 'Düşük Maliyetle Güçlü Bakım',
+  'home.h3':
+    'Elektronik tablolara ve beyaz tahtalara güvenmeyi bırakın. {{brandName}}, bakım ekiplerinin müdahaleleri planlamasına, ekipmanları takip etmesine ve uyumlu kalmasına yardımcı olur. Kendi sunucunuzda barındırın veya bulutta anında başlayın.',
+  talk_to_sales: 'Satışla konuşun',
+  'pricing.choose_plan_and_get_started': 'Planınızı seçin ve başlayın.',
+  'pricing.slogan_effective_maintenance':
+    'Yazılımımız, Bakım ve Güvenilirlik ekiplerine operasyonları verimli ve etkili bir şekilde yürütmek için ihtiyaç duydukları araçları sağlar.',
+  'pricing.compare_plans_and_pricing': 'Planları ve Fiyatları Karşılaştırın',
+  'pricing.see_which_plan_is_right_for_you':
+    'Hangi planın size uygun olduğunu görün.',
+  'pricing.select_two_plans_to_compare': 'Karşılaştırmak için 2 plan seçin.',
+  'pricing.select_three_plans_to_compare': 'Karşılaştırmak için 3 plan seçin.',
+  'pricing.month_per_user': 'kullanıcı başına aylık',
+  'pricing.year_per_user': 'kullanıcı başına yıl',
+  'pricing.plan_basic_name': 'Temel',
+  'pricing.plan_basic_description':
+    'Ekipler, varlıkları takip etmek ve prosedürlerle temel önleyici bakım programları oluşturmak istiyor.',
+  'pricing.feature_unlimited_work_orders': 'Sınırsız iş emri',
+  'pricing.feature_custom_tasks': 'Özel görevler',
+  'pricing.feature_unlimited_request_user_licenses':
+    'Sınırsız Kullanıcı Lisansı Talebi',
+  'pricing.plan_starter_name': 'Başlangıç',
+  'pricing.plan_starter_description':
+    'Ekipler, makine durumu ve iş gücü görünürlüğü yoluyla verimli ve güçlü önleyici bakım sistemleri kurmayı hedefliyor.',
+  'pricing.feature_everything_in_basic_plus':
+    'Temel paketin tüm özelliklerine ek olarak:',
+  'pricing.feature_preventive_maintenance_recurring_work_orders':
+    'Önleyici Bakım/Tekrarlayan İş Emirleri',
+  'pricing.feature_custom_checklists': 'Özel Kontrol Listeleri',
+  'pricing.feature_inventory_management_costing':
+    'Envanter yönetimi/Maliyetlendirme',
+  'pricing.feature_time_and_manpower_tracking': 'Zaman ve İşgücü Takibi',
+  'pricing.feature_thirty_day_analytics_reporting':
+    '30 Günlük Analiz ve Raporlama',
+  'pricing.plan_professional_name': 'Profesyonel',
+  'pricing.plan_professional_description':
+    'Bakım süreçlerinde büyüme ve verimliliği artırmak için içgörülerden ve analitik verilerden yararlanması gereken departmanlar.',
+  'pricing.feature_everything_in_starter_plus':
+    'Başlangıç paketindeki her şeye ek olarak:',
+  'pricing.feature_multiple_inventory_lines': 'Çoklu Envanter Kalemleri',
+  'pricing.feature_customizable_request_portal':
+    'Özelleştirilebilir Talep Portalı',
+  'pricing.feature_mobile_offline_mode': 'Mobil Çevrimdışı Modu',
+  'pricing.feature_advanced_analytics_reporting':
+    'Gelişmiş Analitik ve Raporlama',
+  'pricing.plan_business_name': 'İşletme',
+  'pricing.plan_business_description':
+    'Organizasyonlar, birden fazla lokasyonu yönetmek ve sistem özelleştirmesi yapmak için bakım ve operasyon verilerini toplamaya hazır.',
+  'pricing.feature_everything_in_professional_plus':
+    'Professional Plus paketindeki her şey:',
+  'pricing.feature_purchase_order_management': 'Satın Alma Siparişi Yönetimi',
+  'pricing.feature_multi_site_module_support': 'Çoklu Site Modülü Desteği',
+  'pricing.feature_custom_work_order_statuses': 'Özel İş Emri Durumları',
+  'pricing.feature_custom_integrations_support': 'Özel Entegrasyon Desteği',
+  'pricing.feature_work_order_management': 'İş Emri Yönetimi',
+  'pricing.feature_recurring_work_orders': 'Tekrarlayan İş Emirleri',
+  'pricing.feature_custom_categories': 'Özel Kategoriler',
+  'pricing.feature_data_importing': 'Veri İçe Aktarma',
+  'pricing.feature_time_and_cost_tracking': 'Zaman ve Maliyet Takibi',
+  'pricing.feature_work_order_configuration': 'İş Emri Yapılandırması',
+  'pricing.feature_internal_requests': 'Dahili Talepler',
+  'pricing.feature_external_request_portal': 'Harici Talep Portalı',
+  'pricing.category_locations_assets_parts': 'Konumlar, Varlıklar ve Parçalar',
+  'pricing.feature_location_management': 'Konum Yönetimi',
+  'pricing.feature_barcode_scanning': 'Barkod Tarama',
+  'pricing.feature_inventory_management': 'Envanter Yönetimi',
+  'pricing.feature_custom_asset_statuses': 'Özel Varlık Durumları',
+  'pricing.feature_asset_downtime_tracking': 'Varlık Arıza Süresi Takibi',
+  'pricing.feature_asset_depreciation_tracking': 'Varlık Amortisman Takibi',
+  'pricing.feature_asset_warranty_tracking': 'Varlık Garanti Takibi',
+  'pricing.feature_purchase_orders_management': 'Satın Alma Siparişleri',
+  'pricing.feature_asset_check_in_out': 'Varlık Giriş/Çıkış İşlemi',
+  'pricing.category_mobile_offline': 'Mobil Çevrimdışı',
+  'pricing.feature_work_order_availability': 'İş Emri Kullanılabilirliği',
+  'pricing.feature_updating_status': 'Durum Güncelleniyor',
+  'pricing.feature_updating_tasks': 'Güncelleme Görevleri',
+  'pricing.feature_work_order_drafts': 'İş Emri Taslakları',
+  'pricing.feature_full_drill_down_reporting_history':
+    'Detaylı Raporlama ve Geçmiş Verileri',
+  'pricing.period_thirty_days': '30 Gün',
+  'pricing.period_full': 'Tam dolu',
+  'pricing.feature_pdf_csv_exporting': 'PDF ve CSV Dışa Aktarma',
+  'pricing.feature_itemized_time_reporting': 'Ayrıntılı Zaman Raporlaması',
+  'pricing.feature_user_login_reports': 'Kullanıcı Giriş Raporları',
+  'pricing.feature_parts_consumption_reports': 'Parça Tüketim Raporları',
+  'pricing.feature_asset_downtime_reports': 'Varlık Arıza Süreleri Raporları',
+  'pricing.feature_equipment_reliability_reports':
+    'Ekipman Güvenilirlik Raporları',
+  'pricing.feature_multi_site_modules': 'Çoklu lokasyonlu modüller',
+  'pricing.category_integrations': 'Entegrasyonlar',
+  'pricing.feature_business_integrations':
+    'İş Entegrasyonları (SAP/Oracle/Nedensel Yapay Zeka...)',
+  'pricing.feature_custom_integrations': 'Özel Entegrasyonlar',
+  'pricing.feature_unlimited_view_only_users':
+    'Sınırsız Sadece Görüntüleme Kullanıcısı',
+  'pricing.feature_unlimited_requesters': 'Sınırsız Talep Edenler',
+  'pricing.feature_unlimited_vendors': 'Sınırsız Satıcı',
+  'pricing.feature_unlimited_customers': 'Sınırsız Müşteri',
+  'pricing.category_support': 'Destek',
+  'pricing.feature_daily_email_digest': 'Günlük E-posta Özeti',
+  'pricing.feature_articles': 'Makaleler',
+  'pricing.feature_training_webinars': 'Eğitim Web Seminerleri',
+  'pricing.feature_community_support_discord': 'Topluluk Desteği (Discord)',
+  'pricing.feature_email_support': 'E-posta Desteği',
+  'pricing.feature_chat_phone_support': 'Sohbet/Telefon Desteği',
+  'pricing.feature_priority_support': 'Öncelikli Destek',
+  'pricing.feature_implementation_training': 'Uygulama ve Eğitim',
+  'pricing.feature_dedicated_account_manager': 'Özel Müşteri Temsilcisi',
+  'pricing.category_customization': 'Özelleştirme',
+  'pricing.feature_custom_development': 'Özel geliştirme',
+  'pricing.sh_plan_basic_name': 'Temel',
+  'pricing.sh_plan_basic_description':
+    'Kendi altyapıları üzerinde tam veri egemenliğine ve temel bakım takibine ihtiyaç duyan küçük ekipler için.',
+  'pricing.sh_feature_core_work_order_management': 'Temel İş Emri Yönetimi',
+  'pricing.sh_feature_asset_inventory_tracking': 'Varlık ve Stok Takibi',
+  'pricing.sh_feature_local_data_storage': 'Yerel Veri Depolama',
+  'pricing.sh_plan_professional_name': 'Profesyonel',
+  'pricing.sh_plan_professional_description':
+    'Gelişmiş kontrol listeleri, iş akışları ve daha derin sistem entegrasyonu gerektiren bitkilerin yetiştirilmesi için idealdir.',
+  'pricing.sh_feature_everything_in_basic_plus':
+    'Temel paketin tüm özelliklerine ek olarak:',
+  'pricing.sh_feature_unlimited_assets_checklists':
+    'Sınırsız Varlıklar/Kontrol Listeleri',
+  'pricing.sh_feature_nfc_barcode_scanning': 'NFC ve Barkod Tarama',
+  'pricing.sh_feature_email_support': 'E-posta Desteği',
+  'pricing.sh_plan_business_name': 'İşletme',
+  'pricing.sh_plan_business_description':
+    'Çoklu örnek yönetimi, özel marka kimliği ve üst düzey güvenlik gerektiren tam ölçekli operasyonlar.',
+  'pricing.sh_feature_everything_in_professional_plus':
+    'Professional Plus paketindeki her şey:',
+  'pricing.sh_feature_multi_instance_management': 'Çoklu Örnek Yönetimi',
+  'pricing.sh_feature_custom_user_roles': 'Özel Kullanıcı Rolleri',
+  'pricing.sh_feature_priority_implementation_support':
+    'Öncelikli Uygulama Desteği',
+  'pricing.faq_free_users_q':
+    'Hangi kullanıcı türleri ücretsiz kullanıcı olarak kabul edilir?',
+  'pricing.faq_free_users_a1':
+    'Ücretli lisans gerektirmeyen üç kullanıcı türü vardır:',
+  'pricing.faq_view_only_users_title': 'Yalnızca Kullanıcıları Görüntüle',
+  'pricing.faq_view_only_users_description':
+    'Bu kullanıcılar genellikle bakım faaliyetlerinin anlık görüntüsünü görmek için nadiren giriş yapan yöneticilerdir. Ayrıca iş talepleri gönderebilir ve raporlar çalıştırabilirler.',
+  'pricing.faq_requester_users_title': 'Talep Eden Kullanıcılar',
+  'pricing.faq_requester_users_description':
+    "Bu kullanıcılar yalnızca iş talepleri gönderebilir ve bu taleplerin durumunu görüntüleyebilirler. CMMS'de depolanan iş emirlerini, varlıkları, parçaları veya diğer verileri göremezler.",
+  'pricing.faq_third_party_users_title': 'Üçüncü Taraf Kullanıcılar',
+  'pricing.faq_third_party_users_description':
+    'Bu kullanıcılar genellikle tedarikçiler ve yüklenicilerdir. Sisteme fiilen giriş yapamazlar. Sadece herkese açık bir bağlantı aracılığıyla etiketlendikleri belirli bir iş emrine güncelleme gönderebilirler.',
+  'pricing.faq_paid_users_q':
+    'Hangi kullanıcı türleri ücretli kullanıcı olarak kabul edilir?',
+  'pricing.faq_paid_users_a1':
+    'Ücretli lisans gerektiren üç kullanıcı türü vardır:',
+  'pricing.faq_admin_users_title': 'Yönetici Kullanıcılar',
+  'pricing.faq_admin_users_description':
+    'Bu kullanıcılar hesaba başkalarını ekleme, iş taleplerini kabul etme veya reddetme ve iş emri ayrıntılarını düzenleme yeteneğine sahiptir. Hesabı kontrol eden kullanıcılar onlardır. Her hesap için birden fazla yönetici olabilir.',
+  'pricing.faq_technical_users_title': 'Teknik Kullanıcılar',
+  'pricing.faq_technical_users_description':
+    'Bu kullanıcılar genellikle sahada iş emirlerini kapatan teknisyenlerdir. Oluşturdukları iş emirlerini düzenleyebilirler ancak diğer iş emirlerini düzenleyemezler. İş emirlerine resim ve durum güncellemeleri ekleyebilir ve yeni iş emirleri oluşturabilirler.',
+  'pricing.faq_limited_technical_users_title': 'Sınırlı Teknik Kullanıcılar',
+  'pricing.faq_limited_technical_users_description':
+    'Bu kullanıcılar, teknik kullanıcıyla aynı ayrıcalıklara sahiptir. Tek istisna, yalnızca kendilerine atanmış iş emirlerini görebilmeleridir; hesaptaki diğer teknik kullanıcıların iş emirlerini göremezler.',
+  'pricing.faq_change_plans_q': 'Planlarımı daha sonra değiştirebilir miyim?',
+  'pricing.faq_change_plans_a':
+    'Evet, planınızı istediğiniz zaman yükseltebilir veya düşürebilirsiniz. Değişiklikler bir sonraki faturalama döneminizin başında yürürlüğe girer.',
+  'pricing.faq_free_trial_q': 'Ücretsiz deneme sürümü var mı?',
+  'pricing.faq_free_trial_a':
+    'Evet, karar vermeden önce tüm özellikleri deneyimleyebilmeniz için İşletme planının 15 günlük ücretsiz deneme sürümünü sunuyoruz.',
+  'pricing.faq_non_profit_discounts_q':
+    'Kâr amacı gütmeyen kuruluşlara indirim uyguluyor musunuz?',
+  'pricing.faq_non_profit_discounts_a':
+    'Evet, kar amacı gütmeyen kuruluşlar için özel fiyatlandırma sunuyoruz. Daha fazla bilgi için lütfen satış ekibimizle iletişime geçin.',
+  'pricing.faq_payment_methods_q':
+    'Hangi ödeme yöntemlerini kabul ediyorsunuz?',
+  'pricing.faq_payment_methods_a':
+    "Başlıca tüm kredi kartlarını, banka havalelerini ve PayPal'ı kabul ediyoruz. Kurumsal planlar için faturalama da düzenleyebiliriz.",
+  'pricing.faq_cancel_subscription_q': 'Aboneliğimi iptal edebilir miyim?',
+  'pricing.faq_cancel_subscription_a':
+    'Evet, aboneliğinizi istediğiniz zaman iptal edebilirsiniz. Mevcut faturalama döneminizin sonuna kadar erişiminiz devam edecektir.',
+  'pricing.faq_data_secure_q': 'Verilerim güvende mi?',
+  'pricing.faq_data_secure_a':
+    'Evet, veri güvenliğini çok ciddiye alıyoruz. Tüm veriler iletim sırasında ve depolanırken şifrelenir ve düzenli güvenlik denetimleri gerçekleştiriyoruz.',
+  'pricing.faq_title': 'Sıkça Sorulan Sorular',
+  'pricing.annually_save_two_months': 'Yıllık (2 ay tasarruf edin)',
+  'pricing.most_popular': 'En Popüler',
+  'pricing.get_your_license': 'Ehliyetinizi alın',
+  get_started: 'Başlayın',
+  workflow_automation: 'İş Akışı Otomasyonu',
+  push_notifications: 'Anlık Bildirimler',
+  cloud: 'Bulut',
+  self_hosted: 'Kendi Sunucunuzda Barındırın',
+  full: 'Tam dolu',
+  pricing: 'Fiyatlandırma',
+  industries: 'Sektörler',
+  work_order_management: 'İş Emri Yönetimi',
+  inventory_management: 'Envanter Yönetimi',
+  analytics_and_reporting: 'Analiz ve Raporlama',
+  manufacturing: 'İmalat',
+  facility_management: 'Tesis Yönetimi',
+  food_and_beverage: 'Yiyecek ve İçecek',
+  healthcare: 'Sağlık Hizmetleri',
+  energy_and_utilities: 'Enerji ve Kamu Hizmetleri',
+  education: 'Eğitim',
+  hospitality: 'Otelcilik ve Konaklama',
+  construction: 'İnşaat',
+  trusted_by_maintenance_teams:
+    'Birden fazla sektörde bakım ekipleri tarafından güvenilmektedir',
+  cut_costs_performance:
+    'Performanstan ödün vermeden bakım yazılımı maliyetlerini düşürün',
+  'free_cmms.title': 'Atlas Ücretsiz CMMS Yazılımı | Kredi kartı gerekmez',
+  'free_cmms.description':
+    'Ücretsiz CMMS yazılımı — deneme sürümü değil. Bakım, varlık ve iş emirlerini anında yönetin. Kredi kartı gerekmez.',
+  'free_cmms.keywords':
+    'ücretsiz cmms, bakım yönetim yazılımı, ücretsiz iş emri yazılımı, varlık takibi, önleyici bakım',
+  'overview.description':
+    "Atlas CMMS, iş emirlerini, önleyici bakımı, varlıkları ve tesisleri yönetmek için ücretsiz, açık kaynaklı bir CMMS'dir. Bakım operasyonlarınızı bugün kolaylaştırın.",
+  'overview.keywords':
+    'CMMS, bilgisayarlı bakım yönetim sistemi, EAM, kurumsal varlık yönetimi, açık kaynaklı CMMS, ücretsiz bakım yazılımı, iş emri yönetimi, önleyici bakım, varlık takibi, tesis yönetimi, bakım takip yazılımı, ekipman bakımı, Atlas CMMS',
+  'pricing.title': 'Fiyatlandırma - Atlas CMMS',
+  'pricing.description':
+    "Atlas CMMS için esnek fiyatlandırma planları. Bakım operasyonlarınızı optimize etmek için açık kaynaklı CMMS'mizin Bulut ve Kendi Sunucunuzda Barındırılan sürümleri arasından seçim yapın.",
+  'free_cmms.hero.subtitle': 'Ücretsiz CMMS Yazılımı',
+  'free_cmms.hero.title':
+    'İş Emirlerini ve Varlıkları Yönetin - Sonsuza Kadar Ücretsiz',
+  'free_cmms.hero.description':
+    'Elektronik tablolar ve güncelliğini yitirmiş araçlarla uğraşmayı bırakın. Modern bir CMMS yazılımına ücretsiz geçin.',
+  'free_cmms.hero.start_free': 'Şimdi Ücretsiz Başlayın',
+  'free_cmms.hero.work_orders_alt': 'İş Emirleri',
+  'free_cmms.hero.mobile_app_alt': 'Mobil Uygulama',
+  'free_cmms.features.work_orders.title': 'Zahmetsiz İş Emirleri',
+  'free_cmms.features.work_orders.p1':
+    'Saniyeler içinde iş emirleri oluşturun, atayın ve takip edin.',
+  'free_cmms.features.work_orders.p2':
+    'Herhangi bir göreve fotoğraf, kılavuz ve kontrol listesi ekleyin.',
+  'free_cmms.features.work_orders.p3':
+    'Anlık durum güncellemeleriyle ilerlemeyi gerçek zamanlı olarak izleyin.',
+  'free_cmms.features.work_orders.alt': 'İş Emri Yönetimi',
+  'free_cmms.features.asset_tracking.title': 'Varlık Yaşam Döngüsü Takibi',
+  'free_cmms.features.asset_tracking.p1':
+    'Her varlığın eksiksiz bir dijital geçmişini tutun.',
+  'free_cmms.features.asset_tracking.p2':
+    'Onarım veya değiştirme konusunda veriye dayalı kararlar verin.',
+  'free_cmms.features.asset_tracking.p3':
+    'Otomatik uyumluluk günlükleriyle denetime hazır kalın.',
+  'free_cmms.features.asset_tracking.alt': 'Varlık Yönetimi',
+  'free_cmms.features.inventory.title': 'Envanter ve Parçalar',
+  'free_cmms.features.inventory.p1':
+    'Birden fazla konumdaki stok seviyelerini gerçek zamanlı olarak takip edin.',
+  'free_cmms.features.inventory.p2':
+    'Anında parça sorgulama ve kullanım için QR kodlarını tarayın.',
+  'free_cmms.features.inventory.p3':
+    'Otomatik düşük stok uyarıları alın ve anında yeniden sipariş verin.',
+  'free_cmms.features.inventory.alt': 'Envanter Yönetimi',
+  'free_cmms.features.mobile.title': 'Hareket Halinde Bakım',
+  'free_cmms.features.mobile.p1':
+    'iOS ve Android için tam mobil uygulama işlevselliği.',
+  'free_cmms.features.mobile.p2':
+    'Doğrudan sahadan fotoğraf çekin ve barkodları tarayın.',
+  'free_cmms.features.mobile.p3':
+    'Verileri anında senkronize edin ve gerektiğinde çevrimdışı çalışın.',
+  'free_cmms.features.mobile.alt': 'Mobil CMMS Uygulaması',
+  'free_cmms.features.get_started_free': 'Ücretsiz başlayın',
+  'free_cmms.features.ready_to_optimize':
+    'Bakımınızı optimize etmeye hazır mısınız?',
+  'free_cmms.features.join_thousands':
+    "Dünyanın en sezgisel ücretsiz CMMS'sini kullanan binlerce bakım uzmanına katılın.",
+  'free_cmms.features.get_started_no_card':
+    'Ücretsiz başlayın - Kredi kartı gerekmez',
+  create_request_portal: 'Talep Portalı Oluştur',
+  edit_request_portal: 'Talep Portalını Düzenle',
+  welcome_message: 'Hoş Geldiniz Mesajı',
+  fields: 'Alanlar',
+  field_settings: 'Alan Ayarları',
+  contact: 'İletişim',
+  required_title: 'Başlık gereklidir',
+  untitled_portal: 'Başlıksız Portal',
+  no_welcome_message: 'Hoş geldiniz mesajı yok',
+  request_portal_create_success: 'Talep Portalı başarıyla oluşturuldu',
+  request_portal_edit_success: 'Talep Portalı başarıyla güncellendi',
+  request_portal_delete_success: 'Talep Portalı başarıyla silindi',
+  request_portal_create_failure: 'Talep Portalı oluşturulamadı',
+  request_portal_edit_failure: 'Talep Portalı güncellenemedi',
+  request_portal_delete_failure: 'Talep Portalı silinemedi',
+  no_access_request_portals: 'Talep Portallarına erişiminiz yok',
+  'noRows.request_portal.message':
+    'Henüz hiç Talep Portalınız yok gibi görünüyor.',
+  'noRows.request_portal.action': 'İlk Talep Portalınızı oluşturun',
+  request_title: 'Talep başlığı',
+  configure_form_fields: 'Form alanlarını yapılandır',
+  allow_selection_from_all_locations: 'Tüm konumlardan seçime izin ver',
+  allow_selection_from_all_assets: 'Tüm varlıklardan seçime izin ver',
+  restrict_to_a_specific_location: 'Belirli bir konumla sınırla',
+  restrict_to_a_specific_asset: 'Belirli bir varlıkla sınırla',
+  portal_public_asset_warning:
+    'Bu portal herkese açıktır ve kimlik doğrulama gerektirmez. Listelenen varlıklar, bağlantıya sahip olan herkes tarafından görülebilir.',
+  portal_public_location_warning:
+    'Bu portal herkese açıktır ve kimlik doğrulama gerektirmez. Listelenen konumlar, bağlantıya sahip olan herkes tarafından görülebilir.',
+  submit_request: 'Talep gönder',
+  share_portal: 'Portalı Paylaş',
+  get_portal_link: 'Portal Bağlantısını Al',
+  portal_link_description:
+    'Yalnızca bu bağlantıya sahip kişiler portala erişebilir.',
+  print_qr_code: 'QR Kodunu Yazdır',
+  qr_code_description:
+    'QR kodunu indirin ve tesislere yapıştırın, böylece kullanıcılar kodu tarayarak portala erişebilir.',
+  copied: 'Kopyalandı!',
+  copy: 'Kopyala',
+  download: 'İndir',
+  share: 'Paylaş',
+  delete: 'Sil',
+  portal_not_found: 'Portal bulunamadı',
+  request_submitted_success: 'Talebiniz başarıyla gönderildi',
+  request_submit_failure: 'Talep gönderilemedi. Lütfen tekrar deneyin.',
+  required_description: 'Açıklama gereklidir',
+  required_contact: 'İletişim gereklidir',
+  required_location: 'Konum gereklidir',
+  upload_files: 'Dosyaları Yükle',
+  request_portal: 'Talep Portalı',
+  required_image: 'Görsel gereklidir',
+  requested_from_portal: 'Bu talep portaldan oluşturuldu: ',
+  request_portals: 'Talep Portalları',
+  recaptcha_failed: 'reCAPTCHA doğrulaması başarısız. Lütfen tekrar deneyin.',
+  select_date_range: 'Tarih aralığını seçin',
+  get_mobile_app: 'Mobil Uygulamayı Edinin',
+  scan_qr_to_download: 'Mobil uygulamayı indirmek için QR kodunu tarayın',
+  integrations: 'Entegrasyonlar',
+  api_keys: 'API Anahtarları',
+  connectors: 'Bağlayıcılar',
+  webhooks: 'Webhooklar',
+  create_api_key: 'API Anahtarı Oluştur',
+  api_key_label: 'API Anahtarı Etiketi',
+  api_key_created_success: 'API Anahtarı başarıyla oluşturuldu',
+  api_key_code_copied: 'API Anahtarı kodu panoya kopyalandı',
+  api_key_code_view_once:
+    'Bu kod yalnızca bir kez görüntülenebilir. Lütfen şimdi kopyalayın, çünkü daha sonra göremeyeceksiniz.',
+  api_key_code: 'API Anahtarı Kodu',
+  copy_code: 'Kodu Kopyala',
+  last_used: 'Son Kullanım',
+  never: 'Hiçbir Zaman',
+  delete_api_key: 'API Anahtarını Sil',
+  delete_api_key_confirm:
+    'Bu API anahtarını silmek istediğinizden emin misiniz?',
+  upgrade_api: 'API, bağlayıcılar ve webhooklara erişmek için yükseltin',
+  comments: 'Yorumlar',
+  add_comment_placeholder: 'Yorum ekle...',
+  post_comment: 'Yorum Gönder',
+  no_comments: 'Henüz yorum yok',
+  confirm_delete_comment: 'Bu yorumu silmek istediğinizden emin misiniz?'
 };
 
 export default trJSON;

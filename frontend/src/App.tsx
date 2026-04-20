@@ -15,7 +15,10 @@ import {
   customLogoPaths,
   googleTrackingId,
   IS_LOCALHOST,
-  isWhiteLabeled
+  isCloudVersion,
+  isWhiteLabeled,
+  PADDLE_SECRET_TOKEN,
+  paddleEnvironment
 } from './config';
 import { useEffect, useState } from 'react';
 import { CompanySettingsProvider } from './contexts/CompanySettingsContext';
@@ -23,6 +26,12 @@ import { getLicenseValidity } from './slices/license';
 import { useDispatch, useSelector } from './store';
 import { useBrand } from './hooks/useBrand';
 import { useTranslation } from 'react-i18next';
+import { UtmTrackerProvider } from '@nik0di3m/utm-tracker-hook';
+import { useLicenseEntitlement } from './hooks/useLicenseEntitlement';
+import { initializePaddle } from '@paddle/paddle-js';
+import { loadLanguage, supportedLanguages } from './i18n/i18n';
+import MobileAppDownloadDialog from './components/MobileAppDownloadDialog';
+import { useMobileAppPrompt } from './hooks/useMobileAppPrompt';
 
 if (!IS_LOCALHOST && googleTrackingId) ReactGA.initialize(googleTrackingId);
 
@@ -51,14 +60,59 @@ const DemoAlert = () => {
   );
 };
 
+const DemoCleaningAlert = () => {
+  const { isInitialized, company, isAuthenticated, user } = useAuth();
+  const { t } = useTranslation();
+  const userCreatedAt = new Date(user?.createdAt);
+  const [show, setShow] = useState<boolean>(true);
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  if (
+    isCloudVersion &&
+    isAuthenticated &&
+    user?.ownsCompany &&
+    show &&
+    userCreatedAt > sevenDaysAgo &&
+    !localStorage.getItem('demoDataCleaningHint')
+  )
+    return (
+      <Alert
+        onClose={() => {
+          setShow(false);
+          localStorage.setItem('demoDataCleaningHint', 'shown');
+        }}
+        sx={{
+          position: 'fixed',
+          bottom: 10,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1000,
+          width: '50%'
+        }}
+        severity="info"
+      >
+        {t('You can delete demo data from General Settings')}
+      </Alert>
+    );
+  return null;
+};
 function App() {
   const content = useRoutes(router);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { logo } = useBrand();
   const { isInitialized, company, isAuthenticated, user } = useAuth();
-  const { isLicenseValid } = useSelector((state) => state.license);
+  const { state: licensingState } = useSelector((state) => state.license);
+  const hasBrandingEntitlement = useLicenseEntitlement('BRANDING');
+  const { i18n } = useTranslation();
   let location = useLocation();
+  const { shouldShowPrompt, dismissPrompt } = useMobileAppPrompt();
+
+  useEffect(() => {
+    loadLanguage(i18n.language || 'en');
+  }, [i18n.language]);
+
   useEffect(() => {
     if (!IS_LOCALHOST && googleTrackingId)
       ReactGA.send({
@@ -93,11 +147,11 @@ function App() {
   }, [user, isInitialized, isAuthenticated, location]);
 
   useEffect(() => {
-    if (isWhiteLabeled) dispatch(getLicenseValidity());
+    dispatch(getLicenseValidity());
   }, []);
 
   useEffect(() => {
-    if (customLogoPaths && isLicenseValid) {
+    if (customLogoPaths && hasBrandingEntitlement) {
       let link: HTMLLinkElement = document.querySelector("link[rel~='icon']");
       if (!link) {
         link = document.createElement('link');
@@ -106,28 +160,53 @@ function App() {
       }
       link.href = logo.dark;
     }
-  }, [logo.dark, isLicenseValid]);
+  }, [logo.dark, hasBrandingEntitlement]);
+
+  useEffect(() => {
+    if (isCloudVersion) {
+      const referrer = document.referrer || '';
+      localStorage.setItem('referrerData', referrer);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isCloudVersion) {
+      if (user && !user.paddleUserId) return;
+      initializePaddle({
+        environment: paddleEnvironment,
+        token: PADDLE_SECRET_TOKEN,
+        pwCustomer: user ? { id: user.paddleUserId } : undefined
+      });
+    }
+  }, [user]);
 
   return (
-    <ThemeProvider>
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <SnackbarProvider
-          maxSnack={6}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right'
-          }}
-        >
-          <CustomSnackBarProvider>
-            <CompanySettingsProvider>
-              <CssBaseline />
-              {isInitialized ? content : <AppInit />}
-              {user && company?.demo && <DemoAlert />}
-            </CompanySettingsProvider>
-          </CustomSnackBarProvider>
-        </SnackbarProvider>
-      </LocalizationProvider>
-    </ThemeProvider>
+    <UtmTrackerProvider customParams={['msclkid', 'ref']}>
+      <ThemeProvider>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <SnackbarProvider
+            maxSnack={6}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right'
+            }}
+          >
+            <CustomSnackBarProvider>
+              <CompanySettingsProvider>
+                <CssBaseline />
+                {isInitialized ? content : <AppInit />}
+                {user && company?.demo && <DemoAlert />}
+                <DemoCleaningAlert />
+                <MobileAppDownloadDialog
+                  open={shouldShowPrompt}
+                  onClose={dismissPrompt}
+                />
+              </CompanySettingsProvider>
+            </CustomSnackBarProvider>
+          </SnackbarProvider>
+        </LocalizationProvider>
+      </ThemeProvider>
+    </UtmTrackerProvider>
   );
 }
 export default App;

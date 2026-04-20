@@ -44,8 +44,6 @@ export default function RegisterScreen({
       phone: '',
       password: '',
       companyName: '',
-      employeesCount: 5,
-      terms: false,
       submit: null
     };
     let shape = {
@@ -56,12 +54,8 @@ export default function RegisterScreen({
       firstName: Yup.string().max(255).required(t('required_firstName')),
       lastName: Yup.string().max(255).required(t('required_lastName')),
       companyName: Yup.string().max(255).required(t('required_company')),
-      employeesCount: Yup.number()
-        .min(0)
-        .required(t('required_employeesCount')),
       phone: Yup.string().matches(phoneRegExp, t('invalid_phone')),
-      password: Yup.string().min(8).max(255).required(t('required_password')),
-      terms: Yup.boolean().oneOf([true], t('required_terms'))
+      password: Yup.string().min(8).max(255).required(t('required_password'))
     };
     // if (role) {
     //   const keysToDelete = ['companyName', 'employeesCount'];
@@ -109,9 +103,19 @@ export default function RegisterScreen({
             setFieldValue
           }) => (
             <View>
+              <Text
+                style={[
+                  styles.requiredNotice,
+                  {
+                    color: theme.colors.onSurfaceVariant
+                  }
+                ]}
+              >
+                {t('required_fields_notice')}
+              </Text>
               <TextInput
                 error={Boolean(touched.firstName && errors.firstName)}
-                label={t('first_name')}
+                label={`${t('first_name')} *`}
                 onBlur={handleBlur('firstName')}
                 onChangeText={handleChange('firstName')}
                 value={values.firstName}
@@ -125,7 +129,7 @@ export default function RegisterScreen({
               </HelperText>
               <TextInput
                 error={Boolean(touched.lastName && errors.lastName)}
-                label={t('last_name')}
+                label={`${t('last_name')} *`}
                 onBlur={handleBlur('lastName')}
                 onChangeText={handleChange('lastName')}
                 value={values.lastName}
@@ -139,10 +143,11 @@ export default function RegisterScreen({
               </HelperText>
               <TextInput
                 error={Boolean(touched.email && errors.email)}
-                label={t('email')}
+                label={`${t('email')} *`}
                 onBlur={handleBlur('email')}
                 onChangeText={handleChange('email')}
                 value={values.email}
+                autoCapitalize="none"
                 mode="outlined"
               />
               <HelperText
@@ -167,9 +172,10 @@ export default function RegisterScreen({
               </HelperText>
               <TextInput
                 error={Boolean(touched.password && errors.password)}
-                label={t('password')}
+                label={`${t('password')} *`}
                 onBlur={handleBlur('password')}
                 onChangeText={handleChange('password')}
+                autoCapitalize="none"
                 value={values.password}
                 secureTextEntry={!showPassword}
                 right={
@@ -185,7 +191,7 @@ export default function RegisterScreen({
               </HelperText>
               <TextInput
                 error={Boolean(touched.companyName && errors.companyName)}
-                label={t('companyName')}
+                label={`${t('companyName')} *`}
                 onBlur={handleBlur('companyName')}
                 onChangeText={handleChange('companyName')}
                 value={values.companyName}
@@ -197,30 +203,18 @@ export default function RegisterScreen({
               >
                 {errors.companyName?.toString()}
               </HelperText>
-              <TextInput
-                error={Boolean(touched.employeesCount && errors.employeesCount)}
-                label={t('employeesCount')}
-                onBlur={handleBlur('employeesCount')}
-                onChangeText={handleChange('employeesCount')}
-                value={values.employeesCount}
-                mode="outlined"
-              />
-              <HelperText
-                type="error"
-                visible={Boolean(
-                  touched.employeesCount && errors.employeesCount
-                )}
+              <Button
+                color={theme.colors.primary}
+                onPress={() => handleSubmit()}
+                loading={isSubmitting}
+                disabled={isSubmitting}
+                mode="contained"
               >
-                {errors.employeesCount?.toString()}
-              </HelperText>
+                {t('create_your_account')}
+              </Button>
               <View style={styles.checkboxContainer}>
-                <Checkbox
-                  status={values.terms ? 'checked' : 'unchecked'}
-                  color={theme.colors.primary}
-                  onPress={(event) => setFieldValue('terms', !values.terms)}
-                />
                 <View style={styles.row}>
-                  <Text>{t('i_accept')}</Text>
+                  <Text>{`${t('i_accept').trim()}`}</Text>
                   <TouchableOpacity
                     onPress={() => {
                       Linking.canOpenURL(termsOfServiceUrl).then(
@@ -242,18 +236,6 @@ export default function RegisterScreen({
                   </TouchableOpacity>
                 </View>
               </View>
-              <HelperText type="error" visible={!!errors.terms}>
-                {errors.terms?.toString()}
-              </HelperText>
-              <Button
-                color={theme.colors.primary}
-                onPress={() => handleSubmit()}
-                loading={isSubmitting}
-                disabled={isSubmitting}
-                mode="contained"
-              >
-                {t('create_your_account')}
-              </Button>
             </View>
           )}
         </Formik>
@@ -286,11 +268,21 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginTop: 10
+  },
+  checkboxWrapper: {
+    borderRadius: 4,
+    marginRight: 8,
+    justifyContent: 'center',
     alignItems: 'center'
   },
   row: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center'
+  },
+  requiredNotice: {
+    marginBottom: 16
   }
 });

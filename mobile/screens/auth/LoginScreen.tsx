@@ -1,4 +1,4 @@
-import { Image, ScrollView, StyleSheet } from 'react-native';
+import { Image, Platform, ScrollView, StyleSheet } from 'react-native';
 import * as Yup from 'yup';
 import { View } from '../../components/Themed';
 import { AuthStackScreenProps } from '../../types';
@@ -6,13 +6,7 @@ import { Formik } from 'formik';
 import { useTranslation } from 'react-i18next';
 import useAuth from '../../hooks/useAuth';
 import { useContext, useState } from 'react';
-import {
-  Button,
-  HelperText,
-  Text,
-  TextInput,
-  useTheme
-} from 'react-native-paper';
+import { Button, HelperText, Text, TextInput } from 'react-native-paper';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import * as React from 'react';
 import { Asset } from 'expo-asset';
@@ -25,6 +19,7 @@ export default function LoginScreen({
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { login } = useAuth();
   const theme = useAppTheme();
+  const shouldShowRegistration = Platform.OS !== 'ios';
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const toggleShowPassword = () => setShowPassword((value) => !value);
 
@@ -36,7 +31,7 @@ export default function LoginScreen({
       >
         <Image
           style={{ height: 180, width: 180 }}
-          source={Asset.fromModule(require('../../assets/images/icon.png'))}
+          source={require('../../assets/images/icon.png')}
         />
         <Formik
           initialValues={{
@@ -85,6 +80,7 @@ export default function LoginScreen({
                 value={values.email}
                 mode="outlined"
                 style={{ marginBottom: 10 }}
+                autoCapitalize="none"
               />
               {Boolean(touched.email && errors.email) && (
                 <HelperText type="error">{errors.email?.toString()}</HelperText>
@@ -96,6 +92,7 @@ export default function LoginScreen({
                 onChangeText={handleChange('password')}
                 value={values.password}
                 secureTextEntry={!showPassword}
+                autoCapitalize="none"
                 right={
                   <TextInput.Icon onPress={toggleShowPassword} icon="eye" />
                 }
@@ -116,17 +113,23 @@ export default function LoginScreen({
               >
                 {t('login')}
               </Button>
-              <Text style={{ marginVertical: 20 }}>{t('no_account_yet')}</Text>
-              <Button
-                mode={'outlined'}
-                onPress={() => navigation.navigate('Register')}
-                style={{
-                  // @ts-ignore
-                  color: theme.colors.primary
-                }}
-              >
-                {t('register_here')}
-              </Button>
+              {shouldShowRegistration && (
+                <>
+                  <Text style={{ marginVertical: 20 }}>
+                    {t('no_account_yet')}
+                  </Text>
+                  <Button
+                    mode={'outlined'}
+                    onPress={() => navigation.navigate('Register')}
+                    style={{
+                      // @ts-ignore
+                      color: theme.colors.primary
+                    }}
+                  >
+                    {t('register_here')}
+                  </Button>
+                </>
+              )}
 
               <Button
                 mode={'text'}

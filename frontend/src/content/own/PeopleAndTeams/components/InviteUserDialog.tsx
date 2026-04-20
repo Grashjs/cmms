@@ -29,18 +29,20 @@ import { Simulate } from 'react-dom/test-utils';
 export default function InviteUserDialog({
   open,
   onClose,
-  onRefreshUsers
+  onRefreshUsers,
+  initialEmail
 }: {
   open: boolean;
   onClose: () => void;
   onRefreshUsers: () => void;
+  initialEmail?: string;
 }) {
   const [isInviteSubmitting, setIsInviteSubmitting] = useState(false);
   const [roleId, setRoleId] = useState<number>();
   const { t } = useTranslation();
   const [emails, setEmails] = useState<string[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const [currentEmail, setCurrentEmail] = useState<string>('');
+  const [currentEmail, setCurrentEmail] = useState<string>(initialEmail);
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { users, loadingGet, singleUser } = useSelector((state) => state.users);
   const dispatch = useDispatch();
@@ -176,7 +178,7 @@ export default function InviteUserDialog({
                 onClick={async () => {
                   setIsInviteSubmitting(true);
                   const invite = (emails: string[]) =>
-                    dispatch(inviteUsers(roleId, emails))
+                    dispatch(inviteUsers(roleId, emails, false))
                       .then(() => {
                         onClose();
                         setEmails([]);

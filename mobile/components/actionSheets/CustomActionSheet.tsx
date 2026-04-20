@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { Divider, List } from 'react-native-paper';
 import * as React from 'react';
 import { useRef } from 'react';
-import { IconSource } from 'react-native-paper/src/components/Icon';
+import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import ActionSheet, { ActionSheetRef } from 'react-native-actions-sheet';
 
 export interface CustomActionSheetOption {
@@ -31,14 +31,16 @@ export default function CustomActionSheet({ options }: CustomActionSheetProps) {
               <List.Item
                 key={index}
                 style={{ paddingHorizontal: 15 }}
-                titleStyle={{ color: entity.color }}
+                titleStyle={{ color: entity.color ?? 'black' }}
                 title={entity.title}
                 left={() => (
                   <List.Icon icon={entity.icon} color={entity.color} />
                 )}
-                onPress={() => {
-                  actionSheetRef.current.hide();
-                  entity.onPress();
+                onPress={async () => {
+                  await actionSheetRef.current?.hide();
+                  setTimeout(() => {
+                    entity.onPress();
+                  }, 250);
                 }}
               />
             ))}

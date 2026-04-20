@@ -25,7 +25,8 @@ export interface IField {
     | 'switch'
     | 'partQuantity'
     | 'coordinates'
-    | 'dateRange';
+    | 'dateRange'
+    | 'signature';
   type2?:
     | 'customer'
     | 'vendor'
@@ -48,7 +49,7 @@ export interface IField {
     | 'meter-categories'
     | 'part-categories'
     | 'asset-categories';
-  name?: string;
+  name: string;
   placeholder?: string;
   fileType?: 'file' | 'image';
   helperText?: string;

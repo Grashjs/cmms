@@ -6,26 +6,30 @@ import com.grash.dto.UserSignupRequest;
 import com.grash.dto.imports.*;
 import com.grash.model.Asset;
 import com.grash.model.Company;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.Language;
+import com.grash.security.CurrentUser;
 import com.grash.security.CustomUserDetail;
-import com.grash.service.AssetService;
-import com.grash.service.ImportService;
-import com.grash.service.RateLimiterService;
-import com.grash.service.UserService;
+import com.grash.service.*;
+import com.grash.utils.Helper;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.Parameter;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -35,6 +39,7 @@ import java.util.stream.StreamSupport;
 
 @RestController
 @RequestMapping("/demo")
+@Hidden
 @RequiredArgsConstructor
 public class DemoController {
 
@@ -42,39 +47,54 @@ public class DemoController {
     private final RateLimiterService rateLimiterService;
     private final ImportService importService;
     private final AssetService assetService;
+    private final DemoDataService demoDataService;
 
+    @Hidden
     @GetMapping("/generate-account")
     public SuccessResponse generateAccount(HttpServletRequest req) {
-        String clientIp = req.getRemoteAddr(); // use IP as the key
-        if (!rateLimiterService.resolveBucket(clientIp).tryConsume(1)) {
+        String clientIp = Helper.extractClientIp(req);
+        if (!rateLimiterService.resolveDemoBucket(clientIp).tryConsume(1)) {
             return new SuccessResponse(false, "Rate limit exceeded. Try again later.");
         }
-        UserSignupRequest userSignupRequest = new UserSignupRequest();
-        userSignupRequest.setFirstName("Demo");
-        userSignupRequest.setLastName("Account");
-        userSignupRequest.setEmail(UUID.randomUUID().toString().replace("-", "") + "@demo.com");
-        userSignupRequest.setPassword("demo1234");
-        userSignupRequest.setPhone(UUID.randomUUID().toString().replace("-", ""));
-        userSignupRequest.setCompanyName("Demo");
-        userSignupRequest.setLanguage(Language.EN);
-        userSignupRequest.setDemo(true);
-        SignupSuccessResponse<OwnUser> response = userService.signup(userSignupRequest);
+        try {
+            MailService.skipMail.set(true);
+            UserSignupRequest userSignupRequest = new UserSignupRequest();
+            userSignupRequest.setFirstName("Demo");
+            userSignupRequest.setLastName("Account");
+            userSignupRequest.setEmail(UUID.randomUUID().toString().replace("-", "") + "@demo.com");
+            userSignupRequest.setPassword("demo1234");
+            userSignupRequest.setPhone(UUID.randomUUID().toString().replace("-", ""));
+            userSignupRequest.setCompanyName("Demo");
+            userSignupRequest.setLanguage(Language.EN);
+            userSignupRequest.setDemo(true);
+            userSignupRequest.setSkipMailSending(true);
+            SignupSuccessResponse<User> response = userService.signup(userSignupRequest);
 
-        if (response.isSuccess()) {
-            OwnUser user = response.getUser();
-            CustomUserDetail customUserDetail =
-                    CustomUserDetail.builder().user(user).build();
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    customUserDetail,
-                    null,
-                    customUserDetail.getAuthorities()
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (response.isSuccess()) {
+                User user = response.getUser();
+                CustomUserDetail customUserDetail =
+                        CustomUserDetail.builder().user(user).build();
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                        customUserDetail,
+                        null,
+                        customUserDetail.getAuthorities()
+                );
+                SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            importDemoData(user.getCompany());
+                importDemoData(user.getCompany());
+            }
+
+            return new SuccessResponse(response.isSuccess(), response.getMessage());
+        } finally {
+            MailService.skipMail.set(false);
         }
+    }
 
-        return new SuccessResponse(response.isSuccess(), response.getMessage());
+    @DeleteMapping("/demo-data")
+    @PreAuthorize("permitAll()")
+    public SuccessResponse deleteDemoData(@Parameter(hidden = true) @CurrentUser User user) {
+        demoDataService.deleteDemoData(user.getCompany().getId());
+        return new SuccessResponse(true, "Demo data deleted successfully");
     }
 
     private void importDemoData(Company company) {
@@ -225,3 +245,4 @@ public class DemoController {
                 .build();
     }
 }
+

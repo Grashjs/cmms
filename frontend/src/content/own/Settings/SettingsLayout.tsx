@@ -16,16 +16,23 @@ function SettingsLayout() {
     { value: '', label: t('general_settings') },
     { value: 'work-order', label: t('wo_configuration') },
     { value: 'request', label: t('request_form_configuration') },
+    { value: 'request-portals', label: t('request_portals') },
     { value: 'roles', label: t('roles') },
     { value: 'checklists', label: t('checklists') },
     { value: 'workflows', label: t('workflows') },
-    { value: 'ui-configuration', label: t('ui_configuration') }
+    { value: 'ui-configuration', label: t('ui_configuration') },
+    { value: 'integrations', label: t('integrations') }
   ];
   
   // Determine the current tab index based on the URL path
   const getCurrentTabIndex = () => {
-    const path = location.pathname.split('/').pop();
-    const index = tabs.findIndex(tab => tab.value === path);
+    const pathSegments = location.pathname.split('/');
+    const lastSegment = pathSegments.pop();
+    // For nested integrations routes (api-keys, webhooks, connectors), map to 'integrations' tab
+    const parentSegment = lastSegment === 'connectors' || lastSegment === 'api-keys' || lastSegment === 'webhooks'
+      ? 'integrations'
+      : lastSegment;
+    const index = tabs.findIndex(tab => tab.value === parentSegment);
     return index >= 0 ? index : 0;
   };
   

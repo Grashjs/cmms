@@ -9,16 +9,18 @@ import {
 } from '../models/owns/page';
 import React from 'react';
 import { sameDay } from './dates';
+import { apiUrl, googleTrackingId, IS_LOCALHOST } from '../config';
+import ReactGA from 'react-ga4';
+import { UaEventOptions } from 'react-ga4/types/ga4';
+import api from './api';
 
 export const canAddReading = (meter: Meter): boolean => {
   if (!meter) {
     return false;
   }
   if (!meter.nextReading) return true;
-  return (
-    sameDay(new Date(), new Date(meter.nextReading)) &&
-    !sameDay(new Date(), new Date(meter.lastReading))
-  );
+
+  return new Date() >= new Date(meter.nextReading);
 };
 
 export const getImageAndFiles = (
@@ -30,10 +32,48 @@ export const getImageAndFiles = (
       ? { id: files.find((file) => file.type === 'IMAGE').id }
       : imageFallback ?? null,
     files: files
-      .filter((file) => file.type === 'OTHER')
+      .filter((file) => file.type !== 'IMAGE')
       .map((file) => {
         return { id: file.id };
       })
+  };
+};
+
+export interface FileUploadInput {
+  files: { id: number; type: FileType }[];
+  image: { id: number; type: FileType } | File[];
+}
+
+export interface FileUploadOutput {
+  image?: { id: number } | null;
+  files: Array<{ id: number }>;
+}
+
+export const handleFileUpload = async (
+  formattedValues: FileUploadInput,
+  uploadFiles: (
+    files: any[],
+    images: any[]
+  ) => Promise<{ id: number; type: FileType }[]>
+): Promise<FileUploadOutput> => {
+  const filesToUpload = formattedValues.files.filter((file) => !file.id);
+  const existingFiles = formattedValues.files.filter((file) => file.id);
+
+  const existingImage =
+    formattedValues.image && 'id' in formattedValues.image
+      ? formattedValues.image
+      : null;
+
+  const uploadedFiles = await uploadFiles(
+    filesToUpload,
+    existingImage ? [] : (formattedValues.image as File[])
+  );
+
+  const imageAndFiles = getImageAndFiles([...existingFiles, ...uploadedFiles]);
+
+  return {
+    image: existingImage || imageAndFiles.image,
+    files: imageAndFiles.files
   };
 };
 
@@ -125,4 +165,46 @@ export const onSearchQueryChange = <T>(
       }
     ];
   setCriteria({ ...criteria, filterFields: newFilterFields });
+};
+
+export const fireGa4Event = (
+  optionsOrName: UaEventOptions | string,
+  conversionKey?: string,
+  params?: any
+) => {
+  if (
+    !IS_LOCALHOST &&
+    googleTrackingId &&
+    (conversionKey ? !sessionStorage.getItem(conversionKey) : true)
+  ) {
+    // Fire GA4 event
+    ReactGA.event(optionsOrName, params);
+
+    // Fire UET event
+    //@ts-ignore
+    if (window.uetq) {
+      const eventName =
+        typeof optionsOrName === 'string'
+          ? optionsOrName
+          : optionsOrName.action || optionsOrName.category;
+      //@ts-ignore
+      window.uetq.push('event', eventName, params || {});
+    }
+
+    if (conversionKey) sessionStorage.setItem(conversionKey, 'true');
+  }
+};
+
+export const companyLogosAssets: string[] = [
+  '/static/images/industries/logos/adventure-mechanical.png',
+  '/static/images/industries/logos/sertec.png',
+  '/static/images/industries/logos/complete-am.png',
+  '/static/images/industries/logos/kwdc.png',
+  '/static/images/industries/logos/henalux.png',
+  '/static/images/industries/logos/penflex.png',
+  '/static/images/industries/logos/mfwaterwork.png'
+];
+
+export const onOpenApiDocs = async () => {
+  window.open(apiUrl + 'api-docs.html', '_blank');
 };

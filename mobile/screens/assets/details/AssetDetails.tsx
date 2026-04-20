@@ -42,7 +42,7 @@ export default function AssetDetails({
     { label: t('serial_number'), value: asset?.serialNumber },
     {
       label: t('status'),
-      value: asset?.status === 'OPERATIONAL' ? t('operational') : t('down')
+      value: t(asset?.status)
     },
     {
       label: t('acquisition_cost'),
@@ -52,6 +52,7 @@ export default function AssetDetails({
     },
     { label: t('area'), value: asset?.area },
     { label: t('barcode'), value: asset?.barCode },
+    { label: t('nfc_tag'), value: asset?.nfcId },
     {
       label: t('additional_information'),
       value: asset?.additionalInfos

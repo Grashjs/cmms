@@ -200,4 +200,29 @@ export const getPendingRequestsCount = (): AppThunk => async (dispatch) => {
 export const clearSingleRequest = (): AppThunk => async (dispatch) => {
   dispatch(slice.actions.clearSingleRequest({}));
 };
+
+export interface SubmitPublicRequestDTO {
+  title: string;
+  description?: string;
+  contact?: string;
+  location?: { id: number };
+  asset?: { id: number };
+  image?: { id: number };
+  files: { id: number }[];
+}
+
+export const submitPublicRequest =
+  (
+    uuid: string,
+    request: SubmitPublicRequestDTO,
+    recaptchaToken?: string
+  ): AppThunk =>
+  async (dispatch) => {
+    const requestResponse = await api.post<Request>(
+      `${basePath}/portal/${uuid}?recaptchaToken=${recaptchaToken}`,
+      request
+    );
+    return requestResponse as any;
+  };
+
 export default slice;

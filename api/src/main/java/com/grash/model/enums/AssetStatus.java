@@ -23,11 +23,12 @@ public enum AssetStatus {
     }
 
     public static AssetStatus getAssetStatusFromString(String string, Locale locale, MessageSource messageSource) {
+        AssetStatus defaultStatus = AssetStatus.OPERATIONAL;
         if (string == null) {
-            return null;
+            return defaultStatus;
         }
         return Arrays.stream(AssetStatus.values()).filter(assetStatus -> messageSource.getMessage(assetStatus.name(),
-                null, locale).equalsIgnoreCase(string.trim())).findFirst().orElse(null);
+                null, locale).equalsIgnoreCase(string.trim())).findFirst().orElse(defaultStatus);
     }
 
     private enum RealAssetStatus {
