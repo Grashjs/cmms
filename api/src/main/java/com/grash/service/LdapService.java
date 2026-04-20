@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.ldap.core.AttributesMapper;
+import org.springframework.ldap.core.ContextMapper;
+import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
@@ -82,6 +84,10 @@ public class LdapService {
     private boolean ldapSyncUpdate;
     @Value("${ldap.sync.disable:false}")
     private boolean ldapSyncDisable;
+
+    @Value("${ldap.ou-role-mappings:}")
+    private String ldapOuRoleMappings;
+
     @Autowired
     private UserService userService;
 
@@ -167,7 +173,8 @@ public class LdapService {
         user.setSsoProviderId(ldapUsername);
         user.setLastLogin(null);
 
-        user.setRole(getDefaultRoleForLdapUser());
+        List<String> userOus = getLdapUserOu(ldapUsername);
+        user.setRole(getRoleForOu(userOus));
 
         user.setCompany(company);
         return user;
@@ -264,6 +271,8 @@ public class LdapService {
 
             } else {
                 user.setLastLogin(new Date());
+                List<String> userOus = getLdapUserOu(ldapUsername);
+                user.setRole(getRoleForOu(userOus));
             }
 
             user = userRepository.save(user);
@@ -358,5 +367,77 @@ public class LdapService {
 
     public User findUserByLdapId(String ldapId) {
         return userRepository.findBySsoProviderIdAndSsoProvider(ldapId, "LDAP").orElse(null);
+    }
+
+    private List<String> getLdapUserOu(String username) {
+        try {
+            if (ldapTemplate == null || usernameAttr == null || objectClassAttr == null) {
+                return null;
+            }
+
+            AndFilter filter = new AndFilter();
+            filter.and(new EqualsFilter("objectClass", objectClassAttr));
+            filter.and(new EqualsFilter(usernameAttr, username));
+
+            List<String> dns = ldapTemplate.search(
+                    "", filter.encode(),
+                    (ContextMapper<String>) ctx -> {
+                        DirContextAdapter adapter = (DirContextAdapter) ctx;
+                        return adapter.getDn().toString();
+                    }
+            );
+
+            if (dns != null && !dns.isEmpty()) {
+                return extractOuFromDn(dns.get(0));
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    private List<String> extractOuFromDn(String dn) {
+        List<String> ous = new ArrayList<>();
+        if (dn == null || dn.isBlank()) {
+            return ous;
+        }
+        String[] parts = dn.split(",");
+        for (String part : parts) {
+            if (part.toLowerCase().startsWith("ou=")) {
+                ous.add(part.substring(3).trim());
+            }
+        }
+        return ous;
+    }
+
+    private Role getRoleForOu(List<String> ous) {
+        if (ldapOuRoleMappings == null || ldapOuRoleMappings.isBlank() || ous == null || ous.isEmpty()) {
+            return getDefaultRoleForLdapUser();
+        }
+        Map<String, String> mappings = parseOuRoleMappings();
+        for (String ou : ous) {
+            String roleCode = mappings.get(ou.toLowerCase());
+            if (roleCode != null && !roleCode.isBlank()) {
+                return roleService.findDefaultRoles().stream()
+                        .filter(role -> role.getCode().name().equalsIgnoreCase(roleCode))
+                        .findFirst()
+                        .orElse(getDefaultRoleForLdapUser());
+            }
+        }
+        return getDefaultRoleForLdapUser();
+    }
+
+    private Map<String, String> parseOuRoleMappings() {
+        Map<String, String> mappings = new HashMap<>();
+        if (ldapOuRoleMappings == null || ldapOuRoleMappings.isBlank()) {
+            return mappings;
+        }
+        String[] pairs = ldapOuRoleMappings.split("[|]");
+        for (String pair : pairs) {
+            String[] kv = pair.split("=");
+            if (kv.length == 2) {
+                mappings.put(kv[0].trim().toLowerCase(), kv[1].trim());
+            }
+        }
+        return mappings;
     }
 }
