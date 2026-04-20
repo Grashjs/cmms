@@ -142,6 +142,12 @@ ldap:
   org-admin: ${LDAP_ORG_ADMIN:}
   url: ${LDAP_URL:ldap://localhost:389}
   base-dn: ${LDAP_BASE_DN:}
+  sync:
+    enabled: ${LDAP_SYNC_ENABLED:true}
+    create: ${LDAP_SYNC_CREATE:true}
+    update: ${LDAP_SYNC_UPDATE:true}
+    disable: ${LDAP_SYNC_DISABLE:false}
+    cron: ${LDAP_SYNC_CRON:0 0 0,12 * * ?}
 
   user-search-bases: ${LDAP_USER_SEARCH_BASES:}
   user-search-filter: ${LDAP_USER_SEARCH_FILTER:(uid={0})}

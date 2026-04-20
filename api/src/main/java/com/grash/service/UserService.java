@@ -120,6 +120,135 @@ public class UserService {
     @Value("${ldap.attributes.object-class:inetOrgPerson}")
     private String objectClassAttr;
 
+    @Value("${ldap.sync.enabled:false}")
+    private boolean ldapSyncEnabled;
+    @Value("${ldap.sync.create:true}")
+    private boolean ldapSyncCreate;
+    @Value("${ldap.sync.update:true}")
+    private boolean ldapSyncUpdate;
+    @Value("${ldap.sync.disable:false}")
+    private boolean ldapSyncDisable;
+
+    @org.springframework.context.annotation.Profile("!test")
+    public void syncLdapUsers() {
+        if (!ldapSyncEnabled || ldapTemplate == null || ldapOrgAdmin == null || ldapOrgAdmin.isBlank()) {
+            return;
+        }
+
+        Company company = companyService.findByOwnerEmailAndOwnsCompany(ldapOrgAdmin)
+                .orElse(null);
+        if (company == null) {
+            return;
+        }
+
+        Set<String> ldapUsernames = new HashSet<>(fetchAllLdapUsernames());
+        Map<String, User> existingLdapUsersByProviderId = new HashMap<>();
+        Collection<User> existingUsers = userRepository.findByCompany_Id(company.getId());
+
+        for (User user : existingUsers) {
+            if (!"LDAP".equals(user.getSsoProvider()) || user.getSsoProviderId() == null) {
+                continue;
+            }
+            existingLdapUsersByProviderId.put(user.getSsoProviderId(), user);
+
+            if (!ldapUsernames.contains(user.getSsoProviderId())) {
+                if (ldapSyncDisable) {
+                    user.setEnabled(false);
+                    userRepository.save(user);
+                    cacheService.evictUserFromCache(user.getEmail());
+                }
+            }
+        }
+
+        for (String ldapUsername : ldapUsernames) {
+            if (existingLdapUsersByProviderId.containsKey(ldapUsername)) {
+                User user = existingLdapUsersByProviderId.get(ldapUsername);
+                if (ldapSyncUpdate) {
+                    Map<String, String> ldapDetails = getLdapUserDetailsByUsername(ldapUsername);
+                    boolean updated = false;
+                    if (ldapDetails.get("email") != null && !ldapDetails.get("email").equals(user.getEmail())) {
+                        user.setEmail(ldapDetails.get("email"));
+                        updated = true;
+                    }
+                    if (ldapDetails.get("firstName") != null && !ldapDetails.get("firstName").equals(user.getFirstName())) {
+                        user.setFirstName(ldapDetails.get("firstName"));
+                        updated = true;
+                    }
+                    if (ldapDetails.get("lastName") != null && !ldapDetails.get("lastName").equals(user.getLastName())) {
+                        user.setLastName(ldapDetails.get("lastName"));
+                        updated = true;
+                    }
+                    if (updated) {
+                        userRepository.save(user);
+                        cacheService.evictUserFromCache(user.getEmail());
+                    }
+                }
+                if (!user.isEnabled() && ldapSyncDisable) {
+                    user.setEnabled(true);
+                    userRepository.save(user);
+                }
+            } else {
+                if (ldapSyncCreate) {
+                    Map<String, String> ldapDetails = getLdapUserDetailsByUsername(ldapUsername);
+                    User newUser = getNewLdapUser(ldapUsername, company, ldapDetails);
+                    userRepository.save(newUser);
+                }
+            }
+        }
+    }
+
+    private User getNewLdapUser(String ldapUsername, Company company, Map<String, String> ldapDetails) {
+        User user = new User();
+        user.setUsername(utils.generateStringId());
+        user.setEmail(ldapDetails.get("email"));
+        user.setFirstName(ldapDetails.get("firstName"));
+        user.setLastName(ldapDetails.get("lastName"));
+        user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+        user.setEnabled(true);
+        user.setCreatedViaSso(true);
+        user.setSsoProvider("LDAP");
+        user.setSsoProviderId(ldapUsername);
+        user.setLastLogin(null);
+
+        Role defaultRole = roleService.findDefaultRoles().stream()
+                .filter(role -> role.getCode().equals(RoleCode.LIMITED_TECHNICIAN))
+                .findFirst()
+                .orElse(null);
+        if (defaultRole != null) {
+            user.setRole(defaultRole);
+        }
+
+        user.setCompany(company);
+        return user;
+    }
+
+    private List<String> fetchAllLdapUsernames() {
+        List<String> usernames = new ArrayList<>();
+        try {
+            EqualsFilter filter = new EqualsFilter("objectClass", objectClassAttr);
+            ldapTemplate.search("", filter.encode(),
+                    (AttributesMapper<String>) attrs -> {
+                        try {
+                            return attrs.get(usernameAttr) != null ? attrs.get(usernameAttr).get().toString() : null;
+                        } catch (Exception e) {
+                            return null;
+                        }
+                    }
+            ).forEach(username -> {
+                if (username != null) {
+                    usernames.add(username);
+                }
+            });
+        } catch (Exception e) {
+            // Return empty list on error
+        }
+        return usernames;
+    }
+
+    private Map<String, String> getLdapUserDetailsByUsername(String username) {
+        return extractLdapUserDetails(username);
+    }
+
 
     public String signin(String email, String password, String type) {
         try {
@@ -160,16 +289,10 @@ public class UserService {
 
             if (user == null) {
                 Map<String, String> ldapUserDetails = extractLdapUserDetails(ldapRequest.getUsername());
-                user = new User();
-                user.setUsername(utils.generateStringId());
-                user.setEmail(ldapUserDetails.get("email"));
-                user.setFirstName(ldapUserDetails.get("firstName"));
-                user.setLastName(ldapUserDetails.get("lastName"));
-                user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
-                user.setEnabled(true);
-                user.setCreatedViaSso(true);
-                user.setSsoProvider("LDAP");
-                user.setSsoProviderId(ldapRequest.getUsername());
+                Company company = companyService.findByOwnerEmailAndOwnsCompany(ldapOrgAdmin)
+                        .orElseThrow(() -> new CustomException("No company available for LDAP user",
+                                HttpStatus.INTERNAL_SERVER_ERROR));
+                user = getNewLdapUser(ldapRequest.getUsername(), company, ldapUserDetails);
                 user.setLastLogin(new Date());
 
                 Role defaultRole = roleService.findDefaultRoles().stream()
@@ -178,11 +301,6 @@ public class UserService {
                         .orElseThrow(() -> new CustomException("Default role not found",
                                 HttpStatus.INTERNAL_SERVER_ERROR));
                 user.setRole(defaultRole);
-
-                Company company = companyService.findByOwnerEmailAndOwnsCompany(ldapOrgAdmin)
-                        .orElseThrow(() -> new CustomException("No company available for LDAP user",
-                                HttpStatus.INTERNAL_SERVER_ERROR));
-                user.setCompany(company);
             } else {
                 user.setLastLogin(new Date());
             }
