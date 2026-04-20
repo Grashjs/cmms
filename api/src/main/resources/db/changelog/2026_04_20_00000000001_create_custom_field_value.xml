@@ -1,0 +1,79 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="createCustomFieldValueTable" author="Ibrahima">
+        <createTable tableName="custom_field_value">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="custom_field_id" type="BIGINT" remarks="Foreign key to custom_field">
+                <constraints nullable="false" foreignKeyName="fk_custom_field_value_field"
+                             references="custom_field(id)" deleteCascade="true"/>
+            </column>
+            <column name="value" type="TEXT" remarks="Value of the custom field"/>
+            <column name="work_order_id" type="BIGINT" remarks="Foreign key to work_order">
+                <constraints foreignKeyName="fk_custom_field_value_work_order"
+                             references="work_order(id)" deleteCascade="true"/>
+            </column>
+            <column name="asset_id" type="BIGINT" remarks="Foreign key to asset">
+                <constraints foreignKeyName="fk_custom_field_value_asset"
+                             references="asset(id)" deleteCascade="true"/>
+            </column>
+            <column name="location_id" type="BIGINT" remarks="Foreign key to location">
+                <constraints foreignKeyName="fk_custom_field_value_location"
+                             references="location(id)" deleteCascade="true"/>
+            </column>
+            <column name="customer_id" type="BIGINT" remarks="Foreign key to customer">
+                <constraints foreignKeyName="fk_custom_field_value_customer"
+                             references="customer(id)" deleteCascade="true"/>
+            </column>
+            <column name="vendor_id" type="BIGINT" remarks="Foreign key to vendor">
+                <constraints foreignKeyName="fk_custom_field_value_vendor"
+                             references="vendor(id)" deleteCascade="true"/>
+            </column>
+            <column name="part_id" type="BIGINT" remarks="Foreign key to part">
+                <constraints foreignKeyName="fk_custom_field_value_part"
+                             references="part(id)" deleteCascade="true"/>
+            </column>
+            <column name="meter_id" type="BIGINT" remarks="Foreign key to meter">
+                <constraints foreignKeyName="fk_custom_field_value_meter"
+                             references="meter(id)" deleteCascade="true"/>
+            </column>
+            <column name="created_by" type="BIGINT" remarks="User ID who created this record"/>
+            <column name="updated_by" type="BIGINT" remarks="User ID who updated this record"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueDate="CURRENT_TIMESTAMP"
+                    remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueDate="CURRENT_TIMESTAMP"
+                    remarks="Last update timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex tableName="custom_field_value" indexName="idx_custom_field_value_work_order">
+            <column name="work_order_id"/>
+        </createIndex>
+        <createIndex tableName="custom_field_value" indexName="idx_custom_field_value_asset">
+            <column name="asset_id"/>
+        </createIndex>
+        <createIndex tableName="custom_field_value" indexName="idx_custom_field_value_location">
+            <column name="location_id"/>
+        </createIndex>
+        <createIndex tableName="custom_field_value" indexName="idx_custom_field_value_customer">
+            <column name="customer_id"/>
+        </createIndex>
+        <createIndex tableName="custom_field_value" indexName="idx_custom_field_value_vendor">
+            <column name="vendor_id"/>
+        </createIndex>
+        <createIndex tableName="custom_field_value" indexName="idx_custom_field_value_part">
+            <column name="part_id"/>
+        </createIndex>
+        <createIndex tableName="custom_field_value" indexName="idx_custom_field_value_meter">
+            <column name="meter_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="1776709403978-1" author="Ibrahima G. Coulibaly">
+        <createSequence sequenceName="custom_field_value_seq" startValue="1" incrementBy="50"/>
+    </changeSet>
+</databaseChangeLog>

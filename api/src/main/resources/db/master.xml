@@ -203,4 +203,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_04_17_00000000001_add_ldap_fields.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_04_20_00000000001_create_custom_field_value.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>
