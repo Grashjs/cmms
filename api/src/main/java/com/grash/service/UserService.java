@@ -144,6 +144,10 @@ public class UserService {
             if (ldapAuthenticationProvider == null) {
                 throw new CustomException("LDAP authentication is not enabled", HttpStatus.FORBIDDEN);
             }
+            if (ldapOrgAdmin == null || ldapOrgAdmin.isBlank()) {
+                throw new CustomException("LDAP organization admin email is not configured",
+                        HttpStatus.INTERNAL_SERVER_ERROR);
+            }
 
             cacheService.evictUserFromCache(ldapRequest.getUsername());
 

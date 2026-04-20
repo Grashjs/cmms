@@ -30,9 +30,6 @@ public class LdapSecurityConfig {
     @Value("${ldap.base-dn}")
     private String ldapBaseDn;
 
-    @Value("${ldap.user-dn-pattern:}")
-    private String ldapUserDnPattern;
-
     @Value("${ldap.user-search-bases:}")
     private String ldapUserSearchBases;
 
@@ -109,13 +106,9 @@ public class LdapSecurityConfig {
                 }
                 throw new BadCredentialsException("User not found in any allowed OU");
             };
-        }
-
-        BindAuthenticator authenticator = new BindAuthenticator(contextSource);
-        if (ldapUserDnPattern != null && !ldapUserDnPattern.isBlank()) {
-            authenticator.setUserDnPatterns(new String[]{ldapUserDnPattern});
-        }
-        return authenticator;
+        } else
+            throw new IllegalArgumentException("LDAP user search base and filter must be provided when LDAP " +
+                    "authentication is enabled");
     }
 
     @Bean

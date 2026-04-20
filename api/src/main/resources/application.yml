@@ -139,11 +139,9 @@ white-labeling:
 
 ldap:
   enabled: ${LDAP_ENABLED:false}
-
+  org-admin: ${LDAP_ORG_ADMIN:}
   url: ${LDAP_URL:ldap://localhost:389}
   base-dn: ${LDAP_BASE_DN:}
-  # Authentication mode (use ONE)
-  user-dn-pattern: ${LDAP_USER_DN_PATTERN:}
 
   user-search-bases: ${LDAP_USER_SEARCH_BASES:}
   user-search-filter: ${LDAP_USER_SEARCH_FILTER:(uid={0})}
@@ -156,9 +154,6 @@ ldap:
   # Service account (for search mode)
   manager-dn: ${LDAP_MANAGER_DN:}
   manager-password: ${LDAP_MANAGER_PASSWORD:}
-
-  # Multi-tenant
-  org-admin: ${LDAP_ORG_ADMIN:}
 
   #  # Connection
   #  connect-timeout: ${LDAP_CONNECT_TIMEOUT:5000}
