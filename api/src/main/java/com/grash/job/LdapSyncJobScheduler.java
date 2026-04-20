@@ -1,5 +1,6 @@
 package com.grash.job;
 
+import com.grash.service.LdapService;
 import com.grash.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,7 @@ import java.util.TimeZone;
 public class LdapSyncJobScheduler implements ApplicationRunner {
 
     private final Scheduler scheduler;
-    private final UserService userService;
+    private final LdapService ldapService;
 
     @Value("${ldap.sync.enabled}")
     private boolean ldapSyncEnabled;
@@ -56,7 +57,7 @@ public class LdapSyncJobScheduler implements ApplicationRunner {
             log.info("LDAP sync job scheduled successfully");
 
             log.info("Running initial LDAP sync on startup");
-            userService.syncLdapUsers();
+            ldapService.syncLdapUsers();
             log.info("Initial LDAP sync completed successfully");
 
         } catch (SchedulerException e) {

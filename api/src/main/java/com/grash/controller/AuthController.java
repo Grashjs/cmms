@@ -11,6 +11,7 @@ import com.grash.repository.UserRepository;
 import com.grash.security.CurrentUser;
 import com.grash.security.JwtTokenProvider;
 import com.grash.service.CompanyService;
+import com.grash.service.LdapService;
 import com.grash.service.UserService;
 import com.grash.service.VerificationTokenService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -45,6 +46,7 @@ public class AuthController {
     private final MailServiceFactory mailServiceFactory;
     private final CompanyService companyService;
     private final UserRepository userRepository;
+    private final LdapService ldapService;
     @Value("${frontend.url}")
     private String frontendUrl;
 
@@ -69,7 +71,7 @@ public class AuthController {
     )
     public ResponseEntity<AuthResponse> signinLdap(
             @Parameter(description = "LDAP login credentials") @Valid @RequestBody LdapLoginRequest ldapLoginRequest) {
-        AuthResponse authResponse = new AuthResponse(userService.signinLdap(ldapLoginRequest));
+        AuthResponse authResponse = new AuthResponse(ldapService.signinLdap(ldapLoginRequest));
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
 
