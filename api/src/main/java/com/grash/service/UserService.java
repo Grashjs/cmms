@@ -274,21 +274,39 @@ public class UserService {
                         HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
-            cacheService.evictUserFromCache(ldapRequest.getUsername());
+            String inputUsername = ldapRequest.getUsername();
+            String ldapUsername = inputUsername;
+            User user = null;
 
-            UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(ldapRequest.getUsername(), ldapRequest.getPassword());
-            ldapAuthenticationProvider.authenticate(authToken); // throws AuthenticationException if fails
-
-
-            User user = findByLdapId(ldapRequest.getUsername());
+            if (inputUsername.contains("@")) {
+                Optional<User> userByEmail = userRepository.findByEmailIgnoreCase(inputUsername);
+                if (userByEmail.isPresent() && "LDAP".equals(userByEmail.get().getSsoProvider())) {
+                    user = userByEmail.get();
+                    ldapUsername = user.getSsoProviderId();
+                }
+            }
 
             if (user == null) {
-                Map<String, String> ldapUserDetails = extractLdapUserDetails(ldapRequest.getUsername());
+                user = findByLdapId(inputUsername);
+                if (user != null) {
+                    ldapUsername = user.getSsoProviderId();
+                }
+            }
+
+
+            UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(ldapUsername, ldapRequest.getPassword());
+            ldapAuthenticationProvider.authenticate(authToken);
+            
+            String userEmail = user != null ? user.getEmail() : ldapUsername;
+            cacheService.evictUserFromCache(userEmail);
+
+            if (user == null) {
+                Map<String, String> ldapUserDetails = extractLdapUserDetails(ldapUsername);
                 Company company = companyService.findByOwnerEmailAndOwnsCompany(ldapOrgAdmin)
                         .orElseThrow(() -> new CustomException("No company available for LDAP user",
                                 HttpStatus.INTERNAL_SERVER_ERROR));
-                user = getNewLdapUser(ldapRequest.getUsername(), company, ldapUserDetails);
+                user = getNewLdapUser(ldapUsername, company, ldapUserDetails);
                 user.setLastLogin(new Date());
 
                 Role defaultRole = roleService.findDefaultRoles().stream()
