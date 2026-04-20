@@ -17,5 +17,7 @@
             </column>
         </addColumn>
     </changeSet>
-
+    <changeSet id="1776687453582-1" author="Ibrahima G. Coulibaly">
+        <dropColumn tableName="own_user" columnName="ldap_id"/>
+    </changeSet>
 </databaseChangeLog>

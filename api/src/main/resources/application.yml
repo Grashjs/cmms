@@ -144,7 +144,8 @@ ldap:
   base-dn: ${LDAP_BASE_DN:}
   # Authentication mode (use ONE)
   user-dn-pattern: ${LDAP_USER_DN_PATTERN:}
-  user-search-base: ${LDAP_USER_SEARCH_BASE:}
+
+  user-search-bases: ${LDAP_USER_SEARCH_BASES:}
   user-search-filter: ${LDAP_USER_SEARCH_FILTER:(uid={0})}
 
   # Group / roles

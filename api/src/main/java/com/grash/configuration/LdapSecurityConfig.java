@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.ldap.authentication.BindAuthenticator;
@@ -16,9 +17,8 @@ import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Configuration
 @ConditionalOnProperty(name = "ldap.enabled", havingValue = "true")
@@ -33,8 +33,8 @@ public class LdapSecurityConfig {
     @Value("${ldap.user-dn-pattern:}")
     private String ldapUserDnPattern;
 
-    @Value("${ldap.user-search-base:}")
-    private String ldapUserSearchBase;
+    @Value("${ldap.user-search-bases:}")
+    private String ldapUserSearchBases;
 
     @Value("${ldap.user-search-filter:}")
     private String ldapUserSearchFilter;
@@ -54,9 +54,7 @@ public class LdapSecurityConfig {
     @Value("${ldap.attributes.last-name:sn}")
     private String lastNameAttr;
 
-    // ========================
-    // Context Source
-    // ========================
+
     @Bean
     public LdapContextSource contextSource() {
         LdapContextSource contextSource = new LdapContextSource();
@@ -73,40 +71,46 @@ public class LdapSecurityConfig {
         return contextSource;
     }
 
-    // ========================
-    // LDAP Template (optional)
-    // ========================
+
     @Bean
     public LdapTemplate ldapTemplate(LdapContextSource contextSource) {
         return new LdapTemplate(contextSource);
     }
 
-    // ========================
-    // Authenticator
-    // ========================
+
     @Bean
     public LdapAuthenticator ldapAuthenticator(LdapContextSource contextSource) {
 
-        if (ldapUserSearchBase != null && !ldapUserSearchBase.isBlank()
-                && ldapUserSearchFilter != null && !ldapUserSearchFilter.isBlank()) {
+        if (ldapUserSearchFilter != null && !ldapUserSearchFilter.isBlank()
+                && ldapUserSearchBases != null && !ldapUserSearchBases.isBlank()) {
 
-            BindAuthenticator authenticator = new BindAuthenticator(contextSource);
+            List<String> bases = Arrays.asList(ldapUserSearchBases.split("[|]"));
 
-            authenticator.setUserSearch(new FilterBasedLdapUserSearch(
-                    ldapUserSearchBase,
-                    ldapUserSearchFilter,
-                    contextSource
-            ));
+            List<LdapAuthenticator> authenticators = bases.stream()
+                    .map(String::trim)
+                    .filter(base -> !base.isBlank())
+                    .map(base -> {
+                        BindAuthenticator auth = new BindAuthenticator(contextSource);
+                        auth.setUserSearch(new FilterBasedLdapUserSearch(
+                                base, ldapUserSearchFilter, contextSource));
+                        return (LdapAuthenticator) auth;
+                    }).toList();
 
-            return authenticator;
+            return authentication -> {
+                for (LdapAuthenticator auth : authenticators) {
+                    try {
+                        return auth.authenticate(authentication);
+                    } catch (Exception ignored) {
+                    }
+                }
+                throw new BadCredentialsException("User not found in any allowed OU");
+            };
         }
 
         BindAuthenticator authenticator = new BindAuthenticator(contextSource);
-
         if (ldapUserDnPattern != null && !ldapUserDnPattern.isBlank()) {
             authenticator.setUserDnPatterns(new String[]{ldapUserDnPattern});
         }
-
         return authenticator;
     }
 
@@ -125,9 +129,6 @@ public class LdapSecurityConfig {
         return populator;
     }
 
-    // ========================
-    // Attribute Mapper (ENV driven)
-    // ========================
     @Bean
     public LdapUserDetailsMapper ldapUserDetailsMapper() {
         return new LdapUserDetailsMapper() {
@@ -163,9 +164,7 @@ public class LdapSecurityConfig {
         };
     }
 
-    // ========================
-    // Authentication Provider
-    // ========================
+
     @Bean
     public LdapAuthenticationProvider ldapAuthenticationProvider(
             LdapAuthenticator authenticator,

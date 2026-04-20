@@ -44,14 +44,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.stereotype.Service;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import java.io.IOException;
 import java.util.*;
 
@@ -162,7 +158,6 @@ public class UserService {
                 Map<String, String> ldapUserDetails = extractLdapUserDetails(ldapRequest.getUsername());
                 user = new User();
                 user.setUsername(utils.generateStringId());
-                user.setLdapId(ldapRequest.getUsername());
                 user.setEmail(ldapUserDetails.get("email"));
                 user.setFirstName(ldapUserDetails.get("firstName"));
                 user.setLastName(ldapUserDetails.get("lastName"));
@@ -170,6 +165,7 @@ public class UserService {
                 user.setEnabled(true);
                 user.setCreatedViaSso(true);
                 user.setSsoProvider("LDAP");
+                user.setSsoProviderId(ldapRequest.getUsername());
                 user.setLastLogin(new Date());
 
                 Role defaultRole = roleService.findDefaultRoles().stream()
@@ -409,7 +405,7 @@ public class UserService {
     }
 
     public User findByLdapId(String ldapId) {
-        return userRepository.findByLdapId(ldapId).orElse(null);
+        return userRepository.findBySsoProviderIdAndSsoProvider(ldapId, "LDAP").orElse(null);
     }
 
     public Optional<User> findByEmailAndCompany(String email, Long companyId) {

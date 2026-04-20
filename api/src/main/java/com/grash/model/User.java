@@ -105,8 +105,6 @@ public class User extends Audit {
     @Schema(description = "Whether the account was created via SSO")
     private boolean createdViaSso = false;
 
-    private String ldapId;
-
     @Schema(description = "UTM source for tracking")
     private String utmSource;
     @Schema(description = "UTM medium for tracking")
