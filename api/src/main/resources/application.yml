@@ -147,6 +147,7 @@ ldap:
 
   user-search-bases: ${LDAP_USER_SEARCH_BASES:}
   user-search-filter: ${LDAP_USER_SEARCH_FILTER:(uid={0})}
+  search-subtree: ${LDAP_SEARCH_SUBTREE:true}
 
   # Group / roles
   #  group-search-base: ${LDAP_GROUP_SEARCH_BASE:}

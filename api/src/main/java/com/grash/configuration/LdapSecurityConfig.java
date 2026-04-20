@@ -38,6 +38,8 @@ public class LdapSecurityConfig {
 
     @Value("${ldap.user-search-filter:}")
     private String ldapUserSearchFilter;
+    @Value("${ldap.search-subtree:true}")
+    private boolean searchSubtree;
 
     @Value("${ldap.manager-dn:}")
     private String ldapManagerDn;
@@ -91,8 +93,10 @@ public class LdapSecurityConfig {
                     .filter(base -> !base.isBlank())
                     .map(base -> {
                         BindAuthenticator auth = new BindAuthenticator(contextSource);
-                        auth.setUserSearch(new FilterBasedLdapUserSearch(
-                                base, ldapUserSearchFilter, contextSource));
+                        FilterBasedLdapUserSearch search = new FilterBasedLdapUserSearch(
+                                base, ldapUserSearchFilter, contextSource);
+                        search.setSearchSubtree(searchSubtree);
+                        auth.setUserSearch(search);
                         return (LdapAuthenticator) auth;
                     }).toList();
 
