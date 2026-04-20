@@ -5,6 +5,7 @@ import JWTLogin from '../LoginJWT';
 
 import { useTranslation } from 'react-i18next';
 import Logo from 'src/components/LogoSign';
+import { ldapEnabled } from '../../../../../config';
 
 const Content = styled(Box)(
   () => `
@@ -60,21 +61,23 @@ function LoginCover() {
               </Typography>
             </Box>
             <JWTLogin />
-            <Box my={4}>
-              <Typography
-                component="span"
-                variant="subtitle2"
-                color="text.primary"
-                fontWeight="bold"
-              >
-                {t('no_account_yet')}
-              </Typography>{' '}
-              <Box display={{ xs: 'block', md: 'inline-block' }}>
-                <Link component={RouterLink} to="/account/register">
-                  <b>{t('signup_here')}</b>
-                </Link>
+            {!ldapEnabled && (
+              <Box my={4}>
+                <Typography
+                  component="span"
+                  variant="subtitle2"
+                  color="text.primary"
+                  fontWeight="bold"
+                >
+                  {t('no_account_yet')}
+                </Typography>{' '}
+                <Box display={{ xs: 'block', md: 'inline-block' }}>
+                  <Link component={RouterLink} to="/account/register">
+                    <b>{t('signup_here')}</b>
+                  </Link>
+                </Box>
               </Box>
-            </Box>
+            )}
           </Card>
         </Container>
       </Content>

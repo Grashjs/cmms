@@ -210,13 +210,9 @@ public class UserService {
         user.setSsoProviderId(ldapUsername);
         user.setLastLogin(null);
 
-        Role defaultRole = roleService.findDefaultRoles().stream()
+        roleService.findDefaultRoles().stream()
                 .filter(role -> role.getCode().equals(RoleCode.LIMITED_TECHNICIAN))
-                .findFirst()
-                .orElse(null);
-        if (defaultRole != null) {
-            user.setRole(defaultRole);
-        }
+                .findFirst().ifPresent(user::setRole);
 
         user.setCompany(company);
         return user;

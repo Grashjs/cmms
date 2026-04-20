@@ -562,14 +562,23 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       });
     }
   };
-  const login = async (email: string, password: string): Promise<void> => {
+  const login = async (
+    email: string,
+    password: string,
+    ldap?: boolean
+  ): Promise<void> => {
     const response = await api.post<{ accessToken: string }>(
-      'auth/signin',
-      {
-        email,
-        type: 'client',
-        password
-      },
+      `auth/signin${ldap ? '-ldap' : ''}`,
+      ldap
+        ? {
+            username: email,
+            password
+          }
+        : {
+            email,
+            type: 'client',
+            password
+          },
       { headers: authHeader(true) }
     );
     const { accessToken } = response;

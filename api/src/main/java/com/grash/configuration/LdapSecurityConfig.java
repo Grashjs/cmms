@@ -102,6 +102,7 @@ public class LdapSecurityConfig {
                     try {
                         return auth.authenticate(authentication);
                     } catch (Exception ignored) {
+                        ignored.printStackTrace();
                     }
                 }
                 throw new BadCredentialsException("User not found in any allowed OU");

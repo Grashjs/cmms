@@ -104,3 +104,4 @@ export const paddleEnvironment = getRuntimeValue('PADDLE_ENVIRONMENT') as
 export const recaptchaSiteKey = getRuntimeValue('RECAPTCHA_SITE_KEY');
 
 export const intercomId = getRuntimeValue('INTERCOM_ID');
+export const ldapEnabled = getRuntimeValue('LDAP_ENABLED') === 'true';
