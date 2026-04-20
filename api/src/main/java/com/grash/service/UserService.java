@@ -273,7 +273,12 @@ public class UserService {
                 throw new CustomException("LDAP organization admin email is not configured",
                         HttpStatus.INTERNAL_SERVER_ERROR);
             }
-
+            if (Helper.isValidEmailAddress(ldapRequest.getUsername())) {
+                User user = userRepository.findByEmailIgnoreCase(ldapRequest.getUsername()).orElse(null);
+                if (user != null && !"LDAP".equals(user.getSsoProvider())) {
+                    return signin(ldapRequest.getUsername(), ldapRequest.getPassword(), "CLIENT");
+                }
+            }
             String inputUsername = ldapRequest.getUsername();
             String ldapUsername = inputUsername;
             User user = null;
@@ -297,7 +302,7 @@ public class UserService {
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(ldapUsername, ldapRequest.getPassword());
             ldapAuthenticationProvider.authenticate(authToken);
-            
+
             String userEmail = user != null ? user.getEmail() : ldapUsername;
             cacheService.evictUserFromCache(userEmail);
 
