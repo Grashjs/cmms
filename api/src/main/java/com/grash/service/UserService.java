@@ -50,6 +50,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
+import javax.naming.directory.SearchControls;
 
 import static com.grash.utils.Consts.usageBasedLicenseLimits;
 
@@ -119,6 +120,15 @@ public class UserService {
 
     @Value("${ldap.attributes.object-class:inetOrgPerson}")
     private String objectClassAttr;
+
+    @Value("${ldap.user-search-bases:}")
+    private String ldapUserSearchBases;
+
+    @Value("${ldap.user-search-filter:}")
+    private String ldapUserSearchFilter;
+
+    @Value("${ldap.search-subtree:true}")
+    private boolean ldapSearchSubtree;
 
     @Value("${ldap.sync.enabled:false}")
     private boolean ldapSyncEnabled;
@@ -210,9 +220,7 @@ public class UserService {
         user.setSsoProviderId(ldapUsername);
         user.setLastLogin(null);
 
-        roleService.findDefaultRoles().stream()
-                .filter(role -> role.getCode().equals(RoleCode.LIMITED_TECHNICIAN))
-                .findFirst().ifPresent(user::setRole);
+        user.setRole(getDefaultRoleForLdapUser());
 
         user.setCompany(company);
         return user;
@@ -221,20 +229,30 @@ public class UserService {
     private List<String> fetchAllLdapUsernames() {
         List<String> usernames = new ArrayList<>();
         try {
-            EqualsFilter filter = new EqualsFilter("objectClass", objectClassAttr);
-            ldapTemplate.search("", filter.encode(),
-                    (AttributesMapper<String>) attrs -> {
-                        try {
-                            return attrs.get(usernameAttr) != null ? attrs.get(usernameAttr).get().toString() : null;
-                        } catch (Exception e) {
-                            return null;
-                        }
-                    }
-            ).forEach(username -> {
-                if (username != null) {
-                    usernames.add(username);
+            SearchControls searchControls = new SearchControls();
+            searchControls.setSearchScope(ldapSearchSubtree ? SearchControls.SUBTREE_SCOPE : SearchControls.ONELEVEL_SCOPE);
+            AttributesMapper<String> mapper = attrs -> {
+                try {
+                    return attrs.get(usernameAttr) != null ? attrs.get(usernameAttr).get().toString() : null;
+                } catch (Exception e) {
+                    return null;
                 }
-            });
+            };
+            List<String> bases = (ldapUserSearchBases != null && !ldapUserSearchBases.isBlank()
+                    && ldapUserSearchFilter != null && !ldapUserSearchFilter.isBlank())
+                    ? Arrays.asList(ldapUserSearchBases.split("[|]"))
+                    : List.of("");
+            String filter = (ldapUserSearchFilter != null && !ldapUserSearchFilter.isBlank())
+                    ? ldapUserSearchFilter.replace("{0}", "*")
+                    : new EqualsFilter("objectClass", objectClassAttr).encode();
+            for (String base : bases) {
+                String searchBase = base.trim();
+                if (searchBase.isBlank()) searchBase = "";
+                ldapTemplate.search(searchBase, filter, searchControls, mapper)
+                        .stream()
+                        .filter(Objects::nonNull)
+                        .forEach(usernames::add);
+            }
         } catch (Exception e) {
             // Return empty list on error
         }
@@ -314,12 +332,6 @@ public class UserService {
                 user = getNewLdapUser(ldapUsername, company, ldapUserDetails);
                 user.setLastLogin(new Date());
 
-                Role defaultRole = roleService.findDefaultRoles().stream()
-                        .filter(role -> role.getCode().equals(RoleCode.LIMITED_TECHNICIAN))
-                        .findFirst()
-                        .orElseThrow(() -> new CustomException("Default role not found",
-                                HttpStatus.INTERNAL_SERVER_ERROR));
-                user.setRole(defaultRole);
             } else {
                 user.setLastLogin(new Date());
             }
@@ -331,6 +343,14 @@ public class UserService {
         } catch (AuthenticationException e) {
             throw new CustomException("LDAP authentication failed: " + e.getMessage(), HttpStatus.FORBIDDEN);
         }
+    }
+
+    private Role getDefaultRoleForLdapUser() {
+        return roleService.findDefaultRoles().stream()
+                .filter(role -> role.getCode().equals(RoleCode.LIMITED_TECHNICIAN))
+                .findFirst()
+                .orElseThrow(() -> new CustomException("Default role not found",
+                        HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     private Map<String, String> extractLdapUserDetails(String username) {

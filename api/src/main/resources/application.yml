@@ -148,6 +148,7 @@ ldap:
     update: ${LDAP_SYNC_UPDATE:true}
     disable: ${LDAP_SYNC_DISABLE:false}
     cron: ${LDAP_SYNC_CRON:0 0 0,12 * * ?}
+  ou-role-mappings: ${LDAP_OU_ROLE_MAPPINGS:}
 
   user-search-bases: ${LDAP_USER_SEARCH_BASES:}
   user-search-filter: ${LDAP_USER_SEARCH_FILTER:(uid={0})}
