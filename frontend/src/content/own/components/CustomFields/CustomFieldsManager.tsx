@@ -57,6 +57,7 @@ import {
   Draggable,
   DropResult
 } from 'react-beautiful-dnd';
+import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 
 const IconButtonWrapper = styled(IconButton)(
   ({ theme }) => `
@@ -289,7 +290,7 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
                                   color="inherit"
                                   size="small"
                                 >
-                                  <ClearTwoToneIcon fontSize="small" />
+                                  <DeleteTwoToneIcon fontSize="small" />
                                 </IconButtonWrapper>
                               )}
                             </Box>

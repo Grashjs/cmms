@@ -21,7 +21,6 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import {
-  getCustomFieldIField,
   getCustomFieldsIFields,
   getCustomFieldsRequiredShape,
   IField
@@ -686,7 +685,11 @@ function WorkOrders() {
   ];
   const defaultShape: { [key: string]: any } = {
     title: Yup.string().required(t('required_wo_title')),
-    ...getCustomFieldsRequiredShape(customFields, t)
+    ...getCustomFieldsRequiredShape(
+      customFields,
+      CustomFieldEntityType.WORK_ORDER,
+      t
+    )
   };
   const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
     return getWOFieldsAndShapes(defaultFields, defaultShape);

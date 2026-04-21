@@ -141,17 +141,20 @@ export const getCustomFieldsValues = <T extends EntityWithCustomFields>(
 };
 export const getCustomFieldsRequiredShape = (
   customFields: CustomField[],
+  customFieldEntityType: CustomFieldEntityType,
   t: TFunction
 ): { [key: string]: Yup.StringSchema | Yup.ObjectSchema<any> } => {
   const shape: { [key: string]: Yup.StringSchema | Yup.ObjectSchema<any> } = {};
-  customFields.forEach((field) => {
-    if (field.required) {
-      shape[`customField_${field.id}`] =
-        field.fieldType === 'SINGLE_CHOICE'
-          ? Yup.object().required(t('required_field'))
-          : Yup.string().required(t('required_field'));
-    }
-  });
+  customFields
+    .filter(({ entityType }) => entityType === customFieldEntityType)
+    .forEach((field) => {
+      if (field.required) {
+        shape[`customField_${field.id}`] =
+          field.fieldType === 'SINGLE_CHOICE'
+            ? Yup.object().required(t('required_field'))
+            : Yup.string().required(t('required_field'));
+      }
+    });
   return shape;
 };
 

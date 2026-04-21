@@ -44,6 +44,9 @@ import useAuth from '../../../hooks/useAuth';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import { getWOBaseFields, getWOBaseValues } from '../../../utils/woBase';
 import { PermissionEntity } from '../../../models/owns/role';
+import { getCustomFields } from '../../../slices/customField';
+import { CustomFieldEntityType } from '../../../models/owns/customField';
+import { getCustomFieldsRequiredShape } from '../type';
 import PermissionErrorMessage from '../components/PermissionErrorMessage';
 import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
 import {
@@ -88,6 +91,7 @@ function Requests() {
   const { requests, loadingGet, singleRequest } = useSelector(
     (state) => state.requests
   );
+  const { customFields } = useSelector((state) => state.customFields);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
   const defaultFilterFields: FilterField[] = [
     {
@@ -191,6 +195,12 @@ function Requests() {
       dispatch(clearSingleRequest());
     };
   }, [singleRequest, requests]);
+
+  useEffect(() => {
+    if ((openAddModal || openUpdateModal) && !customFields.length) {
+      dispatch(getCustomFields());
+    }
+  }, [openAddModal, openUpdateModal]);
 
   const handleDelete = (id: number) => {
     handleCloseDetails();
@@ -309,9 +319,14 @@ function Requests() {
       size: 150
     })
   ];
-  const defaultFields: Array<IField> = [...getWOBaseFields(t)];
+  const defaultFields: Array<IField> = [...getWOBaseFields(t, customFields)];
   const defaultShape = {
-    title: Yup.string().required(t('required_request_name'))
+    title: Yup.string().required(t('required_request_name')),
+    ...getCustomFieldsRequiredShape(
+      customFields,
+      CustomFieldEntityType.WORK_ORDER,
+      t
+    )
   };
   const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
     let fields = [...getFilteredFields(defaultFields)];

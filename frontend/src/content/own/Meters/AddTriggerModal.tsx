@@ -4,11 +4,14 @@ import Form from '../components/form';
 import * as Yup from 'yup';
 import { IField } from '../type';
 import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
-import { useDispatch } from '../../../store';
+import { useDispatch, useSelector } from '../../../store';
 import { createWorkOrderMeterTrigger } from '../../../slices/workOrderMeterTrigger';
 import { getWOBaseFields } from '../../../utils/woBase';
+import { getCustomFields } from '../../../slices/customField';
+import { CustomFieldEntityType } from '../../../models/owns/customField';
+import { getCustomFieldsRequiredShape } from '../../own/type';
 import Meter from '../../../models/owns/meter';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 import { getImageAndFiles } from '../../../utils/overall';
@@ -28,6 +31,14 @@ export default function AddTriggerModal({
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { uploadFiles } = useContext(CompanySettingsContext);
+  const { customFields } = useSelector((state) => state.customFields);
+
+  useEffect(() => {
+    if (open && !customFields.length) {
+      dispatch(getCustomFields());
+    }
+  }, [open]);
+
   const fields: Array<IField> = [
     {
       name: 'name',
@@ -58,13 +69,18 @@ export default function AddTriggerModal({
       type: 'titleGroupField',
       label: t('wo_configuration')
     },
-    ...getWOBaseFields(t)
+    ...getWOBaseFields(t, customFields)
   ];
   const shape = {
     name: Yup.string().required(t('required_trigger_name')),
     title: Yup.string().required(t('required_wo_title')),
     value: Yup.number().required(t('required_value')),
-    triggerCondition: Yup.object().required(t('required_trigger_condition'))
+    triggerCondition: Yup.object().required(t('required_trigger_condition')),
+    ...getCustomFieldsRequiredShape(
+      customFields,
+      CustomFieldEntityType.WORK_ORDER,
+      t
+    )
   };
   const formatValues = (values) => {
     const newValues = { ...values };
