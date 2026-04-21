@@ -9,9 +9,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
@@ -50,10 +47,14 @@ public class PreventiveMaintenancePostDTO extends WorkOrderBase {
     @Schema(description = "Days of week for recurrence")
     private List<Integer> daysOfWeek = new ArrayList<>();
 
-    private List<CustomFieldValue> customFieldValues = new ArrayList<>();
-    
-    private List<CustomFieldValuePostDTO> customFieldValuesPost = new ArrayList<>();
+    @Schema(description = "List of custom field values")
+    private List<CustomFieldValuePostDTO> customFields = new ArrayList<>();
 
+
+    @Override
+    public List<CustomFieldValue> getCustomFieldValues() {
+        return List.of();
+    }
 }
 
 

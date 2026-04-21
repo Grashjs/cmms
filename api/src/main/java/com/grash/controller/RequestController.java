@@ -86,7 +86,7 @@ public class RequestController {
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<RequestShowDTO>> search(@Parameter(description = "Search criteria for filtering " +
-                                                                   "requests") @RequestBody SearchCriteria searchCriteria,
+                                                               "requests") @RequestBody SearchCriteria searchCriteria,
                                                        HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -152,7 +152,7 @@ public class RequestController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    RequestShowDTO create(@Parameter(description = "Request data to create") @Valid @RequestBody Request requestReq,
+    RequestShowDTO create(@Parameter(description = "Request data to create") @Valid @RequestBody RequestPostDTO requestReq,
                           HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.REQUESTS)) {
@@ -201,7 +201,7 @@ public class RequestController {
                 throw new CustomException("Can't patch an approved request", HttpStatus.NOT_ACCEPTABLE);
             }
             if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.REQUESTS) || savedRequest.getCreatedBy().equals(user.getId())) {
-                Request patchedRequest = requestService.update(id, request);
+                Request patchedRequest = requestService.update(id, request, user.getCompany());
                 return requestMapper.toShowDto(patchedRequest);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);

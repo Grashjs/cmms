@@ -4,13 +4,16 @@ import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.CalendarEvent;
 import com.grash.dto.PreventiveMaintenancePatchDTO;
+import com.grash.dto.PreventiveMaintenancePostDTO;
 import com.grash.dto.PreventiveMaintenanceShowDTO;
+import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.imports.PreventiveMaintenanceImportDTO;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.model.*;
 import com.grash.model.enums.*;
+import com.grash.repository.CustomFieldRepository;
 import com.grash.repository.PreventiveMaintenanceRepository;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
@@ -52,10 +55,12 @@ public class PreventiveMaintenanceService {
     private final WorkOrderCategoryService workOrderCategoryService;
     private final ScheduleService scheduleService;
     private final LicenseService licenseService;
+    private final CustomFieldRepository customFieldRepository;
 
 
     @Transactional
-    public PreventiveMaintenance create(PreventiveMaintenance preventiveMaintenance, User user) {
+    public PreventiveMaintenance create(PreventiveMaintenancePostDTO preventiveMaintenancePost, User user) {
+        PreventiveMaintenance preventiveMaintenance = preventiveMaintenanceMapper.toModel(preventiveMaintenancePost);
         if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PREVENTIVE_MAINTENANCE)) {
             throw new CustomException("Preventive maintenance feature is not enabled for this subscription plan.",
                     HttpStatus.FORBIDDEN);
@@ -65,6 +70,9 @@ public class PreventiveMaintenanceService {
         Long nextSequence = customSequenceService.getNextPreventiveMaintenanceSequence(company);
         preventiveMaintenance.setCustomId("PM" + String.format("%06d", nextSequence));
 
+        if (!preventiveMaintenancePost.getCustomFields().isEmpty()) {
+            setPMCustomFields(preventiveMaintenance, preventiveMaintenancePost.getCustomFields(), company);
+        }
         PreventiveMaintenance savedPM = preventiveMaintenanceRepository.saveAndFlush(preventiveMaintenance);
         em.refresh(savedPM);
         return savedPM;
@@ -78,6 +86,10 @@ public class PreventiveMaintenanceService {
         }
         if (preventiveMaintenanceRepository.existsById(id)) {
             PreventiveMaintenance savedPreventiveMaintenance = preventiveMaintenanceRepository.findById(id).get();
+            if (!preventiveMaintenance.getCustomFields().isEmpty()) {
+                setPMCustomFields(savedPreventiveMaintenance, preventiveMaintenance.getCustomFields(),
+                        user.getCompany());
+            }
             PreventiveMaintenance pmToSave =
                     preventiveMaintenanceMapper.updatePreventiveMaintenance(savedPreventiveMaintenance,
                             preventiveMaintenance);
@@ -87,6 +99,26 @@ public class PreventiveMaintenanceService {
             em.refresh(updatedPM);
             return updatedPM;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    private void setPMCustomFields(PreventiveMaintenance preventiveMaintenance,
+                                   List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
+                                   Company company) {
+        List<CustomField> customFields =
+                customFieldRepository.findByCompanySettingsAndEntityType(company.getCompanySettings(),
+                        CustomFieldEntityType.WORK_ORDER);
+
+        preventiveMaintenance.getCustomFieldValues().clear();
+
+        for (CustomFieldValuePostDTO customFieldValuePostDTO : customFieldValuePostDTOS) {
+            CustomFieldValue customFieldValue = new CustomFieldValue();
+            customFieldValue.setPreventiveMaintenance(preventiveMaintenance);
+            customFieldValue.setValue(customFieldValuePostDTO.getValue());
+            customFieldValue.setCustomField(customFields.stream().filter(customField -> customField.getId().equals(customFieldValuePostDTO.getId()))
+                    .findFirst().orElseThrow(() -> new CustomException("Custom field not found",
+                            HttpStatus.NOT_FOUND)));
+            preventiveMaintenance.getCustomFieldValues().add(customFieldValue);
+        }
     }
 
     public Collection<PreventiveMaintenance> getAll() {

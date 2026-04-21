@@ -1,5 +1,6 @@
 package com.grash.dto;
 
+import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.model.*;
 import com.grash.model.enums.Priority;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -7,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -51,4 +53,7 @@ public class WorkOrderBasePatchDTO {
     private List<File> files;
     @Schema(description = "Asset associated with the work order", implementation = IdDTO.class)
     private Asset asset;
+    @ArraySchema(arraySchema = @Schema(description = "List of custom field values"))
+    private List<CustomFieldValuePostDTO> customFields = new ArrayList<>();
+
 }

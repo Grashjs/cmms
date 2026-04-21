@@ -56,7 +56,7 @@ public class PreventiveMaintenanceController {
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<PreventiveMaintenanceShowDTO>> search(@Parameter(description = "Search criteria for " +
-                                                                                 "filtering preventive maintenances") @RequestBody SearchCriteria searchCriteria,
+                                                                             "filtering preventive maintenances") @RequestBody SearchCriteria searchCriteria,
                                                                      HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -94,8 +94,8 @@ public class PreventiveMaintenanceController {
     PreventiveMaintenanceShowDTO create(@Parameter(description = "Preventive maintenance data to create") @Valid @RequestBody PreventiveMaintenancePostDTO preventiveMaintenancePost,
                                         HttpServletRequest req) {
         User user = userService.whoami(req);
-        PreventiveMaintenance preventiveMaintenance = preventiveMaintenanceMapper.toModel(preventiveMaintenancePost);
-        preventiveMaintenance = preventiveMaintenanceService.create(preventiveMaintenance, user);
+        PreventiveMaintenance preventiveMaintenance = preventiveMaintenanceService.create(preventiveMaintenancePost,
+                user);
 
         Schedule schedule = preventiveMaintenance.getSchedule();
         schedule.setDaysOfWeek(preventiveMaintenancePost.getDaysOfWeek());

@@ -3,14 +3,18 @@ package com.grash.service;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.RequestPatchDTO;
+import com.grash.dto.RequestPostDTO;
 import com.grash.dto.RequestShowDTO;
+import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RequestMapper;
 import com.grash.model.*;
+import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.PortalFieldType;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.webhook.WebhookEvent;
+import com.grash.repository.CustomFieldRepository;
 import com.grash.repository.FieldConfigurationRepository;
 import com.grash.repository.RequestRepository;
 import lombok.RequiredArgsConstructor;
@@ -46,10 +50,16 @@ public class RequestService {
     private final RequestPortalService requestPortalService;
     private final FieldConfigurationRepository fieldConfigurationRepository;
     private final WebhookDispatchService webhookDispatchService;
+    private final CustomFieldRepository customFieldRepository;
 
 
     @Transactional
     public Request create(Request request, Company company) {
+        if (request instanceof RequestPostDTO requestPostDTO) {
+            if (!requestPostDTO.getCustomFields().isEmpty()) {
+                setRequestCustomFields(request, requestPostDTO.getCustomFields(), company);
+            }
+        }
         if (request.getAudioDescription() != null && !licenseService.hasEntitlement(LicenseEntitlement.VOICE_NOTES))
             throw new CustomException("You need a license to add voice notes", HttpStatus.FORBIDDEN);
         Long nextSequence = customSequenceService.getNextRequestSequence(company);
@@ -93,13 +103,35 @@ public class RequestService {
     }
 
     @Transactional
-    public Request update(Long id, RequestPatchDTO request) {
+    public Request update(Long id, RequestPatchDTO request, Company company) {
         if (requestRepository.existsById(id)) {
             Request savedRequest = requestRepository.findById(id).get();
+            if (!request.getCustomFields().isEmpty()) {
+                setRequestCustomFields(savedRequest, request.getCustomFields(), company);
+            }
             Request updatedRequest = requestRepository.saveAndFlush(requestMapper.updateRequest(savedRequest, request));
             em.refresh(updatedRequest);
             return updatedRequest;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    private void setRequestCustomFields(Request request, List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
+                                        Company company) {
+        List<CustomField> customFields =
+                customFieldRepository.findByCompanySettingsAndEntityType(company.getCompanySettings(),
+                        CustomFieldEntityType.WORK_ORDER);
+
+        request.getCustomFieldValues().clear();
+
+        for (CustomFieldValuePostDTO customFieldValuePostDTO : customFieldValuePostDTOS) {
+            CustomFieldValue customFieldValue = new CustomFieldValue();
+            customFieldValue.setRequest(request);
+            customFieldValue.setValue(customFieldValuePostDTO.getValue());
+            customFieldValue.setCustomField(customFields.stream().filter(customField -> customField.getId().equals(customFieldValuePostDTO.getId()))
+                    .findFirst().orElseThrow(() -> new CustomException("Custom field not found",
+                            HttpStatus.NOT_FOUND)));
+            request.getCustomFieldValues().add(customFieldValue);
+        }
     }
 
     public Collection<Request> getAll() {
