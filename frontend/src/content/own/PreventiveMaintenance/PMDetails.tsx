@@ -28,6 +28,7 @@ import { PermissionEntity } from '../../../models/owns/role';
 import ImageViewer from 'react-simple-image-viewer';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import FilesList from '../components/FilesList';
+import BasicField from '../components/BasicField';
 import { getTasksByPreventiveMaintenance } from '../../../slices/task';
 import Tasks from '../WorkOrders/Details/Tasks';
 import { Task } from '../../../models/owns/tasks';
@@ -79,26 +80,6 @@ export default function PMDetails({
     dispatch(getTasksByPreventiveMaintenance(preventiveMaintenance.id));
   }, [preventiveMaintenance.id]);
 
-  const BasicField = ({
-    label,
-    value,
-    isPriority
-  }: {
-    label: string | number;
-    value: string | number;
-    isPriority?: boolean;
-  }) => {
-    return value ? (
-      <Grid item xs={12} lg={6}>
-        <Typography variant="h6" sx={{ color: theme.colors.alpha.black[70] }}>
-          {label}
-        </Typography>
-        <Typography variant="h6">
-          {isPriority ? getPriorityLabel(value.toString(), t) : value}
-        </Typography>
-      </Grid>
-    ) : null;
-  };
   const fieldsToRender = (
     preventiveMaintenance: PreventiveMaintenance
   ): { label: string; value: string | number }[] => [

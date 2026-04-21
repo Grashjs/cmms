@@ -525,13 +525,15 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
       label: t('created_at'),
       value: getFormattedDate(workOrder.createdAt)
     },
-    ...workOrder.customFieldValues.map(({ customField, value }) => ({
-      label: customField.label,
-      value: customField.fieldType.includes('DATE')
-        ? getFormattedDate(value)
-        : value,
-      isLink: customField.fieldType === 'LINK'
-    }))
+    ...[...workOrder.customFieldValues]
+      .sort((a, b) => a.customField.order - b.customField.order)
+      .map(({ customField, value }) => ({
+        label: customField.label,
+        value: customField.fieldType.includes('DATE')
+          ? getFormattedDate(value)
+          : value,
+        isLink: customField.fieldType === 'LINK'
+      }))
   ];
   return (
     <Grid

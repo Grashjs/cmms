@@ -28,6 +28,7 @@ import PartQuantity from 'src/models/owns/partQuantity';
 import ClearTwoToneIcon from '@mui/icons-material/ClearTwoTone';
 import CheckTwoToneIcon from '@mui/icons-material/CheckTwoTone';
 import { respondPurchaseOrder } from '../../../slices/purchaseOrder';
+import BasicField from '../components/BasicField';
 
 interface PurchaseOrderDetailsProps {
   purchaseOrder: PurchaseOrder;
@@ -81,36 +82,6 @@ export default function PurchaseOrderDetails(props: PurchaseOrderDetailsProps) {
     dispatch(respondPurchaseOrder(purchaseOrder.id, false)).finally(() =>
       setCancelling(false)
     );
-  };
-  const BasicField = ({
-    label,
-    value,
-    id,
-    type
-  }: {
-    label: string | number;
-    value: string | number;
-    type?: string;
-    id?: number;
-  }) => {
-    return value ? (
-      <Grid item xs={12} lg={6}>
-        <Typography variant="h6" sx={{ color: theme.colors.alpha.black[70] }}>
-          {label}
-        </Typography>
-        {type === 'vendor' ? (
-          <Link
-            href={`/app/vendors-customers/vendors/${id}`}
-            variant="h6"
-            fontWeight="bold"
-          >
-            {value}
-          </Link>
-        ) : (
-          <Typography variant="h6">{value}</Typography>
-        )}
-      </Grid>
-    ) : null;
   };
   const detailsFieldsToRender = (
     purchaseOrder1: PurchaseOrder

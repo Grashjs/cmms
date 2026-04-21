@@ -36,6 +36,7 @@ import useAuth from '../../../hooks/useAuth';
 import { PermissionEntity } from '../../../models/owns/role';
 import ImageViewer from 'react-simple-image-viewer';
 import { canAddReading } from '../../../utils/overall';
+import BasicField from '../components/BasicField';
 
 interface MeterDetailsProps {
   meter: Meter;
@@ -77,22 +78,6 @@ export default function MeterDetails(props: MeterDetailsProps) {
 
   const handleTabsChange = (_event: ChangeEvent<{}>, value: string): void => {
     setCurrentTab(value);
-  };
-  const BasicField = ({
-    label,
-    value
-  }: {
-    label: string | number;
-    value: string | number;
-  }) => {
-    return value ? (
-      <Grid item xs={12} lg={6}>
-        <Typography variant="h6" sx={{ color: theme.colors.alpha.black[70] }}>
-          {label}
-        </Typography>
-        <Typography variant="h6">{value}</Typography>
-      </Grid>
-    ) : null;
   };
   const fieldsToRender = (meter: Meter): { label: string; value: any }[] => [
     {

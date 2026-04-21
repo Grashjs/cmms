@@ -40,6 +40,7 @@ import ImageViewer from 'react-simple-image-viewer';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import FilesList from '../components/FilesList';
 import RequestCancellationModal from './RequestCancellationModal';
+import BasicField from '../components/BasicField';
 import { editAsset } from '../../../slices/asset';
 import { AssetStatus, assetStatuses } from '../../../models/owns/asset';
 
@@ -84,26 +85,6 @@ export default function RequestDetails({
       .finally(() => setApproving(false));
   };
 
-  const BasicField = ({
-    label,
-    value,
-    isPriority
-  }: {
-    label: string | number;
-    value: string | number;
-    isPriority?: boolean;
-  }) => {
-    return value ? (
-      <Grid item xs={12} lg={6}>
-        <Typography variant="h6" sx={{ color: theme.colors.alpha.black[70] }}>
-          {label}
-        </Typography>
-        <Typography variant="h6">
-          {isPriority ? getPriorityLabel(value.toString(), t) : value}
-        </Typography>
-      </Grid>
-    ) : null;
-  };
   const fieldsToRender = (
     request: Request
   ): { label: string; value: string | number }[] => [

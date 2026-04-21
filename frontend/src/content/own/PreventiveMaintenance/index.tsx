@@ -483,7 +483,11 @@ function PMs() {
       type: 'titleGroupField',
       label: 'wo_configuration'
     },
-    ...getWOBaseFields(t, customFields, { delay: true }),
+    ...getWOBaseFields(
+      t,
+      customFields.filter((cf) => cf.copyOnRepeat),
+      { delay: true }
+    ),
     {
       name: 'tasks',
       type: 'select',
@@ -517,7 +521,7 @@ function PMs() {
       }
     ),
     ...getCustomFieldsRequiredShape(
-      customFields,
+      customFields.filter((cf) => cf.copyOnRepeat),
       CustomFieldEntityType.WORK_ORDER,
       t
     )
