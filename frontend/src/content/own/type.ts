@@ -1,7 +1,8 @@
 import { ReactNode } from 'react';
 import {
   CustomField,
-  CustomFieldEntityType
+  CustomFieldEntityType,
+  CustomFieldValue
 } from '../../models/owns/customField';
 
 export interface TableCustomizedDataType {
@@ -166,3 +167,17 @@ export const getCustomFieldsIFields = (
     .filter((field) => field.entityType === entityType)
     .sort((a, b) => a.order - b.order)
     .map((field) => getCustomFieldIField(field));
+
+export const getCustomFieldValuesForDetails = (
+  customFieldValues: CustomFieldValue[],
+  getFormattedDate: (date: string) => string
+): { label: string; value: string; isLink?: boolean }[] =>
+  [...customFieldValues]
+    .sort((a, b) => a.customField.order - b.customField.order)
+    .map(({ customField, value }) => ({
+      label: customField.label,
+      value: customField.fieldType.includes('DATE')
+        ? getFormattedDate(value)
+        : value,
+      isLink: customField.fieldType === 'LINK'
+    }));

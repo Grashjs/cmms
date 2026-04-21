@@ -31,3 +31,8 @@ export enum CustomFieldEntityType {
   PURCHASE_REQUEST = 'PURCHASE_REQUEST',
   METER = 'METER'
 }
+
+export interface CustomFieldValue {
+  customField: CustomField;
+  value: string;
+}

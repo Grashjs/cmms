@@ -97,6 +97,7 @@ import AddFileModal from './AddFileModal';
 import CommentsSection from './CommentsSection';
 import { useBrand } from '../../../../hooks/useBrand';
 import { useLicenseEntitlement } from '../../../../hooks/useLicenseEntitlement';
+import { getCustomFieldValuesForDetails } from '../../type';
 import { getErrorMessage } from '../../../../utils/api';
 import { getCommentsCountByWorkOrder } from '../../../../slices/comment';
 
@@ -525,15 +526,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
       label: t('created_at'),
       value: getFormattedDate(workOrder.createdAt)
     },
-    ...[...workOrder.customFieldValues]
-      .sort((a, b) => a.customField.order - b.customField.order)
-      .map(({ customField, value }) => ({
-        label: customField.label,
-        value: customField.fieldType.includes('DATE')
-          ? getFormattedDate(value)
-          : value,
-        isLink: customField.fieldType === 'LINK'
-      }))
+    ...getCustomFieldValuesForDetails(workOrder.customFieldValues, getFormattedDate)
   ];
   return (
     <Grid
