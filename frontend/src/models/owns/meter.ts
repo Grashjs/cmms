@@ -4,6 +4,7 @@ import { LocationMiniDTO } from './location';
 import { UserMiniDTO } from '../user';
 import File from './file';
 import Category from './category';
+import { CustomFieldValue } from './customField';
 
 export default interface Meter extends Audit {
   name: string;
