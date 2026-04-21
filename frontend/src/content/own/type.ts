@@ -172,7 +172,7 @@ export const getCustomFieldValuesForDetails = (
   customFieldValues: CustomFieldValue[],
   getFormattedDate: (date: string) => string
 ): { label: string; value: string; isLink?: boolean }[] =>
-  [...customFieldValues]
+  [...(customFieldValues ?? [])]
     .sort((a, b) => a.customField.order - b.customField.order)
     .map(({ customField, value }) => ({
       label: customField.label,

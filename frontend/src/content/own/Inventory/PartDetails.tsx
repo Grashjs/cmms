@@ -40,6 +40,7 @@ import { useNavigate } from 'react-router-dom';
 import { getWorkOrdersByPart } from '../../../slices/workOrder';
 import { getFormattedQuantityWithUnit } from './Parts';
 import { getFormattedCostPerUnit } from '../../../utils/formatters';
+import { getCustomFieldValuesForDetails } from '../type';
 
 interface PartDetailsProps {
   part: Part;
@@ -113,7 +114,8 @@ export default function PartDetails(props: PartDetailsProps) {
     {
       label: t('barcode'),
       value: part.barcode
-    }
+    },
+    ...getCustomFieldValuesForDetails(part.customFieldValues, getFormattedDate)
   ];
   const areaFieldsToRender = (part: Part): { label: string; value: any }[] => [
     {

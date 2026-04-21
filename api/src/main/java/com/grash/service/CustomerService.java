@@ -34,10 +34,9 @@ public class CustomerService {
     private final CustomFieldValueService customFieldValueService;
 
 
-    public Customer create(Customer customer) {
+    public Customer create(Customer customer, Company company) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.CUSTOMER_VENDOR))
             throw new CustomException("You need a license to create a contractor", HttpStatus.FORBIDDEN);
-        Company company = customer.getCompany();
         if (customer instanceof CustomerPostDTO customerPostDTO) {
             customer = customerMapper.fromPostDto(customerPostDTO);
             if (customerPostDTO.getCustomFields() != null && !customerPostDTO.getCustomFields().isEmpty()) {
@@ -47,7 +46,8 @@ public class CustomerService {
         return customerRepository.save(customer);
     }
 
-    private void setCustomerCustomFields(Customer customer, List<CustomFieldValuePostDTO> customFieldValuePostDTOS, Company company) {
+    private void setCustomerCustomFields(Customer customer, List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
+                                         Company company) {
         customFieldValueService.setCustomFields(
                 customer,
                 customer.getCustomFieldValues(),

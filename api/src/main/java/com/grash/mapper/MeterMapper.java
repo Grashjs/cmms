@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 
-@Mapper(componentModel = "spring", uses = {LocationMapper.class, AssetMapper.class, UserMapper.class, FileMapper.class})
+@Mapper(componentModel = "spring", uses = {LocationMapper.class, AssetMapper.class, UserMapper.class, FileMapper.class, CustomFieldValueMapper.class})
 public interface MeterMapper {
     Meter updateMeter(@MappingTarget Meter entity, MeterPatchDTO dto);
 

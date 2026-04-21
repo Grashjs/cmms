@@ -1,12 +1,14 @@
 package com.grash.dto;
 
 import com.grash.dto.FileShowDTO;
+import com.grash.dto.cutomField.CustomFieldValueShowDTO;
 import com.grash.model.PartCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Collection;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -66,4 +68,7 @@ public class PartShowDTO extends AuditShowDTO {
 
     @Schema(description = "Unit of measurement")
     private String unit;
+
+    @Schema(description = "Custom field values")
+    private List<CustomFieldValueShowDTO> customFieldValues;
 }

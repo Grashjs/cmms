@@ -38,10 +38,9 @@ public class VendorService {
     private final WebhookDispatchService webhookDispatchService;
     private final CustomFieldValueService customFieldValueService;
 
-    public Vendor create(Vendor vendor) {
+    public Vendor create(Vendor vendor, Company company) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.CUSTOMER_VENDOR))
             throw new CustomException("You need a license to create a vendor", HttpStatus.FORBIDDEN);
-        Company company = vendor.getCompany();
         if (vendor instanceof VendorPostDTO vendorPostDTO) {
             vendor = vendorMapper.fromPostDto(vendorPostDTO);
             if (vendorPostDTO.getCustomFields() != null && !vendorPostDTO.getCustomFields().isEmpty()) {
@@ -56,7 +55,8 @@ public class VendorService {
         return savedVendor;
     }
 
-    private void setVendorCustomFields(Vendor vendor, List<CustomFieldValuePostDTO> customFieldValuePostDTOS, Company company) {
+    private void setVendorCustomFields(Vendor vendor, List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
+                                       Company company) {
         customFieldValueService.setCustomFields(
                 vendor,
                 vendor.getCustomFieldValues(),

@@ -20,7 +20,7 @@ import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import Meter from '../../../models/owns/meter';
 import * as Yup from 'yup';
 import Form from '../components/form';
-import { IField } from '../type';
+import { getCustomFieldValuesForDetails, IField } from '../type';
 import { useDispatch, useSelector } from '../../../store';
 import { createReading, getReadings } from '../../../slices/reading';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
@@ -103,7 +103,8 @@ export default function MeterDetails(props: MeterDetailsProps) {
           acc + `${index !== 0 ? ',' : ''} ${user.firstName} ${user.lastName}`,
         ''
       )
-    }
+    },
+    ...getCustomFieldValuesForDetails(meter.customFieldValues, getFormattedDate)
   ];
   const fields: Array<IField> = [
     {

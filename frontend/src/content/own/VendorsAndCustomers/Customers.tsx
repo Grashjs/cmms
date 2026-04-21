@@ -11,7 +11,11 @@ import {
 import { useTranslation } from 'react-i18next';
 import Form from '../components/form';
 import * as Yup from 'yup';
-import { IField } from '../type';
+import {
+  getCustomFieldsValues,
+  getCustomFieldValuesForDetails,
+  IField
+} from '../type';
 import * as React from 'react';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import CustomDatagrid2, {
@@ -52,6 +56,7 @@ import { getCustomFields } from '../../../slices/customField';
 import { CustomFieldEntityType } from '../../../models/owns/customField';
 import { getCustomFieldsIFields, getCustomFieldsRequiredShape } from '../type';
 import { formatCustomFields } from '../../../utils/formatters';
+import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 
 interface PropsType {
   values?: any;
@@ -116,6 +121,7 @@ const Customers = ({ openModal, handleCloseModal }: PropsType) => {
   const [viewOrUpdate, setViewOrUpdate] = useState<'view' | 'update'>('view');
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const { showSnackBar } = useContext(CustomSnackBarContext);
+  const { getFormattedDate } = useContext(CompanySettingsContext);
 
   const onQueryChange = (event) => {
     onSearchQueryChange<Customer>(event, criteria, setCriteria, [
@@ -496,7 +502,11 @@ const Customers = ({ openModal, handleCloseModal }: PropsType) => {
     {
       label: t('billing_currency'),
       value: currentCustomer?.billingCurrency?.name
-    }
+    },
+    ...getCustomFieldValuesForDetails(
+      currentCustomer?.customFieldValues,
+      getFormattedDate
+    )
   ];
   const renderKeyAndValue = (key: string, value: string) => {
     if (value)
@@ -629,7 +639,8 @@ const Customers = ({ openModal, handleCloseModal }: PropsType) => {
                       label: currentCustomer.billingCurrency.name,
                       value: currentCustomer.billingCurrency.id
                     }
-                  : null
+                  : null,
+                ...getCustomFieldsValues(currentCustomer)
               }}
               onChange={({ field, e }) => {}}
               onSubmit={async (values) => {

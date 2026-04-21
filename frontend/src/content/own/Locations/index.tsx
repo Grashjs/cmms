@@ -18,7 +18,7 @@ import {
   Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { IField } from '../type';
+import { getCustomFieldsValues, IField } from '../type';
 import ReplayTwoToneIcon from '@mui/icons-material/ReplayTwoTone';
 import Location, { LocationRow } from '../../../models/owns/location';
 import * as React from 'react';
@@ -41,7 +41,12 @@ import Form from '../components/form';
 import * as Yup from 'yup';
 import { isNumeric } from '../../../utils/validators';
 import LocationDetails from './LocationDetails';
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams
+} from 'react-router-dom';
 import Map from '../components/Map';
 import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
 import { CustomSnackBarContext } from 'src/contexts/CustomSnackBarContext';
@@ -528,7 +533,11 @@ function Locations() {
   };
   const shape = {
     name: Yup.string().required(t('required_location_name')),
-    ...getCustomFieldsRequiredShape(customFields, CustomFieldEntityType.LOCATION, t)
+    ...getCustomFieldsRequiredShape(
+      customFields,
+      CustomFieldEntityType.LOCATION,
+      t
+    )
   };
 
   const renderLocationAddModal = () => (
@@ -702,7 +711,8 @@ function Locations() {
                     label: currentLocation.parentLocation.name,
                     value: currentLocation.parentLocation.id
                   }
-                : null
+                : null,
+              ...getCustomFieldsValues(currentLocation)
             }}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {

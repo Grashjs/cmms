@@ -1,4 +1,5 @@
 import { Audit } from './audit';
+import { CustomFieldValue } from './customField';
 
 export interface Vendor extends Audit {
   id: number;
@@ -11,6 +12,7 @@ export interface Vendor extends Audit {
   vendorType: string;
   description: string;
   rate: number;
+  customFieldValues: CustomFieldValue[];
 }
 
 export interface VendorMiniDTO {

@@ -4,6 +4,7 @@ import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.CustomerMiniDTO;
 import com.grash.dto.CustomerPatchDTO;
 import com.grash.dto.CustomerPostDTO;
+import com.grash.dto.CustomerShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CustomerMapper;
@@ -63,40 +64,42 @@ public class CustomerController {
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
 
-    public Customer getById(@PathVariable("id") Long id, HttpServletRequest req) {
+    public CustomerShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Customer> optionalCustomer = customerService.findById(id);
         if (optionalCustomer.isPresent()) {
             Customer savedCustomer = optionalCustomer.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
-                return savedCustomer;
+                return customerMapper.toShowDto(savedCustomer);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    Customer create(@Parameter(description = "Customer to create") @Valid @RequestBody CustomerPostDTO customerReq,
-                    HttpServletRequest req) {
+    CustomerShowDTO create(@Parameter(description = "Customer to create") @Valid @RequestBody CustomerPostDTO customerReq,
+                           HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
-            return customerService.create(customerReq);
+            Customer savedCustomer = customerService.create(customerReq, user.getCompany());
+            return customerMapper.toShowDto(savedCustomer);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public Customer patch(@Parameter(description = "Customer fields to update") @Valid @RequestBody CustomerPatchDTO customer,
-                          @PathVariable("id") Long id,
-                          HttpServletRequest req) {
+    public CustomerShowDTO patch(@Parameter(description = "Customer fields to update") @Valid @RequestBody CustomerPatchDTO customer,
+                                 @PathVariable("id") Long id,
+                                 HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Customer> optionalCustomer = customerService.findById(id);
 
         if (optionalCustomer.isPresent()) {
             Customer savedCustomer = optionalCustomer.get();
             if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS) || savedCustomer.getCreatedBy().equals(user.getId())) {
-                return customerService.update(id, customer, user.getCompany());
+                Customer updatedCustomer = customerService.update(id, customer, user.getCompany());
+                return customerMapper.toShowDto(updatedCustomer);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Customer not found", HttpStatus.NOT_FOUND);
     }

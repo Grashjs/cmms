@@ -1,6 +1,7 @@
 package com.grash.dto;
 
 import com.grash.dto.FileShowDTO;
+import com.grash.dto.cutomField.CustomFieldValueShowDTO;
 import com.grash.model.MeterCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -44,4 +45,7 @@ public class MeterShowDTO extends AuditShowDTO {
 
     @Schema(description = "Next reading date")
     private Date nextReading;
+
+    @Schema(description = "Custom field values")
+    private List<CustomFieldValueShowDTO> customFieldValues = new ArrayList<>();
 }

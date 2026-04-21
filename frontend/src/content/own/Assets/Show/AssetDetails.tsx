@@ -88,7 +88,10 @@ const AssetDetails = ({ asset, loading }: PropsType) => {
       label: t('warranty_expiration'),
       value: getFormattedDate(asset?.warrantyExpirationDate)
     },
-    ...getCustomFieldValuesForDetails(asset.customFieldValues, getFormattedDate)
+    ...getCustomFieldValuesForDetails(
+      asset?.customFieldValues,
+      getFormattedDate
+    )
   ];
   const BasicField = ({
     label,

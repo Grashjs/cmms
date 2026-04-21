@@ -1,5 +1,6 @@
 package com.grash.dto;
 
+import com.grash.dto.cutomField.CustomFieldValueShowDTO;
 import com.grash.model.AssetCategory;
 import com.grash.model.Deprecation;
 import com.grash.dto.FileShowDTO;
@@ -103,4 +104,7 @@ public class AssetShowDTO extends AuditShowDTO {
 
     @Schema(description = "Custom identifier")
     private String customId;
+
+    @Schema(description = "Custom field values")
+    private List<CustomFieldValueShowDTO> customFieldValues = new ArrayList<>();
 }

@@ -32,11 +32,11 @@ import {
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useNavigate, useParams } from 'react-router-dom';
 import PurchaseOrderDetails from './PurchaseOrderDetails';
-import { IField } from '../type';
+import { IField, getCustomFieldsIFields } from '../type';
 import Form from '../components/form';
 import * as Yup from 'yup';
 import { isNumeric } from '../../../utils/validators';
-import { formatSelect } from '../../../utils/formatters';
+import { formatSelect, formatCustomFields } from '../../../utils/formatters';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import useAuth from '../../../hooks/useAuth';
@@ -53,6 +53,9 @@ import Category from '../../../models/owns/category';
 import { SearchCriteria } from '../../../models/owns/page';
 import { onSearchQueryChange } from '../../../utils/overall';
 import SearchInput from '../components/SearchInput';
+import { getCustomFields } from '../../../slices/customField';
+import { CustomFieldEntityType } from '../../../models/owns/customField';
+import { getCustomFieldsRequiredShape } from '../type';
 
 function PurchaseOrders() {
   const { t }: { t: any } = useTranslation();
@@ -72,6 +75,7 @@ function PurchaseOrders() {
   const { purchaseOrders, loadingGet, singlePurchaseOrder } = useSelector(
     (state) => state.purchaseOrders
   );
+  const { customFields } = useSelector((state) => state.customFields);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
   const [criteria, setCriteria] = useState<SearchCriteria>({
     filterFields: [],
@@ -169,6 +173,12 @@ function PurchaseOrders() {
     if (currentPurchaseOrder)
       dispatch(getPartQuantitiesByPurchaseOrder(currentPurchaseOrder.id));
   }, [currentPurchaseOrder?.id]);
+
+  useEffect(() => {
+    if (openUpdateModal && !customFields.length) {
+      dispatch(getCustomFields());
+    }
+  }, [openUpdateModal]);
 
   const handleDelete = (id: number) => {
     handleCloseDetails();
@@ -435,10 +445,12 @@ function PurchaseOrders() {
       label: t('shipping_method'),
       placeholder: t('shipping_method'),
       midWidth: true
-    }
+    },
+    ...getCustomFieldsIFields(customFields, CustomFieldEntityType.PURCHASE_REQUEST)
   ];
   const shape = {
-    name: Yup.string().required(t('required_name'))
+    name: Yup.string().required(t('required_name')),
+    ...getCustomFieldsRequiredShape(customFields, CustomFieldEntityType.PURCHASE_REQUEST, t)
   };
   const renderUpdateModal = () => (
     <Dialog
@@ -488,6 +500,7 @@ function PurchaseOrders() {
             onSubmit={async (values) => {
               values.vendor = formatSelect(values.vendor);
               values.category = formatSelect(values.category);
+              values = formatCustomFields(values);
               return new Promise<void>((resolve, rej) => {
                 dispatch(editPurchaseOrder(currentPurchaseOrder.id, values))
                   .then(() => {

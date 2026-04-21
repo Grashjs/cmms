@@ -13,7 +13,7 @@ import com.grash.service.LocationService;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring", uses = {CustomerMapper.class, VendorMapper.class, UserMapper.class,
-        TeamMapper.class, FileMapper.class})
+        TeamMapper.class, FileMapper.class, CustomFieldValueMapper.class})
 public interface LocationMapper {
     Location updateLocation(@MappingTarget Location entity, LocationPatchDTO dto);
 

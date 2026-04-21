@@ -17,6 +17,7 @@ export default interface Meter extends Audit {
   asset: AssetMiniDTO;
   nextReading: string;
   lastReading: string;
+  customFieldValues: CustomFieldValue[];
 }
 export interface MeterMiniDTO {
   name: string;

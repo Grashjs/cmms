@@ -20,7 +20,11 @@ import { useDispatch, useSelector } from '../../../store';
 import { useTranslation } from 'react-i18next';
 import Form from '../components/form';
 import * as Yup from 'yup';
-import { IField } from '../type';
+import {
+  getCustomFieldsValues,
+  getCustomFieldValuesForDetails,
+  IField
+} from '../type';
 import ConfirmDialog from '../components/ConfirmDialog';
 import * as React from 'react';
 import { useContext, useEffect, useMemo, useState } from 'react';
@@ -51,6 +55,7 @@ import { CustomFieldEntityType } from '../../../models/owns/customField';
 import { getCustomFieldsIFields, getCustomFieldsRequiredShape } from '../type';
 import { formatCustomFields } from '../../../utils/formatters';
 import { getErrorMessage } from '../../../utils/api';
+import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 
 interface PropsType {
   values?: any;
@@ -79,6 +84,7 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
   const { vendors, loadingGet, singleVendor } = useSelector(
     (state) => state.vendors
   );
+  const { getFormattedDate } = useContext(CompanySettingsContext);
   const { customFields } = useSelector((state) => state.customFields);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
   const [criteria, setCriteria] = useState<SearchCriteria>({
@@ -288,7 +294,11 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
       .matches(websiteRegExp, t('invalid_website'))
       .nullable(),
     email: Yup.string().matches(emailRegExp, t('invalid_email')).nullable(),
-    ...getCustomFieldsRequiredShape(customFields, CustomFieldEntityType.VENDOR, t)
+    ...getCustomFieldsRequiredShape(
+      customFields,
+      CustomFieldEntityType.VENDOR,
+      t
+    )
   };
 
   const columnHelper = createColumnHelper<Vendor>();
@@ -297,9 +307,7 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
     columnHelper.accessor('companyName', {
       id: 'companyName',
       header: () => t('company_name'),
-      cell: (info) => (
-        <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>
-      ),
+      cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>,
       size: 150
     }),
     columnHelper.accessor('address', {
@@ -373,7 +381,11 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
     {
       label: t('contact_name'),
       value: currentVendor?.name
-    }
+    },
+    ...getCustomFieldValuesForDetails(
+      currentVendor?.customFieldValues,
+      getFormattedDate
+    )
   ];
   const renderKeyAndValue = (key: string, value: string) => {
     if (value)
@@ -574,7 +586,10 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
               fields={fields}
               validation={Yup.object().shape(shape)}
               submitText={t('save')}
-              values={currentVendor || {}}
+              values={
+                { ...currentVendor, ...getCustomFieldsValues(currentVendor) } ||
+                {}
+              }
               onChange={({ field, e }) => {}}
               onSubmit={async (values) => {
                 let formattedValues = formatCustomFields(values);
