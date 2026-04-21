@@ -402,7 +402,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
     }
   ];
 
-  const getPath = (resource, id) => {
+  const getPath = (resource: string, id: number) => {
     switch (resource) {
       case 'asset':
         return getAssetUrl(id);
@@ -430,14 +430,19 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
     label,
     value,
     id,
-    type
+    type,
+    isLink
   }: {
     label: string | number;
     value: string | number;
     type?: string;
     id?: number;
+    isLink?: boolean;
   }) => {
-    if (value && (!type || (type && id))) {
+    if (value && (isLink || !type || (type && id))) {
+      const href = value.toString().startsWith('http')
+        ? value.toString()
+        : `https://${value}`;
       return (
         <Grid item xs={12} lg={6}>
           <Typography variant="h6" sx={{ color: theme.colors.alpha.black[70] }}>
@@ -445,6 +450,16 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
           </Typography>
           {type ? (
             <Link href={getPath(type, id)} variant="h6" fontWeight="bold">
+              {value}
+            </Link>
+          ) : isLink ? (
+            <Link
+              variant="h6"
+              fontWeight="bold"
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               {value}
             </Link>
           ) : (
@@ -463,6 +478,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
     label: string;
     value: string | number;
     type?: 'location' | 'asset' | 'team';
+    isLink?: boolean;
     id?: number;
   }[] => [
     {
@@ -508,7 +524,14 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
     {
       label: t('created_at'),
       value: getFormattedDate(workOrder.createdAt)
-    }
+    },
+    ...workOrder.customFieldValues.map(({ customField, value }) => ({
+      label: customField.label,
+      value: customField.fieldType.includes('DATE')
+        ? getFormattedDate(value)
+        : value,
+      isLink: customField.fieldType === 'LINK'
+    }))
   ];
   return (
     <Grid
@@ -721,6 +744,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
                   value={field.value}
                   type={field.type}
                   id={field.id}
+                  isLink={field.isLink}
                 />
               ))}
               {workOrder.primaryUser && (

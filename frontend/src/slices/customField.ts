@@ -86,7 +86,7 @@ export const getCustomFields = (): AppThunk => async (dispatch) => {
 
 export const createCustomField =
   (
-    customField: Omit<CustomField, 'id' | 'createdAt' | 'updatedAt', 'order'>
+    customField: Omit<CustomField, 'id' | 'createdAt' | 'updatedAt' | 'order'>
   ): AppThunk =>
   async (dispatch) => {
     const customFieldResponse = await api.post<CustomField>(
