@@ -311,6 +311,7 @@ export default function RequestDetails({
                   label={field.label}
                   value={field.value}
                   isPriority={field.label === t('priority')}
+                  {...field}
                 />
               ))}
               {request?.createdBy && (

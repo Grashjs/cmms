@@ -189,21 +189,13 @@ const AssetDetails = ({ asset, loading }: PropsType) => {
                 </Stack>
               </Grid>
               {informationFields.map((field) => (
-                <BasicField
-                  key={field.label}
-                  label={field.label}
-                  value={field.value}
-                />
+                <BasicField key={field.label} {...field} />
               ))}
               <Grid item xs={12}>
                 <Typography variant="h3">{t('more_informations')}</Typography>
               </Grid>
               {moreInfosFields.map((field) => (
-                <BasicField
-                  key={field.label}
-                  label={field.label}
-                  value={field.value}
-                />
+                <BasicField key={field.label} {...field} />
               ))}
               {asset?.primaryUser && (
                 <Grid item xs={12}>

@@ -194,11 +194,7 @@ export default function PartDetails(props: PartDetailsProps) {
                 </Typography>
                 <Grid container spacing={2}>
                   {firstFieldsToRender(part).map((field) => (
-                    <BasicField
-                      key={field.label}
-                      label={field.label}
-                      value={field.value}
-                    />
+                    <BasicField key={field.label} {...field} />
                   ))}
                 </Grid>
               </Grid>

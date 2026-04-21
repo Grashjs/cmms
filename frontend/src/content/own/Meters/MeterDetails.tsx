@@ -210,11 +210,7 @@ export default function MeterDetails(props: MeterDetailsProps) {
             </Typography>
             <Grid container spacing={2}>
               {fieldsToRender(meter).map((field) => (
-                <BasicField
-                  key={field.label}
-                  label={field.label}
-                  value={field.value}
-                />
+                <BasicField key={field.label} {...field} />
               ))}
             </Grid>
             <Typography sx={{ mt: 2, mb: 1 }} variant="h4">

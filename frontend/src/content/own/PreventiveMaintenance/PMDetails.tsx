@@ -275,9 +275,8 @@ export default function PMDetails({
                 {fieldsToRender(preventiveMaintenance).map((field) => (
                   <BasicField
                     key={field.label}
-                    label={field.label}
-                    value={field.value}
                     isPriority={field.label === t('priority')}
+                    {...field}
                   />
                 ))}
                 {preventiveMaintenance?.asset && (

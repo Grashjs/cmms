@@ -526,7 +526,10 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
       label: t('created_at'),
       value: getFormattedDate(workOrder.createdAt)
     },
-    ...getCustomFieldValuesForDetails(workOrder.customFieldValues, getFormattedDate)
+    ...getCustomFieldValuesForDetails(
+      workOrder.customFieldValues,
+      getFormattedDate
+    )
   ];
   return (
     <Grid
@@ -733,14 +736,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
                 </Grid>
               )}
               {detailsFieldsToRender(workOrder).map((field, index) => (
-                <BasicField
-                  key={index}
-                  label={field.label}
-                  value={field.value}
-                  type={field.type}
-                  id={field.id}
-                  isLink={field.isLink}
-                />
+                <BasicField key={index} {...field} />
               ))}
               {workOrder.primaryUser && (
                 <Grid item xs={12} lg={6}>
