@@ -46,6 +46,4 @@ public class WorkOrderShowDTO extends WorkOrderBaseShowDTO {
     @Schema(description = "Custom identifier for the work order")
     private String customId;
 
-    @Schema(description = "Custom field values associated with the work order")
-    private List<CustomFieldValueShowDTO> customFieldValues = new ArrayList<>();
 }

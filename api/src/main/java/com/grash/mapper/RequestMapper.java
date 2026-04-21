@@ -1,13 +1,14 @@
 package com.grash.mapper;
 
 import com.grash.dto.RequestPatchDTO;
+import com.grash.dto.RequestPostDTO;
 import com.grash.dto.RequestShowDTO;
 import com.grash.model.Request;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 
-@Mapper(componentModel = "spring", uses = {FileMapper.class})
+@Mapper(componentModel = "spring", uses = {FileMapper.class, CustomFieldValueMapper.class})
 public interface RequestMapper {
     Request updateRequest(@MappingTarget Request entity, RequestPatchDTO dto);
 
@@ -15,4 +16,6 @@ public interface RequestMapper {
     RequestPatchDTO toPatchDto(Request model);
 
     RequestShowDTO toShowDto(Request model);
+
+    Request fromPostDTO(RequestPostDTO requestPostDTO);
 }

@@ -14,7 +14,7 @@ import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.PortalFieldType;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.webhook.WebhookEvent;
-import com.grash.repository.CustomFieldRepository;
+
 import com.grash.repository.FieldConfigurationRepository;
 import com.grash.repository.RequestRepository;
 import lombok.RequiredArgsConstructor;
@@ -50,12 +50,13 @@ public class RequestService {
     private final RequestPortalService requestPortalService;
     private final FieldConfigurationRepository fieldConfigurationRepository;
     private final WebhookDispatchService webhookDispatchService;
-    private final CustomFieldRepository customFieldRepository;
+    private final CustomFieldValueService customFieldValueService;
 
 
     @Transactional
     public Request create(Request request, Company company) {
         if (request instanceof RequestPostDTO requestPostDTO) {
+            request = requestMapper.fromPostDTO(requestPostDTO);
             if (!requestPostDTO.getCustomFields().isEmpty()) {
                 setRequestCustomFields(request, requestPostDTO.getCustomFields(), company);
             }
@@ -117,21 +118,14 @@ public class RequestService {
 
     private void setRequestCustomFields(Request request, List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
                                         Company company) {
-        List<CustomField> customFields =
-                customFieldRepository.findByCompanySettingsAndEntityType(company.getCompanySettings(),
-                        CustomFieldEntityType.WORK_ORDER);
-
-        request.getCustomFieldValues().clear();
-
-        for (CustomFieldValuePostDTO customFieldValuePostDTO : customFieldValuePostDTOS) {
-            CustomFieldValue customFieldValue = new CustomFieldValue();
-            customFieldValue.setRequest(request);
-            customFieldValue.setValue(customFieldValuePostDTO.getValue());
-            customFieldValue.setCustomField(customFields.stream().filter(customField -> customField.getId().equals(customFieldValuePostDTO.getId()))
-                    .findFirst().orElseThrow(() -> new CustomException("Custom field not found",
-                            HttpStatus.NOT_FOUND)));
-            request.getCustomFieldValues().add(customFieldValue);
-        }
+        customFieldValueService.setCustomFields(
+                request,
+                request.getCustomFieldValues(),
+                customFieldValuePostDTOS,
+                company,
+                CustomFieldEntityType.WORK_ORDER,
+                cfv -> cfv.setRequest(request)
+        );
     }
 
     public Collection<Request> getAll() {

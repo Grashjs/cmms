@@ -8,7 +8,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMeterTriggerMapper;
 import com.grash.model.*;
 import com.grash.model.enums.CustomFieldEntityType;
-import com.grash.repository.CustomFieldRepository;
+
 import com.grash.repository.WorkOrderMeterTriggerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,17 +30,20 @@ public class WorkOrderMeterTriggerService {
     private final MeterService meterService;
     private final EntityManager em;
     private final LicenseService licenseService;
-    private final CustomFieldRepository customFieldRepository;
+    private final CustomFieldValueService customFieldValueService;
 
     @Transactional
-    public WorkOrderMeterTrigger create(WorkOrderMeterTriggerPostDTO workOrderMeterTrigger, Company company) {
+    public WorkOrderMeterTrigger create(WorkOrderMeterTrigger workOrderMeterTrigger, Company company) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.CONDITION_BASED_PM))
             throw new CustomException("You need a license to create a meter trigger", HttpStatus.FORBIDDEN);
 
-        if (!workOrderMeterTrigger.getCustomFields().isEmpty()) {
-            setMeterTriggerCustomFields(workOrderMeterTrigger, workOrderMeterTrigger.getCustomFields(), company);
+        if (workOrderMeterTrigger instanceof WorkOrderMeterTriggerPostDTO workOrderMeterTriggerPostDTO) {
+            workOrderMeterTrigger = workOrderMeterTriggerMapper.fromPostDto(workOrderMeterTriggerPostDTO);
+            if (!workOrderMeterTriggerPostDTO.getCustomFields().isEmpty()) {
+                setMeterTriggerCustomFields(workOrderMeterTrigger, workOrderMeterTriggerPostDTO.getCustomFields(),
+                        company);
+            }
         }
-
         WorkOrderMeterTrigger savedWorkOrderMeterTrigger =
                 workOrderMeterTriggerRepository.saveAndFlush(workOrderMeterTrigger);
         em.refresh(savedWorkOrderMeterTrigger);
@@ -62,21 +65,14 @@ public class WorkOrderMeterTriggerService {
     private void setMeterTriggerCustomFields(WorkOrderMeterTrigger workOrderMeterTrigger,
                                              List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
                                              Company company) {
-        List<CustomField> customFields =
-                customFieldRepository.findByCompanySettingsAndEntityType(company.getCompanySettings(),
-                        CustomFieldEntityType.WORK_ORDER);
-
-        workOrderMeterTrigger.getCustomFieldValues().clear();
-
-        for (CustomFieldValuePostDTO customFieldValuePostDTO : customFieldValuePostDTOS) {
-            CustomFieldValue customFieldValue = new CustomFieldValue();
-            customFieldValue.setWorkOrderMeterTrigger(workOrderMeterTrigger);
-            customFieldValue.setValue(customFieldValuePostDTO.getValue());
-            customFieldValue.setCustomField(customFields.stream().filter(customField -> customField.getId().equals(customFieldValuePostDTO.getId()))
-                    .findFirst().orElseThrow(() -> new CustomException("Custom field not found",
-                            HttpStatus.NOT_FOUND)));
-            workOrderMeterTrigger.getCustomFieldValues().add(customFieldValue);
-        }
+        customFieldValueService.setCustomFields(
+                workOrderMeterTrigger,
+                workOrderMeterTrigger.getCustomFieldValues(),
+                customFieldValuePostDTOS,
+                company,
+                CustomFieldEntityType.WORK_ORDER,
+                cfv -> cfv.setWorkOrderMeterTrigger(workOrderMeterTrigger)
+        );
     }
 
     public Collection<WorkOrderMeterTrigger> getAll() {

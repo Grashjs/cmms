@@ -18,7 +18,7 @@ import com.grash.model.enums.*;
 import com.grash.model.enums.webhook.WOField;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.model.enums.workflow.WFMainCondition;
-import com.grash.repository.CustomFieldRepository;
+
 import com.grash.repository.WorkOrderHistoryRepository;
 import com.grash.repository.WorkOrderRepository;
 import com.grash.utils.Helper;
@@ -72,7 +72,7 @@ public class WorkOrderService {
     private String frontendUrl;
     private final LicenseService licenseService;
     private WebhookDispatchService webhookDispatchService;
-    private final CustomFieldRepository customFieldRepository;
+    private final CustomFieldValueService customFieldValueService;
 
     @Autowired
     public void setDeps(@Lazy WorkflowService workflowService
@@ -112,21 +112,14 @@ public class WorkOrderService {
 
     private void setWOCustomFields(WorkOrder workOrder, List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
                                    Company company) {
-        List<CustomField> customFields =
-                customFieldRepository.findByCompanySettingsAndEntityType(company.getCompanySettings(),
-                        CustomFieldEntityType.WORK_ORDER);
-
-        workOrder.getCustomFieldValues().clear();
-
-        for (CustomFieldValuePostDTO customFieldValuePostDTO : customFieldValuePostDTOS) {
-            CustomFieldValue customFieldValue = new CustomFieldValue();
-            customFieldValue.setWorkOrder(workOrder);
-            customFieldValue.setValue(customFieldValuePostDTO.getValue());
-            customFieldValue.setCustomField(customFields.stream().filter(customField -> customField.getId().equals(customFieldValuePostDTO.getId()))
-                    .findFirst().orElseThrow(() -> new CustomException("Custom field not found",
-                            HttpStatus.NOT_FOUND)));
-            workOrder.getCustomFieldValues().add(customFieldValue);
-        }
+        customFieldValueService.setCustomFields(
+                workOrder,
+                workOrder.getCustomFieldValues(),
+                customFieldValuePostDTOS,
+                company,
+                CustomFieldEntityType.WORK_ORDER,
+                cfv -> cfv.setWorkOrder(workOrder)
+        );
     }
 
     public String getWorkOrderNumber(Company company) {

@@ -13,7 +13,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.model.*;
 import com.grash.model.enums.*;
-import com.grash.repository.CustomFieldRepository;
+
 import com.grash.repository.PreventiveMaintenanceRepository;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +55,7 @@ public class PreventiveMaintenanceService {
     private final WorkOrderCategoryService workOrderCategoryService;
     private final ScheduleService scheduleService;
     private final LicenseService licenseService;
-    private final CustomFieldRepository customFieldRepository;
+    private final CustomFieldValueService customFieldValueService;
 
 
     @Transactional
@@ -104,21 +104,14 @@ public class PreventiveMaintenanceService {
     private void setPMCustomFields(PreventiveMaintenance preventiveMaintenance,
                                    List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
                                    Company company) {
-        List<CustomField> customFields =
-                customFieldRepository.findByCompanySettingsAndEntityType(company.getCompanySettings(),
-                        CustomFieldEntityType.WORK_ORDER);
-
-        preventiveMaintenance.getCustomFieldValues().clear();
-
-        for (CustomFieldValuePostDTO customFieldValuePostDTO : customFieldValuePostDTOS) {
-            CustomFieldValue customFieldValue = new CustomFieldValue();
-            customFieldValue.setPreventiveMaintenance(preventiveMaintenance);
-            customFieldValue.setValue(customFieldValuePostDTO.getValue());
-            customFieldValue.setCustomField(customFields.stream().filter(customField -> customField.getId().equals(customFieldValuePostDTO.getId()))
-                    .findFirst().orElseThrow(() -> new CustomException("Custom field not found",
-                            HttpStatus.NOT_FOUND)));
-            preventiveMaintenance.getCustomFieldValues().add(customFieldValue);
-        }
+        customFieldValueService.setCustomFields(
+                preventiveMaintenance,
+                preventiveMaintenance.getCustomFieldValues(),
+                customFieldValuePostDTOS,
+                company,
+                CustomFieldEntityType.WORK_ORDER,
+                cfv -> cfv.setPreventiveMaintenance(preventiveMaintenance)
+        );
     }
 
     public Collection<PreventiveMaintenance> getAll() {

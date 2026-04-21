@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {LocationMapper.class, TeamMapper.class, UserMapper.class,
-        CustomerMapper.class, AssetMapper.class, FileMapper.class})
+        CustomerMapper.class, AssetMapper.class, FileMapper.class, CustomFieldValueMapper.class})
 @Slf4j
 public abstract class PreventiveMaintenanceMapper {
 
