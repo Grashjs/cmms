@@ -1,5 +1,7 @@
 package com.grash.configuration;
 
+import com.grash.dto.license.LicenseEntitlement;
+import com.grash.service.LicenseService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,8 +57,10 @@ public class LdapSecurityConfig {
 
 
     @Bean
-    public LdapContextSource contextSource() {
+    public LdapContextSource contextSource(LicenseService licenseService) {
         LdapContextSource contextSource = new LdapContextSource();
+        if (!licenseService.hasEntitlement(LicenseEntitlement.SSO))
+            throw new IllegalStateException("SSO entitlement is required for LDAP authentication");
         contextSource.setUrl(ldapUrl);
         contextSource.setBase(ldapBaseDn);
 
