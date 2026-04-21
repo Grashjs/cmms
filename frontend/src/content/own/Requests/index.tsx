@@ -39,7 +39,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { isNumeric } from '../../../utils/validators';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 import PriorityWrapper from '../components/PriorityWrapper';
-import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
+import { formatSelect, formatSelectMultiple, formatCustomFields } from '../../../utils/formatters';
 import useAuth from '../../../hooks/useAuth';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import { getWOBaseFields, getWOBaseValues } from '../../../utils/woBase';
@@ -251,7 +251,7 @@ function Requests() {
     newValues.assignedTo = formatSelectMultiple(newValues.assignedTo);
     newValues.priority = newValues.priority?.value;
     newValues.category = formatSelect(newValues.category);
-    return newValues;
+    return formatCustomFields(newValues);
   };
 
   const columnHelper = createColumnHelper<Request>();

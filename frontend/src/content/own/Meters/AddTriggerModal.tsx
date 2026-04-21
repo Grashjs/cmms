@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Form from '../components/form';
 import * as Yup from 'yup';
 import { IField } from '../type';
-import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
+import { formatSelect, formatSelectMultiple, formatCustomFields } from '../../../utils/formatters';
 import { useDispatch, useSelector } from '../../../store';
 import { createWorkOrderMeterTrigger } from '../../../slices/workOrderMeterTrigger';
 import { getWOBaseFields } from '../../../utils/woBase';
@@ -92,7 +92,7 @@ export default function AddTriggerModal({
     newValues.assignedTo = formatSelectMultiple(newValues.assignedTo);
     newValues.priority = newValues.priority?.value;
     newValues.triggerCondition = newValues.triggerCondition.value;
-    return newValues;
+    return formatCustomFields(newValues);
   };
   const onCreationSuccess = () => {
     onClose();

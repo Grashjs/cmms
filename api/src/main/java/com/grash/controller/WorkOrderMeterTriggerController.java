@@ -42,21 +42,22 @@ public class WorkOrderMeterTriggerController {
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
 
-    public WorkOrderMeterTrigger getById(@PathVariable("id") Long id, HttpServletRequest req) {
+    public WorkOrderMeterTriggerShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<WorkOrderMeterTrigger> optionalWorkOrderMeterTrigger = workOrderMeterTriggerService.findById(id);
         if (optionalWorkOrderMeterTrigger.isPresent()) {
             WorkOrderMeterTrigger savedWorkOrderMeterTrigger = optionalWorkOrderMeterTrigger.get();
-            return savedWorkOrderMeterTrigger;
+            return workOrderMeterTriggerMapper.toShowDto(savedWorkOrderMeterTrigger);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    WorkOrderMeterTrigger create(@Parameter(description = "Work order meter trigger to create") @Valid @RequestBody WorkOrderMeterTriggerPostDTO workOrderMeterTriggerReq,
-                                 HttpServletRequest req) {
+    WorkOrderMeterTriggerShowDTO create(@Parameter(description = "Work order meter trigger to create") @Valid @RequestBody WorkOrderMeterTriggerPostDTO workOrderMeterTriggerReq,
+                                        HttpServletRequest req) {
         User user = userService.whoami(req);
-        return workOrderMeterTriggerService.create(workOrderMeterTriggerReq, user.getCompany());
+        return workOrderMeterTriggerMapper.toShowDto(workOrderMeterTriggerService.create(workOrderMeterTriggerReq,
+                user.getCompany()));
     }
 
 

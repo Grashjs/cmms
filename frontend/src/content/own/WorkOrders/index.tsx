@@ -40,7 +40,7 @@ import * as Yup from 'yup';
 import { isNumeric } from '../../../utils/validators';
 import WorkOrderDetails from './Details/WorkOrderDetails';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
+import { formatSelect, formatSelectMultiple, formatCustomFields } from '../../../utils/formatters';
 import {
   addWorkOrder,
   deleteWorkOrder,
@@ -364,23 +364,7 @@ function WorkOrders() {
       ? newValues?.requiredSignature.includes('on')
       : newValues.requiredSignature;
     newValues.category = formatSelect(newValues.category);
-    let customFields: { id: number; value: string }[] = [];
-    Object.keys(newValues).forEach((key) => {
-      if (key.startsWith('customField_')) {
-        const customFieldId = key.split('customField_')[1];
-        const rawValue = newValues[key];
-        customFields.push({
-          id: Number(customFieldId),
-          value:
-            rawValue && typeof rawValue === 'object' && 'value' in rawValue
-              ? rawValue.value
-              : rawValue
-        });
-        delete newValues[key];
-      }
-    });
-    newValues.customFields = customFields;
-    return newValues;
+    return formatCustomFields(newValues);
   };
   const onCreationSuccess = () => {
     setOpenAddModal(false);

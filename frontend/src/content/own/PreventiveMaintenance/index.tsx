@@ -50,7 +50,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { isNumeric } from '../../../utils/validators';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 import PriorityWrapper from '../components/PriorityWrapper';
-import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
+import {
+  formatSelect,
+  formatSelectMultiple,
+  formatCustomFields
+} from '../../../utils/formatters';
 import useAuth from '../../../hooks/useAuth';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import { getWOBaseFields, getWOBaseValues } from '../../../utils/woBase';
@@ -326,7 +330,7 @@ function PMs() {
     newValues.daysOfWeek = newValues.daysOfWeek?.map((day) => day.value) ?? [];
     newValues.recurrenceBasedOn = newValues.recurrenceBasedOn?.value;
     newValues.recurrenceType = newValues.recurrenceType?.value;
-    return newValues;
+    return formatCustomFields(newValues);
   };
 
   const columnHelper = createColumnHelper<PreventiveMaintenance>();

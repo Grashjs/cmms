@@ -95,3 +95,24 @@ export const getFormattedCostPerUnit = (
     ? `${getFormattedCurrency(cost)}/ ${unit}`
     : getFormattedCurrency(cost);
 };
+
+export const formatCustomFields = (values: { [key: string]: any }) => {
+  const newValues = { ...values };
+  let customFields: { id: number; value: string }[] = [];
+  Object.keys(newValues).forEach((key) => {
+    if (key.startsWith('customField_')) {
+      const customFieldId = key.split('customField_')[1];
+      const rawValue = newValues[key];
+      customFields.push({
+        id: Number(customFieldId),
+        value:
+          rawValue && typeof rawValue === 'object' && 'value' in rawValue
+            ? rawValue.value
+            : rawValue
+      });
+      delete newValues[key];
+    }
+  });
+  newValues.customFields = customFields;
+  return newValues;
+};

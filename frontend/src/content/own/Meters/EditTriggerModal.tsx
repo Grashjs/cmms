@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Form from '../components/form';
 import * as Yup from 'yup';
 import { IField } from '../type';
-import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
+import { formatSelect, formatSelectMultiple, formatCustomFields } from '../../../utils/formatters';
 import { useDispatch, useSelector } from '../../../store';
 import { editWorkOrderMeterTrigger } from '../../../slices/workOrderMeterTrigger';
 import { getWOBaseFields, getWOBaseValues } from '../../../utils/woBase';
@@ -101,7 +101,7 @@ export default function EditTriggerModal({
     newValues.assignedTo = formatSelectMultiple(newValues.assignedTo);
     newValues.priority = newValues.priority?.value;
     newValues.triggerCondition = newValues.triggerCondition.value;
-    return newValues;
+    return formatCustomFields(newValues);
   };
   return (
     <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
