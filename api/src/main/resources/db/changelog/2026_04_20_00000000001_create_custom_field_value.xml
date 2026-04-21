@@ -76,4 +76,33 @@
     <changeSet id="1776709403978-1" author="Ibrahima G. Coulibaly">
         <createSequence sequenceName="custom_field_value_seq" startValue="1" incrementBy="50"/>
     </changeSet>
+    <changeSet id="add_pm_request_trigger_columns" author="Ibrahima">
+        <addColumn tableName="custom_field_value">
+            <column name="preventive_maintenance_id" type="BIGINT" remarks="Foreign key to preventive_maintenance">
+                <constraints foreignKeyName="fk_custom_field_value_preventive_maintenance"
+                             references="preventive_maintenance(id)" deleteCascade="true"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="custom_field_value">
+            <column name="request_id" type="BIGINT" remarks="Foreign key to request">
+                <constraints foreignKeyName="fk_custom_field_value_request"
+                             references="request(id)" deleteCascade="true"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="custom_field_value">
+            <column name="work_order_meter_trigger_id" type="BIGINT" remarks="Foreign key to work_order_meter_trigger">
+                <constraints foreignKeyName="fk_custom_field_value_work_order_meter_trigger"
+                             references="work_order_meter_trigger(id)" deleteCascade="true"/>
+            </column>
+        </addColumn>
+        <createIndex tableName="custom_field_value" indexName="idx_custom_field_value_preventive_maintenance">
+            <column name="preventive_maintenance_id"/>
+        </createIndex>
+        <createIndex tableName="custom_field_value" indexName="idx_custom_field_value_request">
+            <column name="request_id"/>
+        </createIndex>
+        <createIndex tableName="custom_field_value" indexName="idx_custom_field_value_work_order_meter_trigger">
+            <column name="work_order_meter_trigger_id"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>

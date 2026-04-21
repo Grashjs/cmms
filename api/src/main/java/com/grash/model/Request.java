@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -43,6 +46,9 @@ public class Request extends WorkOrderBase {
 
     @Schema(description = "Contact information of the person who submitted the request")
     private String contact;
+
+    @OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CustomFieldValue> customFieldValues = new ArrayList<>();
 
     @PreRemove
     private void preRemove() {

@@ -1,5 +1,7 @@
 package com.grash.dto;
 
+import com.grash.dto.cutomField.CustomFieldValuePostDTO;
+import com.grash.model.CustomFieldValue;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.RecurrenceBasedOn;
 import com.grash.model.enums.RecurrenceType;
@@ -11,6 +13,7 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,6 +49,11 @@ public class PreventiveMaintenancePostDTO extends WorkOrderBase {
 
     @Schema(description = "Days of week for recurrence")
     private List<Integer> daysOfWeek = new ArrayList<>();
+
+    private List<CustomFieldValue> customFieldValues = new ArrayList<>();
+    
+    private List<CustomFieldValuePostDTO> customFieldValuesPost = new ArrayList<>();
+
 }
 
 

@@ -67,4 +67,19 @@ public class CustomFieldValue extends Audit {
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Meter meter;
+
+    @Schema(description = "Preventive maintenance this value belongs to")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private PreventiveMaintenance preventiveMaintenance;
+
+    @Schema(description = "Request this value belongs to")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Request request;
+
+    @Schema(description = "Work Order Meter trigger this value belongs to")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private WorkOrderMeterTrigger workOrderMeterTrigger;
 }

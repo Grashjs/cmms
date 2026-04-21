@@ -106,6 +106,8 @@ public abstract class WorkOrderBase extends CompanyAudit {
     @ManyToOne
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private Asset asset;
+    
+    public abstract List<CustomFieldValue> getCustomFieldValues();
 
     @JsonIgnore
     public Collection<User> getUsers() {

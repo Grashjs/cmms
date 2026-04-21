@@ -367,7 +367,10 @@ public class WorkOrderService {
         workOrder.setTeam(workOrderBase.getTeam());
         workOrder.setCategory(workOrderBase.getCategory());
         workOrder.getAssignedTo().addAll(workOrderBase.getAssignedTo());
-        workOrder.setEstimatedDuration(workOrder.getEstimatedDuration());
+        workOrder.setEstimatedDuration(workOrderBase.getEstimatedDuration());
+        workOrder.setCustomFieldValues(workOrderBase.getCustomFieldValues().stream()
+                .filter(customFieldValue -> customFieldValue.getCustomField().isCopyOnRepeat())
+                .collect(Collectors.toList()));
         return workOrder;
     }
 
