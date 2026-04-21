@@ -91,19 +91,7 @@ public class WorkOrderService {
                 assetService.save(asset);
             }
             if (!workOrderPostDTO.getCustomFields().isEmpty()) {
-                List<CustomField> customFields =
-                        customFieldRepository.findByCompanySettingsAndEntityType(company.getCompanySettings(),
-                                CustomFieldEntityType.WORK_ORDER);
-
-                for (CustomFieldValuePostDTO customFieldValuePostDTO : workOrderPostDTO.getCustomFields()) {
-                    CustomFieldValue customFieldValue = new CustomFieldValue();
-                    customFieldValue.setWorkOrder(workOrder);
-                    customFieldValue.setValue(customFieldValuePostDTO.getValue());
-                    customFieldValue.setCustomField(customFields.stream().filter(customField -> customField.getId().equals(customFieldValuePostDTO.getId()))
-                            .findFirst().orElseThrow(() -> new CustomException("Custom field not found",
-                                    HttpStatus.NOT_FOUND)));
-                    workOrder.getCustomFieldValues().add(customFieldValue);
-                }
+                setWOCustomFields(workOrder, workOrderPostDTO.getCustomFields(), company);
             }
         }
         workOrder.setCustomId(getWorkOrderNumber(company));
@@ -120,6 +108,25 @@ public class WorkOrderService {
         webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_WORK_ORDER, webhookPayload,
                 "newWorkOrder", serializedWorkOrder, null, null, null, null, null);
         return savedWorkOrder;
+    }
+
+    private void setWOCustomFields(WorkOrder workOrder, List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
+                                   Company company) {
+        List<CustomField> customFields =
+                customFieldRepository.findByCompanySettingsAndEntityType(company.getCompanySettings(),
+                        CustomFieldEntityType.WORK_ORDER);
+
+        workOrder.getCustomFieldValues().clear();
+
+        for (CustomFieldValuePostDTO customFieldValuePostDTO : customFieldValuePostDTOS) {
+            CustomFieldValue customFieldValue = new CustomFieldValue();
+            customFieldValue.setWorkOrder(workOrder);
+            customFieldValue.setValue(customFieldValuePostDTO.getValue());
+            customFieldValue.setCustomField(customFields.stream().filter(customField -> customField.getId().equals(customFieldValuePostDTO.getId()))
+                    .findFirst().orElseThrow(() -> new CustomException("Custom field not found",
+                            HttpStatus.NOT_FOUND)));
+            workOrder.getCustomFieldValues().add(customFieldValue);
+        }
     }
 
     public String getWorkOrderNumber(Company company) {
@@ -157,8 +164,12 @@ public class WorkOrderService {
             Long previousCategoryId = savedWorkOrder.getCategory() != null ? savedWorkOrder.getCategory().getId() :
                     null;
 
+            WorkOrder newWorkOrder = workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder);
+            if (!workOrder.getCustomFields().isEmpty()) {
+                setWOCustomFields(newWorkOrder, workOrder.getCustomFields(), user.getCompany());
+            }
             WorkOrder updatedWorkOrder =
-                    workOrderRepository.saveAndFlush(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
+                    workOrderRepository.saveAndFlush(newWorkOrder);
             em.refresh(updatedWorkOrder);
             Object serializedWorkOrder = workOrderMapper.toShowDto(updatedWorkOrder);
             Map<String, Object> webhookPayload = new HashMap<>();

@@ -21,7 +21,7 @@ import {
   Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { getCustomFieldIField, IField } from '../type';
+import { getCustomFieldIField, getCustomFieldsValues, IField } from '../type';
 import WorkOrder from '../../../models/owns/workOrder';
 import * as React from 'react';
 import {
@@ -807,6 +807,7 @@ function WorkOrders() {
             submitText={t('save')}
             values={{
               ...currentWorkOrder,
+              ...getCustomFieldsValues(currentWorkOrder),
               tasks,
               ...getWOBaseValues(t, currentWorkOrder)
             }}

@@ -114,3 +114,22 @@ export const getCustomFieldIField = (customField: CustomField): IField => {
   }
   return iField;
 };
+
+interface EntityWithCustomFields {
+  customFieldValues?: { customField: CustomField; value: string }[];
+}
+
+export const getCustomFieldsValues = <T extends EntityWithCustomFields>(
+  entity: T
+): { [key: string]: string | { label: string; value: string | number } } => {
+  const values: {
+    [key: string]: string | { label: string; value: string | number };
+  } = {};
+  entity?.customFieldValues?.forEach((cf) => {
+    values[`customField_${cf.customField.id}`] =
+      cf.customField.fieldType === 'SINGLE_CHOICE'
+        ? { label: cf.value, value: cf.value }
+        : cf.value;
+  });
+  return values;
+};

@@ -2,12 +2,15 @@ package com.grash.dto.workOrder;
 
 import com.grash.dto.IdDTO;
 import com.grash.dto.WorkOrderBasePatchDTO;
+import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -19,4 +22,5 @@ public class WorkOrderPatchDTO extends WorkOrderBasePatchDTO {
     private Date completedOn;
     @Schema(description = "Whether the work order is archived")
     private boolean archived;
+    private List<CustomFieldValuePostDTO> customFields = new ArrayList<>();
 }
