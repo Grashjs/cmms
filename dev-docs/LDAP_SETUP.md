@@ -115,9 +115,10 @@ Format: `OU_NAME=ROLE_TYPE` (pipe-separated)
 ### Available Roles
 
 - `ADMIN` - Full administrative access
-- `REQUESTER` - Can create work requests
+- `LIMITED_ADMIN` - Limited administrative access
 - `TECHNICIAN` - Can perform maintenance
 - `LIMITED_TECHNICIAN` - Limited technician access
+- `REQUESTER` - Can create work requests
 - `VIEWER` - Read-only access
 
 Example mappings:
