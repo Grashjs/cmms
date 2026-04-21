@@ -1,12 +1,15 @@
 package com.grash.dto.workOrder;
 
 import com.grash.dto.*;
+import com.grash.dto.cutomField.CustomFieldValueShowDTO;
 import com.grash.model.enums.Status;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -42,4 +45,7 @@ public class WorkOrderShowDTO extends WorkOrderBaseShowDTO {
 
     @Schema(description = "Custom identifier for the work order")
     private String customId;
+
+    @Schema(description = "Custom field values associated with the work order")
+    private List<CustomFieldValueShowDTO> customFieldValues = new ArrayList<>();
 }

@@ -1,8 +1,8 @@
 package com.grash.mapper;
 
-import com.grash.dto.CustomFieldPatchDTO;
-import com.grash.dto.CustomFieldPostDTO;
-import com.grash.dto.CustomFieldShowDTO;
+import com.grash.dto.cutomField.CustomFieldPatchDTO;
+import com.grash.dto.cutomField.CustomFieldPostDTO;
+import com.grash.dto.cutomField.CustomFieldShowDTO;
 import com.grash.model.CustomField;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;

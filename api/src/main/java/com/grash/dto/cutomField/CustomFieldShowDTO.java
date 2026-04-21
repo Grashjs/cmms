@@ -1,5 +1,6 @@
-package com.grash.dto;
+package com.grash.dto.cutomField;
 
+import com.grash.dto.AuditShowDTO;
 import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.CustomFieldType;
 import io.swagger.v3.oas.annotations.media.Schema;

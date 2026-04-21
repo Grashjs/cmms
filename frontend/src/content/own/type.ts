@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { CustomField } from '../../models/owns/customField';
 
 export interface TableCustomizedDataType {
   id: string | number;
@@ -72,3 +73,44 @@ export interface IField {
 export interface IHash<E> {
   [key: string]: E;
 }
+
+export const getCustomFieldIField = (customField: CustomField): IField => {
+  const { label, fieldType, required, options } = customField;
+  const iField: IField = {
+    label,
+    name: `customField_${customField.id}`,
+    type: 'text',
+    required
+  };
+  switch (fieldType) {
+    case 'SHORT_TEXT':
+      iField.type = 'text';
+      break;
+    case 'LONG_TEXT':
+      iField.type = 'text';
+      iField.multiple = true;
+      break;
+    case 'NUMBER':
+      iField.type = 'number';
+      break;
+    case 'SINGLE_CHOICE':
+      iField.type = 'select';
+      iField.items = options?.map((option) => ({
+        label: option,
+        value: option
+      }));
+      break;
+    case 'DATE':
+      iField.type = 'date';
+      break;
+    case 'DATE_TIME':
+      iField.type = 'date';
+      break;
+    case 'LINK':
+      iField.type = 'text';
+      break;
+    default:
+      iField.type = 'text';
+  }
+  return iField;
+};

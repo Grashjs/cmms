@@ -3,6 +3,7 @@ package com.grash.service;
 import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
+import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.workOrder.WorkOrderPatchDTO;
 import com.grash.dto.imports.WorkOrderImportDTO;
 import com.grash.dto.license.LicenseEntitlement;
@@ -17,6 +18,7 @@ import com.grash.model.enums.*;
 import com.grash.model.enums.webhook.WOField;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.model.enums.workflow.WFMainCondition;
+import com.grash.repository.CustomFieldRepository;
 import com.grash.repository.WorkOrderHistoryRepository;
 import com.grash.repository.WorkOrderRepository;
 import com.grash.utils.Helper;
@@ -70,6 +72,7 @@ public class WorkOrderService {
     private String frontendUrl;
     private final LicenseService licenseService;
     private WebhookDispatchService webhookDispatchService;
+    private final CustomFieldRepository customFieldRepository;
 
     @Autowired
     public void setDeps(@Lazy WorkflowService workflowService
@@ -80,13 +83,27 @@ public class WorkOrderService {
     @Transactional
     public WorkOrder create(WorkOrder workOrder, Company company) {
         checkUsageBasedLimit(company);
-        if (workOrder instanceof WorkOrderPostDTO) {
-            WorkOrderPostDTO workOrderPostDTO = (WorkOrderPostDTO) workOrder;
+        if (workOrder instanceof WorkOrderPostDTO workOrderPostDTO) {
             workOrder = workOrderMapper.fromPostDto(workOrderPostDTO);
             if (workOrderPostDTO.getAsset() != null && workOrderPostDTO.getAssetStatus() != null) {
                 Asset asset = assetService.findById(workOrderPostDTO.getAsset().getId()).get();
                 asset.setStatus(workOrderPostDTO.getAssetStatus());
                 assetService.save(asset);
+            }
+            if (!workOrderPostDTO.getCustomFields().isEmpty()) {
+                List<CustomField> customFields =
+                        customFieldRepository.findByCompanySettingsAndEntityType(company.getCompanySettings(),
+                                CustomFieldEntityType.WORK_ORDER);
+
+                for (CustomFieldValuePostDTO customFieldValuePostDTO : workOrderPostDTO.getCustomFields()) {
+                    CustomFieldValue customFieldValue = new CustomFieldValue();
+                    customFieldValue.setWorkOrder(workOrder);
+                    customFieldValue.setValue(customFieldValuePostDTO.getValue());
+                    customFieldValue.setCustomField(customFields.stream().filter(customField -> customField.getId().equals(customFieldValuePostDTO.getId()))
+                            .findFirst().orElseThrow(() -> new CustomException("Custom field not found",
+                                    HttpStatus.NOT_FOUND)));
+                    workOrder.getCustomFieldValues().add(customFieldValue);
+                }
             }
         }
         workOrder.setCustomId(getWorkOrderNumber(company));

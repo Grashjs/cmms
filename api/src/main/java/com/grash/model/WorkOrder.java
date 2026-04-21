@@ -84,6 +84,10 @@ public class WorkOrder extends WorkOrderBase {
     @NotAudited
     private Date firstTimeToReact;
 
+    @NotAudited
+    @OneToMany(mappedBy = "workOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CustomFieldValue> customFieldValues = new ArrayList<>();
+
     @JsonIgnore
     public boolean isCompliant() {
         return this.getDueDate() == null || this.getCompletedOn().before(this.getDueDate());

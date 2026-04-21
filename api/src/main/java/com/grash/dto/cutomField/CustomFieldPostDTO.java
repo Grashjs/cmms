@@ -1,4 +1,4 @@
-package com.grash.dto;
+package com.grash.dto.cutomField;
 
 import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.CustomFieldType;

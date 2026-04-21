@@ -10,7 +10,7 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring", uses = {PartMapper.class, FileMapper.class, LocationMapper.class
         , TeamMapper.class, UserMapper.class,
-        CustomerMapper.class, AssetMapper.class})
+        CustomerMapper.class, AssetMapper.class, CustomFieldValueMapper.class})
 public interface WorkOrderMapper {
     WorkOrder updateWorkOrder(@MappingTarget WorkOrder entity, WorkOrderPatchDTO dto);
 

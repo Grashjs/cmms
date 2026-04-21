@@ -1,7 +1,7 @@
 package com.grash.service;
 
-import com.grash.dto.CustomFieldPatchDTO;
-import com.grash.dto.CustomFieldPostDTO;
+import com.grash.dto.cutomField.CustomFieldPatchDTO;
+import com.grash.dto.cutomField.CustomFieldPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CustomFieldMapper;
 import com.grash.model.CustomField;
@@ -52,14 +52,6 @@ public class CustomFieldService {
         return customFieldRepository.findByCompanySettings(companySettings);
     }
 
-    public Page<CustomField> getByFieldType(CompanySettings companySettings, CustomFieldType fieldType,
-                                            Pageable pageable) {
-        return customFieldRepository.findByCompanySettingsAndFieldType(companySettings, fieldType, pageable);
-    }
-
-    public List<CustomField> getByFieldType(CompanySettings companySettings, CustomFieldType fieldType) {
-        return customFieldRepository.findByCompanySettingsAndFieldType(companySettings, fieldType);
-    }
 
     public void delete(Long id) {
         customFieldRepository.deleteById(id);

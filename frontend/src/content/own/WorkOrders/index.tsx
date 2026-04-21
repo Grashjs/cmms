@@ -21,7 +21,7 @@ import {
   Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { IField } from '../type';
+import { getCustomFieldIField, IField } from '../type';
 import WorkOrder from '../../../models/owns/workOrder';
 import * as React from 'react';
 import {
@@ -97,6 +97,7 @@ import SplitButton from '../components/SplitButton';
 import useTableState from '../../../hooks/useTableState';
 import { assetStatuses } from '../../../models/owns/asset';
 import { useExport } from '../../../hooks/useExport';
+import { getCustomFields } from '../../../slices/customField';
 
 const fieldMapping: Record<string, string> = {
   customId: 'customId',
@@ -234,6 +235,7 @@ function WorkOrders() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
   const navigate = useNavigate();
+  const { customFields } = useSelector((state) => state.customFields);
   const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -297,7 +299,6 @@ function WorkOrders() {
   const onFilterChange = (newFilters: FilterField[]) => {
     const newCriteria = { ...criteria };
     newCriteria.filterFields = newFilters;
-    console.log('jjy4');
     setCriteria(newCriteria);
   };
   useEffect(() => {
@@ -376,6 +377,22 @@ function WorkOrders() {
       ? newValues?.requiredSignature.includes('on')
       : newValues.requiredSignature;
     newValues.category = formatSelect(newValues.category);
+    let customFields: { id: number; value: string }[] = [];
+    Object.keys(newValues).forEach((key) => {
+      if (key.startsWith('customField_')) {
+        const customFieldId = key.split('customField_')[1];
+        const rawValue = newValues[key];
+        customFields.push({
+          id: Number(customFieldId),
+          value:
+            rawValue && typeof rawValue === 'object' && 'value' in rawValue
+              ? rawValue.value
+              : rawValue
+        });
+        delete newValues[key];
+      }
+    });
+    newValues.customFields = customFields;
     return newValues;
   };
   const onCreationSuccess = () => {
@@ -407,6 +424,12 @@ function WorkOrders() {
   useEffect(() => {
     dispatch(getWorkOrders(criteria));
   }, [criteria]);
+
+  useEffect(() => {
+    if ((openAddModal || openUpdateModal) && !customFields.length) {
+      dispatch(getCustomFields());
+    }
+  }, [openAddModal, openUpdateModal]);
 
   const columnHelper = createColumnHelper<WorkOrder>();
 
@@ -670,7 +693,10 @@ function WorkOrders() {
       name: 'requiredSignature',
       type: 'switch',
       label: t('requires_signature')
-    }
+    },
+    ...[...customFields]
+      .sort((a, b) => a.order - b.order)
+      .map((field) => getCustomFieldIField(field))
   ];
   const defaultShape: { [key: string]: any } = {
     title: Yup.string().required(t('required_wo_title'))

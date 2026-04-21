@@ -16,10 +16,8 @@ public interface CustomFieldRepository extends JpaRepository<CustomField, Long> 
 
     List<CustomField> findByCompanySettings(CompanySettings companySettings);
 
-    Page<CustomField> findByCompanySettingsAndFieldType(CompanySettings companySettings, CustomFieldType fieldType,
-                                                        Pageable pageable);
-
-    List<CustomField> findByCompanySettingsAndFieldType(CompanySettings companySettings, CustomFieldType fieldType);
+    List<CustomField> findByCompanySettingsAndEntityType(CompanySettings companySettings,
+                                                         CustomFieldEntityType entityType);
 
     int countByCompanySettings_IdAndEntityType(Long id, @NotNull CustomFieldEntityType entityType);
 }
