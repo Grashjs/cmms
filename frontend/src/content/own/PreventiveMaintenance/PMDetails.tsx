@@ -13,7 +13,6 @@ import { useTranslation } from 'react-i18next';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import PreventiveMaintenance from '../../../models/owns/preventiveMaintenance';
-import { getPriorityLabel } from '../../../utils/formatters';
 import { useDispatch } from '../../../store';
 import { editPreventiveMaintenance } from '../../../slices/preventiveMaintenance';
 import React, { useContext, useEffect, useState } from 'react';
@@ -33,15 +32,11 @@ import { getTasksByPreventiveMaintenance } from '../../../slices/task';
 import Tasks from '../WorkOrders/Details/Tasks';
 import { Task } from '../../../models/owns/tasks';
 import { getScheduleDescription } from '../../../utils/dates';
-import {
-  getDateLocale,
-  getSupportedLanguage,
-  supportedLanguages
-} from '../../../i18n/i18n';
 import i18n from 'i18next';
 import RecentWorkOrders from './RecentWorkOrders';
 import { useNavigate } from 'react-router-dom';
 import useDateLocale from '../../../hooks/useDateLocale';
+import { getCustomFieldValuesForDetails } from '../type';
 
 interface RequestDetailsProps {
   preventiveMaintenance: PreventiveMaintenance;
@@ -115,7 +110,11 @@ export default function PMDetails({
     {
       label: t('category'),
       value: preventiveMaintenance?.category?.name
-    }
+    },
+    ...getCustomFieldValuesForDetails(
+      preventiveMaintenance.customFieldValues,
+      getFormattedDate
+    )
   ];
   return (
     <Grid

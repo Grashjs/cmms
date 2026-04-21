@@ -43,6 +43,7 @@ import RequestCancellationModal from './RequestCancellationModal';
 import BasicField from '../components/BasicField';
 import { editAsset } from '../../../slices/asset';
 import { AssetStatus, assetStatuses } from '../../../models/owns/asset';
+import { getCustomFieldValuesForDetails } from '../type';
 
 interface RequestDetailsProps {
   request: Request;
@@ -129,7 +130,11 @@ export default function RequestDetails({
     {
       label: t('created_at'),
       value: getFormattedDate(request.createdAt)
-    }
+    },
+    ...getCustomFieldValuesForDetails(
+      request.customFieldValues,
+      getFormattedDate
+    )
   ];
   return (
     <Grid

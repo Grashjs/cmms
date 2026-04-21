@@ -1,5 +1,4 @@
-import { Grid, Stack, Typography } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Grid, Stack, Typography, Link } from '@mui/material';
 import { getPriorityLabel } from '../../../utils/formatters';
 import { useTranslation } from 'react-i18next';
 
@@ -62,7 +61,7 @@ const BasicField: React.FC<BasicFieldProps> = ({
         </Typography>
         {isExternal ? (
           <Link
-            to={href}
+            href={href}
             variant="h6"
             fontWeight="bold"
             target={isLink ? '_blank' : undefined}
@@ -71,7 +70,7 @@ const BasicField: React.FC<BasicFieldProps> = ({
             {renderValue()}
           </Link>
         ) : (
-          <Link to={href} variant="h6" fontWeight="bold">
+          <Link href={href} variant="h6" fontWeight="bold">
             {renderValue()}
           </Link>
         )}
