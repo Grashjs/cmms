@@ -37,6 +37,9 @@ import AssetMeters from './AssetMeters';
 import { handleFileUpload } from '../../../../utils/overall';
 import AssetDowntimes from './AssetDowntimes';
 import AssetAnalytics from './AssetAnalytics';
+import { getCustomFields } from '../../../../slices/customField';
+import { CustomFieldEntityType } from '../../../../models/owns/customField';
+import { getCustomFieldsIFields, getCustomFieldsRequiredShape, getCustomFieldsValues } from '../../type';
 
 interface PropsType {}
 
@@ -49,6 +52,7 @@ const ShowAsset = ({}: PropsType) => {
   const location = useLocation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { assetInfos, loadingGet } = useSelector((state) => state.assets);
+  const { customFields } = useSelector((state) => state.customFields);
   const asset: AssetDTO = assetInfos[assetId]?.asset;
   const navigate = useNavigate();
   const [openDelete, setOpenDelete] = useState<boolean>(false);
@@ -63,6 +67,12 @@ const ShowAsset = ({}: PropsType) => {
   useEffect(() => {
     if (isNumeric(assetId)) dispatch(getAssetDetails(Number(assetId)));
   }, [assetId]);
+
+  useEffect(() => {
+    if (openUpdateModal && !customFields.length) {
+      dispatch(getCustomFields());
+    }
+  }, [openUpdateModal]);
 
   const handleOpenUpdateModal = () => setOpenUpdateModal(true);
   const handleCloseUpdateModal = () => setOpenUpdateModal(false);
@@ -274,11 +284,17 @@ const ShowAsset = ({}: PropsType) => {
       type2: 'asset',
       label: t('parent_asset'),
       excluded: Number(assetId)
-    }
+    },
+    ...getCustomFieldsIFields(customFields, CustomFieldEntityType.ASSET)
   ];
 
   const shape = {
-    name: Yup.string().required(t('required_asset_name'))
+    name: Yup.string().required(t('required_asset_name')),
+    ...getCustomFieldsRequiredShape(
+      customFields,
+      CustomFieldEntityType.ASSET,
+      t
+    )
   };
   const onEditSuccess = () => {
     setOpenUpdateModal(false);
@@ -373,7 +389,8 @@ const ShowAsset = ({}: PropsType) => {
                     label: asset.parentAsset.name,
                     value: asset.parentAsset.id
                   }
-                : null
+                : null,
+              ...getCustomFieldsValues(asset)
             }}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {

@@ -33,6 +33,7 @@ import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
 import * as React from 'react';
 import useAuth from '../../../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { getCustomFieldValuesForDetails } from '../../type';
 
 interface PropsType {
   asset: AssetDTO;
@@ -86,7 +87,8 @@ const AssetDetails = ({ asset, loading }: PropsType) => {
     {
       label: t('warranty_expiration'),
       value: getFormattedDate(asset?.warrantyExpirationDate)
-    }
+    },
+    ...getCustomFieldValuesForDetails(asset.customFieldValues, getFormattedDate)
   ];
   const BasicField = ({
     label,

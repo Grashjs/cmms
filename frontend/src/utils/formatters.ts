@@ -28,7 +28,7 @@ export const formatAssetValues = (values) => {
   newValues.assignedTo = formatSelectMultiple(newValues.assignedTo);
   newValues.teams = formatSelectMultiple(newValues.teams);
   newValues.parts = formatSelectMultiple(newValues.parts);
-  return newValues;
+  return formatCustomFields(newValues);
 };
 
 export const formatSwitch = (values: {}, key: string) => {
