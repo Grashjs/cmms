@@ -21,7 +21,12 @@ import {
   Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { getCustomFieldIField, getCustomFieldsValues, IField } from '../type';
+import {
+  getCustomFieldIField,
+  getCustomFieldsRequiredShape,
+  getCustomFieldsValues,
+  IField
+} from '../type';
 import WorkOrder from '../../../models/owns/workOrder';
 import * as React from 'react';
 import {
@@ -699,7 +704,8 @@ function WorkOrders() {
       .map((field) => getCustomFieldIField(field))
   ];
   const defaultShape: { [key: string]: any } = {
-    title: Yup.string().required(t('required_wo_title'))
+    title: Yup.string().required(t('required_wo_title')),
+    ...getCustomFieldsRequiredShape(customFields, t)
   };
   const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
     return getWOFieldsAndShapes(defaultFields, defaultShape);

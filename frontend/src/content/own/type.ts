@@ -115,6 +115,9 @@ export const getCustomFieldIField = (customField: CustomField): IField => {
   return iField;
 };
 
+import * as Yup from 'yup';
+import { TFunction } from 'react-i18next';
+
 interface EntityWithCustomFields {
   customFieldValues?: { customField: CustomField; value: string }[];
 }
@@ -132,4 +135,19 @@ export const getCustomFieldsValues = <T extends EntityWithCustomFields>(
         : cf.value;
   });
   return values;
+};
+export const getCustomFieldsRequiredShape = (
+  customFields: CustomField[],
+  t: TFunction
+): { [key: string]: Yup.StringSchema | Yup.ObjectSchema<any> } => {
+  const shape: { [key: string]: Yup.StringSchema | Yup.ObjectSchema<any> } = {};
+  customFields.forEach((field) => {
+    if (field.required) {
+      shape[`customField_${field.id}`] =
+        field.fieldType === 'SINGLE_CHOICE'
+          ? Yup.object().required(t('required_field'))
+          : Yup.string().required(t('required_field'));
+    }
+  });
+  return shape;
 };
