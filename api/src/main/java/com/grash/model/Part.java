@@ -172,6 +172,10 @@ public class Part extends CompanyAudit {
     @Schema(description = "The unit of measurement for the part")
     private String unit;
 
+    @OneToMany(mappedBy = "part", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ArraySchema(schema = @Schema(implementation = CustomFieldValue.class))
+    private List<CustomFieldValue> customFieldValues = new ArrayList<>();
+
     @JsonIgnore
     public Collection<User> getUsers() {
         Collection<User> users = new ArrayList<>();

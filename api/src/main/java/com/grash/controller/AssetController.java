@@ -3,6 +3,7 @@ package com.grash.controller;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.AssetMiniDTO;
 import com.grash.dto.AssetPatchDTO;
+import com.grash.dto.AssetPostDTO;
 import com.grash.dto.AssetShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.license.LicenseEntitlement;
@@ -178,7 +179,7 @@ public class AssetController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public AssetShowDTO create(@Parameter(description = "Asset data to create") @Valid @RequestBody Asset assetReq,
+    public AssetShowDTO create(@Parameter(description = "Asset data to create") @Valid @RequestBody AssetPostDTO assetReq,
                                HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.ASSETS)) {
@@ -239,7 +240,7 @@ public class AssetController {
                 }
                 if (asset.getParentAsset() != null && asset.getParentAsset().getId().equals(id))
                     throw new CustomException("Parent asset cannot be the same id", HttpStatus.NOT_ACCEPTABLE);
-                Asset patchedAsset = assetService.update(id, asset);
+                Asset patchedAsset = assetService.update(id, asset, user.getCompany());
                 assetService.patchNotify(savedAsset, patchedAsset, Helper.getLocale(user));
                 return assetMapper.toShowDto(patchedAsset, assetService);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);

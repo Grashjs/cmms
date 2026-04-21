@@ -10,6 +10,8 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -77,6 +79,9 @@ public class Customer extends BasicInfos {
                     @Index(name = "idx_customer_asset_asset_id", columnList = "id_asset")
             })
     private List<Asset> assets = new ArrayList<>();
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CustomFieldValue> customFieldValues = new ArrayList<>();
 
 }
 

@@ -44,7 +44,10 @@ import { IField } from '../type';
 import MeterDetails from './MeterDetails';
 import { useNavigate, useParams } from 'react-router-dom';
 import { isNumeric } from '../../../utils/validators';
-import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
+import { formatSelect, formatSelectMultiple, formatCustomFields } from '../../../utils/formatters';
+import { getCustomFields } from '../../../slices/customField';
+import { CustomFieldEntityType } from '../../../models/owns/customField';
+import { getCustomFieldsIFields, getCustomFieldsRequiredShape } from '../type';
 import { CustomSnackBarContext } from 'src/contexts/CustomSnackBarContext';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import useAuth from '../../../hooks/useAuth';
@@ -113,6 +116,7 @@ function Meters() {
   const { meters, loadingGet, singleMeter } = useSelector(
     (state) => state.meters
   );
+  const { customFields } = useSelector((state) => state.customFields);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
   const [criteria, setCriteria] = useState<SearchCriteria>({
     filterFields: [],
@@ -175,6 +179,12 @@ function Meters() {
       dispatch(getMeters(criteria));
   }, [criteria]);
 
+  useEffect(() => {
+    if (openAddModal && !customFields.length) {
+      dispatch(getCustomFields());
+    }
+  }, [openAddModal]);
+
   const onNewReading = () => {
     dispatch(getMeters(criteria));
   };
@@ -207,7 +217,7 @@ function Meters() {
     newValues.location = formatSelect(newValues.location);
     newValues.asset = formatSelect(newValues.asset);
     newValues.updateFrequency = Number(newValues.updateFrequency);
-    return newValues;
+    return formatCustomFields(newValues);
   };
   const handleDelete = (id: number) => {
     handleCloseDetails();
@@ -377,7 +387,8 @@ function Meters() {
       type2: 'user',
       label: t('workers'),
       multiple: true
-    }
+    },
+    ...getCustomFieldsIFields(customFields, CustomFieldEntityType.METER)
   ];
   const shape = {
     name: Yup.string().required(t('required_meter_name')),
@@ -385,7 +396,8 @@ function Meters() {
     updateFrequency: Yup.number().required(
       t('required_meter_update_frequency')
     ),
-    asset: Yup.object().required(t('required_asset')).nullable()
+    asset: Yup.object().required(t('required_asset')).nullable(),
+    ...getCustomFieldsRequiredShape(customFields, CustomFieldEntityType.METER, t)
   };
   const renderAddModal = () => (
     <Dialog

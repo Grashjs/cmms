@@ -3,16 +3,20 @@ package com.grash.service;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.PartPatchDTO;
+import com.grash.dto.PartPostDTO;
 import com.grash.dto.PartShowDTO;
+import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.imports.PartImportDTO;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PartMapper;
 import com.grash.model.*;
+import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.webhook.PartField;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.PartRepository;
+import com.grash.service.CustomFieldValueService;
 import com.grash.utils.AuditComparator;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
@@ -50,12 +54,20 @@ public class PartService {
     private final TeamService teamService;
     private final LicenseService licenseService;
     private final WebhookDispatchService webhookDispatchService;
+    private final CustomFieldValueService customFieldValueService;
 
 
     @Transactional
-    public Part create(Part Part, User user) {
+    public Part create(Part part, User user) {
         checkUsageBasedLimit(user.getCompany());
-        Part savedPart = partRepository.saveAndFlush(Part);
+        Company company = user.getCompany();
+        if (part instanceof PartPostDTO partPostDTO) {
+            part = partMapper.fromPostDto(partPostDTO);
+            if (partPostDTO.getCustomFields() != null && !partPostDTO.getCustomFields().isEmpty()) {
+                setPartCustomFields(part, partPostDTO.getCustomFields(), company);
+            }
+        }
+        Part savedPart = partRepository.saveAndFlush(part);
         em.refresh(savedPart);
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("partId", savedPart.getId());
@@ -65,10 +77,24 @@ public class PartService {
         return savedPart;
     }
 
+    private void setPartCustomFields(Part part, List<CustomFieldValuePostDTO> customFieldValuePostDTOS, Company company) {
+        customFieldValueService.setCustomFields(
+                part,
+                part.getCustomFieldValues(),
+                customFieldValuePostDTOS,
+                company,
+                CustomFieldEntityType.PART,
+                cfv -> cfv.setPart(part)
+        );
+    }
+
     @Transactional
-    public Part update(Long id, PartPatchDTO part) {
+    public Part update(Long id, PartPatchDTO part, Company company) {
         if (partRepository.existsById(id)) {
             Part savedPart = partRepository.findById(id).get();
+            if (part.getCustomFields() != null && !part.getCustomFields().isEmpty()) {
+                setPartCustomFields(savedPart, part.getCustomFields(), company);
+            }
             double originalPartQuantity = savedPart.getQuantity();
             Collection<PartField> changedFields = detectPatchDTOChangedFields(savedPart, part);
             Part patchedPart = partRepository.saveAndFlush(partMapper.updatePart(savedPart, part));

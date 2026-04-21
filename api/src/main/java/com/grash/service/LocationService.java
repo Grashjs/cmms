@@ -3,15 +3,19 @@ package com.grash.service;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.LocationPatchDTO;
+import com.grash.dto.LocationPostDTO;
 import com.grash.dto.LocationShowDTO;
+import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.imports.LocationImportDTO;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.LocationMapper;
 import com.grash.model.*;
+import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.LocationRepository;
+import com.grash.service.CustomFieldValueService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -46,10 +50,17 @@ public class LocationService {
     private final CustomSequenceService customSequenceService;
     private final LicenseService licenseService;
     private final WebhookDispatchService webhookDispatchService;
+    private final CustomFieldValueService customFieldValueService;
 
     @Transactional
     public Location create(Location location, Company company) {
         checkUsageBasedLimit(company);
+        if (location instanceof LocationPostDTO locationPostDTO) {
+            location = locationMapper.fromPostDto(locationPostDTO);
+            if (locationPostDTO.getCustomFields() != null && !locationPostDTO.getCustomFields().isEmpty()) {
+                setLocationCustomFields(location, locationPostDTO.getCustomFields(), company);
+            }
+        }
         location.setCustomId(getLocationNumber(company));
 
         Location savedLocation = locationRepository.saveAndFlush(location);
@@ -63,9 +74,12 @@ public class LocationService {
     }
 
     @Transactional
-    public Location update(Long id, LocationPatchDTO location) {
+    public Location update(Long id, LocationPatchDTO location, Company company) {
         if (locationRepository.existsById(id)) {
             Location savedLocation = locationRepository.findById(id).get();
+            if (location.getCustomFields() != null && !location.getCustomFields().isEmpty()) {
+                setLocationCustomFields(savedLocation, location.getCustomFields(), company);
+            }
             Location patchedLocation = locationRepository.saveAndFlush(locationMapper.updateLocation(savedLocation,
                     location));
             em.refresh(patchedLocation);
@@ -131,6 +145,18 @@ public class LocationService {
     private String getLocationNumber(Company company) {
         Long nextSequence = customSequenceService.getNextLocationSequence(company);
         return "L" + String.format("%06d", nextSequence);
+    }
+
+    private void setLocationCustomFields(Location location, List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
+                                         Company company) {
+        customFieldValueService.setCustomFields(
+                location,
+                location.getCustomFieldValues(),
+                customFieldValuePostDTOS,
+                company,
+                CustomFieldEntityType.LOCATION,
+                cfv -> cfv.setLocation(location)
+        );
     }
 
     public void save(Location location) {

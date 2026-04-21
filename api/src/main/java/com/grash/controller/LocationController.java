@@ -3,6 +3,7 @@ package com.grash.controller;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.LocationMiniDTO;
 import com.grash.dto.LocationPatchDTO;
+import com.grash.dto.LocationPostDTO;
 import com.grash.dto.LocationShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
@@ -137,7 +138,7 @@ public class LocationController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    LocationShowDTO create(@Parameter(description = "Location data to create") @Valid @RequestBody Location locationReq,
+    LocationShowDTO create(@Parameter(description = "Location data to create") @Valid @RequestBody LocationPostDTO locationReq,
                            HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.LOCATIONS)) {
@@ -162,7 +163,7 @@ public class LocationController {
                 if (location.getParentLocation() != null && location.getParentLocation().getId().equals(id))
                     throw new CustomException("Parent location cannot be the same id", HttpStatus.NOT_ACCEPTABLE);
 
-                Location patchedLocation = locationService.update(id, location);
+                Location patchedLocation = locationService.update(id, location, user.getCompany());
                 locationService.patchNotify(savedLocation, patchedLocation, Helper.getLocale(user));
                 return locationMapper.toShowDto(patchedLocation, locationService);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);

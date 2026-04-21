@@ -2,6 +2,7 @@ package com.grash.mapper;
 
 import com.grash.dto.PartMiniDTO;
 import com.grash.dto.PartPatchDTO;
+import com.grash.dto.PartPostDTO;
 import com.grash.dto.PartShowDTO;
 import com.grash.dto.FileShowDTO;
 import com.grash.model.Part;
@@ -20,4 +21,6 @@ public interface PartMapper {
     PartMiniDTO toMiniDto(Part model);
 
     PartShowDTO toShowDto(Part model);
+
+    Part fromPostDto(PartPostDTO dto);
 }

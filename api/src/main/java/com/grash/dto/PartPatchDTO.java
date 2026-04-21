@@ -1,12 +1,15 @@
 package com.grash.dto;
 
+import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.model.*;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -81,5 +84,8 @@ public class PartPatchDTO {
 
     @Schema(description = "The unit of measurement for the part")
     private String unit;
+
+    @Schema(description = "Custom field values for the part")
+    private List<CustomFieldValuePostDTO> customFields = new ArrayList<>();
 
 }

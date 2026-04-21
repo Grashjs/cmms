@@ -48,6 +48,10 @@ import SearchInput from '../components/SearchInput';
 import { createColumnHelper } from '@tanstack/react-table';
 import useTableState from '../../../hooks/useTableState';
 import { getErrorMessage } from '../../../utils/api';
+import { getCustomFields } from '../../../slices/customField';
+import { CustomFieldEntityType } from '../../../models/owns/customField';
+import { getCustomFieldsIFields, getCustomFieldsRequiredShape } from '../type';
+import { formatCustomFields } from '../../../utils/formatters';
 
 interface PropsType {
   values?: any;
@@ -74,6 +78,7 @@ const Customers = ({ openModal, handleCloseModal }: PropsType) => {
   const { customers, loadingGet, singleCustomer } = useSelector(
     (state) => state.customers
   );
+  const { customFields } = useSelector((state) => state.customFields);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
   const [criteria, setCriteria] = useState<SearchCriteria>({
     filterFields: [],
@@ -182,6 +187,12 @@ const Customers = ({ openModal, handleCloseModal }: PropsType) => {
     dispatch(getCustomers(criteria));
   }, [criteria]);
 
+  useEffect(() => {
+    if (openModal && !customFields.length) {
+      dispatch(getCustomFields());
+    }
+  }, [openModal]);
+
   //see changes in ui on edit
   useEffect(() => {
     if (singleCustomer || customers.content.length) {
@@ -214,7 +225,7 @@ const Customers = ({ openModal, handleCloseModal }: PropsType) => {
     const newValues = { ...values };
     newValues.billingCurrency = formatSelect(newValues.billingCurrency);
     newValues.rate = newValues.rate ? Number(newValues.rate) : null;
-    return newValues;
+    return formatCustomFields(newValues);
   };
   let fields: Array<IField> = [
     {
@@ -297,7 +308,7 @@ const Customers = ({ openModal, handleCloseModal }: PropsType) => {
       type: 'text',
       label: t('billing_name'),
       placeholder: t('billing_name')
-    }
+    },
     // {
     //   name: 'billingCurrency',
     //   type: 'select',
@@ -305,10 +316,16 @@ const Customers = ({ openModal, handleCloseModal }: PropsType) => {
     //   label: t('currency'),
     //   placeholder: t('select_currency')
     // }
+    ...getCustomFieldsIFields(customFields, CustomFieldEntityType.CUSTOMER)
   ];
 
   const shape = {
     name: Yup.string().required('required_customer_name'),
+    ...getCustomFieldsRequiredShape(
+      customFields,
+      CustomFieldEntityType.CUSTOMER,
+      t
+    ),
     phone: Yup.string()
       .matches(phoneRegExp, t('invalid_phone'))
       .required(t('required_phone')),
@@ -324,9 +341,7 @@ const Customers = ({ openModal, handleCloseModal }: PropsType) => {
     columnHelper.accessor('name', {
       id: 'name',
       header: () => t('customer_name'),
-      cell: (info) => (
-        <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>
-      ),
+      cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>,
       size: 150
     }),
     columnHelper.accessor('address', {

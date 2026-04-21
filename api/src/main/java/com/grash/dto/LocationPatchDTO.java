@@ -1,5 +1,6 @@
 package com.grash.dto;
 
+import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.model.*;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -61,5 +62,8 @@ public class LocationPatchDTO {
             arraySchema = @Schema(description = "List of files attached to the location", writeOnly = true)
     )
     private List<File> files = new ArrayList<>();
+
+    @Schema(description = "Custom field values for the location")
+    private List<CustomFieldValuePostDTO> customFields = new ArrayList<>();
 
 }

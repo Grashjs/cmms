@@ -4,6 +4,7 @@ import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.MeterMiniDTO;
 import com.grash.dto.MeterPatchDTO;
+import com.grash.dto.MeterPostDTO;
 import com.grash.dto.MeterShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
@@ -105,7 +106,7 @@ public class MeterController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    MeterShowDTO create(@Parameter(description = "Meter data to create") @Valid @RequestBody Meter meterReq,
+    MeterShowDTO create(@Parameter(description = "Meter data to create") @Valid @RequestBody MeterPostDTO meterReq,
                         HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.METERS)
@@ -129,7 +130,7 @@ public class MeterController {
             Meter savedMeter = optionalMeter.get();
             em.detach(savedMeter);
             if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.METERS) || savedMeter.getCreatedBy().equals(user.getId())) {
-                Meter patchedMeter = meterService.update(id, meter);
+                Meter patchedMeter = meterService.update(id, meter, user.getCompany());
                 meterService.patchNotify(savedMeter, patchedMeter, Helper.getLocale(user));
                 return meterMapper.toShowDto(patchedMeter, readingService);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);

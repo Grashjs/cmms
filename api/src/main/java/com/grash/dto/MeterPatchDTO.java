@@ -1,5 +1,6 @@
 package com.grash.dto;
 
+import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.model.File;
 import com.grash.model.Location;
 import com.grash.model.MeterCategory;
@@ -9,7 +10,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -38,5 +41,8 @@ public class MeterPatchDTO {
             arraySchema = @Schema(description = "List of users who have access to the meter", writeOnly = true)
     )
     private Collection<User> users;
+
+    @Schema(description = "Custom field values for the meter")
+    private List<CustomFieldValuePostDTO> customFields = new ArrayList<>();
 
 }

@@ -130,6 +130,10 @@ public class Location extends CompanyAudit {
     )
     private List<File> files = new ArrayList<>();
 
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ArraySchema(schema = @Schema(implementation = CustomFieldValue.class))
+    private List<CustomFieldValue> customFieldValues = new ArrayList<>();
+
     public Collection<User> getUsers() {
         Collection<User> users = new ArrayList<>();
         if (this.getTeams() != null) {

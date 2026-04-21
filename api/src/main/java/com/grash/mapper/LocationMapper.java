@@ -4,6 +4,7 @@ import com.grash.dto.AssetShowDTO;
 import com.grash.dto.FileShowDTO;
 import com.grash.dto.LocationMiniDTO;
 import com.grash.dto.LocationPatchDTO;
+import com.grash.dto.LocationPostDTO;
 import com.grash.dto.LocationShowDTO;
 import com.grash.model.Asset;
 import com.grash.model.Location;
@@ -23,6 +24,8 @@ public interface LocationMapper {
 
     @Mapping(source = "parentLocation.id", target = "parentId")
     LocationMiniDTO toMiniDto(Location model);
+
+    Location fromPostDto(LocationPostDTO dto);
 
     @AfterMapping
     default LocationShowDTO toShowDto(Location model, @MappingTarget LocationShowDTO target,

@@ -3,6 +3,7 @@ package com.grash.controller;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.CustomerMiniDTO;
 import com.grash.dto.CustomerPatchDTO;
+import com.grash.dto.CustomerPostDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CustomerMapper;
@@ -75,7 +76,7 @@ public class CustomerController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    Customer create(@Parameter(description = "Customer to create") @Valid @RequestBody Customer customerReq,
+    Customer create(@Parameter(description = "Customer to create") @Valid @RequestBody CustomerPostDTO customerReq,
                     HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
@@ -95,7 +96,7 @@ public class CustomerController {
         if (optionalCustomer.isPresent()) {
             Customer savedCustomer = optionalCustomer.get();
             if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS) || savedCustomer.getCreatedBy().equals(user.getId())) {
-                return customerService.update(id, customer);
+                return customerService.update(id, customer, user.getCompany());
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Customer not found", HttpStatus.NOT_FOUND);
     }

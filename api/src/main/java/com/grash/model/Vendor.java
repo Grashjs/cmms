@@ -11,6 +11,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -69,6 +71,9 @@ public class Vendor extends BasicInfos {
                     @Index(name = "idx_vendor_part_part_id", columnList = "id_part")
             })
     private List<Part> parts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "vendor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CustomFieldValue> customFieldValues = new ArrayList<>();
 }
 
 

@@ -72,6 +72,10 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchInput from '../components/SearchInput';
+import { getCustomFields } from '../../../slices/customField';
+import { CustomFieldEntityType } from '../../../models/owns/customField';
+import { getCustomFieldsIFields, getCustomFieldsRequiredShape } from '../type';
+import { formatCustomFields } from '../../../utils/formatters';
 
 const HIERARCHY_ZERO_PAGE_SIZE = 40;
 
@@ -89,6 +93,7 @@ function Locations() {
   const { locationsHierarchy, locations, loadingGet } = useSelector(
     (state) => state.locations
   );
+  const { customFields } = useSelector((state) => state.customFields);
   const [deployedLocations, setDeployedLocations] = useState<
     { id: number; hierarchy: number[] }[]
   >([
@@ -289,6 +294,12 @@ function Locations() {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    if ((openAddModal || openUpdateModal) && !customFields.length) {
+      dispatch(getCustomFields());
+    }
+  }, [openAddModal, openUpdateModal]);
+
   const formatValues = (values) => {
     const newValues = { ...values };
     newValues.customers = formatSelectMultiple(newValues.customers);
@@ -298,7 +309,7 @@ function Locations() {
     newValues.parentLocation = formatSelect(newValues.parentLocation);
     newValues.longitude = newValues.coordinates?.lng;
     newValues.latitude = newValues.coordinates?.lat;
-    return newValues;
+    return formatCustomFields(newValues);
   };
 
   const columnHelper = createColumnHelper<Location | LocationRow>();
@@ -504,7 +515,8 @@ function Locations() {
       multiple: true,
       label: t('files'),
       fileType: 'file'
-    }
+    },
+    ...getCustomFieldsIFields(customFields, CustomFieldEntityType.LOCATION)
   ];
 
   const getEditFields = () => {
@@ -515,8 +527,8 @@ function Locations() {
     dispatch(resetLocationsHierarchy(pageable, callApi));
   };
   const shape = {
-    name: Yup.string().required(t('required_location_name'))
-    // address: Yup.string().required(t('required_location_address')).nullable()
+    name: Yup.string().required(t('required_location_name')),
+    ...getCustomFieldsRequiredShape(customFields, CustomFieldEntityType.LOCATION, t)
   };
 
   const renderLocationAddModal = () => (

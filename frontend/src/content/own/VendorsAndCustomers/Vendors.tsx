@@ -46,6 +46,10 @@ import SearchInput from '../components/SearchInput';
 import { createColumnHelper } from '@tanstack/react-table';
 import useTableState from '../../../hooks/useTableState';
 import { useBrand } from '../../../hooks/useBrand';
+import { getCustomFields } from '../../../slices/customField';
+import { CustomFieldEntityType } from '../../../models/owns/customField';
+import { getCustomFieldsIFields, getCustomFieldsRequiredShape } from '../type';
+import { formatCustomFields } from '../../../utils/formatters';
 import { getErrorMessage } from '../../../utils/api';
 
 interface PropsType {
@@ -75,6 +79,7 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
   const { vendors, loadingGet, singleVendor } = useSelector(
     (state) => state.vendors
   );
+  const { customFields } = useSelector((state) => state.customFields);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
   const [criteria, setCriteria] = useState<SearchCriteria>({
     filterFields: [],
@@ -178,6 +183,12 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
     dispatch(getVendors(criteria));
   }, [criteria]);
 
+  useEffect(() => {
+    if (openModal && !customFields.length) {
+      dispatch(getCustomFields());
+    }
+  }, [openModal]);
+
   //see changes in ui on edit
   useEffect(() => {
     if (singleVendor || vendors.content.length) {
@@ -264,7 +275,8 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
       label: t('hourly_rate'),
       placeholder: t('hourly_rate'),
       icon: '$'
-    }
+    },
+    ...getCustomFieldsIFields(customFields, CustomFieldEntityType.VENDOR)
   ];
 
   const shape = {
@@ -275,7 +287,8 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
     website: Yup.string()
       .matches(websiteRegExp, t('invalid_website'))
       .nullable(),
-    email: Yup.string().matches(emailRegExp, t('invalid_email')).nullable()
+    email: Yup.string().matches(emailRegExp, t('invalid_email')).nullable(),
+    ...getCustomFieldsRequiredShape(customFields, CustomFieldEntityType.VENDOR, t)
   };
 
   const columnHelper = createColumnHelper<Vendor>();
@@ -401,8 +414,9 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
             values={{}}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
-              const formattedValues = {
-                ...values,
+              let formattedValues = formatCustomFields(values);
+              formattedValues = {
+                ...formattedValues,
                 rate: Number(values.rate)
               };
               return dispatch(addVendor(formattedValues))
@@ -563,12 +577,13 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
               values={currentVendor || {}}
               onChange={({ field, e }) => {}}
               onSubmit={async (values) => {
-                const formattedValues = values.rate
+                let formattedValues = formatCustomFields(values);
+                formattedValues = values.rate
                   ? {
-                      ...values,
+                      ...formattedValues,
                       rate: Number(values.rate)
                     }
-                  : values;
+                  : formattedValues;
                 return dispatch(editVendor(currentVendor.id, formattedValues))
                   .then(onEditSuccess)
                   .catch(onEditFailure);

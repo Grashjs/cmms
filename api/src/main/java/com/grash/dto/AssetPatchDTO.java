@@ -1,5 +1,6 @@
 package com.grash.dto;
 
+import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.model.*;
 import com.grash.model.enums.AssetStatus;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -7,8 +8,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -112,4 +115,10 @@ public class AssetPatchDTO {
 
     @Schema(description = "The date when the asset was placed into service")
     private Date inServiceDate;
+
+    @Schema(description = "Custom field values for the asset")
+    private List<CustomFieldValuePostDTO> customFields = new ArrayList<>();
+
+    @Schema(description = "The customId for the asset")
+    private String customId;
 }

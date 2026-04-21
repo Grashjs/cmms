@@ -18,6 +18,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.Comparator.comparingLong;
@@ -198,6 +200,10 @@ public class Asset extends CompanyAudit {
 
     @Schema(description = "The manufacturer of the asset")
     private String manufacturer;
+
+    @OneToMany(mappedBy = "asset", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ArraySchema(schema = @Schema(implementation = CustomFieldValue.class))
+    private List<CustomFieldValue> customFieldValues = new ArrayList<>();
 
     public Collection<User> getUsers() {
         Collection<User> users = new ArrayList<>();

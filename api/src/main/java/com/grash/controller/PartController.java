@@ -3,6 +3,7 @@ package com.grash.controller;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.PartMiniDTO;
 import com.grash.dto.PartPatchDTO;
+import com.grash.dto.PartPostDTO;
 import com.grash.dto.PartShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
@@ -84,7 +85,7 @@ public class PartController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    PartShowDTO create(@Parameter(description = "Part data to create") @Valid @RequestBody Part partReq,
+    PartShowDTO create(@Parameter(description = "Part data to create") @Valid @RequestBody PartPostDTO partReq,
                        HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
@@ -122,7 +123,7 @@ public class PartController {
                         throw new CustomException("Part with same barcode exists", HttpStatus.NOT_ACCEPTABLE);
                     }
                 }
-                Part patchedPart = partService.update(id, part);
+                Part patchedPart = partService.update(id, part, user.getCompany());
                 Collection<Workflow> workflows =
                         workflowService.findByMainConditionAndCompany(WFMainCondition.PART_UPDATED,
                                 user.getCompany().getId());

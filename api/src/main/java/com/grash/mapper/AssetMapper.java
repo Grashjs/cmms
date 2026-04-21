@@ -2,6 +2,7 @@ package com.grash.mapper;
 
 import com.grash.dto.AssetMiniDTO;
 import com.grash.dto.AssetPatchDTO;
+import com.grash.dto.AssetPostDTO;
 import com.grash.dto.AssetShowDTO;
 import com.grash.dto.MeterShowDTO;
 import com.grash.model.Asset;
@@ -30,6 +31,8 @@ public interface AssetMapper {
     @Mapping(target = "parentId", source = "parentAsset.id")
     @Mapping(target = "locationId", source = "location.id")
     AssetMiniDTO toMiniDto(Asset model);
+
+    Asset fromPostDto(AssetPostDTO dto);
 
     @AfterMapping
     default AssetShowDTO toShowDto(Asset model, @MappingTarget AssetShowDTO target,

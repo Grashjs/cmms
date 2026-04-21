@@ -73,6 +73,10 @@ public class Meter extends CompanyAudit {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Asset asset;
 
+    @OneToMany(mappedBy = "meter", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ArraySchema(schema = @Schema(implementation = CustomFieldValue.class))
+    private List<CustomFieldValue> customFieldValues = new ArrayList<>();
+
     public void setUpdateFrequency(int updateFrequency) {
         if (updateFrequency < 1)
             throw new CustomException("Frequency should not be less than 1", HttpStatus.NOT_ACCEPTABLE);
