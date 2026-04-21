@@ -1,5 +1,8 @@
 import { ReactNode } from 'react';
-import { CustomField } from '../../models/owns/customField';
+import {
+  CustomField,
+  CustomFieldEntityType
+} from '../../models/owns/customField';
 
 export interface TableCustomizedDataType {
   id: string | number;
@@ -74,7 +77,7 @@ export interface IHash<E> {
   [key: string]: E;
 }
 
-export const getCustomFieldIField = (customField: CustomField): IField => {
+const getCustomFieldIField = (customField: CustomField): IField => {
   const { label, fieldType, required, options } = customField;
   const iField: IField = {
     label,
@@ -151,3 +154,12 @@ export const getCustomFieldsRequiredShape = (
   });
   return shape;
 };
+
+export const getCustomFieldsIFields = (
+  customFields: CustomField[],
+  entityType: CustomFieldEntityType
+) =>
+  [...customFields]
+    .filter((field) => field.entityType === entityType)
+    .sort((a, b) => a.order - b.order)
+    .map((field) => getCustomFieldIField(field));

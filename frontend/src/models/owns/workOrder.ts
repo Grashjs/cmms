@@ -27,7 +27,6 @@ export default interface WorkOrder extends WorkOrderBase {
   status: string;
   audioDescription: File;
   customId: string;
-  customFieldValues: { customField: CustomField; value: string }[];
   //parentPreventiveMaintenance:
 }
 

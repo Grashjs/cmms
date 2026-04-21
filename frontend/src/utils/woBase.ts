@@ -1,6 +1,6 @@
 import { WorkOrderBase } from 'src/models/owns/workOrderBase';
 import { getPriorityLabel } from './formatters';
-import { IField } from '../content/own/type';
+import { getCustomFieldsValues, IField } from '../content/own/type';
 
 export const getWOBaseFields = (
   t: any,
@@ -157,6 +157,7 @@ export const getWOBaseValues = <T extends WorkOrderBase>(t: any, entity: T) => {
         }
       : null,
     image: entity?.image,
-    files: entity?.files
+    files: entity?.files,
+    ...getCustomFieldsValues(entity)
   };
 };

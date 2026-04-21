@@ -10,7 +10,6 @@ import {
   DialogTitle,
   Divider,
   Drawer,
-  Grid,
   IconButton,
   Menu,
   MenuItem,
@@ -23,38 +22,28 @@ import {
 import { useTranslation } from 'react-i18next';
 import {
   getCustomFieldIField,
+  getCustomFieldsIFields,
   getCustomFieldsRequiredShape,
-  getCustomFieldsValues,
   IField
 } from '../type';
 import WorkOrder from '../../../models/owns/workOrder';
 import * as React from 'react';
-import {
-  ChangeEvent,
-  useCallback,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useState
-} from 'react';
+import { ChangeEvent, useContext, useEffect, useMemo, useState } from 'react';
 import { TitleContext } from '../../../contexts/TitleContext';
 import CustomDatagrid2, {
   CustomDatagridColumn2
 } from '../components/CustomDatagrid2';
-import { createColumnHelper, SortingState } from '@tanstack/react-table';
+import { createColumnHelper } from '@tanstack/react-table';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import Form from '../components/form';
 import UserAvatars from '../components/UserAvatars';
 import * as Yup from 'yup';
 import { isNumeric } from '../../../utils/validators';
-import { UserMiniDTO } from '../../../models/user';
 import WorkOrderDetails from './Details/WorkOrderDetails';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
 import {
   addWorkOrder,
-  clearSingleWorkOrder,
   deleteWorkOrder,
   editWorkOrder,
   getSingleWorkOrder,
@@ -68,7 +57,6 @@ import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext
 import useAuth from '../../../hooks/useAuth';
 import { getWOBaseValues } from '../../../utils/woBase';
 import { PermissionEntity } from '../../../models/owns/role';
-import PermissionErrorMessage from '../components/PermissionErrorMessage';
 import ConfirmDialog from '../components/ConfirmDialog';
 import {
   fireGa4Event,
@@ -78,13 +66,8 @@ import {
 } from '../../../utils/overall';
 import { getSingleLocation } from '../../../slices/location';
 import { getSingleAsset } from '../../../slices/asset';
-import Category from '../../../models/owns/category';
 import { dayDiff } from '../../../utils/dates';
-import {
-  FilterField,
-  SearchCriteria,
-  SortDirection
-} from '../../../models/owns/page';
+import { FilterField, SearchCriteria } from '../../../models/owns/page';
 import WorkOrderCalendar from './Calendar';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import FilterAltTwoToneIcon from '@mui/icons-material/FilterAltTwoTone';
@@ -96,13 +79,13 @@ import _ from 'lodash';
 import SearchInput from '../components/SearchInput';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import { getPreventiveMaintenanceUrl } from 'src/utils/urlPaths';
-import Request from '../../../models/owns/request';
 import { getErrorMessage } from '../../../utils/api';
 import SplitButton from '../components/SplitButton';
 import useTableState from '../../../hooks/useTableState';
 import { assetStatuses } from '../../../models/owns/asset';
 import { useExport } from '../../../hooks/useExport';
 import { getCustomFields } from '../../../slices/customField';
+import { CustomFieldEntityType } from '../../../models/owns/customField';
 
 const fieldMapping: Record<string, string> = {
   customId: 'customId',
@@ -699,9 +682,7 @@ function WorkOrders() {
       type: 'switch',
       label: t('requires_signature')
     },
-    ...[...customFields]
-      .sort((a, b) => a.order - b.order)
-      .map((field) => getCustomFieldIField(field))
+    ...getCustomFieldsIFields(customFields, CustomFieldEntityType.WORK_ORDER)
   ];
   const defaultShape: { [key: string]: any } = {
     title: Yup.string().required(t('required_wo_title')),
@@ -813,7 +794,6 @@ function WorkOrders() {
             submitText={t('save')}
             values={{
               ...currentWorkOrder,
-              ...getCustomFieldsValues(currentWorkOrder),
               tasks,
               ...getWOBaseValues(t, currentWorkOrder)
             }}
