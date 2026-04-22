@@ -29,13 +29,16 @@ public class WorkOrderConfigurationController {
     private final UserService userService;
 
     @GetMapping("/{id}")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("isAuthenticated()")
 
     public WorkOrderConfiguration getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<WorkOrderConfiguration> optionalWorkOrderConfiguration = workOrderConfigurationService.findById(id);
         if (optionalWorkOrderConfiguration.isPresent()) {
             WorkOrderConfiguration savedWorkOrderConfiguration = optionalWorkOrderConfiguration.get();
+            if (!savedWorkOrderConfiguration.getCompanySettings().getCompany().getId().equals(user.getCompany().getId())) {
+                throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            }
             return savedWorkOrderConfiguration;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
