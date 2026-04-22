@@ -29,8 +29,7 @@ public class WorkOrderRequestConfigurationController {
     private final UserService userService;
 
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
-
+    @PreAuthorize("permitAll()")
     public WorkOrderRequestConfiguration getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<WorkOrderRequestConfiguration> optionalWorkOrderRequestConfiguration =
