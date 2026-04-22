@@ -1781,7 +1781,51 @@ const locale = {
   add_comment_placeholder: 'أضف تعليقاً...',
   post_comment: 'نشر التعليق',
   no_comments: 'لا توجد تعليقات بعد',
-  confirm_delete_comment: 'هل أنت متأكد أنك تريد حذف هذا التعليق؟'
+  confirm_delete_comment: 'هل أنت متأكد أنك تريد حذف هذا التعليق؟',
+  work_orders_settings_description:
+    'تخصيص تفضيلات أوامر العمل مثل تتبع الوقت والتكلفة، والمزيد.',
+  requests_settings_description:
+    'تخصيص تفضيلات الطلبات مثل التوجيه والحقول المطلوبة',
+  assets_settings_description:
+    'تخصيص الإعدادات المتعلقة بالأصول مثل إنشاء الباركود أو نموذج إنشاء الأصول.',
+  locations_settings_description:
+    'إنشاء وإدارة وتعديل المواقع داخل مؤسستك.',
+  parts_inventory_settings_description:
+    'تخصيص نموذج ومفضلات مخزون القطع',
+  meters_settings_description: 'تخصيص نموذج ومفضلات العدادات',
+  vendors_contractors_settings_description:
+    'إدارة المقاولين والموردين الخارجيين الذين تعمل معهم مؤسستك',
+  workflows_settings_description: 'إنشاء وإدارة سير العمل الآلي',
+  request_portals_settings_description:
+    'إنشاء وإدارة وتعديل جميع بوابات الطلبات في مؤسستك.',
+  set_preferences: 'تعيين التفضيلات',
+  enabled: 'مفعل',
+  disabled: 'معطل',
+  go_to_request_portals: 'الذهاب إلى بوابات الطلبات',
+  preferences: 'التفضيلات',
+  customize_work_order_form: 'تخصيص نموذج أمر العمل',
+  custom_fields: 'الحقول المخصصة',
+  configure_fields: 'تكوين الحقول',
+  add_custom_field: 'إضافة حقل مخصص',
+  edit_custom_field: 'تعديل الحقل المخصص',
+  confirm_delete_custom_field:
+    'هل أنت متأكد أنك تريد حذف هذا الحقل المخصص؟',
+  copy_on_repeat_wo: 'نسخ قيم هذا الحقل عند تكرار أوامر العمل',
+  do_not_copy: 'عدم النسخ',
+  enter_options_comma_separated: 'أدخل الخيارات مفصولة بفواصل',
+  field_type: 'نوع الحقل',
+  options: 'الخيارات',
+  short_text: 'نص قصير',
+  long_text: 'نص طويل',
+  number: 'رقم',
+  date_time: 'التاريخ والوقت',
+  single_choice: 'اختيار واحد',
+  label: 'تسمية',
+  customize_form: 'تخصيص النموذج',
+  type_enter_to_add_option: 'اكتب واضغط Enter لإضافة خيار',
+  customers_settings_description:
+    'إدارة المقاولين الخارجيين الذين تعمل معهم مؤسستك.',
+  vendors_settings_description: 'تخصيص الإعدادات المتعلقة بالموردين'
 };
 
 export default locale;

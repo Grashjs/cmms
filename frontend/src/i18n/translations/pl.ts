@@ -1843,7 +1843,51 @@ const plJSON = {
   add_comment_placeholder: 'Dodaj komentarz...',
   post_comment: 'Opublikuj komentarz',
   no_comments: 'Brak komentarzy',
-  confirm_delete_comment: 'Czy na pewno chcesz usunąć ten komentarz?'
+  confirm_delete_comment: 'Czy na pewno chcesz usunąć ten komentarz?',
+  work_orders_settings_description:
+    'Dostosuj preferencje zleceń pracy, takie jak śledzenie czasu i kosztów i nie tylko.',
+  requests_settings_description:
+    'Dostosuj preferencje zapytań, takie jak routing i wymagane pola',
+  assets_settings_description:
+    'Dostosuj ustawienia związane z aktywami, takie jak generowanie kodów kreskowych lub formularz tworzenia aktywów.',
+  locations_settings_description:
+    'Twórz, zarządzaj i edytuj lokalizacje w swojej organizacji.',
+  parts_inventory_settings_description:
+    'Dostosuj formularz i preferencje magazynu części',
+  meters_settings_description: 'Dostosuj formularz i preferencje liczników',
+  vendors_contractors_settings_description:
+    'Zarządzaj zewnętrznymi wykonawcami i dostawcami, z którymi współpracuje Twoja organizacja',
+  workflows_settings_description: 'Twórz i zarządzaj zautomatyzowanymi przepływami pracy',
+  request_portals_settings_description:
+    'Twórz, zarządzaj i edytuj wszystkie portale zapytań w swojej organizacji.',
+  set_preferences: 'Ustaw preferencje',
+  enabled: 'Włączone',
+  disabled: 'Wyłączone',
+  go_to_request_portals: 'Przejdź do portali zapytań',
+  preferences: 'Preferencje',
+  customize_work_order_form: 'Dostosuj formularz zlecenia pracy',
+  custom_fields: 'Pola niestandardowe',
+  configure_fields: 'Konfiguruj pola',
+  add_custom_field: 'Dodaj pole niestandardowe',
+  edit_custom_field: 'Edytuj pole niestandardowe',
+  confirm_delete_custom_field:
+    'Czy na pewno chcesz usunąć to pole niestandardowe?',
+  copy_on_repeat_wo: 'Kopiuj wartości tego pola przy powtarzających się zleceniach pracy',
+  do_not_copy: 'Nie kopiuj',
+  enter_options_comma_separated: 'Wprowadź opcje oddzielone przecinkami',
+  field_type: 'Typ pola',
+  options: 'Opcje',
+  short_text: 'Krótki tekst',
+  long_text: 'Długi tekst',
+  number: 'Liczba',
+  date_time: 'Data i czas',
+  single_choice: 'Pojedynczy wybór',
+  label: 'Etykieta',
+  customize_form: 'Dostosuj formularz',
+  type_enter_to_add_option: 'Wpisz i naciśnij Enter, aby dodać opcję',
+  customers_settings_description:
+    'Zarządzaj zewnętrznymi wykonawcami, z którymi współpracuje Twoja organizacja.',
+  vendors_settings_description: 'Dostosuj ustawienia związane z dostawcami'
 };
 
 export default plJSON;

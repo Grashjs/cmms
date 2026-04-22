@@ -1813,7 +1813,51 @@ const locale = {
   add_comment_placeholder: 'Lägg till en kommentar...',
   post_comment: 'Publicera kommentar',
   no_comments: 'Inga kommentarer än',
-  confirm_delete_comment: 'Är du säker på att du vill ta bort denna kommentar?'
+  confirm_delete_comment: 'Är du säker på att du vill ta bort denna kommentar?',
+  work_orders_settings_description:
+    'Anpassa arbetsorderinställningar som tids- och kostnadsspårning, och mer.',
+  requests_settings_description:
+    'Anpassa inställningar för förfrågningar som routning och obligatoriska fält',
+  assets_settings_description:
+    'Anpassa tillgångsrelaterade inställningar som streckkodsgenerering eller formulär för att skapa tillgångar.',
+  locations_settings_description:
+    'Skapa, hantera och redigera platser inom din organisation.',
+  parts_inventory_settings_description:
+    'Anpassa formulär och inställningar för reservdelslagret',
+  meters_settings_description: 'Anpassa formulär och inställningar för mätare',
+  vendors_contractors_settings_description:
+    'Hantera externa entreprenörer och leverantörer som din organisation arbetar med',
+  workflows_settings_description: 'Skapa och hantera automatiserade arbetsflöden',
+  request_portals_settings_description:
+    'Skapa, hantera och redigera alla förfrågningsportaler i din organisation.',
+  set_preferences: 'Ange inställningar',
+  enabled: 'Aktiverad',
+  disabled: 'Inaktiverad',
+  go_to_request_portals: 'Gå till förfrågningsportaler',
+  preferences: 'Inställningar',
+  customize_work_order_form: 'Anpassa arbetsorderformulär',
+  custom_fields: 'Anpassade fält',
+  configure_fields: 'Konfigurera fält',
+  add_custom_field: 'Lägg till anpassat fält',
+  edit_custom_field: 'Redigera anpassat fält',
+  confirm_delete_custom_field:
+    'Är du säker på att du vill ta bort detta anpassade fält?',
+  copy_on_repeat_wo: 'Kopiera värdena för detta fält på upprepande arbetsordrar',
+  do_not_copy: 'Kopiera inte',
+  enter_options_comma_separated: 'Ange alternativ separerade med kommatecken',
+  field_type: 'Fälttyp',
+  options: 'Alternativ',
+  short_text: 'Kort text',
+  long_text: 'Lång text',
+  number: 'Nummer',
+  date_time: 'Datum och tid',
+  single_choice: 'Enkelt val',
+  label: 'Etikett',
+  customize_form: 'Anpassa formuläret',
+  type_enter_to_add_option: 'Skriv och tryck Enter för att lägga till ett alternativ',
+  customers_settings_description:
+    'Hantera externa entreprenörer som din organisation arbetar med.',
+  vendors_settings_description: 'Anpassa leverantörsrelaterade inställningar'
 };
 
 export default locale;

@@ -1843,7 +1843,51 @@ const trJSON = {
   add_comment_placeholder: 'Yorum ekle...',
   post_comment: 'Yorum Gönder',
   no_comments: 'Henüz yorum yok',
-  confirm_delete_comment: 'Bu yorumu silmek istediğinizden emin misiniz?'
+  confirm_delete_comment: 'Bu yorumu silmek istediğinizden emin misiniz?',
+  work_orders_settings_description:
+    'İş emri tercihlerini zaman ve maliyet takibi gibi özellikler için özelleştirin.',
+  requests_settings_description:
+    'Yönlendirme ve zorunlu alanlar gibi istek tercihlerini özelleştirin',
+  assets_settings_description:
+    'Barkod oluşturma veya varlık oluşturma formu gibi varlıklarla ilgili ayarları özelleştirin.',
+  locations_settings_description:
+    'Kuruluşunuzdaki konumları oluşturun, yönetin ve düzenleyin.',
+  parts_inventory_settings_description:
+    'Parça envanteri formu ve tercihlerini özelleştirin',
+  meters_settings_description: 'Sayaç formu ve tercihlerini özelleştirin',
+  vendors_contractors_settings_description:
+    'Kuruluşunuzun çalıştığı dış müteahhitleri ve tedarikçileri yönetin',
+  workflows_settings_description: 'Otomatik iş akışları oluşturun ve yönetin',
+  request_portals_settings_description:
+    'Kuruluşunuzdaki tüm istek portallarını oluşturun, yönetin ve düzenleyin.',
+  set_preferences: 'Tercihleri belirle',
+  enabled: 'Etkin',
+  disabled: 'Devre dışı',
+  go_to_request_portals: 'İstek portallarına git',
+  preferences: 'Tercihler',
+  customize_work_order_form: 'İş emri formunu özelleştir',
+  custom_fields: 'Özel alanlar',
+  configure_fields: 'Alanları yapılandır',
+  add_custom_field: 'Özel alan ekle',
+  edit_custom_field: 'Özel alanı düzenle',
+  confirm_delete_custom_field:
+    'Bu özel alanı silmek istediğinizden emin misiniz?',
+  copy_on_repeat_wo: 'Bu alanın değerlerini tekrarlanan iş emirlerine kopyala',
+  do_not_copy: 'Kopyalama',
+  enter_options_comma_separated: 'Seçenekleri virgülle ayırarak girin',
+  field_type: 'Alan türü',
+  options: 'Seçenekler',
+  short_text: 'Kısa metin',
+  long_text: 'Uzun metin',
+  number: 'Sayı',
+  date_time: 'Tarih ve saat',
+  single_choice: 'Tek seçim',
+  label: 'Etiket',
+  customize_form: 'Formu özelleştir',
+  type_enter_to_add_option: 'Seçenek eklemek için yazın ve Enter\'a basın',
+  customers_settings_description:
+    'Kuruluşunuzun çalıştığı dış müteahhitleri yönetin.',
+  vendors_settings_description: 'Tedarikçiyle ilgili ayarları özelleştirin'
 };
 
 export default trJSON;

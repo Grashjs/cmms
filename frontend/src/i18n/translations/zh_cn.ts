@@ -1512,7 +1512,51 @@ const locale = {
   add_comment_placeholder: '添加评论...',
   post_comment: '发表评论',
   no_comments: '暂无评论',
-  confirm_delete_comment: '您确定要删除此评论吗？'
+  confirm_delete_comment: '您确定要删除此评论吗？',
+  work_orders_settings_description:
+    '自定义工单偏好设置，如时间和成本跟踪等。',
+  requests_settings_description:
+    '自定义请求偏好设置，如路由和必填字段',
+  assets_settings_description:
+    '自定义资产相关设置，如条形码生成或资产创建表单。',
+  locations_settings_description:
+    '在您的组织内创建、管理和编辑位置。',
+  parts_inventory_settings_description:
+    '自定义零件库存表单和偏好设置',
+  meters_settings_description: '自定义仪表表单和偏好设置',
+  vendors_contractors_settings_description:
+    '管理您组织合作的外包承包商和供应商',
+  workflows_settings_description: '创建和管理自动化工作流程',
+  request_portals_settings_description:
+    '在您的组织内创建、管理和编辑所有请求门户。',
+  set_preferences: '设置偏好',
+  enabled: '已启用',
+  disabled: '已禁用',
+  go_to_request_portals: '前往请求门户',
+  preferences: '偏好设置',
+  customize_work_order_form: '自定义工单表单',
+  custom_fields: '自定义字段',
+  configure_fields: '配置字段',
+  add_custom_field: '添加自定义字段',
+  edit_custom_field: '编辑自定义字段',
+  confirm_delete_custom_field:
+    '您确定要删除此自定义字段吗？',
+  copy_on_repeat_wo: '在重复工单时复制此字段的值',
+  do_not_copy: '不复制',
+  enter_options_comma_separated: '输入以逗号分隔的选项',
+  field_type: '字段类型',
+  options: '选项',
+  short_text: '短文本',
+  long_text: '长文本',
+  number: '数字',
+  date_time: '日期和时间',
+  single_choice: '单选',
+  label: '标签',
+  customize_form: '自定义表单',
+  type_enter_to_add_option: '输入并按Enter添加选项',
+  customers_settings_description:
+    '管理您组织合作的外包承包商。',
+  vendors_settings_description: '自定义供应商相关设置'
 };
 
 export default locale;

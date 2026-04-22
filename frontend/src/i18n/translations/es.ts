@@ -1919,7 +1919,51 @@ const esJSON = {
   add_comment_placeholder: 'Añadir un comentario...',
   post_comment: 'Publicar comentario',
   no_comments: 'Aún no hay comentarios',
-  confirm_delete_comment: '¿Está seguro de que desea eliminar este comentario?'
+  confirm_delete_comment: '¿Está seguro de que desea eliminar este comentario?',
+  work_orders_settings_description:
+    'Personalice las preferencias de Órdenes de Trabajo como Seguimiento de Tiempo y Costo, y más.',
+  requests_settings_description:
+    'Personalice las preferencias de Solicitud como enrutamiento y campos obligatorios',
+  assets_settings_description:
+    'Personalice la configuración relacionada con Activos como Generación de Códigos de Barras o formulario de creación de Activos.',
+  locations_settings_description:
+    'Crear, gestionar y editar Ubicaciones dentro de su Organización.',
+  parts_inventory_settings_description:
+    'Personalice el formulario y preferencias del Inventario de Repuestos',
+  meters_settings_description: 'Personalice el formulario y preferencias de Medidores',
+  vendors_contractors_settings_description:
+    'Gestionar contratistas y proveedores externos con los que su organización trabaja',
+  workflows_settings_description: 'Crear y gestionar flujos de trabajo automatizados',
+  request_portals_settings_description:
+    'Crear, gestionar y editar todos los Portales de Solicitud en su organización.',
+  set_preferences: 'Establecer Preferencias',
+  enabled: 'Habilitado',
+  disabled: 'Deshabilitado',
+  go_to_request_portals: 'Ir a Portales de Solicitud',
+  preferences: 'Preferencias',
+  customize_work_order_form: 'Personalizar formulario de orden de trabajo',
+  custom_fields: 'Campos Personalizados',
+  configure_fields: 'Configurar campos',
+  add_custom_field: 'Agregar Campo Personalizado',
+  edit_custom_field: 'Editar Campo Personalizado',
+  confirm_delete_custom_field:
+    '¿Está seguro de que desea eliminar este campo personalizado?',
+  copy_on_repeat_wo: 'Copiar los valores de este campo en Órdenes de Trabajo repetitivas',
+  do_not_copy: 'No copiar',
+  enter_options_comma_separated: 'Ingrese opciones separadas por comas',
+  field_type: 'Tipo de Campo',
+  options: 'Opciones',
+  short_text: 'Texto Corto',
+  long_text: 'Texto Largo',
+  number: 'Número',
+  date_time: 'Fecha y Hora',
+  single_choice: 'Opción Única',
+  label: 'Etiqueta',
+  customize_form: 'Personalizar el formulario',
+  type_enter_to_add_option: 'Escriba y presione enter para agregar una opción',
+  customers_settings_description:
+    'Gestionar contratistas externos con los que su organización trabaja.',
+  vendors_settings_description: 'Personalizar la configuración relacionada con proveedores'
 };
 
 export default esJSON;

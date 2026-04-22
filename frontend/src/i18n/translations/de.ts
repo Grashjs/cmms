@@ -1928,7 +1928,51 @@ const deJSON = {
   post_comment: 'Kommentar posten',
   no_comments: 'Noch keine Kommentare',
   confirm_delete_comment:
-    'Sind Sie sicher, dass Sie diesen Kommentar löschen möchten?'
+    'Sind Sie sicher, dass Sie diesen Kommentar löschen möchten?',
+  work_orders_settings_description:
+    'Passen Sie Arbeitsauftrags-Einstellungen wie Zeit- und Kostenverfolgung an, und mehr.',
+  requests_settings_description:
+    'Passen Sie Anfrage-Einstellungen wie Routing und erforderliche Felder an',
+  assets_settings_description:
+    'Passen Sie anlagenbezogene Einstellungen wie Barcode-Generierung oder Anlagen-Erstellungsformular an.',
+  locations_settings_description:
+    'Erstellen, verwalten und bearbeiten Sie Standorte in Ihrer Organisation.',
+  parts_inventory_settings_description:
+    'Passen Sie das Teileinventar-Formular und Einstellungen an',
+  meters_settings_description: 'Passen Sie das Zähler-Formular und Einstellungen an',
+  vendors_contractors_settings_description:
+    'Verwalten Sie externe Auftragnehmer und Lieferanten, mit denen Ihre Organisation zusammenarbeitet',
+  workflows_settings_description: 'Erstellen und verwalten Sie automatisierte Workflows',
+  request_portals_settings_description:
+    'Erstellen, verwalten und bearbeiten Sie alle Anfrage-Portale in Ihrer Organisation.',
+  set_preferences: 'Einstellungen festlegen',
+  enabled: 'Aktiviert',
+  disabled: 'Deaktiviert',
+  go_to_request_portals: 'Zu Anfrage-Portalen gehen',
+  preferences: 'Einstellungen',
+  customize_work_order_form: 'Arbeitsauftrags-Formular anpassen',
+  custom_fields: 'Benutzerdefinierte Felder',
+  configure_fields: 'Felder konfigurieren',
+  add_custom_field: 'Benutzerdefiniertes Feld hinzufügen',
+  edit_custom_field: 'Benutzerdefiniertes Feld bearbeiten',
+  confirm_delete_custom_field:
+    'Sind Sie sicher, dass Sie dieses benutzerdefinierte Feld löschen möchten?',
+  copy_on_repeat_wo: 'Werte dieses Feldes bei wiederholenden Arbeitsaufträgen kopieren',
+  do_not_copy: 'Nicht kopieren',
+  enter_options_comma_separated: 'Optionen durch Kommas getrennt eingeben',
+  field_type: 'Feldtyp',
+  options: 'Optionen',
+  short_text: 'Kurztext',
+  long_text: 'Langtext',
+  number: 'Zahl',
+  date_time: 'Datum und Uhrzeit',
+  single_choice: 'Einzelauswahl',
+  label: 'Bezeichnung',
+  customize_form: 'Formular anpassen',
+  type_enter_to_add_option: 'Eingeben und Enter drücken, um eine Option hinzuzufügen',
+  customers_settings_description:
+    'Verwalten Sie externe Auftragnehmer, mit denen Ihre Organisation zusammenarbeitet.',
+  vendors_settings_description: 'Lieferantenbezogene Einstellungen anpassen'
 };
 
 export default deJSON;

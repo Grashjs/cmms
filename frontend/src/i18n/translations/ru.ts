@@ -1906,7 +1906,51 @@ const ruJSON = {
   add_comment_placeholder: 'Добавить комментарий...',
   post_comment: 'Опубликовать комментарий',
   no_comments: 'Пока нет комментариев',
-  confirm_delete_comment: 'Вы уверены, что хотите удалить этот комментарий?'
+  confirm_delete_comment: 'Вы уверены, что хотите удалить этот комментарий?',
+  work_orders_settings_description:
+    'Настройте предпочтения для рабочих заданий, такие как отслеживание времени и затрат, и многое другое.',
+  requests_settings_description:
+    'Настройте предпочтения для запросов, такие как маршрутизация и обязательные поля',
+  assets_settings_description:
+    'Настройте параметры, связанные с активами, такие как создание штрих-кодов или форма создания активов.',
+  locations_settings_description:
+    'Создавайте, управляйте и редактируйте местоположения в вашей организации.',
+  parts_inventory_settings_description:
+    'Настройте форму и предпочтения для инвентаря запчастей',
+  meters_settings_description: 'Настройте форму и предпочтения для счетчиков',
+  vendors_contractors_settings_description:
+    'Управляйте внешними подрядчиками и поставщиками, с которыми работает ваша организация',
+  workflows_settings_description: 'Создавайте и управляйте автоматизированными рабочими процессами',
+  request_portals_settings_description:
+    'Создавайте, управляйте и редактируйте все порталы запросов в вашей организации.',
+  set_preferences: 'Установить предпочтения',
+  enabled: 'Включено',
+  disabled: 'Отключено',
+  go_to_request_portals: 'Перейти к порталам запросов',
+  preferences: 'Предпочтения',
+  customize_work_order_form: 'Настроить форму рабочего задания',
+  custom_fields: 'Пользовательские поля',
+  configure_fields: 'Настроить поля',
+  add_custom_field: 'Добавить пользовательское поле',
+  edit_custom_field: 'Редактировать пользовательское поле',
+  confirm_delete_custom_field:
+    'Вы уверены, что хотите удалить это пользовательское поле?',
+  copy_on_repeat_wo: 'Копировать значения этого поля при повторяющихся рабочих заданиях',
+  do_not_copy: 'Не копировать',
+  enter_options_comma_separated: 'Введите параметры через запятую',
+  field_type: 'Тип поля',
+  options: 'Параметры',
+  short_text: 'Короткий текст',
+  long_text: 'Длинный текст',
+  number: 'Число',
+  date_time: 'Дата и время',
+  single_choice: 'Одиночный выбор',
+  label: 'Метка',
+  customize_form: 'Настроить форму',
+  type_enter_to_add_option: 'Введите и нажмите Enter, чтобы добавить параметр',
+  customers_settings_description:
+    'Управляйте внешними подрядчиками, с которыми работает ваша организация.',
+  vendors_settings_description: 'Настройте параметры, связанные с поставщиками'
 };
 
 export default ruJSON;

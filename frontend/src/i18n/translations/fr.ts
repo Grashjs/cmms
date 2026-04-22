@@ -2011,7 +2011,57 @@ const frJSON = {
   add_comment_placeholder: 'Ajouter un commentaire...',
   post_comment: 'Publier le commentaire',
   no_comments: 'Pas encore de commentaires',
-  confirm_delete_comment: 'Êtes-vous sûr de vouloir supprimer ce commentaire?'
+  confirm_delete_comment: 'Êtes-vous sûr de vouloir supprimer ce commentaire?',
+  work_orders_settings_description:
+    'Personnalisez les préférences des ordres de travail comme le suivi du temps et des coûts, et plus encore.',
+  requests_settings_description:
+    'Personnalisez les préférences des demandes comme le routage et les champs obligatoires',
+  assets_settings_description:
+    "Personnalisez les paramètres liés aux équipements comme la génération de codes-barres ou le formulaire de création d'équipements.",
+  locations_settings_description:
+    'Créer, gérer et modifier les emplacements au sein de votre organisation.',
+  parts_inventory_settings_description:
+    "Personnalisez le formulaire et les préférences de l'inventaire des pièces",
+  meters_settings_description:
+    'Personnalisez le formulaire et les préférences des compteurs',
+  vendors_contractors_settings_description:
+    'Gérer les entrepreneurs et fournisseurs externes avec lesquels votre organisation travaille',
+  workflows_settings_description:
+    'Créer et gérer des flux de travail automatisés',
+  request_portals_settings_description:
+    'Créer, gérer et modifier tous les portails de demandes de votre organisation.',
+  set_preferences: 'Définir les préférences',
+  enabled: 'Activé',
+  disabled: 'Désactivé',
+  go_to_request_portals: 'Aller aux portails de demandes',
+  preferences: 'Préférences',
+  customize_work_order_form: "Personnaliser le formulaire d'ordre de travail",
+  custom_fields: 'Champs personnalisés',
+  configure_fields: 'Configurer les champs',
+  add_custom_field: 'Ajouter un champ personnalisé',
+  edit_custom_field: 'Modifier le champ personnalisé',
+  confirm_delete_custom_field:
+    'Êtes-vous sûr de vouloir supprimer ce champ personnalisé ?',
+  copy_on_repeat_wo:
+    'Copier les valeurs de ce champ lors de la répétition des ordres de travail',
+  do_not_copy: 'Ne pas copier',
+  enter_options_comma_separated: 'Entrez les options séparées par des virgules',
+  field_type: 'Type de champ',
+  options: 'Options',
+  short_text: 'Texte court',
+  long_text: 'Texte long',
+  a_link: 'Lien',
+  number: 'Nombre',
+  date_time: 'Date et heure',
+  single_choice: 'Choix unique',
+  label: 'Étiquette',
+  customize_form: 'Personnaliser le formulaire',
+  type_enter_to_add_option:
+    'Tapez et appuyez sur Entrée pour ajouter une option',
+  customers_settings_description:
+    'Gérer les entrepreneurs externes avec lesquels votre organisation travaille.',
+  vendors_settings_description:
+    'Personnaliser les paramètres liés aux fournisseurs'
 };
 
 export default frJSON;

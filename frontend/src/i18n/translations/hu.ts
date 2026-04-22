@@ -1698,7 +1698,51 @@ const locale = {
   add_comment_placeholder: 'Hozzászólás hozzáadása...',
   post_comment: 'Hozzászólás közzététele',
   no_comments: 'Még nincsenek hozzászólások',
-  confirm_delete_comment: 'Biztosan törölni szeretné ezt a hozzászólást?'
+  confirm_delete_comment: 'Biztosan törölni szeretné ezt a hozzászólást?',
+  work_orders_settings_description:
+    'Testreszabhatja a munkarendelések beállításait, például az idő- és költségkövetést és még sok mást.',
+  requests_settings_description:
+    'Testreszabhatja a kérések beállításait, például az útvonalat és a kötelező mezőket',
+  assets_settings_description:
+    'Testreszabhatja az eszközökkel kapcsolatos beállításokat, például a vonalkód-generálást vagy az eszközök létrehozási űrlapját.',
+  locations_settings_description:
+    'Hozza létre, kezelje és szerkessze a telephelyeket a szervezetén belül.',
+  parts_inventory_settings_description:
+    'Testreszabhatja az alkatrész-készlet űrlapját és beállításait',
+  meters_settings_description: 'Testreszabhatja a mérő űrlapját és beállításait',
+  vendors_contractors_settings_description:
+    'Kezelje a külső vállalkozókat és szállítókat, amelyekkel a szervezet dolgozik',
+  workflows_settings_description: 'Hozza létre és kezelje az automatizált munkafolyamatokat',
+  request_portals_settings_description:
+    'Hozza létre, kezelje és szerkessze az összes kérelem-portált a szervezetén belül.',
+  set_preferences: 'Beállítások megadása',
+  enabled: 'Engedélyezve',
+  disabled: 'Letiltva',
+  go_to_request_portals: 'Ugrás a kérelem-portálokra',
+  preferences: 'Beállítások',
+  customize_work_order_form: 'Munkarendelési űrlap testreszabása',
+  custom_fields: 'Egyéni mezők',
+  configure_fields: 'Mezők konfigurálása',
+  add_custom_field: 'Egyéni mező hozzáadása',
+  edit_custom_field: 'Egyéni mező szerkesztése',
+  confirm_delete_custom_field:
+    'Biztosan törölni szeretné ezt az egyéni mezőt?',
+  copy_on_repeat_wo: 'A mező értékeinek másolása ismétlődő munkarendelésekre',
+  do_not_copy: 'Ne másolja',
+  enter_options_comma_separated: 'Adja meg a lehetőségeket vesszővel elválasztva',
+  field_type: 'Mező típusa',
+  options: 'Lehetőségek',
+  short_text: 'Rövid szöveg',
+  long_text: 'Hosszú szöveg',
+  number: 'Szám',
+  date_time: 'Dátum és idő',
+  single_choice: 'Egyetlen választás',
+  label: 'Címke',
+  customize_form: 'Az űrlap testreszabása',
+  type_enter_to_add_option: 'Írja be és nyomja meg az Entert a lehetőség hozzáadásához',
+  customers_settings_description:
+    'Kezelje a külső vállalkozókat, amelyekkel a szervezet dolgozik.',
+  vendors_settings_description: 'Testreszabhatja a szállítókkal kapcsolatos beállításokat'
 };
 
 export default locale;

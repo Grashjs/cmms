@@ -1838,6 +1838,50 @@ const locale = {
   post_comment: 'Opmerking plaatsen',
   no_comments: 'Nog geen opmerkingen',
   confirm_delete_comment:
-    'Weet je zeker dat je deze opmerking wilt verwijderen?'
+    'Weet je zeker dat je deze opmerking wilt verwijderen?',
+  work_orders_settings_description:
+    'Pas werkordervoorkeuren aan zoals tijd- en kostenregistratie, en meer.',
+  requests_settings_description:
+    'Pas aanvraagvoorkeuren aan zoals routering en verplichte velden',
+  assets_settings_description:
+    'Pas activa-gerelateerde instellingen aan zoals barcode-generatie of het formulier voor het maken van activa.',
+  locations_settings_description:
+    'Maak, beheer en bewerk locaties binnen uw organisatie.',
+  parts_inventory_settings_description:
+    'Pas het formulier en voorkeuren van onderdelenvoorraad aan',
+  meters_settings_description: 'Pas het formulier en voorkeuren van meters aan',
+  vendors_contractors_settings_description:
+    'Beheer externe aannemers en leveranciers waarmee uw organisatie werkt',
+  workflows_settings_description: 'Maak en beheer geautomatiseerde werkstromen',
+  request_portals_settings_description:
+    'Maak, beheer en bewerk alle aanvraagportalen in uw organisatie.',
+  set_preferences: 'Voorkeuren instellen',
+  enabled: 'Ingeschakeld',
+  disabled: 'Uitgeschakeld',
+  go_to_request_portals: 'Naar aanvraagportalen',
+  preferences: 'Voorkeuren',
+  customize_work_order_form: 'Werkorderformulier aanpassen',
+  custom_fields: 'Aangepaste velden',
+  configure_fields: 'Velden configureren',
+  add_custom_field: 'Aangepast veld toevoegen',
+  edit_custom_field: 'Aangepast veld bewerken',
+  confirm_delete_custom_field:
+    'Weet je zeker dat je dit aangepaste veld wilt verwijderen?',
+  copy_on_repeat_wo: 'Kopieer de waarden van dit veld bij herhalende werkorders',
+  do_not_copy: 'Niet kopiëren',
+  enter_options_comma_separated: 'Voer opties gescheiden door komma\'s in',
+  field_type: 'Veldtype',
+  options: 'Opties',
+  short_text: 'Korte tekst',
+  long_text: 'Lange tekst',
+  number: 'Nummer',
+  date_time: 'Datum en tijd',
+  single_choice: 'Enkele keuze',
+  label: 'Label',
+  customize_form: 'Pas het formulier aan',
+  type_enter_to_add_option: 'Typ en druk op enter om een optie toe te voegen',
+  customers_settings_description:
+    'Beheer externe aannemers waarmee uw organisatie werkt.',
+  vendors_settings_description: 'Pas leveranciers-gerelateerde instellingen aan'
 };
 export default locale;

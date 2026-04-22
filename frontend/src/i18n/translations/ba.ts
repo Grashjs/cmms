@@ -1829,7 +1829,51 @@ const locale = {
   add_comment_placeholder: 'Dodaj komentar...',
   post_comment: 'Objavi komentar',
   no_comments: 'Još nema komentara',
-  confirm_delete_comment: 'Da li ste sigurni da želite obrisati ovaj komentar?'
+  confirm_delete_comment: 'Da li ste sigurni da želite obrisati ovaj komentar?',
+  work_orders_settings_description:
+    'Prilagodite postavke radnih naloga kao što su praćenje vremena i troškova, i još mnogo toga.',
+  requests_settings_description:
+    'Prilagodite postavke zahtjeva kao što su rutiranje i obavezna polja',
+  assets_settings_description:
+    'Prilagodite postavke vezane za sredstva kao što je generiranje barkodova ili obrazac za kreiranje sredstava.',
+  locations_settings_description:
+    'Kreirajte, upravljajte i uređujte lokacije unutar vaše organizacije.',
+  parts_inventory_settings_description:
+    'Prilagodite obrazac i postavke inventara dijelova',
+  meters_settings_description: 'Prilagodite obrazac i postavke mjerača',
+  vendors_contractors_settings_description:
+    'Upravljajte vanjskim izvođačima i dobavljačima sa kojima vaša organizacija radi',
+  workflows_settings_description: 'Kreirajte i upravljajte automatiziranim tijekovima rada',
+  request_portals_settings_description:
+    'Kreirajte, upravljajte i uređujte sve portale za zahtjeve u vašoj organizaciji.',
+  set_preferences: 'Postavi postavke',
+  enabled: 'Omogućeno',
+  disabled: 'Onemogućeno',
+  go_to_request_portals: 'Idi na portale za zahtjeve',
+  preferences: 'Postavke',
+  customize_work_order_form: 'Prilagodi obrazac radnog naloga',
+  custom_fields: 'Prilagođena polja',
+  configure_fields: 'Konfiguriraj polja',
+  add_custom_field: 'Dodaj prilagođeno polje',
+  edit_custom_field: 'Uredi prilagođeno polje',
+  confirm_delete_custom_field:
+    'Da li ste sigurni da želite obrisati ovo prilagođeno polje?',
+  copy_on_repeat_wo: 'Kopiraj vrijednosti ovog polja na ponavljajuće radne naloge',
+  do_not_copy: 'Ne kopiraj',
+  enter_options_comma_separated: 'Unesite opcije odvojene zarezima',
+  field_type: 'Tip polja',
+  options: 'Opcije',
+  short_text: 'Kratki tekst',
+  long_text: 'Dugi tekst',
+  number: 'Broj',
+  date_time: 'Datum i vrijeme',
+  single_choice: 'Jedan izbor',
+  label: 'Oznaka',
+  customize_form: 'Prilagodi obrazac',
+  type_enter_to_add_option: 'Upišite i pritisnite enter da dodate opciju',
+  customers_settings_description:
+    'Upravljajte vanjskim izvođačima sa kojima vaša organizacija radi.',
+  vendors_settings_description: 'Prilagodite postavke vezane za dobavljače'
 };
 
 export default locale;

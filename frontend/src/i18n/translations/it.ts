@@ -1847,7 +1847,51 @@ const locale = {
   add_comment_placeholder: 'Aggiungi un commento...',
   post_comment: 'Pubblica commento',
   no_comments: 'Ancora nessun commento',
-  confirm_delete_comment: 'Sei sicuro di voler eliminare questo commento?'
+  confirm_delete_comment: 'Sei sicuro di voler eliminare questo commento?',
+  work_orders_settings_description:
+    'Personalizza le preferenze degli ordini di lavoro come il tracciamento di tempo e costi, e altro.',
+  requests_settings_description:
+    'Personalizza le preferenze delle richieste come il routing e i campi obbligatori',
+  assets_settings_description:
+    'Personalizza le impostazioni relative agli asset come la generazione di codici a barre o il modulo di creazione degli asset.',
+  locations_settings_description:
+    'Crea, gestisci e modifica le sedi all\'interno della tua organizzazione.',
+  parts_inventory_settings_description:
+    'Personalizza il modulo e le preferenze dell\'inventario ricambi',
+  meters_settings_description: 'Personalizza il modulo e le preferenze dei contatori',
+  vendors_contractors_settings_description:
+    'Gestisci appaltatori e fornitori esterni con cui la tua organizzazione lavora',
+  workflows_settings_description: 'Crea e gestisci flussi di lavoro automatizzati',
+  request_portals_settings_description:
+    'Crea, gestisci e modifica tutti i portali di richiesta nella tua organizzazione.',
+  set_preferences: 'Imposta preferenze',
+  enabled: 'Abilitato',
+  disabled: 'Disabilitato',
+  go_to_request_portals: 'Vai ai portali di richiesta',
+  preferences: 'Preferenze',
+  customize_work_order_form: 'Personalizza modulo ordine di lavoro',
+  custom_fields: 'Campi personalizzati',
+  configure_fields: 'Configura campi',
+  add_custom_field: 'Aggiungi campo personalizzato',
+  edit_custom_field: 'Modifica campo personalizzato',
+  confirm_delete_custom_field:
+    'Sei sicuro di voler eliminare questo campo personalizzato?',
+  copy_on_repeat_wo: 'Copia i valori di questo campo negli ordini di lavoro ripetuti',
+  do_not_copy: 'Non copiare',
+  enter_options_comma_separated: 'Inserisci le opzioni separate da virgola',
+  field_type: 'Tipo di campo',
+  options: 'Opzioni',
+  short_text: 'Testo breve',
+  long_text: 'Testo lungo',
+  number: 'Numero',
+  date_time: 'Data e ora',
+  single_choice: 'Scelta singola',
+  label: 'Etichetta',
+  customize_form: 'Personalizza il modulo',
+  type_enter_to_add_option: 'Digita e premi invio per aggiungere un\'opzione',
+  customers_settings_description:
+    'Gestisci appaltatori esterni con cui la tua organizzazione lavora.',
+  vendors_settings_description: 'Personalizza le impostazioni relative ai fornitori'
 };
 
 export default locale;

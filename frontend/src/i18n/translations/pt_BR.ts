@@ -1873,7 +1873,51 @@ const ptBRJSON = {
   add_comment_placeholder: 'Adicionar um comentário...',
   post_comment: 'Publicar comentário',
   no_comments: 'Nenhum comentário ainda',
-  confirm_delete_comment: 'Tem certeza de que deseja excluir este comentário?'
+  confirm_delete_comment: 'Tem certeza de que deseja excluir este comentário?',
+  work_orders_settings_description:
+    'Personalize as preferências de ordens de trabalho como rastreamento de tempo e custo, e mais.',
+  requests_settings_description:
+    'Personalize as preferências de solicitações como roteamento e campos obrigatórios',
+  assets_settings_description:
+    'Personalize configurações relacionadas a ativos como geração de código de barras ou formulário de criação de ativos.',
+  locations_settings_description:
+    'Crie, gerencie e edite locais dentro da sua organização.',
+  parts_inventory_settings_description:
+    'Personalize o formulário e preferências do inventário de peças',
+  meters_settings_description: 'Personalize o formulário e preferências de medidores',
+  vendors_contractors_settings_description:
+    'Gerencie contratantes e fornecedores externos com os quais sua organização trabalha',
+  workflows_settings_description: 'Crie e gerencie fluxos de trabalho automatizados',
+  request_portals_settings_description:
+    'Crie, gerencie e edite todos os portais de solicitação da sua organização.',
+  set_preferences: 'Definir preferências',
+  enabled: 'Ativado',
+  disabled: 'Desativado',
+  go_to_request_portals: 'Ir para portais de solicitação',
+  preferences: 'Preferências',
+  customize_work_order_form: 'Personalizar formulário de ordem de trabalho',
+  custom_fields: 'Campos personalizados',
+  configure_fields: 'Configurar campos',
+  add_custom_field: 'Adicionar campo personalizado',
+  edit_custom_field: 'Editar campo personalizado',
+  confirm_delete_custom_field:
+    'Tem certeza de que deseja excluir este campo personalizado?',
+  copy_on_repeat_wo: 'Copiar os valores deste campo em ordens de trabalho repetidas',
+  do_not_copy: 'Não copiar',
+  enter_options_comma_separated: 'Digite as opções separadas por vírgulas',
+  field_type: 'Tipo de campo',
+  options: 'Opções',
+  short_text: 'Texto curto',
+  long_text: 'Texto longo',
+  number: 'Número',
+  date_time: 'Data e hora',
+  single_choice: 'Escolha única',
+  label: 'Rótulo',
+  customize_form: 'Personalizar o formulário',
+  type_enter_to_add_option: 'Digite e pressione enter para adicionar uma opção',
+  customers_settings_description:
+    'Gerencie contratantes externos com os quais sua organização trabalha.',
+  vendors_settings_description: 'Personalize configurações relacionadas a fornecedores'
 };
 
 export default ptBRJSON;
