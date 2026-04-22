@@ -16,6 +16,7 @@ import com.grash.service.*;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -323,7 +324,7 @@ class WebhookController {
             PaddleSubscriptionData data = webhookEvent.getData();
 
             String email = data.getCustomData() != null ? data.getCustomData().get("email") : null;
-            String planId = data.getCustomData() != null ? data.getCustomData().get("planId") : null;
+            String planId = getPlanId(data);
             Integer quantity = data.getItems().get(0).getQuantity();
 
             if (email == null) {
@@ -381,12 +382,19 @@ class WebhookController {
         }
     }
 
+    @Nullable
+    private String getPlanId(PaddleSubscriptionData data) {
+        return data.getItems().get(0).getCustomData() != null ?
+                data.getItems().get(0).getCustomData().get("planId") : data.getCustomData() != null ?
+                data.getCustomData().get("planId") : null;
+    }
+
     private void handleSelfHostedSubscriptionUpdated(PaddleSubscriptionWebhookEvent webhookEvent, String eventId) {
         try {
             PaddleSubscriptionData data = webhookEvent.getData();
             String paddleSubscriptionId = data.getId();
             String email = data.getCustomData() != null ? data.getCustomData().get("email") : null;
-            String planId = data.getCustomData() != null ? data.getCustomData().get("planId") : null;
+            String planId = getPlanId(data);
             Integer quantity = data.getItems().get(0).getQuantity();
             String newExpiry = data.getNextBilledAt();
             if (newExpiry == null) {

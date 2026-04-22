@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.util.Map;
+
 @Data
 @Schema(description = "Paddle subscription item")
 public class PaddleItem {
@@ -18,4 +20,8 @@ public class PaddleItem {
     @Schema(description = "Item status")
     @JsonProperty("status")
     private String status;
+
+    @JsonProperty("custom_data")
+    private Map<String, String> customData;
+
 }
