@@ -334,6 +334,24 @@ public class PaddleService {
         }
     }
 
+    public String getCustomerEmail(String customerId) {
+        HttpHeaders headers = getHttpHeaders();
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<PaddleCustomerResponse> response = restTemplate.exchange(
+                paddleApiUrl + "/customers/" + customerId,
+                HttpMethod.GET,
+                entity,
+                PaddleCustomerResponse.class
+        );
+
+        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+            return response.getBody().getData().getEmail();
+        } else {
+            throw new CustomException("Failed to retrieve customer email", HttpStatus.NOT_FOUND);
+        }
+    }
+
     @NotNull
     private HttpHeaders getHttpHeaders() {
         HttpHeaders headers = new HttpHeaders();

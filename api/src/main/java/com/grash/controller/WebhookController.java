@@ -323,7 +323,7 @@ class WebhookController {
         try {
             PaddleSubscriptionData data = webhookEvent.getData();
 
-            String email = data.getCustomData() != null ? data.getCustomData().get("email") : null;
+            String email = getEmail(data);
             String planId = getPlanId(data);
             Integer quantity = data.getItems().get(0).getQuantity();
 
@@ -393,7 +393,7 @@ class WebhookController {
         try {
             PaddleSubscriptionData data = webhookEvent.getData();
             String paddleSubscriptionId = data.getId();
-            String email = data.getCustomData() != null ? data.getCustomData().get("email") : null;
+            String email = getEmail(data);
             String planId = getPlanId(data);
             Integer quantity = data.getItems().get(0).getQuantity();
             String newExpiry = data.getNextBilledAt();
@@ -462,6 +462,15 @@ class WebhookController {
             processedEvents.remove(eventId);
             throw new RuntimeException("Failed to process subscription renewal", e);
         }
+    }
+
+    @Nullable
+    private String getEmail(PaddleSubscriptionData data) {
+        String email = data.getCustomData() != null ? data.getCustomData().get("email") : null;
+        if (email == null && data.getCustomerId() != null) {
+            email = paddleService.getCustomerEmail(data.getCustomerId());
+        }
+        return email;
     }
 
     private Date parseDate(String dateStr) {
