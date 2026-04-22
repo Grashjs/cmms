@@ -39,6 +39,13 @@ public class Consts {
                     .keygenPolicyId("2c02b037-d9d2-4f3f-b305-d4845981a63c")
                     .monthly(false)
                     .name("Business Atlas CMMS license")
+                    .build(),
+            SelfHostedPlan.builder()
+                    .id("sh-professional-one-time")
+                    .paddlePriceId("pri_01kps403msabm0d8c3gxm1mc2v")
+                    .name("Professional Atlas CMMS license")
+                    .monthly(null)
+                    .keygenPolicyId("a555a01d-2952-49bd-ad93-2fca710392f8")
                     .build()
     );
 
