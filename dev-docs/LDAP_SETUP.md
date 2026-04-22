@@ -62,7 +62,7 @@ Add other required LDAP variables as needed (e.g. `LDAP_URL`, `LDAP_BASE_DN`, et
 | `LDAP_SYNC_CREATE`      | Create new users from LDAP   | `true`           |
 | `LDAP_SYNC_UPDATE`      | Update existing user details | `true`           |
 | `LDAP_SYNC_DISABLE`     | Disable users not in LDAP    | `false`          |
-| `LDAP_SYNC_CON`         | Cron schedule for sync       | `0 0 0,12 * * ?` |
+| `LDAP_SYNC_CRON`        | Cron schedule for sync       | `0 0 0,12 * * ?` |
 
 ### Attribute Mapping (Optional)
 
