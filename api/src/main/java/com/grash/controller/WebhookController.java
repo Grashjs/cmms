@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grash.dto.keygen.KeygenLicenseResponse;
 import com.grash.dto.keygen.KeygenLicenseResponseData;
 import com.grash.dto.paddle.BillingDetails;
+import com.grash.dto.paddle.subscription.PaddleItem;
 import com.grash.dto.paddle.subscription.PaddleSubscriptionData;
 import com.grash.dto.paddle.subscription.PaddleSubscriptionStatus;
 import com.grash.dto.paddle.subscription.PaddleSubscriptionWebhookEvent;
@@ -382,12 +383,6 @@ class WebhookController {
         }
     }
 
-    @Nullable
-    private String getPlanId(PaddleSubscriptionData data) {
-        return data.getItems().get(0).getCustomData() != null ?
-                data.getItems().get(0).getCustomData().get("planId") : data.getCustomData() != null ?
-                data.getCustomData().get("planId") : null;
-    }
 
     private void handleSelfHostedSubscriptionUpdated(PaddleSubscriptionWebhookEvent webhookEvent, String eventId) {
         try {
@@ -471,6 +466,20 @@ class WebhookController {
             email = paddleService.getCustomerEmail(data.getCustomerId());
         }
         return email;
+    }
+
+    @Nullable
+    private String getPlanId(PaddleSubscriptionData data) {
+        if (data.getItems() != null && !data.getItems().isEmpty()) {
+            PaddleItem item = data.getItems().get(0);
+            if (item.getCustomData() != null && item.getCustomData().containsKey("planId")) {
+                return item.getCustomData().get("planId");
+            }
+        }
+        if (data.getCustomData() != null && data.getCustomData().containsKey("planId")) {
+            return data.getCustomData().get("planId");
+        }
+        return null;
     }
 
     private Date parseDate(String dateStr) {
