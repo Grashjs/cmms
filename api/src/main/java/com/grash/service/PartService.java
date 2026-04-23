@@ -13,6 +13,7 @@ import com.grash.mapper.PartMapper;
 import com.grash.model.*;
 import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.NotificationType;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.webhook.PartField;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.PartRepository;
@@ -33,6 +34,7 @@ import jakarta.persistence.EntityManager;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.grash.utils.Consts.usageBasedLicenseLimits;
 
@@ -77,7 +79,8 @@ public class PartService {
         return savedPart;
     }
 
-    private void setPartCustomFields(Part part, List<CustomFieldValuePostDTO> customFieldValuePostDTOS, Company company) {
+    private void setPartCustomFields(Part part, List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
+                                     Company company) {
         customFieldValueService.setCustomFields(
                 part,
                 part.getCustomFieldValues(),
@@ -146,7 +149,15 @@ public class PartService {
         } else {
             String message = messageSource.getMessage("notification_part_low", new Object[]{part.getName()}, locale);
             if (part.getQuantity() < part.getMinQuantity() && licenseService.hasEntitlement(LicenseEntitlement.LOW_STOCK_ALERTS)) {
-                notificationService.createMultiple(part.getAssignedTo().stream().map(user ->
+                Map<Long, User> uniqueUsersMap = new TreeMap<>();
+                Stream.concat(
+                        userService.findWorkersByCompany(part.getCompany().getId())
+                                .stream()
+                                .filter(user -> user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)),
+                        part.getAssignedTo().stream()
+                ).forEach(user -> uniqueUsersMap.put(user.getId(), user));
+
+                notificationService.createMultiple(uniqueUsersMap.values().stream().map(user ->
                         new Notification(message, user, NotificationType.PART, part.getId())
                 ).collect(Collectors.toList()), true, message);
             }
