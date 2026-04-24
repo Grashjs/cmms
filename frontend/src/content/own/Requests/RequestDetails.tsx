@@ -297,7 +297,7 @@ export default function RequestDetails({
                     {t('requested_from_portal')}{' '}
                     {
                       <Link
-                        href={`/app/settings/request-portals/${request.requestPortal.id}`}
+                        href={`/app/settings/features/request-portals/${request.requestPortal.id}`}
                       >
                         {request.requestPortal.title}
                       </Link>

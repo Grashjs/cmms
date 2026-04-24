@@ -46,7 +46,7 @@ function RequestPortalSettings() {
     setCurrentPortal(undefined);
     setActiveTab('edit');
     // Clear the URL parameter
-    navigate('/app/settings/request-portals', { replace: true });
+    navigate('/app/settings/features/request-portals', { replace: true });
   };
 
   return (
