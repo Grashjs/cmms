@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -43,10 +44,12 @@ public class WorkOrderCreationJob extends QuartzJobBean {
             return;
         }
         scheduleService.checkIfWeeklyShouldRun(schedule);
-        
+
         PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
 
         WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(preventiveMaintenance);
+        workOrder.getCustomFieldValues().removeIf(customFieldValue -> !customFieldValue.getCustomField().isCopyOnRepeat());
+
         Collection<Task> tasks = taskService.findByPreventiveMaintenance(preventiveMaintenance.getId());
         workOrder.setParentPreventiveMaintenance(preventiveMaintenance);
 
