@@ -82,4 +82,19 @@ public class CustomFieldValue extends Audit {
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private WorkOrderMeterTrigger workOrderMeterTrigger;
+
+    public void setWorkOrder(WorkOrder workOrder) {
+        this.workOrder = workOrder;
+        if (workOrder != null) {
+            this.asset = null;
+            this.location = null;
+            this.customer = null;
+            this.vendor = null;
+            this.part = null;
+            this.meter = null;
+            this.preventiveMaintenance = null;
+            this.request = null;
+            this.workOrderMeterTrigger = null;
+        }
+    }
 }

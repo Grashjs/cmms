@@ -362,6 +362,7 @@ public class WorkOrderService {
         workOrder.getAssignedTo().addAll(workOrderBase.getAssignedTo());
         workOrder.setEstimatedDuration(workOrderBase.getEstimatedDuration());
         workOrder.setCustomFieldValues(new ArrayList<>(workOrderBase.getCustomFieldValues()));
+        workOrder.getCustomFieldValues().forEach(customFieldValue -> customFieldValue.setWorkOrder(workOrder));
         return workOrder;
     }
 
