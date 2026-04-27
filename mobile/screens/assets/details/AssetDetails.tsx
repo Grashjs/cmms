@@ -18,6 +18,7 @@ import {
 } from '../../../utils/urlPaths';
 import ListField from '../../../components/ListField';
 import BasicField from '../../../components/BasicField';
+import { getCustomFieldValuesForDetails } from '../../../models/form';
 
 export default function AssetDetails({
   asset,
@@ -34,6 +35,7 @@ export default function AssetDetails({
   const fieldsToRender: {
     label: string;
     value: string | number;
+    isLink?: boolean;
   }[] = [
     { label: t('name'), value: asset?.name },
     { label: t('description'), value: asset?.description },
@@ -64,7 +66,11 @@ export default function AssetDetails({
     {
       label: t('warranty_expiration'),
       value: getFormattedDate(asset?.warrantyExpirationDate)
-    }
+    },
+    ...getCustomFieldValuesForDetails(
+      asset?.customFieldValues,
+      getFormattedDate
+    )
   ];
   return (
     <ScrollView
@@ -74,7 +80,12 @@ export default function AssetDetails({
         <Image style={{ height: 200 }} source={{ uri: asset.image.url }} />
       )}
       {fieldsToRender.map((field) => (
-        <BasicField key={field.label} label={field.label} value={field.value} />
+        <BasicField
+          key={field.label}
+          label={field.label}
+          value={field.value}
+          isLink={field.isLink}
+        />
       ))}
       {asset.primaryUser && (
         <View>

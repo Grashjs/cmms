@@ -6,23 +6,34 @@ import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
-import { useDispatch } from '../../store';
+import { useDispatch, useSelector } from '../../store';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { formatAssetValues, getAssetFields } from '../../utils/fields';
+import { formatCustomFields } from '../../utils/formatters';
 import { getErrorMessage } from '../../utils/api';
 import useAuth from '../../hooks/useAuth';
 import { addAsset, getAssetChildren } from '../../slices/asset';
 import { getImageAndFiles } from '../../utils/overall';
+import {
+  IField,
+  getCustomFieldsIFields,
+  getCustomFieldsRequiredShape
+} from '../../models/form';
+import { CustomFieldEntityType } from '../../models/customField';
 
 export default function CreateAssetScreen({
   navigation,
   route
 }: RootStackScreenProps<'AddAsset'>) {
   const { t } = useTranslation();
-  const { uploadFiles } = useContext(CompanySettingsContext);
+  const { uploadFiles, getWOFieldsAndShapes } = useContext(
+    CompanySettingsContext
+  );
   const { getFilteredFields } = useAuth();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
+  const { customFields } = useSelector((state) => state.customFields);
+
   const onCreationSuccess = () => {
     showSnackBar(t('asset_create_success'), 'success');
     navigation.goBack();
@@ -30,15 +41,28 @@ export default function CreateAssetScreen({
   const onCreationFailure = (err) =>
     showSnackBar(getErrorMessage(err, t('asset_create_failure')), 'error');
 
-  const shape = {
-    name: Yup.string().required(t('required_asset_name'))
+  const defaultShape = {
+    name: Yup.string().required(t('required_asset_name')),
+    ...getCustomFieldsRequiredShape(
+      customFields,
+      CustomFieldEntityType.ASSET,
+      t
+    )
+  };
+
+  const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
+    const fields = [
+      ...getFilteredFields(getAssetFields(t)),
+      ...getCustomFieldsIFields(customFields, CustomFieldEntityType.ASSET)
+    ];
+    return getWOFieldsAndShapes(fields, defaultShape);
   };
 
   return (
     <View style={styles.container}>
       <Form
-        fields={getFilteredFields(getAssetFields(t))}
-        validation={Yup.object().shape(shape)}
+        fields={getFieldsAndShapes()[0]}
+        validation={Yup.object().shape(getFieldsAndShapes()[1])}
         navigation={navigation}
         submitText={t('create_asset')}
         values={{
@@ -62,6 +86,7 @@ export default function CreateAssetScreen({
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           let formattedValues = formatAssetValues(values);
+          formattedValues = formatCustomFields(formattedValues);
           try {
             const uploadedFiles = await uploadFiles(
               formattedValues.files,

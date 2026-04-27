@@ -4,6 +4,7 @@ import { CustomerMiniDTO } from './customer';
 import { VendorMiniDTO } from './vendor';
 import { TeamMiniDTO } from './team';
 import { FileMiniDTO } from './file';
+import { CustomFieldValue } from './customField';
 
 export default interface Location extends Audit {
   id: number;
@@ -19,6 +20,7 @@ export default interface Location extends Audit {
   workers: UserMiniDTO[];
   teams: TeamMiniDTO[];
   customId: string;
+  customFieldValues?: CustomFieldValue[];
 }
 export interface LocationMiniDTO {
   id: number;

@@ -7,11 +7,19 @@ import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import { getImageAndFiles, handleFileUpload } from '../../utils/overall';
-import { useDispatch } from '../../store';
+import { useDispatch, useSelector } from '../../store';
 import { editAsset } from '../../slices/asset';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { formatAssetValues, getAssetFields } from '../../utils/fields';
+import { formatCustomFields } from '../../utils/formatters';
 import useAuth from '../../hooks/useAuth';
+import {
+  IField,
+  getCustomFieldsIFields,
+  getCustomFieldsRequiredShape,
+  getCustomFieldsValues
+} from '../../models/form';
+import { CustomFieldEntityType } from '../../models/customField';
 
 export default function EditAssetScreen({
   navigation,
@@ -25,8 +33,23 @@ export default function EditAssetScreen({
   );
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
-  const shape = {
-    name: Yup.string().required(t('required_asset_name'))
+  const { customFields } = useSelector((state) => state.customFields);
+
+  const defaultShape = {
+    name: Yup.string().required(t('required_asset_name')),
+    ...getCustomFieldsRequiredShape(
+      customFields,
+      CustomFieldEntityType.ASSET,
+      t
+    )
+  };
+
+  const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
+    const fields = [
+      ...getFilteredFields(getAssetFields(t)),
+      ...getCustomFieldsIFields(customFields, CustomFieldEntityType.ASSET)
+    ];
+    return getWOFieldsAndShapes(fields, defaultShape);
   };
 
   const onEditSuccess = () => {
@@ -39,12 +62,13 @@ export default function EditAssetScreen({
   return (
     <View style={styles.container}>
       <Form
-        fields={getFilteredFields(getAssetFields(t))}
-        validation={Yup.object().shape(shape)}
+        fields={getFieldsAndShapes()[0]}
+        validation={Yup.object().shape(getFieldsAndShapes()[1])}
         navigation={navigation}
         submitText={t('save')}
         values={{
           ...asset,
+          ...getCustomFieldsValues(asset),
           location: asset?.location
             ? {
                 label: asset?.location.name,
@@ -104,6 +128,7 @@ export default function EditAssetScreen({
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           let formattedValues = formatAssetValues(values);
+          formattedValues = formatCustomFields(formattedValues);
           try {
             const imageAndFiles = await handleFileUpload(
               {
