@@ -54,7 +54,6 @@ async function HeroFree() {
                   src="/static/images/overview/work_orders_screenshot.png"
                   width={1920}
                   height={922}
-                  fetchPriority={"high"}
                 />
               </ImgWrapper>
             </MainAppLink>

@@ -68,7 +68,6 @@ async function Hero() {
                   src="/static/images/overview/work_orders_screenshot.png"
                   loading={"eager"}
                   width={1920}
-                  fetchPriority={"high"}
                   height={922}
                 />
               </ImgWrapper>
