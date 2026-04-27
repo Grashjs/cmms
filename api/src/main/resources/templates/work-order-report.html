@@ -120,7 +120,7 @@
                             </div>
                             <div th:if="${workOrder.asset}">
                                 <strong th:text="#{asset}+': '"></strong>
-                                <span th:text="${workOrder.asset.name} + (!#strings.isEmpty(workOrder.asset.serialNumber) ? ' (' + workOrder.asset.serialNumber + ')' : '')"></span>
+                                <span th:text="|${workOrder.asset.name}${!#strings.isEmpty(workOrder.asset.serialNumber) ? ' (' + workOrder.asset.serialNumber + ')' : ''}|"></span>
                             </div>
                             <div th:if="${workOrder.estimatedDuration}">
                                 <strong th:text="#{estimated_duration}+': '"> </strong>
