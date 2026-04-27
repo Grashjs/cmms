@@ -85,6 +85,7 @@ public class WorkOrderService {
         checkUsageBasedLimit(company);
         if (workOrder instanceof WorkOrderPostDTO workOrderPostDTO) {
             workOrder = workOrderMapper.fromPostDto(workOrderPostDTO);
+            workOrder.setCustomFieldValues(new ArrayList<>());
             if (workOrderPostDTO.getAsset() != null && workOrderPostDTO.getAssetStatus() != null) {
                 Asset asset = assetService.findById(workOrderPostDTO.getAsset().getId()).get();
                 asset.setStatus(workOrderPostDTO.getAssetStatus());
