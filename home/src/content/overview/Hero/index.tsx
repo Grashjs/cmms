@@ -69,7 +69,7 @@ async function Hero() {
                   loading={"eager"}
                   width={1920}
                   fetchPriority={"high"}
-                  sizes="(max-width: 900px) 100vw, 75vw"
+                  sizes="(max-width: 900px) 100vw, 50vw"
                   height={922}
                 />
               </ImgWrapper>
@@ -81,7 +81,7 @@ async function Hero() {
                 width={720}
                 height={1600}
                 loading={"eager"}
-                sizes="(max-width: 900px) 15vw, 12vw"
+                sizes="(max-width: 600px) 30vw, 128px"
               />
             </MobileImgWrapper>
             <BoxAccent
