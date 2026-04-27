@@ -105,7 +105,8 @@ public class AssetService {
         return "A" + String.format("%06d", nextSequence);
     }
 
-    private void setAssetCustomFields(Asset asset, List<CustomFieldValuePostDTO> customFieldValuePostDTOS, Company company) {
+    private void setAssetCustomFields(Asset asset, List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
+                                      Company company) {
         customFieldValueService.setCustomFields(
                 asset,
                 asset.getCustomFieldValues(),
@@ -233,7 +234,7 @@ public class AssetService {
         asset.setStatus(AssetStatus.OPERATIONAL);
         save(asset);
 
-        if (!previousStatus.equals(AssetStatus.OPERATIONAL)) {
+        if (previousStatus == null || !previousStatus.equals(AssetStatus.OPERATIONAL)) {
             dispatchAssetStatusChangeWebhook(asset, previousStatus, AssetStatus.OPERATIONAL);
         }
     }
