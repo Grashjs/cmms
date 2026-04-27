@@ -362,7 +362,7 @@ public class WorkOrderService {
         workOrder.getAssignedTo().addAll(workOrderBase.getAssignedTo());
         workOrder.setEstimatedDuration(workOrderBase.getEstimatedDuration());
         workOrder.getCustomFieldValues().addAll(workOrderBase.getCustomFieldValues());
-        workOrder.setCustomFields(workOrderBase.getCustomFieldValues().stream().map(customFieldValue -> {);
+        workOrder.setCustomFields(workOrderBase.getCustomFieldValues().stream().map(customFieldValue -> {
             CustomFieldValuePostDTO customFieldValuePostDTO = new CustomFieldValuePostDTO();
             customFieldValuePostDTO.setId(customFieldValue.getCustomField().getId());
             customFieldValuePostDTO.setValue(customFieldValue.getValue());
