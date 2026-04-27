@@ -4,18 +4,25 @@ import Form from '../../components/form';
 import * as Yup from 'yup';
 import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { IField } from '../../models/form';
-import { useContext, useState } from 'react';
+import {
+  IField,
+  getCustomFieldsIFields,
+  getCustomFieldsRequiredShape
+} from '../../models/form';
+import { useContext, useEffect, useState } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import { getImageAndFiles } from '../../utils/overall';
-import { useDispatch } from '../../store';
+import { useDispatch, useSelector } from '../../store';
 import { addWorkOrder } from '../../slices/workOrder';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { formatWorkOrderValues, getWorkOrderFields } from '../../utils/fields';
+import { formatCustomFields } from '../../utils/formatters';
 import { assetStatuses } from '../../models/asset';
 import { useTheme } from 'react-native-paper';
 import { useAppTheme } from '../../custom-theme';
 import { getErrorMessage } from '../../utils/api';
+import { getCustomFields } from '../../slices/customField';
+import { CustomFieldEntityType } from '../../models/customField';
 
 export default function CreateWorkOrderScreen({
   navigation,
@@ -29,8 +36,21 @@ export default function CreateWorkOrderScreen({
   );
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
+  const { customFields } = useSelector((state) => state.customFields);
+
+  useEffect(() => {
+    if (!customFields.length) {
+      dispatch(getCustomFields());
+    }
+  }, []);
+
   const defaultShape: { [key: string]: any } = {
-    title: Yup.string().required(t('required_wo_title'))
+    title: Yup.string().required(t('required_wo_title')),
+    ...getCustomFieldsRequiredShape(
+      customFields,
+      CustomFieldEntityType.WORK_ORDER,
+      t
+    )
   };
 
   const onCreationSuccess = () => {
@@ -40,7 +60,11 @@ export default function CreateWorkOrderScreen({
   const onCreationFailure = (err) =>
     showSnackBar(getErrorMessage(err, t('wo_create_failure')), 'error');
   const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
-    return getWOFieldsAndShapes(getWorkOrderFields(t), defaultShape);
+    const fields = [
+      ...getWorkOrderFields(t),
+      ...getCustomFieldsIFields(customFields, CustomFieldEntityType.WORK_ORDER)
+    ];
+    return getWOFieldsAndShapes(fields, defaultShape);
   };
   return (
     <View style={styles.container}>
@@ -81,6 +105,7 @@ export default function CreateWorkOrderScreen({
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           let formattedValues = formatWorkOrderValues(values);
+          formattedValues = formatCustomFields(formattedValues);
           try {
             const uploadedFiles = await uploadFiles(
               formattedValues.files,

@@ -7,6 +7,7 @@ import { Audit } from './audit';
 import { CustomerMiniDTO } from './customer';
 import Category from './category';
 import { Priority } from './workOrder';
+import { CustomFieldValue } from './customField';
 
 export interface WorkOrderBase extends Audit {
   title: string;
@@ -25,4 +26,5 @@ export interface WorkOrderBase extends Audit {
   category: Category | null;
   team: Team;
   files: File[];
+  customFieldValues?: CustomFieldValue[];
 }

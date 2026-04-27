@@ -66,6 +66,7 @@ import { AudioPlayer } from '../../components/AudioPlayer';
 import { Task } from '../../models/tasks';
 import { getErrorMessage } from '../../utils/api';
 import ImageView from 'react-native-image-viewing';
+import { getCustomFieldValuesForDetails } from '../../models/form';
 
 const getRemainingTasksLength = (tasks: Task[]): number => {
   const SECONDS_MS = 5_000;
@@ -186,7 +187,14 @@ export default function WODetailsScreen({
     {
       label: t('created_at'),
       value: getFormattedDate(workOrder?.createdAt)
-    }
+    },
+    ...getCustomFieldValuesForDetails(
+      workOrder?.customFieldValues,
+      getFormattedDate
+    ).map((cf) => ({
+      label: cf.label,
+      value: cf.isLink ? cf.value : cf.value
+    }))
   ];
   const touchableFields: {
     label: string;
