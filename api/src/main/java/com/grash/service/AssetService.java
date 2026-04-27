@@ -131,7 +131,7 @@ public class AssetService {
             Asset patchedAsset = assetRepository.saveAndFlush(assetMapper.updateAsset(savedAsset, asset));
             em.refresh(patchedAsset);
 
-            if (!previousStatus.equals(patchedAsset.getStatus())) {
+            if (previousStatus != patchedAsset.getStatus()) {
                 dispatchAssetStatusChangeWebhook(patchedAsset, previousStatus, patchedAsset.getStatus());
             }
 
@@ -234,7 +234,7 @@ public class AssetService {
         asset.setStatus(AssetStatus.OPERATIONAL);
         save(asset);
 
-        if (previousStatus == null || !previousStatus.equals(AssetStatus.OPERATIONAL)) {
+        if (previousStatus != AssetStatus.OPERATIONAL) {
             dispatchAssetStatusChangeWebhook(asset, previousStatus, AssetStatus.OPERATIONAL);
         }
     }
