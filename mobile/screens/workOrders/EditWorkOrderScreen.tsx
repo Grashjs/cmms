@@ -36,12 +36,6 @@ export default function EditWorkOrderScreen({
   const dispatch = useDispatch();
   const { customFields } = useSelector((state) => state.customFields);
 
-  useEffect(() => {
-    if (!customFields.length) {
-      dispatch(getCustomFields());
-    }
-  }, []);
-
   const defaultShape: { [key: string]: any } = {
     title: Yup.string().required(t('required_wo_title')),
     ...getCustomFieldsRequiredShape(

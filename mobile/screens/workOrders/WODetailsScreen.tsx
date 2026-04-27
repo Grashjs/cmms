@@ -625,6 +625,7 @@ export default function WODetailsScreen({
   }: {
     label: string;
     value: string | number;
+    isLink?: boolean;
   }) {
     return (
       <View style={{ marginTop: 20 }}>
