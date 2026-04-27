@@ -2,6 +2,7 @@ package com.grash.controller;
 
 import com.grash.dto.ReadingPatchDTO;
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
@@ -96,7 +97,7 @@ public class ReadingController {
                     notificationService.createMultiple(meter.getUsers().stream().map(user1 ->
                             new Notification(message.toString(), user1, NotificationType.METER, meter.getId())
                     ).collect(Collectors.toList()), true, title);
-                    WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(meterTrigger);
+                    WorkOrderPostDTO workOrder = workOrderService.getWorkOrderFromWorkOrderBase(meterTrigger);
                     WorkOrder createdWorkOrder = workOrderService.create(workOrder, user.getCompany());
 
                     Map<String, Object> webhookPayload = new HashMap<>();

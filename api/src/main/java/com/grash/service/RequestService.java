@@ -7,6 +7,7 @@ import com.grash.dto.RequestPostDTO;
 import com.grash.dto.RequestShowDTO;
 import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.license.LicenseEntitlement;
+import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RequestMapper;
 import com.grash.model.*;
@@ -145,7 +146,7 @@ public class RequestService {
     }
 
     public WorkOrder createWorkOrderFromRequest(Request request, User creator) {
-        WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(request);
+        WorkOrderPostDTO workOrder = workOrderService.getWorkOrderFromWorkOrderBase(request);
         if (creator.getCompany().getCompanySettings().getGeneralPreferences().isAutoAssignRequests()) {
             User primaryUser = workOrder.getPrimaryUser();
             workOrder.setPrimaryUser(primaryUser == null ? creator : primaryUser);

@@ -1,5 +1,6 @@
 package com.grash.job;
 
+import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
 import com.grash.model.Task;
@@ -47,8 +48,10 @@ public class WorkOrderCreationJob extends QuartzJobBean {
 
         PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
 
-        WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(preventiveMaintenance);
-        workOrder.getCustomFieldValues().removeIf(customFieldValue -> !customFieldValue.getCustomField().isCopyOnRepeat());
+        WorkOrderPostDTO workOrder = workOrderService.getWorkOrderFromWorkOrderBase(preventiveMaintenance);
+        workOrder.getCustomFields().removeIf(customFieldValue -> !workOrder.getCustomFieldValues()
+                .stream().filter(customFieldValue1 -> customFieldValue1.getCustomField().getId().equals(customFieldValue.getId()))
+                .findFirst().get().getCustomField().isCopyOnRepeat());
 
         Collection<Task> tasks = taskService.findByPreventiveMaintenance(preventiveMaintenance.getId());
         workOrder.setParentPreventiveMaintenance(preventiveMaintenance);

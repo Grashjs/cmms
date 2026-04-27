@@ -346,8 +346,8 @@ public class WorkOrderService {
         return updatedWorkOrder;
     }
 
-    public WorkOrder getWorkOrderFromWorkOrderBase(WorkOrderBase workOrderBase) {
-        WorkOrder workOrder = new WorkOrder();
+    public WorkOrderPostDTO getWorkOrderFromWorkOrderBase(WorkOrderBase workOrderBase) {
+        WorkOrderPostDTO workOrder = new WorkOrderPostDTO();
         workOrder.setTitle(workOrderBase.getTitle());
         workOrder.setDescription(workOrderBase.getDescription());
         workOrder.setPriority(workOrderBase.getPriority());
@@ -361,8 +361,13 @@ public class WorkOrderService {
         workOrder.setCategory(workOrderBase.getCategory());
         workOrder.getAssignedTo().addAll(workOrderBase.getAssignedTo());
         workOrder.setEstimatedDuration(workOrderBase.getEstimatedDuration());
-        workOrder.setCustomFieldValues(new ArrayList<>(workOrderBase.getCustomFieldValues()));
-        workOrder.getCustomFieldValues().forEach(customFieldValue -> customFieldValue.setWorkOrder(workOrder));
+        workOrder.getCustomFieldValues().addAll(workOrderBase.getCustomFieldValues());
+        workOrder.setCustomFields(workOrderBase.getCustomFieldValues().stream().map(customFieldValue -> {);
+            CustomFieldValuePostDTO customFieldValuePostDTO = new CustomFieldValuePostDTO();
+            customFieldValuePostDTO.setId(customFieldValue.getCustomField().getId());
+            customFieldValuePostDTO.setValue(customFieldValue.getValue());
+            return customFieldValuePostDTO;
+        }).collect(Collectors.toList()));
         return workOrder;
     }
 
