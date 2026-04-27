@@ -161,6 +161,7 @@ export default function WODetailsScreen({
   const fieldsToRender: {
     label: string;
     value: string | number;
+    isLink?: boolean;
   }[] = [
     {
       label: t('description'),
@@ -191,10 +192,7 @@ export default function WODetailsScreen({
     ...getCustomFieldValuesForDetails(
       workOrder?.customFieldValues,
       getFormattedDate
-    ).map((cf) => ({
-      label: cf.label,
-      value: cf.isLink ? cf.value : cf.value
-    }))
+    )
   ];
   const touchableFields: {
     label: string;
@@ -621,20 +619,45 @@ export default function WODetailsScreen({
 
   function BasicField({
     label,
-    value
+    value,
+    isLink
   }: {
     label: string;
     value: string | number;
     isLink?: boolean;
   }) {
+    if (!value) return null;
+
+    const handlePress = () => {
+      if (isLink) {
+        const href = value.toString().startsWith('http')
+          ? value.toString()
+          : `https://${value}`;
+        Linking.openURL(href).catch((err) =>
+          console.error('Failed to open link:', err)
+        );
+      }
+    };
+
     return (
       <View style={{ marginTop: 20 }}>
         <Text style={{ fontSize: 14, color: theme.colors.onSurfaceVariant }}>
           {label}
         </Text>
-        <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
-          {value}
-        </Text>
+        {isLink ? (
+          <TouchableOpacity onPress={handlePress}>
+            <Text
+              variant="titleMedium"
+              style={{ fontWeight: 'bold', color: theme.colors.primary }}
+            >
+              {value}
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
+            {value}
+          </Text>
+        )}
       </View>
     );
   }
@@ -762,9 +785,14 @@ export default function WODetailsScreen({
                 </View>
               )}
               {fieldsToRender.map(
-                ({ label, value }, index) =>
+                ({ label, value, isLink }, index) =>
                   value && (
-                    <BasicField key={label} label={label} value={value} />
+                    <BasicField
+                      key={label}
+                      label={label}
+                      value={value}
+                      isLink={isLink}
+                    />
                   )
               )}
               {touchableFields.map(
