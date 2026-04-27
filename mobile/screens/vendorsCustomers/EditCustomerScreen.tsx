@@ -5,15 +5,23 @@ import * as Yup from 'yup';
 import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
-import { useDispatch } from '../../store';
+import { useDispatch, useSelector } from '../../store';
 import { editCustomer } from '../../slices/customer';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { formatCustomerValues, getCustomerFields } from '../../utils/fields';
+import { formatCustomFields } from '../../utils/formatters';
 import {
   emailRegExp,
   phoneRegExp,
   websiteRegExp
 } from '../../utils/validators';
+import {
+  IField,
+  getCustomFieldsIFields,
+  getCustomFieldsRequiredShape,
+  getCustomFieldsValues
+} from '../../models/form';
+import { CustomFieldEntityType } from '../../models/customField';
 
 export default function EditCustomerScreen({
   navigation,
@@ -23,7 +31,9 @@ export default function EditCustomerScreen({
   const { customer } = route.params;
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
-  const shape = {
+  const { customFields } = useSelector((state) => state.customFields);
+
+  const defaultShape = {
     name: Yup.string().required('required_customer_name'),
     phone: Yup.string()
       .matches(phoneRegExp, t('invalid_phone'))
@@ -31,7 +41,20 @@ export default function EditCustomerScreen({
     website: Yup.string()
       .matches(websiteRegExp, t('invalid_website'))
       .nullable(),
-    email: Yup.string().matches(emailRegExp, t('invalid_email')).nullable()
+    email: Yup.string().matches(emailRegExp, t('invalid_email')).nullable(),
+    ...getCustomFieldsRequiredShape(
+      customFields,
+      CustomFieldEntityType.CUSTOMER,
+      t
+    )
+  };
+
+  const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
+    const fields = [
+      ...getCustomerFields(t),
+      ...getCustomFieldsIFields(customFields, CustomFieldEntityType.CUSTOMER)
+    ];
+    return [fields, defaultShape];
   };
 
   const onEditSuccess = () => {
@@ -44,12 +67,13 @@ export default function EditCustomerScreen({
   return (
     <View style={styles.container}>
       <Form
-        fields={getCustomerFields(t)}
-        validation={Yup.object().shape(shape)}
+        fields={getFieldsAndShapes()[0]}
+        validation={Yup.object().shape(getFieldsAndShapes()[1])}
         navigation={navigation}
         submitText={t('save')}
         values={{
           ...customer,
+          ...getCustomFieldsValues(customer),
           billingCurrency: customer?.billingCurrency
             ? {
                 label: customer.billingCurrency.name,
@@ -59,7 +83,9 @@ export default function EditCustomerScreen({
         }}
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
-          const formattedValues = formatCustomerValues(values);
+          const formattedValues = formatCustomFields(
+            formatCustomerValues(values)
+          );
           return dispatch(editCustomer(customer.id, formattedValues))
             .then(onEditSuccess)
             .catch(onEditFailure);

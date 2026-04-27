@@ -5,15 +5,23 @@ import * as Yup from 'yup';
 import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
-import { useDispatch } from '../../store';
+import { useDispatch, useSelector } from '../../store';
 import { editVendor } from '../../slices/vendor';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { getVendorFields } from '../../utils/fields';
+import { formatCustomFields } from '../../utils/formatters';
 import {
   emailRegExp,
   phoneRegExp,
   websiteRegExp
 } from '../../utils/validators';
+import {
+  IField,
+  getCustomFieldsIFields,
+  getCustomFieldsRequiredShape,
+  getCustomFieldsValues
+} from '../../models/form';
+import { CustomFieldEntityType } from '../../models/customField';
 
 export default function EditVendorScreen({
   navigation,
@@ -23,7 +31,9 @@ export default function EditVendorScreen({
   const { vendor } = route.params;
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
-  const shape = {
+  const { customFields } = useSelector((state) => state.customFields);
+
+  const defaultShape = {
     companyName: Yup.string().required(t('required_company_name')),
     rate: Yup.number(),
     phone: Yup.string().matches(phoneRegExp, t('invalid_phone')).nullable(),
@@ -31,7 +41,20 @@ export default function EditVendorScreen({
     website: Yup.string()
       .matches(websiteRegExp, t('invalid_website'))
       .nullable(),
-    email: Yup.string().matches(emailRegExp, t('invalid_email')).nullable()
+    email: Yup.string().matches(emailRegExp, t('invalid_email')).nullable(),
+    ...getCustomFieldsRequiredShape(
+      customFields,
+      CustomFieldEntityType.VENDOR,
+      t
+    )
+  };
+
+  const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
+    const fields = [
+      ...getVendorFields(t),
+      ...getCustomFieldsIFields(customFields, CustomFieldEntityType.VENDOR)
+    ];
+    return [fields, defaultShape];
   };
 
   const onEditSuccess = () => {
@@ -44,21 +67,24 @@ export default function EditVendorScreen({
   return (
     <View style={styles.container}>
       <Form
-        fields={getVendorFields(t)}
-        validation={Yup.object().shape(shape)}
+        fields={getFieldsAndShapes()[0]}
+        validation={Yup.object().shape(getFieldsAndShapes()[1])}
         navigation={navigation}
         submitText={t('save')}
         values={{
-          ...vendor
+          ...vendor,
+          ...getCustomFieldsValues(vendor)
         }}
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
-          const formattedValues = values.rate
-            ? {
-                ...values,
-                rate: Number(values.rate)
-              }
-            : values;
+          const formattedValues = formatCustomFields(
+            values.rate
+              ? {
+                  ...values,
+                  rate: Number(values.rate)
+                }
+              : values
+          );
           return dispatch(editVendor(vendor.id, formattedValues))
             .then(onEditSuccess)
             .catch(onEditFailure);
