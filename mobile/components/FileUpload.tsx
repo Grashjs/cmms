@@ -4,13 +4,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as React from 'react';
 import { useContext, useState } from 'react';
 import * as FileSystem from 'expo-file-system';
-import {
-  Alert,
-  Image,
-  ScrollView,
-  Text,
-  TouchableOpacity
-} from 'react-native';
+import { Alert, Image, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { IconButton, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import mime from 'mime';
@@ -21,10 +15,8 @@ import {
   DocumentPickerOptions,
   DocumentPickerResult
 } from 'expo-document-picker';
-import {
-  openCameraWithPermission,
-  openLibraryWithPermission
-} from '../utils/mediaPermissions';
+import { openLibraryWithPermission } from '../utils/mediaPermissions';
+import InAppCamera from './InAppCamera';
 
 interface OwnProps {
   title: string;
@@ -45,6 +37,7 @@ export default function FileUpload({
   const theme = useTheme();
   const [images, setImages] = useState<IFile[]>(defaultFiles || []);
   const [files, setFiles] = useState<IFile[]>(defaultFiles || []);
+  const [inAppCameraVisible, setInAppCameraVisible] = useState(false);
   const { t } = useTranslation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const maxFileSize: number = 7;
@@ -64,26 +57,23 @@ export default function FileUpload({
   const isMoreThanTheMB = (fileSize: number, limit: number) => {
     return fileSize / 1024 / 1024 > limit;
   };
-  const takePhoto = async () => {
-    console.warn('[ImageUpload] Tap -> camera');
+  const takePhoto = () => {
+    setInAppCameraVisible(true);
+  };
+  const handleInAppCapture = async (uri: string) => {
+    setInAppCameraVisible(false);
     try {
-      const result = await openCameraWithPermission('ImageUpload', {
-        allowsEditing: true,
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsMultipleSelection: multiple,
-        selectionLimit: 10,
-        quality: 1
-      });
-
-      if (!result || result.canceled) {
-        console.warn('[ImageUpload] Camera canceled or unavailable');
-        return;
-      }
-
-      await onImagePicked(result);
-    } catch (e) {
-      console.error('Error taking photo:', e);
-      Alert.alert('Error', 'Failed to take photo. Please try again.');
+      await checkSize(uri);
+      const fileName = uri.split('/').pop() || 'photo.jpg';
+      onChangeInternal(
+        [
+          ...(multiple ? images : []),
+          { uri, name: fileName, type: mime.getType(fileName) || 'image/jpeg' }
+        ],
+        'image'
+      );
+    } catch (_e) {
+      // checkSize already alerts the user
     }
   };
   const pickImage = async () => {
@@ -97,7 +87,9 @@ export default function FileUpload({
       });
 
       if (!result || result.canceled) {
-        console.warn('[ImageUpload] Library Image picker canceled or unavailable');
+        console.warn(
+          '[ImageUpload] Library Image picker canceled or unavailable'
+        );
         return;
       }
       await onImagePicked(result);
@@ -125,16 +117,18 @@ export default function FileUpload({
         await checkSize(uri);
       }
       onChangeInternal(
-        [...images,
-        ...result.assets.map((asset) => {
-          const fileName =
-            asset.uri.split('/')[asset.uri.split('/').length - 1];
-          return {
-            uri: asset.uri,
-            name: fileName,
-            type: mime.getType(fileName)
-          };
-        })],
+        [
+          ...images,
+          ...result.assets.map((asset) => {
+            const fileName =
+              asset.uri.split('/')[asset.uri.split('/').length - 1];
+            return {
+              uri: asset.uri,
+              name: fileName,
+              type: mime.getType(fileName)
+            };
+          })
+        ],
         'image'
       );
     }
@@ -209,6 +203,11 @@ export default function FileUpload({
 
   return (
     <View style={{ display: 'flex', flexDirection: 'column' }}>
+      <InAppCamera
+        visible={inAppCameraVisible}
+        onCapture={handleInAppCapture}
+        onClose={() => setInAppCameraVisible(false)}
+      />
       <TouchableOpacity onPress={onPress}>
         <View
           style={{
@@ -217,7 +216,7 @@ export default function FileUpload({
             alignItems: 'center'
           }}
         >
-          <Text style={{color:'black'}}>{title}</Text>
+          <Text style={{ color: 'black' }}>{title}</Text>
           <IconButton iconColor={theme.colors.primary} icon={'plus-circle'} />
         </View>
       </TouchableOpacity>
@@ -225,7 +224,7 @@ export default function FileUpload({
         {type === 'image' &&
           !!images.length &&
           images.map((image) => (
-            <View key={image.uri} style={{margin: 3}}>
+            <View key={image.uri} style={{ margin: 3 }}>
               <Image source={{ uri: image.uri }} style={{ height: 200 }} />
               <IconButton
                 style={{ position: 'absolute', top: 10, right: 10 }}
