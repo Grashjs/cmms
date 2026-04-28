@@ -1,5 +1,6 @@
 package com.grash.dto;
 
+import com.grash.dto.cutomField.CustomFieldValueShowDTO;
 import com.grash.model.Company;
 import com.grash.dto.FileShowDTO;
 import com.grash.model.Location;
@@ -53,5 +54,8 @@ public class LocationShowDTO extends AuditShowDTO {
 
     @Schema(description = "Custom identifier")
     private String customId;
+
+    @Schema(description = "Custom field values")
+    private List<CustomFieldValueShowDTO> customFieldValues = new ArrayList<>();
 
 }

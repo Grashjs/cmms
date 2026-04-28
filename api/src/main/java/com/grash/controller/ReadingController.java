@@ -2,7 +2,7 @@ package com.grash.controller;
 
 import com.grash.dto.ReadingPatchDTO;
 import com.grash.dto.SuccessResponse;
-import com.grash.dto.workOrder.WorkOrderShowDTO;
+import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
@@ -50,7 +50,7 @@ public class ReadingController {
     @PreAuthorize("permitAll()")
 
     public Collection<Reading> getByMeter(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {
             return readingService.findByMeter(id);
@@ -59,8 +59,9 @@ public class ReadingController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    Reading create(@Parameter(description = "Reading data to create") @Valid @RequestBody Reading readingReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    Reading create(@Parameter(description = "Reading data to create") @Valid @RequestBody Reading readingReq,
+                   HttpServletRequest req) {
+        User user = userService.whoami(req);
         if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.METER))
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         Optional<Meter> optionalMeter = meterService.findById(readingReq.getMeter().getId());
@@ -96,7 +97,7 @@ public class ReadingController {
                     notificationService.createMultiple(meter.getUsers().stream().map(user1 ->
                             new Notification(message.toString(), user1, NotificationType.METER, meter.getId())
                     ).collect(Collectors.toList()), true, title);
-                    WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(meterTrigger);
+                    WorkOrderPostDTO workOrder = workOrderService.getWorkOrderFromWorkOrderBase(meterTrigger);
                     WorkOrder createdWorkOrder = workOrderService.create(workOrder, user.getCompany());
 
                     Map<String, Object> webhookPayload = new HashMap<>();
@@ -124,7 +125,7 @@ public class ReadingController {
     public Reading patch(@Parameter(description = "Reading fields to update") @Valid @RequestBody ReadingPatchDTO reading,
                          @PathVariable("id") Long id,
                          HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Reading> optionalReading = readingService.findById(id);
 
         if (optionalReading.isPresent()) {
@@ -137,7 +138,7 @@ public class ReadingController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<Reading> optionalReading = readingService.findById(id);
         if (optionalReading.isPresent()) {

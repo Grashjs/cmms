@@ -75,8 +75,10 @@ public class TaskController {
 
     @PatchMapping("/preventive-maintenance/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<TaskShowDTO> createByPreventiveMaintenance(@Parameter(description = "List of task bases to create") @Valid @RequestBody Collection<TaskBaseDTO> taskBasesReq, @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    public Collection<TaskShowDTO> createByPreventiveMaintenance(@Parameter(description = "List of task bases to " +
+            "create") @Valid @RequestBody Collection<TaskBaseDTO> taskBasesReq, @PathVariable("id") Long id,
+                                                                 HttpServletRequest req) {
+        User user = userService.whoami(req);
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent() && optionalPreventiveMaintenance.get().canBeEditedBy(user)) {
             taskService.findByPreventiveMaintenance(id).forEach(task -> taskService.delete(task.getId()));
@@ -99,7 +101,7 @@ public class TaskController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     List<TaskShowDTO> create(@Parameter(description = "List of task bases to create") @Valid @RequestBody List<TaskBaseDTO> taskBasesReq,
                              @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent() && optionalWorkOrder.get().canBeEditedBy(user)) {
             List<Task> savedWOTasks = taskService.findByWorkOrder(id);
@@ -183,10 +185,11 @@ public class TaskController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public TaskShowDTO patch(@Parameter(description = "Task fields to update") @Valid @RequestBody TaskPatchDTO task, @PathVariable(
+    public TaskShowDTO patch(@Parameter(description = "Task fields to update") @Valid @RequestBody TaskPatchDTO task,
+                             @PathVariable(
                                      "id") Long id,
                              HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Task> optionalTask = taskService.findById(id);
 
         if (optionalTask.isPresent()) {
@@ -203,7 +206,7 @@ public class TaskController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<Task> optionalTask = taskService.findById(id);
         if (optionalTask.isPresent()) {

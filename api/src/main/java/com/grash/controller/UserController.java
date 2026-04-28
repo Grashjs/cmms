@@ -5,7 +5,7 @@ import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.Role;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
@@ -19,15 +19,12 @@ import com.grash.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import java.util.Collection;
@@ -50,9 +47,11 @@ public class UserController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<UserResponseDTO>> search(@Parameter(description = "Search criteria for filtering users") @RequestBody SearchCriteria searchCriteria,
-                                                        @Parameter(hidden = true) @CurrentUser OwnUser user,
-                                                        @RequestParam(defaultValue = "true") @Parameter (description = "show only enabled users") boolean enabledOnly) {
+    public ResponseEntity<Page<UserResponseDTO>> search(@Parameter(description = "Search criteria for filtering " +
+                                                                    "users") @RequestBody SearchCriteria searchCriteria,
+                                                        @Parameter(hidden = true) @CurrentUser User user,
+                                                        @RequestParam(defaultValue = "true") @Parameter(description =
+                                                                "show only enabled users") boolean enabledOnly) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 searchCriteria.filterCompany(user);
@@ -67,7 +66,7 @@ public class UserController {
     @PreAuthorize("permitAll()")
 
     public SuccessResponse invite(@Parameter(description = "User invitation data") @RequestBody UserInvitationDTO invitation,
-                                  @Parameter(hidden = true) @CurrentUser OwnUser user) {
+                                  @Parameter(hidden = true) @CurrentUser User user) {
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
             int companyUsersCount =
                     (int) userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.isEnabled() && user1.isEnabledInSubscriptionAndPaid()).count();
@@ -104,21 +103,21 @@ public class UserController {
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public Collection<UserMiniDTO> getMini(@Parameter(hidden = true) @CurrentUser OwnUser user,
+    public Collection<UserMiniDTO> getMini(@Parameter(hidden = true) @CurrentUser User user,
                                            @Parameter(description = "Include requesters in the response") @RequestParam(required = false) Boolean withRequesters) {
         return Boolean.TRUE.equals(withRequesters) ?
                 userService.findByCompany(user.getCompany().getId()).stream()
-                        .filter(OwnUser::isEnabled).map(userMapper::toMiniDto).collect(Collectors.toList()) :
+                        .filter(User::isEnabled).map(userMapper::toMiniDto).collect(Collectors.toList()) :
                 userService.findWorkersByCompany(user.getCompany().getId()).stream()
-                        .filter(OwnUser::isEnabledInSubscription)
-                        .filter(OwnUser::isEnabled)
+                        .filter(User::isEnabledInSubscription)
+                        .filter(User::isEnabled)
                         .map(userMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @GetMapping("/mini/disabled")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public Collection<UserMiniDTO> getMiniDisabled(@Parameter(hidden = true) @CurrentUser OwnUser user) {
+    public Collection<UserMiniDTO> getMiniDisabled(@Parameter(hidden = true) @CurrentUser User user) {
         return userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> !user1.isEnabledInSubscription()).map(userMapper::toMiniDto).collect(Collectors.toList());
     }
 
@@ -128,11 +127,11 @@ public class UserController {
 
     public UserResponseDTO patch(@Parameter(description = "User fields to update") @Valid @RequestBody UserPatchDTO userReq,
                                  @Parameter(description = "User ID") @PathVariable("id") Long id,
-                                 @Parameter(hidden = true) @CurrentUser OwnUser requester) {
-        Optional<OwnUser> optionalUser = userService.findByIdAndCompany(id, requester.getCompany().getId());
+                                 @Parameter(hidden = true) @CurrentUser User requester) {
+        Optional<User> optionalUser = userService.findByIdAndCompany(id, requester.getCompany().getId());
 
         if (optionalUser.isPresent()) {
-            OwnUser savedUser = optionalUser.get();
+            User savedUser = optionalUser.get();
             if (requester.getId().equals(savedUser.getId()) ||
                     requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 return userMapper.toResponseDto(userService.update(id, userReq));
@@ -148,10 +147,10 @@ public class UserController {
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
 
-    public UserResponseDTO getById(@PathVariable("id") Long id, @Parameter(hidden = true) @CurrentUser OwnUser user) {
-        Optional<OwnUser> optionalUser = userService.findByIdAndCompany(id, user.getCompany().getId());
+    public UserResponseDTO getById(@PathVariable("id") Long id, @Parameter(hidden = true) @CurrentUser User user) {
+        Optional<User> optionalUser = userService.findByIdAndCompany(id, user.getCompany().getId());
         if (optionalUser.isPresent()) {
-            OwnUser savedUser = optionalUser.get();
+            User savedUser = optionalUser.get();
             if (user.getCompany().getId().equals(savedUser.getCompany().getId())) {
                 return userMapper.toResponseDto(savedUser);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -163,15 +162,15 @@ public class UserController {
 
     public UserResponseDTO patchRole(@Parameter(description = "User ID") @PathVariable("id") Long id,
                                      @Parameter(description = "Role ID to assign") @RequestParam("role") Long roleId,
-                                     @Parameter(hidden = true) @CurrentUser OwnUser requester) {
-        Optional<OwnUser> optionalUserToPatch = userService.findByIdAndCompany(id, requester.getCompany().getId());
+                                     @Parameter(hidden = true) @CurrentUser User requester) {
+        Optional<User> optionalUserToPatch = userService.findByIdAndCompany(id, requester.getCompany().getId());
         Optional<Role> optionalRole = roleService.findById(roleId);
 
         if (optionalUserToPatch.isPresent() && optionalRole.isPresent() && optionalRole.get().belongsToCompany(requester.getCompany())) {
-            OwnUser userToPatch = optionalUserToPatch.get();
+            User userToPatch = optionalUserToPatch.get();
             if (requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 int usersCount =
-                        (int) userService.findByCompany(requester.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
+                        (int) userService.findByCompany(requester.getCompany().getId()).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
                 if (usersCount <= requester.getCompany().getSubscription().getUsersCount()) {
                     userToPatch.setRole(optionalRole.get());
                     return userMapper.toResponseDto(userService.save(userToPatch));
@@ -191,11 +190,11 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public UserResponseDTO disable(@PathVariable("id") Long id,
-                                   @Parameter(hidden = true) @CurrentUser OwnUser requester) {
-        Optional<OwnUser> optionalUserToDisable = userService.findByIdAndCompany(id, requester.getCompany().getId());
+                                   @Parameter(hidden = true) @CurrentUser User requester) {
+        Optional<User> optionalUserToDisable = userService.findByIdAndCompany(id, requester.getCompany().getId());
 
         if (optionalUserToDisable.isPresent()) {
-            OwnUser userToDisable = optionalUserToDisable.get();
+            User userToDisable = optionalUserToDisable.get();
             if (requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 userToDisable.setEnabled(false);
                 userToDisable.setEnabledInSubscription(false);
@@ -213,11 +212,11 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public UserResponseDTO softDelete(@PathVariable("id") Long id,
-                                      @Parameter(hidden = true) @CurrentUser OwnUser requester) {
-        Optional<OwnUser> optionalUserToSoftDelete = userService.findByIdAndCompany(id, requester.getCompany().getId());
+                                      @Parameter(hidden = true) @CurrentUser User requester) {
+        Optional<User> optionalUserToSoftDelete = userService.findByIdAndCompany(id, requester.getCompany().getId());
 
         if (optionalUserToSoftDelete.isPresent()) {
-            OwnUser userToSoftDelete = optionalUserToSoftDelete.get();
+            User userToSoftDelete = optionalUserToSoftDelete.get();
             if (requester.getId().equals(id) || requester.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
                 userToSoftDelete.setEnabled(false);
                 userToSoftDelete.setEnabledInSubscription(false);

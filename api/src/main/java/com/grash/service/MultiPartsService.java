@@ -4,8 +4,6 @@ import com.grash.dto.MultiPartsPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MultiPartsMapper;
 import com.grash.model.MultiParts;
-import com.grash.model.OwnUser;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.MultiPartsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
+
 import java.util.Collection;
 import java.util.Optional;
 
@@ -36,7 +35,9 @@ public class MultiPartsService {
     public MultiParts update(Long id, MultiPartsPatchDTO multiPartsPatchDTO) {
         if (multiPartsRepository.existsById(id)) {
             MultiParts savedMultiParts = multiPartsRepository.findById(id).get();
-            MultiParts updatedMultiParts = multiPartsRepository.saveAndFlush(multiPartsMapper.updateMultiParts(savedMultiParts, multiPartsPatchDTO));
+            MultiParts updatedMultiParts =
+                    multiPartsRepository.saveAndFlush(multiPartsMapper.updateMultiParts(savedMultiParts,
+                            multiPartsPatchDTO));
             em.refresh(updatedMultiParts);
             return updatedMultiParts;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

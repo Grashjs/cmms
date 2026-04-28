@@ -31,12 +31,7 @@ export type RootState = ReturnType<typeof store.getState>;
 
 export type AppDispatch = typeof store.dispatch;
 
-export type StoreReturnType =
-  | void
-  | number
-  | number[]
-  | string
-  | ImportResponse;
+export type StoreReturnType = any;
 export type AppThunk = ThunkAction<
   Promise<StoreReturnType>,
   RootState,

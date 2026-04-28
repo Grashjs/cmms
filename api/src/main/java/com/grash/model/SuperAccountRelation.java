@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
 @Entity
 @Data
 @Builder
@@ -22,11 +23,11 @@ public class SuperAccountRelation {
 
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
-    private OwnUser superUser;
+    private User superUser;
 
     @NotNull
     @OneToOne(fetch = FetchType.EAGER)
-    private OwnUser childUser;
+    private User childUser;
 }
 
 

@@ -4,14 +4,12 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.AssetCategory;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.AssetCategoryService;
 import com.grash.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -38,7 +36,7 @@ public class AssetCategoryController {
     @GetMapping("")
     @PreAuthorize("permitAll()")
     public Collection<AssetCategory> getAll(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
                 return assetCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
@@ -49,7 +47,7 @@ public class AssetCategoryController {
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
     public AssetCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
             Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(id);
             if (optionalAssetCategory.isPresent()) {
@@ -62,7 +60,7 @@ public class AssetCategoryController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public AssetCategory create(@Parameter(description = "Asset category to create") @Valid @RequestBody AssetCategory assetCategoryReq,
                                 HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             return assetCategoryService.create(assetCategoryReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -73,7 +71,7 @@ public class AssetCategoryController {
     public AssetCategory patch(@Parameter(description = "Asset category fields to update") @Valid @RequestBody CategoryPatchDTO assetCategory,
                                @PathVariable("id") Long id,
                                HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(id);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             if (optionalAssetCategory.isPresent()) {
@@ -87,7 +85,7 @@ public class AssetCategoryController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(id);
         if (optionalAssetCategory.isPresent()) {

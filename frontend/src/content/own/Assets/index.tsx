@@ -24,6 +24,7 @@ import {
   getAssets,
   resetAssetsHierarchy
 } from '../../../slices/asset';
+import { getCustomFieldsIFields, getCustomFieldsValues } from '../type';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useDispatch, useSelector } from '../../../store';
 import * as React from 'react';
@@ -38,7 +39,7 @@ import { AssetDTO, AssetRow } from '../../../models/owns/asset';
 import Form from '../components/form';
 import * as Yup from 'yup';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { formatAssetValues } from '../../../utils/formatters';
+import { formatAssetValues, formatCustomFields } from '../../../utils/formatters';
 import UserAvatars from '../components/UserAvatars';
 import { enumerate } from '../../../utils/displayers';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
@@ -76,6 +77,9 @@ import {
 import useTableState from '../../../hooks/useTableState';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { getCustomFields } from '../../../slices/customField';
+import { CustomFieldEntityType } from '../../../models/owns/customField';
+import { getCustomFieldsRequiredShape } from '../type';
 
 const PAGE_SIZE = 40;
 
@@ -107,6 +111,7 @@ function Assets() {
   const { getFormattedDate } = useContext(CompanySettingsContext);
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { locations } = useSelector((state) => state.locations);
+  const { customFields } = useSelector((state) => state.customFields);
   const locationParamObject = locations.find(
     (location) => location.id === Number(locationParam)
   );
@@ -243,6 +248,12 @@ function Assets() {
       setOpenAddModal(true);
     }
   }, [locationParamObject]);
+
+  useEffect(() => {
+    if (openAddModal && !customFields.length) {
+      dispatch(getCustomFields());
+    }
+  }, [openAddModal]);
 
   // Handle query params for inline creation (new=true&name=${name})
   useEffect(() => {
@@ -731,10 +742,16 @@ function Assets() {
       type: 'select',
       type2: 'asset',
       label: t('parent_asset')
-    }
+    },
+    ...getCustomFieldsIFields(customFields, CustomFieldEntityType.ASSET)
   ];
   const shape = {
-    name: Yup.string().required(t('required_asset_name'))
+    name: Yup.string().required(t('required_asset_name')),
+    ...getCustomFieldsRequiredShape(
+      customFields,
+      CustomFieldEntityType.ASSET,
+      t
+    )
   };
   const handleReset = (callApi: boolean) => {
     dispatch(resetAssetsHierarchy(callApi));

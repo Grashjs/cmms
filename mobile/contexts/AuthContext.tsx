@@ -48,6 +48,7 @@ import Location from '../models/location';
 import { UiConfiguration } from '../models/uiConfiguration';
 import Constants from 'expo-constants';
 import moment from 'moment-timezone';
+import { getCustomFields } from '../slices/customField';
 
 interface AuthState {
   isInitialized: boolean;
@@ -663,6 +664,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       lng: companySettings.generalPreferences.language.toLowerCase()
     });
     checkPushNotificationState();
+    globalDispatch(getCustomFields());
   };
   const getInfos = async (): Promise<void> => {
     // AsyncStorage.clear();

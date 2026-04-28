@@ -29,7 +29,7 @@ public class Notification extends Audit {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
-    private OwnUser user;
+    private User user;
 
     @Schema(description = "Type of notification")
     private NotificationType notificationType;
@@ -38,7 +38,7 @@ public class Notification extends Audit {
     private Long resourceId;
 
 
-    public Notification(String message, OwnUser user, NotificationType notificationType, Long resourceId) {
+    public Notification(String message, User user, NotificationType notificationType, Long resourceId) {
         this.message = message;
         this.user = user;
         this.notificationType = notificationType;

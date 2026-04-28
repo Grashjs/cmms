@@ -3,6 +3,7 @@ package com.grash.controller;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.AssetMiniDTO;
 import com.grash.dto.AssetPatchDTO;
+import com.grash.dto.AssetPostDTO;
 import com.grash.dto.AssetShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.license.LicenseEntitlement;
@@ -10,7 +11,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.AssetMapper;
 import com.grash.model.Asset;
 import com.grash.model.Location;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.Part;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
@@ -25,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -63,7 +63,7 @@ public class AssetController {
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<AssetShowDTO>> search(@Parameter(description = "Search criteria for filtering assets") @RequestBody SearchCriteria searchCriteria,
                                                      HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
                 searchCriteria.filterCompany(user);
@@ -78,33 +78,33 @@ public class AssetController {
 
     @GetMapping("/nfc")
     @PreAuthorize("permitAll()")
-    public AssetShowDTO getByNfcId(@RequestParam @Parameter(description = "NFC identifier of the asset") String nfcId,
-                                   @Parameter(hidden = true) @CurrentUser OwnUser user) {
+    public AssetMiniDTO getByNfcId(@RequestParam @Parameter(description = "NFC identifier of the asset") String nfcId,
+                                   @Parameter(hidden = true) @CurrentUser User user) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.NFC_BARCODE))
             throw new CustomException("You need a license to scan an asset", HttpStatus.FORBIDDEN);
         Optional<Asset> optionalAsset = assetService.findByNfcIdAndCompany(nfcId, user.getCompany().getId());
-        return getAsset(optionalAsset, user);
+        return assetMapper.toMiniDto(optionalAsset.get());
     }
 
     @GetMapping("/barcode")
     @PreAuthorize("permitAll()")
-    public AssetShowDTO getByBarcode(@RequestParam @Parameter(description = "Barcode of the asset") String data,
-                                     @Parameter(hidden = true) @CurrentUser OwnUser user) {
+    public AssetMiniDTO getByBarcode(@RequestParam @Parameter(description = "Barcode of the asset") String data,
+                                     @Parameter(hidden = true) @CurrentUser User user) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.NFC_BARCODE))
             throw new CustomException("You need a license to scan an asset", HttpStatus.FORBIDDEN);
         Optional<Asset> optionalAsset = assetService.findByBarcodeAndCompany(data, user.getCompany().getId());
-        return getAsset(optionalAsset, user);
+        return assetMapper.toMiniDto(optionalAsset.get());
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
     public AssetShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
         return getAsset(optionalAsset, user);
     }
 
-    private AssetShowDTO getAsset(Optional<Asset> optionalAsset, OwnUser user) {
+    private AssetShowDTO getAsset(Optional<Asset> optionalAsset, User user) {
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS) &&
@@ -117,7 +117,7 @@ public class AssetController {
     @GetMapping("/location/{id}")
     @PreAuthorize("permitAll()")
     public Collection<AssetShowDTO> getByLocation(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
             return assetService.findByLocation(id).stream().map(asset -> assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
@@ -128,7 +128,7 @@ public class AssetController {
     @GetMapping("/part/{id}")
     @PreAuthorize("permitAll()")
     public Collection<AssetShowDTO> getByPart(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
             return optionalPart.get().getAssets().stream().map(asset -> assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
@@ -140,7 +140,7 @@ public class AssetController {
     public List<AssetShowDTO> getChildrenById(@PathVariable("id") Long id,
                                               Pageable pageable,
                                               HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return assetService.findByCompanyAndParentAssetNull(user.getCompany().getId(), pageable).stream().map(asset -> assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
         }
@@ -160,7 +160,7 @@ public class AssetController {
     public Page<AssetShowDTO> getChildrenByIdPaginated(@PathVariable("id") Long id,
                                                        Pageable pageable,
                                                        HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             Page<Asset> assetsPage = assetRepository.findByCompany_IdAndParentAssetIsNull(user.getCompany().getId(),
                     pageable);
@@ -179,8 +179,9 @@ public class AssetController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public AssetShowDTO create(@Parameter(description = "Asset data to create") @Valid @RequestBody Asset assetReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    public AssetShowDTO create(@Parameter(description = "Asset data to create") @Valid @RequestBody AssetPostDTO assetReq,
+                               HttpServletRequest req) {
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.ASSETS)) {
             if (assetReq.getBarCode() != null) {
                 Optional<Asset> optionalAssetWithSameBarCode =
@@ -210,7 +211,7 @@ public class AssetController {
     public AssetShowDTO patch(@Parameter(description = "Asset fields to update") @Valid @RequestBody AssetPatchDTO asset,
                               @PathVariable("id") Long id,
                               HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
 
         if (optionalAsset.isPresent()) {
@@ -239,7 +240,7 @@ public class AssetController {
                 }
                 if (asset.getParentAsset() != null && asset.getParentAsset().getId().equals(id))
                     throw new CustomException("Parent asset cannot be the same id", HttpStatus.NOT_ACCEPTABLE);
-                Asset patchedAsset = assetService.update(id, asset);
+                Asset patchedAsset = assetService.update(id, asset, user.getCompany());
                 assetService.patchNotify(savedAsset, patchedAsset, Helper.getLocale(user));
                 return assetMapper.toShowDto(patchedAsset, assetService);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
@@ -248,8 +249,9 @@ public class AssetController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<AssetMiniDTO> getMini(@RequestParam(required = false) @Parameter(description = "Filter assets by location ID. If not provided, returns all assets") Long locationId, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    public Collection<AssetMiniDTO> getMini(@RequestParam(required = false) @Parameter(description = "Filter assets " +
+            "by location ID. If not provided, returns all assets") Long locationId, HttpServletRequest req) {
+        User user = userService.whoami(req);
         List<Asset> assets = new ArrayList<>();
         if (locationId == null) {
             assets = assetService.findByCompany(user.getCompany().getId());
@@ -261,7 +263,9 @@ public class AssetController {
 
     @GetMapping("/public/mini/{portalUUID}")
     public Collection<AssetMiniDTO> getMiniPublic(@PathVariable String portalUUID,
-                                                  @RequestParam(required = false) @Parameter(description = "Filter assets by location ID. If not provided, returns all assets for the portal") Long locationId,
+                                                  @RequestParam(required = false) @Parameter(description = "Filter " +
+                                                          "assets by location ID. If not provided, returns all assets" +
+                                                          " for the portal") Long locationId,
                                                   HttpServletRequest req) {
         String clientIp = Helper.extractClientIp(req);
         if (!rateLimiterService.resolvePublicMiniBucket(clientIp).tryConsume(1)) {
@@ -280,7 +284,7 @@ public class AssetController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {

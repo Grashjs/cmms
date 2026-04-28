@@ -69,18 +69,25 @@ We'd love to have **new contributors**, so feel free to join us!
 ⭐ **Star this repo to support us!**
 
 ## Self-Host / Run locally
+
 ### ⚡ Quick Start (2 minutes)
+
 1. Download:
-  - [docker-compose.yml](./docker-compose.yml)
-  - [.env.example](.env.example) → rename to `.env` 
+
+- [docker-compose.yml](./docker-compose.yml)
+- [.env.example](.env.example) → rename to `.env`
+
 2. Run:
    ```bash
    docker-compose up -d
    ```
-Go to http://localhost:3000 to access Atlas CMMS. 
+
+Go to http://localhost:3000 to access Atlas CMMS.
 
 Need customization or production setup? Continue reading below ↓
+
 ### Set environment variables
+
 | Name                        | Required | Description                                                                                                                                                                                                                                                                                                 | Default Value         |
 |-----------------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------|
 | POSTGRES_USER               | Yes      | Postgres user                                                                                                                                                                                                                                                                                               | rootUser              |
@@ -95,6 +102,7 @@ Need customization or production setup? Continue reading below ↓
 | SMTP_PORT                   | No       | The SMTP port                                                                                                                                                                                                                                                                                               | 587                   |
 | SMTP_USER                   | No       | The SMTP username. If using Gmail, [Learn how to create an app password](https://support.google.com/accounts/answer/185833?hl=en)                                                                                                                                                                           | (empty)               |
 | SMTP_PWD                    | No       | The SMTP password. If using Gmail, [Learn how to create an app password](https://support.google.com/accounts/answer/185833?hl=en)                                                                                                                                                                           | (empty)               |
+| SMTP_FROM                   | No       | The SMTP from address, if different from the username.                                                                                                                                                                                                                                                      | (empty)               |
 | SENDGRID_API_KEY            | No       | The Sendgrid API key                                                                                                                                                                                                                                                                                        | (empty)               |
 | SENDGRID_FROM_EMAIL         | No       | The Sendgrid sender email                                                                                                                                                                                                                                                                                   | (empty)               |
 | ENABLE_CORS                 | No       | Enables or disables CORS security feature. Recommended to enable it                                                                                                                                                                                                                                         | false                 |
@@ -117,6 +125,7 @@ Need customization or production setup? Continue reading below ↓
 | LOGO_PATHS                  | No       | Logo names in this format. `{"dark": "dark.png","white": "white.png", }`. Add 2 logos in a folder named `logo` in the same folder as the `docker-compose.yml`.  Needs a license.                                                                                                                            | (empty)               |
 | CUSTOM_COLORS               | No       | Custom colors in JSON format. All colors should be in hexadecimal format. `{"emailColors":"#00A0E3","primary":"#EE4B2B","secondary":"#6E759F","success":"#57CA22","warning":"#FFA319","error":"#FF1943","info":"#33C2FF","black":"#223354","white":"#ffffff","primaryAlt":"#000C57"}`                       | (empty)               |
 | BRAND_CONFIG                | No       | Brand config for white labeling. Requires license. In format `{ "name": "Quantum Labs", "shortName": "QL", "website": "https://example.io", mail: "contact@example.io" }`                                                                                                                                   | (empty)               |
+| LDAP_ENABLED                | No       | Enables or disables LDAP. More variables are needed. You can get the full list [here](./dev-docs/LDAP_SETUP.md)                                                                                                                                                                                             | false                 |
 
 For production deployments, it’s strongly recommended to use unique credentials and not rely on defaults.
 

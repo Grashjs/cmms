@@ -1,0 +1,74 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="2026_04_08_comment_00000000001" author="Ibrahima">
+        <createTable tableName="comment">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="work_order_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="content" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="company_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="BIGINT"/>
+            <column name="updated_by" type="BIGINT"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="comment" baseColumnNames="work_order_id"
+                                 constraintName="fk_comment_work_order" referencedTableName="work_order"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="comment" baseColumnNames="user_id"
+                                 constraintName="fk_comment_user" referencedTableName="own_user"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="comment" baseColumnNames="company_id"
+                                 constraintName="fk_comment_company" referencedTableName="company"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+
+        <createTable tableName="comment_files">
+            <column name="comment_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="files_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey tableName="comment_files" columnNames="comment_id, files_id"
+                       constraintName="pk_comment_file"/>
+        <addForeignKeyConstraint baseTableName="comment_files" baseColumnNames="comment_id"
+                                 constraintName="fk_comment_file_comment" referencedTableName="comment"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="comment_files" baseColumnNames="files_id"
+                                 constraintName="fk_comment_file_file" referencedTableName="file"
+                                 referencedColumnNames="id" onDelete="CASCADE"/>
+    </changeSet>
+    <changeSet id="1775637489683-1" author="Ibrahima G. Coulibaly">
+        <createSequence sequenceName="comment_seq" startValue="1" incrementBy="50"/>
+    </changeSet>
+    <changeSet id="1775742811662-1" author="Ibrahima G. Coulibaly">
+        <sql>
+            update notification
+            set notification_type=2
+            where notification_type = 9;
+        </sql>
+    </changeSet>
+</databaseChangeLog>

@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -58,6 +59,9 @@ public class CompanySettings {
     @JsonIgnore
     private List<TimeCategory> timeCategories = new ArrayList<>();
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<CustomField> customFields = new ArrayList<>();
 
     private List<CostCategory> createCostCategories(List<String> costCategories) {
         return costCategories.stream().map(costCategory -> new CostCategory(costCategory, this)).collect(Collectors.toList());

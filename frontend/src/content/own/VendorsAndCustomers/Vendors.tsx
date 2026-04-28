@@ -20,7 +20,11 @@ import { useDispatch, useSelector } from '../../../store';
 import { useTranslation } from 'react-i18next';
 import Form from '../components/form';
 import * as Yup from 'yup';
-import { IField } from '../type';
+import {
+  getCustomFieldsValues,
+  getCustomFieldValuesForDetails,
+  IField
+} from '../type';
 import ConfirmDialog from '../components/ConfirmDialog';
 import * as React from 'react';
 import { useContext, useEffect, useMemo, useState } from 'react';
@@ -46,7 +50,12 @@ import SearchInput from '../components/SearchInput';
 import { createColumnHelper } from '@tanstack/react-table';
 import useTableState from '../../../hooks/useTableState';
 import { useBrand } from '../../../hooks/useBrand';
+import { getCustomFields } from '../../../slices/customField';
+import { CustomFieldEntityType } from '../../../models/owns/customField';
+import { getCustomFieldsIFields, getCustomFieldsRequiredShape } from '../type';
+import { formatCustomFields } from '../../../utils/formatters';
 import { getErrorMessage } from '../../../utils/api';
+import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 
 interface PropsType {
   values?: any;
@@ -75,6 +84,8 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
   const { vendors, loadingGet, singleVendor } = useSelector(
     (state) => state.vendors
   );
+  const { getFormattedDate } = useContext(CompanySettingsContext);
+  const { customFields } = useSelector((state) => state.customFields);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
   const [criteria, setCriteria] = useState<SearchCriteria>({
     filterFields: [],
@@ -178,6 +189,12 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
     dispatch(getVendors(criteria));
   }, [criteria]);
 
+  useEffect(() => {
+    if (openModal && !customFields.length) {
+      dispatch(getCustomFields());
+    }
+  }, [openModal]);
+
   //see changes in ui on edit
   useEffect(() => {
     if (singleVendor || vendors.content.length) {
@@ -264,7 +281,8 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
       label: t('hourly_rate'),
       placeholder: t('hourly_rate'),
       icon: '$'
-    }
+    },
+    ...getCustomFieldsIFields(customFields, CustomFieldEntityType.VENDOR)
   ];
 
   const shape = {
@@ -275,7 +293,12 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
     website: Yup.string()
       .matches(websiteRegExp, t('invalid_website'))
       .nullable(),
-    email: Yup.string().matches(emailRegExp, t('invalid_email')).nullable()
+    email: Yup.string().matches(emailRegExp, t('invalid_email')).nullable(),
+    ...getCustomFieldsRequiredShape(
+      customFields,
+      CustomFieldEntityType.VENDOR,
+      t
+    )
   };
 
   const columnHelper = createColumnHelper<Vendor>();
@@ -284,9 +307,7 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
     columnHelper.accessor('companyName', {
       id: 'companyName',
       header: () => t('company_name'),
-      cell: (info) => (
-        <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>
-      ),
+      cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>,
       size: 150
     }),
     columnHelper.accessor('address', {
@@ -360,7 +381,11 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
     {
       label: t('contact_name'),
       value: currentVendor?.name
-    }
+    },
+    ...getCustomFieldValuesForDetails(
+      currentVendor?.customFieldValues,
+      getFormattedDate
+    )
   ];
   const renderKeyAndValue = (key: string, value: string) => {
     if (value)
@@ -401,8 +426,9 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
             values={{}}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
-              const formattedValues = {
-                ...values,
+              let formattedValues = formatCustomFields(values);
+              formattedValues = {
+                ...formattedValues,
                 rate: Number(values.rate)
               };
               return dispatch(addVendor(formattedValues))
@@ -560,15 +586,19 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
               fields={fields}
               validation={Yup.object().shape(shape)}
               submitText={t('save')}
-              values={currentVendor || {}}
+              values={
+                { ...currentVendor, ...getCustomFieldsValues(currentVendor) } ||
+                {}
+              }
               onChange={({ field, e }) => {}}
               onSubmit={async (values) => {
-                const formattedValues = values.rate
+                let formattedValues = formatCustomFields(values);
+                formattedValues = values.rate
                   ? {
-                      ...values,
+                      ...formattedValues,
                       rate: Number(values.rate)
                     }
-                  : values;
+                  : formattedValues;
                 return dispatch(editVendor(currentVendor.id, formattedValues))
                   .then(onEditSuccess)
                   .catch(onEditFailure);

@@ -4,7 +4,7 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.MeterCategory;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.MeterCategoryService;
@@ -37,7 +37,7 @@ public class MeterCategoryController {
     @PreAuthorize("permitAll()")
 
     public Collection<MeterCategory> getAll(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
                 return meterCategoryService.findByCompany(user.getCompany().getId());
@@ -49,7 +49,7 @@ public class MeterCategoryController {
     @PreAuthorize("permitAll()")
 
     public MeterCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
             Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findById(id);
             if (optionalMeterCategory.isPresent()) {
@@ -64,7 +64,7 @@ public class MeterCategoryController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     MeterCategory create(@Parameter(description = "Meter category to create") @Valid @RequestBody MeterCategory meterCategoryReq,
                          HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             return meterCategoryService.create(meterCategoryReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -76,7 +76,7 @@ public class MeterCategoryController {
     public MeterCategory patch(@Parameter(description = "Meter category fields to update") @Valid @RequestBody CategoryPatchDTO meterCategory,
                                @PathVariable("id") Long id,
                                HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findById(id);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
 
@@ -92,7 +92,7 @@ public class MeterCategoryController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findById(id);
         if (optionalMeterCategory.isPresent()) {

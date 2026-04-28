@@ -3,16 +3,20 @@ package com.grash.service;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.AssetPatchDTO;
+import com.grash.dto.AssetPostDTO;
 import com.grash.dto.AssetShowDTO;
+import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.imports.AssetImportDTO;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetMapper;
 import com.grash.model.*;
 import com.grash.model.enums.AssetStatus;
+import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.AssetRepository;
+import com.grash.service.CustomFieldValueService;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +62,7 @@ public class AssetService {
     private final CustomSequenceService customSequenceService;
     private final LicenseService licenseService;
     private WebhookDispatchService webhookDispatchService;
+    private final CustomFieldValueService customFieldValueService;
 
     @Autowired
     public void setDeps(@Lazy LocationService locationService, @Lazy LaborService laborService,
@@ -71,13 +76,18 @@ public class AssetService {
     }
 
     @Transactional
-    public Asset create(Asset asset, OwnUser user) {
+    public Asset create(Asset asset, User user) {
         checkUsageBasedLimit(user.getCompany());
+        Company company = user.getCompany();
+        if (asset instanceof AssetPostDTO assetPostDTO) {
+            asset = assetMapper.fromPostDto(assetPostDTO);
+            if (assetPostDTO.getCustomFields() != null && !assetPostDTO.getCustomFields().isEmpty()) {
+                setAssetCustomFields(asset, assetPostDTO.getCustomFields(), company);
+            }
+        }
         if (asset.getParentAsset() != null && !licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY))
             throw new CustomException("You need a license to add a child asset to another asset.",
                     HttpStatus.FORBIDDEN);
-        // Generate custom ID
-        Company company = user.getCompany();
         asset.setCustomId(getAssetNumber(company));
 
         Asset savedAsset = assetRepository.saveAndFlush(asset);
@@ -95,18 +105,33 @@ public class AssetService {
         return "A" + String.format("%06d", nextSequence);
     }
 
+    private void setAssetCustomFields(Asset asset, List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
+                                      Company company) {
+        customFieldValueService.setCustomFields(
+                asset,
+                asset.getCustomFieldValues(),
+                customFieldValuePostDTOS,
+                company,
+                CustomFieldEntityType.ASSET,
+                cfv -> cfv.setAsset(asset)
+        );
+    }
+
     @Transactional
-    public Asset update(Long id, AssetPatchDTO asset) {
+    public Asset update(Long id, AssetPatchDTO asset, Company company) {
         if (asset.getParentAsset() != null && !licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY))
             throw new CustomException("You need a license to add a child asset to another asset.",
                     HttpStatus.FORBIDDEN);
         if (assetRepository.existsById(id)) {
             Asset savedAsset = assetRepository.findById(id).get();
             AssetStatus previousStatus = savedAsset.getStatus();
+            if (asset.getCustomFields() != null && !asset.getCustomFields().isEmpty()) {
+                setAssetCustomFields(savedAsset, asset.getCustomFields(), company);
+            }
             Asset patchedAsset = assetRepository.saveAndFlush(assetMapper.updateAsset(savedAsset, asset));
             em.refresh(patchedAsset);
 
-            if (!previousStatus.equals(patchedAsset.getStatus())) {
+            if (previousStatus != patchedAsset.getStatus()) {
                 dispatchAssetStatusChangeWebhook(patchedAsset, previousStatus, patchedAsset.getStatus());
             }
 
@@ -209,7 +234,7 @@ public class AssetService {
         asset.setStatus(AssetStatus.OPERATIONAL);
         save(asset);
 
-        if (!previousStatus.equals(AssetStatus.OPERATIONAL)) {
+        if (previousStatus != AssetStatus.OPERATIONAL) {
             dispatchAssetStatusChangeWebhook(asset, previousStatus, AssetStatus.OPERATIONAL);
         }
     }
@@ -335,14 +360,14 @@ public class AssetService {
                 assetCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
         optionalAssetCategory.ifPresent(asset::setCategory);
         asset.setName(dto.getName());
-        Optional<OwnUser> optionalPrimaryUser = userService.findByEmailAndCompany(dto.getPrimaryUserEmail(), companyId);
+        Optional<User> optionalPrimaryUser = userService.findByEmailAndCompany(dto.getPrimaryUserEmail(), companyId);
         optionalPrimaryUser.ifPresent(asset::setPrimaryUser);
         asset.setWarrantyExpirationDate(Helper.getDateFromExcelDate(dto.getWarrantyExpirationDate()));
         asset.setAdditionalInfos(dto.getAdditionalInfos());
         asset.setSerialNumber(dto.getSerialNumber());
-        List<OwnUser> assignedTo = new ArrayList<>();
+        List<User> assignedTo = new ArrayList<>();
         dto.getAssignedToEmails().forEach(email -> {
-            Optional<OwnUser> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
+            Optional<User> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
             optionalUser1.ifPresent(assignedTo::add);
         });
         asset.setAssignedTo(assignedTo);

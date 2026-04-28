@@ -143,7 +143,9 @@ export type RootStackParamList = {
   };
   AddAdditionalCost: { workOrderId: number };
   AddAdditionalTime: { workOrderId: number };
-  ScanAsset: undefined;
+  ScanAsset: {
+    onChange?: (asset: AssetMiniDTO) => void;
+  };
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =

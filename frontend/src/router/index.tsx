@@ -22,8 +22,11 @@ const PaymentSuccess = Loader(
 );
 
 const RequestPortalPublicPage = Loader(
-  lazy(() =>
-    import('../content/own/Settings/RequestPortal/PublicPage/RequestPortalPublicPage')
+  lazy(
+    () =>
+      import(
+        '../content/own/Settings/Features/RequestPortal/PublicPage/RequestPortalPublicPage'
+      )
   )
 );
 

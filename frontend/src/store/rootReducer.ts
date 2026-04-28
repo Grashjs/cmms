@@ -43,6 +43,8 @@ import { reducer as licenseReducer } from 'src/slices/license';
 import { reducer as requestPortalReducer } from 'src/slices/requestPortal';
 import { reducer as apiKeyReducer } from 'src/slices/apiKey';
 import { reducer as webhookEndpointReducer } from 'src/slices/webhookEndpoint';
+import { reducer as commentReducer } from 'src/slices/comment';
+import { reducer as customFieldReducer } from 'src/slices/customField';
 
 const rootReducer = combineReducers({
   calendar: calendarReducer,
@@ -88,7 +90,9 @@ const rootReducer = combineReducers({
   license: licenseReducer,
   requestPortals: requestPortalReducer,
   apiKeys: apiKeyReducer,
-  webhookEndpoints: webhookEndpointReducer
+  webhookEndpoints: webhookEndpointReducer,
+  comments: commentReducer,
+  customFields: customFieldReducer
 });
 
 export default rootReducer;

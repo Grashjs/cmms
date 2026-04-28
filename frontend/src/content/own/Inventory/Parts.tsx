@@ -46,6 +46,7 @@ import { isNumeric } from '../../../utils/validators';
 import {
   formatSelect,
   formatSelectMultiple,
+  formatCustomFields,
   getFormattedCostPerUnit
 } from '../../../utils/formatters';
 import { UserMiniDTO } from '../../../models/user';
@@ -69,6 +70,9 @@ import { createColumnHelper } from '@tanstack/react-table';
 import useTableState from '../../../hooks/useTableState';
 import { CategoryMiniDTO } from '../../../models/owns/category';
 import { getErrorMessage } from '../../../utils/api';
+import { getCustomFields } from '../../../slices/customField';
+import { CustomFieldEntityType } from '../../../models/owns/customField';
+import { getCustomFieldsRequiredShape, getCustomFieldsIFields } from '../type';
 
 interface PropsType {
   setAction: (p: () => () => void) => void;
@@ -103,6 +107,7 @@ const Parts = ({ setAction }: PropsType) => {
     CompanySettingsContext
   );
   const { parts, loadingGet, singlePart } = useSelector((state) => state.parts);
+  const { customFields } = useSelector((state) => state.customFields);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
   const [criteria, setCriteria] = useState<SearchCriteria>({
     filterFields: [],
@@ -244,6 +249,12 @@ const Parts = ({ setAction }: PropsType) => {
     };
   }, [singlePart, parts]);
 
+  useEffect(() => {
+    if ((openAddModal || openUpdateModal) && !customFields.length) {
+      dispatch(getCustomFields());
+    }
+  }, [openAddModal, openUpdateModal]);
+
   const handleTabsChange = (_event: ChangeEvent<{}>, value: string): void => {
     setCurrentTab(value);
   };
@@ -264,7 +275,7 @@ const Parts = ({ setAction }: PropsType) => {
     newValues.customers = formatSelectMultiple(newValues.customers);
     newValues.vendors = formatSelectMultiple(newValues.vendors);
     newValues.category = formatSelect(newValues.category);
-    return newValues;
+    return formatCustomFields(newValues);
   };
 
   const columnHelper = createColumnHelper<Part>();
@@ -459,10 +470,12 @@ const Parts = ({ setAction }: PropsType) => {
       type: 'file',
       multiple: true,
       label: t('files')
-    }
+    },
+    ...getCustomFieldsIFields(customFields, CustomFieldEntityType.PART)
   ];
   const shape = {
-    name: Yup.string().required(t('required_part_name'))
+    name: Yup.string().required(t('required_part_name')),
+    ...getCustomFieldsRequiredShape(customFields, CustomFieldEntityType.PART, t)
   };
   const renderPartAddModal = () => (
     <Dialog

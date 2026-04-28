@@ -34,11 +34,13 @@ import {
 import { editPart } from '../../../slices/part';
 import { useDispatch, useSelector } from '../../../store';
 import FilesList from '../components/FilesList';
+import BasicField from '../components/BasicField';
 import { getAssetsByPart } from '../../../slices/asset';
 import { useNavigate } from 'react-router-dom';
 import { getWorkOrdersByPart } from '../../../slices/workOrder';
 import { getFormattedQuantityWithUnit } from './Parts';
 import { getFormattedCostPerUnit } from '../../../utils/formatters';
+import { getCustomFieldValuesForDetails } from '../type';
 
 interface PartDetailsProps {
   part: Part;
@@ -76,22 +78,6 @@ export default function PartDetails(props: PartDetailsProps) {
       dispatch(getWorkOrdersByPart(part.id));
     }
   };
-  const BasicField = ({
-    label,
-    value
-  }: {
-    label: string | number;
-    value: string | number;
-  }) => {
-    return value ? (
-      <Grid item xs={12} lg={6}>
-        <Typography variant="h6" sx={{ color: theme.colors.alpha.black[70] }}>
-          {label}
-        </Typography>
-        <Typography variant="h6">{value}</Typography>
-      </Grid>
-    ) : null;
-  };
   const firstFieldsToRender = (part: Part): { label: string; value: any }[] => [
     {
       label: t('name'),
@@ -128,7 +114,8 @@ export default function PartDetails(props: PartDetailsProps) {
     {
       label: t('barcode'),
       value: part.barcode
-    }
+    },
+    ...getCustomFieldValuesForDetails(part.customFieldValues, getFormattedDate)
   ];
   const areaFieldsToRender = (part: Part): { label: string; value: any }[] => [
     {
@@ -209,11 +196,7 @@ export default function PartDetails(props: PartDetailsProps) {
                 </Typography>
                 <Grid container spacing={2}>
                   {firstFieldsToRender(part).map((field) => (
-                    <BasicField
-                      key={field.label}
-                      label={field.label}
-                      value={field.value}
-                    />
+                    <BasicField key={field.label} {...field} />
                   ))}
                 </Grid>
               </Grid>

@@ -7,11 +7,19 @@ import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import { getImageAndFiles, handleFileUpload } from '../../utils/overall';
-import { useDispatch } from '../../store';
+import { useDispatch, useSelector } from '../../store';
 import { editLocation } from '../../slices/location';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { formatLocationValues, getLocationFields } from '../../utils/fields';
+import { formatCustomFields } from '../../utils/formatters';
 import useAuth from '../../hooks/useAuth';
+import {
+  IField,
+  getCustomFieldsIFields,
+  getCustomFieldsRequiredShape,
+  getCustomFieldsValues
+} from '../../models/form';
+import { CustomFieldEntityType } from '../../models/customField';
 
 export default function EditLocationScreen({
   navigation,
@@ -25,13 +33,25 @@ export default function EditLocationScreen({
   );
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
-  const shape = {
-    name: Yup.string().required(t('required_location_name'))
+  const { customFields } = useSelector((state) => state.customFields);
+
+  const defaultShape = {
+    name: Yup.string().required(t('required_location_name')),
+    ...getCustomFieldsRequiredShape(
+      customFields,
+      CustomFieldEntityType.LOCATION,
+      t
+    )
   };
-  const getEditFields = () => {
-    const fieldsClone = [...getFilteredFields(getLocationFields(t))];
-    return fieldsClone;
+
+  const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
+    const fields = [
+      ...getFilteredFields(getLocationFields(t)),
+      ...getCustomFieldsIFields(customFields, CustomFieldEntityType.LOCATION)
+    ];
+    return getWOFieldsAndShapes(fields, defaultShape);
   };
+
   const onEditSuccess = () => {
     showSnackBar(t('changes_saved_success'), 'success');
     navigation.goBack();
@@ -42,12 +62,13 @@ export default function EditLocationScreen({
   return (
     <View style={styles.container}>
       <Form
-        fields={getEditFields()}
-        validation={Yup.object().shape(shape)}
+        fields={getFieldsAndShapes()[0]}
+        validation={Yup.object().shape(getFieldsAndShapes()[1])}
         navigation={navigation}
         submitText={t('save')}
         values={{
           ...location,
+          ...getCustomFieldsValues(location),
           title: location?.name,
           workers: location?.workers.map((worker) => {
             return {
@@ -83,6 +104,7 @@ export default function EditLocationScreen({
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           let formattedValues = formatLocationValues(values);
+          formattedValues = formatCustomFields(formattedValues);
           try {
             const imageAndFiles = await handleFileUpload(
               {

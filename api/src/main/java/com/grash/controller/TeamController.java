@@ -7,7 +7,7 @@ import com.grash.dto.TeamPatchDTO;
 import com.grash.dto.TeamShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TeamMapper;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.Team;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
@@ -47,7 +47,7 @@ public class TeamController {
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<TeamShowDTO>> search(@Parameter(description = "Search criteria for filtering teams") @RequestBody SearchCriteria searchCriteria,
                                                     HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 searchCriteria.filterCompany(user);
@@ -60,7 +60,7 @@ public class TeamController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public Collection<TeamMiniDTO> getMini(HttpServletRequest req) {
-        OwnUser team = userService.whoami(req);
+        User team = userService.whoami(req);
         return teamService.findByCompany(team.getCompany().getId()).stream().map(teamMapper::toMiniDto).collect(Collectors.toList());
     }
 
@@ -68,7 +68,7 @@ public class TeamController {
     @PreAuthorize("permitAll()")
 
     public TeamShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Team> optionalTeam = teamService.findById(id);
         if (optionalTeam.isPresent()) {
             Team savedTeam = optionalTeam.get();
@@ -78,8 +78,9 @@ public class TeamController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    TeamShowDTO create(@Parameter(description = "Team data to create") @Valid @RequestBody Team teamReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    TeamShowDTO create(@Parameter(description = "Team data to create") @Valid @RequestBody Team teamReq,
+                       HttpServletRequest req) {
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
             Team savedTeam = teamService.create(teamReq);
             teamService.notify(savedTeam, Helper.getLocale(user));
@@ -90,10 +91,11 @@ public class TeamController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
-    public TeamShowDTO patch(@Parameter(description = "Team fields to update") @Valid @RequestBody TeamPatchDTO team, @PathVariable(
+    public TeamShowDTO patch(@Parameter(description = "Team fields to update") @Valid @RequestBody TeamPatchDTO team,
+                             @PathVariable(
                                      "id") Long id,
                              HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Team> optionalTeam = teamService.findById(id);
         if (optionalTeam.isPresent()) {
             Team savedTeam = optionalTeam.get();
@@ -108,7 +110,7 @@ public class TeamController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<Team> optionalTeam = teamService.findById(id);
         if (optionalTeam.isPresent()) {

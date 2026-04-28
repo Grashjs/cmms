@@ -33,6 +33,7 @@ import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
 import * as React from 'react';
 import useAuth from '../../../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { getCustomFieldValuesForDetails } from '../../type';
 
 interface PropsType {
   asset: AssetDTO;
@@ -86,7 +87,11 @@ const AssetDetails = ({ asset, loading }: PropsType) => {
     {
       label: t('warranty_expiration'),
       value: getFormattedDate(asset?.warrantyExpirationDate)
-    }
+    },
+    ...getCustomFieldValuesForDetails(
+      asset?.customFieldValues,
+      getFormattedDate
+    )
   ];
   const BasicField = ({
     label,
@@ -189,21 +194,13 @@ const AssetDetails = ({ asset, loading }: PropsType) => {
                 </Stack>
               </Grid>
               {informationFields.map((field) => (
-                <BasicField
-                  key={field.label}
-                  label={field.label}
-                  value={field.value}
-                />
+                <BasicField key={field.label} {...field} />
               ))}
               <Grid item xs={12}>
                 <Typography variant="h3">{t('more_informations')}</Typography>
               </Grid>
               {moreInfosFields.map((field) => (
-                <BasicField
-                  key={field.label}
-                  label={field.label}
-                  value={field.value}
-                />
+                <BasicField key={field.label} {...field} />
               ))}
               {asset?.primaryUser && (
                 <Grid item xs={12}>

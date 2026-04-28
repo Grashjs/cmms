@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.SubscriptionPlanPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.SubscriptionPlanMapper;
-import com.grash.model.OwnUser;
 import com.grash.model.SubscriptionPlan;
 import com.grash.repository.SubscriptionPlanRepository;
 import lombok.RequiredArgsConstructor;

@@ -7,10 +7,9 @@ import com.grash.dto.TeamShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TeamMapper;
 import com.grash.model.Notification;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.Team;
 import com.grash.model.enums.NotificationType;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -96,7 +96,7 @@ public class TeamService {
         String title = messageSource.getMessage("new_team", null, locale);
         String message = messageSource.getMessage("notification_team_added", new Object[]{newTeam.getName()}, locale);
         if (newTeam.getUsers() != null) {
-            List<OwnUser> newUsers = newTeam.getUsers().stream().filter(
+            List<User> newUsers = newTeam.getUsers().stream().filter(
                     user -> oldTeam.getUsers().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
             notificationService.createMultiple(newUsers.stream().map(newUser ->
                     new Notification(message, newUser, NotificationType.TEAM, newTeam.getId())).collect(Collectors.toList()), true, title);

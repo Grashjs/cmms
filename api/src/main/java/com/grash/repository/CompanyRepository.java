@@ -29,4 +29,7 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
             AND wo.parent_preventive_maintenance_id is null and c.demo=false group by c.id having count(wo.id) >= 5)
             """, nativeQuery = true)
     boolean existsAtLeastOneWithMinWorkOrders();
+
+    @Query("SELECT u.company from User u WHERE lower(u.email) = lower(:email) AND u.ownsCompany = true")
+    Optional<Company> findByOwnerEmailAndOwnsCompany(@Param("email") String email);
 }

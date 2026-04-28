@@ -3,9 +3,8 @@ package com.grash.controller;
 import com.grash.dto.SchedulePatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.Schedule;
-import com.grash.model.enums.RoleType;
 import com.grash.service.ScheduleService;
 import com.grash.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
-import java.util.Collection;
 import java.util.Optional;
 
 @RestController
@@ -46,7 +44,7 @@ public class ScheduleController {
     @PreAuthorize("permitAll()")
 
     public Schedule getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Schedule> optionalSchedule = scheduleService.findById(id);
         if (optionalSchedule.isPresent()) {
             Schedule savedSchedule = optionalSchedule.get();
@@ -62,7 +60,7 @@ public class ScheduleController {
     public Schedule patch(@Parameter(description = "Schedule fields to update") @Valid @RequestBody SchedulePatchDTO schedule,
                           @PathVariable("id") Long id,
                           HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Schedule> optionalSchedule = scheduleService.findById(id);
 
         if (optionalSchedule.isPresent()) {
@@ -79,7 +77,7 @@ public class ScheduleController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<Schedule> optionalSchedule = scheduleService.findById(id);
         if (optionalSchedule.isPresent()) {

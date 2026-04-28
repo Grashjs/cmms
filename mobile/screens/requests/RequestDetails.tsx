@@ -1,4 +1,4 @@
-import { Image, ScrollView, TouchableOpacity } from 'react-native';
+import { Image, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import LoadingDialog from '../../components/LoadingDialog';
 import * as React from 'react';
 import { useContext, useEffect, useState } from 'react';
@@ -30,6 +30,7 @@ import useAuth from '../../hooks/useAuth';
 import Request from '../../models/request';
 import Form from '../../components/form';
 import { AudioPlayer } from '../../components/AudioPlayer';
+import { getCustomFieldValuesForDetails } from '../../models/form';
 
 export default function RequestDetails({
   navigation,
@@ -96,7 +97,11 @@ export default function RequestDetails({
     {
       label: t('category'),
       value: request?.category?.name
-    }
+    },
+    ...getCustomFieldValuesForDetails(
+      request?.customFieldValues,
+      getFormattedDate
+    )
   ];
   const onDeleteSuccess = () => {
     showSnackBar(t('request_delete_success'), 'success');
@@ -168,29 +173,51 @@ export default function RequestDetails({
 
   function BasicField({
     label,
-    value
+    value,
+    isLink
   }: {
     label: string;
     value: string | number;
+    isLink?: boolean;
   }) {
-    if (value)
-      return (
-        <View>
-          <View
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              padding: 20
-            }}
-          >
-            <Text>{label}</Text>
+    if (!value) return null;
+
+    const handlePress = () => {
+      if (isLink) {
+        const href = value.toString().startsWith('http')
+          ? value.toString()
+          : `https://${value}`;
+        Linking.openURL(href).catch((err) =>
+          console.error('Failed to open link:', err)
+        );
+      }
+    };
+
+    return (
+      <View>
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            padding: 20
+          }}
+        >
+          <Text>{label}</Text>
+          {isLink ? (
+            <Text
+              style={{ fontWeight: 'bold', color: theme.colors.primary }}
+              onPress={handlePress}
+            >
+              {value}
+            </Text>
+          ) : (
             <Text style={{ fontWeight: 'bold' }}>{value}</Text>
-          </View>
-          <Divider />
+          )}
         </View>
-      );
-    else return null;
+        <Divider />
+      </View>
+    );
   }
 
   function ObjectField({
@@ -285,6 +312,7 @@ export default function RequestDetails({
             key={field.label}
             label={field.label}
             value={field.value}
+            isLink={(field as any).isLink}
           />
         ))}
         {request.audioDescription && (

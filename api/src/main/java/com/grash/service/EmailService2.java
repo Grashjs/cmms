@@ -2,7 +2,7 @@ package com.grash.service;
 
 import com.grash.dto.EmailAttachmentDTO;
 import com.grash.exception.CustomException;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -41,6 +41,8 @@ public class EmailService2 implements MailService {
     private final BrandingService brandingService;
     @Value("${spring.mail.username:#{null}}")
     private String smtpUsername;
+    @Value("${spring.mail.from:#{null}}")
+    private String smtpFromAddress;
 
     @Value("${mail.enable}")
     private Boolean enableEmails;
@@ -139,8 +141,8 @@ public class EmailService2 implements MailService {
             MimeMessage message = emailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             try {
-                helper.setFrom(new InternetAddress(mailProperties.getUsername(),
-                        brandingService.getBrandConfig().getName()));
+                String fromAddress = smtpFromAddress != null ? smtpFromAddress : mailProperties.getUsername();
+                helper.setFrom(new InternetAddress(fromAddress, brandingService.getBrandConfig().getName()));
             } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException(e);
             }
@@ -177,7 +179,7 @@ public class EmailService2 implements MailService {
     }
 
     @Async
-    public void addToContactList(OwnUser user) {
+    public void addToContactList(User user) {
         throw new RuntimeException("Not implemented");
     }
 

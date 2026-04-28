@@ -257,19 +257,19 @@ export const getAssetByNfc =
   (nfcId: string): AppThunk =>
   async (dispatch) => {
     dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const asset = await api.get<AssetDTO>(`${basePath}/nfc?nfcId=${nfcId}`);
+    const asset = await api.get<AssetMiniDTO>(`${basePath}/nfc?nfcId=${nfcId}`);
     dispatch(slice.actions.setLoadingGet({ loading: false }));
-    return asset.id;
+    return asset;
   };
 export const getAssetByBarcode =
   (barCode: string): AppThunk =>
   async (dispatch) => {
     dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const asset = await api.get<AssetDTO>(
+    const asset = await api.get<AssetMiniDTO>(
       `${basePath}/barcode?data=${barCode}`
     );
     dispatch(slice.actions.setLoadingGet({ loading: false }));
-    return asset.id;
+    return asset;
   };
 export const getAssetWorkOrders =
   (id: number): AppThunk =>

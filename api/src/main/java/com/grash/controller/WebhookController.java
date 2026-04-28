@@ -4,18 +4,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grash.dto.keygen.KeygenLicenseResponse;
 import com.grash.dto.keygen.KeygenLicenseResponseData;
 import com.grash.dto.paddle.BillingDetails;
+import com.grash.dto.paddle.subscription.PaddleItem;
 import com.grash.dto.paddle.subscription.PaddleSubscriptionData;
 import com.grash.dto.paddle.subscription.PaddleSubscriptionStatus;
 import com.grash.dto.paddle.subscription.PaddleSubscriptionWebhookEvent;
 import com.grash.exception.CustomException;
 import com.grash.factory.MailServiceFactory;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.Subscription;
 import com.grash.model.enums.SubscriptionScheduledChangeType;
 import com.grash.service.*;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -136,12 +138,12 @@ class WebhookController {
         if (data.getStatus() != PaddleSubscriptionStatus.active) return;
         long userId = Long.parseLong(data.getCustomData().get("userId"));
 
-        Optional<OwnUser> optionalOwnUser = userService.findById(userId);
+        Optional<User> optionalOwnUser = userService.findById(userId);
         if (!optionalOwnUser.isPresent()) {
             throw new CustomException("User Not Found", HttpStatus.NOT_FOUND);
         }
 
-        OwnUser user = optionalOwnUser.get();
+        User user = optionalOwnUser.get();
         Subscription savedSubscription = user.getCompany().getSubscription();
         if (isNewSubscription) {
             if (savedSubscription.getPaddleSubscriptionId() != null)
@@ -212,12 +214,12 @@ class WebhookController {
         checkIfCloudVersion();
         long userId = Long.parseLong(data.getCustomData().get("userId"));
 
-        Optional<OwnUser> optionalOwnUser = userService.findById(userId);
+        Optional<User> optionalOwnUser = userService.findById(userId);
         if (!optionalOwnUser.isPresent()) {
             throw new CustomException("User Not Found", HttpStatus.NOT_FOUND);
         }
 
-        OwnUser user = optionalOwnUser.get();
+        User user = optionalOwnUser.get();
         Subscription subscription = user.getCompany().getSubscription();
 
         if (subscription == null) {
@@ -322,8 +324,8 @@ class WebhookController {
         try {
             PaddleSubscriptionData data = webhookEvent.getData();
 
-            String email = data.getCustomData() != null ? data.getCustomData().get("email") : null;
-            String planId = data.getCustomData() != null ? data.getCustomData().get("planId") : null;
+            String email = getEmail(data);
+            String planId = getPlanId(data);
             Integer quantity = data.getItems().get(0).getQuantity();
 
             if (email == null) {
@@ -381,12 +383,13 @@ class WebhookController {
         }
     }
 
+
     private void handleSelfHostedSubscriptionUpdated(PaddleSubscriptionWebhookEvent webhookEvent, String eventId) {
         try {
             PaddleSubscriptionData data = webhookEvent.getData();
             String paddleSubscriptionId = data.getId();
-            String email = data.getCustomData() != null ? data.getCustomData().get("email") : null;
-            String planId = data.getCustomData() != null ? data.getCustomData().get("planId") : null;
+            String email = getEmail(data);
+            String planId = getPlanId(data);
             Integer quantity = data.getItems().get(0).getQuantity();
             String newExpiry = data.getNextBilledAt();
             if (newExpiry == null) {
@@ -454,6 +457,29 @@ class WebhookController {
             processedEvents.remove(eventId);
             throw new RuntimeException("Failed to process subscription renewal", e);
         }
+    }
+
+    @Nullable
+    private String getEmail(PaddleSubscriptionData data) {
+        String email = data.getCustomData() != null ? data.getCustomData().get("email") : null;
+        if (email == null && data.getCustomerId() != null) {
+            email = paddleService.getCustomerEmail(data.getCustomerId());
+        }
+        return email;
+    }
+
+    @Nullable
+    private String getPlanId(PaddleSubscriptionData data) {
+        if (data.getItems() != null && !data.getItems().isEmpty()) {
+            PaddleItem item = data.getItems().get(0);
+            if (item.getCustomData() != null && item.getCustomData().containsKey("planId")) {
+                return item.getCustomData().get("planId");
+            }
+        }
+        if (data.getCustomData() != null && data.getCustomData().containsKey("planId")) {
+            return data.getCustomData().get("planId");
+        }
+        return null;
     }
 
     private Date parseDate(String dateStr) {

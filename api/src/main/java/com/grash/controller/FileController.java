@@ -11,7 +11,7 @@ import com.grash.exception.CustomException;
 import com.grash.factory.StorageServiceFactory;
 import com.grash.mapper.FileMapper;
 import com.grash.model.File;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.RequestPortal;
 import com.grash.model.Task;
 import com.grash.model.enums.*;
@@ -56,13 +56,14 @@ public class FileController {
 
     @PostMapping(value = "/upload", produces = "application/json")
     public List<FileShowDTO> handleFileUpload(@Parameter(description = "Files to upload") @RequestParam("files") MultipartFile[] filesReq,
-                                              @Parameter(description = "Folder path to store files") @RequestParam("folder") String folder,
+                                              @Parameter(description = "Folder path to store files") @RequestParam(
+                                                      "folder") String folder,
                                               @Parameter(description = "Whether files should be hidden (true/false)") @RequestParam("hidden") String hidden, HttpServletRequest req,
                                               @Parameter(description = "Type of file") @RequestParam("type") FileType fileType,
                                               @Parameter(description = "Optional task ID to associate files with") @RequestParam(value = "taskId", required = false) Integer taskId) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.FILE_ATTACHMENTS))
             throw new CustomException("You need a license to add a file", HttpStatus.FORBIDDEN);
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.FILES) &&
                 user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.FILE)) {
             Collection<File> result = new ArrayList<>();
@@ -112,7 +113,7 @@ public class FileController {
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<FileShowDTO>> search(@Parameter(description = "Search criteria for filtering files") @RequestBody SearchCriteria searchCriteria,
                                                     HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.FILES)) {
                 searchCriteria.filterCompany(user);
@@ -135,7 +136,7 @@ public class FileController {
     @PreAuthorize("permitAll()")
 
     public FileShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<File> optionalFile = fileService.findById(id);
         if (optionalFile.isPresent()) {
             File savedFile = optionalFile.get();
@@ -152,7 +153,7 @@ public class FileController {
     public FileShowDTO patch(@Parameter(description = "File fields to update") @Valid @RequestBody FilePatchDTO file,
                              @PathVariable("id") Long id,
                              HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<File> optionalFile = fileService.findById(id);
 
         if (optionalFile.isPresent()) {
@@ -168,7 +169,7 @@ public class FileController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<File> optionalFile = fileService.findById(id);
         if (optionalFile.isPresent()) {

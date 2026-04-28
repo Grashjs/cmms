@@ -6,12 +6,20 @@ import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
-import { useDispatch } from '../../store';
+import { useDispatch, useSelector } from '../../store';
 import { editMeter } from '../../slices/meter';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { formatMeterValues, getMeterFields } from '../../utils/fields';
+import { formatCustomFields } from '../../utils/formatters';
 import useAuth from '../../hooks/useAuth';
 import { getImageAndFiles } from '../../utils/overall';
+import {
+  IField,
+  getCustomFieldsIFields,
+  getCustomFieldsRequiredShape,
+  getCustomFieldsValues
+} from '../../models/form';
+import { CustomFieldEntityType } from '../../models/customField';
 
 export default function EditMeterScreen({
   navigation,
@@ -25,14 +33,30 @@ export default function EditMeterScreen({
   );
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
-  const shape = {
+  const { customFields } = useSelector((state) => state.customFields);
+
+  const defaultShape = {
     name: Yup.string().required(t('required_meter_name')),
     unit: Yup.string().required(t('required_meter_unit')),
     updateFrequency: Yup.number().required(
       t('required_meter_update_frequency')
     ),
-    asset: Yup.object().required(t('required_asset')).nullable()
+    asset: Yup.object().required(t('required_asset')).nullable(),
+    ...getCustomFieldsRequiredShape(
+      customFields,
+      CustomFieldEntityType.METER,
+      t
+    )
   };
+
+  const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
+    const fields = [
+      ...getFilteredFields(getMeterFields(t)),
+      ...getCustomFieldsIFields(customFields, CustomFieldEntityType.METER)
+    ];
+    return getWOFieldsAndShapes(fields, defaultShape);
+  };
+
   const onEditSuccess = () => {
     showSnackBar(t('changes_saved_success'), 'success');
     navigation.goBack();
@@ -42,12 +66,13 @@ export default function EditMeterScreen({
   return (
     <View style={styles.container}>
       <Form
-        fields={getFilteredFields(getMeterFields(t))}
-        validation={Yup.object().shape(shape)}
+        fields={getFieldsAndShapes()[0]}
+        validation={Yup.object().shape(getFieldsAndShapes()[1])}
         navigation={navigation}
         submitText={t('save')}
         values={{
           ...meter,
+          ...getCustomFieldsValues(meter),
           users: meter?.users.map((worker) => {
             return {
               label: `${worker?.firstName} ${worker.lastName}`,
@@ -68,6 +93,7 @@ export default function EditMeterScreen({
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           let formattedValues = formatMeterValues(values);
+          formattedValues = formatCustomFields(formattedValues);
           try {
             const uploadedFiles = await uploadFiles([], values.image);
             const imageAndFiles = getImageAndFiles(uploadedFiles, meter.image);

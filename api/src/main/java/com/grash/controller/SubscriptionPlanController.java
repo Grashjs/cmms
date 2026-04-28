@@ -3,7 +3,7 @@ package com.grash.controller;
 import com.grash.dto.SubscriptionPlanPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.SubscriptionPlan;
 import com.grash.service.SubscriptionPlanService;
 import com.grash.service.UserService;
@@ -40,7 +40,7 @@ public class SubscriptionPlanController {
     @PreAuthorize("permitAll()")
 
     public SubscriptionPlan getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<SubscriptionPlan> optionalSubscriptionPlan = subscriptionPlanService.findById(id);
         if (optionalSubscriptionPlan.isPresent()) {
             SubscriptionPlan savedSubscriptionPlan = optionalSubscriptionPlan.get();
@@ -52,7 +52,7 @@ public class SubscriptionPlanController {
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     SubscriptionPlan create(@Parameter(description = "Subscription plan to create") @Valid @RequestBody SubscriptionPlan subscriptionPlanReq,
                             HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         return subscriptionPlanService.create(subscriptionPlanReq);
     }
 
@@ -62,7 +62,7 @@ public class SubscriptionPlanController {
     public SubscriptionPlan patch(@Parameter(description = "Subscription plan fields to update") @Valid @RequestBody SubscriptionPlanPatchDTO subscriptionPlan,
                                   @PathVariable("id") Long id,
                                   HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<SubscriptionPlan> optionalSubscriptionPlan = subscriptionPlanService.findById(id);
 
         if (optionalSubscriptionPlan.isPresent()) {
@@ -75,7 +75,7 @@ public class SubscriptionPlanController {
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
 
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<SubscriptionPlan> optionalSubscriptionPlan = subscriptionPlanService.findById(id);
         if (optionalSubscriptionPlan.isPresent()) {

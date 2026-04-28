@@ -3,10 +3,9 @@ package com.grash.security;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.model.ApiKey;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.repository.ApiKeyRepository;
-import com.grash.security.CustomUserDetail;
 import com.grash.service.LicenseService;
 import com.grash.utils.Helper;
 import jakarta.servlet.FilterChain;
@@ -50,7 +49,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
         if (apiKey != null) {
             try {
                 apiKeyRepository.findByCode(Helper.hashKey(apiKey)).ifPresent(key -> {
-                    OwnUser user = key.getUser();
+                    User user = key.getUser();
                     CustomUserDetail customUserDetail =
                             CustomUserDetail.builder().user(user).build();
                     Authentication authentication = new UsernamePasswordAuthenticationToken(

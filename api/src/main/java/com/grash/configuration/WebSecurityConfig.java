@@ -4,13 +4,12 @@ import com.grash.security.*;
 import com.grash.service.LicenseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -18,10 +17,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.util.Arrays;
+import java.util.Optional;
 
 @Configuration
 @EnableWebSecurity
@@ -34,8 +34,12 @@ public class WebSecurityConfig {
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final LicenseService licenseService;
     private final RateLimitFilter rateLimitFilter;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final Optional<LdapAuthenticationProvider> ldapAuthenticationProvider;
     @Value("${enable-sso}")
     private boolean enableSso;
+    @Value("${ldap.enabled:false}")
+    private boolean ldapEnabled;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, ApiKeyAuthFilter apiKeyAuthFilter) throws Exception {
@@ -49,6 +53,7 @@ public class WebSecurityConfig {
         // Entry points
         http.authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/signin").permitAll()
+                        .requestMatchers("/auth/signin-ldap").permitAll()
                         .requestMatchers("/auth/signup").permitAll()
                         .requestMatchers("/auth/sso/**").permitAll()
                         .requestMatchers("/auth/sendMail").permitAll()
@@ -122,8 +127,16 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager() {
+        DaoAuthenticationProvider daoProvider = new DaoAuthenticationProvider();
+        daoProvider.setUserDetailsService(customUserDetailsService);
+        daoProvider.setPasswordEncoder(passwordEncoder());
+
+        if (ldapEnabled && ldapAuthenticationProvider.isPresent()) {
+            return new ProviderManager(daoProvider, ldapAuthenticationProvider.get());
+        } else {
+            return new ProviderManager(daoProvider);
+        }
     }
 
 }

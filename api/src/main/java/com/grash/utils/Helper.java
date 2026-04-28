@@ -2,9 +2,8 @@ package com.grash.utils;
 
 
 import com.grash.exception.CustomException;
-import com.grash.model.Company;
-import com.grash.model.OwnUser;
-import com.grash.model.Role;
+import com.grash.model.*;
+import com.grash.model.User;
 import com.grash.model.enums.Language;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleCode;
@@ -13,9 +12,6 @@ import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.dto.imports.WorkOrderImportDTO;
 import com.grash.model.enums.Priority;
 import com.grash.model.WorkOrderCategory;
-import com.grash.model.Location;
-import com.grash.model.Team;
-import com.grash.model.Asset;
 import com.grash.service.LocationService;
 import com.grash.service.TeamService;
 import com.grash.service.UserService;
@@ -127,7 +123,7 @@ public class Helper {
         return new Date(date.getTime() + seconds * 1000);
     }
 
-    public static Locale getLocale(OwnUser user) {
+    public static Locale getLocale(User user) {
         return getLocale(user.getCompany());
     }
 
@@ -376,12 +372,12 @@ public class Helper {
         Optional<Team> optionalTeam = teamService.findByNameIgnoreCaseAndCompany(dto.getTeamName(), companyId);
         optionalTeam.ifPresent(workOrderBase::setTeam);
 
-        Optional<OwnUser> optionalPrimaryUser = userService.findByEmailAndCompany(dto.getPrimaryUserEmail(), companyId);
+        Optional<User> optionalPrimaryUser = userService.findByEmailAndCompany(dto.getPrimaryUserEmail(), companyId);
         optionalPrimaryUser.ifPresent(workOrderBase::setPrimaryUser);
 
-        List<OwnUser> assignedTo = new ArrayList<>();
+        List<User> assignedTo = new ArrayList<>();
         dto.getAssignedToEmails().forEach(email -> {
-            Optional<OwnUser> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
+            Optional<User> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
             optionalUser1.ifPresent(assignedTo::add);
         });
         workOrderBase.setAssignedTo(assignedTo);
@@ -391,7 +387,7 @@ public class Helper {
         optionalAsset.ifPresent(workOrderBase::setAsset);
     }
 
-    public static void setCurrentUser(OwnUser user) {
+    public static void setCurrentUser(User user) {
         CustomUserDetail customUserDetail =
                 CustomUserDetail.builder().user(user).build();
         Authentication authentication = new UsernamePasswordAuthenticationToken(

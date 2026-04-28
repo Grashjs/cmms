@@ -5,7 +5,7 @@ import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.LaborMapper;
 import com.grash.model.Labor;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.TimeStatus;
 import com.grash.repository.LaborRepository;
 import com.grash.utils.Helper;
@@ -46,7 +46,7 @@ public class LaborService {
 
     private void updateHourlyRateIfNeeded(Labor labor) {
         if (labor.getHourlyRate() <= 0L && labor.getAssignedTo() != null) {
-            OwnUser assignedUser =
+            User assignedUser =
                     userService.findById(labor.getAssignedTo().getId()).orElseThrow(() -> new CustomException("User " +
                             "not found", HttpStatus.NOT_FOUND));
             if (assignedUser.getRate() > 0L) labor.setHourlyRate(assignedUser.getRate());

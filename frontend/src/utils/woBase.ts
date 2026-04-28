@@ -1,9 +1,15 @@
 import { WorkOrderBase } from 'src/models/owns/workOrderBase';
 import { getPriorityLabel } from './formatters';
-import { IField } from '../content/own/type';
+import {
+  getCustomFieldsIFields,
+  getCustomFieldsValues,
+  IField
+} from '../content/own/type';
+import { CustomField, CustomFieldEntityType } from '../models/owns/customField';
 
 export const getWOBaseFields = (
   t: any,
+  customFields: CustomField[] = [],
   options?: { delay?: boolean }
 ): Array<IField> => {
   let result: IField[] = [
@@ -92,7 +98,8 @@ export const getWOBaseFields = (
       multiple: true,
       label: t('files'),
       fileType: 'file'
-    }
+    },
+    ...getCustomFieldsIFields(customFields, CustomFieldEntityType.WORK_ORDER)
   ];
   if (options?.delay) {
     result = result.filter((field) => field.name !== 'dueDate');
@@ -157,6 +164,7 @@ export const getWOBaseValues = <T extends WorkOrderBase>(t: any, entity: T) => {
         }
       : null,
     image: entity?.image,
-    files: entity?.files
+    files: entity?.files,
+    ...getCustomFieldsValues(entity)
   };
 };

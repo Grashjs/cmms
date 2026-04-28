@@ -31,7 +31,7 @@ public class WorkOrderHistory extends Audit {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    private OwnUser user;
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull

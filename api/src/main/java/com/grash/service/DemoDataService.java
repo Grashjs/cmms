@@ -63,7 +63,7 @@ public class DemoDataService {
 
     @Transactional
     @Async
-    public void createDemoData(OwnUser user, Company company) {
+    public void createDemoData(User user, Company company) {
         // Work Order Categories
         WorkOrderCategory woCategory1 = createWorkOrderCategory("Electrical", company, user);
         WorkOrderCategory woCategory2 = createWorkOrderCategory("Mechanical", company, user);
@@ -183,7 +183,7 @@ public class DemoDataService {
 
     }
 
-    private WorkOrderCategory createWorkOrderCategory(String name, Company company, OwnUser user) {
+    private WorkOrderCategory createWorkOrderCategory(String name, Company company, User user) {
         WorkOrderCategory category = new WorkOrderCategory();
         category.setName(name);
         category.setCompanySettings(company.getCompanySettings());
@@ -192,7 +192,7 @@ public class DemoDataService {
         return workOrderCategoryRepository.save(category);
     }
 
-    private AssetCategory createAssetCategory(String name, Company company, OwnUser user) {
+    private AssetCategory createAssetCategory(String name, Company company, User user) {
         AssetCategory category = new AssetCategory();
         category.setName(name);
         category.setCompanySettings(company.getCompanySettings());
@@ -201,7 +201,7 @@ public class DemoDataService {
         return assetCategoryRepository.save(category);
     }
 
-    private MeterCategory createMeterCategory(String name, Company company, OwnUser user) {
+    private MeterCategory createMeterCategory(String name, Company company, User user) {
         MeterCategory category = new MeterCategory();
         category.setName(name);
         category.setCompanySettings(company.getCompanySettings());
@@ -210,7 +210,7 @@ public class DemoDataService {
         return meterCategoryRepository.save(category);
     }
 
-    private TimeCategory createTimeCategory(String name, Company company, OwnUser user) {
+    private TimeCategory createTimeCategory(String name, Company company, User user) {
         TimeCategory category = new TimeCategory();
         category.setName(name);
         category.setCompanySettings(company.getCompanySettings());
@@ -219,7 +219,7 @@ public class DemoDataService {
         return timeCategoryRepository.save(category);
     }
 
-    private CostCategory createCostCategory(String name, Company company, OwnUser user) {
+    private CostCategory createCostCategory(String name, Company company, User user) {
         CostCategory category = new CostCategory();
         category.setName(name);
         category.setCompanySettings(company.getCompanySettings());
@@ -228,7 +228,7 @@ public class DemoDataService {
         return costCategoryRepository.save(category);
     }
 
-    private PartCategory createPartCategory(String name, Company company, OwnUser user) {
+    private PartCategory createPartCategory(String name, Company company, User user) {
         PartCategory category = new PartCategory();
         category.setName(name);
         category.setCreatedBy(user.getId());
@@ -237,7 +237,7 @@ public class DemoDataService {
         return partCategoryRepository.save(category);
     }
 
-    private PurchaseOrderCategory createPurchaseOrderCategory(String name, Company company, OwnUser user) {
+    private PurchaseOrderCategory createPurchaseOrderCategory(String name, Company company, User user) {
         PurchaseOrderCategory category = new PurchaseOrderCategory();
         category.setName(name);
         category.setCreatedBy(user.getId());
@@ -248,7 +248,7 @@ public class DemoDataService {
 
     // --- Location, Asset, and Meter Creation Methods ---
 
-    private Location createLocation(String name, Location parent, Company company, OwnUser user) {
+    private Location createLocation(String name, Location parent, Company company, User user) {
         Location location = new Location();
         location.setName(name);
         location.setParentLocation(parent);
@@ -259,7 +259,7 @@ public class DemoDataService {
     }
 
     private Asset createAsset(String name, String description, AssetCategory category, Location location,
-                              Company company, Asset parentAsset, AssetStatus status, OwnUser user) {
+                              Company company, Asset parentAsset, AssetStatus status, User user) {
         Asset asset = new Asset();
         asset.setName(name);
         asset.setDescription(description);
@@ -274,7 +274,7 @@ public class DemoDataService {
     }
 
     private Meter createMeter(String name, MeterCategory category, Asset asset, Company company, int updateFrequency,
-                              String unit, OwnUser user) {
+                              String unit, User user) {
         Meter meter = new Meter();
         meter.setName(name);
         meter.setMeterCategory(category);
@@ -290,7 +290,7 @@ public class DemoDataService {
     // --- Part, Vendor, and Customer Creation Methods ---
 
     private Part createPart(String name, String code, PartCategory category, Company company,
-                            Long quantity, double cost, OwnUser user) {
+                            Long quantity, double cost, User user) {
         Part part = new Part();
         part.setName(name);
         part.setBarcode(code);
@@ -304,7 +304,7 @@ public class DemoDataService {
     }
 
     private Vendor createVendor(String name, String companyName, String phone, String email, Company company,
-                                long hourlyRate, OwnUser user) {
+                                long hourlyRate, User user) {
         Vendor vendor = new Vendor();
         vendor.setName(name);
         vendor.setCompanyName(companyName);
@@ -318,7 +318,7 @@ public class DemoDataService {
     }
 
     private Customer createCustomer(String name, Company company, String phone, String website, String address,
-                                    long hourlyRate, String type, OwnUser user) {
+                                    long hourlyRate, String type, User user) {
         Customer customer = new Customer();
         customer.setName(name);
         customer.setCompany(company);
@@ -339,7 +339,7 @@ public class DemoDataService {
                                                               int frequency,
                                                               RecurrenceType recurrenceType,
                                                               RecurrenceBasedOn recurrenceBasedOn,
-                                                              List<Integer> daysOfWeek, OwnUser user) {
+                                                              List<Integer> daysOfWeek, User user) {
         PreventiveMaintenance pm = new PreventiveMaintenance();
         pm.setName(name);
         pm.setTitle(workOrderTitle);
@@ -367,8 +367,8 @@ public class DemoDataService {
     }
 
     private WorkOrder createWorkOrder(String title, String description, WorkOrderCategory category, Asset asset,
-                                      Location location, OwnUser assignedTo, Date creationDate,
-                                      Status status, Priority priority, Company company, OwnUser user, Date dueDate) {
+                                      Location location, User assignedTo, Date creationDate,
+                                      Status status, Priority priority, Company company, User user, Date dueDate) {
         WorkOrder workOrder = new WorkOrder();
         workOrder.setTitle(title);
         workOrder.setDescription(description);
@@ -387,8 +387,8 @@ public class DemoDataService {
         return workOrderRepository.save(workOrder);
     }
 
-    private Request createRequest(String title, String description, Location location, OwnUser requester,
-                                  Date creationDate, Company company, OwnUser user) {
+    private Request createRequest(String title, String description, Location location, User requester,
+                                  Date creationDate, Company company, User user) {
         Request request = new Request();
         request.setTitle(title);
         request.setDescription(description);
@@ -401,7 +401,7 @@ public class DemoDataService {
     }
 
 
-    private void addLaborToWorkOrder(WorkOrder workOrder, OwnUser user, TimeCategory category,
+    private void addLaborToWorkOrder(WorkOrder workOrder, User user, TimeCategory category,
                                      long hourlyRate, long hours, Company company) {
         Labor labor = new Labor(user, hourlyRate, new Date(), workOrder, false, TimeStatus.STOPPED);
         labor.setTimeCategory(category);
@@ -412,7 +412,7 @@ public class DemoDataService {
         laborRepository.save(labor);
     }
 
-    private void addPartToWorkOrder(WorkOrder workOrder, Part part, double quantity, Company company, OwnUser user) {
+    private void addPartToWorkOrder(WorkOrder workOrder, Part part, double quantity, Company company, User user) {
         PartQuantity partQuantity = new PartQuantity(part, workOrder, null, quantity);
         partQuantity.setCompany(company);
         partQuantity.setDemo(true);
@@ -421,7 +421,7 @@ public class DemoDataService {
     }
 
     private void addCostToWorkOrder(WorkOrder workOrder, CostCategory category, String description, double cost,
-                                    Date date, OwnUser user) {
+                                    Date date, User user) {
         AdditionalCost additionalCost = new AdditionalCost();
         additionalCost.setCategory(category);
         additionalCost.setCost(cost);

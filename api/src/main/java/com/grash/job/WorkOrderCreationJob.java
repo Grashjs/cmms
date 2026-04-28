@@ -1,5 +1,6 @@
 package com.grash.job;
 
+import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
 import com.grash.model.Task;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -43,10 +45,14 @@ public class WorkOrderCreationJob extends QuartzJobBean {
             return;
         }
         scheduleService.checkIfWeeklyShouldRun(schedule);
-        
+
         PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
 
-        WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(preventiveMaintenance);
+        WorkOrderPostDTO workOrder = workOrderService.getWorkOrderFromWorkOrderBase(preventiveMaintenance);
+        workOrder.getCustomFields().removeIf(customFieldValue -> !workOrder.getCustomFieldValues()
+                .stream().filter(customFieldValue1 -> customFieldValue1.getCustomField().getId().equals(customFieldValue.getId()))
+                .findFirst().get().getCustomField().isCopyOnRepeat());
+
         Collection<Task> tasks = taskService.findByPreventiveMaintenance(preventiveMaintenance.getId());
         workOrder.setParentPreventiveMaintenance(preventiveMaintenance);
 

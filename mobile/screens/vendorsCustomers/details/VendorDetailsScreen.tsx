@@ -20,11 +20,12 @@ import { SheetManager } from 'react-native-actions-sheet';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import BasicField from '../../../components/BasicField';
+import { getCustomFieldValuesForDetails } from '../../../models/form';
 
 export default function VendorDetailsScreen({
-                                              navigation,
-                                              route
-                                            }: RootStackScreenProps<'VendorDetails'>) {
+  navigation,
+  route
+}: RootStackScreenProps<'VendorDetails'>) {
   const { id, vendorProp } = route.params;
   const { vendorInfos, loadingGet } = useSelector((state) => state.vendors);
   const vendor = vendorInfos[id]?.vendor ?? vendorProp;
@@ -32,11 +33,12 @@ export default function VendorDetailsScreen({
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const { getFormattedCurrency } = useContext(CompanySettingsContext);
+  const { getFormattedCurrency, getFormattedDate } = useContext(
+    CompanySettingsContext
+  );
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   useEffect(() => {
-    if (!route.params.vendorProp)
-      dispatch(getVendorDetails(route.params.id));
+    if (!route.params.vendorProp) dispatch(getVendorDetails(route.params.id));
   }, [route]);
 
   useEffect(() => {
@@ -54,12 +56,12 @@ export default function VendorDetailsScreen({
             });
           }}
         >
-          <IconButton icon='dots-vertical' />
+          <IconButton icon="dots-vertical" />
         </Pressable>
       )
     });
   }, [vendor]);
-  const fieldsToRender: { label: string; value: string }[] = [
+  const fieldsToRender: { label: string; value: string; isLink?: boolean }[] = [
     {
       label: t('address'),
       value: vendor?.address
@@ -79,9 +81,12 @@ export default function VendorDetailsScreen({
     {
       label: t('hourly_rate'),
       value: !!vendor?.rate ? getFormattedCurrency(vendor.rate) : null
-    }
+    },
+    ...getCustomFieldValuesForDetails(
+      vendor?.customFieldValues,
+      getFormattedDate
+    )
   ];
-
 
   const onDeleteSuccess = () => {
     showSnackBar(t('vendor_delete_success'), 'success');
@@ -102,7 +107,7 @@ export default function VendorDetailsScreen({
         <Dialog visible={openDelete} onDismiss={() => setOpenDelete(false)}>
           <Dialog.Title>{t('confirmation')}</Dialog.Title>
           <Dialog.Content>
-            <Text variant='bodyMedium'>{t('confirm_delete_vendor')}</Text>
+            <Text variant="bodyMedium">{t('confirm_delete_vendor')}</Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setOpenDelete(false)}>{t('cancel')}</Button>
@@ -117,8 +122,15 @@ export default function VendorDetailsScreen({
       <ScrollView style={{ flex: 1, backgroundColor: theme.colors.background }}>
         {renderConfirmDelete()}
         {fieldsToRender.map(
-          ({ label, value }, index) =>
-            value && <BasicField key={label} label={label} value={value} />
+          ({ label, value, isLink }, index) =>
+            value && (
+              <BasicField
+                key={label}
+                label={label}
+                value={value}
+                isLink={isLink}
+              />
+            )
         )}
         {vendor.website && (
           <View>

@@ -2,13 +2,12 @@ package com.grash.controller;
 
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.Subscription;
 import com.grash.model.SubscriptionChangeRequest;
 import com.grash.repository.SubscriptionChangeRequestRepository;
 import com.grash.factory.MailServiceFactory;
 import com.grash.service.BrandingService;
-import com.grash.service.MailService;
 import com.grash.service.SubscriptionService;
 import com.grash.service.UserService;
 
@@ -70,16 +69,16 @@ public class SubscriptionController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public SuccessResponse upgrade(@Parameter(description = "List of user IDs to upgrade") @RequestBody Collection<Long> usersIds,
                                    HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.isOwnsCompany()) {
             int enabledUsersCount =
-                    (int) userService.findByCompany(user.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
+                    (int) userService.findByCompany(user.getCompany().getId()).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
             Subscription subscription = user.getCompany().getSubscription();
             int subscriptionUsersCount = subscription.getUsersCount();
             if (enabledUsersCount + usersIds.size() <= subscriptionUsersCount) {
-                Collection<OwnUser> users = usersIds.stream().map(userId -> userService.findByIdAndCompany(userId,
+                Collection<User> users = usersIds.stream().map(userId -> userService.findByIdAndCompany(userId,
                         user.getCompany().getId()).get()).collect(Collectors.toList());
-                if (users.stream().noneMatch(OwnUser::isEnabledInSubscription)) {
+                if (users.stream().noneMatch(User::isEnabledInSubscription)) {
                     users.forEach(user1 -> {
                         user1.setEnabled(true);
                         user1.setEnabledInSubscription(true);
@@ -102,7 +101,7 @@ public class SubscriptionController {
         if (recipients == null || recipients.length == 0) {
             throw new CustomException("MAIL_RECIPIENTS env variable not set", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.isOwnsCompany() && !user.getCompany().isDemo()) {
             subscriptionChangeRequestRepository.save(subscriptionChangeRequest);
             try {
@@ -122,17 +121,17 @@ public class SubscriptionController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public SuccessResponse downgrade(@Parameter(description = "Collection of user IDs to downgrade") @RequestParam Collection<Long> usersIds,
                                      HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.isOwnsCompany()) {
             int enabledUsersCount =
-                    (int) userService.findByCompany(user.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
+                    (int) userService.findByCompany(user.getCompany().getId()).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
             Subscription subscription = user.getCompany().getSubscription();
             int subscriptionUsersCount = user.getCompany().getSubscription().getUsersCount();
             if (enabledUsersCount - usersIds.size() <= subscriptionUsersCount) {
-                Collection<OwnUser> users = usersIds.stream().map(userId ->
+                Collection<User> users = usersIds.stream().map(userId ->
                                 userService.findByIdAndCompany(userId, user.getCompany().getId()).get())
                         .filter(user1 -> !user1.isOwnsCompany()).collect(Collectors.toList());
-                if (users.stream().allMatch(OwnUser::isEnabledInSubscription)) {
+                if (users.stream().allMatch(User::isEnabledInSubscription)) {
                     users.forEach(user1 -> {
                         user1.setEnabled(false);
                         user1.setEnabledInSubscription(false);

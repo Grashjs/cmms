@@ -1,11 +1,13 @@
 package com.grash.dto;
 
+import com.grash.dto.cutomField.CustomFieldValueShowDTO;
 import com.grash.model.WorkOrderCategory;
 import com.grash.model.enums.Priority;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -54,4 +56,6 @@ public class WorkOrderBaseShowDTO extends AuditShowDTO {
 
     @Schema(description = "Image associated with the work order")
     private FileMiniDTO image;
+    
+    private List<CustomFieldValueShowDTO> customFieldValues = new ArrayList<>();
 }

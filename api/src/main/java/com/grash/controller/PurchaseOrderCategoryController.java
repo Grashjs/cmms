@@ -3,7 +3,7 @@ package com.grash.controller;
 import com.grash.dto.CategoryPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.PurchaseOrderCategory;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
@@ -36,7 +36,7 @@ public class PurchaseOrderCategoryController {
     @PreAuthorize("permitAll()")
 
     public Collection<PurchaseOrderCategory> getAll(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
                 return PurchaseOrderCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
@@ -48,7 +48,7 @@ public class PurchaseOrderCategoryController {
     @PreAuthorize("permitAll()")
 
     public PurchaseOrderCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
             Optional<PurchaseOrderCategory> optionalPurchaseOrderCategory = PurchaseOrderCategoryService.findById(id);
             if (optionalPurchaseOrderCategory.isPresent()) {
@@ -63,7 +63,7 @@ public class PurchaseOrderCategoryController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     PurchaseOrderCategory create(@Parameter(description = "Purchase order category to create") @Valid @RequestBody PurchaseOrderCategory PurchaseOrderCategoryReq,
                                  HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             return PurchaseOrderCategoryService.create(PurchaseOrderCategoryReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -75,7 +75,7 @@ public class PurchaseOrderCategoryController {
     public PurchaseOrderCategory patch(@Parameter(description = "Purchase order category fields to update") @Valid @RequestBody CategoryPatchDTO categoryPatchDTO,
                                        @PathVariable("id") Long id,
                                        HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             Optional<PurchaseOrderCategory> optionalPurchaseOrderCategory = PurchaseOrderCategoryService.findById(id);
             if (optionalPurchaseOrderCategory.isPresent()) {
@@ -90,7 +90,7 @@ public class PurchaseOrderCategoryController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<PurchaseOrderCategory> optionalPurchaseOrderCategory = PurchaseOrderCategoryService.findById(id);
         if (optionalPurchaseOrderCategory.isPresent()) {

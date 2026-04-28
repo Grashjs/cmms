@@ -1,8 +1,6 @@
 package com.grash.service;
 
-import com.grash.model.OwnUser;
 import com.grash.model.PartConsumption;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.PartConsumptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

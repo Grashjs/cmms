@@ -49,7 +49,7 @@ public class WorkflowController {
     @PreAuthorize("permitAll()")
 
     public Collection<WorkflowShowDTO> getAll(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return workflowService.findByCompany(user.getCompany().getId()).stream().map(workflowMapper::toShowDto).collect(Collectors.toList());
         } else
@@ -60,7 +60,7 @@ public class WorkflowController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public WorkflowShowDTO create(@Parameter(description = "Workflow data to create") @Valid @RequestBody WorkflowPostDTO workflowReq,
                                   HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
             int workflowsCount =
                     (int) workflowService.findByCompany(user.getCompany().getId()).stream().filter(Workflow::isEnabled).count();
@@ -75,7 +75,7 @@ public class WorkflowController {
     @PreAuthorize("permitAll()")
 
     public WorkflowShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Workflow> optionalWorkflow = workflowService.findById(id);
         if (optionalWorkflow.isPresent()) {
             Workflow savedWorkflow = optionalWorkflow.get();
@@ -89,7 +89,7 @@ public class WorkflowController {
     public WorkflowShowDTO patch(@Parameter(description = "Workflow fields to update") @Valid @RequestBody WorkflowPostDTO workflow,
                                  @PathVariable("id") Long id,
                                  HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Workflow> optionalWorkflow = workflowService.findById(id);
 
         if (optionalWorkflow.isPresent()) {
@@ -103,7 +103,7 @@ public class WorkflowController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<Workflow> optionalWorkflow = workflowService.findById(id);
         if (optionalWorkflow.isPresent()) {

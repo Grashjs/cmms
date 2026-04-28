@@ -5,7 +5,7 @@ import com.grash.dto.RelationPostDTO;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RelationMapper;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.Relation;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.RelationType;
@@ -68,7 +68,7 @@ public class RelationService {
         return relationRepository.findByCompany_Id(id);
     }
 
-    public Relation createPost(RelationPostDTO relationReq, OwnUser user) {
+    public Relation createPost(RelationPostDTO relationReq, User user) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.WORK_ORDER_LINKING))
             throw new CustomException("You need a license to link work orders", HttpStatus.FORBIDDEN);
 

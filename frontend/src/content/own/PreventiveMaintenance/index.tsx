@@ -50,11 +50,18 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { isNumeric } from '../../../utils/validators';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 import PriorityWrapper from '../components/PriorityWrapper';
-import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
+import {
+  formatSelect,
+  formatSelectMultiple,
+  formatCustomFields
+} from '../../../utils/formatters';
 import useAuth from '../../../hooks/useAuth';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import { getWOBaseFields, getWOBaseValues } from '../../../utils/woBase';
 import { PermissionEntity } from '../../../models/owns/role';
+import { getCustomFields } from '../../../slices/customField';
+import { CustomFieldEntityType } from '../../../models/owns/customField';
+import { getCustomFieldsRequiredShape } from '../type';
 import PermissionErrorMessage from '../components/PermissionErrorMessage';
 import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
 import {
@@ -118,6 +125,7 @@ function PMs() {
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const { preventiveMaintenances, loadingGet, singlePreventiveMaintenance } =
     useSelector((state) => state.preventiveMaintenances);
+  const { customFields } = useSelector((state) => state.customFields);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
   const [criteria, setCriteria] = useState<SearchCriteria>({
     filterFields: [
@@ -207,6 +215,12 @@ function PMs() {
     if (hasViewPermission(PermissionEntity.PREVENTIVE_MAINTENANCES))
       dispatch(getPreventiveMaintenances(criteria));
   }, [criteria]);
+
+  useEffect(() => {
+    if ((openAddModal || openUpdateModal) && !customFields.length) {
+      dispatch(getCustomFields());
+    }
+  }, [openAddModal, openUpdateModal]);
 
   //see changes in ui on edit
   useEffect(() => {
@@ -316,7 +330,7 @@ function PMs() {
     newValues.daysOfWeek = newValues.daysOfWeek?.map((day) => day.value) ?? [];
     newValues.recurrenceBasedOn = newValues.recurrenceBasedOn?.value;
     newValues.recurrenceType = newValues.recurrenceType?.value;
-    return newValues;
+    return formatCustomFields(newValues);
   };
 
   const columnHelper = createColumnHelper<PreventiveMaintenance>();
@@ -469,7 +483,11 @@ function PMs() {
       type: 'titleGroupField',
       label: 'wo_configuration'
     },
-    ...getWOBaseFields(t, { delay: true }),
+    ...getWOBaseFields(
+      t,
+      customFields.filter((cf) => cf.copyOnRepeat),
+      { delay: true }
+    ),
     {
       name: 'tasks',
       type: 'select',
@@ -501,6 +519,11 @@ function PMs() {
         }
         return true;
       }
+    ),
+    ...getCustomFieldsRequiredShape(
+      customFields.filter((cf) => cf.copyOnRepeat),
+      CustomFieldEntityType.WORK_ORDER,
+      t
     )
   };
   const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {

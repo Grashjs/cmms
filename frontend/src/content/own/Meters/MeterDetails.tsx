@@ -20,7 +20,7 @@ import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import Meter from '../../../models/owns/meter';
 import * as Yup from 'yup';
 import Form from '../components/form';
-import { IField } from '../type';
+import { getCustomFieldValuesForDetails, IField } from '../type';
 import { useDispatch, useSelector } from '../../../store';
 import { createReading, getReadings } from '../../../slices/reading';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
@@ -36,6 +36,7 @@ import useAuth from '../../../hooks/useAuth';
 import { PermissionEntity } from '../../../models/owns/role';
 import ImageViewer from 'react-simple-image-viewer';
 import { canAddReading } from '../../../utils/overall';
+import BasicField from '../components/BasicField';
 
 interface MeterDetailsProps {
   meter: Meter;
@@ -78,22 +79,6 @@ export default function MeterDetails(props: MeterDetailsProps) {
   const handleTabsChange = (_event: ChangeEvent<{}>, value: string): void => {
     setCurrentTab(value);
   };
-  const BasicField = ({
-    label,
-    value
-  }: {
-    label: string | number;
-    value: string | number;
-  }) => {
-    return value ? (
-      <Grid item xs={12} lg={6}>
-        <Typography variant="h6" sx={{ color: theme.colors.alpha.black[70] }}>
-          {label}
-        </Typography>
-        <Typography variant="h6">{value}</Typography>
-      </Grid>
-    ) : null;
-  };
   const fieldsToRender = (meter: Meter): { label: string; value: any }[] => [
     {
       label: t('location_name'),
@@ -118,7 +103,8 @@ export default function MeterDetails(props: MeterDetailsProps) {
           acc + `${index !== 0 ? ',' : ''} ${user.firstName} ${user.lastName}`,
         ''
       )
-    }
+    },
+    ...getCustomFieldValuesForDetails(meter.customFieldValues, getFormattedDate)
   ];
   const fields: Array<IField> = [
     {
@@ -225,11 +211,7 @@ export default function MeterDetails(props: MeterDetailsProps) {
             </Typography>
             <Grid container spacing={2}>
               {fieldsToRender(meter).map((field) => (
-                <BasicField
-                  key={field.label}
-                  label={field.label}
-                  value={field.value}
-                />
+                <BasicField key={field.label} {...field} />
               ))}
             </Grid>
             <Typography sx={{ mt: 2, mb: 1 }} variant="h4">

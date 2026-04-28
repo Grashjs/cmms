@@ -3,7 +3,7 @@ package com.grash.security;
 import com.grash.exception.CustomException;
 import com.grash.factory.MailServiceFactory;
 import com.grash.model.Company;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.Subscription;
 import com.grash.repository.UserRepository;
 import com.grash.service.*;
@@ -80,8 +80,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             String email = extractEmail(attributes, authToken.getAuthorizedClientRegistrationId());
 
             // Find or create user
-            Optional<OwnUser> userOptional = userRepository.findByEmailIgnoreCase(email);
-            OwnUser user;
+            Optional<User> userOptional = userRepository.findByEmailIgnoreCase(email);
+            User user;
 
             if (!userOptional.isPresent()) {
                 // Auto-register new users from SSO if they don't exist
@@ -112,11 +112,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     }
 
-    private OwnUser createUserFromOAuth(String email, Map<String, Object> attributes, String provider) {
-        OwnUser user = new OwnUser();
+    private User createUserFromOAuth(String email, Map<String, Object> attributes, String provider) {
+        User user = new User();
         user.setEmail(email);
         String emailDomain = user.getEmail().split("@")[1];
-        List<OwnUser> users = userRepository.findBySSOCompany(emailDomain);
+        List<User> users = userRepository.findBySSOCompany(emailDomain);
         if (!users.isEmpty())
             throw new CustomException("You must be invited to your organization", HttpStatus.BAD_REQUEST);
         user.setEnabled(true);
@@ -150,7 +150,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                     .findFirst().get());
 
             user.setCompany(company);
-            OwnUser savedUser = userRepository.save(user);
+            User savedUser = userRepository.save(user);
 
             // Send notification to super admins about new SSO account
             if (recipients != null && recipients.length > 0) {

@@ -31,6 +31,7 @@ public class ApiApplication implements SmartInitializingSingleton {
     private final RoleService roleService;
     private final CompanyService companyService;
     private final SubscriptionPlanService subscriptionPlanService;
+    private final SubscriptionService subscriptionService;
 
     public static void main(String[] args) {
         SpringApplication.run(ApiApplication.class, args);
@@ -53,6 +54,7 @@ public class ApiApplication implements SmartInitializingSingleton {
             userService.checkUsageBasedLimit(0);
 
             generalPreferencesRepository.updateTemporaryTimeZones(ZoneId.systemDefault().getId());
+
             log.info("Application initialization completed successfully");
         } catch (Exception e) {
             log.error("Application initialization failed", e);

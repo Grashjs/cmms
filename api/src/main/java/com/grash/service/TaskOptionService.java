@@ -3,9 +3,7 @@ package com.grash.service;
 import com.grash.dto.TaskOptionPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TaskOptionMapper;
-import com.grash.model.OwnUser;
 import com.grash.model.TaskOption;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.TaskOptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -46,7 +44,8 @@ public class TaskOptionService {
 
     public boolean isTaskOptionInCompany(TaskOption taskOption, long companyId, boolean optional) {
         if (optional) {
-            Optional<TaskOption> optionalTaskOption = taskOption == null ? Optional.empty() : findById(taskOption.getId());
+            Optional<TaskOption> optionalTaskOption = taskOption == null ? Optional.empty() :
+                    findById(taskOption.getId());
             return taskOption == null || (optionalTaskOption.isPresent() && optionalTaskOption.get().getId().equals(companyId));
         } else {
             Optional<TaskOption> optionalTaskOption = findById(taskOption.getId());

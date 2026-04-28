@@ -13,7 +13,6 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
-import CustomSwitch from '../../components/form/CustomSwitch';
 import useAuth from '../../../../hooks/useAuth';
 import internationalization, {
   loadLanguage,
@@ -70,47 +69,6 @@ function GeneralSettings() {
       setOpenDeleteDemo(false);
     }
   };
-  const switches: {
-    title: string;
-    description: string;
-    name: keyof GeneralPreferences;
-  }[] = [
-    {
-      title: t('auto_assign_wo'),
-      description: t('auto_assign_wo_description'),
-      name: 'autoAssignWorkOrders'
-    },
-    {
-      title: t('auto_assign_requests'),
-      description: t('auto_assign_requests_description'),
-      name: 'autoAssignRequests'
-    },
-    {
-      title: t('disable_closed_wo_notification'),
-      description: t('disable_closed_wo_notification_description'),
-      name: 'disableClosedWorkOrdersNotif'
-    },
-    {
-      title: t('ask_feedback_wo_closed'),
-      description: t('ask_feedback_wo_closed_description'),
-      name: 'askFeedBackOnWOClosed'
-    },
-    {
-      title: t('include_labor_in_total_cost'),
-      description: t('include_labor_in_total_cost_description'),
-      name: 'laborCostInTotalCost'
-    },
-    {
-      title: t('enable_wo_updates_requesters'),
-      description: t('enable_wo_updates_requesters_description'),
-      name: 'woUpdateForRequesters'
-    },
-    {
-      title: t('simplify_wo'),
-      description: t('simplify_wo_description'),
-      name: 'simplifiedWorkOrder'
-    }
-  ];
   const onSubmit = async (
     _values,
     { resetForm, setErrors, setStatus, setSubmitting }
@@ -133,13 +91,7 @@ function GeneralSettings() {
             dateFormat: Yup.string(),
             timeZone: Yup.string(),
             currency: Yup.string(),
-            businessType: Yup.string(),
-            autoAssignWorkOrders: Yup.bool(),
-            autoAssignRequests: Yup.bool(),
-            disableClosedWorkOrdersNotif: Yup.bool(),
-            askFeedBackOnWOClosed: Yup.bool(),
-            laborCostInTotalCost: Yup.bool(),
-            woUpdateForRequesters: Yup.bool()
+            businessType: Yup.string()
           })}
           onSubmit={onSubmit}
         >
@@ -307,26 +259,7 @@ function GeneralSettings() {
                         </Field>
                       </Grid>*/}
                   </Grid>
-                  <Divider sx={{ mt: 3 }} />
-                  <Grid container spacing={2} sx={{ mt: 1 }}>
-                    {switches.map((element) => (
-                      <CustomSwitch
-                        key={element.name}
-                        title={element.title}
-                        description={element.description}
-                        checked={values[element.name]}
-                        name={element.name}
-                        handleChange={(event) => {
-                          handleChange(event);
-                          patchGeneralPreferences({
-                            [element.name]: event.target.checked
-                          });
-                        }}
-                      />
-                    ))}
-                  </Grid>
-                  <Divider sx={{ my: 3 }} />
-                  <Stack direction={'row'} spacing={2}>
+                  <Stack mt={3} direction={'row'} spacing={2}>
                     <Button
                       onClick={() => setOpenDeleteDemo(true)}
                       variant={'outlined'}

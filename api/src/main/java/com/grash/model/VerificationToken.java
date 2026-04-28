@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import jakarta.persistence.*;
+
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
@@ -28,7 +29,7 @@ public class VerificationToken {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
-    private OwnUser user;
+    private User user;
 
     @Schema(description = "Creation date", accessMode = Schema.AccessMode.READ_ONLY)
     private Date createdAt;
@@ -40,7 +41,7 @@ public class VerificationToken {
         super();
     }
 
-    public VerificationToken(final String token, final OwnUser user, final String payload) {
+    public VerificationToken(final String token, final User user, final String payload) {
         super();
         Calendar calendar = Calendar.getInstance();
 

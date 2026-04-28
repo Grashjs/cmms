@@ -5,10 +5,13 @@ import Location, {
   LocationMiniDTO,
   LocationRow
 } from '../models/owns/location';
-import api from '../utils/api';
+import api, { authHeader } from '../utils/api';
 import { revertAll } from 'src/utils/redux';
 import { Pageable, pageableToQueryParams } from '../models/owns/page';
-import { createCancellableRequest, isAbortError } from 'src/utils/cancellableRequest';
+import {
+  createCancellableRequest,
+  isAbortError
+} from 'src/utils/cancellableRequest';
 
 interface LocationState {
   locations: Location[];
@@ -144,7 +147,8 @@ export const getPublicLocationsMini =
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
       const locations = await api.get<LocationMiniDTO[]>(
-        `locations/public/mini/${portalUUID}`
+        `locations/public/mini/${portalUUID}`,
+        { headers: authHeader(true) }
       );
       dispatch(slice.actions.getLocationsMini({ locations }));
     } finally {

@@ -3,7 +3,7 @@ package com.grash.controller;
 import com.grash.dto.WorkOrderHistoryShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderHistoryMapper;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.WorkOrder;
 import com.grash.model.WorkOrderHistory;
 import com.grash.service.UserService;
@@ -39,7 +39,7 @@ public class WorkOrderHistoryController {
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
     public WorkOrderHistoryShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<WorkOrderHistory> optionalWorkOrderHistory = workOrderHistoryService.findById(id);
         if (optionalWorkOrderHistory.isPresent()) {
             WorkOrderHistory savedWorkOrderHistory = optionalWorkOrderHistory.get();
@@ -53,7 +53,7 @@ public class WorkOrderHistoryController {
 
     public Collection<WorkOrderHistoryShowDTO> getByWorkOrder(@PathVariable("id") Long id,
                                                               HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
             return workOrderHistoryService.findByWorkOrder(id).stream().map(workOrderHistoryMapper::toShowDto).collect(Collectors.toList());

@@ -7,7 +7,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.{name}[-C]Mapper;
 import com.grash.model.{name}[-C];
 import com.grash.model.{name}[-C]_;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.repository.{name}[-C]Repository;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
@@ -30,7 +30,7 @@ public class {name}[-C]Service {
     private final {name}[-C]Repository {name}[-c]Repository;
     private final {name}[-C]Mapper {name}[-c]Mapper;
 
-    public {name}[-C] create(@Valid {name}[-C]PostDTO {name}[-c]Req, OwnUser user) {
+    public {name}[-C] create(@Valid {name}[-C]PostDTO {name}[-c]Req, User user) {
         {name}[-C] {name}[-c] =
                 {name}[-c]Mapper.fromPostDto({name}[-c]Req);
         return {name}[-c]Repository.save({name}[-c]);
@@ -49,14 +49,14 @@ public class {name}[-C]Service {
         return {name}[-c]Repository.findById(id);
     }
 
-    public {name}[-C] update(Long id, {name}[-C]PatchDTO {name}[-c]PatchDTO, OwnUser user) {
+    public {name}[-C] update(Long id, {name}[-C]PatchDTO {name}[-c]PatchDTO, User user) {
         {name}[-C] saved{name}[-C] =
                 {name}[-c]Repository.findById(id).orElseThrow(() -> new CustomException("Not found",
                         HttpStatus.NOT_FOUND));
         return {name}[-c]Repository.save({name}[-c]Mapper.update{name}[-C](saved{name}[-C], {name}[-c]PatchDTO));
     }
 
-    public Page<{name}[-C]> findByCriteria({name}[-C]Criteria criteria, Pageable pageable, OwnUser user) {
+    public Page<{name}[-C]> findByCriteria({name}[-C]Criteria criteria, Pageable pageable, User user) {
         Specification<{name}[-C]> specification = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get({name}[-C]_.company).get("id"), user.getCompany().getId()));

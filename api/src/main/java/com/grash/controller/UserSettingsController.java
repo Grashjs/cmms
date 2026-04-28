@@ -1,7 +1,7 @@
 package com.grash.controller;
 
 import com.grash.exception.CustomException;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.UserSettings;
 import com.grash.service.UserService;
 import com.grash.service.UserSettingsService;
@@ -32,7 +32,7 @@ public class UserSettingsController {
     @PreAuthorize("permitAll()")
 
     public UserSettings getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<UserSettings> optionalUserSettings = userSettingsService.findById(id);
         if (optionalUserSettings.isPresent()) {
@@ -47,7 +47,7 @@ public class UserSettingsController {
     public UserSettings patch(@Parameter(description = "User settings to update") @Valid @RequestBody UserSettings userSettings,
                               @PathVariable("id") Long id,
                               HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<UserSettings> optionalUserSettings = userSettingsService.findById(id);
 

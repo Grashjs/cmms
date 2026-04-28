@@ -5,7 +5,7 @@ import com.grash.dto.license.SelfHostedPlan;
 import com.grash.dto.checkout.CheckoutRequest;
 import com.grash.dto.checkout.CheckoutResponse;
 import com.grash.exception.CustomException;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.Subscription;
 import com.grash.model.SubscriptionPlan;
 import com.grash.model.enums.PlanFeatures;
@@ -158,10 +158,10 @@ public class PaddleService {
                                    Date endsOn, Long companyId, int usersCount) {
         boolean monthly = planCode.toLowerCase().contains("monthly");
 
-        Collection<OwnUser> companyUsers = userService.findByCompany(companyId);
+        Collection<User> companyUsers = userService.findByCompany(companyId);
 
         int subscriptionUsersCount = (int) companyUsers.stream()
-                .filter(OwnUser::isEnabledInSubscriptionAndPaid)
+                .filter(User::isEnabledInSubscriptionAndPaid)
                 .count();
 
         int enabledPaidUsersCount = (int) companyUsers.stream()
@@ -314,7 +314,7 @@ public class PaddleService {
         private Object importMeta;
     }
 
-    public void createCustomer(OwnUser user) {
+    public void createCustomer(User user) {
         if (!cloudVersion) return;
         HttpHeaders headers = getHttpHeaders();
         PaddleCustomerData body = new PaddleCustomerData();
@@ -331,6 +331,24 @@ public class PaddleService {
         if (response.getBody() != null) {
             user.setPaddleUserId(response.getBody().getData().getId());
             userService.save(user);
+        }
+    }
+
+    public String getCustomerEmail(String customerId) {
+        HttpHeaders headers = getHttpHeaders();
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<PaddleCustomerResponse> response = restTemplate.exchange(
+                paddleApiUrl + "/customers/" + customerId,
+                HttpMethod.GET,
+                entity,
+                PaddleCustomerResponse.class
+        );
+
+        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+            return response.getBody().getData().getEmail();
+        } else {
+            throw new CustomException("Failed to retrieve customer email", HttpStatus.NOT_FOUND);
         }
     }
 

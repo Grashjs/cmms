@@ -1,7 +1,7 @@
 package com.grash.advancedsearch;
 
 
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,7 +30,7 @@ public class SearchCriteria implements Cloneable {
     @Schema(description = "Field name to sort the results by")
     private String sortField = "id";
 
-    public void filterCompany(OwnUser user) {
+    public void filterCompany(User user) {
         this.filterFields.add(FilterField.builder()
                 .field("company")
                 .value(user.getCompany().getId())
@@ -38,7 +38,7 @@ public class SearchCriteria implements Cloneable {
                 .values(new ArrayList<>()).build());
     }
 
-    public void filterCreatedBy(OwnUser user) {
+    public void filterCreatedBy(User user) {
         this.filterFields.add(FilterField.builder()
                 .field("createdBy")
                 .value(user.getId())

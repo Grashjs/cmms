@@ -4,7 +4,7 @@ import com.grash.dto.CurrencyPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Currency;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.service.CurrencyService;
 import com.grash.service.UserService;
@@ -43,7 +43,7 @@ public class CurrencyController {
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
     public Currency getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Currency> optionalCurrency = currencyService.findById(id);
         if (optionalCurrency.isPresent()) {
             Currency savedCurrency = optionalCurrency.get();
@@ -54,8 +54,9 @@ public class CurrencyController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    Currency create(@Parameter(description = "Currency to create") @Valid @RequestBody Currency currency, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    Currency create(@Parameter(description = "Currency to create") @Valid @RequestBody Currency currency,
+                    HttpServletRequest req) {
+        User user = userService.whoami(req);
         return currencyService.create(currency);
     }
 
@@ -64,7 +65,7 @@ public class CurrencyController {
     public Currency patch(@Parameter(description = "Currency fields to update") @Valid @RequestBody CurrencyPatchDTO currencyPatchDTO,
                           @PathVariable("id") Long id,
                           HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Currency> optionalCurrency = currencyService.findById(id);
 
         if (optionalCurrency.isPresent()) {
@@ -75,7 +76,7 @@ public class CurrencyController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<Currency> optionalCurrency = currencyService.findById(id);
         if (optionalCurrency.isPresent()) {

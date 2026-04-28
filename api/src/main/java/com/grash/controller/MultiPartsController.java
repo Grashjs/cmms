@@ -4,7 +4,7 @@ import com.grash.dto.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MultiPartsMapper;
 import com.grash.model.MultiParts;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.MultiPartsService;
@@ -39,7 +39,7 @@ public class MultiPartsController {
     @PreAuthorize("permitAll()")
 
     public Collection<MultiPartsShowDTO> getAll(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
                 return multiPartsService.findByCompany(user.getCompany().getId()).stream().filter(multiPart -> {
@@ -55,7 +55,7 @@ public class MultiPartsController {
     @PreAuthorize("permitAll()")
 
     public MultiPartsShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<MultiParts> optionalMultiParts = multiPartsService.findById(id);
         if (optionalMultiParts.isPresent()) {
             MultiParts savedMultiParts = optionalMultiParts.get();
@@ -70,7 +70,7 @@ public class MultiPartsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     MultiPartsShowDTO create(@Parameter(description = "Multi-part to create") @Valid @RequestBody MultiParts multiPartsReq,
                              HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
             return multiPartsMapper.toShowDto(multiPartsService.create(multiPartsReq));
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -82,7 +82,7 @@ public class MultiPartsController {
     public MultiPartsShowDTO patch(@Parameter(description = "Multi-part fields to update") @Valid @RequestBody MultiPartsPatchDTO multiParts,
                                    @PathVariable("id") Long id,
                                    HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<MultiParts> optionalMultiParts = multiPartsService.findById(id);
 
         if (optionalMultiParts.isPresent()) {
@@ -96,7 +96,7 @@ public class MultiPartsController {
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public Collection<MultiPartsMiniDTO> getMini(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         return multiPartsService.findByCompany(user.getCompany().getId()).stream().map(multiPartsMapper::toMiniDto).collect(Collectors.toList());
     }
 
@@ -104,7 +104,7 @@ public class MultiPartsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<MultiParts> optionalMultiParts = multiPartsService.findById(id);
         if (optionalMultiParts.isPresent()) {

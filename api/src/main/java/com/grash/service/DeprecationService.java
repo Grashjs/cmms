@@ -4,8 +4,6 @@ import com.grash.dto.DeprecationPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.DeprecationMapper;
 import com.grash.model.Deprecation;
-import com.grash.model.OwnUser;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.DeprecationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

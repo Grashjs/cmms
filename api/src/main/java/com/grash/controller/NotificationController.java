@@ -7,7 +7,7 @@ import com.grash.dto.PushTokenPayload;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Notification;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.PushNotificationToken;
 import com.grash.model.enums.RoleType;
 import com.grash.service.NotificationService;
@@ -44,7 +44,7 @@ public class NotificationController {
     @PreAuthorize("permitAll()")
 
     public Collection<Notification> getAll(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return notificationService.findByUser(user.getId());
         } else return notificationService.getAll();
@@ -54,7 +54,7 @@ public class NotificationController {
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<Notification>> search(@Parameter(description = "Notification search criteria") @RequestBody SearchCriteria searchCriteria,
                                                      HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             searchCriteria.getFilterFields().add(FilterField.builder()
                     .field("user")
@@ -69,7 +69,7 @@ public class NotificationController {
     @GetMapping("/read-all")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public SuccessResponse readAll(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         notificationService.readAll(user.getId());
         return new SuccessResponse(true, "Notifications read");
     }
@@ -78,7 +78,7 @@ public class NotificationController {
     @PreAuthorize("permitAll()")
 
     public Notification getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Notification> optionalNotification = notificationService.findById(id);
         if (optionalNotification.isPresent()) {
             Notification savedNotification = optionalNotification.get();
@@ -93,7 +93,7 @@ public class NotificationController {
     public Notification patch(@Parameter(description = "Notification fields to update") @Valid @RequestBody NotificationPatchDTO notification,
                               @PathVariable("id") Long id,
                               HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Notification> optionalNotification = notificationService.findById(id);
 
         if (optionalNotification.isPresent()) {
@@ -106,7 +106,7 @@ public class NotificationController {
     @PostMapping("/push-token")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public SuccessResponse savePushToken(@Parameter(description = "Push notification token payload") @RequestBody @Valid PushTokenPayload tokenPayload, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         String token = tokenPayload.getToken();
         PushNotificationToken pushNotificationToken;
         Optional<PushNotificationToken> optionalPushNotificationToken =
@@ -123,7 +123,7 @@ public class NotificationController {
         return new SuccessResponse(true, "Ok");
     }
 
-    private void checkAccessToNotification(Notification notification, OwnUser user) {
+    private void checkAccessToNotification(Notification notification, User user) {
         if (!notification.getUser().getId().equals(user.getId()))
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }

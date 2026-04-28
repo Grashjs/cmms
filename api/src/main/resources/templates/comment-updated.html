@@ -1,0 +1,11 @@
+<!--/*@thymesVar id="userFullName" type="java.lang.String"*/-->
+<!--/*@thymesVar id="workOrderTitle" type="java.lang.String"*/-->
+<!--/*@thymesVar id="commentContent" type="java.lang.String"*/-->
+<!--/*@thymesVar id="commentLink" type="java.lang.String"*/-->
+<div th:replace="fragments/main-layout :: emailTemplate(
+    #{commentUpdated},
+    #{commentUpdatedHeader},
+    #{commentUpdatedMessage(${userFullName}, ${workOrderTitle}, ${commentContent})},
+    #{seeDetails},
+    ${commentLink}
+    )"></div>

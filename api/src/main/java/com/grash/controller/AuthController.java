@@ -4,21 +4,20 @@ import com.grash.dto.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
 import com.grash.factory.MailServiceFactory;
-import com.grash.model.Company;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.SuperAccountRelation;
 import com.grash.repository.SuperAccountRelationRepository;
 import com.grash.repository.UserRepository;
 import com.grash.security.CurrentUser;
 import com.grash.security.JwtTokenProvider;
 import com.grash.service.CompanyService;
+import com.grash.service.LdapService;
 import com.grash.service.UserService;
 import com.grash.service.VerificationTokenService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +46,7 @@ public class AuthController {
     private final MailServiceFactory mailServiceFactory;
     private final CompanyService companyService;
     private final UserRepository userRepository;
+    private final LdapService ldapService;
     @Value("${frontend.url}")
     private String frontendUrl;
 
@@ -64,12 +64,24 @@ public class AuthController {
     }
 
     @PostMapping(
+            path = "/signin-ldap",
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public ResponseEntity<AuthResponse> signinLdap(
+            @Parameter(description = "LDAP login credentials") @Valid @RequestBody LdapLoginRequest ldapLoginRequest) {
+        AuthResponse authResponse = new AuthResponse(ldapService.signinLdap(ldapLoginRequest));
+        return new ResponseEntity<>(authResponse, HttpStatus.OK);
+    }
+
+    @PostMapping(
             path = "/signup",
             produces = {
                     MediaType.APPLICATION_JSON_VALUE
             })
     public SignupSuccessResponse<UserResponseDTO> signup(@Parameter(description = "User signup data") @Valid @RequestBody UserSignupRequest user) {
-        SignupSuccessResponse<OwnUser> response = userService.signup(user);
+        SignupSuccessResponse<User> response = userService.signup(user);
         return new SignupSuccessResponse<>(response.isSuccess(), response.getMessage(),
                 userMapper.toResponseDto(response.getUser()));
     }
@@ -97,7 +109,8 @@ public class AuthController {
 
     @GetMapping("/activate-account")
     public void activateAcount(
-            @Parameter(description = "Account activation token") @RequestParam String token, HttpServletResponse httpServletResponse
+            @Parameter(description = "Account activation token") @RequestParam String token,
+            HttpServletResponse httpServletResponse
     ) {
         try {
             String email = verificationTokenService.confirmMail(token);
@@ -115,7 +128,7 @@ public class AuthController {
             HttpServletResponse httpServletResponse
     ) {
         try {
-            OwnUser user = verificationTokenService.confirmResetPassword(token);
+            User user = verificationTokenService.confirmResetPassword(token);
             httpServletResponse.setHeader("Location", frontendUrl + "/account/login?email=" + user.getEmail());
         } catch (Exception ex) {
             httpServletResponse.setHeader("Location", frontendUrl + "/account/register");
@@ -157,7 +170,7 @@ public class AuthController {
     @PreAuthorize("permitAll()")
     @PostMapping(value = "/updatepwd", produces = "application/json")
     public ResponseEntity<SuccessResponse> updatePassword(@Parameter(description = "Password update request") @Valid @RequestBody UpdatePasswordRequest updatePasswordRequest, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         String password = user.getPassword();
         String oldPassword = updatePasswordRequest.getOldPassword();
         if (passwordEncoder.matches(oldPassword, password)) {
@@ -173,13 +186,14 @@ public class AuthController {
     @GetMapping("/switch-account")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public AuthResponse switchAccount(
-            @Parameter(description = "Target user ID to switch to") @RequestParam("id") Long id, @Parameter(hidden = true) @CurrentUser OwnUser user
+            @Parameter(description = "Target user ID to switch to") @RequestParam("id") Long id, @Parameter(hidden =
+                    true) @CurrentUser User user
     ) {
         if (!user.getSuperAccountRelations().isEmpty()) {//user is superUser
             SuperAccountRelation superAccountRelation =
                     superAccountRelationRepository.findBySuperUser_IdAndChildUser_Id(user.getId(), id);
             if (superAccountRelation == null) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            OwnUser childUser = userService.findById(id).get();
+            User childUser = userService.findById(id).get();
             if (!childUser.isEnabled()) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return new AuthResponse(jwtTokenProvider.createToken(childUser.getEmail(),
                     Collections.singletonList(childUser.getRole().getRoleType())));
@@ -187,7 +201,7 @@ public class AuthController {
             SuperAccountRelation superAccountRelation =
                     superAccountRelationRepository.findBySuperUser_IdAndChildUser_Id(id, user.getId());
             if (superAccountRelation == null) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            OwnUser superUser = userService.findById(id).get();
+            User superUser = userService.findById(id).get();
             if (!superUser.isEnabled()) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return new AuthResponse(jwtTokenProvider.createToken(superUser.getEmail(),
                     Collections.singletonList(superUser.getRole().getRoleType())));
@@ -197,7 +211,7 @@ public class AuthController {
 
     @DeleteMapping("")
     @PreAuthorize("permitAll()")
-    public SuccessResponse deleteAccount(@Parameter(hidden = true) @CurrentUser OwnUser user) {
+    public SuccessResponse deleteAccount(@Parameter(hidden = true) @CurrentUser User user) {
         if (user.isOwnsCompany())
             companyService.delete(user.getCompany().getId());
         else userRepository.delete(user);

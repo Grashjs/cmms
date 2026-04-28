@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="1775841064-1" author="Ibrahima G. Coulibaly">
+        <sql>
+            UPDATE part
+            SET barcode = NULL
+            WHERE id IN (SELECT id
+                         FROM (SELECT id, ROW_NUMBER() OVER (PARTITION BY company_id, barcode ORDER BY id) as row_num
+                               FROM part
+                               WHERE barcode IS NOT NULL) sub
+                         WHERE sub.row_num > 1);
+
+            ALTER TABLE part
+                ADD CONSTRAINT uq_part_company_barcode UNIQUE (company_id, barcode);
+
+            UPDATE asset
+            SET bar_code = NULL
+            WHERE id IN (SELECT id
+                         FROM (SELECT id, ROW_NUMBER() OVER (PARTITION BY company_id, bar_code ORDER BY id) as row_num
+                               FROM asset
+                               WHERE bar_code IS NOT NULL) sub
+                         WHERE sub.row_num > 1);
+
+            ALTER TABLE asset
+                ADD CONSTRAINT uq_asset_company_barcode UNIQUE (company_id, bar_code);
+        </sql>
+    </changeSet>
+</databaseChangeLog>

@@ -8,6 +8,7 @@ import { CustomerMiniDTO } from './customer';
 import File, { FileMiniDTO } from './file';
 import Category from './category';
 import { customTheme } from '../custom-theme';
+import { CustomFieldValue } from './customField';
 
 export default interface Asset extends Audit {
   id: number;
@@ -53,6 +54,7 @@ export interface AssetDTO extends Audit {
   customId: string;
   manufacturer: string;
   power: string;
+  customFieldValues?: CustomFieldValue[];
 }
 export const assetStatuses: {
   status: AssetStatus;

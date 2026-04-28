@@ -5,8 +5,6 @@ import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AdditionalCostMapper;
 import com.grash.model.AdditionalCost;
-import com.grash.model.OwnUser;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.AdditionalCostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

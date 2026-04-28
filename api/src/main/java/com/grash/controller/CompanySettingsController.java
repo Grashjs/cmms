@@ -2,7 +2,7 @@ package com.grash.controller;
 
 import com.grash.exception.CustomException;
 import com.grash.model.CompanySettings;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.service.CompanySettingsService;
 import com.grash.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,7 +33,7 @@ public class CompanySettingsController {
     @PreAuthorize("permitAll()")
 
     public CompanySettings getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<CompanySettings> companySettingsOptional = companySettingsService.findById(id);
         if (companySettingsOptional.isPresent()) {

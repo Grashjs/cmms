@@ -12,6 +12,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -28,7 +29,7 @@ public class Labor extends Time {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private OwnUser assignedTo;
+    private User assignedTo;
 
     @Schema(description = "Whether to include this labor in the total time")
     private boolean includeToTotalTime = true;
@@ -66,7 +67,7 @@ public class Labor extends Time {
         return Helper.addSeconds(startedAt, Math.toIntExact(this.getDuration()));
     }
 
-    public Labor(OwnUser user, long hourlyRate, Date startedAt, WorkOrder workOrder, boolean logged,
+    public Labor(User user, long hourlyRate, Date startedAt, WorkOrder workOrder, boolean logged,
                  TimeStatus status) {
         this.assignedTo = user;
         this.hourlyRate = hourlyRate;

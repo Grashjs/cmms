@@ -7,11 +7,18 @@ import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import { getImageAndFiles } from '../../utils/overall';
-import { useDispatch } from '../../store';
+import { useDispatch, useSelector } from '../../store';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { formatPartValues, formatRequestValues } from '../../utils/fields';
+import { formatCustomFields } from '../../utils/formatters';
 import useAuth from '../../hooks/useAuth';
 import { addRequest } from '../../slices/request';
+import {
+  IField,
+  getCustomFieldsIFields,
+  getCustomFieldsRequiredShape
+} from '../../models/form';
+import { CustomFieldEntityType } from '../../models/customField';
 
 export default function CreateRequestScreen({
   navigation,
@@ -24,6 +31,8 @@ export default function CreateRequestScreen({
   const { companySettings } = useAuth();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
+  const { customFields } = useSelector((state) => state.customFields);
+
   const onCreationSuccess = () => {
     showSnackBar(t('request_create_success'), 'success');
     navigation.goBack();
@@ -31,11 +40,28 @@ export default function CreateRequestScreen({
   const onCreationFailure = (err) =>
     showSnackBar(t('request_create_failure'), 'error');
 
+  const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
+    const baseShape = getRequestFieldsAndShapes()[1];
+    const customShape = getCustomFieldsRequiredShape(
+      customFields,
+      CustomFieldEntityType.WORK_ORDER,
+      t
+    );
+    const customFieldsList = getCustomFieldsIFields(
+      customFields,
+      CustomFieldEntityType.WORK_ORDER
+    );
+    return [
+      [...getRequestFieldsAndShapes()[0], ...customFieldsList],
+      { ...baseShape, ...customShape }
+    ];
+  };
+
   return (
     <View style={styles.container}>
       <Form
-        fields={getRequestFieldsAndShapes()[0]}
-        validation={Yup.object().shape(getRequestFieldsAndShapes()[1])}
+        fields={getFieldsAndShapes()[0]}
+        validation={Yup.object().shape(getFieldsAndShapes()[1])}
         navigation={navigation}
         submitText={t('save')}
         values={{ dueDate: null }}
@@ -43,6 +69,7 @@ export default function CreateRequestScreen({
         onSubmit={async (values) => {
           try {
             let formattedValues = formatRequestValues(values);
+            formattedValues = formatCustomFields(formattedValues);
             const uploadedFiles = await uploadFiles(
               formattedValues.files,
               formattedValues.image

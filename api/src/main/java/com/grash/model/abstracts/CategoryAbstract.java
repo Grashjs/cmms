@@ -3,7 +3,7 @@ package com.grash.model.abstracts;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.exception.CustomException;
 import com.grash.model.CompanySettings;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.security.CustomUserDetail;
 import lombok.Data;
@@ -41,7 +41,7 @@ public abstract class CategoryAbstract extends Audit {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || (authentication.getPrincipal().getClass().equals(String.class) && authentication.getPrincipal().equals("anonymousUser")))
             return;
-        OwnUser user = ((CustomUserDetail) authentication.getPrincipal()).getUser();
+        User user = ((CustomUserDetail) authentication.getPrincipal()).getUser();
         CompanySettings companySettings = user.getCompany().getCompanySettings();
         this.setCompanySettings(companySettings);
     }
@@ -56,7 +56,7 @@ public abstract class CategoryAbstract extends Audit {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication.getPrincipal() instanceof String) return;
         Object principal = authentication.getPrincipal();
-        OwnUser user = ((CustomUserDetail) principal).getUser();
+        User user = ((CustomUserDetail) principal).getUser();
         // Super admins can access all categories
         if (!user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN) &&
                 !user.getCompany().getId().equals(this.getCompanySettings().getCompany().getId())) {

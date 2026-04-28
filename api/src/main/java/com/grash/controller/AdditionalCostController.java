@@ -4,15 +4,13 @@ import com.grash.dto.AdditionalCostPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.AdditionalCost;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.service.AdditionalCostService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -41,7 +39,7 @@ public class AdditionalCostController {
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
     public AdditionalCost getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
@@ -54,7 +52,7 @@ public class AdditionalCostController {
     @PreAuthorize("permitAll()")
     public Collection<AdditionalCost> getByWorkOrder(@PathVariable("id") Long id,
                                                      HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
             WorkOrder workOrder = optionalWorkOrder.get();
@@ -67,7 +65,7 @@ public class AdditionalCostController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public AdditionalCost create(@Parameter(description = "Additional cost to create") @Valid @RequestBody AdditionalCost additionalCostReq,
                                  HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ADDITIONAL_COST)) {
             WorkOrder workOrder = workOrderService.findById(additionalCostReq.getWorkOrder().getId()).get();
             if (workOrder.getFirstTimeToReact() == null) {
@@ -82,7 +80,7 @@ public class AdditionalCostController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public AdditionalCost patch(@Parameter(description = "Additional cost fields to update") @Valid @RequestBody AdditionalCostPatchDTO additionalCost, @PathVariable("id") Long id,
                                 HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
 
         if (optionalAdditionalCost.isPresent()) {
@@ -95,7 +93,7 @@ public class AdditionalCostController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
         if (optionalAdditionalCost.isPresent()) {
@@ -107,13 +105,13 @@ public class AdditionalCostController {
         } else throw new CustomException("AdditionalCost not found", HttpStatus.NOT_FOUND);
     }
 
-    private void checkAccessToAdditionalCost(AdditionalCost additionalCost, OwnUser user) {
+    private void checkAccessToAdditionalCost(AdditionalCost additionalCost, User user) {
         if (!additionalCost.getWorkOrder().getCompany().getId().equals(user.getCompany().getId())) {
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         }
     }
 
-    private void checkAccessToWorkOrder(WorkOrder workOrder, OwnUser user) {
+    private void checkAccessToWorkOrder(WorkOrder workOrder, User user) {
         if (!workOrder.getCompany().getId().equals(user.getCompany().getId())) {
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         }

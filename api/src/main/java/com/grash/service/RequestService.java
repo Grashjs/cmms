@@ -3,18 +3,21 @@ package com.grash.service;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.RequestPatchDTO;
+import com.grash.dto.RequestPostDTO;
 import com.grash.dto.RequestShowDTO;
+import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.license.LicenseEntitlement;
+import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RequestMapper;
 import com.grash.model.*;
+import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.PortalFieldType;
 import com.grash.model.enums.Priority;
-import com.grash.model.enums.RoleType;
 import com.grash.model.enums.webhook.WebhookEvent;
+
 import com.grash.repository.FieldConfigurationRepository;
 import com.grash.repository.RequestRepository;
-import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,10 +51,17 @@ public class RequestService {
     private final RequestPortalService requestPortalService;
     private final FieldConfigurationRepository fieldConfigurationRepository;
     private final WebhookDispatchService webhookDispatchService;
+    private final CustomFieldValueService customFieldValueService;
 
 
     @Transactional
     public Request create(Request request, Company company) {
+        if (request instanceof RequestPostDTO requestPostDTO) {
+            request = requestMapper.fromPostDTO(requestPostDTO);
+            if (!requestPostDTO.getCustomFields().isEmpty()) {
+                setRequestCustomFields(request, requestPostDTO.getCustomFields(), company);
+            }
+        }
         if (request.getAudioDescription() != null && !licenseService.hasEntitlement(LicenseEntitlement.VOICE_NOTES))
             throw new CustomException("You need a license to add voice notes", HttpStatus.FORBIDDEN);
         Long nextSequence = customSequenceService.getNextRequestSequence(company);
@@ -95,13 +105,28 @@ public class RequestService {
     }
 
     @Transactional
-    public Request update(Long id, RequestPatchDTO request) {
+    public Request update(Long id, RequestPatchDTO request, Company company) {
         if (requestRepository.existsById(id)) {
             Request savedRequest = requestRepository.findById(id).get();
+            if (!request.getCustomFields().isEmpty()) {
+                setRequestCustomFields(savedRequest, request.getCustomFields(), company);
+            }
             Request updatedRequest = requestRepository.saveAndFlush(requestMapper.updateRequest(savedRequest, request));
             em.refresh(updatedRequest);
             return updatedRequest;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    private void setRequestCustomFields(Request request, List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
+                                        Company company) {
+        customFieldValueService.setCustomFields(
+                request,
+                request.getCustomFieldValues(),
+                customFieldValuePostDTOS,
+                company,
+                CustomFieldEntityType.WORK_ORDER,
+                cfv -> cfv.setRequest(request)
+        );
     }
 
     public Collection<Request> getAll() {
@@ -120,10 +145,10 @@ public class RequestService {
         return requestRepository.findByCompany_Id(id);
     }
 
-    public WorkOrder createWorkOrderFromRequest(Request request, OwnUser creator) {
-        WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(request);
+    public WorkOrder createWorkOrderFromRequest(Request request, User creator) {
+        WorkOrderPostDTO workOrder = workOrderService.getWorkOrderFromWorkOrderBase(request);
         if (creator.getCompany().getCompanySettings().getGeneralPreferences().isAutoAssignRequests()) {
-            OwnUser primaryUser = workOrder.getPrimaryUser();
+            User primaryUser = workOrder.getPrimaryUser();
             workOrder.setPrimaryUser(primaryUser == null ? creator : primaryUser);
         }
         workOrder.setParentRequest(request);

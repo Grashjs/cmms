@@ -1,11 +1,15 @@
 package com.grash.dto;
 
+import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.model.Currency;
 import com.grash.model.abstracts.BasicInfos;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -32,4 +36,7 @@ public class CustomerPatchDTO extends BasicInfos {
 
     @Schema(description = "Currency for billing", implementation = IdDTO.class)
     private Currency billingCurrency;
+
+    @Schema(description = "Custom field values for the customer")
+    private List<CustomFieldValuePostDTO> customFields = new ArrayList<>();
 }

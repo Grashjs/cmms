@@ -4,8 +4,6 @@ import com.grash.dto.CurrencyPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CurrencyMapper;
 import com.grash.model.Currency;
-import com.grash.model.OwnUser;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.CurrencyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

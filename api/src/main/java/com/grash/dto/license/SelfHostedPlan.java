@@ -21,7 +21,7 @@ public class SelfHostedPlan {
     @Schema(description = "Display name of the subscription plan")
     private String name;
     @Schema(description = "Whether this is a monthly billing plan")
-    private boolean monthly;
+    private Boolean monthly;
     @Schema(description = "Keygen policy ID associated with this plan for license validation")
     private String keygenPolicyId;
 }

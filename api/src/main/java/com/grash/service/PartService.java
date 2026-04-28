@@ -3,16 +3,21 @@ package com.grash.service;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.PartPatchDTO;
+import com.grash.dto.PartPostDTO;
 import com.grash.dto.PartShowDTO;
+import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.imports.PartImportDTO;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PartMapper;
 import com.grash.model.*;
+import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.NotificationType;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.webhook.PartField;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.PartRepository;
+import com.grash.service.CustomFieldValueService;
 import com.grash.utils.AuditComparator;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +34,7 @@ import jakarta.persistence.EntityManager;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.grash.utils.Consts.usageBasedLicenseLimits;
 
@@ -50,12 +56,20 @@ public class PartService {
     private final TeamService teamService;
     private final LicenseService licenseService;
     private final WebhookDispatchService webhookDispatchService;
+    private final CustomFieldValueService customFieldValueService;
 
 
     @Transactional
-    public Part create(Part Part, OwnUser user) {
+    public Part create(Part part, User user) {
         checkUsageBasedLimit(user.getCompany());
-        Part savedPart = partRepository.saveAndFlush(Part);
+        Company company = user.getCompany();
+        if (part instanceof PartPostDTO partPostDTO) {
+            part = partMapper.fromPostDto(partPostDTO);
+            if (partPostDTO.getCustomFields() != null && !partPostDTO.getCustomFields().isEmpty()) {
+                setPartCustomFields(part, partPostDTO.getCustomFields(), company);
+            }
+        }
+        Part savedPart = partRepository.saveAndFlush(part);
         em.refresh(savedPart);
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("partId", savedPart.getId());
@@ -65,10 +79,25 @@ public class PartService {
         return savedPart;
     }
 
+    private void setPartCustomFields(Part part, List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
+                                     Company company) {
+        customFieldValueService.setCustomFields(
+                part,
+                part.getCustomFieldValues(),
+                customFieldValuePostDTOS,
+                company,
+                CustomFieldEntityType.PART,
+                cfv -> cfv.setPart(part)
+        );
+    }
+
     @Transactional
-    public Part update(Long id, PartPatchDTO part) {
+    public Part update(Long id, PartPatchDTO part, Company company) {
         if (partRepository.existsById(id)) {
             Part savedPart = partRepository.findById(id).get();
+            if (part.getCustomFields() != null && !part.getCustomFields().isEmpty()) {
+                setPartCustomFields(savedPart, part.getCustomFields(), company);
+            }
             double originalPartQuantity = savedPart.getQuantity();
             Collection<PartField> changedFields = detectPatchDTOChangedFields(savedPart, part);
             Part patchedPart = partRepository.saveAndFlush(partMapper.updatePart(savedPart, part));
@@ -120,7 +149,15 @@ public class PartService {
         } else {
             String message = messageSource.getMessage("notification_part_low", new Object[]{part.getName()}, locale);
             if (part.getQuantity() < part.getMinQuantity() && licenseService.hasEntitlement(LicenseEntitlement.LOW_STOCK_ALERTS)) {
-                notificationService.createMultiple(part.getAssignedTo().stream().map(user ->
+                Map<Long, User> uniqueUsersMap = new TreeMap<>();
+                Stream.concat(
+                        userService.findWorkersByCompany(part.getCompany().getId())
+                                .stream()
+                                .filter(user -> user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)),
+                        part.getAssignedTo().stream()
+                ).forEach(user -> uniqueUsersMap.put(user.getId(), user));
+
+                notificationService.createMultiple(uniqueUsersMap.values().stream().map(user ->
                         new Notification(message, user, NotificationType.PART, part.getId())
                 ).collect(Collectors.toList()), true, message);
             }
@@ -238,9 +275,9 @@ public class PartService {
 //        Optional<Location> optionalLocation = locationService.findByNameIgnoreCaseAndCompany(dto.getLocationName(),
 //        companyId);
 //        optionalLocation.ifPresent(part::setLocation);
-        List<OwnUser> users = new ArrayList<>();
+        List<User> users = new ArrayList<>();
         dto.getAssignedToEmails().forEach(email -> {
-            Optional<OwnUser> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
+            Optional<User> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
             optionalUser1.ifPresent(users::add);
         });
         part.setAssignedTo(users);
@@ -318,7 +355,7 @@ public class PartService {
             changedFields.add(PartField.MIN_QUANTITY);
         }
         if (patchDTO.getAssignedTo() != null && !collectionsMatch(original.getAssignedTo(), patchDTO.getAssignedTo(),
-                OwnUser::getId)) {
+                User::getId)) {
             changedFields.add(PartField.ASSIGNED_TO);
         }
         if (patchDTO.getCustomers() != null && !collectionsMatch(original.getCustomers(), patchDTO.getCustomers(),

@@ -26,6 +26,6 @@ public class PushNotificationToken {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private OwnUser user;
+    private User user;
 }
 

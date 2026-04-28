@@ -28,7 +28,7 @@ export const formatAssetValues = (values) => {
   newValues.assignedTo = formatSelectMultiple(newValues.assignedTo);
   newValues.teams = formatSelectMultiple(newValues.teams);
   newValues.parts = formatSelectMultiple(newValues.parts);
-  return newValues;
+  return formatCustomFields(newValues);
 };
 
 export const formatSwitch = (values: {}, key: string) => {
@@ -94,4 +94,25 @@ export const getFormattedCostPerUnit = (
   return unit
     ? `${getFormattedCurrency(cost)}/ ${unit}`
     : getFormattedCurrency(cost);
+};
+
+export const formatCustomFields = (values: { [key: string]: any }) => {
+  const newValues = { ...values };
+  let customFields: { id: number; value: string }[] = [];
+  Object.keys(newValues).forEach((key) => {
+    if (key.startsWith('customField_')) {
+      const customFieldId = key.split('customField_')[1];
+      const rawValue = newValues[key];
+      customFields.push({
+        id: Number(customFieldId),
+        value:
+          rawValue && typeof rawValue === 'object' && 'value' in rawValue
+            ? rawValue.value
+            : rawValue
+      });
+      delete newValues[key];
+    }
+  });
+  newValues.customFields = customFields;
+  return newValues;
 };

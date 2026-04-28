@@ -1,14 +1,11 @@
 package com.grash.service;
 
 import com.grash.dto.imports.*;
-import com.grash.exception.CustomException;
-import com.grash.model.Company;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -26,7 +23,7 @@ public class AsyncImportService {
     private final SimpMessageSendingOperations messagingTemplate;
 
     @Async
-    public void importWorkOrders(OwnUser user, List<WorkOrderImportDTO> toImport, String uuid) {
+    public void importWorkOrders(User user, List<WorkOrderImportDTO> toImport, String uuid) {
         try {
             if (!user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
                     || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
@@ -36,7 +33,8 @@ public class AsyncImportService {
 
             ImportResponse response = importService.importWorkOrders(toImport, user.getCompany());
             messagingTemplate.convertAndSend("/imports/" + uuid, response);
-            log.info("Import completed for work-orders, uuid: {}, created: {}, updated: {}", uuid, response.getCreated(), response.getUpdated());
+            log.info("Import completed for work-orders, uuid: {}, created: {}, updated: {}", uuid,
+                    response.getCreated(), response.getUpdated());
         } catch (Exception e) {
             log.error("Import failed for work-orders, uuid: {}", uuid, e);
             messagingTemplate.convertAndSend("/imports/" + uuid, "error: " + e.getMessage());
@@ -44,7 +42,7 @@ public class AsyncImportService {
     }
 
     @Async
-    public void importAssets(OwnUser user, List<AssetImportDTO> toImport, String uuid) {
+    public void importAssets(User user, List<AssetImportDTO> toImport, String uuid) {
         try {
             if (!user.getRole().getCreatePermissions().contains(PermissionEntity.ASSETS)
                     || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
@@ -69,7 +67,8 @@ public class AsyncImportService {
             }
 
             messagingTemplate.convertAndSend("/imports/" + uuid, response);
-            log.info("Import completed for assets, uuid: {}, created: {}, updated: {}", uuid, response.getCreated(), response.getUpdated());
+            log.info("Import completed for assets, uuid: {}, created: {}, updated: {}", uuid, response.getCreated(),
+                    response.getUpdated());
         } catch (Exception e) {
             log.error("Import failed for assets, uuid: {}", uuid, e);
             messagingTemplate.convertAndSend("/imports/" + uuid, "error: " + e.getMessage());
@@ -77,7 +76,7 @@ public class AsyncImportService {
     }
 
     @Async
-    public void importLocations(OwnUser user, List<LocationImportDTO> toImport, String uuid) {
+    public void importLocations(User user, List<LocationImportDTO> toImport, String uuid) {
         try {
             if (!user.getRole().getCreatePermissions().contains(PermissionEntity.LOCATIONS)
                     || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
@@ -87,7 +86,8 @@ public class AsyncImportService {
 
             ImportResponse response = importService.importLocations(toImport, user.getCompany());
             messagingTemplate.convertAndSend("/imports/" + uuid, response);
-            log.info("Import completed for locations, uuid: {}, created: {}, updated: {}", uuid, response.getCreated(), response.getUpdated());
+            log.info("Import completed for locations, uuid: {}, created: {}, updated: {}", uuid,
+                    response.getCreated(), response.getUpdated());
         } catch (Exception e) {
             log.error("Import failed for locations, uuid: {}", uuid, e);
             messagingTemplate.convertAndSend("/imports/" + uuid, "error: " + e.getMessage());
@@ -95,7 +95,7 @@ public class AsyncImportService {
     }
 
     @Async
-    public void importMeters(OwnUser user, List<MeterImportDTO> toImport, String uuid) {
+    public void importMeters(User user, List<MeterImportDTO> toImport, String uuid) {
         try {
             if (!user.getRole().getCreatePermissions().contains(PermissionEntity.METERS)
                     || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
@@ -105,7 +105,8 @@ public class AsyncImportService {
 
             ImportResponse response = importService.importMeters(toImport, user.getCompany());
             messagingTemplate.convertAndSend("/imports/" + uuid, response);
-            log.info("Import completed for meters, uuid: {}, created: {}, updated: {}", uuid, response.getCreated(), response.getUpdated());
+            log.info("Import completed for meters, uuid: {}, created: {}, updated: {}", uuid, response.getCreated(),
+                    response.getUpdated());
         } catch (Exception e) {
             log.error("Import failed for meters, uuid: {}", uuid, e);
             messagingTemplate.convertAndSend("/imports/" + uuid, "error: " + e.getMessage());
@@ -113,7 +114,7 @@ public class AsyncImportService {
     }
 
     @Async
-    public void importParts(OwnUser user, List<PartImportDTO> toImport, String uuid) {
+    public void importParts(User user, List<PartImportDTO> toImport, String uuid) {
         try {
             if (!user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)
                     || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
@@ -123,7 +124,8 @@ public class AsyncImportService {
 
             ImportResponse response = importService.importParts(toImport, user.getCompany());
             messagingTemplate.convertAndSend("/imports/" + uuid, response);
-            log.info("Import completed for parts, uuid: {}, created: {}, updated: {}", uuid, response.getCreated(), response.getUpdated());
+            log.info("Import completed for parts, uuid: {}, created: {}, updated: {}", uuid, response.getCreated(),
+                    response.getUpdated());
         } catch (Exception e) {
             log.error("Import failed for parts, uuid: {}", uuid, e);
             messagingTemplate.convertAndSend("/imports/" + uuid, "error: " + e.getMessage());
@@ -131,7 +133,7 @@ public class AsyncImportService {
     }
 
     @Async
-    public void importPreventiveMaintenances(OwnUser user, List<PreventiveMaintenanceImportDTO> toImport, String uuid) {
+    public void importPreventiveMaintenances(User user, List<PreventiveMaintenanceImportDTO> toImport, String uuid) {
         try {
             if (!user.getRole().getCreatePermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)
                     || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
@@ -141,7 +143,8 @@ public class AsyncImportService {
 
             ImportResponse response = importService.importPreventiveMaintenances(toImport, user.getCompany());
             messagingTemplate.convertAndSend("/imports/" + uuid, response);
-            log.info("Import completed for preventive-maintenances, uuid: {}, created: {}, updated: {}", uuid, response.getCreated(), response.getUpdated());
+            log.info("Import completed for preventive-maintenances, uuid: {}, created: {}, updated: {}", uuid,
+                    response.getCreated(), response.getUpdated());
         } catch (Exception e) {
             log.error("Import failed for preventive-maintenances, uuid: {}", uuid, e);
             messagingTemplate.convertAndSend("/imports/" + uuid, "error: " + e.getMessage());

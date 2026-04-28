@@ -9,13 +9,19 @@ import { useContext, useEffect } from 'react';
 import { getLicenseValidity } from '../slices/license';
 import { useLicenseEntitlement } from '../hooks/useLicenseEntitlement';
 import { CustomSnackBarContext } from '../contexts/CustomSnackBarContext';
+import { AssetDTO, AssetMiniDTO } from '../models/asset';
+import useAuth from '../hooks/useAuth';
+import { PermissionEntity } from '../models/role';
 
 export default function ScanAssetScreen({
-  navigation
+  navigation,
+  route
 }: RootStackScreenProps<'ScanAsset'>) {
   const theme = useTheme();
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const { onChange } = route.params || {};
+  const { hasCreatePermission } = useAuth();
   const hasBarcodeNfcEntitlement = useLicenseEntitlement('NFC_BARCODE');
   // NFC scanning must remain disabled on iOS; keep barcode only there.
   const isNfcEnabled = Platform.select({ ios: false, default: true });
@@ -24,6 +30,15 @@ export default function ScanAssetScreen({
   const showLicenseError = () => {
     showSnackBar(t('you_need_a_license'), 'error');
   };
+
+  const handleAssetFound = (asset: AssetMiniDTO) => {
+    if (onChange) {
+      onChange(asset);
+    } else {
+      navigation.replace('AssetDetails', { id: asset.id });
+    }
+  };
+
   useEffect(() => {
     dispatch(getLicenseValidity());
   }, []);
@@ -40,21 +55,21 @@ export default function ScanAssetScreen({
                   navigation.navigate('SelectNfc', {
                     onChange: (nfcId) =>
                       dispatch(getAssetByNfc(nfcId))
-                        .then((assetId: number) =>
-                          navigation.replace('AssetDetails', { id: assetId })
-                        )
+                        .then((asset: AssetMiniDTO) => handleAssetFound(asset))
                         .catch((err) =>
-                          Alert.alert(t('error'), t('no_asset_found_nfc'), [
-                            {
-                              text: t('no'),
-                              onPress: () => navigation.goBack()
-                            },
-                            {
-                              text: t('yes'),
-                              onPress: () =>
-                                navigation.replace('AddAsset', { nfcId })
-                            }
-                          ])
+                          hasCreatePermission(PermissionEntity.WORK_ORDERS)
+                            ? Alert.alert(t('error'), t('no_asset_found_nfc'), [
+                                {
+                                  text: t('no'),
+                                  onPress: () => navigation.goBack()
+                                },
+                                {
+                                  text: t('yes'),
+                                  onPress: () =>
+                                    navigation.replace('AddAsset', { nfcId })
+                                }
+                              ])
+                            : Alert.alert(t('error'), t('asset_not_found'))
                         )
                   });
                 else showLicenseError();
@@ -70,18 +85,21 @@ export default function ScanAssetScreen({
               navigation.navigate('SelectBarcode', {
                 onChange: (barCode) => {
                   dispatch(getAssetByBarcode(barCode))
-                    .then((assetId: number) =>
-                      navigation.replace('AssetDetails', { id: assetId })
-                    )
+                    .then((asset: AssetMiniDTO) => handleAssetFound(asset))
                     .catch((err) =>
-                      Alert.alert(t('error'), t('no_asset_found_barcode'), [
-                        { text: t('no'), onPress: () => navigation.goBack() },
-                        {
-                          text: t('yes'),
-                          onPress: () =>
-                            navigation.replace('AddAsset', { barCode })
-                        }
-                      ])
+                      hasCreatePermission(PermissionEntity.WORK_ORDERS)
+                        ? Alert.alert(t('error'), t('no_asset_found_barcode'), [
+                            {
+                              text: t('no'),
+                              onPress: () => navigation.goBack()
+                            },
+                            {
+                              text: t('yes'),
+                              onPress: () =>
+                                navigation.replace('AddAsset', { barCode })
+                            }
+                          ])
+                        : Alert.alert(t('error'), t('asset_not_found'))
                     );
                 }
               });

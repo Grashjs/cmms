@@ -4,7 +4,7 @@ import com.grash.dto.RelationPatchDTO;
 import com.grash.dto.RelationPostDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.Relation;
 import com.grash.model.WorkOrder;
 import com.grash.service.RelationService;
@@ -40,7 +40,7 @@ public class RelationController {
     @PreAuthorize("permitAll()")
 
     public Collection<Relation> getAll(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Long companyId = user.getCompany().getId();
         return relationService.findByCompany(companyId);
     }
@@ -49,7 +49,7 @@ public class RelationController {
     @PreAuthorize("permitAll()")
 
     public Collection<Relation> getByWorkOrder(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
             return relationService.findByWorkOrder(id);
@@ -60,7 +60,7 @@ public class RelationController {
     @PreAuthorize("permitAll()")
 
     public Relation getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Relation> optionalRelation = relationService.findById(id);
         if (optionalRelation.isPresent()) {
             return relationService.findById(id).get();
@@ -70,7 +70,7 @@ public class RelationController {
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     Relation create(@Parameter(description = "Work order relation to create") @Valid @RequestBody RelationPostDTO relationReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Long parentId = relationReq.getParent().getId();
         Long childId = relationReq.getChild().getId();
         if (relationService.findByParentAndChild(parentId, childId).isEmpty() && relationService.findByParentAndChild(childId, parentId).isEmpty()) {
@@ -86,7 +86,7 @@ public class RelationController {
     public Relation patch(@Parameter(description = "Relation fields to update") @Valid @RequestBody RelationPatchDTO relation,
                           @PathVariable("id") Long id,
                           HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Relation> optionalRelation = relationService.findById(id);
 
         if (optionalRelation.isPresent()) {
@@ -103,7 +103,7 @@ public class RelationController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<Relation> optionalRelation = relationService.findById(id);
         if (optionalRelation.isPresent()) {

@@ -47,7 +47,7 @@ public class WorkflowCondition extends CompanyAudit {
     private Location location;
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private OwnUser user;
+    private User user;
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Team team;

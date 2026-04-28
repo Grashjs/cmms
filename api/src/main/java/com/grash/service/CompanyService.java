@@ -58,5 +58,7 @@ public class CompanyService {
         return companyRepository.existsAtLeastOneWithMinWorkOrders();
     }
 
+    public Optional<Company> findByOwnerEmailAndOwnsCompany(String email) {
+        return companyRepository.findByOwnerEmailAndOwnsCompany(email);
+    }
 }
-

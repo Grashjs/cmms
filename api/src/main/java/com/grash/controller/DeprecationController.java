@@ -4,7 +4,7 @@ import com.grash.dto.DeprecationPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Deprecation;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.service.DeprecationService;
 import com.grash.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,7 +34,7 @@ public class DeprecationController {
     @PreAuthorize("permitAll()")
 
     public Deprecation getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Deprecation> optionalDeprecation = deprecationService.findById(id);
         if (optionalDeprecation.isPresent()) {
             Deprecation savedDeprecation = optionalDeprecation.get();
@@ -46,7 +46,7 @@ public class DeprecationController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     Deprecation create(@Parameter(description = "Depreciation to create") @Valid @RequestBody Deprecation deprecationReq,
                        HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         return deprecationService.create(deprecationReq);
     }
 
@@ -55,7 +55,7 @@ public class DeprecationController {
 
     public Deprecation patch(@Parameter(description = "Depreciation fields to update") @Valid @RequestBody DeprecationPatchDTO deprecation, @PathVariable("id") Long id,
                              HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Deprecation> optionalDeprecation = deprecationService.findById(id);
 
         if (optionalDeprecation.isPresent()) {
@@ -68,7 +68,7 @@ public class DeprecationController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<Deprecation> optionalDeprecation = deprecationService.findById(id);
         if (optionalDeprecation.isPresent()) {

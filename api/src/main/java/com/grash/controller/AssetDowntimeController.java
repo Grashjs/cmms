@@ -5,14 +5,12 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Asset;
 import com.grash.model.AssetDowntime;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.service.AssetDowntimeService;
 import com.grash.service.AssetService;
 import com.grash.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
@@ -42,7 +40,7 @@ public class AssetDowntimeController {
     @PreAuthorize("permitAll()")
 
     public AssetDowntime getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
             Optional<AssetDowntime> optionalAssetDowntime = assetDowntimeService.findById(id);
             if (optionalAssetDowntime.isPresent()) {
@@ -55,7 +53,7 @@ public class AssetDowntimeController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     AssetDowntime create(@Parameter(description = "Asset downtime to create") @Valid @RequestBody AssetDowntime assetDowntimeReq,
                          HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(assetDowntimeReq.getAsset().getId());
         if (!optionalAsset.isPresent()) {
             throw new CustomException("Asset Not found", HttpStatus.BAD_REQUEST);
@@ -73,7 +71,7 @@ public class AssetDowntimeController {
     @PreAuthorize("permitAll()")
 
     public Collection<AssetDowntime> getByAsset(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             return assetDowntimeService.findByAsset(id);
@@ -86,7 +84,7 @@ public class AssetDowntimeController {
     public AssetDowntime patch(@Parameter(description = "Asset downtime fields to update") @Valid @RequestBody AssetDowntimePatchDTO assetDowntime,
                                @PathVariable("id") Long id,
                                HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<AssetDowntime> optionalAssetDowntime = assetDowntimeService.findById(id);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             if (optionalAssetDowntime.isPresent()) {
@@ -105,7 +103,7 @@ public class AssetDowntimeController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<AssetDowntime> optionalAssetDowntime = assetDowntimeService.findById(id);
         if (optionalAssetDowntime.isPresent()) {
@@ -117,7 +115,7 @@ public class AssetDowntimeController {
         } else throw new CustomException("AssetDowntime not found", HttpStatus.NOT_FOUND);
     }
 
-    private boolean canPatchAsset(Asset asset, OwnUser user) {
+    private boolean canPatchAsset(Asset asset, User user) {
         return user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || asset.getCreatedBy().equals(user.getId());
     }
 }

@@ -7,11 +7,19 @@ import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import { getImageAndFiles, handleFileUpload } from '../../utils/overall';
-import { useDispatch } from '../../store';
+import { useDispatch, useSelector } from '../../store';
 import { editPart } from '../../slices/part';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { formatPartValues, getPartFields } from '../../utils/fields';
+import { formatCustomFields } from '../../utils/formatters';
 import useAuth from '../../hooks/useAuth';
+import {
+  IField,
+  getCustomFieldsIFields,
+  getCustomFieldsRequiredShape,
+  getCustomFieldsValues
+} from '../../models/form';
+import { CustomFieldEntityType } from '../../models/customField';
 
 export default function EditPartScreen({
   navigation,
@@ -25,8 +33,19 @@ export default function EditPartScreen({
   );
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
-  const shape = {
-    name: Yup.string().required(t('required_part_name'))
+  const { customFields } = useSelector((state) => state.customFields);
+
+  const defaultShape = {
+    name: Yup.string().required(t('required_part_name')),
+    ...getCustomFieldsRequiredShape(customFields, CustomFieldEntityType.PART, t)
+  };
+
+  const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
+    const fields = [
+      ...getFilteredFields(getPartFields(t)),
+      ...getCustomFieldsIFields(customFields, CustomFieldEntityType.PART)
+    ];
+    return getWOFieldsAndShapes(fields, defaultShape);
   };
 
   const onEditSuccess = () => {
@@ -38,12 +57,13 @@ export default function EditPartScreen({
   return (
     <View style={styles.container}>
       <Form
-        fields={getFilteredFields(getPartFields(t))}
-        validation={Yup.object().shape(shape)}
+        fields={getFieldsAndShapes()[0]}
+        validation={Yup.object().shape(getFieldsAndShapes()[1])}
         navigation={navigation}
         submitText={t('save')}
         values={{
           ...part,
+          ...getCustomFieldsValues(part),
           assignedTo: part?.assignedTo.map((user) => {
             return {
               label: `${user.firstName} ${user.lastName}`,
@@ -72,6 +92,7 @@ export default function EditPartScreen({
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
           let formattedValues = formatPartValues(values);
+          formattedValues = formatCustomFields(formattedValues);
           try {
             const imageAndFiles = await handleFileUpload(
               {

@@ -29,6 +29,7 @@ import { canAddReading } from '../../utils/overall';
 import NumberInput from '../../components/NumberInput';
 import BasicField from '../../components/BasicField';
 import useAuth from '../../hooks/useAuth';
+import { getCustomFieldValuesForDetails } from '../../models/form';
 
 export default function MeterDetails({
   navigation,
@@ -66,7 +67,11 @@ export default function MeterDetails({
     {
       label: t('reading_frequency'),
       value: t('every_frequency_days', { frequency: meter?.updateFrequency })
-    }
+    },
+    ...getCustomFieldValuesForDetails(
+      meter?.customFieldValues,
+      getFormattedDate
+    )
   ];
   const onDeleteSuccess = () => {
     showSnackBar(t('meter_delete_success'), 'success');
@@ -188,6 +193,7 @@ export default function MeterDetails({
             key={field.label}
             label={field.label}
             value={field.value}
+            isLink={(field as any).isLink}
           />
         ))}
         <ListField

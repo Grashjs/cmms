@@ -66,6 +66,7 @@ import { AudioPlayer } from '../../components/AudioPlayer';
 import { Task } from '../../models/tasks';
 import { getErrorMessage } from '../../utils/api';
 import ImageView from 'react-native-image-viewing';
+import { getCustomFieldValuesForDetails } from '../../models/form';
 
 const getRemainingTasksLength = (tasks: Task[]): number => {
   const SECONDS_MS = 5_000;
@@ -160,6 +161,7 @@ export default function WODetailsScreen({
   const fieldsToRender: {
     label: string;
     value: string | number;
+    isLink?: boolean;
   }[] = [
     {
       label: t('description'),
@@ -186,7 +188,11 @@ export default function WODetailsScreen({
     {
       label: t('created_at'),
       value: getFormattedDate(workOrder?.createdAt)
-    }
+    },
+    ...getCustomFieldValuesForDetails(
+      workOrder?.customFieldValues,
+      getFormattedDate
+    )
   ];
   const touchableFields: {
     label: string;
@@ -613,19 +619,45 @@ export default function WODetailsScreen({
 
   function BasicField({
     label,
-    value
+    value,
+    isLink
   }: {
     label: string;
     value: string | number;
+    isLink?: boolean;
   }) {
+    if (!value) return null;
+
+    const handlePress = () => {
+      if (isLink) {
+        const href = value.toString().startsWith('http')
+          ? value.toString()
+          : `https://${value}`;
+        Linking.openURL(href).catch((err) =>
+          console.error('Failed to open link:', err)
+        );
+      }
+    };
+
     return (
       <View style={{ marginTop: 20 }}>
         <Text style={{ fontSize: 14, color: theme.colors.onSurfaceVariant }}>
           {label}
         </Text>
-        <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
-          {value}
-        </Text>
+        {isLink ? (
+          <TouchableOpacity onPress={handlePress}>
+            <Text
+              variant="titleMedium"
+              style={{ fontWeight: 'bold', color: theme.colors.primary }}
+            >
+              {value}
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
+            {value}
+          </Text>
+        )}
       </View>
     );
   }
@@ -753,9 +785,14 @@ export default function WODetailsScreen({
                 </View>
               )}
               {fieldsToRender.map(
-                ({ label, value }, index) =>
+                ({ label, value, isLink }, index) =>
                   value && (
-                    <BasicField key={label} label={label} value={value} />
+                    <BasicField
+                      key={label}
+                      label={label}
+                      value={value}
+                      isLink={isLink}
+                    />
                   )
               )}
               {touchableFields.map(

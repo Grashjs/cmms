@@ -1,6 +1,6 @@
 package com.grash.security;
 
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import lombok.Builder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,13 +12,13 @@ import java.util.Collections;
 @Builder
 public class CustomUserDetail implements UserDetails {
     private static final long serialVersionUID = 1L;
-    private OwnUser user;
+    private User user;
 
-    public OwnUser getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(OwnUser user) {
+    public void setUser(User user) {
         this.user = user;
     }
 

@@ -1,13 +1,9 @@
 package com.grash.dto;
 
-import com.grash.model.File;
-import com.grash.model.OwnUser;
 import com.grash.model.enums.Status;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
 
 @Data
 @NoArgsConstructor

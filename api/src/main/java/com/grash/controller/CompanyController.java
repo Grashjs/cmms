@@ -5,7 +5,7 @@ import com.grash.dto.CompanyShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CompanyMapper;
 import com.grash.model.Company;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.service.CacheService;
 import com.grash.service.CompanyService;
@@ -38,7 +38,7 @@ public class CompanyController {
     @PreAuthorize("permitAll()")
 
     public CompanyShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
 
         Optional<Company> companyOptional = companyService.findById(id);
         if (companyOptional.isPresent()) {
@@ -55,7 +55,7 @@ public class CompanyController {
     public CompanyShowDTO patch(@Parameter(description = "Company fields to update") @Valid @RequestBody CompanyPatchDTO company,
                                 @PathVariable("id") Long id,
                                 HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<Company> optionalCompany = companyService.findById(id);
 
         if (optionalCompany.isPresent()) {

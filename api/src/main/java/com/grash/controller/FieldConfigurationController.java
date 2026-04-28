@@ -4,7 +4,7 @@ import com.grash.dto.FieldConfigurationPatchDTO;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.model.FieldConfiguration;
-import com.grash.model.OwnUser;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.service.FieldConfigurationService;
@@ -40,7 +40,7 @@ public class FieldConfigurationController {
                                     HttpServletRequest req) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.FIELD_CONFIGURATION))
             throw new CustomException("You need a license to edit field configurations", HttpStatus.FORBIDDEN);
-        OwnUser user = userService.whoami(req);
+        User user = userService.whoami(req);
         Optional<FieldConfiguration> optionalFieldConfiguration = fieldConfigurationService.findById(id);
 
         if (optionalFieldConfiguration.isPresent()) {
