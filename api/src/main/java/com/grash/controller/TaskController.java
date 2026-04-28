@@ -81,19 +81,50 @@ public class TaskController {
         User user = userService.whoami(req);
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent() && optionalPreventiveMaintenance.get().canBeEditedBy(user)) {
-            taskService.findByPreventiveMaintenance(id).forEach(task -> taskService.delete(task.getId()));
-            Collection<TaskBase> taskBases = taskBasesReq.stream().map(taskBaseDTO ->
-                    taskBaseService.createFromTaskBaseDTO(taskBaseDTO, user.getCompany())).collect(Collectors.toList());
-            return taskBases.stream().map(taskBase -> {
-                StringBuilder value = new StringBuilder();
-                if (taskBase.getTaskType().equals(TaskType.SUBTASK)) {
-                    value.append("OPEN");
-                } else if (taskBase.getTaskType().equals(TaskType.INSPECTION)) {
-                    value.append("FLAG");
+            List<Task> savedPMTasks = taskService.findByPreventiveMaintenance(id);
+            List<TaskBaseDTO> incomingTasks = new ArrayList<>(taskBasesReq);
+
+            // Merge tasks intelligently: preserve existing task data (notes, images, value)
+            List<Task> resultTasks = new ArrayList<>();
+            List<Task> matchedTasks = new ArrayList<>();
+
+            // Process each incoming task
+            for (TaskBaseDTO reqTaskBase : incomingTasks) {
+                // Find matching existing task by comparing task base properties
+                Task matchedTask = savedPMTasks.stream()
+                        .filter(task -> !matchedTasks.contains(task) && tasksMatch(task.getTaskBase(), reqTaskBase))
+                        .findFirst()
+                        .orElse(null);
+
+                if (matchedTask != null) {
+                    // Task already exists - preserve it with all its data (notes, images, value)
+                    matchedTasks.add(matchedTask);
+                    resultTasks.add(matchedTask);
+                } else {
+                    // New task - create it
+                    TaskBase taskBase = taskBaseService.createFromTaskBaseDTO(reqTaskBase, user.getCompany());
+                    StringBuilder value = new StringBuilder();
+                    if (taskBase.getTaskType().equals(TaskType.SUBTASK)) {
+                        value.append("OPEN");
+                    } else if (taskBase.getTaskType().equals(TaskType.INSPECTION)) {
+                        value.append("FLAG");
+                    }
+                    Task newTask = new Task(taskBase, null, optionalPreventiveMaintenance.get(), value.toString());
+                    Task createdTask = taskService.create(newTask);
+                    resultTasks.add(createdTask);
                 }
-                Task task = new Task(taskBase, null, optionalPreventiveMaintenance.get(), value.toString());
-                return taskService.create(task);
-            }).map(taskMapper::toShowDto).collect(Collectors.toList());
+            }
+
+            // Delete tasks that are no longer in the incoming request
+            savedPMTasks.forEach(task -> {
+                if (!matchedTasks.contains(task)) {
+                    taskService.delete(task.getId());
+                }
+            });
+
+            return resultTasks.stream()
+                    .map(taskMapper::toShowDto)
+                    .collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -105,35 +136,48 @@ public class TaskController {
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent() && optionalWorkOrder.get().canBeEditedBy(user)) {
             List<Task> savedWOTasks = taskService.findByWorkOrder(id);
-            boolean isSame;
-            if (savedWOTasks.size() != taskBasesReq.size()) {
-                isSame = false;
-            } else {
-                isSame = IntStream.range(0, savedWOTasks.size())
-                        .allMatch(i -> {
-                            TaskBase savedTaskBase = savedWOTasks.get(i).getTaskBase();
-                            TaskBaseDTO reqTaskBase = taskBasesReq.get(i);
-                            return tasksMatch(savedTaskBase, reqTaskBase);
-                        });
-            }
-            if (isSame) {
-                return savedWOTasks.stream()
-                        .map(taskMapper::toShowDto)
-                        .collect(Collectors.toList());
-            }
-            savedWOTasks.forEach(task -> taskService.delete(task.getId()));
-            List<TaskBase> taskBases = taskBasesReq.stream().map(taskBaseDTO ->
-                    taskBaseService.createFromTaskBaseDTO(taskBaseDTO, user.getCompany())).collect(Collectors.toList());
-            return taskBases.stream().map(taskBase -> {
-                StringBuilder value = new StringBuilder();
-                if (taskBase.getTaskType().equals(TaskType.SUBTASK)) {
-                    value.append("OPEN");
-                } else if (taskBase.getTaskType().equals(TaskType.INSPECTION)) {
-                    value.append("FLAG");
+
+            // Merge tasks intelligently: preserve existing task data (notes, images, value)
+            List<Task> resultTasks = new ArrayList<>();
+            List<Task> matchedTasks = new ArrayList<>();
+
+            // Process each incoming task
+            for (TaskBaseDTO reqTaskBase : taskBasesReq) {
+                // Find matching existing task by comparing task base properties
+                Task matchedTask = savedWOTasks.stream()
+                        .filter(task -> !matchedTasks.contains(task) && tasksMatch(task.getTaskBase(), reqTaskBase))
+                        .findFirst()
+                        .orElse(null);
+
+                if (matchedTask != null) {
+                    // Task already exists - preserve it with all its data (notes, images, value)
+                    matchedTasks.add(matchedTask);
+                    resultTasks.add(matchedTask);
+                } else {
+                    // New task - create it
+                    TaskBase taskBase = taskBaseService.createFromTaskBaseDTO(reqTaskBase, user.getCompany());
+                    StringBuilder value = new StringBuilder();
+                    if (taskBase.getTaskType().equals(TaskType.SUBTASK)) {
+                        value.append("OPEN");
+                    } else if (taskBase.getTaskType().equals(TaskType.INSPECTION)) {
+                        value.append("FLAG");
+                    }
+                    Task newTask = new Task(taskBase, optionalWorkOrder.get(), null, value.toString());
+                    Task createdTask = taskService.create(newTask);
+                    resultTasks.add(createdTask);
                 }
-                Task task = new Task(taskBase, optionalWorkOrder.get(), null, value.toString());
-                return taskService.create(task);
-            }).map(taskMapper::toShowDto).collect(Collectors.toList());
+            }
+
+            // Delete tasks that are no longer in the incoming request
+            savedWOTasks.forEach(task -> {
+                if (!matchedTasks.contains(task)) {
+                    taskService.delete(task.getId());
+                }
+            });
+
+            return resultTasks.stream()
+                    .map(taskMapper::toShowDto)
+                    .collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
