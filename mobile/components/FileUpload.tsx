@@ -4,13 +4,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as React from 'react';
 import { useContext, useState } from 'react';
 import * as FileSystem from 'expo-file-system';
-import {
-  Alert,
-  Image,
-  ScrollView,
-  Text,
-  TouchableOpacity
-} from 'react-native';
+import { Alert, Image, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { IconButton, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import mime from 'mime';
@@ -72,7 +66,10 @@ export default function FileUpload({
       await checkSize(uri);
       const fileName = uri.split('/').pop() || 'photo.jpg';
       onChangeInternal(
-        [...images, { uri, name: fileName, type: mime.getType(fileName) || 'image/jpeg' }],
+        [
+          ...(multiple ? images : []),
+          { uri, name: fileName, type: mime.getType(fileName) || 'image/jpeg' }
+        ],
         'image'
       );
     } catch (_e) {
@@ -90,7 +87,9 @@ export default function FileUpload({
       });
 
       if (!result || result.canceled) {
-        console.warn('[ImageUpload] Library Image picker canceled or unavailable');
+        console.warn(
+          '[ImageUpload] Library Image picker canceled or unavailable'
+        );
         return;
       }
       await onImagePicked(result);
@@ -118,16 +117,18 @@ export default function FileUpload({
         await checkSize(uri);
       }
       onChangeInternal(
-        [...images,
-        ...result.assets.map((asset) => {
-          const fileName =
-            asset.uri.split('/')[asset.uri.split('/').length - 1];
-          return {
-            uri: asset.uri,
-            name: fileName,
-            type: mime.getType(fileName)
-          };
-        })],
+        [
+          ...images,
+          ...result.assets.map((asset) => {
+            const fileName =
+              asset.uri.split('/')[asset.uri.split('/').length - 1];
+            return {
+              uri: asset.uri,
+              name: fileName,
+              type: mime.getType(fileName)
+            };
+          })
+        ],
         'image'
       );
     }
@@ -215,7 +216,7 @@ export default function FileUpload({
             alignItems: 'center'
           }}
         >
-          <Text style={{color:'black'}}>{title}</Text>
+          <Text style={{ color: 'black' }}>{title}</Text>
           <IconButton iconColor={theme.colors.primary} icon={'plus-circle'} />
         </View>
       </TouchableOpacity>
@@ -223,7 +224,7 @@ export default function FileUpload({
         {type === 'image' &&
           !!images.length &&
           images.map((image) => (
-            <View key={image.uri} style={{margin: 3}}>
+            <View key={image.uri} style={{ margin: 3 }}>
               <Image source={{ uri: image.uri }} style={{ height: 200 }} />
               <IconButton
                 style={{ position: 'absolute', top: 10, right: 10 }}
