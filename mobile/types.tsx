@@ -144,7 +144,7 @@ export type RootStackParamList = {
   AddAdditionalCost: { workOrderId: number };
   AddAdditionalTime: { workOrderId: number };
   ScanAsset: {
-    onChange?: (asset: AssetDTO) => void;
+    onChange?: (asset: AssetMiniDTO) => void;
   };
 };
 

@@ -1435,8 +1435,7 @@ const locale = {
     '{{permission}} access is needed. Please enable it in app settings.',
   permission_denied_title: 'Permission Denied',
   permission_denied_message: '{{permission}} access is needed to continue.',
-  unable_to_request_permission:
-    'Unable to request {{permission}} permission.',
+  unable_to_request_permission: 'Unable to request {{permission}} permission.',
   open_settings: 'Open Settings',
   ok: 'OK',
   CANCELLED: 'Rejected',
@@ -1472,6 +1471,7 @@ const locale = {
   no_results_found: 'No results found',
   no_sub_assets: 'No sub-assets',
   no_assets_available: 'No assets available',
-  you_need_a_license: 'You need a license to access this feature'
+  you_need_a_license: 'You need a license to access this feature',
+  asset_not_found: 'Asset not found'
 };
 export default locale;

@@ -78,22 +78,22 @@ public class AssetController {
 
     @GetMapping("/nfc")
     @PreAuthorize("permitAll()")
-    public AssetShowDTO getByNfcId(@RequestParam @Parameter(description = "NFC identifier of the asset") String nfcId,
+    public AssetMiniDTO getByNfcId(@RequestParam @Parameter(description = "NFC identifier of the asset") String nfcId,
                                    @Parameter(hidden = true) @CurrentUser User user) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.NFC_BARCODE))
             throw new CustomException("You need a license to scan an asset", HttpStatus.FORBIDDEN);
         Optional<Asset> optionalAsset = assetService.findByNfcIdAndCompany(nfcId, user.getCompany().getId());
-        return getAsset(optionalAsset, user);
+        return assetMapper.toMiniDto(optionalAsset.get());
     }
 
     @GetMapping("/barcode")
     @PreAuthorize("permitAll()")
-    public AssetShowDTO getByBarcode(@RequestParam @Parameter(description = "Barcode of the asset") String data,
+    public AssetMiniDTO getByBarcode(@RequestParam @Parameter(description = "Barcode of the asset") String data,
                                      @Parameter(hidden = true) @CurrentUser User user) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.NFC_BARCODE))
             throw new CustomException("You need a license to scan an asset", HttpStatus.FORBIDDEN);
         Optional<Asset> optionalAsset = assetService.findByBarcodeAndCompany(data, user.getCompany().getId());
-        return getAsset(optionalAsset, user);
+        return assetMapper.toMiniDto(optionalAsset.get());
     }
 
     @GetMapping("/{id}")
