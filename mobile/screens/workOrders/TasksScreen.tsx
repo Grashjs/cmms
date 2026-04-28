@@ -9,13 +9,12 @@ import SingleTask from '../../components/SingleTask';
 import { RootStackScreenProps } from '../../types';
 import { addFiles } from '../../slices/file';
 import * as ImagePicker from 'expo-image-picker';
+import mime from 'mime';
 import { formatImages } from '../../utils/overall';
 import ImageView from 'react-native-image-viewing';
 import { SheetManager } from 'react-native-actions-sheet';
-import {
-  openCameraWithPermission,
-  openLibraryWithPermission
-} from '../../utils/mediaPermissions';
+import { openLibraryWithPermission } from '../../utils/mediaPermissions';
+import InAppCamera from '../../components/InAppCamera';
 
 export default function TasksScreen({
   navigation,
@@ -34,6 +33,7 @@ export default function TasksScreen({
   });
   const [notes, setNotes] = useState<Map<number, boolean>>(initialNotes);
   const [tasks, setTasks] = useState<Task[]>(tasksProps);
+  const [cameraTaskId, setCameraTaskId] = useState<number | null>(null);
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
 
@@ -106,26 +106,19 @@ export default function TasksScreen({
 
     await onImagePicked(result, taskId);
   };
-  const takePhoto = async (taskId: number) => {
-    console.warn('[TasksScreen] Tap -> camera', JSON.stringify({ taskId }));
-    try {
-      const result = await openCameraWithPermission('TasksScreen', {
-        allowsEditing: true,
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsMultipleSelection: true,
-        selectionLimit: 10,
-        quality: 1
-      });
-
-      if (!result || result.canceled) {
-        console.warn('[TasksScreen] Camera canceled or unavailable');
-        return;
-      }
-
-      await onImagePicked(result, taskId);
-    } catch (e) {
-      console.error(e);
-    }
+  const takePhoto = (taskId: number) => {
+    setCameraTaskId(taskId);
+  };
+  const handleInAppCapture = async (uri: string) => {
+    if (cameraTaskId === null) return;
+    const taskId = cameraTaskId;
+    setCameraTaskId(null);
+    const fileName = uri.split('/').pop() || 'photo.jpg';
+    const files = [{ uri, name: fileName, type: mime.getType(fileName) || 'image/jpeg' }];
+    return dispatch(addFiles(files, 'IMAGE', taskId))
+      .then(onImageUploadSuccess)
+      .then(() => dispatch(getTasks(workOrderId)))
+      .catch(onImageUploadFailure);
   };
   const onImagePicked = async (
     result: ImagePicker.ImagePickerResult,
@@ -141,6 +134,11 @@ export default function TasksScreen({
   };
   return (
     <ScrollView style={styles.container}>
+      <InAppCamera
+        visible={cameraTaskId !== null}
+        onCapture={handleInAppCapture}
+        onClose={() => setCameraTaskId(null)}
+      />
       {tasks.map((task) => (
         <SingleTask
           key={task.id}
