@@ -180,7 +180,10 @@ function Locations() {
   };
 
   const changeCurrentLocation = (id: number) => {
-    setCurrentLocation(locations.find((location) => location.id === id));
+    setCurrentLocation(
+      locations.find((location) => location.id === id) ||
+        locationsHierarchy.find((location) => location.id === id)
+    );
   };
   const handleDelete = (id: number) => {
     handleCloseDetails();
