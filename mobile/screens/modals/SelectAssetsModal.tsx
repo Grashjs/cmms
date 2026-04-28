@@ -4,7 +4,8 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator,
+  View as RNView
 } from 'react-native';
 import { View } from '../../components/Themed';
 import { RootStackScreenProps } from '../../types';
@@ -12,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import * as React from 'react';
 import { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from '../../store';
-import { AssetMiniDTO } from '../../models/asset';
+import { AssetDTO, AssetMiniDTO } from '../../models/asset';
 import { getAssetsMini } from '../../slices/asset';
 import {
   Avatar,
@@ -79,34 +80,48 @@ export default function SelectAssetsModal({
     dispatch(getAssetsMini(locationId));
   }, [locationId, dispatch]);
 
-  // Update header button for multiple selection
+  // Update header button for multiple selection and scan icon
   useEffect(() => {
-    if (multiple) {
-      const currentlySelectedAssets = selectedIds
-        .map((id) => findAssetById(id))
-        .filter((asset): asset is AssetHierarchyNode => !!asset); // Use AssetHierarchyNode here
+    const currentlySelectedAssets = selectedIds
+      .map((id) => findAssetById(id))
+      .filter((asset): asset is AssetHierarchyNode => !!asset);
 
-      navigation.setOptions({
-        headerRight: () => (
-          <Pressable
-            disabled={!currentlySelectedAssets.length}
-            onPress={() => {
-              // Pass back the selected assets (ensure format matches onChange expectation)
-              onChange(currentlySelectedAssets);
-              navigation.goBack();
-            }}
-            style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-          >
-            <Text
-              variant="titleMedium"
-              style={{ color: theme.colors.primary, marginRight: 10 }}
+    navigation.setOptions({
+      headerRight: () => (
+        <RNView style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <IconButton
+            icon="barcode-scan"
+            size={24}
+            onPress={() =>
+              navigation.navigate('ScanAsset', {
+                onChange: (asset: AssetDTO) => {
+                  onChange([{ ...asset, parentId: asset.parentAsset?.id }]);
+                  navigation.goBack();
+                }
+              })
+            }
+            style={{ marginRight: 5 }}
+          />
+          {multiple && (
+            <Pressable
+              disabled={!currentlySelectedAssets.length}
+              onPress={() => {
+                onChange(currentlySelectedAssets);
+                navigation.goBack();
+              }}
+              style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
             >
-              {t('add')} ({currentlySelectedAssets.length})
-            </Text>
-          </Pressable>
-        )
-      });
-    }
+              <Text
+                variant="titleMedium"
+                style={{ color: theme.colors.primary, marginRight: 10 }}
+              >
+                {t('add')} ({currentlySelectedAssets.length})
+              </Text>
+            </Pressable>
+          )}
+        </RNView>
+      )
+    });
     // Re-run when selectedIds or assetsHierarchy changes (needed if assets load after initial render)
   }, [
     selectedIds,

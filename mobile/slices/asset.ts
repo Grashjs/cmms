@@ -259,7 +259,7 @@ export const getAssetByNfc =
     dispatch(slice.actions.setLoadingGet({ loading: true }));
     const asset = await api.get<AssetDTO>(`${basePath}/nfc?nfcId=${nfcId}`);
     dispatch(slice.actions.setLoadingGet({ loading: false }));
-    return asset.id;
+    return asset;
   };
 export const getAssetByBarcode =
   (barCode: string): AppThunk =>
@@ -269,7 +269,7 @@ export const getAssetByBarcode =
       `${basePath}/barcode?data=${barCode}`
     );
     dispatch(slice.actions.setLoadingGet({ loading: false }));
-    return asset.id;
+    return asset;
   };
 export const getAssetWorkOrders =
   (id: number): AppThunk =>

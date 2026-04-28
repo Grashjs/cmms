@@ -9,13 +9,16 @@ import { useContext, useEffect } from 'react';
 import { getLicenseValidity } from '../slices/license';
 import { useLicenseEntitlement } from '../hooks/useLicenseEntitlement';
 import { CustomSnackBarContext } from '../contexts/CustomSnackBarContext';
+import { AssetDTO, AssetMiniDTO } from '../models/asset';
 
 export default function ScanAssetScreen({
-  navigation
+  navigation,
+  route
 }: RootStackScreenProps<'ScanAsset'>) {
   const theme = useTheme();
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const { onChange } = route.params || {};
   const hasBarcodeNfcEntitlement = useLicenseEntitlement('NFC_BARCODE');
   // NFC scanning must remain disabled on iOS; keep barcode only there.
   const isNfcEnabled = Platform.select({ ios: false, default: true });
@@ -24,6 +27,16 @@ export default function ScanAssetScreen({
   const showLicenseError = () => {
     showSnackBar(t('you_need_a_license'), 'error');
   };
+
+  const handleAssetFound = (asset: AssetDTO) => {
+    if (onChange) {
+      onChange(asset);
+      navigation.goBack();
+    } else {
+      navigation.replace('AssetDetails', { id: asset.id });
+    }
+  };
+
   useEffect(() => {
     dispatch(getLicenseValidity());
   }, []);
@@ -40,9 +53,7 @@ export default function ScanAssetScreen({
                   navigation.navigate('SelectNfc', {
                     onChange: (nfcId) =>
                       dispatch(getAssetByNfc(nfcId))
-                        .then((assetId: number) =>
-                          navigation.replace('AssetDetails', { id: assetId })
-                        )
+                        .then((asset: AssetDTO) => handleAssetFound(asset))
                         .catch((err) =>
                           Alert.alert(t('error'), t('no_asset_found_nfc'), [
                             {
@@ -70,9 +81,7 @@ export default function ScanAssetScreen({
               navigation.navigate('SelectBarcode', {
                 onChange: (barCode) => {
                   dispatch(getAssetByBarcode(barCode))
-                    .then((assetId: number) =>
-                      navigation.replace('AssetDetails', { id: assetId })
-                    )
+                    .then((asset: AssetDTO) => handleAssetFound(asset))
                     .catch((err) =>
                       Alert.alert(t('error'), t('no_asset_found_barcode'), [
                         { text: t('no'), onPress: () => navigation.goBack() },
