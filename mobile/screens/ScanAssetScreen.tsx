@@ -34,7 +34,6 @@ export default function ScanAssetScreen({
   const handleAssetFound = (asset: AssetMiniDTO) => {
     if (onChange) {
       onChange(asset);
-      navigation.goBack();
     } else {
       navigation.replace('AssetDetails', { id: asset.id });
     }

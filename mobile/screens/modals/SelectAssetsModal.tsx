@@ -94,9 +94,9 @@ export default function SelectAssetsModal({
             size={24}
             onPress={() =>
               navigation.navigate('ScanAsset', {
-                onChange: (asset: AssetDTO) => {
-                  onChange([{ ...asset, parentId: asset.parentAsset?.id }]);
-                  navigation.goBack();
+                onChange: (asset) => {
+                  onChange([asset]);
+                  navigation.pop(3);
                 }
               })
             }
