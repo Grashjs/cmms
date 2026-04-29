@@ -144,7 +144,6 @@ const styles = StyleSheet.create({
     flex: 1
   },
   card: {
-    backgroundColor: 'white',
     marginBottom: 1,
     padding: 10
   },

@@ -147,7 +147,7 @@ export default function MeterDetails({
         <Dialog
           visible={openModal}
           onDismiss={() => setOpenModal(false)}
-          style={{ backgroundColor: 'white' }}
+          style={{ backgroundColor: theme.colors.surface }}
         >
           <Dialog.Title>{t('add_reading')}</Dialog.Title>
           <Dialog.Content>

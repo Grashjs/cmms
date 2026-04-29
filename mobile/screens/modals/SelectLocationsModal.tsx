@@ -119,7 +119,9 @@ export default function SelectLocationsModal({
               }}
               key={location.id}
             >
-              <View style={styles.card}>
+            <View
+              style={[styles.card, { backgroundColor: theme.colors.surface }]}
+            >
                 <View style={styles.cardRow}>
                   <Avatar.Icon
                     style={{
@@ -168,7 +170,6 @@ const styles = StyleSheet.create({
     flex: 1
   },
   card: {
-    backgroundColor: 'white',
     marginBottom: 1,
     padding: 10
   },

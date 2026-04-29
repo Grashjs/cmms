@@ -64,7 +64,7 @@ const PartsRoute = ({
                 toggle(part.id);
               }}
             >
-              <View style={styles.card}>
+              <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
                 <View style={styles.cardRow}>
                   <Checkbox
                     status={
@@ -153,7 +153,7 @@ const SetsRoute = ({
                 toggle(multiPart, selectedMultiParts.includes(multiPart.id));
               }}
             >
-              <View style={styles.card}>
+              <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
                 <View style={styles.cardRow}>
                   <Avatar.Icon
                     size={50}
@@ -288,7 +288,7 @@ export default function SelectParts({
   const renderTabBar = (props) => (
     <TabBar
       {...props}
-      indicatorStyle={{ backgroundColor: 'white' }}
+      indicatorStyle={{ backgroundColor: theme.colors.onPrimary }}
       style={{ backgroundColor: theme.colors.primary }}
     />
   );
@@ -319,7 +319,6 @@ const styles = StyleSheet.create({
     flex: 1
   },
   card: {
-    backgroundColor: 'white',
     marginBottom: 1,
     padding: 10
   },

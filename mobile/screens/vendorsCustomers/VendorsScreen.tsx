@@ -128,7 +128,7 @@ export default function VendorsScreen({
                 })
               }
             >
-              <View style={styles.card}>
+              <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
                 <View
                   style={{
                     display: 'flex',
@@ -173,7 +173,7 @@ export default function VendorsScreen({
           ))
         ) : loadingGet ? null : (
           <View
-            style={{ backgroundColor: 'white', padding: 20, borderRadius: 10 }}
+            style={{ backgroundColor: theme.colors.surface, padding: 20, borderRadius: 10 }}
           >
             <Text variant={'titleLarge'}>{t('no_element_match_criteria')}</Text>
           </View>
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   card: {
-    backgroundColor: 'white',
+    backgroundColor: 'transparent',
     marginBottom: 1,
     padding: 10
   },
