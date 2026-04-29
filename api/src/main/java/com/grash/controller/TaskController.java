@@ -15,6 +15,7 @@ import com.grash.service.*;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,7 +27,6 @@ import jakarta.validation.Valid;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @RestController
 @RequestMapping("/tasks")
@@ -81,20 +81,59 @@ public class TaskController {
         User user = userService.whoami(req);
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent() && optionalPreventiveMaintenance.get().canBeEditedBy(user)) {
-            taskService.findByPreventiveMaintenance(id).forEach(task -> taskService.delete(task.getId()));
-            Collection<TaskBase> taskBases = taskBasesReq.stream().map(taskBaseDTO ->
-                    taskBaseService.createFromTaskBaseDTO(taskBaseDTO, user.getCompany())).collect(Collectors.toList());
-            return taskBases.stream().map(taskBase -> {
+            List<Task> savedPMTasks = taskService.findByPreventiveMaintenance(id);
+            List<TaskBaseDTO> incomingTasks = new ArrayList<>(taskBasesReq);
+
+            List<Task> resultTasks = updateEntityTasks(incomingTasks, savedPMTasks, user,
+                    optionalPreventiveMaintenance.get(),
+                    null);
+
+            return resultTasks.stream()
+                    .map(taskMapper::toShowDto)
+                    .collect(Collectors.toList());
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @NotNull
+    private List<Task> updateEntityTasks(List<TaskBaseDTO> incomingTasks, List<Task> savedTasks, OwnUser user,
+                                         PreventiveMaintenance preventiveMaintenance, WorkOrder workOrder) {
+        List<Task> resultTasks = new ArrayList<>();
+        List<Task> matchedTasks = new ArrayList<>();
+
+        // Process each incoming task
+        for (TaskBaseDTO reqTaskBase : incomingTasks) {
+            // Find matching existing task by comparing task base properties
+            Task matchedTask = savedTasks.stream()
+                    .filter(task -> !matchedTasks.contains(task) && tasksMatch(task.getTaskBase(), reqTaskBase))
+                    .findFirst()
+                    .orElse(null);
+
+            if (matchedTask != null) {
+                // Task already exists - preserve it with all its data (notes, images, value)
+                matchedTasks.add(matchedTask);
+                resultTasks.add(matchedTask);
+            } else {
+                // New task - create it
+                TaskBase taskBase = taskBaseService.createFromTaskBaseDTO(reqTaskBase, user.getCompany());
                 StringBuilder value = new StringBuilder();
                 if (taskBase.getTaskType().equals(TaskType.SUBTASK)) {
                     value.append("OPEN");
                 } else if (taskBase.getTaskType().equals(TaskType.INSPECTION)) {
                     value.append("FLAG");
                 }
-                Task task = new Task(taskBase, null, optionalPreventiveMaintenance.get(), value.toString());
-                return taskService.create(task);
-            }).map(taskMapper::toShowDto).collect(Collectors.toList());
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+                Task newTask = new Task(taskBase, workOrder, preventiveMaintenance, value.toString());
+                Task createdTask = taskService.create(newTask);
+                resultTasks.add(createdTask);
+            }
+        }
+
+        // Delete tasks that are no longer in the incoming request
+        savedTasks.forEach(task -> {
+            if (!matchedTasks.contains(task)) {
+                taskService.delete(task.getId());
+            }
+        });
+        return resultTasks;
     }
 
     @PatchMapping("/work-order/{id}")
@@ -105,35 +144,12 @@ public class TaskController {
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent() && optionalWorkOrder.get().canBeEditedBy(user)) {
             List<Task> savedWOTasks = taskService.findByWorkOrder(id);
-            boolean isSame;
-            if (savedWOTasks.size() != taskBasesReq.size()) {
-                isSame = false;
-            } else {
-                isSame = IntStream.range(0, savedWOTasks.size())
-                        .allMatch(i -> {
-                            TaskBase savedTaskBase = savedWOTasks.get(i).getTaskBase();
-                            TaskBaseDTO reqTaskBase = taskBasesReq.get(i);
-                            return tasksMatch(savedTaskBase, reqTaskBase);
-                        });
-            }
-            if (isSame) {
-                return savedWOTasks.stream()
-                        .map(taskMapper::toShowDto)
-                        .collect(Collectors.toList());
-            }
-            savedWOTasks.forEach(task -> taskService.delete(task.getId()));
-            List<TaskBase> taskBases = taskBasesReq.stream().map(taskBaseDTO ->
-                    taskBaseService.createFromTaskBaseDTO(taskBaseDTO, user.getCompany())).collect(Collectors.toList());
-            return taskBases.stream().map(taskBase -> {
-                StringBuilder value = new StringBuilder();
-                if (taskBase.getTaskType().equals(TaskType.SUBTASK)) {
-                    value.append("OPEN");
-                } else if (taskBase.getTaskType().equals(TaskType.INSPECTION)) {
-                    value.append("FLAG");
-                }
-                Task task = new Task(taskBase, optionalWorkOrder.get(), null, value.toString());
-                return taskService.create(task);
-            }).map(taskMapper::toShowDto).collect(Collectors.toList());
+
+            List<Task> resultTasks = updateEntityTasks(taskBasesReq, savedWOTasks, user, null, optionalWorkOrder.get());
+
+            return resultTasks.stream()
+                    .map(taskMapper::toShowDto)
+                    .collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
