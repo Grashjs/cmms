@@ -1309,7 +1309,7 @@ export default function WODetailsScreen({
                         <View
                           style={{
                             flexDirection: 'row',
-                            alignItems: 'flex-end'
+                            alignItems: 'center'
                           }}
                         >
                           <View
