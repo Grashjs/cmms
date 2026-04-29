@@ -14,6 +14,7 @@ import com.grash.service.*;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,7 +26,6 @@ import jakarta.validation.Valid;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @RestController
 @RequestMapping("/tasks")
@@ -81,48 +81,56 @@ public class TaskController {
             List<Task> savedPMTasks = taskService.findByPreventiveMaintenance(id);
             List<TaskBaseDTO> incomingTasks = new ArrayList<>(taskBasesReq);
 
-            // Merge tasks intelligently: preserve existing task data (notes, images, value)
-            List<Task> resultTasks = new ArrayList<>();
-            List<Task> matchedTasks = new ArrayList<>();
-
-            // Process each incoming task
-            for (TaskBaseDTO reqTaskBase : incomingTasks) {
-                // Find matching existing task by comparing task base properties
-                Task matchedTask = savedPMTasks.stream()
-                        .filter(task -> !matchedTasks.contains(task) && tasksMatch(task.getTaskBase(), reqTaskBase))
-                        .findFirst()
-                        .orElse(null);
-
-                if (matchedTask != null) {
-                    // Task already exists - preserve it with all its data (notes, images, value)
-                    matchedTasks.add(matchedTask);
-                    resultTasks.add(matchedTask);
-                } else {
-                    // New task - create it
-                    TaskBase taskBase = taskBaseService.createFromTaskBaseDTO(reqTaskBase, user.getCompany());
-                    StringBuilder value = new StringBuilder();
-                    if (taskBase.getTaskType().equals(TaskType.SUBTASK)) {
-                        value.append("OPEN");
-                    } else if (taskBase.getTaskType().equals(TaskType.INSPECTION)) {
-                        value.append("FLAG");
-                    }
-                    Task newTask = new Task(taskBase, null, optionalPreventiveMaintenance.get(), value.toString());
-                    Task createdTask = taskService.create(newTask);
-                    resultTasks.add(createdTask);
-                }
-            }
-
-            // Delete tasks that are no longer in the incoming request
-            savedPMTasks.forEach(task -> {
-                if (!matchedTasks.contains(task)) {
-                    taskService.delete(task.getId());
-                }
-            });
+            List<Task> resultTasks = updateEntityTasks(incomingTasks, savedPMTasks, user,
+                    optionalPreventiveMaintenance.get(),
+                    null);
 
             return resultTasks.stream()
                     .map(taskMapper::toShowDto)
                     .collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @NotNull
+    private List<Task> updateEntityTasks(List<TaskBaseDTO> incomingTasks, List<Task> savedTasks, OwnUser user,
+                                         PreventiveMaintenance preventiveMaintenance, WorkOrder workOrder) {
+        List<Task> resultTasks = new ArrayList<>();
+        List<Task> matchedTasks = new ArrayList<>();
+
+        // Process each incoming task
+        for (TaskBaseDTO reqTaskBase : incomingTasks) {
+            // Find matching existing task by comparing task base properties
+            Task matchedTask = savedTasks.stream()
+                    .filter(task -> !matchedTasks.contains(task) && tasksMatch(task.getTaskBase(), reqTaskBase))
+                    .findFirst()
+                    .orElse(null);
+
+            if (matchedTask != null) {
+                // Task already exists - preserve it with all its data (notes, images, value)
+                matchedTasks.add(matchedTask);
+                resultTasks.add(matchedTask);
+            } else {
+                // New task - create it
+                TaskBase taskBase = taskBaseService.createFromTaskBaseDTO(reqTaskBase, user.getCompany());
+                StringBuilder value = new StringBuilder();
+                if (taskBase.getTaskType().equals(TaskType.SUBTASK)) {
+                    value.append("OPEN");
+                } else if (taskBase.getTaskType().equals(TaskType.INSPECTION)) {
+                    value.append("FLAG");
+                }
+                Task newTask = new Task(taskBase, workOrder, preventiveMaintenance, value.toString());
+                Task createdTask = taskService.create(newTask);
+                resultTasks.add(createdTask);
+            }
+        }
+
+        // Delete tasks that are no longer in the incoming request
+        savedTasks.forEach(task -> {
+            if (!matchedTasks.contains(task)) {
+                taskService.delete(task.getId());
+            }
+        });
+        return resultTasks;
     }
 
     @PatchMapping("/work-order/{id}")
@@ -134,43 +142,7 @@ public class TaskController {
         if (optionalWorkOrder.isPresent() && optionalWorkOrder.get().canBeEditedBy(user)) {
             List<Task> savedWOTasks = taskService.findByWorkOrder(id);
 
-            // Merge tasks intelligently: preserve existing task data (notes, images, value)
-            List<Task> resultTasks = new ArrayList<>();
-            List<Task> matchedTasks = new ArrayList<>();
-
-            // Process each incoming task
-            for (TaskBaseDTO reqTaskBase : taskBasesReq) {
-                // Find matching existing task by comparing task base properties
-                Task matchedTask = savedWOTasks.stream()
-                        .filter(task -> !matchedTasks.contains(task) && tasksMatch(task.getTaskBase(), reqTaskBase))
-                        .findFirst()
-                        .orElse(null);
-
-                if (matchedTask != null) {
-                    // Task already exists - preserve it with all its data (notes, images, value)
-                    matchedTasks.add(matchedTask);
-                    resultTasks.add(matchedTask);
-                } else {
-                    // New task - create it
-                    TaskBase taskBase = taskBaseService.createFromTaskBaseDTO(reqTaskBase, user.getCompany());
-                    StringBuilder value = new StringBuilder();
-                    if (taskBase.getTaskType().equals(TaskType.SUBTASK)) {
-                        value.append("OPEN");
-                    } else if (taskBase.getTaskType().equals(TaskType.INSPECTION)) {
-                        value.append("FLAG");
-                    }
-                    Task newTask = new Task(taskBase, optionalWorkOrder.get(), null, value.toString());
-                    Task createdTask = taskService.create(newTask);
-                    resultTasks.add(createdTask);
-                }
-            }
-
-            // Delete tasks that are no longer in the incoming request
-            savedWOTasks.forEach(task -> {
-                if (!matchedTasks.contains(task)) {
-                    taskService.delete(task.getId());
-                }
-            });
+            List<Task> resultTasks = updateEntityTasks(taskBasesReq, savedWOTasks, user, null, optionalWorkOrder.get());
 
             return resultTasks.stream()
                     .map(taskMapper::toShowDto)
