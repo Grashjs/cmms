@@ -58,6 +58,7 @@
     "react-i18next": "^12.2.0",
     "react-native": "0.79.6",
     "react-native-actions-sheet": "^0.8.21",
+    "react-native-controlled-mentions": "^3.1.0",
     "react-native-dotenv": "^3.4.11",
     "react-native-dropdown-select-list": "^2.0.4",
     "react-native-flash-message": "^0.4.1",

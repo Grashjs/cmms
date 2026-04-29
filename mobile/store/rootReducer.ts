@@ -38,6 +38,7 @@ import { reducer as exportsReducer } from '../slices/exports';
 import { reducer as workflowReducer } from '../slices/workflow';
 import { reducer as licenseReducer } from '../slices/license';
 import { reducer as customFieldReducer } from '../slices/customField';
+import { reducer as commentReducer } from '../slices/comment';
 
 const rootReducer = combineReducers({
   customers: customerReducer,
@@ -78,7 +79,8 @@ const rootReducer = combineReducers({
   exports: exportsReducer,
   workflows: workflowReducer,
   license: licenseReducer,
-  customFields: customFieldReducer
+  customFields: customFieldReducer,
+  comments: commentReducer
 });
 
 export default rootReducer;

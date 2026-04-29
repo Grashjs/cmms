@@ -1472,6 +1472,11 @@ const locale = {
   no_sub_assets: 'No sub-assets',
   no_assets_available: 'No assets available',
   you_need_a_license: 'You need a license to access this feature',
-  asset_not_found: 'Asset not found'
+  asset_not_found: 'Asset not found',
+  comments: 'Comments',
+  no_comments: 'No comments yet. Be the first to comment!',
+  post_comment: 'Post comment',
+  confirm_delete_comment: 'Are you sure you want to delete this comment?',
+  add_comment_placeholder: 'Add a comment...'
 };
 export default locale;

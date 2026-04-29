@@ -1,5 +1,6 @@
 import {
   Alert,
+  ActivityIndicator,
   Image,
   Linking,
   PermissionsAndroid,
@@ -23,6 +24,7 @@ import {
   ProgressBar,
   Provider,
   Text,
+  TextInput,
   useTheme
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -67,6 +69,9 @@ import { Task } from '../../models/tasks';
 import { getErrorMessage } from '../../utils/api';
 import ImageView from 'react-native-image-viewing';
 import { getCustomFieldValuesForDetails } from '../../models/form';
+import CommentItem from '../../components/CommentItem';
+import { getCommentsByWorkOrder, createComment } from '../../slices/comment';
+import { getUsersMini } from '../../slices/user';
 
 const getRemainingTasksLength = (tasks: Task[]): number => {
   const SECONDS_MS = 5_000;
@@ -118,9 +123,6 @@ export default function WODetailsScreen({
     (state) => state.partQuantities
   );
   const partQuantities = partQuantitiesByWorkOrder[id] ?? [];
-  const { workOrderHistories } = useSelector(
-    (state) => state.workOrderHistories
-  );
   const { relationsByWorkOrder, loadingRelations } = useSelector(
     (state) => state.relations
   );
@@ -128,7 +130,6 @@ export default function WODetailsScreen({
     (state) => state.tasks
   );
   const tasks = tasksByWorkOrder[id] ?? [];
-  const currentWorkOrderHistories = workOrderHistories[id] ?? [];
   const currentWorkOrderRelations = relationsByWorkOrder[id] ?? [];
   const { costsByWorkOrder, loadingCosts } = useSelector(
     (state) => state.additionalCosts
@@ -146,6 +147,12 @@ export default function WODetailsScreen({
   const { getFormattedDate, getUserNameById, getFormattedCurrency } =
     useContext(CompanySettingsContext);
   const [isExtended, setIsExtended] = React.useState(true);
+  const [commentContent, setCommentContent] = useState('');
+  const { commentsByWorkOrder, loadingComments, loadingCreate } = useSelector(
+    (state) => state.comments
+  );
+  const { usersMini } = useSelector((state) => state.users);
+  const comments = commentsByWorkOrder[id] ?? [];
   const statuses = ['OPEN', 'ON_HOLD', 'IN_PROGRESS', 'COMPLETE'].map(
     (status) => ({ value: status, label: t(status) })
   );
@@ -272,6 +279,12 @@ export default function WODetailsScreen({
   useEffect(() => {
     getInfos();
   }, [workOrderProp]);
+
+  useEffect(() => {
+    dispatch(getCommentsByWorkOrder(id));
+    dispatch(getUsersMini());
+  }, [id]);
+
   useEffect(() => {
     let intervalId;
 
@@ -538,6 +551,18 @@ export default function WODetailsScreen({
 
     return result;
   };
+
+  const handleCommentSubmit = () => {
+    if (!commentContent.trim()) return;
+    dispatch(
+      createComment({
+        workOrder: { id },
+        content: commentContent.trim(),
+        files: []
+      })
+    ).then(() => setCommentContent(''));
+  };
+
   useEffect(() => {
     if (dropDownValue !== workOrder?.status && dropDownValue)
       onStatusChange(dropDownValue);
@@ -1183,27 +1208,61 @@ export default function WODetailsScreen({
                       </Fragment>
                     )}
                   </View>
-                  {!!currentWorkOrderHistories.length && (
-                    <View style={styles.shadowedCard}>
+                  <View style={styles.shadowedCard}>
+                    <Text
+                      style={{
+                        marginBottom: 10,
+                        color: theme.colors.onSurfaceVariant
+                      }}
+                    >
+                      {t('comments')}
+                    </Text>
+                    {loadingComments ? (
+                      <ActivityIndicator size="small" />
+                    ) : comments.length === 0 ? (
                       <Text
                         style={{
-                          marginBottom: 10,
+                          textAlign: 'center',
+                          padding: 20,
                           color: theme.colors.onSurfaceVariant
                         }}
                       >
-                        {t('history')}
+                        {t('no_comments')}
                       </Text>
-                      {currentWorkOrderHistories.map((workOrderHistory) => (
-                        <List.Item
-                          key={workOrderHistory.id}
-                          title={`${workOrderHistory.user.firstName} ${workOrderHistory.user.lastName}`}
-                          description={getFormattedDate(
-                            workOrderHistory.createdAt
-                          )}
+                    ) : (
+                      comments.map((comment) => (
+                        <CommentItem
+                          key={comment.id}
+                          comment={comment}
+                          workOrderId={id}
                         />
-                      ))}
-                    </View>
-                  )}
+                      ))
+                    )}
+                    {hasEditPermission(
+                      PermissionEntity.WORK_ORDERS,
+                      workOrder
+                    ) && (
+                      <View style={{ marginTop: 10 }}>
+                        <TextInput
+                          mode="outlined"
+                          multiline
+                          numberOfLines={3}
+                          value={commentContent}
+                          onChangeText={setCommentContent}
+                          placeholder={t('add_comment_placeholder')}
+                          style={{ marginBottom: 8 }}
+                        />
+                        <Button
+                          mode="contained"
+                          onPress={handleCommentSubmit}
+                          disabled={!commentContent.trim() || loadingCreate}
+                          loading={loadingCreate}
+                        >
+                          {t('post_comment')}
+                        </Button>
+                      </View>
+                    )}
+                  </View>
                 </View>
               )}
             </View>
