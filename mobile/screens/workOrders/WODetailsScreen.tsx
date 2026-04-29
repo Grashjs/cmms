@@ -1278,7 +1278,18 @@ export default function WODetailsScreen({
                                   }, 100);
                                 }}
                                 placeholder={t('add_comment_placeholder')}
-                                style={{ flex: 1 }}
+                                placeholderTextColor={theme.colors.onSurfaceVariant}
+                                style={{
+                                  flex: 1,
+                                  backgroundColor: theme.colors.surface,
+                                  color: theme.colors.onSurface,
+                                  borderWidth: 1,
+                                  borderColor: theme.colors.outline,
+                                  borderRadius: 8,
+                                  paddingHorizontal: 12,
+                                  paddingVertical: 10
+                                }}
+
                                 {...textInputProps}
                               />
                             </View>
