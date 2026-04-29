@@ -8,4 +8,7 @@
     <changeSet id="1777399181-1" author="Ibrahima G. Coulibaly">
         <modifyDataType tableName="work_order" columnName="feedback" newDataType="text"/>
     </changeSet>
+    <changeSet id="1777430924443-1" author="Ibrahima G. Coulibaly">
+        <modifyDataType tableName="work_order_aud" columnName="feedback" newDataType="text"/>
+    </changeSet>
 </databaseChangeLog>
