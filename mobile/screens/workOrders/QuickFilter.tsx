@@ -51,7 +51,10 @@ export default function QuickFilter({
       }}
     >
       <Text
-        style={{ color: isSelected ? 'white' : 'black', fontWeight: 'bold' }}
+        style={{
+          color: isSelected ? theme.colors.onPrimary : theme.colors.onSurface,
+          fontWeight: 'bold'
+        }}
       >
         {t(activeFilterField.field)}
       </Text>

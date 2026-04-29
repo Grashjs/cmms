@@ -72,7 +72,7 @@ export default function InAppCamera({ visible, onCapture, onClose }: Props) {
         <View style={styles.noAccess}>
           <Text style={styles.noAccessText}>Camera permission required.</Text>
           <TouchableOpacity onPress={onClose} style={{ marginTop: 20 }}>
-            <Text style={{ color: 'white' }}>Go back</Text>
+            <Text style={styles.goBackText}>Go back</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -101,18 +101,21 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: 'white',
     borderWidth: 4,
     borderColor: 'rgba(255,255,255,0.5)'
   },
   noAccess: {
     flex: 1,
-    backgroundColor: 'black',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    backgroundColor: '#fff'
   },
   noAccessText: {
-    color: 'white',
+    color: '#000',
     fontSize: 16
+  },
+  goBackText: {
+    color: '#007AFF',
+    marginTop: 20
   }
 });
