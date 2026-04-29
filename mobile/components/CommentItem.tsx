@@ -24,6 +24,8 @@ import { CompanySettingsContext } from '../contexts/CompanySettingsContext';
 import useAuth from '../hooks/useAuth';
 import { useNavigation } from '@react-navigation/native';
 import Comment from '../models/comment';
+import ImageView from 'react-native-image-viewing';
+import { downloadFile } from '../utils/fileDownload';
 
 interface CommentItemProps {
   comment: Comment;
@@ -54,6 +56,8 @@ export default function CommentItem({
 
   const isOwner = comment.user?.id === user?.id;
   const isSystem = comment.system;
+  const [imageViewerOpen, setImageViewerOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const handleDelete = () => {
     Alert.alert(t('confirmation'), t('confirm_delete_comment'), [
@@ -127,9 +131,7 @@ export default function CommentItem({
       style={{
         padding: 12,
         borderRadius: 8,
-        backgroundColor: highlighted
-          ? theme.colors.primaryContainer
-          : theme.colors.surface,
+        backgroundColor: highlighted ? theme.colors.surface : 'white',
         borderWidth: highlighted ? 2 : 1,
         borderColor: highlighted ? theme.colors.primary : theme.colors.outline,
         marginBottom: 8
@@ -239,8 +241,14 @@ export default function CommentItem({
                   horizontal
                   style={{ marginBottom: otherFiles.length > 0 ? 8 : 0 }}
                 >
-                  {imageFiles.map((file) => (
-                    <TouchableOpacity key={file.id} onPress={() => {}}>
+                  {imageFiles.map((file, index) => (
+                    <TouchableOpacity
+                      key={file.id}
+                      onPress={() => {
+                        setSelectedImageIndex(index);
+                        setImageViewerOpen(true);
+                      }}
+                    >
                       <Image
                         source={{ uri: file.url }}
                         style={{
@@ -260,12 +268,12 @@ export default function CommentItem({
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
-                    padding: 8,
-                    backgroundColor: theme.colors.surfaceVariant,
+                    padding: 2,
+                    backgroundColor: theme.colors.background,
                     borderRadius: 4,
                     marginBottom: 4
                   }}
-                  onPress={() => {}}
+                  onPress={() => downloadFile(file.url, file.name)}
                 >
                   <IconButton icon="file" size={20} />
                   <Text style={{ flex: 1 }} numberOfLines={1}>
@@ -274,6 +282,14 @@ export default function CommentItem({
                 </TouchableOpacity>
               ))}
             </View>
+          )}
+          {imageViewerOpen && (
+            <ImageView
+              images={imageFiles.map((f) => ({ uri: f.url }))}
+              imageIndex={selectedImageIndex}
+              visible={imageViewerOpen}
+              onRequestClose={() => setImageViewerOpen(false)}
+            />
           )}
         </View>
       </View>

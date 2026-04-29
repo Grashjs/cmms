@@ -27,6 +27,7 @@ import {
   TextInput,
   useTheme
 } from 'react-native-paper';
+import * as DocumentPicker from 'expo-document-picker';
 import { useTranslation } from 'react-i18next';
 import * as React from 'react';
 import { Fragment, useContext, useEffect, useState } from 'react';
@@ -62,7 +63,6 @@ import PartQuantities from '../../components/PartQuantities';
 import { SheetManager } from 'react-native-actions-sheet';
 import LoadingDialog from '../../components/LoadingDialog';
 import WorkOrder from '../../models/workOrder';
-import * as FileSystem from 'expo-file-system';
 import Labor from '../../models/labor';
 import { AudioPlayer } from '../../components/AudioPlayer';
 import { Task } from '../../models/tasks';
@@ -70,6 +70,7 @@ import { getErrorMessage } from '../../utils/api';
 import ImageView from 'react-native-image-viewing';
 import { getCustomFieldValuesForDetails } from '../../models/form';
 import CommentItem from '../../components/CommentItem';
+import { downloadFile } from '../../utils/fileDownload';
 import { getCommentsByWorkOrder, createComment } from '../../slices/comment';
 import { getUsersMini } from '../../slices/user';
 
@@ -113,6 +114,7 @@ export default function WODetailsScreen({
     hasViewPermission
   } = useAuth();
   const { showSnackBar } = useContext(CustomSnackBarContext);
+  const { uploadFiles } = useContext(CompanySettingsContext);
   const [runningTimerDuration, setRunningTimerDuration] = useState<string>();
   const { workOrderConfiguration, generalPreferences } = companySettings;
   const [loading, setLoading] = useState<boolean>(false);
@@ -148,6 +150,9 @@ export default function WODetailsScreen({
     useContext(CompanySettingsContext);
   const [isExtended, setIsExtended] = React.useState(true);
   const [commentContent, setCommentContent] = useState('');
+  const [commentFiles, setCommentFiles] = useState<
+    { uri: string; name: string; type: string }[]
+  >([]);
   const { commentsByWorkOrder, loadingComments, loadingCreate } = useSelector(
     (state) => state.comments
   );
@@ -308,28 +313,8 @@ export default function WODetailsScreen({
 
   const actualDownload = async (uri: string): Promise<void> => {
     const rawFileName = workOrder?.title ?? `work-order-${id}`;
-    const fileName = rawFileName.replace(/[\\/:*?"<>|]/g, '_');
-    const directoryUri =
-      FileSystem.documentDirectory ?? FileSystem.cacheDirectory;
-    if (!directoryUri) {
-      throw new Error('Missing download directory path');
-    }
-    const fileUri = `${directoryUri}${fileName}.pdf`;
-    const res = await FileSystem.downloadAsync(uri, fileUri);
-
-    if (res && res.status === 200) {
-      try {
-        await Linking.openURL(res.uri);
-      } catch (error) {
-        console.error(
-          'Failed to open local file, falling back to remote URL',
-          error
-        );
-        await Linking.openURL(uri);
-      }
-    } else {
-      throw new Error('Unable to download work order report');
-    }
+    const fileName = `${rawFileName.replace(/[\\/:*?"<>|]/g, '_')}.pdf`;
+    await downloadFile(uri, fileName);
   };
   const getRunningTimerDuration = (labor: Labor) => {
     return durationToHours(
@@ -552,15 +537,50 @@ export default function WODetailsScreen({
     return result;
   };
 
-  const handleCommentSubmit = () => {
+  const handleCommentSubmit = async () => {
     if (!commentContent.trim()) return;
-    dispatch(
-      createComment({
-        workOrder: { id },
-        content: commentContent.trim(),
-        files: []
-      })
-    ).then(() => setCommentContent(''));
+    try {
+      let fileIds: { id: number }[] = [];
+      if (commentFiles.length > 0) {
+        const uploadedFiles = await uploadFiles(commentFiles, [], false);
+        fileIds = uploadedFiles.map((f) => ({ id: f.id }));
+      }
+      await dispatch(
+        createComment({
+          workOrder: { id },
+          content: commentContent.trim(),
+          files: fileIds
+        })
+      );
+      setCommentContent('');
+      setCommentFiles([]);
+    } catch (error) {
+      console.error('Failed to create comment:', error);
+    }
+  };
+
+  const pickCommentFile = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: '*/*',
+        multiple: true,
+        copyToCacheDirectory: true
+      });
+      if (!result.canceled && result.assets) {
+        const newFiles = result.assets.map((asset) => ({
+          uri: asset.uri,
+          name: asset.name,
+          type: asset.mimeType || 'application/octet-stream'
+        }));
+        setCommentFiles([...commentFiles, ...newFiles]);
+      }
+    } catch (error) {
+      console.error('Error picking document:', error);
+    }
+  };
+
+  const removeCommentFile = (index: number) => {
+    setCommentFiles(commentFiles.filter((_, i) => i !== index));
   };
 
   useEffect(() => {
@@ -1243,15 +1263,53 @@ export default function WODetailsScreen({
                       workOrder
                     ) && (
                       <View style={{ marginTop: 10 }}>
-                        <TextInput
-                          mode="outlined"
-                          multiline
-                          numberOfLines={3}
-                          value={commentContent}
-                          onChangeText={setCommentContent}
-                          placeholder={t('add_comment_placeholder')}
-                          style={{ marginBottom: 8 }}
-                        />
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'flex-end'
+                          }}
+                        >
+                          <TextInput
+                            mode="outlined"
+                            multiline
+                            numberOfLines={3}
+                            value={commentContent}
+                            onChangeText={setCommentContent}
+                            placeholder={t('add_comment_placeholder')}
+                            style={{ flex: 1, marginBottom: 8, marginRight: 8 }}
+                          />
+                          <IconButton
+                            icon="paperclip"
+                            onPress={pickCommentFile}
+                            style={{ marginBottom: 8 }}
+                          />
+                        </View>
+                        {commentFiles.length > 0 && (
+                          <View style={{ marginBottom: 8 }}>
+                            {commentFiles.map((file, index) => (
+                              <View
+                                key={index}
+                                style={{
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                  backgroundColor: theme.colors.background,
+                                  borderRadius: 4,
+                                  paddingHorizontal: 8,
+                                  marginBottom: 4
+                                }}
+                              >
+                                <Text style={{ flex: 1 }} numberOfLines={1}>
+                                  {file.name}
+                                </Text>
+                                <IconButton
+                                  icon="close-circle"
+                                  size={16}
+                                  onPress={() => removeCommentFile(index)}
+                                />
+                              </View>
+                            ))}
+                          </View>
+                        )}
                         <Button
                           mode="contained"
                           onPress={handleCommentSubmit}
