@@ -9,8 +9,10 @@ import {
   RefreshControl,
   ScrollView,
   StyleSheet,
-  TouchableOpacity
+  TouchableOpacity,
+  TextInput as RNTextInput
 } from 'react-native';
+import { useMentions } from 'react-native-controlled-mentions';
 import { View } from '../../components/Themed';
 import { RootStackParamList, RootStackScreenProps } from '../../types';
 import {
@@ -30,7 +32,7 @@ import {
 import * as DocumentPicker from 'expo-document-picker';
 import { useTranslation } from 'react-i18next';
 import * as React from 'react';
-import { Fragment, useContext, useEffect, useState } from 'react';
+import { Fragment, useCallback, useContext, useEffect, useState } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import Tag from '../../components/Tag';
 import { getPriorityColor, getStatusColor } from '../../utils/overall';
@@ -73,6 +75,7 @@ import CommentItem from '../../components/CommentItem';
 import { downloadFile } from '../../utils/fileDownload';
 import { getCommentsByWorkOrder, createComment } from '../../slices/comment';
 import { getUsersMini } from '../../slices/user';
+import { TriggersConfig } from 'react-native-controlled-mentions/dist/types/types';
 
 const getRemainingTasksLength = (tasks: Task[]): number => {
   const SECONDS_MS = 5_000;
@@ -92,6 +95,24 @@ const getRemainingTasksLength = (tasks: Task[]): number => {
   return mappedTasks.filter(
     (task) => !task.value || !task.updatedAfterMoreThanThreshold
   ).length;
+};
+const triggersConfig: TriggersConfig<'mention'> = {
+  mention: {
+    trigger: '@',
+    pattern: /(@\[[^\]]+\]\(user:[^)]+\))/g,
+    textStyle: { fontWeight: 'bold', color: 'blue' },
+    getTriggerData: (match: string) => {
+      const result = match.match(/@\[(.*?)\]\(user:(.*?)\)/);
+      return {
+        original: match,
+        trigger: '@',
+        name: result?.[1] ?? '',
+        id: result?.[2] ?? ''
+      };
+    },
+    getTriggerValue: (suggestion) =>
+      `@[${suggestion.name}](user:${suggestion.id})`
+  }
 };
 export default function WODetailsScreen({
   navigation,
@@ -536,6 +557,28 @@ export default function WODetailsScreen({
 
     return result;
   };
+
+  const { textInputProps, triggers } = useMentions({
+    value: commentContent,
+    onChange: setCommentContent,
+    triggersConfig
+  });
+
+  console.log(commentContent);
+
+  const mentionKeyword = triggers?.mention?.keyword ?? null;
+  const filteredUsers = (
+    mentionKeyword
+      ? usersMini.filter((user) =>
+          `${user.firstName} ${user.lastName}`
+            .toLowerCase()
+            .includes(mentionKeyword.toLowerCase())
+        )
+      : usersMini
+  ).map((user) => ({
+    id: user.id.toString(),
+    name: `${user.firstName} ${user.lastName}`
+  }));
 
   const handleCommentSubmit = async () => {
     if (!commentContent.trim()) return;
@@ -1269,15 +1312,51 @@ export default function WODetailsScreen({
                             alignItems: 'flex-end'
                           }}
                         >
-                          <TextInput
-                            mode="outlined"
-                            multiline
-                            numberOfLines={3}
-                            value={commentContent}
-                            onChangeText={setCommentContent}
-                            placeholder={t('add_comment_placeholder')}
+                          <View
                             style={{ flex: 1, marginBottom: 8, marginRight: 8 }}
-                          />
+                          >
+                            {mentionKeyword && filteredUsers.length > 0 && (
+                              <View
+                                style={{
+                                  backgroundColor: '#fff',
+                                  borderRadius: 8,
+                                  elevation: 5,
+                                  shadowColor: '#000',
+                                  shadowOffset: { width: 0, height: 2 },
+                                  shadowOpacity: 0.2,
+                                  marginBottom: 8,
+                                  maxHeight: 200,
+                                  overflow: 'hidden'
+                                }}
+                              >
+                                {filteredUsers.map((item) => (
+                                  <Pressable
+                                    key={item.id}
+                                    onPress={() => {
+                                      triggers?.mention?.onSelect?.({
+                                        id: item.id,
+                                        name: item.name
+                                      });
+                                    }}
+                                    style={{
+                                      padding: 12,
+                                      borderBottomWidth: 1,
+                                      borderBottomColor: '#eee'
+                                    }}
+                                  >
+                                    <Text>{item.name}</Text>
+                                  </Pressable>
+                                ))}
+                              </View>
+                            )}
+                            <RNTextInput
+                              multiline
+                              numberOfLines={3}
+                              placeholder={t('add_comment_placeholder')}
+                              style={{ flex: 1 }}
+                              {...textInputProps}
+                            />
+                          </View>
                           <IconButton
                             icon="paperclip"
                             onPress={pickCommentFile}
