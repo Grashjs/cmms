@@ -89,7 +89,7 @@ export default function NotificationsScreen({
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
       refreshControl={
         <RefreshControl
           refreshing={loadingGet}
@@ -115,13 +115,13 @@ export default function NotificationsScreen({
                 <List.Icon
                   {...props}
                   icon={notificationIcons[notification.notificationType]}
-                  color={notification.seen ? 'black' : theme.colors.primary}
+                  color={notification.seen ? theme.colors.onSurfaceVariant : theme.colors.primary}
                 />
               )}
               style={{
                 backgroundColor: notification.seen
-                  ? 'white'
-                  : theme.colors.background
+                  ? theme.colors.surface
+                  : theme.colors.surfaceVariant
               }}
               key={notification.id}
               onPress={() => onReadNotification(notification)}
@@ -131,7 +131,7 @@ export default function NotificationsScreen({
       ) : (
         <View
           style={{
-            backgroundColor: 'white',
+            backgroundColor: theme.colors.surface,
             padding: 20,
             alignItems: 'center',
             borderRadius: 10

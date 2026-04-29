@@ -61,7 +61,7 @@ export default function PartDetailsHome({
     <TabBar
       {...props}
       scrollEnabled
-      indicatorStyle={{ backgroundColor: 'white' }}
+      indicatorStyle={{ backgroundColor: theme.colors.onPrimary }}
       style={{ backgroundColor: theme.colors.primary }}
     />
   );
@@ -120,7 +120,12 @@ export default function PartDetailsHome({
   };
   if (part)
     return (
-      <View style={styles.container}>
+      <View
+        style={{
+          ...styles.container,
+          backgroundColor: theme.colors.background
+        }}
+      >
         {renderConfirmDelete()}
         <TabView
           renderTabBar={renderTabBar}
@@ -128,6 +133,8 @@ export default function PartDetailsHome({
           renderScene={renderScene}
           onIndexChange={setTabIndex}
           initialLayout={{ width: layout.width }}
+          style={{ backgroundColor: theme.colors.background }}
+          sceneContainerStyle={{ backgroundColor: theme.colors.background }}
         />
       </View>
     );

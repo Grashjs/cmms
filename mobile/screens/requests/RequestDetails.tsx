@@ -237,7 +237,7 @@ export default function RequestDetails({
             // @ts-ignore
             navigation.navigate(link.route, { id: link.id });
           }}
-          style={{ marginTop: 20, padding: 20, backgroundColor: 'white' }}
+          style={{ marginTop: 20, padding: 20, backgroundColor: theme.colors.surface }}
         >
           <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
             {label}
@@ -316,7 +316,7 @@ export default function RequestDetails({
           />
         ))}
         {request.audioDescription && (
-          <View style={{ backgroundColor: 'white', padding: 20 }}>
+          <View style={{ backgroundColor: theme.colors.surface, padding: 20 }}>
             <Text>{t('audio_description')}</Text>
             <AudioPlayer url={request.audioDescription.url} />
           </View>

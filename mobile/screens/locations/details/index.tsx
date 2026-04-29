@@ -63,7 +63,7 @@ export default function LocationDetailsHome({
     <TabBar
       {...props}
       scrollEnabled
-      indicatorStyle={{ backgroundColor: 'white' }}
+      indicatorStyle={{ backgroundColor: theme.colors.onPrimary }}
       style={{ backgroundColor: theme.colors.primary }}
     />
   );

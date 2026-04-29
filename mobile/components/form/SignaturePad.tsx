@@ -1,10 +1,9 @@
 import React, { useRef, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import SignatureScreen, {
   SignatureViewRef
 } from 'react-native-signature-canvas';
-import { Button, Text, useTheme } from 'react-native-paper';
-import { IHash } from '../../models/form';
+import { Button, MD3LightTheme, Text, useTheme } from 'react-native-paper';
 
 interface SignaturePadProps {
   label: string;
@@ -18,7 +17,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   value
 }) => {
   const ref = useRef<SignatureViewRef>(null);
-  const theme = useTheme();
+  const theme = useTheme() ?? MD3LightTheme;
   const [hasChanged, setHasChanged] = useState(false);
 
   const handleOK = (signature: string) => {
@@ -40,9 +39,10 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     setHasChanged(false);
   };
 
+  const { colors } = theme;
   const style = `.m-signature-pad--footer .button {
-    background-color: ${theme.colors.primary};
-    color: ${theme.colors.onPrimary};
+    background-color: ${colors.primary};
+    color: ${colors.onPrimary};
   }
    body, html {
       height: 100%;
@@ -57,7 +57,12 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
-      <View style={styles.signatureContainer}>
+      <View
+        style={[
+          styles.signatureContainer,
+          { borderColor: colors.outline }
+        ]}
+      >
         <SignatureScreen
           ref={ref}
           onOK={handleOK}
@@ -94,7 +99,6 @@ const styles = StyleSheet.create({
   },
   signatureContainer: {
     height: 200,
-    borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 5,
     overflow: 'hidden'

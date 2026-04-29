@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import { Divider, List } from 'react-native-paper';
+import { Divider, List, useTheme } from 'react-native-paper';
 import * as React from 'react';
 import { useRef } from 'react';
 import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
@@ -19,10 +19,20 @@ interface CustomActionSheetProps {
 
 export default function CustomActionSheet({ options }: CustomActionSheetProps) {
   const actionSheetRef = useRef<ActionSheetRef>(null);
+  const theme = useTheme();
 
   return (
-    <ActionSheet ref={actionSheetRef}>
-      <View style={{ paddingHorizontal: 5, paddingVertical: 15 }}>
+    <ActionSheet
+      ref={actionSheetRef}
+      containerStyle={{ backgroundColor: theme.colors.surface }}
+    >
+      <View
+        style={{
+          paddingHorizontal: 5,
+          paddingVertical: 15,
+          backgroundColor: theme.colors.surface
+        }}
+      >
         <Divider />
         <List.Section>
           {options
@@ -30,11 +40,19 @@ export default function CustomActionSheet({ options }: CustomActionSheetProps) {
             .map((entity, index) => (
               <List.Item
                 key={index}
-                style={{ paddingHorizontal: 15 }}
-                titleStyle={{ color: entity.color ?? 'black' }}
+                style={{
+                  paddingHorizontal: 15,
+                  backgroundColor: theme.colors.surface
+                }}
+                titleStyle={{
+                  color: entity.color ?? theme.colors.onSurface
+                }}
                 title={entity.title}
                 left={() => (
-                  <List.Icon icon={entity.icon} color={entity.color} />
+                  <List.Icon
+                    icon={entity.icon}
+                    color={entity.color ?? theme.colors.onSurface}
+                  />
                 )}
                 onPress={async () => {
                   await actionSheetRef.current?.hide();
