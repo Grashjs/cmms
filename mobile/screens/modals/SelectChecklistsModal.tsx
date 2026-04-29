@@ -88,7 +88,9 @@ export default function SelectChecklistsModal({
               }}
               key={checklist.id}
             >
-              <View style={styles.card}>
+            <View
+              style={[styles.card, { backgroundColor: theme.colors.surface }]}
+            >
                 <View style={styles.cardRow}>
                   <Avatar.Icon
                     size={50}
@@ -122,7 +124,6 @@ const styles = StyleSheet.create({
     flex: 1
   },
   card: {
-    backgroundColor: 'white',
     marginBottom: 1,
     padding: 10
   },

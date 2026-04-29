@@ -39,7 +39,7 @@ const LocationItem = React.memo(
 
     return (
       <Pressable onPress={handleToggle}>
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.cardRow}>
             <Avatar.Icon
               style={{ backgroundColor: theme.colors.background }}
@@ -228,7 +228,6 @@ export default function SelectLocationsModal({
 const styles = StyleSheet.create({
   container: { flex: 1 },
   card: {
-    backgroundColor: 'white',
     marginBottom: 1,
     padding: 10,
     height: ITEM_HEIGHT
