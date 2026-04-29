@@ -76,7 +76,7 @@ public class TaskController {
     @PatchMapping("/preventive-maintenance/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public Collection<TaskShowDTO> createByPreventiveMaintenance(@Parameter(description = "List of task bases to " +
-            "create") @Valid @RequestBody Collection<TaskBaseDTO> taskBasesReq, @PathVariable("id") Long id,
+                                                                         "create") @Valid @RequestBody Collection<TaskBaseDTO> taskBasesReq, @PathVariable("id") Long id,
                                                                  HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
@@ -95,7 +95,7 @@ public class TaskController {
     }
 
     @NotNull
-    private List<Task> updateEntityTasks(List<TaskBaseDTO> incomingTasks, List<Task> savedTasks, OwnUser user,
+    private List<Task> updateEntityTasks(List<TaskBaseDTO> incomingTasks, List<Task> savedTasks, User user,
                                          PreventiveMaintenance preventiveMaintenance, WorkOrder workOrder) {
         List<Task> resultTasks = new ArrayList<>();
         List<Task> matchedTasks = new ArrayList<>();
