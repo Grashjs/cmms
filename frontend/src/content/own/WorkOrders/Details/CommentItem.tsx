@@ -228,7 +228,7 @@ export default function CommentItem(props: CommentItemProps) {
                     {getUserName()}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {getFormattedDate(comment.createdAt)}
+                    {getFormattedDate(comment.updatedAt)}
                   </Typography>
                 </Box>
                 {!isSystem && isOwner && !isEditing && (

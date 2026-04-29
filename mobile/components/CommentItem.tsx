@@ -6,15 +6,11 @@ import {
   Image,
   ActivityIndicator,
   Alert,
-  ScrollView
+  ScrollView,
+  Pressable,
+  TextInput as RNTextInput
 } from 'react-native';
-import {
-  Avatar,
-  IconButton,
-  useTheme,
-  Button,
-  TextInput
-} from 'react-native-paper';
+import { Avatar, IconButton, useTheme, Button } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from '../store';
 import { deleteComment, updateComment } from '../slices/comment';
@@ -26,19 +22,42 @@ import { useNavigation } from '@react-navigation/native';
 import Comment from '../models/comment';
 import ImageView from 'react-native-image-viewing';
 import { downloadFile } from '../utils/fileDownload';
+import { useMentions } from 'react-native-controlled-mentions';
+import { TriggersConfig } from 'react-native-controlled-mentions/dist/types/types';
 
 interface CommentItemProps {
   comment: Comment;
   workOrderId: number;
   highlighted?: boolean;
+  users?: { id: string; name: string }[];
 }
+
+const triggersConfig: TriggersConfig<'mention'> = {
+  mention: {
+    trigger: '@',
+    pattern: /(@\[[^\]]+\]\(user:[^)]+\))/g,
+    textStyle: { fontWeight: 'bold', color: 'blue' },
+    getTriggerData: (match: string) => {
+      const result = match.match(/@\[(.*?)\]\(user:(.*?)\)/);
+      return {
+        original: match,
+        trigger: '@',
+        name: result?.[1] ?? '',
+        id: result?.[2] ?? ''
+      };
+    },
+    getTriggerValue: (suggestion) =>
+      `@[${suggestion.name}](user:${suggestion.id})`
+  }
+};
 
 const isImage = (file: File) => mime.getType(file.name)?.startsWith('image/');
 
 export default function CommentItem({
   comment,
   workOrderId,
-  highlighted = false
+  highlighted = false,
+  users = []
 }: CommentItemProps) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -58,6 +77,19 @@ export default function CommentItem({
   const isSystem = comment.system;
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  const { textInputProps, triggers } = useMentions({
+    value: editContent,
+    onChange: setEditContent,
+    triggersConfig
+  });
+
+  const mentionKeyword = triggers?.mention?.keyword ?? null;
+  const filteredUsers = mentionKeyword
+    ? users.filter((u) =>
+        u.name.toLowerCase().includes(mentionKeyword.toLowerCase())
+      )
+    : users;
 
   const handleDelete = () => {
     Alert.alert(t('confirmation'), t('confirm_delete_comment'), [
@@ -178,9 +210,7 @@ export default function CommentItem({
               <Text
                 style={{ fontSize: 12, color: theme.colors.onSurfaceVariant }}
               >
-                {getFormattedDate
-                  ? getFormattedDate(comment.createdAt)
-                  : comment.createdAt}
+                {getFormattedDate(comment.updatedAt)}
               </Text>
             </View>
             {!isSystem && isOwner && !isEditing && (
@@ -197,13 +227,57 @@ export default function CommentItem({
 
           {isEditing ? (
             <View>
-              <TextInput
-                value={editContent}
-                onChangeText={setEditContent}
-                multiline
-                mode="outlined"
-                style={{ minHeight: 60 }}
-              />
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ flex: 1, marginBottom: 8, marginRight: 8 }}>
+                  {mentionKeyword && filteredUsers.length > 0 && (
+                    <View
+                      style={{
+                        backgroundColor: '#fff',
+                        borderRadius: 8,
+                        elevation: 5,
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.2,
+                        marginBottom: 8,
+                        maxHeight: 200,
+                        overflow: 'hidden'
+                      }}
+                    >
+                      {filteredUsers.map((item) => (
+                        <Pressable
+                          key={item.id}
+                          onPress={() => {
+                            triggers?.mention?.onSelect?.({
+                              id: item.id,
+                              name: item.name
+                            });
+                          }}
+                          style={{
+                            padding: 12,
+                            borderBottomWidth: 1,
+                            borderBottomColor: '#eee'
+                          }}
+                        >
+                          <Text>{item.name}</Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  )}
+                  <RNTextInput
+                    multiline
+                    numberOfLines={3}
+                    style={{
+                      flex: 1,
+                      borderWidth: 1,
+                      borderColor: '#ccc',
+                      borderRadius: 4,
+                      padding: 8,
+                      minHeight: 60
+                    }}
+                    {...textInputProps}
+                  />
+                </View>
+              </View>
               <View style={{ flexDirection: 'row', marginTop: 8, gap: 8 }}>
                 <Button
                   mode="contained"

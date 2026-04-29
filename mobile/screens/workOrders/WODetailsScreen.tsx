@@ -100,6 +100,7 @@ const triggersConfig: TriggersConfig<'mention'> = {
   mention: {
     trigger: '@',
     pattern: /(@\[[^\]]+\]\(user:[^)]+\))/g,
+    isInsertSpaceAfterMention: true,
     textStyle: { fontWeight: 'bold', color: 'blue' },
     getTriggerData: (match: string) => {
       const result = match.match(/@\[(.*?)\]\(user:(.*?)\)/);
@@ -563,8 +564,6 @@ export default function WODetailsScreen({
     onChange: setCommentContent,
     triggersConfig
   });
-
-  console.log(commentContent);
 
   const mentionKeyword = triggers?.mention?.keyword ?? null;
   const filteredUsers = (
@@ -1298,6 +1297,10 @@ export default function WODetailsScreen({
                           key={comment.id}
                           comment={comment}
                           workOrderId={id}
+                          users={usersMini.map((u) => ({
+                            id: u.id.toString(),
+                            name: `${u.firstName} ${u.lastName}`
+                          }))}
                         />
                       ))
                     )}
