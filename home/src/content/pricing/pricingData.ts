@@ -617,6 +617,18 @@ export const getPlanFeatureCategories = (
         },
       },
       {
+        name: "Webhooks",
+        availability: {
+          basic: false,
+          starter: false,
+          professional: false,
+          business: true,
+          "sh-free": false,
+          "sh-professional": false,
+          "sh-business": true,
+        },
+      },
+      {
         name: t("pricing_1.feature_business_integrations"),
         availability: {
           basic: false,
