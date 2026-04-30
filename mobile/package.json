@@ -95,6 +95,7 @@
     "patch-package": "^8.0.0",
     "postinstall-postinstall": "^2.1.0",
     "prettier": "^2.6.2",
+    "@react-native-community/cli": "latest",
     "react-test-renderer": "19.0.0",
     "typescript": "~5.8.3"
   },
