@@ -40,7 +40,11 @@ import * as Yup from 'yup';
 import { isNumeric } from '../../../utils/validators';
 import WorkOrderDetails from './Details/WorkOrderDetails';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { formatSelect, formatSelectMultiple, formatCustomFields } from '../../../utils/formatters';
+import {
+  formatSelect,
+  formatSelectMultiple,
+  formatCustomFields
+} from '../../../utils/formatters';
 import {
   addWorkOrder,
   deleteWorkOrder,
@@ -92,8 +96,7 @@ const fieldMapping: Record<string, string> = {
   title: 'title',
   priority: 'priority',
   description: 'description',
-  primaryUser: 'primaryUser.firstName',
-  assignedTo: 'assignedTo',
+  assignedTo: 'primaryUser.firstName',
   location: 'location.name',
   category: 'category.name',
   asset: 'asset.name',
@@ -451,19 +454,20 @@ function WorkOrders() {
       cell: (info) => info.getValue() || '',
       size: 300
     }),
-    columnHelper.accessor('primaryUser', {
-      id: 'primaryUser',
-      header: () => t('worker'),
-      cell: (info) =>
-        info.getValue() ? <UserAvatars users={[info.getValue()]} /> : null,
-      size: 170
-    }),
-    columnHelper.accessor('assignedTo', {
-      id: 'assignedTo',
-      header: () => t('assigned_to'),
-      cell: (info) => <UserAvatars users={info.getValue()} />,
-      size: 170
-    }),
+    columnHelper.accessor(
+      (row) => {
+        const users = [];
+        if (row.primaryUser) users.push(row.primaryUser);
+        if (row.assignedTo) users.push(...row.assignedTo);
+        return Array.from(new Map(users.map((u) => [u.id, u])).values());
+      },
+      {
+        id: 'assignedTo',
+        header: () => t('assigned_to'),
+        cell: (info) => <UserAvatars users={info.getValue()} />,
+        size: 170
+      }
+    ),
     columnHelper.accessor((row) => row.location?.name, {
       id: 'location',
       header: () => t('location_name'),
