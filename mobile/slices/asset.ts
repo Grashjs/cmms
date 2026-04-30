@@ -3,6 +3,10 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { AppThunk } from '../store';
 import { AssetDTO, AssetMiniDTO, AssetRow } from '../models/asset';
 import api from '../utils/api';
+import {
+  createCancellableRequest,
+  isAbortError
+} from '../utils/cancellableRequest';
 import WorkOrder from '../models/workOrder';
 import { getInitialPage, Page, SearchCriteria } from '../models/page';
 import { revertAll } from '../utils/redux';
@@ -158,13 +162,18 @@ export const reducer = slice.reducer;
 export const getAssets =
   (criteria: SearchCriteria): AppThunk =>
   async (dispatch) => {
+    const { signal } = createCancellableRequest();
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
       const assets = await api.post<Page<AssetDTO>>(
         `${basePath}/search`,
-        criteria
+        criteria,
+        { signal }
       );
       dispatch(slice.actions.getAssets({ assets }));
+    } catch (error) {
+      if (isAbortError(error)) return;
+      throw error;
     } finally {
       dispatch(slice.actions.setLoadingGet({ loading: false }));
     }
@@ -172,14 +181,19 @@ export const getAssets =
 export const getMoreAssets =
   (criteria: SearchCriteria, pageNum: number): AppThunk =>
   async (dispatch) => {
+    const { signal } = createCancellableRequest();
     criteria = { ...criteria, pageNum };
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
       const assets = await api.post<Page<AssetDTO>>(
         `${basePath}/search`,
-        criteria
+        criteria,
+        { signal }
       );
       dispatch(slice.actions.getMoreAssets({ assets }));
+    } catch (error) {
+      if (isAbortError(error)) return;
+      throw error;
     } finally {
       dispatch(slice.actions.setLoadingGet({ loading: false }));
     }
@@ -187,12 +201,20 @@ export const getMoreAssets =
 export const getAssetsMini =
   (locationId?: number | null): AppThunk =>
   async (dispatch) => {
-    dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const assets = await api.get<AssetMiniDTO[]>(
-      `${basePath}/mini?locationId=${locationId ?? ''}`
-    );
-    dispatch(slice.actions.getAssetsMini({ assets }));
-    dispatch(slice.actions.setLoadingGet({ loading: false }));
+    const { signal } = createCancellableRequest();
+    try {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      const assets = await api.get<AssetMiniDTO[]>(
+        `${basePath}/mini?locationId=${locationId ?? ''}`,
+        { signal }
+      );
+      dispatch(slice.actions.getAssetsMini({ assets }));
+    } catch (error) {
+      if (isAbortError(error)) return;
+      throw error;
+    } finally {
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    }
   };
 export const addAsset =
   (asset): AppThunk =>

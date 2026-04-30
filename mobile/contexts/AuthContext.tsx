@@ -902,7 +902,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     });
   };
   const fetchCompany = async (): Promise<void> => {
-    const company = await api.get<Company>(state.user.companyId);
+    const company = await api.get<Company>(`company/${state.user.companyId}`);
     dispatch({
       type: 'GET_COMPANY',
       payload: {
