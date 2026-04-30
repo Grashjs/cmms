@@ -818,8 +818,8 @@ export default function WODetailsScreen({
                   text={t('priority_label', {
                     priority: t(workOrder.priority)
                   })}
-                  color="white"
-                  backgroundColor={getPriorityColor(workOrder.priority, theme)}
+                  color={getPriorityColor(workOrder.priority, theme)}
+                  backgroundColor={'transparent'}
                 />
               )}
             </View>
