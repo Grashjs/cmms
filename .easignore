@@ -2,3 +2,16 @@
 /frontend
 /images
 /home
+/atlas_backups
+/dev-docs
+/images
+
+/mobile/node_modules
+/mobile/android/app/build
+/mobile/android/build
+/mobile/android/.gradle
+/mobile/android/local.properties
+/mobile/.expo
+/mobile/.env*
+
+/mobile/.metro-health-check*
