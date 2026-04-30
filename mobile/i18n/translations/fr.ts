@@ -1588,7 +1588,7 @@ const frJSON = {
   permission_denied_message:
     "L'accès à {{permission}} est nécessaire pour continuer.",
   unable_to_request_permission:
-    "Impossible de demander la permission {{permission}}.",
+    'Impossible de demander la permission {{permission}}.',
   open_settings: 'Ouvrir les paramètres',
   ok: 'OK',
   CANCELLED: 'Rejeté',
@@ -1624,6 +1624,13 @@ const frJSON = {
   back_to: 'Retour à',
   top_level: 'Niveau supérieur',
   no_results_found: 'Aucun résultat trouvé',
-  no_sub_assets: 'Aucun sous-équipement'
+  no_sub_assets: 'Aucun sous-équipement',
+  asset_not_found: 'Équipement non trouvé',
+  comments: 'Commentaires',
+  no_comments:
+    'Aucun commentaire pour le moment. Soyez le premier à commenter !',
+  post_comment: 'Publier un commentaire',
+  confirm_delete_comment: 'Êtes-vous sûr de vouloir supprimer ce commentaire ?',
+  add_comment_placeholder: 'Ajouter un commentaire...'
 };
 export default frJSON;

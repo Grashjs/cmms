@@ -1475,6 +1475,13 @@ const locale = {
   top_level: 'Legfelső szint',
   no_results_found: 'Nincs találat',
   no_sub_assets: 'Nincsenek al-eszközök',
-  no_assets_available: 'Nincsenek elérhető eszközök'
+  no_assets_available: 'Nincsenek elérhető eszközök',
+  asset_not_found: 'Az eszköz nem található',
+  comments: 'Megjegyzések',
+  no_comments:
+    'Még nincsenek megjegyzések. Legyen az első, aki megjegyzést ír!',
+  post_comment: 'Megjegyzés közzététele',
+  confirm_delete_comment: 'Biztosan törölni kívánja ezt a megjegyzést?',
+  add_comment_placeholder: 'Megjegyzés hozzáadása...'
 };
 export default locale;

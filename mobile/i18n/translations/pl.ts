@@ -1483,7 +1483,13 @@ const plJSON = {
   top_level: 'Poziom główny',
   no_results_found: 'Nie znaleziono wyników',
   no_sub_assets: 'Brak podzasobów',
-  no_assets_available: 'Brak dostępnych zasobów'
+  no_assets_available: 'Brak dostępnych zasobów',
+  asset_not_found: 'Zasób nie znaleziony',
+  comments: 'Komentarze',
+  no_comments: 'Brak komentarzy. Bądź pierwszym, który skomentuje!',
+  post_comment: 'Opublikuj komentarz',
+  confirm_delete_comment: 'Czy na pewno chcesz usunąć ten komentarz?',
+  add_comment_placeholder: 'Dodaj komentarz...'
 };
 
 export default plJSON;

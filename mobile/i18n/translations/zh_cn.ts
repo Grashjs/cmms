@@ -1354,6 +1354,12 @@ const locale = {
   no_results_found: '未找到结果',
   no_sub_assets: '无子资产',
   no_assets_available: '无可用资产',
+  asset_not_found: '未找到资产',
+  comments: '评论',
+  no_comments: '暂无评论。来做第一个评论的人吧！',
+  post_comment: '发布评论',
+  confirm_delete_comment: '您确定要删除此评论吗？',
+  add_comment_placeholder: '添加评论...',
   Statistics: '统计'
 };
 export default locale;

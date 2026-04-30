@@ -95,7 +95,7 @@ export default function CommentItem({
     Alert.alert(t('confirmation'), t('confirm_delete_comment'), [
       { text: t('cancel'), style: 'cancel' },
       {
-        text: t('delete'),
+        text: t('to_delete'),
         style: 'destructive',
         onPress: () => dispatch(deleteComment(comment.id, workOrderId))
       }

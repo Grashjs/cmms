@@ -1477,6 +1477,12 @@ const locale = {
   top_level: 'Hoofdniveau',
   no_results_found: 'Geen resultaten gevonden',
   no_sub_assets: 'Geen sub-assets',
-  no_assets_available: 'Geen assets beschikbaar'
+  no_assets_available: 'Geen assets beschikbaar',
+  asset_not_found: 'Asset niet gevonden',
+  comments: 'Reacties',
+  no_comments: 'Nog geen reacties. Wees de eerste die reageert!',
+  post_comment: 'Plaats reactie',
+  confirm_delete_comment: 'Weet u zeker dat u deze reactie wilt verwijderen?',
+  add_comment_placeholder: 'Voeg een reactie toe...'
 };
 export default locale;

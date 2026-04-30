@@ -1413,7 +1413,13 @@ const locale = {
   top_level: 'المستوى الأعلى',
   no_results_found: 'لم يتم العثور على نتائج',
   no_sub_assets: 'لا توجد أصول فرعية',
-  no_assets_available: 'لا توجد أصول متاحة'
+  no_assets_available: 'لا توجد أصول متاحة',
+  asset_not_found: 'الأصل غير موجود',
+  comments: 'التعليقات',
+  no_comments: 'لا توجد تعليقات بعد. كن أول من يعلق!',
+  post_comment: 'نشر تعليق',
+  confirm_delete_comment: 'هل أنت متأكد أنك تريد حذف هذا التعليق؟',
+  add_comment_placeholder: 'أضف تعليقًا...'
 };
 
 export default locale;

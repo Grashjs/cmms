@@ -62,6 +62,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'react-native-nfc-manager',
     'expo-font',
     'expo-notifications',
+    '@react-native-community/datetimepicker',
+    '@react-native-firebase/app',
     [
       'expo-camera',
       {

@@ -19,8 +19,8 @@
     "@react-native-async-storage/async-storage": "2.1.2",
     "@react-native-community/datetimepicker": "8.4.1",
     "@react-native-community/netinfo": "11.4.1",
-    "@react-native-firebase/analytics": "^23.5.0",
-    "@react-native-firebase/app": "^23.5.0",
+    "@react-native-firebase/analytics": "^24.0.0",
+    "@react-native-firebase/app": "^24.0.0",
     "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.11.0",
@@ -85,6 +85,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
+    "@react-native-community/cli": "latest",
     "@types/mime": "^3.0.1",
     "@types/react": "~19.0.10",
     "babel-plugin-transform-inline-environment-variables": "^0.4.4",
@@ -95,7 +96,6 @@
     "patch-package": "^8.0.0",
     "postinstall-postinstall": "^2.1.0",
     "prettier": "^2.6.2",
-    "@react-native-community/cli": "latest",
     "react-test-renderer": "19.0.0",
     "typescript": "~5.8.3"
   },

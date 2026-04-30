@@ -1520,7 +1520,13 @@ const ptBRJSON = {
   top_level: 'Nível superior',
   no_results_found: 'Nenhum resultado encontrado',
   no_sub_assets: 'Sem subativos',
-  no_assets_available: 'Nenhum ativo disponível'
+  no_assets_available: 'Nenhum ativo disponível',
+  asset_not_found: 'Ativo não encontrado',
+  comments: 'Comentários',
+  no_comments: 'Ainda não há comentários. Seja o primeiro a comentar!',
+  post_comment: 'Publicar comentário',
+  confirm_delete_comment: 'Tem certeza de que deseja excluir este comentário?',
+  add_comment_placeholder: 'Adicionar um comentário...'
 };
 
 export default ptBRJSON;

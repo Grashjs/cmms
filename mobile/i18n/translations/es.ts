@@ -1503,7 +1503,12 @@ const locale = {
   top_level: 'Nivel superior',
   no_results_found: 'No se encontraron resultados',
   no_sub_assets: 'Sin subactivos',
-  no_assets_available: 'No hay activos disponibles'
+  no_assets_available: 'No hay activos disponibles',
+  asset_not_found: 'Activo no encontrado',
+  comments: 'Comentarios',
+  no_comments: 'Aún no hay comentarios. ¡Sé el primero en comentar!',
+  post_comment: 'Publicar comentario',
+  confirm_delete_comment: '¿Está seguro de que desea eliminar este comentario?',
+  add_comment_placeholder: 'Añadir un comentario...'
 };
-
 export default locale;

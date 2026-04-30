@@ -14,12 +14,12 @@ const locale = {
   COMPLETE: 'Završeno',
   'home.built': 'Napravljeno da olakša upravljanje održavanjem',
   home_description:
-    "Kada su bijele table i ljepljive bilješke haos, a potreban vam je CMMS softver koji je dovoljno jednostavan da ga vaš tim zaista koristi - isprobajte Atlas",
+    'Kada su bijele table i ljepljive bilješke haos, a potreban vam je CMMS softver koji je dovoljno jednostavan da ga vaš tim zaista koristi - isprobajte Atlas',
   try_grash: 'Isprobajte Atlas',
   login: 'Prijava',
   start_trial: 'Započnite besplatni probni period',
   'home.what': 'Šta',
-  'home.you_will_have': "Imat ćete",
+  'home.you_will_have': 'Imat ćete',
   'home.you_will_have_description':
     'Izgradite efikasne, pouzdane tokove posla koji vam daju kontrolu nad održavanjem. Generišite, dodijelite i pratite radne naloge. Kontrolišite inventar. I dobijte pouzdane automatske izvještaje koji poboljšavaju vidljivost i stvaraju odgovornost.',
   key_features: 'Ključne karakteristike',
@@ -43,7 +43,8 @@ const locale = {
     'Pregledajte sve svoje zadatke uključujući RN (radne naloge), PM i zahtjeve za rad',
   'work-orders.checks.1':
     'Postavite prioritet zadataka tako da se prvo obavi pravi posao.',
-  'work-orders.checks.2': 'Pregledajte kalendar trenutnih i predstojećih zadataka.',
+  'work-orders.checks.2':
+    'Pregledajte kalendar trenutnih i predstojećih zadataka.',
   'work-orders.checks.3':
     'Pregledajte dodijeljene poslove sa kritičnim informacijama kao što su podaci o imovini, rok, prioritet i još mnogo toga.',
   'work-orders.checks.4':
@@ -60,7 +61,8 @@ const locale = {
   'work-requests.checks.2':
     'Smanjite vrijeme komunikacije sa podnosiocima zahtjeva do 41% (pozivi, e-pošta, poruke).',
 
-  'mobile-app.title': 'Mobilna CMMS aplikacija koja osnažuje vaš tim za održavanje',
+  'mobile-app.title':
+    'Mobilna CMMS aplikacija koja osnažuje vaš tim za održavanje',
   'mobile-app.descriptions.0':
     'Korištenjem naših Android i iOS mobilnih aplikacija, naši klijenti doživljavaju bolju organizaciju, komunikaciju, odgovornost i produktivnost do 30% u cijelom timu za održavanje.',
   'mobile-app.descriptions.1':
@@ -84,11 +86,14 @@ const locale = {
   'eam.checks.0':
     'Znajte zdravlje svoje imovine u svakom trenutku i koliko vas košta',
   'eam.checks.1': 'Pregledajte kompletne i detaljne dnevnike održavanja.',
-  'eam.checks.2': 'Pratite samo ono što želite uz neograničena prilagođena polja',
-  'eam.checks.3': 'Organizujte svoju imovinu u jasnu hijerarhiju roditelj-dijete',
+  'eam.checks.2':
+    'Pratite samo ono što želite uz neograničena prilagođena polja',
+  'eam.checks.3':
+    'Organizujte svoju imovinu u jasnu hijerarhiju roditelj-dijete',
   'eam.checks.4':
     'Pronađite informacije brzo i lako pomoću QR kodova (bar kodova)',
-  'eam.checks.5': 'Primajte podatke o imovini u stvarnom vremenu uz povezivanje senzora.',
+  'eam.checks.5':
+    'Primajte podatke o imovini u stvarnom vremenu uz povezivanje senzora.',
 
   'pm.title': 'Efikasan program preventivnog održavanja',
   'pm.descriptions.0':
@@ -120,7 +125,8 @@ const locale = {
     'Automatsko praćenje potrošnje dijelova. Kako se dijelovi koriste u radnim nalozima, inventar će se automatski ažurirati.',
   'part.checks.3':
     'Pratite upotrebu dijelova. Pregledajte dnevnik dijelova da vidite gdje se dio koristi i ko ga koristi.',
-  'part.checks.4': 'Eliminišite neiskorištene dijelove. Znajte kada je dio zastario.',
+  'part.checks.4':
+    'Eliminišite neiskorištene dijelove. Znajte kada je dio zastario.',
   'part.checks.5':
     'Izvještavanje u stvarnom vremenu. Znajte koji dijelovi se troše i koliko vas koštaju.',
   'part.checks.6':
@@ -167,7 +173,7 @@ const locale = {
   required_password: 'Polje za lozinku je obavezno',
   required_terms: 'Morate prihvatiti naše uslove i odredbe',
   verify_email: 'Molimo provjerite e-poštu kako biste aktivirali račun',
-  registration_error: "Registracija nije uspjela",
+  registration_error: 'Registracija nije uspjela',
   first_name: 'Ime',
   last_name: 'Prezime',
   email: 'E-mail adresa',
@@ -181,7 +187,8 @@ const locale = {
   create_your_account: 'Kreirajte svoj račun',
   register: 'Registracija',
   //signin
-  login_description: 'Popunite polja ispod da biste se prijavili na svoj račun.',
+  login_description:
+    'Popunite polja ispod da biste se prijavili na svoj račun.',
   no_account_yet: 'Još nemate račun?',
   signup_here: 'Registrujte se ovdje',
   wrong_credentials: 'Uneseni su pogrešni podaci za prijavu',
@@ -219,7 +226,8 @@ const locale = {
   required_hours: 'Polje za sate je obavezno',
   required_minutes: 'Polje za minute je obavezno',
   add_time: 'Dodaj vrijeme',
-  add_time_description: 'Popunite polja ispod da biste kreirali i dodali vrijeme',
+  add_time_description:
+    'Popunite polja ispod da biste kreirali i dodali vrijeme',
   feedback: 'Povratne informacije',
   feedback_description: 'Dajte svoje povratne informacije',
   required_feedback: 'Povratna informacija je obavezna',
@@ -228,7 +236,7 @@ const locale = {
   close_wo: 'Zatvori radni nalog',
   close: 'Zatvori',
   task_update_success: 'Zadatak je uspješno ažuriran',
-  task_update_failure: "Ažuriranje zadatka nije uspjelo",
+  task_update_failure: 'Ažuriranje zadatka nije uspjelo',
   notes_save_success: 'Bilješke su uspješno sačuvane',
   images_add_task_success: 'Slike su dodane u zadatak',
   images_add_task_failure: 'Nešto je pošlo po zlu',
@@ -237,10 +245,10 @@ const locale = {
   add_images: 'Dodaj slike',
   tasks: 'Zadaci',
   wo_archive_success: 'Radni nalog je arhiviran',
-  wo_archive_failure: "Arhiviranje radnog naloga nije uspjelo",
+  wo_archive_failure: 'Arhiviranje radnog naloga nije uspjelo',
   wo_archive_confirm: 'Jeste li sigurni da želite arhivirati ovaj radni nalog?',
   quantity_change_success: 'Količina je uspješno promijenjena',
-  quantity_change_failure: "Promjena količine nije uspjela",
+  quantity_change_failure: 'Promjena količine nije uspjela',
   details: 'Detalji',
   updates: 'Ažuriranja',
   id: 'ID',
@@ -253,11 +261,11 @@ const locale = {
   calendar_view: 'Kalendar',
   column_view: 'Kolone',
   wo_create_success: 'Radni nalog je uspješno kreiran',
-  wo_create_failure: "Kreiranje radnog naloga nije uspjelo",
+  wo_create_failure: 'Kreiranje radnog naloga nije uspjelo',
   changes_saved_success: 'Promjene su sačuvane',
-  wo_update_failure: "Uređivanje radnog naloga nije uspjelo",
+  wo_update_failure: 'Uređivanje radnog naloga nije uspjelo',
   wo_delete_success: 'Radni nalog je uspješno obrisan',
-  wo_delete_failure: "Brisanje radnog naloga nije uspjelo",
+  wo_delete_failure: 'Brisanje radnog naloga nije uspjelo',
   status: 'Status',
   title: 'Naslov',
   priority: 'Prioritet',
@@ -281,7 +289,7 @@ const locale = {
   save: 'Sačuvaj',
   customers: 'Izvođači',
   no_labor:
-    "Troškovi rada još nisu dodani. Pojavit će se ovdje kada korisnik evidentira vrijeme i ima unesenu satnicu u Atlasu.",
+    'Troškovi rada još nisu dodani. Pojavit će se ovdje kada korisnik evidentira vrijeme i ima unesenu satnicu u Atlasu.',
   not_assigned: 'Nije dodijeljeno',
   no_additional_cost: 'Dodatni troškovi još nisu dodani',
   parts: 'Dijelovi',
@@ -305,8 +313,7 @@ const locale = {
   requires_signature: 'Zahtijeva potpis',
   required_wo_title: 'Naslov radnog naloga je obavezan',
   add_wo: 'Dodaj radni nalog',
-  add_wo_description:
-    'Popunite polja ispod da biste kreirali novi radni nalog',
+  add_wo_description: 'Popunite polja ispod da biste kreirali novi radni nalog',
   edit_wo: 'Uredi radni nalog',
   edit_wo_description: 'Popunite polja ispod da biste ažurirali radni nalog',
   'noRows.wo.message':
@@ -315,7 +322,7 @@ const locale = {
   to_delete: 'Obriši',
   confirm_delete_wo: 'Jeste li sigurni da želite obrisati ovaj radni nalog?',
   no_access_wo:
-    "Nemate pristup radnim nalozima. Kontaktirajte administratora ako vam je potreban pristup",
+    'Nemate pristup radnim nalozima. Kontaktirajte administratora ako vam je potreban pristup',
   cancel: 'Otkaži',
   select_parts: 'Odaberi dijelove',
   sets_of_parts: 'Setovi dijelova',
@@ -329,11 +336,10 @@ const locale = {
   wo_details: 'Detalji radnog naloga',
   confirm_delete_file: 'Jeste li sigurni da želite ukloniti ovu datoteku?',
   wo_schedule_success: 'Radni nalog je uspješno zakazan',
-  wo_schedule_failure: "Zakazivanje radnog naloga nije uspjelo",
-  wo_trigger_edit_failure: "Uređivanje okidača radnog naloga nije uspjelo",
-  wo_trigger_delete_success:
-    'Okidač radnog naloga je uspješno obrisan',
-  wo_trigger_delete_failure: "Brisanje okidača radnog naloga nije uspjelo",
+  wo_schedule_failure: 'Zakazivanje radnog naloga nije uspjelo',
+  wo_trigger_edit_failure: 'Uređivanje okidača radnog naloga nije uspjelo',
+  wo_trigger_delete_success: 'Okidač radnog naloga je uspješno obrisan',
+  wo_trigger_delete_failure: 'Brisanje okidača radnog naloga nije uspjelo',
   name: 'Ime',
   wo_title: 'Naslov radnog naloga',
   next_wo: 'Sljedeći radni nalog',
@@ -352,9 +358,10 @@ const locale = {
   create_trigger: 'Kreiraj okidač',
   'noRows.pm.message': 'Zakažite radne naloge pomoću prilagođenih okidača',
   'noRows.pm.action': "Pritisnite dugme '+' da kreirate okidač",
-  confirm_delete_pm: 'Jeste li sigurni da želite obrisati ovaj okidač radnog naloga?',
+  confirm_delete_pm:
+    'Jeste li sigurni da želite obrisati ovaj okidač radnog naloga?',
   no_access_pm:
-    "Nemate pristup sekciji preventivnog održavanja. Kontaktirajte administratora ako vam je potreban pristup",
+    'Nemate pristup sekciji preventivnog održavanja. Kontaktirajte administratora ako vam je potreban pristup',
   enter_wo_title: 'Unesite naslov radnog naloga',
   //menuItems
   status_report: 'Izvještaj o statusu',
@@ -382,10 +389,10 @@ const locale = {
   reject: 'Odbij',
   approve: 'Odobri',
   request_create_success: 'Zahtjev za rad je uspješno kreiran',
-  request_create_failure: "Kreiranje zahtjeva za rad nije uspjelo",
-  request_edit_failure: "Uređivanje zahtjeva nije uspjelo",
+  request_create_failure: 'Kreiranje zahtjeva za rad nije uspjelo',
+  request_edit_failure: 'Uređivanje zahtjeva nije uspjelo',
   request_delete_success: 'Zahtjev je uspješno obrisan',
-  request_delete_failure: "Brisanje zahtjeva nije uspjelo",
+  request_delete_failure: 'Brisanje zahtjeva nije uspjelo',
   rejected: 'Odbijeno',
   approved: 'Odobreno',
   pending: 'Na čekanju',
@@ -424,12 +431,12 @@ const locale = {
   confirm_delete_asset_downtime:
     'Jeste li sigurni da želite ukloniti ovaj zastoj?',
   create_downtime_success: 'Zastoj je uspješno dodan',
-  create_downtime_failure: "Dodavanje zastoja nije uspjelo",
+  create_downtime_failure: 'Dodavanje zastoja nije uspjelo',
   edit_downtime_success: 'Zastoj je uspješno uređen',
   started_on: 'Počelo dana',
   required_startsOn: 'Datum početka je obavezan',
   reading_create_success: 'Očitanje je uspješno dodano',
-  reading_create_failure: "Dodavanje očitanja nije uspjelo",
+  reading_create_failure: 'Dodavanje očitanja nije uspjelo',
   reading: 'Očitanje',
   added_by: 'Dodao',
   enter_meter_value: 'Unesite vrijednost brojila',
@@ -442,7 +449,7 @@ const locale = {
   no_primary_worker: 'Nema primarnog radnika',
   no_wo_linked_asset: 'Nema radnih naloga povezanih sa ovom imovinom',
   asset_remove_success: 'Imovina je uspješno obrisana',
-  asset_remove_failure: "Brisanje imovine nije uspjelo",
+  asset_remove_failure: 'Brisanje imovine nije uspjelo',
   asset_name_description: 'Unesite naziv imovine',
   select_asset_location: 'Odaberi lokaciju imovine',
   primary_user_description: 'Odaberi primarnog korisnika',
@@ -455,12 +462,11 @@ const locale = {
   structure: 'Struktura',
   parent_asset: 'Nadređena imovina',
   asset_create_success: 'Imovina je uspješno kreirana',
-  asset_create_failure: "Kreiranje imovine nije uspjelo",
+  asset_create_failure: 'Kreiranje imovine nije uspjelo',
   additional_workers_description: 'Odaberi dodatne radnike',
   required_asset_name: 'Naziv imovine je obavezan',
   add_asset: 'Dodaj imovinu',
-  add_asset_description:
-    'Popunite polja ispod da biste kreirali novu imovinu',
+  add_asset_description: 'Popunite polja ispod da biste kreirali novu imovinu',
   create_asset: 'Kreiraj imovinu',
   hierarchy: 'Hijerarhija',
   add_downtime: 'Dodaj zastoj',
@@ -476,10 +482,10 @@ const locale = {
   //location
   map_view: 'Prikaz na mapi',
   location_create_success: 'Lokacija je uspješno kreirana',
-  location_create_failure: "Kreiranje lokacije nije uspjelo",
-  location_edit_failure: "Uređivanje lokacije nije uspjelo",
+  location_create_failure: 'Kreiranje lokacije nije uspjelo',
+  location_edit_failure: 'Uređivanje lokacije nije uspjelo',
   location_delete_success: 'Lokacija je uspješno obrisana',
-  location_delete_failure: "Brisanje lokacije nije uspjelo",
+  location_delete_failure: 'Brisanje lokacije nije uspjelo',
   enter_location_name: 'Unesite naziv lokacije',
   address: 'Adresa',
   parent_location: 'Nadređena lokacija',
@@ -511,30 +517,30 @@ const locale = {
   assigned_vendors: 'Dodijeljeni dobavljači',
   //no_access
   no_access_location:
-    "Nemate pristup lokacijama. Kontaktirajte administratora ako vam je potreban pristup",
+    'Nemate pristup lokacijama. Kontaktirajte administratora ako vam je potreban pristup',
   no_access_vendors_customers:
-    "Nemate pristup dobavljačima i izvođačima. Kontaktirajte administratora ako vam je potreban pristup",
+    'Nemate pristup dobavljačima i izvođačima. Kontaktirajte administratora ako vam je potreban pristup',
   no_access_people_team:
-    "Nemate pristup ljudima i timovima. Kontaktirajte administratora ako vam je potreban pristup",
+    'Nemate pristup ljudima i timovima. Kontaktirajte administratora ako vam je potreban pristup',
   no_access_analytics:
-    "Nemate pristup analitici. Kontaktirajte administratora ako vam je potreban pristup",
+    'Nemate pristup analitici. Kontaktirajte administratora ako vam je potreban pristup',
   no_access_assets:
-    "Nemate pristup imovini. Kontaktirajte administratora ako vam je potreban pristup",
+    'Nemate pristup imovini. Kontaktirajte administratora ako vam je potreban pristup',
   no_access_categories:
-    "Nemate pristup kategorijama. Kontaktirajte administratora ako vam je potreban pristup",
+    'Nemate pristup kategorijama. Kontaktirajte administratora ako vam je potreban pristup',
   no_access_files:
-    "Nemate pristup datotekama. Kontaktirajte administratora ako vam je potreban pristup",
+    'Nemate pristup datotekama. Kontaktirajte administratora ako vam je potreban pristup',
   no_access_inventory:
-    "Nemate pristup inventaru. Kontaktirajte administratora ako vam je potreban pristup",
+    'Nemate pristup inventaru. Kontaktirajte administratora ako vam je potreban pristup',
   no_access_meters:
-    "Nemate pristup brojilima. Kontaktirajte administratora ako vam je potreban pristup",
+    'Nemate pristup brojilima. Kontaktirajte administratora ako vam je potreban pristup',
   no_access_purchase_orders:
-    "Ne možete kreirati narudžbenicu. Kontaktirajte administratora ako vam je potreban pristup",
+    'Ne možete kreirati narudžbenicu. Kontaktirajte administratora ako vam je potreban pristup',
   no_access_requests:
-    "Nemate pristup zahtjevima. Kontaktirajte administratora ako vam je potreban pristup",
+    'Nemate pristup zahtjevima. Kontaktirajte administratora ako vam je potreban pristup',
   no_access_settings:
-    "Nemate pristup postavkama. Kontaktirajte administratora ako vam je potreban pristup",
-  no_access_page: "Nemate pristup ovoj stranici",
+    'Nemate pristup postavkama. Kontaktirajte administratora ako vam je potreban pristup',
+  no_access_page: 'Nemate pristup ovoj stranici',
   file: 'Datoteka',
   'noRows.location.message':
     'Lokacije vam omogućavaju efikasnije upravljanje imovinom i radnicima',
@@ -542,10 +548,10 @@ const locale = {
   //inventory
   card_view: 'Kartični prikaz',
   set_create_success: 'Set je uspješno kreiran',
-  set_create_failure: "Kreiranje seta nije uspjelo",
-  set_edit_failure: "Uređivanje seta nije uspjelo",
+  set_create_failure: 'Kreiranje seta nije uspjelo',
+  set_edit_failure: 'Uređivanje seta nije uspjelo',
   set_delete_success: 'Set je uspješno obrisan',
-  set_delete_failure: "Brisanje seta nije uspjelo",
+  set_delete_failure: 'Brisanje seta nije uspjelo',
   total_cost: 'Ukupni trošak',
   part: 'Dio',
   enter_part_name: 'Unesite naziv dijela',
@@ -557,10 +563,10 @@ const locale = {
   edit_set_description: 'Popunite polja ispod da biste uredili set',
   confirm_delete_set: 'Jeste li sigurni da želite obrisati ovaj set?',
   part_create_success: 'Dio je uspješno kreiran',
-  part_create_failure: "Kreiranje dijela nije uspjelo",
-  part_edit_failure: "Uređivanje dijela nije uspjelo",
+  part_create_failure: 'Kreiranje dijela nije uspjelo',
+  part_edit_failure: 'Uređivanje dijela nije uspjelo',
   part_delete_success: 'Dio je uspješno obrisan',
-  part_delete_failure: "Brisanje dijela nije uspjelo",
+  part_delete_failure: 'Brisanje dijela nije uspjelo',
   quantity: 'Količina',
   open_wo: 'Otvoreni radni nalozi',
   enter_part_category: 'Unesite kategoriju dijela',
@@ -577,7 +583,8 @@ const locale = {
   create_part: 'Kreiraj dio',
   update_part: 'Ažuriraj dio',
   update_part_description: 'Popunite polja ispod da biste ažurirali dio',
-  'noRows.part.message': 'Dijelovi se mogu kombinovati u imovinu ili koristiti samostalno',
+  'noRows.part.message':
+    'Dijelovi se mogu kombinovati u imovinu ili koristiti samostalno',
   'noRows.part.action': "Pritisnite dugme '+' da kreirate dio",
   confirm_delete_part: 'Jeste li sigurni da želite obrisati ovaj dio?',
   part_details: 'Detalji o dijelu',
@@ -589,9 +596,9 @@ const locale = {
   workers: 'Radnici',
   Parts_and_Inventory: 'Dijelovi i inventar',
   //purchase order
-  po_edit_failure: "Uređivanje narudžbenice nije uspjelo",
+  po_edit_failure: 'Uređivanje narudžbenice nije uspjelo',
   po_delete_success: 'Narudžbenica je uspješno obrisana',
-  po_delete_failure: "Brisanje narudžbenice nije uspjelo",
+  po_delete_failure: 'Brisanje narudžbenice nije uspjelo',
   number_of_items: 'Broj stavki',
   total_quantity: 'Ukupna količina',
   shipping_to: 'Šalje se na',
@@ -624,13 +631,13 @@ const locale = {
   new_po: 'Nova narudžbenica',
   po_create_success: 'Narudžbenica je uspješno kreirana',
   select_one_part: 'Odaberite barem jedan dio',
-  po_create_failure: "Kreiranje narudžbenice nije uspjelo",
+  po_create_failure: 'Kreiranje narudžbenice nije uspjelo',
   approve_while_submitting: 'Odobri prilikom slanja',
   invalid_fax: 'Broj faksa je nevažeći',
   submit: 'Pošalji',
   each_item_superior_zero: 'Količina svake stavke mora biti veća od 0',
   quantity_edit_success: 'Količina je uspješno promijenjena',
-  quantity_edit_failure: "Promjena količine nije uspjela",
+  quantity_edit_failure: 'Promjena količine nije uspjela',
   APPROVED: 'ODOBRENO',
   PENDING: 'NA ČEKANJU',
   REJECTED: 'ODBIJENO',
@@ -641,19 +648,17 @@ const locale = {
   value: 'Vrijednost',
   required_value: 'Vrijednost je obavezna',
   required_trigger_condition: 'Uslov je obavezan',
-  wo_trigger_create_success:
-    'Okidač radnog naloga je uspješno kreiran',
-  wo_trigger_create_failure: "Kreiranje okidača radnog naloga nije uspjelo",
+  wo_trigger_create_success: 'Okidač radnog naloga je uspješno kreiran',
+  wo_trigger_create_failure: 'Kreiranje okidača radnog naloga nije uspjelo',
   add_wo_trigger: 'Dodaj okidač radnog naloga',
   add_wo_trigger_description:
     'Popunite polja ispod da biste kreirali okidač radnog naloga',
-  wo_trigger_edit_success:
-    'Okidač radnog naloga je uspješno ažuriran',
+  wo_trigger_edit_success: 'Okidač radnog naloga je uspješno ažuriran',
   meter_create_success: 'Brojilo je uspješno kreirano',
-  meter_create_failure: "Kreiranje brojila nije uspjelo",
-  meter_edit_failure: "Uređivanje brojila nije uspjelo",
+  meter_create_failure: 'Kreiranje brojila nije uspjelo',
+  meter_edit_failure: 'Uređivanje brojila nije uspjelo',
   meter_delete_success: 'Brojilo je uspješno obrisano',
-  meter_delete_failure: "Brisanje brojila nije uspjelo",
+  meter_delete_failure: 'Brisanje brojila nije uspjelo',
   next_reading_due: 'Sljedeće očitanje dospijeva',
   unit_of_measurement: 'Jedinica mjere',
   last_reading: 'Posljednje očitanje',
@@ -666,8 +671,7 @@ const locale = {
   required_meter_update_frequency: 'Učestalost ažuriranja brojila je obavezna',
   required_asset: 'Imovina je obavezna',
   add_meter: 'Dodaj brojilo',
-  add_meter_description:
-    'Popunite polja ispod da biste kreirali novo brojilo',
+  add_meter_description: 'Popunite polja ispod da biste kreirali novo brojilo',
   edit_meter: 'Uredi brojilo',
   edit_meter_description: 'Popunite polja ispod da biste uredili brojilo',
   confirm_delete_meter: 'Jeste li sigurni da želite obrisati ovo brojilo?',
@@ -692,10 +696,10 @@ const locale = {
   //vendors_customers
   Vendors_Customers: 'Dobavljači i izvođači',
   customer_create_success: 'Izvođač je uspješno kreiran',
-  customer_create_failure: "Kreiranje izvođača nije uspjelo",
-  customer_edit_failure: "Uređivanje izvođača nije uspjelo",
+  customer_create_failure: 'Kreiranje izvođača nije uspjelo',
+  customer_edit_failure: 'Uređivanje izvođača nije uspjelo',
   customer_delete_success: 'Izvođač je uspješno obrisan',
-  customer_delete_failure: "Brisanje izvođača nije uspjelo",
+  customer_delete_failure: 'Brisanje izvođača nije uspjelo',
   customer_name: 'Naziv izvođača',
   website: 'Web stranica',
   customer_type: 'Tip izvođača',
@@ -722,10 +726,10 @@ const locale = {
   confirm_delete_customer: 'Jeste li sigurni da želite obrisati ovog izvođača?',
   //vendor
   vendor_create_success: 'Dobavljač je uspješno kreiran',
-  vendor_create_failure: "Kreiranje dobavljača nije uspjelo",
-  vendor_edit_failure: "Uređivanje dobavljača nije uspjelo",
+  vendor_create_failure: 'Kreiranje dobavljača nije uspjelo',
+  vendor_edit_failure: 'Uređivanje dobavljača nije uspjelo',
   vendor_delete_success: 'Dobavljač je uspješno obrisan',
-  vendor_delete_failure: "Brisanje dobavljača nije uspjelo",
+  vendor_delete_failure: 'Brisanje dobavljača nije uspjelo',
   required_company_name: 'Naziv kompanije je obavezan',
   vendor_type: 'Tip dobavljača',
   contact_name: 'Ime kontakta',
@@ -749,15 +753,15 @@ const locale = {
   enter_email: 'Unesite e-mail adresu',
   users_invite_success: 'Korisnici su pozvani',
   users_invite_failure:
-    "Korisnici ne mogu biti pozvani. Provjerite broj članova u vašoj pretplati",
+    'Korisnici ne mogu biti pozvani. Provjerite broj članova u vašoj pretplati',
   please_type_emails: 'Molimo unesite e-mail adrese za pozivanje',
   please_select_role: 'Molimo odaberite ulogu',
   invite: 'Pozovi',
   team_create_success: 'Tim je uspješno kreiran',
-  team_create_failure: "Kreiranje tima nije uspjelo",
-  team_edit_failure: "Uređivanje tima nije uspjelo",
+  team_create_failure: 'Kreiranje tima nije uspjelo',
+  team_edit_failure: 'Uređivanje tima nije uspjelo',
   team_delete_success: 'Tim je uspješno obrisan',
-  team_delete_failure: "Brisanje tima nije uspjelo",
+  team_delete_failure: 'Brisanje tima nije uspjelo',
   team_name: 'Naziv tima',
   people_in_team: 'Ljudi u timu',
   required_team_name: 'Naziv tima je obavezan',
@@ -788,12 +792,13 @@ const locale = {
   REQUESTER_description:
     'Podnosioci zahtjeva mogu samo slati zahtjeve za rad i pratiti njihov status',
   select_user_role: 'Odaberi ulogu korisnika',
-  'noRows.team.message': 'Timovi vam pomažu u upravljanju specifičnim grupama ljudi.',
+  'noRows.team.message':
+    'Timovi vam pomažu u upravljanju specifičnim grupama ljudi.',
   'noRows.team.action': "Pritisnite dugme '+' da kreirate tim.",
   user_details: 'Detalji korisnika',
   //files
   file_delete_success: 'Datoteka je uspješno obrisana',
-  file_delete_failure: "Brisanje datoteke nije uspjelo",
+  file_delete_failure: 'Brisanje datoteke nije uspjelo',
   uploaded_by: 'Otpremio',
   uploaded_on: 'Otpremljeno dana',
   rename: 'Preimenuj',
@@ -809,10 +814,10 @@ const locale = {
   requests_analysis: 'Analiza zahtjeva',
   //categories,
   category_create_success: 'Kategorija je uspješno kreirana',
-  category_create_failure: "Kreiranje kategorije nije uspjelo",
-  category_edit_failure: "Uređivanje kategorije nije uspjelo",
+  category_create_failure: 'Kreiranje kategorije nije uspjelo',
+  category_edit_failure: 'Uređivanje kategorije nije uspjelo',
   category_delete_success: 'Kategorija je uspješno obrisana',
-  category_delete_failure: "Brisanje kategorije nije uspjelo",
+  category_delete_failure: 'Brisanje kategorije nije uspjelo',
   timers: 'Tajmeri',
   costs: 'Troškovi',
   add_category: 'Dodaj novu kategoriju',
@@ -820,9 +825,10 @@ const locale = {
   edit_category: 'Uredi kategoriju',
   edit_category_description: 'Unesite naziv da uredite kategoriju',
   no_category_action: "Pritisnite dugme '+' da dodate svoju prvu kategoriju.",
-  confirm_delete_category: 'Jeste li sigurni da želite obrisati ovu kategoriju?',
+  confirm_delete_category:
+    'Jeste li sigurni da želite obrisati ovu kategoriju?',
   no_category_message:
-    "Izgleda da još nemate nijednu kategoriju za {{categoryName}}.",
+    'Izgleda da još nemate nijednu kategoriju za {{categoryName}}.',
   acquisition_cost: 'Trošak nabavke',
   //settings
   general_settings: 'Opšte postavke',
@@ -836,7 +842,7 @@ const locale = {
   hidden: 'Skriveno',
   creating_wo: 'Kreiranje radnog naloga',
   completing_wo: 'Završavanje radnog naloga',
-  role_edit_failure: "Uređivanje uloge nije uspjelo",
+  role_edit_failure: 'Uređivanje uloge nije uspjelo',
   edit_role: 'Uredi ulogu',
   edit_role_description: 'Popunite polja ispod da biste uredili ulogu',
   external_id: 'Eksterni ID',
@@ -846,13 +852,13 @@ const locale = {
   create_and_edit: 'Kreiraj/Uredi',
   to_access: 'Pristup',
   role_delete_success: 'Uloga je uspješno obrisana',
-  role_delete_failure: "Brisanje uloge nije uspjelo",
+  role_delete_failure: 'Brisanje uloge nije uspjelo',
   confirm_delete_role: 'Jeste li sigurni da želite trajno obrisati ovu ulogu?',
   users: 'Korisnici',
   paid: 'Plaćeno',
   free: 'Besplatno',
   role_create_success: 'Uloga je uspješno kreirana',
-  role_create_failure: "Kreiranje uloge nije uspjelo",
+  role_create_failure: 'Kreiranje uloge nije uspjelo',
   roles_management: 'Upravljanje ulogama',
   roles_number: '{{count}} uloga',
   create_role: 'Kreiraj ulogu',
@@ -871,16 +877,19 @@ const locale = {
   auto_assign_requests: 'Automatska dodjela zahtjeva',
   auto_assign_requests_description:
     'Automatski dodijeli nove radne naloge osobi koja odobri zahtjev',
-  disable_closed_wo_notification: 'Onemogući obavještenja o zatvorenim radnim nalozima',
+  disable_closed_wo_notification:
+    'Onemogući obavještenja o zatvorenim radnim nalozima',
   disable_closed_wo_notification_description:
     'Onemogući obavještenja kada se ažuriraju zatvoreni radni nalozi',
-  ask_feedback_wo_closed: 'Traži povratne informacije nakon zatvaranja radnog naloga',
+  ask_feedback_wo_closed:
+    'Traži povratne informacije nakon zatvaranja radnog naloga',
   ask_feedback_wo_closed_description:
     'Od korisnika se traži da daju povratnu informaciju o obavljenom poslu',
   include_labor_in_total_cost: 'Uključi trošak rada u ukupni trošak',
   include_labor_in_total_cost_description:
     'Dodaj troškove rada ukupnom iznosu kada korisnik evidentira vrijeme i ima unesen satnicu',
-  enable_wo_updates_requesters: 'Omogući ažuriranja radnih naloga za podnosioce zahtjeva',
+  enable_wo_updates_requesters:
+    'Omogući ažuriranja radnih naloga za podnosioce zahtjeva',
   enable_wo_updates_requesters_description:
     'Korisnici dobijaju ažuriranja za radne naloge koje su zahtijevali',
   language: 'Jezik',
@@ -890,9 +899,10 @@ const locale = {
   physical_asset_management: 'Upravljanje fizičkom imovinom',
   //checklist
   checklist_delete_success: 'Kontrolna lista je uspješno obrisana',
-  checklist_delete_failure: "Brisanje kontrolne liste nije uspjelo",
+  checklist_delete_failure: 'Brisanje kontrolne liste nije uspjelo',
   create_checklist: 'Kreiraj kontrolnu listu',
-  confirm_delete_checklist: 'Jeste li sigurni da želite obrisati ovu kontrolnu listu?',
+  confirm_delete_checklist:
+    'Jeste li sigurni da želite obrisati ovu kontrolnu listu?',
   upgrade_checklist: 'Molimo nadogradite paket da koristite kontrolne liste',
   //components
   upgrade_now: 'Nadogradi odmah',
@@ -919,7 +929,8 @@ const locale = {
   use_a_checklist: 'Koristi kontrolnu listu',
   select_checklist: 'Odaberi kontrolnu listu',
   save_checklist: 'Sačuvaj kontrolnu listu',
-  assign_tasks_description: 'Dodijelite prilagođene zadatke tehničarima za popunjavanje',
+  assign_tasks_description:
+    'Dodijelite prilagođene zadatke tehničarima za popunjavanje',
   select_date: 'Odaberi datum',
   task: 'Zadatak',
   checklist: 'Kontrolna lista',
@@ -1017,8 +1028,7 @@ const locale = {
   new_password: 'Nova lozinka',
   confirm_password: 'Potvrdite lozinku',
   personal_details: 'Lični podaci',
-  personal_details_description:
-    'Upravljajte svojim ličnim podacima',
+  personal_details_description: 'Upravljajte svojim ličnim podacima',
   change_password: 'Promijeni lozinku',
   delete_account: 'Obriši račun',
   delete_account_confirmation:
@@ -1213,8 +1223,7 @@ const locale = {
   detail_panel_toggle: 'Uključi/isključi panel detalja',
   cancel_subscription: 'Otkaži pretplatu',
   resume_subscription: 'Nastavi pretplatu',
-  confirm_cancel_subscription:
-    'Jeste li sigurni da želite otkazati pretplatu?',
+  confirm_cancel_subscription: 'Jeste li sigurni da želite otkazati pretplatu?',
   workflows: 'Tokovi posla',
   create_workflow: 'Kreiraj tok posla',
   if: 'Ako',
@@ -1269,18 +1278,19 @@ const locale = {
   PART_UPDATED: 'Dio je ažuriran',
   add_condition: 'Dodaj uslov',
   workflow_creation_success: 'Tok posla je uspješno kreiran',
-  workflow_creation_failure: "Kreiranje toka posla nije uspjelo",
+  workflow_creation_failure: 'Kreiranje toka posla nije uspjelo',
   action_value_missing: 'Nedostaje vrijednost akcije',
   condition_value_missing: 'Nedostaje vrijednost uslova',
   workflow_edit_success: 'Tok posla je uspješno ažuriran',
-  workflow_edit_failure: "Uređivanje toka posla nije uspjelo",
+  workflow_edit_failure: 'Uređivanje toka posla nije uspjelo',
   workflow_delete_success: 'Tok posla je uspješno obrisan',
-  workflow_delete_failure: "Brisanje toka posla nije uspjelo",
-  confirm_delete_workflow: 'Jeste li sigurni da želite obrisati ovaj tok posla?',
+  workflow_delete_failure: 'Brisanje toka posla nije uspjelo',
+  confirm_delete_workflow:
+    'Jeste li sigurni da želite obrisati ovaj tok posla?',
   click_here: 'Kliknite ovdje',
   verify_email_title: 'Potvrdite e-poštu',
   verify_email_description:
-    "Poslan vam je e-mail za potvrdu. Provjerite spam folder ako ga ne vidite u inboxu.",
+    'Poslan vam je e-mail za potvrdu. Provjerite spam folder ako ga ne vidite u inboxu.',
   upgrade: 'Nadogradi',
   downgrade: 'Unazadi',
   upgrade_description:
@@ -1329,7 +1339,8 @@ const locale = {
   start_work_order: 'Pokreni radni nalog',
   priority_label: '{{priority}} prioritet',
   stop_work_order: 'Zaustavi tajmer',
-  required_files_on_completion: 'Datoteke su obavezne prilikom završetka radnog naloga',
+  required_files_on_completion:
+    'Datoteke su obavezne prilikom završetka radnog naloga',
   required_tasks_on_completion: 'Zadaci moraju biti završeni',
   required_labor_on_completion: 'Morate evidentirati vrijeme',
   required_part_on_completion: 'Nijedan dio nije korišten u ovom radnom nalogu',
@@ -1379,7 +1390,7 @@ const locale = {
   loading: 'Učitavanje',
   please_wait: 'Molimo sačekajte...',
   add_file: 'Dodaj datoteku',
-  asset_update_failure: "Uređivanje imovine nije uspjelo",
+  asset_update_failure: 'Uređivanje imovine nije uspjelo',
   no_wo_linked_location: 'Nema radnih naloga na ovoj lokaciji',
   confirm_delete_file_location:
     'Jeste li sigurni da želite ukloniti ovu datoteku sa ove lokacije?',
@@ -1390,13 +1401,14 @@ const locale = {
   edit_vendor: 'Uredi dobavljača',
   reading_history: 'Historija očitanja',
   user_invite_success: 'Korisnik je pozvan',
-  user_invite_failure: "Pozivanje korisnika nije uspjelo",
+  user_invite_failure: 'Pozivanje korisnika nije uspjelo',
   create_child_asset: 'Kreiraj podređenu imovinu',
   not_enough_part: 'Nema dovoljno ovog dijela',
   update_profile: 'Ažuriraj profil',
   confirm_logout: 'Jeste li sigurni da se želite odjaviti?',
   report: 'Izvještaj',
-  end_cannot_be_ulterior_to_start: 'Datum završetka ne može biti prije datuma početka',
+  end_cannot_be_ulterior_to_start:
+    'Datum završetka ne može biti prije datuma početka',
   storage_permission_needed_description:
     'Morate dati dozvolu za pohranu da biste preuzeli datoteku',
   permission_denied: 'Pristup odbijen!',
@@ -1462,6 +1474,12 @@ const locale = {
   no_results_found: 'Nema pronađenih rezultata',
   no_sub_assets: 'Nema podređene imovine',
   no_assets_available: 'Nema dostupne imovine',
+  asset_not_found: 'Sredstvo nije pronađeno',
+  comments: 'Komentari',
+  no_comments: 'Još uvijek nema komentara. Budite prvi koji će komentarisati!',
+  post_comment: 'Objavi komentar',
+  confirm_delete_comment: 'Da li ste sigurni da želite obrisati ovaj komentar?',
+  add_comment_placeholder: 'Dodajte komentar...',
   you_need_a_license: 'Potrebna vam je licenca za pristup ovoj funkciji'
 };
 export default locale;

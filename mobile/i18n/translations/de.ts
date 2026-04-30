@@ -184,7 +184,8 @@ const deJSON = {
   employeesCount: 'Anzahl der Mitarbeiter ',
   i_accept: 'Ich akzeptiere die ',
   terms_conditions: 'Allgemeinen Geschäftsbedingungen ',
-  required_fields_notice: 'Alle mit * gekennzeichneten Felder sind erforderlich.',
+  required_fields_notice:
+    'Alle mit * gekennzeichneten Felder sind erforderlich.',
   create_your_account: 'Erstellen Sie Ihr Konto ',
   register: 'Registrieren ',
   //signin
@@ -1549,7 +1550,14 @@ const deJSON = {
   top_level: 'Oberste Ebene',
   no_results_found: 'Keine Ergebnisse gefunden',
   no_sub_assets: 'Keine Unter-Assets',
-  no_assets_available: 'Keine verfügbaren Assets'
+  no_assets_available: 'Keine verfügbaren Assets',
+  asset_not_found: 'Asset nicht gefunden',
+  comments: 'Kommentare',
+  no_comments: 'Noch keine Kommentare. Seien Sie der Erste, der kommentiert!',
+  post_comment: 'Kommentar posten',
+  confirm_delete_comment:
+    'Sind Sie sicher, dass Sie diesen Kommentar löschen möchten?',
+  add_comment_placeholder: 'Kommentar hinzufügen...'
 };
 
 export default deJSON;
