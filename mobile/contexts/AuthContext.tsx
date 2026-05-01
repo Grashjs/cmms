@@ -63,7 +63,7 @@ export type FieldConfigurationsType = 'workOrder' | 'request';
 
 interface AuthContextValue extends AuthState {
   method: 'JWT';
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, ldap?: boolean) => Promise<void>;
   logout: () => void;
   register: (values: any) => Promise<void>;
   getInfos: () => void;
@@ -469,7 +469,8 @@ const reducer = (state: AuthState, action: Action): AuthState =>
 const AuthContext = createContext<AuthContextValue>({
   ...initialAuthState,
   method: 'JWT',
-  login: () => Promise.resolve(),
+  login: (email?: string, password?: string, ldap?: boolean) =>
+    Promise.resolve(),
   logout: () => Promise.resolve(),
   register: () => Promise.resolve(),
   getInfos: () => Promise.resolve(),
@@ -732,14 +733,23 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       }
     });
   };
-  const login = async (email: string, password: string): Promise<void> => {
+  const login = async (
+    email: string,
+    password: string,
+    ldap?: boolean
+  ): Promise<void> => {
     const response = await api.post<{ accessToken: string }>(
-      'auth/signin',
-      {
-        email,
-        type: 'client',
-        password
-      },
+      `auth/signin${ldap ? '-ldap' : ''}`,
+      ldap
+        ? {
+            username: email,
+            password
+          }
+        : {
+            email,
+            type: 'client',
+            password
+          },
       { headers: await authHeader(true) }
     );
     const { accessToken } = response;

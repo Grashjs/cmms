@@ -27,7 +27,7 @@ import {
 } from '../../../../config';
 
 const LoginJWT: FC = () => {
-  const { login } = useAuth() as any;
+  const { login } = useAuth();
   const isMountedRef = useRefMounted();
   const { t }: { t: any } = useTranslation();
   const { showSnackBar } = useContext(CustomSnackBarContext);

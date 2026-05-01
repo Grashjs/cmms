@@ -5,12 +5,14 @@ import { AuthStackScreenProps } from '../../types';
 import { Formik } from 'formik';
 import { useTranslation } from 'react-i18next';
 import useAuth from '../../hooks/useAuth';
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { Button, HelperText, Text, TextInput } from 'react-native-paper';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import * as React from 'react';
 import { Asset } from 'expo-asset';
 import { useAppTheme } from '../../custom-theme';
+import { getApiUrl } from '../../config';
+import api, { authHeader } from '../../utils/api';
 
 export default function LoginScreen({
   navigation
@@ -22,6 +24,22 @@ export default function LoginScreen({
   const shouldShowRegistration = Platform.OS !== 'ios';
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const toggleShowPassword = () => setShowPassword((value) => !value);
+  const [ldapEnabled, setLdapEnabled] = useState(false);
+
+  useEffect(() => {
+    const fetchInstanceConfig = async () => {
+      try {
+        const response = await api.get<{ ldapEnabled: boolean }>(
+          'instance-config',
+          { headers: await authHeader(true) }
+        );
+        setLdapEnabled(response.ldapEnabled);
+      } catch (error) {
+        console.error('Failed to fetch instance config:', error);
+      }
+    };
+    fetchInstanceConfig();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -40,10 +58,12 @@ export default function LoginScreen({
             submit: null
           }}
           validationSchema={Yup.object().shape({
-            email: Yup.string()
-              .email(t('invalid_email'))
-              .max(255)
-              .required(t('required_email')),
+            email: ldapEnabled
+              ? Yup.string().required(t('id_required'))
+              : Yup.string()
+                  .email(t('invalid_email'))
+                  .max(255)
+                  .required(t('required_email')),
             password: Yup.string().max(255).required(t('required_password'))
           })}
           onSubmit={async (
@@ -51,7 +71,7 @@ export default function LoginScreen({
             { setErrors, setStatus, setSubmitting }
           ): Promise<void> => {
             setSubmitting(true);
-            return login(values.email, values.password)
+            return login(values.email, values.password, ldapEnabled)
               .catch((err) => {
                 showSnackBar(t('wrong_credentials'), 'error');
                 setStatus({ success: false });
@@ -74,13 +94,14 @@ export default function LoginScreen({
             <View style={{ alignSelf: 'stretch', paddingHorizontal: 30 }}>
               <TextInput
                 error={Boolean(touched.email && errors.email)}
-                label={t('email')}
+                label={ldapEnabled ? t('id') : t('email')}
                 onBlur={handleBlur('email')}
                 onChangeText={handleChange('email')}
                 value={values.email}
                 mode="outlined"
                 style={{ marginBottom: 10 }}
                 autoCapitalize="none"
+                keyboardType={ldapEnabled ? 'default' : 'email-address'}
               />
               {Boolean(touched.email && errors.email) && (
                 <HelperText type="error">{errors.email?.toString()}</HelperText>
@@ -113,7 +134,7 @@ export default function LoginScreen({
               >
                 {t('login')}
               </Button>
-              {shouldShowRegistration && (
+              {shouldShowRegistration && !ldapEnabled && (
                 <>
                   <Text style={{ marginVertical: 20 }}>
                     {t('no_account_yet')}

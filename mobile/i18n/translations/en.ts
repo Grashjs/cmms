@@ -1477,6 +1477,7 @@ const locale = {
   no_comments: 'No comments yet. Be the first to comment!',
   post_comment: 'Post comment',
   confirm_delete_comment: 'Are you sure you want to delete this comment?',
-  add_comment_placeholder: 'Add a comment...'
+  add_comment_placeholder: 'Add a comment...',
+  id_required: 'ID is required'
 };
 export default locale;
