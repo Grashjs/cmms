@@ -5,7 +5,7 @@ import { AuthStackScreenProps } from '../../types';
 import { Formik } from 'formik';
 import { useTranslation } from 'react-i18next';
 import useAuth from '../../hooks/useAuth';
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Button, HelperText, Text, TextInput } from 'react-native-paper';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import * as React from 'react';
@@ -13,6 +13,8 @@ import { Asset } from 'expo-asset';
 import { useAppTheme } from '../../custom-theme';
 import { getApiUrl } from '../../config';
 import api, { authHeader } from '../../utils/api';
+import { useDispatch, useSelector } from '../../store';
+import { getInstanceConfig } from '../../slices/instanceConfig';
 
 export default function LoginScreen({
   navigation
@@ -24,21 +26,11 @@ export default function LoginScreen({
   const shouldShowRegistration = Platform.OS !== 'ios';
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const toggleShowPassword = () => setShowPassword((value) => !value);
-  const [ldapEnabled, setLdapEnabled] = useState(false);
+  const dispatch = useDispatch();
+  const { ldapEnabled } = useSelector((state) => state.instanceConfig);
 
   useEffect(() => {
-    const fetchInstanceConfig = async () => {
-      try {
-        const response = await api.get<{ ldapEnabled: boolean }>(
-          'instance-config',
-          { headers: await authHeader(true) }
-        );
-        setLdapEnabled(response.ldapEnabled);
-      } catch (error) {
-        console.error('Failed to fetch instance config:', error);
-      }
-    };
-    fetchInstanceConfig();
+    dispatch(getInstanceConfig());
   }, []);
 
   return (

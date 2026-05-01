@@ -16,6 +16,8 @@ import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppTheme } from '../../custom-theme';
+import { useDispatch } from '../../store';
+import { getInstanceConfig } from '../../slices/instanceConfig';
 
 export default function CustomServerScreen({
   navigation
@@ -24,6 +26,7 @@ export default function CustomServerScreen({
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const theme = useAppTheme();
   const [currentUrl, setCurrentUrl] = useState<string>('');
+  const dispatch = useDispatch();
 
   useEffect(() => {
     // Load the current custom URL if it exists
@@ -71,6 +74,8 @@ export default function CustomServerScreen({
               await AsyncStorage.setItem('customApiUrl', url);
               showSnackBar(t('server_url_saved'), 'success');
 
+              dispatch(getInstanceConfig());
+
               // Navigate back to login
               navigation.goBack();
             } catch (error) {
@@ -99,6 +104,7 @@ export default function CustomServerScreen({
                 value={values.serverUrl}
                 mode="outlined"
                 style={{ marginBottom: 10 }}
+                autoCapitalize="none"
                 placeholder="https://your-server-url.com"
               />
               {Boolean(touched.serverUrl && errors.serverUrl) && (
@@ -132,6 +138,7 @@ export default function CustomServerScreen({
                   onPress={async () => {
                     await AsyncStorage.removeItem('customApiUrl');
                     setCurrentUrl('');
+                    dispatch(getInstanceConfig());
                     showSnackBar(t('server_url_reset'), 'success');
                   }}
                   style={{ marginTop: 20 }}
