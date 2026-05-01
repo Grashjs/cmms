@@ -51,7 +51,11 @@ export type FieldConfigurationsType = 'workOrder' | 'request';
 
 interface AuthContextValue extends AuthState {
   method: 'JWT';
-  login: (email: string, password: string) => Promise<void>;
+  login: (
+    email: string,
+    password: string,
+    ldapEnabled?: boolean
+  ) => Promise<void>;
   loginInternal: (accessToken: string) => void;
   logout: () => void;
   register: (
