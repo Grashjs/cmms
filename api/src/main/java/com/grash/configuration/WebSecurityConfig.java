@@ -63,7 +63,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/login/oauth2/**").permitAll()
                         .requestMatchers("/health-check").permitAll()
                         .requestMatchers("/mail/send").permitAll()
-                        .requestMatchers("/instance-config/").permitAll()
+                        .requestMatchers("/instance-config").permitAll()
                         .requestMatchers("/subscription-plans").permitAll()
                         .requestMatchers("/files/download/tos", "/files/download/privacy-policy").permitAll()
                         .requestMatchers("/ws/**").permitAll()
