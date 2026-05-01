@@ -195,13 +195,13 @@ export default function CommentItem({
               alignItems: 'center'
             }}
           >
-            <View>
+            <View style={{ flex: 1, marginRight: 8 }}>
               <TouchableOpacity
                 onPress={() =>
                   navigation.navigate('UserDetails', { id: comment.user?.id })
                 }
               >
-                <Text style={{ fontWeight: 'bold' }}>
+                <Text style={{ fontWeight: 'bold' }} numberOfLines={1}>
                   {`${comment.user?.firstName || ''} ${
                     comment.user?.lastName || ''
                   }`}
@@ -209,6 +209,7 @@ export default function CommentItem({
               </TouchableOpacity>
               <Text
                 style={{ fontSize: 12, color: theme.colors.onSurfaceVariant }}
+                numberOfLines={1}
               >
                 {getFormattedDate(comment.updatedAt)}
               </Text>
@@ -265,14 +266,11 @@ export default function CommentItem({
                   )}
                   <RNTextInput
                     multiline
-                    numberOfLines={3}
+                    numberOfLines={2}
                     style={{
-                      flex: 1,
                       borderWidth: 1,
                       borderColor: '#ccc',
-                      borderRadius: 4,
-                      padding: 8,
-                      minHeight: 60
+                      borderRadius: 4
                     }}
                     {...textInputProps}
                   />
@@ -283,6 +281,7 @@ export default function CommentItem({
                   mode="contained"
                   onPress={handleUpdate}
                   disabled={!editContent?.trim() || saving}
+                  style={{ maxWidth: '40%' }}
                 >
                   {saving ? (
                     <ActivityIndicator size="small" color="white" />
@@ -290,7 +289,11 @@ export default function CommentItem({
                     t('save')
                   )}
                 </Button>
-                <Button mode="outlined" onPress={() => setIsEditing(false)}>
+                <Button
+                  style={{ maxWidth: '40%' }}
+                  mode="outlined"
+                  onPress={() => setIsEditing(false)}
+                >
                   {t('cancel')}
                 </Button>
               </View>

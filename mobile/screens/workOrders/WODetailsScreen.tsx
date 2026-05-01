@@ -1280,7 +1280,10 @@ export default function WODetailsScreen({
                       {t('comments')}
                     </Text>
                     {loadingComments ? (
-                      <ActivityIndicator size="small" />
+                      <ActivityIndicator
+                        size="small"
+                        color={theme.colors.primary}
+                      />
                     ) : comments.length === 0 ? (
                       <Text
                         style={{

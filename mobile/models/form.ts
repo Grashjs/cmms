@@ -132,10 +132,7 @@ export const getCustomFieldsValues = <T extends EntityWithCustomFields>(
     [key: string]: string | { label: string; value: string | number };
   } = {};
   entity?.customFieldValues?.forEach((cf) => {
-    values[`customField_${cf.customField.id}`] =
-      cf.customField.fieldType === 'SINGLE_CHOICE'
-        ? { label: cf.value, value: cf.value }
-        : cf.value;
+    values[`customField_${cf.customField.id}`] = cf.value;
   });
   return values;
 };
