@@ -146,10 +146,9 @@ export const getCustomFieldsRequiredShape = (
     .filter(({ entityType }) => entityType === customFieldEntityType)
     .forEach((field) => {
       if (field.required) {
-        shape[`customField_${field.id}`] =
-          field.fieldType === 'SINGLE_CHOICE'
-            ? Yup.object().required(t('required_field'))
-            : Yup.string().required(t('required_field'));
+        shape[`customField_${field.id}`] = Yup.string().required(
+          t('required_field')
+        );
       }
     });
   return shape;
