@@ -2,6 +2,7 @@ import {
   Alert,
   ActivityIndicator,
   Image,
+  KeyboardAvoidingView,
   Linking,
   PermissionsAndroid,
   Platform,
@@ -32,7 +33,14 @@ import {
 import * as DocumentPicker from 'expo-document-picker';
 import { useTranslation } from 'react-i18next';
 import * as React from 'react';
-import { Fragment, useCallback, useContext, useEffect, useState } from 'react';
+import {
+  Fragment,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import Tag from '../../components/Tag';
 import { getPriorityColor, getStatusColor } from '../../utils/overall';
@@ -76,6 +84,8 @@ import { downloadFile } from '../../utils/fileDownload';
 import { getCommentsByWorkOrder, createComment } from '../../slices/comment';
 import { getUsersMini } from '../../slices/user';
 import { TriggersConfig } from 'react-native-controlled-mentions/dist/types/types';
+import { useHeaderHeight } from '@react-navigation/elements';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const getRemainingTasksLength = (tasks: Task[]): number => {
   const SECONDS_MS = 5_000;
@@ -141,6 +151,9 @@ export default function WODetailsScreen({
   const { workOrderConfiguration, generalPreferences } = companySettings;
   const [loading, setLoading] = useState<boolean>(false);
   const theme = useTheme();
+  const headerHeight = useHeaderHeight();
+  const insets = useSafeAreaInsets();
+  const scrollViewRef = useRef<ScrollView>(null);
   const [isImageViewerOpen, setIsImageViewerOpen] = useState<boolean>(false);
   const dispatch = useDispatch();
   const { partQuantitiesByWorkOrder, loadingPartQuantities } = useSelector(
@@ -792,373 +805,212 @@ export default function WODetailsScreen({
         <Provider theme={theme}>
           {renderConfirmDelete()}
           {renderConfirmArchive()}
-          <ScrollView
-            contentContainerStyle={{ paddingBottom: 100 }}
-            onScroll={onScroll}
-            style={{
-              paddingHorizontal: 20
-            }}
-            refreshControl={
-              <RefreshControl
-                refreshing={loading || loadingDetails}
-                onRefresh={getInfos}
-              />
-            }
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? headerHeight : 0}
+            style={styles.container}
           >
-            <Text style={{ marginTop: 5 }} variant="displaySmall">
-              {workOrder.title}
-            </Text>
-            <View style={styles.row}>
-              <Text
-                variant="titleMedium"
-                style={{ marginRight: 10, color: 'grey' }}
-              >{`#${workOrder.customId}`}</Text>
-              {workOrder.priority !== 'NONE' && (
-                <Tag
-                  text={t('priority_label', {
-                    priority: t(workOrder.priority)
-                  })}
-                  color={getPriorityColor(workOrder.priority, theme)}
-                  backgroundColor={'transparent'}
+            <ScrollView
+              ref={scrollViewRef}
+              contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
+              keyboardDismissMode={
+                Platform.OS === 'ios' ? 'interactive' : 'none'
+              }
+              keyboardShouldPersistTaps="handled"
+              onScroll={onScroll}
+              style={{
+                paddingHorizontal: 20
+              }}
+              refreshControl={
+                <RefreshControl
+                  refreshing={loading || loadingDetails}
+                  onRefresh={getInfos}
                 />
-              )}
-            </View>
-            {workOrder.image && (
-              <TouchableOpacity onPress={() => setIsImageViewerOpen(true)}>
-                <Image
-                  style={{ height: 200, marginTop: 20 }}
-                  source={{ uri: workOrder.image.url }}
-                />
-              </TouchableOpacity>
-            )}
-            <View style={{ marginTop: 20 }}>
-              <TouchableOpacity
-                disabled={
-                  !hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder)
-                }
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: 12,
-                  borderWidth: 1,
-                  borderColor: statusColor,
-                  borderRadius: 4
-                }}
-                onPress={() =>
-                  SheetManager.show('dropdown-sheet', {
-                    payload: {
-                      items: statuses,
-                      value: workOrder.status,
-                      setValue: setDropdownValue
-                    }
-                  })
-                }
-              >
-                <Text style={{ color: statusColor }}>
-                  {statuses.find((s) => s.value === workOrder.status)?.label}
-                </Text>
-                <IconButton
-                  iconColor={statusColor}
-                  icon="menu-down"
-                  size={24}
-                  style={{ margin: -5 }}
-                />
-              </TouchableOpacity>
-              {workOrder.audioDescription && (
-                <View style={{ backgroundColor: 'white', paddingVertical: 20 }}>
-                  <Text>{t('audio_description')}</Text>
-                  <AudioPlayer url={workOrder.audioDescription.url} />
-                </View>
-              )}
-              {fieldsToRender.map(
-                ({ label, value, isLink }, index) =>
-                  value && (
-                    <BasicField
-                      key={label}
-                      label={label}
-                      value={value}
-                      isLink={isLink}
-                    />
-                  )
-              )}
-              {touchableFields.map(
-                ({ label, value, link, permissionEntity }) =>
-                  value && (
-                    <ObjectField
-                      key={label}
-                      label={label}
-                      value={value}
-                      link={link}
-                      permissionEntity={permissionEntity}
-                      address={workOrder?.location?.address}
-                    />
-                  )
-              )}
-              {(workOrder.parentRequest || workOrder.createdBy) && (
-                <ObjectField
-                  label={
-                    workOrder.parentRequest ? t('approved_by') : t('created_by')
-                  }
-                  value={getUserNameById(workOrder.createdBy)}
-                  link={{ route: 'UserDetails', id: workOrder.createdBy }}
-                  permissionEntity={PermissionEntity.PEOPLE_AND_TEAMS}
-                />
-              )}
-              {workOrder.status === 'COMPLETE' && (
-                <View>
-                  {workOrder.completedBy && (
-                    <ObjectField
-                      label={t('completed_by')}
-                      value={`${workOrder.completedBy.firstName} ${workOrder.completedBy.lastName}`}
-                      link={{
-                        route: 'UserDetails',
-                        id: workOrder.completedBy.id
-                      }}
-                      permissionEntity={PermissionEntity.PEOPLE_AND_TEAMS}
-                    />
-                  )}
-                  <BasicField
-                    label={t('completed_on')}
-                    value={getFormattedDate(workOrder.completedOn)}
+              }
+            >
+              <Text style={{ marginTop: 5 }} variant="displaySmall">
+                {workOrder.title}
+              </Text>
+              <View style={styles.row}>
+                <Text
+                  variant="titleMedium"
+                  style={{ marginRight: 10, color: 'grey' }}
+                >{`#${workOrder.customId}`}</Text>
+                {workOrder.priority !== 'NONE' && (
+                  <Tag
+                    text={t('priority_label', {
+                      priority: t(workOrder.priority)
+                    })}
+                    color={getPriorityColor(workOrder.priority, theme)}
+                    backgroundColor={'transparent'}
                   />
-                  {workOrder.feedback && (
-                    <BasicField
-                      label={t('feedback')}
-                      value={workOrder.feedback}
-                    />
-                  )}
-                  {workOrder.signature && (
-                    <View style={{ marginTop: 20 }}>
-                      <Divider style={{ marginBottom: 20 }} />
-                      <Text
-                        variant="titleMedium"
-                        style={{ fontWeight: 'bold' }}
-                      >
-                        {t('signature')}
-                      </Text>
-                      <Image
-                        source={{ uri: workOrder.signature }}
-                        style={{ height: 200 }}
-                      />
-                    </View>
-                  )}
-                </View>
+                )}
+              </View>
+              {workOrder.image && (
+                <TouchableOpacity onPress={() => setIsImageViewerOpen(true)}>
+                  <Image
+                    style={{ height: 200, marginTop: 20 }}
+                    source={{ uri: workOrder.image.url }}
+                  />
+                </TouchableOpacity>
               )}
-              {workOrder.parentRequest && (
-                <ObjectField
-                  label={t('requested_by')}
-                  value={getUserNameById(workOrder.parentRequest.createdBy)}
-                  link={{
-                    route: 'RequestDetails',
-                    id: workOrder.parentRequest.id
+              <View style={{ marginTop: 20 }}>
+                <TouchableOpacity
+                  disabled={
+                    !hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder)
+                  }
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: 12,
+                    borderWidth: 1,
+                    borderColor: statusColor,
+                    borderRadius: 4
                   }}
-                  permissionEntity={PermissionEntity.PEOPLE_AND_TEAMS}
-                />
-              )}
-              {!!workOrder.assignedTo.length && (
-                <View style={{ marginTop: 20 }}>
-                  <Text
-                    style={{
-                      fontSize: 14,
-                      color: theme.colors.onSurfaceVariant
-                    }}
-                  >
-                    {t('assigned_to')}
-                  </Text>
-                  {workOrder.assignedTo.map((user) => (
-                    <TouchableOpacity key={user.id} style={{ marginTop: 5 }}>
-                      <Text
-                        variant="bodyLarge"
-                        style={{ marginTop: 15 }}
-                      >{`${user.firstName} ${user.lastName}`}</Text>
-                    </TouchableOpacity>
-                  ))}
-                  {workOrder.customers.map((customer) => (
-                    <TouchableOpacity
-                      key={customer.id}
-                      style={{ marginTop: 5 }}
-                    >
-                      <Text variant="bodyLarge" style={{ marginTop: 15 }}>
-                        {customer.name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-              {!generalPreferences.simplifiedWorkOrder && (
-                <View>
-                  <View style={styles.shadowedCard}>
-                    <Text
-                      style={{
-                        marginBottom: 10,
-                        color: theme.colors.onSurfaceVariant
-                      }}
-                    >
-                      {t('parts')}
-                    </Text>
-                    <PartQuantities
-                      partQuantities={partQuantities}
-                      isPO={false}
-                      navigation={navigation}
-                      rootId={id}
-                      disabled={
-                        !hasEditPermission(
-                          PermissionEntity.WORK_ORDERS,
-                          workOrder
-                        )
+                  onPress={() =>
+                    SheetManager.show('dropdown-sheet', {
+                      payload: {
+                        items: statuses,
+                        value: workOrder.status,
+                        setValue: setDropdownValue
                       }
-                    />
-                    {hasEditPermission(
-                      PermissionEntity.WORK_ORDERS,
-                      workOrder
-                    ) && (
-                      <Fragment>
-                        <Divider style={{ marginTop: 5 }} />
-                        <Button
-                          onPress={() =>
-                            navigation.navigate('SelectParts', {
-                              onChange: (selectedParts) => {
-                                dispatch(
-                                  editWOPartQuantities(
-                                    id,
-                                    selectedParts.map((part) => part.id)
-                                  )
-                                ).catch((error) =>
-                                  showSnackBar(t('not_enough_part'), 'error')
-                                );
-                              },
-                              selected: partQuantities.map(
-                                (partQuantity) => partQuantity.part.id
-                              )
-                            })
-                          }
-                        >
-                          {t('add_parts')}
-                        </Button>
-                      </Fragment>
-                    )}
+                    })
+                  }
+                >
+                  <Text style={{ color: statusColor }}>
+                    {statuses.find((s) => s.value === workOrder.status)?.label}
+                  </Text>
+                  <IconButton
+                    iconColor={statusColor}
+                    icon="menu-down"
+                    size={24}
+                    style={{ margin: -5 }}
+                  />
+                </TouchableOpacity>
+                {workOrder.audioDescription && (
+                  <View style={{ backgroundColor: 'white', paddingVertical: 20 }}>
+                    <Text>{t('audio_description')}</Text>
+                    <AudioPlayer url={workOrder.audioDescription.url} />
                   </View>
-                  <View style={styles.shadowedCard}>
-                    <Text
-                      style={{
-                        marginBottom: 10,
-                        color: theme.colors.onSurfaceVariant
-                      }}
-                    >
-                      {t('additional_costs')}
-                    </Text>
-                    {!additionalCosts.length ? (
-                      <Text style={{ fontWeight: 'bold' }}>
-                        {t('no_additional_cost')}
-                      </Text>
-                    ) : (
-                      <View>
-                        {additionalCosts.map((cost) => (
-                          <View
-                            key={cost.id}
-                            style={{ display: 'flex', flexDirection: 'column' }}
-                          >
-                            <Text
-                              style={{ fontWeight: 'bold' }}
-                              variant="bodyLarge"
-                            >
-                              {cost.description}
-                            </Text>
-                            <Text>{getFormattedCurrency(cost.cost)}</Text>
-                          </View>
-                        ))}
+                )}
+                {fieldsToRender.map(
+                  ({ label, value, isLink }, index) =>
+                    value && (
+                      <BasicField
+                        key={label}
+                        label={label}
+                        value={value}
+                        isLink={isLink}
+                      />
+                    )
+                )}
+                {touchableFields.map(
+                  ({ label, value, link, permissionEntity }) =>
+                    value && (
+                      <ObjectField
+                        key={label}
+                        label={label}
+                        value={value}
+                        link={link}
+                        permissionEntity={permissionEntity}
+                        address={workOrder?.location?.address}
+                      />
+                    )
+                )}
+                {(workOrder.parentRequest || workOrder.createdBy) && (
+                  <ObjectField
+                    label={
+                      workOrder.parentRequest ? t('approved_by') : t('created_by')
+                    }
+                    value={getUserNameById(workOrder.createdBy)}
+                    link={{ route: 'UserDetails', id: workOrder.createdBy }}
+                    permissionEntity={PermissionEntity.PEOPLE_AND_TEAMS}
+                  />
+                )}
+                {workOrder.status === 'COMPLETE' && (
+                  <View>
+                    {workOrder.completedBy && (
+                      <ObjectField
+                        label={t('completed_by')}
+                        value={`${workOrder.completedBy.firstName} ${workOrder.completedBy.lastName}`}
+                        link={{
+                          route: 'UserDetails',
+                          id: workOrder.completedBy.id
+                        }}
+                        permissionEntity={PermissionEntity.PEOPLE_AND_TEAMS}
+                      />
+                    )}
+                    <BasicField
+                      label={t('completed_on')}
+                      value={getFormattedDate(workOrder.completedOn)}
+                    />
+                    {workOrder.feedback && (
+                      <BasicField
+                        label={t('feedback')}
+                        value={workOrder.feedback}
+                      />
+                    )}
+                    {workOrder.signature && (
+                      <View style={{ marginTop: 20 }}>
+                        <Divider style={{ marginBottom: 20 }} />
                         <Text
+                          variant="titleMedium"
                           style={{ fontWeight: 'bold' }}
-                          variant="bodyLarge"
                         >
-                          {t('total')}
+                          {t('signature')}
                         </Text>
-                        <Text>
-                          {getFormattedCurrency(
-                            additionalCosts.reduce(
-                              (acc, additionalCost) =>
-                                additionalCost.includeToTotalCost
-                                  ? acc + additionalCost.cost
-                                  : acc,
-                              0
-                            )
-                          )}
-                        </Text>
+                        <Image
+                          source={{ uri: workOrder.signature }}
+                          style={{ height: 200 }}
+                        />
                       </View>
                     )}
-                    {hasEditPermission(
-                      PermissionEntity.WORK_ORDERS,
-                      workOrder
-                    ) && (
-                      <Fragment>
-                        <Divider style={{ marginTop: 5 }} />
-                        <Button
-                          disabled={
-                            !(
-                              hasEditPermission(
-                                PermissionEntity.WORK_ORDERS,
-                                workOrder
-                              ) && hasFeature(PlanFeature.ADDITIONAL_COST)
-                            )
-                          }
-                          onPress={() =>
-                            navigation.push('AddAdditionalCost', {
-                              workOrderId: workOrder.id
-                            })
-                          }
-                        >
-                          {t('add_additional_cost')}
-                        </Button>
-                      </Fragment>
-                    )}
                   </View>
-                </View>
-              )}
-              {!!tasks.length && (
-                <View style={styles.shadowedCard}>
-                  <Text
-                    style={{
-                      marginBottom: 10,
-                      color: theme.colors.onSurfaceVariant
+                )}
+                {workOrder.parentRequest && (
+                  <ObjectField
+                    label={t('requested_by')}
+                    value={getUserNameById(workOrder.parentRequest.createdBy)}
+                    link={{
+                      route: 'RequestDetails',
+                      id: workOrder.parentRequest.id
                     }}
-                  >
-                    {t('tasks')}
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate('Tasks', {
-                        workOrderId: id,
-                        tasksProps: tasks
-                      })
-                    }
-                  >
-                    <Text variant="titleLarge" style={{ fontWeight: 'bold' }}>
-                      {' '}
-                      {t('remaining_tasks', {
-                        count: remainingTasksLength
-                      })}
+                    permissionEntity={PermissionEntity.PEOPLE_AND_TEAMS}
+                  />
+                )}
+                {!!workOrder.assignedTo.length && (
+                  <View style={{ marginTop: 20 }}>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        color: theme.colors.onSurfaceVariant
+                      }}
+                    >
+                      {t('assigned_to')}
                     </Text>
-                    <Text variant="bodyMedium">
-                      {t('complete_tasks_percent', {
-                        percent: (
-                          ((tasks.length - remainingTasksLength) * 100) /
-                          tasks.length
-                        ).toFixed(0)
-                      })}
-                    </Text>
-                    <Divider style={{ marginTop: 5 }} />
-                    <ProgressBar
-                      progress={
-                        (tasks.length - remainingTasksLength) / tasks.length
-                      }
-                    />
-                  </TouchableOpacity>
-                </View>
-              )}
-              {!generalPreferences.simplifiedWorkOrder && (
-                <View>
-                  {!!workOrder.files.length && (
+                    {workOrder.assignedTo.map((user) => (
+                      <TouchableOpacity key={user.id} style={{ marginTop: 5 }}>
+                        <Text
+                          variant="bodyLarge"
+                          style={{ marginTop: 15 }}
+                        >{`${user.firstName} ${user.lastName}`}</Text>
+                      </TouchableOpacity>
+                    ))}
+                    {workOrder.customers.map((customer) => (
+                      <TouchableOpacity
+                        key={customer.id}
+                        style={{ marginTop: 5 }}
+                      >
+                        <Text variant="bodyLarge" style={{ marginTop: 15 }}>
+                          {customer.name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+                {!generalPreferences.simplifiedWorkOrder && (
+                  <View>
                     <View style={styles.shadowedCard}>
                       <Text
                         style={{
@@ -1166,250 +1018,436 @@ export default function WODetailsScreen({
                           color: theme.colors.onSurfaceVariant
                         }}
                       >
-                        {t('files')}
+                        {t('parts')}
                       </Text>
-                      {workOrder.files.map((file) => (
-                        <List.Item
-                          key={file.id}
-                          titleStyle={{ color: theme.colors.primary }}
-                          title={file.name}
-                          onPress={() => {
-                            Linking.openURL(file.url);
-                          }}
-                        />
-                      ))}
-                    </View>
-                  )}
-                  {!!currentWorkOrderRelations.length && (
-                    <View style={styles.shadowedCard}>
-                      <Text
-                        style={{
-                          marginBottom: 10,
-                          color: theme.colors.onSurfaceVariant
-                        }}
-                      >
-                        {t('links')}
-                      </Text>
-                      {Object.entries(
-                        groupRelations(currentWorkOrderRelations)
-                      ).map(
-                        ([relationType, relations]) =>
-                          !!relations.length && (
-                            <View>
-                              <Text style={{ fontWeight: 'bold' }}>
-                                {t(relationType)}
-                              </Text>
-                              {relations.map((relation) => (
-                                <List.Item
-                                  title={relation.workOrder.title}
-                                  onPress={() =>
-                                    navigation.push('WODetails', {
-                                      id: relation.workOrder.id
-                                    })
-                                  }
-                                  description={getFormattedDate(
-                                    relation.workOrder.createdAt
-                                  )}
-                                />
-                              ))}
-                            </View>
+                      <PartQuantities
+                        partQuantities={partQuantities}
+                        isPO={false}
+                        navigation={navigation}
+                        rootId={id}
+                        disabled={
+                          !hasEditPermission(
+                            PermissionEntity.WORK_ORDERS,
+                            workOrder
                           )
+                        }
+                      />
+                      {hasEditPermission(
+                        PermissionEntity.WORK_ORDERS,
+                        workOrder
+                      ) && (
+                        <Fragment>
+                          <Divider style={{ marginTop: 5 }} />
+                          <Button
+                            onPress={() =>
+                              navigation.navigate('SelectParts', {
+                                onChange: (selectedParts) => {
+                                  dispatch(
+                                    editWOPartQuantities(
+                                      id,
+                                      selectedParts.map((part) => part.id)
+                                    )
+                                  ).catch((error) =>
+                                    showSnackBar(t('not_enough_part'), 'error')
+                                  );
+                                },
+                                selected: partQuantities.map(
+                                  (partQuantity) => partQuantity.part.id
+                                )
+                              })
+                            }
+                          >
+                            {t('add_parts')}
+                          </Button>
+                        </Fragment>
                       )}
                     </View>
-                  )}
-                  <View style={styles.shadowedCard}>
-                    <Text
-                      style={{
-                        marginBottom: 10,
-                        color: theme.colors.onSurfaceVariant
-                      }}
-                    >
-                      {t('labors')}
-                    </Text>
-                    {labors
-                      .filter((labor) => !labor.logged)
-                      .map((labor) => (
-                        <List.Item
-                          key={labor.id}
-                          title={
-                            labor.assignedTo
-                              ? `${labor.assignedTo.firstName} ${labor.assignedTo.lastName}`
-                              : t('not_assigned')
-                          }
-                          description={`${
-                            getHoursAndMinutesAndSeconds(labor.duration)[0]
-                          }h ${
-                            getHoursAndMinutesAndSeconds(labor.duration)[1]
-                          }m`}
-                        />
-                      ))}
-
-                    {hasEditPermission(
-                      PermissionEntity.WORK_ORDERS,
-                      workOrder
-                    ) && (
-                      <Fragment>
-                        <Divider style={{ marginTop: 5 }} />
-                        <Button
-                          disabled={
-                            !(
-                              hasEditPermission(
-                                PermissionEntity.WORK_ORDERS,
-                                workOrder
-                              ) && hasFeature(PlanFeature.ADDITIONAL_TIME)
-                            )
-                          }
-                          onPress={() =>
-                            navigation.push('AddAdditionalTime', {
-                              workOrderId: workOrder.id
-                            })
-                          }
-                        >
-                          {t('add_time')}
-                        </Button>
-                      </Fragment>
-                    )}
-                  </View>
-                  <View style={styles.shadowedCard}>
-                    <Text
-                      style={{
-                        marginBottom: 10,
-                        color: theme.colors.onSurfaceVariant
-                      }}
-                    >
-                      {t('comments')}
-                    </Text>
-                    {loadingComments ? (
-                      <ActivityIndicator
-                        size="small"
-                        color={theme.colors.primary}
-                      />
-                    ) : comments.length === 0 ? (
+                    <View style={styles.shadowedCard}>
                       <Text
                         style={{
-                          textAlign: 'center',
-                          padding: 20,
+                          marginBottom: 10,
                           color: theme.colors.onSurfaceVariant
                         }}
                       >
-                        {t('no_comments')}
+                        {t('additional_costs')}
                       </Text>
-                    ) : (
-                      comments.map((comment) => (
-                        <CommentItem
-                          key={comment.id}
-                          comment={comment}
-                          workOrderId={id}
-                          users={usersMini.map((u) => ({
-                            id: u.id.toString(),
-                            name: `${u.firstName} ${u.lastName}`
-                          }))}
-                        />
-                      ))
-                    )}
-                    {hasEditPermission(
-                      PermissionEntity.WORK_ORDERS,
-                      workOrder
-                    ) && (
-                      <View style={{ marginTop: 10 }}>
-                        <View
+                      {!additionalCosts.length ? (
+                        <Text style={{ fontWeight: 'bold' }}>
+                          {t('no_additional_cost')}
+                        </Text>
+                      ) : (
+                        <View>
+                          {additionalCosts.map((cost) => (
+                            <View
+                              key={cost.id}
+                              style={{
+                                display: 'flex',
+                                flexDirection: 'column'
+                              }}
+                            >
+                              <Text
+                                style={{ fontWeight: 'bold' }}
+                                variant="bodyLarge"
+                              >
+                                {cost.description}
+                              </Text>
+                              <Text>{getFormattedCurrency(cost.cost)}</Text>
+                            </View>
+                          ))}
+                          <Text
+                            style={{ fontWeight: 'bold' }}
+                            variant="bodyLarge"
+                          >
+                            {t('total')}
+                          </Text>
+                          <Text>
+                            {getFormattedCurrency(
+                              additionalCosts.reduce(
+                                (acc, additionalCost) =>
+                                  additionalCost.includeToTotalCost
+                                    ? acc + additionalCost.cost
+                                    : acc,
+                                0
+                              )
+                            )}
+                          </Text>
+                        </View>
+                      )}
+                      {hasEditPermission(
+                        PermissionEntity.WORK_ORDERS,
+                        workOrder
+                      ) && (
+                        <Fragment>
+                          <Divider style={{ marginTop: 5 }} />
+                          <Button
+                            disabled={
+                              !(
+                                hasEditPermission(
+                                  PermissionEntity.WORK_ORDERS,
+                                  workOrder
+                                ) && hasFeature(PlanFeature.ADDITIONAL_COST)
+                              )
+                            }
+                            onPress={() =>
+                              navigation.push('AddAdditionalCost', {
+                                workOrderId: workOrder.id
+                              })
+                            }
+                          >
+                            {t('add_additional_cost')}
+                          </Button>
+                        </Fragment>
+                      )}
+                    </View>
+                  </View>
+                )}
+                {!!tasks.length && (
+                  <View style={styles.shadowedCard}>
+                    <Text
+                      style={{
+                        marginBottom: 10,
+                        color: theme.colors.onSurfaceVariant
+                      }}
+                    >
+                      {t('tasks')}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() =>
+                        navigation.navigate('Tasks', {
+                          workOrderId: id,
+                          tasksProps: tasks
+                        })
+                      }
+                    >
+                      <Text variant="titleLarge" style={{ fontWeight: 'bold' }}>
+                        {' '}
+                        {t('remaining_tasks', {
+                          count: remainingTasksLength
+                        })}
+                      </Text>
+                      <Text variant="bodyMedium">
+                        {t('complete_tasks_percent', {
+                          percent: (
+                            ((tasks.length - remainingTasksLength) * 100) /
+                            tasks.length
+                          ).toFixed(0)
+                        })}
+                      </Text>
+                      <Divider style={{ marginTop: 5 }} />
+                      <ProgressBar
+                        progress={
+                          (tasks.length - remainingTasksLength) / tasks.length
+                        }
+                      />
+                    </TouchableOpacity>
+                  </View>
+                )}
+                {!generalPreferences.simplifiedWorkOrder && (
+                  <View>
+                    {!!workOrder.files.length && (
+                      <View style={styles.shadowedCard}>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            alignItems: 'center'
+                            marginBottom: 10,
+                            color: theme.colors.onSurfaceVariant
                           }}
                         >
-                          <View
-                            style={{ flex: 1, marginBottom: 8, marginRight: 8 }}
-                          >
-                            {mentionKeyword && filteredUsers.length > 0 && (
-                              <View
-                                style={{
-                                  backgroundColor: '#fff',
-                                  borderRadius: 8,
-                                  elevation: 5,
-                                  shadowColor: '#000',
-                                  shadowOffset: { width: 0, height: 2 },
-                                  shadowOpacity: 0.2,
-                                  marginBottom: 8,
-                                  maxHeight: 200,
-                                  overflow: 'hidden'
-                                }}
-                              >
-                                {filteredUsers.map((item) => (
-                                  <Pressable
-                                    key={item.id}
-                                    onPress={() => {
-                                      triggers?.mention?.onSelect?.({
-                                        id: item.id,
-                                        name: item.name
-                                      });
-                                    }}
-                                    style={{
-                                      padding: 12,
-                                      borderBottomWidth: 1,
-                                      borderBottomColor: '#eee'
-                                    }}
-                                  >
-                                    <Text>{item.name}</Text>
-                                  </Pressable>
-                                ))}
-                              </View>
-                            )}
-                            <RNTextInput
-                              multiline
-                              numberOfLines={3}
-                              placeholder={t('add_comment_placeholder')}
-                              style={{ flex: 1 }}
-                              {...textInputProps}
-                            />
-                          </View>
-                          <IconButton
-                            icon="paperclip"
-                            onPress={pickCommentFile}
-                            style={{ marginBottom: 8 }}
+                          {t('files')}
+                        </Text>
+                        {workOrder.files.map((file) => (
+                          <List.Item
+                            key={file.id}
+                            titleStyle={{ color: theme.colors.primary }}
+                            title={file.name}
+                            onPress={() => {
+                              Linking.openURL(file.url);
+                            }}
                           />
-                        </View>
-                        {commentFiles.length > 0 && (
-                          <View style={{ marginBottom: 8 }}>
-                            {commentFiles.map((file, index) => (
-                              <View
-                                key={index}
-                                style={{
-                                  flexDirection: 'row',
-                                  alignItems: 'center',
-                                  backgroundColor: theme.colors.background,
-                                  borderRadius: 4,
-                                  paddingHorizontal: 8,
-                                  marginBottom: 4
-                                }}
-                              >
-                                <Text style={{ flex: 1 }} numberOfLines={1}>
-                                  {file.name}
-                                </Text>
-                                <IconButton
-                                  icon="close-circle"
-                                  size={16}
-                                  onPress={() => removeCommentFile(index)}
-                                />
-                              </View>
-                            ))}
-                          </View>
-                        )}
-                        <Button
-                          mode="contained"
-                          onPress={handleCommentSubmit}
-                          disabled={!commentContent.trim() || loadingCreate}
-                          loading={loadingCreate}
-                        >
-                          {t('post_comment')}
-                        </Button>
+                        ))}
                       </View>
                     )}
+                    {!!currentWorkOrderRelations.length && (
+                      <View style={styles.shadowedCard}>
+                        <Text
+                          style={{
+                            marginBottom: 10,
+                            color: theme.colors.onSurfaceVariant
+                          }}
+                        >
+                          {t('links')}
+                        </Text>
+                        {Object.entries(
+                          groupRelations(currentWorkOrderRelations)
+                        ).map(
+                          ([relationType, relations]) =>
+                            !!relations.length && (
+                              <View>
+                                <Text style={{ fontWeight: 'bold' }}>
+                                  {t(relationType)}
+                                </Text>
+                                {relations.map((relation) => (
+                                  <List.Item
+                                    title={relation.workOrder.title}
+                                    onPress={() =>
+                                      navigation.push('WODetails', {
+                                        id: relation.workOrder.id
+                                      })
+                                    }
+                                    description={getFormattedDate(
+                                      relation.workOrder.createdAt
+                                    )}
+                                  />
+                                ))}
+                              </View>
+                            )
+                        )}
+                      </View>
+                    )}
+                    <View style={styles.shadowedCard}>
+                      <Text
+                        style={{
+                          marginBottom: 10,
+                          color: theme.colors.onSurfaceVariant
+                        }}
+                      >
+                        {t('labors')}
+                      </Text>
+                      {labors
+                        .filter((labor) => !labor.logged)
+                        .map((labor) => (
+                          <List.Item
+                            key={labor.id}
+                            title={
+                              labor.assignedTo
+                                ? `${labor.assignedTo.firstName} ${labor.assignedTo.lastName}`
+                                : t('not_assigned')
+                            }
+                            description={`${
+                              getHoursAndMinutesAndSeconds(labor.duration)[0]
+                            }h ${
+                              getHoursAndMinutesAndSeconds(labor.duration)[1]
+                            }m`}
+                          />
+                        ))}
+
+                      {hasEditPermission(
+                        PermissionEntity.WORK_ORDERS,
+                        workOrder
+                      ) && (
+                        <Fragment>
+                          <Divider style={{ marginTop: 5 }} />
+                          <Button
+                            disabled={
+                              !(
+                                hasEditPermission(
+                                  PermissionEntity.WORK_ORDERS,
+                                  workOrder
+                                ) && hasFeature(PlanFeature.ADDITIONAL_TIME)
+                              )
+                            }
+                            onPress={() =>
+                              navigation.push('AddAdditionalTime', {
+                                workOrderId: workOrder.id
+                              })
+                            }
+                          >
+                            {t('add_time')}
+                          </Button>
+                        </Fragment>
+                      )}
+                    </View>
+                    <View style={styles.shadowedCard}>
+                      <Text
+                        style={{
+                          marginBottom: 10,
+                          color: theme.colors.onSurfaceVariant
+                        }}
+                      >
+                        {t('comments')}
+                      </Text>
+                      {loadingComments ? (
+                        <ActivityIndicator
+                          size="small"
+                          color={theme.colors.primary}
+                        />
+                      ) : comments.length === 0 ? (
+                        <Text
+                          style={{
+                            textAlign: 'center',
+                            padding: 20,
+                            color: theme.colors.onSurfaceVariant
+                          }}
+                        >
+                          {t('no_comments')}
+                        </Text>
+                      ) : (
+                        comments.map((comment) => (
+                          <CommentItem
+                            key={comment.id}
+                            comment={comment}
+                            workOrderId={id}
+                            users={usersMini.map((u) => ({
+                              id: u.id.toString(),
+                              name: `${u.firstName} ${u.lastName}`
+                            }))}
+                          />
+                        ))
+                      )}
+                      {hasEditPermission(
+                        PermissionEntity.WORK_ORDERS,
+                        workOrder
+                      ) && (
+                        <View style={{ marginTop: 10 }}>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center'
+                            }}
+                          >
+                            <View
+                              style={{
+                                flex: 1,
+                                marginBottom: 8,
+                                marginRight: 8
+                              }}
+                            >
+                              {mentionKeyword && filteredUsers.length > 0 && (
+                                <View
+                                  style={{
+                                    backgroundColor: '#fff',
+                                    borderRadius: 8,
+                                    elevation: 5,
+                                    shadowColor: '#000',
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.2,
+                                    marginBottom: 8,
+                                    maxHeight: 200,
+                                    overflow: 'hidden'
+                                  }}
+                                >
+                                  {filteredUsers.map((item) => (
+                                    <Pressable
+                                      key={item.id}
+                                      onPress={() => {
+                                        triggers?.mention?.onSelect?.({
+                                          id: item.id,
+                                          name: item.name
+                                        });
+                                      }}
+                                      style={{
+                                        padding: 12,
+                                        borderBottomWidth: 1,
+                                        borderBottomColor: '#eee'
+                                      }}
+                                    >
+                                      <Text>{item.name}</Text>
+                                    </Pressable>
+                                  ))}
+                                </View>
+                              )}
+                              <RNTextInput
+                                multiline
+                                numberOfLines={3}
+                                onFocus={() => {
+                                  setTimeout(() => {
+                                    scrollViewRef.current?.scrollToEnd({
+                                      animated: true
+                                    });
+                                  }, 100);
+                                }}
+                                placeholder={t('add_comment_placeholder')}
+                                style={{ flex: 1 }}
+                                {...textInputProps}
+                              />
+                            </View>
+                            <IconButton
+                              icon="paperclip"
+                              onPress={pickCommentFile}
+                              style={{ marginBottom: 8 }}
+                            />
+                          </View>
+                          {commentFiles.length > 0 && (
+                            <View style={{ marginBottom: 8 }}>
+                              {commentFiles.map((file, index) => (
+                                <View
+                                  key={index}
+                                  style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    backgroundColor: theme.colors.background,
+                                    borderRadius: 4,
+                                    paddingHorizontal: 8,
+                                    marginBottom: 4
+                                  }}
+                                >
+                                  <Text style={{ flex: 1 }} numberOfLines={1}>
+                                    {file.name}
+                                  </Text>
+                                  <IconButton
+                                    icon="close-circle"
+                                    size={16}
+                                    onPress={() => removeCommentFile(index)}
+                                  />
+                                </View>
+                              ))}
+                            </View>
+                          )}
+                          <Button
+                            mode="contained"
+                            onPress={handleCommentSubmit}
+                            disabled={!commentContent.trim() || loadingCreate}
+                            loading={loadingCreate}
+                          >
+                            {t('post_comment')}
+                          </Button>
+                        </View>
+                      )}
+                    </View>
                   </View>
-                </View>
-              )}
-            </View>
-          </ScrollView>
+                )}
+              </View>
+            </ScrollView>
+          </KeyboardAvoidingView>
           {!generalPreferences.simplifiedWorkOrder &&
             hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder) && (
               <FAB

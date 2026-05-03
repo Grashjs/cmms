@@ -49,6 +49,15 @@ target 'AtlasCMMS' do
       :mac_catalyst_enabled => false,
       :ccache_enabled => podfile_properties['apple.ccacheEnabled'] == 'true',
     )
+    # Xcode 26.4 workaround for React Native fmt 11.0.2 consteval errors
+    installer.pods_project.targets.each do |target|
+      next unless target.name == 'fmt'
+
+      target.build_configurations.each do |config|
+        config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+      end
+    end
+
 
     # This is necessary for Xcode 14, because it signs resource bundles by default
     # when building for devices.
