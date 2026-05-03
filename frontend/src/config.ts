@@ -2,9 +2,13 @@ const getRuntimeValue = (
   key: string,
   defaultValue = ''
 ): string | undefined => {
-  const envValue = process.env[`REACT_APP_${key}`];
+  const envValue = process.env[`REACT_APP_${key}`]?.trim();
   const runtimeValue = window.__RUNTIME_CONFIG__?.[key]?.trim();
-  return envValue || runtimeValue || defaultValue;
+  const value = envValue || runtimeValue || defaultValue;
+  if (!value || value.trim() === '' || value.trim() === '-' || value.trim() === 'disabled') {
+    return undefined;
+  }
+  return value.trim();
 };
 
 export const firebaseConfig = {
