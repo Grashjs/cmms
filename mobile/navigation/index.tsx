@@ -104,6 +104,7 @@ import RequestsScreen from '../screens/requests/RequestsScreen';
 import SwitchAccountScreen from '../screens/superUser/SwitchAccountScreen';
 import { FontAwesome, Ionicons, Feather } from '@expo/vector-icons';
 import { Fragment, ReactElement, ReactNode } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function Navigation({
   colorScheme
@@ -252,7 +253,7 @@ function RootNavigator() {
       <Stack.Screen
         name="VendorsCustomers"
         component={VendorsAndCustomersScreen}
-        options={{ title: t('vendors_and_customers') }}
+        options={{ title: t('vendors_and_customers'), contentStyle: Platform.OS === 'ios' ? { paddingTop: 10 } : undefined }}
       />
       <Stack.Screen
         name="CustomerDetails"
@@ -307,7 +308,7 @@ function RootNavigator() {
       <Stack.Screen
         name="PeopleTeams"
         component={PeopleAndTeamsScreen}
-        options={{ title: t('people_teams') }}
+        options={{ title: t('people_teams'), contentStyle: Platform.OS === 'ios' ? { paddingTop: 10 } : undefined }}
       />
       <Stack.Screen
         name="TeamDetails"
@@ -349,7 +350,12 @@ function RootNavigator() {
         component={ScanAssetScreen}
         options={{ title: t('to_scan') }}
       />
-      <Stack.Group screenOptions={{ presentation: 'modal' }}>
+      <Stack.Group
+        screenOptions={{
+          presentation: 'modal',
+          contentStyle: Platform.OS === 'ios' ? { paddingTop: 20 } : undefined
+        }}
+      >
         <Stack.Screen name="Modal" component={ModalScreen} />
         <Stack.Screen
           name="CompleteWorkOrder"
