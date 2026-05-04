@@ -154,9 +154,8 @@ your custom backend server url
 
 [Join our Discord server](https://discord.gg/cHqyVRYpkA)
 
-If you still have questions after reading the docs, concerns, bug reports, etc, please file an issue in this
-repository's Issue Tracker or send an
-email at [contact@atlas-cmms.com](mailto:contact@atlas-cmms.com).
+If you still have questions after reading the docs, concerns, bug reports, etc., please file an issue in this
+repository's Issue Tracker or email [contact@atlas-cmms.com](mailto:contact@atlas-cmms.com).
 
 ## Supported languages
 
