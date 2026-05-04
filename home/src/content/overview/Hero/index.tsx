@@ -8,6 +8,7 @@ import SignupButton from "src/components/SignupButton";
 import MainAppLink from "src/components/MainAppLink";
 import { getWorkOrdersUrl } from "src/utils/urlPaths";
 import Image from "next/image";
+import SignupButtonServer from "src/components/SignupButtonServer";
 
 async function Hero() {
   const t = await getTranslations();
@@ -43,9 +44,9 @@ async function Hero() {
             {t("home.h3", { brandName: brandConfig.name })}
           </TypographyH2>
           <Stack direction={{ xs: "column", md: "row" }} spacing={1}>
-            <SignupButton size="large" variant="contained">
+            <SignupButtonServer size="large" variant="contained">
               {t("try_for_free")}
-            </SignupButton>
+            </SignupButtonServer>
             {/*<LiveDemoButton />*/}
             <Button
               sx={{

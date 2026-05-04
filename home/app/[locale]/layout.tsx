@@ -12,6 +12,7 @@ import { Metadata } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { googleTrackingId, leadFeederId } from "src/config";
 import Script from "next/dist/client/script";
+import UTMEnricher from "src/components/UTMEnricher";
 
 const inter = Inter({
   weight: "400",
@@ -91,6 +92,7 @@ export default async function RootLayout({
           `}
           </Script>
         )}
+        <UTMEnricher />
       </body>
     </html>
   );

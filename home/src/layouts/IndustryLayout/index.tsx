@@ -15,6 +15,7 @@ import Image from "next/image";
 import CompanyLogos from "src/components/CompanyLogos";
 import SignupButton from "src/components/SignupButton";
 import { getLocale, getTranslations } from "next-intl/server";
+import SignupButtonServer from "src/components/SignupButtonServer";
 
 interface Feature {
   title: string;
@@ -99,9 +100,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = async (props) => {
                 {headerSubtitle}
               </TypographyH2>
               <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-                <SignupButton variant={"contained"}>
-                  {t("try_for_free")}
-                </SignupButton>
+                <SignupButtonServer variant={"contained"}>{t("try_for_free")}</SignupButtonServer>
                 <Button component={"a"} size="large" href={demoLink} variant="outlined">
                   {t("book_demo")}
                 </Button>
@@ -194,9 +193,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = async (props) => {
                     Learn More
                   </Button>
                 ) : (
-                  <SignupButton variant={"outlined"}>
-                    {t("try_for_free")}
-                  </SignupButton>
+                  <SignupButtonServer variant={"outlined"}>{t("try_for_free")}</SignupButtonServer>
                 )}
               </Grid>
               <Grid item xs={12} md={6} order={{ xs: 1, md: index % 2 === 0 ? 2 : 1 }}>

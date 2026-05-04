@@ -1,11 +1,11 @@
-import { Button, Container, Grid, Stack, Typography } from "@mui/material";
+import { Container, Grid, Stack, Typography } from "@mui/material";
 import { getLocale, getTranslations } from "next-intl/server";
-import SignupButton from "src/components/SignupButton";
 import MainAppLink from "src/components/MainAppLink";
 import { BoxAccent, BoxContent, MobileImgWrapper, TypographyH2 } from "../styled";
 import { ImgWrapper } from "src/content/overview/Hero/styles";
 import Image from "next/image";
 import { getSignupUrl } from "src/utils/urlPaths";
+import SignupButtonServer from "src/components/SignupButtonServer";
 
 async function HeroFree() {
   const t = await getTranslations();
@@ -40,9 +40,9 @@ async function HeroFree() {
             {t("free_cmms.hero.description")}
           </TypographyH2>
           <Stack direction={{ xs: "column", md: "row" }} spacing={1}>
-            <SignupButton size="large" variant="contained">
+            <SignupButtonServer size="large" variant="contained">
               {t("free_cmms.hero.start_free")}
-            </SignupButton>
+            </SignupButtonServer>
           </Stack>
         </Grid>
         <Grid item md={6}>

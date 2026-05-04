@@ -5,6 +5,7 @@ import { Link } from "src/i18n/routing";
 import { getBrandServer as getBrandConfig } from "src/utils/serverBrand";
 import { fetchSubscriptionPlans } from "src/lib/subscriptions";
 import SignupButton from "src/components/SignupButton";
+import SignupButtonServer from "src/components/SignupButtonServer";
 
 export default async function SubscriptionPlans() {
   const unorderedSubscriptionPlans = await fetchSubscriptionPlans();
@@ -57,9 +58,9 @@ export default async function SubscriptionPlans() {
                   </Button>
                 ) : (
                   <Box display={"flex"} flexDirection={"column"} justifyContent={"center"} alignItems={"center"}>
-                    <SignupButton fullWidth sx={{ mt: 2 }} variant={"outlined"}>
+                    <SignupButtonServer fullWidth sx={{ mt: 2 }} variant={"outlined"}>
                       {t("try_for_free")}
-                    </SignupButton>
+                    </SignupButtonServer>
                     <Typography mt={1}>{t("no_credit_card")}</Typography>
                   </Box>
                 )}

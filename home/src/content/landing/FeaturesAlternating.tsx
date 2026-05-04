@@ -17,6 +17,7 @@ import SignupButton from "src/components/SignupButton";
 import CompanyLogos from "src/components/CompanyLogos";
 import { FeatureRow, ImageWrapper, FeatureContent } from "./styled";
 import Image from "next/image";
+import SignupButtonServer from "src/components/SignupButtonServer";
 
 interface FeaturePoint {
   icon: ReactNode;
@@ -187,9 +188,9 @@ export const FeaturesAlternating = async () => {
                     </Box>
                   ))}
                 </Stack>
-                <SignupButton
+                <SignupButtonServer
                   size="large"
-                  variant={'outlined'}
+                  variant={"outlined"}
                   sx={{
                     px: 4,
                     py: 1.5,
@@ -200,7 +201,7 @@ export const FeaturesAlternating = async () => {
                   }}
                 >
                   {t("free_cmms.features.get_started_free")}
-                </SignupButton>
+                </SignupButtonServer>
               </FeatureContent>
             </Grid>
           </FeatureRow>
@@ -222,7 +223,7 @@ export const FeaturesAlternating = async () => {
         <Typography variant="h5" sx={{ mb: 4, opacity: 0.9 }}>
           {t("free_cmms.features.join_thousands")}
         </Typography>
-        <SignupButton
+        <SignupButtonServer
           size="large"
           sx={{
             px: 6,
@@ -234,7 +235,7 @@ export const FeaturesAlternating = async () => {
           }}
         >
           {t("free_cmms.features.get_started_no_card")}
-        </SignupButton>
+        </SignupButtonServer>
       </Box>
     </Container>
   );
