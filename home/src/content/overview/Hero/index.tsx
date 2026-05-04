@@ -2,9 +2,7 @@ import { Button, Container, Grid, Stack, Typography } from "@mui/material";
 import React from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { getBrandServer as getBrandConfig } from "src/utils/serverBrand";
-import LiveDemoButton from "./LiveDemoButton";
 import { BoxAccent, BoxContent, ImgWrapper, MobileImgWrapper, TypographyH2 } from "./styles";
-import SignupButton from "src/components/SignupButton";
 import MainAppLink from "src/components/MainAppLink";
 import { getWorkOrdersUrl } from "src/utils/urlPaths";
 import Image from "next/image";
@@ -68,6 +66,7 @@ async function Hero() {
                   alt={brandConfig.name}
                   src="/static/images/overview/work_orders_screenshot.png"
                   loading={"eager"}
+                  fetchPriority={"high"}
                   width={1920}
                   height={922}
                 />
