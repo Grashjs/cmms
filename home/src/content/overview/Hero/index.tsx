@@ -66,14 +66,21 @@ async function Hero() {
                   alt={brandConfig.name}
                   src="/static/images/overview/work_orders_screenshot.png"
                   loading={"eager"}
-                  fetchPriority={"high"}
                   width={1920}
                   height={922}
+                  sizes="(max-width: 900px) 100vw, 50vw"
                 />
               </ImgWrapper>
             </MainAppLink>
             <MobileImgWrapper>
-              <Image alt="Mobile App" src="/static/mobile_app.jpeg" width={720} height={1600} loading={"eager"} />
+              <Image
+                alt="Mobile App"
+                src="/static/mobile_app.jpeg"
+                width={720}
+                height={1600}
+                loading={"eager"}
+                sizes="(max-width: 900px) 128px, 284px"
+              />
             </MobileImgWrapper>
             <BoxAccent
               sx={{

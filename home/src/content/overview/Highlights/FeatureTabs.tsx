@@ -36,7 +36,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
       title: { key: string; params?: Record<string, any> };
       descriptions: { key: string; params?: Record<string, any> }[];
       checks: { key: string; params?: Record<string, any> }[];
-      image: { src: string; width: number; height: number };
+       image: { src: string; width: number; height: number; sizes: string };
     };
   } = {
     "work-orders": {
@@ -60,7 +60,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
           params: { shortBrandName: brandConfig.name },
         },
       ],
-      image: { src: "/static/images/overview/work_order_screenshot.png", width: 1920, height: 922 },
+       image: { src: "/static/images/overview/work_order_screenshot.png", width: 1920, height: 922, sizes: "(max-width: 900px) 100vw, 50vw" },
     },
 
     request: {
@@ -75,7 +75,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
         },
       ],
       checks: [{ key: "work-requests.checks.0" }, { key: "work-requests.checks.1" }, { key: "work-requests.checks.2" }],
-      image: { src: "/static/images/overview/request.png", width: 1920, height: 869 },
+       image: { src: "/static/images/overview/request.png", width: 1920, height: 869, sizes: "(max-width: 900px) 100vw, 50vw" },
     },
 
     mobile: {
@@ -89,7 +89,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
         { key: "mobile-app.checks.4" },
         { key: "mobile-app.checks.5" },
       ],
-      image: { src: "/static/images/overview/mobile_home.png", width: 736, height: 736 },
+       image: { src: "/static/images/overview/mobile_home.png", width: 736, height: 736, sizes: "(max-width: 900px) 100vw, 50vw" },
     },
 
     asset: {
@@ -109,7 +109,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
         { key: "eam.checks.4" },
         { key: "eam.checks.5" },
       ],
-      image: { src: "/static/images/overview/assets.png", width: 1920, height: 869 },
+       image: { src: "/static/images/overview/assets.png", width: 1920, height: 869, sizes: "(max-width: 900px) 100vw, 50vw" },
     },
 
     preventative: {
@@ -131,7 +131,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
         { key: "pm.checks.4" },
         { key: "pm.checks.5" },
       ],
-      image: { src: "/static/images/overview/pm.png", width: 1920, height: 869 },
+       image: { src: "/static/images/overview/pm.png", width: 1920, height: 869, sizes: "(max-width: 900px) 100vw, 50vw" },
     },
 
     part: {
@@ -155,7 +155,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
         { key: "part_1.checks.6" },
         { key: "part_1.checks.7" },
       ],
-      image: { src: "/static/images/overview/inventory_screenshot.png", width: 1882, height: 936 },
+       image: { src: "/static/images/overview/inventory_screenshot.png", width: 1882, height: 936, sizes: "(max-width: 900px) 100vw, 50vw" },
     },
 
     dashboard: {
@@ -184,7 +184,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
         },
         { key: "dashboard.checks.5" },
       ],
-      image: { src: "/static/images/overview/analytics_screenshot.png", width: 1920, height: 922 },
+       image: { src: "/static/images/overview/analytics_screenshot.png", width: 1920, height: 922, sizes: "(max-width: 900px) 100vw, 50vw" },
     },
   };
 
@@ -212,7 +212,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
     title: string;
     descriptions: string[];
     checks: string[];
-    image: { src: string; width: number; height: number };
+     image: { src: string; width: number; height: number; sizes: string };
   }) => {
     return (
       <Grid
@@ -251,7 +251,7 @@ export default function FeatureTabs({ brandConfig }: { brandConfig: BrandConfig 
             <Blob1 />
             <Blob2 />
             <CardImageWrapper>
-              <Image src={image.src} width={image.width} height={image.height} alt={brandConfig.shortName} />
+               <Image src={image.src} width={image.width} height={image.height} alt={brandConfig.shortName} sizes={image.sizes} />
             </CardImageWrapper>
           </BlowWrapper>
         </Grid>

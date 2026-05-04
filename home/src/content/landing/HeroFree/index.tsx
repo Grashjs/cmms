@@ -49,16 +49,17 @@ async function HeroFree() {
           <BoxContent>
             <MainAppLink href={getSignupUrl(locale)}>
               <ImgWrapper>
-                <Image
-                  alt={t("free_cmms.hero.work_orders_alt")}
-                  src="/static/images/overview/work_orders_screenshot.png"
-                  width={1920}
-                  height={922}
-                />
+                 <Image
+                   alt={t("free_cmms.hero.work_orders_alt")}
+                   src="/static/images/overview/work_orders_screenshot.png"
+                   width={1920}
+                   height={922}
+                   sizes="(max-width: 900px) 100vw, 50vw"
+                 />
               </ImgWrapper>
             </MainAppLink>
             <MobileImgWrapper>
-              <Image height={1600} width={720} alt={t("free_cmms.hero.mobile_app_alt")} src="/static/mobile_app.jpeg" />
+              <Image height={1600} width={720} alt={t("free_cmms.hero.mobile_app_alt")} src="/static/mobile_app.jpeg" sizes="(max-width: 900px) 128px, 284px" />
             </MobileImgWrapper>
             <BoxAccent
               sx={{
