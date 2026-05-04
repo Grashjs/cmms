@@ -30,97 +30,92 @@ interface Feature {
   points: FeaturePoint[];
   image: string;
   imageAlt: string;
-  sizes?: string;
 }
 
 export const FeaturesAlternating = async () => {
   const t = await getTranslations();
   const locale = await getLocale();
   const features: Feature[] = [
-      {
-        title: t("free_cmms.features.work_orders.title"),
-        points: [
-          {
-            icon: <AddTaskIcon color="primary" />,
-            text: t("free_cmms.features.work_orders.p1"),
-          },
-          {
-            icon: <CollectionsIcon color="primary" />,
-            text: t("free_cmms.features.work_orders.p2"),
-          },
-          {
-            icon: <SpeedIcon color="primary" />,
-            text: t("free_cmms.features.work_orders.p3"),
-          },
-        ],
-        image: "/static/images/overview/work_order_screenshot.png",
-        imageAlt: t("free_cmms.features.work_orders.alt"),
-        imageSizes: { width: 1920, height: 922 },
-        sizes: "(max-width: 900px) 100vw, 50vw",
-      },
-      {
-        title: t("free_cmms.features.asset_tracking.title"),
-        points: [
-          {
-            icon: <HistoryIcon color="primary" />,
-            text: t("free_cmms.features.asset_tracking.p1"),
-          },
-          {
-            icon: <QueryStatsIcon color="primary" />,
-            text: t("free_cmms.features.asset_tracking.p2"),
-          },
-          {
-            icon: <RuleIcon color="primary" />,
-            text: t("free_cmms.features.asset_tracking.p3"),
-          },
-        ],
-        image: "/static/images/features/asset-hero.png",
-        imageAlt: t("free_cmms.features.asset_tracking.alt"),
-        imageSizes: { width: 1920, height: 912 },
-        sizes: "(max-width: 900px) 100vw, 50vw",
-      },
-      {
-        title: t("free_cmms.features.inventory.title"),
-        points: [
-          {
-            icon: <InventoryIcon color="primary" />,
-            text: t("free_cmms.features.inventory.p1"),
-          },
-          {
-            icon: <QrCodeScannerIcon color="primary" />,
-            text: t("free_cmms.features.inventory.p2"),
-          },
-          {
-            icon: <NotificationsActiveIcon color="primary" />,
-            text: t("free_cmms.features.inventory.p3"),
-          },
-        ],
-        image: "/static/images/overview/inventory_screenshot.png",
-        imageAlt: t("free_cmms.features.inventory.alt"),
-        imageSizes: { width: 1920, height: 912 },
-        sizes: "(max-width: 900px) 100vw, 50vw",
-      },
-      {
-        title: t("free_cmms.features.mobile.title"),
-        points: [
-          {
-            icon: <SmartphoneIcon color="primary" />,
-            text: t("free_cmms.features.mobile.p1"),
-          },
-          {
-            icon: <CameraAltIcon color="primary" />,
-            text: t("free_cmms.features.mobile.p2"),
-          },
-          {
-            icon: <CloudDoneIcon color="primary" />,
-            text: t("free_cmms.features.mobile.p3"),
-          },
-        ],
-        image: "/static/mobile_app.jpeg",
-        imageAlt: t("free_cmms.features.mobile.alt"),
-        imageSizes: { width: 720, height: 1600 },
-        sizes: "(max-width: 900px) 128px, 284px",
-      },
+    {
+      title: t("free_cmms.features.work_orders.title"),
+      points: [
+        {
+          icon: <AddTaskIcon color="primary" />,
+          text: t("free_cmms.features.work_orders.p1"),
+        },
+        {
+          icon: <CollectionsIcon color="primary" />,
+          text: t("free_cmms.features.work_orders.p2"),
+        },
+        {
+          icon: <SpeedIcon color="primary" />,
+          text: t("free_cmms.features.work_orders.p3"),
+        },
+      ],
+      image: "/static/images/overview/work_order_screenshot.png",
+      imageAlt: t("free_cmms.features.work_orders.alt"),
+      imageSizes: { width: 1920, height: 922 },
+    },
+    {
+      title: t("free_cmms.features.asset_tracking.title"),
+      points: [
+        {
+          icon: <HistoryIcon color="primary" />,
+          text: t("free_cmms.features.asset_tracking.p1"),
+        },
+        {
+          icon: <QueryStatsIcon color="primary" />,
+          text: t("free_cmms.features.asset_tracking.p2"),
+        },
+        {
+          icon: <RuleIcon color="primary" />,
+          text: t("free_cmms.features.asset_tracking.p3"),
+        },
+      ],
+      image: "/static/images/features/asset-hero.png",
+      imageAlt: t("free_cmms.features.asset_tracking.alt"),
+      imageSizes: { width: 1920, height: 912 },
+    },
+    {
+      title: t("free_cmms.features.inventory.title"),
+      points: [
+        {
+          icon: <InventoryIcon color="primary" />,
+          text: t("free_cmms.features.inventory.p1"),
+        },
+        {
+          icon: <QrCodeScannerIcon color="primary" />,
+          text: t("free_cmms.features.inventory.p2"),
+        },
+        {
+          icon: <NotificationsActiveIcon color="primary" />,
+          text: t("free_cmms.features.inventory.p3"),
+        },
+      ],
+      image: "/static/images/overview/inventory_screenshot.png",
+      imageAlt: t("free_cmms.features.inventory.alt"),
+      imageSizes: { width: 1920, height: 912 },
+    },
+    {
+      title: t("free_cmms.features.mobile.title"),
+      points: [
+        {
+          icon: <SmartphoneIcon color="primary" />,
+          text: t("free_cmms.features.mobile.p1"),
+        },
+        {
+          icon: <CameraAltIcon color="primary" />,
+          text: t("free_cmms.features.mobile.p2"),
+        },
+        {
+          icon: <CloudDoneIcon color="primary" />,
+          text: t("free_cmms.features.mobile.p3"),
+        },
+      ],
+      image: "/static/mobile_app.jpeg",
+      imageAlt: t("free_cmms.features.mobile.alt"),
+      imageSizes: { width: 720, height: 1600 },
+    },
   ];
 
   const isPortrait = (sizes: { width: number; height: number }) => sizes.height > sizes.width;
@@ -145,7 +140,6 @@ export const FeaturesAlternating = async () => {
                   alt={feature.imageAlt}
                   width={feature.imageSizes.width}
                   height={feature.imageSizes.height}
-                  sizes={feature.sizes || "(max-width: 900px) 100vw, 50vw"}
                   style={{
                     borderRadius: "16px",
                     width: "auto",
