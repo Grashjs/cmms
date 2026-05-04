@@ -3,6 +3,7 @@ import { ExpoConfig, ConfigContext } from 'expo/config';
 
 const apiUrl = process.env.API_URL;
 const googleServicesJson = process.env.GOOGLE_SERVICES_JSON;
+const googleServicesPlist = process.env.GOOGLE_SERVICES_PLIST;
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -29,10 +30,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   ios: {
     bundleIdentifier: 'com.cmms.atlas',
-    buildNumber: '3',
+    buildNumber: '2',
     jsEngine: 'hermes',
     supportsTablet: false,
     runtimeVersion: '1.0.40',
+    googleServicesFile: googleServicesPlist ?? './GoogleService-Info.plist',
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false
     }
@@ -64,6 +66,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-notifications',
     '@react-native-community/datetimepicker',
     '@react-native-firebase/app',
+    './plugins/ios/withFmtXcode26Fix',
     [
       'expo-camera',
       {
