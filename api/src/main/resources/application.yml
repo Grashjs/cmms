@@ -80,7 +80,7 @@ security:
     token:
       secret-key: ${JWT_SECRET_KEY}
       expire-length: 1209600000 # 1000*60*60*24*14
-  invitation-via-email: ${INVITATION_VIA_EMAIL}
+  invitation-via-email: ${INVITATION_VIA_EMAIL:false}
   recaptcha-secret-key: ${RECAPTCHA_SECRET_KEY:}
   cors:
     enabled: ${ENABLE_CORS:true}
@@ -96,7 +96,7 @@ frontend:
   home-url: ${PUBLIC_HOME_URL:}
 mail:
   recipients: ${MAIL_RECIPIENTS}
-  enable: ${ENABLE_EMAIL_NOTIFICATIONS}
+  enable: ${ENABLE_EMAIL_NOTIFICATIONS:false}
   type: ${MAIL_TYPE:SMTP}
 superAdmin:
   role:
@@ -129,7 +129,7 @@ enable-sso: ${ENABLE_SSO:false}
 oauth2:
   success-redirect-url: ${PUBLIC_FRONT_URL}/oauth2/success
   failure-redirect-url: ${PUBLIC_FRONT_URL}/oauth2/failure
-  provider: ${OAUTH2_PROVIDER}
+  provider: ${OAUTH2_PROVIDER:}
 license-key: ${LICENSE_KEY:}
 license-fingerprint-required: ${LICENSE_FINGERPRINT_REQUIRED:true}
 license-file-path: ${LICENSE_FILE_PATH:}
