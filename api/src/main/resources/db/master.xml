@@ -207,4 +207,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_04_28_1777399181_feedback_text.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_05_05_00000000001_create_keygen_request_tracker.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

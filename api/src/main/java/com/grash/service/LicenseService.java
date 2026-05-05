@@ -2,6 +2,8 @@ package com.grash.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grash.dto.license.*;
+import com.grash.model.KeygenRequestTracker;
+import com.grash.repository.KeygenRequestTrackerRepository;
 import com.grash.utils.FingerprintGenerator;
 import com.grash.utils.LicenseFileValidator;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,8 +30,10 @@ public class LicenseService {
     private static final MediaType KEYGEN_MEDIA_TYPE = MediaType.valueOf("application/vnd.api+json");
     private static final String KEYGEN_PUBLIC_KEY =
             "cf9ce7f95c29c0cb0666a61d89c931bd4170a5fbaa0a391ff6649c213f4d13fc";
+    private static final int DAILY_REQUEST_LIMIT = 20;
 
     private final ObjectMapper objectMapper;
+    private final KeygenRequestTrackerRepository keygenRequestTrackerRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${license-key:#{null}}")
@@ -218,6 +223,11 @@ public class LicenseService {
     }
 
     private Optional<LicenseValidationResponse> performLicenseValidation() throws Exception {
+        if (!canMakeKeygenRequest()) {
+            log.warn("Daily Keygen API request limit exceeded ({} requests per day)", DAILY_REQUEST_LIMIT);
+            return Optional.empty();
+        }
+
         String apiUrl = String.format(API_URL_TEMPLATE, keygenAccountId);
         HttpEntity<String> httpEntity = createValidationRequestEntity();
 
@@ -228,10 +238,36 @@ public class LicenseService {
         );
 
         if (response.getStatusCode() == HttpStatus.OK) {
+            incrementKeygenRequestCount();
             return Optional.ofNullable(response.getBody());
         }
 
         return Optional.empty();
+    }
+
+    private synchronized boolean canMakeKeygenRequest() {
+        LocalDate today = LocalDate.now();
+        Optional<KeygenRequestTracker> trackerOpt = keygenRequestTrackerRepository.findByRequestDate(today);
+
+        return trackerOpt.map(keygenRequestTracker -> keygenRequestTracker.getRequestCount() < DAILY_REQUEST_LIMIT).orElse(true);
+    }
+
+    private synchronized void incrementKeygenRequestCount() {
+        LocalDate today = LocalDate.now();
+        Optional<KeygenRequestTracker> trackerOpt = keygenRequestTrackerRepository.findByRequestDate(today);
+
+        KeygenRequestTracker tracker;
+        if (trackerOpt.isPresent()) {
+            tracker = trackerOpt.get();
+            tracker.setRequestCount(tracker.getRequestCount() + 1);
+        } else {
+            tracker = new KeygenRequestTracker();
+            tracker.setRequestDate(today);
+            tracker.setRequestCount(1);
+        }
+        keygenRequestTrackerRepository.save(tracker);
+        log.info("Keygen API request count for {}: {}", today,
+                trackerOpt.map(t -> t.getRequestCount() + 1).orElse(1));
     }
 
     private HttpEntity<String> createValidationRequestEntity() throws Exception {
