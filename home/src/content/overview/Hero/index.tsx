@@ -66,7 +66,6 @@ async function Hero() {
                   alt={brandConfig.name}
                   src="/static/images/overview/work_orders_screenshot.png"
                   loading={"eager"}
-                  fetchPriority={"high"}
                   width={1920}
                   height={922}
                 />
