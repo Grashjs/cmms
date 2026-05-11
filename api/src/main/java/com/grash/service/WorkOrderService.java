@@ -547,8 +547,6 @@ public class WorkOrderService {
                                                             .values(teamService.findByUser(user.getId()).stream().map(Team::getId).collect(Collectors.toList())).build()
 
                                             )).build());
-                    searchCriteria.getFilterFields().
-                            removeIf(filterField -> filterField.getField().equals("assignedToUser"));
                 }
 
             } else if (user.getRole().getCode().equals(RoleCode.REQUESTER)) {
@@ -558,6 +556,8 @@ public class WorkOrderService {
                         .operation("eq")
                         .values(new ArrayList<>()).build());
             }
+            searchCriteria.getFilterFields().
+                    removeIf(filterField -> filterField.getField().equals("assignedToUser"));
 //            else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN); //Work order is viewed by everyone
         }
         return searchCriteria;
