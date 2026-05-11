@@ -1,8 +1,7 @@
-import { Container, Grid, Stack, Typography } from "@mui/material";
+import { Box, Container, Grid, Stack, Typography } from "@mui/material";
 import { getLocale, getTranslations } from "next-intl/server";
 import MainAppLink from "src/components/MainAppLink";
 import { BoxAccent, BoxContent, MobileImgWrapper, TypographyH2 } from "../styled";
-import { ImgWrapper } from "src/content/overview/Hero/styles";
 import Image from "next/image";
 import { getSignupUrl } from "src/utils/urlPaths";
 import SignupButtonServer from "src/components/SignupButtonServer";
@@ -46,16 +45,36 @@ async function HeroFree() {
           </Stack>
         </Grid>
         <Grid item md={6}>
-          <BoxContent>
+          <Box
+            sx={{
+              width: "150%",
+              position: "relative",
+            }}
+          >
             <MainAppLink href={getSignupUrl(locale)}>
-              <ImgWrapper>
+              <Box
+                sx={{
+                  position: "relative",
+                  zIndex: 5,
+                  width: "100%",
+                  overflow: "hidden",
+                  borderRadius: "12px",
+                  boxShadow:
+                    "0 0rem 14rem 0 rgb(255 255 255 / 20%), 0 0.8rem 2.3rem rgb(111 130 156 / 3%), 0 0.2rem 0.7rem rgb(17 29 57 / 15%)",
+                  aspectRatio: "1920 / 922",
+                  "& img": {
+                    display: "block",
+                    width: "100%",
+                  },
+                }}
+              >
                 <Image
                   alt={t("free_cmms.hero.work_orders_alt")}
                   src="/static/images/overview/work_orders_screenshot.png"
                   width={1920}
                   height={922}
                 />
-              </ImgWrapper>
+              </Box>
             </MainAppLink>
             <MobileImgWrapper>
               <Image height={1600} width={720} alt={t("free_cmms.hero.mobile_app_alt")} src="/static/mobile_app.jpeg" />
@@ -65,7 +84,7 @@ async function HeroFree() {
                 display: { xs: "none", md: "block" },
               }}
             />
-          </BoxContent>
+          </Box>
         </Grid>
       </Grid>
     </Container>
