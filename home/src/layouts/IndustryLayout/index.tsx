@@ -114,6 +114,8 @@ const IndustryLayout: FC<IndustryLayoutProps> = async (props) => {
                 height={headerImageSizes.height}
                 style={{ width: "100%", borderRadius: "16px", height: "auto" }}
                 priority
+                loading={"eager"}
+                fetchPriority={"high"}
               />
             </Grid>
           </Grid>

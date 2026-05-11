@@ -68,6 +68,8 @@ async function Hero() {
                   width={1920}
                   height={922}
                   priority
+                  loading={"eager"}
+                  fetchPriority={"high"}
                 />
               </ImgWrapper>
             </MainAppLink>
