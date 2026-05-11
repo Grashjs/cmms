@@ -1,20 +1,17 @@
 import React, { FC, ReactNode } from "react";
-import { Box, Container, Typography, Button, Grid, Card, CardContent, Stack, useTheme } from "@mui/material";
+import { Box, Button, Card, CardContent, Container, Grid, Stack, Typography } from "@mui/material";
 import NavBar from "src/components/NavBar";
 import Footer from "src/components/Footer";
 import FaqComponent from "src/components/Faq";
-import { Link } from "src/i18n/routing";
 import { StyledAdvantageCard, StyledAdvantageIconWrapper, StyledFeatureNumber, StyledKpiValue } from "./styles";
 import { demoLink } from "../../config";
 import { SvgIconComponent } from "@mui/icons-material";
 import TwoCallToActions from "../../content/landing/components/TwoCallToActions";
 import Testimonials, { Testimonial } from "../../content/landing/components/Testimonials";
-import { OverviewWrapper } from "src/content/overview/styles";
 import { TypographyH2 } from "src/content/overview/Hero/styles";
 import Image from "next/image";
 import CompanyLogos from "src/components/CompanyLogos";
-import SignupButton from "src/components/SignupButton";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import SignupButtonServer from "src/components/SignupButtonServer";
 
 interface Feature {
@@ -72,10 +69,16 @@ const IndustryLayout: FC<IndustryLayoutProps> = async (props) => {
     canonicalPath,
   } = props;
   const t = await getTranslations();
-  const locale = await getLocale();
 
   return (
-    <OverviewWrapper>
+    <Box
+      sx={{
+        overflow: "auto",
+        background: "#ffffff",
+        flex: 1,
+        overflowX: "hidden",
+      }}
+    >
       <NavBar />
       <Box>
         {/* Header */}
@@ -245,7 +248,7 @@ const IndustryLayout: FC<IndustryLayoutProps> = async (props) => {
         {/*)}*/}
       </Box>
       <Footer />
-    </OverviewWrapper>
+    </Box>
   );
 };
 
