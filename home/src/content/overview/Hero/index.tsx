@@ -1,8 +1,8 @@
-import { Button, Container, Grid, Stack, Typography } from "@mui/material";
+import { Box, Button, Container, Grid, Stack, Typography } from "@mui/material";
 import React from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { getBrandServer as getBrandConfig } from "src/utils/serverBrand";
-import { BoxAccent, BoxContent, ImgWrapper, MobileImgWrapper, TypographyH2 } from "./styles";
+import { BoxAccent, MobileImgWrapper, TypographyH2 } from "./styles";
 import MainAppLink from "src/components/MainAppLink";
 import { getWorkOrdersUrl } from "src/utils/urlPaths";
 import Image from "next/image";
@@ -59,9 +59,29 @@ async function Hero() {
           </Stack>
         </Grid>
         <Grid item md={6}>
-          <BoxContent>
+          <Box
+            sx={{
+              width: "150%",
+              position: "relative",
+            }}
+          >
             <MainAppLink href={getWorkOrdersUrl(locale)}>
-              <ImgWrapper>
+              <Box
+                sx={{
+                  position: "relative",
+                  zIndex: 5,
+                  width: "100%",
+                  overflow: "hidden",
+                  borderRadius: "12px",
+                  boxShadow:
+                    "0 0rem 14rem 0 rgb(255 255 255 / 20%), 0 0.8rem 2.3rem rgb(111 130 156 / 3%), 0 0.2rem 0.7rem rgb(17 29 57 / 15%)",
+                  aspectRatio: "1920 / 922",
+                  "& img": {
+                    display: "block",
+                    width: "100%",
+                  },
+                }}
+              >
                 <Image
                   alt={brandConfig.name}
                   src="/static/images/overview/work_orders_screenshot.png"
@@ -69,7 +89,7 @@ async function Hero() {
                   height={922}
                   preload
                 />
-              </ImgWrapper>
+              </Box>
             </MainAppLink>
             <MobileImgWrapper>
               <Image alt="Mobile App" src="/static/mobile_app.jpeg" width={720} height={1600} loading={"eager"} />
@@ -79,7 +99,7 @@ async function Hero() {
                 display: { xs: "none", md: "block" },
               }}
             />
-          </BoxContent>
+          </Box>
         </Grid>
       </Grid>
     </Container>

@@ -14,23 +14,6 @@ export const TypographyH2 = styled(Typography)(
 `,
 );
 
-export const ImgWrapper = styled(Box)(
-  ({ theme }) => `
-    position: relative;
-    z-index: 5;
-    width: 100%;
-    overflow: hidden;
-    border-radius: ${theme.general.borderRadiusLg};
-    box-shadow: 0 0rem 14rem 0 rgb(255 255 255 / 20%), 0 0.8rem 2.3rem rgb(111 130 156 / 3%), 0 0.2rem 0.7rem rgb(17 29 57 / 15%);
-    aspect-ratio: 1920 / 922;
-
-    img {
-      display: block;
-      width: 100%;
-    }
-  `,
-);
-
 export const BoxAccent = styled(Box)(
   ({ theme }) => `
     border-radius: ${theme.general.borderRadiusLg};
@@ -43,13 +26,6 @@ export const BoxAccent = styled(Box)(
     display: block;
     z-index: 4;
   `,
-);
-
-export const BoxContent = styled(Box)(
-  () => `
-  width: 150%;
-  position: relative;
-`,
 );
 
 export const MobileImgWrapper = styled(Box)(
