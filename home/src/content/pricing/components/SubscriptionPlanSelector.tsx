@@ -109,7 +109,13 @@ export default function SubscriptionPlanSelector({ monthly, setMonthly, selfHost
             onChange={(event) => setMonthly(!event.target.checked)}
             sx={{ transform: "scale(1.3)" }}
             size={"medium"}
-            aria-label={"Toggle between monthly and yearly billing"}
+            slotProps={{
+              input: {
+                "aria-label": "Toggle between monthly and yearly billing",
+                role: "switch",
+                "aria-checked": !monthly,
+              },
+            }}
           />
           <Typography color={"text.primary"}>{t("pricing_1.annually_save_two_months")}</Typography>
         </Stack>
