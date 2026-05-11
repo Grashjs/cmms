@@ -65,9 +65,9 @@ async function Hero() {
                 <Image
                   alt={brandConfig.name}
                   src="/static/images/overview/work_orders_screenshot.png"
-                  loading={"eager"}
                   width={1920}
                   height={922}
+                  priority
                 />
               </ImgWrapper>
             </MainAppLink>
