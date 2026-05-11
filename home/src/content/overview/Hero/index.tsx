@@ -67,9 +67,7 @@ async function Hero() {
                   src="/static/images/overview/work_orders_screenshot.png"
                   width={1920}
                   height={922}
-                  priority
-                  loading={"eager"}
-                  fetchPriority={"high"}
+                  preload
                 />
               </ImgWrapper>
             </MainAppLink>
