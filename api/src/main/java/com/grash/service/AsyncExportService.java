@@ -6,6 +6,7 @@ import com.grash.model.User;
 import com.grash.utils.CsvFileGenerator;
 import com.grash.utils.Helper;
 import com.grash.utils.MultipartFileImpl;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -33,6 +34,7 @@ public class AsyncExportService {
     private final CsvFileGenerator csvFileGenerator;
     private final StorageServiceFactory storageServiceFactory;
     private final SimpMessageSendingOperations messagingTemplate;
+    private final EntityManager entityManager;
 
     @Async
     public void exportWorkOrders(User user, String uuid) {
@@ -92,6 +94,9 @@ public class AsyncExportService {
                         outputStreamWriter,
                         Helper.getLocale(user),
                         user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
+
+                entityManager.clear();
+                page++;
             }
             while (result.hasNext());
             byte[] bytes = target.toByteArray();
