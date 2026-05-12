@@ -268,7 +268,10 @@ function Locations() {
   }, [pageable]);
 
   useEffect(() => {
-    if (hasViewPermission(PermissionEntity.LOCATIONS))
+    if (
+      hasViewPermission(PermissionEntity.LOCATIONS) &&
+      (currentTab === 'map' || searchQuery.trim())
+    )
       dispatch(
         getLocations({
           ...criteria,
@@ -281,7 +284,7 @@ function Locations() {
               : criteria.filterFields
         })
       );
-  }, [criteria, currentTab]);
+  }, [criteria, currentTab, searchQuery]);
 
   const handleToggleExpand = async (row: LocationRow) => {
     const isExpanded = expanded[row.id];
