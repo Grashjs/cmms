@@ -316,7 +316,10 @@ function Locations() {
 
         // Fetch the children
         await dispatch(
-          getLocationChildrenPaginated(row.id, row.hierarchy || [], pageable)
+          getLocationChildrenPaginated(row.id, row.hierarchy || [], {
+            ...pageable,
+            page: 0
+          })
         );
         setDeployedLocations((prevState) => [...prevState, row]);
 

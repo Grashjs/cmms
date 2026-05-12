@@ -212,7 +212,7 @@ function Assets() {
 
         setSubRowsMap((prev) => ({ ...prev, [row.id]: [loadingRow] }));
         // Fetch the children
-        await dispatch(getAssetChildren(row.id, pageable));
+        await dispatch(getAssetChildren(row.id, { ...pageable, page: 0 }));
         setDeployedAssets((prevState) => [...prevState, row]);
 
         // Clean up the loading row once the fetch is complete
