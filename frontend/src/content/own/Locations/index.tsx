@@ -15,11 +15,15 @@ import {
   Stack,
   Tab,
   Tabs,
-  TextField,
   Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { getCustomFieldsValues, IField } from '../type';
+import {
+  getCustomFieldsIFields,
+  getCustomFieldsRequiredShape,
+  getCustomFieldsValues,
+  IField
+} from '../type';
 import ReplayTwoToneIcon from '@mui/icons-material/ReplayTwoTone';
 import Location, { LocationRow } from '../../../models/owns/location';
 import * as React from 'react';
@@ -50,15 +54,19 @@ import {
   useSearchParams
 } from 'react-router-dom';
 import Map from '../components/Map';
-import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
+import {
+  formatCustomFields,
+  formatSelect,
+  formatSelectMultiple
+} from '../../../utils/formatters';
 import { CustomSnackBarContext } from 'src/contexts/CustomSnackBarContext';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import useAuth from '../../../hooks/useAuth';
 import { PermissionEntity } from '../../../models/owns/role';
 import PermissionErrorMessage from '../components/PermissionErrorMessage';
 import {
-  handleFileUpload,
   getImageAndFiles,
+  handleFileUpload,
   onSearchQueryChange
 } from '../../../utils/overall';
 import { getLocationUrl } from '../../../utils/urlPaths';
@@ -81,16 +89,11 @@ import useTableState from '../../../hooks/useTableState';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
-import InputAdornment from '@mui/material/InputAdornment';
 import SearchInput from '../components/SearchInput';
 import { getCustomFields } from '../../../slices/customField';
 import { CustomFieldEntityType } from '../../../models/owns/customField';
-import { getCustomFieldsIFields, getCustomFieldsRequiredShape } from '../type';
-import { formatCustomFields } from '../../../utils/formatters';
-import { AssetDTO } from '../../../models/owns/asset';
 
-const HIERARCHY_ZERO_PAGE_SIZE = 40;
+const PAGE_SIZE = 40;
 
 function Locations() {
   const { t }: { t: any } = useTranslation();
@@ -148,7 +151,7 @@ function Locations() {
   const navigate = useNavigate();
   const [pageable, setPageable] = useState<Pageable>({
     page: 0,
-    size: HIERARCHY_ZERO_PAGE_SIZE
+    size: PAGE_SIZE
   });
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -211,7 +214,7 @@ function Locations() {
 
   const changeCurrentLocation = (id: number) => {
     setCurrentLocation(
-      locations.find((location) => location.id === id) ||
+      locations.content.find((location) => location.id === id) ||
         locationsHierarchy.find((location) => location.id === id)
     );
   };
@@ -250,7 +253,7 @@ function Locations() {
   const handleOpenDetails = async (id: number) => {
     const foundLocation =
       locationsHierarchy.find((location) => location.id === id) ||
-      locations.find((location) => location.id === id) ||
+      locations.content.find((location) => location.id === id) ||
       (await dispatch(getSingleLocation(id)));
     if (foundLocation) {
       setCurrentLocation(foundLocation);
@@ -351,7 +354,7 @@ function Locations() {
     if (locationId && isNumeric(locationId)) {
       handleOpenDetails(Number(locationId));
     }
-  }, [locations.length, locationsHierarchy.length]);
+  }, [locations.content.length, locationsHierarchy.length]);
 
   // Handle query params for inline creation (new=true&name=${name})
   useEffect(() => {
@@ -915,43 +918,51 @@ function Locations() {
     expanded,
     subRowsMap
   );
-
+  const isHierarchyView = !searchQuery?.trim();
   // Filter table data based on search query
-  const filteredTableData: (LocationRow | Location)[] = searchQuery.trim()
-    ? locations
-    : tableData;
+  const filteredTableData: (LocationRow | Location)[] = isHierarchyView
+    ? tableData
+    : locations.content;
   // Handle pagination change for hierarchy view
   const handlePaginationChange = (newPagination: {
     pageIndex: number;
     pageSize: number;
   }) => {
-    setPageable((prev) => ({
-      ...prev,
-      page: newPagination.pageIndex,
-      size: newPagination.pageSize
-    }));
+    if (isHierarchyView) {
+      setPageable((prev) => ({
+        ...prev,
+        page: newPagination.pageIndex,
+        size: newPagination.pageSize
+      }));
+    } else {
+      tableState.setPagination(newPagination);
+    }
   };
 
-  // Handle sorting change for hierarchy view
   const handleSortingChange = (newSorting: Updater<SortingState>) => {
-    const resolvedSorting: SortingState =
-      typeof newSorting === 'function'
-        ? newSorting(hierarchySorting)
-        : newSorting;
-    setHierarchySorting(resolvedSorting);
-    const sortParams =
-      resolvedSorting.length > 0
-        ? resolvedSorting.map(
-            (sort) =>
-              `${fieldMapping[sort.id] || sort.id},${
-                sort.desc ? 'desc' : 'asc'
-              }` as Sort
-          )
-        : [];
-    setPageable((prev) => ({
-      ...prev,
-      sort: sortParams.length > 0 ? [...sortParams] : undefined
-    }));
+    if (view === 'hierarchy') {
+      // Resolve the sorting value (handle both direct value and updater function)
+      const resolvedSorting: SortingState =
+        typeof newSorting === 'function'
+          ? newSorting(hierarchySorting)
+          : newSorting;
+      setHierarchySorting(newSorting);
+      const sortParams =
+        resolvedSorting.length > 0
+          ? resolvedSorting.map(
+              (sort) =>
+                `${fieldMapping[sort.id] || sort.id},${
+                  sort.desc ? 'desc' : 'asc'
+                }` as Sort
+            )
+          : [];
+      setPageable((prev) => ({
+        ...prev,
+        sort: sortParams.length > 0 ? [...sortParams] : undefined
+      }));
+    } else {
+      tableState.setSorting(newSorting);
+    }
   };
 
   if (hasViewPermission(PermissionEntity.LOCATIONS))
@@ -1025,23 +1036,29 @@ function Locations() {
             >
               <Box sx={{ width: '95%' }}>
                 <CustomDatagrid2
-                  columns={searchQuery?.trim() ? columns.slice(1) : columns}
+                  columns={isHierarchyView ? columns : columns.slice(1)}
                   data={filteredTableData}
-                  loading={loadingHierarchy}
+                  loading={isHierarchyView ? loadingHierarchy : loadingGet}
                   pagination={
-                    searchQuery?.trim()
-                      ? tableState.pagination
-                      : { pageIndex: pageable.page, pageSize: pageable.size }
+                    isHierarchyView
+                      ? { pageIndex: pageable.page, pageSize: pageable.size }
+                      : tableState.pagination
+                  }
+                  totalRows={
+                    isHierarchyView
+                      ? childrenPages[0]?.totalElements ||
+                        locationsHierarchy.length
+                      : locations.totalElements
+                  }
+                  pageSizeOptions={
+                    !isHierarchyView
+                      ? [10, 20, 50]
+                      : Array.from({ length: 4 }, (_, i) => PAGE_SIZE * (i + 1))
+                  }
+                  sorting={
+                    isHierarchyView ? hierarchySorting : tableState.sorting
                   }
                   onPaginationChange={handlePaginationChange}
-                  totalRows={
-                    childrenPages[0]?.totalElements || locationsHierarchy.length
-                  }
-                  pageSizeOptions={Array.from(
-                    { length: 4 },
-                    (_, i) => HIERARCHY_ZERO_PAGE_SIZE * (i + 1)
-                  )}
-                  sorting={hierarchySorting}
                   onSortingChange={handleSortingChange}
                   columnOrder={tableState.columnOrder}
                   onColumnOrderChange={tableState.setColumnOrder}
@@ -1070,7 +1087,7 @@ function Locations() {
             >
               <Map
                 dimensions={{ width: 1000, height: 500 }}
-                locations={locations
+                locations={locations.content
                   .filter((location) => location.longitude)
                   .map(({ name, longitude, latitude, address, id }) => {
                     return {

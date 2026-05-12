@@ -8,6 +8,7 @@ import Location, {
 import api, { authHeader } from '../utils/api';
 import { revertAll } from 'src/utils/redux';
 import {
+  getInitialPage,
   Page,
   Pageable,
   pageableToQueryParams,
@@ -19,7 +20,7 @@ import {
 } from 'src/utils/cancellableRequest';
 
 interface LocationState {
-  locations: Location[];
+  locations: Page<Location>;
   locationsHierarchy: LocationRow[];
   locationsMini: LocationMiniDTO[];
   loadingGet: boolean;
@@ -28,7 +29,7 @@ interface LocationState {
 }
 
 const initialState: LocationState = {
-  locations: [],
+  locations: getInitialPage<Location>(),
   locationsHierarchy: [],
   locationsMini: [],
   loadingGet: false,
@@ -43,7 +44,7 @@ const slice = createSlice({
   reducers: {
     getLocations(
       state: LocationState,
-      action: PayloadAction<{ locations: Location[] }>
+      action: PayloadAction<{ locations: Page<Location> }>
     ) {
       const { locations } = action.payload;
       state.locations = locations;
@@ -60,18 +61,18 @@ const slice = createSlice({
       action: PayloadAction<{ location: Location }>
     ) {
       const { location } = action.payload;
-      state.locations = [...state.locations, location];
+      state.locations.content.push(location);
     },
     editLocation(
       state: LocationState,
       action: PayloadAction<{ location: Location }>
     ) {
       const { location } = action.payload;
-      const locationIndex = state.locations.findIndex(
+      const locationIndex = state.locations.content.findIndex(
         (loc) => loc.id === location.id
       );
       if (locationIndex === -1) {
-        state.locations = [...state.locations, location];
+        state.locations.content = [...state.locations.content, location];
       } else {
         state.locations[locationIndex] = location;
       }
@@ -81,10 +82,10 @@ const slice = createSlice({
       action: PayloadAction<{ id: number }>
     ) {
       const { id } = action.payload;
-      const locationIndex = state.locations.findIndex(
+      const locationIndex = state.locations.content.findIndex(
         (location) => location.id === id
       );
-      state.locations.splice(locationIndex, 1);
+      state.locations.content.splice(locationIndex, 1);
     },
     getLocationChildrenPaginated(
       state: LocationState,
@@ -149,7 +150,7 @@ export const getLocations =
         criteria,
         { signal }
       );
-      dispatch(slice.actions.getLocations({ locations: locations.content }));
+      dispatch(slice.actions.getLocations({ locations }));
     } catch (error) {
       if (isAbortError(error)) return;
       throw error;
