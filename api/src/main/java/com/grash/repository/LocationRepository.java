@@ -18,7 +18,7 @@ public interface LocationRepository extends JpaRepository<Location, Long>, JpaSp
 
     List<Location> findByCompany_Id(Long id, Sort sort);
 
-    List<Location> findByParentLocation_Id(Long id, Sort sort);
+    List<Location> findByParentLocation_Id(Long id, Pageable pageable);
 
     @Query("SELECT l FROM Location l " +
             "LEFT JOIN FETCH l.parentLocation " +

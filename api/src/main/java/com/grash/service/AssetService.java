@@ -193,10 +193,6 @@ public class AssetService {
         return assetRepository.findByCompany_IdAndCreatedAtBefore(id, date);
     }
 
-    public List<Asset> findAssetChildren(Long id, Sort sort) {
-        return assetRepository.findByParentAsset_Id(id, sort);
-    }
-
     public Page<Asset> findAssetChildren(Long id, Pageable pageable) {
         return assetRepository.findByParentAsset_Id(id, pageable);
     }
@@ -240,7 +236,7 @@ public class AssetService {
     }
 
     private void recursivelyStopChildrenDowntime(Asset parentAsset) {
-        List<Asset> children = findAssetChildren(parentAsset.getId(), (Sort) null);
+        List<Asset> children = findAssetChildren(parentAsset.getId(), Pageable.unpaged()).getContent();
         for (Asset child : children) {
             stopAssetDowntime(child);
             recursivelyStopChildrenDowntime(child);

@@ -138,8 +138,8 @@ public class LocationService {
                 new Notification(message, user, NotificationType.LOCATION, newLocation.getId())).collect(Collectors.toList()), true, title);
     }
 
-    public List<Location> findLocationChildren(Long id, Sort sort) {
-        return locationRepository.findByParentLocation_Id(id, sort);
+    public List<Location> findLocationChildren(Long id, Pageable pageable) {
+        return locationRepository.findByParentLocation_Id(id, pageable);
     }
 
     private String getLocationNumber(Company company) {

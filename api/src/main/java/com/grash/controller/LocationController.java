@@ -70,7 +70,7 @@ public class LocationController {
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<LocationShowDTO>> search(@Parameter(description = "Search criteria for filtering " +
-                                                                    "locations") @RequestBody SearchCriteria searchCriteria,
+                                                                "locations") @RequestBody SearchCriteria searchCriteria,
                                                         HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -100,7 +100,7 @@ public class LocationController {
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS)) {
-                return locationService.findLocationChildren(id, pageable.getSort()).stream().map(location -> locationMapper.toShowDto(location, locationService)).collect(Collectors.toList());
+                return locationService.findLocationChildren(id, pageable).stream().map(location -> locationMapper.toShowDto(location, locationService)).collect(Collectors.toList());
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
 
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
