@@ -29,7 +29,7 @@ import {
   addLocation,
   deleteLocation,
   editLocation,
-  getLocationChildren,
+  getLocationChildrenPaginated,
   getLocations,
   getSingleLocation,
   resetLocationsHierarchy
@@ -80,6 +80,7 @@ import {
 import useTableState from '../../../hooks/useTableState';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchInput from '../components/SearchInput';
@@ -102,9 +103,13 @@ function Locations() {
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const { apiKey } = googleMapsConfig;
 
-  const { locationsHierarchy, locations, loadingGet } = useSelector(
-    (state) => state.locations
-  );
+  const {
+    locationsHierarchy,
+    locations,
+    loadingGet,
+    childrenPages,
+    loadingHierarchy
+  } = useSelector((state) => state.locations);
   const { customFields } = useSelector((state) => state.customFields);
   const [deployedLocations, setDeployedLocations] = useState<
     { id: number; hierarchy: number[] }[]
@@ -264,7 +269,7 @@ function Locations() {
   useEffect(() => {
     if (hasViewPermission(PermissionEntity.LOCATIONS)) {
       handleReset(false);
-      dispatch(getLocationChildren(0, [], pageable));
+      dispatch(getLocationChildrenPaginated(0, [], pageable));
     }
   }, [pageable]);
 
@@ -308,7 +313,7 @@ function Locations() {
 
         // Fetch the children
         await dispatch(
-          getLocationChildren(row.id, row.hierarchy || [], pageable)
+          getLocationChildrenPaginated(row.id, row.hierarchy || [], pageable)
         );
         setDeployedLocations((prevState) => [...prevState, row]);
 
@@ -323,6 +328,23 @@ function Locations() {
 
     // Toggle expand/collapse state
     setExpanded((prev) => ({ ...prev, [row.id]: !isExpanded }));
+  };
+
+  const fetchMoreForParent = (parentId: number) => {
+    const parentPage = childrenPages[parentId];
+    if (parentPage && !parentPage.last) {
+      dispatch(
+        getLocationChildrenPaginated(parentId, [], {
+          ...pageable,
+          page: (parentPage.number || 0) + 1
+        })
+      );
+    }
+  };
+
+  const hasMorePages = (parentId: number): boolean => {
+    const childrenPage = childrenPages[parentId];
+    return childrenPage ? !childrenPage.last : false;
   };
 
   useEffect(() => {
@@ -409,17 +431,57 @@ function Locations() {
     columnHelper.accessor('name', {
       id: 'name',
       header: () => t('name'),
-      cell: (info) => (
-        <Box
-          sx={{
-            py: 1,
-            fontWeight: 'bold',
-            ml: (info.row.depth || 0) * 24
-          }}
-        >
-          {info.getValue()}
-        </Box>
-      ),
+      cell: (info) => {
+        const row = info.row.original as LocationRow & {
+          depth: number;
+          isLoadMoreRow?: boolean;
+          parentId?: number;
+        };
+        // Render "Load More" row as a clickable button
+        if (row.isLoadMoreRow) {
+          return (
+            <Box
+              sx={{
+                py: 1,
+                fontWeight: 'bold'
+              }}
+            >
+              <Button
+                size="small"
+                variant="text"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (row.parentId) {
+                    fetchMoreForParent(row.parentId);
+                  }
+                }}
+                disabled={loadingHierarchy}
+                endIcon={
+                  loadingHierarchy ? (
+                    <CircularProgress size="1rem" />
+                  ) : (
+                    <MoreHorizIcon />
+                  )
+                }
+              >
+                {t('fetch_more')}
+              </Button>
+            </Box>
+          );
+        }
+
+        return (
+          <Box
+            sx={{
+              py: 1,
+              fontWeight: 'bold',
+              ml: (info.row.depth || 0) * 24
+            }}
+          >
+            {info.getValue()}
+          </Box>
+        );
+      },
       size: 200
     }),
     columnHelper.accessor('address', {
@@ -643,7 +705,7 @@ function Locations() {
                 onCreationSuccess(createdLocation);
                 deployedLocations.forEach((deployedLocation) =>
                   dispatch(
-                    getLocationChildren(
+                    getLocationChildrenPaginated(
                       deployedLocation.id,
                       deployedLocation.hierarchy,
                       pageable
@@ -827,6 +889,16 @@ function Locations() {
 
         if (children.length > 0) {
           result = [...result, ...children];
+          // Add "Load More" row after children if there are more pages
+          if (hasMorePages(node.id)) {
+            result.push({
+              id: `load-more-${node.id}`,
+              name: t('fetch_more'),
+              depth: 0,
+              isLoadMoreRow: true,
+              parentId: node.id
+            } as unknown as LocationRow & { depth: number });
+          }
         } else if (subRowsMap[node.id]) {
           // Render the temporary loading row if fetching is in progress
           result.push({ ...subRowsMap[node.id][0], depth: depth + 1 });
@@ -845,7 +917,9 @@ function Locations() {
   );
 
   // Filter table data based on search query
-  const filteredTableData = searchQuery.trim() ? locations : tableData;
+  const filteredTableData: (LocationRow | Location)[] = searchQuery.trim()
+    ? locations
+    : tableData;
   // Handle pagination change for hierarchy view
   const handlePaginationChange = (newPagination: {
     pageIndex: number;
@@ -953,15 +1027,20 @@ function Locations() {
                 <CustomDatagrid2
                   columns={searchQuery?.trim() ? columns.slice(1) : columns}
                   data={filteredTableData}
-                  loading={loadingGet}
+                  loading={loadingHierarchy}
                   pagination={
                     searchQuery?.trim()
                       ? tableState.pagination
                       : { pageIndex: pageable.page, pageSize: pageable.size }
                   }
                   onPaginationChange={handlePaginationChange}
-                  totalRows={locationsHierarchy.length}
-                  pageSizeOptions={[10, 25, 50, 100]}
+                  totalRows={
+                    childrenPages[0]?.totalElements || locationsHierarchy.length
+                  }
+                  pageSizeOptions={Array.from(
+                    { length: 4 },
+                    (_, i) => HIERARCHY_ZERO_PAGE_SIZE * (i + 1)
+                  )}
                   sorting={hierarchySorting}
                   onSortingChange={handleSortingChange}
                   columnOrder={tableState.columnOrder}
@@ -975,6 +1054,7 @@ function Locations() {
                   noRowsMessage={t('noRows.location.message')}
                   noRowsAction={t('noRows.location.action')}
                   onRowClick={(row) => {
+                    if ('isLoadMoreRow' in row && row.isLoadMoreRow) return;
                     handleOpenDetails(row.id);
                   }}
                 />

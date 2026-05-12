@@ -18,7 +18,7 @@ public interface LocationRepository extends JpaRepository<Location, Long>, JpaSp
 
     List<Location> findByCompany_Id(Long id, Pageable pageable);
 
-    List<Location> findByParentLocation_Id(Long id, Pageable pageable);
+    Page<Location> findByParentLocation_Id(Long id, Pageable pageable);
 
     @Query("SELECT l FROM Location l " +
             "LEFT JOIN FETCH l.parentLocation " +
@@ -39,4 +39,6 @@ public interface LocationRepository extends JpaRepository<Location, Long>, JpaSp
     @Query("SELECT CASE WHEN COUNT(l) > :threshold THEN true ELSE false END " +
             "FROM Location l WHERE l.company.id = :companyId")
     boolean hasMoreThan(@Param("companyId") Long companyId, @Param("threshold") Long threshold);
+
+    Page<Location> findByCompany_IdAndParentLocationIsNull(Long id, Pageable pageable);
 }

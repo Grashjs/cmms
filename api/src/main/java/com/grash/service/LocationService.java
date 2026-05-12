@@ -138,7 +138,7 @@ public class LocationService {
                 new Notification(message, user, NotificationType.LOCATION, newLocation.getId())).collect(Collectors.toList()), true, title);
     }
 
-    public List<Location> findLocationChildren(Long id, Pageable pageable) {
+    public Page<Location> findLocationChildren(Long id, Pageable pageable) {
         return locationRepository.findByParentLocation_Id(id, pageable);
     }
 
@@ -305,6 +305,10 @@ public class LocationService {
 
     public boolean hasChildren(Long locationId) {
         return locationRepository.countByParentLocation_Id(locationId) > 0;
+    }
+
+    public Page<Location> findByCompany_IdAndParentLocationIsNull(Long id, Pageable pageable) {
+        return locationRepository.findByCompany_IdAndParentLocationIsNull(id, pageable);
     }
 }
 

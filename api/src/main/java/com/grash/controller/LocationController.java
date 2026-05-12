@@ -1,13 +1,10 @@
 package com.grash.controller;
 
 import com.grash.advancedsearch.SearchCriteria;
-import com.grash.dto.LocationMiniDTO;
-import com.grash.dto.LocationPatchDTO;
-import com.grash.dto.LocationPostDTO;
-import com.grash.dto.LocationShowDTO;
-import com.grash.dto.SuccessResponse;
+import com.grash.dto.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.LocationMapper;
+import com.grash.model.Asset;
 import com.grash.model.Location;
 import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
@@ -68,6 +65,7 @@ public class LocationController {
         return ResponseEntity.ok(locationService.findBySearchCriteria(searchCriteria));
     }
 
+    //TODO remove. Waiting for mobile app to switch to paginated version.
     @GetMapping("/children/{id}")
     @PreAuthorize("permitAll()")
     public Collection<LocationShowDTO> getChildrenById(@Parameter(description = "Location ID") @PathVariable("id") Long id,
@@ -83,6 +81,28 @@ public class LocationController {
             Location savedLocation = optionalLocation.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS)) {
                 return locationService.findLocationChildren(id, pageable).stream().map(location -> locationMapper.toShowDto(location, locationService)).collect(Collectors.toList());
+            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/children/{id}/paginated")
+    @PreAuthorize("permitAll()")
+    public Page<LocationShowDTO> getChildrenByIdPaginated(@PathVariable("id") Long id,
+                                                          Pageable pageable,
+                                                          HttpServletRequest req) {
+        User user = userService.whoami(req);
+        if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            Page<Location> locationsPage =
+                    locationService.findByCompany_IdAndParentLocationIsNull(user.getCompany().getId(), pageable);
+            return locationsPage.map(location -> locationMapper.toShowDto(location, locationService));
+        }
+        Optional<Location> optionalLocation = locationService.findById(id);
+        if (optionalLocation.isPresent()) {
+            Location savedLocation = optionalLocation.get();
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS)) {
+                Page<Location> locationsPage = locationService.findLocationChildren(id, pageable);
+                return locationsPage.map(location -> locationMapper.toShowDto(location, locationService));
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
 
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

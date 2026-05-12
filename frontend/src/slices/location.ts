@@ -23,13 +23,17 @@ interface LocationState {
   locationsHierarchy: LocationRow[];
   locationsMini: LocationMiniDTO[];
   loadingGet: boolean;
+  loadingHierarchy: boolean;
+  childrenPages: { [key: number]: Page<Location> };
 }
 
 const initialState: LocationState = {
   locations: [],
   locationsHierarchy: [],
   locationsMini: [],
-  loadingGet: false
+  loadingGet: false,
+  loadingHierarchy: false,
+  childrenPages: {}
 };
 
 const slice = createSlice({
@@ -82,28 +86,42 @@ const slice = createSlice({
       );
       state.locations.splice(locationIndex, 1);
     },
-    getLocationChildren(
+    getLocationChildrenPaginated(
       state: LocationState,
-      action: PayloadAction<{ locations: LocationRow[]; id: number }>
+      action: PayloadAction<{
+        locations: Page<Location>;
+        id: number;
+        parents: number[];
+      }>
     ) {
-      const { locations, id } = action.payload;
+      const { locations, id, parents } = action.payload;
       const parent = state.locationsHierarchy.findIndex(
         (location) => location.id === id
       );
       if (parent !== -1)
         state.locationsHierarchy[parent].childrenFetched = true;
 
-      state.locationsHierarchy = locations.reduce((acc, location) => {
-        //check if location already exists in state
+      state.locationsHierarchy = locations.content.reduce((acc, location) => {
         const locationInState = state.locationsHierarchy.findIndex(
-          (location1) => location1.id === location.id
+          (l) => l.id === location.id
         );
-        //not found
-        if (locationInState === -1) return [...acc, location];
-        //found
-        acc[locationInState] = location;
+        const locationWithHierarchy = {
+          ...location,
+          hierarchy: [...parents, location.id]
+        } as LocationRow;
+        if (locationInState === -1) return [...acc, locationWithHierarchy];
+        acc[locationInState] = locationWithHierarchy;
         return acc;
       }, state.locationsHierarchy);
+
+      state.childrenPages[id] = locations;
+    },
+    setLoadingHierarchy(
+      state: LocationState,
+      action: PayloadAction<{ loading: boolean }>
+    ) {
+      const { loading } = action.payload;
+      state.loadingHierarchy = loading;
     },
     setLoadingGet(
       state: LocationState,
@@ -204,22 +222,21 @@ export const deleteLocation =
     }
   };
 
-export const getLocationChildren =
+export const getLocationChildrenPaginated =
   (id: number, parents: number[], pageable: Pageable): AppThunk =>
   async (dispatch) => {
-    dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const locations = await api.get<Location[]>(
-      `locations/children/${id}?${pageableToQueryParams(pageable)}`
+    dispatch(slice.actions.setLoadingHierarchy({ loading: true }));
+    const locations = await api.get<Page<Location>>(
+      `locations/children/${id}/paginated?${pageableToQueryParams(pageable)}`
     );
     dispatch(
-      slice.actions.getLocationChildren({
+      slice.actions.getLocationChildrenPaginated({
         id,
-        locations: locations.map((location) => {
-          return { ...location, hierarchy: [...parents, location.id] };
-        })
+        locations,
+        parents
       })
     );
-    dispatch(slice.actions.setLoadingGet({ loading: false }));
+    dispatch(slice.actions.setLoadingHierarchy({ loading: false }));
   };
 
 export const resetLocationsHierarchy =
@@ -227,7 +244,7 @@ export const resetLocationsHierarchy =
   async (dispatch) => {
     dispatch(slice.actions.resetHierarchy({}));
     if (callApi) {
-      dispatch(getLocationChildren(0, [], pageable));
+      dispatch(getLocationChildrenPaginated(0, [], pageable));
     }
   };
 
