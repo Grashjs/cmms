@@ -940,7 +940,7 @@ function Locations() {
   };
 
   const handleSortingChange = (newSorting: Updater<SortingState>) => {
-    if (view === 'hierarchy') {
+    if (isHierarchyView) {
       // Resolve the sorting value (handle both direct value and updater function)
       const resolvedSorting: SortingState =
         typeof newSorting === 'function'
