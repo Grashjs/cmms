@@ -288,7 +288,8 @@ function Locations() {
             currentTab === 'map'
               ? [
                   ...criteria.filterFields,
-                  { field: 'latitude', operation: 'nn', value: '' }
+                  { field: 'latitude', operation: 'nn', value: '' },
+                  { field: 'latitude', operation: 'ne', value: 0 }
                 ]
               : criteria.filterFields
         })
