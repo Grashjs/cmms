@@ -1,12 +1,15 @@
 package com.grash.service;
 
 import com.grash.factory.StorageServiceFactory;
+import com.grash.model.Location;
 import com.grash.model.User;
 import com.grash.utils.CsvFileGenerator;
 import com.grash.utils.Helper;
 import com.grash.utils.MultipartFileImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -80,11 +83,17 @@ public class AsyncExportService {
         try {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
-            csvFileGenerator.writeLocationsToCsv(
-                    locationService.findByCompanyForExport(user.getCompany().getId()),
-                    outputStreamWriter,
-                    Helper.getLocale(user),
-                    user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
+            int page = 0;
+            Page<Location> result;
+            do {
+                result = locationService.findByCompanyForExport(user.getCompany().getId(), PageRequest.of(page, 100));
+                csvFileGenerator.writeLocationsToCsv(
+                        result.getContent(),
+                        outputStreamWriter,
+                        Helper.getLocale(user),
+                        user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
+            }
+            while (result.hasNext());
             byte[] bytes = target.toByteArray();
             MultipartFile file = new MultipartFileImpl(bytes, "Locations.csv");
             String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,

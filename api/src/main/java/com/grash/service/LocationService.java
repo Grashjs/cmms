@@ -113,8 +113,8 @@ public class LocationService {
         return locationRepository.findByCompany_Id(id);
     }
 
-    public List<Location> findByCompanyForExport(Long companyId) {
-        return locationRepository.findByCompanyForExport(companyId);
+    public Page<Location> findByCompanyForExport(Long companyId, Pageable pageable) {
+        return locationRepository.findByCompanyForExport(companyId, pageable);
     }
 
     public List<Location> findByCompany(Long id, Sort sort) {

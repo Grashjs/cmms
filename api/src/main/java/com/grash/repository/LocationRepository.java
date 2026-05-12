@@ -24,7 +24,7 @@ public interface LocationRepository extends JpaRepository<Location, Long>, JpaSp
             "LEFT JOIN FETCH l.parentLocation " +
             "LEFT JOIN FETCH l.image " +
             "WHERE l.company.id = :companyId")
-    List<Location> findByCompanyForExport(@Param("companyId") Long companyId);
+    Page<Location> findByCompanyForExport(@Param("companyId") Long companyId, Pageable pageable);
 
     List<Location> findByNameIgnoreCaseAndCompany_Id(String locationName, Long companyId);
 
