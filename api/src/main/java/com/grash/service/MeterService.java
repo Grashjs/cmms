@@ -114,8 +114,8 @@ public class MeterService {
         return meterRepository.findByCompany_Id(id);
     }
 
-    public List<Meter> findByCompanyForExport(Long companyId) {
-        return meterRepository.findByCompanyForExport(companyId);
+    public Page<Meter> findByCompanyForExport(Long companyId, Pageable pageable) {
+        return meterRepository.findByCompanyForExport(companyId, pageable);
     }
 
     public void notify(Meter meter, Locale locale) {

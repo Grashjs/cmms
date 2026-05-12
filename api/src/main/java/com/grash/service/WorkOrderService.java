@@ -230,8 +230,8 @@ public class WorkOrderService {
         return workOrderRepository.findByCompany_Id(id);
     }
 
-    public List<WorkOrder> findByCompanyForExport(Long companyId) {
-        return workOrderRepository.findByCompanyForExport(companyId);
+    public Page<WorkOrder> findByCompanyForExport(Long companyId, Pageable pageable) {
+        return workOrderRepository.findByCompanyForExport(companyId, pageable);
     }
 
     public void notify(WorkOrder workOrder, Locale locale) {

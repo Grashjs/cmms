@@ -176,8 +176,8 @@ public class AssetService {
         return assetRepository.findByCompany_Id(id);
     }
 
-    public List<Asset> findByCompanyForExport(Long companyId) {
-        return assetRepository.findByCompanyForExport(companyId);
+    public Page<Asset> findByCompanyForExport(Long companyId, Pageable pageable) {
+        return assetRepository.findByCompanyForExport(companyId, pageable);
     }
 
     public List<Asset> findByCompany(Long id, Sort sort) {

@@ -6,6 +6,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -31,5 +34,5 @@ public interface PreventiveMaintenanceRepository extends JpaRepository<Preventiv
             "LEFT JOIN FETCH p.team LEFT JOIN FETCH p.primaryUser LEFT JOIN FETCH p.category " +
             "LEFT JOIN FETCH p.location LEFT JOIN FETCH p.asset " +
             "WHERE p.company.id = :companyId")
-    List<PreventiveMaintenance> findByCompanyForExport(@Param("companyId") Long companyId);
+    Page<PreventiveMaintenance> findByCompanyForExport(@Param("companyId") Long companyId, Pageable pageable);
 }

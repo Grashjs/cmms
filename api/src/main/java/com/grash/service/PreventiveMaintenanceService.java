@@ -130,8 +130,8 @@ public class PreventiveMaintenanceService {
         return preventiveMaintenanceRepository.findByCompany_Id(id);
     }
 
-    public List<PreventiveMaintenance> findByCompanyForExport(Long companyId) {
-        return preventiveMaintenanceRepository.findByCompanyForExport(companyId);
+    public Page<PreventiveMaintenance> findByCompanyForExport(Long companyId, Pageable pageable) {
+        return preventiveMaintenanceRepository.findByCompanyForExport(companyId, pageable);
     }
 
     private void checkUsageBasedLimit(Company company) {
