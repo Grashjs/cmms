@@ -16,7 +16,7 @@ import java.util.Optional;
 public interface LocationRepository extends JpaRepository<Location, Long>, JpaSpecificationExecutor<Location> {
     Collection<Location> findByCompany_Id(Long id);
 
-    List<Location> findByCompany_Id(Long id, Sort sort);
+    List<Location> findByCompany_Id(Long id, Pageable pageable);
 
     List<Location> findByParentLocation_Id(Long id, Pageable pageable);
 

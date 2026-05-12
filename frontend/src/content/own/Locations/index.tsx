@@ -89,7 +89,7 @@ import { getCustomFieldsIFields, getCustomFieldsRequiredShape } from '../type';
 import { formatCustomFields } from '../../../utils/formatters';
 import { AssetDTO } from '../../../models/owns/asset';
 
-const HIERARCHY_ZERO_PAGE_SIZE = 40;
+const HIERARCHY_ZERO_PAGE_SIZE = 30;
 
 function Locations() {
   const { t }: { t: any } = useTranslation();

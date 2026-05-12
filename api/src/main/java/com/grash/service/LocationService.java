@@ -117,8 +117,8 @@ public class LocationService {
         return locationRepository.findByCompanyForExport(companyId, pageable);
     }
 
-    public List<Location> findByCompany(Long id, Sort sort) {
-        return locationRepository.findByCompany_Id(id, sort);
+    public List<Location> findByCompany(Long id, Pageable pageable) {
+        return locationRepository.findByCompany_Id(id, pageable);
     }
 
 
