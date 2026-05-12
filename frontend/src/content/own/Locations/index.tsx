@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   CircularProgress,
+  debounce,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -22,7 +23,7 @@ import { getCustomFieldsValues, IField } from '../type';
 import ReplayTwoToneIcon from '@mui/icons-material/ReplayTwoTone';
 import Location, { LocationRow } from '../../../models/owns/location';
 import * as React from 'react';
-import { ChangeEvent, useContext, useEffect, useState } from 'react';
+import { ChangeEvent, useContext, useEffect, useMemo, useState } from 'react';
 import { TitleContext } from '../../../contexts/TitleContext';
 import {
   addLocation,
@@ -30,6 +31,7 @@ import {
   editLocation,
   getLocationChildren,
   getLocations,
+  getSingleLocation,
   resetLocationsHierarchy
 } from '../../../slices/location';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -54,12 +56,16 @@ import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext
 import useAuth from '../../../hooks/useAuth';
 import { PermissionEntity } from '../../../models/owns/role';
 import PermissionErrorMessage from '../components/PermissionErrorMessage';
-import { handleFileUpload, getImageAndFiles } from '../../../utils/overall';
+import {
+  handleFileUpload,
+  getImageAndFiles,
+  onSearchQueryChange
+} from '../../../utils/overall';
 import { getLocationUrl } from '../../../utils/urlPaths';
 import { useExport } from '../../../hooks/useExport';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
-import { Pageable, Sort } from '../../../models/owns/page';
+import { Pageable, SearchCriteria, Sort } from '../../../models/owns/page';
 import { googleMapsConfig } from '../../../config';
 import { getErrorMessage } from '../../../utils/api';
 import SplitButton from '../components/SplitButton';
@@ -81,6 +87,7 @@ import { getCustomFields } from '../../../slices/customField';
 import { CustomFieldEntityType } from '../../../models/owns/customField';
 import { getCustomFieldsIFields, getCustomFieldsRequiredShape } from '../type';
 import { formatCustomFields } from '../../../utils/formatters';
+import { AssetDTO } from '../../../models/owns/asset';
 
 const HIERARCHY_ZERO_PAGE_SIZE = 40;
 
@@ -150,6 +157,13 @@ function Locations() {
   const [initialLocationName, setInitialLocationName] = useState<string>('');
   const [returnPath, setReturnPath] = useState<string>('');
   const [returnField, setReturnField] = useState<string>('');
+  const initialCriteria: SearchCriteria = {
+    filterFields: [],
+    pageSize: 50,
+    pageNum: 0,
+    direction: 'DESC'
+  };
+  const [criteria, setCriteria] = useState<SearchCriteria>(initialCriteria);
 
   // Field mapping for sorting
   const fieldMapping: Record<string, string> = {
@@ -165,6 +179,16 @@ function Locations() {
     fieldMapping,
     initialPagination: { pageIndex: 0, pageSize: HIERARCHY_ZERO_PAGE_SIZE }
   });
+
+  const onQueryChange = (event) => {
+    setSearchQuery(event.target.value);
+    onSearchQueryChange<Location>(event, criteria, setCriteria, [
+      'name',
+      'address',
+      'customId'
+    ]);
+  };
+  const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
 
   const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -217,8 +241,11 @@ function Locations() {
   const onDeleteFailure = (err) =>
     showSnackBar(t('location_delete_failure'), 'error');
 
-  const handleOpenDetails = (id: number) => {
-    const foundLocation = locations.find((location) => location.id === id);
+  const handleOpenDetails = async (id: number) => {
+    const foundLocation =
+      locationsHierarchy.find((location) => location.id === id) ||
+      locations.find((location) => location.id === id) ||
+      (await dispatch(getSingleLocation(id)));
     if (foundLocation) {
       setCurrentLocation(foundLocation);
       window.history.replaceState(null, 'Location details', getLocationUrl(id));
@@ -231,9 +258,6 @@ function Locations() {
   };
   useEffect(() => {
     setTitle(t('locations'));
-    if (hasViewPermission(PermissionEntity.LOCATIONS)) {
-      dispatch(getLocations());
-    }
   }, []);
 
   useEffect(() => {
@@ -242,6 +266,22 @@ function Locations() {
       dispatch(getLocationChildren(0, [], pageable));
     }
   }, [pageable]);
+
+  useEffect(() => {
+    if (hasViewPermission(PermissionEntity.LOCATIONS))
+      dispatch(
+        getLocations({
+          ...criteria,
+          filterFields:
+            currentTab === 'map'
+              ? [
+                  ...criteria.filterFields,
+                  { field: 'latitude', operation: 'nn', value: '' }
+                ]
+              : criteria.filterFields
+        })
+      );
+  }, [criteria, currentTab]);
 
   const handleToggleExpand = async (row: LocationRow) => {
     const isExpanded = expanded[row.id];
@@ -282,10 +322,10 @@ function Locations() {
   };
 
   useEffect(() => {
-    if (locations?.length && locationId && isNumeric(locationId)) {
+    if (locationId && isNumeric(locationId)) {
       handleOpenDetails(Number(locationId));
     }
-  }, [locations]);
+  }, [locations.length, locationsHierarchy.length]);
 
   // Handle query params for inline creation (new=true&name=${name})
   useEffect(() => {
@@ -801,14 +841,7 @@ function Locations() {
   );
 
   // Filter table data based on search query
-  const filteredTableData = searchQuery.trim()
-    ? locations.filter(
-        (row) =>
-          row.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          row.customId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          row.address?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : tableData;
+  const filteredTableData = searchQuery.trim() ? locations : tableData;
   // Handle pagination change for hierarchy view
   const handlePaginationChange = (newPagination: {
     pageIndex: number;
@@ -874,7 +907,7 @@ function Locations() {
               <Box />
             )}
             <Stack direction={'row'} alignItems="center" spacing={1}>
-              <SearchInput onChange={(e) => setSearchQuery(e.target.value)} />
+              <SearchInput onChange={debouncedQueryChange} />
               <IconButton onClick={() => handleReset(true)} color="primary">
                 <ReplayTwoToneIcon />
               </IconButton>

@@ -7,7 +7,12 @@ import Location, {
 } from '../models/owns/location';
 import api, { authHeader } from '../utils/api';
 import { revertAll } from 'src/utils/redux';
-import { Pageable, pageableToQueryParams } from '../models/owns/page';
+import {
+  Page,
+  Pageable,
+  pageableToQueryParams,
+  SearchCriteria
+} from '../models/owns/page';
 import {
   createCancellableRequest,
   isAbortError
@@ -115,16 +120,25 @@ const slice = createSlice({
 
 export const reducer = slice.reducer;
 
-export const getLocations = (): AppThunk => async (dispatch) => {
-  const { signal } = createCancellableRequest();
-  try {
-    const locations = await api.get<Location[]>('locations', { signal });
-    dispatch(slice.actions.getLocations({ locations }));
-  } catch (error) {
-    if (isAbortError(error)) return;
-    throw error;
-  }
-};
+export const getLocations =
+  (criteria: SearchCriteria): AppThunk =>
+  async (dispatch) => {
+    const { signal } = createCancellableRequest();
+    try {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      const locations = await api.post<Page<Location>>(
+        `locations/search`,
+        criteria,
+        { signal }
+      );
+      dispatch(slice.actions.getLocations({ locations: locations.content }));
+    } catch (error) {
+      if (isAbortError(error)) return;
+      throw error;
+    } finally {
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    }
+  };
 export const getLocationsMini = (): AppThunk => async (dispatch) => {
   const { signal } = createCancellableRequest();
   try {
@@ -176,6 +190,7 @@ export const getSingleLocation =
   async (dispatch) => {
     const locationResponse = await api.get<Location>(`locations/${id}`);
     dispatch(slice.actions.editLocation({ location: locationResponse }));
+    return locationResponse;
   };
 export const deleteLocation =
   (id: number): AppThunk =>

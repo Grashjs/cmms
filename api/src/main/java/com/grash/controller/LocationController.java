@@ -50,23 +50,6 @@ public class LocationController {
     private final RateLimiterService rateLimiterService;
     private final RequestPortalService requestPortalService;
 
-    @GetMapping("")
-    @PreAuthorize("permitAll()")
-    public List<LocationShowDTO> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS)) {
-                return locationService.findByCompany(user.getCompany().getId()).stream().filter(location -> {
-                    boolean canViewOthers =
-                            user.getRole().getViewOtherPermissions().contains(PermissionEntity.LOCATIONS);
-                    return canViewOthers || location.getCreatedBy().equals(user.getId());
-                }).map(location -> locationMapper.toShowDto(location, locationService)).collect(Collectors.toList());
-            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-        } else
-            return locationService.getAll().stream().map(location -> locationMapper.toShowDto(location,
-                    locationService)).collect(Collectors.toList());
-    }
-
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<LocationShowDTO>> search(@Parameter(description = "Search criteria for filtering " +
