@@ -284,6 +284,7 @@ function Locations() {
       dispatch(
         getLocations({
           ...criteria,
+          pageSize: currentTab === 'map' ? 50 : criteria.pageSize,
           filterFields:
             currentTab === 'map'
               ? [
