@@ -89,7 +89,7 @@ import { getCustomFieldsIFields, getCustomFieldsRequiredShape } from '../type';
 import { formatCustomFields } from '../../../utils/formatters';
 import { AssetDTO } from '../../../models/owns/asset';
 
-const HIERARCHY_ZERO_PAGE_SIZE = 30;
+const HIERARCHY_ZERO_PAGE_SIZE = 40;
 
 function Locations() {
   const { t }: { t: any } = useTranslation();
@@ -176,8 +176,9 @@ function Locations() {
   // Table state for column state persistence
   const tableState = useTableState({
     prefix: 'locations',
+    setCriteria,
     fieldMapping,
-    initialPagination: { pageIndex: 0, pageSize: HIERARCHY_ZERO_PAGE_SIZE }
+    initialPagination: { pageIndex: 0, pageSize: criteria.pageSize }
   });
 
   const onQueryChange = (event) => {
@@ -953,11 +954,11 @@ function Locations() {
                   columns={searchQuery?.trim() ? columns.slice(1) : columns}
                   data={filteredTableData}
                   loading={loadingGet}
-                  pagination={{
-                    pageIndex: pageable.page,
-                    pageSize: pageable.size
-                  }}
-                  hidePagination
+                  pagination={
+                    searchQuery?.trim()
+                      ? tableState.pagination
+                      : { pageIndex: pageable.page, pageSize: pageable.size }
+                  }
                   onPaginationChange={handlePaginationChange}
                   totalRows={locationsHierarchy.length}
                   pageSizeOptions={[10, 25, 50, 100]}
