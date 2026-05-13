@@ -105,7 +105,10 @@
   from = "/_vercel/*"
   to = "/_vercel/:splat"
   status = 200
-
+[[redirects]]
+  from = "/public/*"
+  to = "/public/:splat"
+status = 200
 # Catch-all — rewrite any unhandled path to /en
 [[redirects]]
   from = "/*"
