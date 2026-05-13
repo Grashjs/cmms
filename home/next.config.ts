@@ -1,18 +1,23 @@
 import type { NextConfig } from "next";
-import createNextIntlPlugin from 'next-intl/plugin';
-import { codeInspectorPlugin } from 'code-inspector-plugin';
+import createNextIntlPlugin from "next-intl/plugin";
+import { codeInspectorPlugin } from "code-inspector-plugin";
 
-const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
   /* config options here */
-    turbopack: {
-        rules: codeInspectorPlugin({
-            bundler: 'turbopack',
-            editor: 'idea',
-            hotKeys: ['altKey'],
-        }),
+  turbopack: {
+    rules: codeInspectorPlugin({
+      bundler: "turbopack",
+      editor: "idea",
+      hotKeys: ["altKey"],
+    }),
+  },
+  experimental: {
+    staleTimes: {
+      static: 3600, //1 hour
     },
+  },
 };
 
 export default withNextIntl(nextConfig);
