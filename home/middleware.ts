@@ -20,15 +20,19 @@ export default function middleware(request: NextRequest) {
 
   return intlMiddleware(request);
 }
-
 export const config = {
-  // Match only internationalized pathnames
   matcher: [
+    // Root only (needs locale detection)
     "/",
-    "/(en|es|fr|de|tr|pt-br|pl|ar|it|sv|ru|hu|nl|zh-cn|ba)/:path*",
-    // Match all pathnames except for API routes, static files, Next.js internals
-    "/((?!api|_next|_vercel|.*\\..*).*)",
-    // Include /mb-app route
+
+    // /app redirects
+    "/app/:path*",
+
+    // /mb-app route
     "/mb-app/:path*",
+
+    // Non-localized paths that need locale prefix added
+    // Excludes: api, _next, _vercel, files with extensions, and already-localized paths
+    "/((?!en|es|fr|de|tr|pt-br|pl|ar|it|sv|ru|hu|nl|zh-cn|ba|api|_next|_vercel|.*\\..*).*)",
   ],
 };
