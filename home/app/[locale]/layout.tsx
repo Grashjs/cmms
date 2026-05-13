@@ -21,7 +21,7 @@ const inter = Inter({
   display: "swap",
 });
 
-export const revalidate = 3600;
+export const dynamic = "force-static";
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
