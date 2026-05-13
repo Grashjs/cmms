@@ -1,0 +1,29 @@
+[[redirects]]
+  from = "/"
+  to = "/en"
+  status = 200
+
+[[redirects]]
+  from = "/free-cmms"
+  to = "/en/free-cmms"
+  status = 200
+
+[[redirects]]
+  from = "/deletion-policy"
+  to = "/en/deletion-policy"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, s-maxage=3600, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
