@@ -21,8 +21,6 @@ const inter = Inter({
   display: "swap",
 });
 
-export const dynamic = "force-static";
-
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
