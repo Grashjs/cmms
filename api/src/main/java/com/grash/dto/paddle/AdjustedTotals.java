@@ -17,7 +17,7 @@ public class AdjustedTotals {
     private String total;
 
     @Schema(description = "Grand total after adjustments")
-    @JsonProperty("grand_total")
+
     private String grandTotal;
 
     @Schema(description = "Processing fee")
@@ -27,10 +27,10 @@ public class AdjustedTotals {
     private String earnings;
 
     @Schema(description = "Three-letter currency code (e.g., USD)")
-    @JsonProperty("currency_code")
+
     private String currencyCode;
 
     @Schema(description = "Retained fee amount")
-    @JsonProperty("retained_fee")
+
     private String retainedFee;
 }

@@ -14,30 +14,30 @@ public class Payment {
     private String status;
 
     @Schema(description = "Payment creation timestamp (ISO 8601)")
-    @JsonProperty("created_at")
+
     private String createdAt;
 
     @Schema(description = "Error code if payment failed")
-    @JsonProperty("error_code")
+
     private String errorCode;
 
     @Schema(description = "Timestamp when payment was captured (ISO 8601)")
-    @JsonProperty("captured_at")
+
     private String capturedAt;
 
     @Schema(description = "Payment method details")
-    @JsonProperty("method_details")
+
     private MethodDetails methodDetails;
 
     @Schema(description = "Payment attempt ID")
-    @JsonProperty("payment_attempt_id")
+
     private String paymentAttemptId;
 
     @Schema(description = "Payment method ID")
-    @JsonProperty("payment_method_id")
+
     private String paymentMethodId;
 
     @Schema(description = "Stored payment method ID")
-    @JsonProperty("stored_payment_method_id")
+
     private String storedPaymentMethodId;
 }

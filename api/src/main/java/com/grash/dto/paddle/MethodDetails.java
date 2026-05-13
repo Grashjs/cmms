@@ -14,6 +14,6 @@ public class MethodDetails {
     private Card card;
 
     @Schema(description = "South Korea local card details")
-    @JsonProperty("south_korea_local_card")
+
     private Object southKoreaLocalCard;
 }

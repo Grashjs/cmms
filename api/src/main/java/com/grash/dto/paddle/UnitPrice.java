@@ -11,6 +11,6 @@ public class UnitPrice {
     private String amount;
 
     @Schema(description = "Three-letter currency code (e.g., USD)")
-    @JsonProperty("currency_code")
+
     private String currencyCode;
 }

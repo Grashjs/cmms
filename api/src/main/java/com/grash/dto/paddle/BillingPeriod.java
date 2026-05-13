@@ -8,10 +8,10 @@ import lombok.Data;
 @Schema(description = "Paddle billing period date range")
 public class BillingPeriod {
     @Schema(description = "Start date and time of the billing period (ISO 8601)")
-    @JsonProperty("starts_at")
+
     private String startsAt;
 
     @Schema(description = "End date and time of the billing period (ISO 8601)")
-    @JsonProperty("ends_at")
+
     private String endsAt;
 }

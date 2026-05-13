@@ -11,7 +11,7 @@ public class LineItem {
     private String id;
 
     @Schema(description = "Price ID associated with the line item")
-    @JsonProperty("price_id")
+
     private String priceId;
 
     @Schema(description = "Quantity of the item")
@@ -24,10 +24,10 @@ public class LineItem {
     private Product product;
 
     @Schema(description = "Tax rate applied")
-    @JsonProperty("tax_rate")
+
     private String taxRate;
 
     @Schema(description = "Unit totals for this line item")
-    @JsonProperty("unit_totals")
+
     private Totals unitTotals;
 }

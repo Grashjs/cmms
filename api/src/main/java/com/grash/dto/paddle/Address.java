@@ -11,24 +11,20 @@ public class Address {
     private String description;
 
     @Schema(description = "First line of the address")
-    @JsonProperty("first_line")
     private String firstLine;
 
     @Schema(description = "Second line of the address")
-    @JsonProperty("second_line")
     private String secondLine;
 
     @Schema(description = "City name")
     private String city;
 
     @Schema(description = "Postal or ZIP code")
-    @JsonProperty("postal_code")
     private String postalCode;
 
     @Schema(description = "State or region")
     private String region;
 
     @Schema(description = "ISO country code")
-    @JsonProperty("country_code")
     private String countryCode;
 }

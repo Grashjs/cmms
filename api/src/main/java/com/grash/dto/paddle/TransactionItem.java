@@ -8,7 +8,7 @@ import lombok.Data;
 @Schema(description = "Paddle transaction item")
 public class TransactionItem {
     @Schema(description = "Price ID for the item")
-    @JsonProperty("price_id")
+
     private String priceId;
 
     @Schema(description = "Price details")
