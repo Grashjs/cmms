@@ -78,7 +78,6 @@ class WebhookController {
         }
 
         try {
-            log.info(payload);
             PaddleSubscriptionWebhookEvent webhookEvent = objectMapper.readValue(payload,
                     PaddleSubscriptionWebhookEvent.class);
             String eventType = webhookEvent.getEventType();
