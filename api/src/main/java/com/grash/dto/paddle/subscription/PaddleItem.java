@@ -24,4 +24,7 @@ public class PaddleItem {
     @JsonProperty("custom_data")
     private Map<String, String> customData;
 
+    @JsonProperty("price")
+    private PaddlePrice price;
+
 }

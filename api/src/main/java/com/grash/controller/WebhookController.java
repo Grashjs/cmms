@@ -475,6 +475,10 @@ class WebhookController {
             if (item.getCustomData() != null && item.getCustomData().containsKey("planId")) {
                 return item.getCustomData().get("planId");
             }
+            if (item.getPrice() != null && item.getPrice().getCustomData() != null
+                    && item.getPrice().getCustomData().containsKey("planId")) {
+                return item.getPrice().getCustomData().get("planId");
+            }
         }
         if (data.getCustomData() != null && data.getCustomData().containsKey("planId")) {
             return data.getCustomData().get("planId");
