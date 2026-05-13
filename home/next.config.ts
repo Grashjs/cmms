@@ -25,7 +25,11 @@ const nextConfig: NextConfig = {
         destination: "/en",
       },
       {
-        source: "/:path((?!en|es|/fr|de|tr|pt-br|pl|ar|it|sv|ru|hu|nl|zh-cn|ba|api|_next|_vercel).*)",
+        source: "/free-cmms",
+        destination: "/en/free-cmms",
+      },
+      {
+        source: "/:path((?!en|es|fr|de|tr|pt-br|pl|ar|it|sv|ru|hu|nl|zh-cn|ba|api|_next|_vercel).*)",
         destination: "/en/:path*",
       },
     ];
