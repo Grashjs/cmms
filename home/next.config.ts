@@ -18,6 +18,18 @@ const nextConfig: NextConfig = {
       static: 3600, //1 hour
     },
   },
+  async rewrites() {
+    return [
+      {
+        source: "/",
+        destination: "/en",
+      },
+      {
+        source: "/:path((?!en|es|fr|de|tr|pt-br|pl|ar|it|sv|ru|hu|nl|zh-cn|ba|api|_next|_vercel).*)",
+        destination: "/en/:path*",
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);
