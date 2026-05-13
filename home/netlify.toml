@@ -1,3 +1,4 @@
+# Specific route rewrites (must come before catch-all)
 [[redirects]]
   from = "/"
   to = "/en"
@@ -13,6 +14,105 @@
   to = "/en/deletion-policy"
   status = 200
 
+# Locale passthrough — let these reach the correct static file
+[[redirects]]
+  from = "/en/*"
+  to = "/en/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/es/*"
+  to = "/es/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/fr/*"
+  to = "/fr/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/de/*"
+  to = "/de/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/tr/*"
+  to = "/tr/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/pt-br/*"
+  to = "/pt-br/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/pl/*"
+  to = "/pl/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/ar/*"
+  to = "/ar/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/it/*"
+  to = "/it/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/sv/*"
+  to = "/sv/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/ru/*"
+  to = "/ru/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/hu/*"
+  to = "/hu/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/nl/*"
+  to = "/nl/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/zh-cn/*"
+  to = "/zh-cn/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/ba/*"
+  to = "/ba/:splat"
+  status = 200
+
+# System path passthrough
+[[redirects]]
+  from = "/api/*"
+  to = "/api/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/_next/*"
+  to = "/_next/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/_vercel/*"
+  to = "/_vercel/:splat"
+  status = 200
+
+# Catch-all — rewrite any unhandled path to /en
+[[redirects]]
+  from = "/*"
+  to = "/en/:splat"
+  status = 200
+
+# Cache headers
 [[headers]]
   for = "/*"
   [headers.values]
