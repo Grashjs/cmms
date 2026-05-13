@@ -1,5 +1,6 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 import { getLocalizedMetadata } from "src/utils/metadata";
 
 const educationData: IndustryLayoutProps = {
@@ -81,7 +82,9 @@ const educationData: IndustryLayoutProps = {
     "Open-source campus maintenance that saves your budget. Simplify school work requests, automate inspections, and manage facility assets with a self-hosted CMMS built for education.",
 };
 
-function EducationPage() {
+async function EducationPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return <IndustryLayout {...educationData}></IndustryLayout>;
 }
 

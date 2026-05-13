@@ -1,5 +1,6 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 import { getLocalizedMetadata } from "src/utils/metadata";
 
 const manufacturingData: IndustryLayoutProps = {
@@ -83,7 +84,9 @@ const manufacturingData: IndustryLayoutProps = {
     "Open-source manufacturing maintenance that crushes downtime. Scale your production, automate PM cycles, and keep your factory floor running with a powerful, self-hosted CMMS.",
 };
 
-function ManufacturingPage() {
+async function ManufacturingPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return (
     <IndustryLayout {...manufacturingData}>
       {/* Additional custom content can be added here as children */}

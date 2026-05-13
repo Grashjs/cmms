@@ -1,5 +1,6 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 import { getLocalizedMetadata } from "src/utils/metadata";
 
 const energyUtilitiesData: IndustryLayoutProps = {
@@ -81,7 +82,9 @@ const energyUtilitiesData: IndustryLayoutProps = {
     "Open-source utility maintenance for a resilient grid. Manage critical assets, ensure regulatory compliance, and coordinate field teams with a secure, self-hosted CMMS.",
 };
 
-function EnergyPage() {
+async function EnergyPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return (
     <IndustryLayout {...energyUtilitiesData}>
       {/* Additional custom content can be added here as children */}

@@ -1,5 +1,6 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 import { getLocalizedMetadata } from "src/utils/metadata";
 
 const atlasHospitalityData: IndustryLayoutProps = {
@@ -81,7 +82,9 @@ const atlasHospitalityData: IndustryLayoutProps = {
     "Open-source hospitality maintenance built for the modern hotelier. Empower your guests, simplify room turnover, and slash licensing fees with a self-hosted, scalable CMMS.",
 };
 
-function HospitalityAtlasPage() {
+async function HospitalityAtlasPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return <IndustryLayout {...atlasHospitalityData}></IndustryLayout>;
 }
 
@@ -93,6 +96,5 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     alternates: getLocalizedMetadata(locale, atlasHospitalityData.canonicalPath),
   };
 }
-
 
 export default HospitalityAtlasPage;
