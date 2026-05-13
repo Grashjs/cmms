@@ -21,7 +21,7 @@ import { useRouter, Link } from "src/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
 import { fireGa4Event } from "src/utils/overall";
 import { apiUrl, mainAppUrl, PADDLE_SECRET_TOKEN, paddleEnvironment } from "src/config";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import EmailModal from "./EmailModal";
 import { initializePaddle, Paddle } from "@paddle/paddle-js";
 import SignupButton from "src/components/SignupButton";
@@ -33,19 +33,23 @@ interface SubscriptionPlanSelectorProps {
 }
 export const PRICING_YEAR_MULTIPLIER: number = 10;
 
-export default function SubscriptionPlanSelector({ monthly, setMonthly, selfHosted }: SubscriptionPlanSelectorProps) {
-  const theme = useTheme();
-  const t = useTranslations();
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState(null);
-  const locale = useLocale();
-  const router = useRouter();
-  let paddle = useRef<Paddle | null>(null);
+// ─── Inner component that calls useSearchParams ───────────────────────────────
+// Must be wrapped in <Suspense> to allow static generation.
+function PaddleInitializer({
+  modalOpen,
+  router,
+  onReady,
+}: {
+  modalOpen: boolean;
+  router: ReturnType<typeof useRouter>;
+  onReady: (p: Paddle) => void;
+}) {
   const searchParams = useSearchParams();
   const _ptxn = searchParams.get("_ptxn");
+
   useEffect(() => {
     const initPaddle = async () => {
-      paddle.current = await initializePaddle({
+      const p = await initializePaddle({
         token: PADDLE_SECRET_TOKEN,
         eventCallback: function (data) {
           if (data.name == "checkout.completed") {
@@ -53,10 +57,24 @@ export default function SubscriptionPlanSelector({ monthly, setMonthly, selfHost
           }
         },
       });
-      paddle.current.Environment.set(paddleEnvironment);
+      p.Environment.set(paddleEnvironment);
+      onReady(p);
     };
     if (modalOpen || _ptxn) initPaddle();
   }, [modalOpen, _ptxn]);
+
+  return null;
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
+export default function SubscriptionPlanSelector({ monthly, setMonthly, selfHosted }: SubscriptionPlanSelectorProps) {
+  const theme = useTheme();
+  const t = useTranslations();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const locale = useLocale();
+  const router = useRouter();
+  const paddle = useRef<Paddle | null>(null);
 
   const handleOpenModal = (plan) => {
     setSelectedPlan(plan);
@@ -72,7 +90,6 @@ export default function SubscriptionPlanSelector({ monthly, setMonthly, selfHost
     if (!selectedPlan) return;
 
     try {
-      // Create Checkout Session on backend
       const response = await fetch(`${apiUrl}paddle/create-checkout-session`, {
         method: "POST",
         headers: {
@@ -101,6 +118,17 @@ export default function SubscriptionPlanSelector({ monthly, setMonthly, selfHost
 
   return (
     <Box>
+      {/* Suspense boundary required for useSearchParams() in static builds */}
+      <Suspense fallback={null}>
+        <PaddleInitializer
+          modalOpen={modalOpen}
+          router={router}
+          onReady={(p) => {
+            paddle.current = p;
+          }}
+        />
+      </Suspense>
+
       <Box display={"flex"} alignItems={"center"} justifyContent={"center"} mb={2}>
         <Stack direction={"row"} spacing={2} alignItems={"center"}>
           <Typography color={"text.primary"}>{t("monthly")}</Typography>

@@ -3,7 +3,7 @@ import "../globals.css";
 import Providers from "src/components/Providers";
 import EmotionRegistry from "src/components/EmotionRegistry";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages, getTranslations } from "next-intl/server";
+import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { locales } from "src/i18n/request";
 import { BrandProvider } from "src/contexts/BrandContext";
@@ -56,9 +56,10 @@ export default async function RootLayout({
   if (!locales.includes(locale)) {
     notFound();
   }
+  setRequestLocale(locale);
   const brand = await getBrandServer();
 
-  const messages = await getMessages();
+  const messages = await getMessages({ locale });
 
   return (
     <html lang={locale} suppressHydrationWarning>

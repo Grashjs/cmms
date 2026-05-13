@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { getLocalizedMetadata } from "src/utils/metadata";
 import Overview from "src/content/overview";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getBrandServer } from "src/utils/serverBrand";
 import { IS_ORIGINAL_CLOUD } from "src/config";
 const ldJson = [
@@ -76,7 +76,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
-export default function Home() {
+export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return (
     <>
       {ldJson.map((item, i) => (
