@@ -153,7 +153,7 @@ class WebhookController {
                     savedSubscription.getPaddleSubscriptionId());
             return;
         }
-        String planCode = data.getCustomData().get("planId");
+        String planCode = getPlanId(data);
         int newUsersCount = data.getItems().get(0).getQuantity();
 
 
