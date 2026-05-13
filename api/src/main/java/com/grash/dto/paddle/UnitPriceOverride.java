@@ -10,10 +10,10 @@ import java.util.List;
 @Schema(description = "Paddle unit price override for specific countries")
 public class UnitPriceOverride {
     @Schema(description = "List of country codes this override applies to")
-
+    @JsonProperty("country_codes")
     private List<String> countryCodes;
 
     @Schema(description = "Overridden unit price for these countries")
-
+    @JsonProperty("unit_price")
     private UnitPrice unitPrice;
 }

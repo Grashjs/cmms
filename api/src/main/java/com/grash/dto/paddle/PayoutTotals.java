@@ -26,7 +26,7 @@ public class PayoutTotals {
     private String balance;
 
     @Schema(description = "Grand total")
-
+    @JsonProperty("grand_total")
     private String grandTotal;
 
     @Schema(description = "Processing fee")
@@ -36,10 +36,10 @@ public class PayoutTotals {
     private String earnings;
 
     @Schema(description = "Three-letter currency code (e.g., USD)")
-
+    @JsonProperty("currency_code")
     private String currencyCode;
 
     @Schema(description = "Credit amount applied to balance")
-
+    @JsonProperty("credit_to_balance")
     private String creditToBalance;
 }

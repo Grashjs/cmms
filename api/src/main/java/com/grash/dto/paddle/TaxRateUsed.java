@@ -8,7 +8,7 @@ import lombok.Data;
 @Schema(description = "Paddle tax rate and totals used in a transaction")
 public class TaxRateUsed {
     @Schema(description = "Tax rate applied")
-
+    @JsonProperty("tax_rate")
     private String taxRate;
 
     @Schema(description = "Totals for this tax rate")
