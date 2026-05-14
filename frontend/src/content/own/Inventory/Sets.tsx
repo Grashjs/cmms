@@ -111,7 +111,7 @@ const Sets = ({ setAction }: PropsType) => {
     columnHelper.accessor('id', {
       id: 'id',
       header: () => t('id'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 80
     }),
     columnHelper.accessor('name', {

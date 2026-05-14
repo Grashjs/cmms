@@ -353,55 +353,55 @@ const Customers = ({ openModal, handleCloseModal }: PropsType) => {
     columnHelper.accessor('address', {
       id: 'address',
       header: () => t('address'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 150
     }),
     columnHelper.accessor('phone', {
       id: 'phone',
       header: () => t('phone'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 150
     }),
     columnHelper.accessor('website', {
       id: 'website',
       header: () => t('website'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 150
     }),
     columnHelper.accessor('email', {
       id: 'email',
       header: () => t('email'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 150
     }),
     columnHelper.accessor('customerType', {
       id: 'customerType',
       header: () => t('customer_type'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 150
     }),
     columnHelper.accessor('description', {
       id: 'description',
       header: () => t('description'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 300
     }),
     columnHelper.accessor('rate', {
       id: 'rate',
       header: () => t('hourly_rate'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 150
     }),
     columnHelper.accessor('billingAddress', {
       id: 'billingAddress',
       header: () => t('billing_address'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 150
     }),
     columnHelper.accessor('billingName', {
       id: 'billingName',
       header: () => t('billing_name'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 150
     }),
     columnHelper.accessor((row) => row.billingCurrency?.name, {

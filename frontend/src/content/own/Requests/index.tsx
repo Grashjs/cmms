@@ -39,7 +39,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { isNumeric } from '../../../utils/validators';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 import PriorityWrapper from '../components/PriorityWrapper';
-import { formatSelect, formatSelectMultiple, formatCustomFields } from '../../../utils/formatters';
+import {
+  formatSelect,
+  formatSelectMultiple,
+  formatCustomFields
+} from '../../../utils/formatters';
 import useAuth from '../../../hooks/useAuth';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import { getWOBaseFields, getWOBaseValues } from '../../../utils/woBase';
@@ -260,7 +264,7 @@ function Requests() {
     columnHelper.accessor('customId', {
       id: 'customId',
       header: () => t('id'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 80
     }),
     columnHelper.accessor('title', {
@@ -272,7 +276,7 @@ function Requests() {
     columnHelper.accessor('description', {
       id: 'description',
       header: () => t('description'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 300
     }),
     columnHelper.accessor('priority', {

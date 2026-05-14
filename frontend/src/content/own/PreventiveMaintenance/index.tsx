@@ -339,7 +339,7 @@ function PMs() {
     columnHelper.accessor('customId', {
       id: 'customId',
       header: () => t('id'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 80
     }),
     columnHelper.accessor('name', {
@@ -363,7 +363,7 @@ function PMs() {
     columnHelper.accessor('description', {
       id: 'description',
       header: () => t('description'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 300
     }),
     columnHelper.accessor('schedule', {

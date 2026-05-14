@@ -543,7 +543,7 @@ function Assets() {
       {
         id: 'teams',
         header: () => t('teams'),
-        cell: (info) => info.getValue(),
+        cell: (info) => info.getValue() || '',
         size: 150
       }
     ),
