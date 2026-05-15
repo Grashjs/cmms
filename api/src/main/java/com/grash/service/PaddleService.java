@@ -200,6 +200,7 @@ public class PaddleService {
     public String createCustomerPortalSession(String customerId, @Nullable String subscriptionId) {
         HttpHeaders headers = getHttpHeaders();
         Map<String, Object> body = new HashMap<>();
+        System.out.println("psubscr: " + subscriptionId);
         if (subscriptionId != null) body.put("subscription_ids", List.of(subscriptionId));
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
 
