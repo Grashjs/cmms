@@ -25,7 +25,7 @@ export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
 
-export const revalidate = 3600;
+export const revalidate = false;
 
 export async function generateMetadata({ params }: { params: any }): Promise<Metadata> {
   const baseUrl = "https://atlas-cmms.com";
