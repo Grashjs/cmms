@@ -1841,7 +1841,9 @@ const locale = {
   type_enter_to_add_option: 'Type and press enter to add an option',
   customers_settings_description:
     'Manage external contractors your organization works with.',
-  vendors_settings_description: 'Customize vendor-related settings'
+  vendors_settings_description: 'Customize vendor-related settings',
+  view: 'View',
+  view_other: 'View other'
 };
 
 export default locale;

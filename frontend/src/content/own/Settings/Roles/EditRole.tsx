@@ -7,16 +7,25 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Divider,
-  FormControlLabel,
   Grid,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   TextField,
   Typography
 } from '@mui/material';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { editRole } from '../../../../slices/role';
-import { PermissionEntity, Role } from '../../../../models/owns/role';
+import {
+  PermissionEntity,
+  PermissionRoot,
+  Role
+} from '../../../../models/owns/role';
 import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
@@ -42,6 +51,35 @@ function EditRole({ role, open, onClose, formatValues }: EditRoleProps) {
   const onEditFailure = (err) =>
     showSnackBar(getErrorMessage(err, t('role_edit_failure')), 'error');
 
+  const permissionRoots: PermissionRoot[] = [
+    'viewPermissions',
+    'viewOtherPermissions',
+    'createPermissions',
+    'editOtherPermissions',
+    'deleteOtherPermissions'
+  ];
+
+  const entityLabel = (entity: PermissionEntity): string => {
+    const labels: Record<string, string> = {
+      PEOPLE_AND_TEAMS: t('people_teams'),
+      CATEGORIES: t('categories'),
+      CATEGORIES_WEB: 'Categories Web',
+      WORK_ORDERS: t('work_orders'),
+      PREVENTIVE_MAINTENANCES: t('pm_trigger'),
+      ASSETS: t('assets'),
+      PARTS_AND_MULTIPARTS: t('parts_and_sets'),
+      PURCHASE_ORDERS: t('purchase_orders'),
+      METERS: t('meters'),
+      VENDORS_AND_CUSTOMERS: t('vendors_customers'),
+      FILES: t('files'),
+      LOCATIONS: t('locations'),
+      SETTINGS: t('settings'),
+      REQUESTS: 'Requests',
+      ANALYTICS: 'Analytics'
+    };
+    return labels[entity] || entity;
+  };
+
   return (
     <Dialog fullWidth maxWidth="md" open={open} onClose={onClose}>
       <DialogTitle
@@ -59,48 +97,13 @@ function EditRole({ role, open, onClose, formatValues }: EditRoleProps) {
       <Formik
         initialValues={{
           ...role,
-          createPeopleTeams: role?.createPermissions.includes(
-            PermissionEntity.PEOPLE_AND_TEAMS
-          ),
-          createCategories: role?.createPermissions.includes(
-            PermissionEntity.CATEGORIES
-          ),
-          deleteWorkOrders: role?.deleteOtherPermissions.includes(
-            PermissionEntity.WORK_ORDERS
-          ),
-          deletePreventiveMaintenanceTrigger:
-            role?.deleteOtherPermissions.includes(
-              PermissionEntity.PREVENTIVE_MAINTENANCES
-            ),
-          deleteLocations: role?.deleteOtherPermissions.includes(
-            PermissionEntity.LOCATIONS
-          ),
-          deleteAssets: role?.deleteOtherPermissions.includes(
-            PermissionEntity.ASSETS
-          ),
-          deletePartsAndSets: role?.deleteOtherPermissions.includes(
-            PermissionEntity.PARTS_AND_MULTIPARTS
-          ),
-          deletePurchaseOrders: role?.deleteOtherPermissions.includes(
-            PermissionEntity.PURCHASE_ORDERS
-          ),
-          deleteMeters: role?.deleteOtherPermissions.includes(
-            PermissionEntity.METERS
-          ),
-          deleteVendorsCustomers: role?.deleteOtherPermissions.includes(
-            PermissionEntity.VENDORS_AND_CUSTOMERS
-          ),
-          deleteCategories: role?.deleteOtherPermissions.includes(
-            PermissionEntity.CATEGORIES
-          ),
-          deleteFiles: role?.deleteOtherPermissions.includes(
-            PermissionEntity.FILES
-          ),
-          deletePeopleTeams: role?.deleteOtherPermissions.includes(
-            PermissionEntity.PEOPLE_AND_TEAMS
-          ),
-          accessSettings: role?.viewPermissions.includes(
-            PermissionEntity.SETTINGS
+          ...Object.fromEntries(
+            Object.values(PermissionEntity).flatMap((entity) =>
+              permissionRoots.map((root) => [
+                `${root}_${entity}`,
+                role?.[root]?.includes(entity) ?? false
+              ])
+            )
           ),
           submit: null
         }}
@@ -138,200 +141,95 @@ function EditRole({ role, open, onClose, formatValues }: EditRoleProps) {
               }}
             >
               <Grid container spacing={3}>
-                <Grid item xs={12} lg={6}>
-                  <Grid container spacing={3}>
-                    <Grid item xs={12}>
-                      <TextField
-                        error={Boolean(touched.name && errors.name)}
-                        fullWidth
-                        helperText={touched.name && errors.name}
-                        label={t('name')}
-                        name="name"
-                        onBlur={handleBlur}
-                        onChange={handleChange}
-                        value={values.name}
-                        variant="outlined"
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <TextField
-                        error={Boolean(
-                          touched.description && errors.description
-                        )}
-                        fullWidth
-                        helperText={touched.description && errors.description}
-                        label={t('description')}
-                        name="description"
-                        onBlur={handleBlur}
-                        onChange={handleChange}
-                        value={values.description}
-                        variant="outlined"
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <TextField
-                        error={Boolean(touched.externalId && errors.externalId)}
-                        fullWidth
-                        helperText={touched.externalId && errors.externalId}
-                        label={t('external_id')}
-                        name="externalId"
-                        onBlur={handleBlur}
-                        onChange={handleChange}
-                        value={values.externalId}
-                        variant="outlined"
-                      />
-                    </Grid>
-                  </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    error={Boolean(touched.name && errors.name)}
+                    fullWidth
+                    helperText={touched.name && errors.name}
+                    label={t('name')}
+                    name="name"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.name}
+                    variant="outlined"
+                  />
                 </Grid>
-                <Grid item xs={12} lg={6}>
-                  <Box
-                    display="flex"
-                    justifyContent="space-between"
-                    flexDirection="column"
-                  >
-                    <Box>
-                      <Typography variant="h2" sx={{ pb: 1 }}>
-                        {t('permissions')}
-                      </Typography>
-                      <Typography variant="subtitle2">
-                        {t('create_role_description', {
-                          brandName: brandConfig.name
-                        })}
-                      </Typography>
-                    </Box>
-
-                    <Divider flexItem sx={{ m: 4 }} />
-
-                    <Box
-                      display="flex"
-                      flexDirection="column"
-                      justifyContent="space-between"
-                      mb={3}
-                    >
-                      <Typography variant="h4" sx={{ pb: 1 }}>
-                        {t('create_and_edit')}
-                      </Typography>
-                      <FormControlLabel
-                        onChange={handleChange}
-                        name={'createPeopleTeams'}
-                        control={
-                          <Checkbox checked={values.createPeopleTeams} />
-                        }
-                        label={t('people_teams')}
-                      />
-                      <FormControlLabel
-                        onChange={handleChange}
-                        name={'createCategories'}
-                        control={<Checkbox checked={values.createCategories} />}
-                        label={t('categories')}
-                      />
-                    </Box>
-
-                    <Box
-                      display="flex"
-                      flexDirection="column"
-                      justifyContent="space-between"
-                      mb={3}
-                    >
-                      <Typography variant="h4" sx={{ pb: 1 }}>
-                        {t('to_delete')}
-                      </Typography>
-                      <FormControlLabel
-                        onChange={handleChange}
-                        name={'deleteWorkOrders'}
-                        control={<Checkbox checked={values.deleteWorkOrders} />}
-                        label={t('work_orders')}
-                      />
-                      <FormControlLabel
-                        onChange={handleChange}
-                        name={'deletePreventiveMaintenanceTrigger'}
-                        control={
-                          <Checkbox
-                            checked={values.deletePreventiveMaintenanceTrigger}
-                          />
-                        }
-                        label="Preventative Maintenance Trigger"
-                      />
-                      <FormControlLabel
-                        onChange={handleChange}
-                        name={'deleteLocations'}
-                        control={<Checkbox checked={values.deleteLocations} />}
-                        label={t('locations')}
-                      />
-                      <FormControlLabel
-                        onChange={handleChange}
-                        name={'deleteAssets'}
-                        control={<Checkbox checked={values.deleteAssets} />}
-                        label={t('assets')}
-                      />
-                      <FormControlLabel
-                        onChange={handleChange}
-                        name={'deletePartsAndSets'}
-                        control={
-                          <Checkbox checked={values.deletePartsAndSets} />
-                        }
-                        label={t('parts_and_sets')}
-                      />
-                      <FormControlLabel
-                        onChange={handleChange}
-                        name={'deletePurchaseOrders'}
-                        control={
-                          <Checkbox checked={values.deletePurchaseOrders} />
-                        }
-                        label={t('purchase_orders')}
-                      />
-                      <FormControlLabel
-                        onChange={handleChange}
-                        name={'deleteMeters'}
-                        control={<Checkbox checked={values.deleteMeters} />}
-                        label={t('meters')}
-                      />
-                      <FormControlLabel
-                        onChange={handleChange}
-                        name={'deleteVendorsCustomers'}
-                        control={
-                          <Checkbox checked={values.deleteVendorsCustomers} />
-                        }
-                        label={t('vendors_customers')}
-                      />
-                      <FormControlLabel
-                        onChange={handleChange}
-                        name={'deleteCategories'}
-                        control={<Checkbox checked={values.deleteCategories} />}
-                        label={t('categories')}
-                      />
-                      <FormControlLabel
-                        onChange={handleChange}
-                        name={'deleteFiles'}
-                        control={<Checkbox checked={values.deleteFiles} />}
-                        label={t('files')}
-                      />
-                      <FormControlLabel
-                        onChange={handleChange}
-                        name={'deletePeopleTeams'}
-                        control={
-                          <Checkbox checked={values.deletePeopleTeams} />
-                        }
-                        label={t('people_teams')}
-                      />
-                    </Box>
-
-                    <Box
-                      display="flex"
-                      flexDirection="column"
-                      justifyContent="space-between"
-                    >
-                      <Typography variant="h4" sx={{ pb: 1 }}>
-                        {t('to_access')}
-                      </Typography>
-                      <FormControlLabel
-                        onChange={handleChange}
-                        name={'accessSettings'}
-                        control={<Checkbox checked={values.accessSettings} />}
-                        label={t('settings')}
-                      />
-                    </Box>
-                  </Box>
+                <Grid item xs={12}>
+                  <TextField
+                    error={Boolean(
+                      touched.description && errors.description
+                    )}
+                    fullWidth
+                    helperText={touched.description && errors.description}
+                    label={t('description')}
+                    name="description"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.description}
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    error={Boolean(touched.externalId && errors.externalId)}
+                    fullWidth
+                    helperText={touched.externalId && errors.externalId}
+                    label={t('external_id')}
+                    name="externalId"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.externalId}
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="h4" sx={{ pb: 2 }}>
+                    {t('permissions')}
+                  </Typography>
+                  <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
+                    <Table size="small" stickyHeader>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell sx={{ fontWeight: 'bold' }}>
+                            {t('entity')}
+                          </TableCell>
+                          <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                            {t('view')}
+                          </TableCell>
+                          <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                            {t('view_other')}
+                          </TableCell>
+                          <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                            {t('create')}
+                          </TableCell>
+                          <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                            {t('edit')}
+                          </TableCell>
+                          <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                            {t('delete')}
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {Object.values(PermissionEntity).map((entity) => (
+                          <TableRow key={entity}>
+                            <TableCell sx={{ fontWeight: 'bold' }}>
+                              {entityLabel(entity)}
+                            </TableCell>
+                            {permissionRoots.map((root) => (
+                              <TableCell key={root} align="center">
+                                <Checkbox
+                                  name={`${root}_${entity}`}
+                                  onChange={handleChange}
+                                  checked={values[`${root}_${entity}`]}
+                                />
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
                 </Grid>
               </Grid>
             </DialogContent>
