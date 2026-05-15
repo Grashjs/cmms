@@ -38,23 +38,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  async headers() {
-    return [
-      {
-        source: "/:path*",
-        headers: [
-          {
-            key: "Netlify-CDN-Cache-Control",
-            value: "public, durable, s-maxage=3600, stale-while-revalidate=86400",
-          },
-          {
-            key: "Cache-Control",
-            value: "public, max-age=0, must-revalidate",
-          },
-        ],
-      },
-    ];
-  },
 };
 
 export default withNextIntl(nextConfig);
