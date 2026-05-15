@@ -1973,6 +1973,9 @@ const deJSON = {
   customers_settings_description:
     'Verwalten Sie externe Auftragnehmer, mit denen Ihre Organisation zusammenarbeitet.',
   vendors_settings_description: 'Lieferantenbezogene Einstellungen anpassen',
+  view: 'Ansicht',
+  view_other: 'Andere ansehen',
+  view_other_hint: '"Andere ansehen" bedeutet, etwas anzusehen, das von jemand anderem erstellt wurde',
   go_to_billing: 'Zur Abrechnung'
 };
 

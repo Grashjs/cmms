@@ -1842,6 +1842,9 @@ const locale = {
   customers_settings_description:
     'Manage external contractors your organization works with.',
   vendors_settings_description: 'Customize vendor-related settings',
+  view: 'View',
+  view_other: 'View other',
+  view_other_hint: '"View other" means view something created by someone else',
   go_to_billing: 'Go to Billing'
 };
 

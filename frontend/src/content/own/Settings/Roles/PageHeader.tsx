@@ -6,14 +6,11 @@ import { useTranslation } from 'react-i18next';
 import {
   Box,
   Button,
-  Checkbox,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Divider,
-  FormControlLabel,
   Grid,
   TextField,
   Tooltip,
@@ -25,13 +22,10 @@ import { addRole } from '../../../../slices/role';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 import useAuth from '../../../../hooks/useAuth';
 import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
-import { useBrand } from '../../../../hooks/useBrand';
 import { getErrorMessage } from '../../../../utils/api';
-
-// const roles = [
-//   { label: 'Free', value: 'free' },
-//   { label: 'Paid', value: 'paid' }
-// ];
+import { PermissionEntity, PermissionRoot } from '../../../../models/owns/role';
+import { defaultPermissions } from '../../../../utils/roles';
+import PermissionsMatrix from './PermissionsMatrix';
 
 interface PageHeaderProps {
   rolesNumber: number;
@@ -41,7 +35,6 @@ interface PageHeaderProps {
 function PageHeader({ rolesNumber, formatValues }: PageHeaderProps) {
   const { t }: { t: any } = useTranslation();
   const { hasFeature } = useAuth();
-  const brandConfig = useBrand();
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
@@ -59,6 +52,14 @@ function PageHeader({ rolesNumber, formatValues }: PageHeaderProps) {
   };
   const onCreationFailure = (err) =>
     showSnackBar(getErrorMessage(err, t('role_create_failure')), 'error');
+
+  const permissionRoots: PermissionRoot[] = [
+    'viewPermissions',
+    'viewOtherPermissions',
+    'createPermissions',
+    'editOtherPermissions',
+    'deleteOtherPermissions'
+  ];
 
   return (
     <>
@@ -120,6 +121,14 @@ function PageHeader({ rolesNumber, formatValues }: PageHeaderProps) {
             name: '',
             description: '',
             externalId: '',
+            ...Object.fromEntries(
+              Object.values(PermissionEntity).flatMap((entity) =>
+                permissionRoots.map((root) => [
+                  `${root}_${entity}`,
+                  defaultPermissions[root].includes(entity)
+                ])
+              )
+            ),
             submit: null
           }}
           validationSchema={Yup.object().shape({
@@ -156,188 +165,50 @@ function PageHeader({ rolesNumber, formatValues }: PageHeaderProps) {
                 }}
               >
                 <Grid container spacing={3}>
-                  <Grid item xs={12} lg={6}>
-                    <Grid container spacing={3}>
-                      <Grid item xs={12}>
-                        <TextField
-                          error={Boolean(touched.name && errors.name)}
-                          fullWidth
-                          helperText={touched.name && errors.name}
-                          label={t('name')}
-                          name="name"
-                          onBlur={handleBlur}
-                          onChange={handleChange}
-                          value={values.name}
-                          variant="outlined"
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <TextField
-                          error={Boolean(
-                            touched.description && errors.description
-                          )}
-                          fullWidth
-                          helperText={touched.description && errors.description}
-                          label={t('description')}
-                          name="description"
-                          onBlur={handleBlur}
-                          onChange={handleChange}
-                          value={values.description}
-                          variant="outlined"
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <TextField
-                          error={Boolean(
-                            touched.externalId && errors.externalId
-                          )}
-                          fullWidth
-                          helperText={touched.externalId && errors.externalId}
-                          label={t('external_id')}
-                          name="externalId"
-                          onBlur={handleBlur}
-                          onChange={handleChange}
-                          value={values.externalId}
-                          variant="outlined"
-                        />
-                      </Grid>
-                    </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      error={Boolean(touched.name && errors.name)}
+                      fullWidth
+                      helperText={touched.name && errors.name}
+                      label={t('name')}
+                      name="name"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      value={values.name}
+                      variant="outlined"
+                    />
                   </Grid>
-                  <Grid item xs={12} lg={6}>
-                    <Box
-                      display="flex"
-                      justifyContent="space-between"
-                      flexDirection="column"
-                    >
-                      <Box>
-                        <Typography variant="h2" sx={{ pb: 1 }}>
-                          {t('permissions')}
-                        </Typography>
-                        <Typography variant="subtitle2">
-                          {t('create_role_description', {
-                            brandName: brandConfig.name
-                          })}
-                        </Typography>
-                      </Box>
-
-                      <Divider flexItem sx={{ m: 4 }} />
-
-                      <Box
-                        display="flex"
-                        flexDirection="column"
-                        justifyContent="space-between"
-                        mb={3}
-                      >
-                        <Typography variant="h4" sx={{ pb: 1 }}>
-                          {t('create_and_edit')}
-                        </Typography>
-                        <FormControlLabel
-                          onChange={handleChange}
-                          name={'createPeopleTeams'}
-                          control={<Checkbox />}
-                          label={t('people_teams')}
-                        />
-                        <FormControlLabel
-                          onChange={handleChange}
-                          name={'createCategories'}
-                          control={<Checkbox />}
-                          label={t('categories')}
-                        />
-                      </Box>
-
-                      <Box
-                        display="flex"
-                        flexDirection="column"
-                        justifyContent="space-between"
-                        mb={3}
-                      >
-                        <Typography variant="h4" sx={{ pb: 1 }}>
-                          {t('to_delete')}
-                        </Typography>
-                        <FormControlLabel
-                          onChange={handleChange}
-                          name={'deleteWorkOrders'}
-                          control={<Checkbox />}
-                          label={t('work_orders')}
-                        />
-                        <FormControlLabel
-                          onChange={handleChange}
-                          name={'deletePreventiveMaintenanceTrigger'}
-                          control={<Checkbox />}
-                          label={t('pm_trigger')}
-                        />
-                        <FormControlLabel
-                          onChange={handleChange}
-                          name={'deleteLocations'}
-                          control={<Checkbox />}
-                          label={t('locations')}
-                        />
-                        <FormControlLabel
-                          onChange={handleChange}
-                          name={'deleteAssets'}
-                          control={<Checkbox />}
-                          label={t('assets')}
-                        />
-                        <FormControlLabel
-                          onChange={handleChange}
-                          name={'deletePartsAndSets'}
-                          control={<Checkbox />}
-                          label={t('parts_and_sets')}
-                        />
-                        <FormControlLabel
-                          onChange={handleChange}
-                          name={'deletePurchaseOrders'}
-                          control={<Checkbox />}
-                          label={t('purchase_orders')}
-                        />
-                        <FormControlLabel
-                          onChange={handleChange}
-                          name={'deleteMeters'}
-                          control={<Checkbox />}
-                          label={t('meters')}
-                        />
-                        <FormControlLabel
-                          onChange={handleChange}
-                          name={'deleteVendorsCustomers'}
-                          control={<Checkbox />}
-                          label={t('vendors_customers')}
-                        />
-                        <FormControlLabel
-                          onChange={handleChange}
-                          name={'deleteCategories'}
-                          control={<Checkbox />}
-                          label={t('categories')}
-                        />
-                        <FormControlLabel
-                          onChange={handleChange}
-                          name={'deleteFiles'}
-                          control={<Checkbox />}
-                          label={t('files')}
-                        />
-                        <FormControlLabel
-                          onChange={handleChange}
-                          name={'deletePeopleTeams'}
-                          control={<Checkbox />}
-                          label={t('people_teams')}
-                        />
-                      </Box>
-
-                      <Box
-                        display="flex"
-                        flexDirection="column"
-                        justifyContent="space-between"
-                      >
-                        <Typography variant="h4" sx={{ pb: 1 }}>
-                          {t('to_access')}
-                        </Typography>
-                        <FormControlLabel
-                          onChange={handleChange}
-                          name={'accessSettings'}
-                          control={<Checkbox />}
-                          label={t('settings')}
-                        />
-                      </Box>
-                    </Box>
+                  <Grid item xs={12}>
+                    <TextField
+                      error={Boolean(touched.description && errors.description)}
+                      fullWidth
+                      helperText={touched.description && errors.description}
+                      label={t('description')}
+                      name="description"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      value={values.description}
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      error={Boolean(touched.externalId && errors.externalId)}
+                      fullWidth
+                      helperText={touched.externalId && errors.externalId}
+                      label={t('external_id')}
+                      name="externalId"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      value={values.externalId}
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="h4" sx={{ pb: 2 }}>
+                      {t('permissions')}
+                    </Typography>
+                    <PermissionsMatrix values={values} handleChange={handleChange} />
                   </Grid>
                 </Grid>
               </DialogContent>

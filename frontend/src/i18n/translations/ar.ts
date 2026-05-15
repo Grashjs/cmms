@@ -1826,7 +1826,10 @@ const locale = {
   customers_settings_description:
     'إدارة المقاولين الخارجيين الذين تعمل معهم مؤسستك.',
   vendors_settings_description: 'تخصيص الإعدادات المتعلقة بالموردين',
-  go_to_billing: 'الذهاب إلى الفواتير'
+  go_to_billing: 'الذهاب إلى الفواتير',
+  view: 'عرض',
+  view_other: 'عرض الآخر',
+  view_other_hint: '"عرض الآخر" يعني عرض شيء تم إنشاؤه بواسطة شخص آخر'
 };
 
 export default locale;

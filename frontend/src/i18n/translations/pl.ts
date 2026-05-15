@@ -1888,6 +1888,9 @@ const plJSON = {
   customers_settings_description:
     'Zarządzaj zewnętrznymi wykonawcami, z którymi współpracuje Twoja organizacja.',
   vendors_settings_description: 'Dostosuj ustawienia związane z dostawcami',
+  view: 'Widok',
+  view_other: 'Zobacz inne',
+  view_other_hint: '"Zobacz inne" oznacza zobaczenie czegoś stworzonego przez kogoś innego',
   go_to_billing: 'Przejdź do rozliczeń'
 };
 

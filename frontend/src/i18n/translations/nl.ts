@@ -1883,6 +1883,9 @@ const locale = {
   customers_settings_description:
     'Beheer externe aannemers waarmee uw organisatie werkt.',
   vendors_settings_description: 'Pas leveranciers-gerelateerde instellingen aan',
+  view: 'Bekijken',
+  view_other: 'Andere bekijken',
+  view_other_hint: '"Andere bekijken" betekent iets bekijken dat door iemand anders is gemaakt',
   go_to_billing: 'Ga naar facturatie'
 };
 export default locale;
