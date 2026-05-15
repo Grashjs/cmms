@@ -1,36 +1,25 @@
 import {
   Box,
   Button,
-  Checkbox,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Grid,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
   Typography
 } from '@mui/material';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { editRole } from '../../../../slices/role';
-import {
-  PermissionEntity,
-  PermissionRoot,
-  Role
-} from '../../../../models/owns/role';
+import { PermissionEntity, PermissionRoot, Role } from '../../../../models/owns/role';
+import PermissionsMatrix from './PermissionsMatrix';
 import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 import { useDispatch } from '../../../../store';
-import { useBrand } from '../../../../hooks/useBrand';
+
 import { getErrorMessage } from '../../../../utils/api';
 
 interface EditRoleProps {
@@ -42,7 +31,6 @@ interface EditRoleProps {
 function EditRole({ role, open, onClose, formatValues }: EditRoleProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
-  const brandConfig = useBrand();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const onEditSuccess = () => {
     onClose();
@@ -58,27 +46,6 @@ function EditRole({ role, open, onClose, formatValues }: EditRoleProps) {
     'editOtherPermissions',
     'deleteOtherPermissions'
   ];
-
-  const entityLabel = (entity: PermissionEntity): string => {
-    const labels: Record<string, string> = {
-      PEOPLE_AND_TEAMS: t('people_teams'),
-      CATEGORIES: t('categories'),
-      CATEGORIES_WEB: 'Categories Web',
-      WORK_ORDERS: t('work_orders'),
-      PREVENTIVE_MAINTENANCES: t('pm_trigger'),
-      ASSETS: t('assets'),
-      PARTS_AND_MULTIPARTS: t('parts_and_sets'),
-      PURCHASE_ORDERS: t('purchase_orders'),
-      METERS: t('meters'),
-      VENDORS_AND_CUSTOMERS: t('vendors_customers'),
-      FILES: t('files'),
-      LOCATIONS: t('locations'),
-      SETTINGS: t('settings'),
-      REQUESTS: 'Requests',
-      ANALYTICS: 'Analytics'
-    };
-    return labels[entity] || entity;
-  };
 
   return (
     <Dialog fullWidth maxWidth="md" open={open} onClose={onClose}>
@@ -183,53 +150,10 @@ function EditRole({ role, open, onClose, formatValues }: EditRoleProps) {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <Typography variant="h4" sx={{ pb: 2 }}>
-                    {t('permissions')}
-                  </Typography>
-                  <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
-                    <Table size="small" stickyHeader>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell sx={{ fontWeight: 'bold' }}>
-                            {t('entity')}
-                          </TableCell>
-                          <TableCell align="center" sx={{ fontWeight: 'bold' }}>
-                            {t('view')}
-                          </TableCell>
-                          <TableCell align="center" sx={{ fontWeight: 'bold' }}>
-                            {t('view_other')}
-                          </TableCell>
-                          <TableCell align="center" sx={{ fontWeight: 'bold' }}>
-                            {t('create')}
-                          </TableCell>
-                          <TableCell align="center" sx={{ fontWeight: 'bold' }}>
-                            {t('edit')}
-                          </TableCell>
-                          <TableCell align="center" sx={{ fontWeight: 'bold' }}>
-                            {t('delete')}
-                          </TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {Object.values(PermissionEntity).map((entity) => (
-                          <TableRow key={entity}>
-                            <TableCell sx={{ fontWeight: 'bold' }}>
-                              {entityLabel(entity)}
-                            </TableCell>
-                            {permissionRoots.map((root) => (
-                              <TableCell key={root} align="center">
-                                <Checkbox
-                                  name={`${root}_${entity}`}
-                                  onChange={handleChange}
-                                  checked={values[`${root}_${entity}`]}
-                                />
-                              </TableCell>
-                            ))}
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
+                    <Typography variant="h4" sx={{ pb: 2 }}>
+                      {t('permissions')}
+                    </Typography>
+                    <PermissionsMatrix values={values} handleChange={handleChange} />
                 </Grid>
               </Grid>
             </DialogContent>

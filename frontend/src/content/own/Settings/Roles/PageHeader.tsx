@@ -6,20 +6,12 @@ import { useTranslation } from 'react-i18next';
 import {
   Box,
   Button,
-  Checkbox,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Grid,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
   Tooltip,
   Typography
@@ -30,10 +22,10 @@ import { addRole } from '../../../../slices/role';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 import useAuth from '../../../../hooks/useAuth';
 import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
-import { useBrand } from '../../../../hooks/useBrand';
 import { getErrorMessage } from '../../../../utils/api';
 import { PermissionEntity, PermissionRoot } from '../../../../models/owns/role';
 import { defaultPermissions } from '../../../../utils/roles';
+import PermissionsMatrix from './PermissionsMatrix';
 
 interface PageHeaderProps {
   rolesNumber: number;
@@ -43,7 +35,6 @@ interface PageHeaderProps {
 function PageHeader({ rolesNumber, formatValues }: PageHeaderProps) {
   const { t }: { t: any } = useTranslation();
   const { hasFeature } = useAuth();
-  const brandConfig = useBrand();
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
@@ -69,26 +60,6 @@ function PageHeader({ rolesNumber, formatValues }: PageHeaderProps) {
     'editOtherPermissions',
     'deleteOtherPermissions'
   ];
-
-  const entityLabel = (entity: PermissionEntity): string => {
-    const labels: Record<string, string> = {
-      PEOPLE_AND_TEAMS: t('people_teams'),
-      CATEGORIES: t('categories'),
-      WORK_ORDERS: t('work_orders'),
-      PREVENTIVE_MAINTENANCES: t('pm_trigger'),
-      ASSETS: t('assets'),
-      PARTS_AND_MULTIPARTS: t('parts_and_sets'),
-      PURCHASE_ORDERS: t('purchase_orders'),
-      METERS: t('meters'),
-      VENDORS_AND_CUSTOMERS: t('vendors_customers'),
-      FILES: t('files'),
-      LOCATIONS: t('locations'),
-      SETTINGS: t('settings'),
-      REQUESTS: 'Requests',
-      ANALYTICS: 'Analytics'
-    };
-    return labels[entity] || entity;
-  };
 
   return (
     <>
@@ -237,65 +208,7 @@ function PageHeader({ rolesNumber, formatValues }: PageHeaderProps) {
                     <Typography variant="h4" sx={{ pb: 2 }}>
                       {t('permissions')}
                     </Typography>
-                    <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
-                      <Table size="small" stickyHeader>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell sx={{ fontWeight: 'bold' }}>
-                              {t('entity')}
-                            </TableCell>
-                            <TableCell
-                              align="center"
-                              sx={{ fontWeight: 'bold' }}
-                            >
-                              {t('view')}
-                            </TableCell>
-                            <TableCell
-                              align="center"
-                              sx={{ fontWeight: 'bold' }}
-                            >
-                              {t('view_other')}
-                            </TableCell>
-                            <TableCell
-                              align="center"
-                              sx={{ fontWeight: 'bold' }}
-                            >
-                              {t('create')}
-                            </TableCell>
-                            <TableCell
-                              align="center"
-                              sx={{ fontWeight: 'bold' }}
-                            >
-                              {t('edit')}
-                            </TableCell>
-                            <TableCell
-                              align="center"
-                              sx={{ fontWeight: 'bold' }}
-                            >
-                              {t('delete')}
-                            </TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {Object.values(PermissionEntity).map((entity) => (
-                            <TableRow key={entity}>
-                              <TableCell sx={{ fontWeight: 'bold' }}>
-                                {entityLabel(entity)}
-                              </TableCell>
-                              {permissionRoots.map((root) => (
-                                <TableCell key={root} align="center">
-                                  <Checkbox
-                                    name={`${root}_${entity}`}
-                                    onChange={handleChange}
-                                    checked={values[`${root}_${entity}`]}
-                                  />
-                                </TableCell>
-                              ))}
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
+                    <PermissionsMatrix values={values} handleChange={handleChange} />
                   </Grid>
                 </Grid>
               </DialogContent>
