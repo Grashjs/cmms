@@ -1857,7 +1857,10 @@ const locale = {
   type_enter_to_add_option: 'Skriv och tryck Enter för att lägga till ett alternativ',
   customers_settings_description:
     'Hantera externa entreprenörer som din organisation arbetar med.',
-  vendors_settings_description: 'Anpassa leverantörsrelaterade inställningar'
+  vendors_settings_description: 'Anpassa leverantörsrelaterade inställningar',
+  view: 'Visa',
+  view_other: 'Visa annan',
+  view_other_hint: '"Visa annan" betyder att visa något som skapats av någon annan'
 };
 
 export default locale;

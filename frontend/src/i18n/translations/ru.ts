@@ -1950,7 +1950,10 @@ const ruJSON = {
   type_enter_to_add_option: 'Введите и нажмите Enter, чтобы добавить параметр',
   customers_settings_description:
     'Управляйте внешними подрядчиками, с которыми работает ваша организация.',
-  vendors_settings_description: 'Настройте параметры, связанные с поставщиками'
+  vendors_settings_description: 'Настройте параметры, связанные с поставщиками',
+  view: 'Просмотр',
+  view_other: 'Посмотреть другое',
+  view_other_hint: '"Посмотреть другое" означает просмотр чего-то, созданного кем-то другим'
 };
 
 export default ruJSON;

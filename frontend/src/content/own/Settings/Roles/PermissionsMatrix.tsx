@@ -6,7 +6,8 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow
+  TableRow,
+  Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import {
@@ -69,48 +70,53 @@ function PermissionsMatrix({
   };
 
   return (
-    <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
-      <Table size="small" stickyHeader>
-        <TableHead>
-          <TableRow>
-            <TableCell sx={{ fontWeight: 'bold' }}>{''}</TableCell>
-            <TableCell align="center" sx={{ fontWeight: 'bold' }}>
-              {t('view')}
-            </TableCell>
-            <TableCell align="center" sx={{ fontWeight: 'bold' }}>
-              {t('view_other')}
-            </TableCell>
-            <TableCell align="center" sx={{ fontWeight: 'bold' }}>
-              {t('create')}
-            </TableCell>
-            <TableCell align="center" sx={{ fontWeight: 'bold' }}>
-              {t('edit')}
-            </TableCell>
-            <TableCell align="center" sx={{ fontWeight: 'bold' }}>
-              {t('delete')}
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {Object.values(PermissionEntity).map((entity) => (
-            <TableRow key={entity}>
-              <TableCell sx={{ fontWeight: 'bold' }}>
-                {entityLabel(entity)}
+    <>
+      <Typography mb={1} variant="subtitle2">
+        {t('view_other_hint')}
+      </Typography>
+      <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
+        <Table size="small" stickyHeader>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 'bold' }}>{''}</TableCell>
+              <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                {t('view')}
               </TableCell>
-              {permissionRoots.map((root) => (
-                <TableCell key={root} align="center">
-                  <Checkbox
-                    name={isEditable ? `${root}_${entity}` : undefined}
-                    onChange={isEditable ? handleChange : undefined}
-                    checked={isChecked(root, entity)}
-                  />
-                </TableCell>
-              ))}
+              <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                {t('view_other')}
+              </TableCell>
+              <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                {t('create')}
+              </TableCell>
+              <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                {t('edit')}
+              </TableCell>
+              <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                {t('delete')}
+              </TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {Object.values(PermissionEntity).map((entity) => (
+              <TableRow key={entity}>
+                <TableCell sx={{ fontWeight: 'bold' }}>
+                  {entityLabel(entity)}
+                </TableCell>
+                {permissionRoots.map((root) => (
+                  <TableCell key={root} align="center">
+                    <Checkbox
+                      name={isEditable ? `${root}_${entity}` : undefined}
+                      onChange={isEditable ? handleChange : undefined}
+                      checked={isChecked(root, entity)}
+                    />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </>
   );
 }
 

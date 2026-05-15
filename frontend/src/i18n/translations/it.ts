@@ -1891,7 +1891,10 @@ const locale = {
   type_enter_to_add_option: 'Digita e premi invio per aggiungere un\'opzione',
   customers_settings_description:
     'Gestisci appaltatori esterni con cui la tua organizzazione lavora.',
-  vendors_settings_description: 'Personalizza le impostazioni relative ai fornitori'
+  vendors_settings_description: 'Personalizza le impostazioni relative ai fornitori',
+  view: 'Visualizza',
+  view_other: 'Visualizza altro',
+  view_other_hint: '"Visualizza altro" significa visualizzare qualcosa creato da qualcun altro'
 };
 
 export default locale;

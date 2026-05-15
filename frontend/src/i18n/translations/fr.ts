@@ -2061,7 +2061,10 @@ const frJSON = {
   customers_settings_description:
     'Gérer les entrepreneurs externes avec lesquels votre organisation travaille.',
   vendors_settings_description:
-    'Personnaliser les paramètres liés aux fournisseurs'
+    'Personnaliser les paramètres liés aux fournisseurs',
+  view: 'Voir',
+  view_other: 'Voir autre',
+  view_other_hint: '"Voir autre" signifie voir quelque chose créé par quelqu\'un d\'autre'
 };
 
 export default frJSON;

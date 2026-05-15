@@ -1556,7 +1556,10 @@ const locale = {
   type_enter_to_add_option: '输入并按Enter添加选项',
   customers_settings_description:
     '管理您组织合作的外包承包商。',
-  vendors_settings_description: '自定义供应商相关设置'
+  vendors_settings_description: '自定义供应商相关设置',
+  view: '查看',
+  view_other: '查看其他',
+  view_other_hint: '"查看其他"表示查看其他人创建的内容'
 };
 
 export default locale;
