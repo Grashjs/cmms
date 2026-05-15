@@ -15,15 +15,6 @@
   status = 200
 
 # Cache headers — CDN will cache after first function render
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Cache-Control = "public, s-maxage=3600, stale-while-revalidate=86400"
-
-[[headers]]
-  for = "/_next/static/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
   for = "/static/*"
