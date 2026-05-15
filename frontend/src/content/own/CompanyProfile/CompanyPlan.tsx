@@ -151,7 +151,11 @@ function CompanyPlan(props: CompanyPlanProps) {
             </Button>
           )}
           {isCloudVersion && company.subscription.activated && (
-            <Button variant={'outlined'} onClick={goToPaddleBilling}>
+            <Button
+              sx={{ backgroundColor: 'white' }}
+              variant={'contained'}
+              onClick={goToPaddleBilling}
+            >
               {t('go_to_billing')}
             </Button>
           )}

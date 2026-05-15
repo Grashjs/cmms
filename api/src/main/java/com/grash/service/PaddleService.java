@@ -199,9 +199,9 @@ public class PaddleService {
 
     public String createCustomerPortalSession(String customerId, @Nullable String subscriptionId) {
         HttpHeaders headers = getHttpHeaders();
-        Map<String, String> body = new HashMap<>();
-        if (subscriptionId != null) body.put("subscription_ids", List.of(subscriptionId).toString());
-        HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
+        Map<String, Object> body = new HashMap<>();
+        if (subscriptionId != null) body.put("subscription_ids", List.of(subscriptionId));
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
 
         ResponseEntity<PaddlePortalSessionResponse> response = restTemplate.exchange(
                 paddleApiUrl + "/customers/" + customerId + "/portal-sessions",
