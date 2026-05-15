@@ -1963,7 +1963,8 @@ const esJSON = {
   type_enter_to_add_option: 'Escriba y presione enter para agregar una opción',
   customers_settings_description:
     'Gestionar contratistas externos con los que su organización trabaja.',
-  vendors_settings_description: 'Personalizar la configuración relacionada con proveedores'
+  vendors_settings_description: 'Personalizar la configuración relacionada con proveedores',
+  go_to_billing: 'Ir a facturación'
 };
 
 export default esJSON;

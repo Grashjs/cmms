@@ -1857,7 +1857,8 @@ const locale = {
   type_enter_to_add_option: 'Skriv och tryck Enter för att lägga till ett alternativ',
   customers_settings_description:
     'Hantera externa entreprenörer som din organisation arbetar med.',
-  vendors_settings_description: 'Anpassa leverantörsrelaterade inställningar'
+  vendors_settings_description: 'Anpassa leverantörsrelaterade inställningar',
+  go_to_billing: 'Gå till fakturering'
 };
 
 export default locale;

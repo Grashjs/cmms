@@ -1887,7 +1887,8 @@ const plJSON = {
   type_enter_to_add_option: 'Wpisz i naciśnij Enter, aby dodać opcję',
   customers_settings_description:
     'Zarządzaj zewnętrznymi wykonawcami, z którymi współpracuje Twoja organizacja.',
-  vendors_settings_description: 'Dostosuj ustawienia związane z dostawcami'
+  vendors_settings_description: 'Dostosuj ustawienia związane z dostawcami',
+  go_to_billing: 'Przejdź do rozliczeń'
 };
 
 export default plJSON;

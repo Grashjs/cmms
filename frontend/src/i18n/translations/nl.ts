@@ -1882,6 +1882,7 @@ const locale = {
   type_enter_to_add_option: 'Typ en druk op enter om een optie toe te voegen',
   customers_settings_description:
     'Beheer externe aannemers waarmee uw organisatie werkt.',
-  vendors_settings_description: 'Pas leveranciers-gerelateerde instellingen aan'
+  vendors_settings_description: 'Pas leveranciers-gerelateerde instellingen aan',
+  go_to_billing: 'Ga naar facturatie'
 };
 export default locale;

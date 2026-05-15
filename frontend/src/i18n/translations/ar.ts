@@ -1825,7 +1825,8 @@ const locale = {
   type_enter_to_add_option: 'اكتب واضغط Enter لإضافة خيار',
   customers_settings_description:
     'إدارة المقاولين الخارجيين الذين تعمل معهم مؤسستك.',
-  vendors_settings_description: 'تخصيص الإعدادات المتعلقة بالموردين'
+  vendors_settings_description: 'تخصيص الإعدادات المتعلقة بالموردين',
+  go_to_billing: 'الذهاب إلى الفواتير'
 };
 
 export default locale;

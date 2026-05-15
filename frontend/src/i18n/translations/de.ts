@@ -1972,7 +1972,8 @@ const deJSON = {
   type_enter_to_add_option: 'Eingeben und Enter drücken, um eine Option hinzuzufügen',
   customers_settings_description:
     'Verwalten Sie externe Auftragnehmer, mit denen Ihre Organisation zusammenarbeitet.',
-  vendors_settings_description: 'Lieferantenbezogene Einstellungen anpassen'
+  vendors_settings_description: 'Lieferantenbezogene Einstellungen anpassen',
+  go_to_billing: 'Zur Abrechnung'
 };
 
 export default deJSON;

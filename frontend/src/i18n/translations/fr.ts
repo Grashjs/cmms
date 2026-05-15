@@ -2061,7 +2061,8 @@ const frJSON = {
   customers_settings_description:
     'Gérer les entrepreneurs externes avec lesquels votre organisation travaille.',
   vendors_settings_description:
-    'Personnaliser les paramètres liés aux fournisseurs'
+    'Personnaliser les paramètres liés aux fournisseurs',
+  go_to_billing: 'Aller à la facturation'
 };
 
 export default frJSON;

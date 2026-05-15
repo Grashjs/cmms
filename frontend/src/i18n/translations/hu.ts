@@ -1742,7 +1742,8 @@ const locale = {
   type_enter_to_add_option: 'Írja be és nyomja meg az Entert a lehetőség hozzáadásához',
   customers_settings_description:
     'Kezelje a külső vállalkozókat, amelyekkel a szervezet dolgozik.',
-  vendors_settings_description: 'Testreszabhatja a szállítókkal kapcsolatos beállításokat'
+  vendors_settings_description: 'Testreszabhatja a szállítókkal kapcsolatos beállításokat',
+  go_to_billing: 'Ugrás a számlázáshoz'
 };
 
 export default locale;

@@ -1887,7 +1887,8 @@ const trJSON = {
   type_enter_to_add_option: 'Seçenek eklemek için yazın ve Enter\'a basın',
   customers_settings_description:
     'Kuruluşunuzun çalıştığı dış müteahhitleri yönetin.',
-  vendors_settings_description: 'Tedarikçiyle ilgili ayarları özelleştirin'
+  vendors_settings_description: 'Tedarikçiyle ilgili ayarları özelleştirin',
+  go_to_billing: 'Faturalandırmaya git'
 };
 
 export default trJSON;

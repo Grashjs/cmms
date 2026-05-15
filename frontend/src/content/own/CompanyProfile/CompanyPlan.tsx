@@ -150,12 +150,11 @@ function CompanyPlan(props: CompanyPlanProps) {
               {t('learn_more')}
             </Button>
           )}
-          {company.subscription.activated &&
-            company.subscription.paddleSubscriptionId && (
-              <Button variant={'outlined'} onClick={goToPaddleBilling}>
-                {t('go_to_billing')}
-              </Button>
-            )}
+          {isCloudVersion && company.subscription.activated && (
+            <Button variant={'outlined'} onClick={goToPaddleBilling}>
+              {t('go_to_billing')}
+            </Button>
+          )}
         </Box>
       </Box>
     </Card>
