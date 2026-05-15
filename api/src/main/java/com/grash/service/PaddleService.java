@@ -415,7 +415,7 @@ public class PaddleService {
         @JsonProperty("cancel_subscription")
         private String cancelSubscription;
 
-        @JsonProperty("update_payment_method")
+        @JsonProperty("update_subscription_payment_method")
         private String updatePaymentMethod;
     }
 
