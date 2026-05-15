@@ -36,6 +36,7 @@ function CompanyPlan(props: CompanyPlanProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const getLanguage = i18n.language;
+  const [loadingBilling, setLoadingBilling] = useState<boolean>(false);
   const { state: licensingState } = useSelector((state) => state.license);
   const expiryDate = isCloudVersion
     ? company.subscription.endsOn
@@ -46,9 +47,11 @@ function CompanyPlan(props: CompanyPlanProps) {
   }, []);
 
   const goToPaddleBilling = () => {
+    setLoadingBilling(true);
     api
       .get<{ message: string }>('paddle/customer-portal')
-      .then(({ message }) => window.open(message, '_blank'));
+      .then(({ message }) => window.open(message, '_blank'))
+      .finally(() => setLoadingBilling(false));
   };
 
   return (
@@ -152,8 +155,11 @@ function CompanyPlan(props: CompanyPlanProps) {
           )}
           {isCloudVersion && company.subscription.activated && (
             <Button
-              sx={{ backgroundColor: 'white' }}
-              variant={'contained'}
+              disabled={loadingBilling}
+              startIcon={
+                loadingBilling ? <CircularProgress size={'1rem'} /> : null
+              }
+              variant={'outlined'}
               onClick={goToPaddleBilling}
             >
               {t('go_to_billing')}
