@@ -76,6 +76,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
+export const revalidate = 3600;
+
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
