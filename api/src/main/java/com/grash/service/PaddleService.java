@@ -211,7 +211,10 @@ public class PaddleService {
         );
 
         if (response.getStatusCode() == HttpStatus.CREATED && response.getBody() != null) {
-            return response.getBody().getData().getUrls().getGeneral().getOverview();
+            if (subscriptionId == null) return response.getBody().getData().getUrls().getGeneral().getOverview();
+            return response.getBody().getData().getUrls().getSubscriptions().stream()
+                    .filter(sub -> sub.getId().equals(subscriptionId)).findFirst()
+                    .get().getUpdateSubscription();
         } else {
             throw new CustomException("Failed to create customer portal session", HttpStatus.INTERNAL_SERVER_ERROR);
         }
