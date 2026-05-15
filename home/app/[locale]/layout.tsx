@@ -29,6 +29,8 @@ export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: any }): Promise<Metadata> {
   const baseUrl = "https://atlas-cmms.com";
+  const { locale } = await params;
+  setRequestLocale(locale);
 
   return {
     metadataBase: new URL(baseUrl),

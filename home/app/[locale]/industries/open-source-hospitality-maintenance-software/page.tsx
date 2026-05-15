@@ -90,6 +90,7 @@ async function HospitalityAtlasPage({ params }: { params: Promise<{ locale: stri
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   return {
     title: atlasHospitalityData.pageTitle,
     description: atlasHospitalityData.pageDescription,

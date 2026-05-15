@@ -91,6 +91,7 @@ async function ConstructionAtlasPage({ params }: { params: Promise<{ locale: str
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   return {
     title: constructionData.pageTitle,
     description: constructionData.pageDescription,

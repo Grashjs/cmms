@@ -122,6 +122,7 @@ async function FacilityManagementPage({ params }: { params: Promise<{ locale: st
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   return {
     title: facilityManagementData.pageTitle,
     description: facilityManagementData.pageDescription,

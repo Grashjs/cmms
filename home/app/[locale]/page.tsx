@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   const t = await getTranslations({ locale });
   const brand = await getBrandServer();
-
+  setRequestLocale(locale);
   const title = IS_ORIGINAL_CLOUD ? t("main.title") : brand.name;
   const description = t("overview_1.description");
   return {
