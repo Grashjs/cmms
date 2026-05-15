@@ -22,6 +22,7 @@ import { getLicenseValidity } from '../../../slices/license';
 import { useDispatch, useSelector } from 'src/store';
 import subscriptionPlan from '../../../slices/subscriptionPlan';
 import { getLocalizedHomeUrl } from '../../../utils/urlPaths';
+import api from '../../../utils/api';
 
 interface CompanyPlanProps {
   plan: SubscriptionPlan;
@@ -29,12 +30,9 @@ interface CompanyPlanProps {
 
 function CompanyPlan(props: CompanyPlanProps) {
   const { plan } = props;
-  const { company, cancelSubscription, resumeSubscription, user } = useAuth();
-  const { requestSubscriptionChange } = useContext(CompanySettingsContext);
+  const { company, user } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
-  const [loadingCancel, setLoadingCancel] = useState<boolean>(false);
-  const [loadingResume, setLoadingResume] = useState<boolean>(false);
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const getLanguage = i18n.language;
@@ -46,6 +44,12 @@ function CompanyPlan(props: CompanyPlanProps) {
   useEffect(() => {
     dispatch(getLicenseValidity());
   }, []);
+
+  const goToPaddleBilling = () => {
+    api
+      .get<{ message: string }>('paddle/customer-portal')
+      .then(({ message }) => window.open(message, '_blank'));
+  };
 
   return (
     <Card
@@ -147,52 +151,11 @@ function CompanyPlan(props: CompanyPlanProps) {
             </Button>
           )}
           {company.subscription.activated &&
-            (company.subscription.subscriptionPlan.code === 'FREE' &&
-            company.subscription.paddleSubscriptionId ? (
-              <Button
-                onClick={() => {
-                  setLoadingResume(true);
-                  resumeSubscription().finally(() => setLoadingResume(false));
-                }}
-                variant="contained"
-                color="success"
-                disabled={loadingResume}
-                startIcon={
-                  loadingResume ? (
-                    <CircularProgress color="success" size={'1rem'} />
-                  ) : null
-                }
-              >
-                {t('resume_subscription')}
+            company.subscription.paddleSubscriptionId && (
+              <Button variant={'outlined'} onClick={goToPaddleBilling}>
+                {t('go_to_billing')}
               </Button>
-            ) : (
-              !(
-                company.subscription.scheduledChangeDate &&
-                company.subscription.scheduledChangeType === 'RESET_TO_FREE'
-              ) &&
-              false && (
-                <Button
-                  onClick={() => {
-                    if (window.confirm(t('confirm_cancel_subscription'))) {
-                      setLoadingCancel(true);
-                      cancelSubscription().finally(() =>
-                        setLoadingCancel(false)
-                      );
-                    }
-                  }}
-                  variant="contained"
-                  color="error"
-                  disabled={loadingCancel}
-                  startIcon={
-                    loadingCancel ? (
-                      <CircularProgress color="error" size={'1rem'} />
-                    ) : null
-                  }
-                >
-                  {t('cancel_subscription')}
-                </Button>
-              )
-            ))}
+            )}
         </Box>
       </Box>
     </Card>

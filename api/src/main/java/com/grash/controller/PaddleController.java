@@ -72,6 +72,18 @@ public class PaddleController {
         } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
     }
 
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @GetMapping("/customer-portal")
+    public SuccessResponse getCustomerPortalUrl(HttpServletRequest req) {
+        checkIfCloudVersion();
+        User user = userService.whoami(req);
+        if (user.getPaddleUserId() == null) {
+            throw new CustomException("No Paddle customer found", HttpStatus.NOT_FOUND);
+        }
+        String portalUrl = paddleService.createCustomerPortalSession(user.getPaddleUserId());
+        return new SuccessResponse(true, portalUrl);
+    }
+
     private void checkIfCloudVersion() {
         if (!cloudVersion) throw new CustomException("Paddle Cloud is not enabled", HttpStatus.FORBIDDEN);
     }

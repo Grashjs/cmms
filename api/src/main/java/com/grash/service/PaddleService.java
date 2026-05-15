@@ -196,6 +196,24 @@ public class PaddleService {
         savedSubscription.setUsersCount(usersCount);
     }
 
+    public String createCustomerPortalSession(String customerId) {
+        HttpHeaders headers = getHttpHeaders();
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<PaddlePortalSessionResponse> response = restTemplate.exchange(
+                paddleApiUrl + "/customers/" + customerId + "/portal-sessions",
+                HttpMethod.POST,
+                entity,
+                PaddlePortalSessionResponse.class
+        );
+
+        if (response.getStatusCode() == HttpStatus.CREATED && response.getBody() != null) {
+            return response.getBody().getData().getUrls().getGeneral().getOverview();
+        } else {
+            throw new CustomException("Failed to create customer portal session", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     public void pauseSubscription(String subscriptionId) {
         HttpHeaders headers = getHttpHeaders();
         HttpEntity<Void> entity = new HttpEntity<>(headers);
@@ -350,6 +368,37 @@ public class PaddleService {
         } else {
             throw new CustomException("Failed to retrieve customer email", HttpStatus.NOT_FOUND);
         }
+    }
+
+    // Portal Session Response DTOs
+    @Data
+    private static class PaddlePortalSessionResponse {
+        private PaddlePortalSessionData data;
+    }
+
+    @Data
+    private static class PaddlePortalSessionData {
+        private String id;
+
+        @JsonProperty("customer_id")
+        private String customerId;
+
+        private PaddlePortalUrls urls;
+
+        @JsonProperty("created_at")
+        private String createdAt;
+    }
+
+    @Data
+    private static class PaddlePortalUrls {
+        private PaddlePortalGeneralUrls general;
+
+        private List<String> subscriptions;
+    }
+
+    @Data
+    private static class PaddlePortalGeneralUrls {
+        private String overview;
     }
 
     @NotNull
