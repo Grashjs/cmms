@@ -397,12 +397,27 @@ public class PaddleService {
     private static class PaddlePortalUrls {
         private PaddlePortalGeneralUrls general;
 
-        private List<String> subscriptions;
+        // Was List<String> — must be List<PaddlePortalSubscriptionUrl>
+        private List<PaddlePortalSubscriptionUrl> subscriptions;
     }
 
     @Data
     private static class PaddlePortalGeneralUrls {
         private String overview;
+    }
+
+    @Data
+    private static class PaddlePortalSubscriptionUrl {
+        private String id;
+
+        @JsonProperty("cancel_subscription")
+        private String cancelSubscription;
+
+        @JsonProperty("update_subscription")
+        private String updateSubscription;
+
+        @JsonProperty("update_payment_method")
+        private String updatePaymentMethod;
     }
 
     @NotNull
