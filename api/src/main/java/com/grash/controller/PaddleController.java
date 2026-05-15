@@ -80,7 +80,8 @@ public class PaddleController {
         if (user.getPaddleUserId() == null) {
             throw new CustomException("No Paddle customer found", HttpStatus.NOT_FOUND);
         }
-        String portalUrl = paddleService.createCustomerPortalSession(user.getPaddleUserId());
+        String portalUrl = paddleService.createCustomerPortalSession(user.getPaddleUserId(),
+                user.getCompany().getSubscription().getPaddleSubscriptionId());
         return new SuccessResponse(true, portalUrl);
     }
 

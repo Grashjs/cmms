@@ -9,6 +9,7 @@ import com.grash.model.User;
 import com.grash.model.Subscription;
 import com.grash.model.SubscriptionPlan;
 import com.grash.model.enums.PlanFeatures;
+import jakarta.annotation.Nullable;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -196,9 +197,11 @@ public class PaddleService {
         savedSubscription.setUsersCount(usersCount);
     }
 
-    public String createCustomerPortalSession(String customerId) {
+    public String createCustomerPortalSession(String customerId, @Nullable String subscriptionId) {
         HttpHeaders headers = getHttpHeaders();
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
+        Map<String, String> body = new HashMap<>();
+        if (subscriptionId != null) body.put("subscription_ids", List.of(subscriptionId).toString());
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
 
         ResponseEntity<PaddlePortalSessionResponse> response = restTemplate.exchange(
                 paddleApiUrl + "/customers/" + customerId + "/portal-sessions",
