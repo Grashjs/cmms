@@ -214,7 +214,7 @@ public class PaddleService {
             if (subscriptionId == null) return response.getBody().getData().getUrls().getGeneral().getOverview();
             return response.getBody().getData().getUrls().getSubscriptions().stream()
                     .filter(sub -> sub.getId().equals(subscriptionId)).findFirst()
-                    .get().getUpdateSubscription();
+                    .get().getUpdatePaymentMethod();
         } else {
             throw new CustomException("Failed to create customer portal session", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -414,9 +414,6 @@ public class PaddleService {
 
         @JsonProperty("cancel_subscription")
         private String cancelSubscription;
-
-        @JsonProperty("update_subscription")
-        private String updateSubscription;
 
         @JsonProperty("update_payment_method")
         private String updatePaymentMethod;
