@@ -1483,6 +1483,7 @@ const locale = {
   no_comments: 'Nog geen reacties. Wees de eerste die reageert!',
   post_comment: 'Plaats reactie',
   confirm_delete_comment: 'Weet u zeker dat u deze reactie wilt verwijderen?',
-  add_comment_placeholder: 'Voeg een reactie toe...'
+  add_comment_placeholder: 'Voeg een reactie toe...',
+  create_category: 'Create Category'
 };
 export default locale;

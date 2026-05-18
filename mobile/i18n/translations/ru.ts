@@ -1533,7 +1533,8 @@ const ruJSON = {
   no_comments: 'Пока нет комментариев. Станьте первым, кто прокомментирует!',
   post_comment: 'Опубликовать комментарий',
   confirm_delete_comment: 'Вы уверены, что хотите удалить этот комментарий?',
-  add_comment_placeholder: 'Добавить комментарий...'
+  add_comment_placeholder: 'Добавить комментарий...',
+  create_category: 'Create Category'
 };
 
 export default ruJSON;

@@ -1419,7 +1419,8 @@ const locale = {
   no_comments: 'لا توجد تعليقات بعد. كن أول من يعلق!',
   post_comment: 'نشر تعليق',
   confirm_delete_comment: 'هل أنت متأكد أنك تريد حذف هذا التعليق؟',
-  add_comment_placeholder: 'أضف تعليقًا...'
+  add_comment_placeholder: 'أضف تعليقًا...',
+  create_category: 'Create Category'
 };
 
 export default locale;

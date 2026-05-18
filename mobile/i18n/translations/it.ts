@@ -1498,7 +1498,8 @@ const locale = {
   no_comments: 'Ancora nessun commento. Sii il primo a commentare!',
   post_comment: 'Pubblica commento',
   confirm_delete_comment: 'Sei sicuro di voler eliminare questo commento?',
-  add_comment_placeholder: 'Aggiungi un commento...'
+  add_comment_placeholder: 'Aggiungi un commento...',
+  create_category: 'Create Category'
 };
 
 export default locale;

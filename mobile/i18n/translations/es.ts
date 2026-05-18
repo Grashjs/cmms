@@ -1509,6 +1509,7 @@ const locale = {
   no_comments: 'Aún no hay comentarios. ¡Sé el primero en comentar!',
   post_comment: 'Publicar comentario',
   confirm_delete_comment: '¿Está seguro de que desea eliminar este comentario?',
-  add_comment_placeholder: 'Añadir un comentario...'
+  add_comment_placeholder: 'Añadir un comentario...',
+  create_category: 'Create Category'
 };
 export default locale;

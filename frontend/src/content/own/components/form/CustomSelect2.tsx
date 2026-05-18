@@ -330,12 +330,15 @@ export const CustomSelect = ({
                 </Box>
               );
             }}
-            onChange={(event, newValue) => {
+            onChange={(event, newValue, reason, details) => {
+              const selectedOption = field.multiple
+                ? details?.option
+                : newValue;
               if (
-                newValue &&
-                (newValue as InviteUserOptionType).__inviteOption__
+                selectedOption &&
+                (selectedOption as InviteUserOptionType).__inviteOption__
               ) {
-                const email = (newValue as InviteUserOptionType).__email__;
+                const email = (selectedOption as InviteUserOptionType).__email__;
                 // Navigate to invite page with email if provided
                 if (email) {
                   navigate(

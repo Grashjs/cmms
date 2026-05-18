@@ -1474,7 +1474,8 @@ const locale = {
   no_comments: 'Inga kommentarer än. Var den första att kommentera!',
   post_comment: 'Publicera kommentar',
   confirm_delete_comment: 'Är du säker på att du vill ta bort denna kommentar?',
-  add_comment_placeholder: 'Lägg till en kommentar...'
+  add_comment_placeholder: 'Lägg till en kommentar...',
+  create_category: 'Create Category'
 };
 
 export default locale;

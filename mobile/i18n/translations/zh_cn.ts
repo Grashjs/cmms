@@ -1360,6 +1360,7 @@ const locale = {
   post_comment: '发布评论',
   confirm_delete_comment: '您确定要删除此评论吗？',
   add_comment_placeholder: '添加评论...',
-  Statistics: '统计'
+  Statistics: '统计',
+  create_category: 'Create Category'
 };
 export default locale;

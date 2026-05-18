@@ -1631,6 +1631,7 @@ const frJSON = {
     'Aucun commentaire pour le moment. Soyez le premier à commenter !',
   post_comment: 'Publier un commentaire',
   confirm_delete_comment: 'Êtes-vous sûr de vouloir supprimer ce commentaire ?',
-  add_comment_placeholder: 'Ajouter un commentaire...'
+  add_comment_placeholder: 'Ajouter un commentaire...',
+  create_category: 'Create Category'
 };
 export default frJSON;
