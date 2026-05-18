@@ -13,7 +13,14 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from '../../store';
 import { LocationMiniDTO } from '../../models/location';
 import { getLocationsMini } from '../../slices/location';
-import { Avatar, Checkbox, Divider, Searchbar, Text } from 'react-native-paper';
+import {
+  Avatar,
+  Button,
+  Checkbox,
+  Divider,
+  Searchbar,
+  Text
+} from 'react-native-paper';
 import { useAppTheme } from '../../custom-theme';
 
 export default function SelectLocationsModal({
@@ -158,6 +165,25 @@ export default function SelectLocationsModal({
               </View>
             </TouchableOpacity>
           ))}
+        <Divider />
+        <Button
+          icon={'plus-circle'}
+          style={{ margin: 20 }}
+          mode={'contained'}
+          onPress={() => {
+            navigation.navigate('AddLocation', {
+              onSuccess: (newLocation) => {
+                setSelectedIds((prev) => [...prev, newLocation.id]);
+                if (!multiple) {
+                  onChange([newLocation]);
+                  navigation.goBack();
+                }
+              }
+            });
+          }}
+        >
+          {t('create_location')}
+        </Button>
       </ScrollView>
     </View>
   );

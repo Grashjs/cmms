@@ -77,6 +77,15 @@ const slice = createSlice({
     ) {
       const { location } = action.payload;
       state.locations.content = [...state.locations.content, location];
+      state.locationsMini = [
+        ...state.locationsMini,
+        {
+          id: location.id,
+          name: location.name,
+          address: location.address,
+          customId: location.customId
+        }
+      ];
     },
     editLocation(
       state: LocationState,
@@ -205,6 +214,7 @@ export const addLocation =
   async (dispatch) => {
     const locationResponse = await api.post<Location>('locations', location);
     dispatch(slice.actions.addLocation({ location: locationResponse }));
+    return locationResponse;
   };
 export const editLocation =
   (id: number, location): AppThunk =>

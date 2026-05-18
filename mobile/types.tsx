@@ -50,7 +50,9 @@ export type RootStackParamList = {
     nfcId?: string;
     barCode?: string;
   };
-  AddLocation: undefined;
+  AddLocation: {
+    onSuccess?: (location: LocationMiniDTO) => void;
+  } | undefined;
   AddPart: undefined;
   AddMeter: undefined;
   AddUser: undefined;
