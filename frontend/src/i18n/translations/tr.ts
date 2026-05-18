@@ -1891,7 +1891,8 @@ const trJSON = {
   view: 'Görüntüle',
   view_other: 'Diğerini görüntüle',
   view_other_hint: '"Diğerini görüntüle" başkası tarafından oluşturulan bir şeyi görüntülemek anlamına gelir',
-  go_to_billing: 'Faturalandırmaya git'
+  go_to_billing: 'Faturalandırmaya git',
+  import_from_spreadsheet: 'Bir e-tablodan veya CSV\'den içe aktar'
 };
 
 export default trJSON;

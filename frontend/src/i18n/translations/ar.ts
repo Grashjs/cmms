@@ -1829,7 +1829,8 @@ const locale = {
   go_to_billing: 'الذهاب إلى الفواتير',
   view: 'عرض',
   view_other: 'عرض الآخر',
-  view_other_hint: '"عرض الآخر" يعني عرض شيء تم إنشاؤه بواسطة شخص آخر'
+  view_other_hint: '"عرض الآخر" يعني عرض شيء تم إنشاؤه بواسطة شخص آخر',
+  import_from_spreadsheet: 'استيراد من جدول بيانات أو CSV'
 };
 
 export default locale;

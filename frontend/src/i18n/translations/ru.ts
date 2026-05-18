@@ -1954,7 +1954,8 @@ const ruJSON = {
   view: 'Просмотр',
   view_other: 'Посмотреть другое',
   view_other_hint: '"Посмотреть другое" означает просмотр чего-то, созданного кем-то другим',
-  go_to_billing: 'Перейти к оплате'
+  go_to_billing: 'Перейти к оплате',
+  import_from_spreadsheet: 'Импорт из электронной таблицы или CSV'
 };
 
 export default ruJSON;

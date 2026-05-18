@@ -1877,7 +1877,8 @@ const locale = {
   view: 'Pregled',
   view_other: 'Pogledaj drugo',
   view_other_hint: '"Pogledaj drugo" znači pogledati nešto što je stvorio neko drugi',
-  go_to_billing: 'Idi na naplatu'
+  go_to_billing: 'Idi na naplatu',
+  import_from_spreadsheet: 'Uvezi iz tabele ili CSV'
 };
 
 export default locale;

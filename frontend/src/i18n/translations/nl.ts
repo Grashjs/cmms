@@ -1886,6 +1886,7 @@ const locale = {
   view: 'Bekijken',
   view_other: 'Andere bekijken',
   view_other_hint: '"Andere bekijken" betekent iets bekijken dat door iemand anders is gemaakt',
-  go_to_billing: 'Ga naar facturatie'
+  go_to_billing: 'Ga naar facturatie',
+  import_from_spreadsheet: 'Importeren uit een spreadsheet of CSV'
 };
 export default locale;

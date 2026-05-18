@@ -1861,7 +1861,8 @@ const locale = {
   view: 'Visa',
   view_other: 'Visa annan',
   view_other_hint: '"Visa annan" betyder att visa något som skapats av någon annan',
-  go_to_billing: 'Gå till fakturering'
+  go_to_billing: 'Gå till fakturering',
+  import_from_spreadsheet: 'Importera från ett kalkylblad eller CSV'
 };
 
 export default locale;

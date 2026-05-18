@@ -1895,7 +1895,8 @@ const locale = {
   view: 'Visualizza',
   view_other: 'Visualizza altro',
   view_other_hint: '"Visualizza altro" significa visualizzare qualcosa creato da qualcun altro',
-  go_to_billing: 'Vai alla fatturazione'
+  go_to_billing: 'Vai alla fatturazione',
+  import_from_spreadsheet: 'Importa da un foglio di calcolo o CSV'
 };
 
 export default locale;

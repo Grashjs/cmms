@@ -610,7 +610,7 @@ function Meters() {
                       hasFeature(PlanFeature.IMPORT_CSV)
                         ? [
                             {
-                              label: t('to_import'),
+                              label: t('import_from_spreadsheet'),
                               onClick: () => navigate('/app/imports/meters')
                             }
                           ]
