@@ -1478,6 +1478,7 @@ const locale = {
   post_comment: 'Post comment',
   confirm_delete_comment: 'Are you sure you want to delete this comment?',
   add_comment_placeholder: 'Add a comment...',
-  id_required: 'ID is required'
+  id_required: 'ID is required',
+  create_category: 'Create Category'
 };
 export default locale;

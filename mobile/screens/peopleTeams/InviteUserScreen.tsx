@@ -21,7 +21,10 @@ import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { RootStackScreenProps } from '../../types';
 
 export default function InviteUserScreen({
-  navigation
+  navigation,
+  route: {
+    params: { onSuccess }
+  }
 }: RootStackScreenProps<'AddUser'>) {
   const theme = useTheme();
   const { t } = useTranslation();

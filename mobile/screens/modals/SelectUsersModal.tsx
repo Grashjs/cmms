@@ -15,6 +15,7 @@ import { UserMiniDTO } from '../../models/user';
 import { getUsersMini } from '../../slices/user';
 import {
   Avatar,
+  Button,
   Checkbox,
   Divider,
   Searchbar,
@@ -170,6 +171,28 @@ export default function SelectUsersModal({
               </View>
             </TouchableOpacity>
           ))}
+        <Divider />
+        <Button
+          icon={'plus-circle'}
+          style={{ margin: 20 }}
+          mode={'contained'}
+          onPress={() => {
+            navigation.navigate(
+              'AddUser'
+              //   {
+              //   onSuccess: (newUser) => {
+              //     setSelectedIds((prev) => [...prev, newUser.id]);
+              //     if (!multiple) {
+              //       onChange([newUser]);
+              //       navigation.goBack();
+              //     }
+              //   }
+              // }
+            );
+          }}
+        >
+          {t('invite_users')}
+        </Button>
       </ScrollView>
     </View>
   );

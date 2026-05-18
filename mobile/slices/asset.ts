@@ -72,6 +72,13 @@ const slice = createSlice({
     addAsset(state: AssetState, action: PayloadAction<{ asset: AssetDTO }>) {
       const { asset } = action.payload;
       state.assets.content = [...state.assets.content, asset];
+      state.assetsMini = [
+        ...state.assetsMini,
+        {
+          ...asset,
+          parentId: asset.parentAsset?.id ?? null
+        }
+      ];
     },
     editAsset(state: AssetState, action: PayloadAction<{ asset: AssetDTO }>) {
       const { asset } = action.payload;
@@ -221,6 +228,7 @@ export const addAsset =
   async (dispatch) => {
     const assetResponse = await api.post<AssetDTO>(basePath, asset);
     dispatch(slice.actions.addAsset({ asset: assetResponse }));
+    return assetResponse;
   };
 export const editAsset =
   (id: number, asset: Partial<AssetDTO>): AppThunk =>
