@@ -51,14 +51,18 @@ export type RootStackParamList = {
     barCode?: string;
     onSuccess?: (asset: AssetMiniDTO) => void;
   };
-  AddLocation: {
-    onSuccess?: (location: LocationMiniDTO) => void;
-  } | undefined;
+  AddLocation:
+    | {
+        onSuccess?: (location: LocationMiniDTO) => void;
+      }
+    | undefined;
   AddPart: undefined;
   AddMeter: undefined;
-  AddUser: {
-    onSuccess?: (user: UserMiniDTO) => void;
-  } | undefined;
+  AddUser:
+    | {
+        onSuccess?: (user: UserMiniDTO) => void; //unused. May be used in the future
+      }
+    | undefined;
   WODetails: { id: number; workOrderProp?: WorkOrder };
   AssetDetails: { id: number; assetProp?: AssetDTO };
   LocationDetails: { id: number; locationProp?: Location };
