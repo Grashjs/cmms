@@ -4,6 +4,7 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MeterCategoryMapper;
 import com.grash.model.MeterCategory;
+import com.grash.model.User;
 import com.grash.repository.MeterCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,10 +22,10 @@ public class MeterCategoryService {
     private final MeterCategoryMapper meterCategoryMapper;
     private final LicenseService licenseService;
 
-    public MeterCategory create(MeterCategory meterCategory) {
+    public MeterCategory create(MeterCategory meterCategory, User user) {
         Optional<MeterCategory> categoryWithSameName =
                 meterCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(meterCategory.getName(),
-                        meterCategory.getCompanySettings().getId());
+                        user.getCompany().getCompanySettings().getId());
         if (categoryWithSameName.isPresent()) {
             throw new CustomException("MeterCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }

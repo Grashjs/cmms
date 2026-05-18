@@ -65,7 +65,7 @@ public class WorkOrderCategoryController {
                              HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
-            return workOrderCategoryService.create(workOrderCategory);
+            return workOrderCategoryService.create(workOrderCategory, user);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 

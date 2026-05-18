@@ -66,7 +66,7 @@ public class MeterCategoryController {
                          HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
-            return meterCategoryService.create(meterCategoryReq);
+            return meterCategoryService.create(meterCategoryReq, user);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 

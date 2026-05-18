@@ -66,7 +66,7 @@ public class TimeCategoryController {
                         HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
-            return timeCategoryService.create(timeCategoryReq);
+            return timeCategoryService.create(timeCategoryReq, user);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 

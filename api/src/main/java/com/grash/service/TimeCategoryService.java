@@ -4,6 +4,7 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TimeCategoryMapper;
 import com.grash.model.TimeCategory;
+import com.grash.model.User;
 import com.grash.repository.TimeCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,10 +20,10 @@ public class TimeCategoryService {
     private final CompanySettingsService companySettingsService;
     private final TimeCategoryMapper timeCategoryMapper;
 
-    public TimeCategory create(TimeCategory timeCategory) {
+    public TimeCategory create(TimeCategory timeCategory, User user) {
         Optional<TimeCategory> categoryWithSameName =
                 timeCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(timeCategory.getName(),
-                        timeCategory.getCompanySettings().getId());
+                        user.getCompany().getCompanySettings().getId());
         if (categoryWithSameName.isPresent()) {
             throw new CustomException("TimeCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }
