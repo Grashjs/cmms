@@ -127,6 +127,10 @@ Need customization or production setup? Continue reading below ↓
 | BRAND_CONFIG                | No       | Brand config for white labeling. Requires license. In format `{ "name": "Quantum Labs", "shortName": "QL", "website": "https://example.io", mail: "contact@example.io" }`                                                                                                                                   | (empty)               |
 | LDAP_ENABLED                | No       | Enables or disables LDAP. More variables are needed. You can get the full list [here](./dev-docs/LDAP_SETUP.md)                                                                                                                                                                                             | false                 |
 
+#### Helm / Kubernetes deployments
+
+When deploying with Helm, setting an optional variable to an empty string in `values.yaml` causes Kubernetes to strip it from the container entirely. Simply omit optional variables you don't need — the application will treat them as disabled. Avoid using placeholder sentinels like `"-"` as they will be passed as real values to services like Google Analytics or reCAPTCHA and may cause unexpected behaviour.
+
 For production deployments, it’s strongly recommended to use unique credentials and not rely on defaults.
 
 #### For remote servers

@@ -2,9 +2,13 @@ const getRuntimeValue = (
   key: string,
   defaultValue = ''
 ): string | undefined => {
-  const envValue = process.env[`REACT_APP_${key}`];
+  const envValue = process.env[`REACT_APP_${key}`]?.trim();
   const runtimeValue = window.__RUNTIME_CONFIG__?.[key]?.trim();
-  return envValue || runtimeValue || defaultValue;
+  const value = envValue || runtimeValue || defaultValue;
+  if (!value || value.trim() === '' || value.trim() === '-' || value.trim() === 'disabled') {
+    return undefined;
+  }
+  return value.trim();
 };
 
 export const firebaseConfig = {
@@ -87,15 +91,13 @@ export const brandRawConfig: BrandRawConfig = getRuntimeValue('BRAND_CONFIG')
   ? JSON.parse(getRuntimeValue('BRAND_CONFIG'))
   : null;
 
-export const demoLink: string = getRuntimeValue('DEMO_LINK');
+export const demoLink: string = getRuntimeValue('DEMO_LINK') ?? '';
 
 export const isWhiteLabeled: boolean = !!(customLogoPaths || brandRawConfig);
 
 export const IS_ORIGINAL_CLOUD = !isWhiteLabeled && isCloudVersion;
 
-export const PADDLE_SECRET_TOKEN: string = getRuntimeValue(
-  'PADDLE_SECRET_TOKEN'
-);
+export const PADDLE_SECRET_TOKEN: string = getRuntimeValue('PADDLE_SECRET_TOKEN') ?? '';
 
 export const paddleEnvironment = getRuntimeValue('PADDLE_ENVIRONMENT') as
   | 'sandbox'
