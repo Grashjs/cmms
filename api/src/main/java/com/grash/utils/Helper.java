@@ -162,6 +162,8 @@ public class Helper {
                 return new Locale("zh", "CN");
             case BA:
                 return new Locale("ba", "BA");
+            case JA:
+                return new Locale("ja", "JP");
 
             default:
                 return Locale.getDefault();

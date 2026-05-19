@@ -174,6 +174,7 @@ repository's Issue Tracker or email [contact@atlas-cmms.com](mailto:contact@atla
 - Chinese
 - Hungarian
 - Bosnian
+- Japanese
 
 ## 🏗️ **Tech Stack**
 

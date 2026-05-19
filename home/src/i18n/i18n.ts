@@ -1,7 +1,7 @@
 "use client";
 
 import { FlagComponent } from "country-flag-icons/react/1x1";
-import { BR, CN, DE, ES, FR, HU, IT, NL, PL, RU, SA, SE, TR, US, BA } from "country-flag-icons/react/3x2";
+import { BR, CN, DE, ES, FR, HU, IT, NL, PL, RU, SA, SE, TR, US, BA, JP } from "country-flag-icons/react/3x2";
 
 export type SupportedLanguage =
   | "DE"
@@ -18,7 +18,8 @@ export type SupportedLanguage =
   | "HU"
   | "NL"
   | "ZH_CN"
-  | "BA";
+  | "BA"
+  | "JA";
 
 export const supportedLanguages: {
   code: Lowercase<SupportedLanguage>;
@@ -99,5 +100,10 @@ export const supportedLanguages: {
     code: "ba",
     label: "Bosnian",
     Icon: BA,
+  },
+  {
+    code: "ja",
+    label: "Japanese",
+    Icon: JP,
   },
 ];
