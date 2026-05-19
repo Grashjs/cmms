@@ -184,7 +184,7 @@ export default function WorkOrdersScreen({
           <ScrollView
             horizontal
             style={{
-              backgroundColor: 'white',
+              backgroundColor: theme.colors.surface,
               borderRadius: 5,
               marginBottom: 2
             }}
@@ -284,7 +284,7 @@ export default function WorkOrdersScreen({
                   }
                   key={workOrder.id}
                 >
-                  <View style={styles.card}>
+                  <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
                     {/* Header: Title, ID, and Status */}
                     <View
                       style={{
@@ -319,7 +319,7 @@ export default function WorkOrdersScreen({
                             </Text>
                             <Text
                               variant={'bodySmall'}
-                              style={{ color: 'grey' }}
+                              style={{ color: theme.colors.onSurfaceVariant }}
                             >{`#${workOrder.customId}`}</Text>
                           </View>
                           <Tag
@@ -418,7 +418,7 @@ export default function WorkOrdersScreen({
           ) : loadingGet ? null : (
             <View
               style={{
-                backgroundColor: 'white',
+                backgroundColor: theme.colors.surface,
                 padding: 20,
                 borderRadius: 10
               }}
@@ -454,7 +454,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   card: {
-    backgroundColor: 'white',
+    backgroundColor: 'transparent',
     marginBottom: 1,
     padding: 10
   },

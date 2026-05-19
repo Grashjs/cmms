@@ -39,7 +39,12 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
   const { mobileOverview, loading } = useSelector((state) => state.woAnalytics);
   const iconButtonStyle = {
     ...styles.iconButton,
-    backgroundColor: theme.colors.background
+    backgroundColor: theme.colors.surface,
+    elevation: 2,
+    shadowColor: theme.colors.onSurface,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 2
   };
   const [assignedToMe, setAssignedToMe] = useState<boolean>(
     userSettings?.statsForAssignedWorkOrders
@@ -252,10 +257,18 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
             flexDirection: 'row',
             justifyContent: 'space-between',
             borderRadius: 10,
-            alignItems: 'center'
+            alignItems: 'center',
+            backgroundColor: theme.colors.surfaceVariant,
+            borderWidth: 1,
+            borderColor: theme.colors.outline,
+            elevation: 2,
+            shadowColor: theme.colors.onSurface,
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.16,
+            shadowRadius: 3
           }}
         >
-          <Text style={{ color: theme.colors.grey }}>
+          <Text style={{ color: theme.colors.onSurfaceVariant }}>
             {t('only_assigned_to_me')}
           </Text>
           <Switch
@@ -278,7 +291,15 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
             marginTop: 20,
             paddingHorizontal: 10,
             paddingVertical: 5,
-            borderRadius: 10
+            borderRadius: 10,
+            backgroundColor: 'transparent',
+            borderWidth: 1,
+            borderColor: theme.colors.outline,
+            elevation: 0,
+            shadowColor: 'transparent',
+            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: 0,
+            shadowRadius: 0
           }}
         >
           <TouchableOpacity
@@ -338,10 +359,10 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
                 justifyContent: 'flex-start'
               }}
             >
-              <Text style={{ color: theme.colors.grey }}>{stat.value}</Text>
+              <Text style={{ color: theme.colors.onSurfaceVariant }}>{stat.value}</Text>
               <IconButton
                 icon={'chevron-double-right'}
-                iconColor={theme.colors.grey}
+                iconColor={theme.colors.onSurfaceVariant}
               />
             </View>
           </TouchableOpacity>

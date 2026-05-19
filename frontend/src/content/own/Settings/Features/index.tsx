@@ -181,7 +181,7 @@ function FeaturesSettings() {
                     <Card
                       key={feature.id}
                       sx={{
-                        backgroundColor: 'white'
+                        backgroundColor: 'background.paper'
                       }}
                     >
                       <CardContent>

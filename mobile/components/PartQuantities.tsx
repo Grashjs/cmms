@@ -115,7 +115,11 @@ export default function PartQuantities({
   const renderModal = () => {
     return (
       <Portal theme={theme}>
-        <Modal visible={openModal} onDismiss={hideModal} style={styles.modal}>
+        <Modal
+          visible={openModal}
+          onDismiss={hideModal}
+          style={[styles.modal, { backgroundColor: theme.colors.surface }]}
+        >
           <Text variant="titleLarge" style={{ fontWeight: 'bold' }}>
             {t('quantity')}
           </Text>
@@ -164,7 +168,7 @@ export default function PartQuantities({
                 padding: 7,
                 borderRadius: 5,
                 fontWeight: 'bold',
-                color: 'white'
+                color: theme.colors.onPrimary
               }}
             >{`${partQuantity.quantity}${partQuantity.part.unit ?? 'x'}`}</Text>
             <TouchableOpacity
@@ -211,7 +215,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 10,
     paddingTop: 10,
-    shadowColor: '#000',
+    shadowColor: '#00000033',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     marginBottom: 10,
@@ -219,7 +223,6 @@ const styles = StyleSheet.create({
   },
   modal: {
     marginHorizontal: 20,
-    backgroundColor: 'white',
     borderRadius: 20,
     padding: 20,
     shadowOffset: {
