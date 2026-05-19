@@ -6,6 +6,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +24,7 @@ public interface MeterRepository extends JpaRepository<Meter, Long>, JpaSpecific
             "LEFT JOIN FETCH m.location " +
             "LEFT JOIN FETCH m.asset " +
             "WHERE m.company.id = :companyId")
-    List<Meter> findByCompanyForExport(@Param("companyId") Long companyId);
+    Page<Meter> findByCompanyForExport(@Param("companyId") Long companyId, Pageable pageable);
 
     Optional<Meter> findByIdAndCompany_Id(Long id, Long companyId);
 

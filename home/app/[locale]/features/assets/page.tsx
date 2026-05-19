@@ -1,6 +1,7 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { Inventory2, Timeline, FactCheck } from "@mui/icons-material";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 import { getLocalizedMetadata } from "src/utils/metadata";
 
 const assetsData: IndustryLayoutProps = {
@@ -80,12 +81,16 @@ const assetsData: IndustryLayoutProps = {
     "Open-source asset management without the enterprise price tag. Track equipment history, reduce downtime, and manage everything from one self-hosted, powerful CMMS.",
 };
 
-function AssetsPage() {
+async function AssetsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return <IndustryLayout {...assetsData} />;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
+
   return {
     title: assetsData.pageTitle,
     description: assetsData.pageDescription,

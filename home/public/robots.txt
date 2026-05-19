@@ -1,5 +1,5 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Disallow: /en/
 
 Sitemap: https://atlas-cmms.com/sitemap.xml

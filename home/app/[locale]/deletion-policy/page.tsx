@@ -1,12 +1,13 @@
 import { Metadata } from "next";
 import DeletionPolicy from "src/content/deletion-policy";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import Footer from "@/src/components/Footer";
 import { getLocalizedMetadata } from "src/utils/metadata";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   // const t = await getTranslations({ locale });
+  setRequestLocale(locale);
 
   return {
     title: "Account deletion",
@@ -16,7 +17,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
-export default function Page() {
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return (
     <>
       <DeletionPolicy />

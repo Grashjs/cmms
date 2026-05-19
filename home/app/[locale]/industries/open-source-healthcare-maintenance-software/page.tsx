@@ -1,5 +1,6 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 import { getLocalizedMetadata } from "src/utils/metadata";
 
 const healthcareData: IndustryLayoutProps = {
@@ -94,12 +95,15 @@ const healthcareData: IndustryLayoutProps = {
     "Open-source healthcare maintenance that prioritizes patient safety. Keep critical medical equipment running, simplify audits, and maintain total data privacy with a self-hosted CMMS.",
 };
 
-function HealthcarePage() {
+async function HealthcarePage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return <IndustryLayout {...healthcareData} />;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   return {
     title: healthcareData.pageTitle,
     description: healthcareData.pageDescription,

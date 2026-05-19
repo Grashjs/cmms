@@ -1,5 +1,6 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 import { getLocalizedMetadata } from "src/utils/metadata";
 
 const facilityManagementData: IndustryLayoutProps = {
@@ -109,7 +110,9 @@ const facilityManagementData: IndustryLayoutProps = {
     "Open-source facility management that puts you in the driver’s seat. Streamline building operations, automate PM schedules, and manage multi-site portfolios with a self-hosted CMMS.",
 };
 
-function FacilityManagementPage() {
+async function FacilityManagementPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return (
     <IndustryLayout {...facilityManagementData}>
       {/* Additional custom content can be added here as children */}
@@ -119,6 +122,7 @@ function FacilityManagementPage() {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   return {
     title: facilityManagementData.pageTitle,
     description: facilityManagementData.pageDescription,

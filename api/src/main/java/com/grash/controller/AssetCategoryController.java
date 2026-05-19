@@ -62,7 +62,7 @@ public class AssetCategoryController {
                                 HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
-            return assetCategoryService.create(assetCategoryReq);
+            return assetCategoryService.create(assetCategoryReq, user);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 

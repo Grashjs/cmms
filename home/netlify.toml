@@ -1,0 +1,22 @@
+# Edge rewrites (avoids function for known paths)
+[[redirects]]
+  from = "/"
+  to = "/en"
+  status = 200
+
+[[redirects]]
+  from = "/free-cmms"
+  to = "/en/free-cmms"
+  status = 200
+
+[[redirects]]
+  from = "/deletion-policy"
+  to = "/en/deletion-policy"
+  status = 200
+
+# Cache headers — CDN will cache after first function render
+
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

@@ -17,7 +17,9 @@ import { AssetDTO, AssetMiniDTO } from '../../models/asset';
 import { getAssetsMini } from '../../slices/asset';
 import {
   Avatar,
+  Button,
   Checkbox,
+  Divider,
   IconButton,
   Searchbar,
   SegmentedButtons,
@@ -357,6 +359,25 @@ export default function SelectAssetsModal({
           !searchQuery && (
             <Text style={styles.noResultsText}>{t('no_assets_available')}</Text>
           )}
+        <Divider />
+        <Button
+          icon={'plus-circle'}
+          style={{ margin: 20 }}
+          mode={'contained'}
+          onPress={() => {
+            navigation.navigate('AddAsset', {
+              onSuccess: (newAsset) => {
+                setSelectedIds((prev) => [...prev, newAsset.id]);
+                if (!multiple) {
+                  onChange([newAsset]);
+                  navigation.goBack();
+                }
+              }
+            });
+          }}
+        >
+          {t('create_asset')}
+        </Button>
       </ScrollView>
     </View>
   );

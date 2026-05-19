@@ -11,7 +11,6 @@ export default interface OwnSubscription extends Audit {
   cancelled: boolean;
   scheduledChangeType: 'RESET_TO_FREE';
   scheduledChangeDate: string;
-  paddleSubscriptionId: string;
   activated: boolean;
   upgradeNeeded: boolean;
   downgradeNeeded: boolean;

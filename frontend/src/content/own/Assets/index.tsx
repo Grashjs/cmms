@@ -39,7 +39,10 @@ import { AssetDTO, AssetRow } from '../../../models/owns/asset';
 import Form from '../components/form';
 import * as Yup from 'yup';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { formatAssetValues, formatCustomFields } from '../../../utils/formatters';
+import {
+  formatAssetValues,
+  formatCustomFields
+} from '../../../utils/formatters';
 import UserAvatars from '../components/UserAvatars';
 import { enumerate } from '../../../utils/displayers';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
@@ -110,11 +113,17 @@ function Assets() {
   const { exportEntity, loadingExport } = useExport();
   const { getFormattedDate } = useContext(CompanySettingsContext);
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const { locations } = useSelector((state) => state.locations);
-  const { customFields } = useSelector((state) => state.customFields);
-  const locationParamObject = locations.find(
-    (location) => location.id === Number(locationParam)
+  const { locations, locationsHierarchy } = useSelector(
+    (state) => state.locations
   );
+  const { customFields } = useSelector((state) => state.customFields);
+  const locationParamObject =
+    locations.content.find(
+      (location) => location.id === Number(locationParam)
+    ) ||
+    locationsHierarchy.find(
+      (location) => location.id === Number(locationParam)
+    );
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
   type ViewType = 'hierarchy' | 'list';
@@ -203,7 +212,7 @@ function Assets() {
 
         setSubRowsMap((prev) => ({ ...prev, [row.id]: [loadingRow] }));
         // Fetch the children
-        await dispatch(getAssetChildren(row.id, pageable));
+        await dispatch(getAssetChildren(row.id, { ...pageable, page: 0 }));
         setDeployedAssets((prevState) => [...prevState, row]);
 
         // Clean up the loading row once the fetch is complete
@@ -534,7 +543,7 @@ function Assets() {
       {
         id: 'teams',
         header: () => t('teams'),
-        cell: (info) => info.getValue(),
+        cell: (info) => info.getValue() || '',
         size: 150
       }
     ),
@@ -989,7 +998,7 @@ function Assets() {
                     hasFeature(PlanFeature.IMPORT_CSV)
                       ? [
                           {
-                            label: t('to_import'),
+                            label: t('import_from_spreadsheet'),
                             onClick: () => navigate('/app/imports/assets')
                           }
                         ]

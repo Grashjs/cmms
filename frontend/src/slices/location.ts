@@ -7,24 +7,34 @@ import Location, {
 } from '../models/owns/location';
 import api, { authHeader } from '../utils/api';
 import { revertAll } from 'src/utils/redux';
-import { Pageable, pageableToQueryParams } from '../models/owns/page';
+import {
+  getInitialPage,
+  Page,
+  Pageable,
+  pageableToQueryParams,
+  SearchCriteria
+} from '../models/owns/page';
 import {
   createCancellableRequest,
   isAbortError
 } from 'src/utils/cancellableRequest';
 
 interface LocationState {
-  locations: Location[];
+  locations: Page<Location>;
   locationsHierarchy: LocationRow[];
   locationsMini: LocationMiniDTO[];
   loadingGet: boolean;
+  loadingHierarchy: boolean;
+  childrenPages: { [key: number]: Page<Location> };
 }
 
 const initialState: LocationState = {
-  locations: [],
+  locations: getInitialPage<Location>(),
   locationsHierarchy: [],
   locationsMini: [],
-  loadingGet: false
+  loadingGet: false,
+  loadingHierarchy: false,
+  childrenPages: {}
 };
 
 const slice = createSlice({
@@ -34,7 +44,7 @@ const slice = createSlice({
   reducers: {
     getLocations(
       state: LocationState,
-      action: PayloadAction<{ locations: Location[] }>
+      action: PayloadAction<{ locations: Page<Location> }>
     ) {
       const { locations } = action.payload;
       state.locations = locations;
@@ -51,18 +61,18 @@ const slice = createSlice({
       action: PayloadAction<{ location: Location }>
     ) {
       const { location } = action.payload;
-      state.locations = [...state.locations, location];
+      state.locations.content.push(location);
     },
     editLocation(
       state: LocationState,
       action: PayloadAction<{ location: Location }>
     ) {
       const { location } = action.payload;
-      const locationIndex = state.locations.findIndex(
+      const locationIndex = state.locations.content.findIndex(
         (loc) => loc.id === location.id
       );
       if (locationIndex === -1) {
-        state.locations = [...state.locations, location];
+        state.locations.content = [...state.locations.content, location];
       } else {
         state.locations[locationIndex] = location;
       }
@@ -72,33 +82,47 @@ const slice = createSlice({
       action: PayloadAction<{ id: number }>
     ) {
       const { id } = action.payload;
-      const locationIndex = state.locations.findIndex(
+      const locationIndex = state.locations.content.findIndex(
         (location) => location.id === id
       );
-      state.locations.splice(locationIndex, 1);
+      state.locations.content.splice(locationIndex, 1);
     },
-    getLocationChildren(
+    getLocationChildrenPaginated(
       state: LocationState,
-      action: PayloadAction<{ locations: LocationRow[]; id: number }>
+      action: PayloadAction<{
+        locations: Page<Location>;
+        id: number;
+        parents: number[];
+      }>
     ) {
-      const { locations, id } = action.payload;
+      const { locations, id, parents } = action.payload;
       const parent = state.locationsHierarchy.findIndex(
         (location) => location.id === id
       );
       if (parent !== -1)
         state.locationsHierarchy[parent].childrenFetched = true;
 
-      state.locationsHierarchy = locations.reduce((acc, location) => {
-        //check if location already exists in state
+      state.locationsHierarchy = locations.content.reduce((acc, location) => {
         const locationInState = state.locationsHierarchy.findIndex(
-          (location1) => location1.id === location.id
+          (l) => l.id === location.id
         );
-        //not found
-        if (locationInState === -1) return [...acc, location];
-        //found
-        acc[locationInState] = location;
+        const locationWithHierarchy = {
+          ...location,
+          hierarchy: [...parents, location.id]
+        } as LocationRow;
+        if (locationInState === -1) return [...acc, locationWithHierarchy];
+        acc[locationInState] = locationWithHierarchy;
         return acc;
       }, state.locationsHierarchy);
+
+      state.childrenPages[id] = locations;
+    },
+    setLoadingHierarchy(
+      state: LocationState,
+      action: PayloadAction<{ loading: boolean }>
+    ) {
+      const { loading } = action.payload;
+      state.loadingHierarchy = loading;
     },
     setLoadingGet(
       state: LocationState,
@@ -115,16 +139,25 @@ const slice = createSlice({
 
 export const reducer = slice.reducer;
 
-export const getLocations = (): AppThunk => async (dispatch) => {
-  const { signal } = createCancellableRequest();
-  try {
-    const locations = await api.get<Location[]>('locations', { signal });
-    dispatch(slice.actions.getLocations({ locations }));
-  } catch (error) {
-    if (isAbortError(error)) return;
-    throw error;
-  }
-};
+export const getLocations =
+  (criteria: SearchCriteria): AppThunk =>
+  async (dispatch) => {
+    const { signal } = createCancellableRequest();
+    try {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      const locations = await api.post<Page<Location>>(
+        `locations/search`,
+        criteria,
+        { signal }
+      );
+      dispatch(slice.actions.getLocations({ locations }));
+    } catch (error) {
+      if (isAbortError(error)) return;
+      throw error;
+    } finally {
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    }
+  };
 export const getLocationsMini = (): AppThunk => async (dispatch) => {
   const { signal } = createCancellableRequest();
   try {
@@ -176,6 +209,7 @@ export const getSingleLocation =
   async (dispatch) => {
     const locationResponse = await api.get<Location>(`locations/${id}`);
     dispatch(slice.actions.editLocation({ location: locationResponse }));
+    return locationResponse;
   };
 export const deleteLocation =
   (id: number): AppThunk =>
@@ -189,22 +223,21 @@ export const deleteLocation =
     }
   };
 
-export const getLocationChildren =
+export const getLocationChildrenPaginated =
   (id: number, parents: number[], pageable: Pageable): AppThunk =>
   async (dispatch) => {
-    dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const locations = await api.get<Location[]>(
-      `locations/children/${id}?${pageableToQueryParams(pageable)}`
+    dispatch(slice.actions.setLoadingHierarchy({ loading: true }));
+    const locations = await api.get<Page<Location>>(
+      `locations/children/${id}/paginated?${pageableToQueryParams(pageable)}`
     );
     dispatch(
-      slice.actions.getLocationChildren({
+      slice.actions.getLocationChildrenPaginated({
         id,
-        locations: locations.map((location) => {
-          return { ...location, hierarchy: [...parents, location.id] };
-        })
+        locations,
+        parents
       })
     );
-    dispatch(slice.actions.setLoadingGet({ loading: false }));
+    dispatch(slice.actions.setLoadingHierarchy({ loading: false }));
   };
 
 export const resetLocationsHierarchy =
@@ -212,7 +245,7 @@ export const resetLocationsHierarchy =
   async (dispatch) => {
     dispatch(slice.actions.resetHierarchy({}));
     if (callApi) {
-      dispatch(getLocationChildren(0, [], pageable));
+      dispatch(getLocationChildrenPaginated(0, [], pageable));
     }
   };
 

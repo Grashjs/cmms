@@ -1,6 +1,7 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { Inventory, Link, ShoppingCart } from "@mui/icons-material";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 import { getLocalizedMetadata } from "src/utils/metadata";
 
 const sparePartsData: IndustryLayoutProps = {
@@ -80,12 +81,16 @@ const sparePartsData: IndustryLayoutProps = {
     "Open-source inventory control that never sleeps. Take charge of your spare parts, automate low-stock alerts, and eliminate maintenance delays with a self-hosted CMMS.",
 };
 
-function SparePartsPage() {
+async function SparePartsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return <IndustryLayout {...sparePartsData} />;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
+
   return {
     title: sparePartsData.pageTitle,
     description: sparePartsData.pageDescription,

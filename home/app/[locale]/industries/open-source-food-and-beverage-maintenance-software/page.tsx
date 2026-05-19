@@ -1,5 +1,6 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 import { getLocalizedMetadata } from "src/utils/metadata";
 
 const foodBeverageData: IndustryLayoutProps = {
@@ -88,12 +89,15 @@ const foodBeverageData: IndustryLayoutProps = {
     "Open-source food and beverage maintenance for ultimate safety and uptime. Automate inspections, meet strict compliance standards, and own your production data with a self-hosted CMMS.",
 };
 
-function FoodBeveragePage() {
+async function FoodBeveragePage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return <IndustryLayout {...foodBeverageData} />;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   return {
     title: foodBeverageData.pageTitle,
     description: foodBeverageData.pageDescription,

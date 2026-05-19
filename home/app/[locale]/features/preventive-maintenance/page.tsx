@@ -1,6 +1,7 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { Schedule, BuildCircle, Insights } from "@mui/icons-material";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 import { getLocalizedMetadata } from "src/utils/metadata";
 
 const preventiveMaintenanceData: IndustryLayoutProps = {
@@ -83,6 +84,8 @@ const preventiveMaintenanceData: IndustryLayoutProps = {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
+
   return {
     title: preventiveMaintenanceData.pageTitle,
     description: preventiveMaintenanceData.pageDescription,
@@ -90,7 +93,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
-function PreventiveMaintenancePage() {
+async function PreventiveMaintenancePage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return <IndustryLayout {...preventiveMaintenanceData} />;
 }
 

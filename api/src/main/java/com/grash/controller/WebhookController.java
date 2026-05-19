@@ -153,7 +153,7 @@ class WebhookController {
                     savedSubscription.getPaddleSubscriptionId());
             return;
         }
-        String planCode = data.getCustomData().get("planId");
+        String planCode = getPlanId(data);
         int newUsersCount = data.getItems().get(0).getQuantity();
 
 
@@ -474,6 +474,10 @@ class WebhookController {
             PaddleItem item = data.getItems().get(0);
             if (item.getCustomData() != null && item.getCustomData().containsKey("planId")) {
                 return item.getCustomData().get("planId");
+            }
+            if (item.getPrice() != null && item.getPrice().getCustomData() != null
+                    && item.getPrice().getCustomData().containsKey("planId")) {
+                return item.getPrice().getCustomData().get("planId");
             }
         }
         if (data.getCustomData() != null && data.getCustomData().containsKey("planId")) {

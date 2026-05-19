@@ -1963,7 +1963,12 @@ const esJSON = {
   type_enter_to_add_option: 'Escriba y presione enter para agregar una opción',
   customers_settings_description:
     'Gestionar contratistas externos con los que su organización trabaja.',
-  vendors_settings_description: 'Personalizar la configuración relacionada con proveedores'
+  vendors_settings_description: 'Personalizar la configuración relacionada con proveedores',
+  view: 'Ver',
+  view_other: 'Ver otro',
+  view_other_hint: '"Ver otro" significa ver algo creado por otra persona',
+  go_to_billing: 'Ir a facturación',
+  import_from_spreadsheet: 'Importar desde una hoja de cálculo o CSV'
 };
 
 export default esJSON;

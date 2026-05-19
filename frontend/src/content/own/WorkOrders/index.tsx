@@ -155,12 +155,18 @@ function WorkOrders() {
   const [currentWorkOrder, setCurrentWorkOrder] = useState<WorkOrder>();
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const { tasksByWorkOrder } = useSelector((state) => state.tasks);
-  const { locations } = useSelector((state) => state.locations);
+  const { locations, locationsHierarchy } = useSelector(
+    (state) => state.locations
+  );
   const { assetInfos } = useSelector((state) => state.assets);
   const [initialDueDate, setInitialDueDate] = useState<Date>(null);
-  const locationParamObject = locations.find(
-    (location) => location.id === Number(locationParam)
-  );
+  const locationParamObject =
+    locations.content.find(
+      (location) => location.id === Number(locationParam)
+    ) ||
+    locationsHierarchy.find(
+      (location) => location.id === Number(locationParam)
+    );
   const assetParamObject = assetInfos[assetParam]?.asset;
   const tasks = tasksByWorkOrder[currentWorkOrder?.id] ?? [];
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
@@ -411,7 +417,7 @@ function WorkOrders() {
     columnHelper.accessor('customId', {
       id: 'customId',
       header: () => t('id'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 80
     }),
     columnHelper.accessor('status', {
@@ -509,7 +515,7 @@ function WorkOrders() {
       {
         id: 'daysSinceCreated',
         header: () => t('days_since_creation'),
-        cell: (info) => info.getValue(),
+        cell: (info) => info.getValue() || '',
         size: 150
       }
     ),
@@ -920,7 +926,7 @@ function WorkOrders() {
                   hasFeature(PlanFeature.IMPORT_CSV)
                     ? [
                         {
-                          label: t('to_import'),
+                          label: t('import_from_spreadsheet'),
                           onClick: () => navigate('/app/imports/work-orders')
                         }
                       ]

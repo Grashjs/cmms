@@ -64,7 +64,7 @@ public class PartCategoryController {
                         HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
-            return partCategoryService.create(partCategoryReq);
+            return partCategoryService.create(partCategoryReq, user);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 

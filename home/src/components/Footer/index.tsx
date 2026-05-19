@@ -25,6 +25,7 @@ interface DynamicLinkItem {
 interface SocialItem {
   href: string;
   icon: ReactNode;
+  title: string;
 }
 
 interface AppItem {
@@ -122,8 +123,9 @@ export default async function Footer() {
         {
           href: "https://www.linkedin.com/company/91710999",
           icon: <LinkedIn />,
+          title: "LinkedIn",
         },
-        { href: "https://github.com/Grashjs/cmms", icon: <GitHub /> },
+        { href: "https://github.com/Grashjs/cmms", icon: <GitHub />, title: "GitHub" },
       ],
     },
     {
@@ -203,7 +205,13 @@ export default async function Footer() {
         return (
           <Stack direction="row" spacing={2}>
             {section.items.map((item, index) => (
-              <FooterAnchor key={index} href={item.href} target="_blank" rel="noopener noreferrer">
+              <FooterAnchor
+                key={index}
+                href={item.href}
+                aria-label={item.title}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {item.icon}
               </FooterAnchor>
             ))}

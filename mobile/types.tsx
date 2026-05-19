@@ -49,11 +49,20 @@ export type RootStackParamList = {
     parentAsset?: AssetDTO;
     nfcId?: string;
     barCode?: string;
+    onSuccess?: (asset: AssetMiniDTO) => void;
   };
-  AddLocation: undefined;
+  AddLocation:
+    | {
+        onSuccess?: (location: LocationMiniDTO) => void;
+      }
+    | undefined;
   AddPart: undefined;
   AddMeter: undefined;
-  AddUser: undefined;
+  AddUser:
+    | {
+        onSuccess?: (user: UserMiniDTO) => void; //unused. May be used in the future
+      }
+    | undefined;
   WODetails: { id: number; workOrderProp?: WorkOrder };
   AssetDetails: { id: number; assetProp?: AssetDTO };
   LocationDetails: { id: number; locationProp?: Location };

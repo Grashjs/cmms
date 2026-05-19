@@ -1480,6 +1480,7 @@ const locale = {
   post_comment: 'Objavi komentar',
   confirm_delete_comment: 'Da li ste sigurni da želite obrisati ovaj komentar?',
   add_comment_placeholder: 'Dodajte komentar...',
-  you_need_a_license: 'Potrebna vam je licenca za pristup ovoj funkciji'
+  you_need_a_license: 'Potrebna vam je licenca za pristup ovoj funkciji',
+  create_category: 'Create Category'
 };
 export default locale;

@@ -113,12 +113,12 @@ public class LocationService {
         return locationRepository.findByCompany_Id(id);
     }
 
-    public List<Location> findByCompanyForExport(Long companyId) {
-        return locationRepository.findByCompanyForExport(companyId);
+    public Page<Location> findByCompanyForExport(Long companyId, Pageable pageable) {
+        return locationRepository.findByCompanyForExport(companyId, pageable);
     }
 
-    public List<Location> findByCompany(Long id, Sort sort) {
-        return locationRepository.findByCompany_Id(id, sort);
+    public List<Location> findByCompany(Long id, Pageable pageable) {
+        return locationRepository.findByCompany_Id(id, pageable);
     }
 
 
@@ -138,8 +138,8 @@ public class LocationService {
                 new Notification(message, user, NotificationType.LOCATION, newLocation.getId())).collect(Collectors.toList()), true, title);
     }
 
-    public List<Location> findLocationChildren(Long id, Sort sort) {
-        return locationRepository.findByParentLocation_Id(id, sort);
+    public Page<Location> findLocationChildren(Long id, Pageable pageable) {
+        return locationRepository.findByParentLocation_Id(id, pageable);
     }
 
     private String getLocationNumber(Company company) {
@@ -305,6 +305,10 @@ public class LocationService {
 
     public boolean hasChildren(Long locationId) {
         return locationRepository.countByParentLocation_Id(locationId) > 0;
+    }
+
+    public Page<Location> findByCompany_IdAndParentLocationIsNull(Long id, Pageable pageable) {
+        return locationRepository.findByCompany_IdAndParentLocationIsNull(id, pageable);
     }
 }
 

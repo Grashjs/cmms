@@ -1,6 +1,7 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { BarChart, DashboardCustomize, QueryStats } from "@mui/icons-material";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 import { getLocalizedMetadata } from "src/utils/metadata";
 
 const reportsDashboardsData: IndustryLayoutProps = {
@@ -81,12 +82,16 @@ const reportsDashboardsData: IndustryLayoutProps = {
     "Open-source CMMS dashboards that put you in control. Stop guessing and start growing with real-time maintenance analytics, custom KPIs, and 100% data ownership.",
 };
 
-function ReportsDashboardsPage() {
+async function ReportsDashboardsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return <IndustryLayout {...reportsDashboardsData} />;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
+
   return {
     title: reportsDashboardsData.pageTitle,
     description: reportsDashboardsData.pageDescription,

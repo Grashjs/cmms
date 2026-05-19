@@ -20,6 +20,7 @@ import {
   getCustomFieldsRequiredShape
 } from '../../models/form';
 import { CustomFieldEntityType } from '../../models/customField';
+import { AssetMiniDTO } from '../../models/asset';
 
 export default function CreateAssetScreen({
   navigation,
@@ -34,8 +35,9 @@ export default function CreateAssetScreen({
   const dispatch = useDispatch();
   const { customFields } = useSelector((state) => state.customFields);
 
-  const onCreationSuccess = () => {
+  const onCreationSuccess = (createdAsset: AssetMiniDTO) => {
     showSnackBar(t('asset_create_success'), 'success');
+    route.params?.onSuccess?.(createdAsset);
     navigation.goBack();
   };
   const onCreationFailure = (err) =>
@@ -99,8 +101,8 @@ export default function CreateAssetScreen({
               files: imageAndFiles.files
             };
             try {
-              await dispatch(addAsset(formattedValues));
-              await onCreationSuccess();
+              const createdAsset = await dispatch(addAsset(formattedValues));
+              await onCreationSuccess(createdAsset);
               await dispatch(getAssetChildren(0, []));
             } catch (err) {
               onCreationFailure(err);

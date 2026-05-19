@@ -339,7 +339,7 @@ function PMs() {
     columnHelper.accessor('customId', {
       id: 'customId',
       header: () => t('id'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 80
     }),
     columnHelper.accessor('name', {
@@ -363,7 +363,7 @@ function PMs() {
     columnHelper.accessor('description', {
       id: 'description',
       header: () => t('description'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 300
     }),
     columnHelper.accessor('schedule', {
@@ -733,7 +733,7 @@ function PMs() {
                   hasFeature(PlanFeature.IMPORT_CSV)
                     ? [
                         {
-                          label: t('to_import'),
+                          label: t('import_from_spreadsheet'),
                           onClick: () =>
                             navigate('/app/imports/preventive-maintenances')
                         }

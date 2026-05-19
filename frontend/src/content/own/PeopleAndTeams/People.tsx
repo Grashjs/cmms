@@ -326,7 +326,7 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
     columnHelper.accessor('email', {
       id: 'email',
       header: () => t('email'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 150
     }),
     columnHelper.accessor('phone', {

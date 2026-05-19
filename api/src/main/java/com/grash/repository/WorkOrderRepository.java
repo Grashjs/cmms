@@ -24,7 +24,7 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
             "LEFT JOIN FETCH w.completedBy " +
             "LEFT JOIN FETCH w.parentPreventiveMaintenance " +
             "WHERE w.company.id = :companyId")
-    List<WorkOrder> findByCompanyForExport(@Param("companyId") Long companyId);
+    Page<WorkOrder> findByCompanyForExport(@Param("companyId") Long companyId, Pageable pageable);
 
     Collection<WorkOrder> findByIdInAndCompany_Id(List<Long> ids, Long companyId);
 

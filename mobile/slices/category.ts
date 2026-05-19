@@ -69,12 +69,13 @@ export const getCategories =
   };
 
 export const addCategory =
-  (category, basePath): AppThunk =>
+  (category: { name: string }, basePath: string): AppThunk =>
   async (dispatch) => {
     const categoryResponse = await api.post<Category>(basePath, category);
     dispatch(
       slice.actions.addCategory({ category: categoryResponse, basePath })
     );
+    return categoryResponse;
   };
 export const editCategory =
   (id: number, category, basePath): AppThunk =>

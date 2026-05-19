@@ -31,6 +31,28 @@ function deepmerge(target: object, source: object): object {
   return result;
 }
 
+// Cache is populated once per locale, per process
+const messagesCache = new Map<string, object>();
+
+async function getMessages(locale: string): Promise<object> {
+  if (messagesCache.has(locale)) {
+    return messagesCache.get(locale)!;
+  }
+
+  const enRaw = (await import(`./translations/en`)).default;
+
+  if (locale === "en") {
+    messagesCache.set(locale, enRaw);
+    return enRaw;
+  }
+
+  const localeRaw = (await import(`./translations/${locale}`)).default;
+  const merged = deepmerge(enRaw, localeRaw);
+
+  messagesCache.set(locale, merged);
+  return merged;
+}
+
 export default getRequestConfig(async ({ requestLocale }) => {
   let locale = await requestLocale;
 
@@ -38,16 +60,8 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale = "en";
   }
 
-  const enRaw = (await import(`./translations/en`)).default;
-
-  if (locale === "en") {
-    return { locale, messages: enRaw };
-  }
-
-  const localeRaw = (await import(`./translations/${locale}.ts`)).default;
-
   return {
     locale,
-    messages: deepmerge(enRaw, localeRaw),
+    messages: await getMessages(locale),
   };
 });

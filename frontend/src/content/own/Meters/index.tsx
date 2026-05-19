@@ -44,7 +44,11 @@ import { IField } from '../type';
 import MeterDetails from './MeterDetails';
 import { useNavigate, useParams } from 'react-router-dom';
 import { isNumeric } from '../../../utils/validators';
-import { formatSelect, formatSelectMultiple, formatCustomFields } from '../../../utils/formatters';
+import {
+  formatSelect,
+  formatSelectMultiple,
+  formatCustomFields
+} from '../../../utils/formatters';
 import { getCustomFields } from '../../../slices/customField';
 import { CustomFieldEntityType } from '../../../models/owns/customField';
 import { getCustomFieldsIFields, getCustomFieldsRequiredShape } from '../type';
@@ -294,7 +298,7 @@ function Meters() {
     columnHelper.accessor('unit', {
       id: 'unit',
       header: () => t('unit_of_measurement'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 150
     }),
     columnHelper.accessor('lastReading', {
@@ -397,7 +401,11 @@ function Meters() {
       t('required_meter_update_frequency')
     ),
     asset: Yup.object().required(t('required_asset')).nullable(),
-    ...getCustomFieldsRequiredShape(customFields, CustomFieldEntityType.METER, t)
+    ...getCustomFieldsRequiredShape(
+      customFields,
+      CustomFieldEntityType.METER,
+      t
+    )
   };
   const renderAddModal = () => (
     <Dialog
@@ -602,7 +610,7 @@ function Meters() {
                       hasFeature(PlanFeature.IMPORT_CSV)
                         ? [
                             {
-                              label: t('to_import'),
+                              label: t('import_from_spreadsheet'),
                               onClick: () => navigate('/app/imports/meters')
                             }
                           ]

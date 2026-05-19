@@ -23,7 +23,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link, usePathname, useRouter } from "src/i18n/routing";
 import CheckCircleOutlineTwoToneIcon from "@mui/icons-material/CheckCircleOutlineTwoTone";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { getPlanFeatureCategories, getPricingPlans, getSelfHostedPlans } from "./pricingData";
 import NavBar from "src/components/NavBar";
 import Faq from "./components/Faq";
@@ -42,7 +42,7 @@ const PricingWrapper = styled(Box)(
 `,
 );
 
-function Pricing() {
+function PricingContent() {
   const t = useTranslations();
   const theme = useTheme();
   const router = useRouter();
@@ -266,6 +266,14 @@ function Pricing() {
         <Faq />
       </Container>
     </PricingWrapper>
+  );
+}
+
+function Pricing() {
+  return (
+    <Suspense fallback={null}>
+      <PricingContent />
+    </Suspense>
   );
 }
 

@@ -4,6 +4,7 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetCategoryMapper;
 import com.grash.model.AssetCategory;
+import com.grash.model.User;
 import com.grash.repository.AssetCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,10 +20,10 @@ public class AssetCategoryService {
     private final CompanySettingsService companySettingsService;
     private final AssetCategoryMapper assetCategoryMapper;
 
-    public AssetCategory create(AssetCategory assetCategory) {
+    public AssetCategory create(AssetCategory assetCategory, User user) {
         Optional<AssetCategory> categoryWithSameName =
                 assetCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(assetCategory.getName(),
-                        assetCategory.getCompanySettings().getId());
+                        user.getCompany().getCompanySettings().getId());
         if (categoryWithSameName.isPresent()) {
             throw new CustomException("AssetCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }

@@ -1825,7 +1825,12 @@ const locale = {
   type_enter_to_add_option: 'اكتب واضغط Enter لإضافة خيار',
   customers_settings_description:
     'إدارة المقاولين الخارجيين الذين تعمل معهم مؤسستك.',
-  vendors_settings_description: 'تخصيص الإعدادات المتعلقة بالموردين'
+  vendors_settings_description: 'تخصيص الإعدادات المتعلقة بالموردين',
+  go_to_billing: 'الذهاب إلى الفواتير',
+  view: 'عرض',
+  view_other: 'عرض الآخر',
+  view_other_hint: '"عرض الآخر" يعني عرض شيء تم إنشاؤه بواسطة شخص آخر',
+  import_from_spreadsheet: 'استيراد من جدول بيانات أو CSV'
 };
 
 export default locale;

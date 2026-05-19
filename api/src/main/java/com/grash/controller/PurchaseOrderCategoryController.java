@@ -65,7 +65,7 @@ public class PurchaseOrderCategoryController {
                                  HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
-            return PurchaseOrderCategoryService.create(PurchaseOrderCategoryReq);
+            return PurchaseOrderCategoryService.create(PurchaseOrderCategoryReq, user);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 

@@ -168,15 +168,13 @@ function Files() {
     columnHelper.accessor('id', {
       id: 'id',
       header: () => t('id'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 80
     }),
     columnHelper.accessor('name', {
       id: 'name',
       header: () => t('name'),
-      cell: (info) => (
-        <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>
-      ),
+      cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>,
       size: 200
     }),
     columnHelper.accessor('createdBy', {

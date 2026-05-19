@@ -1917,7 +1917,12 @@ const ptBRJSON = {
   type_enter_to_add_option: 'Digite e pressione enter para adicionar uma opção',
   customers_settings_description:
     'Gerencie contratantes externos com os quais sua organização trabalha.',
-  vendors_settings_description: 'Personalize configurações relacionadas a fornecedores'
+  vendors_settings_description: 'Personalize configurações relacionadas a fornecedores',
+  view: 'Visualizar',
+  view_other: 'Ver outro',
+  view_other_hint: '"Ver outro" significa ver algo criado por outra pessoa',
+  go_to_billing: 'Ir para faturamento',
+  import_from_spreadsheet: 'Importar de uma planilha ou CSV'
 };
 
 export default ptBRJSON;

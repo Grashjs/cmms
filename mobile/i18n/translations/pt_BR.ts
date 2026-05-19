@@ -1526,7 +1526,8 @@ const ptBRJSON = {
   no_comments: 'Ainda não há comentários. Seja o primeiro a comentar!',
   post_comment: 'Publicar comentário',
   confirm_delete_comment: 'Tem certeza de que deseja excluir este comentário?',
-  add_comment_placeholder: 'Adicionar um comentário...'
+  add_comment_placeholder: 'Adicionar um comentário...',
+  create_category: 'Create Category'
 };
 
 export default ptBRJSON;

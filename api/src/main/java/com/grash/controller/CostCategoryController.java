@@ -70,7 +70,7 @@ public class CostCategoryController {
                         HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
-            return costCategoryService.create(costCategoryReq);
+            return costCategoryService.create(costCategoryReq, user);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 

@@ -4,6 +4,7 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CostCategoryMapper;
 import com.grash.model.CostCategory;
+import com.grash.model.User;
 import com.grash.repository.CostCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,10 +20,10 @@ public class CostCategoryService {
 
     private final CostCategoryMapper costCategoryMapper;
 
-    public CostCategory create(CostCategory costCategory) {
+    public CostCategory create(CostCategory costCategory, User user) {
         Optional<CostCategory> categoryWithSameName =
                 costCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(costCategory.getName(),
-                        costCategory.getCompanySettings().getId());
+                        user.getCompany().getCompanySettings().getId());
         if (categoryWithSameName.isPresent()) {
             throw new CustomException("CostCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }

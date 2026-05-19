@@ -9,6 +9,7 @@ import com.grash.model.User;
 import com.grash.model.Subscription;
 import com.grash.model.SubscriptionPlan;
 import com.grash.model.enums.PlanFeatures;
+import jakarta.annotation.Nullable;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -196,6 +197,29 @@ public class PaddleService {
         savedSubscription.setUsersCount(usersCount);
     }
 
+    public String createCustomerPortalSession(String customerId, @Nullable String subscriptionId) {
+        HttpHeaders headers = getHttpHeaders();
+        Map<String, Object> body = new HashMap<>();
+        if (subscriptionId != null) body.put("subscription_ids", List.of(subscriptionId));
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+
+        ResponseEntity<PaddlePortalSessionResponse> response = restTemplate.exchange(
+                paddleApiUrl + "/customers/" + customerId + "/portal-sessions",
+                HttpMethod.POST,
+                entity,
+                PaddlePortalSessionResponse.class
+        );
+
+        if (response.getStatusCode() == HttpStatus.CREATED && response.getBody() != null) {
+            if (subscriptionId == null) return response.getBody().getData().getUrls().getGeneral().getOverview();
+            return response.getBody().getData().getUrls().getSubscriptions().stream()
+                    .filter(sub -> sub.getId().equals(subscriptionId)).findFirst()
+                    .get().getUpdatePaymentMethod();
+        } else {
+            throw new CustomException("Failed to create customer portal session", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     public void pauseSubscription(String subscriptionId) {
         HttpHeaders headers = getHttpHeaders();
         HttpEntity<Void> entity = new HttpEntity<>(headers);
@@ -350,6 +374,49 @@ public class PaddleService {
         } else {
             throw new CustomException("Failed to retrieve customer email", HttpStatus.NOT_FOUND);
         }
+    }
+
+    // Portal Session Response DTOs
+    @Data
+    private static class PaddlePortalSessionResponse {
+        private PaddlePortalSessionData data;
+    }
+
+    @Data
+    private static class PaddlePortalSessionData {
+        private String id;
+
+        @JsonProperty("customer_id")
+        private String customerId;
+
+        private PaddlePortalUrls urls;
+
+        @JsonProperty("created_at")
+        private String createdAt;
+    }
+
+    @Data
+    private static class PaddlePortalUrls {
+        private PaddlePortalGeneralUrls general;
+
+        // Was List<String> — must be List<PaddlePortalSubscriptionUrl>
+        private List<PaddlePortalSubscriptionUrl> subscriptions;
+    }
+
+    @Data
+    private static class PaddlePortalGeneralUrls {
+        private String overview;
+    }
+
+    @Data
+    private static class PaddlePortalSubscriptionUrl {
+        private String id;
+
+        @JsonProperty("cancel_subscription")
+        private String cancelSubscription;
+
+        @JsonProperty("update_subscription_payment_method")
+        private String updatePaymentMethod;
     }
 
     @NotNull

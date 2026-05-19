@@ -3,17 +3,24 @@ import Highlights from "./Highlights";
 import NavBar from "src/components/NavBar";
 import Footer from "src/components/Footer";
 import CompanyLogos from "src/components/CompanyLogos";
-import { OverviewWrapper } from "./styles";
+import { Box } from "@mui/material";
 
 function Overview() {
   return (
-    <OverviewWrapper>
+    <Box
+      sx={{
+        overflow: "auto",
+        background: "#ffffff",
+        flex: 1,
+        overflowX: "hidden",
+      }}
+    >
       <NavBar />
       <Hero />
       <CompanyLogos sx={{ mt: { xs: "150px", md: "100px" } }} />
       <Highlights />
       <Footer />
-    </OverviewWrapper>
+    </Box>
   );
 }
 

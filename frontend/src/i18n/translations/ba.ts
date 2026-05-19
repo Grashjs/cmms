@@ -1873,7 +1873,12 @@ const locale = {
   type_enter_to_add_option: 'Upišite i pritisnite enter da dodate opciju',
   customers_settings_description:
     'Upravljajte vanjskim izvođačima sa kojima vaša organizacija radi.',
-  vendors_settings_description: 'Prilagodite postavke vezane za dobavljače'
+  vendors_settings_description: 'Prilagodite postavke vezane za dobavljače',
+  view: 'Pregled',
+  view_other: 'Pogledaj drugo',
+  view_other_hint: '"Pogledaj drugo" znači pogledati nešto što je stvorio neko drugi',
+  go_to_billing: 'Idi na naplatu',
+  import_from_spreadsheet: 'Uvezi iz tabele ili CSV'
 };
 
 export default locale;

@@ -16,15 +16,15 @@ import java.util.Optional;
 public interface LocationRepository extends JpaRepository<Location, Long>, JpaSpecificationExecutor<Location> {
     Collection<Location> findByCompany_Id(Long id);
 
-    List<Location> findByCompany_Id(Long id, Sort sort);
+    List<Location> findByCompany_Id(Long id, Pageable pageable);
 
-    List<Location> findByParentLocation_Id(Long id, Sort sort);
+    Page<Location> findByParentLocation_Id(Long id, Pageable pageable);
 
     @Query("SELECT l FROM Location l " +
             "LEFT JOIN FETCH l.parentLocation " +
             "LEFT JOIN FETCH l.image " +
             "WHERE l.company.id = :companyId")
-    List<Location> findByCompanyForExport(@Param("companyId") Long companyId);
+    Page<Location> findByCompanyForExport(@Param("companyId") Long companyId, Pageable pageable);
 
     List<Location> findByNameIgnoreCaseAndCompany_Id(String locationName, Long companyId);
 
@@ -39,4 +39,6 @@ public interface LocationRepository extends JpaRepository<Location, Long>, JpaSp
     @Query("SELECT CASE WHEN COUNT(l) > :threshold THEN true ELSE false END " +
             "FROM Location l WHERE l.company.id = :companyId")
     boolean hasMoreThan(@Param("companyId") Long companyId, @Param("threshold") Long threshold);
+
+    Page<Location> findByCompany_IdAndParentLocationIsNull(Long id, Pageable pageable);
 }

@@ -1489,7 +1489,8 @@ const plJSON = {
   no_comments: 'Brak komentarzy. Bądź pierwszym, który skomentuje!',
   post_comment: 'Opublikuj komentarz',
   confirm_delete_comment: 'Czy na pewno chcesz usunąć ten komentarz?',
-  add_comment_placeholder: 'Dodaj komentarz...'
+  add_comment_placeholder: 'Dodaj komentarz...',
+  create_category: 'Create Category'
 };
 
 export default plJSON;

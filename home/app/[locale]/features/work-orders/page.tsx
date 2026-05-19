@@ -1,6 +1,7 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { AccessTime, Edit, TrendingUp } from "@mui/icons-material";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 import { getLocalizedMetadata } from "src/utils/metadata";
 
 const workOrdersData: IndustryLayoutProps = {
@@ -79,12 +80,16 @@ const workOrdersData: IndustryLayoutProps = {
     "Open-source work order management that just works. Simplify requests, track repairs in real-time, and empower your team with a mobile-ready, self-hosted CMMS.",
 };
 
-function WorkOrdersPage() {
+async function WorkOrdersPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return <IndustryLayout {...workOrdersData} />;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
+
   return {
     title: workOrdersData.pageTitle,
     description: workOrdersData.pageDescription,

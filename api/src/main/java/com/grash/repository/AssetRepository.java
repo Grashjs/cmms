@@ -48,7 +48,7 @@ public interface AssetRepository extends JpaRepository<Asset, Long>, JpaSpecific
             "LEFT JOIN FETCH a.deprecation " +
             "LEFT JOIN FETCH a.image " +
             "WHERE a.company.id = :companyId")
-    List<Asset> findByCompanyForExport(@Param("companyId") Long companyId);
+    Page<Asset> findByCompanyForExport(@Param("companyId") Long companyId, Pageable pageable);
 
     List<Asset> findByCompany_IdAndCreatedAtBefore(Long id, Date date);
 

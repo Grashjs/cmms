@@ -1554,6 +1554,7 @@ const trJSON = {
   no_comments: 'Henüz yorum yok. İlk yorum yapan siz olun!',
   post_comment: 'Yorum yap',
   confirm_delete_comment: 'Bu yorumu silmek istediğinizden emin misiniz?',
-  add_comment_placeholder: 'Yorum ekleyin...'
+  add_comment_placeholder: 'Yorum ekleyin...',
+  create_category: 'Create Category'
 };
 export default trJSON;

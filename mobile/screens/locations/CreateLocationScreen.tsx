@@ -20,6 +20,7 @@ import {
   getCustomFieldsRequiredShape
 } from '../../models/form';
 import { CustomFieldEntityType } from '../../models/customField';
+import Location from '../../models/location';
 
 export default function CreateLocationScreen({
   navigation,
@@ -34,8 +35,9 @@ export default function CreateLocationScreen({
   const dispatch = useDispatch();
   const { customFields } = useSelector((state) => state.customFields);
 
-  const onCreationSuccess = () => {
+  const onCreationSuccess = (createdLocation: Location) => {
     showSnackBar(t('location_create_success'), 'success');
+    route.params?.onSuccess?.(createdLocation);
     navigation.goBack();
   };
   const onCreationFailure = (err) =>
@@ -81,8 +83,10 @@ export default function CreateLocationScreen({
               image: imageAndFiles.image,
               files: imageAndFiles.files
             };
-            await dispatch(addLocation(formattedValues));
-            onCreationSuccess();
+            const createdLocation = await dispatch(
+              addLocation(formattedValues)
+            );
+            onCreationSuccess(createdLocation);
             dispatch(getLocationChildren(0, []));
           } catch (err) {
             onCreationFailure(err);

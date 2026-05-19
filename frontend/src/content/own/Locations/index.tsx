@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   CircularProgress,
+  debounce,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -14,22 +15,27 @@ import {
   Stack,
   Tab,
   Tabs,
-  TextField,
   Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { getCustomFieldsValues, IField } from '../type';
+import {
+  getCustomFieldsIFields,
+  getCustomFieldsRequiredShape,
+  getCustomFieldsValues,
+  IField
+} from '../type';
 import ReplayTwoToneIcon from '@mui/icons-material/ReplayTwoTone';
 import Location, { LocationRow } from '../../../models/owns/location';
 import * as React from 'react';
-import { ChangeEvent, useContext, useEffect, useState } from 'react';
+import { ChangeEvent, useContext, useEffect, useMemo, useState } from 'react';
 import { TitleContext } from '../../../contexts/TitleContext';
 import {
   addLocation,
   deleteLocation,
   editLocation,
-  getLocationChildren,
+  getLocationChildrenPaginated,
   getLocations,
+  getSingleLocation,
   resetLocationsHierarchy
 } from '../../../slices/location';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -48,18 +54,26 @@ import {
   useSearchParams
 } from 'react-router-dom';
 import Map from '../components/Map';
-import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
+import {
+  formatCustomFields,
+  formatSelect,
+  formatSelectMultiple
+} from '../../../utils/formatters';
 import { CustomSnackBarContext } from 'src/contexts/CustomSnackBarContext';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import useAuth from '../../../hooks/useAuth';
 import { PermissionEntity } from '../../../models/owns/role';
 import PermissionErrorMessage from '../components/PermissionErrorMessage';
-import { handleFileUpload, getImageAndFiles } from '../../../utils/overall';
+import {
+  getImageAndFiles,
+  handleFileUpload,
+  onSearchQueryChange
+} from '../../../utils/overall';
 import { getLocationUrl } from '../../../utils/urlPaths';
 import { useExport } from '../../../hooks/useExport';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
-import { Pageable, Sort } from '../../../models/owns/page';
+import { Pageable, SearchCriteria, Sort } from '../../../models/owns/page';
 import { googleMapsConfig } from '../../../config';
 import { getErrorMessage } from '../../../utils/api';
 import SplitButton from '../components/SplitButton';
@@ -74,15 +88,12 @@ import {
 import useTableState from '../../../hooks/useTableState';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
-import InputAdornment from '@mui/material/InputAdornment';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import SearchInput from '../components/SearchInput';
 import { getCustomFields } from '../../../slices/customField';
 import { CustomFieldEntityType } from '../../../models/owns/customField';
-import { getCustomFieldsIFields, getCustomFieldsRequiredShape } from '../type';
-import { formatCustomFields } from '../../../utils/formatters';
 
-const HIERARCHY_ZERO_PAGE_SIZE = 40;
+const PAGE_SIZE = 40;
 
 function Locations() {
   const { t }: { t: any } = useTranslation();
@@ -95,9 +106,13 @@ function Locations() {
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const { apiKey } = googleMapsConfig;
 
-  const { locationsHierarchy, locations, loadingGet } = useSelector(
-    (state) => state.locations
-  );
+  const {
+    locationsHierarchy,
+    locations,
+    loadingGet,
+    childrenPages,
+    loadingHierarchy
+  } = useSelector((state) => state.locations);
   const { customFields } = useSelector((state) => state.customFields);
   const [deployedLocations, setDeployedLocations] = useState<
     { id: number; hierarchy: number[] }[]
@@ -136,7 +151,7 @@ function Locations() {
   const navigate = useNavigate();
   const [pageable, setPageable] = useState<Pageable>({
     page: 0,
-    size: HIERARCHY_ZERO_PAGE_SIZE
+    size: PAGE_SIZE
   });
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -150,6 +165,13 @@ function Locations() {
   const [initialLocationName, setInitialLocationName] = useState<string>('');
   const [returnPath, setReturnPath] = useState<string>('');
   const [returnField, setReturnField] = useState<string>('');
+  const initialCriteria: SearchCriteria = {
+    filterFields: [],
+    pageSize: 50,
+    pageNum: 0,
+    direction: 'DESC'
+  };
+  const [criteria, setCriteria] = useState<SearchCriteria>(initialCriteria);
 
   // Field mapping for sorting
   const fieldMapping: Record<string, string> = {
@@ -162,9 +184,20 @@ function Locations() {
   // Table state for column state persistence
   const tableState = useTableState({
     prefix: 'locations',
+    setCriteria,
     fieldMapping,
-    initialPagination: { pageIndex: 0, pageSize: HIERARCHY_ZERO_PAGE_SIZE }
+    initialPagination: { pageIndex: 0, pageSize: criteria.pageSize }
   });
+
+  const onQueryChange = (event) => {
+    setSearchQuery(event.target.value);
+    onSearchQueryChange<Location>(event, criteria, setCriteria, [
+      'name',
+      'address',
+      'customId'
+    ]);
+  };
+  const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
 
   const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -181,7 +214,7 @@ function Locations() {
 
   const changeCurrentLocation = (id: number) => {
     setCurrentLocation(
-      locations.find((location) => location.id === id) ||
+      locations.content.find((location) => location.id === id) ||
         locationsHierarchy.find((location) => location.id === id)
     );
   };
@@ -217,8 +250,11 @@ function Locations() {
   const onDeleteFailure = (err) =>
     showSnackBar(t('location_delete_failure'), 'error');
 
-  const handleOpenDetails = (id: number) => {
-    const foundLocation = locations.find((location) => location.id === id);
+  const handleOpenDetails = async (id: number) => {
+    const foundLocation =
+      locationsHierarchy.find((location) => location.id === id) ||
+      locations.content.find((location) => location.id === id) ||
+      (await dispatch(getSingleLocation(id)));
     if (foundLocation) {
       setCurrentLocation(foundLocation);
       window.history.replaceState(null, 'Location details', getLocationUrl(id));
@@ -231,17 +267,35 @@ function Locations() {
   };
   useEffect(() => {
     setTitle(t('locations'));
-    if (hasViewPermission(PermissionEntity.LOCATIONS)) {
-      dispatch(getLocations());
-    }
   }, []);
 
   useEffect(() => {
     if (hasViewPermission(PermissionEntity.LOCATIONS)) {
       handleReset(false);
-      dispatch(getLocationChildren(0, [], pageable));
+      dispatch(getLocationChildrenPaginated(0, [], pageable));
     }
   }, [pageable]);
+
+  useEffect(() => {
+    if (
+      hasViewPermission(PermissionEntity.LOCATIONS) &&
+      (currentTab === 'map' || searchQuery.trim())
+    )
+      dispatch(
+        getLocations({
+          ...criteria,
+          pageSize: currentTab === 'map' ? 50 : criteria.pageSize,
+          filterFields:
+            currentTab === 'map'
+              ? [
+                  ...criteria.filterFields,
+                  { field: 'latitude', operation: 'nn', value: '' },
+                  { field: 'latitude', operation: 'ne', value: 0 }
+                ]
+              : criteria.filterFields
+        })
+      );
+  }, [criteria, currentTab, searchQuery]);
 
   const handleToggleExpand = async (row: LocationRow) => {
     const isExpanded = expanded[row.id];
@@ -264,7 +318,10 @@ function Locations() {
 
         // Fetch the children
         await dispatch(
-          getLocationChildren(row.id, row.hierarchy || [], pageable)
+          getLocationChildrenPaginated(row.id, row.hierarchy || [], {
+            ...pageable,
+            page: 0
+          })
         );
         setDeployedLocations((prevState) => [...prevState, row]);
 
@@ -281,11 +338,28 @@ function Locations() {
     setExpanded((prev) => ({ ...prev, [row.id]: !isExpanded }));
   };
 
+  const fetchMoreForParent = (parentId: number) => {
+    const parentPage = childrenPages[parentId];
+    if (parentPage && !parentPage.last) {
+      dispatch(
+        getLocationChildrenPaginated(parentId, [], {
+          ...pageable,
+          page: (parentPage.number || 0) + 1
+        })
+      );
+    }
+  };
+
+  const hasMorePages = (parentId: number): boolean => {
+    const childrenPage = childrenPages[parentId];
+    return childrenPage ? !childrenPage.last : false;
+  };
+
   useEffect(() => {
-    if (locations?.length && locationId && isNumeric(locationId)) {
+    if (locationId && isNumeric(locationId)) {
       handleOpenDetails(Number(locationId));
     }
-  }, [locations]);
+  }, [locations.content.length, locationsHierarchy.length]);
 
   // Handle query params for inline creation (new=true&name=${name})
   useEffect(() => {
@@ -359,23 +433,63 @@ function Locations() {
     columnHelper.accessor('customId', {
       id: 'customId',
       header: () => t('id'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() ?? '',
       size: 100
     }),
     columnHelper.accessor('name', {
       id: 'name',
       header: () => t('name'),
-      cell: (info) => (
-        <Box
-          sx={{
-            py: 1,
-            fontWeight: 'bold',
-            ml: (info.row.depth || 0) * 24
-          }}
-        >
-          {info.getValue()}
-        </Box>
-      ),
+      cell: (info) => {
+        const row = info.row.original as LocationRow & {
+          depth: number;
+          isLoadMoreRow?: boolean;
+          parentId?: number;
+        };
+        // Render "Load More" row as a clickable button
+        if (row.isLoadMoreRow) {
+          return (
+            <Box
+              sx={{
+                py: 1,
+                fontWeight: 'bold'
+              }}
+            >
+              <Button
+                size="small"
+                variant="text"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (row.parentId) {
+                    fetchMoreForParent(row.parentId);
+                  }
+                }}
+                disabled={loadingHierarchy}
+                endIcon={
+                  loadingHierarchy ? (
+                    <CircularProgress size="1rem" />
+                  ) : (
+                    <MoreHorizIcon />
+                  )
+                }
+              >
+                {t('fetch_more')}
+              </Button>
+            </Box>
+          );
+        }
+
+        return (
+          <Box
+            sx={{
+              py: 1,
+              fontWeight: 'bold',
+              ml: (info.row.depth || 0) * 24
+            }}
+          >
+            {info.getValue()}
+          </Box>
+        );
+      },
       size: 200
     }),
     columnHelper.accessor('address', {
@@ -599,7 +713,7 @@ function Locations() {
                 onCreationSuccess(createdLocation);
                 deployedLocations.forEach((deployedLocation) =>
                   dispatch(
-                    getLocationChildren(
+                    getLocationChildrenPaginated(
                       deployedLocation.id,
                       deployedLocation.hierarchy,
                       pageable
@@ -783,6 +897,16 @@ function Locations() {
 
         if (children.length > 0) {
           result = [...result, ...children];
+          // Add "Load More" row after children if there are more pages
+          if (hasMorePages(node.id)) {
+            result.push({
+              id: `load-more-${node.id}`,
+              name: t('fetch_more'),
+              depth: 0,
+              isLoadMoreRow: true,
+              parentId: node.id
+            } as unknown as LocationRow & { depth: number });
+          }
         } else if (subRowsMap[node.id]) {
           // Render the temporary loading row if fetching is in progress
           result.push({ ...subRowsMap[node.id][0], depth: depth + 1 });
@@ -799,48 +923,51 @@ function Locations() {
     expanded,
     subRowsMap
   );
-
+  const isHierarchyView = !searchQuery?.trim();
   // Filter table data based on search query
-  const filteredTableData = searchQuery.trim()
-    ? locations.filter(
-        (row) =>
-          row.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          row.customId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          row.address?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : tableData;
+  const filteredTableData: (LocationRow | Location)[] = isHierarchyView
+    ? tableData
+    : locations.content;
   // Handle pagination change for hierarchy view
   const handlePaginationChange = (newPagination: {
     pageIndex: number;
     pageSize: number;
   }) => {
-    setPageable((prev) => ({
-      ...prev,
-      page: newPagination.pageIndex,
-      size: newPagination.pageSize
-    }));
+    if (isHierarchyView) {
+      setPageable((prev) => ({
+        ...prev,
+        page: newPagination.pageIndex,
+        size: newPagination.pageSize
+      }));
+    } else {
+      tableState.setPagination(newPagination);
+    }
   };
 
-  // Handle sorting change for hierarchy view
   const handleSortingChange = (newSorting: Updater<SortingState>) => {
-    const resolvedSorting: SortingState =
-      typeof newSorting === 'function'
-        ? newSorting(hierarchySorting)
-        : newSorting;
-    setHierarchySorting(resolvedSorting);
-    const sortParams =
-      resolvedSorting.length > 0
-        ? resolvedSorting.map(
-            (sort) =>
-              `${fieldMapping[sort.id] || sort.id},${
-                sort.desc ? 'desc' : 'asc'
-              }` as Sort
-          )
-        : [];
-    setPageable((prev) => ({
-      ...prev,
-      sort: sortParams.length > 0 ? [...sortParams] : undefined
-    }));
+    if (isHierarchyView) {
+      // Resolve the sorting value (handle both direct value and updater function)
+      const resolvedSorting: SortingState =
+        typeof newSorting === 'function'
+          ? newSorting(hierarchySorting)
+          : newSorting;
+      setHierarchySorting(newSorting);
+      const sortParams =
+        resolvedSorting.length > 0
+          ? resolvedSorting.map(
+              (sort) =>
+                `${fieldMapping[sort.id] || sort.id},${
+                  sort.desc ? 'desc' : 'asc'
+                }` as Sort
+            )
+          : [];
+      setPageable((prev) => ({
+        ...prev,
+        sort: sortParams.length > 0 ? [...sortParams] : undefined
+      }));
+    } else {
+      tableState.setSorting(newSorting);
+    }
   };
 
   if (hasViewPermission(PermissionEntity.LOCATIONS))
@@ -874,7 +1001,7 @@ function Locations() {
               <Box />
             )}
             <Stack direction={'row'} alignItems="center" spacing={1}>
-              <SearchInput onChange={(e) => setSearchQuery(e.target.value)} />
+              <SearchInput onChange={debouncedQueryChange} />
               <IconButton onClick={() => handleReset(true)} color="primary">
                 <ReplayTwoToneIcon />
               </IconButton>
@@ -892,7 +1019,7 @@ function Locations() {
                     hasFeature(PlanFeature.IMPORT_CSV)
                       ? [
                           {
-                            label: t('to_import'),
+                            label: t('import_from_spreadsheet'),
                             onClick: () => navigate('/app/imports/locations')
                           }
                         ]
@@ -914,18 +1041,29 @@ function Locations() {
             >
               <Box sx={{ width: '95%' }}>
                 <CustomDatagrid2
-                  columns={searchQuery?.trim() ? columns.slice(1) : columns}
+                  columns={isHierarchyView ? columns : columns.slice(1)}
                   data={filteredTableData}
-                  loading={loadingGet}
-                  pagination={{
-                    pageIndex: pageable.page,
-                    pageSize: pageable.size
-                  }}
-                  hidePagination
+                  loading={isHierarchyView ? loadingHierarchy : loadingGet}
+                  pagination={
+                    isHierarchyView
+                      ? { pageIndex: pageable.page, pageSize: pageable.size }
+                      : tableState.pagination
+                  }
+                  totalRows={
+                    isHierarchyView
+                      ? childrenPages[0]?.totalElements ||
+                        locationsHierarchy.length
+                      : locations.totalElements
+                  }
+                  pageSizeOptions={
+                    !isHierarchyView
+                      ? [10, 20, 50]
+                      : Array.from({ length: 4 }, (_, i) => PAGE_SIZE * (i + 1))
+                  }
+                  sorting={
+                    isHierarchyView ? hierarchySorting : tableState.sorting
+                  }
                   onPaginationChange={handlePaginationChange}
-                  totalRows={locationsHierarchy.length}
-                  pageSizeOptions={[10, 25, 50, 100]}
-                  sorting={hierarchySorting}
                   onSortingChange={handleSortingChange}
                   columnOrder={tableState.columnOrder}
                   onColumnOrderChange={tableState.setColumnOrder}
@@ -938,6 +1076,7 @@ function Locations() {
                   noRowsMessage={t('noRows.location.message')}
                   noRowsAction={t('noRows.location.action')}
                   onRowClick={(row) => {
+                    if ('isLoadMoreRow' in row && row.isLoadMoreRow) return;
                     handleOpenDetails(row.id);
                   }}
                 />
@@ -953,7 +1092,7 @@ function Locations() {
             >
               <Map
                 dimensions={{ width: 1000, height: 500 }}
-                locations={locations
+                locations={locations.content
                   .filter((location) => location.longitude)
                   .map(({ name, longitude, latitude, address, id }) => {
                     return {

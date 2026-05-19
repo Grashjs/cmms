@@ -193,8 +193,8 @@ public class PartService {
         return partRepository.findByCompany_Id(id);
     }
 
-    public List<Part> findByCompanyForExport(Long companyId) {
-        return partRepository.findByCompanyForExport(companyId);
+    public Page<Part> findByCompanyForExport(Long companyId, Pageable pageable) {
+        return partRepository.findByCompanyForExport(companyId, pageable);
     }
 
     public void notify(Part part, Locale locale) {

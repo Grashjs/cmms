@@ -190,7 +190,7 @@ const SelectLocationModal: React.FC<SelectLocationModalProps> = ({
     columnHelper.accessor('customId', {
       id: 'customId',
       header: () => t('id'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 100
     }),
     columnHelper.accessor('name', {

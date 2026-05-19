@@ -1,5 +1,6 @@
 import IndustryLayout, { IndustryLayoutProps } from "@/src/layouts/IndustryLayout";
 import { Metadata } from "next";
+import { setRequestLocale } from "next-intl/server";
 import { getLocalizedMetadata } from "src/utils/metadata";
 
 const constructionData: IndustryLayoutProps = {
@@ -82,12 +83,15 @@ const constructionData: IndustryLayoutProps = {
     "Open-source CMMS for construction that keeps your heavy iron moving. Track assets across job sites, manage field work orders offline, and own your maintenance data.",
 };
 
-function ConstructionAtlasPage() {
+async function ConstructionAtlasPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return <IndustryLayout {...constructionData}></IndustryLayout>;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   return {
     title: constructionData.pageTitle,
     description: constructionData.pageDescription,

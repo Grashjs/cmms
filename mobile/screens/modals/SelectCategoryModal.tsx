@@ -11,8 +11,16 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from '../../store';
 import Category from '../../models/category';
-import { getCategories } from '../../slices/category';
-import { Checkbox, Avatar, Text, useTheme } from 'react-native-paper';
+import { getCategories, addCategory } from '../../slices/category';
+import {
+  Avatar,
+  Button,
+  Checkbox,
+  Divider,
+  Text,
+  TextInput,
+  useTheme
+} from 'react-native-paper';
 
 export default function SelectCategoriesModal({
   navigation,
@@ -25,6 +33,9 @@ export default function SelectCategoriesModal({
   const { categories } = useSelector((state) => state.categories);
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [newCategoryName, setNewCategoryName] = useState<string>('');
+  const [showCreateInput, setShowCreateInput] = useState<boolean>(false);
+  const [isCreating, setIsCreating] = useState<boolean>(false);
   const currentCategories = categories[type] ?? [];
   useEffect(() => {
     if (currentCategories.length) {
@@ -81,6 +92,30 @@ export default function SelectCategoriesModal({
     }
   };
 
+  const handleCreateCategory = async () => {
+    console.log('Creating category with name:', newCategoryName, type);
+    if (!newCategoryName.trim()) return;
+    setIsCreating(true);
+    try {
+      const createdCategory = await dispatch(
+        addCategory({ name: newCategoryName.trim() }, type)
+      );
+      setSelectedIds((prev) => [...prev, createdCategory.id]);
+      if (!multiple) {
+        onChange([createdCategory]);
+        navigation.goBack();
+      }
+      setNewCategoryName('');
+      setShowCreateInput(false);
+    } catch (err) {
+      console.error('Error creating category:', err);
+      setNewCategoryName('');
+      setShowCreateInput(false);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -134,6 +169,49 @@ export default function SelectCategoriesModal({
             </View>
           </TouchableOpacity>
         ))}
+        <Divider />
+        {showCreateInput ? (
+          <View style={styles.createContainer}>
+            <TextInput
+              mode="outlined"
+              placeholder={t('name')}
+              value={newCategoryName}
+              onChangeText={setNewCategoryName}
+              style={styles.createInput}
+              disabled={isCreating}
+              autoFocus
+            />
+            <View style={styles.createActions}>
+              <Button
+                mode="text"
+                onPress={() => {
+                  setNewCategoryName('');
+                  setShowCreateInput(false);
+                }}
+                disabled={isCreating}
+              >
+                {t('cancel')}
+              </Button>
+              <Button
+                mode="contained"
+                onPress={handleCreateCategory}
+                loading={isCreating}
+                disabled={isCreating || !newCategoryName.trim()}
+              >
+                {t('save')}
+              </Button>
+            </View>
+          </View>
+        ) : (
+          <Button
+            icon={'plus-circle'}
+            style={{ margin: 20 }}
+            mode={'contained'}
+            onPress={() => setShowCreateInput(true)}
+          >
+            {t('create_category')}
+          </Button>
+        )}
       </ScrollView>
     </View>
   );
@@ -162,5 +240,16 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontWeight: 'bold',
     flexShrink: 1
+  },
+  createContainer: {
+    padding: 20
+  },
+  createInput: {
+    marginBottom: 10
+  },
+  createActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 10
   }
 });

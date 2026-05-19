@@ -313,49 +313,49 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
     columnHelper.accessor('address', {
       id: 'address',
       header: () => t('address'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 150
     }),
     columnHelper.accessor('phone', {
       id: 'phone',
       header: () => t('phone'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 150
     }),
     columnHelper.accessor('website', {
       id: 'website',
       header: () => t('website'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 150
     }),
     columnHelper.accessor('name', {
       id: 'name',
       header: () => t('name'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 150
     }),
     columnHelper.accessor('email', {
       id: 'email',
       header: () => t('email'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 150
     }),
     columnHelper.accessor('vendorType', {
       id: 'vendorType',
       header: () => t('vendor_type'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 150
     }),
     columnHelper.accessor('description', {
       id: 'description',
       header: () => t('description'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 300
     }),
     columnHelper.accessor('rate', {
       id: 'rate',
       header: () => t('hourly_rate'),
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || '',
       size: 150
     })
   ];

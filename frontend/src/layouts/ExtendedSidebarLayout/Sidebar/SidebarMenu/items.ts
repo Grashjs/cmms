@@ -219,7 +219,7 @@ const ownMenuItems: MenuItems[] = [
         name: 'categories',
         link: '/app/categories',
         icon: CategoryTwoToneIcon,
-        permission: PermissionEntity.CATEGORIES_WEB
+        permission: PermissionEntity.CATEGORIES
       },
       {
         name: 'files',
