@@ -21,9 +21,10 @@ public enum Language {
     NL,
     ZH_CN,
     ZH,
-    BA;
+    BA,
+    JA;
     //always add new languages at the end
-    
+
     @JsonCreator
     public static Language fromString(String value) {
         return Arrays.stream(Language.values())

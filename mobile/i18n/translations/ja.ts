@@ -39,8 +39,7 @@ const locale = {
     '大量の書類と紛失した作業指示書にうんざりしていませんか？それらの紛失したアイテムはすべて、最終的な収益と評判に直接影響します。',
   'work-orders.descriptions.1':
     'Atlasを使用すると、どこからでもどのデバイスからでもアクセスできる一元化されたデータベースで、チーム全体のすべての作業指示書、PM、その他のタスクを簡単かつ迅速に整理できます。',
-  'work-orders.checks.0':
-    'WO、PM、作業依頼を含むすべてのタスクを表示する',
+  'work-orders.checks.0': 'WO、PM、作業依頼を含むすべてのタスクを表示する',
   'work-orders.checks.1':
     '適切な作業が最初に行われるようにタスクの優先順位を設定する。',
   'work-orders.checks.2': '現在および今後のタスクのカレンダーを表示する。',
@@ -55,8 +54,7 @@ const locale = {
   'work-requests.descriptions.1':
     'Atlasのメンテナンス管理ソリューションを使用すると、承認した誰もがQRコード（バーコード）をスキャンするか、URLにアクセスしてモバイルデバイスからリクエストを入力するだけで、メンテナンス部門に問題を提出できます。',
   'work-requests.checks.0': '二度と作業を失わない。',
-  'work-requests.checks.1':
-    '作業依頼の処理に費やす時間を最大34%削減する。',
+  'work-requests.checks.1': '作業依頼の処理に費やす時間を最大34%削減する。',
   'work-requests.checks.2':
     '依頼者とのコミュニケーションに費やす時間（電話、メール、テキスト）を最大41%削減する。',
 
@@ -70,15 +68,13 @@ const locale = {
   'mobile-app.checks.2':
     'プッシュ通知とメール通知を介して即座に通信を受信する。',
   'mobile-app.checks.3': '現場で新しい作業指示書を開始する。',
-  'mobile-app.checks.4':
-    '問題を実際に作業しながら問題に対応し、記録する',
-  'mobile-app.checks.5':
-    '問題を診断しながら重要な資産情報を検索する。',
+  'mobile-app.checks.4': '問題を実際に作業しながら問題に対応し、記録する',
+  'mobile-app.checks.5': '問題を診断しながら重要な資産情報を検索する。',
 
   'eam.title': 'エンタープライズ資産管理',
   'eam.description.short': '資産を知る',
   'eam.descriptions.0':
-'会社の機器の混沌とした状態を整理しようとしてイライラしていませんか？機器が適切に手入れされているか、維持にどれくらいの費用がかかるか分からず、資産管理に伴う他のすべての頭痛の種に悩んでいませんか？',
+    '会社の機器の混沌とした状態を整理しようとしてイライラしていませんか？機器が適切に手入れされているか、維持にどれくらいの費用がかかるか分からず、資産管理に伴う他のすべての頭痛の種に悩んでいませんか？',
   'eam.descriptions.1':
     'Atlas CMMSのエンタープライズ資産管理モジュールは、10から1,000,000の資産に対応でき、使いやすく検索可能なツリー構造で、必要なものを必要な方法で正確に追跡できます。',
   'eam.checks.0':
@@ -86,8 +82,7 @@ const locale = {
   'eam.checks.1': '完全で詳細なメンテナンスログを表示する。',
   'eam.checks.2': '無制限のカスタムフィールドで必要なものだけを追跡する',
   'eam.checks.3': '資産を明確な親子階層で整理する',
-  'eam.checks.4':
-    'QRコード（バーコード）で情報を素早く簡単に見つける',
+  'eam.checks.4': 'QRコード（バーコード）で情報を素早く簡単に見つける',
   'eam.checks.5': 'センサー接続でリアルタイムの資産データを受信する。',
 
   'pm.title': '効果的な予防保全プログラム',
@@ -135,7 +130,8 @@ const locale = {
     'Atlasのカスタムダッシュボードを使用すると、悪名高い「メンテナンスのブラックホール」を理解し始め、データに基づいた計画を実行に移すことができます。これにより、人件費の削減、ダウンタイムの短縮などが実現します。',
   'dashboard.descriptions.2': 'Atlasのカスタムダッシュボードを使用すると…',
   'dashboard.checks.0': 'どこに、なぜお金が使われているかを知る',
-  'dashboard.checks.1': 'どの資産が最も費用がかかっているか、なぜそうなのかを知る',
+  'dashboard.checks.1':
+    'どの資産が最も費用がかかっているか、なぜそうなのかを知る',
   'dashboard.checks.2': '独自のカスタムKPIを作成する。',
   'dashboard.checks.3':
     'メトリックに基づいて自動的に生成および更新されるレポートを表示する',
@@ -146,19 +142,19 @@ const locale = {
   'home.work': '作業',
   'home.smarter_description':
     'Atlasは、技術者が作業を完了するために必要なツールとデータにアクセスできるようにすることで、技術者が効率的に作業することを非常に簡単にします。これらすべては手のひらから行えます。',
-  leading_maintenance:
-    'メンテナンスと信頼性のより良い未来への道をリードする',
+  leading_maintenance: 'メンテナンスと信頼性のより良い未来への道をリードする',
   //register
   premium_included: 'プレミアム機能が含まれています',
   no_credit_card: 'クレジットカードは不要です',
   perfect_tool: 'メンテナンスチームに最適なツール',
   start_trial_today: '今すぐ無料トライアルを開始する',
   create_account: 'アカウントを作成する',
-  signup_description: 'アカウント登録のために以下のフィールドに入力してください。',
+  signup_description:
+    'アカウント登録のために以下のフィールドに入力してください。',
   account_already: 'すでにアカウントをお持ちですか？',
   signin_here: 'こちらからサインイン',
-  invalid_email: '提供されたメールアドレスは有効なメールアドレスである必要があります',
-{
+  invalid_email:
+    '提供されたメールアドレスは有効なメールアドレスである必要があります',
   required_email: 'メールアドレスは必須項目です',
   required_firstName: '名は必須項目です',
   required_lastName: '姓は必須項目です',
@@ -182,7 +178,8 @@ const locale = {
   create_your_account: 'アカウントを作成',
   register: '登録',
   //signin
-  login_description: 'アカウントにサインインするには、以下の項目を入力してください。',
+  login_description:
+    'アカウントにサインインするには、以下の項目を入力してください。',
   no_account_yet: 'まだアカウントをお持ちではありませんか？',
   signup_here: 'こちらからサインアップ',
   wrong_credentials: '提供された認証情報が間違っています',
@@ -201,15 +198,18 @@ const locale = {
   date: '日付',
   cost: '費用',
   include_cost: 'この費用を合計費用に含める',
-  include_cost_description: 'これにより、作業指示書に費やされた合計費用にこの費用が追加されます',
+  include_cost_description:
+    'これにより、作業指示書に費やされた合計費用にこの費用が追加されます',
   required_cost_description: '費用説明は必須です',
   required_cost: '費用は必須です',
   add_cost: '追加費用を追加',
-  add_cost_description: '以下の項目を入力して追加費用を作成し、追加してください',
+  add_cost_description:
+    '以下の項目を入力して追加費用を作成し、追加してください',
   add: '追加',
   hourly_rate: '時間単価',
   include_time: 'この時間を合計時間に含める',
-  include_time_description: 'これにより、作業指示書に費やされた合計時間にこの期間が追加されます',
+  include_time_description:
+    'これにより、作業指示書に費やされた合計時間にこの期間が追加されます',
   work_started_at: '作業開始時刻',
   duration: '期間',
   hours: '時間',
@@ -236,8 +236,6 @@ const locale = {
   tasks: 'タスク',
   wo_archive_success: '作業指示書がアーカイブされました',
   wo_archive_failure: '作業指示書をアーカイブできませんでした',
-}
-{
   wo_archive_confirm: 'この作業指示書をアーカイブしてもよろしいですか？',
   quantity_change_success: '数量が正常に変更されました',
   quantity_change_failure: '数量を変更できませんでした',
@@ -305,9 +303,11 @@ const locale = {
   requires_signature: '署名が必要',
   required_wo_title: '作業指示書のタイトルは必須です',
   add_wo: '作業指示書を追加',
-  add_wo_description: '新しい作業指示書を作成して追加するには、以下のフィールドに入力してください',
+  add_wo_description:
+    '新しい作業指示書を作成して追加するには、以下のフィールドに入力してください',
   edit_wo: '作業指示書を編集',
-  edit_wo_description: '作業指示書を更新するには、以下のフィールドに入力してください',
+  edit_wo_description:
+    '作業指示書を更新するには、以下のフィールドに入力してください',
   'noRows.wo.message':
     '作業指示書は、スケジュール設定したり誰かに割り当てたりできるタスクまたはジョブです',
   'noRows.wo.action': '「+」ボタンを押して作業指示書を作成してください',
@@ -317,8 +317,7 @@ const locale = {
     '作業指示書へのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
   cancel: 'キャンセル',
   select_parts: '部品を選択',
-}
-sets_of_parts: '部品セット',
+  sets_of_parts: '部品セット',
   //preventive maintenance
   paused: '一時停止中',
   trigger_details: 'トリガーの詳細',
@@ -344,14 +343,17 @@ sets_of_parts: '部品セット',
   required_frequency: 'トリガーの頻度は必須です',
   invalid_frequency: '頻度は0より大きい値である必要があります',
   schedule_wo: '作業指示をスケジュール',
-  schedule_wo_description: '作業指示をスケジュールするには、以下のフィールドに入力してください',
+  schedule_wo_description:
+    '作業指示をスケジュールするには、以下のフィールドに入力してください',
   edit_wo_trigger: '作業指示トリガーを編集',
-  edit_wo_trigger_description: '作業指示トリガーを編集するには、以下のフィールドに入力してください',
+  edit_wo_trigger_description:
+    '作業指示トリガーを編集するには、以下のフィールドに入力してください',
   create_trigger: 'トリガーを作成',
   'noRows.pm.message': 'カスタムトリガーで作業指示をスケジュール',
   'noRows.pm.action': '「+」ボタンを押してトリガーを作成',
   confirm_delete_pm: 'この作業指示トリガーを削除してもよろしいですか？',
-  no_access_pm: '予防保全セクションへのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
+  no_access_pm:
+    '予防保全セクションへのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
   enter_wo_title: '作業指示のタイトルを入力',
   //menuItems
   status_report: 'ステータスレポート',
@@ -389,12 +391,13 @@ sets_of_parts: '部品セット',
   required_request_name: 'リクエストのタイトルは必須です',
   required_field: 'このフィールドは必須です',
   add_request: 'リクエストを追加',
-  add_request_description: '新しいリクエストを作成して追加するには、以下のフィールドに入力してください',
+  add_request_description:
+    '新しいリクエストを作成して追加するには、以下のフィールドに入力してください',
   edit_request: 'リクエストを編集',
-  edit_request_description: 'リクエストを編集するには、以下のフィールドに入力してください',
+  edit_request_description:
+    'リクエストを編集するには、以下のフィールドに入力してください',
   'noRows.request.message': '作業リクエストを管理',
   'noRows.request.action': '「+」ボタンを押して作業リクエストを作成',
-const ja = {
   confirm_delete_request: 'このリクエストを削除してもよろしいですか？',
   request: 'リクエスト',
   request_details: 'リクエスト詳細',
@@ -404,7 +407,8 @@ const ja = {
   high_priority: '高',
   //asset
   downtimes: 'ダウンタイム',
-  confirm_delete_file_asset: 'このアセットからこのファイルを削除してもよろしいですか？',
+  confirm_delete_file_asset:
+    'このアセットからこのファイルを削除してもよろしいですか？',
   actions: 'アクション',
   show: '表示',
   model: 'モデル',
@@ -430,7 +434,8 @@ const ja = {
   enter_meter_value: 'メーター値を入力',
   add_reading: '読み取り値を追加',
   select_meter: 'メーターを選択',
-  confirm_delete_part_asset: 'このアセットからこの部品を削除してもよろしいですか？',
+  confirm_delete_part_asset:
+    'このアセットからこの部品を削除してもよろしいですか？',
   no_due_date: '期日なし',
   due_at_date: '期日 {{date}}',
   no_primary_worker: '主担当者なし',
@@ -453,7 +458,8 @@ const ja = {
   additional_workers_description: '追加の作業者を選択',
   required_asset_name: 'アセット名は必須です',
   add_asset: 'アセットを追加',
-  add_asset_description: '新しいアセットを作成して追加するには、以下のフィールドに入力してください',
+  add_asset_description:
+    '新しいアセットを作成して追加するには、以下のフィールドに入力してください',
   create_asset: 'アセットを作成',
   hierarchy: '階層',
   add_downtime: 'ダウンタイムを追加',
@@ -461,7 +467,8 @@ const ja = {
   remove_downtime: 'ダウンタイムを削除',
   edit: '編集',
   edit_asset: 'アセットを編集',
-  edit_asset_description: 'このアセットを編集するには、以下のフィールドに入力してください',
+  edit_asset_description:
+    'このアセットを編集するには、以下のフィールドに入力してください',
   confirm_delete_asset: 'このアセットを削除してもよろしいですか？',
   loading_assets: '{{name}} #{{id}} の下のアセットを読み込み中',
   no_content: 'コンテンツなし',
@@ -471,8 +478,6 @@ const ja = {
   location_create_success: '場所が正常に作成されました',
   location_create_failure: '場所を作成できませんでした',
   location_edit_failure: '場所を編集できませんでした',
-};
-{
   location_delete_success: 'ロケーションは正常に削除されました',
   location_delete_failure: 'ロケーションを削除できませんでした',
   enter_location_name: 'ロケーション名を入力',
@@ -483,9 +488,11 @@ const ja = {
   required_location_name: 'ロケーションのタイトルは必須です',
   required_location_address: 'ロケーションの住所は必須です',
   add_location: 'ロケーションを追加',
-  add_location_description: '新しいロケーションを作成して追加するには、以下のフィールドに入力してください',
+  add_location_description:
+    '新しいロケーションを作成して追加するには、以下のフィールドに入力してください',
   edit_location: 'ロケーションを編集',
-  edit_location_description: 'ロケーションを更新するには、以下のフィールドに入力してください',
+  edit_location_description:
+    'ロケーションを更新するには、以下のフィールドに入力してください',
   confirm_delete_location: 'このロケーションを削除してもよろしいですか？',
   floor_plans: 'フロアプラン',
   floor_plan: 'フロアプラン',
@@ -494,7 +501,8 @@ const ja = {
   upload_image: '画像をアップロード',
   required_floor_plan_name: 'フロアプラン名は必須です',
   add_floor_plan: '新しいフロアプランを追加',
-  add_floor_plan_description: '新しいフロアプランを作成するには、以下のフィールドに入力してください',
+  add_floor_plan_description:
+    '新しいフロアプランを作成するには、以下のフィールドに入力してください',
   no_asset_in_location: 'このロケーションには資産がありません',
   no_wo_in_location: 'このロケーションには作業指示がありません',
   no_file_in_location: 'このロケーションにファイルは添付されていません',
@@ -503,21 +511,34 @@ const ja = {
   assigned_customers: '割り当てられた請負業者',
   assigned_vendors: '割り当てられたベンダー',
   //no_access
-  no_access_location: 'ロケーションへのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
-  no_access_vendors_customers: 'ベンダーと請負業者へのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
-  no_access_people_team: '人員とチームへのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
-  no_access_analytics: '分析へのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
-  no_access_assets: '資産へのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
-  no_access_categories: 'カテゴリへのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
-  no_access_files: 'ファイルへのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
-  no_access_inventory: '在庫へのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
-  no_access_meters: 'メーターへのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
-  no_access_purchase_orders: '発注書を作成できません。アクセス権が必要な場合は、管理者にお問い合わせください',
-  no_access_requests: 'リクエストへのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
-  no_access_settings: '設定へのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
+  no_access_location:
+    'ロケーションへのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
+  no_access_vendors_customers:
+    'ベンダーと請負業者へのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
+  no_access_people_team:
+    '人員とチームへのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
+  no_access_analytics:
+    '分析へのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
+  no_access_assets:
+    '資産へのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
+  no_access_categories:
+    'カテゴリへのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
+  no_access_files:
+    'ファイルへのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
+  no_access_inventory:
+    '在庫へのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
+  no_access_meters:
+    'メーターへのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
+  no_access_purchase_orders:
+    '発注書を作成できません。アクセス権が必要な場合は、管理者にお問い合わせください',
+  no_access_requests:
+    'リクエストへのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
+  no_access_settings:
+    '設定へのアクセス権がありません。アクセス権が必要な場合は、管理者にお問い合わせください',
   no_access_page: 'このページへのアクセス権がありません',
   file: 'ファイル',
-  'noRows.location.message': 'ロケーションを使用すると、資産と作業員をより効率的に管理できます',
+  'noRows.location.message':
+    'ロケーションを使用すると、資産と作業員をより効率的に管理できます',
   'noRows.location.action': '「+」ボタンを押してロケーションを作成してください',
   //inventory
   card_view: 'カードビュー',
@@ -531,18 +552,19 @@ const ja = {
   enter_part_name: '部品名を入力',
   required_set_name: 'セット名は必須です',
   add_set: 'セットを追加',
-  add_set_description: '新しいセットを作成して追加するには、以下のフィールドに入力してください',
+  add_set_description:
+    '新しいセットを作成して追加するには、以下のフィールドに入力してください',
   create_set: 'セットを作成',
   edit_set: 'セットを編集',
-  edit_set_description: 'セットを編集するには、以下のフィールドに入力してください',
+  edit_set_description:
+    'セットを編集するには、以下のフィールドに入力してください',
   confirm_delete_set: 'このセットを削除してもよろしいですか？',
   part_create_success: '部品は正常に作成されました',
   part_create_failure: '部品を作成できませんでした',
-}
-{
-  part_edit_failure: "部品を編集できませんでした",
+
+  part_edit_failure: '部品を編集できませんでした',
   part_delete_success: '部品が正常に削除されました',
-  part_delete_failure: "部品を削除できませんでした",
+  part_delete_failure: '部品を削除できませんでした',
   quantity: '数量',
   open_wo: '未完了の作業指示',
   enter_part_category: '部品カテゴリを入力',
@@ -555,12 +577,15 @@ const ja = {
   enter_part_area: '部品エリアを入力',
   additional_part_details: '追加の部品詳細',
   add_part: '部品を追加',
-  add_part_description: '新しい部品を作成して追加するには、以下のフィールドに入力してください',
+  add_part_description:
+    '新しい部品を作成して追加するには、以下のフィールドに入力してください',
   create_part: '部品を作成',
   update_part: '部品を更新',
-  update_part_description: '部品を更新するには、以下のフィールドに入力してください',
-  'noRows.part.message': '部品は資産に結合することも、単独で使用することもできます',
-  'noRows.part.action': "部品を作成するには「+」ボタンを押してください",
+  update_part_description:
+    '部品を更新するには、以下のフィールドに入力してください',
+  'noRows.part.message':
+    '部品は資産に結合することも、単独で使用することもできます',
+  'noRows.part.action': '部品を作成するには「+」ボタンを押してください',
   confirm_delete_part: 'この部品を削除してもよろしいですか？',
   part_details: '部品詳細',
   area_details: 'エリア詳細',
@@ -571,9 +596,9 @@ const ja = {
   workers: '作業員',
   Parts_and_Inventory: '部品と在庫',
   //purchase order
-  po_edit_failure: "発注書を編集できませんでした",
+  po_edit_failure: '発注書を編集できませんでした',
   po_delete_success: '発注書が正常に削除されました',
-  po_delete_failure: "発注書を削除できませんでした",
+  po_delete_failure: '発注書を削除できませんでした',
   number_of_items: '品目数',
   total_quantity: '合計数量',
   shipping_to: '配送先',
@@ -597,22 +622,23 @@ const ja = {
   shipping_method: '配送方法',
   required_name: '名前は必須です',
   edit_po: '発注書を編集',
-  edit_po_description: '発注書を更新するには、以下のフィールドに入力してください',
+  edit_po_description:
+    '発注書を更新するには、以下のフィールドに入力してください',
   purchase_order: '発注書',
   'noRows.po.message': '発注書を一箇所で管理',
-  'noRows.po.action': "発注書を作成するには「+」ボタンを押してください。",
+  'noRows.po.action': '発注書を作成するには「+」ボタンを押してください。',
   confirm_delete_po: 'この発注書を削除してもよろしいですか？',
   upgrade_po: '発注書を作成するにはアップグレードしてください',
   new_po: '新規発注書',
   po_create_success: '発注書が正常に作成されました',
   select_one_part: '少なくとも1つの部品を選択してください',
-  po_create_failure: "発注書を作成できませんでした",
+  po_create_failure: '発注書を作成できませんでした',
   approve_while_submitting: '提出時に承認',
   invalid_fax: 'FAX番号が無効です',
   submit: '送信',
   each_item_superior_zero: '各品目の数量は0より大きくする必要があります',
   quantity_edit_success: '数量が正常に変更されました',
-  quantity_edit_failure: "数量を変更できませんでした",
+  quantity_edit_failure: '数量を変更できませんでした',
   APPROVED: '承認済み',
   PENDING: '保留中',
   REJECTED: '却下済み',
@@ -620,15 +646,15 @@ const ja = {
   when_reading_is: 'メーターの読み取り値が',
   greater_than: 'より大きい',
   lower_than: 'より小さい',
-}
-{
+
   value: '値',
   required_value: '値は必須です',
   required_trigger_condition: '条件は必須です',
   wo_trigger_create_success: '作業指示トリガーが正常に作成されました',
   wo_trigger_create_failure: '作業指示トリガーを作成できませんでした',
   add_wo_trigger: '作業指示トリガーを追加',
-  add_wo_trigger_description: '以下のフィールドに入力して、作業指示トリガーを作成および追加します',
+  add_wo_trigger_description:
+    '以下のフィールドに入力して、作業指示トリガーを作成および追加します',
   wo_trigger_edit_success: '作業指示トリガーが正常に更新されました',
   meter_create_success: 'メーターが正常に作成されました',
   meter_create_failure: 'メーターを作成できませんでした',
@@ -647,7 +673,8 @@ const ja = {
   required_meter_update_frequency: 'メーター更新頻度は必須です',
   required_asset: '資産は必須です',
   add_meter: 'メーターを追加',
-  add_meter_description: '以下のフィールドに入力して、新しいメーターを作成および追加します',
+  add_meter_description:
+    '以下のフィールドに入力して、新しいメーターを作成および追加します',
   edit_meter: 'メーターを編集',
   edit_meter_description: '以下のフィールドに入力して、メーターを編集します',
   confirm_delete_meter: 'このメーターを削除してもよろしいですか？',
@@ -658,8 +685,9 @@ const ja = {
   wo_triggers: '作業指示トリガー',
   add_trigger: 'トリガーを追加',
   meter_details: 'メーター詳細',
-  'noRows.meter.message': 'メーターの読み取り値により、資産を監視し、定義された条件に基づいて新しい作業指示をトリガーできます',
-  'noRows.meter.action': "「+」ボタンを押してメーターを作成します",
+  'noRows.meter.message':
+    'メーターの読み取り値により、資産を監視し、定義された条件に基づいて新しい作業指示をトリガーできます',
+  'noRows.meter.action': '「+」ボタンを押してメーターを作成します',
   meter: 'メーター',
   //upload
   drag_one_file: 'ここにファイルをドラッグしてください',
@@ -679,7 +707,8 @@ const ja = {
   website: 'ウェブサイト',
   customer_type: '請負業者タイプ',
   customer_type_description: '例：配管、電気',
-  customer_description_description: 'この請負業者の目的を数行で説明してください...',
+  customer_description_description:
+    'この請負業者の目的を数行で説明してください...',
   billing_information: '請求情報',
   address_line_2: '住所2',
   billing_name: '請求名',
@@ -690,13 +719,13 @@ const ja = {
   invalid_website: '無効なウェブサイト',
   billing_address: '請求先住所',
   add_customer: '請負業者を追加',
-  add_customer_description: '以下のフィールドに入力して、新しい請負業者を作成および追加します',
+  add_customer_description:
+    '以下のフィールドに入力して、新しい請負業者を作成および追加します',
   'noRows.customer.message': '請負業者は外部の作業者です',
-  'noRows.customer.action': "「+」ボタンを押して請負業者を作成します",
+  'noRows.customer.action': '「+」ボタンを押して請負業者を作成します',
   type: 'タイプ',
   billing_currency: '請求通貨',
-}
-go_back: '戻る',
+  go_back: '戻る',
   confirm_delete_customer: 'この請負業者を削除してもよろしいですか？',
   //vendor
   vendor_create_success: 'ベンダーが正常に作成されました',
@@ -712,12 +741,13 @@ go_back: '戻る',
     '新しいベンダーを作成して追加するには、以下のフィールドに入力してください',
   confirm_delete_vendor: 'このベンダーを削除してもよろしいですか？',
   'noRows.vendor.message': 'ベンダーは資産または部品を提供する組織です',
-  'noRows.vendor.action': "「+」ボタンを押してベンダーを作成してください",
+  'noRows.vendor.action': '「+」ボタンを押してベンダーを作成してください',
   vendor_type_description: '例: 配管、電気',
   //people teams
   role: '役割',
   edit_user: 'ユーザーを編集',
-  edit_user_description: 'ユーザーを編集するには、以下のフィールドに入力してください',
+  edit_user_description:
+    'ユーザーを編集するには、以下のフィールドに入力してください',
   job_title: '役職',
   invite_users: 'ユーザーを招待',
   bring_people_team: 'チームに新しいメンバーを招く',
@@ -725,7 +755,8 @@ go_back: '戻る',
     '各メールアドレスを入力後、「tab」または「enter」を押すことで、一度に20人のユーザーを追加できます。重複するメールアドレスや登録済みのメールアドレスは、要求されたユーザーの登録時に削除されます。',
   enter_email: 'メールアドレスを入力',
   users_invite_success: 'ユーザーが招待されました',
-  users_invite_failure: 'ユーザーを招待できません。現在のサブスクリプションメンバー数を確認してください',
+  users_invite_failure:
+    'ユーザーを招待できません。現在のサブスクリプションメンバー数を確認してください',
   please_type_emails: '招待するメールアドレスを入力してください',
   please_select_role: '役割を選択してください',
   invite: '招待',
@@ -763,8 +794,9 @@ go_back: '戻る',
   REQUESTER_description:
     'リクエスターは、作業リクエストを送信し、そのステータスを表示することのみができます',
   select_user_role: 'ユーザーの役割を選択',
-  'noRows.team.message': 'チームは特定のグループの人々を管理するのに役立ちます。',
-  'noRows.team.action': "「+」ボタンを押してチームを作成してください。",
+  'noRows.team.message':
+    'チームは特定のグループの人々を管理するのに役立ちます。',
+  'noRows.team.action': '「+」ボタンを押してチームを作成してください。',
   user_details: 'ユーザー詳細',
   //files
   file_delete_success: 'ファイルが正常に削除されました',
@@ -773,12 +805,11 @@ go_back: '戻る',
   uploaded_on: 'アップロード日',
   rename: '名前を変更',
   required_files: '少なくとも1つのファイルをアップロードしてください',
-const ja = {
   required_file_name: 'ファイル名を入力してください',
   add_files: 'ファイルを追加',
   edit_file: 'ファイルを編集',
   'noRows.file.message': 'すべてのファイルを一箇所に集める',
-  'noRows.file.action': "「+」ボタンを押してファイルをアップロードしてください",
+  'noRows.file.action': '「+」ボタンを押してファイルをアップロードしてください',
   upgrade_files:
     '資産、作業指示、場所などでファイルを使用するにはアップグレードしてください...',
   parts_consumption: '部品消費量',
@@ -792,10 +823,11 @@ const ja = {
   timers: 'タイマー',
   costs: 'コスト',
   add_category: '新しいカテゴリを追加',
-  add_category_description: '新しいカテゴリを作成して追加するために名前を入力してください',
+  add_category_description:
+    '新しいカテゴリを作成して追加するために名前を入力してください',
   edit_category: 'カテゴリを編集',
   edit_category_description: 'カテゴリを編集するために名前を入力してください',
-  no_category_action: "「+」ボタンを押して最初のカテゴリを追加してください。",
+  no_category_action: '「+」ボタンを押して最初のカテゴリを追加してください。',
   confirm_delete_category: 'このカテゴリを削除してもよろしいですか？',
   no_category_message: 'まだ{{categoryName}}カテゴリがないようです。',
   acquisition_cost: '取得費用',
@@ -804,7 +836,8 @@ const ja = {
   request_form_configuration: 'リクエストフォーム設定',
   roles: '役割',
   checklists: 'チェックリスト',
-  field_configuration_description: 'フィールドをオプション、非表示、または必須としてマークできます',
+  field_configuration_description:
+    'フィールドをオプション、非表示、または必須としてマークできます',
   optional: 'オプション',
   required: '必須',
   hidden: '非表示',
@@ -812,7 +845,8 @@ const ja = {
   completing_wo: '作業指示の完了',
   role_edit_failure: '役割を編集できませんでした',
   edit_role: '役割を編集',
-  edit_role_description: '役割を編集するために以下のフィールドに入力してください',
+  edit_role_description:
+    '役割を編集するために以下のフィールドに入力してください',
   external_id: '外部ID',
   permissions: '権限',
   create_role_description:
@@ -832,7 +866,8 @@ const ja = {
   create_role: '役割を作成',
   upgrade_role: '役割を作成するにはアップグレードしてください',
   add_role: '新しい役割を追加',
-  add_role_description: '新しい役割を作成して追加するために以下のフィールドに入力してください',
+  add_role_description:
+    '新しい役割を作成して追加するために以下のフィールドに入力してください',
   parts_and_sets: '部品と部品セット',
   upgrade_role_edit: '役割を編集するにはアップグレードしてください',
   delete_role: '役割を削除',
@@ -848,12 +883,12 @@ const ja = {
   disable_closed_wo_notification: 'クローズされた作業指示の通知を無効にする',
   disable_closed_wo_notification_description:
     'クローズされた作業指示が更新されたときの通知を無効にする',
-  ask_feedback_wo_closed: '作業指示がクローズされたときにフィードバックを求める',
+  ask_feedback_wo_closed:
+    '作業指示がクローズされたときにフィードバックを求める',
   ask_feedback_wo_closed_description:
     'ユーザーは行われた作業についてフィードバックを求められます',
   include_labor_in_total_cost: '総コストに人件費を含める',
-};
-include_labor_in_total_cost_description:
+  include_labor_in_total_cost_description:
     'ユーザーが時間を記録し、時給が保存されている場合、合計に人件費を追加します',
   enable_wo_updates_requesters: '依頼者向け作業指示書更新を有効にする',
   enable_wo_updates_requesters_description:
@@ -932,7 +967,6 @@ include_labor_in_total_cost_description:
     '可用性とは、資産がサービス開始日から稼働状態にあった割合を指します。総ダウンタイムとは、指定された日付範囲で発生したダウンタイムイベントの数を指します。',
   total_cost_description:
     '総コストには、作業指示書の人件費、追加費用、部品費用が含まれます',
-{
   compliant_wo_description:
     '準拠した作業指示とは、期日までに完了した作業指示と定義されます。サイクルタイムとは、作業指示が完了するまでの日数を指します。',
   hours_worked_description:
@@ -1011,8 +1045,7 @@ include_labor_in_total_cost_description:
     '現在、{{planName}}プランをご利用中です。{{expiration}}に期限が切れます。今すぐアップグレードして、より多くの機能にアクセスしましょう。',
   upgrade_plan: 'プランをアップグレード',
   //subscription
-}
-{
+
   plans: 'プラン',
   monthly: '月額',
   annually: '年額',
@@ -1093,8 +1126,6 @@ include_labor_in_total_cost_description:
     '作業指示書が{{created}}件作成され、{{updated}}件更新されました',
   to_export: 'エクスポート',
   filters: 'フィルター',
-}
-const ja = {
   more_filters: 'その他のフィルター',
   customer: '請負業者',
   to: 'から',
@@ -1124,7 +1155,7 @@ const ja = {
   today: '今日',
   to_filter: 'フィルター',
   'noRows.asset.message': '資産は、会社が介入できるリソースです',
-  'noRows.asset.action': "「+」ボタンを押して新しい資産を作成します。",
+  'noRows.asset.action': '「+」ボタンを押して新しい資産を作成します。',
   reset_filters: 'フィルターをリセット',
   toggle_menu: 'メニューを切り替える',
   no_results: '結果が見つかりません',
@@ -1174,9 +1205,7 @@ const ja = {
   show_columns: '列を表示',
   hide: '非表示',
   unsort: '並べ替えを解除',
-};
-export default ja;
-sort_by_ASC: '昇順で並べ替え',
+  sort_by_ASC: '昇順で並べ替え',
   sort_by_DESC: '降順で並べ替え',
   sort: '並べ替え',
   total_rows: '合計行数:',
@@ -1191,7 +1220,8 @@ sort_by_ASC: '昇順で並べ替え',
   detail_panel_toggle: '詳細パネルの切り替え',
   cancel_subscription: 'サブスクリプションをキャンセル',
   resume_subscription: 'サブスクリプションを再開',
-  confirm_cancel_subscription: 'サブスクリプションをキャンセルしてもよろしいですか？',
+  confirm_cancel_subscription:
+    'サブスクリプションをキャンセルしてもよろしいですか？',
   workflows: 'ワークフロー',
   create_workflow: 'ワークフローを作成',
   if: 'もし',
@@ -1254,8 +1284,7 @@ sort_by_ASC: '昇順で並べ替え',
   workflow_delete_success: 'ワークフローが正常に削除されました',
   workflow_delete_failure: 'ワークフローを削除できませんでした',
   confirm_delete_workflow: 'このワークフローを削除してもよろしいですか',
-  click_here: 'こちらをクリック'
-{
+  click_here: 'こちらをクリック',
   verify_email_title: 'メールアドレスの確認',
   verify_email_description:
     '確認メールが送信されました。受信トレイにない場合は、迷惑メールをご確認ください。',
@@ -1268,7 +1297,8 @@ sort_by_ASC: '昇順で並べ替え',
   downgrade_description:
     'サブスクリプションプランをダウングレードしました。続行するには、一部のユーザーを無効にする必要があります。これは現在のサブスクリプションで一度しか実行できません。慎重に選択してください。',
   disable_users: 'ユーザーを無効にする',
-  min_users_description: '最低{{minUsers}}人のユーザーを無効にする必要があります',
+  min_users_description:
+    '最低{{minUsers}}人のユーザーを無効にする必要があります',
   downgrade_description_no_owner:
     '会社がサブスクリプションプランをダウングレードしました。続行する前に、会社の所有者が一部のユーザーを無効にする必要があります。',
   past_due: '期限切れ',
@@ -1300,7 +1330,8 @@ sort_by_ASC: '昇順で並べ替え',
   edit_company: '会社を編集',
   fill_fields_below: '以下のフィールドに入力してください',
   IMPORT_CSV_feature: 'CSVインポート',
-  no_import_access: 'CSV、Excelファイルからインポートするにはプランをアップグレードしてください',
+  no_import_access:
+    'CSV、Excelファイルからインポートするにはプランをアップグレードしてください',
   register_here: 'こちらで登録',
   home: 'ホーム',
   user: 'ユーザー',
@@ -1311,8 +1342,7 @@ sort_by_ASC: '昇順で並べ替え',
   required_tasks_on_completion: 'タスクを完了する必要があります',
   required_labor_on_completion: '時間を記録する必要があります',
   required_part_on_completion: 'この作業指示では部品が使用されていません',
-  required_cost_on_completion:
-    'この作業指示ではコスト情報が提供されていません',
+  required_cost_on_completion: 'この作業指示ではコスト情報が提供されていません',
   complete_work_order: '作業指示を完了',
   no_parts: '部品なし',
   edit_quantity: '数量を編集',
@@ -1336,8 +1366,6 @@ sort_by_ASC: '昇順で並べ替え',
   assign_asset: '資産を割り当てる',
   add_options: 'オプションを追加',
   required_task_label: 'タスクラベルは必須です',
-}
-const ja = {
   edit_work_order: '作業指示を編集',
   confirmation: '確認',
   LATE_WO: '遅延',
@@ -1352,7 +1380,8 @@ const ja = {
   compliant_work_orders: '準拠した作業指示',
   stats: '統計',
   vendors_and_customers: '業者と顧客',
-  no_notification_message: '作業の進捗状況を追跡するのに役立つ重要な更新がここに表示されます',
+  no_notification_message:
+    '作業の進捗状況を追跡するのに役立つ重要な更新がここに表示されます',
   no_notification: '通知なし',
   view_children: '子を表示',
   loading: '読み込み中',
@@ -1360,8 +1389,10 @@ const ja = {
   add_file: 'ファイルを追加',
   asset_update_failure: '資産を編集できませんでした',
   no_wo_linked_location: 'この場所に作業指示はありません',
-  confirm_delete_file_location: 'この場所からこのファイルを削除してもよろしいですか？',
-  confirm_delete_file_part: 'この部品からこのファイルを削除してもよろしいですか？',
+  confirm_delete_file_location:
+    'この場所からこのファイルを削除してもよろしいですか？',
+  confirm_delete_file_part:
+    'この部品からこのファイルを削除してもよろしいですか？',
   no_wo_linked_part: 'この部品にリンクされた作業指示はありません',
   edit_customer: '請負業者を編集',
   edit_vendor: '業者を編集',
@@ -1374,7 +1405,8 @@ const ja = {
   confirm_logout: 'ログアウトしてもよろしいですか？',
   report: 'レポート',
   end_cannot_be_ulterior_to_start: '終了日は開始日より後にはできません',
-  storage_permission_needed_description: 'ファイルをダウンロードするにはストレージの許可を与える必要があります',
+  storage_permission_needed_description:
+    'ファイルをダウンロードするにはストレージの許可を与える必要があります',
   permission_denied: '許可が拒否されました！',
   to_scan: 'スキャン',
   nfc_tag: 'NFCタグ',
@@ -1386,12 +1418,15 @@ const ja = {
   team_members_count: '{{count}}人のメンバー',
   no_asset_found_nfc: 'このNFCタグで資産が見つかりませんでした。作成しますか？',
   no_access_to_camera: 'カメラへのアクセスがありません',
-  no_asset_found_barcode: 'このバーコードで資産が見つかりませんでした。作成しますか？',
+  no_asset_found_barcode:
+    'このバーコードで資産が見つかりませんでした。作成しますか？',
   remove_blank_meter_tasks: 'メーターを選択してください',
   no_notification_permission: '通知の許可がありません',
-  no_notification_permission_description: '設定に移動し、通知の許可を手動で有効にしてください',
+  no_notification_permission_description:
+    '設定に移動し、通知の許可を手動で有効にしてください',
   allow: '許可',
-  failed_push_notification: 'プッシュ通知のプッシュトークンの取得に失敗しました！',
+  failed_push_notification:
+    'プッシュ通知のプッシュトークンの取得に失敗しました！',
   no_internet_connection: 'インターネット接続がありません',
   success: '成功',
   info: '情報',
@@ -1404,15 +1439,17 @@ const ja = {
   camera: 'カメラ',
   media_library: 'メディアライブラリ',
   permission_required_title: '許可が必要です',
-  permission_required_message: '{{permission}}へのアクセスが必要です。アプリ設定で有効にしてください。',
+  permission_required_message:
+    '{{permission}}へのアクセスが必要です。アプリ設定で有効にしてください。',
   permission_denied_title: '許可が拒否されました',
-  permission_denied_message: '続行するには{{permission}}へのアクセスが必要です。',
+  permission_denied_message:
+    '続行するには{{permission}}へのアクセスが必要です。',
   unable_to_request_permission: '{{permission}}の許可を要求できません。',
   open_settings: '設定を開く',
   ok: 'OK',
-};
-CANCELLED: '却下済み',
-  max_file_size_error: 'ファイルサイズは{{size}}MBより大きくすることはできません',
+  CANCELLED: '却下済み',
+  max_file_size_error:
+    'ファイルサイズは{{size}}MBより大きくすることはできません',
   assignedToUser: '自分の作業',
   mark_all_as_seen: 'すべて既読にする',
   estimated_start_date: '予定開始日',

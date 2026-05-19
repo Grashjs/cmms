@@ -113,7 +113,7 @@ export default async function Footer() {
     {
       title: "Product",
       type: "links",
-      items: [{ href: "/free-cmms", text: "Free CMMS" }],
+      items: [{ href: "/free-cmms", text: t("free_cmms.short") }],
     },
     {
       title: "Follow Us",
