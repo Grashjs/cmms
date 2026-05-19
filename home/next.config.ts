@@ -33,7 +33,7 @@ const nextConfig: NextConfig = {
         destination: "/en/deletion-policy",
       },
       {
-        source: "/:path((?!en|es|fr|de|tr|pt-br|pl|ar|it|sv|ru|hu|nl|zh-cn|ba|api|_next|_vercel).*)",
+        source: "/:path((?!en|es|fr|de|tr|pt-br|pl|ar|it|sv|ru|hu|nl|zh-cn|ba|ja|api|_next|_vercel).*)",
         destination: "/en/:path*",
       },
     ];
