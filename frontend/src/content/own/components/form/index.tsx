@@ -36,6 +36,7 @@ interface PropsType {
   isLoading?: boolean;
   isButtonEnabled?: (values: IHash<any>, ...props: any[]) => boolean;
   enableReinitialize?: boolean;
+  nextToButton?: React.ReactNode;
 }
 
 export default (props: PropsType) => {
@@ -306,6 +307,7 @@ export default (props: PropsType) => {
                   {t(props.submitText)}
                 </Button>
               )}
+              {props.nextToButton}
             </Grid>
             <FormikErrorFocus
               // See scroll-to-element for configuration options: https://www.npmjs.com/package/scroll-to-element

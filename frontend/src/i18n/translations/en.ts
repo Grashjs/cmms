@@ -1846,7 +1846,8 @@ const locale = {
   view_other: 'View other',
   view_other_hint: '"View other" means view something created by someone else',
   go_to_billing: 'Go to Billing',
-  import_from_spreadsheet: 'Import from a spreadsheet or CSV'
+  import_from_spreadsheet: 'Import from a spreadsheet or CSV',
+  reset: 'Reset'
 };
 
 export default locale;

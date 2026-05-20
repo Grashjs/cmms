@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 import Form from '../../components/form';
 import { IField } from '../../type';
 import { useTranslation } from 'react-i18next';
-import { Grid, Typography } from '@mui/material';
+import { Button, Grid, Typography } from '@mui/material';
 import { useDispatch, useSelector } from '../../../../store';
 import { UserMiniDTO } from '../../../../models/user';
 import {
@@ -24,9 +24,15 @@ interface OwnProps {
   onFilterChange: (filterFields: FilterField[]) => void;
   filterFields: FilterField[];
   onClose: () => void;
+  onReset: () => void;
 }
 
-function MoreFilters({ filterFields, onFilterChange, onClose }: OwnProps) {
+function MoreFilters({
+  filterFields,
+  onFilterChange,
+  onClose,
+  onReset
+}: OwnProps) {
   const { t }: { t: any } = useTranslation();
   const { customersMini } = useSelector((state) => state.customers);
   const { locationsMini } = useSelector((state) => state.locations);
@@ -263,7 +269,6 @@ function MoreFilters({ filterFields, onFilterChange, onClose }: OwnProps) {
     };
   };
   const shape = {};
-
   const USER_FIELDS = ['primaryUser', 'completedBy', 'createdBy', 'assignedTo'];
 
   useEffect(() => {
@@ -303,6 +308,11 @@ function MoreFilters({ filterFields, onFilterChange, onClose }: OwnProps) {
           submitText={t('save')}
           values={getValuesFromFilterFields()}
           enableReinitialize
+          nextToButton={
+            <Button sx={{ ml: 2 }} onClick={onReset} variant={'outlined'}>
+              {t('reset')}
+            </Button>
+          }
           onChange={({ field, e }) => {}}
           onSubmit={async (values) => {
             let newFilters = [...filterFields];

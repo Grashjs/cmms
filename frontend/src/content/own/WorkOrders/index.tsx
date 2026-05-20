@@ -1072,6 +1072,10 @@ function WorkOrders() {
           filterFields={criteria.filterFields}
           onFilterChange={onFilterChange}
           onClose={handleCloseFilterDrawer}
+          onReset={() => {
+            onFilterChange(DEFAULT_FILTER_FIELDS);
+            handleCloseFilterDrawer();
+          }}
         />
       </Drawer>
       <ConfirmDialog
