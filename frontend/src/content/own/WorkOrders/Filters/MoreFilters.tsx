@@ -302,7 +302,7 @@ function MoreFilters({
       </Grid>
       <Grid item xs={12}>
         <Form
-          key={`${assetsMini.length}-${teamsMini.length}-${customersMini.length}-${locationsMini.length}-${usersMini.length}-${categories['work-order-categories']?.length}`}
+          // key={`${assetsMini.length}-${teamsMini.length}-${customersMini.length}-${locationsMini.length}-${usersMini.length}-${categories['work-order-categories']?.length}`}
           fields={fields}
           validation={Yup.object().shape(shape)}
           submitText={t('save')}
