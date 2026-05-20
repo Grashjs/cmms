@@ -6,6 +6,10 @@ import api from '../utils/api';
 import WorkOrder from '../models/owns/workOrder';
 import { getInitialPage, Page, SearchCriteria } from 'src/models/owns/page';
 import { revertAll } from 'src/utils/redux';
+import {
+  createCancellableRequest,
+  isAbortError
+} from 'src/utils/cancellableRequest';
 import { AssetStatus } from '../models/owns/asset';
 
 const basePath = 'requests';
@@ -122,13 +126,18 @@ export const reducer = slice.reducer;
 export const getRequests =
   (criteria: SearchCriteria): AppThunk =>
   async (dispatch) => {
+    const { signal } = createCancellableRequest('getRequests');
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
       const requests = await api.post<Page<Request>>(
         `${basePath}/search`,
-        criteria
+        criteria,
+        { signal }
       );
       dispatch(slice.actions.getRequests({ requests }));
+    } catch (error) {
+      if (isAbortError(error)) return;
+      throw error;
     } finally {
       dispatch(slice.actions.setLoadingGet({ loading: false }));
     }
