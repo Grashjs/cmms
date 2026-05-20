@@ -1561,7 +1561,8 @@ const locale = {
   view_other: '查看其他',
   view_other_hint: '"查看其他"表示查看其他人创建的内容',
   go_to_billing: '前往账单',
-  import_from_spreadsheet: '从电子表格或CSV导入'
+  import_from_spreadsheet: '从电子表格或CSV导入',
+  reset: '重置'
 };
 
 export default locale;

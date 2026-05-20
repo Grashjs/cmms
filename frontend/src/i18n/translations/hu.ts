@@ -1747,7 +1747,8 @@ const locale = {
   view_other: 'Másik megtekintése',
   view_other_hint: '"Másik megtekintése" azt jelenti, hogy valaki más által létrehozott dolgot néz meg',
   go_to_billing: 'Ugrás a számlázáshoz',
-  import_from_spreadsheet: 'Importálás táblázatból vagy CSV-ből'
+  import_from_spreadsheet: 'Importálás táblázatból vagy CSV-ből',
+  reset: 'Visszaállítás'
 };
 
 export default locale;

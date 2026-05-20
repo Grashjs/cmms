@@ -1848,7 +1848,8 @@ const locale = {
   customize_form: 'フォームをカスタマイズ',
   type_enter_to_add_option: '入力してEnterキーを押し、オプションを追加',
   customers_settings_description: '組織が協力する外部請負業者を管理します。',
-  vendors_settings_description: 'ベンダー関連の設定をカスタマイズします'
+  vendors_settings_description: 'ベンダー関連の設定をカスタマイズします',
+  reset: 'リセット'
 };
 
 export default locale;

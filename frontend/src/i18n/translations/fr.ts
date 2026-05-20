@@ -2066,7 +2066,8 @@ const frJSON = {
   view_other: 'Voir autre',
   view_other_hint: '"Voir autre" signifie voir quelque chose créé par quelqu\'un d\'autre',
   go_to_billing: 'Aller à la facturation',
-  import_from_spreadsheet: 'Importer à partir d\'un tableur ou d\'un CSV'
+  import_from_spreadsheet: 'Importer à partir d\'un tableur ou d\'un CSV',
+  reset: 'Réinitialiser'
 };
 
 export default frJSON;

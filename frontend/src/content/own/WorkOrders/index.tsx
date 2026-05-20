@@ -132,7 +132,7 @@ const DEFAULT_FILTER_FIELDS: FilterField[] = [
   }
 ];
 
-const QUERY_SEARCH_FIELDS = new Set([
+const QUERY_SEARCH_FIELDS = new Set<keyof WorkOrder>([
   'title',
   'description',
   'feedback',
@@ -409,12 +409,9 @@ function WorkOrders() {
     showSnackBar(t('wo_delete_failure'), 'error');
 
   const onQueryChange = (event) => {
-    onSearchQueryChange<WorkOrder>(
-      event,
-      criteria,
-      setCriteria,
-      QUERY_SEARCH_FIELDS.values()
-    );
+    onSearchQueryChange<WorkOrder>(event, criteria, setCriteria, [
+      ...QUERY_SEARCH_FIELDS.values()
+    ]);
   };
   const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
   useEffect(() => {

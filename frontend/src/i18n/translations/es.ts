@@ -1968,7 +1968,8 @@ const esJSON = {
   view_other: 'Ver otro',
   view_other_hint: '"Ver otro" significa ver algo creado por otra persona',
   go_to_billing: 'Ir a facturación',
-  import_from_spreadsheet: 'Importar desde una hoja de cálculo o CSV'
+  import_from_spreadsheet: 'Importar desde una hoja de cálculo o CSV',
+  reset: 'Restablecer'
 };
 
 export default esJSON;

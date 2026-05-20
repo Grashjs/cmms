@@ -1830,7 +1830,8 @@ const locale = {
   view: 'عرض',
   view_other: 'عرض الآخر',
   view_other_hint: '"عرض الآخر" يعني عرض شيء تم إنشاؤه بواسطة شخص آخر',
-  import_from_spreadsheet: 'استيراد من جدول بيانات أو CSV'
+  import_from_spreadsheet: 'استيراد من جدول بيانات أو CSV',
+  reset: 'إعادة تعيين'
 };
 
 export default locale;

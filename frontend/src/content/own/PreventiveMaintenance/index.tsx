@@ -98,7 +98,11 @@ import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import { getErrorMessage } from '../../../utils/api';
 import useDateLocale from '../../../hooks/useDateLocale';
 
-const QUERY_SEARCH_FIELDS = new Set(['title', 'description', 'name']);
+const QUERY_SEARCH_FIELDS = new Set<keyof PreventiveMaintenance>([
+  'title',
+  'description',
+  'name'
+]);
 
 const FILTERS_STORAGE_KEY = 'pm_filters';
 const DEFAULT_FILTER_FIELDS: FilterField[] = [

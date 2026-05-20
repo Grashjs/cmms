@@ -75,7 +75,11 @@ import SearchInput from '../components/SearchInput';
 import * as React from 'react';
 import WorkOrder from '../../../models/owns/workOrder';
 
-const QUERY_SEARCH_FIELDS = new Set(['title', 'description', 'customId']);
+const QUERY_SEARCH_FIELDS = new Set<keyof Request>([
+  'title',
+  'description',
+  'customId'
+]);
 
 const FILTERS_STORAGE_KEY = 'request_filters';
 const DEFAULT_FILTER_FIELDS: FilterField[] = [
