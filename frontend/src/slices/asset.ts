@@ -178,7 +178,7 @@ export const reducer = slice.reducer;
 export const getAssets =
   (criteria: SearchCriteria): AppThunk =>
   async (dispatch) => {
-    const { signal } = createCancellableRequest();
+    const { signal } = createCancellableRequest('getAssets');
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
       const assets = await api.post<Page<AssetDTO>>(
@@ -197,7 +197,7 @@ export const getAssets =
 export const getAssetsMini =
   (locationId?: number): AppThunk =>
   async (dispatch) => {
-    const { signal } = createCancellableRequest();
+    const { signal } = createCancellableRequest('getAssetsMini');
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
       const assets = await api.get<AssetMiniDTO[]>(

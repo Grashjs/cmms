@@ -107,6 +107,56 @@ const fieldMapping: Record<string, string> = {
   createdAt: 'createdAt',
   dueDate: 'dueDate'
 };
+const normalizeFields = (fields: FilterField[]) =>
+  [...fields]
+    .sort((a, b) => a.field.localeCompare(b.field))
+    .map((f) => ({ ...f, values: f.values ? [...f.values].sort() : f.values }));
+
+const FILTERS_STORAGE_KEY = 'workOrder_filters';
+const DEFAULT_FILTER_FIELDS: FilterField[] = [
+  { field: 'archived', operation: 'eq', value: false },
+  {
+    field: 'priority',
+    operation: 'in',
+    values: ['NONE', 'LOW', 'MEDIUM', 'HIGH'],
+    value: '',
+    enumName: 'PRIORITY'
+  },
+  {
+    field: 'status',
+    operation: 'in',
+    values: ['OPEN', 'IN_PROGRESS', 'ON_HOLD'],
+    value: '',
+    enumName: 'STATUS'
+  }
+];
+
+const QUERY_SEARCH_FIELDS = new Set([
+  'title',
+  'description',
+  'feedback',
+  'customId'
+]);
+
+const getInitialFilterFields = (): FilterField[] => {
+  try {
+    const saved = localStorage.getItem(FILTERS_STORAGE_KEY);
+    if (saved) {
+      const parsed: FilterField[] = JSON.parse(saved);
+      const cleaned = parsed.filter((f) => !QUERY_SEARCH_FIELDS.has(f.field));
+      const fields = new Set(cleaned.map((f) => f.field));
+
+      for (const defaults of DEFAULT_FILTER_FIELDS) {
+        if (!fields.has(defaults.field)) cleaned.push(defaults);
+      }
+
+      return cleaned;
+    }
+  } catch {
+    /* ignore invalid JSON */
+  }
+  return DEFAULT_FILTER_FIELDS;
+};
 function WorkOrders() {
   const { t }: { t: any } = useTranslation();
   const [currentTab, setCurrentTab] = useState<string>('list');
@@ -175,27 +225,7 @@ function WorkOrders() {
 
   // Use the table state hook for TanStack Table
   const initialCriteria: SearchCriteria = {
-    filterFields: [
-      {
-        field: 'priority',
-        operation: 'in',
-        values: ['NONE', 'LOW', 'MEDIUM', 'HIGH'],
-        value: '',
-        enumName: 'PRIORITY'
-      },
-      {
-        field: 'status',
-        operation: 'in',
-        values: ['OPEN', 'IN_PROGRESS', 'ON_HOLD'],
-        value: '',
-        enumName: 'STATUS'
-      },
-      {
-        field: 'archived',
-        operation: 'eq',
-        value: false
-      }
-    ],
+    filterFields: getInitialFilterFields(),
     pageSize: 10,
     pageNum: 0,
     direction: 'DESC'
@@ -205,6 +235,7 @@ function WorkOrders() {
     sortField: 'updatedAt',
     direction: 'DESC'
   });
+
   const {
     sorting,
     setSorting,
@@ -296,6 +327,10 @@ function WorkOrders() {
     const newCriteria = { ...criteria };
     newCriteria.filterFields = newFilters;
     setCriteria(newCriteria);
+    const toSave = newFilters.filter(
+      (f) => !QUERY_SEARCH_FIELDS.includes(f.field)
+    );
+    localStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify(toSave));
   };
   useEffect(() => {
     if (workOrderId && isNumeric(workOrderId)) {
@@ -393,12 +428,12 @@ function WorkOrders() {
     showSnackBar(t('wo_delete_failure'), 'error');
 
   const onQueryChange = (event) => {
-    onSearchQueryChange<WorkOrder>(event, criteria, setCriteria, [
-      'title',
-      'description',
-      'feedback',
-      'customId'
-    ]);
+    onSearchQueryChange<WorkOrder>(
+      event,
+      criteria,
+      setCriteria,
+      QUERY_SEARCH_FIELDS.values()
+    );
   };
   const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
   useEffect(() => {
@@ -959,7 +994,10 @@ function WorkOrders() {
                   minWidth: 0
                 }}
                 variant={
-                  _.isEqual(criteria.filterFields, initialCriteria.filterFields)
+                  _.isEqual(
+                    normalizeFields(criteria.filterFields),
+                    normalizeFields(DEFAULT_FILTER_FIELDS)
+                  )
                     ? 'outlined'
                     : 'contained'
                 }

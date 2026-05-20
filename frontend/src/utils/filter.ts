@@ -14,8 +14,8 @@ export const getLabelAndValue = <T extends { id: number }>(
       .find((filterField) => filterField.field === fieldName)
       ?.values?.map((id) => ({
         label: formatter
-          ? formatter(minis.find((mini) => mini.id === id))
-          : minis.find((mini) => mini.id === id)[labelAccessor].toString(),
+          ? formatter(minis?.find((mini) => mini.id === id) || ({} as T))
+          : minis?.find((mini) => mini.id === id)?.[labelAccessor].toString(),
         value: id
       })) ?? null
   );
@@ -23,17 +23,15 @@ export const getLabelAndValue = <T extends { id: number }>(
 export const getDateValue = (
   filterFields: FilterField[],
   fieldName: string
-): [string, string] => {
-  return [
-    filterFields.find(
-      (filterField) =>
-        filterField.field === fieldName && filterField.operation === 'ge'
-    )?.value ?? null,
-    filterFields.find(
-      (filterField) =>
-        filterField.field === fieldName && filterField.operation === 'le'
-    )?.value ?? null
-  ];
+): [Date | null, Date | null] => {
+  const find = (operation: string) => {
+    const value = filterFields.find(
+      (f) => f.field === fieldName && f.operation === operation
+    )?.value;
+    return value ? new Date(value as string) : null;
+  };
+
+  return [find('ge'), find('le')];
 };
 
 export const filterSingleField = (

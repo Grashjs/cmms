@@ -8,27 +8,23 @@ interface CancellableRequest {
   signal: AbortSignal | null;
 }
 
-let currentController: AbortController | null = null;
-
 /**
  * Creates a new cancellable request, aborting any previous request.
  * @returns CancellableRequest object with abort function and signal
  */
-export function createCancellableRequest(): CancellableRequest {
-  // Abort previous request if it exists
-  if (currentController) {
-    currentController.abort();
-  }
+const controllers = new Map<string, AbortController>();
 
-  // Create new controller
-  currentController = new AbortController();
+export function createCancellableRequest(key: string): CancellableRequest {
+  controllers.get(key)?.abort();
+
+  const controller = new AbortController();
+  controllers.set(key, controller);
 
   return {
-    abort: () => currentController?.abort(),
-    signal: currentController.signal
+    abort: () => controller.abort(),
+    signal: controller.signal
   };
 }
-
 /**
  * Checks if an error is an AbortError (request was cancelled).
  */

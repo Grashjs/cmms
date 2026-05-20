@@ -35,6 +35,7 @@ interface PropsType {
   validation?: ObjectSchema<any>;
   isLoading?: boolean;
   isButtonEnabled?: (values: IHash<any>, ...props: any[]) => boolean;
+  enableReinitialize?: boolean;
 }
 
 export default (props: PropsType) => {
@@ -106,6 +107,7 @@ export default (props: PropsType) => {
         validateOnChange={false}
         validateOnBlur={false}
         initialValues={props.values || {}}
+        enableReinitialize={props.enableReinitialize}
         onSubmit={(
           values,
           { resetForm, setErrors, setStatus, setSubmitting }

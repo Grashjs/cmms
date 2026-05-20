@@ -70,7 +70,7 @@ const slice = createSlice({
 export const reducer = slice.reducer;
 
 export const getCategories =
-  (basePath): AppThunk =>
+  (basePath: string): AppThunk =>
   async (dispatch) => {
     try {
       dispatch(slice.actions.loading({ basePath, loading: true }));
