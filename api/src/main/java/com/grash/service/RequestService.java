@@ -179,9 +179,10 @@ public class RequestService {
                         .filter(filterField -> filterField.getField().equals("priority"))
                         .findFirst().get().getValues().stream().map(value -> Priority.getPriorityFromString(value.toString())).collect(Collectors.toList());
                 if (!priorities.isEmpty()) {
-                    Join<Request, WorkOrder> workOrderJoin = requestRoot.join("workOrder", JoinType.LEFT);
-                    predicates.add(criteriaBuilder.or(workOrderJoin.get("priority").in(priorities), requestRoot.get(
-                            "priority").in(priorities)));
+                    Join<Request, WorkOrder> workOrderJoin = requestRoot.join(Request_.workOrder, JoinType.LEFT);
+                    predicates.add(criteriaBuilder.or(workOrderJoin.get(WorkOrder_.priority).in(priorities),
+                            requestRoot.get(
+                            Request_.priority).in(priorities)));
                 }
             }
 
