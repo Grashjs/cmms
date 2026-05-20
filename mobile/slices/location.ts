@@ -145,7 +145,7 @@ export const reducer = slice.reducer;
 export const getLocations =
   (criteria: SearchCriteria): AppThunk =>
   async (dispatch) => {
-    const { signal } = createCancellableRequest();
+    const { signal } = createCancellableRequest('getLocations');
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
       const locations = await api.post<Page<Location>>(
@@ -164,7 +164,7 @@ export const getLocations =
 export const getMoreLocations =
   (criteria: SearchCriteria, pageNum: number): AppThunk =>
   async (dispatch) => {
-    const { signal } = createCancellableRequest();
+    const { signal } = createCancellableRequest('getMoreLocations');
     criteria = { ...criteria, pageNum };
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
@@ -195,7 +195,7 @@ export const getLocationDetails =
     dispatch(slice.actions.setLoadingGet({ loading: false }));
   };
 export const getLocationsMini = (): AppThunk => async (dispatch) => {
-  const { signal } = createCancellableRequest();
+  const { signal } = createCancellableRequest('getLocationsMini');
   try {
     dispatch(slice.actions.setLoadingGet({ loading: true }));
     const locations = await api.get<LocationMiniDTO[]>('locations/mini', {
