@@ -63,6 +63,7 @@ import {
   SearchCriteria,
   SortDirection
 } from '../../../models/owns/page';
+import { loadFilterFields, saveFilterFields } from '../../../utils/filter';
 import { createColumnHelper } from '@tanstack/react-table';
 import useTableState from '../../../hooks/useTableState';
 import _ from 'lodash';
@@ -73,6 +74,29 @@ import CircleTwoToneIcon from '@mui/icons-material/CircleTwoTone';
 import SearchInput from '../components/SearchInput';
 import * as React from 'react';
 import WorkOrder from '../../../models/owns/workOrder';
+
+const QUERY_SEARCH_FIELDS = new Set(['title', 'description', 'customId']);
+
+const FILTERS_STORAGE_KEY = 'request_filters';
+const DEFAULT_FILTER_FIELDS: FilterField[] = [
+  {
+    field: 'priority',
+    operation: 'in',
+    values: [],
+    value: '',
+    enumName: 'PRIORITY'
+  },
+  {
+    field: 'status',
+    operation: 'in',
+    values: ['APPROVED', 'CANCELLED', 'PENDING'],
+    value: '',
+    enumName: 'STATUS'
+  }
+];
+
+const getInitialFilterFields = (): FilterField[] =>
+  loadFilterFields(FILTERS_STORAGE_KEY, DEFAULT_FILTER_FIELDS);
 
 function Requests() {
   const { t }: { t: any } = useTranslation();
@@ -97,24 +121,8 @@ function Requests() {
   );
   const { customFields } = useSelector((state) => state.customFields);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
-  const defaultFilterFields: FilterField[] = [
-    {
-      field: 'priority',
-      operation: 'in',
-      values: [],
-      value: '',
-      enumName: 'PRIORITY'
-    },
-    {
-      field: 'status',
-      operation: 'in',
-      values: ['APPROVED', 'CANCELLED', 'PENDING'],
-      value: '',
-      enumName: 'STATUS'
-    }
-  ];
   const [criteria, setCriteria] = useState<SearchCriteria>({
-    filterFields: defaultFilterFields,
+    filterFields: getInitialFilterFields(),
     pageSize: 10,
     pageNum: 0,
     direction: 'DESC'
@@ -393,6 +401,7 @@ function Requests() {
     const newCriteria = { ...criteria };
     newCriteria.filterFields = newFilters;
     setCriteria(newCriteria);
+    saveFilterFields(FILTERS_STORAGE_KEY, newFilters, QUERY_SEARCH_FIELDS);
   };
   const renderAddModal = () => (
     <Dialog

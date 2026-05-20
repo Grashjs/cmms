@@ -41,6 +41,7 @@ import {
   SearchOperator,
   SortDirection
 } from '../../../models/owns/page';
+import { loadFilterFields, saveFilterFields } from '../../../utils/filter';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import Form from '../components/form';
 import * as Yup from 'yup';
@@ -97,6 +98,22 @@ import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import { getErrorMessage } from '../../../utils/api';
 import useDateLocale from '../../../hooks/useDateLocale';
 
+const QUERY_SEARCH_FIELDS = new Set(['title', 'description', 'name']);
+
+const FILTERS_STORAGE_KEY = 'pm_filters';
+const DEFAULT_FILTER_FIELDS: FilterField[] = [
+  {
+    field: 'priority',
+    operation: 'in',
+    values: ['NONE', 'LOW', 'MEDIUM', 'HIGH'],
+    value: '',
+    enumName: 'PRIORITY'
+  }
+];
+
+const getInitialFilterFields = (): FilterField[] =>
+  loadFilterFields(FILTERS_STORAGE_KEY, DEFAULT_FILTER_FIELDS);
+
 function PMs() {
   const { t }: { t: any } = useTranslation();
   const { setTitle } = useContext(TitleContext);
@@ -128,15 +145,7 @@ function PMs() {
   const { customFields } = useSelector((state) => state.customFields);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
   const [criteria, setCriteria] = useState<SearchCriteria>({
-    filterFields: [
-      {
-        field: 'priority',
-        operation: 'in',
-        values: ['NONE', 'LOW', 'MEDIUM', 'HIGH'],
-        value: '',
-        enumName: 'PRIORITY'
-      }
-    ],
+    filterFields: getInitialFilterFields(),
     pageSize: 10,
     pageNum: 0,
     direction: 'DESC'
@@ -315,6 +324,7 @@ function PMs() {
     const newCriteria = { ...criteria };
     newCriteria.filterFields = newFilters;
     setCriteria(newCriteria);
+    saveFilterFields(FILTERS_STORAGE_KEY, newFilters, QUERY_SEARCH_FIELDS);
   };
   const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
 

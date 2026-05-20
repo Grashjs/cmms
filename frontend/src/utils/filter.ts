@@ -34,6 +34,37 @@ export const getDateValue = (
   return [find('ge'), find('le')];
 };
 
+export const loadFilterFields = (
+  storageKey: string,
+  defaults: FilterField[]
+): FilterField[] => {
+  try {
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      const parsed: FilterField[] = JSON.parse(saved);
+      const fields = new Set(parsed.map((f) => f.field));
+
+      for (const def of defaults) {
+        if (!fields.has(def.field)) parsed.push(def);
+      }
+
+      return parsed;
+    }
+  } catch {
+    /* ignore invalid JSON */
+  }
+  return defaults;
+};
+
+export const saveFilterFields = (
+  storageKey: string,
+  filters: FilterField[],
+  excludeFields: Set<string>
+): void => {
+  const toSave = filters.filter((f) => !excludeFields.has(f.field));
+  localStorage.setItem(storageKey, JSON.stringify(toSave));
+};
+
 export const filterSingleField = (
   filters: FilterField[],
   values: { [key: string]: { label: string; value: number }[] },

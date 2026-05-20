@@ -71,6 +71,7 @@ import { getSingleLocation } from '../../../slices/location';
 import { getSingleAsset } from '../../../slices/asset';
 import { dayDiff } from '../../../utils/dates';
 import { FilterField, SearchCriteria } from '../../../models/owns/page';
+import { loadFilterFields, saveFilterFields } from '../../../utils/filter';
 import WorkOrderCalendar from './Calendar';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import FilterAltTwoToneIcon from '@mui/icons-material/FilterAltTwoTone';
@@ -138,25 +139,8 @@ const QUERY_SEARCH_FIELDS = new Set([
   'customId'
 ]);
 
-const getInitialFilterFields = (): FilterField[] => {
-  try {
-    const saved = localStorage.getItem(FILTERS_STORAGE_KEY);
-    if (saved) {
-      const parsed: FilterField[] = JSON.parse(saved);
-      const cleaned = parsed.filter((f) => !QUERY_SEARCH_FIELDS.has(f.field));
-      const fields = new Set(cleaned.map((f) => f.field));
-
-      for (const defaults of DEFAULT_FILTER_FIELDS) {
-        if (!fields.has(defaults.field)) cleaned.push(defaults);
-      }
-
-      return cleaned;
-    }
-  } catch {
-    /* ignore invalid JSON */
-  }
-  return DEFAULT_FILTER_FIELDS;
-};
+const getInitialFilterFields = (): FilterField[] =>
+  loadFilterFields(FILTERS_STORAGE_KEY, DEFAULT_FILTER_FIELDS);
 function WorkOrders() {
   const { t }: { t: any } = useTranslation();
   const [currentTab, setCurrentTab] = useState<string>('list');
@@ -327,10 +311,7 @@ function WorkOrders() {
     const newCriteria = { ...criteria };
     newCriteria.filterFields = newFilters;
     setCriteria(newCriteria);
-    const toSave = newFilters.filter(
-      (f) => !QUERY_SEARCH_FIELDS.includes(f.field)
-    );
-    localStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify(toSave));
+    saveFilterFields(FILTERS_STORAGE_KEY, newFilters, QUERY_SEARCH_FIELDS);
   };
   useEffect(() => {
     if (workOrderId && isNumeric(workOrderId)) {
