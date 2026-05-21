@@ -16,6 +16,7 @@ import {
 import { supportedLanguages } from "src/i18n/i18n";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, usePathname } from "src/i18n/routing";
+import { useRouter as useNextRouter } from "next/navigation";
 
 const SectionHeading = styled(Typography)(
   ({ theme }) => `
@@ -42,10 +43,17 @@ function LanguageSwitcher({ onSwitch }: { onSwitch?: () => void }) {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  const nextRouter = useNextRouter();
 
   function switchLanguage(locale: string) {
-    router.replace(pathname, { locale: locale.replace("_", "-") });
+    const normalizedLocale = locale.replace("_", "-");
+    if (normalizedLocale === "en") {
+      nextRouter.push(pathname);
+    } else {
+      router.replace(pathname, { locale: normalizedLocale });
+    }
   }
+
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const isOpen = Boolean(anchorEl);
 
@@ -65,9 +73,9 @@ function LanguageSwitcher({ onSwitch }: { onSwitch?: () => void }) {
     <>
       <Tooltip arrow title={t("Language Switcher")}>
         <span>
-        <IconButtonWrapper color="secondary" onClick={handleOpen}>
-          {currentSupportedLanguage && <currentSupportedLanguage.Icon title={currentSupportedLanguage.label} />}
-        </IconButtonWrapper>
+          <IconButtonWrapper color="secondary" onClick={handleOpen}>
+            {currentSupportedLanguage && <currentSupportedLanguage.Icon title={currentSupportedLanguage.label} />}
+          </IconButtonWrapper>
         </span>
       </Tooltip>
       <Popover
