@@ -15,7 +15,7 @@ interface CancellableRequest {
  */
 const controllers = new Map<string, AbortController>();
 
-export function createCancellableRequest(key: string): CancellableRequest {
+function createCancellableRequest(key: string): CancellableRequest {
   controllers.get(key)?.abort();
 
   const controller = new AbortController();
@@ -29,7 +29,7 @@ export function createCancellableRequest(key: string): CancellableRequest {
 /**
  * Checks if an error is an AbortError (request was cancelled).
  */
-export function isAbortError(error: any): boolean {
+function isAbortError(error: any): boolean {
   return error?.name === 'AbortError';
 }
 
