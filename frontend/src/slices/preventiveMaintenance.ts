@@ -10,8 +10,7 @@ import { getInitialPage, Page, SearchCriteria } from '../models/owns/page';
 import { Task } from '../models/owns/tasks';
 import { revertAll } from 'src/utils/redux';
 import {
-  createCancellableRequest,
-  isAbortError
+  cancellableFetch,
 } from 'src/utils/cancellableRequest';
 
 interface PreventiveMaintenanceState {
@@ -131,21 +130,13 @@ export const reducer = slice.reducer;
 export const getPreventiveMaintenances =
   (criteria: SearchCriteria): AppThunk =>
     async (dispatch) => {
-      const { signal } = createCancellableRequest('getPreventiveMaintenances');
-      try {
-        dispatch(slice.actions.setLoadingGet({ loading: true }));
-        const preventiveMaintenances = await api.post<
-          Page<PreventiveMaintenance>
-        >(`${basePath}/search`, criteria, { signal });
-        dispatch(
-          slice.actions.getPreventiveMaintenances({ preventiveMaintenances })
-        );
-      } catch (error) {
-        if (isAbortError(error)) return;
-        throw error;
-      } finally {
-        dispatch(slice.actions.setLoadingGet({ loading: false }));
-      }
+      await cancellableFetch(
+        dispatch,
+        'getPreventiveMaintenances',
+        (signal) => api.post<Page<PreventiveMaintenance>>(`${basePath}/search`, criteria, { signal }),
+        (preventiveMaintenances) => dispatch(slice.actions.getPreventiveMaintenances({ preventiveMaintenances })),
+        (loading) => dispatch(slice.actions.setLoadingGet({ loading }))
+      );
     };
 
 export const getSinglePreventiveMaintenance =

@@ -6,8 +6,7 @@ import Part, { PartMiniDTO } from '../models/owns/part';
 import api from '../utils/api';
 import { revertAll } from 'src/utils/redux';
 import {
-  createCancellableRequest,
-  isAbortError
+  cancellableFetch,
 } from 'src/utils/cancellableRequest';
 
 const basePath = 'parts';
@@ -89,17 +88,13 @@ export const reducer = slice.reducer;
 export const getParts =
   (criteria: SearchCriteria): AppThunk =>
     async (dispatch) => {
-      const { signal } = createCancellableRequest('getParts');
-      try {
-        dispatch(slice.actions.setLoadingGet({ loading: true }));
-        const parts = await api.post<Page<Part>>(`${basePath}/search`, criteria, { signal });
-        dispatch(slice.actions.getParts({ parts }));
-      } catch (error) {
-        if (isAbortError(error)) return;
-        throw error;
-      } finally {
-        dispatch(slice.actions.setLoadingGet({ loading: false }));
-      }
+      await cancellableFetch(
+        dispatch,
+        'getParts',
+        (signal) => api.post<Page<Part>>(`${basePath}/search`, criteria, { signal }),
+        (parts) => dispatch(slice.actions.getParts({ parts })),
+        (loading) => dispatch(slice.actions.setLoadingGet({ loading }))
+      );
     };
 
 export const getSinglePart =

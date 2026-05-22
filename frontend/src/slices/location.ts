@@ -15,8 +15,7 @@ import {
   SearchCriteria
 } from '../models/owns/page';
 import {
-  createCancellableRequest,
-  isAbortError
+  cancellableFetch,
 } from 'src/utils/cancellableRequest';
 
 interface LocationState {
@@ -142,37 +141,22 @@ export const reducer = slice.reducer;
 export const getLocations =
   (criteria: SearchCriteria): AppThunk =>
   async (dispatch) => {
-    const { signal } = createCancellableRequest('getLocations');
-    try {
-      dispatch(slice.actions.setLoadingGet({ loading: true }));
-      const locations = await api.post<Page<Location>>(
-        `locations/search`,
-        criteria,
-        { signal }
-      );
-      dispatch(slice.actions.getLocations({ locations }));
-    } catch (error) {
-      if (isAbortError(error)) return;
-      throw error;
-    } finally {
-      dispatch(slice.actions.setLoadingGet({ loading: false }));
-    }
+    await cancellableFetch(
+      dispatch,
+      'getLocations',
+      (signal) => api.post<Page<Location>>(`locations/search`, criteria, { signal }),
+      (locations) => dispatch(slice.actions.getLocations({ locations })),
+      (loading) => dispatch(slice.actions.setLoadingGet({ loading }))
+    );
   };
 export const getLocationsMini = (): AppThunk => async (dispatch) => {
-  const { signal } = createCancellableRequest('getLocationsMini');
-  try {
-    dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const locations = await api.get<LocationMiniDTO[]>('locations/mini', {
-      signal
-    });
-
-    dispatch(slice.actions.getLocationsMini({ locations }));
-  } catch (error) {
-    if (isAbortError(error)) return;
-    throw error;
-  } finally {
-    dispatch(slice.actions.setLoadingGet({ loading: false }));
-  }
+  await cancellableFetch(
+    dispatch,
+    'getLocationsMini',
+    (signal) => api.get<LocationMiniDTO[]>('locations/mini', { signal }),
+    (locations) => dispatch(slice.actions.getLocationsMini({ locations })),
+    (loading) => dispatch(slice.actions.setLoadingGet({ loading }))
+  );
 };
 export const getPublicLocationsMini =
   (portalUUID: string): AppThunk =>

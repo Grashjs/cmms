@@ -12,10 +12,7 @@ import {
 import PreventiveMaintenance from 'src/models/owns/preventiveMaintenance';
 import { revertAll } from 'src/utils/redux';
 import File from '../models/owns/file';
-import {
-  createCancellableRequest,
-  isAbortError
-} from 'src/utils/cancellableRequest';
+import { cancellableFetch } from 'src/utils/cancellableRequest';
 
 const basePath = 'work-orders';
 
@@ -205,38 +202,30 @@ export const reducer = slice.reducer;
 export const getWorkOrders =
   (criteria: SearchCriteria): AppThunk =>
   async (dispatch) => {
-    const { signal } = createCancellableRequest('getWorkOrders');
-    try {
-      dispatch(slice.actions.setLoadingGet({ loading: true }));
-      const workOrders = await api.post<Page<WorkOrder>>(
-        `${basePath}/search`,
-        criteria,
-        { signal }
-      );
-      dispatch(slice.actions.getWorkOrders({ workOrders }));
-    } catch (error) {
-      if (isAbortError(error)) return;
-      throw error;
-    } finally {
-      dispatch(slice.actions.setLoadingGet({ loading: false }));
-    }
+    await cancellableFetch(
+      dispatch,
+      'getWorkOrders',
+      (signal) => api.post<Page<WorkOrder>>(`${basePath}/search`, criteria, { signal }),
+      (workOrders) => dispatch(slice.actions.getWorkOrders({ workOrders })),
+      (loading) => dispatch(slice.actions.setLoadingGet({ loading }))
+    );
   };
 
 export const getWorkOrdersMini =
   (criteria: SearchCriteria): AppThunk =>
   async (dispatch) => {
-    const { signal } = createCancellableRequest('getWorkOrdersMini');
-    try {
-      const workOrders = await api.post<Page<WorkOrderBaseMiniDTO>>(
-        `${basePath}/search/mini`,
-        criteria,
-        { signal }
-      );
-      dispatch(slice.actions.getWorkOrdersMini({ workOrders }));
-    } catch (error) {
-      if (isAbortError(error)) return;
-      throw error;
-    }
+    await cancellableFetch(
+      dispatch,
+      'getWorkOrdersMini',
+      (signal) =>
+        api.post<Page<WorkOrderBaseMiniDTO>>(
+          `${basePath}/search/mini`,
+          criteria,
+          { signal }
+        ),
+      (workOrders) =>
+        dispatch(slice.actions.getWorkOrdersMini({ workOrders }))
+    );
   };
 export const getSingleWorkOrder =
   (id: number): AppThunk =>

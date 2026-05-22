@@ -7,8 +7,7 @@ import WorkOrder from '../models/owns/workOrder';
 import { getInitialPage, Page, SearchCriteria } from 'src/models/owns/page';
 import { revertAll } from 'src/utils/redux';
 import {
-  createCancellableRequest,
-  isAbortError
+  cancellableFetch,
 } from 'src/utils/cancellableRequest';
 import { AssetStatus } from '../models/owns/asset';
 
@@ -126,21 +125,13 @@ export const reducer = slice.reducer;
 export const getRequests =
   (criteria: SearchCriteria): AppThunk =>
   async (dispatch) => {
-    const { signal } = createCancellableRequest('getRequests');
-    try {
-      dispatch(slice.actions.setLoadingGet({ loading: true }));
-      const requests = await api.post<Page<Request>>(
-        `${basePath}/search`,
-        criteria,
-        { signal }
-      );
-      dispatch(slice.actions.getRequests({ requests }));
-    } catch (error) {
-      if (isAbortError(error)) return;
-      throw error;
-    } finally {
-      dispatch(slice.actions.setLoadingGet({ loading: false }));
-    }
+    await cancellableFetch(
+      dispatch,
+      'getRequests',
+      (signal) => api.post<Page<Request>>(`${basePath}/search`, criteria, { signal }),
+      (requests) => dispatch(slice.actions.getRequests({ requests })),
+      (loading) => dispatch(slice.actions.setLoadingGet({ loading }))
+    );
   };
 
 export const getSingleRequest =

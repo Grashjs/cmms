@@ -13,8 +13,7 @@ import {
 } from 'src/models/owns/page';
 import { revertAll } from 'src/utils/redux';
 import {
-  createCancellableRequest,
-  isAbortError
+  cancellableFetch,
 } from 'src/utils/cancellableRequest';
 
 const basePath = 'assets';
@@ -178,39 +177,24 @@ export const reducer = slice.reducer;
 export const getAssets =
   (criteria: SearchCriteria): AppThunk =>
   async (dispatch) => {
-    const { signal } = createCancellableRequest('getAssets');
-    try {
-      dispatch(slice.actions.setLoadingGet({ loading: true }));
-      const assets = await api.post<Page<AssetDTO>>(
-        `${basePath}/search`,
-        criteria,
-        { signal }
-      );
-      dispatch(slice.actions.getAssets({ assets }));
-    } catch (error) {
-      if (isAbortError(error)) return;
-      throw error;
-    } finally {
-      dispatch(slice.actions.setLoadingGet({ loading: false }));
-    }
+    await cancellableFetch(
+      dispatch,
+      'getAssets',
+      (signal) => api.post<Page<AssetDTO>>(`${basePath}/search`, criteria, { signal }),
+      (assets) => dispatch(slice.actions.getAssets({ assets })),
+      (loading) => dispatch(slice.actions.setLoadingGet({ loading }))
+    );
   };
 export const getAssetsMini =
   (locationId?: number): AppThunk =>
   async (dispatch) => {
-    const { signal } = createCancellableRequest('getAssetsMini');
-    try {
-      dispatch(slice.actions.setLoadingGet({ loading: true }));
-      const assets = await api.get<AssetMiniDTO[]>(
-        `${basePath}/mini?locationId=${locationId ?? ''}`,
-        { signal }
-      );
-      dispatch(slice.actions.getAssetsMini({ assets }));
-    } catch (error) {
-      if (isAbortError(error)) return;
-      throw error;
-    } finally {
-      dispatch(slice.actions.setLoadingGet({ loading: false }));
-    }
+    await cancellableFetch(
+      dispatch,
+      'getAssetsMini',
+      (signal) => api.get<AssetMiniDTO[]>(`${basePath}/mini?locationId=${locationId ?? ''}`, { signal }),
+      (assets) => dispatch(slice.actions.getAssetsMini({ assets })),
+      (loading) => dispatch(slice.actions.setLoadingGet({ loading }))
+    );
   };
 
 export const getPublicAssetsMini =
