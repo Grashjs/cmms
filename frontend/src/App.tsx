@@ -4,6 +4,8 @@ import router from 'src/router';
 import { SnackbarProvider } from 'notistack';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import { enUS } from 'date-fns/locale';
+import { Locale } from 'date-fns';
 import useAuth from 'src/hooks/useAuth';
 
 import { Alert, CssBaseline } from '@mui/material';
@@ -29,7 +31,7 @@ import { useTranslation } from 'react-i18next';
 import { UtmTrackerProvider } from '@nik0di3m/utm-tracker-hook';
 import { useLicenseEntitlement } from './hooks/useLicenseEntitlement';
 import { initializePaddle } from '@paddle/paddle-js';
-import { loadLanguage, supportedLanguages } from './i18n/i18n';
+import { getDateLocale, loadLanguage, supportedLanguages } from './i18n/i18n';
 import MobileAppDownloadDialog from './components/MobileAppDownloadDialog';
 import { useMobileAppPrompt } from './hooks/useMobileAppPrompt';
 
@@ -97,6 +99,7 @@ const DemoCleaningAlert = () => {
     );
   return null;
 };
+
 function App() {
   const content = useRoutes(router);
   const navigate = useNavigate();
@@ -108,9 +111,12 @@ function App() {
   const { i18n } = useTranslation();
   let location = useLocation();
   const { shouldShowPrompt, dismissPrompt } = useMobileAppPrompt();
+  const [dateFnsLocale, setDateFnsLocale] = useState<Locale>(enUS);
 
   useEffect(() => {
-    loadLanguage(i18n.language || 'en');
+    const lang = i18n.language || 'en';
+    loadLanguage(lang);
+    getDateLocale(lang).then(setDateFnsLocale);
   }, [i18n.language]);
 
   useEffect(() => {
@@ -120,6 +126,7 @@ function App() {
         page: location.pathname + location.search
       });
   }, [location]);
+
   useEffect(() => {
     const arr = location.pathname.split('/');
     if (
@@ -183,7 +190,7 @@ function App() {
   return (
     <UtmTrackerProvider customParams={['msclkid', 'ref']}>
       <ThemeProvider>
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} locale={dateFnsLocale}>
           <SnackbarProvider
             maxSnack={6}
             anchorOrigin={{
