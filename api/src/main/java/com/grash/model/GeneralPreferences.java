@@ -67,7 +67,7 @@ public class GeneralPreferences {
     private int daysBeforePrevMaintNotification = 1;
 
     @Schema(description = "Automatically generate asset barcode")
-    private boolean autoGenerateAssetBarcode;
+    private Boolean autoGenerateAssetBarcode;
 
     @NotBlank
     @Schema(description = "CSV separator character", requiredMode = Schema.RequiredMode.REQUIRED)
