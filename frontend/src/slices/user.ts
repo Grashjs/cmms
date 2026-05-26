@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { getInitialPage, Page, SearchCriteria } from 'src/models/owns/page';
 import type { AppThunk } from 'src/store';
 import { UserMiniDTO, UserResponseDTO } from '../models/user';
+import { UserInvitationMiniDTO } from '../models/owns/user';
 import api from '../utils/api';
 import { revertAll } from 'src/utils/redux';
 import { UiConfiguration } from '../models/owns/uiConfiguration';
@@ -14,6 +15,7 @@ interface UserState {
   usersMini: UserMiniDTO[];
   allUsersMini: UserMiniDTO[];
   disabledUsersMini: UserMiniDTO[];
+  lastWeekInvitations: UserInvitationMiniDTO[];
   loadingGet: boolean;
 }
 
@@ -23,6 +25,7 @@ const initialState: UserState = {
   usersMini: [],
   allUsersMini: [],
   disabledUsersMini: [],
+  lastWeekInvitations: [],
   loadingGet: false
 };
 
@@ -116,6 +119,22 @@ export const slice = createSlice({
     },
     clearSingleUser(state: UserState, action: PayloadAction<{}>) {
       state.singleUser = null;
+    },
+    getLastWeekInvitations(
+      state: UserState,
+      action: PayloadAction<{ invitations: UserInvitationMiniDTO[] }>
+    ) {
+      const { invitations } = action.payload;
+      state.lastWeekInvitations = invitations;
+    },
+    addLastWeekInvitations(
+      state: UserState,
+      action: PayloadAction<{ invitations: UserInvitationMiniDTO[] }>
+    ) {
+      state.lastWeekInvitations = [
+        ...action.payload.invitations,
+        ...state.lastWeekInvitations
+      ];
     }
   }
 });
@@ -214,8 +233,13 @@ export const deleteUser =
   };
 
 export const inviteUsers =
-  (roleId: number, emails: string[], disableSendingEmail: boolean): AppThunk =>
-  async (dispatch) => {
+  (
+    roleId: number,
+    emails: string[],
+    disableSendingEmail: boolean,
+    isResend?: boolean
+  ): AppThunk =>
+  async (dispatch, getState) => {
     const successResponse = await api.post<{ success: boolean }>(
       'users/invite',
       {
@@ -224,10 +248,25 @@ export const inviteUsers =
         disableSendingEmail
       }
     );
+    if (isResend) return;
+    const role = getState().roles.roles.find((r) => r.id === roleId);
+    const invitations: UserInvitationMiniDTO[] = emails.map((email) => ({
+      email,
+      roleId,
+      roleName: role?.name ?? ''
+    }));
+    dispatch(slice.actions.addLastWeekInvitations({ invitations }));
   };
 
 export const clearSingleUser = (): AppThunk => async (dispatch) => {
   dispatch(slice.actions.clearSingleUser({}));
+};
+
+export const getLastWeekInvitations = (): AppThunk => async (dispatch) => {
+  const invitations = await api.get<UserInvitationMiniDTO[]>(
+    'users/invitations/last-week'
+  );
+  dispatch(slice.actions.getLastWeekInvitations({ invitations }));
 };
 
 export default slice;

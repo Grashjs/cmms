@@ -766,6 +766,8 @@ const locale = {
   please_type_emails: 'Inserisci gli indirizzi email per invitare',
   please_select_role: 'Seleziona un ruolo',
   invite: 'Invitare',
+  n_pending_invites: '{{count}} inviti in sospeso',
+  resend_invites: 'Invia di nuovo inviti',
   team_create_success: 'Il Team è stato creato con successo',
   team_create_failure: 'Non è stato possibile creare il team',
   team_edit_failure: 'Il team non può essere modificato',

@@ -746,6 +746,8 @@ const locale = {
   please_type_emails: 'Vänligen skriv in e-postadresserna för att bjuda in',
   please_select_role: 'Vänligen välj en roll',
   invite: 'Bjuda',
+  n_pending_invites: '{{count}} väntande inbjudningar',
+  resend_invites: 'Skicka inbjudningar igen',
   team_create_success: 'Teamet har skapats framgångsrikt',
   team_create_failure: 'Teamet kunde inte skapas',
   team_edit_failure: 'Teamet kunde inte redigeras',

@@ -796,6 +796,8 @@ const deJSON = {
   please_type_emails: 'Bitte geben Sie E-Mails ein, um einzuladen',
   please_select_role: 'Bitte wählen Sie eine Rolle aus',
   invite: 'Einladen',
+  n_pending_invites: '{{count}} ausstehende Einladungen',
+  resend_invites: 'Einladungen erneut senden',
   team_create_success: 'Das Team wurde erfolgreich erstellt',
   team_create_failure: 'Das Team konnte nicht erstellt werden',
   team_edit_failure: 'Das Team konnte nicht bearbeitet werden',

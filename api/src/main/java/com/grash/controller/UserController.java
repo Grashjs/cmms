@@ -4,6 +4,7 @@ import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.*;
 import com.grash.exception.CustomException;
+import com.grash.service.UserInvitationService;
 import com.grash.mapper.UserMapper;
 import com.grash.model.User;
 import com.grash.model.Role;
@@ -44,6 +45,7 @@ public class UserController {
     private final UserMapper userMapper;
     private final IntercomService intercomService;
     private final CompanyService companyService;
+    private final UserInvitationService userInvitationService;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -98,6 +100,14 @@ public class UserController {
 
             } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/invitations/last-week")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public Collection<UserInvitationMiniDTO> getLastWeekInvitations(@Parameter(hidden = true) @CurrentUser User user) {
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            return userInvitationService.getDistinctByCompanyInLastWeek(user.getCompany().getId());
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/mini")

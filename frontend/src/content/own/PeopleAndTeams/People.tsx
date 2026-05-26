@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   debounce,
   Dialog,
   DialogContent,
@@ -27,8 +28,10 @@ import {
   disableUser,
   editUser,
   editUserRole,
+  getLastWeekInvitations,
   getSingleUser,
-  getUsers
+  getUsers,
+  inviteUsers
 } from '../../../slices/user';
 import { OwnUser } from '../../../models/user';
 import { PermissionEntity, Role } from '../../../models/owns/role';
@@ -74,7 +77,9 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
   const { peopleId } = useParams();
   const { hasEditPermission, user } = useAuth();
   const [enabledOnly, setEnabledOnly] = useState<boolean>(true);
-  const { users, loadingGet, singleUser } = useSelector((state) => state.users);
+  const { users, loadingGet, singleUser, lastWeekInvitations } = useSelector(
+    (state) => state.users
+  );
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
   const [criteria, setCriteria] = useState<SearchCriteria>({
     filterFields: [],
@@ -167,6 +172,14 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
     window.history.replaceState(null, 'User', `/app/people-teams/people`);
     setDetailDrawerOpen(false);
   };
+
+  const onResendInvites = () => {
+    lastWeekInvitations.forEach((invitation) => {
+      dispatch(inviteUsers(invitation.roleId, [invitation.email], false, true));
+    });
+    showSnackBar(t('users_invite_success'), 'success');
+  };
+
   const defautfields: Array<IField> = [
     {
       name: 'rate',
@@ -277,6 +290,10 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
   useEffect(() => {
     dispatch(getUsers(criteria, enabledOnly));
   }, [criteria, enabledOnly]);
+
+  useEffect(() => {
+    dispatch(getLastWeekInvitations());
+  }, []);
 
   //see changes in ui on edit
   useEffect(() => {
@@ -444,6 +461,39 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
           />
         </Stack>
       </Stack>
+      {lastWeekInvitations.length > 0 && (
+        <Box
+          sx={{
+            mb: 2,
+            p: 2,
+            bgcolor: 'info.light',
+            color: 'info.contrastText',
+            borderRadius: 1
+          }}
+        >
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Typography variant="subtitle2">
+              {lastWeekInvitations.length === 1
+                ? `${lastWeekInvitations[0].email} - ${lastWeekInvitations[0].roleName}`
+                : t('n_pending_invites', {
+                    count: lastWeekInvitations.length
+                  })}
+            </Typography>
+            <Button
+              onClick={onResendInvites}
+              variant="contained"
+              color="secondary"
+              size="small"
+            >
+              {t('resend_invites')}
+            </Button>
+          </Stack>
+        </Box>
+      )}
       {RenderPeopleList()}
 
       <Drawer

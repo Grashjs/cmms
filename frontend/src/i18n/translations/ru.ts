@@ -759,6 +759,8 @@ const ruJSON = {
   please_type_emails: 'Введите email-адреса для приглашения',
   please_select_role: 'Выберите роль',
   invite: 'Пригласить',
+  n_pending_invites: '{{count}} ожидающих приглашений',
+  resend_invites: 'Повторно отправить приглашения',
 
   // --- Teams ---
   team_create_success: 'Команда успешно создана',

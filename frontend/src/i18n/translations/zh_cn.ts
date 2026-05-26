@@ -607,6 +607,8 @@ const locale = {
   please_type_emails: '输入要邀请的电子邮件地址',
   please_select_role: '选择角色',
   invite: '邀请',
+  n_pending_invites: '{{count}} 个待处理的邀请',
+  resend_invites: '重新发送邀请',
   team_create_success: '团队创建成功',
   team_create_failure: '团队无法创建',
   team_edit_failure: '团队无法编辑',

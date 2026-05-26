@@ -685,6 +685,8 @@ const locale = {
   please_type_emails: 'Írj be e-mail címeket a meghíváshoz',
   please_select_role: 'Válassz egy szerepet',
   invite: 'Meghívás',
+  n_pending_invites: '{{count}} függőben lévő meghívó',
+  resend_invites: 'Meghívók újraküldése',
   team_create_success: 'A Csapat sikeresen létrehozva',
   team_create_failure: 'A Csapat nem hozható létre',
   team_edit_failure: 'A Csapat nem szerkeszthető',

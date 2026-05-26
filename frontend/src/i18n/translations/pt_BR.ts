@@ -782,6 +782,8 @@ const ptBRJSON = {
   please_type_emails: 'Por favor, digite os e-mails para convidar',
   please_select_role: 'Por favor, selecione uma função',
   invite: 'Convidar',
+  n_pending_invites: '{{count}} convites pendentes',
+  resend_invites: 'Reenviar convites',
   team_create_success: 'A Equipe foi criada com sucesso',
   team_create_failure: 'A Equipe não pôde ser criada',
   team_edit_failure: 'A Equipe não pôde ser editada',

@@ -1,5 +1,11 @@
 import { FileMiniDTO } from './file';
 
+export interface UserInvitationMiniDTO {
+  email: string;
+  roleId: number;
+  roleName: string;
+}
+
 export default interface User {
   id: number;
   firstName: string;

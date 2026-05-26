@@ -770,6 +770,8 @@ const esJSON = {
   please_type_emails: 'Por favor escriba los correos electrónicos para invitar',
   please_select_role: 'Por favor seleccione un rol',
   invite: 'Invitar',
+  n_pending_invites: '{{count}} invitaciones pendientes',
+  resend_invites: 'Reenviar invitaciones',
   team_create_success: 'El equipo ha sido creado exitosamente',
   team_create_failure: 'El equipo no pudo ser creado',
   team_edit_failure: 'El equipo no pudo ser editado',

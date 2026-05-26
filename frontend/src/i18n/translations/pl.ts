@@ -760,6 +760,8 @@ const plJSON = {
   please_type_emails: 'Wpisz adresy e-mail, aby zaprosić',
   please_select_role: 'Wybierz rolę',
   invite: 'Zaproś',
+  n_pending_invites: '{{count}} oczekujących zaproszeń',
+  resend_invites: 'Wyślij zaproszenia ponownie',
   team_create_success: 'Zespół został pomyślnie utworzony',
   team_create_failure: 'Nie udało się utworzyć zespołu',
   team_edit_failure: 'Nie udało się edytować zespołu',

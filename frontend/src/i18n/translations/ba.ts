@@ -745,6 +745,8 @@ const locale = {
   please_type_emails: 'Molimo unesite e-poštu za poziv',
   please_select_role: 'Molimo odaberite ulogu',
   invite: 'Pozovi',
+  n_pending_invites: '{{count}} pozivnica na čekanju',
+  resend_invites: 'Ponovo pošalji pozivnice',
   team_create_success: 'Tim je uspješno kreiran',
   team_create_failure: 'Tim nije mogao biti kreiran',
   team_edit_failure: 'Tim nije mogao biti uređen',

@@ -724,6 +724,8 @@ const trJSON = {
   please_type_emails: 'Lütfen davet etmek için e-postaları yazın',
   please_select_role: 'Lütfen bir rol seçin',
   invite: 'Davet et',
+  n_pending_invites: '{{count}} bekleyen davet',
+  resend_invites: 'Davetleri yeniden gönder',
   team_create_success: 'Ekip başarıyla oluşturuldu',
   team_create_failure: 'Ekip oluşturulamadı',
   team_edit_failure: 'Ekip düzenlenemedi',

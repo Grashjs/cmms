@@ -881,6 +881,8 @@ const frJSON = {
   please_type_emails: 'Veuillez saisir des e-mails à inviter',
   please_select_role: 'Veuillez sélectionner un rôle',
   invite: 'Inviter',
+  n_pending_invites: '{{count}} invitations en attente',
+  resend_invites: 'Renvoyer les invitations',
   team_create_success: "L'équipe a été créée avec succès",
   team_create_failure: "L'équipe n'a pas pu être créée",
   team_edit_failure: "L'équipe n'a pas pu être modifiée",

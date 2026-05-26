@@ -734,6 +734,8 @@ const locale = {
   please_type_emails: 'Please type in emails to invite',
   please_select_role: 'Please select a role',
   invite: 'Invite',
+  n_pending_invites: '{{count}} pending invitations',
+  resend_invites: 'Resend invitations',
   team_create_success: 'The Team has been created successfully',
   team_create_failure: "The Team couldn't be created",
   team_edit_failure: "The Team couldn't be edited",

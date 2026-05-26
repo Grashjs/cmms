@@ -764,6 +764,8 @@ const locale = {
   please_type_emails: 'Typ alstublieft e-mails om uit te nodigen',
   please_select_role: 'Selecteer alstublieft een rol',
   invite: 'Uitnodigen',
+  n_pending_invites: '{{count}} openstaande uitnodigingen',
+  resend_invites: 'Uitnodigingen opnieuw verzenden',
   team_create_success: 'Het Team is succesvol aangemaakt',
   team_create_failure: 'Het Team kon niet worden aangemaakt',
   team_edit_failure: 'Het Team kon niet worden bewerkt',

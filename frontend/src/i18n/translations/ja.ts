@@ -736,6 +736,8 @@ const locale = {
   please_type_emails: '招待するメールアドレスを入力してください',
   please_select_role: '役割を選択してください',
   invite: '招待',
+  n_pending_invites: '{{count}} 件の保留中の招待',
+  resend_invites: '招待を再送信',
   team_create_success: 'チームが正常に作成されました',
   team_create_failure: 'チームを作成できませんでした',
   team_edit_failure: 'チームを編集できませんでした',

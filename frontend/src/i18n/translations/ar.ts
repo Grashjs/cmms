@@ -713,6 +713,8 @@ const locale = {
   please_type_emails: 'الرجاء كتابة رسائل البريد الإلكتروني للدعوة',
   please_select_role: 'الرجاء اختيار الدور',
   invite: 'يدعو',
+  n_pending_invites: '{{count}} دعوات معلقة',
+  resend_invites: 'إعادة إرسال الدعوات',
   team_create_success: 'تم إنشاء الفريق بنجاح',
   team_create_failure: 'لم يتمكن من إنشاء الفريق',
   team_edit_failure: 'لم يتمكن الفريق من التعديل',
