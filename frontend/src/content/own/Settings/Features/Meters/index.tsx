@@ -24,7 +24,7 @@ function MetersSettings() {
                 textTransform: 'none'
               }}
             >
-              {t('configure_fields')}
+              {t('custom_fields')}
             </Button>
           </Box>
         </SettingsSection>

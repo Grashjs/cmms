@@ -1364,6 +1364,9 @@ const plJSON = {
   simplify_wo: 'Uprość zlecenia pracy w aplikacji mobilnej',
   simplify_wo_description:
     'Ukryj kontrolki czasu, koszty i części w szczegółach zlecenia pracy podczas korzystania z aplikacji mobilnej',
+  auto_generate_asset_barcode: 'Automatyczne generowanie kodów kreskowych',
+  auto_generate_asset_barcode_description:
+    'Jeśli ta opcja jest zaznaczona, kody kreskowe będą automatycznie generowane podczas tworzenia aktywów',
   account_deletion: 'Usunięcie konta {{brandName}}',
   switch_account: 'Zmień konto',
   switch_to_super_user: 'Przełącz na super administratora',

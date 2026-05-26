@@ -1407,6 +1407,9 @@ const deJSON = {
   simplify_wo: 'Arbeitsaufträge in der mobilen App vereinfachen',
   simplify_wo_description:
     'Verbergen Sie Zeitsteuerungen, Kosten und Teile in den Details des Arbeitsauftrags, während Sie die mobile App verwenden',
+  auto_generate_asset_barcode: 'Barcodes automatisch generieren',
+  auto_generate_asset_barcode_description:
+    'Wenn diese Option aktiviert ist, werden beim Erstellen von Assets automatisch Barcodes generiert',
   account_deletion: 'Löschung des {{brandName}}-Kontos',
   switch_account: 'Konto wechseln',
   switch_to_super_user: 'Zu Super-Admin wechseln',

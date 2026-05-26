@@ -1315,6 +1315,9 @@ const locale = {
   simplify_wo: 'Simplify Work Orders in the mobile app',
   simplify_wo_description:
     'Hide time controls, costs and parts in the Work Order details while using the mobile app',
+  auto_generate_asset_barcode: 'Auto-generate Barcodes',
+  auto_generate_asset_barcode_description:
+    'If this option is checked, barcodes will be auto-generated when Assets are created',
   account_deletion: '{{brandName}} Account deletion',
   switch_account: 'Switch account',
   switch_to_super_user: 'Switch to super admin',

@@ -1312,6 +1312,9 @@ const trJSON = {
   simplify_wo: 'Mobil uygulamada İş Emirlerini Basitleştirin',
   simplify_wo_description:
     'Mobil uygulamayı kullanırken İş Emri ayrıntılarındaki zaman kontrollerini, maliyetleri ve parçaları gizleyin',
+  auto_generate_asset_barcode: 'Barkodları Otomatik Oluştur',
+  auto_generate_asset_barcode_description:
+    'Bu seçenek işaretlenirse, Varlıklar oluşturulduğunda barkodlar otomatik olarak oluşturulur',
   account_deletion: 'Hesap silme',
   switch_account: 'Hesap değiştir',
   switch_to_super_user: 'Süper yöneticiye geç',

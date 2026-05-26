@@ -209,4 +209,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_05_05_00000000001_create_keygen_request_tracker.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_05_26_1779804618_autoGenerateAssetBarcode.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

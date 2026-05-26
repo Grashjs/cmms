@@ -1316,6 +1316,9 @@ const locale = {
   simplify_wo: 'モバイルアプリで作業指示を簡素化',
   simplify_wo_description:
     'モバイルアプリ使用時に、作業指示の詳細で時間管理、コスト、部品を非表示にする',
+  auto_generate_asset_barcode: 'バーコードを自動生成',
+  auto_generate_asset_barcode_description:
+    'このオプションをオンにすると、アセット作成時にバーコードが自動生成されます',
   account_deletion: '{{brandName}} アカウントの削除',
   switch_account: 'アカウントを切り替える',
   switch_to_super_user: 'スーパー管理者に切り替える',

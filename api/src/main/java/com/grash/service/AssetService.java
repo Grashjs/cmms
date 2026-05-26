@@ -89,7 +89,9 @@ public class AssetService {
             throw new CustomException("You need a license to add a child asset to another asset.",
                     HttpStatus.FORBIDDEN);
         asset.setCustomId(getAssetNumber(company));
-
+        if ((asset.getBarCode() == null || asset.getBarCode().isBlank()) && user.getCompany().getCompanySettings().getGeneralPreferences().isAutoGenerateAssetBarcode()) {
+            asset.setBarCode(UUID.randomUUID().toString());
+        }
         Asset savedAsset = assetRepository.saveAndFlush(asset);
         em.refresh(savedAsset);
         Map<String, Object> webhookPayload = new HashMap<>();

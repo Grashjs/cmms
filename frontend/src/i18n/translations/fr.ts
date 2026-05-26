@@ -1489,6 +1489,9 @@ const frJSON = {
   simplify_wo: "Simplifier les Ordres de Travail dans l'application mobile",
   simplify_wo_description:
     "Cacher le compteur de temps, les coûts et pièces dans les details d'un Ordre de travail en utilisant l'application mobile",
+  auto_generate_asset_barcode: 'Générer automatiquement les codes-barres',
+  auto_generate_asset_barcode_description:
+    "Si cette option est cochée, les codes-barres seront générés automatiquement lors de la création d'actifs",
   switch_account: 'Changer de compte',
   switch_to_super_user: 'Passer en super administrateur',
   switch_account_description: 'Veuillez choisir un compte pour continuer',

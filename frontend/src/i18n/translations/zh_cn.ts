@@ -1519,6 +1519,9 @@ const locale = {
     '自定义请求偏好设置，如路由和必填字段',
   assets_settings_description:
     '自定义资产相关设置，如条形码生成或资产创建表单。',
+  auto_generate_asset_barcode: '自动生成条形码',
+  auto_generate_asset_barcode_description:
+    '如果选中此选项，创建资产时将自动生成条形码',
   locations_settings_description:
     '在您的组织内创建、管理和编辑位置。',
   parts_inventory_settings_description:

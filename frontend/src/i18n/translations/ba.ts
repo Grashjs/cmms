@@ -1338,6 +1338,9 @@ const locale = {
   simplify_wo: 'Pojednostavi radne naloge u mobilnoj aplikaciji',
   simplify_wo_description:
     'Sakrij kontrole vremena, troškove i dijelove u detaljima radnog naloga dok koristite mobilnu aplikaciju',
+  auto_generate_asset_barcode: 'Automatski generiraj barkodove',
+  auto_generate_asset_barcode_description:
+    'Ako je ova opcija označena, barkodovi će se automatski generirati prilikom kreiranja sredstava',
   account_deletion: 'Brisanje {{brandName}} naloga',
   switch_account: 'Promijeni nalog',
   switch_to_super_user: 'Prebaci se na super administratora',

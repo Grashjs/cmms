@@ -1371,6 +1371,9 @@ const esJSON = {
   simplify_wo: 'Simplifique las Órdenes de Trabajo en la aplicación móvil',
   simplify_wo_description:
     'Oculte controles de tiempo, costos y piezas en los detalles de la orden de trabajo mientras usa la aplicación móvil',
+  auto_generate_asset_barcode: 'Generar códigos de barras automáticamente',
+  auto_generate_asset_barcode_description:
+    'Si esta opción está marcada, los códigos de barras se generarán automáticamente al crear activos',
   account_deletion: 'Eliminar cuenta',
   switch_account: 'Cambiar cuenta',
   switch_to_super_user: 'Cambiar a superadministrador',

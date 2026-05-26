@@ -1283,6 +1283,9 @@ const locale = {
   simplify_wo: 'تبسيط أوامر العمل في تطبيق الهاتف المحمول',
   simplify_wo_description:
     'إخفاء عناصر التحكم في الوقت والتكاليف والأجزاء في تفاصيل أمر العمل أثناء استخدام تطبيق الهاتف المحمول',
+  auto_generate_asset_barcode: 'إنشاء الرموز الشريطية تلقائيًا',
+  auto_generate_asset_barcode_description:
+    'إذا تم تحديد هذا الخيار، سيتم إنشاء الرموز الشريطية تلقائيًا عند إنشاء الأصول',
   account_deletion: 'حذف حساب {{brandName}}',
   switch_account: 'تبديل الحساب',
   switch_to_super_user: 'التبديل إلى المشرف الأعلى',

@@ -34,22 +34,40 @@ import * as React from 'react';
 import useAuth from '../../../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { getCustomFieldValuesForDetails } from '../../type';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface PropsType {
   asset: AssetDTO;
   loading: boolean;
 }
+const downloadQRCode = (value: string) => {
+  const svgElement = document.getElementById(`qr-code-${value}`);
+  if (!svgElement) return;
 
-const LabelWrapper = styled(Box)(
-  ({ theme }) => `
-    font-size: ${theme.typography.pxToRem(10)};
-    font-weight: bold;
-    text-transform: uppercase;
-    border-radius: ${theme.general.borderRadiusSm};
-    padding: ${theme.spacing(0.9, 1.5, 0.7)};
-    line-height: 1;
-  `
-);
+  const svgData = new XMLSerializer().serializeToString(svgElement);
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+
+  canvas.width = 120;
+  canvas.height = 120;
+
+  const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(svgBlob);
+
+  img.onload = () => {
+    ctx?.drawImage(img, 0, 0);
+    URL.revokeObjectURL(url);
+
+    const pngUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = pngUrl;
+    link.download = `qr-code-${value}.png`;
+    link.click();
+  };
+
+  img.src = url;
+};
 const AssetDetails = ({ asset, loading }: PropsType) => {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
@@ -73,7 +91,7 @@ const AssetDetails = ({ asset, loading }: PropsType) => {
         : null
     },
     { label: t('area'), value: asset?.area },
-    { label: t('barcode'), value: asset?.barCode }
+    { label: t('barcode'), value: asset?.barCode, barcode: true }
   ];
   const moreInfosFields = [
     {
@@ -95,10 +113,12 @@ const AssetDetails = ({ asset, loading }: PropsType) => {
   ];
   const BasicField = ({
     label,
-    value
+    value,
+    barcode
   }: {
     label: string | number;
     value: string | number;
+    barcode?: boolean;
   }) => {
     return value ? (
       <Grid item xs={12}>
@@ -106,7 +126,21 @@ const AssetDetails = ({ asset, loading }: PropsType) => {
           <Typography variant="h6" fontWeight="bold">
             {label}
           </Typography>
-          <Typography variant="h6">{value}</Typography>
+          <Box>
+            <Typography variant="h6">{value}</Typography>
+            {barcode && value && (
+              <QRCodeSVG
+                id={`qr-code-${value}`}
+                value={value.toString()}
+                size={120}
+                level="H"
+                onClick={() => {
+                  downloadQRCode(value.toString());
+                }}
+                style={{ marginTop: theme.spacing(1), cursor: 'pointer' }}
+              />
+            )}
+          </Box>
         </Stack>
         <Divider sx={{ mt: 1 }} />
       </Grid>

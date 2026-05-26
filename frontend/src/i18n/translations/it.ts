@@ -1362,6 +1362,9 @@ const locale = {
   simplify_wo: "Semplifica gli ordini di lavoro nell'app mobile",
   simplify_wo_description:
     "Nascondi i controlli del tempo, i costi e le parti nei dettagli dell'ordine di lavoro durante l'utilizzo dell'app mobile",
+  auto_generate_asset_barcode: 'Genera automaticamente i codici a barre',
+  auto_generate_asset_barcode_description:
+    'Se questa opzione è selezionata, i codici a barre verranno generati automaticamente alla creazione di asset',
   account_deletion: "Eliminazione dell'account {{brandName}}",
   switch_account: 'Cambia account',
   switch_to_super_user: 'Passa a super amministratore',

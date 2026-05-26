@@ -1705,6 +1705,9 @@ const locale = {
     'Testreszabhatja a kérések beállításait, például az útvonalat és a kötelező mezőket',
   assets_settings_description:
     'Testreszabhatja az eszközökkel kapcsolatos beállításokat, például a vonalkód-generálást vagy az eszközök létrehozási űrlapját.',
+  auto_generate_asset_barcode: 'Vonalkódok automatikus generálása',
+  auto_generate_asset_barcode_description:
+    'Ha ez az opció be van jelölve, a vonalkódok automatikusan generálódnak az eszközök létrehozásakor',
   locations_settings_description:
     'Hozza létre, kezelje és szerkessze a telephelyeket a szervezetén belül.',
   parts_inventory_settings_description:

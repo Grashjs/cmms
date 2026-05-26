@@ -896,6 +896,9 @@ const locale = {
   enable_wo_updates_requesters: 'Werkorderupdates inschakelen voor Aanvragers',
   enable_wo_updates_requesters_description:
     'Gebruikers ontvangen updates voor de werkorders die zij hebben aangevraagd',
+  auto_generate_asset_barcode: 'Barcodes automatisch genereren',
+  auto_generate_asset_barcode_description:
+    'Als deze optie is aangevinkt, worden er automatisch barcodes gegenereerd wanneer activa worden aangemaakt',
   language: 'Taal',
   date_format: 'Datumformaat',
   time_zone: 'Tijdzone',

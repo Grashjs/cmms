@@ -1339,6 +1339,9 @@ const locale = {
   simplify_wo: 'Förenkla arbetsordrar i mobilappen',
   simplify_wo_description:
     'Dölj tidskontroller, kostnader och artiklar i arbetsorderinformationen när du använder mobilappen',
+  auto_generate_asset_barcode: 'Generera streckkoder automatiskt',
+  auto_generate_asset_barcode_description:
+    'Om det här alternativet är markerat kommer streckkoder att genereras automatiskt när tillgångar skapas',
   account_deletion: 'Borttagning av konto på {{brandName}}',
   switch_account: 'Byt konto',
   switch_to_super_user: 'Byt till superadministratör',

@@ -1388,6 +1388,9 @@ const ptBRJSON = {
   simplify_wo: 'Simplificar Ordens de Serviço no aplicativo móvel',
   simplify_wo_description:
     'Ocultar controles de tempo, custos e peças nos detalhes da Ordem de Serviço ao usar o aplicativo móvel',
+  auto_generate_asset_barcode: 'Gerar códigos de barras automaticamente',
+  auto_generate_asset_barcode_description:
+    'Se esta opção estiver marcada, os códigos de barras serão gerados automaticamente quando os ativos forem criados',
   account_deletion: 'Exclusão de conta',
   switch_account: 'Trocar conta',
   switch_to_super_user: 'Trocar para super administrador',

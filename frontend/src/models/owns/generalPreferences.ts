@@ -24,4 +24,5 @@ export interface GeneralPreferences {
   woUpdateForRequesters: boolean;
 
   simplifiedWorkOrder: boolean;
+  autoGenerateAssetBarcode: boolean;
 }

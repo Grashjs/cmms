@@ -66,6 +66,9 @@ public class GeneralPreferences {
     @Schema(description = "Days before preventive maintenance notification")
     private int daysBeforePrevMaintNotification = 1;
 
+    @Schema(description = "Automatically generate asset barcode")
+    private boolean autoGenerateAssetBarcode;
+
     @NotBlank
     @Schema(description = "CSV separator character", requiredMode = Schema.RequiredMode.REQUIRED)
     private String csvSeparator = ",";
