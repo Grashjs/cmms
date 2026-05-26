@@ -464,7 +464,7 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
       {lastWeekInvitations.length > 0 && (
         <Box
           sx={{
-            mb: 2,
+            mb: 1,
             p: 2,
             bgcolor: 'info.light',
             color: 'info.contrastText',
