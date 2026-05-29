@@ -1,5 +1,6 @@
 import {
   Box,
+  IconButton,
   Link,
   List,
   ListItem,
@@ -7,23 +8,31 @@ import {
   TextField,
   Typography
 } from '@mui/material';
+import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import { PartQuantityMiniDTO } from '../../../models/owns/partQuantity';
 import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import { getFormattedCostPerUnit } from '../../../utils/formatters';
+import { deletePartQuantity } from '../../../slices/partQuantity';
+import { useDispatch } from '../../../store';
 
 interface PartQuantityListProps {
   partQuantities: PartQuantityMiniDTO[];
   onChange: (value: string, partQuantity: PartQuantityMiniDTO) => void;
   disabled: boolean;
+  deleteDisabled?: boolean;
+  onDelete?: (partQuantity: PartQuantityMiniDTO) => void;
 }
 export default function PartQuantitiesList({
   partQuantities,
   onChange,
-  disabled
+  disabled,
+  deleteDisabled,
+  onDelete
 }: PartQuantityListProps) {
   const { t }: { t: any } = useTranslation();
+  const dispatch = useDispatch();
   const { getFormattedCurrency } = useContext(CompanySettingsContext);
 
   return (
@@ -54,6 +63,22 @@ export default function PartQuantitiesList({
                   getFormattedCurrency
                 )}
               </Typography>
+              {!(disabled || deleteDisabled) && (
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    if (onDelete) {
+                      onDelete(partQuantity);
+                    } else {
+                      if (window.confirm(t('confirm_delete_row'))) {
+                        dispatch(deletePartQuantity(partQuantity.id));
+                      }
+                    }
+                  }}
+                >
+                  <DeleteTwoToneIcon fontSize="small" color="error" />
+                </IconButton>
+              )}
             </Box>
           }
         >
@@ -85,7 +110,11 @@ export default function PartQuantitiesList({
       ))}
       <ListItem
         secondaryAction={
-          <Typography variant="h6" fontWeight="bold">
+          <Typography
+            variant="h6"
+            fontWeight="bold"
+            sx={{ mr: !(deleteDisabled || disabled) ? 3 : 0 }}
+          >
             {getFormattedCurrency(
               partQuantities.reduce(
                 (acc, partQuantity) =>

@@ -456,14 +456,6 @@ public class OpenApiConfig {
     private Map<String, Schema> createWebhookSchemas() {
         Map<String, Schema> schemas = new LinkedHashMap<>();
 
-        // Common fields schema
-        Schema<?> commonFields = new ObjectSchema()
-                .addProperty("occurredAt", new StringSchema()
-                        .format("date-time")
-                        .description("Date & time at which the event occurred"))
-                .addProperty("companyId", new io.swagger.v3.oas.models.media.IntegerSchema()
-                        .description("Global ID of the organization"));
-
         // Work Order Status Change
         schemas.put("workOrderStatusChangePayload", new ObjectSchema()
                 .addProperty("workOrderId", new io.swagger.v3.oas.models.media.IntegerSchema()

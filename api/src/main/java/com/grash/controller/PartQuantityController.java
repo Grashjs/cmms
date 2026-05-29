@@ -68,7 +68,7 @@ public class PartQuantityController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public Collection<PartQuantityShowDTO> patchWorkOrder(@Parameter(description = "List of part IDs to associate " +
-                                                                      "with work order") @Valid @RequestBody List<Long> parts,
+                                                                  "with work order") @Valid @RequestBody List<Long> parts,
                                                           @PathVariable("id") Long id,
                                                           HttpServletRequest req) {
         User user = userService.whoami(req);
@@ -89,7 +89,7 @@ public class PartQuantityController {
                         Optional<Part> optionalPart = partService.findById(partId);
                         if (optionalPart.isPresent()) {
                             partService.consumePart(optionalPart.get().getId(), 1, savedWorkOrder,
-                                    Helper.getLocale(user));
+                                    Helper.getLocale(user), false);
                             PartQuantity partQuantity = new PartQuantity(optionalPart.get(), savedWorkOrder, null, 1);
                             partQuantityService.create(partQuantity);
                         } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);
@@ -110,7 +110,7 @@ public class PartQuantityController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public Collection<PartQuantityShowDTO> patchPurchaseOrder(@Parameter(description = "List of part quantities to " +
-                                                                          "update for purchase order") @Valid @RequestBody List<PartQuantityCompletePatchDTO> partQuantitiesReq, @PathVariable("id") Long id,
+                                                                      "update for purchase order") @Valid @RequestBody List<PartQuantityCompletePatchDTO> partQuantitiesReq, @PathVariable("id") Long id,
                                                               HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
@@ -189,7 +189,7 @@ public class PartQuantityController {
             if (savedPartQuantity.getWorkOrder() != null) {
                 partService.consumePart(savedPartQuantity.getPart().getId(),
                         partQuantity.getQuantity() - savedPartQuantity.getQuantity(),
-                        savedPartQuantity.getWorkOrder(), Helper.getLocale(user));
+                        savedPartQuantity.getWorkOrder(), Helper.getLocale(user), false);
             }
             PartQuantity patchedPartQuantity = partQuantityService.update(id, partQuantity);
             return partQuantityMapper.toShowDto(patchedPartQuantity);
@@ -208,6 +208,11 @@ public class PartQuantityController {
             if
             (user.getId().equals(savedPartQuantity.getCreatedBy())
                     || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
+                if (savedPartQuantity.getWorkOrder() != null) {
+                    partService.consumePart(savedPartQuantity.getPart().getId(),
+                            -savedPartQuantity.getQuantity(),
+                            savedPartQuantity.getWorkOrder(), Helper.getLocale(user), true);
+                }
                 partQuantityService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

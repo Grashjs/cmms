@@ -128,7 +128,7 @@ public class PartService {
                     HttpStatus.FORBIDDEN);
     }
 
-    public void consumePart(Long id, double quantity, WorkOrder workOrder, Locale locale) {
+    public void consumePart(Long id, double quantity, WorkOrder workOrder, Locale locale, boolean deleteConsumption) {
         Part part = findById(id).get();
         if (part.isNonStock()) return;
         double previousQuantity = part.getQuantity();
@@ -139,10 +139,13 @@ public class PartService {
             PartConsumption partConsumption =
                     Collections.max(partConsumptionService.findByWorkOrderAndPart(workOrder.getId(), part.getId()),
                             new AuditComparator());
-            partConsumption.setQuantity(partConsumption.getQuantity() + quantity);
-            partRepository.save(part);
-            partConsumptionService.save(partConsumption);
-
+            if (deleteConsumption) {
+                partConsumptionService.delete(partConsumption.getId());
+            } else {
+                partConsumption.setQuantity(partConsumption.getQuantity() + quantity);
+                partRepository.save(part);
+                partConsumptionService.save(partConsumption);
+            }
             // Dispatch webhook for part quantity change (returning parts)
             dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(), workOrder,
                     workOrder.getCompany());

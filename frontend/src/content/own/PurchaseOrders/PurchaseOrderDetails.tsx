@@ -293,6 +293,7 @@ export default function PurchaseOrderDetails(props: PurchaseOrderDetailsProps) {
                 purchaseOrder
               ) || purchaseOrder.status !== 'PENDING'
             }
+            deleteDisabled={partQuantities.length === 1}
             onChange={debouncedPartQuantityChange}
           />
         )}

@@ -1852,7 +1852,8 @@ const locale = {
   view_other_hint: '"View other" means view something created by someone else',
   go_to_billing: 'Go to Billing',
   import_from_spreadsheet: 'Import from a spreadsheet or CSV',
-  reset: 'Reset'
+  reset: 'Reset',
+  confirm_delete_row: 'Are you sure you want to delete this row?'
 };
 
 export default locale;
