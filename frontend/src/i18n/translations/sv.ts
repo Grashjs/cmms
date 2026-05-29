@@ -1868,7 +1868,8 @@ const locale = {
   view_other_hint: '"Visa annan" betyder att visa något som skapats av någon annan',
   go_to_billing: 'Gå till fakturering',
   import_from_spreadsheet: 'Importera från ett kalkylblad eller CSV',
-  reset: 'Återställ'
+  reset: 'Återställ',
+  confirm_delete_row: 'Är du säker på att du vill ta bort den här raden?'
 };
 
 export default locale;

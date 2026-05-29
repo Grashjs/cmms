@@ -1961,7 +1961,8 @@ const ruJSON = {
   view_other_hint: '"Посмотреть другое" означает просмотр чего-то, созданного кем-то другим',
   go_to_billing: 'Перейти к оплате',
   import_from_spreadsheet: 'Импорт из электронной таблицы или CSV',
-  reset: 'Сброс'
+  reset: 'Сброс',
+  confirm_delete_row: 'Вы уверены, что хотите удалить эту строку?'
 };
 
 export default ruJSON;

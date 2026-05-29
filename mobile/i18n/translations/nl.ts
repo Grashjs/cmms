@@ -1484,6 +1484,7 @@ const locale = {
   post_comment: 'Plaats reactie',
   confirm_delete_comment: 'Weet u zeker dat u deze reactie wilt verwijderen?',
   add_comment_placeholder: 'Voeg een reactie toe...',
-  create_category: 'Create Category'
+  create_category: 'Create Category',
+  delete_row_confirm_message: 'Weet u zeker dat u deze rij wilt verwijderen?'
 };
 export default locale;

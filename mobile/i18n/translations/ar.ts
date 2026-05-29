@@ -1420,7 +1420,7 @@ const locale = {
   post_comment: 'نشر تعليق',
   confirm_delete_comment: 'هل أنت متأكد أنك تريد حذف هذا التعليق؟',
   add_comment_placeholder: 'أضف تعليقًا...',
-  create_category: 'Create Category'
+  create_category: 'Create Category',
+  delete_row_confirm_message: 'هل أنت متأكد أنك تريد حذف هذا الصف؟'
 };
-
 export default locale;

@@ -1893,6 +1893,7 @@ const locale = {
   view_other_hint: '"Andere bekijken" betekent iets bekijken dat door iemand anders is gemaakt',
   go_to_billing: 'Ga naar facturatie',
   import_from_spreadsheet: 'Importeren uit een spreadsheet of CSV',
-  reset: 'Resetten'
+  reset: 'Resetten',
+  confirm_delete_row: 'Weet u zeker dat u deze rij wilt verwijderen?'
 };
 export default locale;

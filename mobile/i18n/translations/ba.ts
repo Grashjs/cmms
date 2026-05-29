@@ -1481,6 +1481,7 @@ const locale = {
   confirm_delete_comment: 'Da li ste sigurni da želite obrisati ovaj komentar?',
   add_comment_placeholder: 'Dodajte komentar...',
   you_need_a_license: 'Potrebna vam je licenca za pristup ovoj funkciji',
-  create_category: 'Create Category'
+  create_category: 'Create Category',
+  delete_row_confirm_message: 'Jeste li sigurni da želite izbrisati ovaj red?'
 };
 export default locale;

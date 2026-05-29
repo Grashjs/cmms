@@ -1974,7 +1974,8 @@ const esJSON = {
   view_other_hint: '"Ver otro" significa ver algo creado por otra persona',
   go_to_billing: 'Ir a facturación',
   import_from_spreadsheet: 'Importar desde una hoja de cálculo o CSV',
-  reset: 'Restablecer'
+  reset: 'Restablecer',
+  confirm_delete_row: '¿Está seguro de que desea eliminar esta fila?'
 };
 
 export default esJSON;

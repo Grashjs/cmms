@@ -1488,6 +1488,7 @@ const locale = {
   post_comment: 'コメントを投稿',
   confirm_delete_comment: 'このコメントを削除してもよろしいですか？',
   add_comment_placeholder: 'コメントを追加...',
-  id_required: 'IDは必須です'
+  id_required: 'IDは必須です',
+  delete_row_confirm_message: 'この行を削除してもよろしいですか？'
 };
 export default locale;

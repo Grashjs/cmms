@@ -1558,7 +1558,7 @@ const deJSON = {
   confirm_delete_comment:
     'Sind Sie sicher, dass Sie diesen Kommentar löschen möchten?',
   add_comment_placeholder: 'Kommentar hinzufügen...',
-  create_category: 'Create Category'
+  create_category: 'Create Category',
+  delete_row_confirm_message: 'Sind Sie sicher, dass Sie diese Zeile löschen möchten?'
 };
-
 export default deJSON;

@@ -15,10 +15,10 @@ import * as React from 'react';
 import { useContext, useEffect, useRef, useState } from 'react';
 import PartQuantity from '../models/partQuantity';
 import { CompanySettingsContext } from '../contexts/CompanySettingsContext';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import ActionSheet, { ActionSheetRef } from 'react-native-actions-sheet';
-import { editPartQuantity } from '../slices/partQuantity';
+import { deletePartQuantity, editPartQuantity } from '../slices/partQuantity';
 import { useDispatch } from '../store';
 import { CustomSnackBarContext } from '../contexts/CustomSnackBarContext';
 import { getFormattedCostPerUnit } from '../utils/formatters';
@@ -85,8 +85,20 @@ export default function PartQuantities({
       {
         title: t('to_delete'),
         icon: 'delete-outline',
-        //TODO
-        onPress: () => null,
+        onPress: () =>
+          Alert.alert(t('confirmation'), t('delete_row_confirm_message'), [
+            { text: t('cancel'), style: 'cancel' },
+            {
+              text: t('to_delete'),
+              style: 'destructive',
+              onPress: () =>
+                dispatch(deletePartQuantity(currentPartQuantity.id)).then(
+                  () => {
+                    actionSheetRef.current.hide();
+                  }
+                )
+            }
+          ]),
         color: theme.colors.error
       }
     ];

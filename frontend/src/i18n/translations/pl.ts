@@ -1898,7 +1898,8 @@ const plJSON = {
   view_other_hint: '"Zobacz inne" oznacza zobaczenie czegoś stworzonego przez kogoś innego',
   go_to_billing: 'Przejdź do rozliczeń',
   import_from_spreadsheet: 'Importuj z arkusza kalkulacyjnego lub CSV',
-  reset: 'Resetuj'
+  reset: 'Resetuj',
+  confirm_delete_row: 'Czy na pewno chcesz usunąć ten wiersz?'
 };
 
 export default plJSON;

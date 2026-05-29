@@ -1527,7 +1527,7 @@ const ptBRJSON = {
   post_comment: 'Publicar comentário',
   confirm_delete_comment: 'Tem certeza de que deseja excluir este comentário?',
   add_comment_placeholder: 'Adicionar um comentário...',
-  create_category: 'Create Category'
+  create_category: 'Create Category',
+  delete_row_confirm_message: 'Tem certeza de que deseja excluir esta linha?'
 };
-
 export default ptBRJSON;

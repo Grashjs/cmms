@@ -1836,7 +1836,8 @@ const locale = {
   view_other: 'عرض الآخر',
   view_other_hint: '"عرض الآخر" يعني عرض شيء تم إنشاؤه بواسطة شخص آخر',
   import_from_spreadsheet: 'استيراد من جدول بيانات أو CSV',
-  reset: 'إعادة تعيين'
+  reset: 'إعادة تعيين',
+  confirm_delete_row: 'هل أنت متأكد أنك تريد حذف هذا الصف؟'
 };
 
 export default locale;

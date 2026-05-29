@@ -1902,7 +1902,8 @@ const locale = {
   view_other_hint: '"Visualizza altro" significa visualizzare qualcosa creato da qualcun altro',
   go_to_billing: 'Vai alla fatturazione',
   import_from_spreadsheet: 'Importa da un foglio di calcolo o CSV',
-  reset: 'Ripristina'
+  reset: 'Ripristina',
+  confirm_delete_row: 'Sei sicuro di voler eliminare questa riga?'
 };
 
 export default locale;

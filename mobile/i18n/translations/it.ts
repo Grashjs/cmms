@@ -1499,7 +1499,7 @@ const locale = {
   post_comment: 'Pubblica commento',
   confirm_delete_comment: 'Sei sicuro di voler eliminare questo commento?',
   add_comment_placeholder: 'Aggiungi un commento...',
-  create_category: 'Create Category'
+  create_category: 'Create Category',
+  delete_row_confirm_message: 'Sei sicuro di voler eliminare questa riga?'
 };
-
 export default locale;

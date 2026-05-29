@@ -1479,6 +1479,7 @@ const locale = {
   confirm_delete_comment: 'Are you sure you want to delete this comment?',
   add_comment_placeholder: 'Add a comment...',
   id_required: 'ID is required',
-  create_category: 'Create Category'
+  create_category: 'Create Category',
+  delete_row_confirm_message: 'Are you sure you want to delete this row?'
 };
 export default locale;

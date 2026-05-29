@@ -1361,6 +1361,7 @@ const locale = {
   confirm_delete_comment: '您确定要删除此评论吗？',
   add_comment_placeholder: '添加评论...',
   Statistics: '统计',
-  create_category: 'Create Category'
+  create_category: 'Create Category',
+  delete_row_confirm_message: '您确定要删除此行吗？'
 };
 export default locale;

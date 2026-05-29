@@ -1534,7 +1534,7 @@ const ruJSON = {
   post_comment: 'Опубликовать комментарий',
   confirm_delete_comment: 'Вы уверены, что хотите удалить этот комментарий?',
   add_comment_placeholder: 'Добавить комментарий...',
-  create_category: 'Create Category'
+  create_category: 'Create Category',
+  delete_row_confirm_message: 'Вы уверены, что хотите удалить эту строку?'
 };
-
 export default ruJSON;

@@ -1632,6 +1632,7 @@ const frJSON = {
   post_comment: 'Publier un commentaire',
   confirm_delete_comment: 'Êtes-vous sûr de vouloir supprimer ce commentaire ?',
   add_comment_placeholder: 'Ajouter un commentaire...',
-  create_category: 'Create Category'
+  create_category: 'Create Category',
+  delete_row_confirm_message: 'Êtes-vous sûr de vouloir supprimer cette ligne ?'
 };
 export default frJSON;

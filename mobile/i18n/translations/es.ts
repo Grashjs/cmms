@@ -1510,6 +1510,7 @@ const locale = {
   post_comment: 'Publicar comentario',
   confirm_delete_comment: '¿Está seguro de que desea eliminar este comentario?',
   add_comment_placeholder: 'Añadir un comentario...',
-  create_category: 'Create Category'
+  create_category: 'Create Category',
+  delete_row_confirm_message: '¿Está seguro de que desea eliminar esta fila?'
 };
 export default locale;

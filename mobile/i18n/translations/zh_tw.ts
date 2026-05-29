@@ -1470,6 +1470,7 @@ remaining_parts: '剩餘 {{quantity}}',
   post_comment: '發表評論',
   confirm_delete_comment: '您確定要刪除此評論嗎？',
   add_comment_placeholder: '新增評論...',
-  id_required: 'ID 為必填'
+  id_required: 'ID 為必填',
+  delete_row_confirm_message: '您確定要刪除此行嗎？'
 };
 export default locale;

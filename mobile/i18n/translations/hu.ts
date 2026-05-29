@@ -1483,6 +1483,7 @@ const locale = {
   post_comment: 'Megjegyzés közzététele',
   confirm_delete_comment: 'Biztosan törölni kívánja ezt a megjegyzést?',
   add_comment_placeholder: 'Megjegyzés hozzáadása...',
-  create_category: 'Create Category'
+  create_category: 'Create Category',
+  delete_row_confirm_message: 'Biztosan törölni szeretné ezt a sort?'
 };
 export default locale;

@@ -1983,7 +1983,8 @@ const deJSON = {
   view_other_hint: '"Andere ansehen" bedeutet, etwas anzusehen, das von jemand anderem erstellt wurde',
   go_to_billing: 'Zur Abrechnung',
   import_from_spreadsheet: 'Aus einer Tabelle oder CSV importieren',
-  reset: 'Zurücksetzen'
+  reset: 'Zurücksetzen',
+  confirm_delete_row: 'Sind Sie sicher, dass Sie diese Zeile löschen möchten?'
 };
 
 export default deJSON;

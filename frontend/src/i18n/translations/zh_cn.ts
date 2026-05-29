@@ -1567,7 +1567,8 @@ const locale = {
   view_other_hint: '"查看其他"表示查看其他人创建的内容',
   go_to_billing: '前往账单',
   import_from_spreadsheet: '从电子表格或CSV导入',
-  reset: '重置'
+  reset: '重置',
+  confirm_delete_row: '您确定要删除此行吗？'
 };
 
 export default locale;

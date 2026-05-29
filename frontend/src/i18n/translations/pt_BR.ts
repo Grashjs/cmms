@@ -1928,7 +1928,8 @@ const ptBRJSON = {
   view_other_hint: '"Ver outro" significa ver algo criado por outra pessoa',
   go_to_billing: 'Ir para faturamento',
   import_from_spreadsheet: 'Importar de uma planilha ou CSV',
-  reset: 'Redefinir'
+  reset: 'Redefinir',
+  confirm_delete_row: 'Tem certeza de que deseja excluir esta linha?'
 };
 
 export default ptBRJSON;

@@ -1475,7 +1475,7 @@ const locale = {
   post_comment: 'Publicera kommentar',
   confirm_delete_comment: 'Är du säker på att du vill ta bort denna kommentar?',
   add_comment_placeholder: 'Lägg till en kommentar...',
-  create_category: 'Create Category'
+  create_category: 'Create Category',
+  delete_row_confirm_message: 'Är du säker på att du vill ta bort den här raden?'
 };
-
 export default locale;

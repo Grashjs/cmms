@@ -1490,7 +1490,7 @@ const plJSON = {
   post_comment: 'Opublikuj komentarz',
   confirm_delete_comment: 'Czy na pewno chcesz usunąć ten komentarz?',
   add_comment_placeholder: 'Dodaj komentarz...',
-  create_category: 'Create Category'
+  create_category: 'Create Category',
+  delete_row_confirm_message: 'Czy na pewno chcesz usunąć ten wiersz?'
 };
-
 export default plJSON;
