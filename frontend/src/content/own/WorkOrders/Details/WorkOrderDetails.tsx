@@ -164,7 +164,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   );
   const additionalCosts = costsByWorkOrder[workOrder.id] ?? [];
   const { commentsCountByWorkOrder } = useSelector((state) => state.comments);
-  const commentsCount = commentsCountByWorkOrder[workOrder.id] ?? 0;
+  const commentsCount = commentsCountByWorkOrder[workOrder.id]?.count ?? 0;
   const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
@@ -261,7 +261,10 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
     const fieldsToTest = [
       {
         name: 'completeFiles',
-        condition: !workOrder.files.length,
+        condition:
+          workOrder.files.length +
+            commentsCountByWorkOrder[workOrder.id]?.withFilesCount ===
+          0,
         message: 'required_files_on_completion'
       },
       {

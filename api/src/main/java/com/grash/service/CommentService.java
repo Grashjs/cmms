@@ -177,4 +177,9 @@ public class CommentService {
             );
         }
     }
+
+    public long countByWorkOrderIdWithFiles(Long workOrderId, User user) {
+        workOrderService.checkAccessToWorkOrderId(workOrderId, user);
+        return commentRepository.countByWorkOrderIdWithFiles(workOrderId);
+    }
 }

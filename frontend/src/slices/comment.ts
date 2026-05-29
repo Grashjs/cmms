@@ -12,11 +12,15 @@ const basePath = 'comments';
 
 interface CommentState {
   commentsByWorkOrder: { [key: number]: Comment[] };
-  commentsCountByWorkOrder: { [key: number]: number };
+  commentsCountByWorkOrder: { [key: number]: CommentCount };
   loadingComments: boolean;
   loadingCreate: boolean;
   loadingUpdate: boolean;
   loadingDelete: boolean;
+}
+interface CommentCount {
+  count: number;
+  withFilesCount: number;
 }
 
 const initialState: CommentState = {
@@ -52,7 +56,9 @@ const slice = createSlice({
         comment,
         ...state.commentsByWorkOrder[workOrderId]
       ];
-      state.commentsCountByWorkOrder[workOrderId]++;
+      state.commentsCountByWorkOrder[workOrderId].count++;
+      state.commentsCountByWorkOrder[workOrderId].withFilesCount +=
+        comment.files.length > 0 ? 1 : 0;
     },
     updateComment(
       state: CommentState,
@@ -71,10 +77,15 @@ const slice = createSlice({
     ) {
       const { workOrderId, commentId } = action.payload;
       if (state.commentsByWorkOrder[workOrderId]) {
+        const comment = state.commentsByWorkOrder[workOrderId].find(
+          (c) => c.id === commentId
+        );
         state.commentsByWorkOrder[workOrderId] = state.commentsByWorkOrder[
           workOrderId
         ].filter((c) => c.id !== commentId);
-        state.commentsCountByWorkOrder[workOrderId]--;
+        state.commentsCountByWorkOrder[workOrderId].count--;
+        state.commentsCountByWorkOrder[workOrderId].withFilesCount -=
+          comment?.files?.length > 0 ? 1 : 0;
       }
     },
     setLoadingComments(
@@ -107,7 +118,7 @@ const slice = createSlice({
     },
     setCommentsCount(
       state: CommentState,
-      action: PayloadAction<{ workOrderId: number; count: number }>
+      action: PayloadAction<{ workOrderId: number; count: CommentCount }>
     ) {
       const { workOrderId, count } = action.payload;
       state.commentsCountByWorkOrder[workOrderId] = count;
@@ -186,11 +197,12 @@ export const getCommentsCountByWorkOrder =
   (workOrderId: number): AppThunk =>
   async (dispatch) => {
     try {
-      const response = await api.get<{ success: boolean; message: string }>(
+      const response = await api.get<CommentCount>(
         `${basePath}/count/${workOrderId}`
       );
-      const count = parseInt(response.message, 10);
-      dispatch(slice.actions.setCommentsCount({ workOrderId, count }));
+      dispatch(
+        slice.actions.setCommentsCount({ workOrderId, count: response })
+      );
     } catch (error) {
       console.error('Failed to fetch comments count:', error);
     }

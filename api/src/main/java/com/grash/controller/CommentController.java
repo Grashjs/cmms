@@ -1,10 +1,7 @@
 package com.grash.controller;
 
 import com.grash.dto.SuccessResponse;
-import com.grash.dto.comment.CommentCriteria;
-import com.grash.dto.comment.CommentPatchDTO;
-import com.grash.dto.comment.CommentPostDTO;
-import com.grash.dto.comment.CommentShowDTO;
+import com.grash.dto.comment.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CommentMapper;
 import com.grash.mapper.UserMapper;
@@ -115,9 +112,12 @@ public class CommentController {
 
     @GetMapping("/count/{workOrderId}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public SuccessResponse countByWorkOrder(@PathVariable Long workOrderId,
-                                            @Parameter(hidden = true) @CurrentUser User user) {
+    public CommentCount countByWorkOrder(@PathVariable Long workOrderId,
+                                         @Parameter(hidden = true) @CurrentUser User user) {
         long count = commentService.countByWorkOrderId(workOrderId, user);
-        return new SuccessResponse(true, String.valueOf(count));
+        CommentCount commentCount = new CommentCount();
+        commentCount.setCount(count);
+        commentCount.setWithFilesCount(count > 0 ? commentService.countByWorkOrderIdWithFiles(workOrderId, user) : 0);
+        return commentCount;
     }
 }
