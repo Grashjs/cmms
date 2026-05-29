@@ -415,7 +415,10 @@ export default function WODetailsScreen({
     const fieldsToTest = [
       {
         name: 'completeFiles',
-        condition: !workOrder?.files.length,
+        condition:
+          (workOrder?.files.length || 0) +
+            comments.filter((comment) => comment.files.length).length ===
+          0,
         message: 'required_files_on_completion'
       },
       {
@@ -889,7 +892,9 @@ export default function WODetailsScreen({
                   />
                 </TouchableOpacity>
                 {workOrder.audioDescription && (
-                  <View style={{ backgroundColor: 'white', paddingVertical: 20 }}>
+                  <View
+                    style={{ backgroundColor: 'white', paddingVertical: 20 }}
+                  >
                     <Text>{t('audio_description')}</Text>
                     <AudioPlayer url={workOrder.audioDescription.url} />
                   </View>
@@ -921,7 +926,9 @@ export default function WODetailsScreen({
                 {(workOrder.parentRequest || workOrder.createdBy) && (
                   <ObjectField
                     label={
-                      workOrder.parentRequest ? t('approved_by') : t('created_by')
+                      workOrder.parentRequest
+                        ? t('approved_by')
+                        : t('created_by')
                     }
                     value={getUserNameById(workOrder.createdBy)}
                     link={{ route: 'UserDetails', id: workOrder.createdBy }}
