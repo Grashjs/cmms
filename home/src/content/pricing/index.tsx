@@ -269,9 +269,13 @@ function PricingContent() {
   );
 }
 
+function PricingFallback() {
+  return <Box sx={{ minHeight: "100vh" }} />;
+}
+
 function Pricing() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<PricingFallback />}>
       <PricingContent />
     </Suspense>
   );
