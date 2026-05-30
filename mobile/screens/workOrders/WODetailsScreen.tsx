@@ -429,8 +429,8 @@ export default function WODetailsScreen({
       {
         name: 'completeTime',
         condition: labors
-          .filter((labor) => labor.logged)
-          .some((labor) => !labor.duration),
+           .filter((labor) => labor.logged)
++          .filter((labor) => labor.duration).length === 0,
         message: 'required_labor_on_completion'
       },
       {
