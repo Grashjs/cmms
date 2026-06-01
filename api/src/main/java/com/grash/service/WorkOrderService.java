@@ -583,6 +583,10 @@ public class WorkOrderService {
         return workOrderRepository.findByCompany_IdAndCreatedAtBetween(id, start, end);
     }
 
+    public List<Object[]> findTopNAssetsByIncompleteWO(Long companyId, Date start, Date end, int limit) {
+        return workOrderRepository.findTopNAssetsByIncompleteWO(companyId, start, end, limit);
+    }
+
     public Collection<WorkOrder> findByAssignedToUserAndCreatedAtBetween(Long id, Date start, Date end) {
         return workOrderRepository.findByAssignedToUserAndCreatedAtBetween(id, start, end);
     }

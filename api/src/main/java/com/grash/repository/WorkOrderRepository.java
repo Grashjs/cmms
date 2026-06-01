@@ -82,6 +82,23 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
 
     void deleteByCompany_IdAndIsDemoTrue(Long companyId);
 
+    @Query(value = """
+            SELECT a.id, a.name, COUNT(wo.id) AS cnt,
+                   COALESCE(AVG(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - wo.created_at)) / 86400), 0) AS avg_age
+            FROM work_order wo
+            INNER JOIN asset a ON wo.asset_id = a.id
+            WHERE wo.company_id = :companyId
+              AND wo.created_at BETWEEN :start AND :end
+              AND wo.status != 3
+            GROUP BY a.id, a.name
+            ORDER BY cnt DESC
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<Object[]> findTopNAssetsByIncompleteWO(@Param("companyId") Long companyId,
+                                                @Param("start") Date start,
+                                                @Param("end") Date end,
+                                                @Param("limit") int limit);
+
     @Query("SELECT CASE WHEN COUNT(wo) > :threshold THEN true ELSE false END " +
             "FROM WorkOrder wo WHERE wo.company.id = :companyId AND wo.status!=com.grash.model.enums.Status" +
             ".COMPLETE")

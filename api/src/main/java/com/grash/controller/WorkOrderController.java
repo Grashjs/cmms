@@ -130,10 +130,10 @@ public class WorkOrderController {
                     .map(calendarEvent -> new CalendarEvent<>(calendarEvent.getType(),
                             preventiveMaintenanceMapper.toBaseMiniDto(calendarEvent.getEvent()),
                             calendarEvent.getDate()))
-                    .collect(Collectors.toList()));
+                    .toList());
             result.addAll(workOrderService.findByDueDateBetweenAndCompany(dateRange.getStart(), dateRange.getEnd(),
                     user.getCompany().getId()).stream().filter(workOrder -> canViewWorkOrderBase(user, workOrder)).map(workOrderMapper::toBaseMiniDto).map(workOrderMiniDTO -> new CalendarEvent<>("WORK_ORDER",
-                    workOrderMiniDTO, workOrderMiniDTO.getDueDate())).collect(Collectors.toList()));
+                    workOrderMiniDTO, workOrderMiniDTO.getDueDate())).toList());
             return result;
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }

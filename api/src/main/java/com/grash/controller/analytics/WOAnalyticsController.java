@@ -254,23 +254,16 @@ public class WOAnalyticsController {
                                                                                 @Parameter(description = "Date range " +
                                                                                         "for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
-            Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(),
-                    dateRange.getEnd());
-            Collection<IncompleteWOByAsset> result = new ArrayList<>();
-            assets.forEach(asset -> {
-                Collection<WorkOrder> incompleteWO = workOrderService.findByAssetAndCreatedAtBetween(asset.getId(),
-                                dateRange.getStart(), dateRange.getEnd())
-                        .stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
-                List<Long> ages = incompleteWO.stream().map(workOrder -> Helper.getDateDiff(workOrder.getCreatedAt(),
-                        new Date(), TimeUnit.DAYS)).collect(Collectors.toList());
-                int count = incompleteWO.size();
-                result.add(IncompleteWOByAsset.builder()
-                        .count(count)
-                        .averageAge(count == 0 ? 0 : ages.stream().mapToLong(value -> value).sum() / count)
-                        .name(asset.getName())
-                        .id(asset.getId())
-                        .build());
-            });
+            List<Object[]> rows = workOrderService.findTopNAssetsByIncompleteWO(
+                    user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd(), 10);
+            Collection<IncompleteWOByAsset> result = rows.stream()
+                    .map(row -> IncompleteWOByAsset.builder()
+                            .id((Long) row[0])
+                            .name((String) row[1])
+                            .count(((Number) row[2]).intValue())
+                            .averageAge(((Number) row[3]).longValue())
+                            .build())
+                    .collect(Collectors.toList());
             return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
