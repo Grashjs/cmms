@@ -509,6 +509,7 @@ function Locations() {
       header: () => t('actions'),
       cell: ({ row }) => {
         const location = row.original;
+        if ('isLoadMoreRow' in location && location.isLoadMoreRow) return null;
         let actions = [];
         if (hasEditPermission(PermissionEntity.LOCATIONS, location)) {
           actions.push(
