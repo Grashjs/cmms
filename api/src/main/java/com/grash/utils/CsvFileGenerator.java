@@ -23,15 +23,17 @@ public class CsvFileGenerator {
     private final AssetDowntimeService assetDowntimeService;
 
     public void writeWorkOrdersToCsv(Collection<WorkOrder> workOrders, Writer writer, Locale locale,
-                                     String csvSeparator) {
+                                     String csvSeparator, boolean includeHeaders) {
         try {
             CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
             CSVPrinter printer = new CSVPrinter(writer, csvFormat);
-            List<String> headers = Arrays.asList("ID", "Title", "Status", "Priority", "Description", "Due_Date",
-                    "Estimated_Duration", "Requires_Signature", "Category", "Location_Name", "Team_Name",
-                    "Primary_User_Email", "Assigned_To_Emails", "Asset_Name", "Completed_By_Email", "Completed_On",
-                    "Archived", "Feedback", "Customers", "Created_At");
-            printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
+            if (includeHeaders) {
+                List<String> headers = Arrays.asList("ID", "Title", "Status", "Priority", "Description", "Due_Date",
+                        "Estimated_Duration", "Requires_Signature", "Category", "Location_Name", "Team_Name",
+                        "Primary_User_Email", "Assigned_To_Emails", "Asset_Name", "Completed_By_Email", "Completed_On",
+                        "Archived", "Feedback", "Customers", "Created_At");
+                printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
+            }
             for (WorkOrder workOrder : workOrders) {
                 printer.printRecord(workOrder.getId(),
                         workOrder.getTitle(),
@@ -57,36 +59,38 @@ public class CsvFileGenerator {
                         workOrder.getCreatedAt()
                 );
             }
-            writer.close();
+            printer.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void writeAssetsToCsv(Collection<Asset> assets, Writer writer, Locale locale, String csvSeparator) {
+    public void writeAssetsToCsv(Collection<Asset> assets, Writer writer, Locale locale, String csvSeparator, boolean includeHeaders) {
         try {
             CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
             CSVPrinter printer = new CSVPrinter(writer, csvFormat);
-            List<String> headers = Arrays.asList("ID", "Name",
-                    "Description",
-                    "Status",
-                    "Archived",
-                    "Location_Name",
-                    "Parent_Asset",
-                    "Area",
-                    "Barcode",
-                    "Category",
-                    "Primary_User_Email",
-                    "Warranty_Expiration_Date",
-                    "Additional_Information",
-                    "Serial_Number",
-                    "Assigned_To_Emails",
-                    "Teams_Names",
-                    "Parts",
-                    "Vendors",
-                    "Customers",
-                    "Downtime_Duration");
-            printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
+            if (includeHeaders) {
+                List<String> headers = Arrays.asList("ID", "Name",
+                        "Description",
+                        "Status",
+                        "Archived",
+                        "Location_Name",
+                        "Parent_Asset",
+                        "Area",
+                        "Barcode",
+                        "Category",
+                        "Primary_User_Email",
+                        "Warranty_Expiration_Date",
+                        "Additional_Information",
+                        "Serial_Number",
+                        "Assigned_To_Emails",
+                        "Teams_Names",
+                        "Parts",
+                        "Vendors",
+                        "Customers",
+                        "Downtime_Duration");
+                printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
+            }
             for (Asset asset : assets) {
                 Collection<AssetDowntime> downtimes = assetDowntimeService.findByAsset(asset.getId());
                 long downTimeDuration = downtimes.stream().map(AssetDowntime::getDuration)
@@ -114,24 +118,26 @@ public class CsvFileGenerator {
                         downTimeDuration
                 );
             }
-            writer.close();
+            printer.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void writeLocationsToCsv(Collection<Location> locations, Writer writer, Locale locale, String csvSeparator) {
+    public void writeLocationsToCsv(Collection<Location> locations, Writer writer, Locale locale, String csvSeparator, boolean includeHeaders) {
         try {
             CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
             CSVPrinter printer = new CSVPrinter(writer, csvFormat);
-            List<String> headers = Arrays.asList("ID", "Name",
-                    "Address",
-                    "Parent_Location",
-                    "Workers",
-                    "Teams_Names",
-                    "Vendors",
-                    "Customers");
-            printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
+            if (includeHeaders) {
+                List<String> headers = Arrays.asList("ID", "Name",
+                        "Address",
+                        "Parent_Location",
+                        "Workers",
+                        "Teams_Names",
+                        "Vendors",
+                        "Customers");
+                printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
+            }
             for (Location location : locations) {
                 printer.printRecord(location.getId(),
                         location.getName(),
@@ -143,32 +149,34 @@ public class CsvFileGenerator {
                         Helper.enumerate(location.getCustomers().stream().map(Customer::getName).collect(Collectors.toList()))
                 );
             }
-            writer.close();
+            printer.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void writePartsToCsv(Collection<Part> parts, Writer writer, Locale locale, String csvSeparator) {
+    public void writePartsToCsv(Collection<Part> parts, Writer writer, Locale locale, String csvSeparator, boolean includeHeaders) {
         try {
             CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
             CSVPrinter printer = new CSVPrinter(writer, csvFormat);
-            List<String> headers = Arrays.asList("ID", "Name",
-                    "Cost",
-                    "Category",
-                    "Non_Stock",
-                    "Barcode",
-                    "Description",
-                    "Quantity",
-                    "Additional_Information",
-                    "Area",
-                    "Minimum_Quantity",
-                    "Assigned_To_Emails",
-                    "Customers",
-                    "Vendors",
-                    "Teams_Names"
-            );
-            printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
+            if (includeHeaders) {
+                List<String> headers = Arrays.asList("ID", "Name",
+                        "Cost",
+                        "Category",
+                        "Non_Stock",
+                        "Barcode",
+                        "Description",
+                        "Quantity",
+                        "Additional_Information",
+                        "Area",
+                        "Minimum_Quantity",
+                        "Assigned_To_Emails",
+                        "Customers",
+                        "Vendors",
+                        "Teams_Names"
+                );
+                printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
+            }
             for (Part part : parts) {
                 printer.printRecord(part.getId(),
                         part.getName(),
@@ -187,25 +195,27 @@ public class CsvFileGenerator {
                         Helper.enumerate(part.getTeams().stream().map(Team::getName).collect(Collectors.toList()))
                 );
             }
-            writer.close();
+            printer.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void writeMetersToCsv(Collection<Meter> meters, Writer writer, Locale locale, String csvSeparator) {
+    public void writeMetersToCsv(Collection<Meter> meters, Writer writer, Locale locale, String csvSeparator, boolean includeHeaders) {
         try {
             CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
             CSVPrinter printer = new CSVPrinter(writer, csvFormat);
-            List<String> headers = Arrays.asList("ID", "Name",
-                    "Unit",
-                    "Update_Frequency",
-                    "Category",
-                    "Asset_Name",
-                    "Location_Name",
-                    "Assigned_To_Emails"
-            );
-            printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
+            if (includeHeaders) {
+                List<String> headers = Arrays.asList("ID", "Name",
+                        "Unit",
+                        "Update_Frequency",
+                        "Category",
+                        "Asset_Name",
+                        "Location_Name",
+                        "Assigned_To_Emails"
+                );
+                printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
+            }
             for (Meter meter : meters) {
                 printer.printRecord(meter.getId(),
                         meter.getName(),
@@ -216,7 +226,7 @@ public class CsvFileGenerator {
                         meter.getLocation() == null ? null : meter.getLocation().getName(),
                         Helper.enumerate(meter.getUsers().stream().map(User::getEmail).collect(Collectors.toList())));
             }
-            writer.close();
+            printer.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -224,15 +234,17 @@ public class CsvFileGenerator {
 
     public void writePreventiveMaintenancesToCsv(Collection<PreventiveMaintenance> preventiveMaintenances,
                                                  Writer writer, Locale locale,
-                                                 String csvSeparator) {
+                                                 String csvSeparator, boolean includeHeaders) {
         try {
             CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
             CSVPrinter printer = new CSVPrinter(writer, csvFormat);
-            List<String> headers = Arrays.asList("ID", "Title", "Starts_On", "Priority", "Description",
-                    "Estimated_Duration",
-                    "Requires_Signature", "Category", "Location_Name", "Team_Name",
-                    "Primary_User_Email", "Asset_Name", "Frequency", "Recurrence_Type");
-            printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
+            if (includeHeaders) {
+                List<String> headers = Arrays.asList("ID", "Title", "Starts_On", "Priority", "Description",
+                        "Estimated_Duration",
+                        "Requires_Signature", "Category", "Location_Name", "Team_Name",
+                        "Primary_User_Email", "Asset_Name", "Frequency", "Recurrence_Type");
+                printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
+            }
             for (PreventiveMaintenance pm : preventiveMaintenances) {
                 printer.printRecord(pm.getId(),
                         pm.getTitle(),
@@ -252,7 +264,7 @@ public class CsvFileGenerator {
                                 messageSource.getMessage(pm.getSchedule().getRecurrenceType().name(), null, locale)
                 );
             }
-            writer.close();
+            printer.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }

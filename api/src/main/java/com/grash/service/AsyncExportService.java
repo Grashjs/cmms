@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -43,18 +44,22 @@ public class AsyncExportService {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
             int page = 0;
             Page<WorkOrder> result;
+            String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
+            Locale locale = Helper.getLocale(user);
             do {
                 result = workOrderService.findByCompanyForExport(user.getCompany().getId(), PageRequest.of(page, 100));
                 csvFileGenerator.writeWorkOrdersToCsv(
                         result.getContent(),
                         outputStreamWriter,
-                        Helper.getLocale(user),
-                        user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
+                        locale,
+                        csvSeparator,
+                        page == 0);
 
                 entityManager.clear();
                 page++;
             }
             while (result.hasNext());
+            outputStreamWriter.close();
             byte[] bytes = target.toByteArray();
             MultipartFile file = new MultipartFileImpl(bytes, "Work Orders.csv");
             String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
@@ -74,18 +79,22 @@ public class AsyncExportService {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
             int page = 0;
             Page<Asset> result;
+            String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
+            Locale locale = Helper.getLocale(user);
             do {
                 result = assetService.findByCompanyForExport(user.getCompany().getId(), PageRequest.of(page, 100));
                 csvFileGenerator.writeAssetsToCsv(
                         result.getContent(),
                         outputStreamWriter,
-                        Helper.getLocale(user),
-                        user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
+                        locale,
+                        csvSeparator,
+                        page == 0);
 
                 entityManager.clear();
                 page++;
             }
             while (result.hasNext());
+            outputStreamWriter.close();
             byte[] bytes = target.toByteArray();
             MultipartFile file = new MultipartFileImpl(bytes, "Assets.csv");
             String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
@@ -105,18 +114,22 @@ public class AsyncExportService {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
             int page = 0;
             Page<Location> result;
+            String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
+            Locale locale = Helper.getLocale(user);
             do {
                 result = locationService.findByCompanyForExport(user.getCompany().getId(), PageRequest.of(page, 100));
                 csvFileGenerator.writeLocationsToCsv(
                         result.getContent(),
                         outputStreamWriter,
-                        Helper.getLocale(user),
-                        user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
+                        locale,
+                        csvSeparator,
+                        page == 0);
 
                 entityManager.clear();
                 page++;
             }
             while (result.hasNext());
+            outputStreamWriter.close();
             byte[] bytes = target.toByteArray();
             MultipartFile file = new MultipartFileImpl(bytes, "Locations.csv");
             String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
@@ -136,18 +149,22 @@ public class AsyncExportService {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
             int page = 0;
             Page<Part> result;
+            String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
+            Locale locale = Helper.getLocale(user);
             do {
                 result = partService.findByCompanyForExport(user.getCompany().getId(), PageRequest.of(page, 100));
                 csvFileGenerator.writePartsToCsv(
                         result.getContent(),
                         outputStreamWriter,
-                        Helper.getLocale(user),
-                        user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
+                        locale,
+                        csvSeparator,
+                        page == 0);
 
                 entityManager.clear();
                 page++;
             }
             while (result.hasNext());
+            outputStreamWriter.close();
             byte[] bytes = target.toByteArray();
             MultipartFile file = new MultipartFileImpl(bytes, "Parts.csv");
             String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
@@ -167,18 +184,22 @@ public class AsyncExportService {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
             int page = 0;
             Page<Meter> result;
+            String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
+            Locale locale = Helper.getLocale(user);
             do {
                 result = meterService.findByCompanyForExport(user.getCompany().getId(), PageRequest.of(page, 100));
                 csvFileGenerator.writeMetersToCsv(
                         result.getContent(),
                         outputStreamWriter,
-                        Helper.getLocale(user),
-                        user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
+                        locale,
+                        csvSeparator,
+                        page == 0);
 
                 entityManager.clear();
                 page++;
             }
             while (result.hasNext());
+            outputStreamWriter.close();
             byte[] bytes = target.toByteArray();
             MultipartFile file = new MultipartFileImpl(bytes, "Meters.csv");
             String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
@@ -198,18 +219,22 @@ public class AsyncExportService {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
             int page = 0;
             Page<PreventiveMaintenance> result;
+            String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
+            Locale locale = Helper.getLocale(user);
             do {
                 result = preventiveMaintenanceService.findByCompanyForExport(user.getCompany().getId(), PageRequest.of(page, 100));
                 csvFileGenerator.writePreventiveMaintenancesToCsv(
                         result.getContent(),
                         outputStreamWriter,
-                        Helper.getLocale(user),
-                        user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator());
+                        locale,
+                        csvSeparator,
+                        page == 0);
 
                 entityManager.clear();
                 page++;
             }
             while (result.hasNext());
+            outputStreamWriter.close();
             byte[] bytes = target.toByteArray();
             MultipartFile file = new MultipartFileImpl(bytes, "Preventive Maintenances.csv");
             String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
