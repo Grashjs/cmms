@@ -591,6 +591,10 @@ public class WorkOrderService {
         return workOrderRepository.findTopNAssetsTimeCost(companyId, start, end, limit);
     }
 
+    public List<Object[]> findWOCostsByDateRange(Long companyId, Date start, Date end) {
+        return workOrderRepository.findWOCostsByDateRange(companyId, start, end);
+    }
+
     public Collection<WorkOrder> findByAssignedToUserAndCreatedAtBetween(Long id, Date start, Date end) {
         return workOrderRepository.findByAssignedToUserAndCreatedAtBetween(id, start, end);
     }
