@@ -49,26 +49,28 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<TimeCostByAsset>> getTimeCostByAsset(@Parameter(hidden = true) @CurrentUser User user,
-                                                                          @Parameter(description = "Date range for " +
-                                                                                  "filtering analytics") @RequestBody DateRange dateRange) {
+                                                                           @Parameter(description = "Date range for " +
+                                                                                   "filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
-            Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(),
-                    dateRange.getEnd());
-            Collection<TimeCostByAsset> result = new ArrayList<>();
-            assets.forEach(asset -> {
-                Collection<WorkOrder> completeWO = workOrderService.findByAssetAndCreatedAtBetween(asset.getId(),
-                                dateRange.getStart(), dateRange.getEnd())
-                        .stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
-                long time = workOrderService.getLaborCostAndTime(completeWO).getSecond();
-                double cost = workOrderService.getAllCost(completeWO,
-                        user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost());
-                result.add(TimeCostByAsset.builder()
-                        .time(time)
-                        .cost(cost)
-                        .name(asset.getName())
-                        .id(asset.getId())
-                        .build());
-            });
+            boolean includeLaborCost =
+                    user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost();
+            List<Object[]> rows = workOrderService.findTopNAssetsTimeCost(
+                    user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd(), 10);
+            Collection<TimeCostByAsset> result = rows.stream()
+                    .map(row -> {
+                        long time = ((Number) row[2]).longValue();
+                        double laborCost = ((Number) row[3]).doubleValue();
+                        double partCost = ((Number) row[4]).doubleValue();
+                        double additionalCost = ((Number) row[5]).doubleValue();
+                        double cost = partCost + additionalCost + (includeLaborCost ? laborCost : 0);
+                        return TimeCostByAsset.builder()
+                                .time(time)
+                                .cost(cost)
+                                .name((String) row[1])
+                                .id((Long) row[0])
+                                .build();
+                    })
+                    .collect(Collectors.toList());
             return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
