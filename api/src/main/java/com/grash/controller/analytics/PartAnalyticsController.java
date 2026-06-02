@@ -92,28 +92,19 @@ public class PartAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<PartConsumptionsByAsset>> getConsumptionByAsset(@Parameter(hidden = true) @CurrentUser User user,
-                                                                                     @Parameter(description = "Date " +
-                                                                                             "range for filtering " +
-                                                                                             "analytics") @RequestBody DateRange dateRange) {
+                                                                                      @Parameter(description = "Date " +
+                                                                                              "range for filtering " +
+                                                                                              "analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
-            Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(),
-                    dateRange.getEnd());
-            Collection<PartConsumptionsByAsset> result = new ArrayList<>();
-            for (Asset asset : assets) {
-                Collection<WorkOrder> workOrders = workOrderService.findByAssetAndCreatedAtBetween(asset.getId(),
-                        dateRange.getStart(), dateRange.getEnd());
-                List<PartConsumption> partConsumptions =
-                        partConsumptionService.findByWorkOrders(workOrders.stream().map(WorkOrder::getId).collect(Collectors.toList()));
-                double cost = partConsumptions.stream().mapToDouble(PartConsumption::getCost).sum();
-                result.add(PartConsumptionsByAsset.builder()
-                        .cost(cost)
-                        .name(asset.getName())
-                        .id(asset.getId())
-                        .build());
-            }
-            result =
-                    result.stream().filter(partConsumptionsByAsset -> partConsumptionsByAsset.getCost() != 0).collect(Collectors.toList());
-            return ResponseEntity.ok(result);
+            List<Object[]> rows = partConsumptionService.findTopNAssetsByPartConsumption(
+                    user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd(), 10);
+            return ResponseEntity.ok(rows.stream().map(row ->
+                PartConsumptionsByAsset.builder()
+                        .id((Long) row[0])
+                        .name((String) row[1])
+                        .cost(((Number) row[2]).doubleValue())
+                        .build()
+            ).collect(Collectors.toList()));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 

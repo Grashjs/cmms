@@ -54,4 +54,8 @@ public class PartConsumptionService {
     public List<PartConsumption> findByWorkOrders(List<Long> ids) {
         return partConsumptionRepository.findByWorkOrder_IdIn(ids);
     }
+
+    public List<Object[]> findTopNAssetsByPartConsumption(Long companyId, Date start, Date end, int limit) {
+        return partConsumptionRepository.findTopNAssetsByPartConsumption(companyId, start, end, limit);
+    }
 }
