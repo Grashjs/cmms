@@ -140,7 +140,7 @@ public class PartService {
             PartConsumption partConsumption =
                     Collections.max(partConsumptionService.findByWorkOrderAndPart(workOrder.getId(), part.getId()),
                             new AuditComparator());
-            if (deleteConsumption) {
+            if (deleteConsumption || quantity == 0d) {
                 partConsumptionService.delete(partConsumption.getId());
             } else {
                 partConsumption.setQuantity(partConsumption.getQuantity() + quantity);
