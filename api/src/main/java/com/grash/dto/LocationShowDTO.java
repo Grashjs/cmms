@@ -35,7 +35,7 @@ public class LocationShowDTO extends AuditShowDTO {
     private List<TeamMiniDTO> teams = new ArrayList<>();
 
     @Schema(description = "Parent location")
-    private Location parentLocation;
+    private LocationMiniDTO parentLocation;
 
     @Schema(description = "List of vendors associated with the location")
     private List<VendorMiniDTO> vendors = new ArrayList<>();

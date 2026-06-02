@@ -35,4 +35,5 @@ export interface LocationRow extends Location {
   childrenFetched?: boolean;
   hasChildren?: boolean;
   isLoadMoreRow?: boolean;
+  depth?: number;
 }
