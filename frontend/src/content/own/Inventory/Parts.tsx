@@ -39,7 +39,7 @@ import * as React from 'react';
 import { ChangeEvent, useContext, useEffect, useMemo, useState } from 'react';
 import * as Yup from 'yup';
 import Form from '../components/form';
-import { IField } from '../type';
+import { getCustomFieldsValues, IField } from '../type';
 import PartDetails from './PartDetails';
 import { useNavigate, useParams } from 'react-router-dom';
 import { isNumeric } from '../../../utils/validators';
@@ -639,7 +639,8 @@ const Parts = ({ setAction }: PropsType) => {
                   label: customer.name,
                   value: customer.id.toString()
                 };
-              })
+              }),
+              ...getCustomFieldsValues(currentPart)
             }}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
