@@ -90,6 +90,7 @@ export default function PartQuantitiesList({
                 href={`/app/inventory/parts/${partQuantity.part.id}`}
                 key={partQuantity.part.id}
                 variant="h6"
+                noWrap
               >
                 {partQuantity.part.name}
               </Link>

@@ -136,7 +136,7 @@ public class PartService {
         part.setQuantity(part.getQuantity() - quantity);
         if (part.getQuantity() < 0)
             throw new CustomException("There is not enough of this part", HttpStatus.NOT_ACCEPTABLE);
-        if (quantity < 0) {
+        if (quantity <= 0) {
             PartConsumption partConsumption =
                     Collections.max(partConsumptionService.findByWorkOrderAndPart(workOrder.getId(), part.getId()),
                             new AuditComparator());
