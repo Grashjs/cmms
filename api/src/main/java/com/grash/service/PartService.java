@@ -128,6 +128,7 @@ public class PartService {
                     HttpStatus.FORBIDDEN);
     }
 
+    @Transactional
     public void consumePart(Long id, double quantity, WorkOrder workOrder, Locale locale, boolean deleteConsumption) {
         Part part = findById(id).get();
         if (part.isNonStock()) return;
