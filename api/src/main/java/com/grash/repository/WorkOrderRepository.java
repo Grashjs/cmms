@@ -183,6 +183,25 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
                                           @Param("start") Date start,
                                           @Param("end") Date end);
 
+    @Query(value = """
+            SELECT a.id, a.name,
+              COALESCE(AVG(EXTRACT(DAY FROM (wo.completed_on - COALESCE(pr.created_at, wo.created_at)))), 0) AS avg_duration
+            FROM work_order wo
+            JOIN asset a ON wo.asset_id = a.id
+            LEFT JOIN request pr ON wo.parent_request_id = pr.id
+            WHERE wo.company_id = :companyId
+              AND wo.created_at BETWEEN :start AND :end
+              AND wo.status = 3
+              AND wo.completed_on IS NOT NULL
+            GROUP BY a.id, a.name
+            ORDER BY avg_duration DESC
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<Object[]> findTopNAssetsRepairTime(@Param("companyId") Long companyId,
+                                            @Param("start") Date start,
+                                            @Param("end") Date end,
+                                            @Param("limit") int limit);
+
     @Query("SELECT CASE WHEN COUNT(wo) > :threshold THEN true ELSE false END " +
             "FROM WorkOrder wo WHERE wo.company.id = :companyId AND wo.status!=com.grash.model.enums.Status" +
             ".COMPLETE")

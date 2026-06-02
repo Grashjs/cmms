@@ -73,6 +73,14 @@ public class AssetDowntimeService {
 
     }
 
+    public List<Object[]> findTopNAssetsByDowntime(Long companyId, Date start, Date end, int limit) {
+        return assetDowntimeRepository.findTopNAssetsByDowntime(companyId, start, end, limit);
+    }
+
+    public List<Object[]> findTopNAssetsForMTBF(Long companyId, Date start, Date end, int limit) {
+        return assetDowntimeRepository.findTopNAssetsForMTBF(companyId, start, end, limit);
+    }
+
     public long getDowntimesMeantime(Collection<AssetDowntime> downtimes) {
         long result = 0;
         if (downtimes.size() > 2) {

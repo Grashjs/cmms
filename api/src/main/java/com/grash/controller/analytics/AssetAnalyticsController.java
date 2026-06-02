@@ -108,25 +108,24 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<DowntimesByAsset>> getDowntimesByAsset(@Parameter(hidden = true) @CurrentUser User user,
-                                                                            @Parameter(description = "Date range for " +
-                                                                                    "filtering analytics") @RequestBody DateRange dateRange) {
+                                                                             @Parameter(description = "Date range for " +
+                                                                                     "filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
-            Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(),
-                    dateRange.getEnd());
-            return ResponseEntity.ok(assets.stream().map(asset -> {
-                Collection<AssetDowntime> downtimes =
-                        assetDowntimeService.findByAssetAndStartsOnBetween(asset.getId(), dateRange.getStart(),
-                                dateRange.getEnd());
-                long downtimesDuration =
-                        downtimes.stream().mapToLong(assetDowntime -> assetDowntime.getDateRangeDuration(dateRange)).sum();
-                long percent = downtimesDuration * 100 / getLivingTime(asset, dateRange);
+            List<Object[]> rows = assetDowntimeService.findTopNAssetsByDowntime(
+                    user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd(), 10);
+            Collection<DowntimesByAsset> result = rows.stream().map(row -> {
+                long cnt = ((Number) row[2]).longValue();
+                long totalDuration = ((Number) row[3]).longValue();
+                long livingTime = ((Number) row[4]).longValue();
+                long percent = livingTime == 0 ? 0 : totalDuration * 100 / livingTime;
                 return DowntimesByAsset.builder()
-                        .count(downtimes.size())
+                        .count((int) cnt)
                         .percent(percent)
-                        .id(asset.getId())
-                        .name(asset.getName())
+                        .id((Long) row[0])
+                        .name((String) row[1])
                         .build();
-            }).collect(Collectors.toList()));
+            }).collect(Collectors.toList());
+            return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
@@ -137,16 +136,20 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<MTBFByAsset>> getMTBFByAsset(@CurrentUser User user,
-                                                                  @Parameter(description = "Date range for filtering " +
-                                                                          "analytics") @RequestBody DateRange dateRange) {
+                                                                   @Parameter(description = "Date range for filtering " +
+                                                                           "analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
-            Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(),
-                    dateRange.getEnd());
-            return ResponseEntity.ok(assets.stream().map(asset -> MTBFByAsset.builder()
-                    .mtbf(assetService.getMTBF(asset.getId(), dateRange.getStart(), dateRange.getEnd()))
-                    .id(asset.getId())
-                    .name(asset.getName())
-                    .build()).collect(Collectors.toList()));
+            List<Object[]> rows = assetDowntimeService.findTopNAssetsForMTBF(
+                    user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd(), 10);
+            Collection<MTBFByAsset> result = rows.stream().map(row -> {
+                Long assetId = (Long) row[0];
+                return MTBFByAsset.builder()
+                        .mtbf(assetService.getMTBF(assetId, dateRange.getStart(), dateRange.getEnd()))
+                        .id(assetId)
+                        .name((String) row[1])
+                        .build();
+            }).collect(Collectors.toList());
+            return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
@@ -187,20 +190,19 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<RepairTimeByAsset>> getRepairTimeByAsset(@Parameter(hidden = true) @CurrentUser User user,
-                                                                              @Parameter(description = "Date range " +
-                                                                                      "for filtering analytics") @RequestBody DateRange dateRange) {
+                                                                               @Parameter(description = "Date range " +
+                                                                                       "for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
-            Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(),
-                    dateRange.getEnd());
-            return ResponseEntity.ok(assets.stream().map(asset -> {
-                Collection<WorkOrder> completeWO = workOrderService.findByAssetAndCreatedAtBetween(asset.getId(),
-                        dateRange.getStart(), dateRange.getEnd()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
-                return RepairTimeByAsset.builder()
-                        .id(asset.getId())
-                        .name(asset.getName())
-                        .duration(WorkOrder.getAverageAge(completeWO))
-                        .build();
-            }).collect(Collectors.toList()));
+            List<Object[]> rows = workOrderService.findTopNAssetsRepairTime(
+                    user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd(), 10);
+            Collection<RepairTimeByAsset> result = rows.stream().map(row ->
+                RepairTimeByAsset.builder()
+                        .id((Long) row[0])
+                        .name((String) row[1])
+                        .duration(((Number) row[2]).longValue())
+                        .build()
+            ).collect(Collectors.toList());
+            return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
