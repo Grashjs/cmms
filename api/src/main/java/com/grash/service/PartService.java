@@ -147,9 +147,6 @@ public class PartService {
                 partRepository.save(part);
                 partConsumptionService.save(partConsumption);
             }
-            // Dispatch webhook for part quantity change (returning parts)
-            dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(), workOrder,
-                    workOrder.getCompany());
         } else {
             String message = messageSource.getMessage("notification_part_low", new Object[]{part.getName()}, locale);
             if (part.getQuantity() < part.getMinQuantity() && licenseService.hasEntitlement(LicenseEntitlement.LOW_STOCK_ALERTS)) {
@@ -168,10 +165,9 @@ public class PartService {
             partConsumptionService.create(new PartConsumption(part, workOrder, quantity));
             partRepository.save(part);
 
-            // Dispatch webhook for part quantity change (consuming parts)
-            dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(), workOrder,
-                    workOrder.getCompany());
         }
+        dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(), workOrder,
+                workOrder.getCompany());
     }
 
     public Collection<Part> getAll() {
