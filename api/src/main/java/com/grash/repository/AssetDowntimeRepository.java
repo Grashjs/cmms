@@ -15,20 +15,24 @@ public interface AssetDowntimeRepository extends JpaRepository<AssetDowntime, Lo
     @Query("SELECT ad FROM AssetDowntime ad WHERE ad.company.id = :id AND ad.duration != 0")
     List<AssetDowntime> findByCompany_Id(@Param("id") Long id);
 
-    @Query("SELECT ad FROM AssetDowntime ad WHERE ad.startsOn BETWEEN :date1 AND :date2 AND ad.company.id = :id AND ad.duration != 0")
-    List<AssetDowntime> findByStartsOnBetweenAndCompany_Id(@Param("date1") Date date1, @Param("date2") Date date2, @Param("id") Long id);
+    @Query("SELECT ad FROM AssetDowntime ad WHERE ad.startsOn BETWEEN :date1 AND :date2 AND ad.company.id = :id AND " +
+            "ad.duration != 0")
+    List<AssetDowntime> findByStartsOnBetweenAndCompany_Id(@Param("date1") Date date1, @Param("date2") Date date2,
+                                                           @Param("id") Long id);
 
-    @Query("SELECT ad FROM AssetDowntime ad WHERE ad.asset.id = :id AND ad.startsOn BETWEEN :start AND :end AND ad.duration != 0")
-    List<AssetDowntime> findByAsset_IdAndStartsOnBetween(@Param("id") Long id, @Param("start") Date start, @Param("end") Date end);
+    @Query("SELECT ad FROM AssetDowntime ad WHERE ad.asset.id = :id AND ad.startsOn BETWEEN :start AND :end AND ad" +
+            ".duration != 0")
+    List<AssetDowntime> findByAsset_IdAndStartsOnBetween(@Param("id") Long id, @Param("start") Date start, @Param(
+            "end") Date end);
 
     @Query(value = """
             SELECT a.id, a.name,
               COUNT(ad.id) AS cnt,
               COALESCE(SUM(GREATEST(0, EXTRACT(EPOCH FROM (
-                LEAST(ad.starts_on + (ad.duration * INTERVAL '1 second'), :end::timestamp) -
-                GREATEST(ad.starts_on, :start::timestamp)
+                LEAST(ad.starts_on + (ad.duration * INTERVAL '1 second'), :end) -
+                GREATEST(ad.starts_on, :start)
               )))), 0) AS total_duration,
-              EXTRACT(EPOCH FROM (:end::timestamp - GREATEST(COALESCE(a.in_service_date, a.created_at), :start::timestamp))) AS living_time
+              EXTRACT(EPOCH FROM (:end - GREATEST(COALESCE(a.in_service_date, a.created_at), :start))) AS living_time
             FROM asset a
             LEFT JOIN asset_downtime ad ON ad.asset_id = a.id
               AND ad.starts_on <= :end
