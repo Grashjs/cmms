@@ -49,8 +49,8 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<TimeCostByAsset>> getTimeCostByAsset(@Parameter(hidden = true) @CurrentUser User user,
-                                                                           @Parameter(description = "Date range for " +
-                                                                                   "filtering analytics") @RequestBody DateRange dateRange) {
+                                                                          @Parameter(description = "Date range for " +
+                                                                                  "filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             boolean includeLaborCost =
                     user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost();
@@ -108,8 +108,8 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<DowntimesByAsset>> getDowntimesByAsset(@Parameter(hidden = true) @CurrentUser User user,
-                                                                             @Parameter(description = "Date range for " +
-                                                                                     "filtering analytics") @RequestBody DateRange dateRange) {
+                                                                            @Parameter(description = "Date range for " +
+                                                                                    "filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             List<Object[]> rows = assetDowntimeService.findTopNAssetsByDowntime(
                     user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd(), 10);
@@ -136,8 +136,8 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<MTBFByAsset>> getMTBFByAsset(@CurrentUser User user,
-                                                                   @Parameter(description = "Date range for filtering " +
-                                                                           "analytics") @RequestBody DateRange dateRange) {
+                                                                  @Parameter(description = "Date range for filtering " +
+                                                                          "analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             List<Object[]> rows = assetDowntimeService.findTopNAssetsForMTBF(
                     user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd(), 10);
@@ -190,17 +190,17 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<Collection<RepairTimeByAsset>> getRepairTimeByAsset(@Parameter(hidden = true) @CurrentUser User user,
-                                                                               @Parameter(description = "Date range " +
-                                                                                       "for filtering analytics") @RequestBody DateRange dateRange) {
+                                                                              @Parameter(description = "Date range " +
+                                                                                      "for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
             List<Object[]> rows = workOrderService.findTopNAssetsRepairTime(
                     user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd(), 10);
             Collection<RepairTimeByAsset> result = rows.stream().map(row ->
-                RepairTimeByAsset.builder()
-                        .id((Long) row[0])
-                        .name((String) row[1])
-                        .duration(((Number) row[2]).longValue())
-                        .build()
+                    RepairTimeByAsset.builder()
+                            .id((Long) row[0])
+                            .name((String) row[1])
+                            .duration(((Number) row[2]).longValue())
+                            .build()
             ).collect(Collectors.toList());
             return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
@@ -250,18 +250,21 @@ public class AssetAnalyticsController {
     )
     public ResponseEntity<AssetsCosts> getAssetsCosts(@Parameter(hidden = true) @CurrentUser User user,
                                                       @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
-        boolean includeLaborCost =
-                user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost();
         if (user.canSeeAnalytics()) {
-            Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(),
-                    dateRange.getEnd());
-            Collection<Asset> assetsWithAcquisitionCost =
-                    assets.stream().filter(asset -> asset.getAcquisitionCost() != null).collect(Collectors.toList());
-            double totalAcquisitionCost =
-                    assetsWithAcquisitionCost.stream().mapToDouble(Asset::getAcquisitionCost).sum();
-            double totalWOCosts = getCompleteWOCosts(assets, includeLaborCost, dateRange);
-            double rav = assetsWithAcquisitionCost.isEmpty() ? 0 : getCompleteWOCosts(assetsWithAcquisitionCost,
-                    includeLaborCost, dateRange) * 100 / totalAcquisitionCost;
+            boolean includeLaborCost =
+                    user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost();
+            Long companyId = user.getCompany().getId();
+            double totalAcquisitionCost = assetService.getTotalAcquisitionCost(companyId, dateRange.getEnd());
+            Object[] totals = workOrderService.findTotalWOCosts(companyId, dateRange.getStart(), dateRange.getEnd()).get(0);
+            double totalLabor = ((Number) totals[0]).doubleValue();
+            double totalPart = ((Number) totals[1]).doubleValue();
+            double totalAdd = ((Number) totals[2]).doubleValue();
+            double laborWithAcq = ((Number) totals[3]).doubleValue();
+            double partWithAcq = ((Number) totals[4]).doubleValue();
+            double addWithAcq = ((Number) totals[5]).doubleValue();
+            double totalWOCosts = totalPart + totalAdd + (includeLaborCost ? totalLabor : 0);
+            double ravWOCosts = partWithAcq + addWithAcq + (includeLaborCost ? laborWithAcq : 0);
+            double rav = totalAcquisitionCost == 0 ? 0 : ravWOCosts * 100 / totalAcquisitionCost;
             return ResponseEntity.ok(AssetsCosts.builder()
                     .totalWOCosts(totalWOCosts)
                     .totalAcquisitionCost(totalAcquisitionCost)
@@ -280,21 +283,21 @@ public class AssetAnalyticsController {
                                                                                              "range for filtering " +
                                                                                              "analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
-            Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(),
-                    dateRange.getEnd());
-            return ResponseEntity.ok(assets.stream().map(asset -> {
-                Collection<AssetDowntime> downtimes = assetDowntimeService.findByAsset(asset.getId()).stream()
-                        .filter(assetDowntime -> assetDowntime.getDuration() != 0).collect(Collectors.toList());
-                long downtimesDuration =
-                        downtimes.stream().mapToLong(assetDowntime -> assetDowntime.getDateRangeDuration(dateRange)).sum();
-                double totalWOCosts = getCompleteWOCosts(Collections.singleton(asset),
-                        user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost(),
-                        dateRange);
+            boolean includeLaborCost =
+                    user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost();
+            List<Object[]> rows = assetDowntimeService.findTopNAssetsDowntimeAndCosts(
+                    user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd(), 10);
+            return ResponseEntity.ok(rows.stream().map(row -> {
+                long duration = ((Number) row[2]).longValue();
+                double laborCost = ((Number) row[3]).doubleValue();
+                double partCost = ((Number) row[4]).doubleValue();
+                double additionalCost = ((Number) row[5]).doubleValue();
+                double cost = partCost + additionalCost + (includeLaborCost ? laborCost : 0);
                 return DowntimesAndCostsByAsset.builder()
-                        .id(asset.getId())
-                        .name(asset.getName())
-                        .duration(downtimesDuration)
-                        .workOrdersCosts(totalWOCosts)
+                        .id((Long) row[0])
+                        .name((String) row[1])
+                        .duration(duration)
+                        .workOrdersCosts(cost)
                         .build();
             }).collect(Collectors.toList()));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
@@ -348,7 +351,7 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)+'_'+#id"
     )
     public ResponseEntity<AssetOverview> getDateRangeOverview(@PathVariable Long id, @Parameter(description = "Date " +
-                                                                          "range for filtering analytics") @RequestBody DateRange dateRange
+                                                                      "range for filtering analytics") @RequestBody DateRange dateRange
             , @Parameter(hidden = true) @CurrentUser User user) {
         Asset savedAsset = assetService.findById(id).get();
         Date start = dateRange.getStart();
@@ -365,11 +368,6 @@ public class AssetAnalyticsController {
                     .build();
             return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-    }
-
-    private double getCompleteWOCosts(Collection<Asset> assets, boolean includeLaborCost, DateRange dateRange) {
-        return assets.stream().map(asset -> workOrderService.findByAssetAndCreatedAtBetween(asset.getId(),
-                dateRange.getStart(), dateRange.getEnd()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList())).mapToDouble(workOrder -> workOrderService.getAllCost(workOrder, includeLaborCost)).sum();
     }
 
     private long getLivingTime(Asset asset, DateRange dateRange) {

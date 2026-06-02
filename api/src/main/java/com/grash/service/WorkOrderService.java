@@ -599,6 +599,10 @@ public class WorkOrderService {
         return workOrderRepository.findTopNAssetsRepairTime(companyId, start, end, limit);
     }
 
+    public List<Object[]> findTotalWOCosts(Long companyId, Date start, Date end) {
+        return workOrderRepository.findTotalWOCosts(companyId, start, end);
+    }
+
     public Collection<WorkOrder> findByAssignedToUserAndCreatedAtBetween(Long id, Date start, Date end) {
         return workOrderRepository.findByAssignedToUserAndCreatedAtBetween(id, start, end);
     }
