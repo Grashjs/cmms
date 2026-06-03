@@ -64,6 +64,7 @@ public abstract class FileMapper {
         return dto;
     }
 
+    //TODO generate thumbnail on upload and run once a migration for existing images instead of generating on the fly
     private String getThumbnailUrl(File file) {
         StorageService storageService = storageServiceFactory.getStorageService();
 
