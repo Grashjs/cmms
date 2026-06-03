@@ -5,7 +5,7 @@ import { TeamMiniDTO } from './team';
 import { VendorMiniDTO } from './vendor';
 import Location from './location';
 import { CustomerMiniDTO } from './customer';
-import File, { FileMiniDTO } from './file';
+import File, { FileMiniDTO, FileThumbnailDTO } from './file';
 import Category from './category';
 import { CustomFieldValue } from './customField';
 
@@ -33,7 +33,7 @@ export type AssetStatus = typeof assetStatuses[number]['status'];
 export interface AssetDTO extends Audit {
   id: number;
   name: string;
-  image: File;
+  image: FileThumbnailDTO;
   location: Location;
   area: string;
   model: string;

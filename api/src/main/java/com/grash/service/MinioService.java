@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.annotation.PostConstruct;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -88,6 +89,25 @@ public class MinioService implements StorageService {
         }
     }
 
+    public String upload(byte[] data, String fileName, String folder) {
+        checkIfConfigured();
+        String filePath = folder + "/" + fileName;
+        try {
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(minioBucket)
+                            .object(filePath)
+                            .stream(inputStream, data.length, -1)
+                            .contentType("image/jpeg")
+                            .build()
+            );
+            return filePath;
+        } catch (MinioException | IOException | InvalidKeyException | NoSuchAlgorithmException e) {
+            throw new CustomException(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+    }
+
     public String generateSignedUrl(File file, long expirationMinutes) {
         return generateSignedUrl(file.getPath(), expirationMinutes);
     }
@@ -141,15 +161,7 @@ public class MinioService implements StorageService {
 
     public byte[] download(File file) {
         checkIfConfigured();
-        URI uri;
-        try {
-            uri = new URI(file.getPath());
-        } catch (URISyntaxException e) {
-            throw new CustomException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        String path = uri.getPath();
-        String filePath = "company " + file.getCompany().getId() + "/" + path.substring(path.lastIndexOf('/') + 1);
-        return download(filePath);
+        return download(file.getPath());
     }
 
     private void checkIfConfigured() {

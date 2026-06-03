@@ -1,4 +1,4 @@
-import { FileMiniDTO } from './file';
+import { FileMiniDTO, FileThumbnailDTO } from './file';
 
 export interface UserInvitationMiniDTO {
   email: string;
@@ -24,7 +24,7 @@ export interface UserMiniDTO {
   firstName: string;
   lastName: string;
   email: string;
-  image: FileMiniDTO;
+  image: FileThumbnailDTO;
 }
 
 export const users: User[] = [

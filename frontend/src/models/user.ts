@@ -1,6 +1,6 @@
 import { Audit } from './owns/audit';
 import { Role } from './owns/role';
-import File from './owns/file';
+import File, { FileThumbnailDTO } from './owns/file';
 import { UiConfiguration } from './owns/uiConfiguration';
 
 export type UserRole = 'admin' | 'customer' | 'subscriber';
@@ -32,7 +32,7 @@ export interface OwnUser extends Audit {
   jobTitle: string;
   role: Role;
   companyId: number;
-  image: File;
+  image: FileThumbnailDTO;
   lastLogin: string;
   enabled: boolean;
   paddleUserId: string;
@@ -40,7 +40,7 @@ export interface OwnUser extends Audit {
 export interface UserMiniDTO {
   firstName: string;
   lastName: string;
-  image: File;
+  image: FileThumbnailDTO;
   id: number;
 }
 

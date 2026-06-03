@@ -77,6 +77,21 @@ public class GCPService implements StorageService {
         }
     }
 
+    public String upload(byte[] data, String fileName, String folder) {
+        checkIfConfigured();
+        String filePath = folder + "/" + fileName;
+        try {
+            storage.create(
+                    BlobInfo.newBuilder(gcpBucketName, filePath).build(),
+                    data,
+                    Storage.BlobTargetOption.predefinedAcl(Storage.PredefinedAcl.PRIVATE)
+            );
+            return filePath;
+        } catch (StorageException e) {
+            throw new CustomException(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+    }
+
     public byte[] download(String filePath) {
         checkIfConfigured();
         Blob blob = storage.get(BlobId.of(gcpBucketName, filePath));

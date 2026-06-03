@@ -18,8 +18,9 @@ public abstract class UserMapper {
 
     @Mappings({@Mapping(source = "company.id", target = "companyId"),
             @Mapping(source = "company.companySettings.id", target = "companySettingsId"),
-            @Mapping(source = "userSettings.id", target = "userSettingsId")})
-    @Mapping(source = "company.companySettings.uiConfiguration", target = "uiConfiguration")
+            @Mapping(source = "userSettings.id", target = "userSettingsId"),
+            @Mapping(source = "company.companySettings.uiConfiguration", target = "uiConfiguration"),
+            @Mapping(target = "image", source = "image", qualifiedByName = "toThumbnailDto")})
     public abstract UserResponseDTO toResponseDto(User model);
 
     @AfterMapping

@@ -1,6 +1,5 @@
 package com.grash.mapper;
 
-import com.grash.dto.FileShowDTO;
 import com.grash.dto.MeterMiniDTO;
 import com.grash.dto.MeterPatchDTO;
 import com.grash.dto.MeterPostDTO;
@@ -13,6 +12,7 @@ import com.grash.utils.Helper;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import java.util.Collection;
@@ -25,6 +25,7 @@ public interface MeterMapper {
 
     MeterPatchDTO toPatchDto(Meter model);
 
+    @Mapping(target = "image", source = "image", qualifiedByName = "toThumbnailDto")
     MeterShowDTO toShowDto(Meter model, @Context ReadingService readingService);
 
     @AfterMapping

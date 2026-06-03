@@ -49,7 +49,7 @@ public class PartShowDTO extends AuditShowDTO {
     private LocationMiniDTO location;
 
     @Schema(description = "Image file")
-    private FileShowDTO image;
+    private FileThumbnailDTO image;
 
     @Schema(description = "List of users assigned to the part")
     private Collection<UserMiniDTO> assignedTo;

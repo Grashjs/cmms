@@ -211,4 +211,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_05_26_1779804618_autoGenerateAssetBarcode.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_06_03_00000000001_add_thumbnail_path.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>
