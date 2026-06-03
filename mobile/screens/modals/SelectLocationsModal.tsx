@@ -1,15 +1,9 @@
-import {
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity
-} from 'react-native';
+import { FlatList, Pressable, StyleSheet } from 'react-native';
 import { View } from '../../components/Themed';
 import { RootStackScreenProps } from '../../types';
 import { useTranslation } from 'react-i18next';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from '../../store';
 import { LocationMiniDTO } from '../../models/location';
 import { getLocationsMini } from '../../slices/location';
@@ -23,6 +17,66 @@ import {
 } from 'react-native-paper';
 import { useAppTheme } from '../../custom-theme';
 
+const ITEM_HEIGHT = 80;
+
+const LocationItem = React.memo(
+  ({
+    location,
+    isSelected,
+    multiple,
+    onToggle
+  }: {
+    location: LocationMiniDTO;
+    isSelected: boolean;
+    multiple: boolean;
+    onToggle: (id: number) => void;
+  }) => {
+    const theme = useAppTheme();
+    const handleToggle = useCallback(
+      () => onToggle(location.id),
+      [location.id, onToggle]
+    );
+
+    return (
+      <Pressable onPress={handleToggle}>
+        <View style={styles.card}>
+          <View style={styles.cardRow}>
+            <Avatar.Icon
+              style={{ backgroundColor: theme.colors.background }}
+              color={'white'}
+              icon={'map-marker-outline'}
+              size={50}
+            />
+            <View style={{ flex: 1 }}>
+              <View style={styles.cardHeader}>
+                <View style={{ flex: 1 }}>
+                  <Text
+                    numberOfLines={2}
+                    variant="titleMedium"
+                    style={styles.cardTitle}
+                  >
+                    {location.name}
+                  </Text>
+                  <Text
+                    variant={'bodySmall'}
+                    style={{ color: 'grey' }}
+                  >{`#${location.customId}`}</Text>
+                </View>
+                {multiple && (
+                  <Checkbox
+                    status={isSelected ? 'checked' : 'unchecked'}
+                    onPress={handleToggle}
+                  />
+                )}
+              </View>
+            </View>
+          </View>
+        </View>
+      </Pressable>
+    );
+  }
+);
+
 export default function SelectLocationsModal({
   navigation,
   route
@@ -32,21 +86,16 @@ export default function SelectLocationsModal({
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { locationsMini, loadingGet } = useSelector((state) => state.locations);
-  const [selectedLocations, setSelectedLocations] = useState<LocationMiniDTO[]>(
-    []
-  );
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  useEffect(() => {
-    if (locationsMini.length) {
-      const newSelectedLocations = selectedIds
-        .map((id) => {
-          return locationsMini.find((location) => location.id == id);
-        })
-        .filter((location) => !!location);
-      setSelectedLocations(newSelectedLocations);
-    }
+  const selectedLocations = useMemo(() => {
+    if (!locationsMini.length) return [];
+    const locationMap = new Map(locationsMini.map((l) => [l.id, l]));
+    return selectedIds.flatMap((id) => {
+      const location = locationMap.get(id);
+      return location ? [location] : [];
+    });
   }, [selectedIds, locationsMini]);
 
   useEffect(() => {
@@ -74,97 +123,53 @@ export default function SelectLocationsModal({
     dispatch(getLocationsMini());
   }, []);
 
-  const onSelect = (ids: number[]) => {
-    setSelectedIds(Array.from(new Set([...selectedIds, ...ids])));
-    if (!multiple) {
-      onChange([locationsMini.find((location) => location.id === ids[0])]);
-      navigation.goBack();
-    }
-  };
-  const onUnSelect = (ids: number[]) => {
-    const newSelectedIds = selectedIds.filter((id) => !ids.includes(id));
-    setSelectedIds(newSelectedIds);
-  };
-  const toggle = (id: number) => {
-    if (selectedIds.includes(id)) {
-      onUnSelect([id]);
-    } else {
-      onSelect([id]);
-    }
-  };
-
-  return (
-    <View
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
-    >
-      <Searchbar
-        placeholder={t('search')}
-        onChangeText={setSearchQuery}
-        value={searchQuery}
-        style={{ backgroundColor: theme.colors.background }}
-      />
-      <ScrollView
-        refreshControl={
-          <RefreshControl
-            refreshing={loadingGet}
-            onRefresh={() => dispatch(getLocationsMini())}
-          />
+  const toggle = useCallback(
+    (id: number) => {
+      if (!multiple) {
+        const location = locationsMini.find((l) => l.id === id);
+        if (location) {
+          onChange([location]);
         }
-        style={{
-          flex: 1,
-          backgroundColor: theme.colors.background
-        }}
-      >
-        {locationsMini
-          .filter((mini) =>
-            mini.name.toLowerCase().includes(searchQuery.toLowerCase().trim())
-          )
-          .map((location) => (
-            <TouchableOpacity
-              onPress={() => {
-                toggle(location.id);
-              }}
-              key={location.id}
-            >
-              <View style={styles.card}>
-                <View style={styles.cardRow}>
-                  <Avatar.Icon
-                    style={{
-                      backgroundColor: theme.colors.background
-                    }}
-                    color={'white'}
-                    icon={'map-marker-outline'}
-                    size={50}
-                  />
-                  <View style={{ flex: 1 }}>
-                    <View style={styles.cardHeader}>
-                      <View style={{ flex: 1 }}>
-                        <Text variant="titleMedium" style={styles.cardTitle}>
-                          {location.name}
-                        </Text>
-                        <Text
-                          variant={'bodySmall'}
-                          style={{ color: 'grey' }}
-                        >{`#${location.customId}`}</Text>
-                      </View>
-                      {multiple && (
-                        <Checkbox
-                          status={
-                            selectedIds.includes(location.id)
-                              ? 'checked'
-                              : 'unchecked'
-                          }
-                          onPress={() => {
-                            toggle(location.id);
-                          }}
-                        />
-                      )}
-                    </View>
-                  </View>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))}
+        navigation.goBack();
+        return;
+      }
+      setSelectedIds((prev) =>
+        prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      );
+    },
+    [multiple, locationsMini, onChange, navigation]
+  );
+
+  const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
+
+  const filteredLocations = useMemo(
+    () =>
+      locationsMini.filter((location) =>
+        location.name.toLowerCase().includes(searchQuery.toLowerCase().trim())
+      ),
+    [locationsMini, searchQuery]
+  );
+
+  const renderItem = useCallback(
+    ({ item }: { item: LocationMiniDTO }) => (
+      <LocationItem
+        location={item}
+        isSelected={selectedSet.has(item.id)}
+        multiple={multiple}
+        onToggle={toggle}
+      />
+    ),
+    [selectedSet, multiple, toggle]
+  );
+
+  const keyExtractor = useCallback(
+    (item: LocationMiniDTO) => String(item.id),
+    []
+  );
+
+  const ListFooterComponent = useCallback(
+    () => (
+      <>
         <Divider />
         <Button
           icon={'plus-circle'}
@@ -184,19 +189,49 @@ export default function SelectLocationsModal({
         >
           {t('create_location')}
         </Button>
-      </ScrollView>
+      </>
+    ),
+    [t, navigation, multiple, onChange]
+  );
+
+  return (
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
+      <Searchbar
+        placeholder={t('search')}
+        onChangeText={setSearchQuery}
+        value={searchQuery}
+        style={{ backgroundColor: theme.colors.background }}
+      />
+      <FlatList
+        data={filteredLocations}
+        keyExtractor={keyExtractor}
+        renderItem={renderItem}
+        refreshing={loadingGet}
+        onRefresh={() => dispatch(getLocationsMini())}
+        ListFooterComponent={ListFooterComponent}
+        initialNumToRender={20}
+        maxToRenderPerBatch={20}
+        windowSize={10}
+        removeClippedSubviews={true}
+        getItemLayout={(_data, index) => ({
+          length: ITEM_HEIGHT,
+          offset: ITEM_HEIGHT * index,
+          index
+        })}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  },
+  container: { flex: 1 },
   card: {
     backgroundColor: 'white',
     marginBottom: 1,
-    padding: 10
+    padding: 10,
+    height: ITEM_HEIGHT
   },
   cardRow: {
     display: 'flex',

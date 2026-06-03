@@ -428,6 +428,7 @@ export default function SelectParts({
         />
       )}
       <TabView
+        style={{ flex: 1 }}
         renderTabBar={renderTabBar}
         navigationState={{ index: tabIndex, routes: tabs }}
         renderScene={renderScene}
@@ -435,6 +436,20 @@ export default function SelectParts({
         initialLayout={{ width: layout.width }}
         lazy
       />
+      <Button
+        icon={'plus-circle'}
+        style={{ margin: 20 }}
+        mode={'contained'}
+        onPress={() => {
+          navigation.navigate('AddPart', {
+            onSuccess: (newPart) => {
+              setSelectedIds((prev) => [...prev, newPart.id]);
+            }
+          });
+        }}
+      >
+        {t('create_part')}
+      </Button>
     </View>
   );
 }

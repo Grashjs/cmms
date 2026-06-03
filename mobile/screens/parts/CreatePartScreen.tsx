@@ -34,8 +34,9 @@ export default function CreatePartScreen({
   const dispatch = useDispatch();
   const { customFields } = useSelector((state) => state.customFields);
 
-  const onCreationSuccess = () => {
+  const onCreationSuccess = (createdPart) => {
     showSnackBar(t('part_create_success'), 'success');
+    route.params?.onSuccess?.(createdPart);
     navigation.goBack();
   };
   const onCreationFailure = (err) =>
@@ -77,8 +78,8 @@ export default function CreatePartScreen({
               image: imageAndFiles.image,
               files: imageAndFiles.files
             };
-            await dispatch(addPart(formattedValues));
-            onCreationSuccess();
+            const createdPart = await dispatch(addPart(formattedValues));
+            onCreationSuccess(createdPart);
           } catch (err) {
             onCreationFailure(err);
             throw err;

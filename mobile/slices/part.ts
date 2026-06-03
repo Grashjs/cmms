@@ -71,6 +71,7 @@ const slice = createSlice({
     addPart(state: PartState, action: PayloadAction<{ part: Part }>) {
       const { part } = action.payload;
       state.parts.content = [...state.parts.content, part];
+      state.partsMini = [...state.partsMini, part];
     },
     deletePart(state: PartState, action: PayloadAction<{ id: number }>) {
       const { id } = action.payload;
@@ -143,6 +144,7 @@ export const addPart =
   async (dispatch) => {
     const partResponse = await api.post<Part>(basePath, part);
     dispatch(slice.actions.addPart({ part: partResponse }));
+    return partResponse;
   };
 export const deletePart =
   (id: number): AppThunk =>
