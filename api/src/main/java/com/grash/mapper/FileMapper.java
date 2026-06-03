@@ -60,7 +60,7 @@ public abstract class FileMapper {
         dto.setId(model.getId());
         dto.setName(model.getName());
         dto.setUrl(getSignedUrl(model));
-        dto.setThumbnailUrl(getThumbnailUrl(model));
+        dto.setThumbnailUrl(dto.getUrl());
         return dto;
     }
 
