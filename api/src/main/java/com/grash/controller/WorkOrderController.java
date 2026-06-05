@@ -15,7 +15,6 @@ import com.grash.model.*;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.*;
 import com.grash.model.enums.workflow.WFMainCondition;
-import com.grash.model.UserAppStats;
 import com.grash.service.*;
 import com.grash.utils.Helper;
 import com.grash.utils.MultipartFileImpl;
@@ -323,7 +322,7 @@ public class WorkOrderController {
                 workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, patchedWorkOrder));
 
                 if ("ios".equalsIgnoreCase(platform) || "android".equalsIgnoreCase(platform)) {
-                    reviewEligibilityService.incrementWorkOrder(reviewEligibilityService.getOrCreate(user));
+                    reviewEligibilityService.incrementWorkOrder(user);
                 }
             }
             if (user.getCompany().getCompanySettings().getGeneralPreferences().isWoUpdateForRequesters()

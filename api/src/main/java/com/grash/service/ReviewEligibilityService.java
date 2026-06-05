@@ -28,7 +28,8 @@ public class ReviewEligibilityService {
         return stats;
     }
 
-    public boolean isEligible(UserAppStats stats) {
+    public boolean isEligible(User user) {
+        UserAppStats stats = user.getAppStats();
         if (stats == null) return false;
         if (stats.isHasRatedApp()) return false;
         if (stats.getCompletedWorkOrders() < 3) return false;
@@ -44,34 +45,52 @@ public class ReviewEligibilityService {
         return true;
     }
 
-    public UserAppStats markReviewShown(UserAppStats stats) {
+    public UserAppStats markReviewShown(User user) {
+        UserAppStats stats = getOrCreate(user);
         stats.setReviewPromptShownCount(stats.getReviewPromptShownCount() + 1);
         stats.setLastReviewPromptAt(new Date());
-        return userAppStatsRepository.save(stats);
+        stats = userAppStatsRepository.save(stats);
+        cacheService.putUserInCache(user);
+        return stats;
     }
 
-    public UserAppStats markReviewClicked(UserAppStats stats) {
+    public UserAppStats markReviewClicked(User user) {
+        UserAppStats stats = getOrCreate(user);
         stats.setReviewClickCount(stats.getReviewClickCount() + 1);
-        return userAppStatsRepository.save(stats);
+        stats = userAppStatsRepository.save(stats);
+        cacheService.putUserInCache(user);
+        return stats;
     }
 
-    public UserAppStats markRated(UserAppStats stats) {
+    public UserAppStats markRated(User user) {
+        UserAppStats stats = getOrCreate(user);
         stats.setHasRatedApp(true);
-        return userAppStatsRepository.save(stats);
+        stats = userAppStatsRepository.save(stats);
+        cacheService.putUserInCache(user);
+        return stats;
     }
 
-    public UserAppStats incrementSession(UserAppStats stats) {
+    public UserAppStats incrementSession(User user) {
+        UserAppStats stats = getOrCreate(user);
         stats.setAppSessions(stats.getAppSessions() + 1);
-        return userAppStatsRepository.save(stats);
+        stats = userAppStatsRepository.save(stats);
+        cacheService.putUserInCache(user);
+        return stats;
     }
 
-    public UserAppStats incrementWorkOrder(UserAppStats stats) {
+    public UserAppStats incrementWorkOrder(User user) {
+        UserAppStats stats = getOrCreate(user);
         stats.setCompletedWorkOrders(stats.getCompletedWorkOrders() + 1);
-        return userAppStatsRepository.save(stats);
+        stats = userAppStatsRepository.save(stats);
+        cacheService.putUserInCache(user);
+        return stats;
     }
 
-    public UserAppStats setFeedback(UserAppStats stats, String feedback) {
+    public UserAppStats setFeedback(User user, String feedback) {
+        UserAppStats stats = getOrCreate(user);
         stats.setFeedback(feedback);
-        return userAppStatsRepository.save(stats);
+        stats = userAppStatsRepository.save(stats);
+        cacheService.putUserInCache(user);
+        return stats;
     }
 }
