@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import useAuth from './useAuth';
 import api from '../utils/api';
-import InAppReview from 'react-native-in-app-review';
+import * as StoreReview from 'expo-store-review';
 import { navigate } from '../navigation/RootNavigation';
 
 export function useReviewPrompt() {
@@ -9,20 +9,22 @@ export function useReviewPrompt() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (reviewEligible && InAppReview.isAvailable()) {
-      setVisible(true);
-      api.post('reviews/mark-shown', {}).catch(() => {});
-    }
+    const checkAvailability = async () => {
+      const available = await StoreReview.isAvailableAsync();
+      if (true || (reviewEligible && available)) {
+        setVisible(true);
+        await api.post('reviews/mark-shown', {});
+      }
+    };
+    checkAvailability();
   }, [reviewEligible]);
 
   const handleYes = async () => {
     setVisible(false);
     try {
       await api.post('reviews/clicked', {});
-      const rated = await InAppReview.RequestInAppReview();
-      if (rated) {
-        api.post('reviews/rated', {}).catch(() => {});
-      }
+      await StoreReview.requestReview();
+      await api.post('reviews/rated', {});
     } catch (e) {
       console.error('Failed to process review response', e);
     }
