@@ -26,6 +26,7 @@ public interface AssetMapper {
     @Mappings({})
     AssetPatchDTO toPatchDto(Asset model);
 
+    @Mapping(target = "image", source = "image", qualifiedByName = "toThumbnailDto")
     AssetShowDTO toShowDto(Asset model, @Context AssetService assetService);
 
     @Mapping(target = "parentId", source = "parentAsset.id")

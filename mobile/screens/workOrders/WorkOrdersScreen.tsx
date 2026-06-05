@@ -310,10 +310,11 @@ export default function WorkOrdersScreen({
                       )}
                       <View style={{ flex: 1 }}>
                         <View style={styles.cardHeader}>
-                          <View>
+                          <View style={{ flex: 1, marginRight: 8 }}>
                             <Text
                               variant="titleMedium"
                               style={styles.cardTitle}
+                              numberOfLines={2}
                             >
                               {workOrder.title}
                             </Text>

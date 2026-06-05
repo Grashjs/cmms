@@ -3,7 +3,6 @@ package com.grash.dto;
 import com.grash.dto.cutomField.CustomFieldValueShowDTO;
 import com.grash.model.AssetCategory;
 import com.grash.model.Deprecation;
-import com.grash.dto.FileShowDTO;
 import com.grash.model.enums.AssetStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -28,7 +27,7 @@ public class AssetShowDTO extends AuditShowDTO {
     private String description;
 
     @Schema(description = "Image file associated with the asset")
-    private FileShowDTO image;
+    private FileThumbnailDTO image;
 
     @Schema(description = "Location information")
     private LocationMiniDTO location;

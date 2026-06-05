@@ -217,7 +217,7 @@ public class PreventiveMaintenanceService {
                 // Convert fire times to calendar events
                 result.addAll(fireTimes.stream()
                         .map(date -> new CalendarEvent<>("PREVENTIVE_MAINTENANCE", preventiveMaintenance, date))
-                        .collect(Collectors.toList()));
+                        .toList());
 
             } catch (SchedulerException e) {
                 log.error("Error getting trigger fire times for schedule {}", schedule.getId(), e);

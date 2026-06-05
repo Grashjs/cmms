@@ -314,6 +314,7 @@ export default function RequestsScreen({
                             <Text
                               variant="titleMedium"
                               style={styles.cardTitle}
+                              numberOfLines={2}
                             >
                               {request.title}
                             </Text>

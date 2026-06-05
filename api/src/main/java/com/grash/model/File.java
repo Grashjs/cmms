@@ -34,6 +34,9 @@ public class File extends CompanyAudit {
     @Schema(description = "Indicates whether the file is hidden")
     private boolean hidden = false;
 
+    @Schema(description = "Storage path of the thumbnail image")
+    private String thumbnailPath;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore

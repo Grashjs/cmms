@@ -58,5 +58,7 @@ public interface AssetRepository extends JpaRepository<Asset, Long>, JpaSpecific
             "FROM Asset a WHERE a.company.id = :companyId")
     boolean hasMoreThan(@Param("companyId") Long companyId, @Param("threshold") Long threshold);
 
+    @Query(value = "SELECT COALESCE(SUM(a.acquisition_cost), 0) FROM asset a WHERE a.company_id = :companyId AND a.created_at < :end AND a.acquisition_cost IS NOT NULL", nativeQuery = true)
+    double getTotalAcquisitionCost(@Param("companyId") Long companyId, @Param("end") Date end);
 }
 

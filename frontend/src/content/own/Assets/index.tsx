@@ -476,7 +476,7 @@ function Assets() {
         uiConfigKey: 'locations'
       }
     }),
-    columnHelper.accessor('image', {
+    columnHelper.accessor('image.thumbnailUrl', {
       id: 'image',
       header: () => t('image'),
       cell: (info) =>
@@ -484,7 +484,7 @@ function Assets() {
           <img
             width="100%"
             height="100%"
-            src={info.getValue().url}
+            src={info.getValue()}
             alt={info.row.original.name}
           />
         ) : null,

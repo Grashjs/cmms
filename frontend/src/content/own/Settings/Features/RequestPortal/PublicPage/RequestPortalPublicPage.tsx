@@ -443,7 +443,7 @@ export default function RequestPortalPublicPage() {
             <Typography mt={1} fontSize={32} fontWeight={'bold'}>
               {portal.title}
             </Typography>
-            <Typography variant={'subtitle1'}>
+            <Typography sx={{ whiteSpace: 'pre-line' }} variant={'subtitle1'}>
               {portal.welcomeMessage}
             </Typography>
           </Grid>

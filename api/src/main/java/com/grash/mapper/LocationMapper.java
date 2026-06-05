@@ -1,7 +1,6 @@
 package com.grash.mapper;
 
 import com.grash.dto.AssetShowDTO;
-import com.grash.dto.FileShowDTO;
 import com.grash.dto.LocationMiniDTO;
 import com.grash.dto.LocationPatchDTO;
 import com.grash.dto.LocationPostDTO;
@@ -20,6 +19,7 @@ public interface LocationMapper {
     @Mappings({})
     LocationPatchDTO toPatchDto(Location model);
 
+    @Mapping(target = "image", source = "image", qualifiedByName = "toThumbnailDto")
     LocationShowDTO toShowDto(Location model, @Context LocationService locationService);
 
     @Mapping(source = "parentLocation.id", target = "parentId")

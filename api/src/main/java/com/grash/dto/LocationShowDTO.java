@@ -2,7 +2,6 @@ package com.grash.dto;
 
 import com.grash.dto.cutomField.CustomFieldValueShowDTO;
 import com.grash.model.Company;
-import com.grash.dto.FileShowDTO;
 import com.grash.model.Location;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -35,7 +34,7 @@ public class LocationShowDTO extends AuditShowDTO {
     private List<TeamMiniDTO> teams = new ArrayList<>();
 
     @Schema(description = "Parent location")
-    private Location parentLocation;
+    private LocationMiniDTO parentLocation;
 
     @Schema(description = "List of vendors associated with the location")
     private List<VendorMiniDTO> vendors = new ArrayList<>();
@@ -47,7 +46,7 @@ public class LocationShowDTO extends AuditShowDTO {
     private List<UserMiniDTO> workers = new ArrayList<>();
 
     @Schema(description = "Image file associated with the location")
-    private FileShowDTO image;
+    private FileThumbnailDTO image;
 
     @Schema(description = "List of files attached to the location")
     private List<FileMiniDTO> files;

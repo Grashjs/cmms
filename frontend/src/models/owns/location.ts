@@ -3,7 +3,7 @@ import { Audit } from './audit';
 import { CustomerMiniDTO } from './customer';
 import { VendorMiniDTO } from './vendor';
 import { TeamMiniDTO } from './team';
-import { FileMiniDTO } from './file';
+import { FileMiniDTO, FileThumbnailDTO } from './file';
 import { CustomFieldValue } from './customField';
 
 export default interface Location extends Audit {
@@ -11,7 +11,7 @@ export default interface Location extends Audit {
   name: string;
   address: string;
   longitude: number;
-  image: FileMiniDTO;
+  image: FileThumbnailDTO;
   files: FileMiniDTO[];
   latitude: number;
   parentLocation: LocationMiniDTO | null;
@@ -35,4 +35,5 @@ export interface LocationRow extends Location {
   childrenFetched?: boolean;
   hasChildren?: boolean;
   isLoadMoreRow?: boolean;
+  depth?: number;
 }

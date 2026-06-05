@@ -205,10 +205,11 @@ public class PartQuantityController {
         Optional<PartQuantity> optionalPartQuantity = partQuantityService.findById(id);
         if (optionalPartQuantity.isPresent()) {
             PartQuantity savedPartQuantity = optionalPartQuantity.get();
+            boolean isWorkOrderPartQuantity = savedPartQuantity.getWorkOrder() != null;
             if
             (user.getId().equals(savedPartQuantity.getCreatedBy())
-                    || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
-                if (savedPartQuantity.getWorkOrder() != null) {
+                    || (isWorkOrderPartQuantity && savedPartQuantity.getWorkOrder().canBeEditedBy(user)) || user.getRole().getEditOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS)) {
+                if (isWorkOrderPartQuantity) {
                     partService.consumePart(savedPartQuantity.getPart().getId(),
                             -savedPartQuantity.getQuantity(),
                             savedPartQuantity.getWorkOrder(), Helper.getLocale(user), true);

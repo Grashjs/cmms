@@ -13,7 +13,7 @@ public class FloorPlanShowDTO {
     private String name;
 
     @Schema(description = "Floor plan image")
-    private FileShowDTO image;
+    private FileThumbnailDTO image;
 
     @Schema(description = "Area size")
     private long area;

@@ -254,23 +254,16 @@ public class WOAnalyticsController {
                                                                                 @Parameter(description = "Date range " +
                                                                                         "for filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
-            Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(),
-                    dateRange.getEnd());
-            Collection<IncompleteWOByAsset> result = new ArrayList<>();
-            assets.forEach(asset -> {
-                Collection<WorkOrder> incompleteWO = workOrderService.findByAssetAndCreatedAtBetween(asset.getId(),
-                                dateRange.getStart(), dateRange.getEnd())
-                        .stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
-                List<Long> ages = incompleteWO.stream().map(workOrder -> Helper.getDateDiff(workOrder.getCreatedAt(),
-                        new Date(), TimeUnit.DAYS)).collect(Collectors.toList());
-                int count = incompleteWO.size();
-                result.add(IncompleteWOByAsset.builder()
-                        .count(count)
-                        .averageAge(count == 0 ? 0 : ages.stream().mapToLong(value -> value).sum() / count)
-                        .name(asset.getName())
-                        .id(asset.getId())
-                        .build());
-            });
+            List<Object[]> rows = workOrderService.findTopNAssetsByIncompleteWO(
+                    user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd(), 10);
+            Collection<IncompleteWOByAsset> result = rows.stream()
+                    .map(row -> IncompleteWOByAsset.builder()
+                            .id((Long) row[0])
+                            .name((String) row[1])
+                            .count(((Number) row[2]).intValue())
+                            .averageAge(((Number) row[3]).longValue())
+                            .build())
+                    .collect(Collectors.toList());
             return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
@@ -532,31 +525,43 @@ public class WOAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
     )
     public ResponseEntity<List<WOCostsByDate>> getCompleteCostsByDate(@Parameter(hidden = true) @CurrentUser User user,
-                                                                      @Parameter(description = "Date range for " +
-                                                                              "filtering analytics") @RequestBody DateRange dateRange) {
+                                                                       @Parameter(description = "Date range for " +
+                                                                               "filtering analytics") @RequestBody DateRange dateRange) {
         if (user.canSeeAnalytics()) {
+            List<Object[]> rows = workOrderService.findWOCostsByDateRange(
+                    user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd());
+
             LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
             List<WOCostsByDate> result = new ArrayList<>();
             LocalDate currentDate = Helper.dateToLocalDate(dateRange.getStart());
-            LocalDate endDateExclusive = Helper.dateToLocalDate(dateRange.getEnd()).plusDays(1); // Include end date
-            // in the range
+            LocalDate endDateExclusive = Helper.dateToLocalDate(dateRange.getEnd()).plusDays(1);
             long totalDaysInRange = ChronoUnit.DAYS.between(Helper.dateToLocalDate(dateRange.getStart()),
                     endDateExclusive);
             int points = Math.toIntExact(Math.min(15, totalDaysInRange));
+            int rowIndex = 0;
 
             for (int i = 0; i < points; i++) {
-                LocalDate nextDate = currentDate.plusDays(totalDaysInRange / points); // Distribute evenly over the
-                // range
-                nextDate = nextDate.isAfter(endDateLocale) ? endDateLocale : nextDate; // Adjust for the end date
-                Collection<WorkOrder> completeWorkOrders =
-                        workOrderService.findByCompletedOnBetweenAndCompany(Helper.localDateToDate(currentDate),
-                                        Helper.localDateToDate(nextDate), user.getCompany().getId())
-                                .stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+                LocalDate nextDate = currentDate.plusDays(totalDaysInRange / points);
+                nextDate = nextDate.isAfter(endDateLocale) ? endDateLocale : nextDate;
+                Date segmentEnd = Helper.localDateToDate(nextDate);
+
+                double laborCost = 0, partCost = 0, additionalCost = 0;
+                while (rowIndex < rows.size()) {
+                    Object[] row = rows.get(rowIndex);
+                    Date completedOn = (Date) row[1];
+                    if (completedOn.after(segmentEnd)) break;
+                    laborCost += ((Number) row[2]).doubleValue();
+                    partCost += ((Number) row[3]).doubleValue();
+                    additionalCost += ((Number) row[4]).doubleValue();
+                    rowIndex++;
+                }
+
                 result.add(WOCostsByDate.builder()
-                        .additionalCost(workOrderService.getAdditionalCost(completeWorkOrders))
-                        .laborCost(workOrderService.getLaborCostAndTime(completeWorkOrders).getFirst())
-                        .partCost(workOrderService.getPartCost(completeWorkOrders))
-                        .date(Helper.localDateToDate(currentDate)).build());
+                        .additionalCost(additionalCost)
+                        .laborCost(laborCost)
+                        .partCost(partCost)
+                        .date(Helper.localDateToDate(currentDate))
+                        .build());
                 currentDate = nextDate;
             }
             return ResponseEntity.ok(result);

@@ -55,7 +55,7 @@ public class UserResponseDTO {
     private Long userSettingsId;
 
     @Schema(description = "User profile image")
-    private FileShowDTO image;
+    private FileThumbnailDTO image;
 
     @Schema(description = "Super account relationships")
     private List<SuperAccountRelationDTO> superAccountRelations = new ArrayList<>();

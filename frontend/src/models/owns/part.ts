@@ -3,7 +3,7 @@ import { UserMiniDTO } from '../user';
 import { VendorMiniDTO } from './vendor';
 import { CustomerMiniDTO } from './customer';
 import { TeamMiniDTO } from './team';
-import File from './file';
+import File, { FileThumbnailDTO } from './file';
 import Category from './category';
 import { CustomFieldValue } from './customField';
 
@@ -19,7 +19,7 @@ export default interface Part extends Audit {
   category: Category;
   nonStock: boolean;
   additionalInfos: string;
-  image: File | null;
+  image: FileThumbnailDTO | null;
   description: string;
   assignedTo: UserMiniDTO[];
   vendors: VendorMiniDTO[];

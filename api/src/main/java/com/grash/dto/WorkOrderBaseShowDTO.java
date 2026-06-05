@@ -55,7 +55,7 @@ public class WorkOrderBaseShowDTO extends AuditShowDTO {
     private List<FileMiniDTO> files;
 
     @Schema(description = "Image associated with the work order")
-    private FileMiniDTO image;
-    
+    private FileThumbnailDTO image;
+
     private List<CustomFieldValueShowDTO> customFieldValues = new ArrayList<>();
 }

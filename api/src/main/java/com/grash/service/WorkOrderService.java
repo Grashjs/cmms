@@ -583,6 +583,26 @@ public class WorkOrderService {
         return workOrderRepository.findByCompany_IdAndCreatedAtBetween(id, start, end);
     }
 
+    public List<Object[]> findTopNAssetsByIncompleteWO(Long companyId, Date start, Date end, int limit) {
+        return workOrderRepository.findTopNAssetsByIncompleteWO(companyId, start, end, limit);
+    }
+
+    public List<Object[]> findTopNAssetsTimeCost(Long companyId, Date start, Date end, int limit) {
+        return workOrderRepository.findTopNAssetsTimeCost(companyId, start, end, limit);
+    }
+
+    public List<Object[]> findWOCostsByDateRange(Long companyId, Date start, Date end) {
+        return workOrderRepository.findWOCostsByDateRange(companyId, start, end);
+    }
+
+    public List<Object[]> findTopNAssetsRepairTime(Long companyId, Date start, Date end, int limit) {
+        return workOrderRepository.findTopNAssetsRepairTime(companyId, start, end, limit);
+    }
+
+    public List<Object[]> findTotalWOCosts(Long companyId, Date start, Date end) {
+        return workOrderRepository.findTotalWOCosts(companyId, start, end);
+    }
+
     public Collection<WorkOrder> findByAssignedToUserAndCreatedAtBetween(Long id, Date start, Date end) {
         return workOrderRepository.findByAssignedToUserAndCreatedAtBetween(id, start, end);
     }

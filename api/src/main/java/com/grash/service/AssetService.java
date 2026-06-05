@@ -195,6 +195,10 @@ public class AssetService {
         return assetRepository.findByCompany_IdAndCreatedAtBefore(id, date);
     }
 
+    public double getTotalAcquisitionCost(Long companyId, Date end) {
+        return assetRepository.getTotalAcquisitionCost(companyId, end);
+    }
+
     public Page<Asset> findAssetChildren(Long id, Pageable pageable) {
         return assetRepository.findByParentAsset_Id(id, pageable);
     }

@@ -13,6 +13,9 @@ export interface FileMiniDTO {
   id: number;
   url: string;
 }
+export interface FileThumbnailDTO extends FileMiniDTO {
+  thumbnailUrl: string | null;
+}
 export const files: File[] = [
   {
     name: 'File1',

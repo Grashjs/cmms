@@ -128,6 +128,7 @@ public class PartService {
                     HttpStatus.FORBIDDEN);
     }
 
+    @Transactional
     public void consumePart(Long id, double quantity, WorkOrder workOrder, Locale locale, boolean deleteConsumption) {
         Part part = findById(id).get();
         if (part.isNonStock()) return;
@@ -135,20 +136,17 @@ public class PartService {
         part.setQuantity(part.getQuantity() - quantity);
         if (part.getQuantity() < 0)
             throw new CustomException("There is not enough of this part", HttpStatus.NOT_ACCEPTABLE);
-        if (quantity < 0) {
+        if (quantity <= 0) {
             PartConsumption partConsumption =
                     Collections.max(partConsumptionService.findByWorkOrderAndPart(workOrder.getId(), part.getId()),
                             new AuditComparator());
-            if (deleteConsumption) {
+            if (deleteConsumption || quantity == 0d) {
                 partConsumptionService.delete(partConsumption.getId());
             } else {
                 partConsumption.setQuantity(partConsumption.getQuantity() + quantity);
                 partRepository.save(part);
                 partConsumptionService.save(partConsumption);
             }
-            // Dispatch webhook for part quantity change (returning parts)
-            dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(), workOrder,
-                    workOrder.getCompany());
         } else {
             String message = messageSource.getMessage("notification_part_low", new Object[]{part.getName()}, locale);
             if (part.getQuantity() < part.getMinQuantity() && licenseService.hasEntitlement(LicenseEntitlement.LOW_STOCK_ALERTS)) {
@@ -167,10 +165,9 @@ public class PartService {
             partConsumptionService.create(new PartConsumption(part, workOrder, quantity));
             partRepository.save(part);
 
-            // Dispatch webhook for part quantity change (consuming parts)
-            dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(), workOrder,
-                    workOrder.getCompany());
         }
+        dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(), workOrder,
+                workOrder.getCompany());
     }
 
     public Collection<Part> getAll() {

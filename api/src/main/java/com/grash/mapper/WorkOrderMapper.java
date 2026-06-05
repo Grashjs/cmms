@@ -18,7 +18,9 @@ public interface WorkOrderMapper {
     WorkOrderPatchDTO toPatchDto(WorkOrder model);
 
     @Mappings({
-            @Mapping(source = "parentRequest.audioDescription", target = "audioDescription")
+            @Mapping(source = "parentRequest.audioDescription", target = "audioDescription"),
+            @Mapping(target = "image", source = "image", qualifiedByName = "toThumbnailDto"),
+
     })
     WorkOrderShowDTO toShowDto(WorkOrder model);
 

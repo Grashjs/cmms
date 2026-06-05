@@ -56,7 +56,11 @@ export type RootStackParamList = {
         onSuccess?: (location: LocationMiniDTO) => void;
       }
     | undefined;
-  AddPart: undefined;
+  AddPart:
+    | {
+        onSuccess?: (part: PartMiniDTO) => void;
+      }
+    | undefined;
   AddMeter: undefined;
   AddUser:
     | {

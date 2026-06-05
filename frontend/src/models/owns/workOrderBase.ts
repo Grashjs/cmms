@@ -1,4 +1,4 @@
-import File from './file';
+import File, { FileThumbnailDTO } from './file';
 import { AssetMiniDTO } from './asset';
 import { LocationMiniDTO } from './location';
 import { UserMiniDTO } from '../user';
@@ -17,7 +17,7 @@ export interface WorkOrderBase extends Audit {
   estimatedStartDate: string;
   estimatedDuration: number;
   priority: Priority;
-  image: File;
+  image: FileThumbnailDTO;
   asset: AssetMiniDTO;
   location: LocationMiniDTO;
   primaryUser: UserMiniDTO;

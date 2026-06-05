@@ -441,8 +441,6 @@ function Locations() {
       header: () => t('name'),
       cell: (info) => {
         const row = info.row.original as LocationRow & {
-          depth: number;
-          isLoadMoreRow?: boolean;
           parentId?: number;
         };
         // Render "Load More" row as a clickable button
@@ -509,6 +507,7 @@ function Locations() {
       header: () => t('actions'),
       cell: ({ row }) => {
         const location = row.original;
+        if ('isLoadMoreRow' in location && location.isLoadMoreRow) return null;
         let actions = [];
         if (hasEditPermission(PermissionEntity.LOCATIONS, location)) {
           actions.push(
@@ -521,7 +520,14 @@ function Locations() {
                 handleOpenUpdate();
               }}
             >
-              <EditTwoToneIcon fontSize="small" color="primary" />
+              <EditTwoToneIcon
+                fontSize="small"
+                color={
+                  'depth' in location && location.depth === 0
+                    ? 'primary'
+                    : 'action'
+                }
+              />
             </IconButton>
           );
         }
@@ -870,8 +876,8 @@ function Locations() {
     subRowsMap: Record<number, LocationRow[]>,
     parentId: number | null = null,
     depth: number = 0
-  ): (LocationRow & { depth: number })[] => {
-    let result: (LocationRow & { depth: number })[] = [];
+  ): LocationRow[] => {
+    let result: LocationRow[] = [];
 
     // 1. Find the children of the current parent
     const nodes = flatList.filter((item) => {
@@ -905,7 +911,7 @@ function Locations() {
               depth: 0,
               isLoadMoreRow: true,
               parentId: node.id
-            } as unknown as LocationRow & { depth: number });
+            } as unknown as LocationRow);
           }
         } else if (subRowsMap[node.id]) {
           // Render the temporary loading row if fetching is in progress

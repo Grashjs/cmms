@@ -1,6 +1,5 @@
 package com.grash.dto;
 
-import com.grash.dto.FileShowDTO;
 import com.grash.dto.cutomField.CustomFieldValueShowDTO;
 import com.grash.model.MeterCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,7 +28,7 @@ public class MeterShowDTO extends AuditShowDTO {
     private CategoryMiniDTO meterCategory;
 
     @Schema(description = "Image file associated with the meter")
-    private FileShowDTO image;
+    private FileThumbnailDTO image;
 
     @Schema(description = "List of users who have access to the meter")
     private List<UserMiniDTO> users = new ArrayList<>();
