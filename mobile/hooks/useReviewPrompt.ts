@@ -11,7 +11,7 @@ export function useReviewPrompt() {
   useEffect(() => {
     const checkAvailability = async () => {
       const available = await StoreReview.isAvailableAsync();
-      if (true || (reviewEligible && available)) {
+      if (reviewEligible && available) {
         setVisible(true);
         await api.post('reviews/mark-shown', {});
       }
