@@ -51,7 +51,7 @@ export default function SingleTask({
         task.taskBase.taskType === 'METER' ||
         task.taskBase.taskType === 'NUMBER'
       ) {
-        formattedValue = newValue?.replace(/[^0-9]/g, '') ?? '';
+        formattedValue = newValue?.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1') ?? '';
         setInputValue(formattedValue);
       } else setInputValue(formattedValue);
       if (formattedValue !== '') handleChange(formattedValue, task.id);
