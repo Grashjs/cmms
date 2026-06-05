@@ -51,7 +51,14 @@ export default function SingleTask({
         task.taskBase.taskType === 'METER' ||
         task.taskBase.taskType === 'NUMBER'
       ) {
-        formattedValue = newValue?.replace(/[^0-9]/g, '') ?? '';
+        // Permitir dígitos y punto decimal; evitar múltiples puntos
+        formattedValue = (newValue ?? '').replace(/[^0-9.]/g, '');
+        const dotIndex = formattedValue.indexOf('.');
+        if (dotIndex !== -1) {
+          formattedValue =
+            formattedValue.slice(0, dotIndex + 1) +
+            formattedValue.slice(dotIndex + 1).replace(/\./g, '');
+        }
         setInputValue(formattedValue);
       } else setInputValue(formattedValue);
       if (formattedValue !== '') handleChange(formattedValue, task.id);
@@ -177,6 +184,7 @@ export default function SingleTask({
           label={t('value')}
           value={inputValue}
           mode={'outlined'}
+          keyboardType="decimal-pad"
           disabled={task.taskBase.user && task.taskBase.user.id !== user.id}
         />
       ) : (
