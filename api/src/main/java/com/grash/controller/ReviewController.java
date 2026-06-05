@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.dto.FeedbackDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.model.User;
 import com.grash.model.UserAppStats;
@@ -63,5 +64,14 @@ public class ReviewController {
         User user = userService.whoami(req);
         reviewEligibilityService.incrementSession(reviewEligibilityService.getOrCreate(user));
         return ResponseEntity.ok(new SuccessResponse(true, "Session count incremented"));
+    }
+
+    @PostMapping("/feedback")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<SuccessResponse> setFeedback(HttpServletRequest req, @RequestBody FeedbackDTO body) {
+        User user = userService.whoami(req);
+        reviewEligibilityService.setFeedback(reviewEligibilityService.getOrCreate(user),
+                body.getValue());
+        return ResponseEntity.ok(new SuccessResponse(true, "Feedback recorded"));
     }
 }

@@ -69,4 +69,9 @@ public class ReviewEligibilityService {
         stats.setCompletedWorkOrders(stats.getCompletedWorkOrders() + 1);
         return userAppStatsRepository.save(stats);
     }
+
+    public UserAppStats setFeedback(UserAppStats stats, String feedback) {
+        stats.setFeedback(feedback);
+        return userAppStatsRepository.save(stats);
+    }
 }

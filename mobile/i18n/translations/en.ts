@@ -1202,12 +1202,6 @@ const locale = {
   sort_by_DESC: 'Sort by DESC',
   sort: 'Sort',
   total_rows: 'Total Rows:',
-  review_prompt_title: 'Are you enjoying Atlas CMMS?',
-  review_prompt_positive: 'Yes',
-  review_prompt_negative: 'No',
-  feedback_title: 'Help Us Improve',
-  feedback_description:
-    'We\'re sorry to hear that. Your feedback helps us make Atlas better.',
   yes: 'Yes',
   no: 'No',
   more: 'More',
@@ -1486,6 +1480,12 @@ const locale = {
   add_comment_placeholder: 'Add a comment...',
   id_required: 'ID is required',
   create_category: 'Create Category',
-  delete_row_confirm_message: 'Are you sure you want to delete this row?'
+  delete_row_confirm_message: 'Are you sure you want to delete this row?',
+  review_prompt_title: 'Are you enjoying Atlas CMMS?',
+  feedback_title: 'Help Us Improve',
+  feedback_description1:
+    "We're sorry to hear that. Your feedback helps us make Atlas better.",
+  feedback_placeholder: 'Tell us what went wrong or how we can improve…',
+  send: 'Send'
 };
 export default locale;

@@ -34,6 +34,8 @@ public class UserAppStats extends Audit {
     @Schema(description = "Whether user has already rated the app")
     private boolean hasRatedApp = false;
 
+    private String feedback;
+
     @OneToOne
     @NotNull
     private User user;

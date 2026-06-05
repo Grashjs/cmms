@@ -74,6 +74,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     if (userSettings)
       dispatch(getMobileOverviewStats(userSettings.statsForAssignedWorkOrders));
   };
+
   const stats: {
     label: ExtendedWorkOrderStatus;
     value: number;

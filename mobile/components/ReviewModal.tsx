@@ -13,8 +13,8 @@ export function ReviewModal() {
           <Text variant="bodyLarge">{t('review_prompt_title')}</Text>
         </Dialog.Content>
         <Dialog.Actions>
-          <Button onPress={handleNo}>{t('review_prompt_negative')}</Button>
-          <Button onPress={handleYes}>{t('review_prompt_positive')}</Button>
+          <Button onPress={handleNo}>{t('no')}</Button>
+          <Button onPress={handleYes}>{t('yes')}</Button>
         </Dialog.Actions>
       </Dialog>
     </Portal>

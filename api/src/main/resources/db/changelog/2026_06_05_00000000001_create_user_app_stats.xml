@@ -58,4 +58,9 @@
                 referencedTableName="own_user"
                 onDelete="CASCADE"/>
     </changeSet>
+    <changeSet id="add_feedback_to_user_app_stats" author="system">
+        <addColumn tableName="user_app_stats">
+            <column name="feedback" type="text"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
