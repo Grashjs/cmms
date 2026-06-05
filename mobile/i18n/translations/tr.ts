@@ -1556,6 +1556,12 @@ const trJSON = {
   confirm_delete_comment: 'Bu yorumu silmek istediğinizden emin misiniz?',
   add_comment_placeholder: 'Yorum ekleyin...',
   create_category: 'Create Category',
-  delete_row_confirm_message: 'Bu satırı silmek istediğinizden emin misiniz?'
+  delete_row_confirm_message: 'Bu satırı silmek istediğinizden emin misiniz?',
+  review_prompt_title: 'Atlas CMMS\'i beğeniyor musunuz?',
+  feedback_title: 'Gelişmemize yardımcı olun',
+  feedback_description1:
+    'Bunu duyduğumuza üzüldük. Geri bildiriminiz Atlas\'ı daha iyi hale getirmemize yardımcı oluyor.',
+  feedback_placeholder: 'Bize neyin yanlış gittiğini veya nasıl iyileştirebileceğimizi anlatın…',
+  send: 'Gönder'
 };
 export default trJSON;

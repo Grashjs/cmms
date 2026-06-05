@@ -1489,6 +1489,12 @@ const locale = {
   confirm_delete_comment: 'このコメントを削除してもよろしいですか？',
   add_comment_placeholder: 'コメントを追加...',
   id_required: 'IDは必須です',
-  delete_row_confirm_message: 'この行を削除してもよろしいですか？'
+  delete_row_confirm_message: 'この行を削除してもよろしいですか？',
+  review_prompt_title: 'Atlas CMMSをお楽しみいただけていますか？',
+  feedback_title: '改善にご協力ください',
+  feedback_description1:
+    'お気に召さなかったようで残念です。お客さまのフィードバックがAtlasの改善につながります。',
+  feedback_placeholder: '何が問題だったか、またはどのように改善できるかをお聞かせください…',
+  send: '送信'
 };
 export default locale;

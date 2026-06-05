@@ -1491,6 +1491,12 @@ const plJSON = {
   confirm_delete_comment: 'Czy na pewno chcesz usunąć ten komentarz?',
   add_comment_placeholder: 'Dodaj komentarz...',
   create_category: 'Create Category',
-  delete_row_confirm_message: 'Czy na pewno chcesz usunąć ten wiersz?'
+  delete_row_confirm_message: 'Czy na pewno chcesz usunąć ten wiersz?',
+  review_prompt_title: 'Czy podoba Ci się Atlas CMMS?',
+  feedback_title: 'Pomóż nam się poprawić',
+  feedback_description1:
+    'Przykro nam to słyszeć. Twoja opinia pomaga nam ulepszać Atlas.',
+  feedback_placeholder: 'Powiedz nam, co poszło nie tak lub jak możemy się poprawić…',
+  send: 'Wyślij'
 };
 export default plJSON;

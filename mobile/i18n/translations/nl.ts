@@ -1485,6 +1485,12 @@ const locale = {
   confirm_delete_comment: 'Weet u zeker dat u deze reactie wilt verwijderen?',
   add_comment_placeholder: 'Voeg een reactie toe...',
   create_category: 'Create Category',
-  delete_row_confirm_message: 'Weet u zeker dat u deze rij wilt verwijderen?'
+  delete_row_confirm_message: 'Weet u zeker dat u deze rij wilt verwijderen?',
+  review_prompt_title: 'Vindt u Atlas CMMS prettig?',
+  feedback_title: 'Help ons verbeteren',
+  feedback_description1:
+    'Het spijt ons dat te horen. Uw feedback helpt ons Atlas beter te maken.',
+  feedback_placeholder: 'Vertel ons wat er misging of hoe we kunnen verbeteren…',
+  send: 'Versturen'
 };
 export default locale;

@@ -1476,6 +1476,12 @@ const locale = {
   confirm_delete_comment: 'Är du säker på att du vill ta bort denna kommentar?',
   add_comment_placeholder: 'Lägg till en kommentar...',
   create_category: 'Create Category',
-  delete_row_confirm_message: 'Är du säker på att du vill ta bort den här raden?'
+  delete_row_confirm_message: 'Är du säker på att du vill ta bort den här raden?',
+  review_prompt_title: 'Tycker du om Atlas CMMS?',
+  feedback_title: 'Hjälp oss att förbättras',
+  feedback_description1:
+    'Vi är ledsna att höra det. Din feedback hjälper oss att göra Atlas bättre.',
+  feedback_placeholder: 'Berätta vad som gick fel eller hur vi kan förbättras…',
+  send: 'Skicka'
 };
 export default locale;

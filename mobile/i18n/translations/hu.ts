@@ -1484,6 +1484,12 @@ const locale = {
   confirm_delete_comment: 'Biztosan törölni kívánja ezt a megjegyzést?',
   add_comment_placeholder: 'Megjegyzés hozzáadása...',
   create_category: 'Create Category',
-  delete_row_confirm_message: 'Biztosan törölni szeretné ezt a sort?'
+  delete_row_confirm_message: 'Biztosan törölni szeretné ezt a sort?',
+  review_prompt_title: 'Élvezi az Atlas CMMS használatát?',
+  feedback_title: 'Segítsen nekünk a fejlődésben',
+  feedback_description1:
+    'Sajnáljuk, hogy ezt halljuk. Visszajelzése segít nekünk az Atlas fejlesztésében.',
+  feedback_placeholder: 'Mondja el, mi volt a probléma, vagy hogyan fejlődhetünk…',
+  send: 'Küldés'
 };
 export default locale;

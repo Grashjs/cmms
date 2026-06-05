@@ -1500,6 +1500,12 @@ const locale = {
   confirm_delete_comment: 'Sei sicuro di voler eliminare questo commento?',
   add_comment_placeholder: 'Aggiungi un commento...',
   create_category: 'Create Category',
-  delete_row_confirm_message: 'Sei sicuro di voler eliminare questa riga?'
+  delete_row_confirm_message: 'Sei sicuro di voler eliminare questa riga?',
+  review_prompt_title: 'Ti sta piacendo Atlas CMMS?',
+  feedback_title: 'Aiutaci a migliorare',
+  feedback_description1:
+    'Ci dispiace saperlo. Il tuo feedback ci aiuta a migliorare Atlas.',
+  feedback_placeholder: 'Dicci cosa è andato storto o come possiamo migliorare…',
+  send: 'Invia'
 };
 export default locale;

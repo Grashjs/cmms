@@ -1535,6 +1535,12 @@ const ruJSON = {
   confirm_delete_comment: 'Вы уверены, что хотите удалить этот комментарий?',
   add_comment_placeholder: 'Добавить комментарий...',
   create_category: 'Create Category',
-  delete_row_confirm_message: 'Вы уверены, что хотите удалить эту строку?'
+  delete_row_confirm_message: 'Вы уверены, что хотите удалить эту строку?',
+  review_prompt_title: 'Вам нравится Atlas CMMS?',
+  feedback_title: 'Помогите нам стать лучше',
+  feedback_description1:
+    'Нам жаль это слышать. Ваш отзыв помогает нам улучшать Atlas.',
+  feedback_placeholder: 'Расскажите, что пошло не так или как мы можем улучшиться…',
+  send: 'Отправить'
 };
 export default ruJSON;

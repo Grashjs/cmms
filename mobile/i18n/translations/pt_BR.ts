@@ -1528,6 +1528,12 @@ const ptBRJSON = {
   confirm_delete_comment: 'Tem certeza de que deseja excluir este comentário?',
   add_comment_placeholder: 'Adicionar um comentário...',
   create_category: 'Create Category',
-  delete_row_confirm_message: 'Tem certeza de que deseja excluir esta linha?'
+  delete_row_confirm_message: 'Tem certeza de que deseja excluir esta linha?',
+  review_prompt_title: 'Você está gostando do Atlas CMMS?',
+  feedback_title: 'Ajude-nos a melhorar',
+  feedback_description1:
+    'Lamentamos ouvir isso. Seu feedback nos ajuda a melhorar o Atlas.',
+  feedback_placeholder: 'Conte-nos o que deu errado ou como podemos melhorar…',
+  send: 'Enviar'
 };
 export default ptBRJSON;

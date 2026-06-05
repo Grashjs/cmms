@@ -1482,6 +1482,12 @@ const locale = {
   add_comment_placeholder: 'Dodajte komentar...',
   you_need_a_license: 'Potrebna vam je licenca za pristup ovoj funkciji',
   create_category: 'Create Category',
-  delete_row_confirm_message: 'Jeste li sigurni da želite izbrisati ovaj red?'
+  delete_row_confirm_message: 'Jeste li sigurni da želite izbrisati ovaj red?',
+  review_prompt_title: 'Uživate li u Atlas CMMS-u?',
+  feedback_title: 'Pomozite nam da se poboljšamo',
+  feedback_description1:
+    'Žao nam je što to čujemo. Vaše povratne informacije nam pomažu da Atlas bude bolji.',
+  feedback_placeholder: 'Recite nam šta nije u redu ili kako možemo da se poboljšamo…',
+  send: 'Pošalji'
 };
 export default locale;

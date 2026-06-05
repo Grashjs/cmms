@@ -1362,6 +1362,12 @@ const locale = {
   add_comment_placeholder: '添加评论...',
   Statistics: '统计',
   create_category: 'Create Category',
-  delete_row_confirm_message: '您确定要删除此行吗？'
+  delete_row_confirm_message: '您确定要删除此行吗？',
+  review_prompt_title: '您喜欢Atlas CMMS吗？',
+  feedback_title: '帮助我们改进',
+  feedback_description1:
+    '很抱歉听到这个消息。您的反馈有助于我们把Atlas做得更好。',
+  feedback_placeholder: '告诉我们哪里出了问题，或者我们如何改进…',
+  send: '发送'
 };
 export default locale;

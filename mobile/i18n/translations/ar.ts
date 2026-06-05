@@ -1421,6 +1421,12 @@ const locale = {
   confirm_delete_comment: 'هل أنت متأكد أنك تريد حذف هذا التعليق؟',
   add_comment_placeholder: 'أضف تعليقًا...',
   create_category: 'Create Category',
-  delete_row_confirm_message: 'هل أنت متأكد أنك تريد حذف هذا الصف؟'
+  delete_row_confirm_message: 'هل أنت متأكد أنك تريد حذف هذا الصف؟',
+  review_prompt_title: 'هل تستمتع باستخدام Atlas CMMS؟',
+  feedback_title: 'ساعدنا في التحسين',
+  feedback_description1:
+    'نأسف لسماع ذلك. ملاحظاتك تساعدنا في جعل Atlas أفضل.',
+  feedback_placeholder: 'أخبرنا ما الخطأ الذي حدث أو كيف يمكننا التحسين…',
+  send: 'إرسال'
 };
 export default locale;

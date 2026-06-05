@@ -1559,6 +1559,12 @@ const deJSON = {
     'Sind Sie sicher, dass Sie diesen Kommentar löschen möchten?',
   add_comment_placeholder: 'Kommentar hinzufügen...',
   create_category: 'Create Category',
-  delete_row_confirm_message: 'Sind Sie sicher, dass Sie diese Zeile löschen möchten?'
+  delete_row_confirm_message: 'Sind Sie sicher, dass Sie diese Zeile löschen möchten?',
+  review_prompt_title: 'Gefällt Ihnen Atlas CMMS?',
+  feedback_title: 'Helfen Sie uns, besser zu werden',
+  feedback_description1:
+    'Das tut uns leid. Ihr Feedback hilft uns, Atlas zu verbessern.',
+  feedback_placeholder: 'Teilen Sie uns mit, was nicht funktioniert hat oder wie wir uns verbessern können…',
+  send: 'Senden'
 };
 export default deJSON;
