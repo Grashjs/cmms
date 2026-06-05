@@ -213,4 +213,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_06_03_00000000001_add_thumbnail_path.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_06_05_00000000001_create_user_app_stats.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

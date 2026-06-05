@@ -159,6 +159,7 @@ export type RootStackParamList = {
   ScanAsset: {
     onChange?: (asset: AssetMiniDTO) => void;
   };
+  Feedback: undefined;
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =

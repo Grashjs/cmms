@@ -57,6 +57,7 @@ interface AuthState {
   company: Company | null;
   userSettings: UserSettings | null;
   companySettings: CompanySettings | null;
+  reviewEligible: boolean;
 }
 
 export type FieldConfigurationsType = 'workOrder' | 'request';
@@ -65,6 +66,7 @@ interface AuthContextValue extends AuthState {
   method: 'JWT';
   login: (email: string, password: string, ldap?: boolean) => Promise<void>;
   logout: () => void;
+  reviewEligible: boolean;
   register: (values: any) => Promise<void>;
   getInfos: () => void;
   deleteAccount: () => Promise<void>;
@@ -222,6 +224,11 @@ type PatchUiConfigurationAction = {
   };
 };
 
+type ReviewEligibleAction = {
+  type: 'REVIEW_ELIGIBLE';
+  payload: boolean;
+};
+
 type Action =
   | InitializeAction
   | LoginAction
@@ -240,7 +247,8 @@ type Action =
   | ResumeSubscriptionAction
   | UpgradeAction
   | DowngradeAction
-  | PatchUiConfigurationAction;
+  | PatchUiConfigurationAction
+  | ReviewEligibleAction;
 
 const initialAuthState: AuthState = {
   isAuthenticated: false,
@@ -248,7 +256,8 @@ const initialAuthState: AuthState = {
   user: null,
   company: null,
   userSettings: null,
-  companySettings: null
+  companySettings: null,
+  reviewEligible: false
 };
 
 const setSession = (accessToken: string | null): void => {
@@ -460,6 +469,12 @@ const handlers: Record<
         );
     }
     return stateClone;
+  },
+  REVIEW_ELIGIBLE: (state: AuthState, action: ReviewEligibleAction): AuthState => {
+    return {
+      ...state,
+      reviewEligible: action.payload
+    };
   }
 };
 
@@ -498,7 +513,8 @@ const AuthContext = createContext<AuthContextValue>({
   downgrade: () => Promise.resolve(false),
   upgrade: () => Promise.resolve(false),
   switchAccount: () => Promise.resolve(),
-  patchUiConfiguration: () => Promise.resolve()
+  patchUiConfiguration: () => Promise.resolve(),
+  reviewEligible: false
 });
 
 export const AuthProvider: FC<AuthProviderProps> = (props) => {
@@ -666,6 +682,16 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     });
     checkPushNotificationState();
     globalDispatch(getCustomFields());
+
+    try {
+      await api.post('reviews/session', {});
+      const { eligible } = await api.get<{ eligible: boolean }>(
+        'reviews/eligibility'
+      );
+      dispatch({ type: 'REVIEW_ELIGIBLE', payload: eligible });
+    } catch (e) {
+      console.error('Review eligibility check failed', e);
+    }
   };
   const getInfos = async (): Promise<void> => {
     // AsyncStorage.clear();
@@ -1172,7 +1198,8 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         upgrade,
         downgrade,
         switchAccount,
-        patchUiConfiguration
+        patchUiConfiguration,
+        reviewEligible: state.reviewEligible
       }}
     >
       {children}

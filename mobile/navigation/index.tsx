@@ -94,6 +94,7 @@ import CreateAdditionalTime from '../screens/workOrders/CreateAdditionalTime';
 import SelectNfcModal from '../screens/modals/SelectNfcModal';
 import SelectBarcodeModal from '../screens/modals/SelectBarcodeModal';
 import ScanAssetScreen from '../screens/ScanAssetScreen';
+import FeedbackScreen from '../screens/FeedbackScreen';
 import SelectMetersModal from '../screens/modals/SelectMetersModal';
 import {
   createEntities,
@@ -349,6 +350,11 @@ function RootNavigator() {
         name="ScanAsset"
         component={ScanAssetScreen}
         options={{ title: t('to_scan') }}
+      />
+      <Stack.Screen
+        name="Feedback"
+        component={FeedbackScreen}
+        options={{ title: t('feedback_title') }}
       />
       <Stack.Group
         screenOptions={{

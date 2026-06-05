@@ -1,5 +1,6 @@
 import { getApiUrl } from '../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 type Options = RequestInit & { raw?: boolean; headers?: HeadersInit };
 
@@ -68,17 +69,18 @@ async function deletes<T>(url, options?: Options) {
 export async function authHeader(publicRoute: boolean) {
   // return authorization header with jwt token
   let accessToken = await AsyncStorage.getItem('accessToken');
+  const commonHeaders = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+    'X-Platform': Platform.OS
+  };
   if (!publicRoute && accessToken) {
     return {
       Authorization: 'Bearer ' + accessToken,
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
+      ...commonHeaders
     };
   } else {
-    return {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    };
+    return commonHeaders;
   }
 }
 export const getErrorMessage = (

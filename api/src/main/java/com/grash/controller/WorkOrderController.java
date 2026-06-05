@@ -15,6 +15,7 @@ import com.grash.model.*;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.*;
 import com.grash.model.enums.workflow.WFMainCondition;
+import com.grash.model.UserAppStats;
 import com.grash.service.*;
 import com.grash.utils.Helper;
 import com.grash.utils.MultipartFileImpl;
@@ -90,6 +91,7 @@ public class WorkOrderController {
     private final LicenseService licenseService;
     private final IntercomService intercomService;
     private final CompanyService companyService;
+    private final ReviewEligibilityService reviewEligibilityService;
 
 
     @Value("${frontend.url}")
@@ -260,8 +262,9 @@ public class WorkOrderController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public WorkOrderShowDTO changeStatus(@Parameter(description = "Work order status change data") @Valid @RequestBody WorkOrderChangeStatusDTO
-                                                 workOrder, @PathVariable("id") Long id,
-                                         HttpServletRequest req) {
+                                                  workOrder, @PathVariable("id") Long id,
+                                          HttpServletRequest req,
+                                          @RequestHeader(value = "X-Platform", required = false) String platform) {
         User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         WorkOrder savedWorkOrder = optionalWorkOrder.get();
@@ -318,6 +321,10 @@ public class WorkOrderController {
                         workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_CLOSED,
                                 user.getCompany().getId());
                 workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, patchedWorkOrder));
+
+                if ("ios".equalsIgnoreCase(platform) || "android".equalsIgnoreCase(platform)) {
+                    reviewEligibilityService.incrementWorkOrder(reviewEligibilityService.getOrCreate(user));
+                }
             }
             if (user.getCompany().getCompanySettings().getGeneralPreferences().isWoUpdateForRequesters()
                     && savedWorkOrderStatusBefore != patchedWorkOrder.getStatus()

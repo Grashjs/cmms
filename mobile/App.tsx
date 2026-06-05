@@ -32,6 +32,7 @@ import subscriptionPlan from './slices/subscriptionPlan';
 import { isNumeric } from './utils/validators';
 import { customTheme } from './custom-theme';
 import { RootLayout } from './components/RootLayout';
+import { ReviewModal } from './components/ReviewModal';
 import { Subscription } from 'expo-notifications';
 
 Notifications.setNotificationHandler({
@@ -94,7 +95,7 @@ export default function App() {
       );
     };
 
-    const handleUrl = (url) => {
+    const handleUrl = (url: string) => {
       if (url) {
         const { pathname: path } = new URL(url);
         if (path.startsWith('/app/')) {
@@ -140,6 +141,7 @@ export default function App() {
                           statusBarHeight={Constants.statusBarHeight}
                         />
                         <Navigation colorScheme={colorScheme} />
+                        <ReviewModal />
                       </RootLayout>
                       <StatusBar />
                     </SheetProvider>

@@ -1,0 +1,61 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="create_user_app_stats" author="system">
+        <createTable tableName="user_app_stats">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="user_app_stats_pkey"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="BIGINT"/>
+            <column name="updated_by" type="BIGINT"/>
+            <column name="completed_work_orders" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="app_sessions" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_review_prompt_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="review_prompt_shown_count" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="review_click_count" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="has_rated_app" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="user_app_stats"
+                                 constraintName="fk_user_app_stats_user"
+                                 referencedColumnNames="id"
+                                 referencedTableName="own_user"/>
+    </changeSet>
+    <changeSet id="1780687442762-1" author="Ibrahima G. Coulibaly">
+        <createSequence sequenceName="user_app_stats_seq" startValue="1" incrementBy="50"/>
+    </changeSet>
+    <changeSet id="fk_user_app_stats_user_cascade" author="Ibrahima G. Coulibaly">
+        <!-- Drop the existing FK constraint -->
+        <dropForeignKeyConstraint
+                baseTableName="user_app_stats"
+                constraintName="fk_user_app_stats_user"/>
+
+        <addForeignKeyConstraint
+                baseColumnNames="user_id"
+                baseTableName="user_app_stats"
+                constraintName="fk_user_app_stats_user"
+                referencedColumnNames="id"
+                referencedTableName="own_user"
+                onDelete="CASCADE"/>
+    </changeSet>
+</databaseChangeLog>

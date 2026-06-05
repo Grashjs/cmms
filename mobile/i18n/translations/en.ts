@@ -1202,6 +1202,12 @@ const locale = {
   sort_by_DESC: 'Sort by DESC',
   sort: 'Sort',
   total_rows: 'Total Rows:',
+  review_prompt_title: 'Are you enjoying Atlas CMMS?',
+  review_prompt_positive: 'Yes',
+  review_prompt_negative: 'No',
+  feedback_title: 'Help Us Improve',
+  feedback_description:
+    'We\'re sorry to hear that. Your feedback helps us make Atlas better.',
   yes: 'Yes',
   no: 'No',
   more: 'More',
