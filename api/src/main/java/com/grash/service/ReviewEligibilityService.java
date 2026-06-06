@@ -19,8 +19,7 @@ public class ReviewEligibilityService {
     public UserAppStats getOrCreate(User user) {
         UserAppStats stats = user.getAppStats();
         if (stats == null) {
-            stats = new UserAppStats();
-            stats.setUser(user);
+            stats = new UserAppStats(user);
             stats = userAppStatsRepository.save(stats);
             user.setAppStats(stats);
             cacheService.putUserInCache(user);
