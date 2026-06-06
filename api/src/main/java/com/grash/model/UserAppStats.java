@@ -40,4 +40,7 @@ public class UserAppStats extends Audit {
     @NotNull
     private User user;
 
+    public UserAppStats(User user) {
+        this.user = user;
+    }
 }
