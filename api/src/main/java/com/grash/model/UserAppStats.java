@@ -38,7 +38,7 @@ public class UserAppStats extends Audit {
 
     private String feedback;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @NotNull
     private User user;
 

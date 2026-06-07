@@ -97,6 +97,7 @@ public class User extends Audit {
     @JsonIgnore
     private SuperAccountRelation parentSuperAccount;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserAppStats appStats = new UserAppStats(this);
 
