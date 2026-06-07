@@ -19,23 +19,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class FileService {
     private final FileRepository fileRepository;
-    private AssetService assetService;
-    private PartService partService;
-    private RequestService requestService;
-    private WorkOrderService workOrderService;
-    private LocationService locationService;
-
-    @Autowired
-    public void setDeps(@Lazy AssetService assetService, @Lazy PartService partService,
-                        @Lazy RequestService requestService, @Lazy LocationService locationService,
-                        @Lazy WorkOrderService workOrderService
-    ) {
-        this.assetService = assetService;
-        this.partService = partService;
-        this.requestService = requestService;
-        this.locationService = locationService;
-        this.workOrderService = workOrderService;
-    }
 
     public File create(File File) {
         return fileRepository.save(File);

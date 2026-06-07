@@ -27,6 +27,7 @@ public class CacheService {
             Cache usersCache = cacheManager.getCache(USERS_CACHE);
             if (usersCache != null) {
                 Hibernate.initialize(user.getRole());
+                Hibernate.initialize(user.getAppStats());
                 if (user.getRole() != null) {
                     Hibernate.initialize(user.getRole().getCreatePermissions());
                     Hibernate.initialize(user.getRole().getViewPermissions());
