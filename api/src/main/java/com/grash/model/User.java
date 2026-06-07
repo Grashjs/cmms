@@ -98,8 +98,8 @@ public class User extends Audit {
     private SuperAccountRelation parentSuperAccount;
 
     @JsonIgnore
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private UserAppStats appStats = new UserAppStats(this);
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private UserAppStats appStats = new UserAppStats();
 
     // SSO fields
     @Schema(description = "SSO provider name")

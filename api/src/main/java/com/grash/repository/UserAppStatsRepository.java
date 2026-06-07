@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.Optional;
 
-public interface UserAppStatsRepository extends JpaRepository<UserAppStats, Long>, JpaSpecificationExecutor<UserAppStats> {
-    Optional<UserAppStats> findByUser_Id(Long userId);
+public interface UserAppStatsRepository extends JpaRepository<UserAppStats, Long>,
+        JpaSpecificationExecutor<UserAppStats> {
 }

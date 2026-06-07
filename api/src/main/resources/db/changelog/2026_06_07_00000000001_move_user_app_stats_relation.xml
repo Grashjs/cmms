@@ -1,0 +1,37 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="move_user_app_stats_relation_to_user" author="system">
+        <comment>Move the OneToOne FK from user_app_stats.user_id to own_user.app_stats_id</comment>
+
+        <!-- Step 1: Add app_stats_id column to own_user -->
+        <addColumn tableName="own_user">
+            <column name="app_stats_id" type="BIGINT">
+                <constraints unique="true"/>
+            </column>
+        </addColumn>
+
+        <!-- Step 2: Migrate existing data: link own_user to its app_stats record -->
+        <sql>
+            UPDATE own_user
+            SET app_stats_id = uas.id
+            FROM user_app_stats uas
+            WHERE uas.user_id = own_user.id
+        </sql>
+
+        <!-- Step 3: Drop the FK constraint on user_app_stats.user_id -->
+        <dropForeignKeyConstraint baseTableName="user_app_stats" constraintName="fk_user_app_stats_user"/>
+
+        <!-- Step 4: Drop the user_id column from user_app_stats -->
+        <dropColumn tableName="user_app_stats" columnName="user_id"/>
+
+        <!-- Step 5: Add FK constraint on own_user.app_stats_id -->
+        <addForeignKeyConstraint baseColumnNames="app_stats_id"
+                                 baseTableName="own_user"
+                                 constraintName="fk_own_user_app_stats"
+                                 referencedColumnNames="id"
+                                 referencedTableName="user_app_stats"
+                                 onDelete="SET NULL"/>
+    </changeSet>
+</databaseChangeLog>

@@ -215,4 +215,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_06_05_00000000001_create_user_app_stats.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_06_07_00000000001_move_user_app_stats_relation.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

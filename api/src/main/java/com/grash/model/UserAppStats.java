@@ -38,11 +38,4 @@ public class UserAppStats extends Audit {
 
     private String feedback;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @NotNull
-    private User user;
-
-    public UserAppStats(User user) {
-        this.user = user;
-    }
 }
