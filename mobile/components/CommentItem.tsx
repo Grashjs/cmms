@@ -211,7 +211,7 @@ export default function CommentItem({
                 style={{ fontSize: 12, color: theme.colors.onSurfaceVariant }}
                 numberOfLines={1}
               >
-                {getFormattedDate(comment.updatedAt)}
+                {getFormattedDate(comment.updatedAt || comment.createdAt)}
               </Text>
             </View>
             {!isSystem && isOwner && !isEditing && (
