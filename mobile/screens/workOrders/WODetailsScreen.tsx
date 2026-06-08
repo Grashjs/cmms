@@ -429,7 +429,6 @@ export default function WODetailsScreen({
       {
         name: 'completeTime',
         condition:
-          labors
             labors.filter((labor) => labor.duration > 0).length === 0,
         message: 'required_labor_on_completion'
       },
