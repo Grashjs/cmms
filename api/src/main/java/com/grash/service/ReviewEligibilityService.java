@@ -32,6 +32,7 @@ public class ReviewEligibilityService {
         if (stats.isHasRatedApp()) return false;
         if (stats.getCompletedWorkOrders() < 3) return false;
         if (stats.getAppSessions() < 2) return false;
+        if (stats.getFeedback() != null && !stats.getFeedback().isEmpty()) return false;
 
         Date lastPrompt = stats.getLastReviewPromptAt();
         if (lastPrompt != null) {
