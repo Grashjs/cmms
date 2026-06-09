@@ -14,6 +14,7 @@ import { PermissionEntity } from '../../models/role';
 import { getMeters, getMoreMeters } from '../../slices/meter';
 import { FilterField, SearchCriteria } from '../../models/page';
 import {
+  Button,
   Card,
   IconButton,
   Searchbar,
@@ -24,7 +25,12 @@ import {
 import { useTranslation } from 'react-i18next';
 import Meter from '../../models/meter';
 import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
-import { isCloseToBottom, onSearchQueryChange } from '../../utils/overall';
+import {
+  canAddReading,
+  isCloseToBottom,
+  onSearchQueryChange
+} from '../../utils/overall';
+import Tag from '../../components/Tag';
 import { RootStackScreenProps } from '../../types';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 import { IconWithLabel } from '../../components/IconWithLabel';
@@ -46,7 +52,7 @@ export default function MetersScreen({
   const { getFormattedDate, getUserNameById } = useContext(
     CompanySettingsContext
   );
-  const { hasViewPermission } = useAuth();
+  const { hasViewPermission, user } = useAuth();
   const defaultFilterFields: FilterField[] = [];
   const getCriteriaFromFilterFields = (filterFields: FilterField[]) => {
     const initialCriteria: SearchCriteria = {
@@ -180,6 +186,13 @@ export default function MetersScreen({
                           label={meter.location.name}
                           icon="map-marker-outline"
                           color={theme.colors.grey}
+                        />
+                      )}
+                      {canAddReading(meter) && (
+                        <Tag
+                          text={t('past_due')}
+                          color={'white'}
+                          backgroundColor={theme.colors.error}
                         />
                       )}
                     </View>
