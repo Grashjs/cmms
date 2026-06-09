@@ -30,7 +30,7 @@ public class ReviewController {
     public ResponseEntity<Map<String, Boolean>> checkEligibility(HttpServletRequest req) {
         User user = userService.whoami(req);
         UserAppStats stats = reviewEligibilityService.getOrCreate(user);
-        boolean eligible = reviewEligibilityService.isEligible(stats);
+        boolean eligible = reviewEligibilityService.isEligible(stats, user.getCreatedAt());
         return ResponseEntity.ok(Map.of("eligible", eligible));
     }
 

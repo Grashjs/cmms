@@ -3,6 +3,7 @@ package com.grash.service;
 import com.grash.model.User;
 import com.grash.model.UserAppStats;
 import com.grash.repository.UserAppStatsRepository;
+import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,14 +28,16 @@ public class ReviewEligibilityService {
         return stats;
     }
 
-    public boolean isEligible(UserAppStats stats) {
-        if (stats == null) return false;
+    public boolean isEligible(UserAppStats stats, Date userCreatedAt) {
+        Date lastPrompt = stats.getLastReviewPromptAt();
+        if (userCreatedAt != null && lastPrompt == null && Helper.getDateDiff(userCreatedAt,
+                new Date(), TimeUnit.DAYS) > 14)
+            return true;
         if (stats.isHasRatedApp()) return false;
         if (stats.getCompletedWorkOrders() < 3) return false;
         if (stats.getAppSessions() < 2) return false;
         if (stats.getFeedback() != null && !stats.getFeedback().isEmpty()) return false;
 
-        Date lastPrompt = stats.getLastReviewPromptAt();
         if (lastPrompt != null) {
             long diffMillis = new Date().getTime() - lastPrompt.getTime();
             long diffDays = TimeUnit.MILLISECONDS.toDays(diffMillis);
