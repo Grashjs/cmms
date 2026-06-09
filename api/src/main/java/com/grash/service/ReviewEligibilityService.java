@@ -39,9 +39,8 @@ public class ReviewEligibilityService {
         if (stats.getFeedback() != null && !stats.getFeedback().isEmpty()) return false;
 
         if (lastPrompt != null) {
-            long diffMillis = new Date().getTime() - lastPrompt.getTime();
-            long diffDays = TimeUnit.MILLISECONDS.toDays(diffMillis);
-            if (diffDays < 14) return false;
+            long diffDays = Helper.getDateDiff(lastPrompt, new Date(), TimeUnit.DAYS);
+            return diffDays >= 14;
         }
 
         return true;
