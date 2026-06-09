@@ -16,13 +16,15 @@ public class ReviewEligibilityService {
 
     private final UserAppStatsRepository userAppStatsRepository;
     private final CacheService cacheService;
+    private final UserService userService;
 
     public UserAppStats getOrCreate(User user) {
         UserAppStats stats = user.getAppStats();
         if (stats == null) {
             stats = new UserAppStats();
-            stats = userAppStatsRepository.save(stats);
             user.setAppStats(stats);
+            user = userService.save(user);
+            stats = user.getAppStats();
             cacheService.putUserInCache(user);
         }
         return stats;
