@@ -62,6 +62,7 @@ import PushPinIcon from '@mui/icons-material/PushPin';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import NoRowsMessageWrapper from '../NoRowsMessageWrapper';
+import { TablePaginationActionsProps } from '@mui/material/TablePagination/TablePaginationActions';
 
 declare module '@tanstack/react-table' {
   interface ColumnMeta<TData extends RowData, TValue> {
@@ -153,7 +154,7 @@ function CustomDatagrid2<TData extends RowData>({
   hidePagination,
   getRowId
 }: CustomDatagrid2Props<TData>) {
-  const { t }: { t: any } = useTranslation();
+  const { t } = useTranslation();
   const theme = useTheme();
   const { height } = useWindowDimensions();
   const tableRef = useRef<HTMLDivElement>(null);
@@ -365,7 +366,7 @@ function CustomDatagrid2<TData extends RowData>({
     return left;
   };
 
-  const TablePaginationActions = (props: any) => {
+  const TablePaginationActions = (props: TablePaginationActionsProps) => {
     const { page, onPageChange, rowsPerPage } = props;
     const totalPages = Math.ceil(totalRows / rowsPerPage);
 
