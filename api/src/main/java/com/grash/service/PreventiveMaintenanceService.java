@@ -285,24 +285,16 @@ public class PreventiveMaintenanceService {
     }
 
     private int getDayOfWeekNumber(String day) {
-        switch (day.toLowerCase()) {
-            case "monday":
-                return 0;
-            case "tuesday":
-                return 1;
-            case "wednesday":
-                return 2;
-            case "thursday":
-                return 3;
-            case "friday":
-                return 4;
-            case "saturday":
-                return 5;
-            case "sunday":
-                return 6;
-            default:
-                throw new IllegalArgumentException("Invalid day of week: " + day);
-        }
+        return switch (day.toLowerCase()) {
+            case "monday" -> 0;
+            case "tuesday" -> 1;
+            case "wednesday" -> 2;
+            case "thursday" -> 3;
+            case "friday" -> 4;
+            case "saturday" -> 5;
+            case "sunday" -> 6;
+            default -> throw new IllegalArgumentException("Invalid day of week: " + day);
+        };
     }
 }
 
