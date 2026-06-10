@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import jakarta.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -44,9 +45,13 @@ public class PreventiveMaintenanceImportDTO extends WorkOrderImportDTO {
     @Schema(description = "What the recurrence is based on")
     @NotNull
     private String recurrenceBasedOn;
-    
+
     @Schema(description = "Days of week for recurrence")
     @Builder.Default
     private List<String> daysOfWeek = new ArrayList<>();
+
+    public List<String> getDaysOfWeek() {
+        return daysOfWeek.stream().map(String::trim).toList();
+    }
 }
 
