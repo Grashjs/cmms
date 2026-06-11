@@ -52,12 +52,14 @@ import {
   getSingleWorkOrder,
   getWorkOrders
 } from '../../../slices/workOrder';
+import { getUsersMini } from '../../../slices/user';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 import { useDispatch, useSelector } from '../../../store';
 import PriorityWrapper from '../components/PriorityWrapper';
 import { patchTasksOfWorkOrder } from '../../../slices/task';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import useAuth from '../../../hooks/useAuth';
+import { useLicenseEntitlement } from '../../../hooks/useLicenseEntitlement';
 import { getWOBaseValues } from '../../../utils/woBase';
 import { PermissionEntity } from '../../../models/owns/role';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -73,6 +75,7 @@ import { dayDiff } from '../../../utils/dates';
 import { FilterField, SearchCriteria } from '../../../models/owns/page';
 import { loadFilterFields, saveFilterFields } from '../../../utils/filter';
 import WorkOrderCalendar from './Calendar';
+import WorkloadView from './WorkloadView';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import FilterAltTwoToneIcon from '@mui/icons-material/FilterAltTwoTone';
 import MoreFilters from './Filters/MoreFilters';
@@ -167,12 +170,22 @@ function WorkOrders() {
   const { getFormattedDate, getUserNameById } = useContext(
     CompanySettingsContext
   );
+  const hasResourcePlanningEntitlement =
+    useLicenseEntitlement('RESOURCE_PLANNING');
   const tabs = [
     { value: 'list', label: t('list_view'), disabled: false },
     {
       value: 'calendar',
       label: t('calendar_view'),
       disabled: !hasViewPermission(PermissionEntity.WORK_ORDERS)
+    },
+    {
+      value: 'workload',
+      label: t('workload_view'),
+      disabled:
+        !hasViewPermission(PermissionEntity.WORK_ORDERS) ||
+        !hasResourcePlanningEntitlement ||
+        !hasFeature(PlanFeature.RESOURCE_PLANNING)
     },
     { value: 'column', label: t('column_view'), disabled: true }
   ];
@@ -307,6 +320,12 @@ function WorkOrders() {
     setTitle(t('work_orders'));
   }, []);
 
+  useEffect(() => {
+    if (currentTab === 'workload') {
+      dispatch(getUsersMini());
+    }
+  }, [currentTab]);
+
   const onFilterChange = (newFilters: FilterField[]) => {
     const newCriteria = { ...criteria };
     newCriteria.filterFields = newFilters;
@@ -351,6 +370,9 @@ function WorkOrders() {
     }
     if (viewParam === 'calendar') {
       setCurrentTab('calendar');
+    }
+    if (viewParam === 'workload') {
+      setCurrentTab('workload');
     }
   }, []);
 
@@ -957,7 +979,7 @@ function WorkOrders() {
             alignItems: 'center'
           }}
         >
-          {currentTab !== 'calendar' && (
+          {currentTab === 'list' && (
             <Stack
               sx={{ ml: 1 }}
               direction="row"
@@ -1025,12 +1047,19 @@ function WorkOrders() {
                 pinnedColumns={pinnedColumns}
                 onPinnedColumnsChange={setPinnedColumns}
               />
-            ) : (
+            ) : currentTab === 'calendar' ? (
               <WorkOrderCalendar
                 handleAddWorkOrder={(date: Date) => {
                   setInitialDueDate(date);
                   setOpenAddModal(true);
                 }}
+                handleOpenDetails={(id, type) => {
+                  if (type === 'WORK_ORDER') handleOpenDetails(id);
+                  else navigate(getPreventiveMaintenanceUrl(id));
+                }}
+              />
+            ) : (
+              <WorkloadView
                 handleOpenDetails={(id, type) => {
                   if (type === 'WORK_ORDER') handleOpenDetails(id);
                   else navigate(getPreventiveMaintenanceUrl(id));

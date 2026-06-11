@@ -14,7 +14,8 @@ export enum PlanFeature {
   WORKFLOW = 'WORKFLOW',
   API_ACCESS = 'API_ACCESS',
   WEBHOOK = 'WEBHOOK',
-  IMPORT_CSV = 'IMPORT_CSV'
+  IMPORT_CSV = 'IMPORT_CSV',
+  RESOURCE_PLANNING = 'RESOURCE_PLANNING'
 }
 export interface SubscriptionPlan {
   id: number;

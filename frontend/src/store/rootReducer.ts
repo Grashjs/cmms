@@ -45,6 +45,7 @@ import { reducer as apiKeyReducer } from 'src/slices/apiKey';
 import { reducer as webhookEndpointReducer } from 'src/slices/webhookEndpoint';
 import { reducer as commentReducer } from 'src/slices/comment';
 import { reducer as customFieldReducer } from 'src/slices/customField';
+import { reducer as workloadReducer } from 'src/slices/workload';
 
 const rootReducer = combineReducers({
   calendar: calendarReducer,
@@ -92,7 +93,8 @@ const rootReducer = combineReducers({
   apiKeys: apiKeyReducer,
   webhookEndpoints: webhookEndpointReducer,
   comments: commentReducer,
-  customFields: customFieldReducer
+  customFields: customFieldReducer,
+  workload: workloadReducer
 });
 
 export default rootReducer;

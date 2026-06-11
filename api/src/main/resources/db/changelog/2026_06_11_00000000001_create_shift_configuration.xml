@@ -84,4 +84,12 @@
             </column>
         </addColumn>
     </changeSet>
+    <changeSet id="1781204481351-1" author="Ibrahima G. Coulibaly">
+        <sql>
+            INSERT INTO subscription_plan_features (subscription_plan_id, features)
+            SELECT id, 16
+            FROM subscription_plan
+            WHERE code = 'BUSINESS';
+</sql>
+    </changeSet>
 </databaseChangeLog>
