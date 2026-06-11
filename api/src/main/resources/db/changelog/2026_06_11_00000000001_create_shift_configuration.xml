@@ -77,4 +77,11 @@
             </column>
         </addColumn>
     </changeSet>
+    <changeSet id="1781195672060-1" author="Ibrahima G. Coulibaly">
+        <addColumn tableName="shift_configuration_exceptions">
+            <column name="enabled" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

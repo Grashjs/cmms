@@ -3,6 +3,7 @@ package com.grash.model;
 import com.grash.model.abstracts.Audit;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,12 +23,12 @@ public class ShiftConfiguration extends Audit {
     @ElementCollection
     @CollectionTable(name = "shift_configuration_days",
             joinColumns = @JoinColumn(name = "shift_configuration_id"))
-    private List<ShiftDayConfiguration> days = new ArrayList<>();
+    private List<@Valid ShiftDayConfiguration> days = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "shift_configuration_exceptions",
             joinColumns = @JoinColumn(name = "shift_configuration_id"))
-    private List<ShiftException> exceptions = new ArrayList<>();
+    private List<@Valid ShiftException> exceptions = new ArrayList<>();
 
     private boolean enabled = true;
 }
