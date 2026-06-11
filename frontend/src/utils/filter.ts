@@ -1,6 +1,6 @@
 import { FilterField, SearchOperator } from 'src/models/owns/page';
 
-export type FilterFieldType = 'simple' | 'array' | 'date';
+export type FilterFieldType = 'simple' | 'array' | 'date' | 'dateLessThan';
 
 export const getLabelAndValue = <T extends { id: number }>(
   filterFields: FilterField[],
@@ -102,6 +102,13 @@ export const filterSingleField = (
       },
       { field: fieldName, operation: 'le', value: end, enumName: 'JS_DATE' }
     ];
+  } else if (type === 'dateLessThan' && values[accessor]) {
+    filters.push({
+      field: fieldName,
+      operation: 'le',
+      value: values[accessor],
+      enumName: 'JS_DATE'
+    });
   }
   return filters;
 };
