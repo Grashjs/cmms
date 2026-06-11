@@ -1,6 +1,8 @@
 package com.grash.service;
 
+import com.grash.dto.workOrder.WorkOrderPatchDTO;
 import com.grash.dto.workload.*;
+import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.ShiftConfiguration;
 import com.grash.model.ShiftDayConfiguration;
@@ -10,7 +12,9 @@ import com.grash.model.WorkOrder;
 import com.grash.model.enums.Status;
 import com.grash.repository.WorkOrderRepository;
 import com.grash.utils.Helper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -24,6 +28,7 @@ public class WorkloadService {
     private final WorkOrderRepository workOrderRepository;
     private final UserService userService;
     private final WorkOrderMapper workOrderMapper;
+    private final WorkOrderService workOrderService;
 
     public WorkloadOverviewDTO getOverview(LocalDate startDate, LocalDate endDate, List<Long> userIds, Long companyId) {
         List<User> users = userIds.stream()
@@ -133,6 +138,27 @@ public class WorkloadService {
         result.setDueSoonCount(dueSoonCount);
         result.setWorkOrders(unscheduled.stream().map(workOrderMapper::toWorkloadDto).toList());
         return result;
+    }
+
+    @Transactional
+    public void scheduleWorkOrder(Long workOrderId, WorkloadScheduleDTO dto, User user) {
+        WorkOrder workOrder = workOrderRepository.findById(workOrderId)
+                .orElseThrow(() -> new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND));
+
+        if (!workOrder.canBeEditedBy(user)) {
+            throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        }
+
+        workOrder.setEstimatedStartDate(dto.getEstimatedStartDate());
+        workOrder.setEstimatedDuration(dto.getEstimatedDuration());
+        if (dto.getPrimaryUserId() == null) {
+            workOrder.setPrimaryUser(null);
+        } else {
+            User assignedUser = userService.findByIdAndCompany(dto.getPrimaryUserId(), user.getCompany().getId())
+                    .orElseThrow(() -> new CustomException("Assigned user not found", HttpStatus.NOT_FOUND));
+            workOrder.setPrimaryUser(assignedUser);
+        }
+        workOrderService.save(workOrder);
     }
 
     public int getUserCapacityForDay(User user, LocalDate date) {

@@ -1,8 +1,10 @@
 package com.grash.controller;
 
+import com.grash.dto.SuccessResponse;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.dto.workload.UnscheduledWorkOrdersDTO;
 import com.grash.dto.workload.WorkloadOverviewDTO;
+import com.grash.dto.workload.WorkloadScheduleDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
@@ -14,8 +16,10 @@ import com.grash.service.WorkloadService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,6 +60,18 @@ public class WorkloadController {
         User user = userService.whoami(req);
         checkAccess(user);
         return workloadService.getUnscheduled(user.getCompany().getId(), statuses);
+    }
+
+    @PatchMapping("/work-orders/{id}/schedule")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<SuccessResponse> scheduleWorkOrder(
+            @Parameter(description = "Work order ID") @PathVariable Long id,
+            @Valid @RequestBody WorkloadScheduleDTO dto,
+            HttpServletRequest req) {
+        User user = userService.whoami(req);
+        checkAccess(user);
+        workloadService.scheduleWorkOrder(id, dto, user);
+        return ResponseEntity.ok(new SuccessResponse(true, "Work order scheduled successfully"));
     }
 
     private void checkAccess(User user) {
