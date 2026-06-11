@@ -22,4 +22,6 @@ public class ShiftDayConfiguration {
 
     @Schema(description = "Availability in minutes for this day")
     private int availabilityMinutes;
+
+    private boolean enabled = true;
 }

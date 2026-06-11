@@ -70,4 +70,11 @@
             </column>
         </addColumn>
     </changeSet>
+    <changeSet id="1781193577010-1" author="">
+        <addColumn tableName="shift_configuration_days">
+            <column name="enabled" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
