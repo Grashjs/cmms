@@ -1853,7 +1853,21 @@ const locale = {
   go_to_billing: 'Go to Billing',
   import_from_spreadsheet: 'Import from a spreadsheet or CSV',
   reset: 'Reset',
-  confirm_delete_row: 'Are you sure you want to delete this row?'
+  confirm_delete_row: 'Are you sure you want to delete this row?',
+  scheduled: 'Scheduled',
+  customize_shift: 'Customize Shift',
+  default_schedule: 'Default Schedule',
+  custom_capacity_by_week: 'Custom Capacity by Week',
+  total_weekly_capacity: 'Total weekly capacity {{hours}}h {{minutes}}m',
+  hours_abbrev: 'h',
+  minutes_abbrev: 'm',
+  monday: 'Monday',
+  tuesday: 'Tuesday',
+  wednesday: 'Wednesday',
+  thursday: 'Thursday',
+  friday: 'Friday',
+  saturday: 'Saturday',
+  sunday: 'Sunday'
 };
 
 export default locale;
