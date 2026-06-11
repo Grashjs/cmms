@@ -6,6 +6,7 @@ import com.grash.model.User;
 import com.grash.model.UserAppStats;
 import com.grash.service.ReviewEligibilityService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import java.util.Map;
 @RequestMapping("/reviews")
 @Tag(name = "Reviews", description = "Operations on in-app review prompts")
 @RequiredArgsConstructor
+@Hidden
 public class ReviewController {
 
     private final ReviewEligibilityService reviewEligibilityService;
