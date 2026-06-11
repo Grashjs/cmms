@@ -2,7 +2,11 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 import type { AppThunk } from 'src/store';
 import api from '../utils/api';
-import type { WorkloadOverviewDTO, UnscheduledWorkOrdersDTO, WorkloadWorkOrderDTO } from '../models/owns/workload';
+import type {
+  WorkloadOverviewDTO,
+  UnscheduledWorkOrdersDTO,
+  WorkloadWorkOrderDTO
+} from '../models/owns/workload';
 
 const basePath = 'workload';
 
@@ -88,11 +92,7 @@ const slice = createSlice({
 export const reducer = slice.reducer;
 
 export const getOverview =
-  (
-    startDate: string,
-    endDate: string,
-    userIds?: number[]
-  ): AppThunk =>
+  (startDate: string, endDate: string, userIds?: number[]): AppThunk =>
   async (dispatch) => {
     dispatch(slice.actions.setLoadingOverview({ loading: true }));
     try {
@@ -131,17 +131,21 @@ export const getUnscheduled =
 export const scheduleWorkOrder =
   (
     workOrderId: number,
-    dto: { estimatedStartDate: string | null; estimatedDuration: number | null; primaryUserId: number | null }
+    dto: {
+      estimatedStartDate: string | null;
+      estimatedDuration: number | null;
+      primaryUserId: number | null;
+    }
   ): AppThunk =>
   async (dispatch) => {
-    await api.patch(`work-orders/${workOrderId}/schedule`, dto);
+    await api.patch(`${basePath}/work-orders/${workOrderId}/schedule`, dto);
     dispatch(slice.actions.removeFromUnscheduled({ id: workOrderId }));
   };
 
 export const unscheduleWorkOrder =
   (workOrderId: number, workOrder: WorkloadWorkOrderDTO): AppThunk =>
   async (dispatch) => {
-    await api.patch(`work-orders/${workOrderId}/schedule`, {
+    await api.patch(`${basePath}/work-orders/${workOrderId}/schedule`, {
       estimatedStartDate: null,
       estimatedDuration: null,
       primaryUserId: null

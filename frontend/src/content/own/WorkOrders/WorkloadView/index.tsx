@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Button,
@@ -30,9 +30,7 @@ import {
   getOverview,
   getUnscheduled,
   scheduleWorkOrder,
-  unscheduleWorkOrder,
-  removeFromUnscheduled,
-  addToUnscheduled
+  unscheduleWorkOrder
 } from 'src/slices/workload';
 import type {
   WorkloadDayDTO,
@@ -40,6 +38,12 @@ import type {
   WorkloadUserDayDTO,
   WorkloadWorkOrderDTO
 } from 'src/models/owns/workload';
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  type DropResult
+} from 'react-beautiful-dnd';
 import ArrowForwardTwoToneIcon from '@mui/icons-material/ArrowForwardTwoTone';
 import ArrowBackTwoToneIcon from '@mui/icons-material/ArrowBackTwoTone';
 import TodayTwoToneIcon from '@mui/icons-material/TodayTwoTone';
@@ -57,6 +61,9 @@ const barColor = (percent: number) =>
 const pctTextColor = (percent: number) =>
   percent > 100 ? 'error' : percent > 80 ? 'warning' : 'success';
 
+const userCellDroppableId = (userId: number, dateStr: string) =>
+  `user-${userId}-${dateStr}`;
+
 function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
@@ -67,7 +74,6 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
   const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [expandedStatus, setExpandedStatus] = useState<string | null>(null);
-  const [draggedWO, setDraggedWO] = useState<WorkloadWorkOrderDTO | null>(null);
 
   const weekStart = useMemo(
     () => startOfWeek(currentDate, { weekStartsOn: 1 }),
@@ -172,85 +178,65 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
     );
   };
 
-  const handleSchedule = async (
-    workOrder: WorkloadWorkOrderDTO,
-    date: Date,
-    userId: number
-  ) => {
-    const dateStr = format(date, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-    await dispatch(
-      scheduleWorkOrder(workOrder.id, {
+  const findWOInUnscheduled = (id: number) =>
+    unscheduled?.workOrders.find((w) => w.id === id) ?? null;
+
+  const findWOInUserDays = (id: number): WorkloadWorkOrderDTO | null => {
+    for (const day of overview?.days ?? []) {
+      for (const u of day.users) {
+        const found = u.workOrders.find((w) => w.id === id);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  const findWOByDraggableId = (draggableId: string) => {
+    const id = Number(draggableId.replace('wo-', ''));
+    return findWOInUnscheduled(id) ?? findWOInUserDays(id);
+  };
+
+  const handleDragEnd = (result: DropResult) => {
+    const { source, destination, draggableId } = result;
+    if (!destination) return;
+    if (
+      source.droppableId === destination.droppableId &&
+      source.index === destination.index
+    )
+      return;
+
+    const wo = findWOByDraggableId(draggableId);
+    if (!wo) return;
+
+    const isUnscheduled = (id: string) => id === 'unscheduled';
+    const parseDroppable = (id: string) =>
+      /^user-(\d+)-(\d{4}-\d{2}-\d{2})$/.exec(id);
+
+    if (
+      isUnscheduled(source.droppableId) &&
+      isUnscheduled(destination.droppableId)
+    )
+      return;
+
+    if (
+      !isUnscheduled(source.droppableId) &&
+      isUnscheduled(destination.droppableId)
+    ) {
+      dispatch(unscheduleWorkOrder(wo.id, wo)).then(() => loadOverview());
+      return;
+    }
+
+    const match = parseDroppable(destination.droppableId);
+    if (!match) return;
+
+    const dateStr = format(new Date(match[2]), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    dispatch(
+      scheduleWorkOrder(wo.id, {
         estimatedStartDate: dateStr,
-        estimatedDuration: workOrder.estimatedDuration || null,
-        primaryUserId: userId
+        estimatedDuration: wo.estimatedDuration || 0.5,
+        primaryUserId: Number(match[1])
       })
-    );
-    loadOverview();
-  };
-
-  const handleUnschedule = async (workOrder: WorkloadWorkOrderDTO) => {
-    await dispatch(unscheduleWorkOrder(workOrder.id, workOrder));
-    loadOverview();
-  };
-
-  const onDragStart = (
-    e: React.DragEvent,
-    wo: WorkloadWorkOrderDTO,
-    source: 'unscheduled' | 'user'
-  ) => {
-    e.dataTransfer.setData('text/plain', JSON.stringify({ id: wo.id, source }));
-    e.dataTransfer.effectAllowed = 'move';
-    setDraggedWO(wo);
-  };
-
-  const onDragOverUser = (e: React.DragEvent) => {
-    if (e.dataTransfer.types.includes('text/plain')) {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-    }
-  };
-
-  const onDropOnUser = (
-    e: React.DragEvent,
-    targetDate: Date,
-    targetUserId: number
-  ) => {
-    e.preventDefault();
-    setDraggedWO(null);
-    try {
-      const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-      if (data.source === 'unscheduled') {
-        const wo = unscheduled?.workOrders.find((w) => w.id === data.id);
-        if (wo) {
-          handleSchedule(wo, targetDate, targetUserId);
-        }
-      }
-    } catch {}
-  };
-
-  const onDragOverUnscheduled = (e: React.DragEvent) => {
-    if (e.dataTransfer.types.includes('text/plain')) {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-    }
-  };
-
-  const onDropOnUnscheduled = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDraggedWO(null);
-    try {
-      const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-      if (data.source === 'user') {
-        const allUserDays = overview?.days?.flatMap((d) => d.users) ?? [];
-        for (const ud of allUserDays) {
-          const wo = ud.workOrders.find((w) => w.id === data.id);
-          if (wo) {
-            handleUnschedule(wo);
-            return;
-          }
-        }
-      }
-    } catch {}
+    ).then(() => loadOverview());
   };
 
   const renderGridHeader = (title: string) => (
@@ -290,22 +276,6 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
     </>
   );
 
-  const renderWOChip = (
-    wo: WorkloadWorkOrderDTO,
-    source: 'unscheduled' | 'user'
-  ) => (
-    <Chip
-      key={wo.id}
-      label={`#${wo.customId ?? ''} ${wo.title}`}
-      size="small"
-      variant="outlined"
-      draggable
-      onDragStart={(e) => onDragStart(e, wo, source)}
-      onClick={() => handleOpenDetails(wo.id, 'WORK_ORDER')}
-      sx={{ mt: 0.3, mr: 0.3, maxWidth: 130, fontSize: 10 }}
-    />
-  );
-
   const overdueWOs = useMemo(() => {
     if (!unscheduled) return [];
     const now = new Date();
@@ -324,260 +294,336 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
     );
   }, [unscheduled]);
 
-  return (
-    <Box sx={{ p: 2 }}>
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{ mb: 2 }}
-      >
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <IconButton onClick={handlePrevWeek}>
-            <ArrowBackTwoToneIcon />
-          </IconButton>
-          <Button
-            size="small"
-            variant="outlined"
-            startIcon={<TodayTwoToneIcon />}
-            onClick={handleThisWeek}
-          >
-            {t('this_week')}
-          </Button>
-          <IconButton onClick={handleNextWeek}>
-            <ArrowForwardTwoToneIcon />
-          </IconButton>
-          <Typography variant="h6" sx={{ ml: 1 }}>
-            {format(weekStart, 'MMM d', { locale: dateLocale })} -{' '}
-            {format(weekEnd, 'MMM d, yyyy', { locale: dateLocale })}
-          </Typography>
-        </Stack>
-        <FormControl size="small" sx={{ minWidth: 240 }}>
-          <InputLabel>{t('users')}</InputLabel>
-          <Select
-            multiple
-            value={selectedUserIds}
-            onChange={(e) => setSelectedUserIds(e.target.value as number[])}
-            input={<OutlinedInput label={t('users')} />}
-            renderValue={(selected) => {
-              const names = selected
-                .map(
-                  (id) =>
-                    allUsers.find((u) => u.id === id)?.firstName ||
-                    allUsers.find((u) => u.id === id)?.lastName ||
-                    String(id)
-                )
-                .join(', ');
-              return names || t('all_users');
-            }}
-          >
-            {allUsers.map((user) => (
-              <MenuItem key={user.id} value={user.id}>
-                {user.firstName} {user.lastName}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Stack>
+  const displayWOs = (status: string) => {
+    if (status === '__overdue__') return overdueWOs;
+    if (status === '__due_soon__') return dueSoonWOs;
+    return unscheduled?.workOrders.filter((wo) => wo.status === status) ?? [];
+  };
 
-      <Card sx={{ p: 2, mb: 2 }}>
-        {loadingOverview ? (
-          <CircularProgress size={24} />
-        ) : (
-          <Box sx={{ overflowX: 'auto' }}>
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: `${GRID_LABEL_WIDTH}px repeat(7, 1fr)`,
-                width: '100%'
+  return (
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <Box sx={{ p: 2 }}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ mb: 2 }}
+        >
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <IconButton onClick={handlePrevWeek}>
+              <ArrowBackTwoToneIcon />
+            </IconButton>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<TodayTwoToneIcon />}
+              onClick={handleThisWeek}
+            >
+              {t('this_week')}
+            </Button>
+            <IconButton onClick={handleNextWeek}>
+              <ArrowForwardTwoToneIcon />
+            </IconButton>
+            <Typography variant="h6" sx={{ ml: 1 }}>
+              {format(weekStart, 'MMM d', { locale: dateLocale })} -{' '}
+              {format(weekEnd, 'MMM d, yyyy', { locale: dateLocale })}
+            </Typography>
+          </Stack>
+          <FormControl size="small" sx={{ minWidth: 240 }}>
+            <InputLabel>{t('users')}</InputLabel>
+            <Select
+              multiple
+              value={selectedUserIds}
+              onChange={(e) => setSelectedUserIds(e.target.value as number[])}
+              input={<OutlinedInput label={t('users')} />}
+              renderValue={(selected) => {
+                const names = selected
+                  .map(
+                    (id) =>
+                      allUsers.find((u) => u.id === id)?.firstName ||
+                      allUsers.find((u) => u.id === id)?.lastName ||
+                      String(id)
+                  )
+                  .join(', ');
+                return names || t('all_users');
               }}
             >
-              {renderGridHeader(t('total_resource_capacity'))}
-              {renderCapacityCell(
-                overview?.teamAllocatedMinutes ?? 0,
-                overview?.teamCapacityMinutes ?? 0
-              )}
-              {overview?.days?.map((day) =>
-                renderCapacityCell(
-                  day.teamAllocatedMinutes,
-                  day.teamCapacityMinutes
-                )
-              )}
-            </Box>
-          </Box>
-        )}
-      </Card>
+              {allUsers.map((user) => (
+                <MenuItem key={user.id} value={user.id}>
+                  {user.firstName} {user.lastName}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Stack>
 
-      <Card
-        sx={{ p: 2, mb: 2 }}
-        onDragOver={onDragOverUnscheduled}
-        onDrop={onDropOnUnscheduled}
-      >
-        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-          {t('unscheduled_work_orders')}
-        </Typography>
-        {loadingUnscheduled ? (
-          <CircularProgress size={24} />
-        ) : (
-          <Stack direction="row" spacing={1} flexWrap="wrap">
-            {unscheduled?.statusCounts &&
-              Object.entries(unscheduled.statusCounts).map(
-                ([status, count]) => (
+        <Card sx={{ p: 2, mb: 2 }}>
+          {loadingOverview ? (
+            <CircularProgress size={24} />
+          ) : (
+            <Box sx={{ overflowX: 'auto' }}>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: `${GRID_LABEL_WIDTH}px repeat(7, 1fr)`,
+                  width: '100%'
+                }}
+              >
+                {renderGridHeader(t('total_resource_capacity'))}
+                {renderCapacityCell(
+                  overview?.teamAllocatedMinutes ?? 0,
+                  overview?.teamCapacityMinutes ?? 0
+                )}
+                {overview?.days?.map((day) =>
+                  renderCapacityCell(
+                    day.teamAllocatedMinutes,
+                    day.teamCapacityMinutes
+                  )
+                )}
+              </Box>
+            </Box>
+          )}
+        </Card>
+
+        <Droppable droppableId="unscheduled">
+          {(provided, snapshot) => (
+            <Card
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              sx={{
+                p: 2,
+                mb: 2,
+                bgcolor: snapshot.isDraggingOver ? 'action.hover' : undefined
+              }}
+            >
+              <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+                {t('unscheduled_work_orders')}
+              </Typography>
+              {loadingUnscheduled ? (
+                <CircularProgress size={24} />
+              ) : (
+                <Stack direction="row" spacing={1} flexWrap="wrap">
+                  {unscheduled?.statusCounts &&
+                    Object.entries(unscheduled.statusCounts).map(
+                      ([status, count]) => (
+                        <Chip
+                          key={status}
+                          label={`${t(status)}: ${count}`}
+                          color="primary"
+                          variant={
+                            expandedStatus === status ? 'filled' : 'outlined'
+                          }
+                          onClick={() =>
+                            setExpandedStatus(
+                              expandedStatus === status ? null : status
+                            )
+                          }
+                        />
+                      )
+                    )}
                   <Chip
-                    key={status}
-                    label={`${t(status)}: ${count}`}
-                    color="primary"
-                    variant="outlined"
+                    label={`${t('overdue')}: ${overdueWOs.length}`}
+                    color="error"
+                    variant={
+                      expandedStatus === '__overdue__' ? 'filled' : 'outlined'
+                    }
                     onClick={() =>
                       setExpandedStatus(
-                        expandedStatus === status ? null : status
+                        expandedStatus === '__overdue__' ? null : '__overdue__'
                       )
                     }
                   />
-                )
+                  <Chip
+                    label={`${t('due_soon')}: ${dueSoonWOs.length}`}
+                    color="warning"
+                    variant={
+                      expandedStatus === '__due_soon__' ? 'filled' : 'outlined'
+                    }
+                    onClick={() =>
+                      setExpandedStatus(
+                        expandedStatus === '__due_soon__'
+                          ? null
+                          : '__due_soon__'
+                      )
+                    }
+                  />
+                </Stack>
               )}
-            <Chip
-              label={`${t('overdue')}: ${overdueWOs.length}`}
-              color="error"
-              variant={expandedStatus === '__overdue__' ? 'filled' : 'outlined'}
-              onClick={() =>
-                setExpandedStatus(
-                  expandedStatus === '__overdue__' ? null : '__overdue__'
-                )
-              }
-            />
-            <Chip
-              label={`${t('due_soon')}: ${dueSoonWOs.length}`}
-              color="warning"
-              variant={
-                expandedStatus === '__due_soon__' ? 'filled' : 'outlined'
-              }
-              onClick={() =>
-                setExpandedStatus(
-                  expandedStatus === '__due_soon__' ? null : '__due_soon__'
-                )
-              }
-            />
-          </Stack>
-        )}
-        {expandedStatus && unscheduled && (
-          <Box sx={{ mt: 1 }}>
-            {(expandedStatus === '__overdue__'
-              ? overdueWOs
-              : expandedStatus === '__due_soon__'
-              ? dueSoonWOs
-              : unscheduled.workOrders.filter(
-                  (wo) => wo.status === expandedStatus
-                )
-            ).map((wo) => (
-              <Box key={wo.id} sx={{ display: 'inline-block' }}>
-                {renderWOChip(wo, 'unscheduled')}
-              </Box>
-            ))}
-          </Box>
-        )}
-      </Card>
+              {expandedStatus && (
+                <Stack
+                  direction="row"
+                  spacing={0.5}
+                  sx={{ mt: 1, flexWrap: 'wrap' }}
+                >
+                  {displayWOs(expandedStatus).map((wo, index) => (
+                    <Draggable
+                      key={wo.id}
+                      draggableId={`wo-${wo.id}`}
+                      index={index}
+                    >
+                      {(provided, snapshot) => (
+                        <Chip
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          label={`#${wo.customId ?? ''} ${wo.title}`}
+                          size="small"
+                          variant="outlined"
+                          onClick={() => handleOpenDetails(wo.id, 'WORK_ORDER')}
+                          sx={{
+                            maxWidth: 250,
+                            mb: 0.5,
+                            ...(snapshot.isDragging ? { boxShadow: 3 } : {})
+                          }}
+                        />
+                      )}
+                    </Draggable>
+                  ))}
+                </Stack>
+              )}
+              {provided.placeholder}
+            </Card>
+          )}
+        </Droppable>
 
-      <Card sx={{ p: 2 }}>
-        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-          {t('user_capacity')}
-        </Typography>
-        {loadingOverview ? (
-          <CircularProgress size={24} />
-        ) : (
-          <Box sx={{ overflowX: 'auto' }}>
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: `${GRID_LABEL_WIDTH}px repeat(7, 1fr)`,
-                width: '100%'
-              }}
-            >
-              {renderGridHeader(t('team_member'))}
-              {allUniqueUsers.length === 0 && overview && (
-                <Box sx={{ gridColumn: '1 / -1', p: 2, textAlign: 'center' }}>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('no_data')}
-                  </Typography>
-                </Box>
-              )}
-              {allUniqueUsers.map((userSummary) => (
-                <>
-                  <Box
-                    key={`name-${userSummary.userId}`}
-                    sx={{
-                      p: 1,
-                      borderBottom: 1,
-                      borderColor: 'divider',
-                      display: 'flex',
-                      alignItems: 'center'
-                    }}
-                  >
-                    <Typography variant="body2" noWrap>
-                      {userSummary.fullName ||
-                        allUsers.find((u) => u.id === userSummary.userId)
-                          ?.firstName ||
-                        ''}
+        <Card sx={{ p: 2 }}>
+          <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+            {t('user_capacity')}
+          </Typography>
+          {loadingOverview ? (
+            <CircularProgress size={24} />
+          ) : (
+            <Box sx={{ overflowX: 'auto' }}>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: `${GRID_LABEL_WIDTH}px repeat(7, 1fr)`,
+                  width: '100%'
+                }}
+              >
+                {renderGridHeader(t('team_member'))}
+                {allUniqueUsers.length === 0 && overview && (
+                  <Box sx={{ gridColumn: '1 / -1', p: 2, textAlign: 'center' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('no_data')}
                     </Typography>
                   </Box>
-                  {weekDays.map((day) => {
-                    const dayData = getDayData(overview, day);
-                    const userDayData = dayData?.users?.find(
-                      (u) => u.userId === userSummary.userId
-                    );
-                    return (
-                      <Box
-                        key={`${userSummary.userId}-${day.toISOString()}`}
-                        onDragOver={onDragOverUser}
-                        onDrop={(e) => onDropOnUser(e, day, userSummary.userId)}
-                        sx={{
-                          borderBottom: 1,
-                          borderLeft: 1,
-                          borderColor: 'divider',
-                          p: 0.5,
-                          minHeight: 60,
-                          transition: 'background-color 0.2s',
-                          '&:hover': draggedWO
-                            ? { backgroundColor: 'action.hover' }
-                            : {}
-                        }}
-                      >
-                        {userDayData ? (
-                          <Box>
-                            {renderCapacityBar(
-                              userDayData.allocatedMinutes,
-                              userDayData.capacityMinutes
-                            )}
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
+                )}
+                {allUniqueUsers.map((userSummary) => (
+                  <>
+                    <Box
+                      key={`name-${userSummary.userId}`}
+                      sx={{
+                        p: 1,
+                        borderBottom: 1,
+                        borderColor: 'divider',
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <Typography variant="body2" noWrap>
+                        {userSummary.fullName ||
+                          allUsers.find((u) => u.id === userSummary.userId)
+                            ?.firstName ||
+                          ''}
+                      </Typography>
+                    </Box>
+                    {weekDays.map((day) => {
+                      const dayData = getDayData(overview, day);
+                      const userDayData = dayData?.users?.find(
+                        (u) => u.userId === userSummary.userId
+                      );
+                      const droppableId = userCellDroppableId(
+                        userSummary.userId,
+                        formatDate(day)
+                      );
+                      return (
+                        <Droppable key={droppableId} droppableId={droppableId}>
+                          {(provided, snapshot) => (
+                            <Box
+                              ref={provided.innerRef}
+                              {...provided.droppableProps}
+                              sx={{
+                                borderBottom: 1,
+                                borderLeft: 1,
+                                borderColor: 'divider',
+                                p: 0.5,
+                                minHeight: 60,
+                                bgcolor: snapshot.isDraggingOver
+                                  ? 'action.selected'
+                                  : undefined
+                              }}
                             >
-                              {Math.round(userDayData.allocatedMinutes)}/
-                              {userDayData.capacityMinutes}min
-                            </Typography>
-                            {userDayData.workOrders.map((wo) =>
-                              renderWOChip(wo, 'user')
-                            )}
-                          </Box>
-                        ) : (
-                          <Typography
-                            variant="caption"
-                            color="text.disabled"
-                            sx={{ p: 0.5, display: 'block' }}
-                          >
-                            -
-                          </Typography>
-                        )}
-                      </Box>
-                    );
-                  })}
-                </>
-              ))}
+                              {userDayData ? (
+                                <Box>
+                                  {renderCapacityBar(
+                                    userDayData.allocatedMinutes,
+                                    userDayData.capacityMinutes
+                                  )}
+                                  <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                  >
+                                    {Math.round(userDayData.allocatedMinutes)}/
+                                    {userDayData.capacityMinutes}min
+                                  </Typography>
+                                  {userDayData.workOrders.map((wo, index) => (
+                                    <Draggable
+                                      key={wo.id}
+                                      draggableId={`wo-${wo.id}`}
+                                      index={index}
+                                    >
+                                      {(provided, snapshot) => (
+                                        <Chip
+                                          ref={provided.innerRef}
+                                          {...provided.draggableProps}
+                                          {...provided.dragHandleProps}
+                                          label={wo.title}
+                                          size="small"
+                                          variant="outlined"
+                                          onClick={() =>
+                                            handleOpenDetails(
+                                              wo.id,
+                                              'WORK_ORDER'
+                                            )
+                                          }
+                                          sx={{
+                                            mt: 0.3,
+                                            mr: 0.3,
+                                            maxWidth: 110,
+                                            fontSize: 10,
+                                            ...(snapshot.isDragging
+                                              ? { boxShadow: 3 }
+                                              : {})
+                                          }}
+                                        />
+                                      )}
+                                    </Draggable>
+                                  ))}
+                                </Box>
+                              ) : (
+                                <Typography
+                                  variant="caption"
+                                  color="text.disabled"
+                                  sx={{ p: 0.5, display: 'block' }}
+                                >
+                                  -
+                                </Typography>
+                              )}
+                              {provided.placeholder}
+                            </Box>
+                          )}
+                        </Droppable>
+                      );
+                    })}
+                  </>
+                ))}
+              </Box>
             </Box>
-          </Box>
-        )}
-      </Card>
-    </Box>
+          )}
+        </Card>
+      </Box>
+    </DragDropContext>
   );
 }
 

@@ -150,7 +150,7 @@ public class WorkloadService {
         }
 
         workOrder.setEstimatedStartDate(dto.getEstimatedStartDate());
-        workOrder.setEstimatedDuration(dto.getEstimatedDuration());
+        if (dto.getEstimatedDuration() != null) workOrder.setEstimatedDuration(dto.getEstimatedDuration());
         if (dto.getPrimaryUserId() == null) {
             workOrder.setPrimaryUser(null);
         } else {
