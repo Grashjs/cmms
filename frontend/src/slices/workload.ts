@@ -222,8 +222,6 @@ export const scheduleWorkOrder =
         })
       );
     }
-    dispatch(slice.actions.removeFromUnscheduled({ id: workOrderId }));
-    dispatch(slice.actions.removeWoFromOverview({ workOrderId }));
     const woInUnscheduled = getState().workload.unscheduled?.workOrders.find(
       (w) => w.id === workOrderId
     );
@@ -233,13 +231,8 @@ export const scheduleWorkOrder =
       ...woInUnscheduled,
       ...woInDays
     };
-    console.log(
-      woInContent,
-      getState().workload,
-      woInUnscheduled,
-      woInDays,
-      workOrder
-    );
+    dispatch(slice.actions.removeWoFromOverview({ workOrderId }));
+    dispatch(slice.actions.removeFromUnscheduled({ id: workOrderId }));
     dispatch(
       slice.actions.addWoToUserDay({
         workOrder: {
