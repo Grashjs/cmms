@@ -421,7 +421,13 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
 
           <Card sx={{ p: 2, mb: 2 }}>
             {loadingOverview ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  width: '100%'
+                }}
+              >
                 <CircularProgress size={24} />
               </Box>
             ) : (
@@ -464,7 +470,13 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
                   {t('unscheduled_work_orders')}
                 </Typography>
                 {loadingUnscheduled ? (
-                  <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      width: '100%'
+                    }}
+                  >
                     <CircularProgress size={24} />
                   </Box>
                 ) : (
@@ -569,7 +581,13 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
               {t('user_capacity')}
             </Typography>
             {loadingOverview ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  width: '100%'
+                }}
+              >
                 <CircularProgress size={24} />
               </Box>
             ) : (
@@ -658,7 +676,7 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
                                         return `${h}${t(
                                           'hours_abbrev'
                                         )}${String(m).padStart(2, '0')} ${t(
-                                          'left'
+                                          'hours_left'
                                         )}`;
                                       })()}
                                     </Typography>

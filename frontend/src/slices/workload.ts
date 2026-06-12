@@ -98,11 +98,6 @@ const slice = createSlice({
       const { workOrder, userId, date } = action.payload;
       if (!state.overview) return;
       const day = state.overview.days.find((d) => d.date === date);
-      console.log(
-        date,
-        day,
-        state.overview.days.map((d) => d.date)
-      );
       if (!day) return;
       let userDay = day.users.find((u) => u.userId === userId);
       if (!userDay) {
@@ -202,14 +197,20 @@ export const scheduleWorkOrder =
       `${basePath}/work-orders/${workOrderId}/schedule`,
       dto
     );
-    const wo = getState().workOrders.workOrders.content.find(
+    const woInContent = getState().workOrders.workOrders.content.find(
       (w) => w.id === workOrderId
     );
-    if (wo) {
+    const dayWos = getState().workload.overview?.days ?? [];
+
+    const woInDays = dayWos
+      .flatMap((day) => day.users)
+      .flatMap((user) => user.workOrders)
+      .find((workOrder) => workOrder.id === workOrderId);
+    if (woInContent) {
       dispatch(
         updateWorkOrderInContent({
           workOrder: {
-            ...wo,
+            ...woInContent,
             estimatedStartDate: response.estimatedStartDate,
             primaryUser: {
               id: response.userId,
@@ -223,17 +224,18 @@ export const scheduleWorkOrder =
     }
     dispatch(slice.actions.removeFromUnscheduled({ id: workOrderId }));
     dispatch(slice.actions.removeWoFromOverview({ workOrderId }));
+    const workOrder = woInContent || woInDays;
     dispatch(
       slice.actions.addWoToUserDay({
         workOrder: {
           id: workOrderId,
-          customId: wo?.customId ?? '',
-          title: wo?.title ?? '',
-          status: wo?.status ?? '',
+          customId: workOrder?.customId ?? '',
+          title: workOrder?.title ?? '',
+          status: workOrder?.status ?? '',
           estimatedDuration:
-            wo?.estimatedDuration ?? dto.estimatedDuration ?? 0,
+            workOrder?.estimatedDuration ?? dto.estimatedDuration ?? 0,
           estimatedStartDate: response.estimatedStartDate,
-          dueDate: wo?.dueDate ?? ''
+          dueDate: workOrder?.dueDate ?? ''
         },
         userId: dto.primaryUserId,
         date: dto.localDate.substring(0, 10)

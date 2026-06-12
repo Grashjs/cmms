@@ -245,16 +245,6 @@ const locale = {
   list_view: 'List View',
   calendar_view: 'Calendar View',
   column_view: 'Column View',
-  workload_view: 'Workload View',
-  this_week: 'This Week',
-  total_resource_capacity: 'Total Resource Capacity',
-  unscheduled_work_orders: 'Unscheduled Work Orders',
-  user_capacity: 'User Capacity',
-  overdue: 'Overdue',
-  due_soon: 'Due Soon',
-  all_users: 'All Users',
-  team_member: 'Team Member',
-  no_data: 'No data',
   wo_create_success: 'The Work Order has been created successfully',
   wo_create_failure: "The Work Order couldn't be created",
   changes_saved_success: 'The changes have been saved',
@@ -1879,7 +1869,18 @@ const locale = {
   saturday: 'Saturday',
   sunday: 'Sunday',
   set_estimated_duration: 'Set estimated duration',
-  schedule: 'Schedule'
+  schedule: 'Schedule',
+  workload_view: 'Workload view',
+  this_week: 'This Week',
+  total_resource_capacity: 'Total Resource Capacity',
+  unscheduled_work_orders: 'Unscheduled Work Orders',
+  user_capacity: 'User Capacity',
+  overdue: 'Overdue',
+  due_soon: 'Due Soon',
+  all_users: 'All Users',
+  team_member: 'Team Member',
+  no_data: 'No data',
+  hours_left: 'left'
 };
 
 export default locale;
