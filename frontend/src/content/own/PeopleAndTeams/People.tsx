@@ -384,7 +384,7 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
       header: () => t('scheduled'),
       cell: (info) => {
         const sc = info.row.original.shiftConfiguration;
-        if (!sc?.days) return '';
+        if (!sc.enabled || !sc?.days) return t('no');
         const enabledDays = sc.days
           .filter((d) => d.enabled)
           .map((d) => t(d.dayOfWeek.toLowerCase()));

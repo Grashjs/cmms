@@ -183,7 +183,8 @@ function WorkOrders() {
       value: 'workload',
       label: t('workload_view'),
       disabled:
-        !hasViewPermission(PermissionEntity.WORK_ORDERS) ||
+        !hasViewOtherPermission(PermissionEntity.WORK_ORDERS) ||
+        !hasViewPermission(PermissionEntity.PEOPLE_AND_TEAMS) ||
         !hasResourcePlanningEntitlement ||
         !hasFeature(PlanFeature.RESOURCE_PLANNING)
     },

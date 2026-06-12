@@ -143,14 +143,18 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
   const pct = (allocated: number, capacity: number) =>
     capacity > 0 ? Math.round((allocated / capacity) * 100) : 0;
 
-  const renderCapacityBar = (allocated: number, capacity: number) => {
+  const renderCapacityBar = (
+    allocated: number,
+    capacity: number,
+    disabled?: boolean
+  ) => {
     const percent = pct(allocated, capacity);
     return (
       <Tooltip title={`${Math.round(allocated)}/${capacity} ${t('minutes')}`}>
         <LinearProgress
           variant="determinate"
           value={Math.min(percent, 100)}
-          color={barColor(percent)}
+          color={disabled ? 'inherit' : barColor(percent)}
           sx={{ height: 10, borderRadius: 1, width: '100%' }}
         />
       </Tooltip>
@@ -557,7 +561,8 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
                                 <Box>
                                   {renderCapacityBar(
                                     userDayData.allocatedMinutes,
-                                    userDayData.capacityMinutes
+                                    userDayData.capacityMinutes,
+                                    userDayData.capacityMinutes === 0
                                   )}
                                   <Typography
                                     variant="caption"

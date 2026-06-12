@@ -59,7 +59,7 @@ public class ShiftConfigurationController {
                                                   HttpServletRequest req) {
         User user = userService.findById(userId).orElseThrow(() -> new CustomException("User not found",
                 HttpStatus.NOT_FOUND));
-        if (!user.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS) || !user.getCompany().getId().equals(currentUser.getCompany().getId())) {
+        if (!currentUser.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS) || !user.getCompany().getId().equals(currentUser.getCompany().getId())) {
             throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         }
         ShiftConfiguration patched = shiftConfigurationService.update(user, dto);
