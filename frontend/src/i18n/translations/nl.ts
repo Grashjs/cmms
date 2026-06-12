@@ -1872,9 +1872,10 @@ const locale = {
   edit_custom_field: 'Aangepast veld bewerken',
   confirm_delete_custom_field:
     'Weet je zeker dat je dit aangepaste veld wilt verwijderen?',
-  copy_on_repeat_wo: 'Kopieer de waarden van dit veld bij herhalende werkorders',
+  copy_on_repeat_wo:
+    'Kopieer de waarden van dit veld bij herhalende werkorders',
   do_not_copy: 'Niet kopiëren',
-  enter_options_comma_separated: 'Voer opties gescheiden door komma\'s in',
+  enter_options_comma_separated: "Voer opties gescheiden door komma's in",
   field_type: 'Veldtype',
   options: 'Opties',
   short_text: 'Korte tekst',
@@ -1887,10 +1888,12 @@ const locale = {
   type_enter_to_add_option: 'Typ en druk op enter om een optie toe te voegen',
   customers_settings_description:
     'Beheer externe aannemers waarmee uw organisatie werkt.',
-  vendors_settings_description: 'Pas leveranciers-gerelateerde instellingen aan',
+  vendors_settings_description:
+    'Pas leveranciers-gerelateerde instellingen aan',
   view: 'Bekijken',
   view_other: 'Andere bekijken',
-  view_other_hint: '"Andere bekijken" betekent iets bekijken dat door iemand anders is gemaakt',
+  view_other_hint:
+    '"Andere bekijken" betekent iets bekijken dat door iemand anders is gemaakt',
   go_to_billing: 'Ga naar facturatie',
   import_from_spreadsheet: 'Importeren uit een spreadsheet of CSV',
   reset: 'Resetten',
@@ -1912,7 +1915,6 @@ const locale = {
   set_estimated_duration: 'Geschatte duur instellen',
   schedule: 'Plannen',
   workload_view: 'Werkbelastingweergave',
-  this_week: 'Deze week',
   total_resource_capacity: 'Totale resourcecapaciteit',
   unscheduled_work_orders: 'Niet-geplande werkorders',
   user_capacity: 'Gebruikercapaciteit',
