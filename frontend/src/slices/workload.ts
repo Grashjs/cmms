@@ -224,7 +224,10 @@ export const scheduleWorkOrder =
     }
     dispatch(slice.actions.removeFromUnscheduled({ id: workOrderId }));
     dispatch(slice.actions.removeWoFromOverview({ workOrderId }));
-    const workOrder = woInContent || woInDays;
+    const workOrder = {
+      ...woInContent,
+      ...woInDays
+    };
     dispatch(
       slice.actions.addWoToUserDay({
         workOrder: {
