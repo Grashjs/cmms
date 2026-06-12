@@ -181,3 +181,8 @@ export const getCustomFieldValuesForDetails = (
         : value,
       isLink: customField.fieldType === 'LINK'
     }));
+
+export type SuccessResponse = {
+  success: boolean;
+  message: string;
+};

@@ -141,7 +141,7 @@ public class WorkloadService {
     }
 
     @Transactional
-    public void scheduleWorkOrder(Long workOrderId, WorkloadScheduleDTO dto, User user) {
+    public WorkOrder scheduleWorkOrder(Long workOrderId, WorkloadScheduleDTO dto, User user) {
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
                 .orElseThrow(() -> new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND));
 
@@ -245,7 +245,7 @@ public class WorkloadService {
             workOrder.setEstimatedStartDate(null);
         }
 
-        workOrderService.save(workOrder);
+        return workOrderService.save(workOrder);
     }
 
     public int getUserCapacityForDay(User user, LocalDate date) {

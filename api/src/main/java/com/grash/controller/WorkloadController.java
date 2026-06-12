@@ -2,11 +2,14 @@ package com.grash.controller;
 
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.license.LicenseEntitlement;
+import com.grash.dto.workOrder.WorkOrderScheduleDTO;
+import com.grash.dto.workOrder.WorkOrderShowDTO;
 import com.grash.dto.workload.UnscheduledWorkOrdersDTO;
 import com.grash.dto.workload.WorkloadOverviewDTO;
 import com.grash.dto.workload.WorkloadScheduleDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.User;
+import com.grash.model.WorkOrder;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.Status;
@@ -24,6 +27,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -64,14 +69,20 @@ public class WorkloadController {
 
     @PatchMapping("/work-orders/{id}/schedule")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> scheduleWorkOrder(
+    public WorkOrderScheduleDTO scheduleWorkOrder(
             @Parameter(description = "Work order ID") @PathVariable Long id,
             @Valid @RequestBody WorkloadScheduleDTO dto,
             HttpServletRequest req) {
         User user = userService.whoami(req);
         checkAccess(user);
-        workloadService.scheduleWorkOrder(id, dto, user);
-        return ResponseEntity.ok(new SuccessResponse(true, "Work order scheduled successfully"));
+        WorkOrder workOrder = workloadService.scheduleWorkOrder(id, dto, user);
+        WorkOrderScheduleDTO responseDto = new WorkOrderScheduleDTO();
+        User primaryUser = workOrder.getPrimaryUser();
+        responseDto.setUserId(primaryUser == null ? null : primaryUser.getId());
+        responseDto.setUserFirstName(primaryUser == null ? null : primaryUser.getFirstName());
+        responseDto.setUserLastName(primaryUser == null ? null : primaryUser.getLastName());
+        responseDto.setEstimatedStartDate(workOrder.getEstimatedStartDate());
+        return responseDto;
     }
 
     private void checkAccess(User user) {

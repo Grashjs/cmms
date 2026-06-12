@@ -3,10 +3,11 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { AppThunk } from 'src/store';
 import api from '../utils/api';
 import type {
-  WorkloadOverviewDTO,
   UnscheduledWorkOrdersDTO,
+  WorkloadOverviewDTO,
   WorkloadWorkOrderDTO
 } from '../models/owns/workload';
+import { updateWorkOrderInContent } from './workOrder';
 
 const basePath = 'workload';
 
@@ -128,6 +129,12 @@ export const getUnscheduled =
     }
   };
 
+interface ScheduleWorkOrderResponse {
+  userId: number;
+  userLastName: string;
+  userFirstName: string;
+  estimatedStartDate: string;
+}
 export const scheduleWorkOrder =
   (
     workOrderId: number,
@@ -137,18 +144,62 @@ export const scheduleWorkOrder =
       primaryUserId: number | null;
     }
   ): AppThunk =>
-  async (dispatch) => {
-    await api.patch(`${basePath}/work-orders/${workOrderId}/schedule`, dto);
+  async (dispatch, getState) => {
+    const response = await api.patch<ScheduleWorkOrderResponse>(
+      `${basePath}/work-orders/${workOrderId}/schedule`,
+      dto
+    );
+    const wo = getState().workOrders.workOrders.content.find(
+      (w) => w.id === workOrderId
+    );
+    if (wo) {
+      dispatch(
+        updateWorkOrderInContent({
+          workOrder: {
+            ...wo,
+            estimatedStartDate: response.estimatedStartDate,
+            primaryUser: {
+              id: response.userId,
+              firstName: response.userFirstName,
+              lastName: response.userLastName,
+              image: null
+            }
+          }
+        })
+      );
+    }
     dispatch(slice.actions.removeFromUnscheduled({ id: workOrderId }));
   };
 
 export const unscheduleWorkOrder =
   (workOrderId: number, workOrder: WorkloadWorkOrderDTO): AppThunk =>
-  async (dispatch) => {
-    await api.patch(`${basePath}/work-orders/${workOrderId}/schedule`, {
-      localDate: null,
-      primaryUserId: null
-    });
+  async (dispatch, getState) => {
+    const response = await api.patch<ScheduleWorkOrderResponse>(
+      `${basePath}/work-orders/${workOrderId}/schedule`,
+      {
+        localDate: null,
+        primaryUserId: null
+      }
+    );
+    const wo = getState().workOrders.workOrders.content.find(
+      (w) => w.id === workOrderId
+    );
+    if (wo) {
+      dispatch(
+        updateWorkOrderInContent({
+          workOrder: {
+            ...wo,
+            estimatedStartDate: response.estimatedStartDate,
+            primaryUser: {
+              id: response.userId,
+              firstName: response.userFirstName,
+              lastName: response.userLastName,
+              image: null
+            }
+          }
+        })
+      );
+    }
     dispatch(slice.actions.addToUnscheduled({ workOrder }));
   };
 

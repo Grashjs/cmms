@@ -297,8 +297,8 @@ public class WorkOrderService {
         return workOrderRepository.findAll(builder.build(), page);
     }
 
-    public void save(WorkOrder workOrder) {
-        workOrderRepository.save(workOrder);
+    public WorkOrder save(WorkOrder workOrder) {
+        return workOrderRepository.save(workOrder);
     }
 
     public List<WorkOrder> saveAll(List<WorkOrder> workOrders) {
