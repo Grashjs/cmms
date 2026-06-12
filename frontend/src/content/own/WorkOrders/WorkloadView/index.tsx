@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Button,
@@ -53,6 +53,8 @@ import ArrowForwardTwoToneIcon from '@mui/icons-material/ArrowForwardTwoTone';
 import ArrowBackTwoToneIcon from '@mui/icons-material/ArrowBackTwoTone';
 import TodayTwoToneIcon from '@mui/icons-material/TodayTwoTone';
 import useDateLocale from '../../../../hooks/useDateLocale';
+import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
+import { getErrorMessage } from '../../../../utils/api';
 
 interface WorkloadViewProps {
   handleOpenDetails: (id: number, type: string) => void;
@@ -61,10 +63,10 @@ interface WorkloadViewProps {
 const GRID_LABEL_WIDTH = 150;
 
 const barColor = (percent: number) =>
-  percent > 100 ? 'error' : percent > 80 ? 'warning' : 'success';
+  percent > 100 ? 'error' : percent > 80 ? 'warning' : 'primary';
 
 const pctTextColor = (percent: number) =>
-  percent > 100 ? 'error' : percent > 80 ? 'warning' : 'success';
+  percent > 100 ? 'error' : percent > 80 ? 'warning' : 'primary';
 
 const userCellDroppableId = (userId: number, dateStr: string) =>
   `user-${userId}-${dateStr}`;
@@ -87,6 +89,7 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
     dateStr: string;
     userId: number;
   } | null>(null);
+  const { showSnackBar } = useContext(CustomSnackBarContext);
 
   const weekStart = useMemo(
     () => startOfWeek(currentDate, { weekStartsOn: 1 }),
@@ -226,7 +229,9 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
           estimatedDuration: estimatedDuration ?? null,
           primaryUserId
         })
-      ).then(() => loadOverview());
+      )
+        .then(() => loadOverview())
+        .catch((err) => showSnackBar(getErrorMessage(err), 'error'));
     },
     [dispatch, loadOverview]
   );
@@ -637,10 +642,7 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
                                       userDayData.capacityMinutes,
                                       userDayData.capacityMinutes === 0
                                     )}
-                                    <Typography
-                                      variant="caption"
-                                      color="text.secondary"
-                                    >
+                                    <Typography color="text.secondary">
                                       {(() => {
                                         const rem = Math.max(
                                           0,
@@ -649,54 +651,68 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
                                         );
                                         const h = Math.floor(rem / 60);
                                         const m = Math.round(rem % 60);
-                                        return `${h}H${String(m).padStart(
-                                          2,
-                                          '0'
-                                        )} ${t('left')}`;
+                                        return `${h}${t(
+                                          'hours_abbrev'
+                                        )}${String(m).padStart(2, '0')} ${t(
+                                          'left'
+                                        )}`;
                                       })()}
                                     </Typography>
-                                    {userDayData.workOrders.map((wo, index) => (
-                                      <Draggable
-                                        key={wo.id}
-                                        draggableId={`wo-${wo.id}`}
-                                        index={index}
-                                      >
-                                        {(provided, snapshot) => {
-                                          const isOverdue =
-                                            wo.dueDate &&
-                                            new Date(wo.dueDate) < new Date();
-                                          return (
-                                            <Chip
-                                              ref={provided.innerRef}
-                                              {...provided.draggableProps}
-                                              {...provided.dragHandleProps}
-                                              label={wo.title}
-                                              size="small"
-                                              variant="outlined"
-                                              color={
-                                                isOverdue ? 'error' : 'default'
-                                              }
-                                              onClick={() =>
-                                                handleOpenDetails(
-                                                  wo.id,
-                                                  'WORK_ORDER'
-                                                )
-                                              }
-                                              sx={{
-                                                mt: 0.3,
-                                                mr: 0.3,
-                                                maxWidth: 110,
-                                                fontSize: 10,
-                                                borderRadius: '4px',
-                                                ...(snapshot.isDragging
-                                                  ? { boxShadow: 3 }
-                                                  : {})
-                                              }}
-                                            />
-                                          );
-                                        }}
-                                      </Draggable>
-                                    ))}
+                                    {[...userDayData.workOrders]
+                                      .sort(
+                                        (a, b) =>
+                                          new Date(
+                                            a.estimatedStartDate
+                                          ).getTime() -
+                                          new Date(
+                                            b.estimatedStartDate
+                                          ).getTime()
+                                      )
+                                      .map((wo, index) => (
+                                        <Draggable
+                                          key={wo.id}
+                                          draggableId={`wo-${wo.id}`}
+                                          index={index}
+                                        >
+                                          {(provided, snapshot) => {
+                                            const isOverdue =
+                                              wo.dueDate &&
+                                              new Date(wo.dueDate) < new Date();
+                                            return (
+                                              <Chip
+                                                ref={provided.innerRef}
+                                                {...provided.draggableProps}
+                                                {...provided.dragHandleProps}
+                                                label={wo.title}
+                                                size="small"
+                                                variant="outlined"
+                                                color={
+                                                  isOverdue
+                                                    ? 'error'
+                                                    : 'default'
+                                                }
+                                                onClick={() =>
+                                                  handleOpenDetails(
+                                                    wo.id,
+                                                    'WORK_ORDER'
+                                                  )
+                                                }
+                                                sx={{
+                                                  mt: 0.3,
+                                                  mr: 0.3,
+                                                  maxWidth: 110,
+                                                  fontSize: 10,
+                                                  width: '100%',
+                                                  borderRadius: '4px',
+                                                  ...(snapshot.isDragging
+                                                    ? { boxShadow: 3 }
+                                                    : {})
+                                                }}
+                                              />
+                                            );
+                                          }}
+                                        </Draggable>
+                                      ))}
                                   </Box>
                                 ) : (
                                   <Typography
