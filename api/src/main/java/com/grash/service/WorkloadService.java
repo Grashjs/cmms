@@ -167,30 +167,74 @@ public class WorkloadService {
         workOrder.setPrimaryUser(assignedUser);
 
         if (assigningUser) {
-            int capacityMinutes = getUserCapacityForDay(assignedUser, dto.getLocalDate());
+            LocalDate date = dto.getLocalDate();
+            int capacityMinutes = getUserCapacityForDay(assignedUser, date);
 
-            Date dayStart = Helper.localDateToDate(dto.getLocalDate());
-            Date dayEnd = Helper.localDateToDate(dto.getLocalDate().plusDays(1));
+            Date dayStart = Helper.localDateToDate(date);
+            Date dayEnd = Helper.localDateToDate(date.plusDays(1));
 
             Collection<WorkOrder> existingWOs = workOrderRepository
                     .findByUserAndEstimatedStartDateBetween(assignedUser.getId(), dayStart, dayEnd,
                             user.getCompany().getId());
 
+            double requiredMinutes = workOrder.getEstimatedDuration() * 60;
             double allocatedMinutes = existingWOs.stream()
                     .filter(wo -> !wo.getId().equals(workOrderId))
                     .mapToDouble(wo -> wo.getEstimatedDuration() * 60)
                     .sum();
 
-            double requiredMinutes = workOrder.getEstimatedDuration() * 60;
-
             if (allocatedMinutes + requiredMinutes > capacityMinutes) {
-                throw new CustomException("User is not available on " + dto.getLocalDate()
+                throw new CustomException("User capacity would be exceeded on " + date
                         + ". Required: " + String.format("%.0f", requiredMinutes)
                         + " min, Available: " + String.format("%.0f", Math.max(0, capacityMinutes - allocatedMinutes))
                         + " min", HttpStatus.BAD_REQUEST);
             }
 
-            workOrder.setEstimatedStartDate(Helper.localDateToDate(dto.getLocalDate()));
+            long requiredMillis = (long) (workOrder.getEstimatedDuration() * 3600 * 1000);
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(dayStart);
+            cal.set(Calendar.HOUR_OF_DAY, 8);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+            long shiftStartMillis = cal.getTimeInMillis();
+            long shiftEndMillis = Math.min(dayStart.getTime() + (long) capacityMinutes * 60 * 1000, dayEnd.getTime());
+
+            List<WorkOrder> otherWOs = existingWOs.stream()
+                    .filter(wo -> !wo.getId().equals(workOrderId) && wo.getEstimatedStartDate() != null)
+                    .sorted(Comparator.comparing(WorkOrder::getEstimatedStartDate))
+                    .toList();
+
+            long cursor = shiftStartMillis;
+            Date foundStart = null;
+
+            for (WorkOrder wo : otherWOs) {
+                long woStart = wo.getEstimatedStartDate().getTime();
+                long woEnd = woStart + (long) (wo.getEstimatedDuration() * 3600 * 1000);
+
+                if (cursor >= woEnd) continue;
+
+                if (cursor + requiredMillis <= woStart) {
+                    foundStart = new Date(cursor);
+                    break;
+                }
+
+                cursor = Math.max(cursor, woEnd);
+            }
+
+            if (foundStart == null) {
+                if (cursor + requiredMillis <= shiftEndMillis) {
+                    foundStart = new Date(cursor);
+                }
+            }
+
+            if (foundStart == null) {
+                throw new CustomException("User is not available on " + date
+                        + " for the required duration", HttpStatus.BAD_REQUEST);
+            }
+
+            workOrder.setEstimatedStartDate(foundStart);
         } else {
             workOrder.setEstimatedStartDate(null);
         }

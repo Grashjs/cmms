@@ -232,8 +232,7 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
     const dateStr = format(new Date(match[2]), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     dispatch(
       scheduleWorkOrder(wo.id, {
-        estimatedStartDate: dateStr,
-        estimatedDuration: wo.estimatedDuration || 0.5,
+        localDate: dateStr,
         primaryUserId: Number(match[1])
       })
     ).then(() => loadOverview());

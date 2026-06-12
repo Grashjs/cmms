@@ -762,7 +762,8 @@ function WorkOrders() {
                     label: locationParamObject.name,
                     value: locationParamObject.id
                   }
-                : null
+                : null,
+              estimatedDuration: 1
             }}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {

@@ -132,8 +132,7 @@ export const scheduleWorkOrder =
   (
     workOrderId: number,
     dto: {
-      estimatedStartDate: string | null;
-      estimatedDuration: number | null;
+      localDate: string | null;
       primaryUserId: number | null;
     }
   ): AppThunk =>
@@ -146,8 +145,7 @@ export const unscheduleWorkOrder =
   (workOrderId: number, workOrder: WorkloadWorkOrderDTO): AppThunk =>
   async (dispatch) => {
     await api.patch(`${basePath}/work-orders/${workOrderId}/schedule`, {
-      estimatedStartDate: null,
-      estimatedDuration: null,
+      localDate: null,
       primaryUserId: null
     });
     dispatch(slice.actions.addToUnscheduled({ workOrder }));

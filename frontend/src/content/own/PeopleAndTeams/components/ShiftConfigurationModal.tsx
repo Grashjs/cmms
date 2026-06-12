@@ -154,6 +154,9 @@ function ShiftConfigurationModal({ user, open, onClose }: PropsType) {
   const { showSnackBar } = useContext(CustomSnackBarContext);
 
   const [currentTab, setCurrentTab] = useState<string>('default');
+  const [enabled, setEnabled] = useState<boolean>(
+    user.shiftConfiguration?.enabled ?? true
+  );
   const [days, setDays] = useState<ShiftDayConfiguration[]>([]);
   const [exceptions, setExceptions] = useState<ShiftException[]>([]);
   const [weekStart, setWeekStart] = useState<Date>(
@@ -307,7 +310,9 @@ function ShiftConfigurationModal({ user, open, onClose }: PropsType) {
 
   const handleSave = async () => {
     try {
-      await dispatch(patchShiftConfiguration(user.id, { days, exceptions }));
+      await dispatch(
+        patchShiftConfiguration(user.id, { days, exceptions, enabled })
+      );
       dispatch(
         userSlice.actions.editUser({
           user: {
@@ -330,9 +335,22 @@ function ShiftConfigurationModal({ user, open, onClose }: PropsType) {
   return (
     <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
       <DialogTitle sx={{ p: 3 }}>
-        <Typography variant="h4" gutterBottom>
-          {t('customize_shift')} ({user.firstName + ' ' + user.lastName})
-        </Typography>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <Typography variant="h4">
+            {t('customize_shift')} ({user.firstName + ' ' + user.lastName})
+          </Typography>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography>{t('Scheduled')}</Typography>
+            <Switch
+              checked={enabled}
+              onChange={(e) => setEnabled(e.target.checked)}
+            />
+          </Stack>
+        </Stack>
       </DialogTitle>
       <Tabs
         value={currentTab}
