@@ -56,6 +56,10 @@ import useDateLocale from '../../../../hooks/useDateLocale';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 import { getErrorMessage } from '../../../../utils/api';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
+import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
+import { getSingleUser } from 'src/slices/user';
+import type { UserResponseDTO } from 'src/models/user';
+import ShiftConfigurationModal from 'src/content/own/PeopleAndTeams/components/ShiftConfigurationModal';
 
 interface WorkloadViewProps {
   handleOpenDetails: (id: number, type: string) => void;
@@ -94,6 +98,11 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
     userId: number;
   } | null>(null);
   const { showSnackBar } = useContext(CustomSnackBarContext);
+  const [shiftConfigOpen, setShiftConfigOpen] = useState(false);
+  const [shiftConfigUser, setShiftConfigUser] =
+    useState<UserResponseDTO | null>(null);
+  const [pendingUserId, setPendingUserId] = useState<number | null>(null);
+  const singleUser = useSelector((state) => state.users.singleUser);
 
   const weekStart = useMemo(
     () => startOfWeek(currentDate, { weekStartsOn: 1 }),
@@ -131,6 +140,14 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
   useEffect(() => {
     dispatch(getUnscheduled());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (singleUser && pendingUserId === singleUser.id) {
+      setShiftConfigUser(singleUser);
+      setShiftConfigOpen(true);
+      setPendingUserId(null);
+    }
+  }, [singleUser, pendingUserId]);
 
   const handlePrevWeek = () => setCurrentDate((d) => subWeeks(d, 1));
   const handleNextWeek = () => setCurrentDate((d) => addWeeks(d, 1));
@@ -303,6 +320,19 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
     setDurationModalOpen(false);
     setPendingWorkOrder(null);
   };
+
+  const handleEditShiftConfig = useCallback(
+    (userId: number) => {
+      setPendingUserId(userId);
+      dispatch(getSingleUser(userId));
+    },
+    [dispatch]
+  );
+
+  const handleShiftConfigClose = useCallback(() => {
+    setShiftConfigOpen(false);
+    setShiftConfigUser(null);
+  }, []);
 
   const renderGridHeader = (title: string) => (
     <>
@@ -622,7 +652,11 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
                           borderBottom: 1,
                           borderColor: 'divider',
                           display: 'flex',
-                          alignItems: 'center'
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          '&:hover .shift-config-btn': {
+                            opacity: 1
+                          }
                         }}
                       >
                         <Typography variant="body2" noWrap>
@@ -631,6 +665,16 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
                               ?.firstName ||
                             ''}
                         </Typography>
+                        <IconButton
+                          className="shift-config-btn"
+                          size="small"
+                          onClick={() =>
+                            handleEditShiftConfig(userSummary.userId)
+                          }
+                          sx={{ opacity: 0, transition: 'opacity 0.2s' }}
+                        >
+                          <EditTwoToneIcon fontSize="small" />
+                        </IconButton>
                       </Box>
                       {weekDays.map((day) => {
                         const dayData = getDayData(overview, day);
@@ -808,6 +852,14 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {shiftConfigUser && (
+        <ShiftConfigurationModal
+          user={shiftConfigUser}
+          open={shiftConfigOpen}
+          onClose={handleShiftConfigClose}
+        />
+      )}
     </>
   );
 }

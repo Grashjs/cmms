@@ -323,7 +323,8 @@ function ShiftConfigurationModal({ user, open, onClose }: PropsType) {
             shiftConfiguration: {
               ...user.shiftConfiguration,
               days,
-              exceptions
+              exceptions,
+              enabled
             } as ShiftConfigurationShowDTO
           }
         })

@@ -162,7 +162,7 @@ public class UserController {
         if (optionalUser.isPresent()) {
             User savedUser = optionalUser.get();
             if (user.getCompany().getId().equals(savedUser.getCompany().getId())) {
-                return userMapper.toResponseDto(savedUser);
+                return userMapper.toResponseDtoWithShift(savedUser);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
