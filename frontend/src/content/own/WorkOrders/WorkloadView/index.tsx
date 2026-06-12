@@ -5,6 +5,10 @@ import {
   Card,
   Chip,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
   IconButton,
   InputLabel,
@@ -13,6 +17,7 @@ import {
   OutlinedInput,
   Select,
   Stack,
+  TextField,
   Tooltip,
   Typography
 } from '@mui/material';
@@ -74,6 +79,14 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
   const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [expandedStatus, setExpandedStatus] = useState<string | null>(null);
+  const [durationModalOpen, setDurationModalOpen] = useState(false);
+  const [durationHours, setDurationHours] = useState(0);
+  const [durationMinutes, setDurationMinutes] = useState(0);
+  const [pendingWorkOrder, setPendingWorkOrder] = useState<{
+    id: number;
+    dateStr: string;
+    userId: number;
+  } | null>(null);
 
   const weekStart = useMemo(
     () => startOfWeek(currentDate, { weekStartsOn: 1 }),
@@ -200,6 +213,24 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
     return findWOInUnscheduled(id) ?? findWOInUserDays(id);
   };
 
+  const doSchedule = useCallback(
+    (
+      workOrderId: number,
+      primaryUserId: number,
+      dateStr: string,
+      estimatedDuration?: number | null
+    ) => {
+      dispatch(
+        scheduleWorkOrder(workOrderId, {
+          localDate: dateStr,
+          estimatedDuration: estimatedDuration ?? null,
+          primaryUserId
+        })
+      ).then(() => loadOverview());
+    },
+    [dispatch, loadOverview]
+  );
+
   const handleDragEnd = (result: DropResult) => {
     const { source, destination, draggableId } = result;
     if (!destination) return;
@@ -233,13 +264,37 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
     const match = parseDroppable(destination.droppableId);
     if (!match) return;
 
+    const userId = Number(match[1]);
     const dateStr = format(new Date(match[2]), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-    dispatch(
-      scheduleWorkOrder(wo.id, {
-        localDate: dateStr,
-        primaryUserId: Number(match[1])
-      })
-    ).then(() => loadOverview());
+
+    if (!wo.estimatedDuration) {
+      setPendingWorkOrder({ id: wo.id, dateStr, userId });
+      setDurationHours(0);
+      setDurationMinutes(0);
+      setDurationModalOpen(true);
+      return;
+    }
+
+    doSchedule(wo.id, userId, dateStr);
+  };
+
+  const handleDurationSubmit = () => {
+    if (!pendingWorkOrder) return;
+    const totalMinutes = durationHours * 60 + durationMinutes;
+    if (totalMinutes <= 0) return;
+    doSchedule(
+      pendingWorkOrder.id,
+      pendingWorkOrder.userId,
+      pendingWorkOrder.dateStr,
+      totalMinutes
+    );
+    setDurationModalOpen(false);
+    setPendingWorkOrder(null);
+  };
+
+  const handleDurationCancel = () => {
+    setDurationModalOpen(false);
+    setPendingWorkOrder(null);
   };
 
   const renderGridHeader = (title: string) => (
@@ -464,22 +519,27 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
                       draggableId={`wo-${wo.id}`}
                       index={index}
                     >
-                      {(provided, snapshot) => (
-                        <Chip
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          label={`#${wo.customId ?? ''} ${wo.title}`}
-                          size="small"
-                          variant="outlined"
-                          onClick={() => handleOpenDetails(wo.id, 'WORK_ORDER')}
-                          sx={{
-                            maxWidth: 250,
-                            mb: 0.5,
-                            ...(snapshot.isDragging ? { boxShadow: 3 } : {})
-                          }}
-                        />
-                      )}
+                      {(provided, snapshot) => {
+                        const isOverdue = wo.dueDate && new Date(wo.dueDate) < new Date();
+                        return (
+                          <Chip
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            label={wo.title}
+                            size="small"
+                            variant="outlined"
+                            color={isOverdue ? 'error' : 'default'}
+                            onClick={() => handleOpenDetails(wo.id, 'WORK_ORDER')}
+                            sx={{
+                              maxWidth: 250,
+                              mb: 0.5,
+                              borderRadius: '4px',
+                              ...(snapshot.isDragging ? { boxShadow: 3 } : {})
+                            }}
+                          />
+                        );
+                      }}
                     </Draggable>
                   ))}
                 </Stack>
@@ -568,8 +628,12 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
                                     variant="caption"
                                     color="text.secondary"
                                   >
-                                    {Math.round(userDayData.allocatedMinutes)}/
-                                    {userDayData.capacityMinutes}min
+                                    {(() => {
+                                      const rem = Math.max(0, userDayData.capacityMinutes - userDayData.allocatedMinutes);
+                                      const h = Math.floor(rem / 60);
+                                      const m = Math.round(rem % 60);
+                                      return `${h}H${String(m).padStart(2, '0')} ${t('left')}`;
+                                    })()}
                                   </Typography>
                                   {userDayData.workOrders.map((wo, index) => (
                                     <Draggable
@@ -577,31 +641,36 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
                                       draggableId={`wo-${wo.id}`}
                                       index={index}
                                     >
-                                      {(provided, snapshot) => (
-                                        <Chip
-                                          ref={provided.innerRef}
-                                          {...provided.draggableProps}
-                                          {...provided.dragHandleProps}
-                                          label={wo.title}
-                                          size="small"
-                                          variant="outlined"
-                                          onClick={() =>
-                                            handleOpenDetails(
-                                              wo.id,
-                                              'WORK_ORDER'
-                                            )
-                                          }
-                                          sx={{
-                                            mt: 0.3,
-                                            mr: 0.3,
-                                            maxWidth: 110,
-                                            fontSize: 10,
-                                            ...(snapshot.isDragging
-                                              ? { boxShadow: 3 }
-                                              : {})
-                                          }}
-                                        />
-                                      )}
+                                      {(provided, snapshot) => {
+                                        const isOverdue = wo.dueDate && new Date(wo.dueDate) < new Date();
+                                        return (
+                                          <Chip
+                                            ref={provided.innerRef}
+                                            {...provided.draggableProps}
+                                            {...provided.dragHandleProps}
+                                            label={wo.title}
+                                            size="small"
+                                            variant="outlined"
+                                            color={isOverdue ? 'error' : 'default'}
+                                            onClick={() =>
+                                              handleOpenDetails(
+                                                wo.id,
+                                                'WORK_ORDER'
+                                              )
+                                            }
+                                            sx={{
+                                              mt: 0.3,
+                                              mr: 0.3,
+                                              maxWidth: 110,
+                                              fontSize: 10,
+                                              borderRadius: '4px',
+                                              ...(snapshot.isDragging
+                                                ? { boxShadow: 3 }
+                                                : {})
+                                            }}
+                                          />
+                                        );
+                                      }}
                                     </Draggable>
                                   ))}
                                 </Box>
@@ -628,6 +697,40 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
         </Card>
       </Box>
     </DragDropContext>
+
+      <Dialog open={durationModalOpen} onClose={handleDurationCancel} maxWidth="xs" fullWidth>
+        <DialogTitle>{t('set_estimated_duration')}</DialogTitle>
+        <DialogContent>
+          <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+            <TextField
+              label={t('hours')}
+              type="number"
+              value={durationHours}
+              onChange={(e) => setDurationHours(Math.max(0, Number(e.target.value)))}
+              inputProps={{ min: 0 }}
+              fullWidth
+            />
+            <TextField
+              label={t('minutes')}
+              type="number"
+              value={durationMinutes}
+              onChange={(e) => setDurationMinutes(Math.max(0, Math.min(59, Number(e.target.value))))}
+              inputProps={{ min: 0, max: 59 }}
+              fullWidth
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDurationCancel}>{t('cancel')}</Button>
+          <Button
+            variant="contained"
+            onClick={handleDurationSubmit}
+            disabled={durationHours === 0 && durationMinutes === 0}
+          >
+            {t('schedule')}
+          </Button>
+        </DialogActions>
+      </Dialog>
   );
 }
 

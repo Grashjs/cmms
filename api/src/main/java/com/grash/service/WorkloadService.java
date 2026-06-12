@@ -70,7 +70,7 @@ public class WorkloadService {
                         .getOrDefault(current, Collections.emptyList());
 
                 double allocatedMinutes = userWOs.stream()
-                        .mapToDouble(wo -> wo.getEstimatedDuration() * 60)
+                        .mapToDouble(wo -> wo.getEstimatedDuration())
                         .sum();
 
                 WorkloadUserDayDTO userDay = new WorkloadUserDayDTO();
@@ -150,7 +150,7 @@ public class WorkloadService {
             throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         }
 
-        if (assigningUser && workOrder.getEstimatedDuration() <= 0) {
+        if (assigningUser && workOrder.getEstimatedDuration() <= 0 && dto.getEstimatedDuration() == null) {
             throw new CustomException("Estimated duration must be set and greater than 0 before scheduling",
                     HttpStatus.BAD_REQUEST);
         }
@@ -165,6 +165,9 @@ public class WorkloadService {
                     .orElseThrow(() -> new CustomException("Assigned user not found", HttpStatus.NOT_FOUND));
         }
         workOrder.setPrimaryUser(assignedUser);
+        if (assigningUser && dto.getEstimatedDuration() != null) {
+            workOrder.setEstimatedDuration(dto.getEstimatedDuration());
+        }
 
         if (assigningUser) {
             LocalDate date = dto.getLocalDate();
@@ -177,10 +180,10 @@ public class WorkloadService {
                     .findByUserAndEstimatedStartDateBetween(assignedUser.getId(), dayStart, dayEnd,
                             user.getCompany().getId());
 
-            double requiredMinutes = workOrder.getEstimatedDuration() * 60;
+            double requiredMinutes = workOrder.getEstimatedDuration();
             double allocatedMinutes = existingWOs.stream()
                     .filter(wo -> !wo.getId().equals(workOrderId))
-                    .mapToDouble(wo -> wo.getEstimatedDuration() * 60)
+                    .mapToDouble(wo -> wo.getEstimatedDuration())
                     .sum();
 
             if (allocatedMinutes + requiredMinutes > capacityMinutes) {
@@ -190,7 +193,7 @@ public class WorkloadService {
                         + " min", HttpStatus.BAD_REQUEST);
             }
 
-            long requiredMillis = (long) (workOrder.getEstimatedDuration() * 3600 * 1000);
+            long requiredMillis = (long) (workOrder.getEstimatedDuration() * 60 * 1000);
 
             Calendar cal = Calendar.getInstance();
             cal.setTime(dayStart);
@@ -211,7 +214,7 @@ public class WorkloadService {
 
             for (WorkOrder wo : otherWOs) {
                 long woStart = wo.getEstimatedStartDate().getTime();
-                long woEnd = woStart + (long) (wo.getEstimatedDuration() * 3600 * 1000);
+                long woEnd = woStart + (long) (wo.getEstimatedDuration() * 60 * 1000);
 
                 if (cursor >= woEnd) continue;
 

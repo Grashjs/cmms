@@ -133,6 +133,7 @@ export const scheduleWorkOrder =
     workOrderId: number,
     dto: {
       localDate: string | null;
+      estimatedDuration: number | null;
       primaryUserId: number | null;
     }
   ): AppThunk =>

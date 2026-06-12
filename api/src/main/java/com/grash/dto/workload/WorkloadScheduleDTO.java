@@ -14,4 +14,5 @@ public class WorkloadScheduleDTO {
     private LocalDate localDate;
     @Schema(description = "User ID to assign as primary user / assignee")
     private Long primaryUserId;
+    private Double estimatedDuration;
 }
