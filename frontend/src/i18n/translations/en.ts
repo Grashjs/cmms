@@ -1877,7 +1877,9 @@ const locale = {
   thursday: 'Thursday',
   friday: 'Friday',
   saturday: 'Saturday',
-  sunday: 'Sunday'
+  sunday: 'Sunday',
+  set_estimated_duration: 'Set estimated duration',
+  schedule: 'Schedule'
 };
 
 export default locale;

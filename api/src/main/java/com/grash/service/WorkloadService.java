@@ -70,7 +70,7 @@ public class WorkloadService {
                         .getOrDefault(current, Collections.emptyList());
 
                 double allocatedMinutes = userWOs.stream()
-                        .mapToDouble(wo -> wo.getEstimatedDuration())
+                        .mapToDouble(wo -> wo.getEstimatedDuration() * 60)
                         .sum();
 
                 WorkloadUserDayDTO userDay = new WorkloadUserDayDTO();
@@ -180,10 +180,10 @@ public class WorkloadService {
                     .findByUserAndEstimatedStartDateBetween(assignedUser.getId(), dayStart, dayEnd,
                             user.getCompany().getId());
 
-            double requiredMinutes = workOrder.getEstimatedDuration();
+            double requiredMinutes = workOrder.getEstimatedDuration() * 60;
             double allocatedMinutes = existingWOs.stream()
                     .filter(wo -> !wo.getId().equals(workOrderId))
-                    .mapToDouble(wo -> wo.getEstimatedDuration())
+                    .mapToDouble(wo -> wo.getEstimatedDuration() * 60)
                     .sum();
 
             if (allocatedMinutes + requiredMinutes > capacityMinutes) {
@@ -193,7 +193,7 @@ public class WorkloadService {
                         + " min", HttpStatus.BAD_REQUEST);
             }
 
-            long requiredMillis = (long) (workOrder.getEstimatedDuration() * 60 * 1000);
+            long requiredMillis = (long) (workOrder.getEstimatedDuration() * 3600 * 1000L);
 
             Calendar cal = Calendar.getInstance();
             cal.setTime(dayStart);
@@ -202,7 +202,8 @@ public class WorkloadService {
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
             long shiftStartMillis = cal.getTimeInMillis();
-            long shiftEndMillis = Math.min(dayStart.getTime() + (long) capacityMinutes * 60 * 1000, dayEnd.getTime());
+
+            long shiftEndMillis = shiftStartMillis + (long) capacityMinutes * 60 * 1000L;
 
             List<WorkOrder> otherWOs = existingWOs.stream()
                     .filter(wo -> !wo.getId().equals(workOrderId) && wo.getEstimatedStartDate() != null)
@@ -212,29 +213,31 @@ public class WorkloadService {
             long cursor = shiftStartMillis;
             Date foundStart = null;
 
-            for (WorkOrder wo : otherWOs) {
-                long woStart = wo.getEstimatedStartDate().getTime();
-                long woEnd = woStart + (long) (wo.getEstimatedDuration() * 60 * 1000);
+            if (otherWOs.isEmpty()) {
+                foundStart = new Date(cursor);
+            } else {
+                for (WorkOrder wo : otherWOs) {
+                    long woStart = wo.getEstimatedStartDate().getTime();
+                    long woEnd = woStart + (long) (wo.getEstimatedDuration() * 3600 * 1000L);
 
-                if (cursor >= woEnd) continue;
+                    if (woEnd <= cursor) continue;
 
-                if (cursor + requiredMillis <= woStart) {
-                    foundStart = new Date(cursor);
-                    break;
+                    if (cursor + requiredMillis <= woStart) {
+                        foundStart = new Date(cursor);
+                        break;
+                    }
+
+                    cursor = woEnd;
                 }
 
-                cursor = Math.max(cursor, woEnd);
-            }
-
-            if (foundStart == null) {
-                if (cursor + requiredMillis <= shiftEndMillis) {
+                if (foundStart == null && cursor + requiredMillis <= shiftEndMillis) {
                     foundStart = new Date(cursor);
                 }
-            }
 
-            if (foundStart == null) {
-                throw new CustomException("User is not available on " + date
-                        + " for the required duration", HttpStatus.BAD_REQUEST);
+                if (foundStart == null) {
+                    throw new CustomException("User is not available on " + date
+                            + " for the required duration", HttpStatus.BAD_REQUEST);
+                }
             }
 
             workOrder.setEstimatedStartDate(foundStart);
