@@ -145,19 +145,56 @@ public class WorkloadService {
         WorkOrder workOrder = workOrderRepository.findById(workOrderId)
                 .orElseThrow(() -> new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND));
 
+        boolean assigningUser = dto.getLocalDate() != null;
         if (!workOrder.canBeEditedBy(user)) {
             throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         }
 
-        workOrder.setEstimatedStartDate(dto.getEstimatedStartDate());
-        if (dto.getEstimatedDuration() != null) workOrder.setEstimatedDuration(dto.getEstimatedDuration());
-        if (dto.getPrimaryUserId() == null) {
-            workOrder.setPrimaryUser(null);
-        } else {
-            User assignedUser = userService.findByIdAndCompany(dto.getPrimaryUserId(), user.getCompany().getId())
-                    .orElseThrow(() -> new CustomException("Assigned user not found", HttpStatus.NOT_FOUND));
-            workOrder.setPrimaryUser(assignedUser);
+        if (assigningUser && workOrder.getEstimatedDuration() <= 0) {
+            throw new CustomException("Estimated duration must be set and greater than 0 before scheduling",
+                    HttpStatus.BAD_REQUEST);
         }
+        if (assigningUser && dto.getPrimaryUserId() == null) {
+            throw new CustomException("Primary user must be assigned before scheduling",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        User assignedUser = null;
+        if (dto.getPrimaryUserId() != null) {
+            assignedUser = userService.findByIdAndCompany(dto.getPrimaryUserId(), user.getCompany().getId())
+                    .orElseThrow(() -> new CustomException("Assigned user not found", HttpStatus.NOT_FOUND));
+        }
+        workOrder.setPrimaryUser(assignedUser);
+
+        if (assigningUser) {
+            int capacityMinutes = getUserCapacityForDay(assignedUser, dto.getLocalDate());
+
+            Date dayStart = Helper.localDateToDate(dto.getLocalDate());
+            Date dayEnd = Helper.localDateToDate(dto.getLocalDate().plusDays(1));
+
+            Collection<WorkOrder> existingWOs = workOrderRepository
+                    .findByUserAndEstimatedStartDateBetween(assignedUser.getId(), dayStart, dayEnd,
+                            user.getCompany().getId());
+
+            double allocatedMinutes = existingWOs.stream()
+                    .filter(wo -> !wo.getId().equals(workOrderId))
+                    .mapToDouble(wo -> wo.getEstimatedDuration() * 60)
+                    .sum();
+
+            double requiredMinutes = workOrder.getEstimatedDuration() * 60;
+
+            if (allocatedMinutes + requiredMinutes > capacityMinutes) {
+                throw new CustomException("User is not available on " + dto.getLocalDate()
+                        + ". Required: " + String.format("%.0f", requiredMinutes)
+                        + " min, Available: " + String.format("%.0f", Math.max(0, capacityMinutes - allocatedMinutes))
+                        + " min", HttpStatus.BAD_REQUEST);
+            }
+
+            workOrder.setEstimatedStartDate(Helper.localDateToDate(dto.getLocalDate()));
+        } else {
+            workOrder.setEstimatedStartDate(null);
+        }
+
         workOrderService.save(workOrder);
     }
 
