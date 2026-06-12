@@ -224,7 +224,12 @@ export const scheduleWorkOrder =
     }
     dispatch(slice.actions.removeFromUnscheduled({ id: workOrderId }));
     dispatch(slice.actions.removeWoFromOverview({ workOrderId }));
+    const woInUnscheduled = getState().workload.unscheduled?.workOrders.find(
+      (w) => w.id === workOrderId
+    );
+
     const workOrder = {
+      ...woInUnscheduled,
       ...woInContent,
       ...woInDays
     };
