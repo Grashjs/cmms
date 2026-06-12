@@ -233,7 +233,10 @@ export const scheduleWorkOrder =
           title: workOrder?.title ?? '',
           status: workOrder?.status ?? '',
           estimatedDuration:
-            workOrder?.estimatedDuration ?? dto.estimatedDuration ?? 0,
+            workOrder?.estimatedDuration ??
+            woInDays?.estimatedDuration ??
+            dto.estimatedDuration ??
+            0,
           estimatedStartDate: response.estimatedStartDate,
           dueDate: workOrder?.dueDate ?? ''
         },
