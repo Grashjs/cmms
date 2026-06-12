@@ -41,9 +41,9 @@ import { isNumeric } from '../../../utils/validators';
 import WorkOrderDetails from './Details/WorkOrderDetails';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
+  formatCustomFields,
   formatSelect,
-  formatSelectMultiple,
-  formatCustomFields
+  formatSelectMultiple
 } from '../../../utils/formatters';
 import {
   addWorkOrder,
@@ -172,7 +172,13 @@ function WorkOrders() {
   );
   const hasResourcePlanningEntitlement =
     useLicenseEntitlement('RESOURCE_PLANNING');
-  const tabs = [
+  const tabs: {
+    value: string;
+    label: string;
+    disabled?: boolean;
+    hidden?: boolean;
+    requiresUpgrade?: boolean;
+  }[] = [
     { value: 'list', label: t('list_view'), disabled: false },
     {
       value: 'calendar',
@@ -183,15 +189,30 @@ function WorkOrders() {
       value: 'workload',
       label: t('workload_view'),
       disabled:
-        !hasViewOtherPermission(PermissionEntity.WORK_ORDERS) ||
-        !hasViewPermission(PermissionEntity.PEOPLE_AND_TEAMS) ||
         !hasResourcePlanningEntitlement ||
-        !hasFeature(PlanFeature.RESOURCE_PLANNING)
+        !hasFeature(PlanFeature.RESOURCE_PLANNING),
+      requiresUpgrade:
+        !hasResourcePlanningEntitlement ||
+        !hasFeature(PlanFeature.RESOURCE_PLANNING),
+      hidden:
+        !hasViewOtherPermission(PermissionEntity.WORK_ORDERS) ||
+        !hasViewPermission(PermissionEntity.PEOPLE_AND_TEAMS)
     },
-    { value: 'column', label: t('column_view'), disabled: true }
+    {
+      value: 'column',
+      label: t('column_view'),
+      disabled: true
+    }
   ];
   const handleTabsChange = (_event: ChangeEvent<{}>, value: string): void => {
     setCurrentTab(value);
+    const newParams = new URLSearchParams(searchParams);
+    if (value === 'list') {
+      newParams.delete('view');
+    } else {
+      newParams.set('view', value);
+    }
+    setSearchParams(newParams);
   };
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
@@ -931,22 +952,29 @@ function WorkOrders() {
             textColor="primary"
             indicatorColor="primary"
           >
-            {tabs.map((tab) =>
-              tab.disabled ? (
-                <Tooltip title={t('Coming Soon')} placement="top">
-                  <span>
-                    <Tab
-                      key={tab.value}
-                      label={tab.label}
-                      value={tab.value}
-                      disabled={tab.disabled}
-                    />
-                  </span>
-                </Tooltip>
-              ) : (
-                <Tab key={tab.value} label={tab.label} value={tab.value} />
-              )
-            )}
+            {tabs
+              .filter((tab) => !tab.hidden)
+              .map((tab) =>
+                tab.disabled ? (
+                  <Tooltip
+                    title={
+                      tab.requiresUpgrade ? t('upgrade_now') : t('Coming Soon')
+                    }
+                    placement="top"
+                  >
+                    <span>
+                      <Tab
+                        key={tab.value}
+                        label={tab.label}
+                        value={tab.value}
+                        disabled={tab.disabled}
+                      />
+                    </span>
+                  </Tooltip>
+                ) : (
+                  <Tab key={tab.value} label={tab.label} value={tab.value} />
+                )
+              )}
           </Tabs>
           <Stack direction={'row'} alignItems="center" spacing={1}>
             <IconButton onClick={handleOpenMenu} color="primary">
