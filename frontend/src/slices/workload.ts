@@ -233,7 +233,13 @@ export const scheduleWorkOrder =
       ...woInUnscheduled,
       ...woInDays
     };
-    console.log(woInContent, woInUnscheduled, woInDays, workOrder);
+    console.log(
+      woInContent,
+      getState().workload,
+      woInUnscheduled,
+      woInDays,
+      workOrder
+    );
     dispatch(
       slice.actions.addWoToUserDay({
         workOrder: {
