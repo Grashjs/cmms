@@ -55,6 +55,7 @@ import TodayTwoToneIcon from '@mui/icons-material/TodayTwoTone';
 import useDateLocale from '../../../../hooks/useDateLocale';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 import { getErrorMessage } from '../../../../utils/api';
+import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
 
 interface WorkloadViewProps {
   handleOpenDetails: (id: number, type: string) => void;
@@ -77,6 +78,9 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
   const dateLocale = useDateLocale();
   const { overview, unscheduled, loadingOverview, loadingUnscheduled } =
     useSelector((state) => state.workload);
+  const { getFormattedDate, getUserNameById } = useContext(
+    CompanySettingsContext
+  );
   const allUsers = useSelector((state) => state.users.usersMini);
   const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
@@ -330,7 +334,7 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
             {format(day, 'EEE', { locale: dateLocale })}
           </Typography>
           <Typography variant="caption" display="block" color="text.secondary">
-            {format(day, 'M/d')}
+            {getFormattedDate(day.toString(), true).substring(0, 5)}
           </Typography>
         </Box>
       ))}
@@ -387,8 +391,8 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
                 <ArrowForwardTwoToneIcon />
               </IconButton>
               <Typography variant="h6" sx={{ ml: 1 }}>
-                {format(weekStart, 'MMM d', { locale: dateLocale })} -{' '}
-                {format(weekEnd, 'MMM d, yyyy', { locale: dateLocale })}
+                {format(weekStart, 'd MMM', { locale: dateLocale })} -{' '}
+                {format(weekEnd, 'd MMM, yyyy', { locale: dateLocale })}
               </Typography>
             </Stack>
             <FormControl size="small" sx={{ minWidth: 240 }}>

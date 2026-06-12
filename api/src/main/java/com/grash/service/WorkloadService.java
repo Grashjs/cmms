@@ -201,6 +201,8 @@ public class WorkloadService {
             cal.set(Calendar.MINUTE, 0);
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
+            cal.setTimeZone(TimeZone.getTimeZone(user.getCompany().getCompanySettings().getGeneralPreferences().getTimeZone()));
+            
             long shiftStartMillis = cal.getTimeInMillis();
 
             long shiftEndMillis = shiftStartMillis + (long) capacityMinutes * 60 * 1000L;

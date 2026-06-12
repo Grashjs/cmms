@@ -17,6 +17,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import * as React from 'react';
 import { useContext, useEffect, useMemo, useState } from 'react';
+import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
 import {
   ShiftConfigurationShowDTO,
   ShiftDayConfiguration,
@@ -25,7 +26,7 @@ import {
 } from '../../../../models/user';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import { addWeeks, format, startOfWeek, parseISO, subWeeks } from 'date-fns';
+import { addWeeks, format, startOfWeek, subWeeks } from 'date-fns';
 import { useDispatch } from '../../../../store';
 import { patchShiftConfiguration } from '../../../../slices/shiftConfiguration';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
@@ -63,6 +64,7 @@ function DayRow({
   onMinutesChange
 }: DayRowProps) {
   const { t }: { t: any } = useTranslation();
+  const { getFormattedDate } = useContext(CompanySettingsContext);
 
   const handleHoursChange = (value: string) => {
     const num = parseInt(value, 10);
@@ -100,7 +102,7 @@ function DayRow({
         </Typography>
         {date && (
           <Typography sx={{ minWidth: 90, color: 'text.secondary' }}>
-            {format(parseISO(date), 'MMM d, yyyy')}
+            {getFormattedDate(date, true)}
           </Typography>
         )}
       </Stack>
@@ -150,6 +152,7 @@ interface PropsType {
 
 function ShiftConfigurationModal({ user, open, onClose }: PropsType) {
   const { t }: { t: any } = useTranslation();
+  const { getFormattedDate } = useContext(CompanySettingsContext);
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
 
@@ -344,7 +347,7 @@ function ShiftConfigurationModal({ user, open, onClose }: PropsType) {
             {t('customize_shift')} ({user.firstName + ' ' + user.lastName})
           </Typography>
           <Stack direction="row" alignItems="center" spacing={1}>
-            <Typography>{t('Scheduled')}</Typography>
+            <Typography>{t('scheduled')}</Typography>
             <Switch
               checked={enabled}
               onChange={(e) => setEnabled(e.target.checked)}
@@ -408,8 +411,8 @@ function ShiftConfigurationModal({ user, open, onClose }: PropsType) {
                 variant="h6"
                 sx={{ minWidth: 200, textAlign: 'center' }}
               >
-                {format(weekDays[0], 'MMM d')} -{' '}
-                {format(weekDays[6], 'MMM d, yyyy')}
+                {getFormattedDate(weekDays[0].toISOString(), true)} -{' '}
+                {getFormattedDate(weekDays[6].toISOString(), true)}
               </Typography>
               <IconButton
                 onClick={() => setWeekStart((prev) => addWeeks(prev, 1))}
