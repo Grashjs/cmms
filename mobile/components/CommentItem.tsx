@@ -134,7 +134,7 @@ export default function CommentItem({
 
     while ((match = mentionRegex.exec(content)) !== null) {
       if (match.index > lastIndex) {
-        parts.push(content.slice(lastIndex, match.index));
+        parts.push(<Text key={key++}>{content.slice(lastIndex, match.index)}</Text>);
       }
       const [, displayName, userId] = match;
       parts.push(
@@ -155,7 +155,7 @@ export default function CommentItem({
       parts.push(content.slice(lastIndex));
     }
 
-    return parts.length > 0 ? parts : content;
+    return parts.length > 0 ? <Text>{parts}</Text> : <Text>{content}</Text>;
   };
 
   return (
