@@ -229,8 +229,8 @@ export const scheduleWorkOrder =
     );
 
     const workOrder = {
-      ...woInUnscheduled,
       ...woInContent,
+      ...woInUnscheduled,
       ...woInDays
     };
     dispatch(
