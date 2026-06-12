@@ -148,9 +148,10 @@ interface PropsType {
   user: UserResponseDTO;
   open: boolean;
   onClose: () => void;
+  onSave?: () => void;
 }
 
-function ShiftConfigurationModal({ user, open, onClose }: PropsType) {
+function ShiftConfigurationModal({ user, open, onClose, onSave }: PropsType) {
   const { t }: { t: any } = useTranslation();
   const { getFormattedDate } = useContext(CompanySettingsContext);
   const dispatch = useDispatch();
@@ -330,6 +331,7 @@ function ShiftConfigurationModal({ user, open, onClose }: PropsType) {
         })
       );
       showSnackBar(t('changes_saved_success'), 'success');
+      onSave?.();
       onClose();
     } catch {
       showSnackBar(t("The Shift Configuration couldn't be saved"), 'error');

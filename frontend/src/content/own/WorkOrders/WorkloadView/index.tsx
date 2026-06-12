@@ -858,6 +858,7 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
           user={shiftConfigUser}
           open={shiftConfigOpen}
           onClose={handleShiftConfigClose}
+          onSave={loadOverview}
         />
       )}
     </>
