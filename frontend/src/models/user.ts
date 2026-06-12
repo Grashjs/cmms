@@ -44,12 +44,32 @@ export interface UserMiniDTO {
   id: number;
 }
 
+export interface ShiftDayConfiguration {
+  dayOfWeek: string;
+  availabilityMinutes: number;
+  enabled: boolean;
+}
+
+export interface ShiftException {
+  exceptionDate: string;
+  availabilityMinutes: number;
+  enabled: boolean;
+}
+
+export interface ShiftConfigurationShowDTO {
+  id: number;
+  days: ShiftDayConfiguration[];
+  exceptions: ShiftException[];
+  enabled: boolean;
+}
+
 export interface UserResponseDTO extends OwnUser {
   companySettingsId: number;
   userSettingsId: number;
   superAccountRelations: SuperAccountRelation[];
   parentSuperAccount: SuperAccountRelation;
   uiConfiguration: UiConfiguration;
+  shiftConfiguration?: ShiftConfigurationShowDTO;
 }
 export interface SuperAccountRelation {
   childCompanyName: string;

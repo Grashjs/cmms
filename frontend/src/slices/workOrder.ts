@@ -13,6 +13,8 @@ import PreventiveMaintenance from 'src/models/owns/preventiveMaintenance';
 import { revertAll } from 'src/utils/redux';
 import File from '../models/owns/file';
 import { cancellableFetch } from 'src/utils/cancellableRequest';
+import { addToUnscheduled } from './workload';
+import type { WorkloadWorkOrderDTO } from 'src/models/owns/workload';
 
 const basePath = 'work-orders';
 
@@ -205,7 +207,8 @@ export const getWorkOrders =
     await cancellableFetch(
       dispatch,
       'getWorkOrders',
-      (signal) => api.post<Page<WorkOrder>>(`${basePath}/search`, criteria, { signal }),
+      (signal) =>
+        api.post<Page<WorkOrder>>(`${basePath}/search`, criteria, { signal }),
       (workOrders) => dispatch(slice.actions.getWorkOrders({ workOrders })),
       (loading) => dispatch(slice.actions.setLoadingGet({ loading }))
     );
@@ -223,8 +226,7 @@ export const getWorkOrdersMini =
           criteria,
           { signal }
         ),
-      (workOrders) =>
-        dispatch(slice.actions.getWorkOrdersMini({ workOrders }))
+      (workOrders) => dispatch(slice.actions.getWorkOrdersMini({ workOrders }))
     );
   };
 export const getSingleWorkOrder =
@@ -240,6 +242,17 @@ export const addWorkOrder =
   async (dispatch) => {
     const workOrderResponse = await api.post<WorkOrder>(basePath, workOrder);
     dispatch(slice.actions.addWorkOrder({ workOrder: workOrderResponse }));
+    if (
+      (!workOrderResponse.primaryUser &&
+        workOrderResponse.assignedTo.length === 0) ||
+      !workOrderResponse.estimatedStartDate
+    ) {
+      dispatch(
+        addToUnscheduled({
+          workOrder: workOrderResponse
+        })
+      );
+    }
     const taskBases =
       workOrder.tasks?.map((task) => {
         return {
@@ -370,4 +383,5 @@ export const getUrgentWorkOrdersCount = (): AppThunk => async (dispatch) => {
 export const clearSingleWorkOrder = (): AppThunk => async (dispatch) => {
   dispatch(slice.actions.clearSingleWorkOrder({}));
 };
+export const updateWorkOrderInContent = slice.actions.editWorkOrder;
 export default slice;

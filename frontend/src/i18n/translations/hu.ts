@@ -1714,10 +1714,12 @@ const locale = {
     'Hozza létre, kezelje és szerkessze a telephelyeket a szervezetén belül.',
   parts_inventory_settings_description:
     'Testreszabhatja az alkatrész-készlet űrlapját és beállításait',
-  meters_settings_description: 'Testreszabhatja a mérő űrlapját és beállításait',
+  meters_settings_description:
+    'Testreszabhatja a mérő űrlapját és beállításait',
   vendors_contractors_settings_description:
     'Kezelje a külső vállalkozókat és szállítókat, amelyekkel a szervezet dolgozik',
-  workflows_settings_description: 'Hozza létre és kezelje az automatizált munkafolyamatokat',
+  workflows_settings_description:
+    'Hozza létre és kezelje az automatizált munkafolyamatokat',
   request_portals_settings_description:
     'Hozza létre, kezelje és szerkessze az összes kérelem-portált a szervezetén belül.',
   set_preferences: 'Beállítások megadása',
@@ -1730,11 +1732,11 @@ const locale = {
   configure_fields: 'Mezők konfigurálása',
   add_custom_field: 'Egyéni mező hozzáadása',
   edit_custom_field: 'Egyéni mező szerkesztése',
-  confirm_delete_custom_field:
-    'Biztosan törölni szeretné ezt az egyéni mezőt?',
+  confirm_delete_custom_field: 'Biztosan törölni szeretné ezt az egyéni mezőt?',
   copy_on_repeat_wo: 'A mező értékeinek másolása ismétlődő munkarendelésekre',
   do_not_copy: 'Ne másolja',
-  enter_options_comma_separated: 'Adja meg a lehetőségeket vesszővel elválasztva',
+  enter_options_comma_separated:
+    'Adja meg a lehetőségeket vesszővel elválasztva',
   field_type: 'Mező típusa',
   options: 'Lehetőségek',
   short_text: 'Rövid szöveg',
@@ -1744,17 +1746,46 @@ const locale = {
   single_choice: 'Egyetlen választás',
   label: 'Címke',
   customize_form: 'Az űrlap testreszabása',
-  type_enter_to_add_option: 'Írja be és nyomja meg az Entert a lehetőség hozzáadásához',
+  type_enter_to_add_option:
+    'Írja be és nyomja meg az Entert a lehetőség hozzáadásához',
   customers_settings_description:
     'Kezelje a külső vállalkozókat, amelyekkel a szervezet dolgozik.',
-  vendors_settings_description: 'Testreszabhatja a szállítókkal kapcsolatos beállításokat',
+  vendors_settings_description:
+    'Testreszabhatja a szállítókkal kapcsolatos beállításokat',
   view: 'Megtekintés',
   view_other: 'Másik megtekintése',
-  view_other_hint: '"Másik megtekintése" azt jelenti, hogy valaki más által létrehozott dolgot néz meg',
+  view_other_hint:
+    '"Másik megtekintése" azt jelenti, hogy valaki más által létrehozott dolgot néz meg',
   go_to_billing: 'Ugrás a számlázáshoz',
   import_from_spreadsheet: 'Importálás táblázatból vagy CSV-ből',
   reset: 'Visszaállítás',
-  confirm_delete_row: 'Biztosan törölni szeretné ezt a sort?'
+  confirm_delete_row: 'Biztosan törölni szeretné ezt a sort?',
+  scheduled: 'Ütemezett',
+  customize_shift: 'Műszak testreszabása',
+  default_schedule: 'Alapértelmezett ütemezés',
+  custom_capacity_by_week: 'Egyéni kapacitás hetente',
+  total_weekly_capacity: 'Heti összkapacitás {{hours}}ó {{minutes}}p',
+  hours_abbrev: 'ó',
+  minutes_abbrev: 'p',
+  monday: 'Hétfő',
+  tuesday: 'Kedd',
+  wednesday: 'Szerda',
+  thursday: 'Csütörtök',
+  friday: 'Péntek',
+  saturday: 'Szombat',
+  sunday: 'Vasárnap',
+  set_estimated_duration: 'Becsült időtartam beállítása',
+  schedule: 'Ütemezés',
+  workload_view: 'Munkaterhelés nézet',
+  total_resource_capacity: 'Teljes erőforrás-kapacitás',
+  unscheduled_work_orders: 'Nem ütemezett munkautasítások',
+  user_capacity: 'Felhasználói kapacitás',
+  overdue: 'Lejárt',
+  due_soon: 'Hamarosan esedékes',
+  all_users: 'Összes felhasználó',
+  team_member: 'Csapattag',
+  no_data: 'Nincs adat',
+  hours_left: 'hátra'
 };
 
 export default locale;

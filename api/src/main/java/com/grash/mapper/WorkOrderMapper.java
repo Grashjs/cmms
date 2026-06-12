@@ -5,6 +5,7 @@ import com.grash.dto.workOrder.WorkOrderMiniDTO;
 import com.grash.dto.workOrder.WorkOrderPatchDTO;
 import com.grash.dto.workOrder.WorkOrderShowDTO;
 import com.grash.dto.workOrder.WorkOrderPostDTO;
+import com.grash.dto.workload.WorkloadWorkOrderDTO;
 import com.grash.model.WorkOrder;
 import org.mapstruct.*;
 
@@ -29,5 +30,7 @@ public interface WorkOrderMapper {
     WorkOrderBaseMiniDTO toBaseMiniDto(WorkOrder model);
 
     WorkOrder fromPostDto(WorkOrderPostDTO workOrderPostDTO);
+
+    WorkloadWorkOrderDTO toWorkloadDto(WorkOrder model);
 
 }

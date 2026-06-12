@@ -1,5 +1,6 @@
 package com.grash.dto;
 
+import com.grash.dto.shiftConfiguration.ShiftConfigurationShowDTO;
 import com.grash.model.File;
 import com.grash.model.Role;
 import com.grash.model.SuperAccountRelation;
@@ -17,19 +18,19 @@ public class UserResponseDTO {
 
     @Schema(description = "Unique identifier")
     private Integer id;
-    
+
     @Schema(description = "Username")
     private String username;
-    
+
     @Schema(description = "Email address")
     private String email;
-    
+
     @Schema(description = "User role")
     private Role role;
 
     @Schema(description = "Hourly rate")
     private long rate;
-    
+
     @Schema(description = "Job title")
     private String jobTitle;
 
@@ -81,4 +82,6 @@ public class UserResponseDTO {
     @Schema(description = "Paddle user ID")
     private String paddleUserId;
 
+    @Schema(hidden = true)
+    private ShiftConfigurationShowDTO shiftConfiguration;
 }

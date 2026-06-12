@@ -94,7 +94,8 @@ export default function CreateWorkOrderScreen({
                 label: route.params.asset.name,
                 value: route.params.asset.id.toString()
               }
-            : null
+            : null,
+          estimatedDuration: 1
         }}
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {

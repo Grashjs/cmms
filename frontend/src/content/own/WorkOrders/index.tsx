@@ -41,9 +41,9 @@ import { isNumeric } from '../../../utils/validators';
 import WorkOrderDetails from './Details/WorkOrderDetails';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
+  formatCustomFields,
   formatSelect,
-  formatSelectMultiple,
-  formatCustomFields
+  formatSelectMultiple
 } from '../../../utils/formatters';
 import {
   addWorkOrder,
@@ -52,12 +52,14 @@ import {
   getSingleWorkOrder,
   getWorkOrders
 } from '../../../slices/workOrder';
+import { getUsersMini } from '../../../slices/user';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 import { useDispatch, useSelector } from '../../../store';
 import PriorityWrapper from '../components/PriorityWrapper';
 import { patchTasksOfWorkOrder } from '../../../slices/task';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import useAuth from '../../../hooks/useAuth';
+import { useLicenseEntitlement } from '../../../hooks/useLicenseEntitlement';
 import { getWOBaseValues } from '../../../utils/woBase';
 import { PermissionEntity } from '../../../models/owns/role';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -73,6 +75,7 @@ import { dayDiff } from '../../../utils/dates';
 import { FilterField, SearchCriteria } from '../../../models/owns/page';
 import { loadFilterFields, saveFilterFields } from '../../../utils/filter';
 import WorkOrderCalendar from './Calendar';
+import WorkloadView from './WorkloadView';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import FilterAltTwoToneIcon from '@mui/icons-material/FilterAltTwoTone';
 import MoreFilters from './Filters/MoreFilters';
@@ -167,17 +170,49 @@ function WorkOrders() {
   const { getFormattedDate, getUserNameById } = useContext(
     CompanySettingsContext
   );
-  const tabs = [
+  const hasResourcePlanningEntitlement =
+    useLicenseEntitlement('RESOURCE_PLANNING');
+  const tabs: {
+    value: string;
+    label: string;
+    disabled?: boolean;
+    hidden?: boolean;
+    requiresUpgrade?: boolean;
+  }[] = [
     { value: 'list', label: t('list_view'), disabled: false },
     {
       value: 'calendar',
       label: t('calendar_view'),
       disabled: !hasViewPermission(PermissionEntity.WORK_ORDERS)
     },
-    { value: 'column', label: t('column_view'), disabled: true }
+    {
+      value: 'workload',
+      label: t('workload_view'),
+      disabled:
+        !hasResourcePlanningEntitlement ||
+        !hasFeature(PlanFeature.RESOURCE_PLANNING),
+      requiresUpgrade:
+        !hasResourcePlanningEntitlement ||
+        !hasFeature(PlanFeature.RESOURCE_PLANNING),
+      hidden:
+        !hasViewOtherPermission(PermissionEntity.WORK_ORDERS) ||
+        !hasViewPermission(PermissionEntity.PEOPLE_AND_TEAMS)
+    },
+    {
+      value: 'column',
+      label: t('column_view'),
+      disabled: true
+    }
   ];
   const handleTabsChange = (_event: ChangeEvent<{}>, value: string): void => {
     setCurrentTab(value);
+    const newParams = new URLSearchParams(searchParams);
+    if (value === 'list') {
+      newParams.delete('view');
+    } else {
+      newParams.set('view', value);
+    }
+    setSearchParams(newParams);
   };
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
@@ -307,6 +342,12 @@ function WorkOrders() {
     setTitle(t('work_orders'));
   }, []);
 
+  useEffect(() => {
+    if (currentTab === 'workload') {
+      dispatch(getUsersMini());
+    }
+  }, [currentTab]);
+
   const onFilterChange = (newFilters: FilterField[]) => {
     const newCriteria = { ...criteria };
     newCriteria.filterFields = newFilters;
@@ -351,6 +392,9 @@ function WorkOrders() {
     }
     if (viewParam === 'calendar') {
       setCurrentTab('calendar');
+    }
+    if (viewParam === 'workload') {
+      setCurrentTab('workload');
     }
   }, []);
 
@@ -740,7 +784,8 @@ function WorkOrders() {
                     label: locationParamObject.name,
                     value: locationParamObject.id
                   }
-                : null
+                : null,
+              estimatedDuration: 1
             }}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
@@ -907,22 +952,29 @@ function WorkOrders() {
             textColor="primary"
             indicatorColor="primary"
           >
-            {tabs.map((tab) =>
-              tab.disabled ? (
-                <Tooltip title={t('Coming Soon')} placement="top">
-                  <span>
-                    <Tab
-                      key={tab.value}
-                      label={tab.label}
-                      value={tab.value}
-                      disabled={tab.disabled}
-                    />
-                  </span>
-                </Tooltip>
-              ) : (
-                <Tab key={tab.value} label={tab.label} value={tab.value} />
-              )
-            )}
+            {tabs
+              .filter((tab) => !tab.hidden)
+              .map((tab) =>
+                tab.disabled ? (
+                  <Tooltip
+                    title={
+                      tab.requiresUpgrade ? t('upgrade_now') : t('Coming Soon')
+                    }
+                    placement="top"
+                  >
+                    <span>
+                      <Tab
+                        key={tab.value}
+                        label={tab.label}
+                        value={tab.value}
+                        disabled={tab.disabled}
+                      />
+                    </span>
+                  </Tooltip>
+                ) : (
+                  <Tab key={tab.value} label={tab.label} value={tab.value} />
+                )
+              )}
           </Tabs>
           <Stack direction={'row'} alignItems="center" spacing={1}>
             <IconButton onClick={handleOpenMenu} color="primary">
@@ -957,7 +1009,7 @@ function WorkOrders() {
             alignItems: 'center'
           }}
         >
-          {currentTab !== 'calendar' && (
+          {currentTab === 'list' && (
             <Stack
               sx={{ ml: 1 }}
               direction="row"
@@ -1025,12 +1077,19 @@ function WorkOrders() {
                 pinnedColumns={pinnedColumns}
                 onPinnedColumnsChange={setPinnedColumns}
               />
-            ) : (
+            ) : currentTab === 'calendar' ? (
               <WorkOrderCalendar
                 handleAddWorkOrder={(date: Date) => {
                   setInitialDueDate(date);
                   setOpenAddModal(true);
                 }}
+                handleOpenDetails={(id, type) => {
+                  if (type === 'WORK_ORDER') handleOpenDetails(id);
+                  else navigate(getPreventiveMaintenanceUrl(id));
+                }}
+              />
+            ) : (
+              <WorkloadView
                 handleOpenDetails={(id, type) => {
                   if (type === 'WORK_ORDER') handleOpenDetails(id);
                   else navigate(getPreventiveMaintenanceUrl(id));

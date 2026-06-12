@@ -73,6 +73,7 @@ function MoreFilters({
       type: 'simple'
     },
     { accessor: 'createdAt', fieldName: 'createdAt', type: 'date' },
+    { accessor: 'dueDate', fieldName: 'dueDate', type: 'dateLessThan' },
     { accessor: 'updatedAt', fieldName: 'updatedAt', type: 'date' },
     { accessor: 'completedOn', fieldName: 'completedOn', type: 'date' }
   ];
@@ -166,6 +167,11 @@ function MoreFilters({
       label: t('archived')
     },
     { name: 'datesGroup', type: 'titleGroupField', label: t('dates') },
+    {
+      name: 'dueDate',
+      type: 'date',
+      label: t('due_date')
+    },
     {
       name: 'createdAt',
       type: 'dateRange',
@@ -265,7 +271,8 @@ function MoreFilters({
       ),
       createdAt: getDateValue(filterFields, 'createdAt'),
       updatedAt: getDateValue(filterFields, 'updatedAt'),
-      completedOn: getDateValue(filterFields, 'completedOn')
+      completedOn: getDateValue(filterFields, 'completedOn'),
+      dueDate: getDateValue(filterFields, 'dueDate')
     };
   };
   const shape = {};

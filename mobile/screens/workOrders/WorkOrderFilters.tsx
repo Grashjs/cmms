@@ -60,7 +60,8 @@ export default function WorkOrderFilters({
     },
     { accessor: 'createdAt', fieldName: 'createdAt', type: 'date' },
     { accessor: 'updatedAt', fieldName: 'updatedAt', type: 'date' },
-    { accessor: 'completedOn', fieldName: 'completedOn', type: 'date' }
+    { accessor: 'completedOn', fieldName: 'completedOn', type: 'date' },
+    { accessor: 'dueDate', fieldName: 'dueDate', type: 'dateLessThan' }
   ];
   const fields: Array<IField> = [
     {
@@ -166,6 +167,11 @@ export default function WorkOrderFilters({
       name: 'updatedAt',
       type: 'dateRange',
       label: t('updated_at')
+    },
+    {
+      name: 'dueDate',
+      type: 'date',
+      label: t('due_date')
     }
   ];
 
@@ -247,7 +253,8 @@ export default function WorkOrderFilters({
       ),
       createdAt: getDateValue(filterFields, 'createdAt'),
       updatedAt: getDateValue(filterFields, 'updatedAt'),
-      completedOn: getDateValue(filterFields, 'completedOn')
+      completedOn: getDateValue(filterFields, 'completedOn'),
+      dueDate: getDateValue(filterFields, 'dueDate')
     };
   };
   const shape = {};

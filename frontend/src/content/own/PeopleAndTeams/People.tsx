@@ -33,9 +33,10 @@ import {
   getUsers,
   inviteUsers
 } from '../../../slices/user';
-import { OwnUser } from '../../../models/user';
+import { OwnUser, UserResponseDTO } from '../../../models/user';
 import { PermissionEntity, Role } from '../../../models/owns/role';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
+import ScheduleIcon from '@mui/icons-material/Schedule';
 import useAuth from '../../../hooks/useAuth';
 import Form from '../components/form';
 import * as Yup from 'yup';
@@ -48,6 +49,7 @@ import SearchInput from '../components/SearchInput';
 import CancelIcon from '@mui/icons-material/Cancel';
 import ConfirmDialog from '../components/ConfirmDialog';
 import InviteUserDialog from './components/InviteUserDialog';
+import ShiftConfigurationModal from './components/ShiftConfigurationModal';
 import { isEmailVerificationEnabled } from '../../../config';
 import { createColumnHelper } from '@tanstack/react-table';
 import useTableState from '../../../hooks/useTableState';
@@ -72,8 +74,10 @@ interface PropsType {
 const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
-  const [currentUser, setCurrentUser] = useState<OwnUser>();
+  const [currentUser, setCurrentUser] = useState<UserResponseDTO>();
   const [detailDrawerOpen, setDetailDrawerOpen] = useState(false);
+  const [shiftModalUser, setShiftModalUser] = useState<UserResponseDTO>();
+  const [shiftModalOpen, setShiftModalOpen] = useState(false);
   const { peopleId } = useParams();
   const { hasEditPermission, user } = useAuth();
   const [enabledOnly, setEnabledOnly] = useState<boolean>(true);
@@ -139,7 +143,7 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
   const onEditFailure = (err) =>
     showSnackBar(t("The User couldn't be edited"), 'error');
 
-  const handleOpenDrawer = (user: OwnUser) => {
+  const handleOpenDrawer = (user: UserResponseDTO) => {
     setCurrentUser(user);
     window.history.replaceState(
       null,
@@ -316,9 +320,9 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
     };
   }, [singleUser, users]);
 
-  const columnHelper = createColumnHelper<OwnUser>();
+  const columnHelper = createColumnHelper<UserResponseDTO>();
 
-  const columns: CustomDatagridColumn2<OwnUser>[] = [
+  const columns: CustomDatagridColumn2<UserResponseDTO>[] = [
     columnHelper.accessor(
       (row) =>
         `${row.firstName} ${row.lastName}${
@@ -375,6 +379,19 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
       cell: (info) => getFormattedCurrency(info.getValue()),
       size: 150
     }),
+    columnHelper.display({
+      id: 'scheduled',
+      header: () => t('scheduled'),
+      cell: (info) => {
+        const sc = info.row.original.shiftConfiguration;
+        if (!sc.enabled || !sc?.days) return t('no');
+        const enabledDays = sc.days
+          .filter((d) => d.enabled)
+          .map((d) => t(d.dayOfWeek.toLowerCase()));
+        return enabledDays.join(', ');
+      },
+      size: 180
+    }),
     columnHelper.accessor('lastLogin', {
       id: 'lastLogin',
       header: () => t('last_login'),
@@ -399,6 +416,16 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
               onClick={(e) => {
                 e.stopPropagation();
                 handleOpenUpdate(user.id);
+              }}
+            />
+            <ScheduleIcon
+              fontSize="small"
+              color="primary"
+              sx={{ cursor: 'pointer' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShiftModalUser(user);
+                setShiftModalOpen(true);
               }}
             />
             {user.enabled && !user.ownsCompany && (
@@ -531,6 +558,13 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
         })}
       />
       {renderEditUserModal()}
+      {shiftModalUser && (
+        <ShiftConfigurationModal
+          user={shiftModalUser}
+          open={shiftModalOpen}
+          onClose={() => setShiftModalOpen(false)}
+        />
+      )}
     </Box>
   );
 };

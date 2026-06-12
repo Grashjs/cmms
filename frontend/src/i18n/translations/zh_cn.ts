@@ -1515,19 +1515,15 @@ const locale = {
   post_comment: '发表评论',
   no_comments: '暂无评论',
   confirm_delete_comment: '您确定要删除此评论吗？',
-  work_orders_settings_description:
-    '自定义工单偏好设置，如时间和成本跟踪等。',
-  requests_settings_description:
-    '自定义请求偏好设置，如路由和必填字段',
+  work_orders_settings_description: '自定义工单偏好设置，如时间和成本跟踪等。',
+  requests_settings_description: '自定义请求偏好设置，如路由和必填字段',
   assets_settings_description:
     '自定义资产相关设置，如条形码生成或资产创建表单。',
   auto_generate_asset_barcode: '自动生成条形码',
   auto_generate_asset_barcode_description:
     '如果选中此选项，创建资产时将自动生成条形码',
-  locations_settings_description:
-    '在您的组织内创建、管理和编辑位置。',
-  parts_inventory_settings_description:
-    '自定义零件库存表单和偏好设置',
+  locations_settings_description: '在您的组织内创建、管理和编辑位置。',
+  parts_inventory_settings_description: '自定义零件库存表单和偏好设置',
   meters_settings_description: '自定义仪表表单和偏好设置',
   vendors_contractors_settings_description:
     '管理您组织合作的外包承包商和供应商',
@@ -1544,8 +1540,7 @@ const locale = {
   configure_fields: '配置字段',
   add_custom_field: '添加自定义字段',
   edit_custom_field: '编辑自定义字段',
-  confirm_delete_custom_field:
-    '您确定要删除此自定义字段吗？',
+  confirm_delete_custom_field: '您确定要删除此自定义字段吗？',
   copy_on_repeat_wo: '在重复工单时复制此字段的值',
   do_not_copy: '不复制',
   enter_options_comma_separated: '输入以逗号分隔的选项',
@@ -1559,8 +1554,7 @@ const locale = {
   label: '标签',
   customize_form: '自定义表单',
   type_enter_to_add_option: '输入并按Enter添加选项',
-  customers_settings_description:
-    '管理您组织合作的外包承包商。',
+  customers_settings_description: '管理您组织合作的外包承包商。',
   vendors_settings_description: '自定义供应商相关设置',
   view: '查看',
   view_other: '查看其他',
@@ -1568,7 +1562,33 @@ const locale = {
   go_to_billing: '前往账单',
   import_from_spreadsheet: '从电子表格或CSV导入',
   reset: '重置',
-  confirm_delete_row: '您确定要删除此行吗？'
+  confirm_delete_row: '您确定要删除此行吗？',
+  scheduled: '已计划',
+  customize_shift: '自定义班次',
+  default_schedule: '默认排程',
+  custom_capacity_by_week: '按周自定义容量',
+  total_weekly_capacity: '每周总容量 {{hours}}小时{{minutes}}分',
+  hours_abbrev: '小时',
+  minutes_abbrev: '分',
+  monday: '星期一',
+  tuesday: '星期二',
+  wednesday: '星期三',
+  thursday: '星期四',
+  friday: '星期五',
+  saturday: '星期六',
+  sunday: '星期日',
+  set_estimated_duration: '设置预计持续时间',
+  schedule: '排程',
+  workload_view: '工作负载视图',
+  total_resource_capacity: '总资源容量',
+  unscheduled_work_orders: '未计划的工作单',
+  user_capacity: '用户容量',
+  overdue: '已逾期',
+  due_soon: '即将到期',
+  all_users: '所有用户',
+  team_member: '团队成员',
+  no_data: '无数据',
+  hours_left: '剩余'
 };
 
 export default locale;

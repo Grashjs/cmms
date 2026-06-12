@@ -217,4 +217,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_06_07_00000000001_move_user_app_stats_relation.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_06_11_00000000001_create_shift_configuration.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

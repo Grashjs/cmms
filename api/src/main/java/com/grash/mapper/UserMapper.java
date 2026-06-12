@@ -16,12 +16,25 @@ public abstract class UserMapper {
     @Autowired
     private UiConfigurationService uiConfigurationService;
 
+    @Lazy
+    @Autowired
+    private ShiftConfigurationMapper shiftConfigurationMapper;
+
     @Mappings({@Mapping(source = "company.id", target = "companyId"),
             @Mapping(source = "company.companySettings.id", target = "companySettingsId"),
+            @Mapping(target = "shiftConfiguration", ignore = true),
             @Mapping(source = "userSettings.id", target = "userSettingsId"),
             @Mapping(source = "company.companySettings.uiConfiguration", target = "uiConfiguration"),
             @Mapping(target = "image", source = "image", qualifiedByName = "toThumbnailDto")})
     public abstract UserResponseDTO toResponseDto(User model);
+
+    public UserResponseDTO toResponseDtoWithShift(User model) {
+        UserResponseDTO dto = toResponseDto(model);
+        if (model.getShiftConfiguration() != null) {
+            dto.setShiftConfiguration(shiftConfigurationMapper.toShowDto(model.getShiftConfiguration()));
+        }
+        return dto;
+    }
 
     @AfterMapping
     protected UserResponseDTO toResponseDto(User model, @MappingTarget UserResponseDTO target) {

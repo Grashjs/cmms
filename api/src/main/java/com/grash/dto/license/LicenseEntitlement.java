@@ -73,5 +73,7 @@ public enum LicenseEntitlement {
     @Schema(description = "Unlimited user accounts")
     UNLIMITED_USERS,
     @Schema(description = "Request portal for submitting maintenance requests")
-    REQUEST_PORTAL
+    REQUEST_PORTAL,
+    @Schema(description = "Resource planning and workload view")
+    RESOURCE_PLANNING
 }

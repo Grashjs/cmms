@@ -101,6 +101,9 @@ public class User extends Audit {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private UserAppStats appStats = new UserAppStats();
 
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private ShiftConfiguration shiftConfiguration;
+
     // SSO fields
     @Schema(description = "SSO provider name")
     private String ssoProvider;

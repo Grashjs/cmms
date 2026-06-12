@@ -245,4 +245,27 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
             "FROM WorkOrder wo WHERE wo.company.id = :companyId AND wo.status!=com.grash.model.enums.Status" +
             ".COMPLETE")
     boolean hasMoreActiveThan(@Param("companyId") Long companyId, @Param("threshold") Long threshold);
+
+    @Query("SELECT DISTINCT wo FROM WorkOrder wo " +
+            "LEFT JOIN wo.assignedTo assigned " +
+            "LEFT JOIN wo.team team " +
+            "WHERE wo.company.id = :companyId " +
+            "AND (wo.primaryUser.id = :userId " +
+            "     OR assigned.id = :userId " +
+            "     OR :userId IN (SELECT tu.id FROM team.users tu)) " +
+            "AND wo.estimatedStartDate BETWEEN :start AND :end")
+    Collection<WorkOrder> findByUserAndEstimatedStartDateBetween(
+            @Param("userId") Long userId,
+            @Param("start") Date start,
+            @Param("end") Date end,
+            @Param("companyId") Long companyId);
+
+    @Query("SELECT wo FROM WorkOrder wo WHERE wo.company.id = :companyId " +
+            "AND wo.status <> com.grash.model.enums.Status.COMPLETE " +
+            "AND (wo.estimatedStartDate IS NULL " +
+            "     OR wo.estimatedDuration = 0 " +
+            "     OR (wo.primaryUser IS NULL " +
+            "         AND (wo.assignedTo IS EMPTY) " +
+            "         AND wo.team IS NULL))")
+    Collection<WorkOrder> findUnscheduledByCompany(@Param("companyId") Long companyId);
 }
