@@ -86,6 +86,59 @@ const slice = createSlice({
     ) {
       const { loading } = action.payload;
       state.loadingUnscheduled = loading;
+    },
+    addWoToUserDay(
+      state: WorkloadState,
+      action: PayloadAction<{
+        workOrder: WorkloadWorkOrderDTO;
+        userId: number;
+        date: string;
+      }>
+    ) {
+      const { workOrder, userId, date } = action.payload;
+      if (!state.overview) return;
+      const day = state.overview.days.find((d) => d.date === date);
+      console.log(
+        date,
+        day,
+        state.overview.days.map((d) => d.date)
+      );
+      if (!day) return;
+      let userDay = day.users.find((u) => u.userId === userId);
+      if (!userDay) {
+        userDay = {
+          userId,
+          fullName: '',
+          capacityMinutes: 480,
+          allocatedMinutes: 0,
+          workOrders: []
+        };
+        day.users.push(userDay);
+      }
+      userDay.workOrders.push(workOrder);
+      userDay.allocatedMinutes += workOrder.estimatedDuration * 60;
+      day.teamAllocatedMinutes += workOrder.estimatedDuration * 60;
+      state.overview.teamAllocatedMinutes += workOrder.estimatedDuration * 60;
+    },
+    removeWoFromOverview(
+      state: WorkloadState,
+      action: PayloadAction<{ workOrderId: number }>
+    ) {
+      const { workOrderId } = action.payload;
+      if (!state.overview) return;
+      for (const day of state.overview.days) {
+        for (const userDay of day.users) {
+          const idx = userDay.workOrders.findIndex((w) => w.id === workOrderId);
+          if (idx !== -1) {
+            const removed = userDay.workOrders.splice(idx, 1)[0];
+            userDay.allocatedMinutes -= removed.estimatedDuration * 60;
+            day.teamAllocatedMinutes -= removed.estimatedDuration * 60;
+            state.overview.teamAllocatedMinutes -=
+              removed.estimatedDuration * 60;
+            return;
+          }
+        }
+      }
     }
   }
 });
@@ -169,6 +222,23 @@ export const scheduleWorkOrder =
       );
     }
     dispatch(slice.actions.removeFromUnscheduled({ id: workOrderId }));
+    dispatch(slice.actions.removeWoFromOverview({ workOrderId }));
+    dispatch(
+      slice.actions.addWoToUserDay({
+        workOrder: {
+          id: workOrderId,
+          customId: wo?.customId ?? '',
+          title: wo?.title ?? '',
+          status: wo?.status ?? '',
+          estimatedDuration:
+            wo?.estimatedDuration ?? dto.estimatedDuration ?? 0,
+          estimatedStartDate: response.estimatedStartDate,
+          dueDate: wo?.dueDate ?? ''
+        },
+        userId: dto.primaryUserId,
+        date: dto.localDate.substring(0, 10)
+      })
+    );
   };
 
 export const unscheduleWorkOrder =
@@ -201,6 +271,7 @@ export const unscheduleWorkOrder =
       );
     }
     dispatch(slice.actions.addToUnscheduled({ workOrder }));
+    dispatch(slice.actions.removeWoFromOverview({ workOrderId }));
   };
 
 export const { removeFromUnscheduled, addToUnscheduled } = slice.actions;

@@ -229,11 +229,9 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
           estimatedDuration: estimatedDuration ?? null,
           primaryUserId
         })
-      )
-        .then(() => loadOverview())
-        .catch((err) => showSnackBar(getErrorMessage(err), 'error'));
+      ).catch((err) => showSnackBar(getErrorMessage(err), 'error'));
     },
-    [dispatch, loadOverview]
+    [dispatch]
   );
 
   const handleDragEnd = (result: DropResult) => {
@@ -262,7 +260,7 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
       !isUnscheduled(source.droppableId) &&
       isUnscheduled(destination.droppableId)
     ) {
-      dispatch(unscheduleWorkOrder(wo.id, wo)).then(() => loadOverview());
+      dispatch(unscheduleWorkOrder(wo.id, wo));
       return;
     }
 
@@ -423,7 +421,9 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
 
           <Card sx={{ p: 2, mb: 2 }}>
             {loadingOverview ? (
-              <CircularProgress size={24} />
+              <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                <CircularProgress size={24} />
+              </Box>
             ) : (
               <Box sx={{ overflowX: 'auto' }}>
                 <Box
@@ -464,7 +464,9 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
                   {t('unscheduled_work_orders')}
                 </Typography>
                 {loadingUnscheduled ? (
-                  <CircularProgress size={24} />
+                  <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                    <CircularProgress size={24} />
+                  </Box>
                 ) : (
                   <Stack direction="row" spacing={1} flexWrap="wrap">
                     {unscheduled?.statusCounts &&
@@ -567,7 +569,9 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
               {t('user_capacity')}
             </Typography>
             {loadingOverview ? (
-              <CircularProgress size={24} />
+              <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                <CircularProgress size={24} />
+              </Box>
             ) : (
               <Box sx={{ overflowX: 'auto' }}>
                 <Box
