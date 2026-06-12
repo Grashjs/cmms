@@ -569,7 +569,7 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
                   <Stack
                     direction="row"
                     spacing={0.5}
-                    sx={{ mt: 1, flexWrap: 'wrap' }}
+                    sx={{ mt: 1, flexWrap: 'wrap', rowGap: 0.5 }}
                   >
                     {displayWOs(expandedStatus).map((wo, index) => (
                       <Draggable
