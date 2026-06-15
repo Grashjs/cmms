@@ -212,6 +212,8 @@ export const scheduleWorkOrder =
           workOrder: {
             ...woInContent,
             estimatedStartDate: response.estimatedStartDate,
+            estimatedDuration:
+              woInContent.estimatedDuration ?? dto.estimatedDuration,
             primaryUser: {
               id: response.userId,
               firstName: response.userFirstName,
@@ -240,11 +242,9 @@ export const scheduleWorkOrder =
           customId: workOrder?.customId ?? '',
           title: workOrder?.title ?? '',
           status: workOrder?.status ?? '',
-          estimatedDuration:
-            workOrder?.estimatedDuration ??
-            woInDays?.estimatedDuration ??
-            dto.estimatedDuration ??
-            0,
+          estimatedDuration: dto.estimatedDuration
+            ? dto.estimatedDuration
+            : workOrder?.estimatedDuration ?? woInDays?.estimatedDuration ?? 0,
           estimatedStartDate: response.estimatedStartDate,
           dueDate: workOrder?.dueDate ?? ''
         },
