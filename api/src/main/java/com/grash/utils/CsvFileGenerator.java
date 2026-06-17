@@ -332,7 +332,7 @@ public class CsvFileGenerator {
                             creatorEmail,
                             labor.getCreatedAt(),
                             "Time",
-                            null,
+                            labor.getHourlyRate() * hours,
                             null,
                             labor.getTimeCategory() == null ? null : labor.getTimeCategory().getName(),
                             null,
