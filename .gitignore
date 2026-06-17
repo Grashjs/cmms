@@ -6,3 +6,7 @@
 atlas_backups
 docker-compose-dev.yml
 logo
+# Thai translation tooling (not part of the PR)
+translate_atlas_thai.py
+.th_cache.json
+CLAUDE_KICKOFF.md
