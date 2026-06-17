@@ -1930,7 +1930,9 @@ const locale = {
   all_users: 'Tutti gli utenti',
   team_member: 'Membro del team',
   no_data: 'Nessun dato',
-  hours_left: 'rimasto'
+  hours_left: 'rimasto',
+  export_cost_and_time: 'Esporta costi e tempi',
+  export_work_orders: 'Esporta ordini di lavoro'
 };
 
 export default locale;

@@ -106,5 +106,18 @@ public class ExportController {
                     .body(new SuccessResponse(true, uuid));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
+
+    @GetMapping("/costs-times")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<SuccessResponse> exportCostsAndTimes(HttpServletRequest req,
+                                                               @Parameter(description = "Unique identifier for " +
+                                                                       "tracking the export job") @RequestParam String uuid) {
+        User user = userService.whoami(req);
+        if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS)) {
+            asyncExportService.exportCostsAndTimes(user, uuid);
+            return ResponseEntity.ok()
+                    .body(new SuccessResponse(true, uuid));
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
 }
 

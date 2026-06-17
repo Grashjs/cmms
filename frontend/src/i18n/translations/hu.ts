@@ -1785,7 +1785,9 @@ const locale = {
   all_users: 'Összes felhasználó',
   team_member: 'Csapattag',
   no_data: 'Nincs adat',
-  hours_left: 'hátra'
+  hours_left: 'hátra',
+  export_cost_and_time: 'Költség és idő exportálása',
+  export_work_orders: 'Munkautasítások exportálása'
 };
 
 export default locale;

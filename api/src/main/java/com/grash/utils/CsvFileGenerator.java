@@ -1,7 +1,10 @@
 package com.grash.utils;
 
 import com.grash.model.*;
+import com.grash.service.AdditionalCostService;
 import com.grash.service.AssetDowntimeService;
+import com.grash.service.LaborService;
+import com.grash.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -14,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -21,6 +25,9 @@ import java.util.stream.Collectors;
 public class CsvFileGenerator {
     private final MessageSource messageSource;
     private final AssetDowntimeService assetDowntimeService;
+    private final AdditionalCostService additionalCostService;
+    private final LaborService laborService;
+    private final UserService userService;
 
     public void writeWorkOrdersToCsv(Collection<WorkOrder> workOrders, Writer writer, Locale locale,
                                      String csvSeparator, boolean includeHeaders) {
@@ -65,7 +72,8 @@ public class CsvFileGenerator {
         }
     }
 
-    public void writeAssetsToCsv(Collection<Asset> assets, Writer writer, Locale locale, String csvSeparator, boolean includeHeaders) {
+    public void writeAssetsToCsv(Collection<Asset> assets, Writer writer, Locale locale, String csvSeparator,
+                                 boolean includeHeaders) {
         try {
             CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
             CSVPrinter printer = new CSVPrinter(writer, csvFormat);
@@ -124,7 +132,8 @@ public class CsvFileGenerator {
         }
     }
 
-    public void writeLocationsToCsv(Collection<Location> locations, Writer writer, Locale locale, String csvSeparator, boolean includeHeaders) {
+    public void writeLocationsToCsv(Collection<Location> locations, Writer writer, Locale locale, String csvSeparator
+            , boolean includeHeaders) {
         try {
             CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
             CSVPrinter printer = new CSVPrinter(writer, csvFormat);
@@ -155,7 +164,8 @@ public class CsvFileGenerator {
         }
     }
 
-    public void writePartsToCsv(Collection<Part> parts, Writer writer, Locale locale, String csvSeparator, boolean includeHeaders) {
+    public void writePartsToCsv(Collection<Part> parts, Writer writer, Locale locale, String csvSeparator,
+                                boolean includeHeaders) {
         try {
             CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
             CSVPrinter printer = new CSVPrinter(writer, csvFormat);
@@ -201,7 +211,8 @@ public class CsvFileGenerator {
         }
     }
 
-    public void writeMetersToCsv(Collection<Meter> meters, Writer writer, Locale locale, String csvSeparator, boolean includeHeaders) {
+    public void writeMetersToCsv(Collection<Meter> meters, Writer writer, Locale locale, String csvSeparator,
+                                 boolean includeHeaders) {
         try {
             CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
             CSVPrinter printer = new CSVPrinter(writer, csvFormat);
@@ -263,6 +274,72 @@ public class CsvFileGenerator {
                         pm.getSchedule() == null ? null :
                                 messageSource.getMessage(pm.getSchedule().getRecurrenceType().name(), null, locale)
                 );
+            }
+            printer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeCostsAndTimesToCsv(Collection<WorkOrder> workOrders, Writer writer, Locale locale,
+                                        String csvSeparator, boolean includeHeaders) {
+        try {
+            CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
+            CSVPrinter printer = new CSVPrinter(writer, csvFormat);
+            if (includeHeaders) {
+                List<String> headers = Arrays.asList("ID", "Work_Order_Title", "Work_Order_ID", "User", "Creator",
+                        "Created_At", "Type", "Cost", "Cost_Category", "Time_Category",
+                        "Description", "Time_Hours", "Hourly_Rate");
+                printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
+            }
+            for (WorkOrder workOrder : workOrders) {
+                Collection<AdditionalCost> additionalCosts = additionalCostService.findByWorkOrder(workOrder.getId());
+                for (AdditionalCost cost : additionalCosts) {
+                    String creatorEmail = null;
+                    if (cost.getCreatedBy() != null) {
+                        Optional<User> creator = userService.findById(cost.getCreatedBy());
+                        if (creator.isPresent()) creatorEmail = creator.get().getEmail();
+                    }
+                    printer.printRecord(
+                            cost.getId(),
+                            workOrder.getTitle(),
+                            workOrder.getId(),
+                            cost.getAssignedTo() == null ? null : cost.getAssignedTo().getEmail(),
+                            creatorEmail,
+                            cost.getCreatedAt(),
+                            "Cost",
+                            cost.getCost(),
+                            cost.getCategory() == null ? null : cost.getCategory().getName(),
+                            null,
+                            cost.getDescription(),
+                            null,
+                            cost.getAssignedTo() == null ? null : cost.getAssignedTo().getRate()
+                    );
+                }
+                Collection<Labor> labors = laborService.findByWorkOrder(workOrder.getId());
+                for (Labor labor : labors) {
+                    String creatorEmail = null;
+                    if (labor.getCreatedBy() != null) {
+                        Optional<User> creator = userService.findById(labor.getCreatedBy());
+                        if (creator.isPresent()) creatorEmail = creator.get().getEmail();
+                    }
+                    double hours = labor.getDuration() / 3600.0;
+                    printer.printRecord(
+                            labor.getId(),
+                            workOrder.getTitle(),
+                            workOrder.getId(),
+                            labor.getAssignedTo() == null ? null : labor.getAssignedTo().getEmail(),
+                            creatorEmail,
+                            labor.getCreatedAt(),
+                            "Time",
+                            null,
+                            null,
+                            labor.getTimeCategory() == null ? null : labor.getTimeCategory().getName(),
+                            null,
+                            hours,
+                            labor.getHourlyRate()
+                    );
+                }
             }
             printer.flush();
         } catch (IOException e) {

@@ -1588,7 +1588,9 @@ const locale = {
   all_users: '所有用户',
   team_member: '团队成员',
   no_data: '无数据',
-  hours_left: '剩余'
+  hours_left: '剩余',
+  export_cost_and_time: '导出成本和时间',
+  export_work_orders: '导出工单'
 };
 
 export default locale;

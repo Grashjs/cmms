@@ -1896,7 +1896,9 @@ const locale = {
   all_users: 'Alla användare',
   team_member: 'Teammedlem',
   no_data: 'Inga data',
-  hours_left: 'kvar'
+  hours_left: 'kvar',
+  export_cost_and_time: 'Exportera kostnad och tid',
+  export_work_orders: 'Exportera arbetsorder'
 };
 
 export default locale;

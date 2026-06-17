@@ -1989,7 +1989,9 @@ const ruJSON = {
   all_users: 'Все пользователи',
   team_member: 'Член команды',
   no_data: 'Нет данных',
-  hours_left: 'осталось'
+  hours_left: 'осталось',
+  export_cost_and_time: 'Экспорт затрат и времени',
+  export_work_orders: 'Экспорт рабочих заказов'
 };
 
 export default ruJSON;

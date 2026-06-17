@@ -719,4 +719,8 @@ public class WorkOrderService {
                 b.stream().anyMatch(bItem ->
                         idExtractor.apply(bItem).equals(idExtractor.apply(aItem))));
     }
+
+    public Page<WorkOrder> findByCompany(Long id, Pageable pageable) {
+        return workOrderRepository.findByCompany_Id(id, pageable);
+    }
 }

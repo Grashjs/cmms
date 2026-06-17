@@ -1882,7 +1882,9 @@ const locale = {
   all_users: 'すべてのユーザー',
   team_member: 'チームメンバー',
   no_data: 'データなし',
-  hours_left: '残り'
+  hours_left: '残り',
+  export_cost_and_time: 'コストと時間をエクスポート',
+  export_work_orders: '作業指示をエクスポート'
 };
 
 export default locale;

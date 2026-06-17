@@ -2101,7 +2101,9 @@ const frJSON = {
   all_users: 'Tous les utilisateurs',
   team_member: "Membre de l'équipe",
   no_data: 'Aucune donnée',
-  hours_left: 'restantes'
+  hours_left: 'restantes',
+  export_cost_and_time: 'Exporter les coûts et le temps',
+  export_work_orders: 'Exporter les ordres de travail'
 };
 
 export default frJSON;

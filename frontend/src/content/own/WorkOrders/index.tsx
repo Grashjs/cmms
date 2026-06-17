@@ -901,6 +901,10 @@ function WorkOrders() {
       </DialogContent>
     </Dialog>
   );
+  const exportMenuItems = [
+    { key: 'work-orders', label: 'export_work_orders' },
+    { key: 'costs-times', label: 'export_cost_and_time' }
+  ];
   const renderMenu = () => (
     <Menu
       id="basic-menu"
@@ -911,24 +915,26 @@ function WorkOrders() {
         'aria-labelledby': 'basic-button'
       }}
     >
-      {hasViewOtherPermission(PermissionEntity.WORK_ORDERS) && (
-        <MenuItem
-          disabled={loadingExport['work-orders']}
-          onClick={async () => {
-            try {
-              await exportEntity('work-orders');
-            } catch (error) {
-              showSnackBar(t('Export failed'), 'error');
-            }
-            handleCloseMenu();
-          }}
-        >
-          <Stack spacing={2} direction="row">
-            {loadingExport['work-orders'] && <CircularProgress size="1rem" />}
-            <Typography>{t('to_export')}</Typography>
-          </Stack>
-        </MenuItem>
-      )}
+      {hasViewOtherPermission(PermissionEntity.WORK_ORDERS) &&
+        exportMenuItems.map((item) => (
+          <MenuItem
+            key={item.key}
+            disabled={loadingExport[item.key]}
+            onClick={async () => {
+              try {
+                await exportEntity(item.key);
+              } catch (error) {
+                showSnackBar(t('Export failed'), 'error');
+              }
+              handleCloseMenu();
+            }}
+          >
+            <Stack spacing={2} direction="row">
+              {loadingExport[item.key] && <CircularProgress size="1rem" />}
+              <Typography>{t(item.label)}</Typography>
+            </Stack>
+          </MenuItem>
+        ))}
     </Menu>
   );
   return (

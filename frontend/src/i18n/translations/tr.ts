@@ -1926,7 +1926,9 @@ const trJSON = {
   all_users: 'Tüm Kullanıcılar',
   team_member: 'Ekip Üyesi',
   no_data: 'Veri yok',
-  hours_left: 'kaldı'
+  hours_left: 'kaldı',
+  export_cost_and_time: 'Maliyet ve zamanı dışa aktar',
+  export_work_orders: 'İş emirlerini dışa aktar'
 };
 
 export default trJSON;

@@ -1864,7 +1864,9 @@ const locale = {
   all_users: 'جميع المستخدمين',
   team_member: 'عضو الفريق',
   no_data: 'لا توجد بيانات',
-  hours_left: 'متبقي'
+  hours_left: 'متبقي',
+  export_cost_and_time: 'تصدير التكلفة والوقت',
+  export_work_orders: 'تصدير أوامر العمل'
 };
 
 export default locale;

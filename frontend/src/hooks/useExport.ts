@@ -15,7 +15,8 @@ type EntityType =
   | 'locations'
   | 'parts'
   | 'meters'
-  | 'preventive-maintenances';
+  | 'preventive-maintenances'
+  | 'costs-times';
 
 /**
  * Custom hook for exporting entities with WebSocket support
@@ -30,7 +31,8 @@ export const useExport = (): UseExportReturn => {
     locations: false,
     parts: false,
     meters: false,
-    'preventive-maintenances': false
+    'preventive-maintenances': false,
+    'costs-times': false
   });
   const [stompClient, setStompClient] = useState(null);
 

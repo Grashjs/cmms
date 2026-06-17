@@ -1880,7 +1880,9 @@ const locale = {
   all_users: 'All Users',
   team_member: 'Team Member',
   no_data: 'No data',
-  hours_left: 'left'
+  hours_left: 'left',
+  export_cost_and_time: 'Export cost and time',
+  export_work_orders: 'Export work orders'
 };
 
 export default locale;

@@ -2011,7 +2011,9 @@ const deJSON = {
   all_users: 'Alle Benutzer',
   team_member: 'Teammitglied',
   no_data: 'Keine Daten',
-  hours_left: 'übrig'
+  hours_left: 'übrig',
+  export_cost_and_time: 'Kosten und Zeit exportieren',
+  export_work_orders: 'Arbeitsaufträge exportieren'
 };
 
 export default deJSON;

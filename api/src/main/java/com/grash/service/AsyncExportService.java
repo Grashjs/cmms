@@ -222,7 +222,8 @@ public class AsyncExportService {
             String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
             Locale locale = Helper.getLocale(user);
             do {
-                result = preventiveMaintenanceService.findByCompanyForExport(user.getCompany().getId(), PageRequest.of(page, 100));
+                result = preventiveMaintenanceService.findByCompanyForExport(user.getCompany().getId(),
+                        PageRequest.of(page, 100));
                 csvFileGenerator.writePreventiveMaintenancesToCsv(
                         result.getContent(),
                         outputStreamWriter,
@@ -243,6 +244,41 @@ public class AsyncExportService {
             log.info("Export completed for preventive-maintenances, uuid: {}", uuid);
         } catch (Exception e) {
             log.error("Export failed for preventive-maintenances, uuid: {}", uuid, e);
+            messagingTemplate.convertAndSend("/exports/" + uuid, "error: " + e.getMessage());
+        }
+    }
+
+    @Async
+    public void exportCostsAndTimes(User user, String uuid) {
+        try {
+            ByteArrayOutputStream target = new ByteArrayOutputStream();
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
+            int page = 0;
+            Page<WorkOrder> result;
+            String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
+            Locale locale = Helper.getLocale(user);
+            do {
+                result = workOrderService.findByCompany(user.getCompany().getId(), PageRequest.of(page, 100));
+                csvFileGenerator.writeCostsAndTimesToCsv(
+                        result.getContent(),
+                        outputStreamWriter,
+                        locale,
+                        csvSeparator,
+                        page == 0);
+
+                entityManager.clear();
+                page++;
+            }
+            while (result.hasNext());
+            outputStreamWriter.close();
+            byte[] bytes = target.toByteArray();
+            MultipartFile file = new MultipartFileImpl(bytes, "Costs and Times.csv");
+            String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
+                    user.getCompany().getId() + "/exports/" + uuid + "/costs-times");
+            messagingTemplate.convertAndSend("/exports/" + uuid, filePath);
+            log.info("Export completed for costs-times, uuid: {}", uuid);
+        } catch (Exception e) {
+            log.error("Export failed for costs-times, uuid: {}", uuid, e);
             messagingTemplate.convertAndSend("/exports/" + uuid, "error: " + e.getMessage());
         }
     }

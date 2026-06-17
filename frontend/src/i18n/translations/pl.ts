@@ -1926,7 +1926,9 @@ const plJSON = {
   all_users: 'Wszyscy użytkownicy',
   team_member: 'Członek zespołu',
   no_data: 'Brak danych',
-  hours_left: 'pozostało'
+  hours_left: 'pozostało',
+  export_cost_and_time: 'Eksportuj koszt i czas',
+  export_work_orders: 'Eksportuj zlecenia'
 };
 
 export default plJSON;

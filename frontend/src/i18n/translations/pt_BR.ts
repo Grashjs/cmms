@@ -1956,7 +1956,9 @@ const ptBRJSON = {
   all_users: 'Todos os usuários',
   team_member: 'Membro da equipe',
   no_data: 'Sem dados',
-  hours_left: 'restante'
+  hours_left: 'restante',
+  export_cost_and_time: 'Exportar custo e tempo',
+  export_work_orders: 'Exportar ordens de serviço'
 };
 
 export default ptBRJSON;
