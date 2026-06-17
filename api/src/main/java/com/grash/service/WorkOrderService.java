@@ -723,4 +723,8 @@ public class WorkOrderService {
     public Page<WorkOrder> findByCompany(Long id, Pageable pageable) {
         return workOrderRepository.findByCompany_Id(id, pageable);
     }
+
+    public Page<WorkOrder> findByCompanyWithTimeAndCost(Long id, Pageable pageable) {
+        return workOrderRepository.findByCompany_IdWithTimeAndCost(id, pageable);
+    }
 }

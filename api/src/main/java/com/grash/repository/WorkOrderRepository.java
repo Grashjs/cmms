@@ -270,4 +270,17 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
     Collection<WorkOrder> findUnscheduledByCompany(@Param("companyId") Long companyId);
 
     Page<WorkOrder> findByCompany_Id(Long id, Pageable pageable);
+
+    @Query("""
+                SELECT DISTINCT w
+                FROM WorkOrder w
+                LEFT JOIN Labor l ON l.workOrder.id = w.id
+                LEFT JOIN AdditionalCost ac ON ac.workOrder.id = w.id
+                WHERE w.company.id = :companyId
+                AND (l.id IS NOT NULL OR ac.id IS NOT NULL)
+            """)
+    Page<WorkOrder> findByCompany_IdWithTimeAndCost(
+            @Param("companyId") Long companyId,
+            Pageable pageable
+    );
 }

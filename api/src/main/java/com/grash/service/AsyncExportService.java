@@ -258,7 +258,8 @@ public class AsyncExportService {
             String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
             Locale locale = Helper.getLocale(user);
             do {
-                result = workOrderService.findByCompany(user.getCompany().getId(), PageRequest.of(page, 100));
+                result = workOrderService.findByCompanyWithTimeAndCost(user.getCompany().getId(), PageRequest.of(page
+                        , 100));
                 csvFileGenerator.writeCostsAndTimesToCsv(
                         result.getContent(),
                         outputStreamWriter,
