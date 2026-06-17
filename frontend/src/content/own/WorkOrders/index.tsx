@@ -90,9 +90,10 @@ import { getErrorMessage } from '../../../utils/api';
 import SplitButton from '../components/SplitButton';
 import useTableState from '../../../hooks/useTableState';
 import { assetStatuses } from '../../../models/owns/asset';
-import { useExport } from '../../../hooks/useExport';
+import { ExportEntityType, useExport } from '../../../hooks/useExport';
 import { getCustomFields } from '../../../slices/customField';
 import { CustomFieldEntityType } from '../../../models/owns/customField';
+import { EntityType } from '../../../hooks/useImport';
 
 const fieldMapping: Record<string, string> = {
   customId: 'customId',
@@ -901,7 +902,7 @@ function WorkOrders() {
       </DialogContent>
     </Dialog>
   );
-  const exportMenuItems = [
+  const exportMenuItems: { key: ExportEntityType; label: string }[] = [
     { key: 'work-orders', label: 'export_work_orders' },
     { key: 'costs-times', label: 'export_cost_and_time' }
   ];
