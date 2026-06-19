@@ -15,6 +15,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,7 +42,7 @@ public interface MeterMapper {
             Date nextReading = Date.from(
                     Helper.dateToLocalDate(lastReading.getCreatedAt())
                             .plusDays(target.getUpdateFrequency())
-                            .atStartOfDay(ZoneOffset.UTC)
+                            .atStartOfDay(ZoneId.of(model.getCompany().getCompanySettings().getGeneralPreferences().getTimeZone()))
                             .toInstant()
             );
             target.setNextReading(nextReading);
