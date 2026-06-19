@@ -15,11 +15,13 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
+import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 
-@Mapper(componentModel = "spring", uses = {LocationMapper.class, AssetMapper.class, UserMapper.class, FileMapper.class, CustomFieldValueMapper.class})
+@Mapper(componentModel = "spring", uses = {LocationMapper.class, AssetMapper.class, UserMapper.class,
+        FileMapper.class, CustomFieldValueMapper.class})
 public interface MeterMapper {
     Meter updateMeter(@MappingTarget Meter entity, MeterPatchDTO dto);
 
@@ -35,8 +37,12 @@ public interface MeterMapper {
         if (!readings.isEmpty()) {
             Reading lastReading = Collections.max(readings, new AuditComparator());
             target.setLastReading(lastReading.getCreatedAt());
-            Date nextReading = Helper.incrementDays(lastReading.getCreatedAt(),
-                    target.getUpdateFrequency());
+            Date nextReading = Date.from(
+                    Helper.dateToLocalDate(lastReading.getCreatedAt())
+                            .plusDays(target.getUpdateFrequency())
+                            .atStartOfDay(ZoneOffset.UTC)
+                            .toInstant()
+            );
             target.setNextReading(nextReading);
         }
         return target;
