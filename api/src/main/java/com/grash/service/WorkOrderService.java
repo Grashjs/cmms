@@ -96,7 +96,8 @@ public class WorkOrderService {
             }
         }
         workOrder.setCustomId(getWorkOrderNumber(company));
-
+        workOrder.setId(null);
+        
         WorkOrder savedWorkOrder = workOrderRepository.saveAndFlush(workOrder);
         em.refresh(savedWorkOrder);
         notify(savedWorkOrder, Helper.getLocale(company));
