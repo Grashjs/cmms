@@ -99,6 +99,7 @@ import { useLicenseEntitlement } from '../../../../hooks/useLicenseEntitlement';
 import { getCustomFieldValuesForDetails } from '../../type';
 import { getErrorMessage } from '../../../../utils/api';
 import { getCommentsCountByWorkOrder } from '../../../../slices/comment';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 const LabelWrapper = styled(Box)(
   ({ theme }) => `

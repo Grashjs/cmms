@@ -267,6 +267,7 @@ export const addWorkOrder =
         null
       );
     }
+    return workOrderResponse;
   };
 export const editWorkOrder =
   (id: number, workOrder): AppThunk =>

@@ -443,8 +443,9 @@ function WorkOrders() {
     newValues.category = formatSelect(newValues.category);
     return formatCustomFields(newValues);
   };
-  const onCreationSuccess = () => {
+  const onCreationSuccess = (newWorkOrder: WorkOrder) => {
     setOpenAddModal(false);
+    if (copyWorkOrderData) handleOpenDetails(newWorkOrder.id);
     setCopyWorkOrderData(null);
     showSnackBar(t('wo_create_success'), 'success');
   };
@@ -833,8 +834,10 @@ function WorkOrders() {
                   files: imageAndFiles.files
                 };
 
-                await dispatch(addWorkOrder(formattedValues));
-                onCreationSuccess();
+                const newWo: WorkOrder = await dispatch(
+                  addWorkOrder(formattedValues)
+                );
+                onCreationSuccess(newWo);
               } catch (err) {
                 onCreationFailure(err);
                 throw err;

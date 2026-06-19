@@ -1,7 +1,6 @@
 import { ChangeEvent, ReactNode } from 'react';
 import { Helmet } from 'react-helmet-async';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { Box, Button, Card, Stack, styled, Tab, Tabs } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -99,12 +98,9 @@ interface SettingsLayoutProps {
   tabIndex: number;
   action?: () => void;
   secondAction?: () => void;
-  thirdAction?: () => void;
   actionTitle?: string;
   secondActionTitle?: string;
-  thirdActionTitle?: string;
   secondActionIcon?: ReactNode;
-  thirdActionIcon?: ReactNode;
   editAction?: boolean;
   rawAction?: ReactNode;
   withoutCard?: boolean;
@@ -124,9 +120,6 @@ function MultipleTabsLayout(props: SettingsLayoutProps) {
     secondAction,
     secondActionTitle,
     secondActionIcon,
-    thirdAction,
-    thirdActionTitle,
-    thirdActionIcon,
     rawAction
   } = props;
   const { t }: { t: any } = useTranslation();
@@ -157,7 +150,7 @@ function MultipleTabsLayout(props: SettingsLayoutProps) {
             ))}
           </Tabs>
         </TabsContainerWrapper>
-        {(action || secondAction || thirdAction || rawAction) && (
+        {(action || secondAction || rawAction) && (
           <Stack direction="row" spacing={1} sx={{ mr: 4, my: 1 }}>
             {action && (
               <Button
@@ -177,15 +170,6 @@ function MultipleTabsLayout(props: SettingsLayoutProps) {
                 onClick={secondAction}
               >
                 {secondActionTitle}
-              </Button>
-            )}
-            {thirdAction && thirdActionTitle && (
-              <Button
-                startIcon={thirdActionIcon || <ContentCopyIcon />}
-                variant="outlined"
-                onClick={thirdAction}
-              >
-                {thirdActionTitle}
               </Button>
             )}
             {rawAction}

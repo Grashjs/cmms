@@ -4,6 +4,7 @@ import {
   Card,
   Divider,
   Grid,
+  IconButton,
   Link,
   Stack,
   styled,
@@ -29,6 +30,7 @@ import Loading from '../../Analytics/Loading';
 import { PermissionEntity } from '../../../../models/owns/role';
 import SplitButton from '../../components/SplitButton';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
 import * as React from 'react';
 import useAuth from '../../../../hooks/useAuth';
@@ -39,6 +41,7 @@ import { QRCodeSVG } from 'qrcode.react';
 interface PropsType {
   asset: AssetDTO;
   loading: boolean;
+  onCopy?: () => void;
 }
 const downloadQRCode = (value: string) => {
   const svgElement = document.getElementById(`qr-code-${value}`);
@@ -68,10 +71,10 @@ const downloadQRCode = (value: string) => {
 
   img.src = url;
 };
-const AssetDetails = ({ asset, loading }: PropsType) => {
+const AssetDetails = ({ asset, loading, onCopy }: PropsType) => {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
-  const { hasCreatePermission } = useAuth();
+  const { hasCreatePermission, hasEditPermission } = useAuth();
   const navigate = useNavigate();
   const { getFormattedDate, getFormattedCurrency } = useContext(
     CompanySettingsContext
@@ -213,6 +216,11 @@ const AssetDetails = ({ asset, loading }: PropsType) => {
                       {t('asset_information')}
                     </Typography>
                     {asset && <AssetStatusTag status={asset.status} />}
+                    {hasCreatePermission(PermissionEntity.ASSETS) && (
+                      <IconButton onClick={onCopy}>
+                        <ContentCopyIcon />
+                      </IconButton>
+                    )}
                   </Stack>
                   {hasCreatePermission(PermissionEntity.WORK_ORDERS) && (
                     <Button
