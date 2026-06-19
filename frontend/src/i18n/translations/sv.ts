@@ -1899,7 +1899,22 @@ const locale = {
   hours_left: 'kvar',
   export_cost_and_time: 'Exportera kostnad och tid',
    export_work_orders: 'Exportera arbetsorder',
-   copy_wo: 'Kopiera arbetsorder'
+   copy_wo: 'Kopiera arbetsorder',
+   copy_pm: 'Kopiera förebyggande underhåll',
+   copy_pm_description:
+     'Fyll i fälten nedan för att kopiera ett förebyggande underhåll',
+   copy_asset: 'Kopiera tillgång',
+   copy_asset_description:
+     'Fyll i fälten nedan för att kopiera denna tillgång',
+   copy_location: 'Kopiera plats',
+   copy_location_description:
+     'Fyll i fälten nedan för att kopiera denna plats',
+   copy_meter: 'Kopiera mätare',
+   copy_meter_description:
+     'Fyll i fälten nedan för att kopiera denna mätare',
+   copy_part: 'Kopiera del',
+   copy_part_description:
+     'Fyll i fälten nedan för att kopiera denna del'
 };
 
 export default locale;

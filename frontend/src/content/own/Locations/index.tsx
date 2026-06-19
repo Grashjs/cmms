@@ -132,6 +132,8 @@ function Locations() {
     setCurrentTab(value);
   };
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
+  const [copyLocationData, setCopyLocationData] =
+    useState<Location | null>(null);
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const { setTitle } = useContext(TitleContext);
@@ -223,8 +225,13 @@ function Locations() {
     dispatch(deleteLocation(id)).then(onDeleteSuccess).catch(onDeleteFailure);
     setOpenDelete(false);
   };
+  const handleCopyLocation = (location: Location) => {
+    setCopyLocationData(location);
+    setOpenAddModal(true);
+  };
   const onCreationSuccess = (createdLocation?: Location) => {
     setOpenAddModal(false);
+    setCopyLocationData(null);
     setInitialLocationName('');
     showSnackBar(t('location_create_success'), 'success');
 
@@ -670,6 +677,7 @@ function Locations() {
       open={openAddModal}
       onClose={() => {
         setOpenAddModal(false);
+        setCopyLocationData(null);
         setInitialLocationName('');
       }}
     >
@@ -679,10 +687,12 @@ function Locations() {
         }}
       >
         <Typography variant="h4" gutterBottom>
-          {t('add_location')}
+          {copyLocationData ? t('copy_location') : t('add_location')}
         </Typography>
         <Typography variant="subtitle2">
-          {t('add_location_description')}
+          {copyLocationData
+            ? t('copy_location_description')
+            : t('add_location_description')}
         </Typography>
       </DialogTitle>
       <DialogContent
@@ -696,7 +706,13 @@ function Locations() {
             fields={fields}
             validation={Yup.object().shape(shape)}
             submitText={t('add')}
-            values={initialLocationName ? { name: initialLocationName } : {}}
+            values={
+              copyLocationData
+                ? { ...copyLocationData, id: null }
+                : initialLocationName
+                  ? { name: initialLocationName }
+                  : {}
+            }
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
@@ -1129,6 +1145,7 @@ function Locations() {
             location={currentLocation}
             handleOpenUpdate={handleOpenUpdate}
             handleOpenDelete={onOpenDeleteDialog}
+            onCopy={handleCopyLocation}
           />
         </Drawer>
         <ConfirmDialog

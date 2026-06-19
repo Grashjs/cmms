@@ -142,6 +142,7 @@ const Parts = ({ setAction }: PropsType) => {
   });
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
+  const [copyPartData, setCopyPartData] = useState<Part | null>(null);
   const [currentPart, setCurrentPart] = useState<Part>();
   const {
     getFilteredFields,
@@ -188,8 +189,13 @@ const Parts = ({ setAction }: PropsType) => {
     { value: 'card', label: t('card_view') }
   ];
   const theme = useTheme();
+  const handleCopyPart = (part: Part) => {
+    setCopyPartData(part);
+    setOpenAddModal(true);
+  };
   const onCreationSuccess = () => {
     setOpenAddModal(false);
+    setCopyPartData(null);
     showSnackBar(t('part_create_success'), 'success');
   };
   const onCreationFailure = (err) =>
@@ -482,7 +488,10 @@ const Parts = ({ setAction }: PropsType) => {
       fullWidth
       maxWidth="md"
       open={openAddModal}
-      onClose={() => setOpenAddModal(false)}
+      onClose={() => {
+        setOpenAddModal(false);
+        setCopyPartData(null);
+      }}
     >
       <DialogTitle
         sx={{
@@ -490,9 +499,11 @@ const Parts = ({ setAction }: PropsType) => {
         }}
       >
         <Typography variant="h4" gutterBottom>
-          {t('add_part')}
+          {copyPartData ? t('copy_part') : t('add_part')}
         </Typography>
-        <Typography variant="subtitle2">{t('add_part_description')}</Typography>
+        <Typography variant="subtitle2">
+          {copyPartData ? t('copy_part_description') : t('add_part_description')}
+        </Typography>
       </DialogTitle>
       <DialogContent
         dividers
@@ -505,7 +516,7 @@ const Parts = ({ setAction }: PropsType) => {
             fields={getFilteredFields(fields)}
             validation={Yup.object().shape(shape)}
             submitText={t('create_part')}
-            values={{}}
+            values={copyPartData ? { ...copyPartData, id: null } : {}}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
@@ -847,6 +858,7 @@ const Parts = ({ setAction }: PropsType) => {
           part={currentPart}
           handleOpenUpdate={handleOpenUpdate}
           handleOpenDelete={() => setOpenDelete(true)}
+          onCopy={handleCopyPart}
         />
       </Drawer>
       <ConfirmDialog

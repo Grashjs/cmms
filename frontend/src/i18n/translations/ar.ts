@@ -1867,7 +1867,22 @@ const locale = {
   hours_left: 'متبقي',
   export_cost_and_time: 'تصدير التكلفة والوقت',
    export_work_orders: 'تصدير أوامر العمل',
-   copy_wo: 'نسخ أمر العمل'
+   copy_wo: 'نسخ أمر العمل',
+   copy_pm: 'نسخ الصيانة الوقائية',
+   copy_pm_description:
+     'املأ الحقول أدناه لنسخ الصيانة الوقائية',
+   copy_asset: 'نسخ الأصل',
+   copy_asset_description:
+     'املأ الحقول أدناه لنسخ هذا الأصل',
+   copy_location: 'نسخ الموقع',
+   copy_location_description:
+     'املأ الحقول أدناه لنسخ هذا الموقع',
+   copy_meter: 'نسخ العداد',
+   copy_meter_description:
+     'املأ الحقول أدناه لنسخ هذا العداد',
+   copy_part: 'نسخ الجزء',
+   copy_part_description:
+     'املأ الحقول أدناه لنسخ هذا الجزء'
 };
 
 export default locale;

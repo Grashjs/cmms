@@ -1959,7 +1959,22 @@ const ptBRJSON = {
   hours_left: 'restante',
   export_cost_and_time: 'Exportar custo e tempo',
    export_work_orders: 'Exportar ordens de serviço',
-   copy_wo: 'Copiar ordem de serviço'
+   copy_wo: 'Copiar ordem de serviço',
+   copy_pm: 'Copiar manutenção preventiva',
+   copy_pm_description:
+     'Preencha os campos abaixo para copiar uma manutenção preventiva',
+   copy_asset: 'Copiar ativo',
+   copy_asset_description:
+     'Preencha os campos abaixo para copiar este ativo',
+   copy_location: 'Copiar localização',
+   copy_location_description:
+     'Preencha os campos abaixo para copiar esta localização',
+   copy_meter: 'Copiar medidor',
+   copy_meter_description:
+     'Preencha os campos abaixo para copiar este medidor',
+   copy_part: 'Copiar peça',
+   copy_part_description:
+     'Preencha os campos abaixo para copiar esta peça'
 };
 
 export default ptBRJSON;

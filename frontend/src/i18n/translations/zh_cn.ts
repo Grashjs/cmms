@@ -1591,7 +1591,22 @@ const locale = {
   hours_left: '剩余',
   export_cost_and_time: '导出成本和时间',
    export_work_orders: '导出工单',
-   copy_wo: '复制工单'
+   copy_wo: '复制工单',
+   copy_pm: '复制预防性维护',
+   copy_pm_description:
+     '填写以下字段以复制预防性维护',
+   copy_asset: '复制资产',
+   copy_asset_description:
+     '填写以下字段以复制此资产',
+   copy_location: '复制位置',
+   copy_location_description:
+     '填写以下字段以复制此位置',
+   copy_meter: '复制仪表',
+   copy_meter_description:
+     '填写以下字段以复制此仪表',
+   copy_part: '复制零件',
+   copy_part_description:
+     '填写以下字段以复制此零件'
 };
 
 export default locale;

@@ -1885,7 +1885,22 @@ const locale = {
   hours_left: '残り',
   export_cost_and_time: 'コストと時間をエクスポート',
    export_work_orders: '作業指示をエクスポート',
-   copy_wo: '作業指示をコピー'
+   copy_wo: '作業指示をコピー',
+   copy_pm: '予防保全をコピー',
+   copy_pm_description:
+     '以下のフィールドに入力して予防保全をコピーします',
+   copy_asset: '資産をコピー',
+   copy_asset_description:
+     '以下のフィールドに入力してこの資産をコピーします',
+   copy_location: '場所をコピー',
+   copy_location_description:
+     '以下のフィールドに入力してこの場所をコピーします',
+   copy_meter: 'メーターをコピー',
+   copy_meter_description:
+     '以下のフィールドに入力してこのメーターをコピーします',
+   copy_part: '部品をコピー',
+   copy_part_description:
+     '以下のフィールドに入力してこの部品をコピーします'
 };
 
 export default locale;

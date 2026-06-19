@@ -1933,7 +1933,22 @@ const locale = {
   hours_left: 'rimasto',
   export_cost_and_time: 'Esporta costi e tempi',
    export_work_orders: 'Esporta ordini di lavoro',
-   copy_wo: 'Copia ordine di lavoro'
+   copy_wo: 'Copia ordine di lavoro',
+   copy_pm: 'Copia manutenzione preventiva',
+   copy_pm_description:
+     'Compila i campi sottostanti per copiare una manutenzione preventiva',
+   copy_asset: 'Copia risorsa',
+   copy_asset_description:
+     'Compila i campi sottostanti per copiare questa risorsa',
+   copy_location: 'Copia posizione',
+   copy_location_description:
+     'Compila i campi sottostanti per copiare questa posizione',
+   copy_meter: 'Copia contatore',
+   copy_meter_description:
+     'Compila i campi sottostanti per copiare questo contatore',
+   copy_part: 'Copia parte',
+   copy_part_description:
+     'Compila i campi sottostanti per copiare questa parte'
 };
 
 export default locale;

@@ -17,6 +17,7 @@ import { ChangeEvent, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Meter from '../../../models/owns/meter';
 import * as Yup from 'yup';
 import Form from '../components/form';
@@ -42,13 +43,16 @@ interface MeterDetailsProps {
   meter: Meter;
   handleOpenUpdate: () => void;
   handleOpenDelete: () => void;
+  onCopy: (meter: Meter) => void;
   onNewReading: () => void;
 }
 export default function MeterDetails(props: MeterDetailsProps) {
-  const { meter, handleOpenUpdate, handleOpenDelete, onNewReading } = props;
+  const { meter, handleOpenUpdate, handleOpenDelete, onCopy, onNewReading } =
+    props;
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
-  const { hasEditPermission, hasDeletePermission } = useAuth();
+  const { hasEditPermission, hasDeletePermission, hasCreatePermission } =
+    useAuth();
   const [currentTab, setCurrentTab] = useState<string>('details');
   const { getFormattedDate } = useContext(CompanySettingsContext);
   const theme = useTheme();
@@ -140,6 +144,14 @@ export default function MeterDetails(props: MeterDetailsProps) {
           {hasEditPermission(PermissionEntity.METERS, meter) && (
             <IconButton onClick={handleOpenUpdate} style={{ marginRight: 10 }}>
               <EditTwoToneIcon color="primary" />
+            </IconButton>
+          )}
+          {hasCreatePermission(PermissionEntity.METERS) && (
+            <IconButton
+              style={{ marginRight: 10 }}
+              onClick={() => onCopy(meter)}
+            >
+              <ContentCopyIcon color="primary" />
             </IconButton>
           )}
           {hasDeletePermission(PermissionEntity.METERS, meter) && (

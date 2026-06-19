@@ -1926,6 +1926,21 @@ const locale = {
   hours_left: 'over',
   export_cost_and_time: 'Kosten en tijd exporteren',
    export_work_orders: 'Werkorders exporteren',
-   copy_wo: 'Werkorder kopiëren'
+   copy_wo: 'Werkorder kopiëren',
+   copy_pm: 'Preventief onderhoud kopiëren',
+   copy_pm_description:
+     'Vul de onderstaande velden in om een preventief onderhoud te kopiëren',
+   copy_asset: 'Asset kopiëren',
+   copy_asset_description:
+     'Vul de onderstaande velden in om dit asset te kopiëren',
+   copy_location: 'Locatie kopiëren',
+   copy_location_description:
+     'Vul de onderstaande velden in om deze locatie te kopiëren',
+   copy_meter: 'Meter kopiëren',
+   copy_meter_description:
+     'Vul de onderstaande velden in om deze meter te kopiëren',
+   copy_part: 'Onderdeel kopiëren',
+   copy_part_description:
+     'Vul de onderstaande velden in om dit onderdeel te kopiëren'
 };
 export default locale;

@@ -1883,7 +1883,22 @@ const locale = {
   hours_left: 'left',
   export_cost_and_time: 'Export cost and time',
   export_work_orders: 'Export work orders',
-  copy_wo: 'Copy Work Order'
+  copy_wo: 'Copy Work Order',
+  copy_pm: 'Copy Preventive Maintenance',
+  copy_pm_description:
+    'Fill in the fields below to copy a Preventive Maintenance',
+  copy_asset: 'Copy Asset',
+  copy_asset_description:
+    'Fill in the fields below to copy this asset',
+  copy_location: 'Copy location',
+  copy_location_description:
+    'Fill in the fields below to copy this location',
+  copy_meter: 'Copy Meter',
+  copy_meter_description:
+    'Fill in the fields below to copy this Meter',
+  copy_part: 'Copy Part',
+  copy_part_description:
+    'Fill in the fields below to copy this Part'
 };
 
 export default locale;

@@ -1915,7 +1915,22 @@ const locale = {
   hours_left: 'preostalo',
   export_cost_and_time: 'Izvoz troškova i vremena',
    export_work_orders: 'Izvoz radnih naloga',
-   copy_wo: 'Kopiraj radni nalog'
+   copy_wo: 'Kopiraj radni nalog',
+   copy_pm: 'Kopiraj preventivno održavanje',
+   copy_pm_description:
+     'Popunite polja ispod da kopirate preventivno održavanje',
+   copy_asset: 'Kopiraj imovinu',
+   copy_asset_description:
+     'Popunite polja ispod da kopirate ovu imovinu',
+   copy_location: 'Kopiraj lokaciju',
+   copy_location_description:
+     'Popunite polja ispod da kopirate ovu lokaciju',
+   copy_meter: 'Kopiraj brojilo',
+   copy_meter_description:
+     'Popunite polja ispod da kopirate ovo brojilo',
+   copy_part: 'Kopiraj dio',
+   copy_part_description:
+     'Popunite polja ispod da kopirate ovaj dio'
 };
 
 export default locale;

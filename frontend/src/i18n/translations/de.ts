@@ -2014,7 +2014,22 @@ const deJSON = {
   hours_left: 'übrig',
   export_cost_and_time: 'Kosten und Zeit exportieren',
    export_work_orders: 'Arbeitsaufträge exportieren',
-   copy_wo: 'Arbeitsauftrag kopieren'
+   copy_wo: 'Arbeitsauftrag kopieren',
+   copy_pm: 'Wartungsplan kopieren',
+   copy_pm_description:
+     'Füllen Sie die Felder aus, um einen Wartungsplan zu kopieren',
+   copy_asset: 'Anlage kopieren',
+   copy_asset_description:
+     'Füllen Sie die Felder aus, um diese Anlage zu kopieren',
+   copy_location: 'Standort kopieren',
+   copy_location_description:
+     'Füllen Sie die Felder aus, um diesen Standort zu kopieren',
+   copy_meter: 'Zähler kopieren',
+   copy_meter_description:
+     'Füllen Sie die Felder aus, um diesen Zähler zu kopieren',
+   copy_part: 'Teil kopieren',
+   copy_part_description:
+     'Füllen Sie die Felder aus, um dieses Teil zu kopieren'
 };
 
 export default deJSON;

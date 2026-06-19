@@ -1929,7 +1929,22 @@ const trJSON = {
   hours_left: 'kaldı',
   export_cost_and_time: 'Maliyet ve zamanı dışa aktar',
    export_work_orders: 'İş emirlerini dışa aktar',
-   copy_wo: 'İş Emrini Kopyala'
+   copy_wo: 'İş Emrini Kopyala',
+   copy_pm: 'Bakım Planını Kopyala',
+   copy_pm_description:
+     'Bir bakım planını kopyalamak için aşağıdaki alanları doldurun',
+   copy_asset: 'Varlığı Kopyala',
+   copy_asset_description:
+     'Bu varlığı kopyalamak için aşağıdaki alanları doldurun',
+   copy_location: 'Konumu Kopyala',
+   copy_location_description:
+     'Bu konumu kopyalamak için aşağıdaki alanları doldurun',
+   copy_meter: 'Sayaçı Kopyala',
+   copy_meter_description:
+     'Bu sayacı kopyalamak için aşağıdaki alanları doldurun',
+   copy_part: 'Parçayı Kopyala',
+   copy_part_description:
+     'Bu parçayı kopyalamak için aşağıdaki alanları doldurun'
 };
 
 export default trJSON;

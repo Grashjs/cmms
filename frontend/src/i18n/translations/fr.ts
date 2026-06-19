@@ -2104,7 +2104,22 @@ const frJSON = {
   hours_left: 'restantes',
   export_cost_and_time: 'Exporter les coûts et le temps',
    export_work_orders: 'Exporter les ordres de travail',
-   copy_wo: "Copier l'ordre de travail"
+   copy_wo: "Copier l'ordre de travail",
+   copy_pm: "Copier la maintenance préventive",
+   copy_pm_description:
+     "Remplissez les champs ci-dessous pour copier une maintenance préventive",
+   copy_asset: "Copier l'équipement",
+   copy_asset_description:
+     "Remplissez les champs ci-dessous pour copier cet équipement",
+   copy_location: "Copier l'emplacement",
+   copy_location_description:
+     "Remplissez les champs ci-dessous pour copier cet emplacement",
+   copy_meter: "Copier le compteur",
+   copy_meter_description:
+     "Remplissez les champs ci-dessous pour copier ce compteur",
+   copy_part: "Copier la pièce",
+   copy_part_description:
+     "Remplissez les champs ci-dessous pour copier cette pièce"
 };
 
 export default frJSON;

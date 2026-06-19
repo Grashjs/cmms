@@ -18,6 +18,7 @@ import { ChangeEvent, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Part from '../../../models/owns/part';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import { PermissionEntity } from '../../../models/owns/role';
@@ -46,10 +47,12 @@ interface PartDetailsProps {
   part: Part;
   handleOpenUpdate: () => void;
   handleOpenDelete: () => void;
+  onCopy: (part: Part) => void;
 }
 export default function PartDetails(props: PartDetailsProps) {
-  const { part, handleOpenUpdate, handleOpenDelete } = props;
-  const { hasEditPermission, hasDeletePermission } = useAuth();
+  const { part, handleOpenUpdate, handleOpenDelete, onCopy } = props;
+  const { hasEditPermission, hasDeletePermission, hasCreatePermission } =
+    useAuth();
   const { t }: { t: any } = useTranslation();
   const { getFormattedDate, getFormattedCurrency } = useContext(
     CompanySettingsContext
@@ -147,6 +150,14 @@ export default function PartDetails(props: PartDetailsProps) {
           {hasEditPermission(PermissionEntity.PARTS_AND_MULTIPARTS, part) && (
             <IconButton onClick={handleOpenUpdate} style={{ marginRight: 10 }}>
               <EditTwoToneIcon color="primary" />
+            </IconButton>
+          )}
+          {hasCreatePermission(PermissionEntity.PARTS_AND_MULTIPARTS) && (
+            <IconButton
+              style={{ marginRight: 10 }}
+              onClick={() => onCopy(part)}
+            >
+              <ContentCopyIcon color="primary" />
             </IconButton>
           )}
           {hasDeletePermission(PermissionEntity.PARTS_AND_MULTIPARTS, part) && (

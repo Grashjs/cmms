@@ -99,6 +99,7 @@ function Meters() {
   const { t }: { t: any } = useTranslation();
   const { setTitle } = useContext(TitleContext);
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
+  const [copyMeterData, setCopyMeterData] = useState<Meter | null>(null);
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const [currentMeter, setCurrentMeter] = useState<Meter>();
@@ -250,8 +251,13 @@ function Meters() {
     window.history.replaceState(null, 'Meter', `/app/meters`);
     setOpenDrawer(false);
   };
+  const handleCopyMeter = (meter: Meter) => {
+    setCopyMeterData(meter);
+    setOpenAddModal(true);
+  };
   const onCreationSuccess = () => {
     setOpenAddModal(false);
+    setCopyMeterData(null);
     showSnackBar(t('meter_create_success'), 'success');
   };
   const onCreationFailure = (err) =>
@@ -412,7 +418,10 @@ function Meters() {
       fullWidth
       maxWidth="md"
       open={openAddModal}
-      onClose={() => setOpenAddModal(false)}
+      onClose={() => {
+        setOpenAddModal(false);
+        setCopyMeterData(null);
+      }}
     >
       <DialogTitle
         sx={{
@@ -420,10 +429,12 @@ function Meters() {
         }}
       >
         <Typography variant="h4" gutterBottom>
-          {t('add_meter')}
+          {copyMeterData ? t('copy_meter') : t('add_meter')}
         </Typography>
         <Typography variant="subtitle2">
-          {t('add_meter_description')}
+          {copyMeterData
+            ? t('copy_meter_description')
+            : t('add_meter_description')}
         </Typography>
       </DialogTitle>
       <DialogContent
@@ -437,7 +448,7 @@ function Meters() {
             fields={getFilteredFields(fields)}
             validation={Yup.object().shape(shape)}
             submitText={t('add')}
-            values={{}}
+            values={copyMeterData ? { ...copyMeterData, id: null } : {}}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
@@ -669,6 +680,7 @@ function Meters() {
               meter={currentMeter}
               handleOpenUpdate={handleOpenUpdate}
               handleOpenDelete={() => setOpenDelete(true)}
+              onCopy={handleCopyMeter}
               onNewReading={onNewReading}
             />
           </Drawer>

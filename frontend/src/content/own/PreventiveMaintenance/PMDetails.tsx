@@ -12,6 +12,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import PreventiveMaintenance from '../../../models/owns/preventiveMaintenance';
 import { useDispatch } from '../../../store';
 import { editPreventiveMaintenance } from '../../../slices/preventiveMaintenance';
@@ -42,6 +43,7 @@ interface RequestDetailsProps {
   preventiveMaintenance: PreventiveMaintenance;
   handleOpenUpdate: () => void;
   handleOpenDelete: () => void;
+  onCopy: (preventiveMaintenance: PreventiveMaintenance) => void;
   onClose: () => void;
   tasks: Task[];
 }
@@ -50,6 +52,7 @@ export default function PMDetails({
   preventiveMaintenance,
   handleOpenUpdate,
   handleOpenDelete,
+  onCopy,
   onClose,
   tasks
 }: RequestDetailsProps) {
@@ -58,7 +61,7 @@ export default function PMDetails({
   const theme = useTheme();
   const getLanguage = i18n.language;
   const dateLocale = useDateLocale();
-  const { hasEditPermission, hasDeletePermission, hasViewPermission } =
+  const { hasEditPermission, hasDeletePermission, hasCreatePermission } =
     useAuth();
   const navigate = useNavigate();
   const { getFormattedDate, getUserNameById } = useContext(
@@ -144,6 +147,14 @@ export default function PMDetails({
           ) && (
             <IconButton style={{ marginRight: 10 }} onClick={handleOpenUpdate}>
               <EditTwoToneIcon color="primary" />
+            </IconButton>
+          )}
+          {hasCreatePermission(PermissionEntity.PREVENTIVE_MAINTENANCES) && (
+            <IconButton
+              style={{ marginRight: 10 }}
+              onClick={() => onCopy(preventiveMaintenance)}
+            >
+              <ContentCopyIcon color="primary" />
             </IconButton>
           )}
           {hasDeletePermission(

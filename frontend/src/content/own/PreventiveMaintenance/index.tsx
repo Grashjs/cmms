@@ -122,6 +122,9 @@ function PMs() {
   const { t }: { t: any } = useTranslation();
   const { setTitle } = useContext(TitleContext);
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
+  const [copyPmData, setCopyPmData] = useState<PreventiveMaintenance | null>(
+    null
+  );
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const getLanguage = i18n.language;
@@ -277,8 +280,13 @@ function PMs() {
   const handleOpenUpdate = () => {
     setOpenUpdateModal(true);
   };
+  const handleCopyPm = (preventiveMaintenance: PreventiveMaintenance) => {
+    setCopyPmData(preventiveMaintenance);
+    setOpenAddModal(true);
+  };
   const onCreationSuccess = () => {
     setOpenAddModal(false);
+    setCopyPmData(null);
     showSnackBar(t('wo_schedule_success'), 'success');
   };
   const onCreationFailure = (err) =>
@@ -548,7 +556,10 @@ function PMs() {
       fullWidth
       maxWidth="md"
       open={openAddModal}
-      onClose={() => setOpenAddModal(false)}
+      onClose={() => {
+        setOpenAddModal(false);
+        setCopyPmData(null);
+      }}
     >
       <DialogTitle
         sx={{
@@ -556,7 +567,7 @@ function PMs() {
         }}
       >
         <Typography variant="h4" gutterBottom>
-          {t('schedule_wo')}
+          {copyPmData ? t('copy_pm') : t('schedule_wo')}
         </Typography>
         <Typography variant="subtitle2">
           {t('schedule_wo_description')}
@@ -573,13 +584,46 @@ function PMs() {
             fields={getFieldsAndShapes()[0]}
             validation={Yup.object().shape(getFieldsAndShapes()[1])}
             submitText={t('add')}
-            values={{
-              startsOn: null,
-              endsOn: null,
-              dueDate: null,
-              recurrenceBasedOn: basedOnArray[0],
-              recurrenceType: recurrenceTypes[0]
-            }}
+            values={
+              copyPmData
+                ? {
+                    ...copyPmData,
+                    ...getWOBaseValues(t, copyPmData),
+                    startsOn: copyPmData?.schedule.startsOn,
+                    endsOn: copyPmData?.schedule.endsOn,
+                    recurrenceBasedOn: copyPmData?.schedule.recurrenceBasedOn
+                      ? basedOnArray.find(
+                          ({ value }) =>
+                            value === copyPmData.schedule.recurrenceBasedOn
+                        )
+                      : null,
+                    recurrenceType: copyPmData?.schedule.recurrenceType
+                      ? recurrenceTypes.find(
+                          ({ value }) =>
+                            value === copyPmData.schedule.recurrenceType
+                        )
+                      : null,
+                    daysOfWeek: copyPmData?.schedule.daysOfWeek?.map(
+                      (dayOfWeek) => ({
+                        label: getWeekdays(dateLocale).find(
+                          (day, index) => index === dayOfWeek
+                        ),
+                        value: dayOfWeek
+                      })
+                    ),
+                    frequency: Number(copyPmData?.schedule.frequency),
+                    dueDateDelay: copyPmData?.schedule.dueDateDelay,
+                    tasks: tasks,
+                    id: null
+                  }
+                : {
+                    startsOn: null,
+                    endsOn: null,
+                    dueDate: null,
+                    recurrenceBasedOn: basedOnArray[0],
+                    recurrenceType: recurrenceTypes[0]
+                  }
+            }
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
@@ -825,6 +869,7 @@ function PMs() {
             preventiveMaintenance={currentPM}
             handleOpenUpdate={handleOpenUpdate}
             handleOpenDelete={() => setOpenDelete(true)}
+            onCopy={handleCopyPm}
             tasks={tasks}
           />
         </Drawer>

@@ -1788,7 +1788,22 @@ const locale = {
   hours_left: 'hátra',
   export_cost_and_time: 'Költség és idő exportálása',
    export_work_orders: 'Munkautasítások exportálása',
-   copy_wo: 'Munkautasítás másolása'
+   copy_wo: 'Munkautasítás másolása',
+   copy_pm: 'Megelőző karbantartás másolása',
+   copy_pm_description:
+     'Töltse ki az alábbi mezőket a megelőző karbantartás másolásához',
+   copy_asset: 'Eszköz másolása',
+   copy_asset_description:
+     'Töltse ki az alábbi mezőket az eszköz másolásához',
+   copy_location: 'Helyszín másolása',
+   copy_location_description:
+     'Töltse ki az alábbi mezőket a helyszín másolásához',
+   copy_meter: 'Mérő másolása',
+   copy_meter_description:
+     'Töltse ki az alábbi mezőket a mérő másolásához',
+   copy_part: 'Alkatrész másolása',
+   copy_part_description:
+     'Töltse ki az alábbi mezőket az alkatrész másolásához'
 };
 
 export default locale;

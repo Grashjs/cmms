@@ -40,7 +40,6 @@ import AddCostModal from './AddCostModal';
 import Tasks from './Tasks';
 import LinkTwoToneIcon from '@mui/icons-material/LinkTwoTone';
 import ArchiveTwoToneIcon from '@mui/icons-material/ArchiveTwoTone';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import PictureAsPdfTwoToneIcon from '@mui/icons-material/PictureAsPdfTwoTone';
 import PriorityWrapper from '../../components/PriorityWrapper';
 import TimerTwoToneIcon from '@mui/icons-material/TimerTwoTone';
@@ -76,7 +75,6 @@ import {
 } from '../../../../slices/additionalCost';
 import { getTasksByWorkOrder } from '../../../../slices/task';
 import { Task } from '../../../../models/owns/tasks';
-import { getWorkOrderHistories } from '../../../../slices/workOrderHistory';
 import LinkModal from './LinkModal';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 import { deleteRelation, getRelations } from '../../../../slices/relation';
@@ -128,7 +126,8 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const { getFormattedDate, getUserNameById, getFormattedCurrency } =
     useContext(CompanySettingsContext);
   const { t }: { t: any } = useTranslation();
-  const { user, hasEditPermission, hasDeletePermission } = useAuth();
+  const { user, hasEditPermission, hasDeletePermission, hasCreatePermission } =
+    useAuth();
   const brandConfig = useBrand();
   const hasWOHistoryEntitlement = useLicenseEntitlement('WORK_ORDER_HISTORY');
   const [searchParams, setSearchParams] = useSearchParams();
@@ -1451,17 +1450,19 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
             <Typography variant="h6">{t('pdf_report')}</Typography>
           </Stack>
         </MenuItem>
-        <MenuItem
-          onClick={() => {
-            onCopy(workOrder);
-            handleCloseMenu();
-          }}
-        >
-          <Stack spacing={2} direction="row">
-            <ContentCopyIcon />
-            <Typography variant="h6">{t('copy_wo')}</Typography>
-          </Stack>
-        </MenuItem>
+        {hasCreatePermission(PermissionEntity.WORK_ORDERS) && (
+          <MenuItem
+            onClick={() => {
+              onCopy(workOrder);
+              handleCloseMenu();
+            }}
+          >
+            <Stack spacing={2} direction="row">
+              <ContentCopyIcon />
+              <Typography variant="h6">{t('copy_wo')}</Typography>
+            </Stack>
+          </MenuItem>
+        )}
         <MenuItem onClick={onArchive}>
           <Stack spacing={2} direction="row">
             <ArchiveTwoToneIcon />
