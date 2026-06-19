@@ -40,6 +40,7 @@ import AddCostModal from './AddCostModal';
 import Tasks from './Tasks';
 import LinkTwoToneIcon from '@mui/icons-material/LinkTwoTone';
 import ArchiveTwoToneIcon from '@mui/icons-material/ArchiveTwoTone';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import PictureAsPdfTwoToneIcon from '@mui/icons-material/PictureAsPdfTwoTone';
 import PriorityWrapper from '../../components/PriorityWrapper';
 import TimerTwoToneIcon from '@mui/icons-material/TimerTwoTone';
@@ -116,11 +117,12 @@ interface WorkOrderDetailsProps {
   workOrder: WorkOrder;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
+  onCopy: (workOrder: WorkOrder) => void;
   tasks: Task[];
 }
 
 export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
-  const { workOrder, onEdit, tasks, onDelete } = props;
+  const { workOrder, onEdit, tasks, onDelete, onCopy } = props;
   const theme = useTheme();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { getFormattedDate, getUserNameById, getFormattedCurrency } =
@@ -1447,6 +1449,17 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
               <PictureAsPdfTwoToneIcon />
             )}
             <Typography variant="h6">{t('pdf_report')}</Typography>
+          </Stack>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            onCopy(workOrder);
+            handleCloseMenu();
+          }}
+        >
+          <Stack spacing={2} direction="row">
+            <ContentCopyIcon />
+            <Typography variant="h6">{t('copy_wo')}</Typography>
           </Stack>
         </MenuItem>
         <MenuItem onClick={onArchive}>

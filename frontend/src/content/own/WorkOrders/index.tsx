@@ -93,7 +93,7 @@ import { assetStatuses } from '../../../models/owns/asset';
 import { ExportEntityType, useExport } from '../../../hooks/useExport';
 import { getCustomFields } from '../../../slices/customField';
 import { CustomFieldEntityType } from '../../../models/owns/customField';
-import { EntityType } from '../../../hooks/useImport';
+import { randomInt } from '../../../utils/generators';
 
 const fieldMapping: Record<string, string> = {
   customId: 'customId',
@@ -216,6 +216,9 @@ function WorkOrders() {
     setSearchParams(newParams);
   };
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
+  const [copyWorkOrderData, setCopyWorkOrderData] = useState<WorkOrder | null>(
+    null
+  );
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const [openFilterDrawer, setOpenFilterDrawer] = useState<boolean>(false);
@@ -292,6 +295,10 @@ function WorkOrders() {
   const handleDelete = (id: number) => {
     dispatch(deleteWorkOrder(id)).then(onDeleteSuccess).catch(onDeleteFailure);
     setOpenDelete(false);
+  };
+  const handleCopyWorkOrder = (workOrder: WorkOrder) => {
+    setCopyWorkOrderData(workOrder);
+    setOpenAddModal(true);
   };
   const handleOpenUpdate = (id: number) => {
     // important if there were actions like edit
@@ -438,6 +445,7 @@ function WorkOrders() {
   };
   const onCreationSuccess = () => {
     setOpenAddModal(false);
+    setCopyWorkOrderData(null);
     showSnackBar(t('wo_create_success'), 'success');
   };
   const onCreationFailure = (err) =>
@@ -751,7 +759,10 @@ function WorkOrders() {
       fullWidth
       maxWidth="md"
       open={openAddModal}
-      onClose={() => setOpenAddModal(false)}
+      onClose={() => {
+        setOpenAddModal(false);
+        setCopyWorkOrderData(null);
+      }}
     >
       <DialogTitle
         sx={{
@@ -759,7 +770,7 @@ function WorkOrders() {
         }}
       >
         <Typography variant="h4" gutterBottom>
-          {t('add_wo')}
+          {copyWorkOrderData ? t('copy_wo') : t('add_wo')}
         </Typography>
         <Typography variant="subtitle2">{t('add_wo_description')}</Typography>
       </DialogTitle>
@@ -774,20 +785,36 @@ function WorkOrders() {
             fields={getFieldsAndShapes()[0]}
             validation={Yup.object().shape(getFieldsAndShapes()[1])}
             submitText={t('add')}
-            values={{
-              requiredSignature: false,
-              dueDate: initialDueDate,
-              asset: assetParamObject
-                ? { label: assetParamObject.name, value: assetParamObject.id }
-                : null,
-              location: locationParamObject
+            values={
+              copyWorkOrderData
                 ? {
-                    label: locationParamObject.name,
-                    value: locationParamObject.id
+                    ...copyWorkOrderData,
+                    tasks: tasks.map((task) => ({
+                      ...task,
+                      id: randomInt(),
+                      taskBase: { ...task.taskBase, id: null }
+                    })),
+                    ...getWOBaseValues(t, copyWorkOrderData),
+                    id: null
                   }
-                : null,
-              estimatedDuration: 1
-            }}
+                : {
+                    requiredSignature: false,
+                    dueDate: initialDueDate,
+                    asset: assetParamObject
+                      ? {
+                          label: assetParamObject.name,
+                          value: assetParamObject.id
+                        }
+                      : null,
+                    location: locationParamObject
+                      ? {
+                          label: locationParamObject.name,
+                          value: locationParamObject.id
+                        }
+                      : null,
+                    estimatedDuration: 1
+                  }
+            }
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               if (workOrders.totalElements === 0)
@@ -1121,6 +1148,7 @@ function WorkOrders() {
           onEdit={handleOpenUpdate}
           tasks={tasks}
           onDelete={handleOpenDelete}
+          onCopy={handleCopyWorkOrder}
         />
       </Drawer>
       <Drawer

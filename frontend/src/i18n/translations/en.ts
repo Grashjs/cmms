@@ -1882,7 +1882,8 @@ const locale = {
   no_data: 'No data',
   hours_left: 'left',
   export_cost_and_time: 'Export cost and time',
-  export_work_orders: 'Export work orders'
+  export_work_orders: 'Export work orders',
+  copy_wo: 'Copy Work Order'
 };
 
 export default locale;
