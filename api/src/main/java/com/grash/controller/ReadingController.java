@@ -27,6 +27,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -71,8 +72,13 @@ public class ReadingController {
             Optional<Reading> optionalLastReading = readingService.findLastByMeter(readingReq.getMeter().getId());
             if (optionalLastReading.isPresent()) {
                 Reading lastReading = optionalLastReading.get();
-                LocalDate nextReading = Helper.dateToLocalDate(lastReading.getCreatedAt()).plusDays(meter.getUpdateFrequency());
-                if (LocalDate.now().isBefore(nextReading)) {
+                String timeZone = meter.getCompany()
+                        .getCompanySettings()
+                        .getGeneralPreferences()
+                        .getTimeZone();
+                LocalDate nextReading =
+                        Helper.dateToLocalDate(lastReading.getCreatedAt()).plusDays(meter.getUpdateFrequency());
+                if (LocalDate.now(ZoneId.of(timeZone)).isBefore(nextReading)) {
                     throw new CustomException("The update frequency has not been respected", HttpStatus.NOT_ACCEPTABLE);
                 }
             }
