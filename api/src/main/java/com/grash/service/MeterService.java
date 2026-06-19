@@ -142,16 +142,7 @@ public class MeterService {
     public Collection<Meter> findByAsset(Long id) {
         return meterRepository.findByAsset_Id(id);
     }
-
-    public boolean isMeterInCompany(Meter meter, long companyId, boolean optional) {
-        if (optional) {
-            Optional<Meter> optionalMeter = meter == null ? Optional.empty() : findById(meter.getId());
-            return meter == null || (optionalMeter.isPresent() && optionalMeter.get().getCompany().getId().equals(companyId));
-        } else {
-            Optional<Meter> optionalMeter = findById(meter.getId());
-            return optionalMeter.isPresent() && optionalMeter.get().getCompany().getId().equals(companyId);
-        }
-    }
+    
 
     public Page<MeterShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<Meter> builder = new SpecificationBuilder<>();

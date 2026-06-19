@@ -9,6 +9,7 @@ import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.imports.PartImportDTO;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
+import com.grash.factory.MailServiceFactory;
 import com.grash.mapper.PartMapper;
 import com.grash.model.*;
 import com.grash.model.enums.CustomFieldEntityType;
@@ -21,6 +22,7 @@ import com.grash.service.CustomFieldValueService;
 import com.grash.utils.AuditComparator;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -57,6 +59,10 @@ public class PartService {
     private final LicenseService licenseService;
     private final WebhookDispatchService webhookDispatchService;
     private final CustomFieldValueService customFieldValueService;
+    private final MailServiceFactory mailServiceFactory;
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
 
     @Transactional
@@ -156,11 +162,28 @@ public class PartService {
                                 .stream()
                                 .filter(user -> user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)),
                         part.getAssignedTo().stream()
-                ).forEach(user -> uniqueUsersMap.put(user.getId(), user));
+                ).forEach(user -> {
+                    if (user.isEnabled()) uniqueUsersMap.put(user.getId(), user);
+                });
 
                 notificationService.createMultiple(uniqueUsersMap.values().stream().map(user ->
                         new Notification(message, user, NotificationType.PART, part.getId())
                 ).collect(Collectors.toList()), true, message);
+
+                Map<String, Object> mailVariables = new HashMap<String, Object>() {{
+                    put("partName", part.getName());
+                    put("partLink", frontendUrl + "/app/inventory/parts/" + part.getId());
+                }};
+                if (!uniqueUsersMap.isEmpty()) {
+                    mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(
+                            uniqueUsersMap.values().stream().map(User::getEmail).toArray(String[]::new),
+                            messageSource.getMessage("low_stock", null, locale),
+                            mailVariables,
+                            "low-stock.html",
+                            locale,
+                            null
+                    );
+                }
             }
             partConsumptionService.create(new PartConsumption(part, workOrder, quantity));
             partRepository.save(part);

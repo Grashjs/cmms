@@ -1,0 +1,9 @@
+<!--/*@thymesVar id="partName" type="java.lang.String"*/-->
+<!--/*@thymesVar id="partLink" type="java.lang.String"*/-->
+<div th:replace="fragments/main-layout :: emailTemplate(
+    #{lowStock},
+    #{lowStockHeader},
+    #{lowStockMessage(${partName})},
+    #{seeDetails},
+    ${partLink}
+    )"></div>
