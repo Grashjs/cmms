@@ -137,6 +137,7 @@ export const addMeter =
     async (dispatch) => {
       const meterResponse = await api.post<Meter>(basePath, meter);
       dispatch(slice.actions.addMeter({ meter: meterResponse }));
+      return meterResponse;
     };
 
 export const deleteMeter =

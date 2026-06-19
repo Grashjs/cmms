@@ -231,17 +231,20 @@ function Locations() {
   };
   const onCreationSuccess = (createdLocation?: Location) => {
     setOpenAddModal(false);
-    setCopyLocationData(null);
     setInitialLocationName('');
     showSnackBar(t('location_create_success'), 'success');
 
-    if (returnField && createdLocation) {
-      // Navigate back to the return path with query params
-      navigate({
-        pathname: returnPath || '/',
-        search: `?${returnField}=${createdLocation.id}`
-      });
+    if (createdLocation) {
+      if (returnField) {
+        navigate({
+          pathname: returnPath || '/',
+          search: `?${returnField}=${createdLocation.id}`
+        });
+      } else if (copyLocationData) {
+        navigate(getLocationUrl(createdLocation.id));
+      }
     }
+    setCopyLocationData(null);
   };
   const onCreationFailure = (err) =>
     showSnackBar(getErrorMessage(err, t('location_create_failure')), 'error');
@@ -658,6 +661,37 @@ function Locations() {
     const fieldsClone = [...fields];
     return fieldsClone;
   };
+  const getLocationFormValues = (entity: Location | null | undefined) => ({
+    ...entity,
+    title: entity?.name,
+    workers:
+      entity?.workers?.map((worker) => ({
+        label: `${worker.firstName} ${worker.lastName}`,
+        value: worker.id
+      })) ?? [],
+    teams:
+      entity?.teams?.map((team) => ({
+        label: team.name,
+        value: team.id
+      })) ?? [],
+    vendors:
+      entity?.vendors?.map((vendor) => ({
+        label: vendor.companyName,
+        value: vendor.id
+      })) ?? [],
+    customers:
+      entity?.customers?.map((customer) => ({
+        label: customer.name,
+        value: customer.id
+      })) ?? [],
+    coordinates: entity?.longitude
+      ? { lng: entity.longitude, lat: entity.latitude }
+      : null,
+    parentLocation: entity?.parentLocation
+      ? { label: entity.parentLocation.name, value: entity.parentLocation.id }
+      : null,
+    ...getCustomFieldsValues(entity)
+  });
   const handleReset = (callApi: boolean) => {
     dispatch(resetLocationsHierarchy(pageable, callApi));
   };
@@ -708,7 +742,7 @@ function Locations() {
             submitText={t('add')}
             values={
               copyLocationData
-                ? { ...copyLocationData, id: null }
+                ? { ...getLocationFormValues(copyLocationData), id: null }
                 : initialLocationName
                   ? { name: initialLocationName }
                   : {}
@@ -812,47 +846,7 @@ function Locations() {
             fields={getEditFields()}
             validation={Yup.object().shape(shape)}
             submitText={t('save')}
-            values={{
-              ...currentLocation,
-              title: currentLocation?.name,
-              workers: currentLocation?.workers.map((worker) => {
-                return {
-                  label: `${worker.firstName} ${worker.lastName}`,
-                  value: worker.id
-                };
-              }),
-              teams: currentLocation?.teams.map((team) => {
-                return {
-                  label: team.name,
-                  value: team.id
-                };
-              }),
-              vendors: currentLocation?.vendors.map((vendor) => {
-                return {
-                  label: vendor.companyName,
-                  value: vendor.id
-                };
-              }),
-              customers: currentLocation?.customers.map((customer) => {
-                return {
-                  label: customer.name,
-                  value: customer.id
-                };
-              }),
-              coordinates: currentLocation?.longitude
-                ? {
-                    lng: currentLocation.longitude,
-                    lat: currentLocation.latitude
-                  }
-                : null,
-              parentLocation: currentLocation?.parentLocation
-                ? {
-                    label: currentLocation.parentLocation.name,
-                    value: currentLocation.parentLocation.id
-                  }
-                : null,
-              ...getCustomFieldsValues(currentLocation)
-            }}
+            values={getLocationFormValues(currentLocation)}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);

@@ -96,6 +96,7 @@ import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import { useExport } from '../../../hooks/useExport';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import { getErrorMessage } from '../../../utils/api';
+import { getPreventiveMaintenanceUrl } from '../../../utils/urlPaths';
 import useDateLocale from '../../../hooks/useDateLocale';
 
 const QUERY_SEARCH_FIELDS = new Set<keyof PreventiveMaintenance>([
@@ -284,10 +285,13 @@ function PMs() {
     setCopyPmData(preventiveMaintenance);
     setOpenAddModal(true);
   };
-  const onCreationSuccess = () => {
+  const onCreationSuccess = (createdPM?: PreventiveMaintenance) => {
     setOpenAddModal(false);
-    setCopyPmData(null);
     showSnackBar(t('wo_schedule_success'), 'success');
+    if (copyPmData && createdPM) {
+      navigate(getPreventiveMaintenanceUrl(createdPM.id));
+    }
+    setCopyPmData(null);
   };
   const onCreationFailure = (err) =>
     showSnackBar(getErrorMessage(err, t('wo_schedule_failure')), 'error');
@@ -340,6 +344,33 @@ function PMs() {
   };
   const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
 
+  const getPMFormValues = (
+    entity: PreventiveMaintenance | null | undefined
+  ) => ({
+    ...entity,
+    ...getWOBaseValues(t, entity),
+    startsOn: entity?.schedule?.startsOn,
+    endsOn: entity?.schedule?.endsOn,
+    recurrenceBasedOn: entity?.schedule?.recurrenceBasedOn
+      ? basedOnArray.find(
+          ({ value }) => value === entity.schedule.recurrenceBasedOn
+        )
+      : null,
+    recurrenceType: entity?.schedule?.recurrenceType
+      ? recurrenceTypes.find(
+          ({ value }) => value === entity.schedule.recurrenceType
+        )
+      : null,
+    daysOfWeek: entity?.schedule?.daysOfWeek?.map((dayOfWeek) => ({
+      label: getWeekdays(dateLocale).find(
+        (day, index) => index === dayOfWeek
+      ),
+      value: dayOfWeek
+    })),
+    frequency: Number(entity?.schedule?.frequency),
+    dueDateDelay: entity?.schedule?.dueDateDelay,
+    tasks
+  });
   const formatValues = (values) => {
     const newValues = { ...values };
     newValues.primaryUser = formatSelect(newValues.primaryUser);
@@ -586,36 +617,7 @@ function PMs() {
             submitText={t('add')}
             values={
               copyPmData
-                ? {
-                    ...copyPmData,
-                    ...getWOBaseValues(t, copyPmData),
-                    startsOn: copyPmData?.schedule.startsOn,
-                    endsOn: copyPmData?.schedule.endsOn,
-                    recurrenceBasedOn: copyPmData?.schedule.recurrenceBasedOn
-                      ? basedOnArray.find(
-                          ({ value }) =>
-                            value === copyPmData.schedule.recurrenceBasedOn
-                        )
-                      : null,
-                    recurrenceType: copyPmData?.schedule.recurrenceType
-                      ? recurrenceTypes.find(
-                          ({ value }) =>
-                            value === copyPmData.schedule.recurrenceType
-                        )
-                      : null,
-                    daysOfWeek: copyPmData?.schedule.daysOfWeek?.map(
-                      (dayOfWeek) => ({
-                        label: getWeekdays(dateLocale).find(
-                          (day, index) => index === dayOfWeek
-                        ),
-                        value: dayOfWeek
-                      })
-                    ),
-                    frequency: Number(copyPmData?.schedule.frequency),
-                    dueDateDelay: copyPmData?.schedule.dueDateDelay,
-                    tasks: tasks,
-                    id: null
-                  }
+                ? { ...getPMFormValues(copyPmData), id: null }
                 : {
                     startsOn: null,
                     endsOn: null,
@@ -640,8 +642,10 @@ function PMs() {
                   files: imageAndFiles.files
                 };
 
-                await dispatch(addPreventiveMaintenance(formattedValues));
-                onCreationSuccess();
+                const createdPM = await dispatch(
+                  addPreventiveMaintenance(formattedValues)
+                );
+                onCreationSuccess(createdPM);
               } catch (err) {
                 onCreationFailure(err);
                 throw err;
@@ -682,32 +686,7 @@ function PMs() {
             fields={getFieldsAndShapes()[0]}
             validation={Yup.object().shape(getFieldsAndShapes()[1])}
             submitText={t('save')}
-            values={{
-              ...currentPM,
-              ...getWOBaseValues(t, currentPM),
-              startsOn: currentPM?.schedule.startsOn,
-              endsOn: currentPM?.schedule.endsOn,
-              recurrenceBasedOn: currentPM?.schedule.recurrenceBasedOn
-                ? basedOnArray.find(
-                    ({ value }) =>
-                      value === currentPM.schedule.recurrenceBasedOn
-                  )
-                : null,
-              recurrenceType: currentPM?.schedule.recurrenceType
-                ? recurrenceTypes.find(
-                    ({ value }) => value === currentPM.schedule.recurrenceType
-                  )
-                : null,
-              daysOfWeek: currentPM?.schedule.daysOfWeek?.map((dayOfWeek) => ({
-                label: getWeekdays(dateLocale).find(
-                  (day, index) => index === dayOfWeek
-                ),
-                value: dayOfWeek
-              })),
-              frequency: Number(currentPM?.schedule.frequency),
-              dueDateDelay: currentPM?.schedule.dueDateDelay,
-              tasks
-            }}
+            values={getPMFormValues(currentPM)}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               try {

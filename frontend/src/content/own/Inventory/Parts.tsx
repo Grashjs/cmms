@@ -70,6 +70,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import useTableState from '../../../hooks/useTableState';
 import { CategoryMiniDTO } from '../../../models/owns/category';
 import { getErrorMessage } from '../../../utils/api';
+import { getPartUrl } from '../../../utils/urlPaths';
 import { getCustomFields } from '../../../slices/customField';
 import { CustomFieldEntityType } from '../../../models/owns/customField';
 import { getCustomFieldsRequiredShape, getCustomFieldsIFields } from '../type';
@@ -193,10 +194,13 @@ const Parts = ({ setAction }: PropsType) => {
     setCopyPartData(part);
     setOpenAddModal(true);
   };
-  const onCreationSuccess = () => {
+  const onCreationSuccess = (createdPart: Part) => {
     setOpenAddModal(false);
-    setCopyPartData(null);
     showSnackBar(t('part_create_success'), 'success');
+    if (copyPartData && createdPart) {
+      navigate(getPartUrl(createdPart.id));
+    }
+    setCopyPartData(null);
   };
   const onCreationFailure = (err) =>
     showSnackBar(getErrorMessage(err, t('part_create_failure')), 'error');
@@ -274,6 +278,33 @@ const Parts = ({ setAction }: PropsType) => {
     window.history.replaceState(null, 'Part', `/app/inventory/parts`);
     setOpenDrawer(false);
   };
+  const getPartFormValues = (entity: Part | null | undefined) => ({
+    ...entity,
+    category: entity?.category
+      ? { label: entity.category.name, value: entity.category.id }
+      : null,
+    assignedTo:
+      entity?.assignedTo?.map((user) => ({
+        label: `${user.firstName} ${user.lastName}`,
+        value: user.id.toString()
+      })) ?? [],
+    teams:
+      entity?.teams?.map((team) => ({
+        label: team.name,
+        value: team.id.toString()
+      })) ?? [],
+    vendors:
+      entity?.vendors?.map((vendor) => ({
+        label: vendor.companyName,
+        value: vendor.id.toString()
+      })) ?? [],
+    customers:
+      entity?.customers?.map((customer) => ({
+        label: customer.name,
+        value: customer.id.toString()
+      })) ?? [],
+    ...getCustomFieldsValues(entity)
+  });
   const formatValues = (values) => {
     const newValues = { ...values };
     newValues.assignedTo = formatSelectMultiple(newValues.assignedTo);
@@ -502,7 +533,9 @@ const Parts = ({ setAction }: PropsType) => {
           {copyPartData ? t('copy_part') : t('add_part')}
         </Typography>
         <Typography variant="subtitle2">
-          {copyPartData ? t('copy_part_description') : t('add_part_description')}
+          {copyPartData
+            ? t('copy_part_description')
+            : t('add_part_description')}
         </Typography>
       </DialogTitle>
       <DialogContent
@@ -516,7 +549,11 @@ const Parts = ({ setAction }: PropsType) => {
             fields={getFilteredFields(fields)}
             validation={Yup.object().shape(shape)}
             submitText={t('create_part')}
-            values={copyPartData ? { ...copyPartData, id: null } : {}}
+            values={
+              copyPartData
+                ? { ...getPartFormValues(copyPartData), id: null }
+                : {}
+            }
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
@@ -533,8 +570,10 @@ const Parts = ({ setAction }: PropsType) => {
                   files: imageAndFiles.files
                 };
 
-                await dispatch(addPart(formattedValues));
-                onCreationSuccess();
+                const createdPart: Part = await dispatch(
+                  addPart(formattedValues)
+                );
+                onCreationSuccess(createdPart);
               } catch (err) {
                 onCreationFailure(err);
                 throw err;
@@ -619,40 +658,7 @@ const Parts = ({ setAction }: PropsType) => {
             fields={getFilteredFields(fields)}
             validation={Yup.object().shape(shape)}
             submitText={t('save')}
-            values={{
-              ...currentPart,
-              category: currentPart?.category
-                ? {
-                    label: currentPart?.category?.name,
-                    value: currentPart?.category?.id
-                  }
-                : null,
-              assignedTo: currentPart?.assignedTo.map((user) => {
-                return {
-                  label: `${user.firstName} ${user.lastName}`,
-                  value: user.id.toString()
-                };
-              }),
-              teams: currentPart?.teams.map((team) => {
-                return {
-                  label: team.name,
-                  value: team.id.toString()
-                };
-              }),
-              vendors: currentPart?.vendors.map((vendor) => {
-                return {
-                  label: vendor.companyName,
-                  value: vendor.id.toString()
-                };
-              }),
-              customers: currentPart?.customers.map((customer) => {
-                return {
-                  label: customer.name,
-                  value: customer.id.toString()
-                };
-              }),
-              ...getCustomFieldsValues(currentPart)
-            }}
+            values={getPartFormValues(currentPart)}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);

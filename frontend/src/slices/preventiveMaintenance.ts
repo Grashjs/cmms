@@ -177,6 +177,7 @@ export const addPreventiveMaintenance =
           null
         );
       }
+      return preventiveMaintenanceResponse;
     };
 export const editPreventiveMaintenance =
   (id: number, preventiveMaintenance): AppThunk =>
