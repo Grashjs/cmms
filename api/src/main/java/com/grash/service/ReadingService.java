@@ -58,4 +58,8 @@ public class ReadingService {
     public Collection<Reading> findByMeter(Long id) {
         return readingRepository.findByMeter_Id(id);
     }
+
+    public Optional<Reading> findLastByMeter(Long id) {
+        return readingRepository.findFirstByMeter_IdOrderByCreatedAtDesc(id);
+    }
 }

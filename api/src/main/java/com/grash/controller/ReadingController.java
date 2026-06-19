@@ -68,9 +68,9 @@ public class ReadingController {
         Optional<Meter> optionalMeter = meterService.findById(readingReq.getMeter().getId());
         if (optionalMeter.isPresent()) {
             Meter meter = optionalMeter.get();
-            Collection<Reading> readings = readingService.findByMeter(readingReq.getMeter().getId());
-            if (!readings.isEmpty()) {
-                Reading lastReading = Collections.max(readings, new AuditComparator());
+            Optional<Reading> optionalLastReading = readingService.findLastByMeter(readingReq.getMeter().getId());
+            if (optionalLastReading.isPresent()) {
+                Reading lastReading = optionalLastReading.get();
                 LocalDate nextReading = Helper.dateToLocalDate(lastReading.getCreatedAt()).plusDays(meter.getUpdateFrequency());
                 if (LocalDate.now().isBefore(nextReading)) {
                     throw new CustomException("The update frequency has not been respected", HttpStatus.NOT_ACCEPTABLE);
