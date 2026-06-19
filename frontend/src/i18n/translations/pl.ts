@@ -1928,7 +1928,8 @@ const plJSON = {
   no_data: 'Brak danych',
   hours_left: 'pozostało',
   export_cost_and_time: 'Eksportuj koszt i czas',
-  export_work_orders: 'Eksportuj zlecenia'
+   export_work_orders: 'Eksportuj zlecenia',
+   copy_wo: 'Kopiuj zlecenie'
 };
 
 export default plJSON;

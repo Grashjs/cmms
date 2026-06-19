@@ -1866,7 +1866,8 @@ const locale = {
   no_data: 'لا توجد بيانات',
   hours_left: 'متبقي',
   export_cost_and_time: 'تصدير التكلفة والوقت',
-  export_work_orders: 'تصدير أوامر العمل'
+   export_work_orders: 'تصدير أوامر العمل',
+   copy_wo: 'نسخ أمر العمل'
 };
 
 export default locale;

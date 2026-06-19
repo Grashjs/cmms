@@ -1958,7 +1958,8 @@ const ptBRJSON = {
   no_data: 'Sem dados',
   hours_left: 'restante',
   export_cost_and_time: 'Exportar custo e tempo',
-  export_work_orders: 'Exportar ordens de serviço'
+   export_work_orders: 'Exportar ordens de serviço',
+   copy_wo: 'Copiar ordem de serviço'
 };
 
 export default ptBRJSON;

@@ -1932,7 +1932,8 @@ const locale = {
   no_data: 'Nessun dato',
   hours_left: 'rimasto',
   export_cost_and_time: 'Esporta costi e tempi',
-  export_work_orders: 'Esporta ordini di lavoro'
+   export_work_orders: 'Esporta ordini di lavoro',
+   copy_wo: 'Copia ordine di lavoro'
 };
 
 export default locale;

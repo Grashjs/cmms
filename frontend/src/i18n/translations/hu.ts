@@ -1787,7 +1787,8 @@ const locale = {
   no_data: 'Nincs adat',
   hours_left: 'hátra',
   export_cost_and_time: 'Költség és idő exportálása',
-  export_work_orders: 'Munkautasítások exportálása'
+   export_work_orders: 'Munkautasítások exportálása',
+   copy_wo: 'Munkautasítás másolása'
 };
 
 export default locale;

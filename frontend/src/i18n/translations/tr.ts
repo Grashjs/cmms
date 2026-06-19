@@ -1928,7 +1928,8 @@ const trJSON = {
   no_data: 'Veri yok',
   hours_left: 'kaldı',
   export_cost_and_time: 'Maliyet ve zamanı dışa aktar',
-  export_work_orders: 'İş emirlerini dışa aktar'
+   export_work_orders: 'İş emirlerini dışa aktar',
+   copy_wo: 'İş Emrini Kopyala'
 };
 
 export default trJSON;

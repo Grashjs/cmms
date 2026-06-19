@@ -1884,7 +1884,8 @@ const locale = {
   no_data: 'データなし',
   hours_left: '残り',
   export_cost_and_time: 'コストと時間をエクスポート',
-  export_work_orders: '作業指示をエクスポート'
+   export_work_orders: '作業指示をエクスポート',
+   copy_wo: '作業指示をコピー'
 };
 
 export default locale;

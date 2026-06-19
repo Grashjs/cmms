@@ -1991,7 +1991,8 @@ const ruJSON = {
   no_data: 'Нет данных',
   hours_left: 'осталось',
   export_cost_and_time: 'Экспорт затрат и времени',
-  export_work_orders: 'Экспорт рабочих заказов'
+   export_work_orders: 'Экспорт рабочих заказов',
+   copy_wo: 'Копировать рабочий заказ'
 };
 
 export default ruJSON;

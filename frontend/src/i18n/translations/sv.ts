@@ -1898,7 +1898,8 @@ const locale = {
   no_data: 'Inga data',
   hours_left: 'kvar',
   export_cost_and_time: 'Exportera kostnad och tid',
-  export_work_orders: 'Exportera arbetsorder'
+   export_work_orders: 'Exportera arbetsorder',
+   copy_wo: 'Kopiera arbetsorder'
 };
 
 export default locale;

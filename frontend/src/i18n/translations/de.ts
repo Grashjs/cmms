@@ -2013,7 +2013,8 @@ const deJSON = {
   no_data: 'Keine Daten',
   hours_left: 'übrig',
   export_cost_and_time: 'Kosten und Zeit exportieren',
-  export_work_orders: 'Arbeitsaufträge exportieren'
+   export_work_orders: 'Arbeitsaufträge exportieren',
+   copy_wo: 'Arbeitsauftrag kopieren'
 };
 
 export default deJSON;

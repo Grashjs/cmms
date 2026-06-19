@@ -2103,7 +2103,8 @@ const frJSON = {
   no_data: 'Aucune donnée',
   hours_left: 'restantes',
   export_cost_and_time: 'Exporter les coûts et le temps',
-  export_work_orders: 'Exporter les ordres de travail'
+   export_work_orders: 'Exporter les ordres de travail',
+   copy_wo: "Copier l'ordre de travail"
 };
 
 export default frJSON;

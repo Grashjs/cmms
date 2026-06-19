@@ -1925,6 +1925,7 @@ const locale = {
   no_data: 'Geen gegevens',
   hours_left: 'over',
   export_cost_and_time: 'Kosten en tijd exporteren',
-  export_work_orders: 'Werkorders exporteren'
+   export_work_orders: 'Werkorders exporteren',
+   copy_wo: 'Werkorder kopiëren'
 };
 export default locale;

@@ -1914,7 +1914,8 @@ const locale = {
   no_data: 'Nema podataka',
   hours_left: 'preostalo',
   export_cost_and_time: 'Izvoz troškova i vremena',
-  export_work_orders: 'Izvoz radnih naloga'
+   export_work_orders: 'Izvoz radnih naloga',
+   copy_wo: 'Kopiraj radni nalog'
 };
 
 export default locale;
