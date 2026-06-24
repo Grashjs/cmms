@@ -1431,6 +1431,7 @@ const locale = {
     keywords:
       "CMMS, 计算机化维护管理系统, EAM, 企业资产管理, 开源 CMMS, 免费维护软件, 工单管理, 预防性维护, 资产跟踪, 设施管理, 维护跟踪软件, 设备维护, Atlas CMMS",
   },
+  prefer_one_time_purchase: "更喜欢一次性购买？永久许可证可按月费36倍的价格购买。",
 };
 
 export default locale;

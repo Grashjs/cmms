@@ -1489,6 +1489,7 @@ const locale = {
     keywords:
       "GMAO, számítógépes karbantartás-kezelő rendszer, EAM, vállalati eszközkezelés, nyílt forráskódú GMAO, ingyenes karbantartási szoftver, munkarendelés-kezelés, megelőző karbantartás, eszköz-követés, létesítménykezelés, karbantartás-követő szoftver, berendezés-karbantartás, Atlas CMMS",
   },
+  prefer_one_time_purchase: "Inkább egyszeri vásárlást szeretne? Örökös licencek elérhetők a havi díj 36-szorosáért.",
 };
 
 export default locale;

@@ -17,10 +17,10 @@ import {
 } from "@mui/material";
 import CheckCircleOutlineTwoToneIcon from "@mui/icons-material/CheckCircleOutlineTwoTone";
 import { useSearchParams } from "next/navigation";
-import { useRouter, Link } from "src/i18n/routing";
+import { useRouter } from "src/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
 import { fireGa4Event } from "src/utils/overall";
-import { apiUrl, mainAppUrl, PADDLE_SECRET_TOKEN, paddleEnvironment } from "src/config";
+import { apiUrl, PADDLE_SECRET_TOKEN, paddleEnvironment } from "src/config";
 import { Suspense, useEffect, useRef, useState } from "react";
 import EmailModal from "./EmailModal";
 import { initializePaddle, Paddle } from "@paddle/paddle-js";
@@ -75,6 +75,27 @@ export default function SubscriptionPlanSelector({ monthly, setMonthly, selfHost
   const locale = useLocale();
   const router = useRouter();
   const paddle = useRef<Paddle | null>(null);
+  const selfHostedPlans = getSelfHostedPlans(t);
+
+  const emailSubject = encodeURIComponent("Atlas CMMS Perpetual License Request");
+
+  const emailBody = encodeURIComponent(
+    `Hello Atlas CMMS team,
+
+I am interested in purchasing a perpetual license.
+
+Available plans:
+${selfHostedPlans
+  .filter((plan) => plan.id !== "sh-free")
+  .map((plan) => `- ${plan.name}: $${Number(plan.price) * 36} one-time license per user`)
+  .join("\n")}
+
+[Please let us know which plan you are interested in, the number of users, and any other relevant information]
+
+Thank you.`,
+  );
+
+  const mailtoLink = `mailto:contact@atlas-cmms.com?subject=${emailSubject}&body=${emailBody}`;
 
   const handleOpenModal = (plan) => {
     setSelectedPlan(plan);
@@ -128,7 +149,6 @@ export default function SubscriptionPlanSelector({ monthly, setMonthly, selfHost
           }}
         />
       </Suspense>
-
       <Box display={"flex"} alignItems={"center"} justifyContent={"center"} mb={2}>
         <Stack direction={"row"} spacing={2} alignItems={"center"}>
           <Typography color={"text.primary"}>{t("monthly")}</Typography>
@@ -280,6 +300,14 @@ export default function SubscriptionPlanSelector({ monthly, setMonthly, selfHost
           </Grid>
         ))}
       </Grid>
+      {selfHosted && (
+        <Stack mt={3} spacing={0.5} direction={"row"} width={"100%"} justifyContent={"center"} alignItems={"center"}>
+          <Typography textAlign={"center"}>{t("prefer_one_time_purchase")}</Typography>
+          <a style={{ color: theme.palette.primary.main, fontFamily: "Inter", fontSize: "14px" }} href={mailtoLink}>
+            {t("contact_us")}
+          </a>
+        </Stack>
+      )}
       <EmailModal open={modalOpen} onClose={handleCloseModal} onSubmit={handleCheckout} />
     </Box>
   );

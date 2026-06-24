@@ -1740,6 +1740,7 @@ const frJSON = {
     keywords:
       "GMAO, système de gestion de maintenance assistée par ordinateur, EAM, gestion des actifs d'entreprise, GMAO open source, logiciel de maintenance gratuit, gestion des bons de travail, maintenance préventive, suivi des actifs, gestion des installations, logiciel de suivi de maintenance, maintenance des équipements, Atlas CMMS",
   },
+  prefer_one_time_purchase: "Vous préférez un achat unique ? Des licences perpétuelles sont disponibles à 36× le tarif mensuel.",
 };
 
 export default frJSON;

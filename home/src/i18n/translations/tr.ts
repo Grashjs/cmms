@@ -1696,6 +1696,7 @@ const trJSON = {
     keywords:
       "CMMS, bilgisayarlı bakım yönetim sistemi, EAM, kurumsal varlık yönetimi, açık kaynaklı CMMS, ücretsiz bakım yazılımı, iş emri yönetimi, önleyici bakım, varlık takibi, tesis yönetimi, bakım takip yazılımı, ekipman bakımı, Atlas CMMS",
   },
+  prefer_one_time_purchase: "Tek seferlik satın almayı mı tercih edersiniz? Süresiz lisanslar aylık ücretin 36 katına mevcuttur.",
 };
 
 export default trJSON;

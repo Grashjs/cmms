@@ -1659,6 +1659,7 @@ const locale = {
     keywords:
       "CMMS, geautomatiseerd onderhoudsbeheersysteem, EAM, enterprise asset management, open source cmms, gratis onderhoudssoftware, werkorderbeheer, preventief onderhoud, activa volgen, facilitair beheer, software voor onderhoudstracking, apparatuuronderhoud, Atlas CMMS",
   },
+  prefer_one_time_purchase: "Geeft u de voorkeur aan een eenmalige aankoop? Onbeperkte licenties zijn beschikbaar tegen 36× het maandtarief.",
 };
 
 export default locale;

@@ -1667,6 +1667,7 @@ const esJSON = {
     keywords:
       "GMAO, sistema de gestión de mantenimiento computarizado, EAM, gestión de activos empresariales, gmao de código abierto, software de mantenimiento gratis, gestión de órdenes de trabajo, mantenimiento preventivo, seguimiento de activos, gestión de instalaciones, software de seguimiento de mantenimiento, mantenimiento de equipos, Atlas CMMS",
   },
+  prefer_one_time_purchase: "¿Prefiere una compra única? Las licencias perpetuas están disponibles a 36× la tarifa mensual.",
 };
 
 export default esJSON;

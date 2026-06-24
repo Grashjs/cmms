@@ -1682,6 +1682,7 @@ const locale = {
     title: "Besplatni CMMS otvorenog koda (Softver za upravljanje održavanjem)",
   },
   SSO: "SSO (jedinstvena prijava)",
+  prefer_one_time_purchase: "Više volite jednokratnu kupovinu? Doživotne licence su dostupne po 36× mjesečne cijene.",
 };
 
 export default locale;
