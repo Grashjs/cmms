@@ -2,6 +2,7 @@ package com.grash.controller;
 
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.*;
+import com.grash.dto.comment.CommentCriteria;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.dto.workOrder.WorkOrderPatchDTO;
 import com.grash.dto.workOrder.WorkOrderPostDTO;
@@ -92,6 +93,7 @@ public class WorkOrderController {
     private final IntercomService intercomService;
     private final CompanyService companyService;
     private final ReviewEligibilityService reviewEligibilityService;
+    private final CommentService commentService;
 
 
     @Value("${frontend.url}")
@@ -445,6 +447,18 @@ public class WorkOrderController {
                         additionalCostService.findByWorkOrder(id) : Collections.emptyList();
                 Collection<WorkOrderHistory> workOrderHistories = config.isWorkOrderHistory() ?
                         workOrderHistoryService.findByWorkOrder(id) : Collections.emptyList();
+                List<Comment> comments = config.isComments() ? commentService.findByCriteria(
+                        new CommentCriteria() {{ setWorkOrderId(id); }}, user) : Collections.emptyList();
+                Map<Long, String[]> commentFilesUrls = comments.stream()
+                        .collect(Collectors.toMap(
+                                Comment::getId,
+                                comment -> comment.getFiles().stream()
+                                        .map(file -> storageService.generateSignedUrl(file, 5))
+                                        .toArray(String[]::new)
+                        ));
+                String[] workOrderFilesUrls = config.isFiles() ? savedWorkOrder.getFiles().stream()
+                        .map(file -> storageService.generateSignedUrl(file, 5))
+                        .toArray(String[]::new) : new String[0];
                 Map<String, Object> variables = new HashMap<String, Object>() {{
                     put("companyName", user.getCompany().getName());
                     put("companyPhone", user.getCompany().getPhone());
@@ -477,6 +491,9 @@ public class WorkOrderController {
                     put("backgroundColor", companyColor == null ? brandingService.getMailBackgroundColor() :
                             companyColor);
                     put("reportConfig", config);
+                    put("comments", comments);
+                    put("commentFilesUrls", commentFilesUrls);
+                    put("workOrderFilesUrls", workOrderFilesUrls);
                 }};
                 thymeleafContext.setVariables(variables);
 

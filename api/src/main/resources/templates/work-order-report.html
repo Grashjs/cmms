@@ -29,6 +29,9 @@
 <!--/*@thymesVar id="dateFormat" type="java.lang.String"*/-->
 <!--/*@thymesVar id="timeZone" type="java.lang.String"*/-->
 <!--/*@thymesVar id="reportConfig" type="com.grash.dto.ReportConfig"*/-->
+<!--/*@thymesVar id="comments" type="java.util.List<com.grash.model.Comment>"*/-->
+<!--/*@thymesVar id="commentFilesUrls" type="java.util.Map<java.lang.Long, java.lang.String[]>"*/-->
+<!--/*@thymesVar id="workOrderFilesUrls" type="java.lang.String[]"*/-->
 
 <div class="container">
     <div class="row">
@@ -292,6 +295,43 @@
                         <div><span th:text="#{cost}+': '"></span><span
                                 th:text="${partQuantity.getCost()}+' '+ ${currency}"></span>
                         </div>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" th:if="${reportConfig.comments and not #lists.isEmpty(comments)}">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong th:text="#{comments}"></strong></h3>
+                </div>
+                <div class="panel-body">
+                    <th:block th:each="comment : ${comments}">
+                        <div>
+                            <strong th:text="${comment.getUser().getFullName()}"></strong>
+                            <span style="font-size: 12px; color: #888;"
+                                  th:text="${utils.getFormattedDate(comment.updatedAt == null ? comment.createdAt : comment.updatedAt, dateFormat, timeZone)}"></span>
+                        </div>
+                        <div th:text="${comment.getContent()}"></div>
+                        <th:block th:each="fileUrl : ${commentFilesUrls.get(comment.getId())}">
+                            <img th:src="${fileUrl}" height="100"/>
+                        </th:block>
+                        <br>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" th:if="${reportConfig.files and workOrderFilesUrls.length > 0}">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong th:text="#{files}"></strong></h3>
+                </div>
+                <div class="panel-body">
+                    <th:block th:each="fileUrl : ${workOrderFilesUrls}">
+                        <img th:src="${fileUrl}" height="100" style="margin: 5px;"/>
                     </th:block>
                 </div>
             </div>
