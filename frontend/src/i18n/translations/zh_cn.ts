@@ -1605,8 +1605,10 @@ const locale = {
    copy_meter_description:
      '填写以下字段以复制此仪表',
    copy_part: '复制零件',
-   copy_part_description:
-     '填写以下字段以复制此零件'
+    copy_part_description:
+      '填写以下字段以复制此零件',
+  customize_report_description: '此PDF应包含哪些内容？',
+  work_order_information: '工单信息'
 };
 
 export default locale;

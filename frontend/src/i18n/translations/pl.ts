@@ -1943,8 +1943,10 @@ const plJSON = {
    copy_meter_description:
      'Wypełnij pola poniżej, aby skopiować ten licznik',
    copy_part: 'Kopiuj część',
-   copy_part_description:
-     'Wypełnij pola poniżej, aby skopiować tę część'
+    copy_part_description:
+      'Wypełnij pola poniżej, aby skopiować tę część',
+  customize_report_description: 'Co powinno znaleźć się w tym pliku PDF?',
+  work_order_information: 'Informacje o zleceniu'
 };
 
 export default plJSON;

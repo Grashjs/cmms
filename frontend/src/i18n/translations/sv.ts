@@ -1913,8 +1913,10 @@ const locale = {
    copy_meter_description:
      'Fyll i fälten nedan för att kopiera denna mätare',
    copy_part: 'Kopiera del',
-   copy_part_description:
-     'Fyll i fälten nedan för att kopiera denna del'
+    copy_part_description:
+      'Fyll i fälten nedan för att kopiera denna del',
+  customize_report_description: 'Vad ska ingå i denna PDF?',
+  work_order_information: 'Arbetsorderinformation'
 };
 
 export default locale;

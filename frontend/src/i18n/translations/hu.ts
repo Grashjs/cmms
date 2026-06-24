@@ -1802,8 +1802,10 @@ const locale = {
    copy_meter_description:
      'Töltse ki az alábbi mezőket a mérő másolásához',
    copy_part: 'Alkatrész másolása',
-   copy_part_description:
-     'Töltse ki az alábbi mezőket az alkatrész másolásához'
+    copy_part_description:
+      'Töltse ki az alábbi mezőket az alkatrész másolásához',
+  customize_report_description: 'Mit tartalmazzon ez a PDF?',
+  work_order_information: 'Munkautasítás információk'
 };
 
 export default locale;

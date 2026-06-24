@@ -1943,8 +1943,10 @@ const trJSON = {
    copy_meter_description:
      'Bu sayacı kopyalamak için aşağıdaki alanları doldurun',
    copy_part: 'Parçayı Kopyala',
-   copy_part_description:
-     'Bu parçayı kopyalamak için aşağıdaki alanları doldurun'
+    copy_part_description:
+      'Bu parçayı kopyalamak için aşağıdaki alanları doldurun',
+  customize_report_description: 'Bu PDF\'ye neler dahil edilmeli?',
+  work_order_information: 'İş emri bilgileri'
 };
 
 export default trJSON;
