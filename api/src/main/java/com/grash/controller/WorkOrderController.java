@@ -262,9 +262,9 @@ public class WorkOrderController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 
     public WorkOrderShowDTO changeStatus(@Parameter(description = "Work order status change data") @Valid @RequestBody WorkOrderChangeStatusDTO
-                                                  workOrder, @PathVariable("id") Long id,
-                                          HttpServletRequest req,
-                                          @RequestHeader(value = "X-Platform", required = false) String platform) {
+                                                 workOrder, @PathVariable("id") Long id,
+                                         HttpServletRequest req,
+                                         @RequestHeader(value = "X-Platform", required = false) String platform) {
         User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         WorkOrder savedWorkOrder = optionalWorkOrder.get();
@@ -402,9 +402,22 @@ public class WorkOrderController {
     @GetMapping(path = "/report/{id}")
     @Transactional
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<?> getPDF(@PathVariable("id") Long id, HttpServletRequest req,
-                                    HttpServletResponse response) throws IOException {
+    public ResponseEntity<SuccessResponse> getPDF(@PathVariable("id") Long id, HttpServletRequest req) throws IOException {
         User user = userService.whoami(req);
+        return generateReport(id, user, ReportConfig.builder().build());
+    }
+
+    @PostMapping(path = "/report/{id}")
+    @Transactional
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<SuccessResponse> getPDFWithConfig(@PathVariable("id") Long id,
+                                                            @Valid @RequestBody ReportConfig config,
+                                                            HttpServletRequest req) throws IOException {
+        User user = userService.whoami(req);
+        return generateReport(id, user, config);
+    }
+
+    private ResponseEntity<SuccessResponse> generateReport(Long id, User user, ReportConfig config) throws IOException {
         StorageService storageService = storageServiceFactory.getStorageService();
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
@@ -423,11 +436,15 @@ public class WorkOrderController {
                                         .map(image -> storageService.generateSignedUrl(image, 5))
                                         .toArray(String[]::new)
                         ));
-                Collection<PartQuantity> partQuantities = partQuantityService.findByWorkOrder(id);
-                Collection<Labor> labors = laborService.findByWorkOrder(id);
-                Collection<Relation> relations = relationService.findByWorkOrder(id);
-                Collection<AdditionalCost> additionalCosts = additionalCostService.findByWorkOrder(id);
-                Collection<WorkOrderHistory> workOrderHistories = workOrderHistoryService.findByWorkOrder(id);
+                Collection<PartQuantity> partQuantities = config.isCost() ? partQuantityService.findByWorkOrder(id) :
+                        Collections.emptyList();
+                Collection<Labor> labors = config.isCost() ? laborService.findByWorkOrder(id) : Collections.emptyList();
+                Collection<Relation> relations = config.isRelations() ? relationService.findByWorkOrder(id) :
+                        Collections.emptyList();
+                Collection<AdditionalCost> additionalCosts = config.isCost() ?
+                        additionalCostService.findByWorkOrder(id) : Collections.emptyList();
+                Collection<WorkOrderHistory> workOrderHistories = config.isWorkOrderHistory() ?
+                        workOrderHistoryService.findByWorkOrder(id) : Collections.emptyList();
                 Map<String, Object> variables = new HashMap<String, Object>() {{
                     put("companyName", user.getCompany().getName());
                     put("companyPhone", user.getCompany().getPhone());
@@ -456,17 +473,17 @@ public class WorkOrderController {
                     put("tasksImagesUrls", tasksImagesUrls);
                     put("messageSource", messageSource);
                     put("locale", Helper.getLocale(user));
-                    put("backgroundColor", brandingService.getMailBackgroundColor());
+                    String companyColor = user.getCompany().getCompanySettings().getGeneralPreferences().getColor();
+                    put("backgroundColor", companyColor == null ? brandingService.getMailBackgroundColor() :
+                            companyColor);
+                    put("reportConfig", config);
                 }};
                 thymeleafContext.setVariables(variables);
 
                 String reportHtml = thymeleafTemplateEngine.process("work-order-report.html", thymeleafContext);
 
-                /* Setup Source and target I/O streams */
                 ByteArrayOutputStream target = new ByteArrayOutputStream();
-                /* Call convert method */
                 HtmlConverter.convertToPdf(reportHtml, target);
-                /* extract output as bytes */
                 byte[] bytes = target.toByteArray();
                 MultipartFile file = new MultipartFileImpl(bytes, "Work Order Report.pdf");
                 return ResponseEntity.ok()
@@ -474,7 +491,6 @@ public class WorkOrderController {
                                 "reports/" + user.getCompany().getId())));
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-
     }
 
     @GetMapping("/urgent")

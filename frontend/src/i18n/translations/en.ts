@@ -1888,17 +1888,15 @@ const locale = {
   copy_pm_description:
     'Fill in the fields below to copy a Preventive Maintenance',
   copy_asset: 'Copy Asset',
-  copy_asset_description:
-    'Fill in the fields below to copy this asset',
+  copy_asset_description: 'Fill in the fields below to copy this asset',
   copy_location: 'Copy location',
-  copy_location_description:
-    'Fill in the fields below to copy this location',
+  copy_location_description: 'Fill in the fields below to copy this location',
   copy_meter: 'Copy Meter',
-  copy_meter_description:
-    'Fill in the fields below to copy this Meter',
+  copy_meter_description: 'Fill in the fields below to copy this Meter',
   copy_part: 'Copy Part',
-  copy_part_description:
-    'Fill in the fields below to copy this Part'
+  copy_part_description: 'Fill in the fields below to copy this Part',
+  customize_report_description: 'What should be included on this PDF?',
+  work_order_information: 'Work order information'
 };
 
 export default locale;

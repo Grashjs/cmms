@@ -32,11 +32,12 @@ import {
   useState
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import AddTimeModal from './AddTimeModal';
 import AddCostModal from './AddCostModal';
+import ReportConfigModal from './ReportConfigModal';
 import Tasks from './Tasks';
 import LinkTwoToneIcon from '@mui/icons-material/LinkTwoTone';
 import ArchiveTwoToneIcon from '@mui/icons-material/ArchiveTwoTone';
@@ -46,7 +47,6 @@ import TimerTwoToneIcon from '@mui/icons-material/TimerTwoTone';
 import {
   changeWorkOrderStatus,
   editWorkOrder,
-  getPDFReport,
   removeFileFromWorkOrder
 } from '../../../../slices/workOrder';
 import { useDispatch, useSelector } from '../../../../store';
@@ -83,7 +83,8 @@ import { CompanySettingsContext } from '../../../../contexts/CompanySettingsCont
 import {
   getAssetUrl,
   getPreventiveMaintenanceUrl,
-  getUserUrl
+  getUserUrl,
+  getWorkOrderUrl
 } from '../../../../utils/urlPaths';
 import CompleteWOModal from './CompleteWOModal';
 import useAuth from '../../../../hooks/useAuth';
@@ -130,7 +131,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const { user, hasEditPermission, hasDeletePermission, hasCreatePermission } =
     useAuth();
   const brandConfig = useBrand();
-  const hasWOHistoryEntitlement = useLicenseEntitlement('WORK_ORDER_HISTORY');
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const commentIdParam = searchParams.get('commentId');
   const [openAddTimeModal, setOpenAddTimeModal] = useState<boolean>(false);
@@ -138,6 +139,8 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const [openAddCostModal, setOpenAddCostModal] = useState<boolean>(false);
   const [openLinkModal, setOpenLinkModal] = useState<boolean>(false);
   const [openCompleteModal, setOpenCompleteModal] = useState<boolean>(false);
+  const [openReportConfigModal, setOpenReportConfigModal] =
+    useState<boolean>(false);
   const [currentTab, setCurrentTab] = useState<string>('details');
   const [changingStatus, setChangingStatus] = useState<boolean>(false);
   const { partQuantitiesByWorkOrder, loadingPartQuantities } = useSelector(
@@ -230,13 +233,8 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
     }
   };
   const onGenerateReport = () => {
-    setGeneratingReport(true);
-    dispatch(getPDFReport(workOrder.id))
-      .then((url: string) => {
-        handleCloseMenu();
-        window.open(url);
-      })
-      .finally(() => setGeneratingReport(false));
+    handleCloseMenu();
+    setOpenReportConfigModal(true);
   };
   useEffect(() => {
     dispatch(getPartQuantitiesByWorkOrder(workOrder.id));
@@ -1295,7 +1293,16 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
                               >
                                 <ListItemText
                                   primary={
-                                    <Stack direction={'row'} spacing={2}>
+                                    <Stack
+                                      direction={'row'}
+                                      spacing={2}
+                                      onClick={() =>
+                                        navigate(
+                                          getWorkOrderUrl(relation.workOrder.id)
+                                        )
+                                      }
+                                      sx={{ cursor: 'pointer' }}
+                                    >
                                       <Typography variant="h6">
                                         {relation.workOrder.title}
                                       </Typography>
@@ -1417,6 +1424,11 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
           />
         </div>
       )}
+      <ReportConfigModal
+        open={openReportConfigModal}
+        onClose={() => setOpenReportConfigModal(false)}
+        workOrderId={workOrder.id}
+      />
       <CompleteWOModal
         open={openCompleteModal}
         onClose={() => setOpenCompleteModal(false)}

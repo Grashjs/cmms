@@ -28,6 +28,7 @@
 <!--/*@thymesVar id="utils" type="com.grash.utils.Utils"*/-->
 <!--/*@thymesVar id="dateFormat" type="java.lang.String"*/-->
 <!--/*@thymesVar id="timeZone" type="java.lang.String"*/-->
+<!--/*@thymesVar id="reportConfig" type="com.grash.dto.ReportConfig"*/-->
 
 <div class="container">
     <div class="row">
@@ -41,7 +42,7 @@
                     th:text="#{wo_number(${workOrder.customId})}"></h3>
             </div>
             <hr>
-            <div class="row">
+            <div class="row" th:if="${reportConfig.workOrderInformation}">
                 <div class="col-xs-6">
                     <address>
                         <div th:text="${companyPhone}"></div>
@@ -75,7 +76,7 @@
                             </span>
                             <br>
                         </div>
-                        <div th:if="${workOrder.priority}">
+                        <div th:if="${reportConfig.priority and workOrder.priority!=null}">
                             <strong th:text="#{priority}+': '"> </strong>
                             <span
                                     th:text="#{${workOrder.priority}}">
@@ -97,13 +98,13 @@
                     <h3 th:text="${workOrder.title}">
 
                     </h3>
-                    <h5 th:text="${workOrder.description}">
+                    <h5 th:if="${reportConfig.workOrderInformation}" th:text="${workOrder.description}">
                     </h5>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row" th:if="${reportConfig.workOrderInformation or reportConfig.locationAddress or reportConfig.estimatedTime}">
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -112,7 +113,7 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-xs-6">
-                            <div th:if="${workOrder.location}">
+                            <div th:if="${reportConfig.locationAddress and workOrder.location!=null}">
                                 <strong th:text="#{location}+': '"></strong>
                                 <span
                                         th:text="${workOrder.location.name}">
@@ -122,19 +123,19 @@
                                 <strong th:text="#{asset}+': '"></strong>
                                 <span th:text="|${workOrder.asset.name}${!#strings.isEmpty(workOrder.asset.serialNumber) ? ' (' + workOrder.asset.serialNumber + ')' : ''}|"></span>
                             </div>
-                            <div th:if="${workOrder.estimatedDuration}">
+                            <div th:if="${reportConfig.estimatedTime and workOrder.estimatedDuration!=null}">
                                 <strong th:text="#{estimated_duration}+': '"> </strong>
                                 <span
                                         th:text="${workOrder.estimatedDuration}">
                                 </span>
                             </div>
-                            <div th:if="${workOrder.team}">
+                            <div th:if="${reportConfig.workOrderInformation and workOrder.team!=null}">
                                 <strong th:text="#{team}+': '"> </strong>
                                 <span
                                         th:text="${workOrder.team.name}">
                                 </span>
                             </div>
-                            <div th:if="${workOrder.category}">
+                            <div th:if="${reportConfig.workOrderInformation and workOrder.category!=null}">
                                 <strong th:text="#{category}+': '"></strong>
                                 <span
                                         th:text="${workOrder.category.name}">
@@ -142,31 +143,31 @@
                             </div>
                         </div>
                         <div class="col-xs-6">
-                            <div th:if="${!#strings.isEmpty(assignedTo)}">
+                            <div th:if="${reportConfig.workOrderInformation and !#strings.isEmpty(assignedTo)}">
                                 <strong th:text="#{assigned_to}+': '"> </strong>
                                 <span
                                         th:text="${assignedTo}">
                                 </span>
                             </div>
-                            <div th:if="${!#strings.isEmpty(customers)}">
+                            <div th:if="${reportConfig.workOrderInformation and !#strings.isEmpty(customers)}">
                                 <strong th:text="#{customers}+': '"> </strong>
                                 <span
                                         th:text="${customers}">
                                 </span>
                             </div>
-                            <div th:if="${workOrder.completedBy}">
+                            <div th:if="${reportConfig.workOrderInformation and workOrder.completedBy!=null}">
                                 <strong th:text="#{completed_by}+': '"></strong>
                                 <span
                                         th:text="${workOrder.completedBy.getFullName()}">
                                 </span>
                             </div>
-                            <div th:if="${workOrder.completedOn}">
+                            <div th:if="${reportConfig.workOrderInformation and workOrder.completedOn!=null}">
                                 <strong th:text="#{completed_on}+': '"></strong>
                                 <span
                                         th:text="${utils.getFormattedDate(workOrder.completedOn, dateFormat, timeZone)}">
                                 </span>
                             </div>
-                            <div th:if="${workOrder.feedback}">
+                            <div th:if="${reportConfig.workOrderInformation and workOrder.feedback!=null}">
                                 <strong th:text="#{feedback}+': '"> </strong>
                                 <span
                                         th:text="${workOrder.feedback}">
@@ -178,7 +179,7 @@
             </div>
         </div>
     </div>
-    <div class="row" th:if="${not #lists.isEmpty(tasks)}">
+    <div class="row" th:if="${reportConfig.tasks and not #lists.isEmpty(tasks)}">
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -199,7 +200,7 @@
             </div>
         </div>
     </div>
-    <div class="row" th:if="${not #lists.isEmpty(labors)}">
+    <div class="row" th:if="${reportConfig.cost and not #lists.isEmpty(labors)}">
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -225,7 +226,7 @@
             </div>
         </div>
     </div>
-    <div class="row" th:if="${not #lists.isEmpty(relations)}">
+    <div class="row" th:if="${reportConfig.relations and not #lists.isEmpty(relations)}">
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -239,7 +240,7 @@
             </div>
         </div>
     </div>
-    <div class="row" th:if="${not #lists.isEmpty(additionalCosts)}">
+    <div class="row" th:if="${reportConfig.cost and not #lists.isEmpty(additionalCosts)}">
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -253,7 +254,7 @@
             </div>
         </div>
     </div>
-    <div class="row" th:if="${not #lists.isEmpty(workOrderHistories)}">
+    <div class="row" th:if="${reportConfig.workOrderHistory and not #lists.isEmpty(workOrderHistories)}">
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -273,7 +274,7 @@
             </div>
         </div>
     </div>
-    <div class="row" th:if="${not #lists.isEmpty(partQuantities)}">
+    <div class="row" th:if="${reportConfig.cost and not #lists.isEmpty(partQuantities)}">
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -296,7 +297,7 @@
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row" th:if="${reportConfig.signature}">
         <div class="col-xs-6">
             <strong th:text="#{signature}+': '"> </strong><br>
             <img th:if="${workOrder.signature!=null}" th:src="@{${workOrder.signature}}"
