@@ -1946,7 +1946,8 @@ const trJSON = {
     copy_part_description:
       'Bu parçayı kopyalamak için aşağıdaki alanları doldurun',
   customize_report_description: 'Bu PDF\'ye neler dahil edilmeli?',
-  work_order_information: 'İş emri bilgileri'
+  work_order_information: 'İş emri bilgileri',
+  brand_color: 'Marka rengi'
 };
 
 export default trJSON;

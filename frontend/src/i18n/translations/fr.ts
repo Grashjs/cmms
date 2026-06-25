@@ -2121,7 +2121,8 @@ const frJSON = {
     copy_part_description:
       "Remplissez les champs ci-dessous pour copier cette pièce",
   customize_report_description: 'Que doit contenir ce PDF ?',
-  work_order_information: 'Informations de l\'ordre de travail'
+  work_order_information: 'Informations de l\'ordre de travail',
+  brand_color: 'Couleur de marque'
 };
 
 export default frJSON;

@@ -1916,7 +1916,8 @@ const locale = {
     copy_part_description:
       'Fyll i fälten nedan för att kopiera denna del',
   customize_report_description: 'Vad ska ingå i denna PDF?',
-  work_order_information: 'Arbetsorderinformation'
+  work_order_information: 'Arbetsorderinformation',
+  brand_color: 'Varumärkesfärg'
 };
 
 export default locale;

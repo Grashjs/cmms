@@ -1608,7 +1608,8 @@ const locale = {
     copy_part_description:
       '填写以下字段以复制此零件',
   customize_report_description: '此PDF应包含哪些内容？',
-  work_order_information: '工单信息'
+  work_order_information: '工单信息',
+  brand_color: '品牌颜色'
 };
 
 export default locale;

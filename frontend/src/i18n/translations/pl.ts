@@ -1946,7 +1946,8 @@ const plJSON = {
     copy_part_description:
       'Wypełnij pola poniżej, aby skopiować tę część',
   customize_report_description: 'Co powinno znaleźć się w tym pliku PDF?',
-  work_order_information: 'Informacje o zleceniu'
+  work_order_information: 'Informacje o zleceniu',
+  brand_color: 'Kolor marki'
 };
 
 export default plJSON;

@@ -2022,7 +2022,8 @@ const esJSON = {
     copy_part_description:
       'Complete los campos para copiar este repuesto',
   customize_report_description: '¿Qué debe incluirse en este PDF?',
-  work_order_information: 'Información de la orden de trabajo'
+  work_order_information: 'Información de la orden de trabajo',
+  brand_color: 'Color de marca'
 };
 
 export default esJSON;

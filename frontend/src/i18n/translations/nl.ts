@@ -1943,6 +1943,7 @@ const locale = {
     copy_part_description:
       'Vul de onderstaande velden in om dit onderdeel te kopiëren',
   customize_report_description: 'Wat moet er in deze PDF worden opgenomen?',
-  work_order_information: 'Werkorderinformatie'
+  work_order_information: 'Werkorderinformatie',
+  brand_color: 'Merkkleur'
 };
 export default locale;

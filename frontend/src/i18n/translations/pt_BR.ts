@@ -1976,7 +1976,8 @@ const ptBRJSON = {
     copy_part_description:
       'Preencha os campos abaixo para copiar esta peça',
   customize_report_description: 'O que deve ser incluído neste PDF?',
-  work_order_information: 'Informações da ordem de serviço'
+  work_order_information: 'Informações da ordem de serviço',
+  brand_color: 'Cor da marca'
 };
 
 export default ptBRJSON;

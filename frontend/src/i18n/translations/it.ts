@@ -1950,7 +1950,8 @@ const locale = {
     copy_part_description:
       'Compila i campi sottostanti per copiare questa parte',
   customize_report_description: 'Cosa dovrebbe essere incluso in questo PDF?',
-  work_order_information: 'Informazioni sull\'ordine di lavoro'
+  work_order_information: 'Informazioni sull\'ordine di lavoro',
+  brand_color: 'Colore del marchio'
 };
 
 export default locale;

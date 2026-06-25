@@ -2009,7 +2009,8 @@ const ruJSON = {
     copy_part_description:
       'Заполните поля ниже, чтобы скопировать эту деталь',
   customize_report_description: 'Что должно быть включено в этот PDF?',
-  work_order_information: 'Информация о заявке'
+  work_order_information: 'Информация о заявке',
+  brand_color: 'Цвет бренда'
 };
 
 export default ruJSON;

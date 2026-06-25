@@ -1932,7 +1932,8 @@ const locale = {
     copy_part_description:
       'Popunite polja ispod da kopirate ovaj dio',
   customize_report_description: 'Šta treba biti uključeno u ovaj PDF?',
-  work_order_information: 'Informacije radnog naloga'
+  work_order_information: 'Informacije radnog naloga',
+  brand_color: 'Boja brenda'
 };
 
 export default locale;

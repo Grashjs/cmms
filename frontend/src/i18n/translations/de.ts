@@ -2031,7 +2031,8 @@ const deJSON = {
     copy_part_description:
       'Füllen Sie die Felder aus, um dieses Teil zu kopieren',
   customize_report_description: 'Was soll dieses PDF enthalten?',
-  work_order_information: 'Auftragsinformationen'
+  work_order_information: 'Auftragsinformationen',
+  brand_color: 'Markenfarbe'
 };
 
 export default deJSON;
