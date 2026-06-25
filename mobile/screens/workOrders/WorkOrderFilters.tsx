@@ -198,6 +198,7 @@ export default function WorkOrderFilters({
     const typeValue = filterFields.find(
       (filterField) => filterField.field === 'parentPreventiveMaintenance'
     );
+    const dueDateValues = getDateValue(filterFields, 'dueDate');
     return {
       type: typeValue ? getTypeLabelAndValue(typeValue.operation).value : 'ALL',
       archived: filterFields.find(
@@ -254,7 +255,7 @@ export default function WorkOrderFilters({
       createdAt: getDateValue(filterFields, 'createdAt'),
       updatedAt: getDateValue(filterFields, 'updatedAt'),
       completedOn: getDateValue(filterFields, 'completedOn'),
-      dueDate: getDateValue(filterFields, 'dueDate')
+      dueDate: dueDateValues.every((val) => !val) ? undefined : dueDateValues
     };
   };
   const shape = {};
