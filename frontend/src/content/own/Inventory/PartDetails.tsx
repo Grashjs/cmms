@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import AddShoppingCartTwoToneIcon from '@mui/icons-material/AddShoppingCartTwoTone';
 import Part from '../../../models/owns/part';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import { PermissionEntity } from '../../../models/owns/role';
@@ -42,6 +43,7 @@ import { getWorkOrdersByPart } from '../../../slices/workOrder';
 import { getFormattedQuantityWithUnit } from './Parts';
 import { getFormattedCostPerUnit } from '../../../utils/formatters';
 import { getCustomFieldValuesForDetails } from '../type';
+import RestockPartModal from './RestockPartModal';
 
 interface PartDetailsProps {
   part: Part;
@@ -60,6 +62,7 @@ export default function PartDetails(props: PartDetailsProps) {
   const dispatch = useDispatch();
   const [currentTab, setCurrentTab] = useState<string>('details');
   const [isImageViewerOpen, setIsImageViewerOpen] = useState<boolean>(false);
+  const [openRestock, setOpenRestock] = useState<boolean>(false);
   const theme = useTheme();
   const { assetsByPart } = useSelector((state) => state.assets);
   const { workOrdersByPart } = useSelector((state) => state.workOrders);
@@ -158,6 +161,14 @@ export default function PartDetails(props: PartDetailsProps) {
               onClick={() => onCopy(part)}
             >
               <ContentCopyIcon color="primary" />
+            </IconButton>
+          )}
+          {hasEditPermission(PermissionEntity.PARTS_AND_MULTIPARTS, part) && (
+            <IconButton
+              style={{ marginRight: 10 }}
+              onClick={() => setOpenRestock(true)}
+            >
+              <AddShoppingCartTwoToneIcon color="primary" />
             </IconButton>
           )}
           {hasDeletePermission(PermissionEntity.PARTS_AND_MULTIPARTS, part) && (
@@ -413,6 +424,11 @@ export default function PartDetails(props: PartDetailsProps) {
           </Box>
         )}
       </Grid>
+      <RestockPartModal
+        open={openRestock}
+        onClose={() => setOpenRestock(false)}
+        part={part}
+      />
       {isImageViewerOpen && (
         <div style={{ zIndex: 100 }}>
           <ImageViewer

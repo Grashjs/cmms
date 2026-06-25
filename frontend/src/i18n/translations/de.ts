@@ -2032,7 +2032,9 @@ const deJSON = {
       'Füllen Sie die Felder aus, um dieses Teil zu kopieren',
   customize_report_description: 'Was soll dieses PDF enthalten?',
   work_order_information: 'Auftragsinformationen',
-  brand_color: 'Markenfarbe'
+  brand_color: 'Markenfarbe',
+  restock_part: 'Teil nachfüllen',
+  restock: 'Nachfüllen'
 };
 
 export default deJSON;

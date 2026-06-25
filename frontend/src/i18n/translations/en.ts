@@ -1897,7 +1897,9 @@ const locale = {
   copy_part_description: 'Fill in the fields below to copy this Part',
   customize_report_description: 'What should be included on this PDF?',
   work_order_information: 'Work order information',
-  brand_color: 'Brand color'
+  brand_color: 'Brand color',
+  restock_part: 'Restock part',
+  restock: 'Restock'
 };
 
 export default locale;

@@ -1917,7 +1917,9 @@ const locale = {
       'Fyll i fälten nedan för att kopiera denna del',
   customize_report_description: 'Vad ska ingå i denna PDF?',
   work_order_information: 'Arbetsorderinformation',
-  brand_color: 'Varumärkesfärg'
+  brand_color: 'Varumärkesfärg',
+  restock_part: 'Fyll på del',
+  restock: 'Fyll på'
 };
 
 export default locale;

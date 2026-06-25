@@ -221,4 +221,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_06_24_1782321573_company_color.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_06_25_1782400207_part_transaction.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

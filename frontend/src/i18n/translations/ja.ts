@@ -1903,7 +1903,9 @@ const locale = {
       '以下のフィールドに入力してこの部品をコピーします',
   customize_report_description: 'このPDFに含める項目を選択してください',
   work_order_information: '作業指示情報',
-  brand_color: 'ブランドカラー'
+  brand_color: 'ブランドカラー',
+  restock_part: '部品を補充',
+  restock: '補充'
 };
 
 export default locale;

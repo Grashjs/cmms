@@ -16,7 +16,7 @@ import java.util.Date;
 public class PartConsumptionsByMonth {
     @Schema(description = "Total cost")
     private double cost;
-    
+
     @Schema(description = "Date")
     private Date date;
 }

@@ -137,4 +137,18 @@ export const clearSinglePart = (): AppThunk => async (dispatch) => {
   dispatch(slice.actions.clearSinglePart({}));
 };
 
+export const restockPart =
+  (
+    id: number,
+    partRestockDTO: { quantity: number; description?: string }
+  ): AppThunk =>
+  async (dispatch, getState) => {
+    await api.post(`${basePath}/${id}/restock`, partRestockDTO);
+    const { singlePart, parts } = getState().parts;
+    const current = singlePart?.id === id ? singlePart : parts.content.find((p) => p.id === id);
+    if (current) {
+      dispatch(slice.actions.editPart({ part: { ...current, quantity: current.quantity + partRestockDTO.quantity } }));
+    }
+  };
+
 export default slice;

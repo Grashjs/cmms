@@ -1885,7 +1885,9 @@ const locale = {
      'املأ الحقول أدناه لنسخ هذا الجزء',
   customize_report_description: 'ما الذي يجب تضمينه في ملف PDF هذا؟',
   work_order_information: 'معلومات أمر العمل',
-  brand_color: 'لون العلامة التجارية'
+  brand_color: 'لون العلامة التجارية',
+  restock_part: 'إعادة تخزين القطعة',
+  restock: 'إعادة تخزين'
 };
 
 export default locale;

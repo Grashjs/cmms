@@ -1806,7 +1806,9 @@ const locale = {
       'Töltse ki az alábbi mezőket az alkatrész másolásához',
   customize_report_description: 'Mit tartalmazzon ez a PDF?',
   work_order_information: 'Munkautasítás információk',
-  brand_color: 'Márkaszín'
+  brand_color: 'Márkaszín',
+  restock_part: 'Alkatrész feltöltése',
+  restock: 'Feltöltés'
 };
 
 export default locale;

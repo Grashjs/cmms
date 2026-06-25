@@ -1951,7 +1951,9 @@ const locale = {
       'Compila i campi sottostanti per copiare questa parte',
   customize_report_description: 'Cosa dovrebbe essere incluso in questo PDF?',
   work_order_information: 'Informazioni sull\'ordine di lavoro',
-  brand_color: 'Colore del marchio'
+  brand_color: 'Colore del marchio',
+  restock_part: 'Rifornisci parte',
+  restock: 'Rifornisci'
 };
 
 export default locale;

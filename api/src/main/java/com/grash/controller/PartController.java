@@ -4,6 +4,7 @@ import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.PartMiniDTO;
 import com.grash.dto.PartPatchDTO;
 import com.grash.dto.PartPostDTO;
+import com.grash.dto.PartRestockDTO;
 import com.grash.dto.PartShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
@@ -100,6 +101,22 @@ public class PartController {
             partService.notify(savedPart, Helper.getLocale(user));
             return partMapper.toShowDto(savedPart);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PostMapping("/{id}/restock")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<SuccessResponse> restock(@Parameter(description = "Part ID") @PathVariable("id") Long id,
+                                                   @Valid @RequestBody PartRestockDTO partRestockDTO,
+                                                   HttpServletRequest req) {
+        User user = userService.whoami(req);
+        Optional<Part> optionalPart = partService.findById(id);
+        if (optionalPart.isPresent()) {
+            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) ||
+                    optionalPart.get().getCreatedBy().equals(user.getId())) {
+                partService.restockPart(id, partRestockDTO.getQuantity(), partRestockDTO.getDescription());
+                return new ResponseEntity<>(new SuccessResponse(true, "Restocked successfully"), HttpStatus.OK);
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);
     }
 
     @PatchMapping("/{id}")

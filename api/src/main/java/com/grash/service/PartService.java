@@ -18,7 +18,6 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.webhook.PartField;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.PartRepository;
-import com.grash.service.CustomFieldValueService;
 import com.grash.utils.AuditComparator;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +44,7 @@ import static com.grash.utils.Consts.usageBasedLicenseLimits;
 public class PartService {
     private final PartRepository partRepository;
     private final PartCategoryService partCategoryService;
-    private final PartConsumptionService partConsumptionService;
+    private final PartTransactionService partTransactionService;
     private final CompanyService companyService;
     private final CustomerService customerService;
     private final VendorService vendorService;
@@ -143,15 +142,15 @@ public class PartService {
         if (part.getQuantity() < 0)
             throw new CustomException("There is not enough of this part", HttpStatus.NOT_ACCEPTABLE);
         if (quantity <= 0) {
-            PartConsumption partConsumption =
-                    Collections.max(partConsumptionService.findByWorkOrderAndPart(workOrder.getId(), part.getId()),
+            PartTransaction partTransaction =
+                    Collections.max(partTransactionService.findByWorkOrderAndPart(workOrder.getId(), part.getId()),
                             new AuditComparator());
             if (deleteConsumption || quantity == 0d) {
-                partConsumptionService.delete(partConsumption.getId());
+                partTransactionService.delete(partTransaction.getId());
             } else {
-                partConsumption.setQuantity(partConsumption.getQuantity() + quantity);
+                partTransaction.setQuantity(partTransaction.getQuantity() + quantity);
                 partRepository.save(part);
-                partConsumptionService.save(partConsumption);
+                partTransactionService.save(partTransaction);
             }
         } else {
             String message = messageSource.getMessage("notification_part_low", new Object[]{part.getName()}, locale);
@@ -185,12 +184,24 @@ public class PartService {
                     );
                 }
             }
-            partConsumptionService.create(new PartConsumption(part, workOrder, quantity));
+            partTransactionService.create(new PartTransaction(part, workOrder, quantity));
             partRepository.save(part);
 
         }
         dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(), workOrder,
                 workOrder.getCompany());
+    }
+
+    @Transactional
+    public void restockPart(Long id, double quantity, String description) {
+        Part part = findById(id).get();
+        if (part.isNonStock()) return;
+        double previousQuantity = part.getQuantity();
+        part.setQuantity(part.getQuantity() + quantity);
+        partRepository.save(part);
+        partTransactionService.create(new PartTransaction(part, -quantity, description));
+        dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(), null,
+                part.getCompany());
     }
 
     public Collection<Part> getAll() {
