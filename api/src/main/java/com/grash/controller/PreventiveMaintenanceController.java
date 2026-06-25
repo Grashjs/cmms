@@ -69,7 +69,6 @@ public class PreventiveMaintenanceController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public PreventiveMaintenanceShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
@@ -115,7 +114,6 @@ public class PreventiveMaintenanceController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public PreventiveMaintenanceShowDTO patch(@Parameter(description = "Preventive maintenance fields to update") @Valid @RequestBody PreventiveMaintenancePatchDTO preventiveMaintenance
             , @PathVariable("id") Long id,
                                               HttpServletRequest req) {
@@ -132,7 +130,6 @@ public class PreventiveMaintenanceController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

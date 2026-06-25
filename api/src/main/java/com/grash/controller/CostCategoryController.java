@@ -38,7 +38,6 @@ public class CostCategoryController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-
     public Collection<CostCategory> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -51,7 +50,6 @@ public class CostCategoryController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public CostCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
@@ -76,7 +74,6 @@ public class CostCategoryController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public CostCategory patch(@Parameter(description = "Cost category fields to update") @Valid @RequestBody CategoryPatchDTO costCategory, @PathVariable("id") Long id,
                               HttpServletRequest req) {
         User user = userService.whoami(req);
@@ -94,7 +91,6 @@ public class CostCategoryController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

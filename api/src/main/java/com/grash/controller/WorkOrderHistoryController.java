@@ -50,7 +50,6 @@ public class WorkOrderHistoryController {
 
     @GetMapping("/work-order/{id}")
     @PreAuthorize("permitAll()")
-
     public Collection<WorkOrderHistoryShowDTO> getByWorkOrder(@PathVariable("id") Long id,
                                                               HttpServletRequest req) {
         User user = userService.whoami(req);

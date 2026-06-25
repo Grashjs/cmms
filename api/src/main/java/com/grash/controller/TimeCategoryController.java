@@ -35,7 +35,6 @@ public class TimeCategoryController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-
     public Collection<TimeCategory> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -47,7 +46,6 @@ public class TimeCategoryController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public TimeCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
@@ -72,7 +70,6 @@ public class TimeCategoryController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public TimeCategory patch(@Parameter(description = "Time category fields to update") @Valid @RequestBody CategoryPatchDTO timeCategory, @PathVariable("id") Long id,
                               HttpServletRequest req) {
         User user = userService.whoami(req);
@@ -88,7 +85,6 @@ public class TimeCategoryController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

@@ -36,7 +36,6 @@ public class CompanyController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public CompanyShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 
@@ -51,7 +50,6 @@ public class CompanyController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public CompanyShowDTO patch(@Parameter(description = "Company fields to update") @Valid @RequestBody CompanyPatchDTO company,
                                 @PathVariable("id") Long id,
                                 HttpServletRequest req) {

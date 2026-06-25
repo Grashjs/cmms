@@ -50,7 +50,6 @@ public class ReadingController {
 
     @GetMapping("/meter/{id}")
     @PreAuthorize("permitAll()")
-
     public Collection<Reading> getByMeter(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
@@ -128,7 +127,6 @@ public class ReadingController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public Reading patch(@Parameter(description = "Reading fields to update") @Valid @RequestBody ReadingPatchDTO reading,
                          @PathVariable("id") Long id,
                          HttpServletRequest req) {
@@ -143,7 +141,6 @@ public class ReadingController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

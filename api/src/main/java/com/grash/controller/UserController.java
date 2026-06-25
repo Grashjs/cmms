@@ -66,7 +66,6 @@ public class UserController {
 
     @PostMapping("/invite")
     @PreAuthorize("permitAll()")
-
     public SuccessResponse invite(@Parameter(description = "User invitation data") @RequestBody UserInvitationDTO invitation,
                                   @Parameter(hidden = true) @CurrentUser User user) {
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
@@ -112,7 +111,6 @@ public class UserController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public Collection<UserMiniDTO> getMini(@Parameter(hidden = true) @CurrentUser User user,
                                            @Parameter(description = "Include requesters in the response") @RequestParam(required = false) Boolean withRequesters) {
         return Boolean.TRUE.equals(withRequesters) ?
@@ -126,7 +124,6 @@ public class UserController {
 
     @GetMapping("/mini/disabled")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public Collection<UserMiniDTO> getMiniDisabled(@Parameter(hidden = true) @CurrentUser User user) {
         return userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> !user1.isEnabledInSubscription()).map(userMapper::toMiniDto).collect(Collectors.toList());
     }
@@ -134,7 +131,6 @@ public class UserController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public UserResponseDTO patch(@Parameter(description = "User fields to update") @Valid @RequestBody UserPatchDTO userReq,
                                  @Parameter(description = "User ID") @PathVariable("id") Long id,
                                  @Parameter(hidden = true) @CurrentUser User requester) {
@@ -156,7 +152,6 @@ public class UserController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public UserResponseDTO getById(@PathVariable("id") Long id, @Parameter(hidden = true) @CurrentUser User user) {
         Optional<User> optionalUser = userService.findByIdAndCompany(id, user.getCompany().getId());
         if (optionalUser.isPresent()) {
@@ -169,7 +164,6 @@ public class UserController {
 
     @PatchMapping("/{id}/role")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public UserResponseDTO patchRole(@Parameter(description = "User ID") @PathVariable("id") Long id,
                                      @Parameter(description = "Role ID to assign") @RequestParam("role") Long roleId,
                                      @Parameter(hidden = true) @CurrentUser User requester) {
@@ -198,7 +192,6 @@ public class UserController {
 
     @PatchMapping("/{id}/disable")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public UserResponseDTO disable(@PathVariable("id") Long id,
                                    @Parameter(hidden = true) @CurrentUser User requester) {
         Optional<User> optionalUserToDisable = userService.findByIdAndCompany(id, requester.getCompany().getId());
@@ -230,7 +223,6 @@ public class UserController {
 
     @PatchMapping("/soft-delete/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public UserResponseDTO softDelete(@PathVariable("id") Long id,
                                       @Parameter(hidden = true) @CurrentUser User requester) {
         Optional<User> optionalUserToSoftDelete = userService.findByIdAndCompany(id, requester.getCompany().getId());

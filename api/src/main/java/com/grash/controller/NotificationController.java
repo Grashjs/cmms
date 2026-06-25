@@ -42,7 +42,6 @@ public class NotificationController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-
     public Collection<Notification> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -76,7 +75,6 @@ public class NotificationController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public Notification getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Notification> optionalNotification = notificationService.findById(id);
@@ -89,7 +87,6 @@ public class NotificationController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public Notification patch(@Parameter(description = "Notification fields to update") @Valid @RequestBody NotificationPatchDTO notification,
                               @PathVariable("id") Long id,
                               HttpServletRequest req) {

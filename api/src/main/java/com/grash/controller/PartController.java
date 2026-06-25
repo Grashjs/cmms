@@ -70,7 +70,6 @@ public class PartController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public PartShowDTO getById(@Parameter(description = "Part ID") @PathVariable("id") Long id,
                                HttpServletRequest req) {
         User user = userService.whoami(req);
@@ -121,7 +120,6 @@ public class PartController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public PartShowDTO patch(@Parameter(description = "Part fields to update") @Valid @RequestBody PartPatchDTO part,
                              @Parameter(description = "Part ID") @PathVariable(
                                      "id") Long id,
@@ -153,7 +151,6 @@ public class PartController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public Collection<PartMiniDTO> getMini(HttpServletRequest req) {
         User part = userService.whoami(req);
         return partService.findByCompany(part.getCompany().getId()).stream().map(partMapper::toMiniDto).collect(Collectors.toList());
@@ -161,7 +158,6 @@ public class PartController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity delete(@Parameter(description = "Part ID") @PathVariable("id") Long id,
                                  HttpServletRequest req) {
         User user = userService.whoami(req);

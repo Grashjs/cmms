@@ -41,7 +41,6 @@ public class WorkOrderMeterTriggerController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public WorkOrderMeterTriggerShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<WorkOrderMeterTrigger> optionalWorkOrderMeterTrigger = workOrderMeterTriggerService.findById(id);
@@ -63,7 +62,6 @@ public class WorkOrderMeterTriggerController {
 
     @GetMapping("/meter/{id}")
     @PreAuthorize("permitAll()")
-
     public Collection<WorkOrderMeterTriggerShowDTO> getByMeter(@PathVariable("id") Long id,
                                                                HttpServletRequest req) {
         User user = userService.whoami(req);
@@ -76,7 +74,6 @@ public class WorkOrderMeterTriggerController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public WorkOrderMeterTriggerShowDTO patch(@Parameter(description = "Work order meter trigger fields to update") @Valid @RequestBody WorkOrderMeterTriggerPatchDTO workOrderMeterTrigger
             , @PathVariable("id") Long id,
                                               HttpServletRequest req) {
@@ -92,7 +89,6 @@ public class WorkOrderMeterTriggerController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

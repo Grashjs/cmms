@@ -42,7 +42,6 @@ public class ScheduleController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public Schedule getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Schedule> optionalSchedule = scheduleService.findById(id);
@@ -56,7 +55,6 @@ public class ScheduleController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public Schedule patch(@Parameter(description = "Schedule fields to update") @Valid @RequestBody SchedulePatchDTO schedule,
                           @PathVariable("id") Long id,
                           HttpServletRequest req) {
@@ -75,7 +73,6 @@ public class ScheduleController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

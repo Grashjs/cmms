@@ -40,7 +40,6 @@ public class LaborController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public Labor getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Labor> optionalLabor = laborService.findById(id);
@@ -53,7 +52,6 @@ public class LaborController {
 
     @GetMapping("/work-order/{id}")
     @PreAuthorize("permitAll()")
-
     public Collection<Labor> getByWorkOrder(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
@@ -64,7 +62,6 @@ public class LaborController {
 
     @PostMapping("/work-order/{id}")
     @PreAuthorize("permitAll()")
-
     public Labor controlTimer(@PathVariable("id") Long id, HttpServletRequest req,
                               @Parameter(description = "Whether to start the labor timer")
                               @RequestParam(defaultValue = "true") boolean start) {
@@ -125,7 +122,6 @@ public class LaborController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public Labor patch(@Parameter(description = "Labor fields to update") @Valid @RequestBody LaborPatchDTO labor,
                        @PathVariable("id") Long id,
                        HttpServletRequest req) {
@@ -140,7 +136,6 @@ public class LaborController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

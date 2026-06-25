@@ -36,7 +36,6 @@ public class RoleController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-
     public Collection<Role> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -48,7 +47,6 @@ public class RoleController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public Role getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Role> optionalRole = roleService.findById(id);
@@ -74,7 +72,6 @@ public class RoleController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public Role patch(@Parameter(description = "Role fields to update") @Valid @RequestBody RolePatchDTO role,
                       @PathVariable("id") Long id,
                       HttpServletRequest req) {
@@ -91,7 +88,6 @@ public class RoleController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

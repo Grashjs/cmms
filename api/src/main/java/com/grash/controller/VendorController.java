@@ -56,7 +56,6 @@ public class VendorController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public VendorShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Vendor> optionalVendor = vendorService.findById(id);
@@ -70,7 +69,6 @@ public class VendorController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public Collection<VendorMiniDTO> getMini(HttpServletRequest req) {
         User user = userService.whoami(req);
         return vendorService.findByCompany(user.getCompany().getId()).stream().map(vendorMapper::toMiniDto).collect(Collectors.toList());
@@ -89,7 +87,6 @@ public class VendorController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public VendorShowDTO patch(@Parameter(description = "Vendor fields to update") @Valid @RequestBody VendorPatchDTO vendor
             , @PathVariable(
                     "id") Long id,
@@ -108,7 +105,6 @@ public class VendorController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

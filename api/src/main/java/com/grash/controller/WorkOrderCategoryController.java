@@ -34,7 +34,6 @@ public class WorkOrderCategoryController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-
     public Collection<WorkOrderCategory> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -46,7 +45,6 @@ public class WorkOrderCategoryController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public WorkOrderCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<WorkOrderCategory> optionalWorkOrderCategory = workOrderCategoryService.findById(id);
@@ -71,7 +69,6 @@ public class WorkOrderCategoryController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public WorkOrderCategory patch(@Parameter(description = "Work order category fields to update") @Valid @RequestBody CategoryPatchDTO categoryPatchDTO, @PathVariable("id") Long id,
                                    HttpServletRequest req) {
         User user = userService.whoami(req);
@@ -88,7 +85,6 @@ public class WorkOrderCategoryController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

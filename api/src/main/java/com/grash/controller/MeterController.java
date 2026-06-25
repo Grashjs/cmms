@@ -81,7 +81,6 @@ public class MeterController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public Collection<MeterMiniDTO> getMini(HttpServletRequest req) {
         User user = userService.whoami(req);
         return meterService.findByCompany(user.getCompany().getId()).stream().map(meterMapper::toMiniDto).collect(Collectors.toList());
@@ -89,7 +88,6 @@ public class MeterController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public MeterShowDTO getById(@Parameter(description = "Meter ID") @PathVariable("id") Long id,
                                 HttpServletRequest req) {
         User user = userService.whoami(req);
@@ -119,7 +117,6 @@ public class MeterController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public MeterShowDTO patch(@Parameter(description = "Meter fields to update") @Valid @RequestBody MeterPatchDTO meter,
                               @Parameter(description = "Meter ID") @PathVariable("id") Long id,
                               HttpServletRequest req) {
@@ -139,7 +136,6 @@ public class MeterController {
 
     @GetMapping("/asset/{id}")
     @PreAuthorize("permitAll()")
-
     public Collection<MeterShowDTO> getByAsset(@Parameter(description = "Asset ID") @PathVariable("id") Long id,
                                                HttpServletRequest req) {
         User user = userService.whoami(req);
@@ -151,7 +147,6 @@ public class MeterController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity<SuccessResponse> delete(@Parameter(description = "Meter ID") @PathVariable("id") Long id,
                                                   HttpServletRequest req) {
         User user = userService.whoami(req);

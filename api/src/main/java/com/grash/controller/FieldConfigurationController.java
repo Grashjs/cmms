@@ -34,7 +34,6 @@ public class FieldConfigurationController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public FieldConfiguration patch(@Parameter(description = "Field configuration fields to update") @Valid @RequestBody FieldConfigurationPatchDTO fieldConfiguration, @PathVariable(
                                             "id") Long id,
                                     HttpServletRequest req) {

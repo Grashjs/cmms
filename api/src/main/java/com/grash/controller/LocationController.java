@@ -152,7 +152,6 @@ public class LocationController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public LocationShowDTO patch(@Parameter(description = "Location fields to update") @Valid @RequestBody LocationPatchDTO location,
                                  @Parameter(description = "Location ID") @PathVariable("id") Long id,
                                  HttpServletRequest req) {
@@ -174,7 +173,6 @@ public class LocationController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity delete(@Parameter(description = "Location ID") @PathVariable("id") Long id,
                                  HttpServletRequest req) {
         User user = userService.whoami(req);

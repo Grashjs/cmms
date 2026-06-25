@@ -42,7 +42,6 @@ public class PartQuantityController {
 
     @GetMapping("/work-order/{id}")
     @PreAuthorize("permitAll()")
-
     public Collection<PartQuantityShowDTO> getByWorkOrder(HttpServletRequest req,
                                                           @PathVariable("id") Long id) {
         User user = userService.whoami(req);
@@ -54,7 +53,6 @@ public class PartQuantityController {
 
     @GetMapping("/purchase-order/{id}")
     @PreAuthorize("permitAll()")
-
     public Collection<PartQuantityShowDTO> getByPurchaseOrder(HttpServletRequest req, @PathVariable(
             "id") Long id) {
         User user = userService.whoami(req);
@@ -66,7 +64,6 @@ public class PartQuantityController {
 
     @PatchMapping("/work-order/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public Collection<PartQuantityShowDTO> patchWorkOrder(@Parameter(description = "List of part IDs to associate " +
                                                                   "with work order") @Valid @RequestBody List<Long> parts,
                                                           @PathVariable("id") Long id,
@@ -108,7 +105,6 @@ public class PartQuantityController {
 
     @PatchMapping("/purchase-order/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public Collection<PartQuantityShowDTO> patchPurchaseOrder(@Parameter(description = "List of part quantities to " +
                                                                       "update for purchase order") @Valid @RequestBody List<PartQuantityCompletePatchDTO> partQuantitiesReq, @PathVariable("id") Long id,
                                                               HttpServletRequest req) {
@@ -154,7 +150,6 @@ public class PartQuantityController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public PartQuantityShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<PartQuantity> optionalPartQuantity = partQuantityService.findById(id);
@@ -175,7 +170,6 @@ public class PartQuantityController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public PartQuantityShowDTO patch(@Parameter(description = "Part quantity fields to update") @Valid @RequestBody PartQuantityPatchDTO partQuantity,
                                      @PathVariable("id") Long id,
                                      HttpServletRequest req) {
@@ -198,7 +192,6 @@ public class PartQuantityController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

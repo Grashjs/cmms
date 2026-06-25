@@ -35,7 +35,6 @@ public class MeterCategoryController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-
     public Collection<MeterCategory> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -47,7 +46,6 @@ public class MeterCategoryController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public MeterCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
@@ -72,7 +70,6 @@ public class MeterCategoryController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public MeterCategory patch(@Parameter(description = "Meter category fields to update") @Valid @RequestBody CategoryPatchDTO meterCategory,
                                @PathVariable("id") Long id,
                                HttpServletRequest req) {
@@ -90,7 +87,6 @@ public class MeterCategoryController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

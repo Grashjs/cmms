@@ -134,7 +134,6 @@ public class FileController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public FileShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<File> optionalFile = fileService.findById(id);
@@ -149,7 +148,6 @@ public class FileController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public FileShowDTO patch(@Parameter(description = "File fields to update") @Valid @RequestBody FilePatchDTO file,
                              @PathVariable("id") Long id,
                              HttpServletRequest req) {
@@ -167,7 +165,6 @@ public class FileController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

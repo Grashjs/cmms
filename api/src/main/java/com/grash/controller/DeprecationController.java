@@ -32,7 +32,6 @@ public class DeprecationController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public Deprecation getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Deprecation> optionalDeprecation = deprecationService.findById(id);
@@ -52,7 +51,6 @@ public class DeprecationController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public Deprecation patch(@Parameter(description = "Depreciation fields to update") @Valid @RequestBody DeprecationPatchDTO deprecation, @PathVariable("id") Long id,
                              HttpServletRequest req) {
         User user = userService.whoami(req);
@@ -66,7 +64,6 @@ public class DeprecationController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

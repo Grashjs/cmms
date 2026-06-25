@@ -45,7 +45,6 @@ public class TaskController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public TaskShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         Optional<Task> optionalTask = taskService.findById(id);
         if (optionalTask.isPresent()) {
@@ -56,7 +55,6 @@ public class TaskController {
 
     @GetMapping("/work-order/{id}")
     @PreAuthorize("permitAll()")
-
     public Collection<TaskShowDTO> getByWorkOrder(@PathVariable("id") Long id, HttpServletRequest req) {
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
@@ -200,7 +198,6 @@ public class TaskController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public TaskShowDTO patch(@Parameter(description = "Task fields to update") @Valid @RequestBody TaskPatchDTO task,
                              @PathVariable(
                                      "id") Long id,
@@ -220,7 +217,6 @@ public class TaskController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

@@ -35,7 +35,6 @@ public class PartCategoryController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-
     public Collection<PartCategory> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -47,7 +46,6 @@ public class PartCategoryController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public PartCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
@@ -70,7 +68,6 @@ public class PartCategoryController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public PartCategory patch(@Parameter(description = "Part category fields to update") @Valid @RequestBody CategoryPatchDTO partCategory,
                               @PathVariable("id") Long id,
                               HttpServletRequest req) {
@@ -87,7 +84,6 @@ public class PartCategoryController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

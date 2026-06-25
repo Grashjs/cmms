@@ -47,7 +47,6 @@ public class WorkflowController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-
     public Collection<WorkflowShowDTO> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -73,7 +72,6 @@ public class WorkflowController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public WorkflowShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Workflow> optionalWorkflow = workflowService.findById(id);
@@ -85,7 +83,6 @@ public class WorkflowController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public WorkflowShowDTO patch(@Parameter(description = "Workflow fields to update") @Valid @RequestBody WorkflowPostDTO workflow,
                                  @PathVariable("id") Long id,
                                  HttpServletRequest req) {
@@ -101,7 +98,6 @@ public class WorkflowController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

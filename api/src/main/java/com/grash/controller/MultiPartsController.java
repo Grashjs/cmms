@@ -37,7 +37,6 @@ public class MultiPartsController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-
     public Collection<MultiPartsShowDTO> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -53,7 +52,6 @@ public class MultiPartsController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public MultiPartsShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<MultiParts> optionalMultiParts = multiPartsService.findById(id);
@@ -78,7 +76,6 @@ public class MultiPartsController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public MultiPartsShowDTO patch(@Parameter(description = "Multi-part fields to update") @Valid @RequestBody MultiPartsPatchDTO multiParts,
                                    @PathVariable("id") Long id,
                                    HttpServletRequest req) {
@@ -102,7 +99,6 @@ public class MultiPartsController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

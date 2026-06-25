@@ -214,7 +214,6 @@ public class WorkOrderController {
 
     @GetMapping("/part/{id}")
     @PreAuthorize("permitAll()")
-
     public Collection<WorkOrderShowDTO> getByPart(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
@@ -232,7 +231,6 @@ public class WorkOrderController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public WorkOrderShowDTO patch(@Parameter(description = "Work order fields to update") @Valid @RequestBody WorkOrderPatchDTO
                                           workOrder, @PathVariable("id") Long id,
                                   HttpServletRequest req) {
@@ -262,7 +260,6 @@ public class WorkOrderController {
 
     @PatchMapping("/{id}/change-status")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public WorkOrderShowDTO changeStatus(@Parameter(description = "Work order status change data") @Valid @RequestBody WorkOrderChangeStatusDTO
                                                  workOrder, @PathVariable("id") Long id,
                                          HttpServletRequest req,
@@ -368,7 +365,6 @@ public class WorkOrderController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

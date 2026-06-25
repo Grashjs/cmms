@@ -58,7 +58,6 @@ public class TeamController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public Collection<TeamMiniDTO> getMini(HttpServletRequest req) {
         User team = userService.whoami(req);
         return teamService.findByCompany(team.getCompany().getId()).stream().map(teamMapper::toMiniDto).collect(Collectors.toList());
@@ -66,7 +65,6 @@ public class TeamController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public TeamShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Team> optionalTeam = teamService.findById(id);
@@ -90,7 +88,6 @@ public class TeamController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public TeamShowDTO patch(@Parameter(description = "Team fields to update") @Valid @RequestBody TeamPatchDTO team,
                              @PathVariable(
                                      "id") Long id,
@@ -108,7 +105,6 @@ public class TeamController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

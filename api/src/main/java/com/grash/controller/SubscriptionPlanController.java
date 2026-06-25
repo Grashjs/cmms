@@ -38,7 +38,6 @@ public class SubscriptionPlanController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public SubscriptionPlan getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<SubscriptionPlan> optionalSubscriptionPlan = subscriptionPlanService.findById(id);

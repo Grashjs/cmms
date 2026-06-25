@@ -112,7 +112,6 @@ public class RequestController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public RequestShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Request> optionalRequest = requestService.findById(id);
@@ -188,7 +187,6 @@ public class RequestController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public RequestShowDTO patch(@Parameter(description = "Request fields to update") @Valid @RequestBody RequestPatchDTO request,
                                 @PathVariable("id") Long id,
                                 HttpServletRequest req) {
@@ -209,7 +207,6 @@ public class RequestController {
 
     @PatchMapping("/{id}/approve")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public WorkOrderShowDTO approve(@PathVariable("id") Long id,
                                     @Parameter(description = "Request approval data") @RequestBody RequestApproveDTO requestApproveDTO,
                                     HttpServletRequest req) {
@@ -279,7 +276,6 @@ public class RequestController {
 
     @PatchMapping("/{id}/cancel")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public RequestShowDTO cancel(@PathVariable("id") Long id,
                                  @RequestParam @Parameter(description = "Reason of the request") String reason,
                                  HttpServletRequest req) {
@@ -347,7 +343,6 @@ public class RequestController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

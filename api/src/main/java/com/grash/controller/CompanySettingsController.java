@@ -31,7 +31,6 @@ public class CompanySettingsController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public CompanySettings getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

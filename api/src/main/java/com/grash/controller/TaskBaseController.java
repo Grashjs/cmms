@@ -36,7 +36,6 @@ public class TaskBaseController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public TaskBaseShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<TaskBase> optionalTaskBase = taskBaseService.findById(id);
@@ -55,7 +54,6 @@ public class TaskBaseController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public TaskBaseShowDTO patch(@Parameter(description = "Task template fields to update") @Valid @RequestBody TaskBasePatchDTO taskBase,
                                  @PathVariable("id") Long id,
                                  HttpServletRequest req) {
@@ -70,7 +68,6 @@ public class TaskBaseController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

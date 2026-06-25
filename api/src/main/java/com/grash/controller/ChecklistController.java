@@ -38,7 +38,6 @@ public class ChecklistController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-
     public Collection<Checklist> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -49,7 +48,6 @@ public class ChecklistController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public Checklist getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Checklist> optionalChecklist = checklistService.findById(id);
@@ -72,7 +70,6 @@ public class ChecklistController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public Checklist patch(@Parameter(description = "Checklist fields to update") @Valid @RequestBody ChecklistPatchDTO checklist,
                            @PathVariable("id") Long id,
                            HttpServletRequest req) {
@@ -90,7 +87,6 @@ public class ChecklistController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

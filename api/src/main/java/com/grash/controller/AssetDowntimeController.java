@@ -38,7 +38,6 @@ public class AssetDowntimeController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public AssetDowntime getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
@@ -69,7 +68,6 @@ public class AssetDowntimeController {
 
     @GetMapping("/asset/{id}")
     @PreAuthorize("permitAll()")
-
     public Collection<AssetDowntime> getByAsset(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
@@ -80,7 +78,6 @@ public class AssetDowntimeController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public AssetDowntime patch(@Parameter(description = "Asset downtime fields to update") @Valid @RequestBody AssetDowntimePatchDTO assetDowntime,
                                @PathVariable("id") Long id,
                                HttpServletRequest req) {
@@ -101,7 +98,6 @@ public class AssetDowntimeController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

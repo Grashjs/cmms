@@ -2,8 +2,10 @@ package com.grash.controller;
 
 import com.grash.dto.RelationPatchDTO;
 import com.grash.dto.RelationPostDTO;
+import com.grash.dto.RelationShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
+import com.grash.mapper.RelationMapper;
 import com.grash.model.User;
 import com.grash.model.Relation;
 import com.grash.model.WorkOrder;
@@ -24,6 +26,7 @@ import jakarta.validation.Valid;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/relations")
@@ -34,47 +37,52 @@ public class RelationController {
     private final RelationService relationService;
     private final UserService userService;
     private final WorkOrderService workOrderService;
+    private final RelationMapper relationMapper;
 
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
 
-    public Collection<Relation> getAll(HttpServletRequest req) {
+    public Collection<RelationShowDTO> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
         Long companyId = user.getCompany().getId();
-        return relationService.findByCompany(companyId);
+        return relationService.findByCompany(companyId).stream()
+                .map(relationMapper::toShowDto)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/work-order/{id}")
     @PreAuthorize("permitAll()")
 
-    public Collection<Relation> getByWorkOrder(@PathVariable("id") Long id, HttpServletRequest req) {
+    public Collection<RelationShowDTO> getByWorkOrder(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
-            return relationService.findByWorkOrder(id);
+            return relationService.findByWorkOrder(id).stream()
+                    .map(relationMapper::toShowDto)
+                    .collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
 
-    public Relation getById(@PathVariable("id") Long id, HttpServletRequest req) {
+    public RelationShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Relation> optionalRelation = relationService.findById(id);
         if (optionalRelation.isPresent()) {
-            return relationService.findById(id).get();
+            return relationMapper.toShowDto(optionalRelation.get());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    Relation create(@Parameter(description = "Work order relation to create") @Valid @RequestBody RelationPostDTO relationReq, HttpServletRequest req) {
+    RelationShowDTO create(@Parameter(description = "Work order relation to create") @Valid @RequestBody RelationPostDTO relationReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         Long parentId = relationReq.getParent().getId();
         Long childId = relationReq.getChild().getId();
         if (relationService.findByParentAndChild(parentId, childId).isEmpty() && relationService.findByParentAndChild(childId, parentId).isEmpty()) {
-            return relationService.createPost(relationReq, user);
+            return relationMapper.toShowDto(relationService.createPost(relationReq, user));
         } else
             throw new CustomException("There already is a relation between these 2 Work Orders",
                     HttpStatus.NOT_ACCEPTABLE);
@@ -82,27 +90,22 @@ public class RelationController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
-    public Relation patch(@Parameter(description = "Relation fields to update") @Valid @RequestBody RelationPatchDTO relation,
-                          @PathVariable("id") Long id,
-                          HttpServletRequest req) {
+    public RelationShowDTO patch(@Parameter(description = "Relation fields to update") @Valid @RequestBody RelationPatchDTO relation,
+                                 @PathVariable("id") Long id,
+                                 HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Relation> optionalRelation = relationService.findById(id);
 
         if (optionalRelation.isPresent()) {
-            Relation savedRelation = optionalRelation.get();
-            return relationService.update(id, relation);
+            return relationMapper.toShowDto(relationService.update(id, relation));
         } else {
             return null;
         }
-
-
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
-    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 
         Optional<Relation> optionalRelation = relationService.findById(id);

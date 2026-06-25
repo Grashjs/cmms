@@ -62,7 +62,7 @@ public class PurchaseOrderController {
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<PurchaseOrderShowDTO>> search(@Parameter(description = "Search criteria for filtering " +
-                                                                         "purchase orders") @RequestBody SearchCriteria searchCriteria,
+                                                                     "purchase orders") @RequestBody SearchCriteria searchCriteria,
                                                              HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
@@ -80,7 +80,6 @@ public class PurchaseOrderController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public PurchaseOrderShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
@@ -134,7 +133,6 @@ public class PurchaseOrderController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public PurchaseOrderShowDTO patch(@Parameter(description = "Purchase order fields to update") @Valid @RequestBody PurchaseOrderPatchDTO purchaseOrder,
                                       @PathVariable("id") Long id,
                                       HttpServletRequest req) {
@@ -156,7 +154,6 @@ public class PurchaseOrderController {
 
     @PatchMapping("/{id}/respond")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public PurchaseOrderShowDTO respond(@Parameter(description = "Whether the purchase order is approved") @RequestParam("approved") boolean approved, @PathVariable("id") Long id,
                                         HttpServletRequest req) {
         User user = userService.whoami(req);
@@ -191,7 +188,6 @@ public class PurchaseOrderController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 

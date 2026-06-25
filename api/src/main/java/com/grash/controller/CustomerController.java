@@ -55,7 +55,6 @@ public class CustomerController {
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public Collection<CustomerMiniDTO> getMini(HttpServletRequest req) {
         User user = userService.whoami(req);
         return customerService.findByCompany(user.getCompany().getId()).stream().map(customerMapper::toMiniDto).collect(Collectors.toList());
@@ -63,7 +62,6 @@ public class CustomerController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-
     public CustomerShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Customer> optionalCustomer = customerService.findById(id);
@@ -88,7 +86,6 @@ public class CustomerController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public CustomerShowDTO patch(@Parameter(description = "Customer fields to update") @Valid @RequestBody CustomerPatchDTO customer,
                                  @PathVariable("id") Long id,
                                  HttpServletRequest req) {
@@ -106,7 +103,6 @@ public class CustomerController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 
