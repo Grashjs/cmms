@@ -313,7 +313,7 @@
                             <span style="font-size: 12px; color: #888;"
                                   th:text="${utils.getFormattedDate(comment.updatedAt == null ? comment.createdAt : comment.updatedAt, dateFormat, timeZone)}"></span>
                         </div>
-                        <div th:text="${comment.getContent()}"></div>
+                        <div th:text="${comment.getFormattedContent()}"></div>
                         <th:block th:each="fileUrl : ${commentFilesUrls.get(comment.getId())}">
                             <img th:src="${fileUrl}" height="100"/>
                         </th:block>

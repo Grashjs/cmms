@@ -46,4 +46,9 @@ public class Comment extends CompanyAudit {
         }
         return ids;
     }
+
+    public String getFormattedContent() {
+        return content.replaceAll("@\\[(.*?)\\]\\(user:(\\d+)\\)",
+                "@$1");
+    }
 }
