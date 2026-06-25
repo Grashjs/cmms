@@ -65,6 +65,8 @@ public class GeneralPreferencesPatchDTO {
     @Schema(description = "Automatically generate asset barcode")
     private boolean autoGenerateAssetBarcode;
 
+    private String color;
+
     public void setDaysBeforePrevMaintNotification(int daysBeforePrevMaintNotification) {
         if (daysBeforePrevMaintNotification < 0)
             throw new CustomException("Invalid daysBeforePrevMaintNotification", HttpStatus.BAD_REQUEST);

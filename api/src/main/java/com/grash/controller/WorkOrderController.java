@@ -448,7 +448,9 @@ public class WorkOrderController {
                 Collection<WorkOrderHistory> workOrderHistories = config.isWorkOrderHistory() ?
                         workOrderHistoryService.findByWorkOrder(id) : Collections.emptyList();
                 List<Comment> comments = config.isComments() ? commentService.findByCriteria(
-                        new CommentCriteria() {{ setWorkOrderId(id); }}, user) : Collections.emptyList();
+                        new CommentCriteria() {{
+                            setWorkOrderId(id);
+                        }}, user) : Collections.emptyList();
                 Map<Long, String[]> commentFilesUrls = comments.stream()
                         .collect(Collectors.toMap(
                                 Comment::getId,
@@ -488,8 +490,9 @@ public class WorkOrderController {
                     put("messageSource", messageSource);
                     put("locale", Helper.getLocale(user));
                     String companyColor = user.getCompany().getCompanySettings().getGeneralPreferences().getColor();
-                    put("backgroundColor", companyColor == null ? brandingService.getMailBackgroundColor() :
-                            companyColor);
+                    put("backgroundColor", companyColor != null && !companyColor.isBlank() ? companyColor :
+                            brandingService.getMailBackgroundColor()
+                    );
                     put("reportConfig", config);
                     put("comments", comments);
                     put("commentFilesUrls", commentFilesUrls);

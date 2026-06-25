@@ -8,7 +8,8 @@ import {
   Select,
   Stack,
   TextField,
-  Typography
+  Typography,
+  InputAdornment
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { Field, Formik } from 'formik';
@@ -57,6 +58,14 @@ function GeneralSettings() {
     }).then(() => showSnackBar(t('changes_saved_success'), 'success'));
   const debouncedCsvSeparatorChange = useMemo(
     () => debounce(onCsvSeparatorChange, 1300),
+    []
+  );
+  const onBrandColorChange = (event) =>
+    patchGeneralPreferences({
+      color: event.target.value
+    }).then(() => showSnackBar(t('changes_saved_success'), 'success'));
+  const debouncedBrandColorChange = useMemo(
+    () => debounce(onBrandColorChange, 1300),
     []
   );
   const onDeleteDemoData = async () => {
@@ -234,6 +243,50 @@ function GeneralSettings() {
                         defaultValue={generalPreferences.csvSeparator}
                         name="csvSeparator"
                         sx={{ maxWidth: '50px' }}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="h6" sx={{ mb: 0.5 }}>
+                        {t('brand_color')}
+                      </Typography>
+                      <TextField
+                        onChange={debouncedBrandColorChange}
+                        type={'text'}
+                        defaultValue={generalPreferences.color || ''}
+                        name="color"
+                        placeholder="#1975ff"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <input
+                                type="color"
+                                defaultValue={
+                                  generalPreferences.color || '#5569ff'
+                                }
+                                onChange={debounce(
+                                  (e) =>
+                                    patchGeneralPreferences({
+                                      color: e.target.value
+                                    }).then(() =>
+                                      showSnackBar(
+                                        t('changes_saved_success'),
+                                        'success'
+                                      )
+                                    ),
+                                  2000
+                                )}
+                                style={{
+                                  width: 32,
+                                  height: 32,
+                                  padding: 0,
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  background: 'none'
+                                }}
+                              />
+                            </InputAdornment>
+                          )
+                        }}
                       />
                     </Grid>
                     {/*<Grid item xs={12}>

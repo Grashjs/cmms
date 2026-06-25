@@ -25,4 +25,5 @@ export interface GeneralPreferences {
 
   simplifiedWorkOrder: boolean;
   autoGenerateAssetBarcode: boolean;
+  color: string | null;
 }
