@@ -5,6 +5,69 @@
     .invoice-title {
         display: inline-block;
     }
+    .report-container {
+        color: #333;
+        line-height: 1.6;
+    }
+    .report-header {
+        margin-bottom: 20px;
+    }
+    .report-title {
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+    .panel-title {
+        font-weight: 700;
+        color: #2c3e50;
+    }
+    .label-text {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+    .value-text {
+        font-weight: 400;
+        color: #555;
+    }
+    .task-notes {
+        font-size: 10px;
+        color: #777;
+        font-style: italic;
+    }
+    .comment-date {
+        font-size: 12px;
+        color: #95a5a6;
+        font-weight: 400;
+    }
+    .file-image {
+        margin: 5px;
+        border: 1px solid #ecf0f1;
+        border-radius: 4px;
+        padding: 2px;
+    }
+    .signature-section {
+        margin-top: 20px;
+        padding-top: 15px;
+    }
+    .footer-section {
+        margin-top: 20px;
+        padding: 15px 0;
+        border-top: 2px solid #ecf0f1;
+    }
+    .footer-logo {
+        margin-top: 10px;
+        opacity: 0.8;
+    }
+    .section-divider {
+        border: 0;
+        height: 1px;
+        background: linear-gradient(to right, #ecf0f1, #bdc3c7, #ecf0f1);
+        margin: 20px 0;
+    }
+    .history-entry {
+    }
+    .history-entry:last-child {
+        border-bottom: none;
+    }
 </style>
 <body>
 <!--@thymesVar id="workOrder" type="com.grash.model.WorkOrder"-->
@@ -33,55 +96,55 @@
 <!--/*@thymesVar id="commentFilesUrls" type="java.util.Map<java.lang.Long, java.lang.String[]>"*/-->
 <!--/*@thymesVar id="workOrderFilesUrls" type="java.lang.String[]"*/-->
 
-<div class="container">
+<div class="container report-container">
     <div class="row">
         <div class="col-xs-12">
-            <div>
+            <div class="report-header">
                 <div class="invoice-title">
-                    <h3 th:text="${companyName}"></h3>
+                    <h3 class="report-title" th:text="${companyName}"></h3>
                     <img th:if="${companyLogo!=null}" th:src="@{${companyLogo}}" height="50">
                 </div>
-                <h3 class='pull-right invoice-title' th:style="'color:'+${backgroundColor}"
+                <h3 class='pull-right invoice-title report-title' th:style="'color:'+${backgroundColor}"
                     th:text="#{wo_number(${workOrder.customId})}"></h3>
             </div>
-            <hr>
+            <hr class="section-divider">
             <div class="row" th:if="${reportConfig.workOrderInformation}">
                 <div class="col-xs-6">
                     <address>
-                        <div th:text="${companyPhone}"></div>
-                        <strong th:text="#{created_at}+': '"> </strong>
-                        <span th:text="${utils.getFormattedDate(workOrder.createdAt, dateFormat, timeZone)}"></span>
+                        <div class="value-text" th:text="${companyPhone}"></div>
+                        <strong class="label-text" th:text="#{created_at}+': '"> </strong>
+                        <span class="value-text" th:text="${utils.getFormattedDate(workOrder.createdAt, dateFormat, timeZone)}"></span>
                         <br>
-                        <strong th:text="#{last_updated}+': '"></strong><span
+                        <strong class="label-text" th:text="#{last_updated}+': '"></strong><span class="value-text"
                             th:text="${utils.getFormattedDate(workOrder.updatedAt, dateFormat, timeZone)}"></span><br>
                     </address>
                 </div>
                 <div class="col-xs-6 text-right">
                     <address>
                         <div th:if="${primaryUserName}">
-                            <strong th:text="#{assigned_to}+': '"></strong>
-                            <span
+                            <strong class="label-text" th:text="#{assigned_to}+': '"></strong>
+                            <span class="value-text"
                                     th:text="${primaryUserName}">
                             </span>
                             <br>
                         </div>
                         <div th:if="${workOrder.dueDate}">
-                            <strong th:text="#{due_date}+': '"> </strong>
-                            <span
+                            <strong class="label-text" th:text="#{due_date}+': '"> </strong>
+                            <span class="value-text"
                                     th:text="${workOrder.dueDate}">
                             </span>
                             <br>
                         </div>
                         <div th:if="${workOrder.status}">
-                            <strong th:text="#{status}+': '"> </strong>
-                            <span
+                            <strong class="label-text" th:text="#{status}+': '"> </strong>
+                            <span class="value-text"
                                     th:text="#{${workOrder.status}}">
                             </span>
                             <br>
                         </div>
                         <div th:if="${reportConfig.priority and workOrder.priority!=null}">
-                            <strong th:text="#{priority}+': '"> </strong>
-                            <span
+                            <strong class="label-text" th:text="#{priority}+': '"> </strong>
+                            <span class="value-text"
                                     th:text="#{${workOrder.priority}}">
                             </span>
                             <br>
@@ -95,13 +158,12 @@
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title"><strong th:text="#{work_order}"></strong></h3>
+                    <h3 class="panel-title" th:text="#{work_order}"></h3>
                 </div>
                 <div class="panel-body">
-                    <h3 th:text="${workOrder.title}">
-
+                    <h3 class="report-title" th:text="${workOrder.title}">
                     </h3>
-                    <h5 th:if="${reportConfig.workOrderInformation}" th:text="${workOrder.description}">
+                    <h5 class="value-text" th:if="${reportConfig.workOrderInformation}" th:text="${workOrder.description}">
                     </h5>
                 </div>
             </div>
@@ -111,68 +173,68 @@
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title"><strong th:text="#{details}+': '"></strong></h3>
+                    <h3 class="panel-title" th:text="#{details}+': '"></h3>
                 </div>
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-xs-6">
                             <div th:if="${reportConfig.locationAddress and workOrder.location!=null}">
-                                <strong th:text="#{location}+': '"></strong>
-                                <span
+                                <strong class="label-text" th:text="#{location}+': '"></strong>
+                                <span class="value-text"
                                         th:text="${workOrder.location.name}">
                                 </span>
                             </div>
                             <div th:if="${workOrder.asset}">
-                                <strong th:text="#{asset}+': '"></strong>
-                                <span th:text="|${workOrder.asset.name}${!#strings.isEmpty(workOrder.asset.serialNumber) ? ' (' + workOrder.asset.serialNumber + ')' : ''}|"></span>
+                                <strong class="label-text" th:text="#{asset}+': '"></strong>
+                                <span class="value-text" th:text="|${workOrder.asset.name}${!#strings.isEmpty(workOrder.asset.serialNumber) ? ' (' + workOrder.asset.serialNumber + ')' : ''}|"></span>
                             </div>
                             <div th:if="${reportConfig.estimatedTime and workOrder.estimatedDuration!=null}">
-                                <strong th:text="#{estimated_duration}+': '"> </strong>
-                                <span
+                                <strong class="label-text" th:text="#{estimated_duration}+': '"> </strong>
+                                <span class="value-text"
                                         th:text="${workOrder.estimatedDuration}">
                                 </span>
                             </div>
                             <div th:if="${reportConfig.workOrderInformation and workOrder.team!=null}">
-                                <strong th:text="#{team}+': '"> </strong>
-                                <span
+                                <strong class="label-text" th:text="#{team}+': '"> </strong>
+                                <span class="value-text"
                                         th:text="${workOrder.team.name}">
                                 </span>
                             </div>
                             <div th:if="${reportConfig.workOrderInformation and workOrder.category!=null}">
-                                <strong th:text="#{category}+': '"></strong>
-                                <span
+                                <strong class="label-text" th:text="#{category}+': '"></strong>
+                                <span class="value-text"
                                         th:text="${workOrder.category.name}">
                                 </span>
                             </div>
                         </div>
                         <div class="col-xs-6">
                             <div th:if="${reportConfig.workOrderInformation and !#strings.isEmpty(assignedTo)}">
-                                <strong th:text="#{assigned_to}+': '"> </strong>
-                                <span
+                                <strong class="label-text" th:text="#{assigned_to}+': '"> </strong>
+                                <span class="value-text"
                                         th:text="${assignedTo}">
                                 </span>
                             </div>
                             <div th:if="${reportConfig.workOrderInformation and !#strings.isEmpty(customers)}">
-                                <strong th:text="#{customers}+': '"> </strong>
-                                <span
+                                <strong class="label-text" th:text="#{customers}+': '"> </strong>
+                                <span class="value-text"
                                         th:text="${customers}">
                                 </span>
                             </div>
                             <div th:if="${reportConfig.workOrderInformation and workOrder.completedBy!=null}">
-                                <strong th:text="#{completed_by}+': '"></strong>
-                                <span
+                                <strong class="label-text" th:text="#{completed_by}+': '"></strong>
+                                <span class="value-text"
                                         th:text="${workOrder.completedBy.getFullName()}">
                                 </span>
                             </div>
                             <div th:if="${reportConfig.workOrderInformation and workOrder.completedOn!=null}">
-                                <strong th:text="#{completed_on}+': '"></strong>
-                                <span
+                                <strong class="label-text" th:text="#{completed_on}+': '"></strong>
+                                <span class="value-text"
                                         th:text="${utils.getFormattedDate(workOrder.completedOn, dateFormat, timeZone)}">
                                 </span>
                             </div>
                             <div th:if="${reportConfig.workOrderInformation and workOrder.feedback!=null}">
-                                <strong th:text="#{feedback}+': '"> </strong>
-                                <span
+                                <strong class="label-text" th:text="#{feedback}+': '"> </strong>
+                                <span class="value-text"
                                         th:text="${workOrder.feedback}">
                                 </span>
                             </div>
@@ -186,14 +248,14 @@
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title"><strong th:text="#{tasks}"></strong></h3>
+                    <h3 class="panel-title" th:text="#{tasks}"></h3>
                 </div>
                 <div class="panel-body">
                     <th:block th:each="task : ${tasks}">
                         <div>
-                            <strong th:text="${task.getTaskBase().getLabel()}"></strong>
-                            <div th:text="${task.getTranslatedValue(locale, messageSource)}"></div>
-                            <div style="font-size: 10px" th:text="${task.getNotes()}"></div>
+                            <strong class="label-text" th:text="${task.getTaskBase().getLabel()}"></strong>
+                            <div class="value-text" th:text="${task.getTranslatedValue(locale, messageSource)}"></div>
+                            <div class="task-notes" th:text="${task.getNotes()}"></div>
                             <th:block th:each="imageUrl : ${tasksImagesUrls.get(task.getId())}">
                                 <img th:src="${imageUrl}" height="250"/>
                             </th:block>
@@ -207,20 +269,20 @@
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title"><strong th:text="#{labors}"></strong></h3>
+                    <h3 class="panel-title" th:text="#{labors}"></h3>
                 </div>
                 <div class="panel-body">
                     <th:block th:each="labor : ${labors}">
                         <div>
-                            <strong th:text="#{user}+': '"> </strong> <span
+                            <strong class="label-text" th:text="#{user}+': '"> </strong> <span class="value-text"
                                 th:text="${labor.getAssignedTo() ==null ? '' : labor.getAssignedTo().getFullName()}"></span>
                         </div>
                         <div>
-                            <strong th:text="#{duration}+': '"> </strong> <span
+                            <strong class="label-text" th:text="#{duration}+': '"> </strong> <span class="value-text"
                                 th:text="#{format_date(${labor.getFormattedDuration().get(0)},${labor.getFormattedDuration().get(1)},${labor.getFormattedDuration().get(2)})}"></span>
                         </div>
                         <div>
-                            <strong th:text="#{cost}+': '"></strong> <span
+                            <strong class="label-text" th:text="#{cost}+': '"></strong> <span class="value-text"
                                 th:text="${labor.getCost()}+' '+ ${currency}"></span>
                         </div>
                         <br>
@@ -233,11 +295,11 @@
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title"><strong th:text="#{relations}"></strong></h3>
+                    <h3 class="panel-title" th:text="#{relations}"></h3>
                 </div>
                 <div class="panel-body">
                     <th:block th:each="relation : ${relations}">
-                        <div th:text="${relation.getParent().getTitle()} + ' '+#{${relation.getRelationType()}} + ' '+ ${relation.getChild().getTitle()}"></div>
+                        <div class="value-text" th:text="${relation.getParent().getTitle()} + ' '+#{${relation.getRelationType()}} + ' '+ ${relation.getChild().getTitle()}"></div>
                     </th:block>
                 </div>
             </div>
@@ -247,11 +309,11 @@
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title"><strong th:text="#{additional_costs}"></strong></h3>
+                    <h3 class="panel-title" th:text="#{additional_costs}"></h3>
                 </div>
                 <div class="panel-body">
                     <th:block th:each="additionalCost : ${additionalCosts}">
-                        <div th:text="${additionalCost.getDescription()} + ': '+${additionalCost.getCost()} + ' '+ ${currency}"></div>
+                        <div class="value-text" th:text="${additionalCost.getDescription()} + ': '+${additionalCost.getCost()} + ' '+ ${currency}"></div>
                     </th:block>
                 </div>
             </div>
@@ -261,16 +323,16 @@
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title"><strong th:text="#{history}"></strong></h3>
+                    <h3 class="panel-title" th:text="#{history}"></h3>
                 </div>
                 <div class="panel-body">
                     <th:block th:each="workOrderHistory : ${workOrderHistories}">
-                        <div>
-                            <strong th:text="#{user}+': '"> </strong><span
+                        <div class="history-entry">
+                            <strong class="label-text" th:text="#{user}+': '"> </strong><span class="value-text"
                                 th:text="${workOrderHistory.getUser().getFullName()}"></span>
                         </div>
-                        <div th:text="${workOrderHistory.getName()}"></div>
-                        <div th:text="${utils.getFormattedDate(workOrderHistory.getCreatedAt(), dateFormat, timeZone)}"></div>
+                        <div class="value-text" th:text="${workOrderHistory.getName()}"></div>
+                        <div class="value-text" th:text="${utils.getFormattedDate(workOrderHistory.getCreatedAt(), dateFormat, timeZone)}"></div>
                         <br>
                     </th:block>
                 </div>
@@ -281,18 +343,18 @@
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title"><strong th:text="#{parts}"></strong></h3>
+                    <h3 class="panel-title" th:text="#{parts}"></h3>
                 </div>
                 <div class="panel-body">
                     <th:block th:each="partQuantity : ${partQuantities}">
                         <div>
-                            <strong th:text="${partQuantity.getPart().getName()}"></strong>
+                            <strong class="label-text" th:text="${partQuantity.getPart().getName()}"></strong>
                         </div>
                         <div>
-                            <span th:text="#{quantity}+': '"></span>
-                            <span th:text="${partQuantity.getQuantity()}"></span>
+                            <span class="label-text" th:text="#{quantity}+': '"></span>
+                            <span class="value-text" th:text="${partQuantity.getQuantity()}"></span>
                         </div>
-                        <div><span th:text="#{cost}+': '"></span><span
+                        <div><span class="label-text" th:text="#{cost}+': '"></span><span class="value-text"
                                 th:text="${partQuantity.getCost()}+' '+ ${currency}"></span>
                         </div>
                     </th:block>
@@ -304,13 +366,13 @@
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title"><strong th:text="#{comments}"></strong></h3>
+                    <h3 class="panel-title" th:text="#{comments}"></h3>
                 </div>
                 <div class="panel-body">
                     <th:block th:each="comment : ${comments}">
                         <div>
-                            <strong th:text="${comment.getUser().getFullName()}"></strong>
-                            <span style="font-size: 12px; color: #888;"
+                            <strong class="label-text" th:text="${comment.getUser().getFullName()}"></strong>
+                            <span class="comment-date"
                                   th:text="${utils.getFormattedDate(comment.updatedAt == null ? comment.createdAt : comment.updatedAt, dateFormat, timeZone)}"></span>
                         </div>
                         <div th:text="${comment.getFormattedContent()}"></div>
@@ -327,35 +389,33 @@
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title"><strong th:text="#{files}"></strong></h3>
+                    <h3 class="panel-title" th:text="#{files}"></h3>
                 </div>
                 <div class="panel-body">
                     <th:block th:each="fileUrl : ${workOrderFilesUrls}">
-                        <img th:src="${fileUrl}" height="100" style="margin: 5px;"/>
+                        <img th:src="${fileUrl}" height="100" class="file-image"/>
                     </th:block>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row" th:if="${reportConfig.signature}">
+    <div class="row signature-section" th:if="${reportConfig.signature}">
         <div class="col-xs-6">
-            <strong th:text="#{signature}+': '"> </strong><br>
+            <strong class="label-text" th:text="#{signature}+': '"> </strong><br>
             <img th:if="${workOrder.signature!=null}" th:src="@{${workOrder.signature}}"
                  height="100">
         </div>
         <div class="col-xs-6">
-            <strong th:text="#{date}+': '"> </strong><br>
-            <span th:if="${workOrder.signature!=null && workOrder.completedOn!=null}"
+            <strong class="label-text" th:text="#{date}+': '"> </strong><br>
+            <span class="value-text" th:if="${workOrder.signature!=null && workOrder.completedOn!=null}"
                   th:text="${utils.getFormattedDate(workOrder.completedOn, dateFormat, timeZone)}"></span>
         </div>
     </div>
-    <br>
-    <hr>
-    <div class="text-center">
+    <div class="footer-section text-center">
         <span th:text="#{this_wo_created}"></span><br/>
-        <img th:src="@{${#strings.isEmpty(environment.getProperty('white-labeling.logo-paths')) ?
+        <img class="footer-logo" th:src="@{${#strings.isEmpty(environment.getProperty('white-labeling.logo-paths')) ?
 environment.getProperty('api.host') + '/images/logo.png' :
-environment.getProperty('api.host') + '/images/custom-logo.png'}}" width="75" height="75" style="margin-top: 10px;"/>
+environment.getProperty('api.host') + '/images/custom-logo.png'}}" width="75" height="75"/>
     </div>
 </div>
 </body>
