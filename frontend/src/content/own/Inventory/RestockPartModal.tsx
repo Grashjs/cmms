@@ -63,7 +63,7 @@ export default function RestockPartModal({
               })
             )
               .then(() => {
-                showSnackBar(t('restocked_successfully'), 'success');
+                showSnackBar(t('operation_success'), 'success');
                 onClose();
               })
               .catch((err) => showSnackBar(getErrorMessage(err), 'error'));
