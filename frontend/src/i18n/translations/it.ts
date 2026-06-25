@@ -1373,9 +1373,12 @@ const locale = {
   switch_account_description: 'Si prega di scegliere un account per procedere',
   put_location_in_map: 'Inserisci la posizione sulla mappa',
   confirm_disable_user:
-    'Sei sicuro di voler disattivare {{user}}? Potrai abilitarlo solo dopo un mese.',
+    'Sei sicuro di voler disattivare {{user}}?',
   user_disabled_success: 'Utente disabilitato con successo',
   disable: 'Disabilitare',
+  confirm_enable_user:
+    'Sei sicuro di voler abilitare {{user}}?',
+  enable: 'Abilita',
   manufacturer: 'Produttore',
   power: 'Energia',
   import_error: "L'importazione non è riuscita",

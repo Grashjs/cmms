@@ -218,6 +218,16 @@ public class UserController {
 
     }
 
+    @PatchMapping("/{id}/enable")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public UserResponseDTO enable(@PathVariable("id") Long id,
+                                  @Parameter(hidden = true) @CurrentUser User requester) {
+        if (!requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS))
+            throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
+        return userMapper.toResponseDto(userService.enableUser(userService.findByIdAndCompany(id,
+                requester.getCompany().getId()).get()));
+    }
+
     @PatchMapping("/soft-delete/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
 

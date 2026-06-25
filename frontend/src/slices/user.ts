@@ -184,6 +184,15 @@ export const disableUser =
     );
     dispatch(slice.actions.editUser({ user: userResponse }));
   };
+export const enableUser =
+  (id: number): AppThunk =>
+  async (dispatch) => {
+    const userResponse = await api.patch<UserResponseDTO>(
+      `${basePath}/${id}/enable`,
+      {}
+    );
+    dispatch(slice.actions.editUser({ user: userResponse }));
+  };
 export const editUserRole =
   (id: number, roleId: number): AppThunk =>
   async (dispatch) => {

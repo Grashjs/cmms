@@ -1349,9 +1349,12 @@ const locale = {
   switch_account_description: 'Molimo odaberite nalog za nastavak',
   put_location_in_map: 'Postavi lokaciju na mapu',
   confirm_disable_user:
-    'Jeste li sigurni da želite onemogućiti {{user}}? Moći ćete ga ponovo omogućiti tek nakon mjesec dana.',
+    'Jeste li sigurni da želite onemogućiti {{user}}?',
   user_disabled_success: 'Korisnik uspješno onemogućen',
   disable: 'Onemogući',
+  confirm_enable_user:
+    'Jeste li sigurni da želite omogućiti {{user}}?',
+  enable: 'Omogući',
   manufacturer: 'Proizvođač',
   power: 'Snaga',
   import_error: 'Uvoz nije uspio',

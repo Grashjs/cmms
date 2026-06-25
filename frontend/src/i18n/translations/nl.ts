@@ -1447,6 +1447,14 @@ const locale = {
   switch_account: 'Account wisselen',
   switch_to_super_user: 'Overschakelen naar superbeheerder',
   switch_account_description: 'Kies een account om door te gaan',
+  put_location_in_map: 'Put location in map',
+  confirm_disable_user:
+    'Are you sure you want to disable {{user}}?',
+  confirm_enable_user:
+    'Weet u zeker dat u {{user}} wilt inschakelen?',
+  user_disabled_success: 'User disabled successfully',
+  disable: 'Disable',
+  enable: 'Inschakelen',
   manufacturer: 'Fabrikant',
   power: 'Vermogen',
   library: 'Bibliotheek',

@@ -1415,9 +1415,12 @@ const ruJSON = {
   switch_account_description: 'Выберите аккаунт для продолжения',
   put_location_in_map: 'Указать локацию на карте',
   confirm_disable_user:
-    'Вы уверены, что хотите отключить {{user}}? Включить его можно будет только через месяц',
+    'Вы уверены, что хотите отключить {{user}}?',
   user_disabled_success: 'Пользователь успешно отключён',
   disable: 'Отключить',
+  confirm_enable_user:
+    'Вы уверены, что хотите включить {{user}}?',
+  enable: 'Включить',
 
   // --- Assets & Import ---
   manufacturer: 'Производитель',

@@ -1498,10 +1498,11 @@ const frJSON = {
   switch_to_super_user: 'Passer en super administrateur',
   switch_account_description: 'Veuillez choisir un compte pour continuer',
   put_location_in_map: "Placer l'emplacement sur une carte",
-  confirm_disable_user:
-    "Etes-vous sûr de désactiver {{user}}? Vous ne pourrez l'activer que dans un mois",
+  confirm_disable_user: 'Etes-vous sûr de désactiver {{user}}?',
   user_disabled_success: 'Utilisateur désactivé',
   disable: 'Désactiver',
+  confirm_enable_user: 'Etes-vous sûr d\'activer {{user}}?',
+  enable: 'Activer',
   manufacturer: 'Fabriquant',
   power: 'Puissance',
   import_error: "L'importation a échoué",
@@ -2103,28 +2104,28 @@ const frJSON = {
   no_data: 'Aucune donnée',
   hours_left: 'restantes',
   export_cost_and_time: 'Exporter les coûts et le temps',
-   export_work_orders: 'Exporter les ordres de travail',
-   copy_wo: "Copier l'ordre de travail",
-   copy_pm: "Copier la maintenance préventive",
-   copy_pm_description:
-     "Remplissez les champs ci-dessous pour copier une maintenance préventive",
-   copy_asset: "Copier l'équipement",
-   copy_asset_description:
-     "Remplissez les champs ci-dessous pour copier cet équipement",
-   copy_location: "Copier l'emplacement",
-   copy_location_description:
-     "Remplissez les champs ci-dessous pour copier cet emplacement",
-   copy_meter: "Copier le compteur",
-   copy_meter_description:
-     "Remplissez les champs ci-dessous pour copier ce compteur",
-   copy_part: "Copier la pièce",
-    copy_part_description:
-      "Remplissez les champs ci-dessous pour copier cette pièce",
+  export_work_orders: 'Exporter les ordres de travail',
+  copy_wo: "Copier l'ordre de travail",
+  copy_pm: 'Copier la maintenance préventive',
+  copy_pm_description:
+    'Remplissez les champs ci-dessous pour copier une maintenance préventive',
+  copy_asset: "Copier l'équipement",
+  copy_asset_description:
+    'Remplissez les champs ci-dessous pour copier cet équipement',
+  copy_location: "Copier l'emplacement",
+  copy_location_description:
+    'Remplissez les champs ci-dessous pour copier cet emplacement',
+  copy_meter: 'Copier le compteur',
+  copy_meter_description:
+    'Remplissez les champs ci-dessous pour copier ce compteur',
+  copy_part: 'Copier la pièce',
+  copy_part_description:
+    'Remplissez les champs ci-dessous pour copier cette pièce',
   customize_report_description: 'Que doit contenir ce PDF ?',
-  work_order_information: 'Informations de l\'ordre de travail',
+  work_order_information: "Informations de l'ordre de travail",
   brand_color: 'Couleur de marque',
   restock_part: 'Réapprovisionner la pièce',
-   restock: 'Réapprovisionner',
+  restock: 'Réapprovisionner',
   export_part_transactions: 'Exporter les transactions de pièces',
   export_parts: 'Exporter les pièces'
 };

@@ -1429,9 +1429,12 @@ const trJSON = {
     'Gösterim amacıyla modelin yalnızca küçük bir kısmını tercüme ettik.',
   put_location_in_map: 'konumu haritaya koy',
   confirm_disable_user:
-    '{{user}} ı devre dışı bırakmak istediğinizden emin misiniz? Yalnızca bir ay sonra etkinleştirebileceksiniz',
+    '{{user}} ı devre dışı bırakmak istediğinizden emin misiniz?',
   user_disabled_success: 'Kullanıcı başarıyla devre dışı bırakıldı',
   disable: 'Devre dışı bırakmak',
+  confirm_enable_user:
+    '{{user}} ı etkinleştirmek istediğinizden emin misiniz?',
+  enable: 'Etkinleştir',
   manufacturer: 'Üretici',
   power: 'Güç',
   import_error: 'İçe aktarma başarısız olmadı',

@@ -1350,9 +1350,12 @@ const locale = {
   switch_account_description: 'Välj ett konto för att fortsätta',
   put_location_in_map: 'Lägg plats på kartan',
   confirm_disable_user:
-    'Är du säker på att du vill inaktivera {{user}}? Du kommer bara att kunna aktivera det efter en månad.',
+    'Är du säker på att du vill inaktivera {{user}}?',
   user_disabled_success: 'Användaren har inaktiverats',
   disable: 'Inaktivera',
+  confirm_enable_user:
+    'Är du säker på att du vill aktivera {{user}}?',
+  enable: 'Aktivera',
   manufacturer: 'Tillverkare',
   power: 'Driva',
   import_error: 'Importen misslyckades',

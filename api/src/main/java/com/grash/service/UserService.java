@@ -81,7 +81,7 @@ public class UserService {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final LicenseService licenseService;
     private final CacheService cacheService;
-    
+
     @Value("${api.host}")
     private String PUBLIC_API_URL;
     @Value("${frontend.url}")
@@ -318,6 +318,10 @@ public class UserService {
 
     public void enableUser(String email) {
         User user = userRepository.findByEmailIgnoreCase(email).get();
+        enableUser(user);
+    }
+
+    public User enableUser(User user) {
         if (user.getRole().isPaid()) {
             checkUsageBasedLimit(1);
             int companyUsersCount =
@@ -328,6 +332,7 @@ public class UserService {
         user.setEnabled(true);
         userRepository.save(user);
         cacheService.putUserInCache(user);
+        return user;
     }
 
     public SuccessResponse resetPasswordRequest(String email) {

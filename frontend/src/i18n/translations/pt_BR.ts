@@ -1399,9 +1399,12 @@ const ptBRJSON = {
   switch_account_description: 'Por favor, escolha uma conta para prosseguir',
   put_location_in_map: 'Colocar localização no mapa',
   confirm_disable_user:
-    'Tem certeza de que deseja desabilitar {{user}}? Você só poderá habilitá-lo após um mês',
+    'Tem certeza de que deseja desabilitar {{user}}?',
   user_disabled_success: 'Usuário desabilitado com sucesso',
   disable: 'Desabilitar',
+  confirm_enable_user:
+    'Tem certeza de que deseja habilitar {{user}}?',
+  enable: 'Habilitar',
   manufacturer: 'Fabricante',
   power: 'Potência',
   import_error: 'A importação não foi bem-sucedida',

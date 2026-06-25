@@ -1205,6 +1205,13 @@ const locale = {
   teams: '团队',
   vendors: '供应商',
   csv_separator: 'CSV分隔符',
+  confirm_disable_user:
+    'Are you sure you want to disable {{user}}?',
+  confirm_enable_user:
+    '您确定要启用 {{user}} 吗？',
+  user_disabled_success: 'User disabled successfully',
+  disable: 'Disable',
+  enable: '启用',
   open_source_cmms: '开源 CMMS',
   'main.title': '免费开源 CMMS（维护管理软件）',
   'home.h1': '您可以自托管或在云端使用的免费开源 CMMS',

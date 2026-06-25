@@ -1382,9 +1382,12 @@ const esJSON = {
   switch_account_description: 'Seleccione una cuenta para continuar',
   put_location_in_map: 'Poner ubicación en el mapa',
   confirm_disable_user:
-    '¿Estáa seguro de que desea desactivar {{user}}? Solo podrá habilitarlo después de un mes',
+    '¿Está seguro de que desea desactivar {{user}}?',
   user_disabled_success: 'Usuario deshabilitado exitosamente',
   disable: 'Desactivado',
+  confirm_enable_user:
+    '¿Está seguro de que desea activar {{user}}?',
+  enable: 'Activar',
   manufacturer: 'Fabricante',
   power: 'Potencia',
   import_error: 'La importación no se realizó',

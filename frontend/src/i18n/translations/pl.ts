@@ -1375,9 +1375,12 @@ const plJSON = {
   switch_account_description: 'Wybierz konto, aby kontynuować',
   put_location_in_map: 'Umieść lokalizację na mapie',
   confirm_disable_user:
-    'Czy na pewno chcesz wyłączyć {{user}}? Będziesz mógł go włączyć dopiero po miesiącu',
+    'Czy na pewno chcesz wyłączyć {{user}}?',
   user_disabled_success: 'Użytkownik został pomyślnie wyłączony',
   disable: 'Wyłącz',
+  confirm_enable_user:
+    'Czy na pewno chcesz włączyć {{user}}?',
+  enable: 'Włącz',
   manufacturer: 'Producent',
   power: 'Moc',
   import_error: 'Import nie powiódł się',

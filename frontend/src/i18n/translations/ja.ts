@@ -1327,9 +1327,12 @@ const locale = {
   switch_account_description: '続行するアカウントを選択してください',
   put_location_in_map: '地図に場所を配置',
   confirm_disable_user:
-    '{{user}} を無効にしますか？1ヶ月後にのみ有効にできます',
+    '{{user}} を無効にしますか？',
   user_disabled_success: 'ユーザーを無効にしました',
   disable: '無効にする',
+  confirm_enable_user:
+    '{{user}} を有効にしますか？',
+  enable: '有効にする',
   manufacturer: 'メーカー',
   power: '電力',
   import_error: 'インポートに失敗しました',

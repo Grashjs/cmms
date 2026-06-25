@@ -1334,6 +1334,13 @@ const locale = {
   teams: 'Csapatok',
   vendors: 'Beszállítók',
   csv_separator: 'CSV elválasztó',
+  confirm_disable_user:
+    'Are you sure you want to disable {{user}}?',
+  confirm_enable_user:
+    'Biztosan engedélyezni szeretné a(z) {{user}} felhasználót?',
+  user_disabled_success: 'User disabled successfully',
+  disable: 'Disable',
+  enable: 'Engedélyezés',
   open_source_cmms: 'Nyílt forráskódú CMMS',
   'main.title': 'Ingyenes nyílt forráskódú CMMS (karbantartáskezelő szoftver)',
   'home.h1':

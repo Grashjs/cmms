@@ -1418,9 +1418,12 @@ const deJSON = {
   switch_account_description: 'Bitte wählen Sie ein Konto, um fortzufahren',
   put_location_in_map: 'Standort in Karte einfügen',
   confirm_disable_user:
-    'Sind Sie sicher, dass Sie {{user}} deaktivieren möchten? Sie können es erst nach einem Monat wieder aktivieren',
+    'Sind Sie sicher, dass Sie {{user}} deaktivieren möchten?',
   user_disabled_success: 'Benutzer erfolgreich deaktiviert',
   disable: 'Deaktivieren',
+  confirm_enable_user:
+    'Sind Sie sicher, dass Sie {{user}} aktivieren möchten?',
+  enable: 'Aktivieren',
   manufacturer: 'Hersteller',
   power: 'Leistung',
   import_error: 'Der Import war nicht erfolgreich',

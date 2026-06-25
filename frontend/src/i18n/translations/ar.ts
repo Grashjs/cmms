@@ -1294,9 +1294,12 @@ const locale = {
   switch_account_description: 'الرجاء اختيار حساب للمتابعة',
   put_location_in_map: 'ضع الموقع على الخريطة',
   confirm_disable_user:
-    'هل أنت متأكد من رغبتك في تعطيل {{user}}؟ لن تتمكن من تفعيله إلا بعد شهر واحد.',
+    'هل أنت متأكد من رغبتك في تعطيل {{user}}؟',
   user_disabled_success: 'تم تعطيل المستخدم بنجاح',
   disable: 'إبطال',
+  confirm_enable_user:
+    'هل أنت متأكد من رغبتك في تفعيل {{user}}؟',
+  enable: 'تمكين',
   manufacturer: 'الشركة المصنعة',
   power: 'قوة',
   import_error: 'لم ينجح الاستيراد',

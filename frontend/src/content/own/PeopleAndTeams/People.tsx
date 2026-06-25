@@ -28,6 +28,7 @@ import {
   disableUser,
   editUser,
   editUserRole,
+  enableUser,
   getLastWeekInvitations,
   getSingleUser,
   getUsers,
@@ -47,6 +48,7 @@ import { SearchCriteria, SortDirection } from '../../../models/owns/page';
 import { onSearchQueryChange } from '../../../utils/overall';
 import SearchInput from '../components/SearchInput';
 import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ConfirmDialog from '../components/ConfirmDialog';
 import InviteUserDialog from './components/InviteUserDialog';
 import ShiftConfigurationModal from './components/ShiftConfigurationModal';
@@ -124,6 +126,7 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
   );
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openDisableModal, setOpenDisableModal] = useState<boolean>(false);
+  const [openEnableModal, setOpenEnableModal] = useState<boolean>(false);
 
   const onQueryChange = (event) => {
     onSearchQueryChange<User>(event, criteria, setCriteria, [
@@ -170,6 +173,13 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
     if (foundUser) {
       setCurrentUser(foundUser);
       setOpenDisableModal(true);
+    }
+  };
+  const handleOpenEnable = (id: number) => {
+    const foundUser = users.content.find((user) => user.id === id);
+    if (foundUser) {
+      setCurrentUser(foundUser);
+      setOpenEnableModal(true);
     }
   };
   const handleCloseDetails = () => {
@@ -439,6 +449,17 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
                 }}
               />
             )}
+            {!user.enabled && (
+              <CheckCircleIcon
+                fontSize="small"
+                color="success"
+                sx={{ cursor: 'pointer' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOpenEnable(user.id);
+                }}
+              />
+            )}
           </Stack>
         );
       },
@@ -554,6 +575,22 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
         }}
         confirmText={t('disable')}
         question={t('confirm_disable_user', {
+          user: `${currentUser?.firstName} ${currentUser?.lastName}`
+        })}
+      />
+      <ConfirmDialog
+        open={openEnableModal}
+        onCancel={() => {
+          setOpenEnableModal(false);
+        }}
+        onConfirm={() => {
+          dispatch(enableUser(currentUser.id)).then(() => {
+            setOpenEnableModal(false);
+            showSnackBar(t('operation_success'), 'success');
+          });
+        }}
+        confirmText={t('enable')}
+        question={t('confirm_enable_user', {
           user: `${currentUser?.firstName} ${currentUser?.lastName}`
         })}
       />
