@@ -1973,8 +1973,10 @@ const ptBRJSON = {
    copy_meter_description:
      'Preencha os campos abaixo para copiar este medidor',
    copy_part: 'Copiar peça',
-   copy_part_description:
-     'Preencha os campos abaixo para copiar esta peça'
+    copy_part_description:
+      'Preencha os campos abaixo para copiar esta peça',
+  customize_report_description: 'O que deve ser incluído neste PDF?',
+  work_order_information: 'Informações da ordem de serviço'
 };
 
 export default ptBRJSON;

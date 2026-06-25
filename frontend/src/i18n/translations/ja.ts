@@ -1899,8 +1899,10 @@ const locale = {
    copy_meter_description:
      '以下のフィールドに入力してこのメーターをコピーします',
    copy_part: '部品をコピー',
-   copy_part_description:
-     '以下のフィールドに入力してこの部品をコピーします'
+    copy_part_description:
+      '以下のフィールドに入力してこの部品をコピーします',
+  customize_report_description: 'このPDFに含める項目を選択してください',
+  work_order_information: '作業指示情報'
 };
 
 export default locale;

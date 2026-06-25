@@ -1940,7 +1940,9 @@ const locale = {
    copy_meter_description:
      'Vul de onderstaande velden in om deze meter te kopiëren',
    copy_part: 'Onderdeel kopiëren',
-   copy_part_description:
-     'Vul de onderstaande velden in om dit onderdeel te kopiëren'
+    copy_part_description:
+      'Vul de onderstaande velden in om dit onderdeel te kopiëren',
+  customize_report_description: 'Wat moet er in deze PDF worden opgenomen?',
+  work_order_information: 'Werkorderinformatie'
 };
 export default locale;

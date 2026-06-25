@@ -2028,8 +2028,10 @@ const deJSON = {
    copy_meter_description:
      'Füllen Sie die Felder aus, um diesen Zähler zu kopieren',
    copy_part: 'Teil kopieren',
-   copy_part_description:
-     'Füllen Sie die Felder aus, um dieses Teil zu kopieren'
+    copy_part_description:
+      'Füllen Sie die Felder aus, um dieses Teil zu kopieren',
+  customize_report_description: 'Was soll dieses PDF enthalten?',
+  work_order_information: 'Auftragsinformationen'
 };
 
 export default deJSON;

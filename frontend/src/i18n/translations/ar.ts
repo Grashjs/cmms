@@ -1882,7 +1882,9 @@ const locale = {
      'املأ الحقول أدناه لنسخ هذا العداد',
    copy_part: 'نسخ الجزء',
    copy_part_description:
-     'املأ الحقول أدناه لنسخ هذا الجزء'
+     'املأ الحقول أدناه لنسخ هذا الجزء',
+  customize_report_description: 'ما الذي يجب تضمينه في ملف PDF هذا؟',
+  work_order_information: 'معلومات أمر العمل'
 };
 
 export default locale;

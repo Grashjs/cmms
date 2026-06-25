@@ -73,6 +73,8 @@ public class GeneralPreferences {
     @Schema(description = "CSV separator character", requiredMode = Schema.RequiredMode.REQUIRED)
     private String csvSeparator = ",";
 
+    private String color;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private CompanySettings companySettings;

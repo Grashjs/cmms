@@ -344,11 +344,26 @@ export const getWorkOrdersByPart =
       })
     );
   };
+export interface ReportConfig {
+  cost: boolean;
+  comments: boolean;
+  workOrderHistory: boolean;
+  estimatedTime: boolean;
+  locationAddress: boolean;
+  priority: boolean;
+  workOrderInformation: boolean;
+  relations: boolean;
+  files: boolean;
+  signature: boolean;
+  tasks: boolean;
+}
+
 export const getPDFReport =
-  (id: number): AppThunk =>
+  (id: number, config?: ReportConfig): AppThunk =>
   async (dispatch): Promise<string> => {
-    const response = await api.get<{ success: boolean; message: string }>(
-      `${basePath}/report/${id}`
+    const response = await api.post<{ success: boolean; message: string }>(
+      `${basePath}/report/${id}`,
+      config
     );
     const { message } = response;
     return message;

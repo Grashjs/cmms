@@ -1947,8 +1947,10 @@ const locale = {
    copy_meter_description:
      'Compila i campi sottostanti per copiare questo contatore',
    copy_part: 'Copia parte',
-   copy_part_description:
-     'Compila i campi sottostanti per copiare questa parte'
+    copy_part_description:
+      'Compila i campi sottostanti per copiare questa parte',
+  customize_report_description: 'Cosa dovrebbe essere incluso in questo PDF?',
+  work_order_information: 'Informazioni sull\'ordine di lavoro'
 };
 
 export default locale;

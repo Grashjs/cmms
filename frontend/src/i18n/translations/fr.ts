@@ -2118,8 +2118,10 @@ const frJSON = {
    copy_meter_description:
      "Remplissez les champs ci-dessous pour copier ce compteur",
    copy_part: "Copier la pièce",
-   copy_part_description:
-     "Remplissez les champs ci-dessous pour copier cette pièce"
+    copy_part_description:
+      "Remplissez les champs ci-dessous pour copier cette pièce",
+  customize_report_description: 'Que doit contenir ce PDF ?',
+  work_order_information: 'Informations de l\'ordre de travail'
 };
 
 export default frJSON;

@@ -2019,8 +2019,10 @@ const esJSON = {
    copy_meter_description:
      'Complete los campos para copiar este medidor',
    copy_part: 'Copiar repuesto',
-   copy_part_description:
-     'Complete los campos para copiar este repuesto'
+    copy_part_description:
+      'Complete los campos para copiar este repuesto',
+  customize_report_description: '¿Qué debe incluirse en este PDF?',
+  work_order_information: 'Información de la orden de trabajo'
 };
 
 export default esJSON;

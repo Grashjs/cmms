@@ -2006,8 +2006,10 @@ const ruJSON = {
    copy_meter_description:
      'Заполните поля ниже, чтобы скопировать этот счетчик',
    copy_part: 'Копировать деталь',
-   copy_part_description:
-     'Заполните поля ниже, чтобы скопировать эту деталь'
+    copy_part_description:
+      'Заполните поля ниже, чтобы скопировать эту деталь',
+  customize_report_description: 'Что должно быть включено в этот PDF?',
+  work_order_information: 'Информация о заявке'
 };
 
 export default ruJSON;
