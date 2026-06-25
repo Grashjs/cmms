@@ -1979,7 +1979,9 @@ const ptBRJSON = {
   work_order_information: 'Informações da ordem de serviço',
   brand_color: 'Cor da marca',
   restock_part: 'Reabastecer peça',
-  restock: 'Reabastecer'
+   restock: 'Reabastecer',
+  export_part_transactions: 'Exportar transações de peças',
+  export_parts: 'Exportar peças'
 };
 
 export default ptBRJSON;

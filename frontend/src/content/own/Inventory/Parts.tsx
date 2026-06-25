@@ -61,7 +61,7 @@ import {
   onSearchQueryChange
 } from '../../../utils/overall';
 import { SearchCriteria, SortDirection } from '../../../models/owns/page';
-import { useExport } from '../../../hooks/useExport';
+import { useExport, ExportEntityType } from '../../../hooks/useExport';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import { PermissionEntity } from '../../../models/owns/role';
 import SearchInput from '../components/SearchInput';
@@ -689,43 +689,51 @@ const Parts = ({ setAction }: PropsType) => {
       </DialogContent>
     </Dialog>
   );
-  const renderMenu = () => (
-    <Menu
-      id="basic-menu"
-      anchorEl={anchorEl}
-      open={openMenu}
-      onClose={handleCloseMenu}
-      MenuListProps={{
-        'aria-labelledby': 'basic-button'
-      }}
-    >
-      {hasViewOtherPermission(PermissionEntity.PARTS_AND_MULTIPARTS) && (
-        <MenuItem
-          disabled={loadingExport['parts']}
-          onClick={async () => {
-            try {
-              await exportEntity('parts');
-            } catch (error) {
-              showSnackBar(t('Export failed'), 'error');
-            }
-          }}
-        >
-          <Stack spacing={2} direction="row">
-            {loadingExport['parts'] && <CircularProgress size="1rem" />}
-            <Typography>{t('to_export')}</Typography>
-          </Stack>
-        </MenuItem>
-      )}
-      {hasViewPermission(PermissionEntity.SETTINGS) && (
-        <MenuItem
-          onClick={() => navigate('/app/imports/parts')}
-          disabled={!hasFeature(PlanFeature.IMPORT_CSV)}
-        >
-          {t('to_import')}
-        </MenuItem>
-      )}
-    </Menu>
-  );
+  const renderMenu = () => {
+    const exportMenuItems: { entity: ExportEntityType; labelKey: string }[] = [
+      { entity: 'parts', labelKey: 'export_parts' },
+      { entity: 'part-transactions', labelKey: 'export_part_transactions' }
+    ];
+    return (
+      <Menu
+        id="basic-menu"
+        anchorEl={anchorEl}
+        open={openMenu}
+        onClose={handleCloseMenu}
+        MenuListProps={{
+          'aria-labelledby': 'basic-button'
+        }}
+      >
+        {hasViewOtherPermission(PermissionEntity.PARTS_AND_MULTIPARTS) &&
+          exportMenuItems.map(({ entity, labelKey }) => (
+            <MenuItem
+              key={entity}
+              disabled={loadingExport[entity]}
+              onClick={async () => {
+                try {
+                  await exportEntity(entity);
+                } catch (error) {
+                  showSnackBar(t('Export failed'), 'error');
+                }
+              }}
+            >
+              <Stack spacing={2} direction="row">
+                {loadingExport[entity] && <CircularProgress size="1rem" />}
+                <Typography>{t(labelKey)}</Typography>
+              </Stack>
+            </MenuItem>
+          ))}
+        {hasViewPermission(PermissionEntity.SETTINGS) && (
+          <MenuItem
+            onClick={() => navigate('/app/imports/parts')}
+            disabled={!hasFeature(PlanFeature.IMPORT_CSV)}
+          >
+            {t('to_import')}
+          </MenuItem>
+        )}
+      </Menu>
+    );
+  };
   return (
     <Box sx={{ p: 2 }}>
       {renderPartAddModal()}

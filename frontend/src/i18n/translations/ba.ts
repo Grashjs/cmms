@@ -1935,7 +1935,9 @@ const locale = {
   work_order_information: 'Informacije radnog naloga',
   brand_color: 'Boja brenda',
   restock_part: 'Dopuni dio',
-  restock: 'Dopuni'
+   restock: 'Dopuni',
+  export_part_transactions: 'Izvoz transakcija dijelova',
+  export_parts: 'Izvoz dijelova'
 };
 
 export default locale;

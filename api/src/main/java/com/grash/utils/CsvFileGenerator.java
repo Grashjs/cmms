@@ -281,6 +281,35 @@ public class CsvFileGenerator {
         }
     }
 
+    public void writePartTransactionsToCsv(Collection<PartTransaction> partTransactions, Writer writer, Locale locale,
+                                           String csvSeparator, boolean includeHeaders) {
+        try {
+            CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
+            CSVPrinter printer = new CSVPrinter(writer, csvFormat);
+            if (includeHeaders) {
+                List<String> headers = Arrays.asList("ID", "Part_ID", "Part", "Quantity", "Cost", "Work_Order_ID"
+                        , "Work_Order_Title",
+                        "Description", "Created_At");
+                printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
+            }
+            for (PartTransaction pt : partTransactions) {
+                printer.printRecord(pt.getId(),
+                        pt.getPart().getId(),
+                        pt.getPart().getName(),
+                        -pt.getQuantity(),
+                        -pt.getCost(),
+                        pt.getWorkOrder() == null ? null : pt.getWorkOrder().getId(),
+                        pt.getWorkOrder() == null ? null : pt.getWorkOrder().getTitle(),
+                        pt.getDescription(),
+                        pt.getCreatedAt()
+                );
+            }
+            printer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void writeCostsAndTimesToCsv(Collection<WorkOrder> workOrders, Writer writer, Locale locale,
                                         String csvSeparator, boolean includeHeaders) {
         try {

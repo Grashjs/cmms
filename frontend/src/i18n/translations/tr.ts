@@ -1949,7 +1949,9 @@ const trJSON = {
   work_order_information: 'İş emri bilgileri',
   brand_color: 'Marka rengi',
   restock_part: 'Parçayı Yenile',
-  restock: 'Yenile'
+   restock: 'Yenile',
+  export_part_transactions: 'Parça işlemlerini dışa aktar',
+  export_parts: 'Parçaları dışa aktar'
 };
 
 export default trJSON;

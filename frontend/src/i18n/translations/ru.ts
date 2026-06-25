@@ -2012,7 +2012,9 @@ const ruJSON = {
   work_order_information: 'Информация о заявке',
   brand_color: 'Цвет бренда',
   restock_part: 'Пополнить деталь',
-  restock: 'Пополнить'
+   restock: 'Пополнить',
+  export_part_transactions: 'Экспорт транзакций запчастей',
+  export_parts: 'Экспорт запчастей'
 };
 
 export default ruJSON;

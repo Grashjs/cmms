@@ -3,6 +3,8 @@ package com.grash.service;
 import com.grash.model.PartTransaction;
 import com.grash.repository.PartTransactionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -49,5 +51,9 @@ public class PartTransactionService {
     
     public List<Object[]> findTopNAssetsByConsumption(Long companyId, Date start, Date end, int limit) {
         return partTransactionRepository.findTopNAssetsByConsumption(companyId, start, end, limit);
+    }
+
+    public Page<PartTransaction> findByCompanyForExport(Long companyId, Pageable pageable) {
+        return partTransactionRepository.findByCompanyForExport(companyId, pageable);
     }
 }

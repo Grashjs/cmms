@@ -2034,7 +2034,9 @@ const deJSON = {
   work_order_information: 'Auftragsinformationen',
   brand_color: 'Markenfarbe',
   restock_part: 'Teil nachfüllen',
-  restock: 'Nachfüllen'
+   restock: 'Nachfüllen',
+  export_part_transactions: 'Teiletransaktionen exportieren',
+  export_parts: 'Teile exportieren'
 };
 
 export default deJSON;

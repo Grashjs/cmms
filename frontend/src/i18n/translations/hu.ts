@@ -1808,7 +1808,9 @@ const locale = {
   work_order_information: 'Munkautasítás információk',
   brand_color: 'Márkaszín',
   restock_part: 'Alkatrész feltöltése',
-  restock: 'Feltöltés'
+   restock: 'Feltöltés',
+  export_part_transactions: 'Alkatrész-tranzakciók exportálása',
+  export_parts: 'Alkatrészek exportálása'
 };
 
 export default locale;

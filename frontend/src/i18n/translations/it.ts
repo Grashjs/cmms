@@ -1953,7 +1953,9 @@ const locale = {
   work_order_information: 'Informazioni sull\'ordine di lavoro',
   brand_color: 'Colore del marchio',
   restock_part: 'Rifornisci parte',
-  restock: 'Rifornisci'
+   restock: 'Rifornisci',
+  export_part_transactions: 'Esporta transazioni di parti',
+  export_parts: 'Esporta parti'
 };
 
 export default locale;

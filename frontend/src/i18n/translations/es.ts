@@ -2025,7 +2025,9 @@ const esJSON = {
   work_order_information: 'Información de la orden de trabajo',
   brand_color: 'Color de marca',
   restock_part: 'Reabastecer pieza',
-  restock: 'Reabastecer'
+   restock: 'Reabastecer',
+  export_part_transactions: 'Exportar transacciones de repuestos',
+  export_parts: 'Exportar repuestos'
 };
 
 export default esJSON;

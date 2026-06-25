@@ -1899,7 +1899,9 @@ const locale = {
   work_order_information: 'Work order information',
   brand_color: 'Brand color',
   restock_part: 'Restock part',
-  restock: 'Restock'
+  restock: 'Restock',
+  export_part_transactions: 'Export Part Transactions',
+  export_parts: 'Export parts'
 };
 
 export default locale;

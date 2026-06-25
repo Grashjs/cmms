@@ -1949,7 +1949,9 @@ const plJSON = {
   work_order_information: 'Informacje o zleceniu',
   brand_color: 'Kolor marki',
   restock_part: 'Uzupełnij część',
-  restock: 'Uzupełnij'
+   restock: 'Uzupełnij',
+  export_part_transactions: 'Eksportuj transakcje części',
+  export_parts: 'Eksportuj części'
 };
 
 export default plJSON;

@@ -1919,7 +1919,9 @@ const locale = {
   work_order_information: 'Arbetsorderinformation',
   brand_color: 'Varumärkesfärg',
   restock_part: 'Fyll på del',
-  restock: 'Fyll på'
+   restock: 'Fyll på',
+  export_part_transactions: 'Exportera deltransaktioner',
+  export_parts: 'Exportera delar'
 };
 
 export default locale;

@@ -80,6 +80,20 @@ public class ExportController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
+    @GetMapping("/part-transactions")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<SuccessResponse> exportPartTransactions(HttpServletRequest req,
+                                                                   @Parameter(description = "Unique identifier " +
+                                                                           "for tracking the export job") @RequestParam String uuid) {
+        User user = userService.whoami(req);
+
+        if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
+            asyncExportService.exportPartTransactions(user, uuid);
+            return ResponseEntity.ok()
+                    .body(new SuccessResponse(true, uuid));
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
     @GetMapping("/meters")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> exportMeters(HttpServletRequest req, @Parameter(description = "Unique " +

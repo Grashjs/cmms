@@ -30,6 +30,7 @@ public class AsyncExportService {
     private final AssetService assetService;
     private final LocationService locationService;
     private final PartService partService;
+    private final PartTransactionService partTransactionService;
     private final MeterService meterService;
     private final PreventiveMaintenanceService preventiveMaintenanceService;
     private final CsvFileGenerator csvFileGenerator;
@@ -244,6 +245,41 @@ public class AsyncExportService {
             log.info("Export completed for preventive-maintenances, uuid: {}", uuid);
         } catch (Exception e) {
             log.error("Export failed for preventive-maintenances, uuid: {}", uuid, e);
+            messagingTemplate.convertAndSend("/exports/" + uuid, "error: " + e.getMessage());
+        }
+    }
+
+    @Async
+    public void exportPartTransactions(User user, String uuid) {
+        try {
+            ByteArrayOutputStream target = new ByteArrayOutputStream();
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
+            int page = 0;
+            Page<PartTransaction> result;
+            String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
+            Locale locale = Helper.getLocale(user);
+            do {
+                result = partTransactionService.findByCompanyForExport(user.getCompany().getId(), PageRequest.of(page, 100));
+                csvFileGenerator.writePartTransactionsToCsv(
+                        result.getContent(),
+                        outputStreamWriter,
+                        locale,
+                        csvSeparator,
+                        page == 0);
+
+                entityManager.clear();
+                page++;
+            }
+            while (result.hasNext());
+            outputStreamWriter.close();
+            byte[] bytes = target.toByteArray();
+            MultipartFile file = new MultipartFileImpl(bytes, "Part Transactions.csv");
+            String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
+                    user.getCompany().getId() + "/exports/" + uuid + "/part-transactions");
+            messagingTemplate.convertAndSend("/exports/" + uuid, filePath);
+            log.info("Export completed for part-transactions, uuid: {}", uuid);
+        } catch (Exception e) {
+            log.error("Export failed for part-transactions, uuid: {}", uuid, e);
             messagingTemplate.convertAndSend("/exports/" + uuid, "error: " + e.getMessage());
         }
     }

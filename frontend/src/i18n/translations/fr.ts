@@ -2124,7 +2124,9 @@ const frJSON = {
   work_order_information: 'Informations de l\'ordre de travail',
   brand_color: 'Couleur de marque',
   restock_part: 'Réapprovisionner la pièce',
-  restock: 'Réapprovisionner'
+   restock: 'Réapprovisionner',
+  export_part_transactions: 'Exporter les transactions de pièces',
+  export_parts: 'Exporter les pièces'
 };
 
 export default frJSON;

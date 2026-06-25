@@ -1,6 +1,8 @@
 package com.grash.repository;
 
 import com.grash.model.PartTransaction;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -32,6 +34,14 @@ public interface PartTransactionRepository extends JpaRepository<PartTransaction
     );
 
     List<PartTransaction> findByWorkOrder_IdIn(List<Long> ids);
+
+    @Query("""
+            SELECT pt FROM PartTransaction pt
+            LEFT JOIN FETCH pt.part
+            LEFT JOIN FETCH pt.workOrder
+            WHERE pt.company.id = :companyId
+            """)
+    Page<PartTransaction> findByCompanyForExport(@Param("companyId") Long companyId, Pageable pageable);
 
     @Query(value = """
             SELECT a.id, a.name, COALESCE(SUM(p.cost * pc.quantity), 0) AS total_cost

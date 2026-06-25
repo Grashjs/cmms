@@ -1611,7 +1611,9 @@ const locale = {
   work_order_information: '工单信息',
   brand_color: '品牌颜色',
   restock_part: '补充零件',
-  restock: '补充'
+   restock: '补充',
+  export_part_transactions: '导出零件交易',
+  export_parts: '导出零件'
 };
 
 export default locale;

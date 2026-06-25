@@ -1905,7 +1905,9 @@ const locale = {
   work_order_information: '作業指示情報',
   brand_color: 'ブランドカラー',
   restock_part: '部品を補充',
-  restock: '補充'
+   restock: '補充',
+  export_part_transactions: '部品取引をエクスポート',
+  export_parts: '部品をエクスポート'
 };
 
 export default locale;

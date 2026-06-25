@@ -1946,6 +1946,8 @@ const locale = {
   work_order_information: 'Werkorderinformatie',
   brand_color: 'Merkkleur',
   restock_part: 'Onderdeel bijvullen',
-  restock: 'Bijvullen'
+   restock: 'Bijvullen',
+  export_part_transactions: 'Onderdeeltransacties exporteren',
+  export_parts: 'Onderdelen exporteren'
 };
 export default locale;

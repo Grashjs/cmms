@@ -1887,7 +1887,9 @@ const locale = {
   work_order_information: 'معلومات أمر العمل',
   brand_color: 'لون العلامة التجارية',
   restock_part: 'إعادة تخزين القطعة',
-  restock: 'إعادة تخزين'
+   restock: 'إعادة تخزين',
+  export_part_transactions: 'تصدير معاملات الأجزاء',
+  export_parts: 'تصدير الأجزاء'
 };
 
 export default locale;
