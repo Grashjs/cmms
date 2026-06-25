@@ -211,7 +211,6 @@ function MoreFilters({
     const typeValue = filterFields.find(
       (filterField) => filterField.field === 'parentPreventiveMaintenance'
     );
-    const dueDateValues = getDateValue(filterFields, 'dueDate');
     return {
       type: typeValue
         ? {
@@ -273,7 +272,9 @@ function MoreFilters({
       createdAt: getDateValue(filterFields, 'createdAt'),
       updatedAt: getDateValue(filterFields, 'updatedAt'),
       completedOn: getDateValue(filterFields, 'completedOn'),
-      dueDate: dueDateValues.every((val) => !val) ? undefined : dueDateValues
+      dueDate: filterFields.find(
+        (filterField) => filterField.field === 'dueDate'
+      )?.value
     };
   };
   const shape = {};
