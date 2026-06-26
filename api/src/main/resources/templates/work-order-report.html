@@ -629,7 +629,7 @@
                     <div class="task-notes" th:text="${task.getNotes()}"></div>
                     <div class="task-images" th:if="${tasksImagesUrls.get(task.getId()) != null}">
                         <th:block th:each="imageUrl : ${tasksImagesUrls.get(task.getId())}">
-                            <img th:src="${imageUrl}" />
+                            <img th:if="${imageUrl != null}" th:src="${imageUrl}" />
                         </th:block>
                     </div>
                 </div>
@@ -774,7 +774,7 @@
                     <div class="comment-body" th:text="${comment.getFormattedContent()}"></div>
                     <div class="comment-images" th:if="${commentFilesUrls.get(comment.getId()) != null}">
                         <th:block th:each="fileUrl : ${commentFilesUrls.get(comment.getId())}">
-                            <img th:src="${fileUrl}" />
+                            <img th:if="${fileUrl != null}" th:src="${fileUrl}" />
                         </th:block>
                     </div>
                 </div>
@@ -792,7 +792,7 @@
         <div class="panel-body">
             <div class="files-wrap">
                 <th:block th:each="fileUrl : ${workOrderFilesUrls}">
-                    <img th:src="${fileUrl}" />
+                    <img th:if="${fileUrl != null}" th:src="${fileUrl}" />
                 </th:block>
             </div>
         </div>
@@ -830,7 +830,7 @@
     <!-- ── Footer ── -->
     <div class="report-footer">
         <span class="footer-text" th:text="#{this_wo_created}"></span>
-        <img class="footer-logo" th:src="@{${#strings.isEmpty(environment.getProperty('white-labeling.logo-paths')) ?
+        <img class="footer-logo" th:if="${environment.getProperty('api.host') != null}" th:src="@{${#strings.isEmpty(environment.getProperty('white-labeling.logo-paths')) ?
       environment.getProperty('api.host') + '/images/logo.png' :
       environment.getProperty('api.host') + '/images/custom-logo.png'}}" alt="logo" />
     </div>

@@ -22,6 +22,13 @@ import com.grash.utils.Helper;
 import com.grash.utils.MultipartFileImpl;
 import com.grash.utils.Utils;
 import com.itextpdf.html2pdf.HtmlConverter;
+import com.itextpdf.html2pdf.ConverterProperties;
+import com.itextpdf.html2pdf.attach.ITagWorker;
+import com.itextpdf.html2pdf.attach.ITagWorkerFactory;
+import com.itextpdf.html2pdf.attach.ProcessorContext;
+import com.itextpdf.html2pdf.attach.impl.DefaultTagWorkerFactory;
+import com.itextpdf.styledxmlparser.node.IElementNode;
+import lombok.extern.slf4j.Slf4j;
 
 
 import io.swagger.v3.oas.annotations.Parameter;
@@ -61,6 +68,7 @@ import static java.util.stream.Collectors.toCollection;
 @Tag(name = "Work Orders", description = "Operations on work orders")
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class WorkOrderController {
 
     private final WorkOrderService workOrderService;
@@ -499,8 +507,21 @@ public class WorkOrderController {
 
                 String reportHtml = thymeleafTemplateEngine.process("work-order-report.html", thymeleafContext);
 
+                ConverterProperties converterProperties = new ConverterProperties()
+                        .setTagWorkerFactory(new ITagWorkerFactory() {
+                            private final DefaultTagWorkerFactory defaultFactory = new DefaultTagWorkerFactory();
+                            @Override
+                            public ITagWorker getTagWorker(IElementNode tag, ProcessorContext context) {
+                                try {
+                                    return defaultFactory.getTagWorker(tag, context);
+                                } catch (Exception e) {
+                                    log.warn("Failed to create tag worker for <{}>: {}", tag.name(), e.getMessage());
+                                    return null;
+                                }
+                            }
+                        });
                 ByteArrayOutputStream target = new ByteArrayOutputStream();
-                HtmlConverter.convertToPdf(reportHtml, target);
+                HtmlConverter.convertToPdf(reportHtml, target, converterProperties);
                 byte[] bytes = target.toByteArray();
                 MultipartFile file = new MultipartFileImpl(bytes, "Work Order Report.pdf");
                 return ResponseEntity.ok()
