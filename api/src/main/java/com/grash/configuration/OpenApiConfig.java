@@ -99,7 +99,7 @@ import java.util.LinkedHashMap;
                          To verify your configuration:
                         
                          1. Add the `x-api-key` header to your requests
-                         2. Make a GET request to `/locations`
+                         2. Make a GET request to `/locations/mini`
                          3. You should receive a JSON response with your organization's locations
                         
                          ---
