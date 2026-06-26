@@ -85,7 +85,7 @@ export default function EnumFilter({
               setStatusesJustOnOpen(null);
             }
           }}
-          style={{ backgroundColor: 'white' }}
+          style={{ backgroundColor: theme.colors.surface }}
         >
           <Dialog.Title>{t('select')}</Dialog.Title>
           <Dialog.Content>
@@ -98,15 +98,17 @@ export default function EnumFilter({
                   display: 'flex',
                   borderRadius: 5,
                   flexDirection: 'row',
-                  alignItems: 'center'
+                  alignItems: 'center',
+                  backgroundColor: theme.colors.surfaceVariant
                 }}
                 onPress={() => switchValue(index, option)}
               >
                 <Checkbox
                   status={statuses[index] ? 'checked' : 'unchecked'}
                   onPress={() => switchValue(index, option)}
+                  color={theme.colors.primary}
                 />
-                <Text>{t(option)}</Text>
+                <Text style={{ color: theme.colors.onSurface }}>{t(option)}</Text>
               </TouchableOpacity>
             ))}
           </Dialog.Content>
@@ -129,7 +131,7 @@ export default function EnumFilter({
         );
       }}
       style={{
-        backgroundColor: isSelected ? theme.colors.primary : theme.colors.background,
+        backgroundColor: isSelected ? theme.colors.primary : theme.colors.surface,
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
@@ -141,13 +143,13 @@ export default function EnumFilter({
     >
       {renderDialog()}
       <Text
-        style={{ color: isSelected ? 'white' : 'black', fontWeight: 'bold' }}
+        style={{ color: isSelected ? theme.colors.onPrimary : theme.colors.onSurface, fontWeight: 'bold' }}
       >
         {t(fieldName)}
       </Text>
       <IconButton
         icon={'chevron-double-down'}
-        iconColor={isSelected ? 'white' : 'black'}
+        iconColor={isSelected ? theme.colors.onPrimary : theme.colors.onSurface}
         size={15}
       />
     </TouchableOpacity>

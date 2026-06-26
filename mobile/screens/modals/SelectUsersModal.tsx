@@ -131,7 +131,7 @@ export default function SelectUsersModal({
               }}
               key={user.id}
             >
-              <View style={styles.card}>
+            <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
                 <View style={styles.cardRow}>
                   {user.image ? (
                     <Avatar.Image size={50} source={{ uri: user.image.url }} />
@@ -203,7 +203,6 @@ const styles = StyleSheet.create({
     flex: 1
   },
   card: {
-    backgroundColor: 'white',
     marginBottom: 1,
     padding: 10
   },

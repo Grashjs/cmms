@@ -163,7 +163,7 @@ export default function CommentItem({
       style={{
         padding: 12,
         borderRadius: 8,
-        backgroundColor: highlighted ? theme.colors.surface : 'white',
+        backgroundColor: theme.colors.surface,
         borderWidth: highlighted ? 2 : 1,
         borderColor: highlighted ? theme.colors.primary : theme.colors.outline,
         marginBottom: 8
@@ -233,12 +233,12 @@ export default function CommentItem({
                   {mentionKeyword && filteredUsers.length > 0 && (
                     <View
                       style={{
-                        backgroundColor: '#fff',
+                        backgroundColor: theme.colors.surface,
                         borderRadius: 8,
                         elevation: 5,
-                        shadowColor: '#000',
+                        shadowColor: theme.colors.onSurface,
                         shadowOffset: { width: 0, height: 2 },
-                        shadowOpacity: 0.2,
+                        shadowOpacity: 0.12,
                         marginBottom: 8,
                         maxHeight: 200,
                         overflow: 'hidden'
@@ -256,7 +256,7 @@ export default function CommentItem({
                           style={{
                             padding: 12,
                             borderBottomWidth: 1,
-                            borderBottomColor: '#eee'
+                            borderBottomColor: theme.colors.outline
                           }}
                         >
                           <Text>{item.name}</Text>
@@ -269,7 +269,7 @@ export default function CommentItem({
                     numberOfLines={2}
                     style={{
                       borderWidth: 1,
-                      borderColor: '#ccc',
+                      borderColor: theme.colors.outline,
                       borderRadius: 4
                     }}
                     {...textInputProps}

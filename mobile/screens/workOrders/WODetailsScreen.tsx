@@ -154,6 +154,7 @@ export default function WODetailsScreen({
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
+  const shadowedCardStyle = [styles.shadowedCard, { shadowColor: theme.colors.onSurface }];
   const [isImageViewerOpen, setIsImageViewerOpen] = useState<boolean>(false);
   const dispatch = useDispatch();
   const { partQuantitiesByWorkOrder, loadingPartQuantities } = useSelector(
@@ -960,6 +961,7 @@ export default function WODetailsScreen({
                     {workOrder.signature && (
                       <View style={{ marginTop: 20 }}>
                         <Divider style={{ marginBottom: 20 }} />
+
                         <Text
                           variant="titleMedium"
                           style={{ fontWeight: 'bold' }}
@@ -1017,7 +1019,7 @@ export default function WODetailsScreen({
                 )}
                 {!generalPreferences.simplifiedWorkOrder && (
                   <View>
-                    <View style={styles.shadowedCard}>
+                    <View style={shadowedCardStyle}>
                       <Text
                         style={{
                           marginBottom: 10,
@@ -1068,7 +1070,7 @@ export default function WODetailsScreen({
                         </Fragment>
                       )}
                     </View>
-                    <View style={styles.shadowedCard}>
+                    <View style={shadowedCardStyle}>
                       <Text
                         style={{
                           marginBottom: 10,
@@ -1148,7 +1150,7 @@ export default function WODetailsScreen({
                   </View>
                 )}
                 {!!tasks.length && (
-                  <View style={styles.shadowedCard}>
+                  <View style={shadowedCardStyle}>
                     <Text
                       style={{
                         marginBottom: 10,
@@ -1191,7 +1193,7 @@ export default function WODetailsScreen({
                 {!generalPreferences.simplifiedWorkOrder && (
                   <View>
                     {!!workOrder.files.length && (
-                      <View style={styles.shadowedCard}>
+                      <View style={shadowedCardStyle}>
                         <Text
                           style={{
                             marginBottom: 10,
@@ -1213,7 +1215,7 @@ export default function WODetailsScreen({
                       </View>
                     )}
                     {!!currentWorkOrderRelations.length && (
-                      <View style={styles.shadowedCard}>
+                      <View style={shadowedCardStyle}>
                         <Text
                           style={{
                             marginBottom: 10,
@@ -1249,7 +1251,7 @@ export default function WODetailsScreen({
                         )}
                       </View>
                     )}
-                    <View style={styles.shadowedCard}>
+                    <View style={shadowedCardStyle}>
                       <Text
                         style={{
                           marginBottom: 10,
@@ -1302,7 +1304,7 @@ export default function WODetailsScreen({
                         </Fragment>
                       )}
                     </View>
-                    <View style={styles.shadowedCard}>
+                    <View style={shadowedCardStyle}>
                       <Text
                         style={{
                           marginBottom: 10,
@@ -1402,7 +1404,17 @@ export default function WODetailsScreen({
                                   }, 100);
                                 }}
                                 placeholder={t('add_comment_placeholder')}
-                                style={{ flex: 1 }}
+                                placeholderTextColor={theme.colors.onSurfaceVariant}
+                                style={{
+                                  flex: 1,
+                                  backgroundColor: theme.colors.surface,
+                                  color: theme.colors.onSurface,
+                                  borderWidth: 1,
+                                  borderColor: theme.colors.outline,
+                                  borderRadius: 8,
+                                  paddingHorizontal: 12,
+                                  paddingVertical: 10
+                                }}
                                 {...textInputProps}
                               />
                             </View>
@@ -1506,7 +1518,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 10,
-    shadowColor: '#000',
+    shadowColor: '#00000033',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     marginVertical: 10,

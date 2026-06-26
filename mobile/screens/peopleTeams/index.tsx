@@ -31,7 +31,7 @@ export default function PeopleTeams(
   const renderTabBar = (props) => (
     <TabBar
       {...props}
-      indicatorStyle={{ backgroundColor: 'white' }}
+      indicatorStyle={{ backgroundColor: theme.colors.onPrimary }}
       style={{ backgroundColor: theme.colors.primary }}
     />
   );

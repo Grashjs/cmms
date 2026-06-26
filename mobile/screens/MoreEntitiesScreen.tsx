@@ -18,7 +18,6 @@ export default function MoreEntitiesScreen({
     label: string;
     icon: IconSource;
     color: string;
-    backgroundColor: string;
     link: keyof RootStackParamList;
     visible: boolean;
     uiConfigKey?: keyof UiConfiguration;
@@ -27,7 +26,6 @@ export default function MoreEntitiesScreen({
       label: 'locations',
       icon: 'map-marker',
       color: '#2491d1',
-      backgroundColor: '#c8cfd3',
       link: 'Locations',
       visible: hasViewPermission(PermissionEntity.LOCATIONS),
       uiConfigKey: 'locations'
@@ -37,7 +35,6 @@ export default function MoreEntitiesScreen({
       icon: 'package-variant-closed',
       // @ts-ignore
       color: theme.colors.warning,
-      backgroundColor: '#d2d0c4',
       link: 'Assets',
       visible: hasViewPermission(PermissionEntity.ASSETS)
     },
@@ -45,7 +42,6 @@ export default function MoreEntitiesScreen({
       label: 'parts',
       icon: 'archive-outline',
       color: '#8324d1',
-      backgroundColor: '#cfc8d3',
       link: 'Parts',
       visible: hasViewPermission(PermissionEntity.PARTS_AND_MULTIPARTS)
     },
@@ -53,7 +49,6 @@ export default function MoreEntitiesScreen({
       label: 'meters',
       icon: 'gauge',
       color: '#d12444',
-      backgroundColor: '#d3c8ca',
       link: 'Meters',
       visible: hasViewPermission(PermissionEntity.METERS),
       uiConfigKey: 'meters'
@@ -62,7 +57,6 @@ export default function MoreEntitiesScreen({
       label: 'people_teams',
       icon: 'account',
       color: '#245bd1',
-      backgroundColor: '#c8ccd3',
       link: 'PeopleTeams',
       visible: hasViewPermission(PermissionEntity.PEOPLE_AND_TEAMS)
     },
@@ -71,12 +65,20 @@ export default function MoreEntitiesScreen({
       icon: 'vector-circle',
       //@ts-ignore
       color: theme.colors.warning,
-      backgroundColor: '#d2d0c4',
       link: 'VendorsCustomers',
       visible: hasViewPermission(PermissionEntity.VENDORS_AND_CUSTOMERS),
       uiConfigKey: 'vendorsAndCustomers'
     }
   ];
+
+  const getColorBackground = (baseColor: string) => {
+    const hex = baseColor.replace('#', '');
+    if (!/^([0-9a-fA-F]{6})$/.test(hex)) {
+      return theme.colors.surfaceVariant;
+    }
+    return theme.dark ? `#${hex}33` : `#${hex}22`;
+  };
+
   return (
     <ScrollView
       contentContainerStyle={{ paddingBottom: 100 }}
@@ -94,7 +96,7 @@ export default function MoreEntitiesScreen({
               ? user.uiConfiguration[entity.uiConfigKey]
               : true)
         )
-        .map(({ label, icon, color, backgroundColor, link }) => (
+        .map(({ label, icon, color, link }) => (
           <TouchableOpacity
             key={label}
             //@ts-ignore
@@ -102,7 +104,7 @@ export default function MoreEntitiesScreen({
           >
             <View
               style={{
-                backgroundColor,
+                backgroundColor: getColorBackground(color),
                 display: 'flex',
                 flexDirection: 'row',
                 marginVertical: 5,
@@ -110,10 +112,14 @@ export default function MoreEntitiesScreen({
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 width: '100%',
-                padding: 20
+                padding: 20,
+                borderWidth: 1,
+                borderColor: theme.colors.outline
               }}
             >
-              <Text variant={'titleMedium'}>{t(label)}</Text>
+              <Text style={{ color: theme.colors.onSurface }} variant={'titleMedium'}>
+                {t(label)}
+              </Text>
               <IconButton icon={icon} iconColor={color} />
             </View>
           </TouchableOpacity>

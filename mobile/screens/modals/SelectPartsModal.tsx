@@ -54,7 +54,7 @@ const PartItem = React.memo(
 
     return (
       <Pressable onPress={handleToggle}>
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.cardRow}>
             <Checkbox status={isSelected ? 'checked' : 'unchecked'} />
             <Avatar.Icon
@@ -113,7 +113,7 @@ const SetItem = React.memo(
 
     return (
       <Pressable onPress={handleToggle}>
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.cardRow}>
             <Avatar.Icon
               size={50}
@@ -409,11 +409,11 @@ export default function SelectParts({
     (props) => (
       <TabBar
         {...props}
-        indicatorStyle={{ backgroundColor: 'white' }}
+        indicatorStyle={{ backgroundColor: theme.colors.onPrimary }}
         style={{ backgroundColor: theme.colors.primary }}
       />
     ),
-    [theme.colors.primary]
+    [theme.colors.onPrimary, theme.colors.primary]
   );
 
   return (
@@ -457,7 +457,6 @@ export default function SelectParts({
 const styles = StyleSheet.create({
   container: { flex: 1 },
   card: {
-    backgroundColor: 'white',
     marginBottom: 1,
     padding: 10,
     height: ITEM_HEIGHT
