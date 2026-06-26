@@ -402,7 +402,7 @@ public class WorkOrderController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> getPDF(@PathVariable("id") Long id, HttpServletRequest req) throws IOException {
         User user = userService.whoami(req);
-        return generateReport(id, user, ReportConfig.builder().build());
+        return generateReport(id, user, new ReportConfig());
     }
 
     @PostMapping(path = "/report/{id}")
