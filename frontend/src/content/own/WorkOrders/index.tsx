@@ -111,6 +111,7 @@ const fieldMapping: Record<string, string> = {
   updatedAt: 'updatedAt',
   createdAt: 'createdAt',
   dueDate: 'dueDate'
+  contractors: 'contractors'
 };
 const normalizeFields = (fields: FilterField[]) =>
   [...fields]
@@ -541,6 +542,16 @@ function WorkOrders() {
         size: 170
       }
     ),
+    columnHelper.accessor((row) => row.contractors, {
+        id: 'contractors',
+        header: () => t('contractors'),
+        cell: (info) => {
+          const contractors = info.getValue();
+          if (!contractors?.length) return '';
+          return contractors.map((c) => c.companyName).join(', ');
+        },
+        size: 170
+    }),
     columnHelper.accessor((row) => row.location?.name, {
       id: 'location',
       header: () => t('location_name'),
