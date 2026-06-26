@@ -604,12 +604,10 @@
                             <span class="detail-label" th:text="#{feedback}"></span>
                             <span class="detail-value" th:text="${workOrder.feedback}"></span>
                         </div>
-                        <th:block th:each="cfv : ${workOrder.customFieldValues}">
-                            <div style="margin-bottom:10px;">
-                                <span class="detail-label" th:text="${cfv.customField.label}"></span>
-                                <span class="detail-value" th:text="${cfv.value}"></span>
-                            </div>
-                        </th:block>
+                        <div th:each="cfv : ${workOrder.customFieldValues}" style="margin-bottom:10px;">
+                            <span class="detail-label" th:text="${cfv.customField.label}"></span>
+                            <span class="detail-value" th:text="${cfv.value}"></span>
+                        </div>
                     </td>
                 </tr>
             </table>
