@@ -17,6 +17,7 @@ export const locales = [
   "zh-cn",
   "ba",
   "ja",
+  "th",
 ];
 
 function deepmerge(target: object, source: object): object {

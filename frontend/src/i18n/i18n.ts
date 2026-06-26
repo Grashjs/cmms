@@ -20,7 +20,8 @@ import {
   NL,
   CN,
   BA,
-  JP
+  JP,
+  TH
 } from 'country-flag-icons/react/3x2';
 
 // ─── Lazy translation loaders ────────────────────────────────────────────────
@@ -40,7 +41,8 @@ const translationLoaders: Record<string, () => Promise<{ default: object }>> = {
   nl: () => import('./translations/nl'),
   zh_cn: () => import('./translations/zh_cn'),
   ba: () => import('./translations/ba'),
-  ja: () => import('./translations/ja')
+  ja: () => import('./translations/ja'),
+  th: () => import('./translations/th')
 };
 
 // ─── Lazy date-fns locale loaders ────────────────────────────────────────────
@@ -60,7 +62,8 @@ const dateLocaleLoaders: Record<string, () => Promise<DateLocale>> = {
   nl: () => import('date-fns/locale').then((m) => m.nl),
   zh_cn: () => import('date-fns/locale').then((m) => m.zhCN),
   ba: () => import('date-fns/locale').then((m) => m.bs),
-  ja: () => import('date-fns/locale').then((m) => m.ja)
+  ja: () => import('date-fns/locale').then((m) => m.ja),
+  th: () => import('date-fns/locale').then((m) => m.th)
 };
 
 // ─── Lazy FullCalendar locale loaders ────────────────────────────────────────
@@ -83,7 +86,8 @@ const calendarLocaleLoaders: Record<string, () => Promise<LocaleSingularArg>> =
     zh_cn: () =>
       import('@fullcalendar/core/locales/zh-cn').then((m) => m.default),
     ba: () => import('@fullcalendar/core/locales/bs').then((m) => m.default),
-    ja: () => import('@fullcalendar/core/locales/ja').then((m) => m.default)
+    ja: () => import('@fullcalendar/core/locales/ja').then((m) => m.default),
+    th: () => import('@fullcalendar/core/locales/th').then((m) => m.default)
   };
 
 // ─── i18n init (no resources bundled upfront) ────────────────────────────────
@@ -186,7 +190,8 @@ export type SupportedLanguage =
   | 'NL'
   | 'ZH_CN'
   | 'BA'
-  | 'JA';
+  | 'JA'
+  | 'TH';
 
 export const supportedLanguages: {
   code: Lowercase<SupportedLanguage>;
@@ -208,7 +213,8 @@ export const supportedLanguages: {
   { code: 'nl', label: 'Dutch', Icon: NL },
   { code: 'zh_cn', label: 'Chinese (Simplified)', Icon: CN },
   { code: 'ba', label: 'Bosnian', Icon: BA },
-  { code: 'ja', label: 'Japanese', Icon: JP }
+  { code: 'ja', label: 'Japanese', Icon: JP },
+  { code: 'th', label: 'Thai', Icon: TH }
 ];
 
 export const getSupportedLanguage = (lang: string) =>
