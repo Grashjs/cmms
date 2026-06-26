@@ -566,40 +566,50 @@
                             <span class="detail-label" th:text="#{asset}"></span>
                             <span class="detail-value" th:text="|${workOrder.asset.name}${!#strings.isEmpty(workOrder.asset.serialNumber) ? ' (' + workOrder.asset.serialNumber + ')' : ''}|"></span>
                         </div>
+                        <div th:if="${reportConfig.estimatedTime and workOrder.estimatedStartDate!=null}" style="margin-bottom:10px;">
+                            <span class="detail-label" th:text="#{estimated_start_date}"></span>
+                            <span class="detail-value" th:text="${workOrder.estimatedStartDate}"></span>
+                        </div>
                         <div th:if="${reportConfig.estimatedTime and workOrder.estimatedDuration!=null}" style="margin-bottom:10px;">
                             <span class="detail-label" th:text="#{estimated_duration}"></span>
                             <span class="detail-value" th:text="${workOrder.estimatedDuration}"></span>
                         </div>
-                        <div th:if="${reportConfig.workOrderInformation and workOrder.team!=null}" style="margin-bottom:10px;">
+                        <div th:if="${workOrder.team!=null}" style="margin-bottom:10px;">
                             <span class="detail-label" th:text="#{team}"></span>
                             <span class="detail-value" th:text="${workOrder.team.name}"></span>
                         </div>
-                        <div th:if="${reportConfig.workOrderInformation and workOrder.category!=null}" style="margin-bottom:10px;">
+                        <div th:if="${workOrder.category!=null}" style="margin-bottom:10px;">
                             <span class="detail-label" th:text="#{category}"></span>
                             <span class="detail-value" th:text="${workOrder.category.name}"></span>
                         </div>
                     </td>
                     <td>
-                        <div th:if="${reportConfig.workOrderInformation and !#strings.isEmpty(assignedTo)}" style="margin-bottom:10px;">
+                        <div th:if="${!#strings.isEmpty(assignedTo)}" style="margin-bottom:10px;">
                             <span class="detail-label" th:text="#{assigned_to}"></span>
                             <span class="detail-value" th:text="${assignedTo}"></span>
                         </div>
-                        <div th:if="${reportConfig.workOrderInformation and !#strings.isEmpty(customers)}" style="margin-bottom:10px;">
+                        <div th:if="${!#strings.isEmpty(customers)}" style="margin-bottom:10px;">
                             <span class="detail-label" th:text="#{customers}"></span>
                             <span class="detail-value" th:text="${customers}"></span>
                         </div>
-                        <div th:if="${reportConfig.workOrderInformation and workOrder.completedBy!=null}" style="margin-bottom:10px;">
+                        <div th:if="${workOrder.completedBy!=null}" style="margin-bottom:10px;">
                             <span class="detail-label" th:text="#{completed_by}"></span>
                             <span class="detail-value" th:text="${workOrder.completedBy.getFullName()}"></span>
                         </div>
-                        <div th:if="${reportConfig.workOrderInformation and workOrder.completedOn!=null}" style="margin-bottom:10px;">
+                        <div th:if="${workOrder.completedOn!=null}" style="margin-bottom:10px;">
                             <span class="detail-label" th:text="#{completed_on}"></span>
                             <span class="detail-value" th:text="${utils.getFormattedDate(workOrder.completedOn, dateFormat, timeZone)}"></span>
                         </div>
-                        <div th:if="${reportConfig.workOrderInformation and workOrder.feedback!=null}" style="margin-bottom:10px;">
+                        <div th:if="${workOrder.feedback!=null}" style="margin-bottom:10px;">
                             <span class="detail-label" th:text="#{feedback}"></span>
                             <span class="detail-value" th:text="${workOrder.feedback}"></span>
                         </div>
+                        <th:block th:each="cfv : ${workOrder.customFieldValues}">
+                            <div style="margin-bottom:10px;">
+                                <span class="detail-label" th:text="${cfv.customField.label}"></span>
+                                <span class="detail-value" th:text="${cfv.value}"></span>
+                            </div>
+                        </th:block>
                     </td>
                 </tr>
             </table>

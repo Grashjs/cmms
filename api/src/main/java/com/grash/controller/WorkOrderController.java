@@ -400,6 +400,7 @@ public class WorkOrderController {
     @GetMapping(path = "/report/{id}")
     @Transactional
     @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @Deprecated
     public ResponseEntity<SuccessResponse> getPDF(@PathVariable("id") Long id, HttpServletRequest req) throws IOException {
         User user = userService.whoami(req);
         return generateReport(id, user, new ReportConfig());
@@ -415,7 +416,7 @@ public class WorkOrderController {
         return generateReport(id, user, config);
     }
 
-    private ResponseEntity<SuccessResponse> generateReport(Long id, User user, ReportConfig config) throws IOException {
+    private ResponseEntity<SuccessResponse> generateReport(Long id, User user, ReportConfig config) {
         StorageService storageService = storageServiceFactory.getStorageService();
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
