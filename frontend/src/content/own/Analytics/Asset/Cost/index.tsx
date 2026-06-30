@@ -3,6 +3,7 @@ import { Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useContext, useEffect, useState } from 'react';
 import { TitleContext } from '../../../../../contexts/TitleContext';
+import useAuth from '../../../../../hooks/useAuth';
 import Overview from './Overview';
 import DowntimesAndCosts from './DowntimesAndCosts';
 import { Filter } from '../WOModal';
@@ -24,6 +25,10 @@ function AssetCost({ handleOpenWOModal }: WOStatusStatsProps) {
   const nowMinusMonth = new Date();
   nowMinusMonth.setMonth(nowMinusMonth.getMonth() - 1);
   const [start, setStart] = useState(nowMinusMonth);
+  const { user } = useAuth();
+  const [companyId, setCompanyId] = useState<number | undefined>(
+    user?.superAccountRelations?.[0]?.childCompanyId ?? undefined
+  );
 
   useEffect(() => {
     setTitle(t('total_maintenance_cost'));
@@ -48,6 +53,8 @@ function AssetCost({ handleOpenWOModal }: WOStatusStatsProps) {
             end={end}
             setStart={setStart}
             setEnd={setEnd}
+            companyId={companyId}
+            onCompanyChange={setCompanyId}
           />
         </Grid>
         <Grid item xs={12} md={12}>
@@ -55,6 +62,7 @@ function AssetCost({ handleOpenWOModal }: WOStatusStatsProps) {
             handleOpenModal={handleOpenWOModal}
             start={start}
             end={end}
+            companyId={companyId}
           />
         </Grid>
         <Grid item xs={12} md={6}>
@@ -62,6 +70,7 @@ function AssetCost({ handleOpenWOModal }: WOStatusStatsProps) {
             handleOpenModal={handleOpenWOModal}
             start={start}
             end={end}
+            companyId={companyId}
           />
         </Grid>
         <Grid item xs={12} md={6}>
@@ -69,6 +78,7 @@ function AssetCost({ handleOpenWOModal }: WOStatusStatsProps) {
             handleOpenModal={handleOpenWOModal}
             start={start}
             end={end}
+            companyId={companyId}
           />
         </Grid>
       </Grid>

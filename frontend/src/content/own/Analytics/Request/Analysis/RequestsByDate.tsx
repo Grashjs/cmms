@@ -25,9 +25,10 @@ interface OwnProps {
   ) => void;
   start: Date;
   end: Date;
+  companyId?: number;
 }
 
-function RequestsByDate({ handleOpenModal, start, end }: OwnProps) {
+function RequestsByDate({ handleOpenModal, start, end, companyId }: OwnProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -36,8 +37,8 @@ function RequestsByDate({ handleOpenModal, start, end }: OwnProps) {
   );
 
   useEffect(() => {
-    dispatch(getRequestsByDate(start, end));
-  }, [start, end]);
+    dispatch(getRequestsByDate(start, end, companyId));
+  }, [start, end, companyId]);
 
   const formattedData: {
     label: string;

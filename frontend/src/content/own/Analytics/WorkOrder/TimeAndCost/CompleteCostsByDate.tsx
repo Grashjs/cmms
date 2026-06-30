@@ -25,9 +25,10 @@ interface WOStatusIncompleteProps {
   ) => void;
   start: Date;
   end: Date;
+  companyId?: number;
 }
 
-function CompleteCostsByDate({ handleOpenModal, start, end }: WOStatusIncompleteProps) {
+function CompleteCostsByDate({ handleOpenModal, start, end, companyId }: WOStatusIncompleteProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const { completeCostsByDate, loading } = useSelector(
@@ -36,8 +37,8 @@ function CompleteCostsByDate({ handleOpenModal, start, end }: WOStatusIncomplete
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getCompleteCostsByDate(start, end));
-  }, [start, end]);
+    dispatch(getCompleteCostsByDate(start, end, companyId));
+  }, [start, end, companyId]);
 
   const formattedData: {
     label: string;

@@ -20,6 +20,7 @@ import com.grash.model.UserAppStats;
 import com.grash.service.*;
 import com.grash.utils.Helper;
 import com.grash.utils.MultipartFileImpl;
+import com.grash.utils.TenantAspectUtils;
 import com.grash.utils.Utils;
 import com.itextpdf.html2pdf.HtmlConverter;
 import com.itextpdf.html2pdf.ConverterProperties;
@@ -113,8 +114,10 @@ public class WorkOrderController {
                                                                  " orders") @RequestBody SearchCriteria searchCriteria,
                                                          HttpServletRequest req) {
         User user = userService.whoami(req);
-        return ResponseEntity.ok(workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user,
-                searchCriteria)).map(workOrderMapper::toShowDto));
+        return ResponseEntity.ok(TenantAspectUtils.executeWithDisabledCompanyCheck(() ->
+                workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user,
+                        searchCriteria)).map(workOrderMapper::toShowDto)
+        ));
     }
 
     @PostMapping("/search/mini")
@@ -123,30 +126,50 @@ public class WorkOrderController {
                                                                          "filtering work orders") @RequestBody SearchCriteria searchCriteria,
                                                                  HttpServletRequest req) {
         User user = userService.whoami(req);
-        return ResponseEntity.ok(workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user,
-                        searchCriteria))
-                .map(workOrderMapper::toBaseMiniDto));
+        return ResponseEntity.ok(TenantAspectUtils.executeWithDisabledCompanyCheck(() ->
+                workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user,
+                                searchCriteria))
+                        .map(workOrderMapper::toBaseMiniDto)
+        ));
     }
 
     @PostMapping("/events")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public Collection<CalendarEvent<WorkOrderBaseMiniDTO>> getEvents(@Parameter(description = "Date range for " +
             "calendar events") @Valid @RequestBody DateRange
-                                                                             dateRange, HttpServletRequest req) {
+                                                                             dateRange, @RequestParam(required =
+            false) Long companyId, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
-            List<CalendarEvent<WorkOrderBaseMiniDTO>> result = new ArrayList<>();
-            result.addAll(preventiveMaintenanceService.getEvents(dateRange.getEnd(), user.getCompany().getId()).stream()
-                    .filter(calendarEvent -> calendarEvent.getDate().after(new Date()))
-                    .filter(calendarEvent -> canViewWorkOrderBase(user, calendarEvent.getEvent()))
-                    .map(calendarEvent -> new CalendarEvent<>(calendarEvent.getType(),
-                            preventiveMaintenanceMapper.toBaseMiniDto(calendarEvent.getEvent()),
-                            calendarEvent.getDate()))
-                    .toList());
-            result.addAll(workOrderService.findByDueDateBetweenAndCompany(dateRange.getStart(), dateRange.getEnd(),
-                    user.getCompany().getId()).stream().filter(workOrder -> canViewWorkOrderBase(user, workOrder)).map(workOrderMapper::toBaseMiniDto).map(workOrderMiniDTO -> new CalendarEvent<>("WORK_ORDER",
-                    workOrderMiniDTO, workOrderMiniDTO.getDueDate())).toList());
-            return result;
+            return TenantAspectUtils.executeWithDisabledCompanyCheck(() -> {
+                List<Long> companyIds = user.getSuperAccountRelations().isEmpty()
+                        ? Collections.singletonList(user.getCompany().getId())
+                        : user.getSuperAccountRelations().stream()
+                        .map(rel -> rel.getChildUser().getCompany().getId())
+                        .distinct()
+                        .toList();
+                if (companyId != null) {
+                    if (!companyIds.contains(companyId))
+                        throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+                    companyIds = Collections.singletonList(companyId);
+                }
+
+                List<CalendarEvent<WorkOrderBaseMiniDTO>> result = new ArrayList<>();
+                for (Long compId : companyIds) {
+                    result.addAll(preventiveMaintenanceService.getEvents(dateRange.getEnd(), compId).stream()
+                            .filter(calendarEvent -> calendarEvent.getDate().after(new Date()))
+                            .filter(calendarEvent -> canViewWorkOrderBase(user, calendarEvent.getEvent()))
+                            .map(calendarEvent -> new CalendarEvent<>(calendarEvent.getType(),
+                                    preventiveMaintenanceMapper.toBaseMiniDto(calendarEvent.getEvent()),
+                                    calendarEvent.getDate()))
+                            .toList());
+                    result.addAll(workOrderService.findByDueDateBetweenAndCompany(dateRange.getStart(),
+                            dateRange.getEnd(),
+                            compId).stream().filter(workOrder -> canViewWorkOrderBase(user, workOrder)).map(workOrderMapper::toBaseMiniDto).map(workOrderMiniDTO -> new CalendarEvent<>("WORK_ORDER",
+                            workOrderMiniDTO, workOrderMiniDTO.getDueDate())).toList());
+                }
+                return result;
+            });
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
@@ -510,6 +533,7 @@ public class WorkOrderController {
                 ConverterProperties converterProperties = new ConverterProperties()
                         .setTagWorkerFactory(new ITagWorkerFactory() {
                             private final DefaultTagWorkerFactory defaultFactory = new DefaultTagWorkerFactory();
+
                             @Override
                             public ITagWorker getTagWorker(IElementNode tag, ProcessorContext context) {
                                 try {

@@ -16,9 +16,10 @@ interface OwnProps {
   ) => void;
   start: Date;
   end: Date;
+  companyId?: number;
 }
 
-function RequestStatsByPriority({ handleOpenModal, start, end }: OwnProps) {
+function RequestStatsByPriority({ handleOpenModal, start, end, companyId }: OwnProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -27,8 +28,8 @@ function RequestStatsByPriority({ handleOpenModal, start, end }: OwnProps) {
   );
 
   useEffect(() => {
-    dispatch(getRequestStatsByPriority(start, end));
-  }, [start, end]);
+    dispatch(getRequestStatsByPriority(start, end, companyId));
+  }, [start, end, companyId]);
 
   const columns: string[] = ['id'];
 

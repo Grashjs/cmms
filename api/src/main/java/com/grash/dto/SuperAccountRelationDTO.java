@@ -9,7 +9,10 @@ import lombok.Data;
 public class SuperAccountRelationDTO {
     @Schema(description = "Child company name")
     private String childCompanyName;
-    
+
+    @Schema(description = "Child company ID")
+    private Long childCompanyId;
+
     @Schema(description = "Child user ID")
     private Long childUserId;
     

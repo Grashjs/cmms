@@ -370,12 +370,12 @@ export const getPDFReport =
   };
 
 export const getWorkOrderEvents =
-  (start: Date, end: Date): AppThunk =>
+  (start: Date, end: Date, companyId: number = null): AppThunk =>
   async (dispatch) => {
     dispatch(slice.actions.setLoadingGet({ loading: true }));
     const response = await api.post<
       CalendarEvent<WorkOrder | PreventiveMaintenance>[]
-    >(`${basePath}/events`, {
+    >(`${basePath}/events?companyId=${companyId || ''}`, {
       start,
       end
     });

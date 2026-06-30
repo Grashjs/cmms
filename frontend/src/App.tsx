@@ -148,7 +148,15 @@ function App() {
       isInitialized &&
       isAuthenticated
     )
-      if (user.superAccountRelations.length) {
+      if (
+        user.superAccountRelations.length &&
+        ![
+          'work-orders',
+          'analytics',
+          'requests',
+          'preventive-maintenances'
+        ].includes(arr[2])
+      ) {
         navigate('/app/switch-account');
       }
   }, [user, isInitialized, isAuthenticated, location]);
@@ -190,7 +198,10 @@ function App() {
   return (
     <UtmTrackerProvider customParams={['msclkid', 'ref']}>
       <ThemeProvider>
-        <LocalizationProvider dateAdapter={AdapterDateFns} locale={dateFnsLocale}>
+        <LocalizationProvider
+          dateAdapter={AdapterDateFns}
+          locale={dateFnsLocale}
+        >
           <SnackbarProvider
             maxSnack={6}
             anchorOrigin={{

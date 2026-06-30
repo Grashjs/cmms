@@ -15,16 +15,17 @@ interface HoursWorkedProps {
   ) => void;
   start: Date;
   end: Date;
+  companyId?: number;
 }
 
-function HoursWorked({ handleOpenModal, start, end }: HoursWorkedProps) {
+function HoursWorked({ handleOpenModal, start, end, companyId }: HoursWorkedProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { hours, loading } = useSelector((state) => state.woAnalytics);
 
   useEffect(() => {
-    dispatch(getWOHours(start, end));
-  }, [start, end]);
+    dispatch(getWOHours(start, end, companyId));
+  }, [start, end, companyId]);
 
   const columns = ['id'];
   const formattedData: { label: string; value: string | number; filters: Filter[] }[] = [

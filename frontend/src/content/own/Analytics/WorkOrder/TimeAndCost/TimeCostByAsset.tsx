@@ -27,9 +27,10 @@ interface WOStatusIncompleteProps {
   ) => void;
   start: Date;
   end: Date;
+  companyId?: number;
 }
 
-function TimeCostByAsset({ handleOpenModal, start, end }: WOStatusIncompleteProps) {
+function TimeCostByAsset({ handleOpenModal, start, end, companyId }: WOStatusIncompleteProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const { completeTimeCostByAsset, loading } = useSelector(
@@ -38,8 +39,8 @@ function TimeCostByAsset({ handleOpenModal, start, end }: WOStatusIncompleteProp
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getWOTimeCostByAsset(start, end));
-  }, [start, end]);
+    dispatch(getWOTimeCostByAsset(start, end, companyId));
+  }, [start, end, companyId]);
 
   const columns: string[] = ['id'];
 

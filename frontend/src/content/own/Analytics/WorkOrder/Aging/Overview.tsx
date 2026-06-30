@@ -14,10 +14,11 @@ interface WOStatusNumbersProps {
     title: string
   ) => void,
   start: Date,
-  end: Date
+  end: Date,
+  companyId?: number
 }
 
-function Overview({ handleOpenModal, start, end }: WOStatusNumbersProps) {
+function Overview({ handleOpenModal, start, end, companyId }: WOStatusNumbersProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { incompleteOverview, loading } = useSelector(
@@ -25,8 +26,8 @@ function Overview({ handleOpenModal, start, end }: WOStatusNumbersProps) {
   );
 
   useEffect(() => {
-    dispatch(getIncompleteStats(start, end));
-  }, [start, end]);
+    dispatch(getIncompleteStats(start, end, companyId));
+  }, [start, end, companyId]);
 
   const formattedData: {
     label: string;

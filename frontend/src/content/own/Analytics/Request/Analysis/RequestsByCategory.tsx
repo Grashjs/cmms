@@ -18,9 +18,10 @@ interface RequestByCategoryProps {
   ) => void;
   start: Date;
   end: Date;
+  companyId?: number;
 }
 
-function RequestByCategory({ handleOpenModal, start, end }: RequestByCategoryProps) {
+function RequestByCategory({ handleOpenModal, start, end, companyId }: RequestByCategoryProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -29,8 +30,8 @@ function RequestByCategory({ handleOpenModal, start, end }: RequestByCategoryPro
   );
 
   useEffect(() => {
-    dispatch(getRequestsByCategory(start, end));
-  }, [start, end]);
+    dispatch(getRequestsByCategory(start, end, companyId));
+  }, [start, end, companyId]);
 
   const columns = ['id'];
 

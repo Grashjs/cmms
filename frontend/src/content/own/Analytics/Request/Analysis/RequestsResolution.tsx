@@ -28,10 +28,11 @@ interface OwnProps {
     title: string
   ) => void,
   start: Date,
-  end: Date
+  end: Date,
+  companyId?: number
 }
 
-function RequestsResolution({ handleOpenModal, start, end }: OwnProps) {
+function RequestsResolution({ handleOpenModal, start, end, companyId }: OwnProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const { requestsResolvedByDate, loading } = useSelector(
@@ -40,8 +41,8 @@ function RequestsResolution({ handleOpenModal, start, end }: OwnProps) {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getRequestsResolvedByDate(start, end));
-  }, [start, end]);
+    dispatch(getRequestsResolvedByDate(start, end, companyId));
+  }, [start, end, companyId]);
 
   const columns: string[] = ['id'];
 

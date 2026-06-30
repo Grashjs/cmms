@@ -22,8 +22,9 @@ interface WOStatusIncompleteProps {
     filters: Filter[],
     title: string
   ) => void;
+  companyId?: number;
 }
-function TimeByWeek({ handleOpenModal }: WOStatusIncompleteProps) {
+function TimeByWeek({ handleOpenModal, companyId }: WOStatusIncompleteProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const { completeTimesByWeek, loading } = useSelector(
@@ -32,8 +33,8 @@ function TimeByWeek({ handleOpenModal }: WOStatusIncompleteProps) {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getCompleteTimesByWeek());
-  }, []);
+    dispatch(getCompleteTimesByWeek(companyId));
+  }, [companyId]);
 
   const columns: string[] = ['id'];
 

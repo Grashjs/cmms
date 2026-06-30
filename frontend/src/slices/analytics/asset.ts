@@ -18,6 +18,8 @@ import { revertAll } from 'src/utils/redux';
 
 const basePath = 'analytics/assets';
 
+const companyQuery = (companyId?: number) => companyId ? `?companyId=${companyId}` : '';
+
 interface AssetStatstate {
   overview: AssetOverviewStats;
   completeTimeCostByAsset: TimeCostByAsset[];
@@ -170,14 +172,14 @@ const slice = createSlice({
 
 export const reducer = slice.reducer;
 
-export const getWOTimeCostByAsset = (start: Date, end: Date): AppThunk => async (dispatch) => {
+export const getWOTimeCostByAsset = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'completeTimeCostByAsset',
       loading: true
     })
   );
-  const stats = await api.post<TimeCostByAsset[]>(`${basePath}/time-cost`, { start, end });
+  const stats = await api.post<TimeCostByAsset[]>(`${basePath}/time-cost${companyQuery(companyId)}`, { start, end });
   dispatch(slice.actions.getWOTimeCostByAsset({ stats }));
   dispatch(
     slice.actions.setLoading({
@@ -186,14 +188,14 @@ export const getWOTimeCostByAsset = (start: Date, end: Date): AppThunk => async 
     })
   );
 };
-export const getAssetOverview = (start: Date, end: Date): AppThunk => async (dispatch) => {
+export const getAssetOverview = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'overview',
       loading: true
     })
   );
-  const stats = await api.post<AssetOverviewStats>(`${basePath}/overview`, { start, end });
+  const stats = await api.post<AssetOverviewStats>(`${basePath}/overview${companyQuery(companyId)}`, { start, end });
   dispatch(slice.actions.getOverview({ stats }));
   dispatch(
     slice.actions.setLoading({
@@ -202,14 +204,14 @@ export const getAssetOverview = (start: Date, end: Date): AppThunk => async (dis
     })
   );
 };
-export const getAssetDetailsOverview = (id: number, start: Date, end: Date): AppThunk => async (dispatch) => {
+export const getAssetDetailsOverview = (id: number, start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'assetDetailsOverview',
       loading: true
     })
   );
-  const stats = await api.post<AssetOverview>(`${basePath}/${id}/overview`, { start, end });
+  const stats = await api.post<AssetOverview>(`${basePath}/${id}/overview${companyQuery(companyId)}`, { start, end });
   dispatch(slice.actions.getAssetDetailsOverview({ stats }));
   dispatch(
     slice.actions.setLoading({
@@ -218,14 +220,14 @@ export const getAssetDetailsOverview = (id: number, start: Date, end: Date): App
     })
   );
 };
-export const getAssetsCosts = (start: Date, end: Date): AppThunk => async (dispatch) => {
+export const getAssetsCosts = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'assetsCosts',
       loading: true
     })
   );
-  const stats = await api.post<AssetsCost>(`${basePath}/costs/overview`, { start, end });
+  const stats = await api.post<AssetsCost>(`${basePath}/costs/overview${companyQuery(companyId)}`, { start, end });
   dispatch(slice.actions.getAssetsCosts({ stats }));
   dispatch(
     slice.actions.setLoading({
@@ -234,14 +236,14 @@ export const getAssetsCosts = (start: Date, end: Date): AppThunk => async (dispa
     })
   );
 };
-export const getMeantimes = (): AppThunk => async (dispatch) => {
+export const getMeantimes = (companyId?: number): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'meantimes',
       loading: true
     })
   );
-  const stats = await api.get<Meantimes>(`${basePath}/meantimes`);
+  const stats = await api.get<Meantimes>(`${basePath}/meantimes${companyQuery(companyId)}`);
   dispatch(slice.actions.getMeantimes({ stats }));
   dispatch(
     slice.actions.setLoading({
@@ -250,14 +252,14 @@ export const getMeantimes = (): AppThunk => async (dispatch) => {
     })
   );
 };
-export const getDowntimesByAsset = (start: Date, end: Date): AppThunk => async (dispatch) => {
+export const getDowntimesByAsset = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'downtimesByAsset',
       loading: true
     })
   );
-  const stats = await api.post<DowntimesByAsset[]>(`${basePath}/downtimes`, { start, end });
+  const stats = await api.post<DowntimesByAsset[]>(`${basePath}/downtimes${companyQuery(companyId)}`, { start, end });
   dispatch(slice.actions.getDowntimesByAsset({ stats }));
   dispatch(
     slice.actions.setLoading({
@@ -266,14 +268,14 @@ export const getDowntimesByAsset = (start: Date, end: Date): AppThunk => async (
     })
   );
 };
-export const getMTBFByAsset = (start: Date, end: Date): AppThunk => async (dispatch) => {
+export const getMTBFByAsset = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'mtbfByAsset',
       loading: true
     })
   );
-  const stats = await api.post<MTBFByAsset[]>(`${basePath}/mtbf`, { start, end });
+  const stats = await api.post<MTBFByAsset[]>(`${basePath}/mtbf${companyQuery(companyId)}`, { start, end });
   dispatch(slice.actions.getMTBFByAsset({ stats }));
   dispatch(
     slice.actions.setLoading({
@@ -282,7 +284,7 @@ export const getMTBFByAsset = (start: Date, end: Date): AppThunk => async (dispa
     })
   );
 };
-export const getDowntimesAndCostsByAsset = (start: Date, end: Date): AppThunk => async (dispatch) => {
+export const getDowntimesAndCostsByAsset = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'downtimesAndCostsByAsset',
@@ -290,7 +292,7 @@ export const getDowntimesAndCostsByAsset = (start: Date, end: Date): AppThunk =>
     })
   );
   const stats = await api.post<DowntimesAndCostsByAsset[]>(
-    `${basePath}/downtimes/costs`, { start, end }
+    `${basePath}/downtimes/costs${companyQuery(companyId)}`, { start, end }
   );
   dispatch(slice.actions.getDowntimesAndCostsByAsset({ stats }));
   dispatch(
@@ -300,7 +302,7 @@ export const getDowntimesAndCostsByAsset = (start: Date, end: Date): AppThunk =>
     })
   );
 };
-export const getDowntimesByDate = (start: Date, end: Date): AppThunk => async (dispatch) => {
+export const getDowntimesByDate = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'downtimesByDate',
@@ -308,7 +310,7 @@ export const getDowntimesByDate = (start: Date, end: Date): AppThunk => async (d
     })
   );
   const stats = await api.post<DowntimesByDate[]>(
-    `${basePath}/downtimes/costs/date`, { start, end }
+    `${basePath}/downtimes/costs/date${companyQuery(companyId)}`, { start, end }
   );
   dispatch(slice.actions.getDowntimesByDate({ stats }));
   dispatch(
@@ -318,7 +320,7 @@ export const getDowntimesByDate = (start: Date, end: Date): AppThunk => async (d
     })
   );
 };
-export const getDowntimesMeantimeByDate = (start: Date, end: Date): AppThunk => async (dispatch) => {
+export const getDowntimesMeantimeByDate = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'downtimesMeantimeByDate',
@@ -326,7 +328,7 @@ export const getDowntimesMeantimeByDate = (start: Date, end: Date): AppThunk => 
     })
   );
   const stats = await api.post<DowntimesMeantimeByDate[]>(
-    `${basePath}/downtimes/meantime/date`, { start, end }
+    `${basePath}/downtimes/meantime/date${companyQuery(companyId)}`, { start, end }
   );
   dispatch(slice.actions.getDowntimesMeantimeByDate({ stats }));
   dispatch(
@@ -336,14 +338,14 @@ export const getDowntimesMeantimeByDate = (start: Date, end: Date): AppThunk => 
     })
   );
 };
-export const getRepairTimeByAsset = (start: Date, end: Date): AppThunk => async (dispatch) => {
+export const getRepairTimeByAsset = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'repairTimeByAsset',
       loading: true
     })
   );
-  const stats = await api.post<RepairTimeByAsset[]>(`${basePath}/repair-times`, { start, end });
+  const stats = await api.post<RepairTimeByAsset[]>(`${basePath}/repair-times${companyQuery(companyId)}`, { start, end });
   dispatch(slice.actions.getRepairTimeByAsset({ stats }));
   dispatch(
     slice.actions.setLoading({

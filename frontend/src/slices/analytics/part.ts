@@ -11,6 +11,8 @@ import { revertAll } from 'src/utils/redux';
 
 const basePath = 'analytics/parts';
 
+const companyQuery = (companyId?: number) => companyId ? `?companyId=${companyId}` : '';
+
 interface PartStatstate {
   consumptionsOverview: PartStats;
   partConsumptionsByDate: PartConsumptionsByDate[];
@@ -102,14 +104,14 @@ const slice = createSlice({
 
 export const reducer = slice.reducer;
 
-export const getPartConsumptionOverview = (start: Date, end: Date): AppThunk => async (dispatch) => {
+export const getPartConsumptionOverview = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'consumptionsOverview',
       loading: true
     })
   );
-  const stats = await api.post<PartStats>(`${basePath}/consumptions/overview`, { start, end });
+  const stats = await api.post<PartStats>(`${basePath}/consumptions/overview${companyQuery(companyId)}`, { start, end });
   dispatch(slice.actions.getOverview({ stats }));
   dispatch(
     slice.actions.setLoading({
@@ -118,7 +120,7 @@ export const getPartConsumptionOverview = (start: Date, end: Date): AppThunk => 
     })
   );
 };
-export const getPartConsumptionsByDate = (start: Date, end: Date): AppThunk => async (dispatch) => {
+export const getPartConsumptionsByDate = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'partConsumptionsByDate',
@@ -126,7 +128,7 @@ export const getPartConsumptionsByDate = (start: Date, end: Date): AppThunk => a
     })
   );
   const stats = await api.post<PartConsumptionsByDate[]>(
-    `${basePath}/consumptions/date`, { start, end }
+    `${basePath}/consumptions/date${companyQuery(companyId)}`, { start, end }
   );
   dispatch(slice.actions.getPartConsumptionsByDate({ stats }));
   dispatch(
@@ -137,14 +139,14 @@ export const getPartConsumptionsByDate = (start: Date, end: Date): AppThunk => a
   );
 };
 
-export const getPartConsumptionsByAsset = (start: Date, end: Date): AppThunk => async (dispatch) => {
+export const getPartConsumptionsByAsset = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'partConsumptionsByAsset',
       loading: true
     })
   );
-  const stats = await api.post<PartConsumptionsByAsset[]>(`${basePath}/consumptions/assets`, { start, end });
+  const stats = await api.post<PartConsumptionsByAsset[]>(`${basePath}/consumptions/assets${companyQuery(companyId)}`, { start, end });
   dispatch(slice.actions.getPartConsumptionsByAsset({ stats }));
   dispatch(
     slice.actions.setLoading({
@@ -154,14 +156,14 @@ export const getPartConsumptionsByAsset = (start: Date, end: Date): AppThunk => 
   );
 };
 
-export const getPartConsumptionsByPart = (start: Date, end: Date): AppThunk => async (dispatch) => {
+export const getPartConsumptionsByPart = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'partConsumptionsByPart',
       loading: true
     })
   );
-  const stats = await api.post<PartConsumptionsByPart[]>(`${basePath}/consumptions/pareto`, { start, end });
+  const stats = await api.post<PartConsumptionsByPart[]>(`${basePath}/consumptions/pareto${companyQuery(companyId)}`, { start, end });
   dispatch(slice.actions.getPartConsumptionsByPart({ stats }));
   dispatch(
     slice.actions.setLoading({
@@ -171,14 +173,14 @@ export const getPartConsumptionsByPart = (start: Date, end: Date): AppThunk => a
   );
 };
 
-export const getPartConsumptionsByPartCategory = (start: Date, end: Date): AppThunk => async (dispatch) => {
+export const getPartConsumptionsByPartCategory = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'partConsumptionsByCategory',
       loading: true
     })
   );
-  const stats = await api.post<PartConsumptionByCategory[]>(`${basePath}/consumptions/parts-category`, { start, end });
+  const stats = await api.post<PartConsumptionByCategory[]>(`${basePath}/consumptions/parts-category${companyQuery(companyId)}`, { start, end });
   dispatch(slice.actions.getPartConsumptionsByCategory({ stats }));
   dispatch(
     slice.actions.setLoading({
@@ -187,14 +189,14 @@ export const getPartConsumptionsByPartCategory = (start: Date, end: Date): AppTh
     })
   );
 };
-export const getPartConsumptionsByWOCategory = (start: Date, end: Date): AppThunk => async (dispatch) => {
+export const getPartConsumptionsByWOCategory = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'partConsumptionByWOCategory',
       loading: true
     })
   );
-  const stats = await api.post<PartConsumptionByWOCategory[]>(`${basePath}/consumptions/work-order-category`, {
+  const stats = await api.post<PartConsumptionByWOCategory[]>(`${basePath}/consumptions/work-order-category${companyQuery(companyId)}`, {
     start,
     end
   });

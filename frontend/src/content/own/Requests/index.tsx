@@ -68,7 +68,9 @@ import { createColumnHelper } from '@tanstack/react-table';
 import useTableState from '../../../hooks/useTableState';
 import _ from 'lodash';
 import FilterAltTwoToneIcon from '@mui/icons-material/FilterAltTwoTone';
+import CompanyFilter from '../WorkOrders/Filters/CompanyFilter';
 import EnumFilter from '../WorkOrders/Filters/EnumFilter';
+import BusinessTwoToneIcon from '@mui/icons-material/BusinessTwoTone';
 import SignalCellularAltTwoToneIcon from '@mui/icons-material/SignalCellularAltTwoTone';
 import CircleTwoToneIcon from '@mui/icons-material/CircleTwoTone';
 import SearchInput from '../components/SearchInput';
@@ -112,7 +114,8 @@ function Requests() {
     companySettings,
     hasViewPermission,
     hasCreatePermission,
-    getFilteredFields
+    getFilteredFields,
+    user
   } = useAuth();
   const { workOrderRequestConfiguration } = companySettings;
   const [currentRequest, setCurrentRequest] = useState<Request>();
@@ -587,6 +590,14 @@ function Requests() {
                 fieldName="status"
                 icon={<CircleTwoToneIcon />}
               />
+              {user?.superAccountRelations?.length > 0 && (
+                <CompanyFilter
+                  filterFields={criteria.filterFields}
+                  onChange={onFilterChange}
+                  superAccountRelations={user.superAccountRelations}
+                  icon={<BusinessTwoToneIcon />}
+                />
+              )}
               <SearchInput onChange={debouncedQueryChange} />
             </Stack>
             <Divider sx={{ mt: 1 }} />

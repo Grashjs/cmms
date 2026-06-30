@@ -27,7 +27,14 @@ import {
 } from '../type';
 import WorkOrder from '../../../models/owns/workOrder';
 import * as React from 'react';
-import { ChangeEvent, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  ChangeEvent,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { TitleContext } from '../../../contexts/TitleContext';
 import CustomDatagrid2, {
   CustomDatagridColumn2
@@ -80,8 +87,10 @@ import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import FilterAltTwoToneIcon from '@mui/icons-material/FilterAltTwoTone';
 import MoreFilters from './Filters/MoreFilters';
 import EnumFilter from './Filters/EnumFilter';
+import CompanyFilter from './Filters/CompanyFilter';
 import SignalCellularAltTwoToneIcon from '@mui/icons-material/SignalCellularAltTwoTone';
 import CircleTwoToneIcon from '@mui/icons-material/CircleTwoTone';
+import BusinessTwoToneIcon from '@mui/icons-material/BusinessTwoTone';
 import _ from 'lodash';
 import SearchInput from '../components/SearchInput';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
@@ -197,7 +206,8 @@ function WorkOrders() {
         !hasFeature(PlanFeature.RESOURCE_PLANNING),
       hidden:
         !hasViewOtherPermission(PermissionEntity.WORK_ORDERS) ||
-        !hasViewPermission(PermissionEntity.PEOPLE_AND_TEAMS)
+        !hasViewPermission(PermissionEntity.PEOPLE_AND_TEAMS) ||
+        user.superAccountRelations.length > 0
     },
     {
       value: 'column',
@@ -462,12 +472,20 @@ function WorkOrders() {
   const onDeleteFailure = (err) =>
     showSnackBar(t('wo_delete_failure'), 'error');
 
-  const onQueryChange = (event) => {
-    onSearchQueryChange<WorkOrder>(event, criteria, setCriteria, [
-      ...QUERY_SEARCH_FIELDS.values()
-    ]);
-  };
-  const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
+  const criteriaRef = useRef(criteria);
+  criteriaRef.current = criteria;
+  const debouncedQueryChange = useMemo(
+    () =>
+      debounce((event) => {
+        onSearchQueryChange<WorkOrder>(
+          event,
+          criteriaRef.current,
+          setCriteria,
+          [...QUERY_SEARCH_FIELDS.values()]
+        );
+      }, 1300),
+    []
+  );
   useEffect(() => {
     dispatch(getWorkOrders(criteria));
   }, [criteria]);
@@ -1084,6 +1102,14 @@ function WorkOrders() {
                 fieldName="status"
                 icon={<CircleTwoToneIcon />}
               />
+              {user.superAccountRelations.length > 0 && (
+                <CompanyFilter
+                  filterFields={criteria.filterFields}
+                  onChange={onFilterChange}
+                  superAccountRelations={user.superAccountRelations}
+                  icon={<BusinessTwoToneIcon />}
+                />
+              )}
               <SearchInput onChange={debouncedQueryChange} />
             </Stack>
           )}
@@ -1124,6 +1150,10 @@ function WorkOrders() {
                   if (type === 'WORK_ORDER') handleOpenDetails(id);
                   else navigate(getPreventiveMaintenanceUrl(id));
                 }}
+                companyId={
+                  criteria.filterFields.find((ff) => ff.field === 'company')
+                    ?.values?.[0] ?? null
+                }
               />
             ) : (
               <WorkloadView

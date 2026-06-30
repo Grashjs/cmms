@@ -97,7 +97,7 @@ public class WorkOrderService {
         }
         workOrder.setCustomId(getWorkOrderNumber(company));
         workOrder.setId(null);
-        
+
         WorkOrder savedWorkOrder = workOrderRepository.saveAndFlush(workOrder);
         em.refresh(savedWorkOrder);
         notify(savedWorkOrder, Helper.getLocale(company));
@@ -500,7 +500,21 @@ public class WorkOrderService {
 
     public SearchCriteria getSearchCriteria(User user, SearchCriteria searchCriteria) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            searchCriteria.filterCompany(user);
+            if (!user.getSuperAccountRelations().isEmpty()) {
+                List<Long> childCompanyIds = user.getSuperAccountRelations().stream()
+                        .map(rel -> rel.getChildUser().getCompany().getId())
+                        .distinct()
+                        .toList();
+                searchCriteria.getFilterFields().add(FilterField.builder()
+                        .field("company")
+                        .operation("inm")
+                        .joinType(JoinType.LEFT)
+                        .value("")
+                        .values(new ArrayList<>(childCompanyIds))
+                        .build());
+            } else {
+                searchCriteria.filterCompany(user);
+            }
             if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
                 boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS);
                 if (!canViewOthers) {
