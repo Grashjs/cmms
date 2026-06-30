@@ -150,7 +150,12 @@ function App() {
     )
       if (
         user.superAccountRelations.length &&
-        !['work-orders', 'analytics', 'requests'].includes(arr[2])
+        ![
+          'work-orders',
+          'analytics',
+          'requests',
+          'preventive-maintenances'
+        ].includes(arr[2])
       ) {
         navigate('/app/switch-account');
       }

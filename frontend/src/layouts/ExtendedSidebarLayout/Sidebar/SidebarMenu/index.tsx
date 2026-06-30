@@ -301,7 +301,12 @@ function SidebarMenu() {
               {
                 ...menuItems[0],
                 items: menuItems[0].items.filter((item) =>
-                  ['work_orders', 'Statistics', 'requests'].includes(item.name)
+                  [
+                    'work_orders',
+                    'Statistics',
+                    'requests',
+                    'preventive_maintenance'
+                  ].includes(item.name)
                 )
               }
             ]

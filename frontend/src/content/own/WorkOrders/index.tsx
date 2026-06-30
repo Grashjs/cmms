@@ -197,7 +197,8 @@ function WorkOrders() {
         !hasFeature(PlanFeature.RESOURCE_PLANNING),
       hidden:
         !hasViewOtherPermission(PermissionEntity.WORK_ORDERS) ||
-        !hasViewPermission(PermissionEntity.PEOPLE_AND_TEAMS)
+        !hasViewPermission(PermissionEntity.PEOPLE_AND_TEAMS) ||
+        user.superAccountRelations.length > 0
     },
     {
       value: 'column',

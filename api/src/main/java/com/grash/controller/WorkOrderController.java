@@ -111,8 +111,8 @@ public class WorkOrderController {
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<WorkOrderShowDTO>> search(@Parameter(description = "Search criteria for filtering work" +
-                                                                  " orders") @RequestBody SearchCriteria searchCriteria,
-                                                          HttpServletRequest req) {
+                                                                 " orders") @RequestBody SearchCriteria searchCriteria,
+                                                         HttpServletRequest req) {
         User user = userService.whoami(req);
         return ResponseEntity.ok(TenantAspectUtils.executeWithDisabledCompanyCheck(() ->
                 workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user,
@@ -123,8 +123,8 @@ public class WorkOrderController {
     @PostMapping("/search/mini")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<WorkOrderBaseMiniDTO>> searchMini(@Parameter(description = "Search criteria for " +
-                                                                          "filtering work orders") @RequestBody SearchCriteria searchCriteria,
-                                                                  HttpServletRequest req) {
+                                                                         "filtering work orders") @RequestBody SearchCriteria searchCriteria,
+                                                                 HttpServletRequest req) {
         User user = userService.whoami(req);
         return ResponseEntity.ok(TenantAspectUtils.executeWithDisabledCompanyCheck(() ->
                 workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user,
@@ -140,18 +140,29 @@ public class WorkOrderController {
                                                                              dateRange, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
-            List<CalendarEvent<WorkOrderBaseMiniDTO>> result = new ArrayList<>();
-            result.addAll(preventiveMaintenanceService.getEvents(dateRange.getEnd(), user.getCompany().getId()).stream()
-                    .filter(calendarEvent -> calendarEvent.getDate().after(new Date()))
-                    .filter(calendarEvent -> canViewWorkOrderBase(user, calendarEvent.getEvent()))
-                    .map(calendarEvent -> new CalendarEvent<>(calendarEvent.getType(),
-                            preventiveMaintenanceMapper.toBaseMiniDto(calendarEvent.getEvent()),
-                            calendarEvent.getDate()))
-                    .toList());
-            result.addAll(workOrderService.findByDueDateBetweenAndCompany(dateRange.getStart(), dateRange.getEnd(),
-                    user.getCompany().getId()).stream().filter(workOrder -> canViewWorkOrderBase(user, workOrder)).map(workOrderMapper::toBaseMiniDto).map(workOrderMiniDTO -> new CalendarEvent<>("WORK_ORDER",
-                    workOrderMiniDTO, workOrderMiniDTO.getDueDate())).toList());
-            return result;
+            return TenantAspectUtils.executeWithDisabledCompanyCheck(() -> {
+                List<Long> companyIds = user.getSuperAccountRelations().isEmpty()
+                        ? Collections.singletonList(user.getCompany().getId())
+                        : user.getSuperAccountRelations().stream()
+                        .map(rel -> rel.getChildUser().getCompany().getId())
+                        .distinct()
+                        .toList();
+                List<CalendarEvent<WorkOrderBaseMiniDTO>> result = new ArrayList<>();
+                for (Long companyId : companyIds) {
+                    result.addAll(preventiveMaintenanceService.getEvents(dateRange.getEnd(), companyId).stream()
+                            .filter(calendarEvent -> calendarEvent.getDate().after(new Date()))
+                            .filter(calendarEvent -> canViewWorkOrderBase(user, calendarEvent.getEvent()))
+                            .map(calendarEvent -> new CalendarEvent<>(calendarEvent.getType(),
+                                    preventiveMaintenanceMapper.toBaseMiniDto(calendarEvent.getEvent()),
+                                    calendarEvent.getDate()))
+                            .toList());
+                    result.addAll(workOrderService.findByDueDateBetweenAndCompany(dateRange.getStart(),
+                            dateRange.getEnd(),
+                            companyId).stream().filter(workOrder -> canViewWorkOrderBase(user, workOrder)).map(workOrderMapper::toBaseMiniDto).map(workOrderMiniDTO -> new CalendarEvent<>("WORK_ORDER",
+                            workOrderMiniDTO, workOrderMiniDTO.getDueDate())).toList());
+                }
+                return result;
+            });
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
@@ -515,6 +526,7 @@ public class WorkOrderController {
                 ConverterProperties converterProperties = new ConverterProperties()
                         .setTagWorkerFactory(new ITagWorkerFactory() {
                             private final DefaultTagWorkerFactory defaultFactory = new DefaultTagWorkerFactory();
+
                             @Override
                             public ITagWorker getTagWorker(IElementNode tag, ProcessorContext context) {
                                 try {
