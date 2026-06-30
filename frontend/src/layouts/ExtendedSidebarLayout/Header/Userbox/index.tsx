@@ -331,6 +331,24 @@ function HeaderUserbox() {
               )}
             </MenuItem>
           )}
+          {user.superAccountRelations.length > 0 && (
+            <MenuItem
+              onClick={() => {
+                navigate('/app/switch-account');
+                handleClose();
+              }}
+            >
+              <ListItemIcon>
+                <SwitchLeftTwoToneIcon />
+              </ListItemIcon>
+              <ListItemText
+                primaryTypographyProps={{
+                  variant: 'h5'
+                }}
+                primary={t('switch_account')}
+              />
+            </MenuItem>
+          )}
           {user.superAccountRelations.length === 0 && (
             <MenuItem
               onClick={() => {
