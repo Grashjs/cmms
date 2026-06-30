@@ -15,16 +15,17 @@ interface WOStatusNumbersProps {
   ) => void;
   start: Date;
   end: Date;
+  companyId?: number;
 }
 
-function Overview({ handleOpenModal, start, end }: WOStatusNumbersProps) {
+function Overview({ handleOpenModal, start, end, companyId }: WOStatusNumbersProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { overview, loading } = useSelector((state) => state.woAnalytics);
 
   useEffect(() => {
-    dispatch(getOverviewStats(start, end));
-  }, [start, end]);
+    dispatch(getOverviewStats(start, end, companyId));
+  }, [start, end, companyId]);
 
   const formattedData: {
     label: string;

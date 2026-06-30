@@ -28,9 +28,10 @@ interface WOStatusIncompleteProps {
   start: Date;
   end: Date;
   assetColors: { color: string; id: number }[];
+  companyId?: number;
 }
 
-function MTBFByAsset({ handleOpenModal, start, end, assetColors }: WOStatusIncompleteProps) {
+function MTBFByAsset({ handleOpenModal, start, end, assetColors, companyId }: WOStatusIncompleteProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const { mtbfByAsset, loading } = useSelector(
@@ -39,8 +40,8 @@ function MTBFByAsset({ handleOpenModal, start, end, assetColors }: WOStatusIncom
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getMTBFByAsset(start, end));
-  }, [start, end]);
+    dispatch(getMTBFByAsset(start, end, companyId));
+  }, [start, end, companyId]);
 
   const columns: string[] = ['id'];
 

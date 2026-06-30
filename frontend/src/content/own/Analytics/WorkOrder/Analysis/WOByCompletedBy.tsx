@@ -17,9 +17,10 @@ interface WOByPrimaryUserProps {
   ) => void;
   start: Date;
   end: Date;
+  companyId?: number;
 }
 
-function WOByCompletedBy({ handleOpenModal, start, end }: WOByPrimaryUserProps) {
+function WOByCompletedBy({ handleOpenModal, start, end, companyId }: WOByPrimaryUserProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -28,8 +29,8 @@ function WOByCompletedBy({ handleOpenModal, start, end }: WOByPrimaryUserProps) 
   );
 
   useEffect(() => {
-    dispatch(getCompleteByCompletedBy(start, end));
-  }, [start, end]);
+    dispatch(getCompleteByCompletedBy(start, end, companyId));
+  }, [start, end, companyId]);
 
   const columns = ['id'];
 

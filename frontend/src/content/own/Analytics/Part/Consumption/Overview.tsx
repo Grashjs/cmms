@@ -16,9 +16,10 @@ interface WOStatusNumbersProps {
   ) => void;
   start: Date;
   end: Date;
+  companyId?: number;
 }
 
-function Overview({ handleOpenModal, start, end }: WOStatusNumbersProps) {
+function Overview({ handleOpenModal, start, end, companyId }: WOStatusNumbersProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { consumptionsOverview, loading } = useSelector(
@@ -26,8 +27,8 @@ function Overview({ handleOpenModal, start, end }: WOStatusNumbersProps) {
   );
   const { getFormattedCurrency } = useContext(CompanySettingsContext);
   useEffect(() => {
-    dispatch(getPartConsumptionOverview(start, end));
-  }, [start, end]);
+    dispatch(getPartConsumptionOverview(start, end, companyId));
+  }, [start, end, companyId]);
 
   const formattedData: {
     label: string;

@@ -27,9 +27,10 @@ interface DowntimesByMonthProps {
   ) => void;
   start: Date;
   end: Date;
+  companyId?: number;
 }
 
-function StatusByDate({ handleOpenModal, start, end }: DowntimesByMonthProps) {
+function StatusByDate({ handleOpenModal, start, end, companyId }: DowntimesByMonthProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -40,8 +41,8 @@ function StatusByDate({ handleOpenModal, start, end }: DowntimesByMonthProps) {
   useEffect(() => {
     const localStart = new Date(end);
     localStart.setDate(localStart.getDate() - 7);
-    dispatch(getStatusesByDate(start > localStart ? start : localStart, end));
-  }, [end]);
+    dispatch(getStatusesByDate(start > localStart ? start : localStart, end, companyId));
+  }, [end, companyId]);
 
   const columns: string[] = ['id'];
 

@@ -3,6 +3,7 @@ import { Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useContext, useEffect, useState } from 'react';
 import { TitleContext } from '../../../../../contexts/TitleContext';
+import useAuth from '../../../../../hooks/useAuth';
 import Overview from './Overview';
 import RepairTimeByAsset from './RepairTimeByAsset';
 import DowntimesByAsset from './DowntimesByAsset';
@@ -29,14 +30,18 @@ function WOStatusStats({ handleOpenWOModal }: WOStatusStatsProps) {
   const nowMinusMonth = new Date();
   nowMinusMonth.setMonth(nowMinusMonth.getMonth() - 1);
   const [start, setStart] = useState(nowMinusMonth);
+  const { user } = useAuth();
+  const [companyId, setCompanyId] = useState<number | undefined>(
+    user?.superAccountRelations?.[0]?.childCompanyId ?? undefined
+  );
   const dispatch = useDispatch();
   const { assetsMini } = useSelector((state) => state.assets);
   const [assetColors, setAssetColors] = useState<{ color: string; id: number }[]>([]);
 
   useEffect(() => {
     setTitle(t('reliability_dashboard'));
-    dispatch(getAssetsMini());
-  }, []);
+    dispatch(getAssetsMini(companyId));
+  }, [companyId]);
 
   useEffect(() => {
     setAssetColors(assetsMini.map((assetMini) => ({ color: getRandomColor(), id: assetMini.id })));
@@ -55,25 +60,25 @@ function WOStatusStats({ handleOpenWOModal }: WOStatusStatsProps) {
         paddingX={1}
       >
         <Grid item xs={12}>
-          <CustomDateRangePicker start={start} end={end} setStart={setStart} setEnd={setEnd} />
+          <CustomDateRangePicker start={start} end={end} setStart={setStart} setEnd={setEnd} companyId={companyId} onCompanyChange={setCompanyId} />
         </Grid>
         <Grid item xs={12}>
-          <Overview handleOpenModal={handleOpenWOModal} start={start} end={end} />
+          <Overview handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
         </Grid>
         <Grid item xs={12}>
-          <DowntimesByAsset handleOpenModal={handleOpenWOModal} start={start} end={end} assetColors={assetColors} />
+          <DowntimesByAsset handleOpenModal={handleOpenWOModal} start={start} end={end} assetColors={assetColors} companyId={companyId} />
         </Grid>
         <Grid item xs={12} md={6}>
           <RepairTimeByAsset handleOpenModal={handleOpenWOModal} start={start}
                              end={end}
-                             assetColors={assetColors} />
+                             assetColors={assetColors} companyId={companyId} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <MTBFByAsset handleOpenModal={handleOpenWOModal} start={start} end={end} assetColors={assetColors} />
+          <MTBFByAsset handleOpenModal={handleOpenWOModal} start={start} end={end} assetColors={assetColors} companyId={companyId} />
         </Grid>
 
         <Grid item xs={12} md={12}>
-          <MeantimesTrends handleOpenModal={handleOpenWOModal} start={start} end={end} />
+          <MeantimesTrends handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
         </Grid>
       </Grid>
     </>

@@ -27,9 +27,10 @@ interface DowntimesByMonthProps {
   ) => void;
   start: Date;
   end: Date;
+  companyId?: number;
 }
 
-function PartConsumptionsPareto({ handleOpenModal, start, end }: DowntimesByMonthProps) {
+function PartConsumptionsPareto({ handleOpenModal, start, end, companyId }: DowntimesByMonthProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -38,8 +39,8 @@ function PartConsumptionsPareto({ handleOpenModal, start, end }: DowntimesByMont
   );
 
   useEffect(() => {
-    dispatch(getPartConsumptionsByPart(start, end));
-  }, [start, end]);
+    dispatch(getPartConsumptionsByPart(start, end, companyId));
+  }, [start, end, companyId]);
 
   const columns: string[] = ['id'];
 

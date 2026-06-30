@@ -15,16 +15,17 @@ interface HoursWorkedProps {
   ) => void;
   start: Date;
   end: Date;
+  companyId?: number;
 }
 
-function Costs({ handleOpenModal, start, end }: HoursWorkedProps) {
+function Costs({ handleOpenModal, start, end, companyId }: HoursWorkedProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { completeCosts, loading } = useSelector((state) => state.woAnalytics);
   const { getFormattedCurrency } = useContext(CompanySettingsContext);
   useEffect(() => {
-    dispatch(getCompleteCosts(start, end));
-  }, [start, end]);
+    dispatch(getCompleteCosts(start, end, companyId));
+  }, [start, end, companyId]);
 
   const columns = ['id'];
   const formattedData: { label: string; value: string; filters: Filter[] }[] = [

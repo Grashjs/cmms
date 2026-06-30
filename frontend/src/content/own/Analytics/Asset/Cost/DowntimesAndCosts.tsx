@@ -27,9 +27,10 @@ interface WOByPrimaryUserProps {
   ) => void;
   start: Date;
   end: Date;
+  companyId?: number;
 }
 
-function DowntimesAndCosts({ handleOpenModal, start, end }: WOByPrimaryUserProps) {
+function DowntimesAndCosts({ handleOpenModal, start, end, companyId }: WOByPrimaryUserProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -38,8 +39,8 @@ function DowntimesAndCosts({ handleOpenModal, start, end }: WOByPrimaryUserProps
   );
 
   useEffect(() => {
-    dispatch(getDowntimesAndCostsByAsset(start, end));
-  }, [start, end]);
+    dispatch(getDowntimesAndCostsByAsset(start, end, companyId));
+  }, [start, end, companyId]);
 
   const columns: string[] = ['id'];
 
