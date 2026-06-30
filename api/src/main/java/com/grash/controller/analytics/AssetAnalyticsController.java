@@ -46,16 +46,19 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getTimeCostByAsset",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
+            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
+                    "(#companyId != null ? '_' + #companyId : '')"
     )
     public ResponseEntity<Collection<TimeCostByAsset>> getTimeCostByAsset(@Parameter(hidden = true) @CurrentUser User user,
                                                                           @Parameter(description = "Date range for " +
-                                                                                  "filtering analytics") @RequestBody DateRange dateRange) {
+                                                                                  "filtering analytics") @RequestBody DateRange dateRange,
+                                                                          @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             boolean includeLaborCost =
                     user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost();
             List<Object[]> rows = workOrderService.findTopNAssetsTimeCost(
-                    user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd(), 10);
+                    resolvedCompanyId, dateRange.getStart(), dateRange.getEnd(), 10);
             Collection<TimeCostByAsset> result = rows.stream()
                     .map(row -> {
                         long time = ((Number) row[2]).longValue();
@@ -79,17 +82,21 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getOverviewStats",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
+            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
+                    "(#companyId != null ? '_' + #companyId : '')"
     )
     public ResponseEntity<AssetStats> getOverviewStats(@Parameter(hidden = true) @CurrentUser User user,
-                                                       @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
+                                                       @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange,
+                                                       @RequestParam(required = false) @Parameter(description =
+                                                               "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             Collection<AssetDowntime> downtimes =
-                    assetDowntimeService.findByCompanyAndStartsOnBetween(user.getCompany().getId(),
+                    assetDowntimeService.findByCompanyAndStartsOnBetween(resolvedCompanyId,
                             dateRange.getStart(), dateRange.getEnd());
             long downtimesDuration =
                     downtimes.stream().mapToLong(assetDowntime -> assetDowntime.getDateRangeDuration(dateRange)).sum();
-            Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(),
+            Collection<Asset> assets = assetService.findByCompanyAndBefore(resolvedCompanyId,
                     dateRange.getEnd());
             long livingTime = assets.stream().mapToLong(asset -> getLivingTime(asset, dateRange)).sum();
             long availability = livingTime == 0 ? 0 : (livingTime - downtimesDuration) * 100 / livingTime;
@@ -105,14 +112,17 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getDowntimesByAsset",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
+            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
+                    "(#companyId != null ? '_' + #companyId : '')"
     )
     public ResponseEntity<Collection<DowntimesByAsset>> getDowntimesByAsset(@Parameter(hidden = true) @CurrentUser User user,
                                                                             @Parameter(description = "Date range for " +
-                                                                                    "filtering analytics") @RequestBody DateRange dateRange) {
+                                                                                    "filtering analytics") @RequestBody DateRange dateRange,
+                                                                            @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             List<Object[]> rows = assetDowntimeService.findTopNAssetsByDowntime(
-                    user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd(), 10);
+                    resolvedCompanyId, dateRange.getStart(), dateRange.getEnd(), 10);
             Collection<DowntimesByAsset> result = rows.stream().map(row -> {
                 long cnt = ((Number) row[2]).longValue();
                 long totalDuration = ((Number) row[3]).longValue();
@@ -133,14 +143,17 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getMTBFByAsset",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
+            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
+                    "(#companyId != null ? '_' + #companyId : '')"
     )
     public ResponseEntity<Collection<MTBFByAsset>> getMTBFByAsset(@CurrentUser User user,
                                                                   @Parameter(description = "Date range for filtering " +
-                                                                          "analytics") @RequestBody DateRange dateRange) {
+                                                                          "analytics") @RequestBody DateRange dateRange,
+                                                                  @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             List<Object[]> rows = assetDowntimeService.findTopNAssetsForMTBF(
-                    user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd(), 10);
+                    resolvedCompanyId, dateRange.getStart(), dateRange.getEnd(), 10);
             Collection<MTBFByAsset> result = rows.stream().map(row -> {
                 Long assetId = (Long) row[0];
                 return MTBFByAsset.builder()
@@ -157,17 +170,21 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getMeantimes",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
+            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
+                    "(#companyId != null ? '_' + #companyId : '')"
     )
     public ResponseEntity<Meantimes> getMeantimes(@Parameter(hidden = true) @CurrentUser User user,
-                                                  @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
+                                                  @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange,
+                                                  @RequestParam(required = false) @Parameter(description = "Filter by" +
+                                                          " specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             Collection<AssetDowntime> downtimes =
-                    assetDowntimeService.findByCompanyAndStartsOnBetween(user.getCompany().getId(),
+                    assetDowntimeService.findByCompanyAndStartsOnBetween(resolvedCompanyId,
                             dateRange.getStart(), dateRange.getEnd());
             long betweenMaintenances = 0L;
             Collection<WorkOrder> workOrders =
-                    workOrderService.findByCompanyAndCreatedAtBetween(user.getCompany().getId(), dateRange.getStart()
+                    workOrderService.findByCompanyAndCreatedAtBetween(resolvedCompanyId, dateRange.getStart()
                             , dateRange.getEnd());
             if (workOrders.size() > 2) {
                 AuditComparator auditComparator = new AuditComparator();
@@ -187,14 +204,17 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getRepairTimeByAsset",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
+            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
+                    "(#companyId != null ? '_' + #companyId : '')"
     )
     public ResponseEntity<Collection<RepairTimeByAsset>> getRepairTimeByAsset(@Parameter(hidden = true) @CurrentUser User user,
                                                                               @Parameter(description = "Date range " +
-                                                                                      "for filtering analytics") @RequestBody DateRange dateRange) {
+                                                                                      "for filtering analytics") @RequestBody DateRange dateRange,
+                                                                              @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             List<Object[]> rows = workOrderService.findTopNAssetsRepairTime(
-                    user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd(), 10);
+                    resolvedCompanyId, dateRange.getStart(), dateRange.getEnd(), 10);
             Collection<RepairTimeByAsset> result = rows.stream().map(row ->
                     RepairTimeByAsset.builder()
                             .id((Long) row[0])
@@ -210,13 +230,16 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getDowntimesMeantimeByMonth",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
+            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
+                    "(#companyId != null ? '_' + #companyId : '')"
     )
     public ResponseEntity<List<DowntimesMeantimeByDate>> getDowntimesMeantimeByMonth(@Parameter(hidden = true) @CurrentUser User user,
                                                                                      @Parameter(description = "Date " +
                                                                                              "range for filtering " +
-                                                                                             "analytics") @RequestBody DateRange dateRange) {
+                                                                                             "analytics") @RequestBody DateRange dateRange,
+                                                                                     @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
             List<DowntimesMeantimeByDate> result = new ArrayList<>();
             LocalDate currentDate = Helper.dateToLocalDate(dateRange.getStart());
@@ -232,7 +255,7 @@ public class AssetAnalyticsController {
                 nextDate = nextDate.isAfter(endDateLocale) ? endDateLocale : nextDate; // Adjust for the end date
                 Collection<AssetDowntime> downtimes =
                         assetDowntimeService.findByStartsOnBetweenAndCompany(Helper.localDateToDate(currentDate),
-                                Helper.localDateToDate(nextDate), user.getCompany().getId());
+                                Helper.localDateToDate(nextDate), resolvedCompanyId);
                 result.add(DowntimesMeantimeByDate.builder()
                         .meantime(assetDowntimeService.getDowntimesMeantime(downtimes))
                         .date(Helper.localDateToDate(currentDate)).build());
@@ -246,16 +269,20 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getAssetsCosts",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
+            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
+                    "(#companyId != null ? '_' + #companyId : '')"
     )
     public ResponseEntity<AssetsCosts> getAssetsCosts(@Parameter(hidden = true) @CurrentUser User user,
-                                                      @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
+                                                      @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange,
+                                                      @RequestParam(required = false) @Parameter(description =
+                                                              "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             boolean includeLaborCost =
                     user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost();
-            Long companyId = user.getCompany().getId();
-            double totalAcquisitionCost = assetService.getTotalAcquisitionCost(companyId, dateRange.getEnd());
-            Object[] totals = workOrderService.findTotalWOCosts(companyId, dateRange.getStart(), dateRange.getEnd()).get(0);
+            double totalAcquisitionCost = assetService.getTotalAcquisitionCost(resolvedCompanyId, dateRange.getEnd());
+            Object[] totals = workOrderService.findTotalWOCosts(resolvedCompanyId, dateRange.getStart(),
+                    dateRange.getEnd()).get(0);
             double totalLabor = ((Number) totals[0]).doubleValue();
             double totalPart = ((Number) totals[1]).doubleValue();
             double totalAdd = ((Number) totals[2]).doubleValue();
@@ -276,17 +303,20 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getDowntimesAndCosts",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
+            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
+                    "(#companyId != null ? '_' + #companyId : '')"
     )
     public ResponseEntity<Collection<DowntimesAndCostsByAsset>> getDowntimesAndCosts(@Parameter(hidden = true) @CurrentUser User user,
                                                                                      @Parameter(description = "Date " +
                                                                                              "range for filtering " +
-                                                                                             "analytics") @RequestBody DateRange dateRange) {
+                                                                                             "analytics") @RequestBody DateRange dateRange,
+                                                                                     @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             boolean includeLaborCost =
                     user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost();
             List<Object[]> rows = assetDowntimeService.findTopNAssetsDowntimeAndCosts(
-                    user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd(), 10);
+                    resolvedCompanyId, dateRange.getStart(), dateRange.getEnd(), 10);
             return ResponseEntity.ok(rows.stream().map(row -> {
                 long duration = ((Number) row[2]).longValue();
                 double laborCost = ((Number) row[3]).doubleValue();
@@ -307,12 +337,15 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getDowntimesByMonth",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
+            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
+                    "(#companyId != null ? '_' + #companyId : '')"
     )
     public ResponseEntity<List<DowntimesByDate>> getDowntimesByMonth(@Parameter(hidden = true) @CurrentUser User user,
                                                                      @Parameter(description = "Date range for " +
-                                                                             "filtering analytics") @RequestBody DateRange dateRange) {
+                                                                             "filtering analytics") @RequestBody DateRange dateRange,
+                                                                     @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             List<DowntimesByDate> result = new ArrayList<>();
             LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
             LocalDate currentDate = Helper.dateToLocalDate(dateRange.getStart());
@@ -328,11 +361,11 @@ public class AssetAnalyticsController {
                 nextDate = nextDate.isAfter(endDateLocale) ? endDateLocale : nextDate; // Adjust for the end date
                 Collection<WorkOrder> completeWorkOrders =
                         workOrderService.findByCompletedOnBetweenAndCompany(Helper.localDateToDate(currentDate),
-                                        Helper.localDateToDate(nextDate), user.getCompany().getId())
+                                        Helper.localDateToDate(nextDate), resolvedCompanyId)
                                 .stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
                 Collection<AssetDowntime> downtimes =
                         assetDowntimeService.findByStartsOnBetweenAndCompany(Helper.localDateToDate(currentDate),
-                                Helper.localDateToDate(nextDate), user.getCompany().getId());
+                                Helper.localDateToDate(nextDate), resolvedCompanyId);
                 result.add(DowntimesByDate.builder()
                         .workOrdersCosts(workOrderService.getAllCost(completeWorkOrders,
                                 user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost()))
@@ -375,5 +408,6 @@ public class AssetAnalyticsController {
                 .before(dateRange.getStart()) ? dateRange.getStart()
                 : asset.getRealCreatedAt(), dateRange.getEnd(), TimeUnit.SECONDS);
     }
+
 }
 

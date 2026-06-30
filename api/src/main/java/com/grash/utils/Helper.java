@@ -426,4 +426,16 @@ public class Helper {
         byte[] hash = digest.digest(raw.getBytes(StandardCharsets.UTF_8));
         return Base64.getEncoder().encodeToString(hash);
     }
+
+    public static Long resolveCompanyId(User user, Long companyId) {
+        if (companyId == null || companyId.equals(user.getCompany().getId())) {
+            return user.getCompany().getId();
+        }
+        boolean hasAccess = user.getSuperAccountRelations().stream()
+                .anyMatch(rel -> rel.getChildUser().getCompany().getId().equals(companyId));
+        if (!hasAccess) {
+            throw new CustomException("Access denied to company", HttpStatus.FORBIDDEN);
+        }
+        return companyId;
+    }
 }

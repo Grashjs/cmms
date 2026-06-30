@@ -33,18 +33,22 @@ public class PartAnalyticsController {
     private final WorkOrderCategoryService workOrderCategoryService;
     private final WorkOrderService workOrderService;
     private final PartTransactionService partTransactionService;
+    private final CompanyService companyService;
 
     @PostMapping("/consumptions/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getPartStats",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
+            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
+                    "(#companyId != null ? '_' + #companyId : '')"
     )
     public ResponseEntity<PartStats> getPartStats(@Parameter(hidden = true) @CurrentUser User user,
-                                                  @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange) {
+                                                  @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange,
+                                                  @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             Collection<PartTransaction> partTransactions =
-                    partTransactionService.findConsumptionsByCompanyAndCreatedAtBetween(user.getCompany().getId(),
+                    partTransactionService.findConsumptionsByCompanyAndCreatedAtBetween(resolvedCompanyId,
                             dateRange.getStart(), dateRange.getEnd());
             double totalConsumptionCost = partTransactions.stream().mapToDouble(PartTransaction::getCost).sum();
             int consumedCount = partTransactions.stream()
@@ -61,15 +65,18 @@ public class PartAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getPartPareto",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
+            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
+                    "(#companyId != null ? '_' + #companyId : '')"
     )
     public ResponseEntity<List<PartConsumptionsByPart>> getPareto(@Parameter(hidden = true) @CurrentUser User user,
                                                                   @Parameter(description = "Date range for filtering " +
-                                                                          "analytics") @RequestBody DateRange dateRange) {
+                                                                          "analytics") @RequestBody DateRange dateRange,
+                                                                  @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             Collection<PartTransaction> partTransactions =
                     partTransactionService.findConsumptionsByCompanyAndCreatedAtBetween
-                                    (user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd())
+                                    (resolvedCompanyId, dateRange.getStart(), dateRange.getEnd())
                             .stream().filter(partTransaction -> partTransaction.getQuantity() != 0).collect(Collectors.toList());
             Set<Part> parts = new HashSet<>(partTransactions.stream()
                     .map(PartTransaction::getPart)
@@ -90,15 +97,18 @@ public class PartAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getConsumptionByAsset",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
+            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
+                    "(#companyId != null ? '_' + #companyId : '')"
     )
     public ResponseEntity<Collection<PartConsumptionsByAsset>> getConsumptionByAsset(@Parameter(hidden = true) @CurrentUser User user,
                                                                                      @Parameter(description = "Date " +
                                                                                              "range for filtering " +
-                                                                                             "analytics") @RequestBody DateRange dateRange) {
+                                                                                             "analytics") @RequestBody DateRange dateRange,
+                                                                                     @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             List<Object[]> rows = partTransactionService.findTopNAssetsByConsumption(
-                    user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd(), 10);
+                    resolvedCompanyId, dateRange.getStart(), dateRange.getEnd(), 10);
             return ResponseEntity.ok(rows.stream().map(row ->
                     PartConsumptionsByAsset.builder()
                             .id((Long) row[0])
@@ -113,20 +123,26 @@ public class PartAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getConsumptionByPartCategory",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
+            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
+                    "(#companyId != null ? '_' + #companyId : '')"
     )
     public ResponseEntity<Collection<PartConsumptionByCategory>> getConsumptionByPartCategory(@Parameter(hidden =
-                                                                                                      true) @CurrentUser User user,
-                                                                                              @Parameter(description
-                                                                                                      = "Date range " +
-                                                                                                      "for filtering " +
-                                                                                                      "analytics") @RequestBody DateRange dateRange) {
+                                                                                                       true) @CurrentUser User user,
+                                                                                               @Parameter(description
+                                                                                                       = "Date range " +
+                                                                                                       "for filtering " +
+                                                                                                       "analytics") @RequestBody DateRange dateRange,
+                                                                                               @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             Collection<PartCategory> partCategories =
-                    partCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
+                    partCategoryService.findByCompanySettings(
+                            companyService.findById(resolvedCompanyId)
+                                    .orElseThrow(() -> new CustomException("Company not found", HttpStatus.NOT_FOUND))
+                                    .getCompanySettings().getId());
             Collection<PartConsumptionByCategory> result = new ArrayList<>();
             Collection<PartTransaction> partTransactions =
-                    partTransactionService.findConsumptionsByCompanyAndCreatedAtBetween(user.getCompany().getId(),
+                    partTransactionService.findConsumptionsByCompanyAndCreatedAtBetween(resolvedCompanyId,
                             dateRange.getStart(), dateRange.getEnd());
             for (PartCategory category : partCategories) {
                 double cost =
@@ -146,21 +162,27 @@ public class PartAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getConsumptionByWOCategory",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
+            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
+                    "(#companyId != null ? '_' + #companyId : '')"
     )
     public ResponseEntity<Collection<PartConsumptionByWOCategory>> getConsumptionByWOCategory(@Parameter(hidden =
-                                                                                                      true) @CurrentUser User user,
-                                                                                              @Parameter(description
-                                                                                                      = "Date range " +
-                                                                                                      "for filtering" +
-                                                                                                      " " +
-                                                                                                      "analytics") @RequestBody DateRange dateRange) {
+                                                                                                       true) @CurrentUser User user,
+                                                                                               @Parameter(description
+                                                                                                       = "Date range " +
+                                                                                                       "for filtering" +
+                                                                                                       " " +
+                                                                                                       "analytics") @RequestBody DateRange dateRange,
+                                                                                               @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             Collection<WorkOrderCategory> workOrderCategories =
-                    workOrderCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
+                    workOrderCategoryService.findByCompanySettings(
+                            companyService.findById(resolvedCompanyId)
+                                    .orElseThrow(() -> new CustomException("Company not found", HttpStatus.NOT_FOUND))
+                                    .getCompanySettings().getId());
             Collection<PartConsumptionByWOCategory> result = new ArrayList<>();
             Collection<PartTransaction> partTransactions =
-                    partTransactionService.findConsumptionsByCompanyAndCreatedAtBetween(user.getCompany().getId(),
+                    partTransactionService.findConsumptionsByCompanyAndCreatedAtBetween(resolvedCompanyId,
                             dateRange.getStart(), dateRange.getEnd());
             for (WorkOrderCategory category : workOrderCategories) {
                 double cost =
@@ -180,13 +202,16 @@ public class PartAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getPartConsumptionsByMonth",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)"
+            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
+                    "(#companyId != null ? '_' + #companyId : '')"
     )
     public ResponseEntity<List<PartConsumptionsByMonth>> getPartConsumptionsByMonth(@Parameter(hidden = true) @CurrentUser User user,
                                                                                     @Parameter(description = "Date " +
                                                                                             "range for filtering " +
-                                                                                            "analytics") @RequestBody DateRange dateRange) {
+                                                                                            "analytics") @RequestBody DateRange dateRange,
+                                                                                    @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             List<PartConsumptionsByMonth> result = new ArrayList<>();
             LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
             LocalDate currentDate = Helper.dateToLocalDate(dateRange.getStart());
@@ -201,7 +226,7 @@ public class PartAnalyticsController {
                 // range
                 nextDate = nextDate.isAfter(endDateLocale) ? endDateLocale : nextDate; // Adjust for the end date
                 Collection<PartTransaction> partTransactions =
-                        partTransactionService.findConsumptionsByCompanyAndCreatedAtBetween(user.getCompany().getId()
+                        partTransactionService.findConsumptionsByCompanyAndCreatedAtBetween(resolvedCompanyId
                                 , Helper.localDateToDate(currentDate),
                                 Helper.localDateToDate(nextDate));
                 double cost = partTransactions.stream().mapToDouble(PartTransaction::getCost).sum();
@@ -213,5 +238,6 @@ public class PartAnalyticsController {
             return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
+
 }
 

@@ -59,7 +59,7 @@ public class WOAnalyticsController {
                                                     @RequestParam(required = false) @Parameter(description = "Filter " +
                                                             "by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
-            Long resolvedCompanyId = resolveCompanyId(user, companyId);
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             Collection<WorkOrder> workOrders =
                     workOrderService.findByCompanyAndCreatedAtBetween(resolvedCompanyId, dateRange.getStart()
                             , dateRange.getEnd());
@@ -159,7 +159,7 @@ public class WOAnalyticsController {
                                                                         "analytics") @RequestBody DateRange dateRange,
                                                                 @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
-            Long resolvedCompanyId = resolveCompanyId(user, companyId);
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             Collection<WorkOrder> workOrders =
                     workOrderService.findByCompanyAndCreatedAtBetween(resolvedCompanyId, dateRange.getStart()
                             , dateRange.getEnd());
@@ -188,7 +188,7 @@ public class WOAnalyticsController {
                                                                              "filtering analytics") @RequestBody DateRange dateRange,
                                                                      @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
-            Long resolvedCompanyId = resolveCompanyId(user, companyId);
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             Collection<WorkOrder> workOrders =
                     workOrderService.findByCompanyAndCreatedAtBetween(resolvedCompanyId, dateRange.getStart()
                             , dateRange.getEnd());
@@ -243,7 +243,7 @@ public class WOAnalyticsController {
                                                     @RequestParam(required = false) @Parameter(description = "Filter " +
                                                             "by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
-            Long resolvedCompanyId = resolveCompanyId(user, companyId);
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             Collection<WorkOrder> workOrders =
                     workOrderService.findByCompanyAndCreatedAtBetween(resolvedCompanyId, dateRange.getStart()
                             , dateRange.getEnd());
@@ -271,7 +271,7 @@ public class WOAnalyticsController {
                                                                                         "for filtering analytics") @RequestBody DateRange dateRange,
                                                                                 @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
-            Long resolvedCompanyId = resolveCompanyId(user, companyId);
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             List<Object[]> rows = workOrderService.findTopNAssetsByIncompleteWO(
                     resolvedCompanyId, dateRange.getStart(), dateRange.getEnd(), 10);
             Collection<IncompleteWOByAsset> result = rows.stream()
@@ -298,7 +298,7 @@ public class WOAnalyticsController {
                                                                                       "for filtering analytics") @RequestBody DateRange dateRange,
                                                                               @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
-            Long resolvedCompanyId = resolveCompanyId(user, companyId);
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             Collection<User> users = userService.findWorkersByCompany(resolvedCompanyId);
             Collection<IncompleteWOByUser> result = new ArrayList<>();
             users.forEach(user1 -> {
@@ -333,7 +333,7 @@ public class WOAnalyticsController {
                                             @RequestParam(required = false) @Parameter(description = "Filter by " +
                                                     "specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
-            Long resolvedCompanyId = resolveCompanyId(user, companyId);
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             Collection<WorkOrder> workOrders =
                     workOrderService.findByCompanyAndCreatedAtBetween(resolvedCompanyId, dateRange.getStart()
                             , dateRange.getEnd());
@@ -361,7 +361,7 @@ public class WOAnalyticsController {
                                                                              "filtering analytics") @RequestBody DateRange dateRange,
                                                                      @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
-            Long resolvedCompanyId = resolveCompanyId(user, companyId);
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             Collection<User> users = userService.findWorkersByCompany(resolvedCompanyId);
             Collection<WOCountByUser> results = new ArrayList<>();
             users.forEach(user1 -> {
@@ -391,7 +391,7 @@ public class WOAnalyticsController {
                                                                                     "filtering analytics") @RequestBody DateRange dateRange,
                                                                             @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
-            Long resolvedCompanyId = resolveCompanyId(user, companyId);
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             Collection<User> users = userService.findWorkersByCompany(resolvedCompanyId);
             Collection<WOCountByUser> results = new ArrayList<>();
             users.forEach(user1 -> {
@@ -421,7 +421,7 @@ public class WOAnalyticsController {
                                                                               "filtering analytics") @RequestBody DateRange dateRange,
                                                                       @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
-            Long resolvedCompanyId = resolveCompanyId(user, companyId);
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             Priority[] priorities = Priority.values();
             Map<Priority, Integer> results = new HashMap<>();
             Arrays.asList(priorities).forEach(priority -> {
@@ -446,7 +446,7 @@ public class WOAnalyticsController {
                                                                                      " filtering analytics") @RequestBody DateRange dateRange,
                                                                              @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
-            Long resolvedCompanyId = resolveCompanyId(user, companyId);
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             Collection<WorkOrderCategory> categories =
                     workOrderCategoryService.findByCompanySettings(
                             companyService.findById(resolvedCompanyId)
@@ -476,7 +476,7 @@ public class WOAnalyticsController {
     public ResponseEntity<List<WOCountByWeek>> getCompleteByWeek(@Parameter(hidden = true) @CurrentUser User user,
                                                                  @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
-            Long resolvedCompanyId = resolveCompanyId(user, companyId);
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             List<WOCountByWeek> result = new ArrayList<>();
             LocalDate previousMonday =
                     LocalDate.now(ZoneId.of("UTC"));
@@ -508,7 +508,7 @@ public class WOAnalyticsController {
     public ResponseEntity<List<WOTimeByWeek>> getCompleteTimeByWeek(@Parameter(hidden = true) @CurrentUser User user,
                                                                     @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
-            Long resolvedCompanyId = resolveCompanyId(user, companyId);
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             List<WOTimeByWeek> result = new ArrayList<>();
             LocalDate previousMonday =
                     LocalDate.now(ZoneId.of("UTC"));
@@ -545,7 +545,7 @@ public class WOAnalyticsController {
                                                                           "analytics") @RequestBody DateRange dateRange,
                                                                   @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
-            Long resolvedCompanyId = resolveCompanyId(user, companyId);
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompanyAndCreatedAtBetween(
                     resolvedCompanyId, dateRange.getStart(), dateRange.getEnd()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).toList();
             double additionalCost = workOrderService.getAdditionalCost(completeWorkOrders);
@@ -577,7 +577,7 @@ public class WOAnalyticsController {
                                                                               "filtering analytics") @RequestBody DateRange dateRange,
                                                                       @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
-            Long resolvedCompanyId = resolveCompanyId(user, companyId);
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             List<Object[]> rows = workOrderService.findWOCostsByDateRange(
                     resolvedCompanyId, dateRange.getStart(), dateRange.getEnd());
 
@@ -632,7 +632,7 @@ public class WOAnalyticsController {
                                                                                      @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
         if (user.canSeeAnalytics()) {
-            Long resolvedCompanyId = resolveCompanyId(user, companyId);
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
             List<WOStatusesByDate> result = new ArrayList<>();
             LocalDate currentDate = Helper.dateToLocalDate(dateRange.getStart());
             LocalDate endDateExclusive = Helper.dateToLocalDate(dateRange.getEnd()).plusDays(1); // Include end date
@@ -693,19 +693,5 @@ public class WOAnalyticsController {
         return labors.stream().mapToLong(Time::getDuration).sum();
     }
 
-    private Long resolveCompanyId(User user, Long companyId) {
-        if (companyId == null) {
-            return user.getCompany().getId();
-        }
-        if (companyId.equals(user.getCompany().getId())) {
-            return companyId;
-        }
-        boolean hasAccess = user.getSuperAccountRelations().stream()
-                .anyMatch(rel -> rel.getChildUser().getCompany().getId().equals(companyId));
-        if (!hasAccess) {
-            throw new CustomException("Access denied to company", HttpStatus.FORBIDDEN);
-        }
-        return companyId;
-    }
 }
 
