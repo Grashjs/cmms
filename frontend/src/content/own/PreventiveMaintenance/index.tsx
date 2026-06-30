@@ -80,7 +80,9 @@ import { AssetMiniDTO } from '../../../models/owns/asset';
 import { patchTasksOfPreventiveMaintenance } from '../../../slices/task';
 import { createColumnHelper } from '@tanstack/react-table';
 import useTableState from '../../../hooks/useTableState';
+import CompanyFilter from '../WorkOrders/Filters/CompanyFilter';
 import EnumFilter from '../WorkOrders/Filters/EnumFilter';
+import BusinessTwoToneIcon from '@mui/icons-material/BusinessTwoTone';
 import SignalCellularAltTwoToneIcon from '@mui/icons-material/SignalCellularAltTwoTone';
 import SearchInput from '../components/SearchInput';
 import WorkOrder from '../../../models/owns/workOrder';
@@ -136,7 +138,8 @@ function PMs() {
     hasCreatePermission,
     getFilteredFields,
     hasViewOtherPermission,
-    hasFeature
+    hasFeature,
+    user
   } = useAuth();
   const [currentPM, setCurrentPM] = useState<PreventiveMaintenance>();
   const { tasksByPreventiveMaintenance } = useSelector((state) => state.tasks);
@@ -804,6 +807,14 @@ function PMs() {
                   fieldName="priority"
                   icon={<SignalCellularAltTwoToneIcon />}
                 />
+                {user?.superAccountRelations?.length > 0 && (
+                  <CompanyFilter
+                    filterFields={criteria.filterFields}
+                    onChange={onFilterChange}
+                    superAccountRelations={user.superAccountRelations}
+                    icon={<BusinessTwoToneIcon />}
+                  />
+                )}
                 <SearchInput onChange={debouncedQueryChange} />
               </Stack>
               <Box sx={{ width: '95%' }}>
