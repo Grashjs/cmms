@@ -615,7 +615,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     );
     const { accessToken } = response;
     Object.keys(localStorage)
-      .filter((key) => key.endsWith('TableState'))
+      .filter((key) => key.endsWith('_filters'))
       .forEach((key) => localStorage.removeItem(key));
     return loginInternal(accessToken);
   };
