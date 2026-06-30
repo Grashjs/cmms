@@ -137,7 +137,8 @@ public class WorkOrderController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public Collection<CalendarEvent<WorkOrderBaseMiniDTO>> getEvents(@Parameter(description = "Date range for " +
             "calendar events") @Valid @RequestBody DateRange
-                                                                             dateRange, HttpServletRequest req) {
+                                                                             dateRange, @RequestParam(required =
+            false) Long companyId, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
             return TenantAspectUtils.executeWithDisabledCompanyCheck(() -> {
@@ -147,9 +148,15 @@ public class WorkOrderController {
                         .map(rel -> rel.getChildUser().getCompany().getId())
                         .distinct()
                         .toList();
+                if (companyId != null) {
+                    if (!companyIds.contains(companyId))
+                        throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+                    companyIds = Collections.singletonList(companyId);
+                }
+
                 List<CalendarEvent<WorkOrderBaseMiniDTO>> result = new ArrayList<>();
-                for (Long companyId : companyIds) {
-                    result.addAll(preventiveMaintenanceService.getEvents(dateRange.getEnd(), companyId).stream()
+                for (Long compId : companyIds) {
+                    result.addAll(preventiveMaintenanceService.getEvents(dateRange.getEnd(), compId).stream()
                             .filter(calendarEvent -> calendarEvent.getDate().after(new Date()))
                             .filter(calendarEvent -> canViewWorkOrderBase(user, calendarEvent.getEvent()))
                             .map(calendarEvent -> new CalendarEvent<>(calendarEvent.getType(),
@@ -158,7 +165,7 @@ public class WorkOrderController {
                             .toList());
                     result.addAll(workOrderService.findByDueDateBetweenAndCompany(dateRange.getStart(),
                             dateRange.getEnd(),
-                            companyId).stream().filter(workOrder -> canViewWorkOrderBase(user, workOrder)).map(workOrderMapper::toBaseMiniDto).map(workOrderMiniDTO -> new CalendarEvent<>("WORK_ORDER",
+                            compId).stream().filter(workOrder -> canViewWorkOrderBase(user, workOrder)).map(workOrderMapper::toBaseMiniDto).map(workOrderMiniDTO -> new CalendarEvent<>("WORK_ORDER",
                             workOrderMiniDTO, workOrderMiniDTO.getDueDate())).toList());
                 }
                 return result;

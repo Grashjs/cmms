@@ -1150,6 +1150,10 @@ function WorkOrders() {
                   if (type === 'WORK_ORDER') handleOpenDetails(id);
                   else navigate(getPreventiveMaintenanceUrl(id));
                 }}
+                companyId={
+                  criteria.filterFields.find((ff) => ff.field === 'company')
+                    ?.values?.[0] ?? null
+                }
               />
             ) : (
               <WorkloadView

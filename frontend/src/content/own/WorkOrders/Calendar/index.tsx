@@ -136,11 +136,13 @@ interface Event {
 interface OwnProps {
   handleAddWorkOrder: (date: Date) => void;
   handleOpenDetails: (id: number, type: string) => void;
+  companyId: number | null;
 }
 
 function ApplicationsCalendar({
   handleAddWorkOrder,
-  handleOpenDetails
+  handleOpenDetails,
+  companyId
 }: OwnProps) {
   const theme = useTheme();
   const { i18n } = useTranslation();
@@ -219,8 +221,8 @@ function ApplicationsCalendar({
     }
     const start = newView.activeStart;
     const end = newView.activeEnd;
-    dispatch(getWorkOrderEvents(start, end));
-  }, [date, view]);
+    dispatch(getWorkOrderEvents(start, end, companyId));
+  }, [date, view, companyId]);
   const changeView = (changedView: View): void => {
     const calItem = calendarRef.current;
 
