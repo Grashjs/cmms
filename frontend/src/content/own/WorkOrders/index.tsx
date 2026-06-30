@@ -27,7 +27,14 @@ import {
 } from '../type';
 import WorkOrder from '../../../models/owns/workOrder';
 import * as React from 'react';
-import { ChangeEvent, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  ChangeEvent,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { TitleContext } from '../../../contexts/TitleContext';
 import CustomDatagrid2, {
   CustomDatagridColumn2
@@ -465,12 +472,20 @@ function WorkOrders() {
   const onDeleteFailure = (err) =>
     showSnackBar(t('wo_delete_failure'), 'error');
 
-  const onQueryChange = (event) => {
-    onSearchQueryChange<WorkOrder>(event, criteria, setCriteria, [
-      ...QUERY_SEARCH_FIELDS.values()
-    ]);
-  };
-  const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
+  const criteriaRef = useRef(criteria);
+  criteriaRef.current = criteria;
+  const debouncedQueryChange = useMemo(
+    () =>
+      debounce((event) => {
+        onSearchQueryChange<WorkOrder>(
+          event,
+          criteriaRef.current,
+          setCriteria,
+          [...QUERY_SEARCH_FIELDS.values()]
+        );
+      }, 1300),
+    []
+  );
   useEffect(() => {
     dispatch(getWorkOrders(criteria));
   }, [criteria]);
