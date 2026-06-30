@@ -73,6 +73,7 @@ export interface UserResponseDTO extends OwnUser {
 }
 export interface SuperAccountRelation {
   childCompanyName: string;
+  childCompanyId: number;
   childCompanyLogo: File;
   childUserId: number;
   superUserId: number;

@@ -1881,6 +1881,7 @@ const locale = {
   overdue: 'Overdue',
   due_soon: 'Due Soon',
   all_users: 'All Users',
+  all_companies: 'All Companies',
   team_member: 'Team Member',
   no_data: 'No data',
   hours_left: 'left',

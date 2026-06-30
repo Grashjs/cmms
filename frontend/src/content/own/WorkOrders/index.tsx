@@ -80,8 +80,10 @@ import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import FilterAltTwoToneIcon from '@mui/icons-material/FilterAltTwoTone';
 import MoreFilters from './Filters/MoreFilters';
 import EnumFilter from './Filters/EnumFilter';
+import CompanyFilter from './Filters/CompanyFilter';
 import SignalCellularAltTwoToneIcon from '@mui/icons-material/SignalCellularAltTwoTone';
 import CircleTwoToneIcon from '@mui/icons-material/CircleTwoTone';
+import BusinessTwoToneIcon from '@mui/icons-material/BusinessTwoTone';
 import _ from 'lodash';
 import SearchInput from '../components/SearchInput';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
@@ -1085,6 +1087,14 @@ function WorkOrders() {
                 fieldName="status"
                 icon={<CircleTwoToneIcon />}
               />
+              {user.superAccountRelations.length > 0 && (
+                <CompanyFilter
+                  filterFields={criteria.filterFields}
+                  onChange={onFilterChange}
+                  superAccountRelations={user.superAccountRelations}
+                  icon={<BusinessTwoToneIcon />}
+                />
+              )}
               <SearchInput onChange={debouncedQueryChange} />
             </Stack>
           )}
