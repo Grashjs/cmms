@@ -112,7 +112,10 @@ public class AdditionalCostController {
     }
 
     private void checkAccessToWorkOrder(WorkOrder workOrder, User user) {
-        if (!workOrder.getCompany().getId().equals(user.getCompany().getId())) {
+        Long workOrderCompanyId = workOrder.getCompany().getId();
+        if (!workOrderCompanyId.equals(user.getCompany().getId()) && user.getSuperAccountRelations().stream()
+                .noneMatch(superAccountRelation -> superAccountRelation.getChildUser().getCompany()
+                        .getId().equals(workOrderCompanyId))) {
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         }
     }

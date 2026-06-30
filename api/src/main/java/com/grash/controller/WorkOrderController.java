@@ -20,6 +20,7 @@ import com.grash.model.UserAppStats;
 import com.grash.service.*;
 import com.grash.utils.Helper;
 import com.grash.utils.MultipartFileImpl;
+import com.grash.utils.TenantAspectUtils;
 import com.grash.utils.Utils;
 import com.itextpdf.html2pdf.HtmlConverter;
 import com.itextpdf.html2pdf.ConverterProperties;
@@ -110,22 +111,26 @@ public class WorkOrderController {
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<WorkOrderShowDTO>> search(@Parameter(description = "Search criteria for filtering work" +
-                                                                 " orders") @RequestBody SearchCriteria searchCriteria,
-                                                         HttpServletRequest req) {
+                                                                  " orders") @RequestBody SearchCriteria searchCriteria,
+                                                          HttpServletRequest req) {
         User user = userService.whoami(req);
-        return ResponseEntity.ok(workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user,
-                searchCriteria)).map(workOrderMapper::toShowDto));
+        return ResponseEntity.ok(TenantAspectUtils.executeWithDisabledCompanyCheck(() ->
+                workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user,
+                        searchCriteria)).map(workOrderMapper::toShowDto)
+        ));
     }
 
     @PostMapping("/search/mini")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<WorkOrderBaseMiniDTO>> searchMini(@Parameter(description = "Search criteria for " +
-                                                                         "filtering work orders") @RequestBody SearchCriteria searchCriteria,
-                                                                 HttpServletRequest req) {
+                                                                          "filtering work orders") @RequestBody SearchCriteria searchCriteria,
+                                                                  HttpServletRequest req) {
         User user = userService.whoami(req);
-        return ResponseEntity.ok(workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user,
-                        searchCriteria))
-                .map(workOrderMapper::toBaseMiniDto));
+        return ResponseEntity.ok(TenantAspectUtils.executeWithDisabledCompanyCheck(() ->
+                workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user,
+                                searchCriteria))
+                        .map(workOrderMapper::toBaseMiniDto)
+        ));
     }
 
     @PostMapping("/events")

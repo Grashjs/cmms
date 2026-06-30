@@ -296,7 +296,17 @@ function SidebarMenu() {
           </Stack>
         )}
       <>
-        {(user.superAccountRelations.length ? [] : menuItems)
+        {(user.superAccountRelations.length
+          ? [
+              {
+                ...menuItems[0],
+                items: menuItems[0].items.filter((item) =>
+                  ['work_orders', 'Statistics', 'requests'].includes(item.name)
+                )
+              }
+            ]
+          : menuItems
+        )
           .map((section, index) => {
             const sectionClone = { ...section };
             sectionClone.items = sectionClone.items.filter((item) => {

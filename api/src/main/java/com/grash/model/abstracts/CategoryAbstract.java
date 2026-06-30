@@ -59,10 +59,19 @@ public abstract class CategoryAbstract extends Audit {
         User user = ((CustomUserDetail) principal).getUser();
         // Super admins can access all categories
         if (!user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN) &&
-                !user.getCompany().getId().equals(this.getCompanySettings().getCompany().getId())) {
+                !user.getCompany().getId().equals(this.getCompanySettings().getCompany().getId()) && !makesException(user)) {
             throw new CustomException("afterLoad: the user (id=" + user.getId() + ") is not authorized to load " +
                     "category", HttpStatus.FORBIDDEN);
         }
+    }
+
+    private boolean makesException(User user) {
+        return user.getSuperAccountRelations().stream()
+                .anyMatch(relation -> relation.getChildUser().getCompany().getId().equals(this.companySettings.getCompany().getId()));
+//                    || (user.getParentSuperAccount() !=null && user.getParentSuperAccount().getSuperUser()
+//                    .getSuperAccountRelations().stream().anyMatch(sar->sar.getChildUser().getCompany().getId()
+//                    .equals(this.company.getId())))
+
     }
 
 }
