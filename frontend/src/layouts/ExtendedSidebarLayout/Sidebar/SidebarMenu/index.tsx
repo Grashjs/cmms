@@ -265,7 +265,8 @@ function SidebarMenu() {
       {isCloudVersion &&
         !company.demo &&
         user.ownsCompany &&
-        !company.subscription.activated && (
+        !company.subscription.activated &&
+        user.superAccountRelations.length === 0 && (
           <Stack
             sx={{
               backgroundColor: 'rgb(51, 194, 255)',

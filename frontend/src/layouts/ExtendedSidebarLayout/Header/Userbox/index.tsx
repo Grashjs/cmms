@@ -274,28 +274,30 @@ function HeaderUserbox() {
           }}
         />
         <MenuListWrapperPrimary disablePadding>
-          <MenuItem
-            onClick={() => {
-              handleClose();
-              navigate('/app/account/profile');
-            }}
-          >
-            <ListItemIcon>
-              <PersonOutlineTwoToneIcon />
-            </ListItemIcon>
-            <ListItemText
-              primaryTypographyProps={{
-                variant: 'h5'
+          {user.superAccountRelations.length === 0 && (
+            <MenuItem
+              onClick={() => {
+                handleClose();
+                navigate('/app/account/profile');
               }}
-              primary={t('my_account')}
-            />
-            <ChevronRightTwoToneIcon
-              sx={{
-                color: `${theme.colors.alpha.black[30]}`,
-                opacity: 0.8
-              }}
-            />
-          </MenuItem>
+            >
+              <ListItemIcon>
+                <PersonOutlineTwoToneIcon />
+              </ListItemIcon>
+              <ListItemText
+                primaryTypographyProps={{
+                  variant: 'h5'
+                }}
+                primary={t('my_account')}
+              />
+              <ChevronRightTwoToneIcon
+                sx={{
+                  color: `${theme.colors.alpha.black[30]}`,
+                  opacity: 0.8
+                }}
+              />
+            </MenuItem>
+          )}
           {user.parentSuperAccount && (
             <MenuItem
               onClick={() => {
@@ -329,31 +331,51 @@ function HeaderUserbox() {
               )}
             </MenuItem>
           )}
-          <MenuItem
-            onClick={() => {
-              handleClose();
-              navigate('/app/account/company-profile');
-            }}
-          >
-            <ListItemIcon>
-              <BusinessTwoToneIcon />
-            </ListItemIcon>
-            <ListItemText
-              primaryTypographyProps={{
-                variant: 'h5'
+          {user.superAccountRelations.length > 0 && (
+            <MenuItem
+              onClick={() => {
+                navigate('/app/switch-account');
+                handleClose();
               }}
-              primary={t('my_company')}
-            />
-            <Box display="flex" alignItems="center">
-              <ChevronRightTwoToneIcon
-                sx={{
-                  ml: 1,
-                  color: `${theme.colors.alpha.black[30]}`,
-                  opacity: 0.8
+            >
+              <ListItemIcon>
+                <SwitchLeftTwoToneIcon />
+              </ListItemIcon>
+              <ListItemText
+                primaryTypographyProps={{
+                  variant: 'h5'
                 }}
+                primary={t('switch_account')}
               />
-            </Box>
-          </MenuItem>
+            </MenuItem>
+          )}
+          {user.superAccountRelations.length === 0 && (
+            <MenuItem
+              onClick={() => {
+                handleClose();
+                navigate('/app/account/company-profile');
+              }}
+            >
+              <ListItemIcon>
+                <BusinessTwoToneIcon />
+              </ListItemIcon>
+              <ListItemText
+                primaryTypographyProps={{
+                  variant: 'h5'
+                }}
+                primary={t('my_company')}
+              />
+              <Box display="flex" alignItems="center">
+                <ChevronRightTwoToneIcon
+                  sx={{
+                    ml: 1,
+                    color: `${theme.colors.alpha.black[30]}`,
+                    opacity: 0.8
+                  }}
+                />
+              </Box>
+            </MenuItem>
+          )}
           <MenuItem
             onClick={() => {
               window.open('https://grashjs.github.io/user-guide');

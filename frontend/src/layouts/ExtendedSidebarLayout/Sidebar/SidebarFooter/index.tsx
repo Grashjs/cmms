@@ -59,7 +59,7 @@ function SidebarFooter() {
       alignItems="center"
       justifyContent="center"
     >
-      {user.ownsCompany && (
+      {user.ownsCompany && user.superAccountRelations.length === 0 && (
         <LightTooltip placement="top" arrow title={t('upgrade_now')}>
           <IconButton
             sx={{

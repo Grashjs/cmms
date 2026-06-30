@@ -614,6 +614,9 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       `auth/switch-account?id=${id}`
     );
     const { accessToken } = response;
+    Object.keys(localStorage)
+      .filter((key) => key.endsWith('_filters'))
+      .forEach((key) => localStorage.removeItem(key));
     return loginInternal(accessToken);
   };
   const logout = async (): Promise<void> => {
