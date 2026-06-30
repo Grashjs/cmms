@@ -128,6 +128,7 @@ export default function ({
                 }}
                 variant={selectedName ? 'contained' : 'outlined'}
                 startIcon={<BusinessTwoToneIcon />}
+                size={'large'}
               >
                 {selectedName ?? t('all_companies')}
               </Button>
