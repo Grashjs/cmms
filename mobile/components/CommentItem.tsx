@@ -131,10 +131,11 @@ export default function CommentItem({
     const parts: ReactNode[] = [];
     let lastIndex = 0;
     let match;
+    let key = 0;
 
     while ((match = mentionRegex.exec(content)) !== null) {
       if (match.index > lastIndex) {
-        parts.push(content.slice(lastIndex, match.index));
+        parts.push(<Text key={key++}>{content.slice(lastIndex, match.index)}</Text>);
       }
       const [, displayName, userId] = match;
       parts.push(
@@ -152,10 +153,10 @@ export default function CommentItem({
     }
 
     if (lastIndex < content.length) {
-      parts.push(content.slice(lastIndex));
+      parts.push(<Text key={key++}>{content.slice(lastIndex)}</Text>);
     }
 
-    return parts.length > 0 ? parts : content;
+    return parts.length > 0 ? <Text>{parts}</Text> : <Text>{content}</Text>;
   };
 
   return (
