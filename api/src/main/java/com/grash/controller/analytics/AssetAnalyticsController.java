@@ -146,7 +146,7 @@ public class AssetAnalyticsController {
             key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
                     "(#companyId != null ? '_' + #companyId : '')"
     )
-    public ResponseEntity<Collection<MTBFByAsset>> getMTBFByAsset(@CurrentUser User user,
+    public ResponseEntity<Collection<MTBFByAsset>> getMTBFByAsset(@Parameter(hidden = true) @CurrentUser User user,
                                                                   @Parameter(description = "Date range for filtering " +
                                                                           "analytics") @RequestBody DateRange dateRange,
                                                                   @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
