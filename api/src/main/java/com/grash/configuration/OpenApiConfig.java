@@ -73,7 +73,7 @@ import java.util.LinkedHashMap;
                          ### Example Request
                         
                          ```bash
-                         curl -X GET "https://api.atlas-cmms.com/locations" \\
+                         curl -X GET "https://api.atlas-cmms.com/locations/mini" \\
                            -H "x-api-key: your_api_key_here"
                          ```
                         
