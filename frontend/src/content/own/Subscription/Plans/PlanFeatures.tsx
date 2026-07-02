@@ -55,9 +55,8 @@ function PlanFeatures(props: PlanFeatureProps) {
                 direction="row"
                 alignItems="center"
               >
-                {feature.isBasic ? (
-                  <CheckTwoToneIcon />
-                ) : features.includes(feature.name) ? (
+                {feature.isBasic ||
+                features.includes(feature.name as PlanFeature) ? (
                   <CheckTwoToneIcon />
                 ) : (
                   <CloseTwoToneIcon color="error" />
