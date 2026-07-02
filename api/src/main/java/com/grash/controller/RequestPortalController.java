@@ -1,11 +1,14 @@
 package com.grash.controller;
 
+import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.requestPortal.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RequestPortalMapper;
 import com.grash.model.RequestPortal;
 import com.grash.model.User;
+import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.RoleType;
 import com.grash.security.CurrentUser;
 import com.grash.service.RequestPortalService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,9 +33,14 @@ public class RequestPortalController {
 
     @PostMapping("/search")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Page<RequestPortalShowDTO> search(@Parameter(description = "Request portal search criteria") @RequestBody RequestPortalCriteria requestPortalCriteria,
-                                             @Parameter(hidden = true) @CurrentUser User user, Pageable pageable) {
-        return requestPortalService.findByCriteria(requestPortalCriteria, pageable, user).map(requestPortalMapper::toShowDto);
+    public Page<RequestPortalShowDTO> search(@Parameter(description = "Request portal search criteria") @RequestBody SearchCriteria searchCriteria,
+                                             @Parameter(hidden = true) @CurrentUser User user) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
+                throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+            searchCriteria.filterCompany(user);
+        }
+        return requestPortalService.findBySearchCriteria(searchCriteria).map(requestPortalMapper::toShowDto);
     }
 
 

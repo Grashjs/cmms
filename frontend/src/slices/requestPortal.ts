@@ -102,7 +102,7 @@ const slice = createSlice({
 export const reducer = slice.reducer;
 
 export const getRequestPortals =
-  (criteria: {}): AppThunk =>
+  (criteria: SearchCriteria): AppThunk =>
   async (dispatch) => {
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));

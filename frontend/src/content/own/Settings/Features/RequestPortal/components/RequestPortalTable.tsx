@@ -259,8 +259,6 @@ export default function RequestPortalTable({
 
               const fieldMapping: Record<string, string> = {
                 title: 'title',
-                welcomeMessage: 'welcomeMessage',
-                uuid: 'uuid',
                 createdAt: 'createdAt'
               };
 
