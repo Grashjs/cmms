@@ -1383,6 +1383,7 @@ const deJSON = {
   edit_company: 'Unternehmen bearbeiten',
   fill_fields_below: 'Füllen Sie die untenstehenden Felder aus',
   IMPORT_CSV_feature: 'CSV-Import',
+  RESOURCE_PLANNING_feature: 'Ressourcenplanung',
   no_import_access:
     'Upgraden Sie Ihren Plan, um aus CSV- und Excel-Dateien zu importieren',
   members: 'Mitglieder',

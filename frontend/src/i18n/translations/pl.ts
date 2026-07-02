@@ -1343,6 +1343,7 @@ const plJSON = {
   edit_company: 'Edytuj firmę',
   fill_fields_below: 'Wypełnij poniższe pola',
   IMPORT_CSV_feature: 'Import CSV',
+  RESOURCE_PLANNING_feature: 'Planowanie zasobów',
   no_import_access: 'Ulepsz swój plan, aby importować z CSV, plików Excel',
   members: 'Członkowie',
   assign_user: 'Przypisz użytkownika',

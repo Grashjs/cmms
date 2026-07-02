@@ -1373,6 +1373,7 @@ const ruJSON = {
   API_ACCESS_feature: 'Доступ к API',
   WEBHOOK_feature: 'Вебхуки',
   IMPORT_CSV_feature: 'Импорт CSV',
+  RESOURCE_PLANNING_feature: 'Планирование ресурсов',
   no_import_access: 'Обновите тариф, чтобы импортировать из CSV и Excel',
 
   // --- Company & Members ---

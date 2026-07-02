@@ -1291,6 +1291,7 @@ const trJSON = {
   edit_company: 'Şirketi düzenle',
   fill_fields_below: 'Aşağıdaki alanları doldurun',
   IMPORT_CSV_feature: "CSV'yi İçe Aktarma",
+  RESOURCE_PLANNING_feature: 'Kaynak planlama',
   no_import_access:
     'CSV ve Excel dosyalarından içe aktarma planınızı yükseltin',
   members: 'Üyeler',

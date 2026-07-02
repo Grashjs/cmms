@@ -1295,6 +1295,7 @@ const locale = {
   edit_company: '会社を編集',
   fill_fields_below: '以下のフィールドに入力してください',
   IMPORT_CSV_feature: 'CSVインポート',
+  RESOURCE_PLANNING_feature: 'リソース計画',
   no_import_access:
     'CSV、Excelファイルからインポートするにはプランをアップグレードしてください',
   members: 'メンバー',

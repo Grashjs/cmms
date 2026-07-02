@@ -1338,6 +1338,7 @@ const locale = {
   edit_company: 'Modifica azienda',
   fill_fields_below: 'Compila i campi sottostanti',
   IMPORT_CSV_feature: 'Importazione CSV',
+  RESOURCE_PLANNING_feature: 'Pianificazione delle risorse',
   no_import_access: 'Aggiorna il tuo piano per importare da file CSV ed Excel',
   members: 'Membri',
   assign_user: 'Assegna utente',

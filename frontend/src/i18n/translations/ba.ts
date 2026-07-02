@@ -1316,6 +1316,7 @@ const locale = {
   edit_company: 'Uredi kompaniju',
   fill_fields_below: 'Popunite polja ispod',
   IMPORT_CSV_feature: 'CSV uvoz',
+  RESOURCE_PLANNING_feature: 'Planiranje resursa',
   no_import_access: 'Nadogradite svoj plan za uvoz iz CSV, Excel datoteka',
   members: 'Članovi',
   assign_user: 'Dodijeli korisnika',

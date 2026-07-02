@@ -1033,6 +1033,7 @@ const locale = {
   edit_company: '编辑公司',
   fill_fields_below: '填写以下字段',
   IMPORT_CSV_feature: 'CSV导入',
+  RESOURCE_PLANNING_feature: '资源规划',
   no_import_access: '升级您的计划以从CSV、Excel文件导入',
   register_here: '在此注册',
   home: '首页',

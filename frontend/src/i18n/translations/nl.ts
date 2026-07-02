@@ -1340,6 +1340,7 @@ const locale = {
   edit_company: 'Bedrijf bewerken',
   fill_fields_below: 'Vul de onderstaande velden in',
   IMPORT_CSV_feature: 'CSV-import',
+  RESOURCE_PLANNING_feature: 'Resourceplanning',
   no_import_access:
     'Upgrade uw plan om te importeren vanuit CSV- en Excel-bestanden',
   register_here: 'Hier registreren',

@@ -1325,10 +1325,8 @@ const locale = {
   switch_to_super_user: 'Switch to super admin',
   switch_account_description: 'Please choose an account to proceed',
   put_location_in_map: 'Put location in map',
-  confirm_disable_user:
-    'Are you sure you want to disable {{user}}?',
-  confirm_enable_user:
-    'Are you sure you want to enable {{user}}?',
+  confirm_disable_user: 'Are you sure you want to disable {{user}}?',
+  confirm_enable_user: 'Are you sure you want to enable {{user}}?',
   user_disabled_success: 'User disabled successfully',
   disable: 'Disable',
   enable: 'Enable',
@@ -1905,7 +1903,8 @@ const locale = {
   restock_part: 'Restock part',
   restock: 'Restock',
   export_part_transactions: 'Export Part Transactions',
-  export_parts: 'Export parts'
+  export_parts: 'Export parts',
+  RESOURCE_PLANNING_feature: 'Resource Planning'
 };
 
 export default locale;

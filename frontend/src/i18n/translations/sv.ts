@@ -1317,6 +1317,7 @@ const locale = {
   edit_company: 'Redigera företag',
   fill_fields_below: 'Fyll i fälten nedan',
   IMPORT_CSV_feature: 'CSV-import',
+  RESOURCE_PLANNING_feature: 'Resursplanering',
   no_import_access:
     'Uppgradera din plan för att importera från CSV- och Excel-filer',
   members: 'Medlemmar',

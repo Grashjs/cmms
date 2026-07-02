@@ -1347,6 +1347,7 @@ const esJSON = {
   edit_company: 'Editar Empresa',
   fill_fields_below: 'Rellene los campos que aparecen a continuación',
   IMPORT_CSV_feature: 'Importación de CSV',
+  RESOURCE_PLANNING_feature: 'Planificación de recursos',
   no_import_access:
     'Actualice su plan para importar desde archivos CSV y Excel',
   members: 'Miembros',

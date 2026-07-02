@@ -1139,6 +1139,7 @@ const locale = {
   edit_company: 'Cég szerkesztése',
   fill_fields_below: 'Töltsd ki az alábbi mezőket',
   IMPORT_CSV_feature: 'CSV importálás',
+  RESOURCE_PLANNING_feature: 'Erőforrás-tervezés',
   no_import_access:
     'Frissítsd a csomagodat CSV, Excel fájlokból való importáláshoz',
   register_here: 'Regisztrálj itt',

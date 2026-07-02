@@ -1366,6 +1366,7 @@ const ptBRJSON = {
   edit_company: 'Editar empresa',
   fill_fields_below: 'Preencha os campos abaixo',
   IMPORT_CSV_feature: 'Importação de CSV',
+  RESOURCE_PLANNING_feature: 'Planejamento de recursos',
   no_import_access: 'Atualize seu plano para importar de arquivos CSV, Excel',
   members: 'Membros',
   assign_user: 'Atribuir Usuário',

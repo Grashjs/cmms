@@ -1262,6 +1262,7 @@ const locale = {
   edit_company: 'تحرير الشركة',
   fill_fields_below: 'إملأ الحقول أدناه',
   IMPORT_CSV_feature: 'استيراد CSV',
+  RESOURCE_PLANNING_feature: 'تخطيط الموارد',
   no_import_access: 'قم بترقية خطتك لاستيراد ملفات CSV وExcel',
   members: 'أعضاء',
   assign_user: 'تعيين المستخدم',
