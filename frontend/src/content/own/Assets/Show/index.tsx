@@ -170,7 +170,7 @@ const ShowAsset = ({}: PropsType) => {
     { value: 'files', label: t('files') },
     { value: 'meters', label: t('meters') },
     { value: 'downtimes', label: t('downtimes') },
-    { value: 'analytics', label: t('analytics') }
+    { value: 'analytics', label: t('Statistics') }
   ];
   const tabIndex = tabs.findIndex((tab) => tab.value === arr[arr.length - 1]);
   const onDeleteSuccess = () => {
