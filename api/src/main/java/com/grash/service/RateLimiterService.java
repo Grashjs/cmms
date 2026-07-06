@@ -18,6 +18,7 @@ public class RateLimiterService {
     private final ConcurrentMap<String, Bucket> fileUploadCache = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Bucket> publicMiniCache = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Bucket> authenticatedUserCache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Bucket> fileUploadAuthenticatedCache = new ConcurrentHashMap<>();
 
     /**
      * -- GETTER --
@@ -39,12 +40,28 @@ public class RateLimiterService {
     @Value("${security.rate-limit.authenticated.long-term-period-hours:1}")
     private int authenticatedLongTermPeriodHours;
 
+    @Value("${security.rate-limit.file-upload.authenticated.short-term-requests:20}")
+    private int fileUploadAuthShortTermRequests;
+
+    @Value("${security.rate-limit.file-upload.authenticated.short-term-period-minutes:1}")
+    private int fileUploadAuthShortTermPeriodMinutes;
+
+    @Value("${security.rate-limit.file-upload.authenticated.long-term-requests:200}")
+    private int fileUploadAuthLongTermRequests;
+
+    @Value("${security.rate-limit.file-upload.authenticated.long-term-period-hours:1}")
+    private int fileUploadAuthLongTermPeriodHours;
+
     public Bucket resolveDemoBucket(String key) {
         return demoCache.computeIfAbsent(key, this::newDemoBucket);
     }
 
     public Bucket resolveFileUploadBucket(String key) {
         return fileUploadCache.computeIfAbsent(key, this::newFileUploadBucket);
+    }
+
+    public Bucket resolveFileUploadAuthenticatedBucket(String key) {
+        return fileUploadAuthenticatedCache.computeIfAbsent(key, this::newFileUploadAuthenticatedBucket);
     }
 
     public Bucket resolvePublicMiniBucket(String key) {
@@ -74,6 +91,23 @@ public class RateLimiterService {
         return Bucket.builder()
                 .addLimit(tenPerMinute)
                 .addLimit(fiftyPerHour)
+                .build();
+    }
+
+    private Bucket newFileUploadAuthenticatedBucket(String key) {
+        Bandwidth shortTerm = Bandwidth.classic(
+                fileUploadAuthShortTermRequests,
+                Refill.greedy(fileUploadAuthShortTermRequests, Duration.ofMinutes(fileUploadAuthShortTermPeriodMinutes))
+        );
+
+        Bandwidth longTerm = Bandwidth.classic(
+                fileUploadAuthLongTermRequests,
+                Refill.greedy(fileUploadAuthLongTermRequests, Duration.ofHours(fileUploadAuthLongTermPeriodHours))
+        );
+
+        return Bucket.builder()
+                .addLimit(shortTerm)
+                .addLimit(longTerm)
                 .build();
     }
 

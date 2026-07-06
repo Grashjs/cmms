@@ -67,6 +67,9 @@ public class FileController {
         if (!licenseService.hasEntitlement(LicenseEntitlement.FILE_ATTACHMENTS))
             throw new CustomException("You need a license to add a file", HttpStatus.FORBIDDEN);
         User user = userService.whoami(req);
+        if (!rateLimiterService.resolveFileUploadAuthenticatedBucket(String.valueOf(user.getId())).tryConsume(1)) {
+            throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
+        }
         if (Boolean.TRUE.equals(bypass) || (user.getRole().getCreatePermissions().contains(PermissionEntity.FILES) &&
                 user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.FILE))) {
             Collection<File> result = new ArrayList<>();
