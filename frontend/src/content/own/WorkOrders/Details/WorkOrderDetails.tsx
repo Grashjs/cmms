@@ -1385,7 +1385,13 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
           </Box>
         )}
         {currentTab == 'comments' && (
-          <CommentsSection workOrderId={workOrder.id} commentId={commentId} />
+          <CommentsSection
+            disabled={
+              !hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder)
+            }
+            workOrderId={workOrder.id}
+            commentId={commentId}
+          />
         )}
       </Grid>
       <AddTimeModal

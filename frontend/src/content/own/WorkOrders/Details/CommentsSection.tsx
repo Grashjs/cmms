@@ -23,14 +23,16 @@ import AttachFileTwoToneIcon from '@mui/icons-material/AttachFileTwoTone';
 import { MentionsTextField } from '@jackstenglein/mui-mentions';
 import { getUsersMini } from '../../../../slices/user';
 import { useSearchParams } from 'react-router-dom';
+import { boolean, number } from 'yup';
 
 interface CommentsSectionProps {
   workOrderId: number;
   commentId?: number;
+  disabled?: boolean;
 }
 
 export default function CommentsSection(props: CommentsSectionProps) {
-  const { workOrderId, commentId } = props;
+  const { workOrderId, commentId, disabled } = props;
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { uploadFiles } = useContext(CompanySettingsContext);
@@ -160,7 +162,7 @@ export default function CommentsSection(props: CommentsSectionProps) {
               )
             }
             onClick={handleSubmit}
-            disabled={!plainTextContent.trim() || loadingCreate}
+            disabled={!plainTextContent.trim() || loadingCreate || disabled}
           >
             {t('post_comment')}
           </Button>

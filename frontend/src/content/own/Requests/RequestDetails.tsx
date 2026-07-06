@@ -66,8 +66,13 @@ export default function RequestDetails({
   const [selectedAssetStatus, setSelectedAssetStatus] = useState<AssetStatus>(
     'INSPECTION_SCHEDULED'
   );
-  const { hasEditPermission, hasDeletePermission, hasViewPermission, user } =
-    useAuth();
+  const {
+    hasEditPermission,
+    hasDeletePermission,
+    hasViewPermission,
+    hasCreatePermission,
+    user
+  } = useAuth();
   const navigate = useNavigate();
   const { getFormattedDate, getUserNameById } = useContext(
     CompanySettingsContext
@@ -178,7 +183,8 @@ export default function RequestDetails({
         !request.workOrder &&
         !request.cancelled &&
         (hasViewPermission(PermissionEntity.SETTINGS) ||
-          user.role.code === 'LIMITED_ADMIN') && (
+          user.role.code === 'LIMITED_ADMIN') &&
+        hasCreatePermission(PermissionEntity.WORK_ORDERS) && (
           <>
             <Divider />
             <Grid
