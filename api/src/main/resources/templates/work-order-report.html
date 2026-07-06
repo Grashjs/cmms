@@ -469,6 +469,7 @@
 <!--/*@thymesVar id="comments" type="java.util.List<com.grash.model.Comment>"*/-->
 <!--/*@thymesVar id="commentFilesUrls" type="java.util.Map<java.lang.Long, java.lang.String[]>"*/-->
 <!--/*@thymesVar id="workOrderFilesUrls" type="java.lang.String[]"*/-->
+<!--/*@thymesVar id="workOrderImageUrl" type="java.lang.String"*/-->
 
 <div class="report-wrap">
 
@@ -543,6 +544,9 @@
         <div class="panel-body">
             <div class="wo-title" th:text="${workOrder.title}"></div>
             <div class="wo-description" th:if="${reportConfig.workOrderInformation}" th:text="${workOrder.description}"></div>
+            <div th:if="${workOrderImageUrl != null}" style="margin-top:12px;">
+                <img th:src="${workOrderImageUrl}" style="max-width:100%;max-height:300px;border-radius:6px;border:1px solid #E4E8EE;" />
+            </div>
         </div>
     </div>
 

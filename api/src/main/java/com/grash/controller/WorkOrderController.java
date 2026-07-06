@@ -525,6 +525,8 @@ public class WorkOrderController {
                     put("comments", comments);
                     put("commentFilesUrls", commentFilesUrls);
                     put("workOrderFilesUrls", workOrderFilesUrls);
+                    put("workOrderImageUrl", savedWorkOrder.getImage() == null ? null :
+                            storageService.generateSignedUrl(savedWorkOrder.getImage(), 5));
                 }};
                 thymeleafContext.setVariables(variables);
 
