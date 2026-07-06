@@ -87,7 +87,7 @@ const ProfileCover: FC<ProfileCoverProps> = ({ user }) => {
   const { patchUser } = useAuth();
   const onChangePicture = (event: ChangeEvent<HTMLInputElement>) => {
     setChangingPicture(true);
-    uploadFiles([], Array.from(event.target.files), true)
+    uploadFiles([], Array.from(event.target.files), true, true)
       .then((files) =>
         patchUser({ image: { id: files[0].id } } as Partial<OwnUser>)
       )

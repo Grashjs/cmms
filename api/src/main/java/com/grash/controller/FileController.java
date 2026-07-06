@@ -22,6 +22,7 @@ import com.grash.service.RequestPortalService;
 import com.grash.service.TaskService;
 import com.grash.service.UserService;
 import com.grash.utils.Helper;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -60,12 +61,14 @@ public class FileController {
                                                       "folder") String folder,
                                               @Parameter(description = "Whether files should be hidden (true/false)") @RequestParam("hidden") String hidden, HttpServletRequest req,
                                               @Parameter(description = "Type of file") @RequestParam("type") FileType fileType,
+                                              @Parameter(hidden = true) @RequestParam(value = "bypass", required =
+                                                      false) Boolean bypass,
                                               @Parameter(description = "Optional task ID to associate files with") @RequestParam(value = "taskId", required = false) Integer taskId) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.FILE_ATTACHMENTS))
             throw new CustomException("You need a license to add a file", HttpStatus.FORBIDDEN);
         User user = userService.whoami(req);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.FILES) &&
-                user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.FILE)) {
+        if (Boolean.TRUE.equals(bypass) || (user.getRole().getCreatePermissions().contains(PermissionEntity.FILES) &&
+                user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.FILE))) {
             Collection<File> result = new ArrayList<>();
             Arrays.asList(filesReq).forEach(fileReq -> {
                 String filePath = storageServiceFactory.getStorageService().upload(fileReq, folder);

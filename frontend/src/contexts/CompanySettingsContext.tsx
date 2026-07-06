@@ -18,7 +18,8 @@ type CompanySettingsContext = {
   uploadFiles: (
     files: any[],
     images: any[],
-    hidden?: boolean
+    hidden?: boolean,
+    bypass?: boolean
   ) => Promise<{ id: number; type: FileType }[]>;
   getUserNameById: (id: number) => string | null;
   getWOFieldsAndShapes: (
@@ -80,11 +81,12 @@ export const CompanySettingsProvider: FC = ({ children }) => {
   const uploadFiles = async (
     files: [],
     images: [],
-    hidden?: boolean
+    hidden?: boolean,
+    bypass?: boolean
   ): Promise<{ id: number; type: FileType }[]> => {
     let result: { id: number; type: FileType }[] = [];
     if (files?.length) {
-      await dispatch(addFiles(files, 'OTHER', undefined, `${hidden}`))
+      await dispatch(addFiles(files, 'OTHER', undefined, `${hidden}`, bypass))
         .then((fileIds) => {
           if (Array.isArray(fileIds))
             result = [
@@ -96,7 +98,7 @@ export const CompanySettingsProvider: FC = ({ children }) => {
         .catch(onUploadError);
     }
     if (images?.length) {
-      await dispatch(addFiles(images, 'IMAGE', undefined, `${hidden}`))
+      await dispatch(addFiles(images, 'IMAGE', undefined, `${hidden}`, bypass))
         .then((images) => {
           if (Array.isArray(images))
             result = [

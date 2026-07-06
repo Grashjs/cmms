@@ -113,7 +113,8 @@ export const addFiles =
     files: any[],
     fileType: FileType = 'OTHER',
     taskId?: number,
-    hidden?: 'true' | 'false'
+    hidden?: 'true' | 'false',
+    bypass?: boolean
   ): AppThunk =>
   async (dispatch) => {
     let formData = new FormData();
@@ -124,6 +125,9 @@ export const addFiles =
     formData.append('folder', `company ${companyId}`);
     formData.append('type', fileType);
     formData.append('hidden', hidden);
+    if (typeof bypass === 'boolean') {
+      formData.append('bypass', bypass.toString());
+    }
     const baseRoute = `${basePath}/upload`;
     const filesResponse = await api.post<File[]>(
       taskId ? `${baseRoute}?taskId=${taskId}` : baseRoute,
