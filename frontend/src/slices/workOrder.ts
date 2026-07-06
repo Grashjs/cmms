@@ -277,6 +277,7 @@ export const editWorkOrder =
       workOrder
     );
     dispatch(slice.actions.editWorkOrder({ workOrder: workOrderResponse }));
+    if (workOrder.archived) dispatch(slice.actions.deleteWorkOrder({ id }));
   };
 export const addFilesToWorkOrder =
   (id: number, files: { id: number }[]): AppThunk =>

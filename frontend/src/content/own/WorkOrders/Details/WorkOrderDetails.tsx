@@ -119,10 +119,11 @@ interface WorkOrderDetailsProps {
   onDelete: (id: number) => void;
   onCopy: (workOrder: WorkOrder) => void;
   tasks: Task[];
+  onClose: () => void;
 }
 
 export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
-  const { workOrder, onEdit, tasks, onDelete, onCopy } = props;
+  const { workOrder, onEdit, tasks, onDelete, onCopy, onClose } = props;
   const theme = useTheme();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { getFormattedDate, getUserNameById, getFormattedCurrency } =
@@ -220,6 +221,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
     setAnchorEl(null);
   };
   const onArchiveSuccess = () => {
+    onClose();
     showSnackBar(t('wo_archive_success'), 'success');
   };
   const onArchiveFailure = (err) =>

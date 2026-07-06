@@ -1182,6 +1182,7 @@ function WorkOrders() {
           tasks={tasks}
           onDelete={handleOpenDelete}
           onCopy={handleCopyWorkOrder}
+          onClose={handleCloseDetails}
         />
       </Drawer>
       <Drawer
