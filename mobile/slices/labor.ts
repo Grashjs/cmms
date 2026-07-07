@@ -126,7 +126,7 @@ export const createLabor =
   };
 
 export const editLabor =
-  (id: number, workOrderId: number, labor: Labor): AppThunk =>
+  (id: number, workOrderId: number, labor: Partial<Labor>): AppThunk =>
   async (dispatch) => {
     const laborResponse = await api.patch<Labor>(`${basePath}/${id}`, labor);
     dispatch(

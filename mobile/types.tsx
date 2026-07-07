@@ -12,6 +12,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import AdditionalCost from './models/additionalCost';
 import WorkOrder from './models/workOrder';
 import Part, { PartMiniDTO } from './models/part';
+import Labor from './models/labor';
 import { Task } from './models/tasks';
 import { Customer, CustomerMiniDTO } from './models/customer';
 import { Vendor, VendorMiniDTO } from './models/vendor';
@@ -158,6 +159,7 @@ export type RootStackParamList = {
   AddAdditionalCost: { workOrderId: number };
   EditAdditionalCost: { workOrderId: number; additionalCost: AdditionalCost };
   AddAdditionalTime: { workOrderId: number };
+  EditAdditionalTime: { workOrderId: number; labor: Labor };
   ScanAsset: {
     onChange?: (asset: AssetMiniDTO) => void;
   };

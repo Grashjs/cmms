@@ -1633,16 +1633,22 @@ const frJSON = {
   confirm_delete_comment: 'Êtes-vous sûr de vouloir supprimer ce commentaire ?',
   add_comment_placeholder: 'Ajouter un commentaire...',
   create_category: 'Create Category',
-  delete_row_confirm_message: 'Êtes-vous sûr de vouloir supprimer cette ligne ?',
+  delete_row_confirm_message:
+    'Êtes-vous sûr de vouloir supprimer cette ligne ?',
   review_prompt_title: 'Appréciez-vous Atlas CMMS ?',
   feedback_title: 'Aidez-nous à nous améliorer',
   feedback_description1:
-    'Nous sommes désolés d\'apprendre cela. Vos commentaires nous aident à améliorer Atlas.',
-  feedback_placeholder: 'Dites-nous ce qui n\'a pas fonctionné ou comment nous pouvons nous améliorer…',
+    "Nous sommes désolés d'apprendre cela. Vos commentaires nous aident à améliorer Atlas.",
+  feedback_placeholder:
+    "Dites-nous ce qui n'a pas fonctionné ou comment nous pouvons nous améliorer…",
   send: 'Envoyer',
   edit_additional_cost: 'Modifier le coût supplémentaire',
-  edit_additional_cost_description: 'Remplissez les champs ci-dessous pour modifier le coût supplémentaire',
   delete_additional_cost: 'Supprimer le coût supplémentaire',
-  confirm_delete_additional_cost: 'Êtes-vous sûr de vouloir supprimer ce coût supplémentaire ?'
+  confirm_delete_additional_cost:
+    'Êtes-vous sûr de vouloir supprimer ce coût supplémentaire ?',
+  edit_additional_time: 'Modifier le temps supplémentaire',
+  delete_additional_time: 'Supprimer le temps supplémentaire',
+  confirm_delete_additional_time:
+    'Êtes-vous sûr de vouloir supprimer ce temps supplémentaire ?'
 };
 export default frJSON;

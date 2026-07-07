@@ -92,6 +92,7 @@ import WorkOrderFilters from '../screens/workOrders/WorkOrderFilters';
 import CreateAdditionalCost from '../screens/workOrders/CreateAdditionalCost';
 import EditAdditionalCost from '../screens/workOrders/EditAdditionalCost';
 import CreateAdditionalTime from '../screens/workOrders/CreateAdditionalTime';
+import EditAdditionalTime from '../screens/workOrders/EditAdditionalTime';
 import SelectNfcModal from '../screens/modals/SelectNfcModal';
 import SelectBarcodeModal from '../screens/modals/SelectBarcodeModal';
 import ScanAssetScreen from '../screens/ScanAssetScreen';
@@ -453,6 +454,11 @@ function RootNavigator() {
           name="AddAdditionalTime"
           component={CreateAdditionalTime}
           options={{ title: t('add_time') }}
+        />
+        <Stack.Screen
+          name="EditAdditionalTime"
+          component={EditAdditionalTime}
+          options={{ title: t('edit_additional_time') }}
         />
       </Stack.Group>
     </Stack.Navigator>

@@ -10,17 +10,17 @@ import {
   useTheme
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { useDispatch } from '../store';
-import { deleteAdditionalCost } from '../slices/additionalCost';
-import { CustomSnackBarContext } from '../contexts/CustomSnackBarContext';
-import { getErrorMessage } from '../utils/api';
-import { PermissionEntity } from '../models/role';
-import { PlanFeature } from '../models/subscriptionPlan';
-import type { RootStackParamList } from '../types';
+import { useDispatch } from '../../../store';
+import { deleteAdditionalCost } from '../../../slices/additionalCost';
+import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
+import { getErrorMessage } from '../../../utils/api';
+import { PermissionEntity } from '../../../models/role';
+import { PlanFeature } from '../../../models/subscriptionPlan';
+import type { RootStackParamList } from '../../../types';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type AdditionalCost from '../models/additionalCost';
-import type WorkOrder from '../models/workOrder';
-import { View } from './Themed';
+import type AdditionalCost from '../../../models/additionalCost';
+import type WorkOrder from '../../../models/workOrder';
+import { View } from '../../../components/Themed';
 
 interface AdditionalCostsCardProps {
   additionalCosts: AdditionalCost[];
@@ -50,7 +50,7 @@ export default function AdditionalCostsCard({
   const handleDelete = () => {
     if (!deleteTarget) return;
     dispatch(deleteAdditionalCost(workOrderId, deleteTarget.id))
-      .then(() => showSnackBar(t('changes_saved_success'), 'success'))
+      .then(() => showSnackBar(t('operation_success'), 'success'))
       .catch((err) => showSnackBar(getErrorMessage(err), 'error'))
       .finally(() => setDeleteTarget(null));
   };

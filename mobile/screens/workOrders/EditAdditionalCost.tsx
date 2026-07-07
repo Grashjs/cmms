@@ -74,7 +74,7 @@ export default function EditAdditionalCost({
         validation={Yup.object().shape(shape)}
         submitText={t('save')}
         values={{
-          description: additionalCost.description,
+          ...additionalCost,
           assignedTo: additionalCost.assignedTo
             ? {
                 label: `${additionalCost.assignedTo.firstName} ${additionalCost.assignedTo.lastName}`,
@@ -88,8 +88,7 @@ export default function EditAdditionalCost({
               }
             : null,
           date: additionalCost.date ? new Date(additionalCost.date) : null,
-          cost: additionalCost.cost?.toString(),
-          includeToTotalCost: additionalCost.includeToTotalCost
+          cost: additionalCost.cost?.toString()
         }}
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {

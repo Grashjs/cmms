@@ -6,12 +6,12 @@ import {
   Text,
   useTheme
 } from 'react-native-paper';
-import { FilterField } from '../../models/page';
+import { FilterField } from '../../../models/page';
 import { useTranslation } from 'react-i18next';
 import { TouchableOpacity } from 'react-native';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { pushOrRemove } from '../../utils/overall';
+import { pushOrRemove } from '../../../utils/overall';
 import _ from 'lodash';
 
 interface OwnProps {
@@ -24,13 +24,13 @@ interface OwnProps {
 }
 
 export default function EnumFilter({
-                                     filterFields,
-                                     onChange,
-                                     completeOptions,
-                                     fieldName,
-                                     initialOptions,
-                                     icon
-                                   }: OwnProps) {
+  filterFields,
+  onChange,
+  completeOptions,
+  fieldName,
+  initialOptions,
+  icon
+}: OwnProps) {
   const { t } = useTranslation();
   const theme = useTheme();
   const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -129,7 +129,9 @@ export default function EnumFilter({
         );
       }}
       style={{
-        backgroundColor: isSelected ? theme.colors.primary : theme.colors.background,
+        backgroundColor: isSelected
+          ? theme.colors.primary
+          : theme.colors.background,
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',

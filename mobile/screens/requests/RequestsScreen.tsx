@@ -39,7 +39,7 @@ import { dayDiff } from '../../utils/dates';
 import { getNotifications } from '../../slices/notification';
 import { SheetManager } from 'react-native-actions-sheet';
 import _ from 'lodash';
-import EnumFilter from '../workOrders/EnumFilter';
+import EnumFilter from '../workOrders/components/EnumFilter';
 import { IconWithLabel } from '../../components/IconWithLabel';
 import { useAppTheme } from '../../custom-theme';
 

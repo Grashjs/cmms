@@ -1,18 +1,8 @@
-import {
-  Checkbox,
-  Dialog,
-  IconButton,
-  Portal,
-  Text,
-  useTheme
-} from 'react-native-paper';
-import { FilterField } from '../../models/page';
+import { Text, useTheme } from 'react-native-paper';
+import { FilterField } from '../../../models/page';
 import { useTranslation } from 'react-i18next';
 import { TouchableOpacity } from 'react-native';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { pushOrRemove } from '../../utils/overall';
-import _ from 'lodash';
 
 interface OwnProps {
   filterFields: FilterField[];
@@ -21,26 +11,32 @@ interface OwnProps {
 }
 
 export default function QuickFilter({
-                                      filterFields,
-                                      onChange,
-                                      activeFilterField
-                                    }: OwnProps) {
+  filterFields,
+  onChange,
+  activeFilterField
+}: OwnProps) {
   const { t } = useTranslation();
   const theme = useTheme();
-  const isSelected: boolean = filterFields.some(filterField => filterField.field === activeFilterField.field);
+  const isSelected: boolean = filterFields.some(
+    (filterField) => filterField.field === activeFilterField.field
+  );
   return (
     <TouchableOpacity
       onPress={() => {
         let newFilterFields = filterFields;
         if (isSelected) {
-          newFilterFields = newFilterFields.filter(filterField => filterField.field !== activeFilterField.field);
+          newFilterFields = newFilterFields.filter(
+            (filterField) => filterField.field !== activeFilterField.field
+          );
         } else {
           newFilterFields.push(activeFilterField);
         }
         onChange(newFilterFields);
       }}
       style={{
-        backgroundColor: isSelected ? theme.colors.primary : theme.colors.background,
+        backgroundColor: isSelected
+          ? theme.colors.primary
+          : theme.colors.background,
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
