@@ -1569,6 +1569,7 @@ const trJSON = {
   edit_additional_time: 'Süreyi Düzenle',
   delete_additional_time: 'Süreyi Sil',
   confirm_delete_additional_time: 'Bu süreyi silmek istediğinizden emin misiniz?',
+  reset: 'Sıfırla',
   operation_success: 'İşlem başarılı oldu'
 };
 export default trJSON;

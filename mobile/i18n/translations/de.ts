@@ -1572,6 +1572,7 @@ const deJSON = {
   edit_additional_time: 'Zeit bearbeiten',
   delete_additional_time: 'Zeit löschen',
   confirm_delete_additional_time: 'Sind Sie sicher, dass Sie diese Zeit löschen möchten?',
+  reset: 'Zurücksetzen',
   operation_success: 'Der Vorgang war erfolgreich'
 };
 export default deJSON;

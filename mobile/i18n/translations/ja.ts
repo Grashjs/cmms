@@ -1502,6 +1502,7 @@ const locale = {
   edit_additional_time: '時間を編集',
   delete_additional_time: '時間を削除',
   confirm_delete_additional_time: 'この時間を削除してもよろしいですか？',
+  reset: 'リセット',
   operation_success: '操作が成功しました'
 };
 export default locale;

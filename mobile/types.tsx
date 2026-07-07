@@ -155,6 +155,7 @@ export type RootStackParamList = {
   WorkOrderFilters: {
     filterFields: FilterField[];
     onFilterChange: (filterFields: FilterField[]) => void;
+    onReset: () => void;
   };
   AddAdditionalCost: { workOrderId: number };
   EditAdditionalCost: { workOrderId: number; additionalCost: AdditionalCost };

@@ -1493,6 +1493,7 @@ const locale = {
   edit_additional_time: 'Edit Time',
   delete_additional_time: 'Delete Time',
   confirm_delete_additional_time: 'Are you sure you want to delete this Time?',
-  operation_success: 'The operation was successful'
+  operation_success: 'The operation was successful',
+  reset: 'Reset'
 };
 export default locale;

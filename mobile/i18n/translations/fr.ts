@@ -1648,6 +1648,7 @@ const frJSON = {
   edit_additional_time: 'Modifier le temps',
   delete_additional_time: 'Supprimer le temps',
   confirm_delete_additional_time: 'Êtes-vous sûr de vouloir supprimer ce temps ?',
+  reset: 'Réinitialiser',
   operation_success: "L'opération a réussi"
 };
 export default frJSON;

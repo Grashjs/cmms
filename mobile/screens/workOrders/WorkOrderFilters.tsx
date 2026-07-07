@@ -14,13 +14,15 @@ import { IField } from '../../models/form';
 import { UserMiniDTO } from '../../models/user';
 import Form from '../../components/form';
 import * as Yup from 'yup';
+import { Button } from 'react-native-paper';
+import { useEffect } from 'react';
 
 export default function WorkOrderFilters({
   navigation,
   route
 }: RootStackScreenProps<'WorkOrderFilters'>) {
   const { t }: { t: any } = useTranslation();
-  const { filterFields, onFilterChange } = route.params;
+  const { filterFields, onFilterChange, onReset } = route.params;
   const { customersMini } = useSelector((state) => state.customers);
   const { locationsMini } = useSelector((state) => state.locations);
   const { categories } = useSelector((state) => state.categories);
@@ -174,6 +176,21 @@ export default function WorkOrderFilters({
       label: t('due_date')
     }
   ];
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Button
+          onPress={() => {
+            onReset();
+            navigation.goBack();
+          }}
+        >
+          {t('reset')}
+        </Button>
+      )
+    });
+  }, [navigation, onReset]);
 
   const getTypeLabelAndValue = (
     operation: SearchOperator

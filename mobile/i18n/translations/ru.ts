@@ -1547,6 +1547,7 @@ const ruJSON = {
   confirm_delete_additional_cost: 'Вы уверены, что хотите удалить эту стоимость?',
   edit_additional_time: 'Редактировать время',
   delete_additional_time: 'Удалить время',
-  confirm_delete_additional_time: 'Вы уверены, что хотите удалить это время?'
+  confirm_delete_additional_time: 'Вы уверены, что хотите удалить это время?',
+  reset: 'Сбросить'
 };
 export default ruJSON;

@@ -134,6 +134,9 @@ export default function WorkOrdersScreen({
     newCriteria.filterFields = newFilters;
     setCriteria(newCriteria);
   };
+  const onResetFilters = () => {
+    setCriteria(getCriteriaFromFilterFields([]));
+  };
 
   const onQueryChange = (query) => {
     onSearchQueryChange<WorkOrder>(
@@ -212,7 +215,8 @@ export default function WorkOrdersScreen({
               onPress={() =>
                 navigation.navigate('WorkOrderFilters', {
                   filterFields: criteria.filterFields,
-                  onFilterChange
+                  onFilterChange,
+                  onReset: onResetFilters
                 })
               }
             />

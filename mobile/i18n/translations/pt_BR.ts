@@ -1541,6 +1541,7 @@ const ptBRJSON = {
   edit_additional_time: 'Editar tempo',
   delete_additional_time: 'Excluir tempo',
   confirm_delete_additional_time: 'Tem certeza de que deseja excluir este tempo?',
+  reset: 'Redefinir',
   operation_success: 'A operação foi bem-sucedida'
 };
 export default ptBRJSON;

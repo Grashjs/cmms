@@ -1395,6 +1395,7 @@ const locale = {
   edit_additional_time: '編輯時間',
   delete_additional_time: '刪除時間',
   confirm_delete_additional_time: '您確定要刪除此時間嗎？',
+  reset: '重置',
   operation_success: '操作成功'
 };
 export default locale;

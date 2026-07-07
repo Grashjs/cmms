@@ -1513,6 +1513,7 @@ const locale = {
   edit_additional_time: 'Modifica tempo',
   delete_additional_time: 'Elimina tempo',
   confirm_delete_additional_time: 'Sei sicuro di voler eliminare questo tempo?',
+  reset: 'Reimposta',
   operation_success: "L'operazione è riuscita"
 };
 export default locale;

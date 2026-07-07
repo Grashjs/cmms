@@ -1524,6 +1524,7 @@ const locale = {
   edit_additional_time: 'Editar tiempo',
   delete_additional_time: 'Eliminar tiempo',
   confirm_delete_additional_time: '¿Está seguro de que desea eliminar este tiempo?',
+  reset: 'Restablecer',
   operation_success: 'La operación fue exitosa'
 };
 export default locale;

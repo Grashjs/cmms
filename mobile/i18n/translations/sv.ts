@@ -1489,6 +1489,7 @@ const locale = {
   edit_additional_time: 'Redigera tid',
   delete_additional_time: 'Ta bort tid',
   confirm_delete_additional_time: 'Är du säker på att du vill ta bort denna tid?',
+  reset: 'Återställ',
   operation_success: 'Åtgärden lyckades'
 };
 export default locale;

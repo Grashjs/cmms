@@ -1497,6 +1497,7 @@ const locale = {
   edit_additional_time: 'Idő szerkesztése',
   delete_additional_time: 'Idő törlése',
   confirm_delete_additional_time: 'Biztosan törölni szeretné ezt az időt?',
+  reset: 'Visszaállítás',
   operation_success: 'A művelet sikeres volt'
 };
 export default locale;

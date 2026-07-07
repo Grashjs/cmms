@@ -1498,6 +1498,7 @@ const locale = {
   edit_additional_time: 'Tijd bewerken',
   delete_additional_time: 'Tijd verwijderen',
   confirm_delete_additional_time: 'Weet u zeker dat u deze tijd wilt verwijderen?',
+  reset: 'Resetten',
   operation_success: 'De bewerking is gelukt'
 };
 export default locale;
