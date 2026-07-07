@@ -282,12 +282,11 @@ export default function WorkOrderFilters({
             );
           });
           // type filter
-          const type = values?.type ?? { value: 'ALL' };
-
+          const type: string = values?.type ?? 'ALL';
           newFilters = newFilters.filter(
             ({ field }) => field !== 'parentPreventiveMaintenance'
           );
-          switch (type.value) {
+          switch (type) {
             case 'REACTIVE':
               newFilters.push({
                 field: 'parentPreventiveMaintenance',
