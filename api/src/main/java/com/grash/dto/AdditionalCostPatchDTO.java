@@ -24,5 +24,6 @@ public class AdditionalCostPatchDTO {
     @Schema(description = "Date of the additional cost")
     private Date date;
 
+    @Schema(implementation = IdDTO.class)
     private CostCategory category;
 }
