@@ -53,6 +53,19 @@ const slice = createSlice({
         workOrderId
       ].filter((additionalCost) => additionalCost.id !== id);
     },
+    editAdditionalCost(
+      state: AdditionalCostState,
+      action: PayloadAction<{
+        workOrderId: number;
+        id: number;
+        additionalCost: AdditionalCost;
+      }>
+    ) {
+      const { id, workOrderId, additionalCost } = action.payload;
+      state.costsByWorkOrder[workOrderId] = state.costsByWorkOrder[
+        workOrderId
+      ].map((cost) => (cost.id === id ? additionalCost : cost));
+    },
     setLoadingByWorkOrder(
       state: AdditionalCostState,
       action: PayloadAction<{ loading: boolean; id: number }>
@@ -105,6 +118,26 @@ export const deleteAdditionalCost =
     if (success) {
       dispatch(slice.actions.deleteAdditionalCost({ workOrderId, id }));
     }
+  };
+
+export const editAdditionalCost =
+  (
+    workOrderId: number,
+    id: number,
+    additionalCost: Partial<AdditionalCost>
+  ): AppThunk =>
+  async (dispatch) => {
+    const additionalCostResponse = await api.patch<AdditionalCost>(
+      `${basePath}/${id}`,
+      additionalCost
+    );
+    dispatch(
+      slice.actions.editAdditionalCost({
+        workOrderId,
+        id,
+        additionalCost: additionalCostResponse
+      })
+    );
   };
 
 export default slice;

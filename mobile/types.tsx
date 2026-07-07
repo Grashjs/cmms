@@ -9,6 +9,7 @@ import {
   NavigatorScreenParams
 } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import AdditionalCost from './models/additionalCost';
 import WorkOrder from './models/workOrder';
 import Part, { PartMiniDTO } from './models/part';
 import { Task } from './models/tasks';
@@ -155,6 +156,7 @@ export type RootStackParamList = {
     onFilterChange: (filterFields: FilterField[]) => void;
   };
   AddAdditionalCost: { workOrderId: number };
+  EditAdditionalCost: { workOrderId: number; additionalCost: AdditionalCost };
   AddAdditionalTime: { workOrderId: number };
   ScanAsset: {
     onChange?: (asset: AssetMiniDTO) => void;

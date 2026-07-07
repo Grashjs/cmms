@@ -70,6 +70,7 @@ import {
 } from '../../slices/workOrder';
 import { PlanFeature } from '../../models/subscriptionPlan';
 import PartQuantities from '../../components/PartQuantities';
+import AdditionalCostsCard from '../../components/AdditionalCostsCard';
 import { SheetManager } from 'react-native-actions-sheet';
 import LoadingDialog from '../../components/LoadingDialog';
 import WorkOrder from '../../models/workOrder';
@@ -1068,83 +1069,15 @@ export default function WODetailsScreen({
                         </Fragment>
                       )}
                     </View>
-                    <View style={styles.shadowedCard}>
-                      <Text
-                        style={{
-                          marginBottom: 10,
-                          color: theme.colors.onSurfaceVariant
-                        }}
-                      >
-                        {t('additional_costs')}
-                      </Text>
-                      {!additionalCosts.length ? (
-                        <Text style={{ fontWeight: 'bold' }}>
-                          {t('no_additional_cost')}
-                        </Text>
-                      ) : (
-                        <View>
-                          {additionalCosts.map((cost) => (
-                            <View
-                              key={cost.id}
-                              style={{
-                                display: 'flex',
-                                flexDirection: 'column'
-                              }}
-                            >
-                              <Text
-                                style={{ fontWeight: 'bold' }}
-                                variant="bodyLarge"
-                              >
-                                {cost.description}
-                              </Text>
-                              <Text>{getFormattedCurrency(cost.cost)}</Text>
-                            </View>
-                          ))}
-                          <Text
-                            style={{ fontWeight: 'bold' }}
-                            variant="bodyLarge"
-                          >
-                            {t('total')}
-                          </Text>
-                          <Text>
-                            {getFormattedCurrency(
-                              additionalCosts.reduce(
-                                (acc, additionalCost) =>
-                                  additionalCost.includeToTotalCost
-                                    ? acc + additionalCost.cost
-                                    : acc,
-                                0
-                              )
-                            )}
-                          </Text>
-                        </View>
-                      )}
-                      {hasEditPermission(
-                        PermissionEntity.WORK_ORDERS,
-                        workOrder
-                      ) && (
-                        <Fragment>
-                          <Divider style={{ marginTop: 5 }} />
-                          <Button
-                            disabled={
-                              !(
-                                hasEditPermission(
-                                  PermissionEntity.WORK_ORDERS,
-                                  workOrder
-                                ) && hasFeature(PlanFeature.ADDITIONAL_COST)
-                              )
-                            }
-                            onPress={() =>
-                              navigation.push('AddAdditionalCost', {
-                                workOrderId: workOrder.id
-                              })
-                            }
-                          >
-                            {t('add_additional_cost')}
-                          </Button>
-                        </Fragment>
-                      )}
-                    </View>
+                    <AdditionalCostsCard
+                      additionalCosts={additionalCosts}
+                      workOrder={workOrder}
+                      workOrderId={id}
+                      hasEditPermission={hasEditPermission}
+                      hasFeature={hasFeature}
+                      getFormattedCurrency={getFormattedCurrency}
+                      navigation={navigation}
+                    />
                   </View>
                 )}
                 {!!tasks.length && (

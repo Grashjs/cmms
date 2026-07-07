@@ -90,6 +90,7 @@ import { navigationRef } from './RootNavigation';
 import SettingsScreen from '../screens/SettingsScreen';
 import WorkOrderFilters from '../screens/workOrders/WorkOrderFilters';
 import CreateAdditionalCost from '../screens/workOrders/CreateAdditionalCost';
+import EditAdditionalCost from '../screens/workOrders/EditAdditionalCost';
 import CreateAdditionalTime from '../screens/workOrders/CreateAdditionalTime';
 import SelectNfcModal from '../screens/modals/SelectNfcModal';
 import SelectBarcodeModal from '../screens/modals/SelectBarcodeModal';
@@ -442,6 +443,11 @@ function RootNavigator() {
           name="AddAdditionalCost"
           component={CreateAdditionalCost}
           options={{ title: t('add_cost') }}
+        />
+        <Stack.Screen
+          name="EditAdditionalCost"
+          component={EditAdditionalCost}
+          options={{ title: t('edit_additional_cost') }}
         />
         <Stack.Screen
           name="AddAdditionalTime"

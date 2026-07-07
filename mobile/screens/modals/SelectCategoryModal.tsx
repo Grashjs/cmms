@@ -93,7 +93,6 @@ export default function SelectCategoriesModal({
   };
 
   const handleCreateCategory = async () => {
-    console.log('Creating category with name:', newCategoryName, type);
     if (!newCategoryName.trim()) return;
     setIsCreating(true);
     try {

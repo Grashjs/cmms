@@ -1639,6 +1639,10 @@ const frJSON = {
   feedback_description1:
     'Nous sommes désolés d\'apprendre cela. Vos commentaires nous aident à améliorer Atlas.',
   feedback_placeholder: 'Dites-nous ce qui n\'a pas fonctionné ou comment nous pouvons nous améliorer…',
-  send: 'Envoyer'
+  send: 'Envoyer',
+  edit_additional_cost: 'Modifier le coût supplémentaire',
+  edit_additional_cost_description: 'Remplissez les champs ci-dessous pour modifier le coût supplémentaire',
+  delete_additional_cost: 'Supprimer le coût supplémentaire',
+  confirm_delete_additional_cost: 'Êtes-vous sûr de vouloir supprimer ce coût supplémentaire ?'
 };
 export default frJSON;
