@@ -1,11 +1,9 @@
-import { Fragment, useContext, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { Fragment, useContext } from 'react';
+import { Alert, StyleSheet } from 'react-native';
 import {
   Button,
-  Dialog,
   Divider,
   IconButton,
-  Portal,
   Text,
   useTheme
 } from 'react-native-paper';
@@ -45,38 +43,12 @@ export default function AdditionalCostsCard({
   const theme = useTheme();
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const [deleteTarget, setDeleteTarget] = useState<AdditionalCost | null>(null);
-
-  const handleDelete = () => {
-    if (!deleteTarget) return;
-    dispatch(deleteAdditionalCost(workOrderId, deleteTarget.id))
-      .then(() => showSnackBar(t('operation_success'), 'success'))
-      .catch((err) => showSnackBar(getErrorMessage(err), 'error'))
-      .finally(() => setDeleteTarget(null));
-  };
 
   const canEdit = hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder);
   const canAdd = canEdit && hasFeature(PlanFeature.ADDITIONAL_COST);
 
   return (
     <View style={styles.shadowedCard}>
-      <Portal>
-        <Dialog
-          visible={!!deleteTarget}
-          onDismiss={() => setDeleteTarget(null)}
-        >
-          <Dialog.Title>{t('confirmation')}</Dialog.Title>
-          <Dialog.Content>
-            <Text variant="bodyMedium">
-              {t('confirm_delete_additional_cost')}
-            </Text>
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button onPress={() => setDeleteTarget(null)}>{t('cancel')}</Button>
-            <Button onPress={handleDelete}>{t('to_delete')}</Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
       <Text
         style={{
           marginBottom: 10,
@@ -117,7 +89,20 @@ export default function AdditionalCostsCard({
                   <IconButton
                     icon="delete"
                     size={20}
-                    onPress={() => setDeleteTarget(cost)}
+                    onPress={() =>
+                      Alert.alert(t('confirmation'), t('confirm_delete_additional_cost'), [
+                        { text: t('cancel'), style: 'cancel' },
+                        {
+                          text: t('to_delete'),
+                          style: 'destructive',
+                          onPress: () => {
+                            dispatch(deleteAdditionalCost(workOrderId, cost.id))
+                              .then(() => showSnackBar(t('operation_success'), 'success'))
+                              .catch((err) => showSnackBar(getErrorMessage(err), 'error'));
+                          }
+                        }
+                      ])
+                    }
                   />
                 </View>
               )}

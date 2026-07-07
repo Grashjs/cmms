@@ -1,12 +1,10 @@
-import { Fragment, useContext, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { Fragment, useContext } from 'react';
+import { Alert, StyleSheet } from 'react-native';
 import {
   Button,
-  Dialog,
   Divider,
   IconButton,
   List,
-  Portal,
   Text,
   useTheme
 } from 'react-native-paper';
@@ -41,15 +39,6 @@ export default function AdditionalTimesCard({
   const dispatch = useDispatch();
   const { hasEditPermission, hasFeature } = useAuth();
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const [deleteTarget, setDeleteTarget] = useState<Labor | null>(null);
-
-  const handleDelete = () => {
-    if (!deleteTarget) return;
-    dispatch(deleteLabor(workOrder.id, deleteTarget.id))
-      .then(() => showSnackBar(t('operation_success'), 'success'))
-      .catch((err) => showSnackBar(getErrorMessage(err), 'error'))
-      .finally(() => setDeleteTarget(null));
-  };
 
   const canAddTime =
     hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder) &&
@@ -58,23 +47,6 @@ export default function AdditionalTimesCard({
 
   return (
     <View style={styles.shadowedCard}>
-      <Portal>
-        <Dialog
-          visible={!!deleteTarget}
-          onDismiss={() => setDeleteTarget(null)}
-        >
-          <Dialog.Title>{t('confirmation')}</Dialog.Title>
-          <Dialog.Content>
-            <Text variant="bodyMedium">
-              {t('confirm_delete_additional_time')}
-            </Text>
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button onPress={() => setDeleteTarget(null)}>{t('cancel')}</Button>
-            <Button onPress={handleDelete}>{t('to_delete')}</Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
       <Text
         style={{
           marginBottom: 10,
@@ -115,7 +87,20 @@ export default function AdditionalTimesCard({
                 <IconButton
                   icon="delete"
                   size={20}
-                  onPress={() => setDeleteTarget(labor)}
+                  onPress={() =>
+                    Alert.alert(t('confirmation'), t('confirm_delete_additional_time'), [
+                      { text: t('cancel'), style: 'cancel' },
+                      {
+                        text: t('to_delete'),
+                        style: 'destructive',
+                        onPress: () => {
+                          dispatch(deleteLabor(workOrder.id, labor.id))
+                            .then(() => showSnackBar(t('operation_success'), 'success'))
+                            .catch((err) => showSnackBar(getErrorMessage(err), 'error'));
+                        }
+                      }
+                    ])
+                  }
                 />
               </View>
             )}
