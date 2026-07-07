@@ -1497,6 +1497,13 @@ const plJSON = {
   feedback_description1:
     'Przykro nam to słyszeć. Twoja opinia pomaga nam ulepszać Atlas.',
   feedback_placeholder: 'Powiedz nam, co poszło nie tak lub jak możemy się poprawić…',
-  send: 'Wyślij'
+  send: 'Wyślij',
+  edit_additional_cost: 'Edytuj koszt',
+  delete_additional_cost: 'Usuń koszt',
+  confirm_delete_additional_cost: 'Czy na pewno chcesz usunąć ten koszt?',
+  edit_additional_time: 'Edytuj czas',
+  delete_additional_time: 'Usuń czas',
+  confirm_delete_additional_time: 'Czy na pewno chcesz usunąć ten czas?',
+  operation_success: 'Operacja zakończyła się sukcesem'
 };
 export default plJSON;

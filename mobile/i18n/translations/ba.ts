@@ -1488,6 +1488,13 @@ const locale = {
   feedback_description1:
     'Žao nam je što to čujemo. Vaše povratne informacije nam pomažu da Atlas bude bolji.',
   feedback_placeholder: 'Recite nam šta nije u redu ili kako možemo da se poboljšamo…',
-  send: 'Pošalji'
+  send: 'Pošalji',
+  edit_additional_cost: 'Uredi trošak',
+  delete_additional_cost: 'Obriši trošak',
+  confirm_delete_additional_cost: 'Jeste li sigurni da želite obrisati ovaj trošak?',
+  edit_additional_time: 'Uredi vrijeme',
+  delete_additional_time: 'Obriši vrijeme',
+  confirm_delete_additional_time: 'Jeste li sigurni da želite obrisati ovo vrijeme?',
+  operation_success: 'Operacija je uspjela'
 };
 export default locale;

@@ -1490,6 +1490,13 @@ const locale = {
   feedback_description1:
     'Sajnáljuk, hogy ezt halljuk. Visszajelzése segít nekünk az Atlas fejlesztésében.',
   feedback_placeholder: 'Mondja el, mi volt a probléma, vagy hogyan fejlődhetünk…',
-  send: 'Küldés'
+  send: 'Küldés',
+  edit_additional_cost: 'Költség szerkesztése',
+  delete_additional_cost: 'Költség törlése',
+  confirm_delete_additional_cost: 'Biztosan törölni szeretné ezt a költséget?',
+  edit_additional_time: 'Idő szerkesztése',
+  delete_additional_time: 'Idő törlése',
+  confirm_delete_additional_time: 'Biztosan törölni szeretné ezt az időt?',
+  operation_success: 'A művelet sikeres volt'
 };
 export default locale;

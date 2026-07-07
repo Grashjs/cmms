@@ -1495,6 +1495,13 @@ const locale = {
   feedback_description1:
     'お気に召さなかったようで残念です。お客さまのフィードバックがAtlasの改善につながります。',
   feedback_placeholder: '何が問題だったか、またはどのように改善できるかをお聞かせください…',
-  send: '送信'
+  send: '送信',
+  edit_additional_cost: '費用を編集',
+  delete_additional_cost: '費用を削除',
+  confirm_delete_additional_cost: 'この費用を削除してもよろしいですか？',
+  edit_additional_time: '時間を編集',
+  delete_additional_time: '時間を削除',
+  confirm_delete_additional_time: 'この時間を削除してもよろしいですか？',
+  operation_success: '操作が成功しました'
 };
 export default locale;

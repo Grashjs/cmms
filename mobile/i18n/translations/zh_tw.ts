@@ -1388,6 +1388,13 @@ const locale = {
   feedback_description1:
     '很抱歉聽到這個消息。您的回饋有助於我們把Atlas做得更好。',
   feedback_placeholder: '告訴我們哪裡出了問題，或者我們如何改進…',
-  send: '發送'
+  send: '發送',
+  edit_additional_cost: '編輯費用',
+  delete_additional_cost: '刪除費用',
+  confirm_delete_additional_cost: '您確定要刪除此費用嗎？',
+  edit_additional_time: '編輯時間',
+  delete_additional_time: '刪除時間',
+  confirm_delete_additional_time: '您確定要刪除此時間嗎？',
+  operation_success: '操作成功'
 };
 export default locale;

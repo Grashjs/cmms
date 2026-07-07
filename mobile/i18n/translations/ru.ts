@@ -1541,6 +1541,12 @@ const ruJSON = {
   feedback_description1:
     'Нам жаль это слышать. Ваш отзыв помогает нам улучшать Atlas.',
   feedback_placeholder: 'Расскажите, что пошло не так или как мы можем улучшиться…',
-  send: 'Отправить'
+  send: 'Отправить',
+  edit_additional_cost: 'Редактировать стоимость',
+  delete_additional_cost: 'Удалить стоимость',
+  confirm_delete_additional_cost: 'Вы уверены, что хотите удалить эту стоимость?',
+  edit_additional_time: 'Редактировать время',
+  delete_additional_time: 'Удалить время',
+  confirm_delete_additional_time: 'Вы уверены, что хотите удалить это время?'
 };
 export default ruJSON;

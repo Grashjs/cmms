@@ -1534,6 +1534,13 @@ const ptBRJSON = {
   feedback_description1:
     'Lamentamos ouvir isso. Seu feedback nos ajuda a melhorar o Atlas.',
   feedback_placeholder: 'Conte-nos o que deu errado ou como podemos melhorar…',
-  send: 'Enviar'
+  send: 'Enviar',
+  edit_additional_cost: 'Editar custo',
+  delete_additional_cost: 'Excluir custo',
+  confirm_delete_additional_cost: 'Tem certeza de que deseja excluir este custo?',
+  edit_additional_time: 'Editar tempo',
+  delete_additional_time: 'Excluir tempo',
+  confirm_delete_additional_time: 'Tem certeza de que deseja excluir este tempo?',
+  operation_success: 'A operação foi bem-sucedida'
 };
 export default ptBRJSON;

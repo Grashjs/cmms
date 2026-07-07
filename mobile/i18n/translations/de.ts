@@ -1565,6 +1565,13 @@ const deJSON = {
   feedback_description1:
     'Das tut uns leid. Ihr Feedback hilft uns, Atlas zu verbessern.',
   feedback_placeholder: 'Teilen Sie uns mit, was nicht funktioniert hat oder wie wir uns verbessern können…',
-  send: 'Senden'
+  send: 'Senden',
+  edit_additional_cost: 'Kosten bearbeiten',
+  delete_additional_cost: 'Kosten löschen',
+  confirm_delete_additional_cost: 'Sind Sie sicher, dass Sie diese Kosten löschen möchten?',
+  edit_additional_time: 'Zeit bearbeiten',
+  delete_additional_time: 'Zeit löschen',
+  confirm_delete_additional_time: 'Sind Sie sicher, dass Sie diese Zeit löschen möchten?',
+  operation_success: 'Der Vorgang war erfolgreich'
 };
 export default deJSON;

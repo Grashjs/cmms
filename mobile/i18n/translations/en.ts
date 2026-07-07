@@ -1487,14 +1487,12 @@ const locale = {
     "We're sorry to hear that. Your feedback helps us make Atlas better.",
   feedback_placeholder: 'Tell us what went wrong or how we can improve…',
   send: 'Send',
-  edit_additional_cost: 'Edit Additional Cost',
-  delete_additional_cost: 'Delete Additional Cost',
-  confirm_delete_additional_cost:
-    'Are you sure you want to delete this Additional Cost?',
-  edit_additional_time: 'Edit Additional Time',
-  delete_additional_time: 'Delete Additional Time',
-  confirm_delete_additional_time:
-    'Are you sure you want to delete this Additional Time?',
+  edit_additional_cost: 'Edit Cost',
+  delete_additional_cost: 'Delete Cost',
+  confirm_delete_additional_cost: 'Are you sure you want to delete this Cost?',
+  edit_additional_time: 'Edit Time',
+  delete_additional_time: 'Delete Time',
+  confirm_delete_additional_time: 'Are you sure you want to delete this Time?',
   operation_success: 'The operation was successful'
 };
 export default locale;

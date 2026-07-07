@@ -1642,13 +1642,12 @@ const frJSON = {
   feedback_placeholder:
     "Dites-nous ce qui n'a pas fonctionné ou comment nous pouvons nous améliorer…",
   send: 'Envoyer',
-  edit_additional_cost: 'Modifier le coût supplémentaire',
-  delete_additional_cost: 'Supprimer le coût supplémentaire',
-  confirm_delete_additional_cost:
-    'Êtes-vous sûr de vouloir supprimer ce coût supplémentaire ?',
-  edit_additional_time: 'Modifier le temps supplémentaire',
-  delete_additional_time: 'Supprimer le temps supplémentaire',
-  confirm_delete_additional_time:
-    'Êtes-vous sûr de vouloir supprimer ce temps supplémentaire ?'
+  edit_additional_cost: 'Modifier le coût',
+  delete_additional_cost: 'Supprimer le coût',
+  confirm_delete_additional_cost: 'Êtes-vous sûr de vouloir supprimer ce coût ?',
+  edit_additional_time: 'Modifier le temps',
+  delete_additional_time: 'Supprimer le temps',
+  confirm_delete_additional_time: 'Êtes-vous sûr de vouloir supprimer ce temps ?',
+  operation_success: "L'opération a réussi"
 };
 export default frJSON;

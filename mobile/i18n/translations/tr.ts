@@ -1562,6 +1562,13 @@ const trJSON = {
   feedback_description1:
     'Bunu duyduğumuza üzüldük. Geri bildiriminiz Atlas\'ı daha iyi hale getirmemize yardımcı oluyor.',
   feedback_placeholder: 'Bize neyin yanlış gittiğini veya nasıl iyileştirebileceğimizi anlatın…',
-  send: 'Gönder'
+  send: 'Gönder',
+  edit_additional_cost: 'Maliyeti Düzenle',
+  delete_additional_cost: 'Maliyeti Sil',
+  confirm_delete_additional_cost: 'Bu maliyeti silmek istediğinizden emin misiniz?',
+  edit_additional_time: 'Süreyi Düzenle',
+  delete_additional_time: 'Süreyi Sil',
+  confirm_delete_additional_time: 'Bu süreyi silmek istediğinizden emin misiniz?',
+  operation_success: 'İşlem başarılı oldu'
 };
 export default trJSON;

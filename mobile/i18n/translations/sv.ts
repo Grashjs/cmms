@@ -1482,6 +1482,13 @@ const locale = {
   feedback_description1:
     'Vi är ledsna att höra det. Din feedback hjälper oss att göra Atlas bättre.',
   feedback_placeholder: 'Berätta vad som gick fel eller hur vi kan förbättras…',
-  send: 'Skicka'
+  send: 'Skicka',
+  edit_additional_cost: 'Redigera kostnad',
+  delete_additional_cost: 'Ta bort kostnad',
+  confirm_delete_additional_cost: 'Är du säker på att du vill ta bort denna kostnad?',
+  edit_additional_time: 'Redigera tid',
+  delete_additional_time: 'Ta bort tid',
+  confirm_delete_additional_time: 'Är du säker på att du vill ta bort denna tid?',
+  operation_success: 'Åtgärden lyckades'
 };
 export default locale;
