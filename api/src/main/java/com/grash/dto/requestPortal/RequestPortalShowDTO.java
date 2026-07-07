@@ -1,10 +1,6 @@
 package com.grash.dto.requestPortal;
 
-import com.grash.model.RequestPortalField;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.OneToMany;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import com.grash.dto.AuditShowDTO;
 
@@ -23,5 +19,5 @@ public class RequestPortalShowDTO extends AuditShowDTO {
     private String uuid;
     
     @Schema(description = "List of custom fields in the portal")
-    private List<RequestPortalField> fields;
+    private List<RequestPortalFieldShowDTO> fields;
 }

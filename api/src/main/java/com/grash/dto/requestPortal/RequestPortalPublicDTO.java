@@ -1,7 +1,6 @@
 package com.grash.dto.requestPortal;
 
 import com.grash.dto.AuditShowDTO;
-import com.grash.model.RequestPortalField;
 import com.grash.model.enums.Language;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -18,7 +17,7 @@ public class RequestPortalPublicDTO extends AuditShowDTO {
     private String welcomeMessage;
     
     @Schema(description = "List of custom fields in the portal")
-    private List<RequestPortalField> fields;
+    private List<RequestPortalFieldShowDTO> fields;
     
     @Schema(description = "Unique identifier (UUID) of the portal")
     private String uuid;

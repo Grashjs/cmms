@@ -35,11 +35,10 @@ public class RequestPortalController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public Page<RequestPortalShowDTO> search(@Parameter(description = "Request portal search criteria") @RequestBody SearchCriteria searchCriteria,
                                              @Parameter(hidden = true) @CurrentUser User user) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
-                throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-            searchCriteria.filterCompany(user);
-        }
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
+            throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        searchCriteria.filterCompany(user);
+
         return requestPortalService.findBySearchCriteria(searchCriteria).map(requestPortalMapper::toShowDto);
     }
 
