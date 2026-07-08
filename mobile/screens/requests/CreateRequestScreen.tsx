@@ -4,7 +4,7 @@ import Form from '../../components/form';
 import * as Yup from 'yup';
 import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import { getImageAndFiles } from '../../utils/overall';
 import { useDispatch, useSelector } from '../../store';
@@ -19,6 +19,7 @@ import {
   getCustomFieldsRequiredShape
 } from '../../models/form';
 import { CustomFieldEntityType } from '../../models/customField';
+import useUnsavedChanges from '../../hooks/useUnsavedChanges';
 
 export default function CreateRequestScreen({
   navigation,
@@ -32,6 +33,8 @@ export default function CreateRequestScreen({
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
   const { customFields } = useSelector((state) => state.customFields);
+  const [isFormDirty, setIsFormDirty] = useState(false);
+  useUnsavedChanges(navigation, isFormDirty);
 
   const onCreationSuccess = () => {
     showSnackBar(t('request_create_success'), 'success');
@@ -65,8 +68,9 @@ export default function CreateRequestScreen({
         navigation={navigation}
         submitText={t('save')}
         values={{ dueDate: null }}
-        onChange={({ field, e }) => {}}
+        onChange={() => setIsFormDirty(true)}
         onSubmit={async (values) => {
+          setIsFormDirty(false);
           try {
             let formattedValues = formatRequestValues(values);
             formattedValues = formatCustomFields(formattedValues);

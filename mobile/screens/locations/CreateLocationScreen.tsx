@@ -4,7 +4,7 @@ import Form from '../../components/form';
 import * as Yup from 'yup';
 import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import { useDispatch, useSelector } from '../../store';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
@@ -21,6 +21,7 @@ import {
 } from '../../models/form';
 import { CustomFieldEntityType } from '../../models/customField';
 import Location from '../../models/location';
+import useUnsavedChanges from '../../hooks/useUnsavedChanges';
 
 export default function CreateLocationScreen({
   navigation,
@@ -34,6 +35,9 @@ export default function CreateLocationScreen({
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
   const { customFields } = useSelector((state) => state.customFields);
+  const [isFormDirty, setIsFormDirty] = useState(false);
+
+  useUnsavedChanges(navigation, isFormDirty);
 
   const onCreationSuccess = (createdLocation: Location) => {
     showSnackBar(t('location_create_success'), 'success');
@@ -68,8 +72,9 @@ export default function CreateLocationScreen({
         navigation={navigation}
         submitText={t('create_location')}
         values={{}}
-        onChange={({ field, e }) => {}}
+        onChange={() => setIsFormDirty(true)}
         onSubmit={async (values) => {
+          setIsFormDirty(false);
           let formattedValues = formatLocationValues(values);
           formattedValues = formatCustomFields(formattedValues);
           try {
