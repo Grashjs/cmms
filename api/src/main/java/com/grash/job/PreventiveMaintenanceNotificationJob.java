@@ -47,7 +47,9 @@ public class PreventiveMaintenanceNotificationJob extends QuartzJobBean {
         if (schedule == null || schedule.isDisabled()) {
             return;
         }
-        scheduleService.checkIfWeeklyShouldRun(schedule);
+        if (!scheduleService.checkIfWeeklyShouldRun(schedule)) {
+            return;
+        }
 
         PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
         Locale locale = Helper.getLocale(preventiveMaintenance.getCompany());

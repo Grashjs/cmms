@@ -44,7 +44,9 @@ public class WorkOrderCreationJob extends QuartzJobBean {
         if (schedule == null || schedule.isDisabled()) {
             return;
         }
-        scheduleService.checkIfWeeklyShouldRun(schedule);
+        if (!scheduleService.checkIfWeeklyShouldRun(schedule)) {
+            return;
+        }
 
         PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
 

@@ -401,7 +401,7 @@ public class ScheduleService {
         scheduleRepository.deleteByPreventiveMaintenanceCompany_IdAndIsDemoTrue(companyId);
     }
 
-    public void checkIfWeeklyShouldRun(Schedule schedule) {
+    public boolean checkIfWeeklyShouldRun(Schedule schedule) {
         if (schedule.getRecurrenceType() == RecurrenceType.WEEKLY && schedule.getFrequency() > 1) {
             String tzId = schedule.getPreventiveMaintenance()
                     .getCompany().getCompanySettings()
@@ -416,9 +416,10 @@ public class ScheduleService {
 
             if (weeksSinceStart % schedule.getFrequency() != 0) {
                 log.info("Skipping execution - not on correct week interval for schedule {}", schedule.getId());
-                return;
+                return false;
             }
         }
+        return true;
     }
 
     public Collection<Schedule> findActive() {
