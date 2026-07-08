@@ -1893,7 +1893,11 @@ const locale = {
   restock_part: 'إعادة تخزين القطعة',
    restock: 'إعادة تخزين',
   export_part_transactions: 'تصدير معاملات الأجزاء',
-  export_parts: 'تصدير الأجزاء'
+  export_parts: 'تصدير الأجزاء',
+  edit_time: 'تعديل الوقت',
+  edit_cost: 'تعديل التكلفة',
+  confirm_delete_labor: 'هل أنت متأكد أنك تريد حذف هذه العمالة؟',
+  confirm_delete_additional_cost: 'هل أنت متأكد أنك تريد حذف هذه التكلفة؟'
 };
 
 export default locale;

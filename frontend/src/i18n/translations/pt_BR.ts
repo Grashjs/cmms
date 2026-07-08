@@ -1985,7 +1985,11 @@ const ptBRJSON = {
   restock_part: 'Reabastecer peça',
    restock: 'Reabastecer',
   export_part_transactions: 'Exportar transações de peças',
-  export_parts: 'Exportar peças'
+  export_parts: 'Exportar peças',
+  edit_time: 'Editar tempo',
+  edit_cost: 'Editar custo',
+  confirm_delete_labor: 'Tem certeza de que deseja excluir esta mão de obra?',
+  confirm_delete_additional_cost: 'Tem certeza de que deseja excluir este custo?'
 };
 
 export default ptBRJSON;

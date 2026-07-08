@@ -59,18 +59,12 @@ import {
   getPartQuantitiesByWorkOrder
 } from '../../../../slices/partQuantity';
 import Labor from '../../../../models/owns/labor';
-import {
-  controlTimer,
-  editLabor,
-  getLabors
-} from '../../../../slices/labor';
+import { controlTimer, editLabor, getLabors } from '../../../../slices/labor';
 import {
   durationToHours,
   getHoursAndMinutesAndSeconds
 } from '../../../../utils/formatters';
-import {
-  getAdditionalCosts
-} from '../../../../slices/additionalCost';
+import { getAdditionalCosts } from '../../../../slices/additionalCost';
 import { getTasksByWorkOrder } from '../../../../slices/task';
 import { Task } from '../../../../models/owns/tasks';
 import LinkModal from './LinkModal';
@@ -98,6 +92,8 @@ import { getCustomFieldValuesForDetails } from '../../type';
 import { getErrorMessage } from '../../../../utils/api';
 import { getCommentsCountByWorkOrder } from '../../../../slices/comment';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CloseIcon from '@mui/icons-material/Close';
+import CheckTwoToneIcon from '@mui/icons-material/CheckTwoTone';
 
 const LabelWrapper = styled(Box)(
   ({ theme }) => `
@@ -888,18 +884,19 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
                         }
                       />
                       <Typography variant="h6">m</Typography>
-                      <Button
-                        startIcon={
-                          savingPrimaryTime ? (
-                            <CircularProgress size="1rem" />
-                          ) : null
-                        }
-                        disabled={savingPrimaryTime}
-                        variant="contained"
-                        onClick={onSavePrimaryTime}
-                      >
-                        {t('save')}
-                      </Button>
+                      {savingPrimaryTime ? (
+                        <CircularProgress size="1rem" />
+                      ) : (
+                        <IconButton
+                          disabled={savingPrimaryTime}
+                          onClick={onSavePrimaryTime}
+                        >
+                          <CheckTwoToneIcon color={'primary'} />
+                        </IconButton>
+                      )}
+                      <IconButton onClick={() => setOpenEditPrimaryTime(false)}>
+                        <CloseIcon color={'error'} />
+                      </IconButton>
                     </Stack>
                   ) : (
                     <Typography
@@ -1085,7 +1082,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
                                   primary={
                                     <Stack
                                       direction={'row'}
-                                      spacing={2}
+                                      spacing={1}
                                       onClick={() =>
                                         navigate(
                                           getWorkOrderUrl(relation.workOrder.id)

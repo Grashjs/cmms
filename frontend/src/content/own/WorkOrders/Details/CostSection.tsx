@@ -97,7 +97,8 @@ export default function CostSection({
                         display: 'flex',
                         flexDirection: 'row',
                         alignItems: 'center',
-                        justifyContent: 'flex-end'
+                        justifyContent: 'flex-end',
+                        gap: 1
                       }}
                     >
                       <Typography variant="h6">
@@ -106,13 +107,11 @@ export default function CostSection({
                       {canEdit && (
                         <>
                           <IconButton
-                            sx={{ ml: 1 }}
                             onClick={() => handleEdit(additionalCost)}
                           >
                             <EditTwoToneIcon fontSize="small" color="primary" />
                           </IconButton>
                           <IconButton
-                            sx={{ ml: 1 }}
                             onClick={() => handleDelete(additionalCost)}
                           >
                             <DeleteTwoToneIcon fontSize="small" color="error" />

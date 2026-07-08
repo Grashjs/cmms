@@ -1911,7 +1911,11 @@ const locale = {
   restock_part: '部品を補充',
    restock: '補充',
   export_part_transactions: '部品取引をエクスポート',
-  export_parts: '部品をエクスポート'
+  export_parts: '部品をエクスポート',
+  edit_time: '時間を編集',
+  edit_cost: 'コストを編集',
+  confirm_delete_labor: 'この労務を削除してもよろしいですか？',
+  confirm_delete_additional_cost: 'このコストを削除してもよろしいですか？'
 };
 
 export default locale;

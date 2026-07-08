@@ -1955,7 +1955,11 @@ const plJSON = {
   restock_part: 'Uzupełnij część',
    restock: 'Uzupełnij',
   export_part_transactions: 'Eksportuj transakcje części',
-  export_parts: 'Eksportuj części'
+  export_parts: 'Eksportuj części',
+  edit_time: 'Edytuj czas',
+  edit_cost: 'Edytuj koszt',
+  confirm_delete_labor: 'Czy na pewno chcesz usunąć tę robociznę?',
+  confirm_delete_additional_cost: 'Czy na pewno chcesz usunąć ten koszt?'
 };
 
 export default plJSON;

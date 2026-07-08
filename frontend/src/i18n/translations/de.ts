@@ -2040,7 +2040,11 @@ const deJSON = {
   restock_part: 'Teil nachfüllen',
    restock: 'Nachfüllen',
   export_part_transactions: 'Teiletransaktionen exportieren',
-  export_parts: 'Teile exportieren'
+  export_parts: 'Teile exportieren',
+  edit_time: 'Zeit bearbeiten',
+  edit_cost: 'Kosten bearbeiten',
+  confirm_delete_labor: 'Sind Sie sicher, dass Sie diese Arbeitszeit löschen möchten?',
+  confirm_delete_additional_cost: 'Sind Sie sicher, dass Sie diese Kosten löschen möchten?'
 };
 
 export default deJSON;

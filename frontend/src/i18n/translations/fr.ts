@@ -2128,7 +2128,11 @@ const frJSON = {
   restock_part: 'Réapprovisionner la pièce',
   restock: 'Réapprovisionner',
   export_part_transactions: 'Exporter les transactions de pièces',
-  export_parts: 'Exporter les pièces'
+  export_parts: 'Exporter les pièces',
+  edit_time: 'Modifier le temps',
+  edit_cost: 'Modifier le coût',
+  confirm_delete_labor: 'Êtes-vous sûr de vouloir supprimer cette main-d\'œuvre ?',
+  confirm_delete_additional_cost: 'Êtes-vous sûr de vouloir supprimer ce coût ?'
 };
 
 export default frJSON;

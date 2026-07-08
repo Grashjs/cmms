@@ -1818,7 +1818,11 @@ const locale = {
   restock_part: 'Alkatrész feltöltése',
    restock: 'Feltöltés',
   export_part_transactions: 'Alkatrész-tranzakciók exportálása',
-  export_parts: 'Alkatrészek exportálása'
+  export_parts: 'Alkatrészek exportálása',
+  edit_time: 'Idő szerkesztése',
+  edit_cost: 'Költség szerkesztése',
+  confirm_delete_labor: 'Biztosan törli ezt a munkaórát?',
+  confirm_delete_additional_cost: 'Biztosan törli ezt a költséget?'
 };
 
 export default locale;

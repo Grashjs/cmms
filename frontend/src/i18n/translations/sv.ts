@@ -1925,7 +1925,11 @@ const locale = {
   restock_part: 'Fyll på del',
    restock: 'Fyll på',
   export_part_transactions: 'Exportera deltransaktioner',
-  export_parts: 'Exportera delar'
+  export_parts: 'Exportera delar',
+  edit_time: 'Redigera tid',
+  edit_cost: 'Redigera kostnad',
+  confirm_delete_labor: 'Är du säker på att du vill ta bort denna arbetskraft?',
+  confirm_delete_additional_cost: 'Är du säker på att du vill ta bort denna kostnad?'
 };
 
 export default locale;

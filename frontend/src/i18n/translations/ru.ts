@@ -2018,7 +2018,11 @@ const ruJSON = {
   restock_part: 'Пополнить деталь',
    restock: 'Пополнить',
   export_part_transactions: 'Экспорт транзакций запчастей',
-  export_parts: 'Экспорт запчастей'
+  export_parts: 'Экспорт запчастей',
+  edit_time: 'Редактировать время',
+  edit_cost: 'Редактировать стоимость',
+  confirm_delete_labor: 'Вы уверены, что хотите удалить эту рабочую силу?',
+  confirm_delete_additional_cost: 'Вы уверены, что хотите удалить эту стоимость?'
 };
 
 export default ruJSON;

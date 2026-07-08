@@ -1941,7 +1941,11 @@ const locale = {
   restock_part: 'Dopuni dio',
    restock: 'Dopuni',
   export_part_transactions: 'Izvoz transakcija dijelova',
-  export_parts: 'Izvoz dijelova'
+  export_parts: 'Izvoz dijelova',
+  edit_time: 'Uredi vrijeme',
+  edit_cost: 'Uredi trošak',
+  confirm_delete_labor: 'Jeste li sigurni da želite izbrisati ovaj rad?',
+  confirm_delete_additional_cost: 'Jeste li sigurni da želite izbrisati ovaj trošak?'
 };
 
 export default locale;

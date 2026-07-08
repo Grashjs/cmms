@@ -1957,6 +1957,10 @@ const locale = {
   restock_part: 'Onderdeel bijvullen',
    restock: 'Bijvullen',
   export_part_transactions: 'Onderdeeltransacties exporteren',
-  export_parts: 'Onderdelen exporteren'
+  export_parts: 'Onderdelen exporteren',
+  edit_time: 'Tijd bewerken',
+  edit_cost: 'Kosten bewerken',
+  confirm_delete_labor: 'Weet u zeker dat u deze arbeid wilt verwijderen?',
+  confirm_delete_additional_cost: 'Weet u zeker dat u deze kosten wilt verwijderen?'
 };
 export default locale;

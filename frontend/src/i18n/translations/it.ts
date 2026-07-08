@@ -1959,7 +1959,11 @@ const locale = {
   restock_part: 'Rifornisci parte',
    restock: 'Rifornisci',
   export_part_transactions: 'Esporta transazioni di parti',
-  export_parts: 'Esporta parti'
+  export_parts: 'Esporta parti',
+  edit_time: 'Modifica tempo',
+  edit_cost: 'Modifica costo',
+  confirm_delete_labor: 'Sei sicuro di voler eliminare questa manodopera?',
+  confirm_delete_additional_cost: 'Sei sicuro di voler eliminare questo costo?'
 };
 
 export default locale;

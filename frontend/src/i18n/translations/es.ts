@@ -2031,7 +2031,11 @@ const esJSON = {
   restock_part: 'Reabastecer pieza',
    restock: 'Reabastecer',
   export_part_transactions: 'Exportar transacciones de repuestos',
-  export_parts: 'Exportar repuestos'
+  export_parts: 'Exportar repuestos',
+  edit_time: 'Editar tiempo',
+  edit_cost: 'Editar costo',
+  confirm_delete_labor: '¿Está seguro de que desea eliminar esta mano de obra?',
+  confirm_delete_additional_cost: '¿Está seguro de que desea eliminar este costo?'
 };
 
 export default esJSON;

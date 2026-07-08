@@ -1955,7 +1955,11 @@ const trJSON = {
   restock_part: 'Parçayı Yenile',
    restock: 'Yenile',
   export_part_transactions: 'Parça işlemlerini dışa aktar',
-  export_parts: 'Parçaları dışa aktar'
+  export_parts: 'Parçaları dışa aktar',
+  edit_time: 'Süreyi Düzenle',
+  edit_cost: 'Maliyeti Düzenle',
+  confirm_delete_labor: 'Bu işçiliği silmek istediğinize emin misiniz?',
+  confirm_delete_additional_cost: 'Bu maliyeti silmek istediğinize emin misiniz?'
 };
 
 export default trJSON;

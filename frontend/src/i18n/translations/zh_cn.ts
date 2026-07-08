@@ -1621,7 +1621,11 @@ const locale = {
   restock_part: '补充零件',
    restock: '补充',
   export_part_transactions: '导出零件交易',
-  export_parts: '导出零件'
+  export_parts: '导出零件',
+  edit_time: '编辑时间',
+  edit_cost: '编辑成本',
+  confirm_delete_labor: '确定要删除此人工吗？',
+  confirm_delete_additional_cost: '确定要删除此成本吗？'
 };
 
 export default locale;
