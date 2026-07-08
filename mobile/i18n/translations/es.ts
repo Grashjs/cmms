@@ -258,6 +258,8 @@ const locale = {
   column_view: 'Vista de columna',
   wo_create_success: 'La Orden de Trabajo se ha creado correctamente',
   wo_create_failure: 'No se pudo crear la Oden de Trabajo',
+  discard_changes: 'Descartar cambios',
+  discard_changes_question: '¿Descartar cambios no guardados?\nSi sales ahora, perderás los cambios no guardados',
   changes_saved_success: 'Los cambios se han guardado',
   wo_update_failure: 'No se pudo editar la Orden de Trabajo',
   wo_delete_success: 'La Orden de Trabajo se ha eliminado correctamente',

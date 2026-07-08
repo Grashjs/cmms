@@ -262,6 +262,8 @@ const locale = {
   column_view: 'Kolone',
   wo_create_success: 'Radni nalog je uspješno kreiran',
   wo_create_failure: 'Kreiranje radnog naloga nije uspjelo',
+  discard_changes: 'Odbaci promjene',
+  discard_changes_question: 'Odbaci nesačuvane promjene?\nAko odete sada, izgubit ćete nesačuvane promjene',
   changes_saved_success: 'Promjene su sačuvane',
   wo_update_failure: 'Uređivanje radnog naloga nije uspjelo',
   wo_delete_success: 'Radni nalog je uspješno obrisan',

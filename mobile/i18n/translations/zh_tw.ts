@@ -229,6 +229,8 @@ const locale = {
   column_view: '欄位檢視',
   wo_create_success: '工單建立成功',
   wo_create_failure: '工單無法建立',
+  discard_changes: '放棄更改',
+  discard_changes_question: '放棄未儲存的更改？\n如果現在離開，您將丟失未儲存的更改',
   changes_saved_success: '變更已儲存',
   wo_update_failure: '工單無法編輯',
   wo_delete_success: '工單刪除成功',

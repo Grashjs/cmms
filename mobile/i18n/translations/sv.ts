@@ -251,6 +251,8 @@ const locale = {
   column_view: 'Kolumnvy',
   wo_create_success: 'Arbetsordern har skapats',
   wo_create_failure: 'Arbetsordern kunde inte skapas',
+  discard_changes: 'Ignorera ändringar',
+  discard_changes_question: 'Ignorera osparade ändringar?\nOm du lämnar nu förlorar du osparade ändringar',
   changes_saved_success: 'Ändringarna har sparats',
   wo_update_failure: 'Arbetsordern kunde inte redigeras',
   wo_delete_success: 'Arbetsordern har raderats',

@@ -363,6 +363,8 @@ const frJSON = {
   column_view: 'Vue colonnes',
   wo_create_success: 'Le bon de travail a été créé avec succès',
   wo_create_failure: "Le bon de travail n'a pas pu être créé",
+  discard_changes: 'Annuler les modifications',
+  discard_changes_question: 'Annuler les modifications non enregistrées ?\nSi vous partez maintenant, vous perdrez les modifications non enregistrées',
   changes_saved_success: 'Les changements ont été enregistrés',
   wo_update_failure: "Le bon de travail n'a pas pu être modifié",
   wo_delete_success: 'Le bon de travail a été supprimé avec succès',

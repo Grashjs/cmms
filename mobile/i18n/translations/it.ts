@@ -256,6 +256,8 @@ const locale = {
   column_view: 'Vista colonna',
   wo_create_success: "L'ordine di lavoro è stato creato correttamente",
   wo_create_failure: "Non è stato possibile creare l'ordine di lavoro",
+  discard_changes: 'Annulla le modifiche',
+  discard_changes_question: 'Annullare le modifiche non salvate?\nSe esci ora, perderai le modifiche non salvate',
   changes_saved_success: 'Le modifiche sono state salvate',
   wo_update_failure: "L'ordine di lavoro non può essere modificato",
   wo_delete_success: "L'ordine di lavoro è stato eliminato correttamente",

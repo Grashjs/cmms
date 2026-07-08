@@ -257,6 +257,8 @@ const ruJSON = {
 
   wo_create_success: 'Наряд успешно создан',
   wo_create_failure: 'Не удалось создать наряд',
+  discard_changes: 'Отменить изменения',
+  discard_changes_question: 'Отменить несохраненные изменения?\nЕсли вы уйдете сейчас, вы потеряете несохраненные изменения',
   changes_saved_success: 'Изменения сохранены',
   wo_update_failure: 'Не удалось отредактировать наряд',
   wo_delete_success: 'Наряд успешно удалён',

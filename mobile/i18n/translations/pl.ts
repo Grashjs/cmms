@@ -260,6 +260,8 @@ const plJSON = {
   column_view: 'Widok kolumny',
   wo_create_success: 'Zlecenie robocze zostało pomyślnie utworzone',
   wo_create_failure: 'Nie można utworzyć zlecenia roboczego',
+  discard_changes: 'Odrzuć zmiany',
+  discard_changes_question: 'Odrzucić niezapisane zmiany?\nJeśli teraz wyjdziesz, stracisz niezapisane zmiany',
   changes_saved_success: 'Zmiany zostały zapisane',
   wo_update_failure: 'Nie można edytować zlecenia roboczego',
   wo_delete_success: 'Zlecenie robocze zostało pomyślnie usunięte',

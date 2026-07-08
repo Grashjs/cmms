@@ -257,6 +257,8 @@ const locale = {
   column_view: 'Oszlop nézet',
   wo_create_success: 'A munkalap sikeresen létrejött',
   wo_create_failure: 'A munkalap nem hozható létre',
+  discard_changes: 'Változtatások elvetése',
+  discard_changes_question: 'Elveti a nem mentett változtatásokat?\nHa most elhagyja az oldalt, elveszíti a nem mentett változtatásokat',
   changes_saved_success: 'A módosítások elmentve',
   wo_update_failure: 'A munkalap nem szerkeszthető',
   wo_delete_success: 'A munkalap sikeresen törölve',

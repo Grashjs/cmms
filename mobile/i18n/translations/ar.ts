@@ -244,6 +244,8 @@ const locale = {
   column_view: 'عرض العمود',
   wo_create_success: 'تم إنشاء أمر العمل بنجاح',
   wo_create_failure: 'لم يتم إنشاء أمر العمل',
+  discard_changes: 'تجاهل التغييرات',
+  discard_changes_question: 'تجاهل التغييرات غير المحفوظة؟\nإذا غادرت الآن، ستفقد التغييرات غير المحفوظة',
   changes_saved_success: 'تم حفظ التغييرات',
   wo_update_failure: 'لم يتمكن من تعديل أمر العمل',
   wo_delete_success: 'تم حذف أمر العمل بنجاح',

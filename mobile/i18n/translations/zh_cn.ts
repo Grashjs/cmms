@@ -227,6 +227,8 @@ const locale = {
   column_view: '列视图',
   wo_create_success: '工单创建成功',
   wo_create_failure: '工单创建失败',
+  discard_changes: '放弃更改',
+  discard_changes_question: '放弃未保存的更改？\n如果现在离开，您将丢失未保存的更改',
   changes_saved_success: '更改已保存',
   wo_update_failure: '工单编辑失败',
   wo_delete_success: '工单删除成功',

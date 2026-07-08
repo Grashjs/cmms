@@ -267,6 +267,8 @@ const ptBRJSON = {
   column_view: 'Visualização em Coluna',
   wo_create_success: 'A ordem de serviço foi criada com sucesso',
   wo_create_failure: 'A ordem de serviço não pôde ser criada',
+  discard_changes: 'Descartar alterações',
+  discard_changes_question: 'Descartar alterações não salvas?\nSe você sair agora, perderá as alterações não salvas',
   changes_saved_success: 'As alterações foram salvas',
   wo_update_failure: 'A ordem de serviço não pôde ser editada',
   wo_delete_success: 'A ordem de serviço foi excluída com sucesso',

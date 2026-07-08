@@ -247,6 +247,8 @@ const trJSON = {
   column_view: 'Sütun Görünümü',
   wo_create_success: 'İş Emri başarıyla oluşturuldu',
   wo_create_failure: 'İş Emri oluşturulamadı',
+  discard_changes: 'Değişiklikleri at',
+  discard_changes_question: 'Kaydedilmemiş değişiklikler atılsın mı?\nŞimdi ayrılırsanız, kaydedilmemiş değişiklikleri kaybedersiniz',
   changes_saved_success: 'Değişiklikler kaydedildi',
   wo_update_failure: 'İş Emri düzenlenemedi',
   wo_delete_success: 'İş Emri başarıyla silindi',

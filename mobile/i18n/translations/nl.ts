@@ -255,6 +255,8 @@ const locale = {
   column_view: 'Kolomweergave',
   wo_create_success: 'De werkorder is succesvol aangemaakt',
   wo_create_failure: 'De werkorder kon niet worden aangemaakt',
+  discard_changes: 'Wijzigingen negeren',
+  discard_changes_question: 'Niet-opgeslagen wijzigingen negeren?\nAls u nu weggaat, verliest u niet-opgeslagen wijzigingen',
   changes_saved_success: 'De wijzigingen zijn opgeslagen',
   wo_update_failure: 'De werkorder kon niet worden bewerkt',
   wo_delete_success: 'De werkorder is succesvol verwijderd',

@@ -265,6 +265,8 @@ const deJSON = {
   column_view: 'Spaltenansicht ',
   wo_create_success: 'Der Arbeitsauftrag wurde erfolgreich erstellt ',
   wo_create_failure: 'Der Arbeitsauftrag konnte nicht erstellt werden ',
+  discard_changes: 'Änderungen verwerfen',
+  discard_changes_question: 'Nicht gespeicherte Änderungen verwerfen?\nWenn Sie jetzt gehen, verlieren Sie nicht gespeicherte Änderungen',
   changes_saved_success: 'Die Änderungen wurden gespeichert ',
   wo_update_failure: 'Der Arbeitsauftrag konnte nicht bearbeitet werden ',
   wo_delete_success: 'Der Arbeitsauftrag wurde erfolgreich gelöscht ',

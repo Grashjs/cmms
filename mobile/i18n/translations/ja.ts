@@ -252,6 +252,8 @@ const locale = {
   column_view: '列表示',
   wo_create_success: '作業指示書が正常に作成されました',
   wo_create_failure: '作業指示書を作成できませんでした',
+  discard_changes: '変更を破棄',
+  discard_changes_question: '保存されていない変更を破棄しますか？\n今すぐ離れると、保存されていない変更が失われます',
   changes_saved_success: '変更が保存されました',
   wo_update_failure: '作業指示書を編集できませんでした',
   wo_delete_success: '作業指示書が正常に削除されました',

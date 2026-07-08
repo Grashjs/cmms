@@ -1494,6 +1494,9 @@ const locale = {
   delete_additional_time: 'Delete Time',
   confirm_delete_additional_time: 'Are you sure you want to delete this Time?',
   operation_success: 'The operation was successful',
-  reset: 'Reset'
+  reset: 'Reset',
+  discard_changes: 'Discard changes',
+  discard_changes_question:
+    'Discard unsaved changes?\nIf you leave now, you will lose unsaved changes'
 };
 export default locale;
