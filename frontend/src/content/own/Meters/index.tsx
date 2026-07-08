@@ -100,6 +100,8 @@ function Meters() {
   const { t }: { t: any } = useTranslation();
   const { setTitle } = useContext(TitleContext);
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
+  const [openDiscardDialog, setOpenDiscardDialog] = useState<boolean>(false);
+  const [isFormDirty, setIsFormDirty] = useState<boolean>(false);
   const [copyMeterData, setCopyMeterData] = useState<Meter | null>(null);
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
@@ -440,8 +442,12 @@ function Meters() {
       maxWidth="md"
       open={openAddModal}
       onClose={() => {
-        setOpenAddModal(false);
-        setCopyMeterData(null);
+        if (isFormDirty) {
+          setOpenDiscardDialog(true);
+        } else {
+          setOpenAddModal(false);
+          setCopyMeterData(null);
+        }
       }}
     >
       <DialogTitle
@@ -474,8 +480,9 @@ function Meters() {
                 ? { ...getMeterFormValues(copyMeterData), id: null }
                 : {}
             }
-            onChange={({ field, e }) => {}}
+            onChange={() => setIsFormDirty(true)}
             onSubmit={async (values) => {
+              setIsFormDirty(false);
               let formattedValues = formatValues(values);
               try {
                 const uploadedFiles = await uploadFiles([], values.image);
@@ -497,6 +504,18 @@ function Meters() {
           />
         </Box>
       </DialogContent>
+      <ConfirmDialog
+        open={openDiscardDialog}
+        onCancel={() => setOpenDiscardDialog(false)}
+        onConfirm={() => {
+          setOpenDiscardDialog(false);
+          setOpenAddModal(false);
+          setCopyMeterData(null);
+          setIsFormDirty(false);
+        }}
+        confirmText={t('discard_changes')}
+        question={t('discard_changes_question')}
+      />
     </Dialog>
   );
   const renderUpdateModal = () => (

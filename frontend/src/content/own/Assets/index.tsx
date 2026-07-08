@@ -37,6 +37,7 @@ import CustomDatagrid2, {
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import { AssetDTO, AssetRow } from '../../../models/owns/asset';
 import Form from '../components/form';
+import ConfirmDialog from '../components/ConfirmDialog';
 import * as Yup from 'yup';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -102,6 +103,8 @@ function Assets() {
     hasFeature
   } = useAuth();
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
+  const [openDiscardDialog, setOpenDiscardDialog] = useState<boolean>(false);
+  const [isFormDirty, setIsFormDirty] = useState<boolean>(false);
   const dispatch = useDispatch();
   const {
     assetsHierarchy,
@@ -772,8 +775,12 @@ function Assets() {
       maxWidth="md"
       open={openAddModal}
       onClose={() => {
-        setOpenAddModal(false);
-        setInitialAssetName('');
+        if (isFormDirty) {
+          setOpenDiscardDialog(true);
+        } else {
+          setOpenAddModal(false);
+          setInitialAssetName('');
+        }
       }}
     >
       <DialogTitle
@@ -810,8 +817,9 @@ function Assets() {
                   }
                 : null
             }}
-            onChange={({ field, e }) => {}}
+            onChange={() => setIsFormDirty(true)}
             onSubmit={async (values) => {
+              setIsFormDirty(false);
               if (assetsHierarchy.length === 0)
                 fireGa4Event('first_asset_creation');
               let formattedValues = formatAssetValues(values);
@@ -842,6 +850,18 @@ function Assets() {
           />
         </Box>
       </DialogContent>
+      <ConfirmDialog
+        open={openDiscardDialog}
+        onCancel={() => setOpenDiscardDialog(false)}
+        onConfirm={() => {
+          setOpenDiscardDialog(false);
+          setOpenAddModal(false);
+          setInitialAssetName('');
+          setIsFormDirty(false);
+        }}
+        confirmText={t('discard_changes')}
+        question={t('discard_changes_question')}
+      />
     </Dialog>
   );
 

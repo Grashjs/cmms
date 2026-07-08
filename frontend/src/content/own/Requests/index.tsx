@@ -108,6 +108,8 @@ function Requests() {
   const { t }: { t: any } = useTranslation();
   const { setTitle } = useContext(TitleContext);
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
+  const [openDiscardDialog, setOpenDiscardDialog] = useState<boolean>(false);
+  const [isFormDirty, setIsFormDirty] = useState<boolean>(false);
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const {
@@ -415,7 +417,13 @@ function Requests() {
       fullWidth
       maxWidth="md"
       open={openAddModal}
-      onClose={() => setOpenAddModal(false)}
+      onClose={() => {
+        if (isFormDirty) {
+          setOpenDiscardDialog(true);
+        } else {
+          setOpenAddModal(false);
+        }
+      }}
     >
       <DialogTitle
         sx={{
@@ -441,8 +449,9 @@ function Requests() {
             validation={Yup.object().shape(getFieldsAndShapes()[1])}
             submitText={t('add')}
             values={{}}
-            onChange={({ field, e }) => {}}
+            onChange={() => setIsFormDirty(true)}
             onSubmit={async (values) => {
+              setIsFormDirty(false);
               let formattedValues = formatValues(values);
               try {
                 const uploadedFiles = await uploadFiles(
@@ -467,6 +476,17 @@ function Requests() {
           />
         </Box>
       </DialogContent>
+      <ConfirmDialog
+        open={openDiscardDialog}
+        onCancel={() => setOpenDiscardDialog(false)}
+        onConfirm={() => {
+          setOpenDiscardDialog(false);
+          setOpenAddModal(false);
+          setIsFormDirty(false);
+        }}
+        confirmText={t('discard_changes')}
+        question={t('discard_changes_question')}
+      />
     </Dialog>
   );
   const renderUpdateModal = () => (

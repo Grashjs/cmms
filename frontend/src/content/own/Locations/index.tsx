@@ -132,6 +132,8 @@ function Locations() {
     setCurrentTab(value);
   };
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
+  const [openDiscardDialog, setOpenDiscardDialog] = useState<boolean>(false);
+  const [isFormDirty, setIsFormDirty] = useState<boolean>(false);
   const [copyLocationData, setCopyLocationData] =
     useState<Location | null>(null);
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
@@ -710,9 +712,13 @@ function Locations() {
       maxWidth="md"
       open={openAddModal}
       onClose={() => {
-        setOpenAddModal(false);
-        setCopyLocationData(null);
-        setInitialLocationName('');
+        if (isFormDirty) {
+          setOpenDiscardDialog(true);
+        } else {
+          setOpenAddModal(false);
+          setCopyLocationData(null);
+          setInitialLocationName('');
+        }
       }}
     >
       <DialogTitle
@@ -747,8 +753,9 @@ function Locations() {
                   ? { name: initialLocationName }
                   : {}
             }
-            onChange={({ field, e }) => {}}
+            onChange={() => setIsFormDirty(true)}
             onSubmit={async (values) => {
+              setIsFormDirty(false);
               let formattedValues = formatValues(values);
               try {
                 const uploadedFiles = await uploadFiles(
@@ -785,6 +792,19 @@ function Locations() {
           />
         </Box>
       </DialogContent>
+      <ConfirmDialog
+        open={openDiscardDialog}
+        onCancel={() => setOpenDiscardDialog(false)}
+        onConfirm={() => {
+          setOpenDiscardDialog(false);
+          setOpenAddModal(false);
+          setCopyLocationData(null);
+          setInitialLocationName('');
+          setIsFormDirty(false);
+        }}
+        confirmText={t('discard_changes')}
+        question={t('discard_changes_question')}
+      />
     </Dialog>
   );
   const renderMenu = () => (

@@ -125,6 +125,8 @@ function PMs() {
   const { t }: { t: any } = useTranslation();
   const { setTitle } = useContext(TitleContext);
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
+  const [openDiscardDialog, setOpenDiscardDialog] = useState<boolean>(false);
+  const [isFormDirty, setIsFormDirty] = useState<boolean>(false);
   const [copyPmData, setCopyPmData] = useState<PreventiveMaintenance | null>(
     null
   );
@@ -591,8 +593,12 @@ function PMs() {
       maxWidth="md"
       open={openAddModal}
       onClose={() => {
-        setOpenAddModal(false);
-        setCopyPmData(null);
+        if (isFormDirty) {
+          setOpenDiscardDialog(true);
+        } else {
+          setOpenAddModal(false);
+          setCopyPmData(null);
+        }
       }}
     >
       <DialogTitle
@@ -629,8 +635,9 @@ function PMs() {
                     recurrenceType: recurrenceTypes[0]
                   }
             }
-            onChange={({ field, e }) => {}}
+            onChange={() => setIsFormDirty(true)}
             onSubmit={async (values) => {
+              setIsFormDirty(false);
               let formattedValues = formatValues(values);
               try {
                 const uploadedFiles = await uploadFiles(
@@ -657,6 +664,18 @@ function PMs() {
           />
         </Box>
       </DialogContent>
+      <ConfirmDialog
+        open={openDiscardDialog}
+        onCancel={() => setOpenDiscardDialog(false)}
+        onConfirm={() => {
+          setOpenDiscardDialog(false);
+          setOpenAddModal(false);
+          setCopyPmData(null);
+          setIsFormDirty(false);
+        }}
+        confirmText={t('discard_changes')}
+        question={t('discard_changes_question')}
+      />
     </Dialog>
   );
   const renderUpdateModal = () => (
