@@ -1897,7 +1897,10 @@ const locale = {
   edit_time: 'تعديل الوقت',
   edit_cost: 'تعديل التكلفة',
   confirm_delete_labor: 'هل أنت متأكد أنك تريد حذف هذه العمالة؟',
-  confirm_delete_additional_cost: 'هل أنت متأكد أنك تريد حذف هذه التكلفة؟'
+  confirm_delete_additional_cost: 'هل أنت متأكد أنك تريد حذف هذه التكلفة؟',
+  discard_changes: 'تجاهل التغييرات',
+  discard_changes_question:
+    "تجاهل التغييرات غير المحفوظة؟\n إذا غادرت الآن، ستفقد التغييرات غير المحفوظة"
 };
 
 export default locale;

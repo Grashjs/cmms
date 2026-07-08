@@ -1822,7 +1822,10 @@ const locale = {
   edit_time: 'Idő szerkesztése',
   edit_cost: 'Költség szerkesztése',
   confirm_delete_labor: 'Biztosan törli ezt a munkaórát?',
-  confirm_delete_additional_cost: 'Biztosan törli ezt a költséget?'
+  confirm_delete_additional_cost: 'Biztosan törli ezt a költséget?',
+  discard_changes: 'Változtatások elvetése',
+  discard_changes_question:
+    "Elveti a nem mentett módosításokat?\n Ha most elmegy, elveszíti a nem mentett módosításokat"
 };
 
 export default locale;

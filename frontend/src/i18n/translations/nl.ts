@@ -1961,6 +1961,9 @@ const locale = {
   edit_time: 'Tijd bewerken',
   edit_cost: 'Kosten bewerken',
   confirm_delete_labor: 'Weet u zeker dat u deze arbeid wilt verwijderen?',
-  confirm_delete_additional_cost: 'Weet u zeker dat u deze kosten wilt verwijderen?'
+  confirm_delete_additional_cost: 'Weet u zeker dat u deze kosten wilt verwijderen?',
+  discard_changes: 'Wijzigingen annuleren',
+  discard_changes_question:
+    "Niet-opgeslagen wijzigingen annuleren?\n Als u nu weggaat, verliest u niet-opgeslagen wijzigingen"
 };
 export default locale;

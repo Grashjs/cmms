@@ -1915,7 +1915,10 @@ const locale = {
   edit_time: '時間を編集',
   edit_cost: 'コストを編集',
   confirm_delete_labor: 'この労務を削除してもよろしいですか？',
-  confirm_delete_additional_cost: 'このコストを削除してもよろしいですか？'
+  confirm_delete_additional_cost: 'このコストを削除してもよろしいですか？',
+  discard_changes: '変更を破棄',
+  discard_changes_question:
+    "保存されていない変更を破棄しますか？\n 今すぐ離れると、保存されていない変更が失われます"
 };
 
 export default locale;

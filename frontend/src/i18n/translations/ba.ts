@@ -1945,7 +1945,10 @@ const locale = {
   edit_time: 'Uredi vrijeme',
   edit_cost: 'Uredi trošak',
   confirm_delete_labor: 'Jeste li sigurni da želite izbrisati ovaj rad?',
-  confirm_delete_additional_cost: 'Jeste li sigurni da želite izbrisati ovaj trošak?'
+  confirm_delete_additional_cost: 'Jeste li sigurni da želite izbrisati ovaj trošak?',
+  discard_changes: 'Odbaci promjene',
+  discard_changes_question:
+    "Odbaci nesačuvane izmjene?\n Ako odete sada, izgubit ćete nesačuvane izmjene"
 };
 
 export default locale;

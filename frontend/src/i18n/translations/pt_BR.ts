@@ -1989,7 +1989,10 @@ const ptBRJSON = {
   edit_time: 'Editar tempo',
   edit_cost: 'Editar custo',
   confirm_delete_labor: 'Tem certeza de que deseja excluir esta mão de obra?',
-  confirm_delete_additional_cost: 'Tem certeza de que deseja excluir este custo?'
+  confirm_delete_additional_cost: 'Tem certeza de que deseja excluir este custo?',
+  discard_changes: 'Descartar alterações',
+  discard_changes_question:
+    "Descartar alterações não salvas?\n Se você sair agora, perderá as alterações não salvas"
 };
 
 export default ptBRJSON;

@@ -1908,7 +1908,10 @@ const locale = {
   edit_time: 'Edit time',
   edit_cost: 'Edit cost',
   confirm_delete_labor: 'Are you sure you want to delete this labor?',
-  confirm_delete_additional_cost: 'Are you sure you want to delete this cost?'
+  confirm_delete_additional_cost: 'Are you sure you want to delete this cost?',
+  discard_changes: 'Discard changes',
+  discard_changes_question:
+    "Discard unsaved changes?\n If you leave now, you'll lose unsaved changes"
 };
 
 export default locale;

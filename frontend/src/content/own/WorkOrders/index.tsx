@@ -226,6 +226,8 @@ function WorkOrders() {
     setSearchParams(newParams);
   };
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
+  const [openDiscardDialog, setOpenDiscardDialog] = useState<boolean>(false);
+  const [isFormDirty, setIsFormDirty] = useState<boolean>(false);
   const [copyWorkOrderData, setCopyWorkOrderData] = useState<WorkOrder | null>(
     null
   );
@@ -779,8 +781,12 @@ function WorkOrders() {
       maxWidth="md"
       open={openAddModal}
       onClose={() => {
-        setOpenAddModal(false);
-        setCopyWorkOrderData(null);
+        if (isFormDirty) {
+          setOpenDiscardDialog(true);
+        } else {
+          setOpenAddModal(false);
+          setCopyWorkOrderData(null);
+        }
       }}
     >
       <DialogTitle
@@ -834,8 +840,9 @@ function WorkOrders() {
                     estimatedDuration: 1
                   }
             }
-            onChange={({ field, e }) => {}}
+            onChange={() => setIsFormDirty(true)}
             onSubmit={async (values) => {
+              setIsFormDirty(false);
               if (workOrders.totalElements === 0)
                 fireGa4Event('first_wo_creation');
               let formattedValues = formatValues(values);
@@ -864,6 +871,18 @@ function WorkOrders() {
           />
         </Box>
       </DialogContent>
+      <ConfirmDialog
+        open={openDiscardDialog}
+        onCancel={() => setOpenDiscardDialog(false)}
+        onConfirm={() => {
+          setOpenDiscardDialog(false);
+          setOpenAddModal(false);
+          setCopyWorkOrderData(null);
+          setIsFormDirty(false);
+        }}
+        confirmText={t('discard_changes')}
+        question={t('discard_changes_question')}
+      />
     </Dialog>
   );
   const renderWorkOrderUpdateModal = () => (

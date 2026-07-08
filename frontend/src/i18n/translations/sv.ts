@@ -1929,7 +1929,10 @@ const locale = {
   edit_time: 'Redigera tid',
   edit_cost: 'Redigera kostnad',
   confirm_delete_labor: 'Är du säker på att du vill ta bort denna arbetskraft?',
-  confirm_delete_additional_cost: 'Är du säker på att du vill ta bort denna kostnad?'
+  confirm_delete_additional_cost: 'Är du säker på att du vill ta bort denna kostnad?',
+  discard_changes: 'Kasta ändringar',
+  discard_changes_question:
+    "Kasta osparade ändringar?\n Om du lämnar nu förlorar du osparade ändringar"
 };
 
 export default locale;

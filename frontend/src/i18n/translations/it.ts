@@ -1963,7 +1963,10 @@ const locale = {
   edit_time: 'Modifica tempo',
   edit_cost: 'Modifica costo',
   confirm_delete_labor: 'Sei sicuro di voler eliminare questa manodopera?',
-  confirm_delete_additional_cost: 'Sei sicuro di voler eliminare questo costo?'
+  confirm_delete_additional_cost: 'Sei sicuro di voler eliminare questo costo?',
+  discard_changes: 'Annulla le modifiche',
+  discard_changes_question:
+    "Annullare le modifiche non salvate?\n Se esci ora, perderai le modifiche non salvate"
 };
 
 export default locale;

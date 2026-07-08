@@ -2132,7 +2132,10 @@ const frJSON = {
   edit_time: 'Modifier le temps',
   edit_cost: 'Modifier le coût',
   confirm_delete_labor: 'Êtes-vous sûr de vouloir supprimer cette main-d\'œuvre ?',
-  confirm_delete_additional_cost: 'Êtes-vous sûr de vouloir supprimer ce coût ?'
+  confirm_delete_additional_cost: 'Êtes-vous sûr de vouloir supprimer ce coût ?',
+  discard_changes: 'Annuler les modifications',
+  discard_changes_question:
+    "Annuler les modifications non enregistrées ?\n Si vous quittez maintenant, vous perdrez les modifications non enregistrées"
 };
 
 export default frJSON;

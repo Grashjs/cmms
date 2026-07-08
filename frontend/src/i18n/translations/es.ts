@@ -2035,7 +2035,10 @@ const esJSON = {
   edit_time: 'Editar tiempo',
   edit_cost: 'Editar costo',
   confirm_delete_labor: '¿Está seguro de que desea eliminar esta mano de obra?',
-  confirm_delete_additional_cost: '¿Está seguro de que desea eliminar este costo?'
+  confirm_delete_additional_cost: '¿Está seguro de que desea eliminar este costo?',
+  discard_changes: 'Descartar cambios',
+  discard_changes_question:
+    "¿Descartar cambios no guardados?\n Si sales ahora, perderás los cambios no guardados"
 };
 
 export default esJSON;

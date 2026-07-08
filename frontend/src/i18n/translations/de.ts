@@ -2044,7 +2044,10 @@ const deJSON = {
   edit_time: 'Zeit bearbeiten',
   edit_cost: 'Kosten bearbeiten',
   confirm_delete_labor: 'Sind Sie sicher, dass Sie diese Arbeitszeit löschen möchten?',
-  confirm_delete_additional_cost: 'Sind Sie sicher, dass Sie diese Kosten löschen möchten?'
+  confirm_delete_additional_cost: 'Sind Sie sicher, dass Sie diese Kosten löschen möchten?',
+  discard_changes: 'Änderungen verwerfen',
+  discard_changes_question:
+    "Nicht gespeicherte Änderungen verwerfen?\n Wenn Sie jetzt gehen, verlieren Sie nicht gespeicherte Änderungen"
 };
 
 export default deJSON;

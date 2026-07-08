@@ -1959,7 +1959,10 @@ const plJSON = {
   edit_time: 'Edytuj czas',
   edit_cost: 'Edytuj koszt',
   confirm_delete_labor: 'Czy na pewno chcesz usunąć tę robociznę?',
-  confirm_delete_additional_cost: 'Czy na pewno chcesz usunąć ten koszt?'
+  confirm_delete_additional_cost: 'Czy na pewno chcesz usunąć ten koszt?',
+  discard_changes: 'Odrzuć zmiany',
+  discard_changes_question:
+    "Odrzucić niezapisane zmiany?\n Jeśli opuścisz teraz, stracisz niezapisane zmiany"
 };
 
 export default plJSON;

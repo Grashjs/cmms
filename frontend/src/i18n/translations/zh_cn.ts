@@ -1625,7 +1625,10 @@ const locale = {
   edit_time: '编辑时间',
   edit_cost: '编辑成本',
   confirm_delete_labor: '确定要删除此人工吗？',
-  confirm_delete_additional_cost: '确定要删除此成本吗？'
+  confirm_delete_additional_cost: '确定要删除此成本吗？',
+  discard_changes: '放弃更改',
+  discard_changes_question:
+    "放弃未保存的更改？\n 如果现在离开，您将丢失未保存的更改"
 };
 
 export default locale;

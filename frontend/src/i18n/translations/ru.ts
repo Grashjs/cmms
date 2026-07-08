@@ -2022,7 +2022,10 @@ const ruJSON = {
   edit_time: 'Редактировать время',
   edit_cost: 'Редактировать стоимость',
   confirm_delete_labor: 'Вы уверены, что хотите удалить эту рабочую силу?',
-  confirm_delete_additional_cost: 'Вы уверены, что хотите удалить эту стоимость?'
+  confirm_delete_additional_cost: 'Вы уверены, что хотите удалить эту стоимость?',
+  discard_changes: 'Отменить изменения',
+  discard_changes_question:
+    "Отменить несохраненные изменения?\n Если вы уйдете сейчас, вы потеряете несохраненные изменения"
 };
 
 export default ruJSON;
