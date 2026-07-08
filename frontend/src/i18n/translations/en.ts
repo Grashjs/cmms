@@ -1904,7 +1904,11 @@ const locale = {
   restock: 'Restock',
   export_part_transactions: 'Export Part Transactions',
   export_parts: 'Export parts',
-  RESOURCE_PLANNING_feature: 'Resource Planning'
+  RESOURCE_PLANNING_feature: 'Resource Planning',
+  edit_time: 'Edit time',
+  edit_cost: 'Edit cost',
+  confirm_delete_labor: 'Are you sure you want to delete this labor?',
+  confirm_delete_additional_cost: 'Are you sure you want to delete this cost?'
 };
 
 export default locale;

@@ -35,10 +35,10 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
-import AddTimeModal from './AddTimeModal';
-import AddCostModal from './AddCostModal';
 import ReportConfigModal from './ReportConfigModal';
 import Tasks from './Tasks';
+import TimeSection from './TimeSection';
+import CostSection from './CostSection';
 import LinkTwoToneIcon from '@mui/icons-material/LinkTwoTone';
 import ArchiveTwoToneIcon from '@mui/icons-material/ArchiveTwoTone';
 import PictureAsPdfTwoToneIcon from '@mui/icons-material/PictureAsPdfTwoTone';
@@ -61,7 +61,6 @@ import {
 import Labor from '../../../../models/owns/labor';
 import {
   controlTimer,
-  deleteLabor,
   editLabor,
   getLabors
 } from '../../../../slices/labor';
@@ -70,7 +69,6 @@ import {
   getHoursAndMinutesAndSeconds
 } from '../../../../utils/formatters';
 import {
-  deleteAdditionalCost,
   getAdditionalCosts
 } from '../../../../slices/additionalCost';
 import { getTasksByWorkOrder } from '../../../../slices/task';
@@ -95,7 +93,6 @@ import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
 import PartQuantitiesList from '../../components/PartQuantitiesList';
 import AddFileModal from './AddFileModal';
 import CommentsSection from './CommentsSection';
-import { useBrand } from '../../../../hooks/useBrand';
 import { useLicenseEntitlement } from '../../../../hooks/useLicenseEntitlement';
 import { getCustomFieldValuesForDetails } from '../../type';
 import { getErrorMessage } from '../../../../utils/api';
@@ -131,13 +128,10 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const { t }: { t: any } = useTranslation();
   const { user, hasEditPermission, hasDeletePermission, hasCreatePermission } =
     useAuth();
-  const brandConfig = useBrand();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const commentIdParam = searchParams.get('commentId');
-  const [openAddTimeModal, setOpenAddTimeModal] = useState<boolean>(false);
   const [openAddFileModal, setOpenAddFileModal] = useState<boolean>(false);
-  const [openAddCostModal, setOpenAddCostModal] = useState<boolean>(false);
   const [openLinkModal, setOpenLinkModal] = useState<boolean>(false);
   const [openCompleteModal, setOpenCompleteModal] = useState<boolean>(false);
   const [openReportConfigModal, setOpenReportConfigModal] =
@@ -391,10 +385,6 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
     });
 
     return result;
-  };
-  const getLaborCost = (labor: Labor): number => {
-    const [hours, minutes] = getHoursAndMinutesAndSeconds(labor.duration);
-    return Number((labor.hourlyRate * (hours + minutes / 60)).toFixed(2));
   };
   const workOrderStatuses = ['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETE'];
   const tabs = [
@@ -979,221 +969,19 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
             )}
             <Box>
               <Divider sx={{ mt: 2 }} />
-              <Typography sx={{ mt: 2, mb: 1 }} variant="h3">
-                {t('labors')}
-              </Typography>
-              {loadingLabors[workOrder.id] ? (
-                <Stack width={'100%'} alignItems="center">
-                  <CircularProgress />
-                </Stack>
-              ) : !labors.filter((labor) => !labor.logged).length ? (
-                <Typography sx={{ color: theme.colors.alpha.black[70] }}>
-                  {t('no_labor', { shortBrandName: brandConfig.shortName })}
-                </Typography>
-              ) : (
-                <List>
-                  {labors
-                    .filter((labor) => !labor.logged)
-                    .map((labor) => (
-                      <ListItem
-                        key={labor.id}
-                        secondaryAction={
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                              justifyContent: 'flex-end'
-                            }}
-                          >
-                            <Typography variant="h6">
-                              {getFormattedCurrency(getLaborCost(labor))}
-                            </Typography>
-                            {hasEditPermission(
-                              PermissionEntity.WORK_ORDERS,
-                              workOrder
-                            ) && (
-                              <IconButton
-                                sx={{ ml: 1 }}
-                                onClick={() =>
-                                  dispatch(deleteLabor(workOrder.id, labor.id))
-                                }
-                              >
-                                <DeleteTwoToneIcon
-                                  fontSize="small"
-                                  color="error"
-                                />
-                              </IconButton>
-                            )}
-                          </Box>
-                        }
-                      >
-                        <ListItemText
-                          primary={
-                            <>
-                              {labor.assignedTo ? (
-                                <Link
-                                  href={getUserUrl(labor.assignedTo.id)}
-                                  variant="h6"
-                                >
-                                  {`${labor.assignedTo.firstName} ${labor.assignedTo.lastName}`}
-                                </Link>
-                              ) : (
-                                <Typography>{t('not_assigned')}</Typography>
-                              )}
-                            </>
-                          }
-                          secondary={`${
-                            getHoursAndMinutesAndSeconds(labor.duration)[0]
-                          }h ${
-                            getHoursAndMinutesAndSeconds(labor.duration)[1]
-                          }m`}
-                        />
-                      </ListItem>
-                    ))}
-                  <ListItem
-                    secondaryAction={
-                      <Box>
-                        <Typography variant="h6" fontWeight="bold">
-                          {getFormattedCurrency(
-                            labors
-                              .filter((labor) => !labor.logged)
-                              .reduce(
-                                (acc, labor) =>
-                                  labor.includeToTotalTime
-                                    ? acc + getLaborCost(labor)
-                                    : acc,
-                                0
-                              )
-                          )}
-                        </Typography>
-                      </Box>
-                    }
-                  >
-                    <ListItemText
-                      primary={
-                        <Typography variant="h6" fontWeight="bold">
-                          Total
-                        </Typography>
-                      }
-                    />
-                  </ListItem>
-                </List>
-              )}
-              {hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder) && (
-                <Button
-                  onClick={() => setOpenAddTimeModal(true)}
-                  variant="outlined"
-                  sx={{ mt: 1 }}
-                >
-                  {t('add_time')}
-                </Button>
-              )}
+              <TimeSection
+                workOrder={workOrder}
+                labors={labors}
+                loading={loadingLabors[workOrder.id]}
+              />
             </Box>
             <Box>
               <Divider sx={{ mt: 2 }} />
-              <Typography sx={{ mt: 2, mb: 1 }} variant="h3">
-                {t('additional_costs')}
-              </Typography>
-              {loadingCosts[workOrder.id] ? (
-                <Stack width={'100%'} alignItems={'center'}>
-                  <CircularProgress />
-                </Stack>
-              ) : (
-                <Fragment>
-                  {!additionalCosts.length ? (
-                    <Typography sx={{ color: theme.colors.alpha.black[70] }}>
-                      {t('no_additional_cost')}
-                    </Typography>
-                  ) : (
-                    <List>
-                      {additionalCosts.map((additionalCost) => (
-                        <ListItem
-                          key={additionalCost.id}
-                          secondaryAction={
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                justifyContent: 'flex-end'
-                              }}
-                            >
-                              <Typography variant="h6">
-                                {getFormattedCurrency(additionalCost.cost)}
-                              </Typography>
-                              {hasEditPermission(
-                                PermissionEntity.WORK_ORDERS,
-                                workOrder
-                              ) && (
-                                <IconButton
-                                  sx={{ ml: 1 }}
-                                  onClick={() =>
-                                    dispatch(
-                                      deleteAdditionalCost(
-                                        workOrder.id,
-                                        additionalCost.id
-                                      )
-                                    )
-                                  }
-                                >
-                                  <DeleteTwoToneIcon
-                                    fontSize="small"
-                                    color="error"
-                                  />
-                                </IconButton>
-                              )}
-                            </Box>
-                          }
-                        >
-                          <ListItemText
-                            primary={
-                              <Typography variant="h6">
-                                {additionalCost.description}
-                              </Typography>
-                            }
-                            secondary={getFormattedDate(
-                              additionalCost.createdAt
-                            )}
-                          />
-                        </ListItem>
-                      ))}
-                      <ListItem
-                        secondaryAction={
-                          <Typography variant="h6" fontWeight="bold">
-                            {getFormattedCurrency(
-                              additionalCosts.reduce(
-                                (acc, additionalCost) =>
-                                  additionalCost.includeToTotalCost
-                                    ? acc + additionalCost.cost
-                                    : acc,
-                                0
-                              )
-                            )}
-                          </Typography>
-                        }
-                      >
-                        <ListItemText
-                          primary={
-                            <Typography variant="h6" fontWeight="bold">
-                              Total
-                            </Typography>
-                          }
-                        />
-                      </ListItem>
-                    </List>
-                  )}
-                </Fragment>
-              )}
-              {hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder) && (
-                <Button
-                  onClick={() => setOpenAddCostModal(true)}
-                  variant="outlined"
-                  sx={{ mt: 1 }}
-                >
-                  {t('add_additional_cost')}
-                </Button>
-              )}
+              <CostSection
+                workOrder={workOrder}
+                additionalCosts={additionalCosts}
+                loading={loadingCosts[workOrder.id]}
+              />
             </Box>
             <Box>
               <Divider sx={{ mt: 2 }} />
@@ -1396,19 +1184,9 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
           />
         )}
       </Grid>
-      <AddTimeModal
-        open={openAddTimeModal}
-        onClose={() => setOpenAddTimeModal(false)}
-        workOrderId={workOrder.id}
-      />
       <AddFileModal
         open={openAddFileModal}
         onClose={() => setOpenAddFileModal(false)}
-        workOrderId={workOrder.id}
-      />
-      <AddCostModal
-        open={openAddCostModal}
-        onClose={() => setOpenAddCostModal(false)}
         workOrderId={workOrder.id}
       />
       <LinkModal

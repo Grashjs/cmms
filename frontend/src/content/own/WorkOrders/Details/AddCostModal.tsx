@@ -5,28 +5,35 @@ import * as Yup from 'yup';
 import { IField } from '../../type';
 import { formatSelect } from '../../../../utils/formatters';
 import { useDispatch } from '../../../../store';
-import { createAdditionalCost } from '../../../../slices/additionalCost';
+import {
+  createAdditionalCost,
+  editAdditionalCost
+} from '../../../../slices/additionalCost';
 import useAuth from '../../../../hooks/useAuth';
 import FeatureErrorMessage from '../../components/FeatureErrorMessage';
 import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
 import { getErrorMessage } from '../../../../utils/api';
 import { useContext } from 'react';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
+import AdditionalCost from '../../../../models/owns/additionalCost';
 
 interface AddCostProps {
   open: boolean;
   onClose: () => void;
   workOrderId: number;
+  additionalCost?: AdditionalCost;
 }
 export default function AddCostModal({
   open,
   onClose,
-  workOrderId
+  workOrderId,
+  additionalCost
 }: AddCostProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { hasFeature } = useAuth();
   const { showSnackBar } = useContext(CustomSnackBarContext);
+  const isEdit = !!additionalCost;
 
   const fields: Array<IField> = [
     {
@@ -73,6 +80,23 @@ export default function AddCostModal({
     description: Yup.string().required(t('required_cost_description')),
     cost: Yup.number().required(t('required_cost'))
   };
+  const defaultValues = additionalCost
+    ? {
+        ...additionalCost,
+        assignedTo: additionalCost.assignedTo
+          ? {
+              label: `${additionalCost.assignedTo.firstName} ${additionalCost.assignedTo.lastName}`,
+              value: additionalCost.assignedTo.id
+            }
+          : null,
+        category: additionalCost.category
+          ? {
+              label: additionalCost.category.name,
+              value: additionalCost.category.id
+            }
+          : null
+      }
+    : { includeToTotalCost: true };
   return (
     <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
       <DialogTitle
@@ -81,7 +105,7 @@ export default function AddCostModal({
         }}
       >
         <Typography variant="h4" gutterBottom>
-          {t('add_cost')}
+          {isEdit ? t('edit_cost') : t('add_cost')}
         </Typography>
         <Typography variant="subtitle2">{t('add_cost_description')}</Typography>
       </DialogTitle>
@@ -95,8 +119,9 @@ export default function AddCostModal({
           <Form
             fields={fields}
             validation={Yup.object().shape(shape)}
-            submitText={t('add')}
-            values={{ includeToTotalCost: true }}
+            submitText={isEdit ? t('edit') : t('add')}
+            values={defaultValues}
+            enableReinitialize={isEdit}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               const formattedValues = { ...values };
@@ -104,11 +129,22 @@ export default function AddCostModal({
                 formattedValues.assignedTo
               );
               formattedValues.category = formatSelect(formattedValues.category);
-              return dispatch(
-                createAdditionalCost(workOrderId, formattedValues)
-              )
-                .then(() => onClose())
-                .catch((err) => showSnackBar(getErrorMessage(err), 'error'));
+              if (isEdit) {
+                return dispatch(
+                  editAdditionalCost(
+                    workOrderId,
+                    additionalCost.id,
+                    formattedValues
+                  )
+                )
+                  .then(() => onClose())
+                  .catch((err) => showSnackBar(getErrorMessage(err), 'error'));
+              } else
+                return dispatch(
+                  createAdditionalCost(workOrderId, formattedValues)
+                )
+                  .then(() => onClose())
+                  .catch((err) => showSnackBar(getErrorMessage(err), 'error'));
             }}
           />
         ) : (
