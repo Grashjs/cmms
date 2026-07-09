@@ -599,7 +599,7 @@ public class WorkOrderController {
         ReportConfig config = request.getConfig() != null ? request.getConfig() : new ReportConfig();
         byte[] pdfBytes = generatePdfBytes(savedWorkOrder, user, config);
 
-        List<String> allRecipients = new ArrayList<>(customerEmails);
+        Set<String> allRecipients = new HashSet<>(customerEmails);
         allRecipients.add(user.getEmail());
 
         Locale locale = Helper.getLocale(user);
