@@ -84,16 +84,24 @@ export default function PartQuantitiesList({
         >
           <ListItemText
             primary={
-              <Link
-                target="_blank"
-                rel="noopener noreferrer"
-                href={`/app/inventory/parts/${partQuantity.part.id}`}
-                key={partQuantity.part.id}
-                variant="h6"
-                noWrap
+              <div
+                style={{
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  width: '18rem'
+                }}
               >
-                {partQuantity.part.name}
-              </Link>
+                <Link
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={`/app/inventory/parts/${partQuantity.part.id}`}
+                  key={partQuantity.part.id}
+                  variant="h6"
+                  noWrap
+                >
+                  {partQuantity.part.name}
+                </Link>
+              </div>
             }
             secondary={
               <div
