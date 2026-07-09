@@ -38,6 +38,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -104,6 +105,7 @@ public class WorkOrderController {
     private final CompanyService companyService;
     private final ReviewEligibilityService reviewEligibilityService;
     private final CommentService commentService;
+    private final ResourceBundleMessageSource emailMessageSource;
 
 
     @Value("${frontend.url}")
@@ -600,18 +602,21 @@ public class WorkOrderController {
         List<String> allRecipients = new ArrayList<>(customerEmails);
         allRecipients.add(user.getEmail());
 
-        String subject = "You've been shared a work order!";
+        Locale locale = Helper.getLocale(user);
+        String subject = messageSource.getMessage("workOrderReportSubject",
+                null, locale);
 
         String customMessage = request.getMessage() != null ? request.getMessage() : "";
-        String messageBody = user.getFullName() + " shared:<br><br>&ldquo;" + customMessage + "&rdquo;<br><br>&mdash;" +
-                " " + savedWorkOrder.getTitle() + "<br><br>See attached PDF";
+        String messageBody = messageSource.getMessage("workOrderReportBody",
+                new Object[]{user.getFullName(), customMessage, savedWorkOrder.getTitle()},
+                locale);
 
         Map<String, Object> mailVariables = new HashMap<>();
         mailVariables.put("messageBody", messageBody);
 
         List<EmailAttachmentDTO> attachments = Collections.singletonList(
                 EmailAttachmentDTO.builder()
-                        .attachmentName("Work Order Report.pdf")
+                        .attachmentName(emailMessageSource.getMessage("workOrderReport", null, locale) + ".pdf")
                         .attachmentData(pdfBytes)
                         .attachmentType("application/pdf")
                         .build()
@@ -622,7 +627,7 @@ public class WorkOrderController {
                 subject,
                 mailVariables,
                 "work-order-report-email.html",
-                Helper.getLocale(user),
+                locale,
                 attachments
         );
 
