@@ -15,6 +15,7 @@ import { CameraView } from 'expo-camera';
 import { ensureScannerCameraPermission } from '../../utils/mediaPermissions';
 
 export default function SelectBarcodeModal({
+  navigation,
   route
 }: RootStackScreenProps<'SelectBarcode'>) {
   const { onChange } = route.params;
@@ -51,6 +52,7 @@ export default function SelectBarcodeModal({
     if (!scanned) {
       console.warn('[SelectBarcodeModal] Barcode scanned', JSON.stringify({ type }));
       setScanned(true);
+      navigation.goBack();
       onChange(data);
     }
   };

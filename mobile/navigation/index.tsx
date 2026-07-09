@@ -184,17 +184,26 @@ function RootNavigator() {
       <Stack.Screen
         name="AddAsset"
         component={CreateAssetScreen}
-        options={{ title: t('create_asset') }}
+        options={({ route }) => ({
+          title: t('create_asset'),
+          presentation: route.params?.openedFromSelector ? 'modal' : 'card'
+        })}
       />
       <Stack.Screen
         name="AddLocation"
         component={CreateLocationScreen}
-        options={{ title: t('create_location') }}
+        options={({ route }) => ({
+          title: t('create_location'),
+          presentation: route.params?.openedFromSelector ? 'modal' : 'card'
+        })}
       />
       <Stack.Screen
         name="AddPart"
         component={CreatePartScreen}
-        options={{ title: t('create_part') }}
+        options={({ route }) => ({
+          title: t('create_part'),
+          presentation: route.params?.openedFromSelector ? 'modal' : 'card'
+        })}
       />
       <Stack.Screen
         name="AddMeter"
@@ -204,7 +213,10 @@ function RootNavigator() {
       <Stack.Screen
         name="AddUser"
         component={InviteUserScreen}
-        options={{ title: t('invite_users') }}
+        options={({ route }) => ({
+          title: t('invite_users'),
+          presentation: route.params?.openedFromSelector ? 'modal' : 'card'
+        })}
       />
       <Stack.Screen
         name="WorkOrderStats"

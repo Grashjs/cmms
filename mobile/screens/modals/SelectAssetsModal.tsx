@@ -190,10 +190,9 @@ export default function SelectAssetsModal({
             icon="barcode-scan"
             size={24}
             onPress={() =>
-              navigation.navigate('ScanAsset', {
+              navigation.replace('ScanAsset', {
                 onChange: (asset) => {
                   onChange([asset]);
-                  navigation.pop(3);
                 }
               })
             }
@@ -325,15 +324,21 @@ export default function SelectAssetsModal({
           style={{ margin: 20 }}
           mode={'contained'}
           onPress={() => {
-            navigation.navigate('AddAsset', {
+            const params = {
+              openedFromSelector: true,
               onSuccess: (newAsset) => {
-                setSelectedIds((prev) => [...prev, newAsset.id]);
                 if (!multiple) {
                   onChange([newAsset]);
-                  navigation.goBack();
+                } else {
+                  setSelectedIds((prev) => [...prev, newAsset.id]);
                 }
               }
-            });
+            };
+            if (multiple) {
+              navigation.navigate('AddAsset', params);
+            } else {
+              navigation.replace('AddAsset', params);
+            }
           }}
         >
           {t('create_asset')}

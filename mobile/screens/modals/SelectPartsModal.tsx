@@ -442,6 +442,7 @@ export default function SelectParts({
         mode={'contained'}
         onPress={() => {
           navigation.navigate('AddPart', {
+            openedFromSelector: true,
             onSuccess: (newPart) => {
               setSelectedIds((prev) => [...prev, newPart.id]);
             }

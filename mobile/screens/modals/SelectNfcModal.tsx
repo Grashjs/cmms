@@ -51,6 +51,7 @@ export default function SelectNfcModal({
       .then((tagId) => {
         if (cancelled) return;
         if (tagId) {
+          navigation.goBack();
           onChange(tagId);
         } else {
           Alert.alert(t('error'), t('tag_not_found'), [

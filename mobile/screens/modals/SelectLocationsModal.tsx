@@ -176,15 +176,21 @@ export default function SelectLocationsModal({
           style={{ margin: 20 }}
           mode={'contained'}
           onPress={() => {
-            navigation.navigate('AddLocation', {
+            const params = {
+              openedFromSelector: true,
               onSuccess: (newLocation) => {
-                setSelectedIds((prev) => [...prev, newLocation.id]);
                 if (!multiple) {
                   onChange([newLocation]);
-                  navigation.goBack();
+                } else {
+                  setSelectedIds((prev) => [...prev, newLocation.id]);
                 }
               }
-            });
+            };
+            if (multiple) {
+              navigation.navigate('AddLocation', params);
+            } else {
+              navigation.replace('AddLocation', params);
+            }
           }}
         >
           {t('create_location')}

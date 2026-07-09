@@ -49,21 +49,25 @@ export type RootStackParamList = {
     parentAsset?: AssetDTO;
     nfcId?: string;
     barCode?: string;
+    openedFromSelector?: boolean;
     onSuccess?: (asset: AssetMiniDTO) => void;
   };
   AddLocation:
     | {
+        openedFromSelector?: boolean;
         onSuccess?: (location: LocationMiniDTO) => void;
       }
     | undefined;
   AddPart:
     | {
+        openedFromSelector?: boolean;
         onSuccess?: (part: PartMiniDTO) => void;
       }
     | undefined;
   AddMeter: undefined;
   AddUser:
     | {
+        openedFromSelector?: boolean;
         onSuccess?: (user: UserMiniDTO) => void; //unused. May be used in the future
       }
     | undefined;
