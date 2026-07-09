@@ -96,6 +96,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckTwoToneIcon from '@mui/icons-material/CheckTwoTone';
 import EmailTwoToneIcon from '@mui/icons-material/EmailTwoTone';
+import { ContentCopyTwoTone } from '@mui/icons-material';
 
 const LabelWrapper = styled(Box)(
   ({ theme }) => `
@@ -1273,7 +1274,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
             }}
           >
             <Stack spacing={2} direction="row">
-              <ContentCopyIcon />
+              <ContentCopyTwoTone />
               <Typography variant="h6">{t('copy_wo')}</Typography>
             </Stack>
           </MenuItem>
