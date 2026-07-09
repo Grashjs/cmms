@@ -1256,7 +1256,10 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
             <Typography variant="h6">{t('pdf_report')}</Typography>
           </Stack>
         </MenuItem>
-        <MenuItem onClick={onEmailContractors}>
+        <MenuItem
+          disabled={workOrder.customers.length === 0}
+          onClick={onEmailContractors}
+        >
           <Stack spacing={2} direction="row">
             <EmailTwoToneIcon />
             <Typography variant="h6">{t('email_contractors')}</Typography>
