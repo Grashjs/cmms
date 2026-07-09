@@ -6,6 +6,7 @@ import com.grash.dto.comment.CommentCriteria;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.dto.workOrder.WorkOrderPatchDTO;
 import com.grash.dto.workOrder.WorkOrderPostDTO;
+import com.grash.dto.workOrder.WorkOrderSendReportDTO;
 import com.grash.dto.workOrder.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.factory.StorageServiceFactory;
@@ -447,114 +448,185 @@ public class WorkOrderController {
         return generateReport(id, user, config);
     }
 
-    private ResponseEntity<SuccessResponse> generateReport(Long id, User user, ReportConfig config) {
+    private byte[] generatePdfBytes(WorkOrder savedWorkOrder, User user, ReportConfig config) {
         StorageService storageService = storageServiceFactory.getStorageService();
+        Context thymeleafContext = new Context();
+        thymeleafContext.setLocale(Helper.getLocale(user));
+        Optional<User> creator = savedWorkOrder.getCreatedBy() == null ? Optional.empty() :
+                userService.findById(savedWorkOrder.getCreatedBy());
+        List<Task> tasks = taskService.findByWorkOrder(savedWorkOrder.getId());
+        Map<Long, String[]> tasksImagesUrls = tasks.stream()
+                .collect(Collectors.toMap(
+                        Task::getId,
+                        task -> task.getImages().stream()
+                                .map(image -> storageService.generateSignedUrl(image, 5))
+                                .toArray(String[]::new)
+                ));
+        Collection<PartQuantity> partQuantities = config.isCost() ?
+                partQuantityService.findByWorkOrder(savedWorkOrder.getId()) :
+                Collections.emptyList();
+        Collection<Labor> labors = config.isCost() ? laborService.findByWorkOrder(savedWorkOrder.getId()) :
+                Collections.emptyList();
+        Collection<Relation> relations = config.isRelations() ?
+                relationService.findByWorkOrder(savedWorkOrder.getId()) :
+                Collections.emptyList();
+        Collection<AdditionalCost> additionalCosts = config.isCost() ?
+                additionalCostService.findByWorkOrder(savedWorkOrder.getId()) : Collections.emptyList();
+        Collection<WorkOrderHistory> workOrderHistories = config.isWorkOrderHistory() ?
+                workOrderHistoryService.findByWorkOrder(savedWorkOrder.getId()) : Collections.emptyList();
+        List<Comment> comments = config.isComments() ? commentService.findByCriteria(
+                new CommentCriteria() {{
+                    setWorkOrderId(savedWorkOrder.getId());
+                }}, user) : Collections.emptyList();
+        Map<Long, String[]> commentFilesUrls = comments.stream()
+                .collect(Collectors.toMap(
+                        Comment::getId,
+                        comment -> comment.getFiles().stream()
+                                .map(file -> storageService.generateSignedUrl(file, 5))
+                                .toArray(String[]::new)
+                ));
+        String[] workOrderFilesUrls = config.isFiles() ? savedWorkOrder.getFiles().stream()
+                .map(file -> storageService.generateSignedUrl(file, 5))
+                .toArray(String[]::new) : new String[0];
+        Map<String, Object> variables = new HashMap<String, Object>() {{
+            put("companyName", user.getCompany().getName());
+            put("companyPhone", user.getCompany().getPhone());
+            put("companyLogo", user.getCompany().getLogo() == null ? null :
+                    storageService.generateSignedUrl(user.getCompany().getLogo(), 5));
+            put("currency",
+                    user.getCompany().getCompanySettings().getGeneralPreferences().getCurrency().getCode());
+            put("utils", utils);
+            put("dateFormat", user.getCompany().getCompanySettings().getGeneralPreferences().getDateFormat());
+            put("timeZone", user.getCompany().getCompanySettings().getGeneralPreferences().getTimeZone());
+            put("assignedTo",
+                    Helper.enumerate(savedWorkOrder.getAssignedTo().stream().map(User::getFullName).collect(Collectors.toList())));
+            put("customers",
+                    Helper.enumerate(savedWorkOrder.getCustomers().stream().map(Customer::getName).collect(Collectors.toList())));
+            put("workOrder", savedWorkOrder);
+            put("primaryUserName", savedWorkOrder.getPrimaryUser() == null ? null :
+                    savedWorkOrder.getPrimaryUser().getFullName());
+            put("createdBy", creator.<Object>map(User::getFullName).orElse(null));
+            put("tasks", tasks);
+            put("labors", labors);
+            put("relations", relations);
+            put("additionalCosts", additionalCosts);
+            put("workOrderHistories", workOrderHistories);
+            put("partQuantities", partQuantities);
+            put("environment", environment);
+            put("tasksImagesUrls", tasksImagesUrls);
+            put("messageSource", messageSource);
+            put("locale", Helper.getLocale(user));
+            String companyColor = user.getCompany().getCompanySettings().getGeneralPreferences().getColor();
+            put("backgroundColor", companyColor != null && !companyColor.isBlank() ? companyColor :
+                    brandingService.getMailBackgroundColor()
+            );
+            put("reportConfig", config);
+            put("comments", comments);
+            put("commentFilesUrls", commentFilesUrls);
+            put("workOrderFilesUrls", workOrderFilesUrls);
+            put("workOrderImageUrl", savedWorkOrder.getImage() == null ? null :
+                    storageService.generateSignedUrl(savedWorkOrder.getImage(), 5));
+        }};
+        thymeleafContext.setVariables(variables);
+
+        String reportHtml = thymeleafTemplateEngine.process("work-order-report.html", thymeleafContext);
+
+        ConverterProperties converterProperties = new ConverterProperties()
+                .setTagWorkerFactory(new ITagWorkerFactory() {
+                    private final DefaultTagWorkerFactory defaultFactory = new DefaultTagWorkerFactory();
+
+                    @Override
+                    public ITagWorker getTagWorker(IElementNode tag, ProcessorContext context) {
+                        try {
+                            return defaultFactory.getTagWorker(tag, context);
+                        } catch (Exception e) {
+                            log.warn("Failed to create tag worker for <{}>: {}", tag.name(), e.getMessage());
+                            return null;
+                        }
+                    }
+                });
+        ByteArrayOutputStream target = new ByteArrayOutputStream();
+        HtmlConverter.convertToPdf(reportHtml, target, converterProperties);
+        return target.toByteArray();
+    }
+
+    private ResponseEntity<SuccessResponse> generateReport(Long id, User user, ReportConfig config) {
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
                     (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || user.getId().equals(savedWorkOrder.getCreatedBy()) || savedWorkOrder.isAssignedTo(user))) {
-                Context thymeleafContext = new Context();
-                thymeleafContext.setLocale(Helper.getLocale(user));
-                Optional<User> creator = savedWorkOrder.getCreatedBy() == null ? Optional.empty() :
-                        userService.findById(savedWorkOrder.getCreatedBy());
-                List<Task> tasks = taskService.findByWorkOrder(id);
-                Map<Long, String[]> tasksImagesUrls = tasks.stream()
-                        .collect(Collectors.toMap(
-                                Task::getId,
-                                task -> task.getImages().stream()
-                                        .map(image -> storageService.generateSignedUrl(image, 5))
-                                        .toArray(String[]::new)
-                        ));
-                Collection<PartQuantity> partQuantities = config.isCost() ? partQuantityService.findByWorkOrder(id) :
-                        Collections.emptyList();
-                Collection<Labor> labors = config.isCost() ? laborService.findByWorkOrder(id) : Collections.emptyList();
-                Collection<Relation> relations = config.isRelations() ? relationService.findByWorkOrder(id) :
-                        Collections.emptyList();
-                Collection<AdditionalCost> additionalCosts = config.isCost() ?
-                        additionalCostService.findByWorkOrder(id) : Collections.emptyList();
-                Collection<WorkOrderHistory> workOrderHistories = config.isWorkOrderHistory() ?
-                        workOrderHistoryService.findByWorkOrder(id) : Collections.emptyList();
-                List<Comment> comments = config.isComments() ? commentService.findByCriteria(
-                        new CommentCriteria() {{
-                            setWorkOrderId(id);
-                        }}, user) : Collections.emptyList();
-                Map<Long, String[]> commentFilesUrls = comments.stream()
-                        .collect(Collectors.toMap(
-                                Comment::getId,
-                                comment -> comment.getFiles().stream()
-                                        .map(file -> storageService.generateSignedUrl(file, 5))
-                                        .toArray(String[]::new)
-                        ));
-                String[] workOrderFilesUrls = config.isFiles() ? savedWorkOrder.getFiles().stream()
-                        .map(file -> storageService.generateSignedUrl(file, 5))
-                        .toArray(String[]::new) : new String[0];
-                Map<String, Object> variables = new HashMap<String, Object>() {{
-                    put("companyName", user.getCompany().getName());
-                    put("companyPhone", user.getCompany().getPhone());
-                    put("companyLogo", user.getCompany().getLogo() == null ? null :
-                            storageService.generateSignedUrl(user.getCompany().getLogo(), 5));
-                    put("currency",
-                            user.getCompany().getCompanySettings().getGeneralPreferences().getCurrency().getCode());
-                    put("utils", utils);
-                    put("dateFormat", user.getCompany().getCompanySettings().getGeneralPreferences().getDateFormat());
-                    put("timeZone", user.getCompany().getCompanySettings().getGeneralPreferences().getTimeZone());
-                    put("assignedTo",
-                            Helper.enumerate(savedWorkOrder.getAssignedTo().stream().map(User::getFullName).collect(Collectors.toList())));
-                    put("customers",
-                            Helper.enumerate(savedWorkOrder.getCustomers().stream().map(Customer::getName).collect(Collectors.toList())));
-                    put("workOrder", savedWorkOrder);
-                    put("primaryUserName", savedWorkOrder.getPrimaryUser() == null ? null :
-                            savedWorkOrder.getPrimaryUser().getFullName());
-                    put("createdBy", creator.<Object>map(User::getFullName).orElse(null));
-                    put("tasks", tasks);
-                    put("labors", labors);
-                    put("relations", relations);
-                    put("additionalCosts", additionalCosts);
-                    put("workOrderHistories", workOrderHistories);
-                    put("partQuantities", partQuantities);
-                    put("environment", environment);
-                    put("tasksImagesUrls", tasksImagesUrls);
-                    put("messageSource", messageSource);
-                    put("locale", Helper.getLocale(user));
-                    String companyColor = user.getCompany().getCompanySettings().getGeneralPreferences().getColor();
-                    put("backgroundColor", companyColor != null && !companyColor.isBlank() ? companyColor :
-                            brandingService.getMailBackgroundColor()
-                    );
-                    put("reportConfig", config);
-                    put("comments", comments);
-                    put("commentFilesUrls", commentFilesUrls);
-                    put("workOrderFilesUrls", workOrderFilesUrls);
-                    put("workOrderImageUrl", savedWorkOrder.getImage() == null ? null :
-                            storageService.generateSignedUrl(savedWorkOrder.getImage(), 5));
-                }};
-                thymeleafContext.setVariables(variables);
-
-                String reportHtml = thymeleafTemplateEngine.process("work-order-report.html", thymeleafContext);
-
-                ConverterProperties converterProperties = new ConverterProperties()
-                        .setTagWorkerFactory(new ITagWorkerFactory() {
-                            private final DefaultTagWorkerFactory defaultFactory = new DefaultTagWorkerFactory();
-
-                            @Override
-                            public ITagWorker getTagWorker(IElementNode tag, ProcessorContext context) {
-                                try {
-                                    return defaultFactory.getTagWorker(tag, context);
-                                } catch (Exception e) {
-                                    log.warn("Failed to create tag worker for <{}>: {}", tag.name(), e.getMessage());
-                                    return null;
-                                }
-                            }
-                        });
-                ByteArrayOutputStream target = new ByteArrayOutputStream();
-                HtmlConverter.convertToPdf(reportHtml, target, converterProperties);
-                byte[] bytes = target.toByteArray();
+                byte[] bytes = generatePdfBytes(savedWorkOrder, user, config);
                 MultipartFile file = new MultipartFileImpl(bytes, "Work Order Report.pdf");
                 return ResponseEntity.ok()
                         .body(new SuccessResponse(true, storageServiceFactory.getStorageService().uploadAndSign(file,
                                 "reports/" + user.getCompany().getId())));
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/{id}/report/send")
+    @Transactional
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<SuccessResponse> sendReport(@PathVariable("id") Long id,
+                                                      @Valid @RequestBody WorkOrderSendReportDTO request,
+                                                      HttpServletRequest req) {
+        User user = userService.whoami(req);
+        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
+        if (optionalWorkOrder.isEmpty()) {
+            throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+        }
+        WorkOrder savedWorkOrder = optionalWorkOrder.get();
+
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) ||
+                (!user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) &&
+                        !user.getId().equals(savedWorkOrder.getCreatedBy()) &&
+                        !savedWorkOrder.isAssignedTo(user))) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
+
+        List<String> customerEmails = savedWorkOrder.getCustomers().stream()
+                .map(Customer::getEmail)
+                .filter(email -> email != null && !email.isBlank())
+                .toList();
+
+        if (customerEmails.isEmpty()) {
+            throw new CustomException("No contractors with email addresses found", HttpStatus.BAD_REQUEST);
+        }
+
+        ReportConfig config = request.getConfig() != null ? request.getConfig() : new ReportConfig();
+        byte[] pdfBytes = generatePdfBytes(savedWorkOrder, user, config);
+
+        List<String> allRecipients = new ArrayList<>(customerEmails);
+        allRecipients.add(user.getEmail());
+
+        String subject = "You've been shared a work order!";
+
+        String customMessage = request.getMessage() != null ? request.getMessage() : "";
+        String messageBody = user.getFullName() + " shared:<br><br>&ldquo;" + customMessage + "&rdquo;<br><br>&mdash;" +
+                " " + savedWorkOrder.getTitle() + "<br><br>See attached PDF";
+
+        Map<String, Object> mailVariables = new HashMap<>();
+        mailVariables.put("messageBody", messageBody);
+
+        List<EmailAttachmentDTO> attachments = Collections.singletonList(
+                EmailAttachmentDTO.builder()
+                        .attachmentName("Work Order Report.pdf")
+                        .attachmentData(pdfBytes)
+                        .attachmentType("application/pdf")
+                        .build()
+        );
+
+        mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(
+                allRecipients.toArray(new String[0]),
+                subject,
+                mailVariables,
+                "work-order-report-email.html",
+                Helper.getLocale(user),
+                attachments
+        );
+
+        return ResponseEntity.ok(new SuccessResponse(true, "Report sent successfully"));
     }
 
     @GetMapping("/urgent")

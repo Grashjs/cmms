@@ -1911,7 +1911,14 @@ const locale = {
   confirm_delete_additional_cost: 'Are you sure you want to delete this cost?',
   discard_changes: 'Discard changes',
   discard_changes_question:
-    "Discard unsaved changes?\n If you leave now, you'll lose unsaved changes"
+    "Discard unsaved changes?\n If you leave now, you'll lose unsaved changes",
+  email_contractors: 'Email Contractors',
+  email_contractors_description:
+    'Configure the report and add an optional message to send to the contractors.',
+  custom_message_optional: 'Custom message (optional)',
+  report_configuration: 'Report Configuration',
+  send_work_order_as_pdf: 'Send Work Order as PDF',
+  report_sent_success: 'Report sent successfully'
 };
 
 export default locale;

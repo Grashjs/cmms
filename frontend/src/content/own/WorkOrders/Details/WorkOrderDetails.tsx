@@ -36,6 +36,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import ReportConfigModal from './ReportConfigModal';
+import SendReportModal from './SendReportModal';
 import Tasks from './Tasks';
 import TimeSection from './TimeSection';
 import CostSection from './CostSection';
@@ -94,6 +95,7 @@ import { getCommentsCountByWorkOrder } from '../../../../slices/comment';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckTwoToneIcon from '@mui/icons-material/CheckTwoTone';
+import EmailTwoToneIcon from '@mui/icons-material/EmailTwoTone';
 
 const LabelWrapper = styled(Box)(
   ({ theme }) => `
@@ -131,6 +133,8 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const [openLinkModal, setOpenLinkModal] = useState<boolean>(false);
   const [openCompleteModal, setOpenCompleteModal] = useState<boolean>(false);
   const [openReportConfigModal, setOpenReportConfigModal] =
+    useState<boolean>(false);
+  const [openSendReportModal, setOpenSendReportModal] =
     useState<boolean>(false);
   const [currentTab, setCurrentTab] = useState<string>('details');
   const [changingStatus, setChangingStatus] = useState<boolean>(false);
@@ -227,6 +231,10 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const onGenerateReport = () => {
     handleCloseMenu();
     setOpenReportConfigModal(true);
+  };
+  const onEmailContractors = () => {
+    handleCloseMenu();
+    setOpenSendReportModal(true);
   };
   useEffect(() => {
     dispatch(getPartQuantitiesByWorkOrder(workOrder.id));
@@ -1212,6 +1220,11 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
         onClose={() => setOpenReportConfigModal(false)}
         workOrderId={workOrder.id}
       />
+      <SendReportModal
+        open={openSendReportModal}
+        onClose={() => setOpenSendReportModal(false)}
+        workOrderId={workOrder.id}
+      />
       <CompleteWOModal
         open={openCompleteModal}
         onClose={() => setOpenCompleteModal(false)}
@@ -1241,6 +1254,12 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
               <PictureAsPdfTwoToneIcon />
             )}
             <Typography variant="h6">{t('pdf_report')}</Typography>
+          </Stack>
+        </MenuItem>
+        <MenuItem onClick={onEmailContractors}>
+          <Stack spacing={2} direction="row">
+            <EmailTwoToneIcon />
+            <Typography variant="h6">{t('email_contractors')}</Typography>
           </Stack>
         </MenuItem>
         {hasCreatePermission(PermissionEntity.WORK_ORDERS) && (

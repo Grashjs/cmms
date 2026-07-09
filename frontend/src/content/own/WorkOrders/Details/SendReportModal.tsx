@@ -5,15 +5,18 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  TextField,
   Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useDispatch } from '../../../../store';
-import { getPDFReport, ReportConfig } from '../../../../slices/workOrder';
+import { ReportConfig, sendWorkOrderReport } from '../../../../slices/workOrder';
+import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
+import { getErrorMessage } from '../../../../utils/api';
 import ReportConfigFields from './ReportConfigFields';
 
-interface ReportConfigModalProps {
+interface SendReportModalProps {
   open: boolean;
   onClose: () => void;
   workOrderId: number;
@@ -33,41 +36,62 @@ const defaultConfig: ReportConfig = {
   tasks: true
 };
 
-export default function ReportConfigModal({
+export default function SendReportModal({
   open,
   onClose,
   workOrderId
-}: ReportConfigModalProps) {
+}: SendReportModalProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
+  const { showSnackBar } = useContext(CustomSnackBarContext);
   const [config, setConfig] = useState<ReportConfig>(defaultConfig);
-  const [generating, setGenerating] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>('');
+  const [sending, setSending] = useState<boolean>(false);
 
   const handleToggle = (key: string) => {
     setConfig((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const handleGenerate = () => {
-    setGenerating(true);
-    dispatch(getPDFReport(workOrderId, config))
-      .then((url: string) => {
-        window.open(url);
+  const handleSend = () => {
+    setSending(true);
+    dispatch(
+      sendWorkOrderReport(workOrderId, {
+        config,
+        message: message || undefined
+      })
+    )
+      .then(() => {
+        showSnackBar(t('report_sent_success'), 'success');
         onClose();
       })
-      .finally(() => setGenerating(false));
+      .catch((err) => showSnackBar(getErrorMessage(err), 'error'))
+      .finally(() => setSending(false));
   };
 
   return (
     <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
       <DialogTitle sx={{ p: 3 }}>
         <Typography variant="h4" gutterBottom>
-          {t('pdf_report')}
+          {t('email_contractors')}
         </Typography>
         <Typography variant="subtitle2">
-          {t('customize_report_description')}
+          {t('email_contractors_description')}
         </Typography>
       </DialogTitle>
       <DialogContent dividers sx={{ p: 3 }}>
+        <TextField
+          autoFocus
+          fullWidth
+          multiline
+          minRows={3}
+          sx={{ mb: 3 }}
+          label={t('custom_message_optional')}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+        />
+        <Typography variant="h6" gutterBottom>
+          {t('report_configuration')}
+        </Typography>
         <ReportConfigFields config={config} onToggle={handleToggle} />
       </DialogContent>
       <DialogActions>
@@ -76,11 +100,11 @@ export default function ReportConfigModal({
         </Button>
         <Button
           variant="contained"
-          onClick={handleGenerate}
-          disabled={generating}
-          startIcon={generating ? <CircularProgress size="1rem" /> : null}
+          onClick={handleSend}
+          disabled={sending}
+          startIcon={sending ? <CircularProgress size="1rem" /> : null}
         >
-          {t('to_export')}
+          {t('send_work_order_as_pdf')}
         </Button>
       </DialogActions>
     </Dialog>

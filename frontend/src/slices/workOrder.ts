@@ -359,6 +359,11 @@ export interface ReportConfig {
   tasks: boolean;
 }
 
+export interface WorkOrderSendReportDTO {
+  config?: ReportConfig;
+  message?: string;
+}
+
 export const getPDFReport =
   (id: number, config?: ReportConfig): AppThunk =>
   async (dispatch): Promise<string> => {
@@ -368,6 +373,15 @@ export const getPDFReport =
     );
     const { message } = response;
     return message;
+  };
+
+export const sendWorkOrderReport =
+  (id: number, body: WorkOrderSendReportDTO): AppThunk =>
+  async (dispatch): Promise<{ success: boolean; message: string }> => {
+    return await api.post<{ success: boolean; message: string }>(
+      `${basePath}/${id}/report/send`,
+      body
+    );
   };
 
 export const getWorkOrderEvents =
