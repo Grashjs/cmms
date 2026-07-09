@@ -2038,7 +2038,12 @@ const esJSON = {
   confirm_delete_additional_cost: '¿Está seguro de que desea eliminar este costo?',
   discard_changes: 'Descartar cambios',
   discard_changes_question:
-    "¿Descartar cambios no guardados?\n Si sales ahora, perderás los cambios no guardados"
+    "¿Descartar cambios no guardados?\n Si sales ahora, perderás los cambios no guardados",
+  email_contractors: 'Enviar correo a contratistas',
+  email_contractors_description: 'Configure el informe y agregue un mensaje opcional para enviar a los contratistas.',
+  custom_message_optional: 'Mensaje personalizado (opcional)',
+  send_work_order_as_pdf: 'Enviar orden de trabajo como PDF',
+  report_sent_success: 'Informe enviado con éxito'
 };
 
 export default esJSON;

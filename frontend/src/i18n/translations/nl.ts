@@ -1964,6 +1964,11 @@ const locale = {
   confirm_delete_additional_cost: 'Weet u zeker dat u deze kosten wilt verwijderen?',
   discard_changes: 'Wijzigingen annuleren',
   discard_changes_question:
-    "Niet-opgeslagen wijzigingen annuleren?\n Als u nu weggaat, verliest u niet-opgeslagen wijzigingen"
+    "Niet-opgeslagen wijzigingen annuleren?\n Als u nu weggaat, verliest u niet-opgeslagen wijzigingen",
+  email_contractors: 'E-mail aannemers',
+  email_contractors_description: 'Configureer het rapport en voeg een optioneel bericht toe om naar de aannemers te sturen.',
+  custom_message_optional: 'Aangepast bericht (optioneel)',
+  send_work_order_as_pdf: 'Werkorder als PDF verzenden',
+  report_sent_success: 'Rapport succesvol verzonden'
 };
 export default locale;

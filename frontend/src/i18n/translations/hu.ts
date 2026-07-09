@@ -1825,7 +1825,12 @@ const locale = {
   confirm_delete_additional_cost: 'Biztosan törli ezt a költséget?',
   discard_changes: 'Változtatások elvetése',
   discard_changes_question:
-    "Elveti a nem mentett módosításokat?\n Ha most elmegy, elveszíti a nem mentett módosításokat"
+    "Elveti a nem mentett módosításokat?\n Ha most elmegy, elveszíti a nem mentett módosításokat",
+  email_contractors: 'Vállalkozók e-mailben',
+  email_contractors_description: 'Állítsa be a jelentést, és adjon hozzá egy opcionális üzenetet a vállalkozóknak.',
+  custom_message_optional: 'Egyéni üzenet (opcionális)',
+  send_work_order_as_pdf: 'Munkautasítás küldése PDF-ként',
+  report_sent_success: 'Jelentés sikeresen elküldve'
 };
 
 export default locale;

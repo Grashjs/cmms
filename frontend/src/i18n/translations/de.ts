@@ -2047,7 +2047,12 @@ const deJSON = {
   confirm_delete_additional_cost: 'Sind Sie sicher, dass Sie diese Kosten löschen möchten?',
   discard_changes: 'Änderungen verwerfen',
   discard_changes_question:
-    "Nicht gespeicherte Änderungen verwerfen?\n Wenn Sie jetzt gehen, verlieren Sie nicht gespeicherte Änderungen"
+    "Nicht gespeicherte Änderungen verwerfen?\n Wenn Sie jetzt gehen, verlieren Sie nicht gespeicherte Änderungen",
+  email_contractors: 'Auftragnehmer per E-Mail benachrichtigen',
+  email_contractors_description: 'Konfigurieren Sie den Bericht und fügen Sie eine optionale Nachricht hinzu, die an die Auftragnehmer gesendet wird.',
+  custom_message_optional: 'Benutzerdefinierte Nachricht (optional)',
+  send_work_order_as_pdf: 'Arbeitsauftrag als PDF senden',
+  report_sent_success: 'Bericht erfolgreich gesendet'
 };
 
 export default deJSON;

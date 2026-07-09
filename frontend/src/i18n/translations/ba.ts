@@ -1948,7 +1948,12 @@ const locale = {
   confirm_delete_additional_cost: 'Jeste li sigurni da želite izbrisati ovaj trošak?',
   discard_changes: 'Odbaci promjene',
   discard_changes_question:
-    "Odbaci nesačuvane izmjene?\n Ako odete sada, izgubit ćete nesačuvane izmjene"
+    "Odbaci nesačuvane izmjene?\n Ako odete sada, izgubit ćete nesačuvane izmjene",
+  email_contractors: 'Emailuj izvođače',
+  email_contractors_description: 'Konfigurišite izvještaj i dodajte opcionalnu poruku za slanje izvođačima.',
+  custom_message_optional: 'Prilagođena poruka (opcionalno)',
+  send_work_order_as_pdf: 'Pošalji radni nalog kao PDF',
+  report_sent_success: 'Izvještaj uspješno poslan'
 };
 
 export default locale;

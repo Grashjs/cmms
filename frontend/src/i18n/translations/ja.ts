@@ -1918,7 +1918,12 @@ const locale = {
   confirm_delete_additional_cost: 'このコストを削除してもよろしいですか？',
   discard_changes: '変更を破棄',
   discard_changes_question:
-    "保存されていない変更を破棄しますか？\n 今すぐ離れると、保存されていない変更が失われます"
+    "保存されていない変更を破棄しますか？\n 今すぐ離れると、保存されていない変更が失われます",
+  email_contractors: '請負業者にメール',
+  email_contractors_description: 'レポートを設定し、請負業者に送信するオプションメッセージを追加します。',
+  custom_message_optional: 'カスタムメッセージ（オプション）',
+  send_work_order_as_pdf: '作業指示書をPDFとして送信',
+  report_sent_success: 'レポートが正常に送信されました'
 };
 
 export default locale;

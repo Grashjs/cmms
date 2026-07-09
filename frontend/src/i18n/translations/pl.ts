@@ -1962,7 +1962,12 @@ const plJSON = {
   confirm_delete_additional_cost: 'Czy na pewno chcesz usunąć ten koszt?',
   discard_changes: 'Odrzuć zmiany',
   discard_changes_question:
-    "Odrzucić niezapisane zmiany?\n Jeśli opuścisz teraz, stracisz niezapisane zmiany"
+    "Odrzucić niezapisane zmiany?\n Jeśli opuścisz teraz, stracisz niezapisane zmiany",
+  email_contractors: 'Wyślij e-mail do wykonawców',
+  email_contractors_description: 'Skonfiguruj raport i dodaj opcjonalną wiadomość do wysłania do wykonawców.',
+  custom_message_optional: 'Wiadomość niestandardowa (opcjonalnie)',
+  send_work_order_as_pdf: 'Wyślij zlecenie jako PDF',
+  report_sent_success: 'Raport wysłany pomyślnie'
 };
 
 export default plJSON;

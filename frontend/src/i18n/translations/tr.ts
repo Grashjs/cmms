@@ -1962,7 +1962,12 @@ const trJSON = {
   confirm_delete_additional_cost: 'Bu maliyeti silmek istediğinize emin misiniz?',
   discard_changes: 'Değişiklikleri İptal Et',
   discard_changes_question:
-    "Kaydedilmemiş değişiklikler iptal edilsin mi?\n Şimdi ayrılırsanız, kaydedilmemiş değişiklikleri kaybedersiniz"
+    "Kaydedilmemiş değişiklikler iptal edilsin mi?\n Şimdi ayrılırsanız, kaydedilmemiş değişiklikleri kaybedersiniz",
+  email_contractors: 'Yüklenicilere E-posta Gönder',
+  email_contractors_description: 'Raporu yapılandırın ve yüklenicilere göndermek için isteğe bağlı bir mesaj ekleyin.',
+  custom_message_optional: 'Özel mesaj (isteğe bağlı)',
+  send_work_order_as_pdf: 'İş Emrini PDF Olarak Gönder',
+  report_sent_success: 'Rapor başarıyla gönderildi'
 };
 
 export default trJSON;

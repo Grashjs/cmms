@@ -1992,7 +1992,12 @@ const ptBRJSON = {
   confirm_delete_additional_cost: 'Tem certeza de que deseja excluir este custo?',
   discard_changes: 'Descartar alterações',
   discard_changes_question:
-    "Descartar alterações não salvas?\n Se você sair agora, perderá as alterações não salvas"
+    "Descartar alterações não salvas?\n Se você sair agora, perderá as alterações não salvas",
+  email_contractors: 'E-mail para contratantes',
+  email_contractors_description: 'Configure o relatório e adicione uma mensagem opcional para enviar aos contratantes.',
+  custom_message_optional: 'Mensagem personalizada (opcional)',
+  send_work_order_as_pdf: 'Enviar ordem de serviço como PDF',
+  report_sent_success: 'Relatório enviado com sucesso'
 };
 
 export default ptBRJSON;

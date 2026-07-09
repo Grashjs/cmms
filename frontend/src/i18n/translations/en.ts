@@ -1916,7 +1916,6 @@ const locale = {
   email_contractors_description:
     'Configure the report and add an optional message to send to the contractors.',
   custom_message_optional: 'Custom message (optional)',
-  report_configuration: 'Report Configuration',
   send_work_order_as_pdf: 'Send Work Order as PDF',
   report_sent_success: 'Report sent successfully'
 };

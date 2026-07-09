@@ -11,7 +11,10 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useContext, useState } from 'react';
 import { useDispatch } from '../../../../store';
-import { ReportConfig, sendWorkOrderReport } from '../../../../slices/workOrder';
+import {
+  ReportConfig,
+  sendWorkOrderReport
+} from '../../../../slices/workOrder';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 import { getErrorMessage } from '../../../../utils/api';
 import ReportConfigFields from './ReportConfigFields';
@@ -90,7 +93,7 @@ export default function SendReportModal({
           onChange={(e) => setMessage(e.target.value)}
         />
         <Typography variant="h6" gutterBottom>
-          {t('report_configuration')}
+          {t('customize_report_description')}
         </Typography>
         <ReportConfigFields config={config} onToggle={handleToggle} />
       </DialogContent>

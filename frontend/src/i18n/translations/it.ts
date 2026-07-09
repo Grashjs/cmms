@@ -1966,7 +1966,12 @@ const locale = {
   confirm_delete_additional_cost: 'Sei sicuro di voler eliminare questo costo?',
   discard_changes: 'Annulla le modifiche',
   discard_changes_question:
-    "Annullare le modifiche non salvate?\n Se esci ora, perderai le modifiche non salvate"
+    "Annullare le modifiche non salvate?\n Se esci ora, perderai le modifiche non salvate",
+  email_contractors: 'Invia email agli appaltatori',
+  email_contractors_description: 'Configura il report e aggiungi un messaggio opzionale da inviare agli appaltatori.',
+  custom_message_optional: 'Messaggio personalizzato (opzionale)',
+  send_work_order_as_pdf: 'Invia ordine di lavoro come PDF',
+  report_sent_success: 'Report inviato con successo'
 };
 
 export default locale;

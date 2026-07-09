@@ -1932,7 +1932,12 @@ const locale = {
   confirm_delete_additional_cost: 'Är du säker på att du vill ta bort denna kostnad?',
   discard_changes: 'Kasta ändringar',
   discard_changes_question:
-    "Kasta osparade ändringar?\n Om du lämnar nu förlorar du osparade ändringar"
+    "Kasta osparade ändringar?\n Om du lämnar nu förlorar du osparade ändringar",
+  email_contractors: 'E-posta entreprenörer',
+  email_contractors_description: 'Konfigurera rapporten och lägg till ett valfritt meddelande att skicka till entreprenörerna.',
+  custom_message_optional: 'Anpassat meddelande (valfritt)',
+  send_work_order_as_pdf: 'Skicka arbetsorder som PDF',
+  report_sent_success: 'Rapport skickad framgångsrikt'
 };
 
 export default locale;

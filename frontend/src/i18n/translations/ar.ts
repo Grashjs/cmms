@@ -1900,7 +1900,12 @@ const locale = {
   confirm_delete_additional_cost: 'هل أنت متأكد أنك تريد حذف هذه التكلفة؟',
   discard_changes: 'تجاهل التغييرات',
   discard_changes_question:
-    "تجاهل التغييرات غير المحفوظة؟\n إذا غادرت الآن، ستفقد التغييرات غير المحفوظة"
+    "تجاهل التغييرات غير المحفوظة؟\n إذا غادرت الآن، ستفقد التغييرات غير المحفوظة",
+  email_contractors: 'البريد الإلكتروني للمقاولين',
+  email_contractors_description: 'قم بتكوين التقرير وإضافة رسالة اختيارية لإرسالها إلى المقاولين.',
+  custom_message_optional: 'رسالة مخصصة (اختياري)',
+  send_work_order_as_pdf: 'إرسال أمر العمل كملف PDF',
+  report_sent_success: 'تم إرسال التقرير بنجاح'
 };
 
 export default locale;

@@ -1502,7 +1502,7 @@ const frJSON = {
   confirm_disable_user: 'Etes-vous sûr de désactiver {{user}}?',
   user_disabled_success: 'Utilisateur désactivé',
   disable: 'Désactiver',
-  confirm_enable_user: 'Etes-vous sûr d\'activer {{user}}?',
+  confirm_enable_user: "Etes-vous sûr d'activer {{user}}?",
   enable: 'Activer',
   manufacturer: 'Fabriquant',
   power: 'Puissance',
@@ -2131,11 +2131,19 @@ const frJSON = {
   export_parts: 'Exporter les pièces',
   edit_time: 'Modifier le temps',
   edit_cost: 'Modifier le coût',
-  confirm_delete_labor: 'Êtes-vous sûr de vouloir supprimer cette main-d\'œuvre ?',
-  confirm_delete_additional_cost: 'Êtes-vous sûr de vouloir supprimer ce coût ?',
+  confirm_delete_labor:
+    "Êtes-vous sûr de vouloir supprimer cette main-d'œuvre ?",
+  confirm_delete_additional_cost:
+    'Êtes-vous sûr de vouloir supprimer ce coût ?',
   discard_changes: 'Annuler les modifications',
   discard_changes_question:
-    "Annuler les modifications non enregistrées ?\n Si vous quittez maintenant, vous perdrez les modifications non enregistrées"
+    'Annuler les modifications non enregistrées ?\n Si vous quittez maintenant, vous perdrez les modifications non enregistrées',
+  email_contractors: 'Envoyer un email aux prestataires',
+  email_contractors_description:
+    'Configurez le rapport et ajoutez un message optionnel à envoyer aux prestataires.',
+  custom_message_optional: 'Message personnalisé (optionnel)',
+  send_work_order_as_pdf: "Envoyer l'ordre de travail en PDF",
+  report_sent_success: 'Rapport envoyé avec succès'
 };
 
 export default frJSON;

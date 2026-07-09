@@ -1628,7 +1628,12 @@ const locale = {
   confirm_delete_additional_cost: '确定要删除此成本吗？',
   discard_changes: '放弃更改',
   discard_changes_question:
-    "放弃未保存的更改？\n 如果现在离开，您将丢失未保存的更改"
+    "放弃未保存的更改？\n 如果现在离开，您将丢失未保存的更改",
+  email_contractors: '发送邮件给承包商',
+  email_contractors_description: '配置报告并添加可选消息以发送给承包商。',
+  custom_message_optional: '自定义消息（可选）',
+  send_work_order_as_pdf: '以PDF形式发送工作单',
+  report_sent_success: '报告已成功发送'
 };
 
 export default locale;
