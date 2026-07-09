@@ -378,10 +378,11 @@ export const getPDFReport =
 export const sendWorkOrderReport =
   (id: number, body: WorkOrderSendReportDTO): AppThunk =>
   async (dispatch): Promise<{ success: boolean; message: string }> => {
-    return await api.post<{ success: boolean; message: string }>(
+    const res = await api.post<{ success: boolean; message: string }>(
       `${basePath}/${id}/report/send`,
       body
     );
+    return res;
   };
 
 export const getWorkOrderEvents =
