@@ -223,7 +223,7 @@ const plJSON = {
   feedback_description: 'Przekaż swoją opinię',
   required_feedback: 'Opinie są wymagane',
   signature: 'Podpis',
-  required_signature: 'Obraz podpisu jest wymagany',
+  required_signature: 'Podpis jest wymagany',
   close_wo: 'Zamknij zlecenie pracy',
   close: 'Zamknij',
   task_update_success: 'Zadanie zostało pomyślnie zaktualizowane',

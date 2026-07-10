@@ -214,7 +214,7 @@ const locale = {
   feedback_description: 'フィードバックを送信してください',
   required_feedback: 'フィードバックは必須です',
   signature: '署名',
-  required_signature: '画像は必須です',
+  required_signature: '署名は必須です',
   close_wo: '作業指示書を閉じる',
   close: '閉じる',
   task_update_success: 'タスクが正常に更新されました',

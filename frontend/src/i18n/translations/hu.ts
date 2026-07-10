@@ -232,7 +232,7 @@ const locale = {
   feedback_description: 'Add meg a visszajelzésedet',
   required_feedback: 'Visszajelzés kötelező',
   signature: 'Aláírás',
-  required_signature: 'Kép kötelező',
+  required_signature: 'Az aláírás kötelező',
   close_wo: 'Munkarendelés Lezárása',
   close: 'Lezárás',
   task_update_success: 'Feladat sikeresen frissítve',

@@ -114,6 +114,14 @@ export default function PMDetails({
       label: t('category'),
       value: preventiveMaintenance?.category?.name
     },
+    ...(preventiveMaintenance?.requiredSignature
+      ? [
+          {
+            label: t('required_signature'),
+            value: t('yes')
+          }
+        ]
+      : []),
     ...getCustomFieldValuesForDetails(
       preventiveMaintenance.customFieldValues,
       getFormattedDate

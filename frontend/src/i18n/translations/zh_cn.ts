@@ -203,7 +203,7 @@ const locale = {
   feedback_description: '提供您的反馈',
   required_feedback: '反馈是必需的',
   signature: '签名',
-  required_signature: '图像是必需的',
+  required_signature: '签名是必需的',
   close_wo: '关闭工单',
   close: '关闭',
   task_update_success: '任务更新成功',

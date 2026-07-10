@@ -216,7 +216,7 @@ const trJSON = {
   feedback_description: 'Geri bildiriminizi bildirin',
   required_feedback: 'Geri bildirim gerekli',
   signature: 'İmza',
-  required_signature: 'Resim gerekli',
+  required_signature: 'İmza gereklidir',
   close_wo: 'İş Emri Kapat',
   close: 'Kapalı',
   task_update_success: 'Görev başarıyla güncellendi',

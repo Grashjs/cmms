@@ -367,9 +367,7 @@ function PMs() {
         )
       : null,
     daysOfWeek: entity?.schedule?.daysOfWeek?.map((dayOfWeek) => ({
-      label: getWeekdays(dateLocale).find(
-        (day, index) => index === dayOfWeek
-      ),
+      label: getWeekdays(dateLocale).find((day, index) => index === dayOfWeek),
       value: dayOfWeek
     })),
     frequency: Number(entity?.schedule?.frequency),
@@ -546,6 +544,11 @@ function PMs() {
       customFields.filter((cf) => cf.copyOnRepeat),
       { delay: true }
     ),
+    {
+      name: 'requiredSignature',
+      type: 'switch',
+      label: t('requires_signature')
+    },
     {
       name: 'tasks',
       type: 'select',

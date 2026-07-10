@@ -28,6 +28,7 @@ export interface WorkOrderBase extends Audit {
   team: Team;
   files: File[];
   requestPortal: RequestPortalMiniDTO | null;
+  requiredSignature: boolean;
   customFieldValues: { customField: CustomField; value: string }[];
 }
 

@@ -230,7 +230,7 @@ const deJSON = {
   feedback_description: 'Geben Sie Ihr Feedback',
   required_feedback: 'Feedback ist erforderlich',
   signature: 'Unterschrift',
-  required_signature: 'Bild ist erforderlich',
+  required_signature: 'Unterschrift ist erforderlich',
   close_wo: 'Arbeitsauftrag schließen',
   close: 'Schließen',
   task_update_success: 'Aufgabe erfolgreich aktualisiert',

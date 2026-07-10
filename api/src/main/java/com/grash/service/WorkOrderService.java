@@ -361,6 +361,7 @@ public class WorkOrderService {
         workOrder.setPrimaryUser(workOrderBase.getPrimaryUser());
         workOrder.setTeam(workOrderBase.getTeam());
         workOrder.setCategory(workOrderBase.getCategory());
+        workOrder.setRequiredSignature(workOrderBase.isRequiredSignature());
         workOrder.getAssignedTo().addAll(workOrderBase.getAssignedTo());
         workOrder.setEstimatedDuration(workOrderBase.getEstimatedDuration());
         workOrder.getCustomFieldValues().addAll(workOrderBase.getCustomFieldValues());
