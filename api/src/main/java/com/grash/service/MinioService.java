@@ -49,8 +49,9 @@ public class MinioService implements StorageService {
         try {
             URI minioEndpointURI = new URI(minioEndpoint);
             MinioClient.Builder minioClientBuilder = MinioClient.builder()
-                    .endpoint(minioPublicEndpoint)
+                    .endpoint(minioEndpoint)
                     .credentials(minioAccessKey, minioSecretKey);
+
             if (Helper.isLocalhost(minioPublicEndpoint)) minioClientBuilder.httpClient(
                     new OkHttpClient.Builder().proxy(new Proxy(Proxy.Type.HTTP,
                             new InetSocketAddress(minioEndpointURI.getHost(), minioEndpointURI.getPort()))).build()
@@ -114,7 +115,7 @@ public class MinioService implements StorageService {
 
     public String generateSignedUrl(String filePath, long expirationMinutes) {
         try {
-            String url = minioClient.getPresignedObjectUrl(
+            String internalUrl = minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.GET)
                             .bucket(minioBucket)
@@ -122,7 +123,10 @@ public class MinioService implements StorageService {
                             .expiry(Math.toIntExact(expirationMinutes), TimeUnit.MINUTES)
                             .build()
             );
-            return url;
+            if (!minioPublicEndpoint.isEmpty()) {
+                return internalUrl.replace(minioEndpoint, minioPublicEndpoint);
+            }
+            return internalUrl;
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }

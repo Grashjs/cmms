@@ -7,10 +7,11 @@ services:
       POSTGRES_DB: atlas
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PWD}
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
   api:
     image: intelloop/atlas-cmms-backend
     container_name: atlas-cmms-backend
@@ -24,7 +25,7 @@ services:
       DB_URL: postgres/atlas
       DB_USER: ${POSTGRES_USER}
       DB_PWD: ${POSTGRES_PWD}
-      PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:8080}
+      PUBLIC_API_URL: ${PUBLIC_FRONT_URL}/api
       PUBLIC_FRONT_URL: ${PUBLIC_FRONT_URL}
       GCP_BUCKET_NAME: ${GCP_BUCKET_NAME}
       GCP_JSON: ${GCP_JSON}
@@ -42,7 +43,7 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_USER}
       MINIO_SECRET_KEY: ${MINIO_PASSWORD}
       STORAGE_TYPE: ${STORAGE_TYPE:-minio} #gpc|minio
-      PUBLIC_MINIO_ENDPOINT: ${PUBLIC_MINIO_ENDPOINT:-http://localhost:9000}
+      PUBLIC_MINIO_ENDPOINT: ${PUBLIC_FRONT_URL}/storage
       INVITATION_VIA_EMAIL: ${INVITATION_VIA_EMAIL:-false}
       ENABLE_EMAIL_NOTIFICATIONS: ${ENABLE_EMAIL_NOTIFICATIONS:-false}
       ENABLE_SSO: ${ENABLE_SSO:-false}
@@ -59,7 +60,7 @@ services:
       PADDLE_API_KEY: ${PADDLE_API_KEY:-}
       PADDLE_WEBHOOK_SECRET_KEY: ${PADDLE_WEBHOOK_SECRET_KEY:-}
       PADDLE_ENVIRONMENT: ${PADDLE_ENVIRONMENT:-sandbox}
-      ENABLE_CORS: ${ENABLE_CORS:-true}
+      ENABLE_CORS: ${ENABLE_CORS:-false}
       KEYGEN_PRODUCT_TOKEN: ${KEYGEN_PRODUCT_TOKEN:-}
       MAIL_TYPE: ${MAIL_TYPE:-smtp}
       SENDGRID_API_KEY: ${SENDGRID_API_KEY:-}
@@ -86,33 +87,34 @@ services:
       LDAP_SYNC_UPDATE: ${LDAP_SYNC_UPDATE:-false}
       LDAP_SYNC_DISABLE: ${LDAP_SYNC_DISABLE:-false}
       LDAP_SYNC_CRON: ${LDAP_SYNC_CRON}
-      
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
+
   frontend:
     image: intelloop/atlas-cmms-frontend
     container_name: atlas-cmms-frontend
     environment:
-        API_URL: ${PUBLIC_API_URL}
-        GOOGLE_KEY: ${GOOGLE_KEY:- }
-        GOOGLE_TRACKING_ID: ${GOOGLE_TRACKING_ID:- }
-        INVITATION_VIA_EMAIL: ${INVITATION_VIA_EMAIL:-false}
-        CLOUD_VERSION: ${CLOUD_VERSION:-false}
-        NODE_ENV: production
-        ENABLE_SSO: ${ENABLE_SSO:-false}
-        OAUTH2_PROVIDER: ${OAUTH2_PROVIDER:- }
-        LOGO_PATHS: ${LOGO_PATHS:- }
-        CUSTOM_COLORS: ${CUSTOM_COLORS:- }
-        BRAND_CONFIG: ${BRAND_CONFIG:- }
-        DEMO_LINK: ${DEMO_LINK:- }
-        PADDLE_SECRET_TOKEN: ${PADDLE_SECRET_TOKEN:- }
-        PADDLE_ENVIRONMENT: ${PADDLE_ENVIRONMENT:-sandbox}
-        RECAPTCHA_SITE_KEY: ${RECAPTCHA_SITE_KEY:- }
-        LDAP_ENABLED: ${LDAP_ENABLED:-false}
-    ports:
-      - "3000:3000"
+      API_URL: /api
+      GOOGLE_KEY: ${GOOGLE_KEY:- }
+      GOOGLE_TRACKING_ID: ${GOOGLE_TRACKING_ID:- }
+      INVITATION_VIA_EMAIL: ${INVITATION_VIA_EMAIL:-false}
+      CLOUD_VERSION: ${CLOUD_VERSION:-false}
+      NODE_ENV: production
+      ENABLE_SSO: ${ENABLE_SSO:-false}
+      OAUTH2_PROVIDER: ${OAUTH2_PROVIDER:- }
+      LOGO_PATHS: ${LOGO_PATHS:- }
+      CUSTOM_COLORS: ${CUSTOM_COLORS:- }
+      BRAND_CONFIG: ${BRAND_CONFIG:- }
+      DEMO_LINK: ${DEMO_LINK:- }
+      PADDLE_SECRET_TOKEN: ${PADDLE_SECRET_TOKEN:- }
+      PADDLE_ENVIRONMENT: ${PADDLE_ENVIRONMENT:-sandbox}
+      RECAPTCHA_SITE_KEY: ${RECAPTCHA_SITE_KEY:- }
+      LDAP_ENABLED: ${LDAP_ENABLED:-false}
+    expose:
+      - "3000"
     depends_on:
       - api
+
   minio:
     image: minio/minio:RELEASE.2025-04-22T22-12-26Z
     container_name: atlas_minio
@@ -121,10 +123,25 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
     volumes:
       - minio_data:/data
-    ports:
-      - "9000:9000"
-      - "9001:9001"
+    expose:
+      - "9000"
+      - "9001"
     command: server --address ":9000" --console-address ":9001" /data
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: atlas_nginx
+    depends_on:
+      - frontend
+      - api
+      - minio
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # If terminating TLS directly in this container, also mount certs:
+      # - ./certs:/etc/nginx/certs:ro
+    ports:
+      - "3000:80"
+      # - "443:443"
 
 volumes:
   postgres_data:
