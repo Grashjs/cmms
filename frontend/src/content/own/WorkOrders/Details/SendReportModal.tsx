@@ -127,13 +127,13 @@ export default function SendReportModal({
               variant="outlined"
               label={`${t('customers')} *`}
               placeholder={t('customers')}
+              autoFocus
               error={customerError}
               helperText={customerError ? t('required_field') : ''}
             />
           )}
         />
         <TextField
-          autoFocus
           fullWidth
           multiline
           minRows={3}
