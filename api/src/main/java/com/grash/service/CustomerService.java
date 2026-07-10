@@ -12,7 +12,6 @@ import com.grash.model.Customer;
 import com.grash.model.Company;
 import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.repository.CustomerRepository;
-import com.grash.service.CustomFieldValueService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -94,5 +92,9 @@ public class CustomerService {
 
     public Optional<Customer> findByNameIgnoreCaseAndCompany(String name, Long companyId) {
         return customerRepository.findByNameIgnoreCaseAndCompany_Id(name, companyId).stream().findFirst();
+    }
+
+    public List<Customer> findByCompanyAndIdIn(Long id, List<Long> ids) {
+        return customerRepository.findByCompany_IdAndIdIn(id, ids);
     }
 }

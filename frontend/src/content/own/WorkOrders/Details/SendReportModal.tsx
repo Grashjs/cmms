@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Button,
   CircularProgress,
   Dialog,
@@ -9,20 +10,23 @@ import {
   Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useContext, useState } from 'react';
-import { useDispatch } from '../../../../store';
+import { useContext, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from '../../../../store';
 import {
   ReportConfig,
   sendWorkOrderReport
 } from '../../../../slices/workOrder';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 import { getErrorMessage } from '../../../../utils/api';
+import { CustomerMiniDTO } from '../../../../models/owns/customer';
+import { getCustomersMini } from '../../../../slices/customer';
 import ReportConfigFields from './ReportConfigFields';
 
 interface SendReportModalProps {
   open: boolean;
   onClose: () => void;
   workOrderId: number;
+  defaultCustomers: CustomerMiniDTO[];
 }
 
 const defaultConfig: ReportConfig = {
@@ -42,25 +46,45 @@ const defaultConfig: ReportConfig = {
 export default function SendReportModal({
   open,
   onClose,
-  workOrderId
+  workOrderId,
+  defaultCustomers
 }: SendReportModalProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
+  const { customersMini } = useSelector((state) => state.customers);
   const [config, setConfig] = useState<ReportConfig>(defaultConfig);
   const [message, setMessage] = useState<string>('');
+  const [customers, setCustomers] =
+    useState<CustomerMiniDTO[]>(defaultCustomers);
+  const [customerError, setCustomerError] = useState<boolean>(false);
   const [sending, setSending] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (open) {
+      setCustomers(defaultCustomers);
+      setCustomerError(false);
+      if (!customersMini.length) {
+        dispatch(getCustomersMini());
+      }
+    }
+  }, [open]);
 
   const handleToggle = (key: string) => {
     setConfig((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const handleSend = () => {
+    if (!customers.length) {
+      setCustomerError(true);
+      return;
+    }
     setSending(true);
     dispatch(
       sendWorkOrderReport(workOrderId, {
         config,
-        message: message || undefined
+        message: message || undefined,
+        customers
       })
     )
       .then(() => {
@@ -82,6 +106,32 @@ export default function SendReportModal({
         </Typography>
       </DialogTitle>
       <DialogContent dividers sx={{ p: 3 }}>
+        <Autocomplete<CustomerMiniDTO, true, false, false>
+          multiple
+          fullWidth
+          sx={{ mb: 3 }}
+          options={customersMini}
+          value={customers}
+          onChange={(_event, value) => {
+            setCustomers(value);
+            setCustomerError(!value.length);
+          }}
+          getOptionLabel={(option) => option.name}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          filterSelectedOptions
+          limitTags={5}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              fullWidth
+              variant="outlined"
+              label={`${t('customers')} *`}
+              placeholder={t('customers')}
+              error={customerError}
+              helperText={customerError ? t('required_field') : ''}
+            />
+          )}
+        />
         <TextField
           autoFocus
           fullWidth

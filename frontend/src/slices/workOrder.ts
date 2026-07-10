@@ -362,6 +362,7 @@ export interface ReportConfig {
 export interface WorkOrderSendReportDTO {
   config?: ReportConfig;
   message?: string;
+  customers: { id: number }[];
 }
 
 export const getPDFReport =

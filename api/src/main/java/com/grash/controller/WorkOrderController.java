@@ -106,6 +106,7 @@ public class WorkOrderController {
     private final ReviewEligibilityService reviewEligibilityService;
     private final CommentService commentService;
     private final ResourceBundleMessageSource emailMessageSource;
+    private final CustomerService customerService;
 
 
     @Value("${frontend.url}")
@@ -587,7 +588,11 @@ public class WorkOrderController {
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         }
 
-        List<String> customerEmails = savedWorkOrder.getCustomers().stream()
+        List<Customer> customersInDb =
+                customerService.findByCompanyAndIdIn(user.getCompany().getId(),
+                        request.getCustomers().stream().map(Customer::getId).toList());
+
+        List<String> customerEmails = customersInDb.stream()
                 .map(Customer::getEmail)
                 .filter(email -> email != null && !email.isBlank())
                 .toList();
