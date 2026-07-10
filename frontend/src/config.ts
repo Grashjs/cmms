@@ -48,7 +48,7 @@ export const isEmailVerificationEnabled =
 
 export const isCloudVersion = getRuntimeValue('CLOUD_VERSION') === 'true';
 
-const apiHostName = new URL(apiUrl).hostname;
+const apiHostName = new URL(apiUrl, window.location.origin).hostname;
 export const IS_LOCALHOST =
   apiHostName === 'localhost' || apiHostName === '127.0.0.1';
 

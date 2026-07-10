@@ -13,7 +13,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   api:
-    image: intelloop/atlas-cmms-backend
+    image: api-proxy-1
     container_name: atlas-cmms-backend
     depends_on:
       - postgres
@@ -91,25 +91,25 @@ services:
       - "8080"
 
   frontend:
-    image: intelloop/atlas-cmms-frontend
+    image: front-proxy-1
     container_name: atlas-cmms-frontend
     environment:
-      API_URL: /api
-      GOOGLE_KEY: ${GOOGLE_KEY:- }
-      GOOGLE_TRACKING_ID: ${GOOGLE_TRACKING_ID:- }
-      INVITATION_VIA_EMAIL: ${INVITATION_VIA_EMAIL:-false}
-      CLOUD_VERSION: ${CLOUD_VERSION:-false}
-      NODE_ENV: production
-      ENABLE_SSO: ${ENABLE_SSO:-false}
-      OAUTH2_PROVIDER: ${OAUTH2_PROVIDER:- }
-      LOGO_PATHS: ${LOGO_PATHS:- }
-      CUSTOM_COLORS: ${CUSTOM_COLORS:- }
-      BRAND_CONFIG: ${BRAND_CONFIG:- }
-      DEMO_LINK: ${DEMO_LINK:- }
-      PADDLE_SECRET_TOKEN: ${PADDLE_SECRET_TOKEN:- }
-      PADDLE_ENVIRONMENT: ${PADDLE_ENVIRONMENT:-sandbox}
-      RECAPTCHA_SITE_KEY: ${RECAPTCHA_SITE_KEY:- }
-      LDAP_ENABLED: ${LDAP_ENABLED:-false}
+        API_URL: /api
+        GOOGLE_KEY: ${GOOGLE_KEY:- }
+        GOOGLE_TRACKING_ID: ${GOOGLE_TRACKING_ID:- }
+        INVITATION_VIA_EMAIL: ${INVITATION_VIA_EMAIL:-false}
+        CLOUD_VERSION: ${CLOUD_VERSION:-false}
+        NODE_ENV: production
+        ENABLE_SSO: ${ENABLE_SSO:-false}
+        OAUTH2_PROVIDER: ${OAUTH2_PROVIDER:- }
+        LOGO_PATHS: ${LOGO_PATHS:- }
+        CUSTOM_COLORS: ${CUSTOM_COLORS:- }
+        BRAND_CONFIG: ${BRAND_CONFIG:- }
+        DEMO_LINK: ${DEMO_LINK:- }
+        PADDLE_SECRET_TOKEN: ${PADDLE_SECRET_TOKEN:- }
+        PADDLE_ENVIRONMENT: ${PADDLE_ENVIRONMENT:-sandbox}
+        RECAPTCHA_SITE_KEY: ${RECAPTCHA_SITE_KEY:- }
+        LDAP_ENABLED: ${LDAP_ENABLED:-false}
     expose:
       - "3000"
     depends_on:

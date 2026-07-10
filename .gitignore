@@ -6,3 +6,4 @@
 atlas_backups
 docker-compose-dev.yml
 logo
+*.lic
