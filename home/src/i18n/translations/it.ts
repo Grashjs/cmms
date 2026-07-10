@@ -225,7 +225,7 @@ const locale = {
   feedback_description: "Dai il tuo feedback",
   required_feedback: "È richiesto un feedback",
   signature: "Firma",
-  required_signature: "L'immagine è obbligatoria",
+  required_signature: "La firma è obbligatoria",
   close_wo: "Chiudi ordine di lavoro",
   close: "Vicino",
   task_update_success: "Attività aggiornata con successo",

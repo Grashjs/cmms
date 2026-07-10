@@ -2052,7 +2052,8 @@ const deJSON = {
   email_contractors_description: 'Konfigurieren Sie den Bericht und fügen Sie eine optionale Nachricht hinzu, die an die Auftragnehmer gesendet wird.',
   custom_message_optional: 'Benutzerdefinierte Nachricht (optional)',
   send_work_order_as_pdf: 'Arbeitsauftrag als PDF senden',
-  report_sent_success: 'Bericht erfolgreich gesendet'
+  report_sent_success: 'Bericht erfolgreich gesendet',
+  trigger_work_order: 'Arbeitsauftrag auslösen'
 };
 
 export default deJSON;

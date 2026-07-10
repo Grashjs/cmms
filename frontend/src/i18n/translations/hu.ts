@@ -1830,7 +1830,8 @@ const locale = {
   email_contractors_description: 'Állítsa be a jelentést, és adjon hozzá egy opcionális üzenetet a vállalkozóknak.',
   custom_message_optional: 'Egyéni üzenet (opcionális)',
   send_work_order_as_pdf: 'Munkautasítás küldése PDF-ként',
-  report_sent_success: 'Jelentés sikeresen elküldve'
+  report_sent_success: 'Jelentés sikeresen elküldve',
+  trigger_work_order: 'Munkautasítás indítása'
 };
 
 export default locale;

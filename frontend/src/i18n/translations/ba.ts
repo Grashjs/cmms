@@ -1953,7 +1953,8 @@ const locale = {
   email_contractors_description: 'Konfigurišite izvještaj i dodajte opcionalnu poruku za slanje izvođačima.',
   custom_message_optional: 'Prilagođena poruka (opcionalno)',
   send_work_order_as_pdf: 'Pošalji radni nalog kao PDF',
-  report_sent_success: 'Izvještaj uspješno poslan'
+  report_sent_success: 'Izvještaj uspješno poslan',
+  trigger_work_order: 'Aktiviraj radni nalog'
 };
 
 export default locale;

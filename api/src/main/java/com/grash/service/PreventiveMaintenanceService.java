@@ -8,6 +8,7 @@ import com.grash.dto.PreventiveMaintenancePostDTO;
 import com.grash.dto.PreventiveMaintenanceShowDTO;
 import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.imports.PreventiveMaintenanceImportDTO;
+import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PreventiveMaintenanceMapper;
@@ -56,6 +57,8 @@ public class PreventiveMaintenanceService {
     private final ScheduleService scheduleService;
     private final LicenseService licenseService;
     private final CustomFieldValueService customFieldValueService;
+    private final WorkOrderService workOrderService;
+    private final TaskService taskService;
 
 
     @Transactional
@@ -99,6 +102,32 @@ public class PreventiveMaintenanceService {
             em.refresh(updatedPM);
             return updatedPM;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @Transactional
+    public WorkOrder createWorkOrderFromPreventiveMaintenance(PreventiveMaintenance preventiveMaintenance) {
+        WorkOrderPostDTO workOrder = workOrderService.getWorkOrderFromWorkOrderBase(preventiveMaintenance);
+        workOrder.getCustomFields().removeIf(customFieldValue -> !workOrder.getCustomFieldValues()
+                .stream().filter(customFieldValue1 -> customFieldValue1.getCustomField().getId().equals(customFieldValue.getId()))
+                .findFirst().get().getCustomField().isCopyOnRepeat());
+
+        Collection<Task> tasks = taskService.findByPreventiveMaintenance(preventiveMaintenance.getId());
+        workOrder.setParentPreventiveMaintenance(preventiveMaintenance);
+
+        Schedule schedule = preventiveMaintenance.getSchedule();
+        if (schedule.getDueDateDelay() != null) {
+            workOrder.setDueDate(Helper.incrementDays(new Date(), schedule.getDueDateDelay()));
+        }
+
+        WorkOrder savedWorkOrder = workOrderService.create(workOrder, preventiveMaintenance.getCompany());
+
+        tasks.forEach(task -> {
+            Task copiedTask = new Task(task.getTaskBase(), savedWorkOrder, null, task.getValue());
+            copiedTask.setCompany(preventiveMaintenance.getCompany());
+            taskService.create(copiedTask);
+        });
+
+        return savedWorkOrder;
     }
 
     private void setPMCustomFields(PreventiveMaintenance preventiveMaintenance,

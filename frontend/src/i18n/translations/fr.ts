@@ -2143,7 +2143,8 @@ const frJSON = {
     'Configurez le rapport et ajoutez un message optionnel à envoyer aux prestataires.',
   custom_message_optional: 'Message personnalisé (optionnel)',
   send_work_order_as_pdf: "Envoyer l'ordre de travail en PDF",
-  report_sent_success: 'Rapport envoyé avec succès'
+  report_sent_success: 'Rapport envoyé avec succès',
+  trigger_work_order: 'Déclencher l\'ordre de travail'
 };
 
 export default frJSON;

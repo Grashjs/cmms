@@ -1967,7 +1967,8 @@ const trJSON = {
   email_contractors_description: 'Raporu yapılandırın ve yüklenicilere göndermek için isteğe bağlı bir mesaj ekleyin.',
   custom_message_optional: 'Özel mesaj (isteğe bağlı)',
   send_work_order_as_pdf: 'İş Emrini PDF Olarak Gönder',
-  report_sent_success: 'Rapor başarıyla gönderildi'
+  report_sent_success: 'Rapor başarıyla gönderildi',
+  trigger_work_order: 'İş Emrini Tetikle'
 };
 
 export default trJSON;

@@ -1969,6 +1969,7 @@ const locale = {
   email_contractors_description: 'Configureer het rapport en voeg een optioneel bericht toe om naar de aannemers te sturen.',
   custom_message_optional: 'Aangepast bericht (optioneel)',
   send_work_order_as_pdf: 'Werkorder als PDF verzenden',
-  report_sent_success: 'Rapport succesvol verzonden'
+  report_sent_success: 'Rapport succesvol verzonden',
+  trigger_work_order: 'Werkorder activeren'
 };
 export default locale;

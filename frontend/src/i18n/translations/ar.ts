@@ -1905,7 +1905,8 @@ const locale = {
   email_contractors_description: 'قم بتكوين التقرير وإضافة رسالة اختيارية لإرسالها إلى المقاولين.',
   custom_message_optional: 'رسالة مخصصة (اختياري)',
   send_work_order_as_pdf: 'إرسال أمر العمل كملف PDF',
-  report_sent_success: 'تم إرسال التقرير بنجاح'
+  report_sent_success: 'تم إرسال التقرير بنجاح',
+  trigger_work_order: 'تنبيء أمر العمل'
 };
 
 export default locale;

@@ -1937,7 +1937,8 @@ const locale = {
   email_contractors_description: 'Konfigurera rapporten och lägg till ett valfritt meddelande att skicka till entreprenörerna.',
   custom_message_optional: 'Anpassat meddelande (valfritt)',
   send_work_order_as_pdf: 'Skicka arbetsorder som PDF',
-  report_sent_success: 'Rapport skickad framgångsrikt'
+  report_sent_success: 'Rapport skickad framgångsrikt',
+  trigger_work_order: 'Aktivera arbetsorder'
 };
 
 export default locale;

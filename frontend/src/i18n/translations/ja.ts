@@ -1923,7 +1923,8 @@ const locale = {
   email_contractors_description: 'レポートを設定し、請負業者に送信するオプションメッセージを追加します。',
   custom_message_optional: 'カスタムメッセージ（オプション）',
   send_work_order_as_pdf: '作業指示書をPDFとして送信',
-  report_sent_success: 'レポートが正常に送信されました'
+  report_sent_success: 'レポートが正常に送信されました',
+  trigger_work_order: '作業指示書をトリガー'
 };
 
 export default locale;

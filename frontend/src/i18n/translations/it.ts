@@ -1971,7 +1971,8 @@ const locale = {
   email_contractors_description: 'Configura il report e aggiungi un messaggio opzionale da inviare agli appaltatori.',
   custom_message_optional: 'Messaggio personalizzato (opzionale)',
   send_work_order_as_pdf: 'Invia ordine di lavoro come PDF',
-  report_sent_success: 'Report inviato con successo'
+  report_sent_success: 'Report inviato con successo',
+  trigger_work_order: 'Attiva ordine di lavoro'
 };
 
 export default locale;

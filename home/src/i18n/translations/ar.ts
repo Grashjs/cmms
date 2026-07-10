@@ -225,7 +225,7 @@ const locale = {
   feedback_description: "أعط تعليقك",
   required_feedback: "مطلوب ردود الفعل",
   signature: "إمضاء",
-  required_signature: "الصورة مطلوبة",
+  required_signature: "التوقيع مطلوب",
   close_wo: "إغلاق أمر العمل",
   close: "يغلق",
   task_update_success: "تم تحديث المهمة بنجاح",

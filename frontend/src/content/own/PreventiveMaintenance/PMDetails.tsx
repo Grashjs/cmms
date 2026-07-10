@@ -1,9 +1,13 @@
 import {
   Box,
+  CircularProgress,
   Divider,
   Grid,
   IconButton,
   Link,
+  Menu,
+  MenuItem,
+  Stack,
   Tab,
   Tabs,
   Typography,
@@ -12,21 +16,27 @@ import {
 import { useTranslation } from 'react-i18next';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
+import PlayArrowTwoToneIcon from '@mui/icons-material/PlayArrowTwoTone';
 import PreventiveMaintenance from '../../../models/owns/preventiveMaintenance';
 import { useDispatch } from '../../../store';
-import { editPreventiveMaintenance } from '../../../slices/preventiveMaintenance';
+import {
+  editPreventiveMaintenance,
+  triggerWorkOrder
+} from '../../../slices/preventiveMaintenance';
 import React, { useContext, useEffect, useState } from 'react';
 import {
   getAssetUrl,
   getLocationUrl,
   getTeamUrl,
-  getUserUrl
+  getUserUrl,
+  getWorkOrderUrl
 } from '../../../utils/urlPaths';
 import useAuth from '../../../hooks/useAuth';
 import { PermissionEntity } from '../../../models/owns/role';
 import ImageViewer from 'react-simple-image-viewer';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
+import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 import FilesList from '../components/FilesList';
 import BasicField from '../components/BasicField';
 import { getTasksByPreventiveMaintenance } from '../../../slices/task';
@@ -38,6 +48,9 @@ import RecentWorkOrders from './RecentWorkOrders';
 import { useNavigate } from 'react-router-dom';
 import useDateLocale from '../../../hooks/useDateLocale';
 import { getCustomFieldValuesForDetails } from '../type';
+import { getErrorMessage } from '../../../utils/api';
+import { ContentCopyTwoTone } from '@mui/icons-material';
+import { WorkOrderMini } from '../../../models/owns/workOrder';
 
 interface RequestDetailsProps {
   preventiveMaintenance: PreventiveMaintenance;
@@ -67,8 +80,30 @@ export default function PMDetails({
   const { getFormattedDate, getUserNameById } = useContext(
     CompanySettingsContext
   );
+  const { showSnackBar } = useContext(CustomSnackBarContext);
   const [isImageViewerOpen, setIsImageViewerOpen] = useState<boolean>(false);
   const [tab, setTab] = React.useState<number>(0);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const openMenu = Boolean(anchorEl);
+  const [triggering, setTriggering] = useState<boolean>(false);
+
+  const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+  const handleTriggerWorkOrder = () => {
+    handleCloseMenu();
+    setTriggering(true);
+    dispatch(triggerWorkOrder(preventiveMaintenance.id))
+      .then((workOrder: WorkOrderMini) => {
+        showSnackBar(t('wo_create_success'), 'success');
+        navigate(getWorkOrderUrl(workOrder.id));
+      })
+      .catch((err) => showSnackBar(getErrorMessage(err), 'error'))
+      .finally(() => setTriggering(false));
+  };
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -149,20 +184,18 @@ export default function PMDetails({
           )}
         </Box>
         <Box>
+          {(hasCreatePermission(PermissionEntity.PREVENTIVE_MAINTENANCES) ||
+            hasCreatePermission(PermissionEntity.WORK_ORDERS)) && (
+            <IconButton style={{ marginRight: 10 }} onClick={handleOpenMenu}>
+              <MoreVertTwoToneIcon />
+            </IconButton>
+          )}
           {hasEditPermission(
             PermissionEntity.PREVENTIVE_MAINTENANCES,
             preventiveMaintenance
           ) && (
             <IconButton style={{ marginRight: 10 }} onClick={handleOpenUpdate}>
               <EditTwoToneIcon color="primary" />
-            </IconButton>
-          )}
-          {hasCreatePermission(PermissionEntity.PREVENTIVE_MAINTENANCES) && (
-            <IconButton
-              style={{ marginRight: 10 }}
-              onClick={() => onCopy(preventiveMaintenance)}
-            >
-              <ContentCopyIcon color="primary" />
             </IconButton>
           )}
           {hasDeletePermission(
@@ -423,6 +456,29 @@ export default function PMDetails({
           />
         </div>
       )}
+      <Menu anchorEl={anchorEl} open={openMenu} onClose={handleCloseMenu}>
+        <MenuItem
+          onClick={() => {
+            onCopy(preventiveMaintenance);
+            handleCloseMenu();
+          }}
+        >
+          <Stack spacing={2} direction="row">
+            <ContentCopyTwoTone />
+            <Typography variant="h6">{t('copy')}</Typography>
+          </Stack>
+        </MenuItem>
+        <MenuItem disabled={triggering} onClick={handleTriggerWorkOrder}>
+          <Stack spacing={2} direction="row">
+            {triggering ? (
+              <CircularProgress size="1rem" />
+            ) : (
+              <PlayArrowTwoToneIcon />
+            )}
+            <Typography variant="h6">{t('trigger_work_order')}</Typography>
+          </Stack>
+        </MenuItem>
+      </Menu>
     </Grid>
   );
 }

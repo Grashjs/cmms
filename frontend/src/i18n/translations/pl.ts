@@ -1967,7 +1967,8 @@ const plJSON = {
   email_contractors_description: 'Skonfiguruj raport i dodaj opcjonalną wiadomość do wysłania do wykonawców.',
   custom_message_optional: 'Wiadomość niestandardowa (opcjonalnie)',
   send_work_order_as_pdf: 'Wyślij zlecenie jako PDF',
-  report_sent_success: 'Raport wysłany pomyślnie'
+  report_sent_success: 'Raport wysłany pomyślnie',
+  trigger_work_order: 'Uruchom zlecenie'
 };
 
 export default plJSON;

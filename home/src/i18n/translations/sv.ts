@@ -226,7 +226,7 @@ const locale = {
   feedback_description: "Ge din feedback",
   required_feedback: "Feedback krävs",
   signature: "Signatur",
-  required_signature: "Bild krävs",
+  required_signature: "Signatur krävs",
   close_wo: "Stäng arbetsorder",
   close: "Nära",
   task_update_success: "Uppgiften har uppdaterats",

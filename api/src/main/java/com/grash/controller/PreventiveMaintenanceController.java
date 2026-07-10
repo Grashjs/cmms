@@ -13,6 +13,7 @@ import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.User;
 import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
+import com.grash.model.WorkOrder;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.PreventiveMaintenanceService;
@@ -95,6 +96,7 @@ public class PreventiveMaintenanceController {
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent()) {
             PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
+            checkAccessToPreventiveMaintenance(user, savedPreventiveMaintenance);
             return preventiveMaintenanceMapper.toShowDto(savedPreventiveMaintenance);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -103,9 +105,27 @@ public class PreventiveMaintenanceController {
     @PreAuthorize("permitAll()")
     public List<WorkOrderMiniDTO> getRecentWorkOrders(@PathVariable("id") Long id,
                                                       HttpServletRequest req) {
+        User user = userService.whoami(req);
+        checkAccessToPreventiveMaintenance(user, preventiveMaintenanceService.findByIdAndCompany(id,
+                user.getCompany().getId()).get());
         return workOrderService.findLastByPM(id, 10).stream()
                 .map(workOrderMapper::toMiniDto)
                 .collect(Collectors.toList());
+    }
+
+    @PostMapping("/{id}/trigger-work-order")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public WorkOrderMiniDTO triggerWorkOrder(@PathVariable("id") Long id, HttpServletRequest req) {
+        User user = userService.whoami(req);
+        if (!(user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS))) {
+            throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        }
+        PreventiveMaintenance preventiveMaintenance = preventiveMaintenanceService.findById(id)
+                .orElseThrow(() -> new CustomException("PreventiveMaintenance not found", HttpStatus.NOT_FOUND));
+        checkAccessToPreventiveMaintenance(user, preventiveMaintenance);
+        WorkOrder workOrder =
+                preventiveMaintenanceService.createWorkOrderFromPreventiveMaintenance(preventiveMaintenance);
+        return workOrderMapper.toMiniDto(workOrder);
     }
 
     @Transactional
@@ -114,23 +134,25 @@ public class PreventiveMaintenanceController {
     PreventiveMaintenanceShowDTO create(@Parameter(description = "Preventive maintenance data to create") @Valid @RequestBody PreventiveMaintenancePostDTO preventiveMaintenancePost,
                                         HttpServletRequest req) {
         User user = userService.whoami(req);
-        PreventiveMaintenance preventiveMaintenance = preventiveMaintenanceService.create(preventiveMaintenancePost,
-                user);
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)) {
+            PreventiveMaintenance preventiveMaintenance = preventiveMaintenanceService.create(preventiveMaintenancePost,
+                    user);
 
-        Schedule schedule = preventiveMaintenance.getSchedule();
-        schedule.setDaysOfWeek(preventiveMaintenancePost.getDaysOfWeek());
-        schedule.setRecurrenceBasedOn(preventiveMaintenancePost.getRecurrenceBasedOn());
-        schedule.setRecurrenceType(preventiveMaintenancePost.getRecurrenceType());
-        schedule.setEndsOn(preventiveMaintenancePost.getEndsOn());
-        schedule.setStartsOn(preventiveMaintenancePost.getStartsOn() != null ?
-                preventiveMaintenancePost.getStartsOn() : new Date());
-        schedule.setFrequency(preventiveMaintenancePost.getFrequency());
-        schedule.setDueDateDelay(preventiveMaintenancePost.getDueDateDelay());
-        Schedule savedSchedule = scheduleService.save(schedule);
-        em.refresh(savedSchedule);
-        em.refresh(preventiveMaintenance);
-        scheduleService.scheduleWorkOrder(savedSchedule);
-        return preventiveMaintenanceMapper.toShowDto(preventiveMaintenance);
+            Schedule schedule = preventiveMaintenance.getSchedule();
+            schedule.setDaysOfWeek(preventiveMaintenancePost.getDaysOfWeek());
+            schedule.setRecurrenceBasedOn(preventiveMaintenancePost.getRecurrenceBasedOn());
+            schedule.setRecurrenceType(preventiveMaintenancePost.getRecurrenceType());
+            schedule.setEndsOn(preventiveMaintenancePost.getEndsOn());
+            schedule.setStartsOn(preventiveMaintenancePost.getStartsOn() != null ?
+                    preventiveMaintenancePost.getStartsOn() : new Date());
+            schedule.setFrequency(preventiveMaintenancePost.getFrequency());
+            schedule.setDueDateDelay(preventiveMaintenancePost.getDueDateDelay());
+            Schedule savedSchedule = scheduleService.save(schedule);
+            em.refresh(savedSchedule);
+            em.refresh(preventiveMaintenance);
+            scheduleService.scheduleWorkOrder(savedSchedule);
+            return preventiveMaintenanceMapper.toShowDto(preventiveMaintenance);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @PatchMapping("/{id}")
@@ -143,9 +165,12 @@ public class PreventiveMaintenanceController {
 
         if (optionalPreventiveMaintenance.isPresent()) {
             PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
-            PreventiveMaintenance patchedPreventiveMaintenance = preventiveMaintenanceService.update(id,
-                    preventiveMaintenance, user);
-            return preventiveMaintenanceMapper.toShowDto(patchedPreventiveMaintenance);
+            if (user.getId().equals(savedPreventiveMaintenance.getCreatedBy())
+                    || user.getRole().getEditOtherPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)) {
+                PreventiveMaintenance patchedPreventiveMaintenance = preventiveMaintenanceService.update(id,
+                        preventiveMaintenance, user);
+                return preventiveMaintenanceMapper.toShowDto(patchedPreventiveMaintenance);
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("PreventiveMaintenance not found", HttpStatus.NOT_FOUND);
     }
 
@@ -156,13 +181,23 @@ public class PreventiveMaintenanceController {
 
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent()) {
-            scheduleService.stopScheduleJobs(optionalPreventiveMaintenance.get().getSchedule().getId());
-            preventiveMaintenanceService.delete(id);
-            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-                    HttpStatus.OK);
+            PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
+            if (user.getId().equals(savedPreventiveMaintenance.getCreatedBy())
+                    || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)) {
+                scheduleService.stopScheduleJobs(optionalPreventiveMaintenance.get().getSchedule().getId());
+                preventiveMaintenanceService.delete(id);
+                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                        HttpStatus.OK);
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("PreventiveMaintenance not found", HttpStatus.NOT_FOUND);
     }
 
+    private void checkAccessToPreventiveMaintenance(User user, PreventiveMaintenance preventiveMaintenance) {
+        if (!(user.getRole().getViewPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES) && (user.getId().equals(preventiveMaintenance.getCreatedBy())
+                || user.getRole().getViewOtherPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)))) {
+            throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        }
+    }
 }
 
 

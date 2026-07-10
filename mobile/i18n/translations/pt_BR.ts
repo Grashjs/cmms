@@ -236,7 +236,7 @@ const ptBRJSON = {
   feedback_description: 'Dê seu feedback',
   required_feedback: 'O feedback é obrigatório',
   signature: 'Assinatura',
-  required_signature: 'A imagem é obrigatória',
+  required_signature: 'A assinatura é obrigatória',
   close_wo: 'Fechar Ordem de Serviço',
   close: 'Fechar',
   task_update_success: 'Tarefa atualizada com sucesso',

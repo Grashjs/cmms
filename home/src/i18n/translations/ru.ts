@@ -207,7 +207,7 @@ const ruJSON = {
   feedback_description: "Оставьте отзыв",
   required_feedback: "Отзыв обязателен",
   signature: "Подпись",
-  required_signature: "Изображение обязательно",
+  required_signature: "Подпись обязательна",
   close_wo: "Закрыть наряд",
   close: "Закрыть",
   task_update_success: "Задача успешно обновлена",

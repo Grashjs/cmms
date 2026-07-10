@@ -2043,7 +2043,8 @@ const esJSON = {
   email_contractors_description: 'Configure el informe y agregue un mensaje opcional para enviar a los contratistas.',
   custom_message_optional: 'Mensaje personalizado (opcional)',
   send_work_order_as_pdf: 'Enviar orden de trabajo como PDF',
-  report_sent_success: 'Informe enviado con éxito'
+  report_sent_success: 'Informe enviado con éxito',
+  trigger_work_order: 'Activar orden de trabajo'
 };
 
 export default esJSON;

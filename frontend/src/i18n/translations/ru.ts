@@ -2030,7 +2030,8 @@ const ruJSON = {
   email_contractors_description: 'Настройте отчет и добавьте необязательное сообщение для отправки подрядчикам.',
   custom_message_optional: 'Пользовательское сообщение (необязательно)',
   send_work_order_as_pdf: 'Отправить заказ как PDF',
-  report_sent_success: 'Отчет успешно отправлен'
+  report_sent_success: 'Отчет успешно отправлен',
+  trigger_work_order: 'Запустить рабочий заказ'
 };
 
 export default ruJSON;

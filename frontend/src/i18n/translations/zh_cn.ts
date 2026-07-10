@@ -1633,7 +1633,8 @@ const locale = {
   email_contractors_description: '配置报告并添加可选消息以发送给承包商。',
   custom_message_optional: '自定义消息（可选）',
   send_work_order_as_pdf: '以PDF形式发送工作单',
-  report_sent_success: '报告已成功发送'
+  report_sent_success: '报告已成功发送',
+  trigger_work_order: '触发工作单'
 };
 
 export default locale;

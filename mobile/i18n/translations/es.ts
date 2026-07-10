@@ -227,7 +227,7 @@ const locale = {
   feedback_description: 'Envíanos tu opinión',
   required_feedback: 'Se requieren comentarios',
   signature: 'Firma',
-  required_signature: 'Se requiere imagen',
+  required_signature: 'La firma es obligatoria',
   close_wo: 'Cerrar Orden de Trabajo',
   close: 'Cerrada',
   task_update_success: 'Tarea actualizada exitosamente',

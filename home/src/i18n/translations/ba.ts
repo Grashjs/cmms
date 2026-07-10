@@ -225,7 +225,7 @@ const locale = {
   feedback_description: "Dajte svoju povratnu informaciju",
   required_feedback: "Povratna informacija je obavezna",
   signature: "Potpis",
-  required_signature: "Slika je obavezna",
+  required_signature: "Potpis je obavezan",
   close_wo: "Zatvori radni nalog",
   close: "Zatvori",
   task_update_success: "Zadatak uspješno ažuriran",
