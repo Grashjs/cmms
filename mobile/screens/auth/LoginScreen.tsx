@@ -1,4 +1,4 @@
-import { Image, Platform, ScrollView, StyleSheet } from 'react-native';
+import { Image, ScrollView, StyleSheet } from 'react-native';
 import * as Yup from 'yup';
 import { View } from '../../components/Themed';
 import { AuthStackScreenProps } from '../../types';
@@ -23,7 +23,6 @@ export default function LoginScreen({
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { login } = useAuth();
   const theme = useAppTheme();
-  const shouldShowRegistration = Platform.OS !== 'ios';
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const toggleShowPassword = () => setShowPassword((value) => !value);
   const dispatch = useDispatch();
@@ -126,7 +125,7 @@ export default function LoginScreen({
               >
                 {t('login')}
               </Button>
-              {shouldShowRegistration && !ldapEnabled && (
+              {!ldapEnabled && (
                 <>
                   <Text style={{ marginVertical: 20 }}>
                     {t('no_account_yet')}

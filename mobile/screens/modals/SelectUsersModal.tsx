@@ -177,18 +177,7 @@ export default function SelectUsersModal({
           style={{ margin: 20 }}
           mode={'contained'}
           onPress={() => {
-            navigation.navigate(
-              'AddUser'
-              //   {
-              //   onSuccess: (newUser) => {
-              //     setSelectedIds((prev) => [...prev, newUser.id]);
-              //     if (!multiple) {
-              //       onChange([newUser]);
-              //       navigation.goBack();
-              //     }
-              //   }
-              // }
-            );
+            navigation.navigate('AddUser', { openedFromSelector: true });
           }}
         >
           {t('invite_users')}

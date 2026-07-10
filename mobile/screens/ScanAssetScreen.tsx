@@ -34,10 +34,20 @@ export default function ScanAssetScreen({
   const handleAssetFound = (asset: AssetMiniDTO) => {
     if (onChange) {
       onChange(asset);
+      navigation.goBack();
     } else {
       navigation.replace('AssetDetails', { id: asset.id });
     }
   };
+
+  const getCreateAssetParams = (identifier: {
+    nfcId?: string;
+    barCode?: string;
+  }) => ({
+    ...identifier,
+    openedFromSelector: !!onChange,
+    onSuccess: onChange
+  });
 
   useEffect(() => {
     dispatch(getLicenseValidity());
@@ -66,7 +76,10 @@ export default function ScanAssetScreen({
                                 {
                                   text: t('yes'),
                                   onPress: () =>
-                                    navigation.replace('AddAsset', { nfcId })
+                                    navigation.replace(
+                                      'AddAsset',
+                                      getCreateAssetParams({ nfcId })
+                                    )
                                 }
                               ])
                             : Alert.alert(t('error'), t('asset_not_found'))
@@ -96,7 +109,10 @@ export default function ScanAssetScreen({
                             {
                               text: t('yes'),
                               onPress: () =>
-                                navigation.replace('AddAsset', { barCode })
+                                navigation.replace(
+                                  'AddAsset',
+                                  getCreateAssetParams({ barCode })
+                                )
                             }
                           ])
                         : Alert.alert(t('error'), t('asset_not_found'))
