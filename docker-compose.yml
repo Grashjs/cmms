@@ -140,7 +140,7 @@ services:
       # If terminating TLS directly in this container, also mount certs:
       # - ./certs:/etc/nginx/certs:ro
     ports:
-      - "80:80"
+      - "3000:80"
       # - "443:443"
 
 volumes:
