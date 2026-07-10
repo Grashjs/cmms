@@ -132,7 +132,7 @@ For production deployments, it’s strongly recommended to use unique credential
 
 You can use the [Android app](https://play.google.com/store/apps/details?id=com.atlas.cmms)
 or [iOS App](https://apps.apple.com/fr/app/atlas-cmms/id6751547284) and configure it with
-your custom backend server url
+your custom backend server url: `${PUBLIC_FRONT_URL}/api`
 
 ## Getting help
 
@@ -145,7 +145,7 @@ your custom backend server url
 [Join our Discord server](https://discord.gg/cHqyVRYpkA)
 
 If you still have questions after reading the docs, concerns, bug reports, etc., please file an issue in this
-repository's Issue Tracker or email [contact@atlas-cmms.com](mailto:contact@atlas-cmms.com).
+repository's Issue Tracker or email [contact@atlas-cmms.com](8mailto:contact@atlas-cmms.com).
 
 ## Supported languages
 
