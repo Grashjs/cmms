@@ -96,7 +96,7 @@ edge.
      cloudflared tunnel --config /etc/cloudflared/config.yml run
    ```
 
-Cloudflare handles TLS at the edge. Set `PUBLIC_FRONT_URL=https://cmms.example.com`.
+Cloudflare handles TLS at the edge. Set `PUBLIC_SERVER_URL=https://cmms.example.com`.
 
 ---
 
