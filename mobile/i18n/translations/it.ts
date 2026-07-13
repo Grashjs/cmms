@@ -1516,6 +1516,8 @@ const locale = {
   delete_additional_time: 'Elimina tempo',
   confirm_delete_additional_time: 'Sei sicuro di voler eliminare questo tempo?',
   reset: 'Reimposta',
-  operation_success: "L'operazione è riuscita"
+  operation_success: "L'operazione è riuscita",
+  edit_reading: 'Modifica lettura',
+  are_you_sure_delete_reading: 'Sei sicuro di voler eliminare questa lettura?'
 };
 export default locale;

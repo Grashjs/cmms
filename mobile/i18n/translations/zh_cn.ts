@@ -1378,6 +1378,8 @@ const locale = {
   delete_additional_time: '删除时间',
   confirm_delete_additional_time: '您确定要删除此时间吗？',
   reset: '重置',
-  operation_success: '操作成功'
+  operation_success: '操作成功',
+  edit_reading: '编辑读数',
+  are_you_sure_delete_reading: '您确定要删除此读数吗？'
 };
 export default locale;

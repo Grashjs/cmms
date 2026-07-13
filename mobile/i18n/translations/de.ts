@@ -1575,6 +1575,8 @@ const deJSON = {
   delete_additional_time: 'Zeit löschen',
   confirm_delete_additional_time: 'Sind Sie sicher, dass Sie diese Zeit löschen möchten?',
   reset: 'Zurücksetzen',
-  operation_success: 'Der Vorgang war erfolgreich'
+  operation_success: 'Der Vorgang war erfolgreich',
+  edit_reading: 'Zählerstand bearbeiten',
+  are_you_sure_delete_reading: 'Sind Sie sicher, dass Sie diesen Zählerstand löschen möchten?'
 };
 export default deJSON;

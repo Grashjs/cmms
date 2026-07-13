@@ -1437,6 +1437,8 @@ const locale = {
   delete_additional_time: 'حذف الوقت',
   confirm_delete_additional_time: 'هل أنت متأكد أنك تريد حذف هذا الوقت؟',
   reset: 'إعادة تعيين',
-  operation_success: 'تمت العملية بنجاح'
+  operation_success: 'تمت العملية بنجاح',
+  edit_reading: 'تحرير القراءة',
+  are_you_sure_delete_reading: 'هل أنت متأكد من حذف هذه القراءة؟'
 };
 export default locale;

@@ -1550,6 +1550,8 @@ const ruJSON = {
   edit_additional_time: 'Редактировать время',
   delete_additional_time: 'Удалить время',
   confirm_delete_additional_time: 'Вы уверены, что хотите удалить это время?',
-  reset: 'Сбросить'
+  reset: 'Сбросить',
+  edit_reading: 'Редактировать показание',
+  are_you_sure_delete_reading: 'Вы уверены, что хотите удалить это показание?'
 };
 export default ruJSON;

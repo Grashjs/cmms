@@ -1501,6 +1501,8 @@ const locale = {
   delete_additional_time: 'Tijd verwijderen',
   confirm_delete_additional_time: 'Weet u zeker dat u deze tijd wilt verwijderen?',
   reset: 'Resetten',
-  operation_success: 'De bewerking is gelukt'
+  operation_success: 'De bewerking is gelukt',
+  edit_reading: 'Meetwaarde bewerken',
+  are_you_sure_delete_reading: 'Weet u zeker dat u deze meetwaarde wilt verwijderen?'
 };
 export default locale;

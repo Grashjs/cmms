@@ -1,4 +1,4 @@
-import { Image, Pressable, ScrollView } from 'react-native';
+import { Alert, Image, Pressable, ScrollView, View as RNView } from 'react-native';
 import LoadingDialog from '../../components/LoadingDialog';
 import * as React from 'react';
 import { useContext, useEffect, useState } from 'react';
@@ -22,7 +22,12 @@ import { getUserUrl } from '../../utils/urlPaths';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { deleteMeter, getMeterDetails } from '../../slices/meter';
 import { getWorkOrderMeterTriggers } from '../../slices/workOrderMeterTrigger';
-import { createReading, getReadings } from '../../slices/reading';
+import {
+  createReading,
+  deleteReading,
+  getReadings,
+  updateReading
+} from '../../slices/reading';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import { SheetManager } from 'react-native-actions-sheet';
 import { canAddReading } from '../../utils/overall';
@@ -30,6 +35,8 @@ import NumberInput from '../../components/NumberInput';
 import BasicField from '../../components/BasicField';
 import useAuth from '../../hooks/useAuth';
 import { getCustomFieldValuesForDetails } from '../../models/form';
+import { PermissionEntity } from '../../models/role';
+import Reading from '../../models/reading';
 
 export default function MeterDetails({
   navigation,
@@ -52,9 +59,11 @@ export default function MeterDetails({
   const { getFormattedDate } = useContext(CompanySettingsContext);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, hasEditPermission, hasDeletePermission } = useAuth();
   const dispatch = useDispatch();
   const [openDelete, setOpenDelete] = useState<boolean>(false);
+  const [editingReading, setEditingReading] = useState<Reading | null>(null);
+  const [editReadingValue, setEditReadingValue] = useState<string>('0');
   const fieldsToRender = [
     {
       label: t('location_name'),
@@ -97,6 +106,71 @@ export default function MeterDetails({
           <Dialog.Actions>
             <Button onPress={() => setOpenDelete(false)}>{t('cancel')}</Button>
             <Button onPress={handleDelete}>{t('to_delete')}</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+    );
+  };
+
+  const handleDeleteReading = (reading: Reading) => {
+    Alert.alert(t('confirmation'), t('are_you_sure_delete_reading'), [
+      { text: t('cancel'), style: 'cancel' },
+      {
+        text: t('to_delete'),
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await dispatch(deleteReading(meter.id, reading.id));
+            showSnackBar(t('operation_success'), 'success');
+          } catch (err) {
+            showSnackBar(t('an_error_occured'), 'error');
+          }
+        }
+      }
+    ]);
+  };
+
+  const handleEditReading = async () => {
+    if (!editingReading) return;
+    try {
+      await dispatch(
+        updateReading(meter.id, editingReading.id, {
+          value: parseFloat(editReadingValue)
+        })
+      );
+      showSnackBar(t('operation_success'), 'success');
+      setEditingReading(null);
+    } catch (err) {
+      showSnackBar(t('an_error_occured'), 'error');
+    }
+  };
+
+  const renderEditReading = () => {
+    return (
+      <Portal>
+        <Dialog
+          visible={!!editingReading}
+          onDismiss={() => setEditingReading(null)}
+          style={{ backgroundColor: 'white' }}
+        >
+          <Dialog.Title>{t('edit_reading')}</Dialog.Title>
+          <Dialog.Content>
+            <TextInput
+              style={{ width: '100%' }}
+              mode="outlined"
+              label={t('reading')}
+              value={editReadingValue}
+              placeholder={t('meter_reading')}
+              onChangeText={(newValue) => setEditReadingValue(newValue)}
+              error={false}
+              multiline={false}
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setEditingReading(null)}>
+              {t('cancel')}
+            </Button>
+            <Button onPress={handleEditReading}>{t('save')}</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
@@ -186,6 +260,7 @@ export default function MeterDetails({
       <ScrollView style={{ flex: 1, backgroundColor: theme.colors.background }}>
         {renderConfirmDelete()}
         {renderAddReading()}
+        {renderEditReading()}
         {meter.image && (
           <Image style={{ height: 200 }} source={{ uri: meter.image.url }} />
         )}
@@ -241,11 +316,42 @@ export default function MeterDetails({
           {t('reading_history')}
         </Text>
         {[...currentMeterReadings].reverse().map((reading) => (
-          <BasicField
+          <View
             key={reading.id}
-            label={getFormattedDate(reading.createdAt)}
-            value={`${reading.value} ${meter.unit}`}
-          />
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingHorizontal: 20,
+              paddingVertical: 8
+            }}
+          >
+            <BasicField
+              label={getFormattedDate(reading.createdAt)}
+              value={`${reading.value} ${meter.unit}`}
+            />
+            <RNView style={{ flexDirection: 'row' }}>
+              {hasEditPermission(PermissionEntity.METERS, meter) && (
+                <IconButton
+                  icon="pencil"
+                  iconColor={theme.colors.primary}
+                  size={20}
+                  onPress={() => {
+                    setEditReadingValue(String(reading.value));
+                    setEditingReading(reading);
+                  }}
+                />
+              )}
+              {hasDeletePermission(PermissionEntity.METERS, meter) && (
+                <IconButton
+                  icon="delete"
+                  iconColor={theme.colors.error}
+                  size={20}
+                  onPress={() => handleDeleteReading(reading)}
+                />
+              )}
+            </RNView>
+          </View>
         ))}
       </ScrollView>
     );

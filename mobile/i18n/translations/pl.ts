@@ -1507,6 +1507,8 @@ const plJSON = {
   delete_additional_time: 'Usuń czas',
   confirm_delete_additional_time: 'Czy na pewno chcesz usunąć ten czas?',
   reset: 'Reset',
-  operation_success: 'Operacja zakończyła się sukcesem'
+  operation_success: 'Operacja zakończyła się sukcesem',
+  edit_reading: 'Edytuj odczyt',
+  are_you_sure_delete_reading: 'Czy na pewno chcesz usunąć ten odczyt?'
 };
 export default plJSON;

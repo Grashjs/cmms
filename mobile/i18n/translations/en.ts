@@ -1497,6 +1497,8 @@ const locale = {
   reset: 'Reset',
   discard_changes: 'Discard changes',
   discard_changes_question:
-    'Discard unsaved changes?\nIf you leave now, you will lose unsaved changes'
+    'Discard unsaved changes?\nIf you leave now, you will lose unsaved changes',
+  edit_reading: 'Edit reading',
+  are_you_sure_delete_reading: 'Are you sure to delete this reading?'
 };
 export default locale;

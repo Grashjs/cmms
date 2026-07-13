@@ -1572,6 +1572,8 @@ const trJSON = {
   delete_additional_time: 'Süreyi Sil',
   confirm_delete_additional_time: 'Bu süreyi silmek istediğinizden emin misiniz?',
   reset: 'Sıfırla',
-  operation_success: 'İşlem başarılı oldu'
+  operation_success: 'İşlem başarılı oldu',
+  edit_reading: 'Okumayı Düzenle',
+  are_you_sure_delete_reading: 'Bu okumayı silmek istediğinizden emin misiniz?'
 };
 export default trJSON;

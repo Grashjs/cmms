@@ -1651,6 +1651,8 @@ const frJSON = {
   delete_additional_time: 'Supprimer le temps',
   confirm_delete_additional_time: 'Êtes-vous sûr de vouloir supprimer ce temps ?',
   reset: 'Réinitialiser',
-  operation_success: "L'opération a réussi"
+  operation_success: "L'opération a réussi",
+  edit_reading: 'Modifier la lecture',
+  are_you_sure_delete_reading: 'Êtes-vous sûr de vouloir supprimer cette lecture ?'
 };
 export default frJSON;

@@ -1498,6 +1498,8 @@ const locale = {
   delete_additional_time: 'Obriši vrijeme',
   confirm_delete_additional_time: 'Jeste li sigurni da želite obrisati ovo vrijeme?',
   reset: 'Reset',
-  operation_success: 'Operacija je uspjela'
+  operation_success: 'Operacija je uspjela',
+  edit_reading: 'Uredi očitanje',
+  are_you_sure_delete_reading: 'Jeste li sigurni da želite obrisati ovo očitanje?'
 };
 export default locale;

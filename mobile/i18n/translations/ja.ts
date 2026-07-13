@@ -1505,6 +1505,8 @@ const locale = {
   delete_additional_time: '時間を削除',
   confirm_delete_additional_time: 'この時間を削除してもよろしいですか？',
   reset: 'リセット',
-  operation_success: '操作が成功しました'
+  operation_success: '操作が成功しました',
+  edit_reading: '読み取りを編集',
+  are_you_sure_delete_reading: 'この読み取りを削除してもよろしいですか？'
 };
 export default locale;

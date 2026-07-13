@@ -1500,6 +1500,8 @@ const locale = {
   delete_additional_time: 'Idő törlése',
   confirm_delete_additional_time: 'Biztosan törölni szeretné ezt az időt?',
   reset: 'Visszaállítás',
-  operation_success: 'A művelet sikeres volt'
+  operation_success: 'A művelet sikeres volt',
+  edit_reading: 'Mérés szerkesztése',
+  are_you_sure_delete_reading: 'Biztosan törölni szeretné ezt a mérést?'
 };
 export default locale;

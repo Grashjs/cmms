@@ -83,6 +83,17 @@ const slice = createSlice({
       if (state.meterInfos[meter.id]) {
         state.meterInfos[meter.id].meter = meter;
       } else state.meterInfos[meter.id] = { meter };
+      const inContent = state.meters.content.some(
+        (meter1) => meter1.id === meter.id
+      );
+      if (inContent) {
+        state.meters.content = state.meters.content.map((meter1) => {
+          if (meter1.id === meter.id) {
+            return meter;
+          }
+          return meter1;
+        });
+      }
     },
     deleteMeter(state: MeterState, action: PayloadAction<{ id: number }>) {
       const { id } = action.payload;

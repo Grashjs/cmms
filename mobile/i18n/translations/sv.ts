@@ -1492,6 +1492,8 @@ const locale = {
   delete_additional_time: 'Ta bort tid',
   confirm_delete_additional_time: 'Är du säker på att du vill ta bort denna tid?',
   reset: 'Återställ',
-  operation_success: 'Åtgärden lyckades'
+  operation_success: 'Åtgärden lyckades',
+  edit_reading: 'Redigera mätning',
+  are_you_sure_delete_reading: 'Är du säker på att du vill ta bort denna mätning?'
 };
 export default locale;
