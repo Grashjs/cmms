@@ -480,15 +480,6 @@ public class AssetService {
         return assetRepository.countByParentAsset_Id(assetId) > 0;
     }
 
-    // Stats
-    public long getMTBFLF(Long assetId, Date start, Date end) {
-        Asset asset = findById(assetId).get();
-        Collection<AssetDowntime> downtimes = assetDowntimeService.findByAssetAndStartsOnBetween(assetId, start, end);
-        long downtimesDuration = downtimes.stream().mapToLong(AssetDowntime::getDuration).sum();
-        long age = asset.getAge();
-        return downtimes.isEmpty() ? 0 : ((age - downtimesDuration) / 60) / downtimes.size();
-    }
-
     public long getMTBF(Long assetId, Date start, Date end) {
         List<AssetDowntime> downtimes = assetDowntimeService.findByAssetAndStartsOnBetween(assetId, start, end);
         downtimes.sort(Comparator.comparing(AssetDowntime::getStartsOn));
@@ -526,7 +517,14 @@ public class AssetService {
 
     public long getUptime(Long assetId, Date start, Date end) {
         Asset asset = findById(assetId).get();
-        return asset.getAge() - getDowntime(assetId, start, end);
+        Date now = new Date();
+        Date effectiveStart = start.after(asset.getRealCreatedAt()) ? start : asset.getRealCreatedAt();
+        Date effectiveEnd = end.before(now) ? end : now;
+        if (effectiveStart.after(effectiveEnd)) {
+            return 0;
+        }
+        long effectiveDuration = Helper.getDateDiff(effectiveStart, effectiveEnd, TimeUnit.SECONDS);
+        return effectiveDuration - getDowntime(assetId, effectiveStart, effectiveEnd);
     }
 
     public double getTotalCost(Long assetId, Date start, Date end, Boolean includeLaborCost) {

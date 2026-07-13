@@ -71,25 +71,14 @@ const AssetDowntimes = ({ id }: PropsType) => {
                 <DateRangePicker
                   value={[start, end]}
                   onChange={(newValue) => {
-                    setStart(newValue[0]);
-                    setEnd(newValue[1]);
+                    const [internalStart, internalEnd] = newValue;
+                    setStart(internalStart);
+                    setEnd(internalEnd);
+                    dispatch(
+                      getAssetDetailsOverview(id, internalStart, internalEnd)
+                    );
                   }}
                 />
-                <Button
-                  disabled={loading.assetDetailsOverview}
-                  onClick={() =>
-                    dispatch(getAssetDetailsOverview(id, start, end))
-                  }
-                  startIcon={
-                    loading.assetDetailsOverview && (
-                      <CircularProgress size="1rem" />
-                    )
-                  }
-                  variant={'contained'}
-                  color={'primary'}
-                >
-                  {t('show')}
-                </Button>
               </Stack>
               <Divider sx={{ mb: 2 }} />
               <Card>
