@@ -114,9 +114,6 @@ public class WebhookUrlValidator {
             // 192.0.0.0/24 — IETF protocol assignments
             if (b0 == 192 && b1 == 0) return true;
 
-            // 192.0.2.0/24 — documentation (TEST-NET-1)
-            if (b0 == 192 && b1 == 0 && (addr[2] & 0xFF) == 2) return true;
-
             // 198.51.100.0/24 — documentation (TEST-NET-2)
             if (b0 == 198 && b1 == 51 && (addr[2] & 0xFF) == 100) return true;
 
@@ -137,7 +134,10 @@ public class WebhookUrlValidator {
             // :: (unspecified)
             boolean allZero = true;
             for (byte b : addr) {
-                if (b != 0) { allZero = false; break; }
+                if (b != 0) {
+                    allZero = false;
+                    break;
+                }
             }
             if (allZero) return true;
 
@@ -151,7 +151,7 @@ public class WebhookUrlValidator {
             if ((b0 & 0xFE) == 0xFC) return true;
 
             // fec0::/10 — site-local (deprecated)
-            if (b0 == 0xFE && (addr[1] & 0xC0) == 0xC0) return true;
+            return b0 == 0xFE && (addr[1] & 0xC0) == 0xC0;
         }
 
         return false;
