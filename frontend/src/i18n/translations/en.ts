@@ -1918,7 +1918,9 @@ const locale = {
   custom_message_optional: 'Custom message (optional)',
   send_work_order_as_pdf: 'Send Work Order as PDF',
   report_sent_success: 'Report sent successfully',
-  trigger_work_order: 'Trigger Work Order'
+  trigger_work_order: 'Trigger Work Order',
+  edit_reading: 'Edit reading',
+  are_you_sure_delete_reading: 'Are you sure to delete this reading?'
 };
 
 export default locale;

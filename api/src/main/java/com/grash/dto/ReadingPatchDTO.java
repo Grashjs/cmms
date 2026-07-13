@@ -13,7 +13,4 @@ public class ReadingPatchDTO {
 
     @Schema(description = "Reading value")
     private Double value;
-
-    @Schema(description = "Meter reference", implementation = IdDTO.class)
-    private Meter meter;
 }

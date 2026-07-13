@@ -113,46 +113,7 @@ public class ReadingController {
                     throw new CustomException("The update frequency has not been respected", HttpStatus.NOT_ACCEPTABLE);
                 }
             }
-            Collection<WorkOrderMeterTrigger> meterTriggers = workOrderMeterTriggerService.findByMeter(meter.getId());
-            Locale locale = Helper.getLocale(user);
-            meterTriggers.forEach(meterTrigger -> {
-                boolean error = false;
-                StringBuilder message = new StringBuilder();
-                String title = messageSource.getMessage("new_wo", null, locale);
-                Object[] notificationArgs = new Object[]{meter.getName(), meterTrigger.getValue(), meter.getUnit()};
-                if (meterTrigger.getTriggerCondition().equals(WorkOrderMeterTriggerCondition.LESS_THAN)) {
-                    if (readingReq.getValue() < meterTrigger.getValue()) {
-                        error = true;
-                        message.append(messageSource.getMessage("notification_reading_less_than", notificationArgs,
-                                locale));
-                    }
-                } else if (readingReq.getValue() > meterTrigger.getValue()) {
-                    error = true;
-                    message.append(messageSource.getMessage("notification_reading_more_than", notificationArgs,
-                            locale));
-                }
-                if (error) {
-                    notificationService.createMultiple(meter.getUsers().stream().map(user1 ->
-                            new Notification(message.toString(), user1, NotificationType.METER, meter.getId())
-                    ).collect(Collectors.toList()), true, title);
-                    WorkOrderPostDTO workOrder = workOrderService.getWorkOrderFromWorkOrderBase(meterTrigger);
-                    WorkOrder createdWorkOrder = workOrderService.create(workOrder, user.getCompany());
-
-                    Map<String, Object> webhookPayload = new HashMap<>();
-                    webhookPayload.put("meterId", meter.getId());
-                    webhookPayload.put("meterName", meter.getName());
-                    webhookPayload.put("meterTriggerId", meterTrigger.getId());
-                    webhookPayload.put("meterTriggerName", meterTrigger.getName());
-                    webhookPayload.put("readingValue", readingReq.getValue());
-                    webhookPayload.put("triggerValue", meterTrigger.getValue());
-                    webhookPayload.put("triggerCondition", meterTrigger.getTriggerCondition().name());
-                    webhookPayload.put("workOrderId", createdWorkOrder.getId());
-                    Object serializedWorkOrder = workOrderMapper.toShowDto(createdWorkOrder);
-                    webhookDispatchService.dispatchWebhook(user.getCompany(),
-                            WebhookEvent.METER_TRIGGER_STATUS_CHANGE, webhookPayload,
-                            "triggeredWorkOrder", serializedWorkOrder, null, null, null, null, null);
-                }
-            });
+            processMeterTriggers(meter, readingReq.getValue(), user);
             return readingService.create(readingReq);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -169,7 +130,9 @@ public class ReadingController {
             Reading savedReading = optionalReading.get();
             if (!meterService.isAccessibleBy(user, savedReading.getMeter()))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            return readingService.update(id, reading);
+            Reading updated = readingService.update(id, reading);
+            processMeterTriggers(savedReading.getMeter(), updated.getValue(), user);
+            return updated;
         } else throw new CustomException("Reading not found", HttpStatus.NOT_FOUND);
     }
 
@@ -186,6 +149,49 @@ public class ReadingController {
             return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                     HttpStatus.OK);
         } else throw new CustomException("Reading not found", HttpStatus.NOT_FOUND);
+    }
+
+    private void processMeterTriggers(Meter meter, double readingValue, User user) {
+        Collection<WorkOrderMeterTrigger> meterTriggers = workOrderMeterTriggerService.findByMeter(meter.getId());
+        Locale locale = Helper.getLocale(user);
+        meterTriggers.forEach(meterTrigger -> {
+            boolean error = false;
+            StringBuilder message = new StringBuilder();
+            String title = messageSource.getMessage("new_wo", null, locale);
+            Object[] notificationArgs = new Object[]{meter.getName(), meterTrigger.getValue(), meter.getUnit()};
+            if (meterTrigger.getTriggerCondition().equals(WorkOrderMeterTriggerCondition.LESS_THAN)) {
+                if (readingValue < meterTrigger.getValue()) {
+                    error = true;
+                    message.append(messageSource.getMessage("notification_reading_less_than", notificationArgs,
+                            locale));
+                }
+            } else if (readingValue > meterTrigger.getValue()) {
+                error = true;
+                message.append(messageSource.getMessage("notification_reading_more_than", notificationArgs,
+                        locale));
+            }
+            if (error) {
+                notificationService.createMultiple(meter.getUsers().stream().map(user1 ->
+                        new Notification(message.toString(), user1, NotificationType.METER, meter.getId())
+                ).collect(Collectors.toList()), true, title);
+                WorkOrderPostDTO workOrder = workOrderService.getWorkOrderFromWorkOrderBase(meterTrigger);
+                WorkOrder createdWorkOrder = workOrderService.create(workOrder, user.getCompany());
+
+                Map<String, Object> webhookPayload = new HashMap<>();
+                webhookPayload.put("meterId", meter.getId());
+                webhookPayload.put("meterName", meter.getName());
+                webhookPayload.put("meterTriggerId", meterTrigger.getId());
+                webhookPayload.put("meterTriggerName", meterTrigger.getName());
+                webhookPayload.put("readingValue", readingValue);
+                webhookPayload.put("triggerValue", meterTrigger.getValue());
+                webhookPayload.put("triggerCondition", meterTrigger.getTriggerCondition().name());
+                webhookPayload.put("workOrderId", createdWorkOrder.getId());
+                Object serializedWorkOrder = workOrderMapper.toShowDto(createdWorkOrder);
+                webhookDispatchService.dispatchWebhook(user.getCompany(),
+                        WebhookEvent.METER_TRIGGER_STATUS_CHANGE, webhookPayload,
+                        "triggeredWorkOrder", serializedWorkOrder, null, null, null, null, null);
+            }
+        });
     }
 
 }

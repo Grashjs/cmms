@@ -14,13 +14,7 @@ import {
   useTheme,
   CircularProgress
 } from '@mui/material';
-import {
-  ChangeEvent,
-  useContext,
-  useEffect,
-  useState,
-  useCallback
-} from 'react';
+import { ChangeEvent, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
@@ -43,6 +37,7 @@ import {
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import AddTriggerModal from './AddTriggerModal';
 import EditTriggerModal from './EditTriggerModal';
+import MeterReadingHistory from './MeterReadingHistory';
 import WorkOrderMeterTrigger from '../../../models/owns/workOrderMeterTrigger';
 import useAuth from '../../../hooks/useAuth';
 import { PermissionEntity } from '../../../models/owns/role';
@@ -51,8 +46,8 @@ import { canAddReading } from '../../../utils/overall';
 import BasicField from '../components/BasicField';
 import DateRangePicker from '../components/form/DateRangePicker';
 import {
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -81,7 +76,7 @@ export default function MeterDetails(props: MeterDetailsProps) {
   const dateLocale = useDateLocale();
   const { getFormattedDate } = useContext(CompanySettingsContext);
   const theme = useTheme();
-  const { readingsByMeter, histogramData, loadingHistogram } = useSelector(
+  const { histogramData, loadingHistogram } = useSelector(
     (state) => state.readings
   );
   const { metersTriggers } = useSelector(
@@ -101,7 +96,6 @@ export default function MeterDetails(props: MeterDetailsProps) {
   const [historyFetched, setHistoryFetched] = useState(false);
 
   const currentMeterTriggers = metersTriggers[meter?.id] ?? [];
-  const currentMeterReadings = readingsByMeter[meter?.id] ?? [];
   const tabs = [
     { value: 'details', label: t('details') },
     { value: 'history', label: t('history') }
@@ -155,6 +149,16 @@ export default function MeterDetails(props: MeterDetailsProps) {
     },
     ...getCustomFieldValuesForDetails(meter.customFieldValues, getFormattedDate)
   ];
+
+  const onRefreshHistogram = () => {
+    dispatch(
+      getHistogramData(
+        meter.id,
+        subDays(new Date(), 7).toISOString(),
+        new Date().toISOString()
+      )
+    );
+  };
   const fields: Array<IField> = [
     {
       name: 'value',
@@ -236,7 +240,7 @@ export default function MeterDetails(props: MeterDetailsProps) {
               </Box>
             ) : histogramData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={histogramData}>
+                <LineChart data={histogramData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
                     dataKey="date"
@@ -252,8 +256,12 @@ export default function MeterDetails(props: MeterDetailsProps) {
                       })
                     }
                   />
-                  <Bar dataKey="value" fill={theme.palette.primary.main} />
-                </BarChart>
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    stroke={theme.palette.primary.main}
+                  />
+                </LineChart>
               </ResponsiveContainer>
             ) : (
               <Typography
@@ -276,15 +284,7 @@ export default function MeterDetails(props: MeterDetailsProps) {
                   onSubmit={async (values) => {
                     return dispatch(createReading(meter.id, values))
                       .then(onNewReading)
-                      .then(() =>
-                        dispatch(
-                          getHistogramData(
-                            meter.id,
-                            dateRange[0].toISOString(),
-                            new Date().toISOString()
-                          )
-                        )
-                      );
+                      .then(onRefreshHistogram);
                   }}
                 />
               ) : null}
@@ -376,19 +376,13 @@ export default function MeterDetails(props: MeterDetailsProps) {
             </Grid>
           </Box>
         )}
-        {currentTab === 'history' &&
-          (historyFetched ? (
-            <List>
-              {[...currentMeterReadings].reverse().map((reading) => (
-                <ListItem key={reading.id} divider>
-                  <ListItemText
-                    primary={`${reading.value} ${meter.unit}`}
-                    secondary={getFormattedDate(reading.createdAt)}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          ) : null)}
+        {currentTab === 'history' && (
+          <MeterReadingHistory
+            meter={meter}
+            historyFetched={historyFetched}
+            onRefreshHistogram={onRefreshHistogram}
+          />
+        )}
       </Grid>
       <AddTriggerModal
         open={openAddTriggerModal}

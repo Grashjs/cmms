@@ -5,6 +5,7 @@ import Reading from '../models/owns/reading';
 import { ReadingHistogram } from '../models/owns/reading';
 import api from '../utils/api';
 import { revertAll } from 'src/utils/redux';
+import meterSlice from './meter';
 
 const basePath = 'readings';
 interface ReadingState {
@@ -50,6 +51,20 @@ const slice = createSlice({
       if (state.readingsByMeter[meterId]) {
         state.readingsByMeter[meterId].push(reading);
       } else state.readingsByMeter[meterId] = [reading];
+    },
+    updateReading(
+      state: ReadingState,
+      action: PayloadAction<{
+        meterId: number;
+        reading: Reading;
+      }>
+    ) {
+      const { reading, meterId } = action.payload;
+      if (state.readingsByMeter[meterId]) {
+        state.readingsByMeter[meterId] = state.readingsByMeter[meterId].map(
+          (r) => (r.id === reading.id ? reading : r)
+        );
+      }
     },
     deleteReading(
       state: ReadingState,
@@ -121,14 +136,51 @@ export const createReading =
 
 export const deleteReading =
   (meterId: number, id: number): AppThunk =>
-  async (dispatch) => {
+  async (dispatch, getState) => {
     const response = await api.deletes<{ success: boolean }>(
       `${basePath}/${id}`
     );
     const { success } = response;
     if (success) {
+      const state = getState();
+      const readings = state.readings.readingsByMeter[meterId] ?? [];
+      const isLastReading = readings
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
+        ?.id === id;
+      if (isLastReading) {
+        const meter = state.meters.singleMeter;
+        if (meter?.id === meterId) {
+          dispatch(
+            meterSlice.actions.editMeter({
+              meter: { ...meter, nextReading: null }
+            })
+          );
+        }
+        const meterInList = state.meters.meters.content.find(
+          (m) => m.id === meterId
+        );
+        if (meterInList) {
+          dispatch(
+            meterSlice.actions.editMeter({
+              meter: { ...meterInList, nextReading: null }
+            })
+          );
+        }
+      }
       dispatch(slice.actions.deleteReading({ meterId, id }));
     }
+  };
+
+export const updateReading =
+  (meterId: number, id: number, reading: Partial<Reading>): AppThunk =>
+  async (dispatch) => {
+    const readingResponse = await api.patch<Reading>(
+      `${basePath}/${id}`,
+      reading
+    );
+    dispatch(
+      slice.actions.updateReading({ meterId, reading: readingResponse })
+    );
   };
 
 export default slice;
