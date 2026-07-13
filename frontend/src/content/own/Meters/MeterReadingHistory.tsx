@@ -69,8 +69,9 @@ export default function MeterReadingHistory({
       await dispatch(deleteReading(meter.id, deletingReading.id));
       showSnackBar(t('operation_success'), 'success');
       onRefreshHistogram();
-    } catch {
+    } catch (err) {
       showSnackBar(t('an_error_occured'), 'error');
+      console.error(err);
     }
     setDeletingReading(null);
   };

@@ -144,9 +144,12 @@ export const deleteReading =
     if (success) {
       const state = getState();
       const readings = state.readings.readingsByMeter[meterId] ?? [];
-      const isLastReading = readings
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
-        ?.id === id;
+      const isLastReading =
+        [...readings].sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )[0]?.id === id;
+
       if (isLastReading) {
         const meter = state.meters.singleMeter;
         if (meter?.id === meterId) {
