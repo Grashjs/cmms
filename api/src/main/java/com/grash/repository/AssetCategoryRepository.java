@@ -13,6 +13,4 @@ public interface AssetCategoryRepository extends JpaRepository<AssetCategory, Lo
     Optional<AssetCategory> findByName(String name);
 
     Optional<AssetCategory> findByNameIgnoreCaseAndCompanySettings_Id(String category, Long companySettingsId);
-
-    void deleteByCompanySettings_Company_IdAndIsDemoTrue(Long companyId);
 }

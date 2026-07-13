@@ -6,7 +6,7 @@ import com.grash.repository.CustomSequenceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import jakarta.transaction.Transactional;
+import javax.transaction.Transactional;
 
 @Service
 @RequiredArgsConstructor

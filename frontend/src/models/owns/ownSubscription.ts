@@ -9,8 +9,6 @@ export default interface OwnSubscription extends Audit {
   startsOn: string;
   endsOn: string;
   cancelled: boolean;
-  scheduledChangeType: 'RESET_TO_FREE';
-  scheduledChangeDate: string;
   activated: boolean;
   upgradeNeeded: boolean;
   downgradeNeeded: boolean;

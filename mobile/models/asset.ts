@@ -7,8 +7,6 @@ import Location from './location';
 import { CustomerMiniDTO } from './customer';
 import File, { FileMiniDTO } from './file';
 import Category from './category';
-import { customTheme } from '../custom-theme';
-import { CustomFieldValue } from './customField';
 
 export default interface Asset extends Audit {
   id: number;
@@ -16,16 +14,8 @@ export default interface Asset extends Audit {
   description: string;
 }
 
-export type AssetStatus =
-  | 'OPERATIONAL'
-  | 'DOWN'
-  | 'MODERNIZATION'
-  | 'STANDBY'
-  | 'INSPECTION_SCHEDULED'
-  | 'COMMISSIONING'
-  | 'EMERGENCY_SHUTDOWN';
+export type AssetStatus = 'OPERATIONAL' | 'DOWN';
 export interface AssetDTO extends Audit {
-  nfcId: string;
   id: number;
   name: string;
   image: File;
@@ -52,14 +42,8 @@ export interface AssetDTO extends Audit {
   parts: PartMiniDTO[];
   files: FileMiniDTO[];
   customId: string;
-  manufacturer: string;
-  power: string;
-  customFieldValues?: CustomFieldValue[];
 }
-export const assetStatuses: {
-  status: AssetStatus;
-  color: (theme: typeof customTheme) => string;
-}[] = [
+export const assetStatuses = [
   { status: 'OPERATIONAL', color: (theme) => theme.colors.success },
   { status: 'MODERNIZATION', color: (theme) => '#CBC3E3' },
   { status: 'DOWN', color: (theme) => theme.colors.error },
@@ -82,19 +66,3 @@ export interface AssetMiniDTO {
   customId: string;
   parentId: number;
 }
-
-export const getAssetStatusConfig = (
-  status: AssetStatus
-): {
-  status: AssetStatus;
-  color: (theme: typeof customTheme) => string;
-} => {
-  const statusConfig = assetStatuses.find((s) => s.status === status);
-  if (statusConfig) {
-    return statusConfig;
-  }
-  return {
-    status: 'OPERATIONAL',
-    color: (theme) => theme.colors.success
-  };
-};

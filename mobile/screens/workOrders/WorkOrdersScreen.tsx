@@ -1,12 +1,4 @@
-import {
-  Image,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  TouchableHighlight,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useDispatch, useSelector } from '../../store';
 import * as React from 'react';
 import { Fragment, useContext, useEffect, useRef, useState } from 'react';
@@ -20,29 +12,24 @@ import {
   IconButton,
   Searchbar,
   Text,
-  useTheme,
-  Avatar,
-  TouchableRipple
+  useTheme
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import WorkOrder from '../../models/workOrder';
 import {
   getPriorityColor,
   getStatusColor,
-  isCloseToBottom,
   onSearchQueryChange
 } from '../../utils/overall';
 import { RootTabScreenProps } from '../../types';
 import Tag from '../../components/Tag';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 import _ from 'lodash';
-import EnumFilter from './components/EnumFilter';
+import EnumFilter from './EnumFilter';
 import { dayDiff } from '../../utils/dates';
 import { IconWithLabel } from '../../components/IconWithLabel';
-import QuickFilter from './components/QuickFilter';
+import QuickFilter from './QuickFilter';
 import { useAppTheme } from '../../custom-theme';
-import { getUserInitials } from '../../utils/displayers';
-import { UserMiniDTO } from '../../models/user';
 
 export default function WorkOrdersScreen({
   navigation,
@@ -134,17 +121,24 @@ export default function WorkOrdersScreen({
     newCriteria.filterFields = newFilters;
     setCriteria(newCriteria);
   };
-  const onResetFilters = () => {
-    setCriteria(getCriteriaFromFilterFields([]));
+  const isCloseToBottom = ({
+    layoutMeasurement,
+    contentOffset,
+    contentSize
+  }) => {
+    const paddingToBottom = 20;
+    return (
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom
+    );
   };
-
   const onQueryChange = (query) => {
     onSearchQueryChange<WorkOrder>(
       query,
       criteria,
       setCriteria,
       setSearchQuery,
-      ['title', 'description', 'feedback', 'customId']
+      ['title', 'description', 'feedback']
     );
   };
   useDebouncedEffect(
@@ -167,7 +161,6 @@ export default function WorkOrdersScreen({
           style={{ backgroundColor: theme.colors.background }}
         />
         <ScrollView
-          contentContainerStyle={{ paddingBottom: 100 }}
           style={styles.scrollView}
           onScroll={({ nativeEvent }) => {
             if (isCloseToBottom(nativeEvent)) {
@@ -186,11 +179,7 @@ export default function WorkOrdersScreen({
         >
           <ScrollView
             horizontal
-            style={{
-              backgroundColor: 'white',
-              borderRadius: 5,
-              marginBottom: 2
-            }}
+            style={{ backgroundColor: 'white', borderRadius: 5 }}
             showsHorizontalScrollIndicator={false}
           >
             <IconButton
@@ -215,8 +204,7 @@ export default function WorkOrdersScreen({
               onPress={() =>
                 navigation.navigate('WorkOrderFilters', {
                   filterFields: criteria.filterFields,
-                  onFilterChange,
-                  onReset: onResetFilters
+                  onFilterChange
                 })
               }
             />
@@ -259,167 +247,89 @@ export default function WorkOrdersScreen({
             )}
           </ScrollView>
           {!!workOrders.content.length ? (
-            workOrders.content.map((workOrder) => {
-              // Combine primaryUser and assignedTo without duplicates
-              const allUsers: UserMiniDTO[] = [];
-              const userIds = new Set();
-
-              if (workOrder.primaryUser) {
-                allUsers.push(workOrder.primaryUser);
-                userIds.add(workOrder.primaryUser.id);
-              }
-
-              if (workOrder.assignedTo?.length) {
-                workOrder.assignedTo.forEach((user) => {
-                  if (!userIds.has(user.id)) {
-                    allUsers.push(user);
-                    userIds.add(user.id);
-                  }
-                });
-              }
-
-              return (
-                <TouchableOpacity
-                  onPress={() =>
-                    navigation.push('WODetails', {
-                      id: workOrder.id,
-                      workOrderProp: workOrder
-                    })
-                  }
-                  key={workOrder.id}
-                >
-                  <View style={styles.card}>
-                    {/* Header: Title, ID, and Status */}
+            workOrders.content.map((workOrder) => (
+              <Card
+                style={{
+                  padding: 5,
+                  marginVertical: 5,
+                  backgroundColor: 'white'
+                }}
+                key={workOrder.id}
+                onPress={() =>
+                  navigation.push('WODetails', {
+                    id: workOrder.id,
+                    workOrderProp: workOrder
+                  })
+                }
+              >
+                <Card.Content>
+                  <View
+                    style={{ ...styles.row, justifyContent: 'space-between' }}
+                  >
+                    <Tag
+                      text={t(workOrder.status)}
+                      color="white"
+                      backgroundColor={getStatusColor(workOrder.status, theme)}
+                    />
                     <View
                       style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        gap: 6
+                        ...styles.row,
+                        justifyContent: 'space-between'
                       }}
                     >
-                      {workOrder.image ? (
-                        <Avatar.Image
-                          size={50}
-                          source={{ uri: workOrder.image?.url }}
+                      <View style={{ marginRight: 10 }}>
+                        <Tag
+                          text={`#${workOrder.customId}`}
+                          color="white"
+                          backgroundColor="#545454"
                         />
-                      ) : (
-                        <Avatar.Icon
-                          style={{
-                            backgroundColor: theme.colors.background
-                          }}
-                          color={'white'}
-                          icon={'clipboard-text-outline'}
-                          size={50}
+                      </View>
+                      {workOrder.priority !== 'NONE' && (
+                        <Tag
+                          text={t(workOrder.priority)}
+                          color="white"
+                          backgroundColor={getPriorityColor(
+                            workOrder.priority,
+                            theme
+                          )}
                         />
                       )}
-                      <View style={{ flex: 1 }}>
-                        <View style={styles.cardHeader}>
-                          <View style={{ flex: 1, marginRight: 8 }}>
-                            <Text
-                              variant="titleMedium"
-                              style={styles.cardTitle}
-                              numberOfLines={2}
-                            >
-                              {workOrder.title}
-                            </Text>
-                            <Text
-                              variant={'bodySmall'}
-                              style={{ color: 'grey' }}
-                            >{`#${workOrder.customId}`}</Text>
-                          </View>
-                          <Tag
-                            text={t(workOrder.status)}
-                            color="white"
-                            backgroundColor={getStatusColor(
-                              workOrder.status,
-                              theme
-                            )}
-                          />
-                        </View>
-                        {/* Body: Asset and Location */}
-                        <View style={styles.cardBody}>
-                          {workOrder.asset && (
-                            <IconWithLabel
-                              label={workOrder.asset.name}
-                              icon="package-variant-closed"
-                              color={theme.colors.grey}
-                            />
-                          )}
-                          {workOrder.location && (
-                            <IconWithLabel
-                              label={workOrder.location.name}
-                              icon="map-marker-outline"
-                              color={theme.colors.grey}
-                            />
-                          )}
-                          {workOrder.priority &&
-                            workOrder.priority !== 'NONE' && (
-                              <Tag
-                                text={t(workOrder.priority)}
-                                color={getPriorityColor(
-                                  workOrder.priority,
-                                  theme
-                                )}
-                                backgroundColor={'transparent'}
-                              />
-                            )}
-                        </View>
-                        {/* Footer: Due Date and Assignees */}
-                        <View style={styles.cardFooter}>
-                          {workOrder.dueDate && (
-                            <IconWithLabel
-                              color={
-                                (dayDiff(
-                                  new Date(workOrder.dueDate),
-                                  new Date()
-                                ) <= 2 ||
-                                  new Date() > new Date(workOrder.dueDate)) &&
-                                workOrder.status !== 'COMPLETE'
-                                  ? theme.colors.error
-                                  : theme.colors.grey
-                              }
-                              label={getFormattedDate(workOrder.dueDate)}
-                              icon="clock-alert-outline"
-                            />
-                          )}
-                          <View style={{ flex: 1 }} />
-                          {allUsers.length > 0 && (
-                            <View style={styles.assigneeContainer}>
-                              {allUsers.slice(0, 3).map((user, index) => (
-                                <View
-                                  key={user.id}
-                                  style={{ marginLeft: index > 0 ? -8 : 0 }}
-                                >
-                                  {user.image ? (
-                                    <Avatar.Image
-                                      source={{ uri: user.image.url }}
-                                      size={24}
-                                    />
-                                  ) : (
-                                    <Avatar.Text
-                                      size={24}
-                                      label={getUserInitials(user)}
-                                    />
-                                  )}
-                                </View>
-                              ))}
-                              {allUsers.length > 3 && (
-                                <Text
-                                  variant="bodySmall"
-                                  style={{ marginLeft: 8 }}
-                                >
-                                  +{allUsers.length - 3}
-                                </Text>
-                              )}
-                            </View>
-                          )}
-                        </View>
-                      </View>
                     </View>
                   </View>
-                </TouchableOpacity>
-              );
-            })
+                  <Text style={{ fontWeight: 'bold', fontSize: 18 }}>
+                    {workOrder.title}
+                  </Text>
+                  {workOrder.dueDate && (
+                    <IconWithLabel
+                      color={
+                        (dayDiff(new Date(workOrder.dueDate), new Date()) <=
+                          2 ||
+                          new Date() > new Date(workOrder.dueDate)) &&
+                        workOrder.status !== 'COMPLETE'
+                          ? theme.colors.error
+                          : theme.colors.grey
+                      }
+                      label={getFormattedDate(workOrder.dueDate)}
+                      icon="clock-alert-outline"
+                    />
+                  )}
+                  {workOrder.asset && (
+                    <IconWithLabel
+                      label={workOrder.asset.name}
+                      icon="package-variant-closed"
+                      color={theme.colors.grey}
+                    />
+                  )}
+                  {workOrder.location && (
+                    <IconWithLabel
+                      label={workOrder.location.name}
+                      icon="map-marker-outline"
+                      color={theme.colors.grey}
+                    />
+                  )}
+                </Card.Content>
+              </Card>
+            ))
           ) : loadingGet ? null : (
             <View
               style={{
@@ -442,7 +352,7 @@ export default function WorkOrdersScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // alignItems: 'center',
+    alignItems: 'center',
     justifyContent: 'center'
   },
   title: {
@@ -451,44 +361,11 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     width: '100%',
-    height: '100%'
+    height: '100%',
+    padding: 5
   },
   row: {
     display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  card: {
-    backgroundColor: 'white',
-    marginBottom: 1,
-    padding: 10
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8
-  },
-  cardTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-    flexShrink: 1
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#e0e0e0',
-    marginVertical: 8
-  },
-  cardBody: {
-    gap: 10
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 10
-  },
-  assigneeContainer: {
     flexDirection: 'row',
     alignItems: 'center'
   }

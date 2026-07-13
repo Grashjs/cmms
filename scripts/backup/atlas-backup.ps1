@@ -130,7 +130,7 @@ function Backup-AtlasCMMS {
         }
 
         $dbBackupPath = Join-Path $TEMP_DIR "atlas_db.sql"
-        docker exec atlas_db bash -c "export PGCLIENTENCODING='UTF8'; pg_dump -U $POSTGRES_USER atlas" > $dbBackupPath
+        docker exec atlas_db pg_dump -U $POSTGRES_USER atlas > $dbBackupPath
 
         if ($LASTEXITCODE -eq 0) {
             Write-Host "Database backup complete." -ForegroundColor Green
@@ -257,7 +257,7 @@ function Restore-AtlasCMMS {
             # Create new "atlas" database
             docker exec atlas_db bash -c "PGPASSWORD=$POSTGRES_PWD psql -U $POSTGRES_USER -d postgres -c 'CREATE DATABASE atlas;'"
 
-            Get-Content $dbBackupPath | docker exec -i atlas_db bash -c "export PGCLIENTENCODING='UTF8'; psql -U $POSTGRES_USER -d atlas"
+            Get-Content $dbBackupPath | docker exec -i atlas_db psql -U $POSTGRES_USER -d atlas
 
             if ($LASTEXITCODE -eq 0) {
                 Write-Host "Database restore complete." -ForegroundColor Green

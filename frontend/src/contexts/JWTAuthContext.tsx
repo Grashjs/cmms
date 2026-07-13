@@ -11,7 +11,7 @@ import {
 import UserSettings from 'src/models/owns/userSettings';
 import CompanySettings from 'src/models/owns/companySettings';
 import { GeneralPreferences } from '../models/owns/generalPreferences';
-import internationalization, { loadLanguage } from '../i18n/i18n';
+import internationalization from '../i18n/i18n';
 import {
   FieldConfiguration,
   FieldType
@@ -32,11 +32,6 @@ import { useZendesk } from 'react-use-zendesk';
 import { UiConfiguration } from 'src/models/owns/uiConfiguration';
 import { googleTrackingId, IS_LOCALHOST } from '../config';
 import ReactGA from 'react-ga4';
-import { getLicenseValidity } from '../slices/license';
-import { fireGa4Event } from '../utils/overall';
-import { useUtmTracker } from '@nik0di3m/utm-tracker-hook';
-import { addDays } from 'date-fns';
-import { shutdown } from '@intercom/messenger-js-sdk';
 
 interface AuthState {
   isInitialized: boolean;
@@ -51,11 +46,7 @@ export type FieldConfigurationsType = 'workOrder' | 'request';
 
 interface AuthContextValue extends AuthState {
   method: 'JWT';
-  login: (
-    email: string,
-    password: string,
-    ldapEnabled?: boolean
-  ) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   loginInternal: (accessToken: string) => void;
   logout: () => void;
   register: (
@@ -336,14 +327,7 @@ const handlers: Record<
       ...state,
       company: {
         ...state.company,
-        subscription: {
-          ...state.company.subscription,
-          scheduledChangeType: 'RESET_TO_FREE',
-          scheduledChangeDate: addDays(
-            new Date(),
-            state.company.subscription.monthly ? 30 : 365
-          ).toString()
-        }
+        subscription: { ...state.company.subscription, cancelled: true }
       }
     };
   },
@@ -355,10 +339,7 @@ const handlers: Record<
       ...state,
       company: {
         ...state.company,
-        subscription: {
-          ...state.company.subscription,
-          scheduledChangeType: null
-        }
+        subscription: { ...state.company.subscription, cancelled: false }
       }
     };
   },
@@ -509,9 +490,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   const { children } = props;
   const [state, dispatch] = useReducer(reducer, initialAuthState);
   const { loginUser: loginZendesk, logoutUser: logoutZendesk } = useZendesk();
-  const utmParams = useUtmTracker();
-  const switchLanguage = async ({ lng }: { lng: any }) => {
-    await loadLanguage(lng);
+  const switchLanguage = ({ lng }: { lng: any }) => {
     internationalization.changeLanguage(lng);
   };
   const updateUserInfos = async () => {
@@ -566,23 +545,14 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       });
     }
   };
-  const login = async (
-    email: string,
-    password: string,
-    ldap?: boolean
-  ): Promise<void> => {
+  const login = async (email: string, password: string): Promise<void> => {
     const response = await api.post<{ accessToken: string }>(
-      `auth/signin${ldap ? '-ldap' : ''}`,
-      ldap
-        ? {
-            username: email,
-            password
-          }
-        : {
-            email,
-            type: 'client',
-            password
-          },
+      'auth/signin',
+      {
+        email,
+        type: 'client',
+        password
+      },
       { headers: authHeader(true) }
     );
     const { accessToken } = response;
@@ -599,7 +569,6 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     const user = await updateUserInfos();
     const company = await api.get<Company>(`companies/${user.companyId}`);
     await setupUser(company.companySettings);
-    //@ts-ignore
     dispatch({
       type: 'LOGIN',
       payload: {
@@ -614,20 +583,12 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       `auth/switch-account?id=${id}`
     );
     const { accessToken } = response;
-    Object.keys(localStorage)
-      .filter((key) => key.endsWith('_filters'))
-      .forEach((key) => localStorage.removeItem(key));
     return loginInternal(accessToken);
   };
   const logout = async (): Promise<void> => {
     setSession(null);
     try {
       logoutZendesk();
-    } catch (err) {
-      console.error(err);
-    }
-    try {
-      shutdown();
     } catch (err) {
       console.error(err);
     }
@@ -644,31 +605,15 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     values,
     invitationMode: boolean
   ): Promise<{ success: boolean; message: string }> => {
-    const conversionKey = `signup_conversion_fired_${values.email}`;
-    fireGa4Event(
-      {
+    if (!IS_LOCALHOST && googleTrackingId)
+      ReactGA.event({
         category: 'sign_up',
         action: 'sign_up',
         label: 'sign_up'
-      },
-      conversionKey
-    );
-    if (!values.role) fireGa4Event('company_signup');
-    // @ts-ignore
-    if (window.lintrk) {
-      // @ts-ignore
-      window.lintrk('track', { conversion_id: 24670282 });
-    }
+      });
     const response = await api.post<{ message: string; success: boolean }>(
       'auth/signup',
-      {
-        ...values,
-        utmParams: {
-          ...utmParams,
-          referrer: utmParams.ref || localStorage.getItem('referrerData')
-        },
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-      },
+      values,
       { headers: authHeader(true) }
     );
     const { message, success } = response;
@@ -727,7 +672,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     });
   };
   const cancelSubscription = async (): Promise<void> => {
-    const response = await api.get<{ success: boolean }>(`paddle/cancel`);
+    const response = await api.get<{ success: boolean }>(`fast-spring/cancel`);
     const { success } = response;
     if (success) {
       dispatch({
@@ -737,7 +682,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     }
   };
   const resumeSubscription = async (): Promise<void> => {
-    const response = await api.get<{ success: boolean }>(`paddle/resume`);
+    const response = await api.get<{ success: boolean }>(`fast-spring/resume`);
     const { success } = response;
     if (success) {
       dispatch({
@@ -862,17 +807,13 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     return state.user.role.viewOtherPermissions.includes(permissionEntity);
   };
   const hasCreatePermission = (permissionEntity: PermissionEntity) => {
-    return (
-      state.user.role.createPermissions.includes(permissionEntity) &&
-      state.user.superAccountRelations.length === 0
-    );
+    return state.user.role.createPermissions.includes(permissionEntity);
   };
   const hasEditPermission = <Entity extends Audit>(
     permissionEntity: PermissionEntity,
     entity: Entity
   ) => {
     if (!entity) return false;
-    if (state.user.superAccountRelations.length > 0) return false;
     if (permissionEntity === PermissionEntity.PEOPLE_AND_TEAMS) {
       return (
         state.user.id === entity.id ||
@@ -946,7 +887,6 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     entity: Entity
   ) => {
     if (!entity) return false;
-    if (state.user.superAccountRelations.length > 0) return false;
     return (
       state.user.id === entity.createdBy ||
       state.user.role.deleteOtherPermissions.includes(permissionEntity)
@@ -1000,8 +940,11 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   };
   const downgrade = async (users: number[]) => {
     try {
-      const { success } = await api.get<{ success: boolean }>(
-        `subscriptions/downgrade?usersIds=${users.join(',')}`
+      const { success } = await api.post<{ success: boolean }>(
+        'subscriptions/downgrade',
+        users,
+        {},
+        true
       );
       if (success)
         dispatch({

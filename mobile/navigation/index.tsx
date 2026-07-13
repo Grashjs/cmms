@@ -11,7 +11,6 @@ import {
   ColorSchemeName,
   GestureResponderEvent,
   Image,
-  Platform,
   Pressable,
   TouchableOpacity,
   View
@@ -43,7 +42,7 @@ import LinkingConfiguration from './LinkingConfiguration';
 import useAuth from '../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 import { IconButton, Text, useTheme } from 'react-native-paper';
-import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
+import { IconSource } from 'react-native-paper/src/components/Icon';
 import MoreEntitiesScreen from '../screens/MoreEntitiesScreen';
 import MetersScreen from '../screens/meters/MetersScreen';
 import WorkOrdersScreen from '../screens/workOrders/WorkOrdersScreen';
@@ -90,13 +89,10 @@ import { navigationRef } from './RootNavigation';
 import SettingsScreen from '../screens/SettingsScreen';
 import WorkOrderFilters from '../screens/workOrders/WorkOrderFilters';
 import CreateAdditionalCost from '../screens/workOrders/CreateAdditionalCost';
-import EditAdditionalCost from '../screens/workOrders/EditAdditionalCost';
 import CreateAdditionalTime from '../screens/workOrders/CreateAdditionalTime';
-import EditAdditionalTime from '../screens/workOrders/EditAdditionalTime';
 import SelectNfcModal from '../screens/modals/SelectNfcModal';
 import SelectBarcodeModal from '../screens/modals/SelectBarcodeModal';
 import ScanAssetScreen from '../screens/ScanAssetScreen';
-import FeedbackScreen from '../screens/FeedbackScreen';
 import SelectMetersModal from '../screens/modals/SelectMetersModal';
 import {
   createEntities,
@@ -107,7 +103,6 @@ import RequestsScreen from '../screens/requests/RequestsScreen';
 import SwitchAccountScreen from '../screens/superUser/SwitchAccountScreen';
 import { FontAwesome, Ionicons, Feather } from '@expo/vector-icons';
 import { Fragment, ReactElement, ReactNode } from 'react';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function Navigation({
   colorScheme
@@ -151,7 +146,7 @@ function RootNavigator() {
       <Stack.Screen
         name="Root"
         component={BottomTabNavigator}
-        options={{ header: () => null }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="WODetails"
@@ -186,26 +181,17 @@ function RootNavigator() {
       <Stack.Screen
         name="AddAsset"
         component={CreateAssetScreen}
-        options={({ route }) => ({
-          title: t('create_asset'),
-          presentation: route.params?.openedFromSelector ? 'modal' : 'card'
-        })}
+        options={{ title: t('create_asset') }}
       />
       <Stack.Screen
         name="AddLocation"
         component={CreateLocationScreen}
-        options={({ route }) => ({
-          title: t('create_location'),
-          presentation: route.params?.openedFromSelector ? 'modal' : 'card'
-        })}
+        options={{ title: t('create_location') }}
       />
       <Stack.Screen
         name="AddPart"
         component={CreatePartScreen}
-        options={({ route }) => ({
-          title: t('create_part'),
-          presentation: route.params?.openedFromSelector ? 'modal' : 'card'
-        })}
+        options={{ title: t('create_part') }}
       />
       <Stack.Screen
         name="AddMeter"
@@ -215,10 +201,7 @@ function RootNavigator() {
       <Stack.Screen
         name="AddUser"
         component={InviteUserScreen}
-        options={({ route }) => ({
-          title: t('invite_users'),
-          presentation: route.params?.openedFromSelector ? 'modal' : 'card'
-        })}
+        options={{ title: t('invite_users') }}
       />
       <Stack.Screen
         name="WorkOrderStats"
@@ -268,7 +251,7 @@ function RootNavigator() {
       <Stack.Screen
         name="VendorsCustomers"
         component={VendorsAndCustomersScreen}
-        options={{ title: t('vendors_and_customers'), contentStyle: Platform.OS === 'ios' ? { paddingTop: 10 } : undefined }}
+        options={{ title: t('vendors_and_customers') }}
       />
       <Stack.Screen
         name="CustomerDetails"
@@ -323,7 +306,7 @@ function RootNavigator() {
       <Stack.Screen
         name="PeopleTeams"
         component={PeopleAndTeamsScreen}
-        options={{ title: t('people_teams'), contentStyle: Platform.OS === 'ios' ? { paddingTop: 10 } : undefined }}
+        options={{ title: t('people_teams') }}
       />
       <Stack.Screen
         name="TeamDetails"
@@ -365,17 +348,7 @@ function RootNavigator() {
         component={ScanAssetScreen}
         options={{ title: t('to_scan') }}
       />
-      <Stack.Screen
-        name="Feedback"
-        component={FeedbackScreen}
-        options={{ title: t('feedback_title') }}
-      />
-      <Stack.Group
-        screenOptions={{
-          presentation: 'modal',
-          contentStyle: Platform.OS === 'ios' ? { paddingTop: 20 } : undefined
-        }}
-      >
+      <Stack.Group screenOptions={{ presentation: 'modal' }}>
         <Stack.Screen name="Modal" component={ModalScreen} />
         <Stack.Screen
           name="CompleteWorkOrder"
@@ -458,19 +431,9 @@ function RootNavigator() {
           options={{ title: t('add_cost') }}
         />
         <Stack.Screen
-          name="EditAdditionalCost"
-          component={EditAdditionalCost}
-          options={{ title: t('edit_additional_cost') }}
-        />
-        <Stack.Screen
           name="AddAdditionalTime"
           component={CreateAdditionalTime}
           options={{ title: t('add_time') }}
-        />
-        <Stack.Screen
-          name="EditAdditionalTime"
-          component={EditAdditionalTime}
-          options={{ title: t('edit_additional_time') }}
         />
       </Stack.Group>
     </Stack.Navigator>
@@ -501,9 +464,7 @@ function AuthNavigator() {
       />
       <AuthStack.Screen
         name="CustomServer"
-        component={React.lazy(
-          () => import('../screens/auth/CustomServerScreen')
-        )}
+        component={React.lazy(() => import('../screens/auth/CustomServerScreen'))}
         options={{ title: t('custom_server') }}
       />
     </AuthStack.Navigator>
@@ -587,24 +548,13 @@ function BottomTabNavigator({ navigation }: RootTabScreenProps<'Home'>) {
         tabBarActiveTintColor: theme.colors.primary,
         tabBarStyle: {
           position: 'absolute',
-          bottom: 17,
+          bottom: 10,
           left: 20,
           right: 20,
           elevation: 8,
           borderRadius: 15,
           zIndex: 10,
-          height: 70,
-          paddingTop: 6,
-          paddingBottom: Platform.OS === 'ios' ? 18 : 10,
-          borderTopWidth: 0,
-          shadowColor: '#000',
-          shadowOpacity: 0.15,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: -2 }
-        },
-        tabBarItemStyle: {
-          justifyContent: 'center',
-          alignItems: 'center'
+          height: 50
         }
       }}
     >

@@ -4,28 +4,28 @@ import com.grash.dto.CurrencyPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Currency;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.service.CurrencyService;
 import com.grash.service.UserService;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
-
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/currencies")
-@Tag(name = "Currencies", description = "Operations on currencies")
+@Api(tags = "currency")
 @RequiredArgsConstructor
 public class CurrencyController {
 
@@ -36,14 +36,22 @@ public class CurrencyController {
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = CURRENCY_NOT_FOUND)})
     public Collection<Currency> getAll(HttpServletRequest req) {
         return currencyService.getAll();
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public Currency getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = CURRENCY_NOT_FOUND)})
+    public Currency getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
         Optional<Currency> optionalCurrency = currencyService.findById(id);
         if (optionalCurrency.isPresent()) {
             Currency savedCurrency = optionalCurrency.get();
@@ -54,18 +62,23 @@ public class CurrencyController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    Currency create(@Parameter(description = "Currency to create") @Valid @RequestBody Currency currency,
-                    HttpServletRequest req) {
-        User user = userService.whoami(req);
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied")})
+    public Currency create(@ApiParam("Asset") @Valid @RequestBody Currency currency, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
         return currencyService.create(currency);
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    public Currency patch(@Parameter(description = "Currency fields to update") @Valid @RequestBody CurrencyPatchDTO currencyPatchDTO,
-                          @PathVariable("id") Long id,
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = CURRENCY_NOT_FOUND)})
+    public Currency patch(@ApiParam("Asset") @Valid @RequestBody CurrencyPatchDTO currencyPatchDTO, @ApiParam("id") @PathVariable("id") Long id,
                           HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Currency> optionalCurrency = currencyService.findById(id);
 
         if (optionalCurrency.isPresent()) {
@@ -75,8 +88,12 @@ public class CurrencyController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = CURRENCY_NOT_FOUND)})
+    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
 
         Optional<Currency> optionalCurrency = currencyService.findById(id);
         if (optionalCurrency.isPresent()) {
@@ -89,5 +106,3 @@ public class CurrencyController {
     }
 
 }
-
-

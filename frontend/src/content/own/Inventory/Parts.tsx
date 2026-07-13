@@ -12,8 +12,6 @@ import {
   IconButton,
   Menu,
   MenuItem,
-  Pagination,
-  Select,
   Stack,
   Tab,
   Tabs,
@@ -21,9 +19,13 @@ import {
   useTheme
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import CustomDatagrid2, {
-  CustomDatagridColumn2
-} from '../components/CustomDatagrid2';
+import CustomDataGrid from '../components/CustomDatagrid';
+import {
+  GridRenderCellParams,
+  GridToolbar,
+  GridValueGetterParams
+} from '@mui/x-data-grid';
+import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
 import Part from '../../../models/owns/part';
 import {
   addPart,
@@ -39,14 +41,13 @@ import * as React from 'react';
 import { ChangeEvent, useContext, useEffect, useMemo, useState } from 'react';
 import * as Yup from 'yup';
 import Form from '../components/form';
-import { getCustomFieldsValues, IField } from '../type';
+import { IField } from '../type';
 import PartDetails from './PartDetails';
 import { useNavigate, useParams } from 'react-router-dom';
 import { isNumeric } from '../../../utils/validators';
 import {
   formatSelect,
   formatSelectMultiple,
-  formatCustomFields,
   getFormattedCostPerUnit
 } from '../../../utils/formatters';
 import { UserMiniDTO } from '../../../models/user';
@@ -55,25 +56,16 @@ import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import useAuth from '../../../hooks/useAuth';
 import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
-import {
-  getImageAndFiles,
-  handleFileUpload,
-  onSearchQueryChange
-} from '../../../utils/overall';
+import { getImageAndFiles, onSearchQueryChange } from '../../../utils/overall';
 import { SearchCriteria, SortDirection } from '../../../models/owns/page';
-import { useExport, ExportEntityType } from '../../../hooks/useExport';
+import { exportEntity } from '../../../slices/exports';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import { PermissionEntity } from '../../../models/owns/role';
 import SearchInput from '../components/SearchInput';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
-import { createColumnHelper } from '@tanstack/react-table';
-import useTableState from '../../../hooks/useTableState';
+import { useGridApiRef } from '@mui/x-data-grid-pro';
+import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import { CategoryMiniDTO } from '../../../models/owns/category';
-import { getErrorMessage } from '../../../utils/api';
-import { getPartUrl } from '../../../utils/urlPaths';
-import { getCustomFields } from '../../../slices/customField';
-import { CustomFieldEntityType } from '../../../models/owns/customField';
-import { getCustomFieldsRequiredShape, getCustomFieldsIFields } from '../type';
 
 interface PropsType {
   setAction: (p: () => () => void) => void;
@@ -85,20 +77,6 @@ export const getFormattedQuantityWithUnit = (
 ) => {
   return unit ? quantity + ' ' + unit : quantity;
 };
-
-const fieldMapping: Record<string, string> = {
-  name: 'name',
-  cost: 'cost',
-  quantity: 'quantity',
-  barcode: 'barcode',
-  area: 'area',
-  category: 'category.name',
-  description: 'description',
-  createdAt: 'createdAt',
-  openWorkOrders: 'openWorkOrders'
-};
-
-const PAGE_SIZE = 12;
 const Parts = ({ setAction }: PropsType) => {
   const { t }: { t: any } = useTranslation();
   const [currentTab, setCurrentTab] = useState<string>('list');
@@ -108,42 +86,15 @@ const Parts = ({ setAction }: PropsType) => {
     CompanySettingsContext
   );
   const { parts, loadingGet, singlePart } = useSelector((state) => state.parts);
-  const { customFields } = useSelector((state) => state.customFields);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
   const [criteria, setCriteria] = useState<SearchCriteria>({
     filterFields: [],
-    pageSize: PAGE_SIZE,
+    pageSize: 10,
     pageNum: 0,
     direction: 'DESC'
   });
-
-  // Use the table state hook for TanStack Table
-  const {
-    sorting,
-    setSorting,
-    pagination,
-    setPagination,
-    columnOrder,
-    setColumnOrder,
-    columnSizing,
-    setColumnSizing,
-    columnVisibility,
-    setColumnVisibility,
-    pinnedColumns,
-    setPinnedColumns
-  } = useTableState({
-    prefix: 'parts',
-    initialSorting: [],
-    initialPagination: {
-      pageSize: criteria.pageSize,
-      pageIndex: criteria.pageNum
-    },
-    setCriteria,
-    fieldMapping
-  });
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
-  const [copyPartData, setCopyPartData] = useState<Part | null>(null);
   const [currentPart, setCurrentPart] = useState<Part>();
   const {
     getFilteredFields,
@@ -154,7 +105,7 @@ const Parts = ({ setAction }: PropsType) => {
   const { partId } = useParams();
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const { exportEntity, loadingExport } = useExport();
+  const { loadingExport } = useSelector((state) => state.exports);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
   const navigate = useNavigate();
@@ -162,9 +113,7 @@ const Parts = ({ setAction }: PropsType) => {
     onSearchQueryChange<Part>(event, criteria, setCriteria, [
       'name',
       'description',
-      'additionalInfos',
-      'area',
-      'barcode'
+      'additionalInfos'
     ]);
   };
   const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
@@ -190,20 +139,12 @@ const Parts = ({ setAction }: PropsType) => {
     { value: 'card', label: t('card_view') }
   ];
   const theme = useTheme();
-  const handleCopyPart = (part: Part) => {
-    setCopyPartData(part);
-    setOpenAddModal(true);
-  };
-  const onCreationSuccess = (createdPart: Part) => {
+  const onCreationSuccess = () => {
     setOpenAddModal(false);
     showSnackBar(t('part_create_success'), 'success');
-    if (copyPartData && createdPart) {
-      navigate(getPartUrl(createdPart.id));
-    }
-    setCopyPartData(null);
   };
   const onCreationFailure = (err) =>
-    showSnackBar(getErrorMessage(err, t('part_create_failure')), 'error');
+    showSnackBar(t('part_create_failure'), 'error');
   const onEditSuccess = () => {
     setOpenUpdateModal(false);
     showSnackBar(t('changes_saved_success'), 'success');
@@ -259,11 +200,12 @@ const Parts = ({ setAction }: PropsType) => {
     };
   }, [singlePart, parts]);
 
-  useEffect(() => {
-    if ((openAddModal || openUpdateModal) && !customFields.length) {
-      dispatch(getCustomFields());
-    }
-  }, [openAddModal, openUpdateModal]);
+  const onPageSizeChange = (size: number) => {
+    setCriteria({ ...criteria, pageSize: size });
+  };
+  const onPageChange = (number: number) => {
+    setCriteria({ ...criteria, pageNum: number });
+  };
 
   const handleTabsChange = (_event: ChangeEvent<{}>, value: string): void => {
     setCurrentTab(value);
@@ -278,33 +220,6 @@ const Parts = ({ setAction }: PropsType) => {
     window.history.replaceState(null, 'Part', `/app/inventory/parts`);
     setOpenDrawer(false);
   };
-  const getPartFormValues = (entity: Part | null | undefined) => ({
-    ...entity,
-    category: entity?.category
-      ? { label: entity.category.name, value: entity.category.id }
-      : null,
-    assignedTo:
-      entity?.assignedTo?.map((user) => ({
-        label: `${user.firstName} ${user.lastName}`,
-        value: user.id.toString()
-      })) ?? [],
-    teams:
-      entity?.teams?.map((team) => ({
-        label: team.name,
-        value: team.id.toString()
-      })) ?? [],
-    vendors:
-      entity?.vendors?.map((vendor) => ({
-        label: vendor.companyName,
-        value: vendor.id.toString()
-      })) ?? [],
-    customers:
-      entity?.customers?.map((customer) => ({
-        label: customer.name,
-        value: customer.id.toString()
-      })) ?? [],
-    ...getCustomFieldsValues(entity)
-  });
   const formatValues = (values) => {
     const newValues = { ...values };
     newValues.assignedTo = formatSelectMultiple(newValues.assignedTo);
@@ -312,86 +227,93 @@ const Parts = ({ setAction }: PropsType) => {
     newValues.customers = formatSelectMultiple(newValues.customers);
     newValues.vendors = formatSelectMultiple(newValues.vendors);
     newValues.category = formatSelect(newValues.category);
-    return formatCustomFields(newValues);
+    // values.image = formatSelect(values.image);
+    // values.files = formatSelect(values.files);
+    return newValues;
   };
-
-  const columnHelper = createColumnHelper<Part>();
-
-  const columns: CustomDatagridColumn2<Part>[] = [
-    columnHelper.accessor('name', {
-      id: 'name',
-      header: () => t('name'),
-      cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>,
-      size: 150
-    }),
-    columnHelper.accessor('cost', {
-      id: 'cost',
-      header: () => t('cost'),
-      cell: (info) =>
+  const columns: GridEnrichedColDef<Part>[] = [
+    {
+      field: 'name',
+      headerName: t('name'),
+      description: t('name'),
+      width: 150,
+      renderCell: (params: GridRenderCellParams<string>) => (
+        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
+      )
+    },
+    {
+      field: 'cost',
+      headerName: t('cost'),
+      description: t('cost'),
+      valueGetter: (params) =>
         getFormattedCostPerUnit(
-          info.getValue(),
-          info.row.original.unit,
+          params.value,
+          params.row.unit,
           getFormattedCurrency
         ),
-      size: 150
-    }),
-    columnHelper.accessor('quantity', {
-      id: 'quantity',
-      header: () => t('quantity'),
-      cell: (info) => {
-        const quantity = info.getValue();
-        const row = info.row.original;
-        return (
-          <Box sx={quantity < row.minQuantity ? { color: 'red' } : {}}>
-            {getFormattedQuantityWithUnit(quantity, row.unit)}{' '}
-            {quantity < row.minQuantity && t('(Running Low !)')}
-          </Box>
-        );
-      },
-      size: 150
-    }),
-    columnHelper.accessor('barcode', {
-      id: 'barcode',
-      header: () => t('barcode'),
-      cell: (info) => info.getValue() || '',
-      size: 150
-    }),
-    columnHelper.accessor('area', {
-      id: 'area',
-      header: () => t('area'),
-      cell: (info) => info.getValue() || '',
-      size: 150
-    }),
-    columnHelper.accessor((row) => row.category?.name, {
-      id: 'category',
-      header: () => t('category'),
-      cell: (info) => info.getValue() || '',
-      size: 150
-    }),
-    columnHelper.accessor('description', {
-      id: 'description',
-      header: () => t('description'),
-      cell: (info) => info.getValue() || '',
-      size: 300
-    }),
-    columnHelper.accessor('assignedTo', {
-      id: 'assignedTo',
-      header: () => t('assigned_to'),
-      cell: (info) => <UserAvatars users={info.getValue()} />,
-      size: 170
-    }),
-    columnHelper.accessor('createdAt', {
-      id: 'createdAt',
-      header: () => t('created_at'),
-      cell: (info) => getFormattedDate(info.getValue()),
-      size: 150
-    })
-    // columnHelper.accessor('openWorkOrders', {
-    //   id: 'openWorkOrders',
-    //   header: () => t('open_wo'),
-    //   cell: (info) => info.getValue() || '',
-    //   size: 150
-    // })
+      width: 150
+    },
+    {
+      field: 'quantity',
+      headerName: t('quantity'),
+      description: t('quantity'),
+      width: 150,
+      renderCell: (params: GridRenderCellParams<number, Part>) => (
+        <Box sx={params.value < params.row.minQuantity ? { color: 'red' } : {}}>
+          {getFormattedQuantityWithUnit(params.value, params.row.unit)}{' '}
+          {params.value < params.row.minQuantity && t('(Running Low !)')}
+        </Box>
+      )
+    },
+    {
+      field: 'barcode',
+      headerName: t('barcode'),
+      description: t('barcode'),
+      width: 150
+    },
+    {
+      field: 'area',
+      headerName: t('area'),
+      description: t('area'),
+      width: 150
+    },
+    {
+      field: 'category',
+      headerName: t('category'),
+      description: t('category'),
+      valueGetter: (params: GridValueGetterParams<CategoryMiniDTO>) =>
+        params.value?.name,
+      width: 150
+    },
+    {
+      field: 'description',
+      headerName: t('description'),
+      description: t('description'),
+      width: 300
+    },
+    {
+      field: 'assignedTo',
+      headerName: t('assigned_to'),
+      description: t('assigned_to'),
+      width: 170,
+      renderCell: (params: GridRenderCellParams<UserMiniDTO[]>) => (
+        <UserAvatars users={params.value} />
+      )
+    },
+    {
+      field: 'createdAt',
+      headerName: t('created_at'),
+      description: t('created_at'),
+      width: 150,
+      valueGetter: (params: GridValueGetterParams<string>) =>
+        getFormattedDate(params.value)
+    },
+    {
+      field: 'openWorkOrders',
+      headerName: t('open_wo'),
+      description: t('open_wo'),
+      width: 150
+    }
   ];
   const fields: Array<IField> = [
     {
@@ -507,22 +429,19 @@ const Parts = ({ setAction }: PropsType) => {
       type: 'file',
       multiple: true,
       label: t('files')
-    },
-    ...getCustomFieldsIFields(customFields, CustomFieldEntityType.PART)
+    }
   ];
+  const apiRef = useGridApiRef();
+  useGridStatePersist(apiRef, columns, 'part');
   const shape = {
-    name: Yup.string().required(t('required_part_name')),
-    ...getCustomFieldsRequiredShape(customFields, CustomFieldEntityType.PART, t)
+    name: Yup.string().required(t('required_part_name'))
   };
   const renderPartAddModal = () => (
     <Dialog
       fullWidth
       maxWidth="md"
       open={openAddModal}
-      onClose={() => {
-        setOpenAddModal(false);
-        setCopyPartData(null);
-      }}
+      onClose={() => setOpenAddModal(false)}
     >
       <DialogTitle
         sx={{
@@ -530,13 +449,9 @@ const Parts = ({ setAction }: PropsType) => {
         }}
       >
         <Typography variant="h4" gutterBottom>
-          {copyPartData ? t('copy_part') : t('add_part')}
+          {t('add_part')}
         </Typography>
-        <Typography variant="subtitle2">
-          {copyPartData
-            ? t('copy_part_description')
-            : t('add_part_description')}
-        </Typography>
+        <Typography variant="subtitle2">{t('add_part_description')}</Typography>
       </DialogTitle>
       <DialogContent
         dividers
@@ -549,35 +464,29 @@ const Parts = ({ setAction }: PropsType) => {
             fields={getFilteredFields(fields)}
             validation={Yup.object().shape(shape)}
             submitText={t('create_part')}
-            values={
-              copyPartData
-                ? { ...getPartFormValues(copyPartData), id: null }
-                : {}
-            }
+            values={{}}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
-              try {
-                const uploadedFiles = await uploadFiles(
-                  formattedValues.files,
-                  formattedValues.image
-                );
-
-                const imageAndFiles = getImageAndFiles(uploadedFiles);
-                formattedValues = {
-                  ...formattedValues,
-                  image: imageAndFiles.image,
-                  files: imageAndFiles.files
-                };
-
-                const createdPart: Part = await dispatch(
-                  addPart(formattedValues)
-                );
-                onCreationSuccess(createdPart);
-              } catch (err) {
-                onCreationFailure(err);
-                throw err;
-              }
+              return new Promise<void>((resolve, rej) => {
+                uploadFiles(formattedValues.files, formattedValues.image)
+                  .then((files) => {
+                    const imageAndFiles = getImageAndFiles(files);
+                    formattedValues = {
+                      ...formattedValues,
+                      image: imageAndFiles.image,
+                      files: imageAndFiles.files
+                    };
+                    dispatch(addPart(formattedValues))
+                      .then(onCreationSuccess)
+                      .catch(onCreationFailure)
+                      .finally(resolve);
+                  })
+                  .catch((err) => {
+                    onCreationFailure(err);
+                    rej(err);
+                  });
+              });
             }}
           />
         </Box>
@@ -658,94 +567,117 @@ const Parts = ({ setAction }: PropsType) => {
             fields={getFilteredFields(fields)}
             validation={Yup.object().shape(shape)}
             submitText={t('save')}
-            values={getPartFormValues(currentPart)}
+            values={{
+              ...currentPart,
+              assignedTo: currentPart?.assignedTo.map((user) => {
+                return {
+                  label: `${user.firstName} ${user.lastName}`,
+                  value: user.id.toString()
+                };
+              }),
+              teams: currentPart?.teams.map((team) => {
+                return {
+                  label: team.name,
+                  value: team.id.toString()
+                };
+              }),
+              vendors: currentPart?.vendors.map((vendor) => {
+                return {
+                  label: vendor.companyName,
+                  value: vendor.id.toString()
+                };
+              }),
+              customers: currentPart?.customers.map((customer) => {
+                return {
+                  label: customer.name,
+                  value: customer.id.toString()
+                };
+              })
+            }}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
-              try {
-                const imageAndFiles = await handleFileUpload(
-                  {
-                    files: formattedValues.files,
-                    image: formattedValues.image
-                  },
-                  uploadFiles
-                );
-
-                formattedValues = {
-                  ...formattedValues,
-                  image: imageAndFiles.image,
-                  files: imageAndFiles.files
-                };
-
-                await dispatch(editPart(currentPart.id, formattedValues));
-                await onEditSuccess();
-              } catch (err) {
-                onEditFailure(err);
-                throw err;
-              }
+              return new Promise<void>((resolve, rej) => {
+                const files = formattedValues.files.find((file) => file.id)
+                  ? []
+                  : formattedValues.files;
+                uploadFiles(files, formattedValues.image)
+                  .then((files) => {
+                    const imageAndFiles = getImageAndFiles(
+                      files,
+                      currentPart.image
+                    );
+                    formattedValues = {
+                      ...formattedValues,
+                      image: imageAndFiles.image,
+                      files: [...currentPart.files, ...imageAndFiles.files]
+                    };
+                    dispatch(editPart(currentPart.id, formattedValues))
+                      .then(onEditSuccess)
+                      .catch(onEditFailure)
+                      .finally(resolve);
+                  })
+                  .catch((err) => {
+                    onEditFailure(err);
+                    rej(err);
+                  });
+              });
             }}
           />
         </Box>
       </DialogContent>
     </Dialog>
   );
-  const renderMenu = () => {
-    const exportMenuItems: { entity: ExportEntityType; labelKey: string }[] = [
-      { entity: 'parts', labelKey: 'export_parts' },
-      { entity: 'part-transactions', labelKey: 'export_part_transactions' }
-    ];
-    return (
-      <Menu
-        id="basic-menu"
-        anchorEl={anchorEl}
-        open={openMenu}
-        onClose={handleCloseMenu}
-        MenuListProps={{
-          'aria-labelledby': 'basic-button'
-        }}
-      >
-        {hasViewOtherPermission(PermissionEntity.PARTS_AND_MULTIPARTS) &&
-          exportMenuItems.map(({ entity, labelKey }) => (
-            <MenuItem
-              key={entity}
-              disabled={loadingExport[entity]}
-              onClick={async () => {
-                try {
-                  await exportEntity(entity);
-                } catch (error) {
-                  showSnackBar(t('Export failed'), 'error');
-                }
-              }}
-            >
-              <Stack spacing={2} direction="row">
-                {loadingExport[entity] && <CircularProgress size="1rem" />}
-                <Typography>{t(labelKey)}</Typography>
-              </Stack>
-            </MenuItem>
-          ))}
-        {hasViewPermission(PermissionEntity.SETTINGS) && (
-          <MenuItem
-            onClick={() => navigate('/app/imports/parts')}
-            disabled={!hasFeature(PlanFeature.IMPORT_CSV)}
-          >
-            {t('to_import')}
-          </MenuItem>
-        )}
-      </Menu>
-    );
-  };
+  const renderMenu = () => (
+    <Menu
+      id="basic-menu"
+      anchorEl={anchorEl}
+      open={openMenu}
+      onClose={handleCloseMenu}
+      MenuListProps={{
+        'aria-labelledby': 'basic-button'
+      }}
+    >
+      {hasViewOtherPermission(PermissionEntity.PARTS_AND_MULTIPARTS) && (
+        <MenuItem
+          disabled={loadingExport['parts']}
+          onClick={() => {
+            dispatch(exportEntity('parts')).then((url: string) => {
+              window.open(url);
+            });
+          }}
+        >
+          <Stack spacing={2} direction="row">
+            {loadingExport['parts'] && <CircularProgress size="1rem" />}
+            <Typography>{t('to_export')}</Typography>
+          </Stack>
+        </MenuItem>
+      )}
+      {hasViewPermission(PermissionEntity.SETTINGS) && (
+        <MenuItem
+          onClick={() => navigate('/app/imports/parts')}
+          disabled={!hasFeature(PlanFeature.IMPORT_CSV)}
+        >
+          {t('to_import')}
+        </MenuItem>
+      )}
+    </Menu>
+  );
   return (
     <Box sx={{ p: 2 }}>
       {renderPartAddModal()}
       {renderPartUpdateModal()}
       {renderMenu()}
-      <Stack
-        mb={1}
-        direction="row"
+      <Grid
+        item
+        xs={12}
+        display="flex"
+        flexDirection="row"
         justifyContent="space-between"
         alignItems="center"
       >
         <Tabs
+          sx={{ mb: 2 }}
           onChange={handleTabsChange}
           value={currentTab}
           variant="scrollable"
@@ -757,44 +689,85 @@ const Parts = ({ setAction }: PropsType) => {
             <Tab key={tab.value} label={tab.label} value={tab.value} />
           ))}
         </Tabs>
-        <SearchInput onChange={debouncedQueryChange} />
-        <IconButton onClick={handleOpenMenu} color="primary">
+        <Box sx={{ my: 0.5 }}>
+          <SearchInput onChange={debouncedQueryChange} />
+        </Box>
+        <IconButton sx={{ mr: 2 }} onClick={handleOpenMenu} color="primary">
           <MoreVertTwoToneIcon />
         </IconButton>
-      </Stack>
+      </Grid>
       {currentTab === 'list' && (
-        <CustomDatagrid2
+        <CustomDataGrid
+          apiRef={apiRef}
           columns={columns}
-          data={parts.content}
+          pageSize={criteria.pageSize}
+          page={criteria.pageNum}
+          rows={parts.content}
+          rowCount={parts.totalElements}
+          pagination
+          paginationMode="server"
+          sortingMode="server"
+          onPageSizeChange={onPageSizeChange}
+          onPageChange={onPageChange}
+          rowsPerPageOptions={[10, 20, 50]}
           loading={loadingGet}
-          pagination={pagination}
-          onPaginationChange={setPagination}
-          totalRows={parts.totalElements}
-          pageSizeOptions={[PAGE_SIZE, PAGE_SIZE * 2, PAGE_SIZE * 4]}
-          sorting={sorting}
-          onSortingChange={setSorting}
-          columnOrder={columnOrder}
-          onColumnOrderChange={setColumnOrder}
-          columnSizing={columnSizing}
-          onColumnSizingChange={setColumnSizing}
-          columnVisibility={columnVisibility}
-          onColumnVisibilityChange={setColumnVisibility}
-          onRowClick={(row) => handleOpenDetails(row.id)}
-          noRowsMessage={t('noRows.part.message')}
-          noRowsAction={t('noRows.part.action')}
-          enableColumnReordering
-          enableColumnResizing
-          pinnedColumns={pinnedColumns}
-          onPinnedColumnsChange={setPinnedColumns}
+          onSortModelChange={(model) => {
+            if (model.length === 0) {
+              setCriteria({
+                ...criteria,
+                sortField: undefined,
+                direction: undefined
+              });
+              return;
+            }
+
+            const fieldMapping = {
+              name: 'name',
+              cost: 'cost',
+              category: 'category',
+              quantity: 'quantity',
+              description: 'description',
+              minQuantity: 'minQuantity',
+              customId: 'customId'
+            };
+
+            const field = model[0].field;
+            const mappedField = fieldMapping[field];
+
+            if (!mappedField) return;
+
+            setCriteria({
+              ...criteria,
+              sortField: mappedField,
+              direction: (model[0].sort?.toUpperCase() ||
+                'ASC') as SortDirection
+            });
+          }}
+          components={{
+            NoRowsOverlay: () => (
+              <NoRowsMessageWrapper
+                message={t('noRows.part.message')}
+                action={t('noRows.part.action')}
+              />
+            )
+          }}
+          onRowClick={(params) => {
+            handleOpenDetails(Number(params.id));
+          }}
+          initialState={{
+            columns: {
+              columnVisibilityModel: {}
+            }
+          }}
         />
       )}
       {currentTab === 'card' && (
-        <Box>
+        <Grid item xs={12}>
           <Grid container spacing={2}>
             {parts.content.map((part) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={part.id}>
+              <Grid item xs={12} lg={3} key={part.id}>
                 <Card
-                  style={{ cursor: 'pointer', height: '100%' }}
+                  style={{ cursor: 'pointer' }}
                   onClick={() => handleOpenDetails(part.id)}
                 >
                   <CardMedia
@@ -821,58 +794,20 @@ const Parts = ({ setAction }: PropsType) => {
               </Grid>
             ))}
           </Grid>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            sx={{ mt: 2, mb: 2 }}
-          >
-            <Typography variant="body2" color="text.secondary">
-              {parts.totalElements} {t('total_items')}
-            </Typography>
-            <Stack direction="row" spacing={2} alignItems="center">
-              <Typography variant="body2">{t('items_per_page')}:</Typography>
-              <Select
-                value={criteria.pageSize}
-                onChange={(e) =>
-                  setCriteria({
-                    ...criteria,
-                    pageSize: Number(e.target.value),
-                    pageNum: 0
-                  })
-                }
-              >
-                {[PAGE_SIZE, PAGE_SIZE * 2, PAGE_SIZE * 4].map((size) => (
-                  <MenuItem key={size} value={size}>
-                    {size}
-                  </MenuItem>
-                ))}
-              </Select>
-              <Pagination
-                count={Math.ceil(parts.totalElements / criteria.pageSize)}
-                page={criteria.pageNum + 1}
-                onChange={(_event, page) =>
-                  setCriteria({ ...criteria, pageNum: page - 1 })
-                }
-                color="primary"
-              />
-            </Stack>
-          </Stack>
-        </Box>
+        </Grid>
       )}
       <Drawer
         anchor="right"
         open={openDrawer}
         onClose={handleCloseDetails}
         PaperProps={{
-          sx: { width: { xs: '90%', sm: '70%', md: '50%' } }
+          sx: { width: '50%' }
         }}
       >
         <PartDetails
           part={currentPart}
           handleOpenUpdate={handleOpenUpdate}
           handleOpenDelete={() => setOpenDelete(true)}
-          onCopy={handleCopyPart}
         />
       </Drawer>
       <ConfirmDialog

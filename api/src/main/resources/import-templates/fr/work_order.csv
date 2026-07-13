@@ -1,4 +1,4 @@
 ID,Titre,Statut,Priorité,Description,Date d'échéance,Heures estimées,Nécessite une signature,Catégorie,Nom de l'emplacement,Nom de l'équipe,Travailleur principal,Assigné à,Nom de l'équipement,Terminé par,Terminé le,Archivé,Feedback,Prestataires
-2538,Réparation de la bande transporteuse endommagée,Complet,Haute,"Bande bloquée, production arrêtée",,0,Non,Urgence,Poulailler de ponte 1,,technicien1testcmms@gmail.com,,Système de collecte d'œufs-Bandes transporteuses-Poulailler de ponte,a1testcmms@gmail.com,2024-03-02 01:33:49.802,Non,Effectué par l'administrateur car le technicien ne peut pas fermer depuis son compte cmms,
-3897,Test1,Ouvert,Basse,,,0,Non,,,,a1testcmms@gmail.com,,,,,Non,,
+2538,Réparation de la bande transporteuse endommagée,Complet,Haute,"Bande bloquée, production arrêtée",,0,Non,Urgence,Poulailler de ponte 1,,technicien1atlascmms@gmail.com,,Système de collecte d'œufs-Bandes transporteuses-Poulailler de ponte,a1atlascmms@gmail.com,2024-03-02 01:33:49.802,Non,Effectué par l'administrateur car le technicien ne peut pas fermer depuis son compte cmms,
+3897,Test1,Ouvert,Basse,,,0,Non,,,,a1atlascmms@gmail.com,,,,,Non,,
 2632,Aider Tech 2 pour WO réel,Ouvert,Moyenne,assurer la sécurité et la LOTO,,1,Non,,,Équipe 2,,,Générateur de secours-Zone utilitaire,,,Non,,

@@ -20,7 +20,6 @@ import {
 import Form from '../../components/form';
 import * as Yup from 'yup';
 import {
-  addAsset,
   deleteAsset,
   editAsset,
   getAssetDetails
@@ -35,31 +34,22 @@ import useAuth from '../../../../hooks/useAuth';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import AssetMeters from './AssetMeters';
-import { handleFileUpload } from '../../../../utils/overall';
+import { getImageAndFiles } from '../../../../utils/overall';
 import AssetDowntimes from './AssetDowntimes';
 import AssetAnalytics from './AssetAnalytics';
-import { getCustomFields } from '../../../../slices/customField';
-import { CustomFieldEntityType } from '../../../../models/owns/customField';
-import {
-  getCustomFieldsIFields,
-  getCustomFieldsRequiredShape,
-  getCustomFieldsValues
-} from '../../type';
-import { getAssetUrl } from '../../../../utils/urlPaths';
 
-interface PropsType {}
+interface PropsType {
+}
 
 const ShowAsset = ({}: PropsType) => {
   const { t }: { t: any } = useTranslation();
   const { assetId } = useParams();
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
-  const [copyAssetData, setCopyAssetData] = useState<AssetDTO | null>(null);
   const { setTitle } = useContext(TitleContext);
   const { uploadFiles } = useContext(CompanySettingsContext);
   const location = useLocation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const { assetInfos, loadingGet } = useSelector((state) => state.assets);
-  const { customFields } = useSelector((state) => state.customFields);
+  const { assetInfos } = useSelector((state) => state.assets);
   const asset: AssetDTO = assetInfos[assetId]?.asset;
   const navigate = useNavigate();
   const [openDelete, setOpenDelete] = useState<boolean>(false);
@@ -75,88 +65,14 @@ const ShowAsset = ({}: PropsType) => {
     if (isNumeric(assetId)) dispatch(getAssetDetails(Number(assetId)));
   }, [assetId]);
 
-  useEffect(() => {
-    if (openUpdateModal && !customFields.length) {
-      dispatch(getCustomFields());
-    }
-  }, [openUpdateModal]);
-
   const handleOpenUpdateModal = () => setOpenUpdateModal(true);
-  const handleCopyAsset = () => {
-    setCopyAssetData(asset);
-    setOpenUpdateModal(true);
-  };
-  const handleCloseUpdateModal = () => {
-    setOpenUpdateModal(false);
-    setCopyAssetData(null);
-  };
+  const handleCloseUpdateModal = () => setOpenUpdateModal(false);
 
   const handleDelete = () => {
     dispatch(deleteAsset(asset.id))
       .then(onDeleteSuccess)
       .catch(onDeleteFailure);
   };
-  const getAssetFormValues = (entity: AssetDTO) => ({
-    ...entity,
-    location: entity?.location
-      ? {
-          label: entity?.location.name,
-          value: entity?.location.id
-        }
-      : null,
-    category: entity?.category
-      ? {
-          label: entity.category.name,
-          value: entity.category.id
-        }
-      : null,
-    primaryUser: entity?.primaryUser
-      ? {
-          label: `${entity?.primaryUser.firstName} ${entity?.primaryUser.lastName}`,
-          value: entity?.primaryUser.id
-        }
-      : null,
-    assignedTo:
-      entity?.assignedTo?.map((user) => {
-        return {
-          label: `${user.firstName} ${user.lastName}`,
-          value: user.id
-        };
-      }) ?? [],
-    customers: entity?.customers?.map((customer) => {
-      return {
-        label: customer.name,
-        value: customer.id
-      };
-    }),
-    vendors: entity?.vendors?.map((vendor) => {
-      return {
-        label: vendor.companyName,
-        value: vendor.id
-      };
-    }),
-    teams: entity?.teams?.map((team) => {
-      return {
-        label: team.name,
-        value: team.id
-      };
-    }),
-    parts:
-      entity?.parts?.map((part) => {
-        return {
-          label: part.name,
-          value: part.id
-        };
-      }) ?? [],
-    parentAsset: entity?.parentAsset
-      ? {
-          label: entity.parentAsset.name,
-          value: entity.parentAsset.id
-        }
-      : null,
-    ...getCustomFieldsValues(entity)
-  });
-
   useEffect(() => {
     setTitle(asset?.name);
   }, [asset]);
@@ -170,7 +86,7 @@ const ShowAsset = ({}: PropsType) => {
     { value: 'files', label: t('files') },
     { value: 'meters', label: t('meters') },
     { value: 'downtimes', label: t('downtimes') },
-    { value: 'analytics', label: t('Statistics') }
+    { value: 'analytics', label: t('analytics') }
   ];
   const tabIndex = tabs.findIndex((tab) => tab.value === arr[arr.length - 1]);
   const onDeleteSuccess = () => {
@@ -234,13 +150,6 @@ const ShowAsset = ({}: PropsType) => {
       type: 'text',
       label: t('model'),
       placeholder: t('model'),
-      midWidth: true
-    },
-    {
-      name: 'barCode',
-      type: 'text',
-      label: t('barcode'),
-      placeholder: t('barcode'),
       midWidth: true
     },
     {
@@ -359,32 +268,18 @@ const ShowAsset = ({}: PropsType) => {
       type2: 'asset',
       label: t('parent_asset'),
       excluded: Number(assetId)
-    },
-    ...getCustomFieldsIFields(customFields, CustomFieldEntityType.ASSET)
+    }
   ];
 
   const shape = {
-    name: Yup.string().required(t('required_asset_name')),
-    ...getCustomFieldsRequiredShape(
-      customFields,
-      CustomFieldEntityType.ASSET,
-      t
-    )
+    name: Yup.string().required(t('required_asset_name'))
   };
   const onEditSuccess = () => {
     setOpenUpdateModal(false);
-    setCopyAssetData(null);
     showSnackBar(t('changes_saved_success'), 'success');
   };
   const onEditFailure = (err) =>
     showSnackBar(t('asset_update_failure'), 'error');
-  const onCopySuccess = (id: number) => {
-    setOpenUpdateModal(false);
-    setCopyAssetData(null);
-    navigate(getAssetUrl(id));
-  };
-  const onCopyFailure = (err) =>
-    showSnackBar(t('asset_create_failure'), 'error');
 
   const renderAssetUpdateModal = () => (
     <Dialog
@@ -399,12 +294,10 @@ const ShowAsset = ({}: PropsType) => {
         }}
       >
         <Typography variant="h4" gutterBottom>
-          {copyAssetData ? t('copy_asset') : t('edit_asset')}
+          {t('edit_asset')}
         </Typography>
         <Typography variant="subtitle2">
-          {copyAssetData
-            ? t('copy_asset_description')
-            : t('edit_asset_description')}
+          {t('edit_asset_description')}
         </Typography>
       </DialogTitle>
       <DialogContent
@@ -417,47 +310,91 @@ const ShowAsset = ({}: PropsType) => {
           <Form
             fields={getFilteredFields(defaultFields)}
             validation={Yup.object().shape(shape)}
-            submitText={copyAssetData ? t('add') : t('save')}
-            values={
-              copyAssetData
-                ? { ...getAssetFormValues(copyAssetData), id: null }
-                : getAssetFormValues(asset)
-            }
-            onChange={({ field, e }) => {}}
+            submitText={t('save')}
+            values={{
+              ...asset,
+              location: asset?.location
+                ? {
+                  label: asset?.location.name,
+                  value: asset?.location.id
+                }
+                : null,
+              category: asset?.category
+                ? {
+                  label: asset.category.name,
+                  value: asset.category.id
+                }
+                : null,
+              primaryUser: asset?.primaryUser
+                ? {
+                  label: `${asset?.primaryUser.firstName} ${asset?.primaryUser.lastName}`,
+                  value: asset?.primaryUser.id
+                }
+                : null,
+              assignedTo: asset?.assignedTo?.map((user) => {
+                return {
+                  label: `${user.firstName} ${user.lastName}`,
+                  value: user.id
+                };
+              }),
+              customers: asset?.customers?.map((customer) => {
+                return {
+                  label: customer.name,
+                  value: customer.id
+                };
+              }),
+              vendors: asset?.vendors?.map((vendor) => {
+                return {
+                  label: vendor.companyName,
+                  value: vendor.id
+                };
+              }),
+              teams: asset?.teams?.map((team) => {
+                return {
+                  label: team.name,
+                  value: team.id
+                };
+              }),
+              parts:
+                asset?.parts?.map((part) => {
+                  return {
+                    label: part.name,
+                    value: part.id
+                  };
+                }) ?? [],
+              parentAsset: asset?.parentAsset
+                ? {
+                  label: asset.parentAsset.name,
+                  value: asset.parentAsset.id
+                }
+                : null
+            }}
+            onChange={({ field, e }) => {
+            }}
             onSubmit={async (values) => {
               let formattedValues = formatAssetValues(values);
-              try {
-                const imageAndFiles = await handleFileUpload(
-                  {
-                    files: formattedValues.files,
-                    image: formattedValues.image
-                  },
-                  uploadFiles
-                );
-
-                formattedValues = {
-                  ...formattedValues,
-                  image: imageAndFiles.image,
-                  files: imageAndFiles.files
-                };
-
-                if (copyAssetData) {
-                  const newAsset: AssetDTO = await dispatch(
-                    addAsset(formattedValues)
-                  );
-                  await onCopySuccess(newAsset.id);
-                } else {
-                  await dispatch(editAsset(Number(assetId), formattedValues));
-                  await onEditSuccess();
-                }
-              } catch (err) {
-                if (copyAssetData) {
-                  onCopyFailure(err);
-                } else {
-                  onEditFailure(err);
-                }
-                throw err;
-              }
+              const files = formattedValues.files.find((file) => file.id)
+                ? []
+                : formattedValues.files;
+              return new Promise<void>((resolve, rej) => {
+                uploadFiles(files, formattedValues.image)
+                  .then((files) => {
+                    const imageAndFiles = getImageAndFiles(files, asset.image);
+                    formattedValues = {
+                      ...formattedValues,
+                      image: imageAndFiles.image,
+                      files: [...asset.files, ...imageAndFiles.files]
+                    };
+                    dispatch(editAsset(Number(assetId), formattedValues))
+                      .then(onEditSuccess)
+                      .catch(onEditFailure)
+                      .finally(resolve);
+                  })
+                  .catch((err) => {
+                    onEditFailure(err);
+                    rej(err);
+                  });
+              });
             }}
           />
         </Box>
@@ -491,11 +428,7 @@ const ShowAsset = ({}: PropsType) => {
       >
         {isNumeric(assetId) ? (
           tabIndex === 0 ? (
-            <AssetDetails
-              asset={asset}
-              loading={loadingGet}
-              onCopy={handleCopyAsset}
-            />
+            <AssetDetails asset={asset} />
           ) : tabIndex === 1 ? (
             <AssetWorkOrders asset={asset} />
           ) : tabIndex === 2 ? (
@@ -504,10 +437,9 @@ const ShowAsset = ({}: PropsType) => {
             <AssetFiles asset={asset} />
           ) : tabIndex === 4 ? (
             <AssetMeters asset={asset} />
-          ) : tabIndex === 5 ? (
-            <AssetDowntimes asset={asset} />
           ) : (
-            tabIndex === 6 && <AssetAnalytics id={Number(assetId)} />
+            tabIndex === 5 ? <AssetDowntimes asset={asset} /> :
+              tabIndex === 6 && <AssetAnalytics id={Number(assetId)} />
           )
         ) : null}
         <ConfirmDialog

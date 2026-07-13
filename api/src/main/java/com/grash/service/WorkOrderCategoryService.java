@@ -3,8 +3,9 @@ package com.grash.service;
 import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderCategoryMapper;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.WorkOrderCategory;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.WorkOrderCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,10 +22,8 @@ public class WorkOrderCategoryService {
     private final CompanySettingsService companySettingsService;
     private final WorkOrderCategoryMapper workOrderCategoryMapper;
 
-    public WorkOrderCategory create(WorkOrderCategory workOrderCategory, User user) {
-        Optional<WorkOrderCategory> categoryWithSameName =
-                workOrderCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(workOrderCategory.getName(),
-                        user.getCompany().getCompanySettings().getId());
+    public WorkOrderCategory create(WorkOrderCategory workOrderCategory) {
+        Optional<WorkOrderCategory> categoryWithSameName = workOrderCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(workOrderCategory.getName(), workOrderCategory.getCompanySettings().getId());
         if (categoryWithSameName.isPresent()) {
             throw new CustomException("WorkOrderCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }

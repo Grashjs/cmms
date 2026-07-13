@@ -9,15 +9,7 @@ import esJSON from './translations/es';
 import frJSON from './translations/fr';
 import trJSON from './translations/tr';
 import plJSON from './translations/pl';
-import itJSON from './translations/it';
 import ptBRJSON from './translations/pt_BR';
-import svJSON from './translations/sv';
-import ruJSON from './translations/ru';
-import huJSON from './translations/hu';
-import nlJSON from './translations/nl';
-import zhCnJSON from './translations/zh_cn';
-import baJSON from './translations/ba';
-import jaJSON from './translations/ja';
 
 const resources = {
   de: { translation: deJSON },
@@ -27,15 +19,7 @@ const resources = {
   tr: { translation: trJSON },
   pl: { translation: plJSON },
   pt_br: { translation: ptBRJSON },
-  ar: { translation: arJSON },
-  it: { translation: itJSON },
-  sv: { translation: svJSON },
-  ru: { translation: ruJSON },
-  hu: { translation: huJSON },
-  nl: { translation: nlJSON },
-  zh_cn: { translation: zhCnJSON },
-  ba: { translation: baJSON },
-  ja: { translation: jaJSON }
+  ar: { translation: arJSON }
 };
 
 i18n

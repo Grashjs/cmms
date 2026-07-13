@@ -10,17 +10,18 @@ import com.grash.model.*;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.service.*;
 import com.grash.utils.Helper;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
-
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/part-quantities")
-@Tag(name = "Part Quantities", description = "Operations on part quantities")
+@Api(tags = "partQuantity")
 @RequiredArgsConstructor
 public class PartQuantityController {
 
@@ -42,9 +43,13 @@ public class PartQuantityController {
 
     @GetMapping("/work-order/{id}")
     @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "PartQuantityCategory not found")})
     public Collection<PartQuantityShowDTO> getByWorkOrder(HttpServletRequest req,
-                                                          @PathVariable("id") Long id) {
-        User user = userService.whoami(req);
+                                                          @ApiParam("id") @PathVariable("id") Long id) {
+        OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
             return partQuantityService.findByWorkOrder(id).stream().map(partQuantityMapper::toShowDto).collect(Collectors.toList());
@@ -53,9 +58,13 @@ public class PartQuantityController {
 
     @GetMapping("/purchase-order/{id}")
     @PreAuthorize("permitAll()")
-    public Collection<PartQuantityShowDTO> getByPurchaseOrder(HttpServletRequest req, @PathVariable(
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "Purchase not found")})
+    public Collection<PartQuantityShowDTO> getByPurchaseOrder(HttpServletRequest req, @ApiParam("id") @PathVariable(
             "id") Long id) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
         if (optionalPurchaseOrder.isPresent()) {
             return partQuantityService.findByPurchaseOrder(id).stream().map(partQuantityMapper::toShowDto).collect(Collectors.toList());
@@ -64,11 +73,13 @@ public class PartQuantityController {
 
     @PatchMapping("/work-order/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<PartQuantityShowDTO> patchWorkOrder(@Parameter(description = "List of part IDs to associate " +
-                                                                  "with work order") @Valid @RequestBody List<Long> parts,
-                                                          @PathVariable("id") Long id,
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "WorkOrder not found")})
+    public Collection<PartQuantityShowDTO> patchWorkOrder(@ApiParam("PartQuantities") @Valid @RequestBody List<Long> parts, @ApiParam("id") @PathVariable("id") Long id,
                                                           HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
 
         if (optionalWorkOrder.isPresent()) {
@@ -86,7 +97,7 @@ public class PartQuantityController {
                         Optional<Part> optionalPart = partService.findById(partId);
                         if (optionalPart.isPresent()) {
                             partService.consumePart(optionalPart.get().getId(), 1, savedWorkOrder,
-                                    Helper.getLocale(user), false);
+                                    Helper.getLocale(user));
                             PartQuantity partQuantity = new PartQuantity(optionalPart.get(), savedWorkOrder, null, 1);
                             partQuantityService.create(partQuantity);
                         } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);
@@ -105,10 +116,13 @@ public class PartQuantityController {
 
     @PatchMapping("/purchase-order/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<PartQuantityShowDTO> patchPurchaseOrder(@Parameter(description = "List of part quantities to " +
-                                                                      "update for purchase order") @Valid @RequestBody List<PartQuantityCompletePatchDTO> partQuantitiesReq, @PathVariable("id") Long id,
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "Purchase Order not found")})
+    public Collection<PartQuantityShowDTO> patchPurchaseOrder(@ApiParam("PartQuantities") @Valid @RequestBody List<PartQuantityCompletePatchDTO> partQuantitiesReq, @ApiParam("id") @PathVariable("id") Long id,
                                                               HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
 
         if (optionalPurchaseOrder.isPresent()) {
@@ -150,8 +164,12 @@ public class PartQuantityController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public PartQuantityShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "PartQuantity not found")})
+    public PartQuantityShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
         Optional<PartQuantity> optionalPartQuantity = partQuantityService.findById(id);
         if (optionalPartQuantity.isPresent()) {
             PartQuantity savedPartQuantity = optionalPartQuantity.get();
@@ -161,19 +179,26 @@ public class PartQuantityController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    PartQuantityShowDTO create(@Parameter(description = "Part quantity to create") @Valid @RequestBody PartQuantity partQuantityReq,
-                               HttpServletRequest req) {
-        User user = userService.whoami(req);
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied")})
+    public PartQuantityShowDTO create(@ApiParam("PartQuantity") @Valid @RequestBody PartQuantity partQuantityReq,
+                                      HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
         PartQuantity savedPartQuantity = partQuantityService.create(partQuantityReq);
         return partQuantityMapper.toShowDto(savedPartQuantity);
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public PartQuantityShowDTO patch(@Parameter(description = "Part quantity fields to update") @Valid @RequestBody PartQuantityPatchDTO partQuantity,
-                                     @PathVariable("id") Long id,
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "PartQuantity not found")})
+    public PartQuantityShowDTO patch(@ApiParam("PartQuantity") @Valid @RequestBody PartQuantityPatchDTO partQuantity,
+                                     @ApiParam("id") @PathVariable("id") Long id,
                                      HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<PartQuantity> optionalPartQuantity = partQuantityService.findById(id);
         if (optionalPartQuantity.isPresent()) {
             PartQuantity savedPartQuantity = optionalPartQuantity.get();
@@ -183,7 +208,7 @@ public class PartQuantityController {
             if (savedPartQuantity.getWorkOrder() != null) {
                 partService.consumePart(savedPartQuantity.getPart().getId(),
                         partQuantity.getQuantity() - savedPartQuantity.getQuantity(),
-                        savedPartQuantity.getWorkOrder(), Helper.getLocale(user), false);
+                        savedPartQuantity.getWorkOrder(), Helper.getLocale(user));
             }
             PartQuantity patchedPartQuantity = partQuantityService.update(id, partQuantity);
             return partQuantityMapper.toShowDto(patchedPartQuantity);
@@ -192,21 +217,19 @@ public class PartQuantityController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "PartQuantity not found")})
+    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
 
         Optional<PartQuantity> optionalPartQuantity = partQuantityService.findById(id);
         if (optionalPartQuantity.isPresent()) {
             PartQuantity savedPartQuantity = optionalPartQuantity.get();
-            boolean isWorkOrderPartQuantity = savedPartQuantity.getWorkOrder() != null;
             if
             (user.getId().equals(savedPartQuantity.getCreatedBy())
-                    || (isWorkOrderPartQuantity && savedPartQuantity.getWorkOrder().canBeEditedBy(user)) || user.getRole().getEditOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS)) {
-                if (isWorkOrderPartQuantity) {
-                    partService.consumePart(savedPartQuantity.getPart().getId(),
-                            -savedPartQuantity.getQuantity(),
-                            savedPartQuantity.getWorkOrder(), Helper.getLocale(user), true);
-                }
+                    || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
                 partQuantityService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
@@ -215,5 +238,3 @@ public class PartQuantityController {
     }
 
 }
-
-

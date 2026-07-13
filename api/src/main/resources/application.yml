@@ -5,9 +5,6 @@ spring:
     username: ${DB_USER}
     password: ${DB_PWD}
     driver-class-name: org.postgresql.Driver
-    hikari:
-      leak-detection-threshold: 60000
-      maximum-pool-size: 20
   #    init:
   #      data-locations: classpath:data-preprod.sql
   #    tomcat:
@@ -18,12 +15,6 @@ spring:
   jackson:
     serialization:
       fail-on-empty-beans: false
-  quartz:
-    job-store-type: jdbc
-    jdbc:
-      initialize-schema: never
-    properties:
-      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
   liquibase:
     change-log: classpath:/db/master.xml
     enabled: true
@@ -31,8 +22,8 @@ spring:
     encoding: UTF-8
   servlet:
     multipart:
-      max-request-size: 100MB
-      max-file-size: 35MB
+      max-request-size: 7MB
+      max-file-size: 7MB
   profiles:
     active: dev
   mvc:
@@ -44,7 +35,6 @@ spring:
     properties:
       hibernate:
         enable_lazy_load_no_trans: true
-        hibernate.default_batch_fetch_size: 64
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         id:
@@ -65,13 +55,14 @@ spring:
     password: ${SMTP_PWD:}
     protocol: smtp
     tls: true
-    from: ${SMTP_FROM:${SMTP_USER:}}
     properties.mail.smtp:
       auth: true
       starttls.enable: true
       ssl.trust: ${SMTP_HOST:smtp.gmail.com}
   cache:
     type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=20m
 server:
   port: 8080 # This is the default port anyway, but you can change it here
 
@@ -80,39 +71,22 @@ security:
     token:
       secret-key: ${JWT_SECRET_KEY}
       expire-length: 1209600000 # 1000*60*60*24*14
-  invitation-via-email: ${INVITATION_VIA_EMAIL:false}
-  recaptcha-secret-key: ${RECAPTCHA_SECRET_KEY:}
-  cors:
-    enabled: ${ENABLE_CORS:true}
-  rate-limit:
-    enabled: ${RATE_LIMIT_ENABLED:true}
-    authenticated:
-      short-term-requests: ${RATE_LIMIT_AUTHENTICATED_SHORT:100}
-      short-term-period-minutes: ${RATE_LIMIT_AUTHENTICATED_SHORT_PERIOD:1}
-      long-term-requests: ${RATE_LIMIT_AUTHENTICATED_LONG:1000}
-      long-term-period-hours: ${RATE_LIMIT_AUTHENTICATED_LONG_PERIOD:1}
-    file-upload:
-      authenticated:
-        short-term-requests: ${RATE_LIMIT_FILE_UPLOAD_AUTH_SHORT:20}
-        short-term-period-minutes: ${RATE_LIMIT_FILE_UPLOAD_AUTH_SHORT_PERIOD:1}
-        long-term-requests: ${RATE_LIMIT_FILE_UPLOAD_AUTH_LONG:200}
-        long-term-period-hours: ${RATE_LIMIT_FILE_UPLOAD_AUTH_LONG_PERIOD:1}
+  invitation-via-email: ${INVITATION_VIA_EMAIL}
 frontend:
   url: ${PUBLIC_FRONT_URL}
-  home-url: ${PUBLIC_HOME_URL:}
 mail:
   recipients: ${MAIL_RECIPIENTS}
-  enable: ${ENABLE_EMAIL_NOTIFICATIONS:false}
-  type: ${MAIL_TYPE:SMTP}
+  enable: ${ENABLE_EMAIL_NOTIFICATIONS}
 superAdmin:
   role:
     name: SuperAdministratorGrash@p;l
+fast-spring:
+  username: ${FASTSPRING_USER}
+  password: ${FASTSPRING_PWD}
 management:
   health:
     mail:
-      enabled: ${ENABLE_MAIL_HEALTH_CHECK:true}
-    ldap:
-      enabled: ${LDAP_ENABLED:false}
+      enabled: true
 api:
   host: ${PUBLIC_API_URL}
 storage:
@@ -135,69 +109,6 @@ enable-sso: ${ENABLE_SSO:false}
 oauth2:
   success-redirect-url: ${PUBLIC_FRONT_URL}/oauth2/success
   failure-redirect-url: ${PUBLIC_FRONT_URL}/oauth2/failure
-  provider: ${OAUTH2_PROVIDER:}
+  provider: ${OAUTH2_PROVIDER}
 license-key: ${LICENSE_KEY:}
 license-fingerprint-required: ${LICENSE_FINGERPRINT_REQUIRED:true}
-license-file-path: ${LICENSE_FILE_PATH:}
-white-labeling:
-  logo-paths: ${LOGO_PATHS:}
-  custom-colors: ${CUSTOM_COLORS:}
-  brand-config: ${BRAND_CONFIG:}
-
-ldap:
-  enabled: ${LDAP_ENABLED:false}
-  org-admin: ${LDAP_ORG_ADMIN:}
-  url: ${LDAP_URL:ldap://localhost:389}
-  base-dn: ${LDAP_BASE_DN:}
-  sync:
-    enabled: ${LDAP_SYNC_ENABLED:true}
-    create: ${LDAP_SYNC_CREATE:true}
-    update: ${LDAP_SYNC_UPDATE:true}
-    disable: ${LDAP_SYNC_DISABLE:false}
-    cron: ${LDAP_SYNC_CRON:0 0 0,12 * * ?}
-  ou-role-mappings: ${LDAP_OU_ROLE_MAPPINGS:}
-
-  user-search-bases: ${LDAP_USER_SEARCH_BASES:}
-  user-search-filter: ${LDAP_USER_SEARCH_FILTER:(uid={0})}
-  search-subtree: ${LDAP_SEARCH_SUBTREE:true}
-
-  # Group / roles
-  #  group-search-base: ${LDAP_GROUP_SEARCH_BASE:}
-  #  group-search-filter: ${LDAP_GROUP_SEARCH_FILTER:(member={0})}
-
-  # Service account (for search mode)
-  manager-dn: ${LDAP_MANAGER_DN:}
-  manager-password: ${LDAP_MANAGER_PASSWORD:}
-
-  #  # Connection
-  #  connect-timeout: ${LDAP_CONNECT_TIMEOUT:5000}
-  #  read-timeout: ${LDAP_READ_TIMEOUT:5000}
-
-  # Attribute mapping
-  attributes:
-    email: ${LDAP_ATTR_EMAIL:mail}
-    first-name: ${LDAP_ATTR_FIRSTNAME:givenName}
-    last-name: ${LDAP_ATTR_LASTNAME:sn}
-    username: ${LDAP_ATTR_USERNAME:uid}
-    object-class: ${LDAP_OBJECT_CLASS:inetOrgPerson}
-
-paddle:
-  api-key: ${PADDLE_API_KEY:}
-  environment: ${PADDLE_ENVIRONMENT:sandbox}
-  webhook-secret-key: ${PADDLE_WEBHOOK_SECRET_KEY:}
-keygen:
-  product-token: ${KEYGEN_PRODUCT_TOKEN:}
-  account-id: 1ca3e517-f3d8-473f-a45c-81069900acb7
-sendgrid:
-  api:
-    key: ${SENDGRID_API_KEY:}
-  contact-list-id: ${SENDGRID_CONTACT_LIST_ID:}
-  from:
-    email: ${SENDGRID_FROM_EMAIL:}
-intercom:
-  token: ${INTERCOM_TOKEN:}
-springdoc:
-  api-docs:
-    version: openapi_3_1
-  swagger-ui:
-    tags-sorter: alpha

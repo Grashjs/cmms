@@ -14,8 +14,8 @@ const ptBRJSON = {
   COMPLETE: 'Concluído',
   'home.built': 'Construído para Facilitar a Gestão de Manutenção',
   home_description:
-    'Quando quadros brancos e notas adesivas são caóticos, e você precisa de um software CMMS fácil o suficiente para sua equipe realmente usar - experimente o {{shortBrandName}}',
-  try_grash: 'Experimente o {{shortBrandName}}',
+    'Quando quadros brancos e notas adesivas são caóticos, e você precisa de um software CMMS fácil o suficiente para sua equipe realmente usar - experimente o Atlas',
+  try_grash: 'Experimente o Atlas',
   login: 'Entrar',
   start_trial: 'Iniciar um teste gratuito',
   'home.what': 'O que',
@@ -24,7 +24,7 @@ const ptBRJSON = {
     'Crie fluxos de trabalho eficientes e confiáveis que colocam você no controle da manutenção. Gere, atribua e acompanhe ordens de serviço. Controle o inventário. E obtenha relatórios automatizados confiáveis que melhoram a visibilidade e criam responsabilidade.',
   key_features: 'Recursos Principais',
   key_features_description:
-    'Alguns dos recursos que tornam o {{shortBrandName}} um dos melhores CMMS disponíveis hoje',
+    'Alguns dos recursos que tornam o Atlas um dos melhores CMMS disponíveis hoje',
   contribute: 'Contribuir',
   work_orders: 'Ordens de Serviço',
   request_system: 'Sistema de Solicitação de Trabalho',
@@ -38,7 +38,7 @@ const ptBRJSON = {
   'work-orders.descriptions.0':
     'Cansado da papelada e das ordens de serviço perdidas? Todos esses itens perdidos afetam diretamente o resultado final e sua reputação.',
   'work-orders.descriptions.1':
-    'Com o {{shortBrandName}}, você pode organizar facilmente todas as suas ordens de serviço, PMs e outras tarefas em um banco de dados centralizado que pode ser acessado em qualquer dispositivo.',
+    'Com o Atlas, você pode organizar facilmente todas as suas ordens de serviço, PMs e outras tarefas em um banco de dados centralizado que pode ser acessado em qualquer dispositivo.',
   'work-orders.checks.0':
     'Visualize todas as suas tarefas, incluindo OS, PMs e solicitações de trabalho.',
   'work-orders.checks.1':
@@ -55,7 +55,7 @@ const ptBRJSON = {
   'work-requests.descriptions.0':
     'Cansado de usar o antigo sistema de telefone e e-mail que resulta em tickets PERDIDOS, interrupções diárias constantes e trabalho duplicado?',
   'work-requests.descriptions.1':
-    'A solução de gerenciamento de manutenção do {{shortBrandName}} permite que qualquer pessoa autorizada envie um problema para o departamento de manutenção simplesmente escaneando um código QR (código de barras) ou visitando uma URL e digitando sua solicitação através de seus dispositivos móveis.',
+    'A solução de gerenciamento de manutenção do Atlas permite que qualquer pessoa autorizada envie um problema para o departamento de manutenção simplesmente escaneando um código QR (código de barras) ou visitando uma URL e digitando sua solicitação através de seus dispositivos móveis.',
   'work-requests.checks.0': 'Nunca mais perca trabalho.',
   'work-requests.checks.1':
     'Reduza o tempo gasto com solicitações de trabalho em até 34%.',
@@ -85,7 +85,7 @@ const ptBRJSON = {
   'eam.descriptions.0':
     'Frustrado ao tentar organizar a bagunça caótica dos equipamentos da empresa, sem saber se o equipamento foi devidamente cuidado, sem saber o custo de manutenção e todas as outras dores de cabeça que vêm com a gestão de ativos?',
   'eam.descriptions.1':
-    'O módulo de Gestão de Ativos Empresariais do {{brandName}} pode ser usado para entre 10 e 1.000.000 de ativos, permitindo que você rastreie exatamente o que deseja, da maneira que deseja, em uma estrutura de árvore fácil de usar e pesquisável.',
+    'O módulo de Gestão de Ativos Empresariais do Atlas CMMS pode ser usado para entre 10 e 1.000.000 de ativos, permitindo que você rastreie exatamente o que deseja, da maneira que deseja, em uma estrutura de árvore fácil de usar e pesquisável.',
   'eam.checks.0':
     'Conheça a saúde dos seus ativos a qualquer momento e o que eles estão custando.',
   'eam.checks.1': 'Visualize registros de manutenção completos e detalhados.',
@@ -102,7 +102,7 @@ const ptBRJSON = {
   'pm.descriptions.0':
     'Pare de desperdiçar horas preciosas distribuindo manualmente listas de verificação de PM e acompanhando sua equipe para garantir que o trabalho seja feito.',
   'pm.descriptions.1':
-    'O {{shortBrandName}} permite que você automatize facilmente o agendamento de PMs para que o trabalho certo seja entregue automaticamente no momento certo para o técnico certo no ativo certo.',
+    'O Atlas permite que você automatize facilmente o agendamento de PMs para que o trabalho certo seja entregue automaticamente no momento certo para o técnico certo no ativo certo.',
   'pm.checks.0':
     'Automatize o agendamento de PMs para ser diário, semanal, mensal, anual ou baseado em eventos ou leituras de medidores.',
   'pm.checks.1':
@@ -119,7 +119,7 @@ const ptBRJSON = {
   'part.descriptions.0':
     'Não tem certeza de quais peças você tem em estoque ou onde estão sendo usadas? Não sabe quando suas peças vão acabar ou se seus técnicos terão as peças necessárias para fazer seus trabalhos?',
   'part.descriptions.1':
-    'Projetamos o gerenciamento de peças do {{shortBrandName}} para resolver esses problemas e muito mais:',
+    'Projetamos o gerenciamento de peças do Atlas para resolver esses problemas e muito mais:',
   'part.checks.0':
     'Receba notificações instantâneas por push e e-mail quando a quantidade de uma peça estiver baixa. Mantenha o número certo de peças em estoque recebendo notificações instantâneas e automáticas por push/e-mail quando a quantidade de uma peça estiver abaixo de um limite personalizado.',
   'part.checks.1':
@@ -141,21 +141,21 @@ const ptBRJSON = {
   'dashboard.descriptions.0':
     'Vamos encarar, o primeiro passo para melhorar suas operações é conhecer o bom, o ruim e o feio.',
   'dashboard.descriptions.1':
-    'Com os Painéis Personalizados do {{shortBrandName}}, você pode finalmente começar a entender o nefasto "buraco negro da manutenção" e começar a colocar planos baseados em dados em ação, resultando em redução de custos de mão de obra, diminuição do tempo de inatividade e muito mais.',
+    'Com os Painéis Personalizados do Atlas, você pode finalmente começar a entender o nefasto "buraco negro da manutenção" e começar a colocar planos baseados em dados em ação, resultando em redução de custos de mão de obra, diminuição do tempo de inatividade e muito mais.',
   'dashboard.descriptions.2':
-    'Com os Painéis Personalizados do {{shortBrandName}}, você poderá...',
+    'Com os Painéis Personalizados do Atlas, você poderá...',
   'dashboard.checks.0': 'Saber onde seu dinheiro está sendo gasto e por quê.',
   'dashboard.checks.1': 'Saber qual ativo está custando mais e por quê.',
   'dashboard.checks.2': 'Crie seus próprios KPIs personalizados.',
   'dashboard.checks.3':
     'Visualize relatórios que são gerados e atualizados automaticamente com base em suas métricas.',
   'dashboard.checks.4':
-    'Visualize relatórios que são facilmente compartilhados via planilhas Excel, PDFs ou dentro do {{shortBrandName}}.',
+    'Visualize relatórios que são facilmente compartilhados via planilhas Excel, PDFs ou dentro do Atlas.',
   'dashboard.checks.5': 'E muito mais...',
   'home.smarter': 'Mais Inteligente',
   'home.work': 'Trabalho',
   'home.smarter_description':
-    'O {{shortBrandName}} torna incrivelmente fácil para os técnicos trabalharem com eficiência, dando-lhes acesso às ferramentas e dados de que precisam para realizar o trabalho - tudo na palma da mão.',
+    'O Atlas torna incrivelmente fácil para os técnicos trabalharem com eficiência, dando-lhes acesso às ferramentas e dados de que precisam para realizar o trabalho - tudo na palma da mão.',
   leading_maintenance:
     'Liderando o Caminho para um Futuro Melhor na Manutenção e Confiabilidade',
   //register
@@ -235,7 +235,7 @@ const ptBRJSON = {
   feedback_description: 'Dê seu feedback',
   required_feedback: 'O feedback é obrigatório',
   signature: 'Assinatura',
-  required_signature: 'A assinatura é obrigatória',
+  required_signature: 'A imagem é obrigatória',
   close_wo: 'Fechar Ordem de Serviço',
   close: 'Fechar',
   task_update_success: 'Tarefa atualizada com sucesso',
@@ -293,7 +293,7 @@ const ptBRJSON = {
   save: 'Salvar',
   customers: 'Contratantes',
   no_labor:
-    'Nenhum custo de mão de obra foi adicionado ainda. Eles aparecerão aqui quando um usuário registrar o tempo e tiver uma taxa horária armazenada no {{shortBrandName}}.',
+    'Nenhum custo de mão de obra foi adicionado ainda. Eles aparecerão aqui quando um usuário registrar o tempo e tiver uma taxa horária armazenada no Atlas.',
   not_assigned: 'Não Atribuído',
   no_additional_cost: 'Nenhum custo adicional foi adicionado ainda',
   parts: 'Peças',
@@ -782,8 +782,6 @@ const ptBRJSON = {
   please_type_emails: 'Por favor, digite os e-mails para convidar',
   please_select_role: 'Por favor, selecione uma função',
   invite: 'Convidar',
-  n_pending_invites: '{{count}} convites pendentes',
-  resend_invites: 'Reenviar convites',
   team_create_success: 'A Equipe foi criada com sucesso',
   team_create_failure: 'A Equipe não pôde ser criada',
   team_edit_failure: 'A Equipe não pôde ser editada',
@@ -877,7 +875,7 @@ const ptBRJSON = {
   external_id: 'ID Externo',
   permissions: 'Permissões',
   create_role_description:
-    'Esta função pode fazer tudo o que um Administrador pode fazer no {{brandName}}, mas você pode personalizar algumas permissões importantes abaixo.',
+    'Esta função pode fazer tudo o que um Administrador pode fazer no Atlas, mas você pode personalizar algumas permissões importantes abaixo.',
   create_and_edit: 'Criar/Editar',
   to_access: 'Acessar',
   role_delete_success: 'A função foi excluída com sucesso',
@@ -925,7 +923,6 @@ const ptBRJSON = {
     'Os usuários recebem atualizações para as ordens de serviço que solicitaram',
   language: 'Idioma',
   date_format: 'Formato de data',
-  time_zone: 'Fuso horário',
   business_type: 'Tipo de negócio',
   general_asset_management: 'Gestão geral de ativos',
   physical_asset_management: 'Gestão de ativos físicos',
@@ -1100,8 +1097,7 @@ const ptBRJSON = {
   your_payment_secure: 'Seus dados de pagamento são criptografados e seguros.',
   plan: 'Plano',
   current_plan: 'Plano Atual',
-  number_users_who_will_use_grash:
-    'Número de usuários que usarão o {{shortBrandName}}',
+  number_users_who_will_use_grash: 'Número de usuários que usarão o Atlas',
   admin_role: 'Admin',
   technical_role: 'Técnico',
   limited_technical_role: 'Técnico Limitado',
@@ -1262,7 +1258,7 @@ const ptBRJSON = {
   and_optional: 'E (Opcional)',
   then: 'Então',
   workflow_description:
-    'Crie fluxos de trabalho personalizados tão fácil quanto Se, E, Então. Economize tempo e atribua facilmente suas ordens de serviço automaticamente através de fluxos de trabalho para personalizar o {{shortBrandName}} para a maneira como sua equipe opera.\nTodos os planos podem criar até 1 fluxo de trabalho personalizado. Para adicionar fluxos de trabalho adicionais, atualize para o nosso plano Business',
+    'Crie fluxos de trabalho personalizados tão fácil quanto Se, E, Então. Economize tempo e atribua facilmente suas ordens de serviço automaticamente através de fluxos de trabalho para personalizar o Atlas para a maneira como sua equipe opera.\nTodos os planos podem criar até 1 fluxo de trabalho personalizado. Para adicionar fluxos de trabalho adicionais, atualize para o nosso plano Business',
   CREATE_PURCHASE_ORDER: 'Criar uma Ordem de Compra',
   PART_IS: 'A Peça é',
   QUANTITY_INFERIOR: 'A quantidade é inferior a',
@@ -1327,7 +1323,7 @@ const ptBRJSON = {
   upgrade: 'Atualizar',
   downgrade: 'Rebaixar',
   upgrade_description:
-    'Você acabou de atualizar seu plano de assinatura. Você precisa habilitar os usuários desabilitados que podem usar o {{shortBrandName}}. Você só pode fazer isso uma vez para a assinatura atual. Por favor, escolha com cuidado',
+    'Você acabou de atualizar seu plano de assinatura. Você precisa habilitar os usuários desabilitados que podem usar o Atlas. Você só pode fazer isso uma vez para a assinatura atual. Por favor, escolha com cuidado',
   enable_users: 'Habilitar usuários',
   max_users_description: 'Você pode habilitar até {{maxUsers}} usuários',
   downgrade_description:
@@ -1366,7 +1362,6 @@ const ptBRJSON = {
   edit_company: 'Editar empresa',
   fill_fields_below: 'Preencha os campos abaixo',
   IMPORT_CSV_feature: 'Importação de CSV',
-  RESOURCE_PLANNING_feature: 'Planejamento de recursos',
   no_import_access: 'Atualize seu plano para importar de arquivos CSV, Excel',
   members: 'Membros',
   assign_user: 'Atribuir Usuário',
@@ -1391,21 +1386,15 @@ const ptBRJSON = {
   simplify_wo: 'Simplificar Ordens de Serviço no aplicativo móvel',
   simplify_wo_description:
     'Ocultar controles de tempo, custos e peças nos detalhes da Ordem de Serviço ao usar o aplicativo móvel',
-  auto_generate_asset_barcode: 'Gerar códigos de barras automaticamente',
-  auto_generate_asset_barcode_description:
-    'Se esta opção estiver marcada, os códigos de barras serão gerados automaticamente quando os ativos forem criados',
   account_deletion: 'Exclusão de conta',
   switch_account: 'Trocar conta',
   switch_to_super_user: 'Trocar para super administrador',
   switch_account_description: 'Por favor, escolha uma conta para prosseguir',
   put_location_in_map: 'Colocar localização no mapa',
   confirm_disable_user:
-    'Tem certeza de que deseja desabilitar {{user}}?',
+    'Tem certeza de que deseja desabilitar {{user}}? Você só poderá habilitá-lo após um mês',
   user_disabled_success: 'Usuário desabilitado com sucesso',
   disable: 'Desabilitar',
-  confirm_enable_user:
-    'Tem certeza de que deseja habilitar {{user}}?',
-  enable: 'Habilitar',
   manufacturer: 'Fabricante',
   power: 'Potência',
   import_error: 'A importação não foi bem-sucedida',
@@ -1496,509 +1485,7 @@ const ptBRJSON = {
     'Senha - deixe em branco se não quiser alterá-la',
   upgrade_request_success:
     'Solicitação de upgrade recebida! Entraremos em contato em breve com os detalhes de pagamento',
-  continue_with_sso: 'Continuar com o SSO',
-  see_live_demo: 'Ver demonstração ao vivo',
-  days: 'Dias',
-  weeks: 'Semanas',
-  months: 'Meses',
-  years: 'Anos',
-  based_on: 'Com base em',
-  scheduled_date: 'Data programada',
-  on: 'Em',
-  required_days_of_week: 'Dias da semana obrigatórios',
-  'schedule.daily_one': 'A cada {{count}} dia',
-  'schedule.daily_other': 'A cada {{count}} dias',
-  'schedule.weekly_one': 'A cada {{count}} semana em {{days}}',
-  'schedule.weekly_other': 'A cada {{count}} semanas em {{days}}',
-  'schedule.monthly_one': 'A cada {{count}} mês',
-  'schedule.monthly_other': 'A cada {{count}} meses',
-  'schedule.yearly_one': 'A cada {{count}} ano',
-  'schedule.yearly_other': 'A cada {{count}} anos',
-  csv_separator: 'Separador CSV',
-  open_source_cmms: 'CMMS de código aberto',
-  'main.title':
-    'CMMS gratuito e open source (software de gestão de manutenção)',
-  'home.h1':
-    'CMMS gratuito e de código aberto que você pode hospedar por conta própria ou usar na nuvem',
-  'home.h2': 'Manutenção potente a baixo custo',
-  'home.h3':
-    'Pare de depender de planilhas e quadros brancos. {{brandName}} ajuda as equipes de manutenção a planejar intervenções, rastrear equipamentos e manter a conformidade. Hospede em seu próprio servidor ou comece instantaneamente na nuvem.',
-  talk_to_sales: 'Fale com vendas',
-  'pricing.choose_plan_and_get_started': 'Escolha seu plano e comece',
-  'pricing.slogan_effective_maintenance':
-    'Nosso software fornece às equipes de Manutenção e Confiabilidade as ferramentas necessárias para executar as Operações de forma eficiente e eficaz.',
-  'pricing.compare_plans_and_pricing': 'Compare planos e preços.',
-  'pricing.see_which_plan_is_right_for_you':
-    'Veja qual plano é o ideal para você.',
-  'pricing.select_two_plans_to_compare': 'Selecione 2 planos para comparar.',
-  'pricing.select_three_plans_to_compare': 'Selecione 3 planos para comparar.',
-  'pricing.month_per_user': 'mês por usuário',
-  'pricing.year_per_user': 'ano por usuário',
-  'pricing.plan_basic_name': 'Básico',
-  'pricing.plan_basic_description':
-    'Equipes que buscam rastrear ativos e criar cronogramas de manutenção preventiva fundamentais com procedimentos.',
-  'pricing.feature_unlimited_work_orders': 'Ordens de serviço ilimitadas',
-  'pricing.feature_custom_tasks': 'Tarefas personalizadas',
-  'pricing.feature_unlimited_request_user_licenses':
-    'Licenças de usuário com solicitações ilimitadas',
-  'pricing.plan_starter_name': 'Iniciante',
-  'pricing.plan_starter_description':
-    'Equipes que buscam construir uma manutenção preventiva eficiente e robusta por meio da visibilidade do status das máquinas e da mão de obra.',
-  'pricing.feature_everything_in_basic_plus':
-    'Tudo incluído no pacote Básico, além de:',
-  'pricing.feature_preventive_maintenance_recurring_work_orders':
-    'Manutenção preventiva/Ordens de serviço recorrentes',
-  'pricing.feature_custom_checklists': 'Listas de verificação personalizadas',
-  'pricing.feature_inventory_management_costing': 'Gestão de estoque/Custos',
-  'pricing.feature_time_and_manpower_tracking':
-    'Controle de tempo e mão de obra',
-  'pricing.feature_thirty_day_analytics_reporting':
-    'Análise e Relatórios de 30 dias',
-  'pricing.plan_professional_name': 'Profissional',
-  'pricing.plan_professional_description':
-    'Departamentos que precisam aproveitar insights e análises para impulsionar ainda mais o crescimento e a produtividade da manutenção.',
-  'pricing.feature_everything_in_starter_plus':
-    'Tudo incluído no pacote Starter Plus:',
-  'pricing.feature_multiple_inventory_lines': 'Múltiplas linhas de estoque',
-  'pricing.feature_customizable_request_portal':
-    'Portal de Solicitação Personalizável',
-  'pricing.feature_mobile_offline_mode':
-    'Modo offline para dispositivos móveis',
-  'pricing.feature_advanced_analytics_reporting':
-    'Análises e relatórios avançados',
-  'pricing.plan_business_name': 'Negócios',
-  'pricing.plan_business_description':
-    'Organizações prontas para coletar dados de manutenção e operações para gerenciar múltiplas localizações e personalizar sistemas.',
-  'pricing.feature_everything_in_professional_plus':
-    'Tudo incluído no pacote Profissional, além de:',
-  'pricing.feature_purchase_order_management': 'Gestão de Pedidos de Compra',
-  'pricing.feature_multi_site_module_support':
-    'Suporte a módulos em vários locais',
-  'pricing.feature_custom_work_order_statuses':
-    'Status personalizados de ordens de serviço',
-  'pricing.feature_custom_integrations_support':
-    'Suporte para integrações personalizadas',
-  'pricing.feature_work_order_management': 'Gestão de Ordens de Serviço',
-  'pricing.feature_recurring_work_orders': 'Ordens de serviço recorrentes',
-  'pricing.feature_custom_categories': 'Categorias personalizadas',
-  'pricing.feature_data_importing': 'Importação de dados',
-  'pricing.feature_time_and_cost_tracking': 'Controle de tempo e custo',
-  'pricing.feature_work_order_configuration':
-    'Configuração da Ordem de Serviço',
-  'pricing.feature_internal_requests': 'Solicitações internas',
-  'pricing.feature_external_request_portal': 'Portal de Solicitações Externas',
-  'pricing.category_locations_assets_parts': 'Localizações, ativos e peças',
-  'pricing.feature_location_management': 'Gestão de Localização',
-  'pricing.feature_barcode_scanning': 'Leitura de código de barras',
-  'pricing.feature_inventory_management': 'Gestão de estoque',
-  'pricing.feature_custom_asset_statuses': 'Status de ativos personalizados',
-  'pricing.feature_asset_downtime_tracking':
-    'Monitoramento do tempo de inatividade de ativos',
-  'pricing.feature_asset_depreciation_tracking':
-    'Rastreamento da depreciação de ativos',
-  'pricing.feature_asset_warranty_tracking':
-    'Rastreamento de garantia de ativos',
-  'pricing.feature_purchase_orders_management': 'Ordens de Compra',
-  'pricing.feature_asset_check_in_out': 'Entrada/Saída de Ativos',
-  'pricing.category_mobile_offline': 'Dispositivo móvel offline',
-  'pricing.feature_work_order_availability':
-    'Disponibilidade de ordens de serviço',
-  'pricing.feature_updating_status': 'Atualizando o status',
-  'pricing.feature_updating_tasks': 'Atualizando tarefas',
-  'pricing.feature_work_order_drafts': 'Rascunhos de Ordem de Serviço',
-  'pricing.feature_full_drill_down_reporting_history':
-    'Relatórios e histórico completos e detalhados',
-  'pricing.period_thirty_days': '30 dias',
-  'pricing.period_full': 'Completo',
-  'pricing.feature_pdf_csv_exporting': 'Exportação para PDF e CSV',
-  'pricing.feature_itemized_time_reporting': 'Relatório de horas detalhado',
-  'pricing.feature_user_login_reports': 'Relatórios de login de usuários',
-  'pricing.feature_parts_consumption_reports': 'Relatórios de Consumo de Peças',
-  'pricing.feature_asset_downtime_reports':
-    'Relatórios de tempo de inatividade de ativos',
-  'pricing.feature_equipment_reliability_reports':
-    'Relatórios de Confiabilidade de Equipamentos',
-  'pricing.feature_multi_site_modules': 'Módulos Multissítios',
-  'pricing.category_integrations': 'Integrações',
-  'pricing.feature_business_integrations':
-    'Integrações de negócios (SAP/Oracle/Causal AI...)',
-  'pricing.feature_custom_integrations': 'Integrações personalizadas',
-  'pricing.feature_unlimited_view_only_users':
-    'Usuários com acesso somente para visualização ilimitado',
-  'pricing.feature_unlimited_requesters': 'Solicitantes ilimitados',
-  'pricing.feature_unlimited_vendors': 'Fornecedores ilimitados',
-  'pricing.feature_unlimited_customers': 'Clientes ilimitados',
-  'pricing.category_support': 'Apoiar',
-  'pricing.feature_daily_email_digest': 'Resumo diário por e-mail',
-  'pricing.feature_articles': 'Artigos',
-  'pricing.feature_training_webinars': 'Webinários de treinamento',
-  'pricing.feature_community_support_discord':
-    'Suporte da comunidade (Discord)',
-  'pricing.feature_email_support': 'Suporte por e-mail',
-  'pricing.feature_chat_phone_support': 'Suporte por chat/telefone',
-  'pricing.feature_priority_support': 'Suporte prioritário',
-  'pricing.feature_implementation_training': 'Implementação e Treinamento',
-  'pricing.feature_dedicated_account_manager': 'Gerente de Conta Dedicado',
-  'pricing.category_customization': 'Personalização',
-  'pricing.feature_custom_development': 'Desenvolvimento personalizado',
-  'pricing.sh_plan_basic_name': 'Básico',
-  'pricing.sh_plan_basic_description':
-    'Para pequenas equipes que precisam de total controle sobre os dados e rastreamento básico de manutenção em sua própria infraestrutura.',
-  'pricing.sh_feature_core_work_order_management':
-    'Gerenciamento de Ordens de Serviço Essenciais',
-  'pricing.sh_feature_asset_inventory_tracking':
-    'Rastreamento de ativos e estoque',
-  'pricing.sh_feature_local_data_storage': 'Armazenamento de dados local',
-  'pricing.sh_plan_professional_name': 'Profissional',
-  'pricing.sh_plan_professional_description':
-    'Ideal para o cultivo de plantas que exigem listas de verificação avançadas, fluxos de trabalho complexos e uma integração de sistemas mais profunda.',
-  'pricing.sh_feature_everything_in_basic_plus':
-    'Tudo incluído no pacote Básico, além de:',
-  'pricing.sh_feature_unlimited_assets_checklists':
-    'Ativos/Listas de Verificação Ilimitados',
-  'pricing.sh_feature_nfc_barcode_scanning':
-    'NFC e leitura de código de barras',
-  'pricing.sh_feature_email_support': 'Suporte por e-mail',
-  'pricing.sh_plan_business_name': 'Negócios',
-  'pricing.sh_plan_business_description':
-    'Operações em grande escala que exigem gerenciamento de múltiplas instâncias, identidade visual personalizada e segurança de alto nível.',
-  'pricing.sh_feature_everything_in_professional_plus':
-    'Tudo incluído no pacote Profissional, além de:',
-  'pricing.sh_feature_multi_instance_management':
-    'Gerenciamento de múltiplas instâncias',
-  'pricing.sh_feature_custom_user_roles': 'Funções de usuário personalizadas',
-  'pricing.sh_feature_priority_implementation_support':
-    'Apoio prioritário à implementação',
-  'pricing.faq_free_users_q':
-    'Que tipos de usuários são considerados usuários gratuitos?',
-  'pricing.faq_free_users_a1':
-    'Existem três tipos de usuários que não precisam de uma licença paga:',
-  'pricing.faq_view_only_users_title': 'Usuários somente para visualização',
-  'pricing.faq_view_only_users_description':
-    'Esses usuários são geralmente supervisores que acessam o sistema ocasionalmente para visualizar um panorama das atividades de manutenção. Eles também podem enviar solicitações de serviço e gerar relatórios.',
-  'pricing.faq_requester_users_title': 'Usuários solicitantes',
-  'pricing.faq_requester_users_description':
-    'Esses usuários só podem enviar solicitações de serviço e visualizar o status dessas solicitações. Eles não podem visualizar ordens de serviço, ativos, peças ou quaisquer outros dados armazenados no CMMS.',
-  'pricing.faq_third_party_users_title': 'Usuários de terceiros',
-  'pricing.faq_third_party_users_description':
-    'Esses usuários são geralmente fornecedores e contratados. Eles não podem acessar o sistema diretamente. Podem apenas enviar atualizações para uma ordem de serviço específica na qual estão vinculados por meio de um link público.',
-  'pricing.faq_paid_users_q':
-    'Que tipos de usuários são considerados usuários pagos?',
-  'pricing.faq_paid_users_a1':
-    'Existem três tipos de usuários que necessitam de uma licença paga:',
-  'pricing.faq_admin_users_title': 'Usuários administradores',
-  'pricing.faq_admin_users_description':
-    'Esses usuários têm a capacidade de adicionar outras pessoas à conta, aceitar ou recusar solicitações de serviço e editar detalhes da ordem de serviço. São eles que controlam a conta. Você pode ter vários administradores por conta.',
-  'pricing.faq_technical_users_title': 'Usuários técnicos',
-  'pricing.faq_technical_users_description':
-    'Esses usuários são geralmente técnicos que finalizam ordens de serviço em campo. Eles podem editar as ordens de serviço que criam, mas não as ordens de serviço de outros usuários. Podem adicionar fotos e atualizações de status às ordens de serviço e criar novas ordens de serviço.',
-  'pricing.faq_limited_technical_users_title': 'Usuários técnicos limitados',
-  'pricing.faq_limited_technical_users_description':
-    'Esses usuários têm os mesmos privilégios que o usuário técnico. A única exceção é que eles só podem visualizar as ordens de serviço atribuídas a eles — e não as de outros usuários técnicos da conta.',
-  'pricing.faq_change_plans_q': 'Posso mudar meus planos mais tarde?',
-  'pricing.faq_change_plans_a':
-    'Sim, você pode fazer upgrade ou downgrade do seu plano a qualquer momento. As alterações entram em vigor no início do seu próximo ciclo de faturamento.',
-  'pricing.faq_free_trial_q': 'Existe algum período de teste gratuito?',
-  'pricing.faq_free_trial_a':
-    'Sim, oferecemos um período de teste gratuito de 15 dias do plano Business para que você possa experimentar todos os recursos antes de tomar uma decisão.',
-  'pricing.faq_non_profit_discounts_q':
-    'Vocês oferecem descontos para organizações sem fins lucrativos?',
-  'pricing.faq_non_profit_discounts_a':
-    'Sim, oferecemos preços especiais para organizações sem fins lucrativos. Entre em contato com nossa equipe de vendas para obter mais informações.',
-  'pricing.faq_payment_methods_q': 'Quais métodos de pagamento vocês aceitam?',
-  'pricing.faq_payment_methods_a':
-    'Aceitamos todos os principais cartões de crédito, transferências bancárias e PayPal. Para planos empresariais, também podemos providenciar a emissão de faturas.',
-  'pricing.faq_cancel_subscription_q': 'Posso cancelar minha assinatura?',
-  'pricing.faq_cancel_subscription_a':
-    'Sim, você pode cancelar sua assinatura a qualquer momento. Você continuará tendo acesso até o final do seu período de faturamento atual.',
-  'pricing.faq_data_secure_q': 'Meus dados estão seguros?',
-  'pricing.faq_data_secure_a':
-    'Sim, levamos a segurança de dados muito a sério. Todos os dados são criptografados em trânsito e em repouso, e realizamos auditorias de segurança regularmente.',
-  'pricing.faq_title': 'Perguntas frequentes',
-  'pricing.annually_save_two_months': 'Anualmente (Economize 2 meses)',
-  'pricing.most_popular': 'Mais populares',
-  'pricing.get_your_license': 'Obtenha sua licença',
-  get_started: 'Comece agora',
-  workflow_automation: 'Automação de fluxo de trabalho',
-  push_notifications: 'Notificações Push',
-  cloud: 'Nuvem',
-  self_hosted: 'Autohospedado',
-  full: 'Completo',
-  pricing: 'Preços',
-  industries: 'Indústrias',
-  work_order_management: 'Gestão de ordens de serviço',
-  inventory_management: 'Gestão de estoque',
-  analytics_and_reporting: 'Análises e relatórios',
-  manufacturing: 'Manufatura',
-  facility_management: 'Gestão de facilidades',
-  food_and_beverage: 'Alimentos e bebidas',
-  healthcare: 'Saúde',
-  energy_and_utilities: 'Energia e serviços públicos',
-  education: 'Educação',
-  hospitality: 'Hospitalidade',
-  construction: 'Construção',
-  installation_docs: 'Documentação de instalação',
-  trusted_by_maintenance_teams:
-    'Confiado por equipes de manutenção em vários setores',
-  cut_costs_performance:
-    'Reduza os custos de software de manutenção sem sacrificar o desempenho',
-  'free_cmms.title':
-    'Software CMMS Grátis Atlas | Sem necessidade de cartão de crédito',
-  'free_cmms.description':
-    'Software CMMS gratuito — não é uma versão de teste. Gerencie manutenção, ativos e ordens de serviço instantaneamente. Sem necessidade de cartão de crédito.',
-  'free_cmms.keywords':
-    'cmms grátis, software de gestão de manutenção, software de ordens de serviço grátis, rastreamento de ativos, manutenção preventiva',
-  'overview.description':
-    'O Atlas CMMS é um CMMS gratuito e de código aberto para gerenciar ordens de serviço, manutenção preventiva, ativos e instalações. Simplifique suas operações de manutenção hoje mesmo.',
-  'overview.keywords':
-    'CMMS, sistema informatizado de gestão de manutenção, EAM, gestão de ativos empresariais, cmms de código aberto, software de manutenção gratuito, gestão de ordens de serviço, manutenção preventiva, rastreamento de ativos, gestão de instalações, software de rastreamento de manutenção, manutenção de equipamentos, Atlas CMMS',
-  'pricing.title': 'Preços - Atlas CMMS',
-  'pricing.description':
-    'Planos de preços flexíveis para o Atlas CMMS. Escolha entre as versões Cloud e Self-Hosted do nosso CMMS de código aberto para otimizar suas operações de manutenção.',
-  'free_cmms.hero.subtitle': 'Software CMMS Grátis',
-  'free_cmms.hero.title':
-    'Gerencie Ordens de Serviço e Ativos - Grátis para Sempre',
-  'free_cmms.hero.description':
-    'Pare de fazer malabarismos com planilhas e ferramentas desatualizadas. Atualize para um software CMMS moderno - de graça.',
-  'free_cmms.hero.start_free': 'Comece Grátis Agora',
-  'free_cmms.hero.work_orders_alt': 'Ordens de Serviço',
-  'free_cmms.hero.mobile_app_alt': 'Aplicativo Móvel',
-  'free_cmms.features.work_orders.title': 'Ordens de Serviço Sem Esforço',
-  'free_cmms.features.work_orders.p1':
-    'Crie, atribua e rastreie ordens de serviço em segundos.',
-  'free_cmms.features.work_orders.p2':
-    'Anexe fotos, manuais e listas de verificação a qualquer tarefa.',
-  'free_cmms.features.work_orders.p3':
-    'Monitore o progresso em tempo real com atualizações de status instantâneas.',
-  'free_cmms.features.work_orders.alt': 'Gestão de Ordens de Serviço',
-  'free_cmms.features.asset_tracking.title':
-    'Rastreamento do Ciclo de Vida dos Ativos',
-  'free_cmms.features.asset_tracking.p1':
-    'Mantenha um histórico digital completo de cada ativo.',
-  'free_cmms.features.asset_tracking.p2':
-    'Tome decisões baseadas em dados sobre reparo vs. substituição.',
-  'free_cmms.features.asset_tracking.p3':
-    'Esteja pronto para auditorias com registros de conformidade automatizados.',
-  'free_cmms.features.asset_tracking.alt': 'Gestão de Ativos',
-  'free_cmms.features.inventory.title': 'Estoque e Peças',
-  'free_cmms.features.inventory.p1':
-    'Rastreie níveis de estoque em vários locais em tempo real.',
-  'free_cmms.features.inventory.p2':
-    'Escaneie códigos QR para busca e uso instantâneo de peças.',
-  'free_cmms.features.inventory.p3':
-    'Receba alertas automáticos de estoque baixo e reabasteça instantaneamente.',
-  'free_cmms.features.inventory.alt': 'Gestão de Estoque',
-  'free_cmms.features.mobile.title': 'Manutenção em Movimento',
-  'free_cmms.features.mobile.p1':
-    'Funcionalidade completa do aplicativo móvel para iOS e Android.',
-  'free_cmms.features.mobile.p2':
-    'Capture fotos e escaneie códigos de barras diretamente do campo.',
-  'free_cmms.features.mobile.p3':
-    'Sincronize dados instantaneamente e trabalhe offline quando necessário.',
-  'free_cmms.features.mobile.alt': 'Aplicativo CMMS Móvel',
-  'free_cmms.features.get_started_free': 'Comece de graça',
-  'free_cmms.features.ready_to_optimize':
-    'Pronto para otimizar sua manutenção?',
-  'free_cmms.features.join_thousands':
-    'Junte-se a milhares de profissionais de manutenção que usam o CMMS gratuito mais intuitivo do mundo.',
-  'free_cmms.features.get_started_no_card':
-    'Comece de graça - Sem necessidade de cartão de crédito',
-  create_request_portal: 'Criar portal de solicitações',
-  edit_request_portal: 'Editar portal de solicitações',
-  welcome_message: 'Mensagem de boas-vindas',
-  fields: 'Campos',
-  field_settings: 'Configurações de campos',
-  contact: 'Contato',
-  required_title: 'O título é obrigatório',
-  untitled_portal: 'Portal sem título',
-  no_welcome_message: 'Sem mensagem de boas-vindas',
-  request_portal_create_success: 'Portal de solicitações criado com sucesso',
-  request_portal_edit_success: 'Portal de solicitações atualizado com sucesso',
-  request_portal_delete_success: 'Portal de solicitações excluído com sucesso',
-  request_portal_create_failure: 'Falha ao criar portal de solicitações',
-  request_portal_edit_failure: 'Falha ao atualizar portal de solicitações',
-  request_portal_delete_failure: 'Falha ao excluir portal de solicitações',
-  no_access_request_portals: 'Você não tem acesso aos portais de solicitações',
-  'noRows.request_portal.message':
-    'Parece que você ainda não tem nenhum portal de solicitações.',
-  'noRows.request_portal.action': 'Crie seu primeiro portal de solicitações',
-  request_title: 'Título da solicitação',
-  configure_form_fields: 'Configurar campos do formulário',
-  allow_selection_from_all_locations: 'Permitir seleção de todos os locais',
-  allow_selection_from_all_assets: 'Permitir seleção de todos os ativos',
-  restrict_to_a_specific_location: 'Restringir a um local específico',
-  restrict_to_a_specific_asset: 'Restringir a um ativo específico',
-  portal_public_asset_warning:
-    'Este portal é público e não requer autenticação. Os ativos listados ficarão visíveis para qualquer pessoa com o link.',
-  portal_public_location_warning:
-    'Este portal é público e não requer autenticação. Os locais listados ficarão visíveis para qualquer pessoa com o link.',
-  submit_request: 'Enviar solicitação',
-  share_portal: 'Compartilhar portal',
-  get_portal_link: 'Obter link do portal',
-  portal_link_description:
-    'Apenas pessoas com este link podem acessar o portal.',
-  print_qr_code: 'Imprimir código QR',
-  qr_code_description:
-    'Baixe o código QR e cole-o na instalação, para que os usuários possam escaneá-lo e acessar o portal.',
-  copied: 'Copiado!',
-  copy: 'Copiar',
-  download: 'Baixar',
-  share: 'Compartilhar',
-  delete: 'Excluir',
-  portal_not_found: 'Portal não encontrado',
-  request_submitted_success: 'Sua solicitação foi enviada com sucesso',
-  request_submit_failure: 'Falha ao enviar solicitação. Tente novamente.',
-  required_description: 'A descrição é obrigatória',
-  required_contact: 'O contato é obrigatório',
-  required_location: 'O local é obrigatório',
-  upload_files: 'Carregar arquivos',
-  request_portal: 'Portal de solicitações',
-  required_image: 'A imagem é obrigatória',
-  requested_from_portal: 'Esta solicitação foi criada a partir do portal: ',
-  request_portals: 'Portais de solicitações',
-  recaptcha_failed: 'Falha na verificação reCAPTCHA. Tente novamente.',
-  select_date_range: 'Selecionar intervalo de datas',
-  get_mobile_app: 'Obter aplicativo móvel',
-  scan_qr_to_download: 'Escaneie o código QR para baixar o aplicativo móvel',
-  integrations: 'Integrações',
-  api_keys: 'Chaves API',
-  connectors: 'Conectores',
-  webhooks: 'Webhooks',
-  create_api_key: 'Criar chave API',
-  api_key_label: 'Rótulo da chave API',
-  api_key_created_success: 'Chave API criada com sucesso',
-  api_key_code_copied:
-    'Código da chave API copiado para a área de transferência',
-  api_key_code_view_once:
-    'Este código só pode ser visualizado uma vez. Copie agora, pois não será possível vê-lo novamente.',
-  api_key_code: 'Código da chave API',
-  copy_code: 'Copiar código',
-  last_used: 'Último uso',
-  never: 'Nunca',
-  delete_api_key: 'Excluir chave API',
-  delete_api_key_confirm: 'Tem certeza de que deseja excluir esta chave API?',
-  upgrade_api: 'Faça upgrade para acessar a API, conectores e webhooks',
-  comments: 'Comentários',
-  add_comment_placeholder: 'Adicionar um comentário...',
-  post_comment: 'Publicar comentário',
-  no_comments: 'Nenhum comentário ainda',
-  confirm_delete_comment: 'Tem certeza de que deseja excluir este comentário?',
-  work_orders_settings_description:
-    'Personalize as preferências de ordens de trabalho como rastreamento de tempo e custo, e mais.',
-  requests_settings_description:
-    'Personalize as preferências de solicitações como roteamento e campos obrigatórios',
-  assets_settings_description:
-    'Personalize configurações relacionadas a ativos como geração de código de barras ou formulário de criação de ativos.',
-  locations_settings_description:
-    'Crie, gerencie e edite locais dentro da sua organização.',
-  parts_inventory_settings_description:
-    'Personalize o formulário e preferências do inventário de peças',
-  meters_settings_description: 'Personalize o formulário e preferências de medidores',
-  vendors_contractors_settings_description:
-    'Gerencie contratantes e fornecedores externos com os quais sua organização trabalha',
-  workflows_settings_description: 'Crie e gerencie fluxos de trabalho automatizados',
-  request_portals_settings_description:
-    'Crie, gerencie e edite todos os portais de solicitação da sua organização.',
-  set_preferences: 'Definir preferências',
-  enabled: 'Ativado',
-  disabled: 'Desativado',
-  go_to_request_portals: 'Ir para portais de solicitação',
-  preferences: 'Preferências',
-  customize_work_order_form: 'Personalizar formulário de ordem de trabalho',
-  custom_fields: 'Campos personalizados',
-  configure_fields: 'Configurar campos',
-  add_custom_field: 'Adicionar campo personalizado',
-  edit_custom_field: 'Editar campo personalizado',
-  confirm_delete_custom_field:
-    'Tem certeza de que deseja excluir este campo personalizado?',
-  copy_on_repeat_wo: 'Copiar os valores deste campo em ordens de trabalho repetidas',
-  do_not_copy: 'Não copiar',
-  enter_options_comma_separated: 'Digite as opções separadas por vírgulas',
-  field_type: 'Tipo de campo',
-  options: 'Opções',
-  short_text: 'Texto curto',
-  long_text: 'Texto longo',
-  number: 'Número',
-  date_time: 'Data e hora',
-  single_choice: 'Escolha única',
-  label: 'Rótulo',
-  customize_form: 'Personalizar o formulário',
-  type_enter_to_add_option: 'Digite e pressione enter para adicionar uma opção',
-  customers_settings_description:
-    'Gerencie contratantes externos com os quais sua organização trabalha.',
-  vendors_settings_description: 'Personalize configurações relacionadas a fornecedores',
-  view: 'Visualizar',
-  view_other: 'Ver outro',
-  view_other_hint: '"Ver outro" significa ver algo criado por outra pessoa',
-  go_to_billing: 'Ir para faturamento',
-  import_from_spreadsheet: 'Importar de uma planilha ou CSV',
-  reset: 'Redefinir',
-  confirm_delete_row: 'Tem certeza de que deseja excluir esta linha?',
-  scheduled: 'Agendado',
-  customize_shift: 'Personalizar turno',
-  default_schedule: 'Horário padrão',
-  custom_capacity_by_week: 'Capacidade personalizada por semana',
-  total_weekly_capacity: 'Capacidade semanal total {{hours}}h {{minutes}}m',
-  hours_abbrev: 'h',
-  minutes_abbrev: 'm',
-  monday: 'Segunda-feira',
-  tuesday: 'Terça-feira',
-  wednesday: 'Quarta-feira',
-  thursday: 'Quinta-feira',
-  friday: 'Sexta-feira',
-  saturday: 'Sábado',
-  sunday: 'Domingo',
-  set_estimated_duration: 'Definir duração estimada',
-  schedule: 'Agendar',
-  workload_view: 'Visualização de carga de trabalho',
-  this_week: 'Esta semana',
-  total_resource_capacity: 'Capacidade total de recursos',
-  unscheduled_work_orders: 'Ordens de trabalho não agendadas',
-  user_capacity: 'Capacidade do usuário',
-  overdue: 'Vencido',
-  due_soon: 'Vence em breve',
-  all_users: 'Todos os usuários',
-  team_member: 'Membro da equipe',
-  no_data: 'Sem dados',
-  hours_left: 'restante',
-  export_cost_and_time: 'Exportar custo e tempo',
-   export_work_orders: 'Exportar ordens de serviço',
-   copy_wo: 'Copiar ordem de serviço',
-   copy_pm: 'Copiar manutenção preventiva',
-   copy_pm_description:
-     'Preencha os campos abaixo para copiar uma manutenção preventiva',
-   copy_asset: 'Copiar ativo',
-   copy_asset_description:
-     'Preencha os campos abaixo para copiar este ativo',
-   copy_location: 'Copiar localização',
-   copy_location_description:
-     'Preencha os campos abaixo para copiar esta localização',
-   copy_meter: 'Copiar medidor',
-   copy_meter_description:
-     'Preencha os campos abaixo para copiar este medidor',
-   copy_part: 'Copiar peça',
-    copy_part_description:
-      'Preencha os campos abaixo para copiar esta peça',
-  customize_report_description: 'O que deve ser incluído neste PDF?',
-  work_order_information: 'Informações da ordem de serviço',
-  brand_color: 'Cor da marca',
-  restock_part: 'Reabastecer peça',
-   restock: 'Reabastecer',
-  export_part_transactions: 'Exportar transações de peças',
-  export_parts: 'Exportar peças',
-  edit_time: 'Editar tempo',
-  edit_cost: 'Editar custo',
-  confirm_delete_labor: 'Tem certeza de que deseja excluir esta mão de obra?',
-  confirm_delete_additional_cost: 'Tem certeza de que deseja excluir este custo?',
-  discard_changes: 'Descartar alterações',
-  discard_changes_question:
-    "Descartar alterações não salvas?\n Se você sair agora, perderá as alterações não salvas",
-  email_contractors: 'E-mail para contratantes',
-  email_contractors_description: 'Configure o relatório e adicione uma mensagem opcional para enviar aos contratantes.',
-  custom_message_optional: 'Mensagem personalizada (opcional)',
-  send_work_order_as_pdf: 'Enviar ordem de serviço como PDF',
-  report_sent_success: 'Relatório enviado com sucesso',
-  trigger_work_order: 'Acionar ordem de serviço'
+  continue_with_sso: 'Continuar com o SSO'
 };
 
 export default ptBRJSON;

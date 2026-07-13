@@ -19,15 +19,10 @@ import useRefMounted from 'src/hooks/useRefMounted';
 import { useTranslation } from 'react-i18next';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import {
-  apiUrl,
-  isSSOEnabled,
-  ldapEnabled,
-  oauth2Provider
-} from '../../../../config';
+import { apiUrl, isSSOEnabled, oauth2Provider } from '../../../../config';
 
 const LoginJWT: FC = () => {
-  const { login } = useAuth();
+  const { login } = useAuth() as any;
   const isMountedRef = useRefMounted();
   const { t }: { t: any } = useTranslation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
@@ -42,12 +37,10 @@ const LoginJWT: FC = () => {
         submit: null
       }}
       validationSchema={Yup.object().shape({
-        email: ldapEnabled
-          ? Yup.string().required().required('ID is required')
-          : Yup.string()
-              .email(t('invalid_email'))
-              .max(255)
-              .required(t('required_email')),
+        email: Yup.string()
+          .email(t('invalid_email'))
+          .max(255)
+          .required(t('required_email')),
         password: Yup.string().max(255).required(t('required_password'))
       })}
       onSubmit={async (
@@ -55,7 +48,7 @@ const LoginJWT: FC = () => {
         { setErrors, setStatus, setSubmitting }
       ): Promise<void> => {
         setSubmitting(true);
-        return login(values.email, values.password, ldapEnabled)
+        return login(values.email, values.password)
           .catch((err) => {
             showSnackBar(t('wrong_credentials'), 'error');
             setStatus({ success: false });
@@ -83,11 +76,11 @@ const LoginJWT: FC = () => {
             margin="normal"
             autoFocus
             helperText={touched.email && errors.email}
-            label={ldapEnabled ? t('id') : t('email')}
+            label={t('email')}
             name="email"
             onBlur={handleBlur}
             onChange={handleChange}
-            type={ldapEnabled ? 'text' : 'email'}
+            type="email"
             value={values.email}
             variant="outlined"
           />
@@ -104,8 +97,8 @@ const LoginJWT: FC = () => {
             value={values.password}
             variant="outlined"
             InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
+              startAdornment: (
+                <InputAdornment position="start">
                   <IconButton onClick={() => setShowPassword(!showPassword)}>
                     <VisibilityIcon />
                   </IconButton>
@@ -137,7 +130,7 @@ const LoginJWT: FC = () => {
           >
             {t('login')}
           </Button>
-          {isSSOEnabled && !ldapEnabled && (
+          {isSSOEnabled && (
             <Box>
               <Box display="flex" alignItems="center" my={3}>
                 <Divider sx={{ flexGrow: 1 }} />

@@ -9,7 +9,6 @@ export interface GeneralPreferences {
   businessType: string;
   timeZone: string;
   daysBeforePrevMaintNotification: number;
-  csvSeparator: string;
 
   autoAssignWorkOrders: boolean;
 
@@ -24,6 +23,4 @@ export interface GeneralPreferences {
   woUpdateForRequesters: boolean;
 
   simplifiedWorkOrder: boolean;
-  autoGenerateAssetBarcode: boolean;
-  color: string | null;
 }

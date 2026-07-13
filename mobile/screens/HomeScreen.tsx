@@ -74,7 +74,6 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     if (userSettings)
       dispatch(getMobileOverviewStats(userSettings.statsForAssignedWorkOrders));
   };
-
   const stats: {
     label: ExtendedWorkOrderStatus;
     value: number;
@@ -174,7 +173,6 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
   ];
   return (
     <ScrollView
-      contentContainerStyle={{ paddingBottom: 100 }}
       style={{ ...styles.container, backgroundColor: theme.colors.background }}
       refreshControl={
         <RefreshControl
@@ -188,8 +186,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
         style={{
           display: 'flex',
           flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center'
+          justifyContent: 'space-between'
         }}
       >
         {hasViewPermission(PermissionEntity.ASSETS) && (

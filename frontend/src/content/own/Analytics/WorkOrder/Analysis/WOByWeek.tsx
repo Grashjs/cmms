@@ -22,17 +22,16 @@ interface WOStatusIncompleteProps {
     filters: Filter[],
     title: string
   ) => void;
-  companyId?: number;
 }
-function WOByWeek({ handleOpenModal, companyId }: WOStatusIncompleteProps) {
+function WOByWeek({ handleOpenModal }: WOStatusIncompleteProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const { completeByWeek, loading } = useSelector((state) => state.woAnalytics);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getCompleteByWeek(companyId));
-  }, [companyId]);
+    dispatch(getCompleteByWeek());
+  }, []);
 
   const columns: string[] = ['id'];
 

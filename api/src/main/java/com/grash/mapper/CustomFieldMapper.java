@@ -1,8 +1,6 @@
 package com.grash.mapper;
 
-import com.grash.dto.cutomField.CustomFieldPatchDTO;
-import com.grash.dto.cutomField.CustomFieldPostDTO;
-import com.grash.dto.cutomField.CustomFieldShowDTO;
+import com.grash.dto.CustomFieldPatchDTO;
 import com.grash.model.CustomField;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -14,11 +12,4 @@ public interface CustomFieldMapper {
 
     @Mappings({})
     CustomFieldPatchDTO toPatchDto(CustomField model);
-
-    @Mappings({})
-    CustomField toModel(CustomFieldPostDTO model);
-
-    @Mappings({})
-    CustomFieldShowDTO toShowDto(CustomField model);
 }
-

@@ -1,4 +1,4 @@
 ID,Başlık,Durum,Öncelik,Tanım,Bitiş tarihi,Tahmini Saatler,İmza Gerektirir,Kategori,Yer Adı,Ekip adı,Birincil İşçi,Atanan,Varlık Adı,Tamamlayan,Tamamlandı,Arşivlenmiş,Geri Bildirim,Yükleniciler
-2538,Konveyör Bandı Hasarını Onar,Tamam,Yüksek,"Bant sıkıştı, üretim durdu",,0,Hayır,Acil,Pasajevi 1,,technician1testcmms@gmail.com,,Konveyör Bantları-Yumurta Toplama Sistemi-Pasajevi,a1testcmms@gmail.com,2024-03-02 01:33:49.802,Hayır,Teknik hesabından kapatılamadığı için yönetici tarafından tamamlandı,
-3897,Test1,Açık,Yok,,,0,Hayır,,,,a1testcmms@gmail.com,,,,,Hayır,,
+2538,Konveyör Bandı Hasarını Onar,Tamam,Yüksek,"Bant sıkıştı, üretim durdu",,0,Hayır,Acil,Pasajevi 1,,technician1atlascmms@gmail.com,,Konveyör Bantları-Yumurta Toplama Sistemi-Pasajevi,a1atlascmms@gmail.com,2024-03-02 01:33:49.802,Hayır,Teknik hesabından kapatılamadığı için yönetici tarafından tamamlandı,
+3897,Test1,Açık,Yok,,,0,Hayır,,,,a1atlascmms@gmail.com,,,,,Hayır,,
 2632,Tech 2'ye Gerçek İş Emri Yardım Et,Açık,Yüksek,güvenliği sağlamak ve LOTO'yu sağlamak,,1,Hayır,,,Takım 2,,,Yedek Jeneratör-Utility Alanı,,,Hayır,,

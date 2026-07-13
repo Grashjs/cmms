@@ -2,136 +2,137 @@ package com.grash.controller;
 
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
-import com.grash.model.User;
+import com.grash.factory.StorageServiceFactory;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.service.*;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import com.grash.utils.CsvFileGenerator;
+import com.grash.utils.Helper;
+import com.grash.utils.MultipartFileImpl;
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequestMapping("/export")
-@Tag(name = "Export", description = "Operations for exporting data")
+@Api(tags = "export")
 @RequiredArgsConstructor
-@Slf4j
+@Transactional
 public class ExportController {
+
+    private final AssetService assetService;
+    private final MeterService meterService;
     private final UserService userService;
-    private final AsyncExportService asyncExportService;
+    private final LocationService locationService;
+    private final PartService partService;
+    private final WorkOrderService workOrderService;
+    private final CsvFileGenerator csvFileGenerator;
+    private final StorageServiceFactory storageServiceFactory;
 
     @GetMapping("/work-orders")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> exportWorkOrders(HttpServletRequest req, @Parameter(description = "Unique " +
-            "identifier for tracking the export job") @RequestParam String uuid) {
-        User user = userService.whoami(req);
+    public ResponseEntity<SuccessResponse> exportWorkOrders(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
 
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS)) {
-            asyncExportService.exportWorkOrders(user, uuid);
+            ByteArrayOutputStream target = new ByteArrayOutputStream();
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
+            csvFileGenerator.writeWorkOrdersToCsv(workOrderService.findByCompany(user.getCompany().getId()),
+                    outputStreamWriter, Helper.getLocale(user));
+            byte[] bytes = target.toByteArray();
+            MultipartFile file = new MultipartFileImpl(bytes, "Work Orders.csv");
             return ResponseEntity.ok()
-                    .body(new SuccessResponse(true, uuid));
+                    .body(new SuccessResponse(true, storageServiceFactory.getStorageService().uploadAndSign(file,
+                            user.getCompany().getId() + "/exports" +
+                                    "/work-orders")));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/assets")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> exportAssets(HttpServletRequest req, @Parameter(description = "Unique " +
-            "identifier for tracking the export job") @RequestParam String uuid) {
-        User user = userService.whoami(req);
+    public ResponseEntity<SuccessResponse> exportAssets(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
 
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS)) {
-            asyncExportService.exportAssets(user, uuid);
+            ByteArrayOutputStream target = new ByteArrayOutputStream();
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
+            csvFileGenerator.writeAssetsToCsv(assetService.findByCompany(user.getCompany().getId()),
+                    outputStreamWriter, Helper.getLocale(user));
+            byte[] bytes = target.toByteArray();
+            MultipartFile file = new MultipartFileImpl(bytes, "Assets.csv");
             return ResponseEntity.ok()
-                    .body(new SuccessResponse(true, uuid));
+                    .body(new SuccessResponse(true, storageServiceFactory.getStorageService().uploadAndSign(file,
+                            user.getCompany().getId() + "/exports" +
+                                    "/assets")));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/locations")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> exportLocations(HttpServletRequest req, @Parameter(description = "Unique " +
-            "identifier for tracking the export job") @RequestParam String uuid) {
-        User user = userService.whoami(req);
+    public ResponseEntity<SuccessResponse> exportLocations(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
 
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.LOCATIONS)) {
-            asyncExportService.exportLocations(user, uuid);
+            ByteArrayOutputStream target = new ByteArrayOutputStream();
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
+            csvFileGenerator.writeLocationsToCsv(locationService.findByCompany(user.getCompany().getId()),
+                    outputStreamWriter, Helper.getLocale(user));
+            byte[] bytes = target.toByteArray();
+            MultipartFile file = new MultipartFileImpl(bytes, "Locations.csv");
             return ResponseEntity.ok()
-                    .body(new SuccessResponse(true, uuid));
+                    .body(new SuccessResponse(true, storageServiceFactory.getStorageService().uploadAndSign(file,
+                            user.getCompany().getId() + "/exports" +
+                                    "/locations")));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/parts")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> exportParts(HttpServletRequest req, @Parameter(description = "Unique " +
-            "identifier for tracking the export job") @RequestParam String uuid) {
-        User user = userService.whoami(req);
+    public ResponseEntity<SuccessResponse> exportParts(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
 
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
-            asyncExportService.exportParts(user, uuid);
+            ByteArrayOutputStream target = new ByteArrayOutputStream();
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
+            csvFileGenerator.writePartsToCsv(partService.findByCompany(user.getCompany().getId()), outputStreamWriter
+                    , Helper.getLocale(user));
+            byte[] bytes = target.toByteArray();
+            MultipartFile file = new MultipartFileImpl(bytes, "Parts.csv");
             return ResponseEntity.ok()
-                    .body(new SuccessResponse(true, uuid));
-        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-    }
-
-    @GetMapping("/part-transactions")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> exportPartTransactions(HttpServletRequest req,
-                                                                   @Parameter(description = "Unique identifier " +
-                                                                           "for tracking the export job") @RequestParam String uuid) {
-        User user = userService.whoami(req);
-
-        if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
-            asyncExportService.exportPartTransactions(user, uuid);
-            return ResponseEntity.ok()
-                    .body(new SuccessResponse(true, uuid));
+                    .body(new SuccessResponse(true, storageServiceFactory.getStorageService().uploadAndSign(file,
+                            user.getCompany().getId() + "/exports" +
+                                    "/parts")));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/meters")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> exportMeters(HttpServletRequest req, @Parameter(description = "Unique " +
-            "identifier for tracking the export job") @RequestParam String uuid) {
-        User user = userService.whoami(req);
+    public ResponseEntity<SuccessResponse> exportMeters(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
 
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.METERS)) {
-            asyncExportService.exportMeters(user, uuid);
+            ByteArrayOutputStream target = new ByteArrayOutputStream();
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
+            csvFileGenerator.writeMetersToCsv(meterService.findByCompany(user.getCompany().getId()),
+                    outputStreamWriter, Helper.getLocale(user));
+            byte[] bytes = target.toByteArray();
+            MultipartFile file = new MultipartFileImpl(bytes, "Meters.csv");
             return ResponseEntity.ok()
-                    .body(new SuccessResponse(true, uuid));
-        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-    }
-
-    @GetMapping("/preventive-maintenances")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> exportPreventiveMaintenances(HttpServletRequest req,
-                                                                        @Parameter(description = "Unique identifier " +
-                                                                                "for tracking the export job") @RequestParam String uuid) {
-        User user = userService.whoami(req);
-
-        if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)) {
-            asyncExportService.exportPreventiveMaintenances(user, uuid);
-            return ResponseEntity.ok()
-                    .body(new SuccessResponse(true, uuid));
-        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-    }
-
-    @GetMapping("/costs-times")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> exportCostsAndTimes(HttpServletRequest req,
-                                                               @Parameter(description = "Unique identifier for " +
-                                                                       "tracking the export job") @RequestParam String uuid) {
-        User user = userService.whoami(req);
-        if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS)) {
-            asyncExportService.exportCostsAndTimes(user, uuid);
-            return ResponseEntity.ok()
-                    .body(new SuccessResponse(true, uuid));
+                    .body(new SuccessResponse(true, storageServiceFactory.getStorageService().uploadAndSign(file,
+                            user.getCompany().getId() + "/exports" +
+                                    "/meters")));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 }
-

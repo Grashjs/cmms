@@ -17,10 +17,9 @@ interface WOByPrimaryUserProps {
   ) => void;
   start: Date;
   end: Date;
-  companyId?: number;
 }
 
-function WOByCategory({ handleOpenModal, start, end, companyId }: WOByPrimaryUserProps) {
+function WOByCategory({ handleOpenModal, start, end }: WOByPrimaryUserProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -29,8 +28,8 @@ function WOByCategory({ handleOpenModal, start, end, companyId }: WOByPrimaryUse
   );
 
   useEffect(() => {
-    dispatch(getCompleteByCategory(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getCompleteByCategory(start, end));
+  }, [start, end]);
 
   const columns = ['id'];
 

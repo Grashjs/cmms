@@ -21,16 +21,13 @@ function PlanFeatures(props: PlanFeatureProps) {
     'WORK_ORDER_HISTORY'
   ].map((feature) => ({
     name: feature,
-    isBasic: true as const
+    isBasic: true
   }));
-  const completeFeatures: (
-    | { isBasic: true; name: string }
-    | { isBasic: false; name: PlanFeature }
-  )[] = [
+  const completeFeatures = [
     ...basicFeatures,
     ...Object.values(PlanFeature).map((feature) => ({
       name: feature,
-      isBasic: false as const
+      isBasic: false
     }))
   ];
   return (
@@ -55,8 +52,7 @@ function PlanFeatures(props: PlanFeatureProps) {
                 direction="row"
                 alignItems="center"
               >
-                {feature.isBasic ||
-                features.includes(feature.name as PlanFeature) ? (
+                {features.includes(feature.name) || feature.isBasic ? (
                   <CheckTwoToneIcon />
                 ) : (
                   <CloseTwoToneIcon color="error" />

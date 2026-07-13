@@ -188,7 +188,6 @@ const ptBRJSON = {
   employeesCount: 'Número de Funcionários',
   i_accept: 'Eu aceito os',
   terms_conditions: 'termos e condições',
-  required_fields_notice: 'Todos os campos marcados com * são obrigatórios.',
   create_your_account: 'Crie sua conta',
   register: 'Registrar',
   //signin
@@ -236,7 +235,7 @@ const ptBRJSON = {
   feedback_description: 'Dê seu feedback',
   required_feedback: 'O feedback é obrigatório',
   signature: 'Assinatura',
-  required_signature: 'A assinatura é obrigatória',
+  required_signature: 'A imagem é obrigatória',
   close_wo: 'Fechar Ordem de Serviço',
   close: 'Fechar',
   task_update_success: 'Tarefa atualizada com sucesso',
@@ -267,8 +266,6 @@ const ptBRJSON = {
   column_view: 'Visualização em Coluna',
   wo_create_success: 'A ordem de serviço foi criada com sucesso',
   wo_create_failure: 'A ordem de serviço não pôde ser criada',
-  discard_changes: 'Descartar alterações',
-  discard_changes_question: 'Descartar alterações não salvas?\nSe você sair agora, perderá as alterações não salvas',
   changes_saved_success: 'As alterações foram salvas',
   wo_update_failure: 'A ordem de serviço não pôde ser editada',
   wo_delete_success: 'A ordem de serviço foi excluída com sucesso',
@@ -1064,12 +1061,6 @@ const ptBRJSON = {
   personal_details_description:
     'Gerencie informações relacionadas aos seus detalhes pessoais',
   change_password: 'Alterar Senha',
-  delete_account: 'Excluir conta',
-  delete_account_confirmation:
-    'Tem certeza de que deseja excluir sua conta? Essa ação não pode ser desfeita.',
-  account_deleted: 'Conta excluída com sucesso',
-  account_delete_error: 'Erro ao excluir a conta',
-  confirm_delete_account: 'Excluir conta',
   notification_settings: 'Configurações de Notificações',
   notification_settings_description:
     'Gerencie detalhes relacionados às suas notificações',
@@ -1478,17 +1469,6 @@ const ptBRJSON = {
   power: 'Potência',
   library: 'Biblioteca',
   camera: 'Câmera',
-  media_library: 'Biblioteca de fotos',
-  permission_required_title: 'Permissão necessária',
-  permission_required_message:
-    'O acesso a {{permission}} é necessário. Ative-o nas configurações do aplicativo.',
-  permission_denied_title: 'Permissão negada',
-  permission_denied_message:
-    'O acesso a {{permission}} é necessário para continuar.',
-  unable_to_request_permission:
-    'Não foi possível solicitar a permissão de {{permission}}.',
-  open_settings: 'Abrir configurações',
-  ok: 'OK',
   CANCELLED: 'Rejeitado',
   max_file_size_error:
     'O tamanho do arquivo não deve ser maior que {{size}} MB',
@@ -1522,28 +1502,7 @@ const ptBRJSON = {
   top_level: 'Nível superior',
   no_results_found: 'Nenhum resultado encontrado',
   no_sub_assets: 'Sem subativos',
-  no_assets_available: 'Nenhum ativo disponível',
-  asset_not_found: 'Ativo não encontrado',
-  comments: 'Comentários',
-  no_comments: 'Ainda não há comentários. Seja o primeiro a comentar!',
-  post_comment: 'Publicar comentário',
-  confirm_delete_comment: 'Tem certeza de que deseja excluir este comentário?',
-  add_comment_placeholder: 'Adicionar um comentário...',
-  create_category: 'Create Category',
-  delete_row_confirm_message: 'Tem certeza de que deseja excluir esta linha?',
-  review_prompt_title: 'Você está gostando do Atlas CMMS?',
-  feedback_title: 'Ajude-nos a melhorar',
-  feedback_description1:
-    'Lamentamos ouvir isso. Seu feedback nos ajuda a melhorar o Atlas.',
-  feedback_placeholder: 'Conte-nos o que deu errado ou como podemos melhorar…',
-  send: 'Enviar',
-  edit_additional_cost: 'Editar custo',
-  delete_additional_cost: 'Excluir custo',
-  confirm_delete_additional_cost: 'Tem certeza de que deseja excluir este custo?',
-  edit_additional_time: 'Editar tempo',
-  delete_additional_time: 'Excluir tempo',
-  confirm_delete_additional_time: 'Tem certeza de que deseja excluir este tempo?',
-  reset: 'Redefinir',
-  operation_success: 'A operação foi bem-sucedida'
+  no_assets_available: 'Nenhum ativo disponível'
 };
+
 export default ptBRJSON;

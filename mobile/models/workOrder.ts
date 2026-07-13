@@ -21,7 +21,7 @@ export default interface WorkOrder extends WorkOrderBase {
   archived: boolean;
   parentRequest: Request;
   parentPreventiveMaintenance: PreventiveMaintenance;
-  signature: string;
+  signature: File;
   feedback: string;
   requiredSignature: boolean;
   status: WorkOrderStatus;

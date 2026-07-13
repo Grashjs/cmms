@@ -15,17 +15,16 @@ interface WOStatusNumbersProps {
   ) => void;
   start: Date;
   end: Date;
-  companyId?: number;
 }
 
-function Overview({ handleOpenModal, start, end, companyId }: WOStatusNumbersProps) {
+function Overview({ handleOpenModal, start, end }: WOStatusNumbersProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { overview, loading } = useSelector((state) => state.assetAnalytics);
 
   useEffect(() => {
-    dispatch(getAssetOverview(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getAssetOverview(start, end));
+  }, [start, end]);
 
   const datas: {
     label: string;

@@ -3,20 +3,14 @@ package com.grash.service;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.AssetPatchDTO;
-import com.grash.dto.AssetPostDTO;
 import com.grash.dto.AssetShowDTO;
-import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.imports.AssetImportDTO;
-import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetMapper;
 import com.grash.model.*;
 import com.grash.model.enums.AssetStatus;
-import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.NotificationType;
-import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.AssetRepository;
-import com.grash.service.CustomFieldValueService;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,15 +23,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
-
+import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static com.grash.utils.Consts.usageBasedLicenseLimits;
 
 @Service
 @RequiredArgsConstructor
@@ -60,102 +51,40 @@ public class AssetService {
     private WorkOrderService workOrderService;
     private final MessageSource messageSource;
     private final CustomSequenceService customSequenceService;
-    private final LicenseService licenseService;
-    private WebhookDispatchService webhookDispatchService;
-    private final CustomFieldValueService customFieldValueService;
 
     @Autowired
     public void setDeps(@Lazy LocationService locationService, @Lazy LaborService laborService,
-                        @Lazy WorkOrderService workOrderService,
-                        @Lazy WebhookDispatchService webhookDispatchService
+                        @Lazy WorkOrderService workOrderService
     ) {
         this.locationService = locationService;
         this.laborService = laborService;
         this.workOrderService = workOrderService;
-        this.webhookDispatchService = webhookDispatchService;
     }
 
     @Transactional
-    public Asset create(Asset asset, User user) {
-        checkUsageBasedLimit(user.getCompany());
+    public Asset create(Asset asset, OwnUser user) {
+        // Generate custom ID
         Company company = user.getCompany();
-        if (asset instanceof AssetPostDTO assetPostDTO) {
-            asset = assetMapper.fromPostDto(assetPostDTO);
-            if (assetPostDTO.getCustomFields() != null && !assetPostDTO.getCustomFields().isEmpty()) {
-                setAssetCustomFields(asset, assetPostDTO.getCustomFields(), company);
-            }
-        }
-        if (asset.getParentAsset() != null && !licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY))
-            throw new CustomException("You need a license to add a child asset to another asset.",
-                    HttpStatus.FORBIDDEN);
-        asset.setCustomId(getAssetNumber(company));
-        if ((asset.getBarCode() == null || asset.getBarCode().isBlank()) && Boolean.TRUE.equals(user.getCompany().getCompanySettings().getGeneralPreferences().getAutoGenerateAssetBarcode())) {
-            asset.setBarCode(UUID.randomUUID().toString());
-        }
+        Long nextSequence = customSequenceService.getNextAssetSequence(company);
+        asset.setCustomId("A" + String.format("%06d", nextSequence));
+
         Asset savedAsset = assetRepository.saveAndFlush(asset);
         em.refresh(savedAsset);
-        Map<String, Object> webhookPayload = new HashMap<>();
-        webhookPayload.put("assetId", savedAsset.getId());
-        Object serializedAsset = assetMapper.toShowDto(savedAsset, this);
-        webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_ASSET, webhookPayload,
-                "newAsset", serializedAsset, null, null, null, null, null);
         return savedAsset;
     }
 
-    private String getAssetNumber(Company company) {
-        Long nextSequence = customSequenceService.getNextAssetSequence(company);
-        return "A" + String.format("%06d", nextSequence);
-    }
-
-    private void setAssetCustomFields(Asset asset, List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
-                                      Company company) {
-        customFieldValueService.setCustomFields(
-                asset,
-                asset.getCustomFieldValues(),
-                customFieldValuePostDTOS,
-                company,
-                CustomFieldEntityType.ASSET,
-                cfv -> cfv.setAsset(asset)
-        );
-    }
-
     @Transactional
-    public Asset update(Long id, AssetPatchDTO asset, Company company) {
-        if (asset.getParentAsset() != null && !licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY))
-            throw new CustomException("You need a license to add a child asset to another asset.",
-                    HttpStatus.FORBIDDEN);
+    public Asset update(Long id, AssetPatchDTO asset) {
         if (assetRepository.existsById(id)) {
             Asset savedAsset = assetRepository.findById(id).get();
-            AssetStatus previousStatus = savedAsset.getStatus();
-            if (asset.getCustomFields() != null && !asset.getCustomFields().isEmpty()) {
-                setAssetCustomFields(savedAsset, asset.getCustomFields(), company);
-            }
             Asset patchedAsset = assetRepository.saveAndFlush(assetMapper.updateAsset(savedAsset, asset));
             em.refresh(patchedAsset);
-
-            if (previousStatus != patchedAsset.getStatus()) {
-                dispatchAssetStatusChangeWebhook(patchedAsset, previousStatus, patchedAsset.getStatus());
-            }
-
             return patchedAsset;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    private void checkUsageBasedLimit(Company company) {
-        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ASSETS);
-        if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ASSETS)
-                && assetRepository.hasMoreThan(company.getId(), threshold.longValue() - 1
-        ))
-            throw new CustomException("You need a license to add a new asset. Free Limit reached: " + threshold,
-                    HttpStatus.FORBIDDEN);
-    }
-
     public Asset save(Asset asset) {
         return assetRepository.save(asset);
-    }
-
-    public List<Asset> saveAll(List<Asset> assets) {
-        return assetRepository.saveAll(assets);
     }
 
     public Collection<Asset> getAll() {
@@ -178,29 +107,16 @@ public class AssetService {
         return assetRepository.findByCompany_Id(id);
     }
 
-    public Page<Asset> findByCompanyForExport(Long companyId, Pageable pageable) {
-        return assetRepository.findByCompanyForExport(companyId, pageable);
-    }
-
     public List<Asset> findByCompany(Long id, Sort sort) {
         return assetRepository.findByCompany_Id(id, sort);
     }
-
-    public List<Asset> findByCompanyAndParentAssetNull(Long id, Pageable pageable) {
-        return assetRepository.findByCompany_IdAndParentAssetIsNull(id, pageable).toList();
-    }
-
 
     public List<Asset> findByCompanyAndBefore(Long id, Date date) {
         return assetRepository.findByCompany_IdAndCreatedAtBefore(id, date);
     }
 
-    public double getTotalAcquisitionCost(Long companyId, Date end) {
-        return assetRepository.getTotalAcquisitionCost(companyId, end);
-    }
-
-    public Page<Asset> findAssetChildren(Long id, Pageable pageable) {
-        return assetRepository.findByParentAsset_Id(id, pageable);
+    public List<Asset> findAssetChildren(Long id, Sort sort) {
+        return assetRepository.findByParentAsset_Id(id, sort);
     }
 
     public void notify(Asset asset, String title, String message) {
@@ -232,17 +148,12 @@ public class AssetService {
             assetDowntimeService.save(runningDowntime);
         }
 
-        AssetStatus previousStatus = asset.getStatus();
         asset.setStatus(AssetStatus.OPERATIONAL);
         save(asset);
-
-        if (previousStatus != AssetStatus.OPERATIONAL) {
-            dispatchAssetStatusChangeWebhook(asset, previousStatus, AssetStatus.OPERATIONAL);
-        }
     }
 
     private void recursivelyStopChildrenDowntime(Asset parentAsset) {
-        List<Asset> children = findAssetChildren(parentAsset.getId(), Pageable.unpaged()).getContent();
+        List<Asset> children = findAssetChildren(parentAsset.getId(), null);
         for (Asset child : children) {
             stopAssetDowntime(child);
             recursivelyStopChildrenDowntime(child);
@@ -261,22 +172,18 @@ public class AssetService {
     public void triggerDownTime(Long id, Locale locale, AssetStatus status) {
         Date now = new Date();
         Asset asset = findById(id).get();
-        AssetStatus previousAssetStatus = asset.getStatus();
         createAssetDowntime(asset, now, asset.getCompany());
         Asset parentAsset = asset.getParentAsset();
         while (parentAsset != null) {
             createAssetDowntime(parentAsset, now, asset.getCompany());
             if (!parentAsset.getStatus().isReallyDown()) {
-                AssetStatus previousParentStatus = parentAsset.getStatus();
                 parentAsset.setStatus(status);
                 save(parentAsset);
-                dispatchAssetStatusChangeWebhook(parentAsset, previousParentStatus, status);
             }
             parentAsset = parentAsset.getParentAsset();
         }
         asset.setStatus(status);
         save(asset);
-        dispatchAssetStatusChangeWebhook(asset, previousAssetStatus, status);
         String message = messageSource.getMessage("notification_asset_down", new Object[]{asset.getName()}, locale);
         notify(asset, message, messageSource.getMessage("asset_status_change", null, locale));
 
@@ -288,7 +195,7 @@ public class AssetService {
                 .asset(asset)
                 .build();
         downtime.setCompany(company);
-        assetDowntimeService.create(downtime, false);
+        assetDowntimeService.create(downtime);
     }
 
     public boolean isAssetInCompany(Asset asset, long companyId, boolean optional) {
@@ -309,20 +216,15 @@ public class AssetService {
         return assetRepository.findAll(builder.build(), page).map(asset -> assetMapper.toShowDto(asset, this));
     }
 
-    public List<Asset> findByNameIgnoreCaseAndCompany(String assetName, Long companyId) {
+    public Optional<Asset> findByNameIgnoreCaseAndCompany(String assetName, Long companyId) {
         return assetRepository.findByNameIgnoreCaseAndCompany_Id(assetName, companyId);
     }
 
-    public void setAssetFieldsFromImportDto(Asset asset, AssetImportDTO dto, Company company,
-                                            Map<String, Asset> assetsByName) {
-        checkUsageBasedLimit(company);
-        if (!licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY) && dto.getParentAssetName() != null && !dto.getParentAssetName().isEmpty())
-            throw new CustomException("You need a license to import assets with hierarchy", HttpStatus.FORBIDDEN);
+    public void importAsset(Asset asset, AssetImportDTO dto, Company company) {
         Long companySettingsId = company.getCompanySettings().getId();
         Long companyId = company.getId();
-        asset.setCompany(company);
         asset.setArea(dto.getArea());
-        if (dto.getBarCode() != null && !dto.getBarCode().trim().isEmpty()) {
+        if (dto.getBarCode() != null) {
             Optional<Asset> optionalAssetWithSameBarCode = findByBarcodeAndCompany(dto.getBarCode(), company.getId());
             if (optionalAssetWithSameBarCode.isPresent()) {
                 boolean hasError = false;
@@ -344,32 +246,24 @@ public class AssetService {
         asset.setDescription(dto.getDescription());
         asset.setModel(dto.getModel());
         asset.setPower(dto.getPower());
-        asset.setCustomId(getAssetNumber(company));
         asset.setManufacturer(dto.getManufacturer());
         Optional<Location> optionalLocation = locationService.findByNameIgnoreCaseAndCompany(dto.getLocationName(),
-                companyId).stream().findFirst();
+                companyId);
         optionalLocation.ifPresent(asset::setLocation);
-        // Check parent asset in batch first, then in database
-        if (dto.getParentAssetName() != null && !dto.getParentAssetName().isEmpty()) {
-            Asset parentAsset = assetsByName != null ? assetsByName.get(dto.getParentAssetName()) : null;
-            if (parentAsset == null) {
-                parentAsset = findByNameIgnoreCaseAndCompany(dto.getParentAssetName(), companyId)
-                        .stream().findFirst().orElse(null);
-            }
-            asset.setParentAsset(parentAsset);
-        }
+        Optional<Asset> optionalAsset = findByNameIgnoreCaseAndCompany(dto.getParentAssetName(), companyId);
+        optionalAsset.ifPresent(asset::setParentAsset);
         Optional<AssetCategory> optionalAssetCategory =
                 assetCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
         optionalAssetCategory.ifPresent(asset::setCategory);
         asset.setName(dto.getName());
-        Optional<User> optionalPrimaryUser = userService.findByEmailAndCompany(dto.getPrimaryUserEmail(), companyId);
+        Optional<OwnUser> optionalPrimaryUser = userService.findByEmailAndCompany(dto.getPrimaryUserEmail(), companyId);
         optionalPrimaryUser.ifPresent(asset::setPrimaryUser);
         asset.setWarrantyExpirationDate(Helper.getDateFromExcelDate(dto.getWarrantyExpirationDate()));
         asset.setAdditionalInfos(dto.getAdditionalInfos());
         asset.setSerialNumber(dto.getSerialNumber());
-        List<User> assignedTo = new ArrayList<>();
+        List<OwnUser> assignedTo = new ArrayList<>();
         dto.getAssignedToEmails().forEach(email -> {
-            Optional<User> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
+            Optional<OwnUser> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
             optionalUser1.ifPresent(assignedTo::add);
         });
         asset.setAssignedTo(assignedTo);
@@ -401,83 +295,60 @@ public class AssetService {
         });
         asset.setParts(parts);
 
-//        assetRepository.save(asset);
+        assetRepository.save(asset);
     }
 
     public Optional<Asset> findByIdAndCompany(Long id, Long companyId) {
         return assetRepository.findByIdAndCompany_Id(id, companyId);
     }
 
-    public List<Asset> findByIdsAndCompany(List<Long> ids, Long companyId) {
-        return assetRepository.findByIdInAndCompany_Id(ids, companyId);
-    }
-
     public Optional<Asset> findByBarcodeAndCompany(String data, Long id) {
         return assetRepository.findByBarCodeAndCompany_Id(data, id);
     }
 
+
     public static List<AssetImportDTO> orderAssets(List<AssetImportDTO> assets) {
         Map<String, List<AssetImportDTO>> assetMap = new HashMap<>();
-        List<AssetImportDTO> identifiedTopLevelAssets = new ArrayList<>();
+        List<AssetImportDTO> topLevelAssets = new ArrayList<>();
 
-        Set<String> allAssetNames = new HashSet<>();
+        // Group assets by parent name
         for (AssetImportDTO asset : assets) {
-            if (asset.getName() != null) { // Guard against assets with null names if possible
-                allAssetNames.add(asset.getName());
-            }
-        }
-
-        // Group assets by parent name and identify top-level assets
-        // Using a HashSet here to ensure we only consider each unique asset object once
-        // for building the map and topLevelAssets, in case the input list has duplicate object references.
-        Set<AssetImportDTO> distinctInputAssets = new HashSet<>(assets);
-
-        for (AssetImportDTO asset : distinctInputAssets) { // Iterate over unique asset objects
             String parentName = asset.getParentAssetName();
             assetMap.computeIfAbsent(parentName, k -> new ArrayList<>()).add(asset);
-
-            // An asset is top-level if it has no parent,
-            // or its declared parent doesn't exist in the provided list of assets.
-            if (parentName == null || !allAssetNames.contains(parentName)) {
-                identifiedTopLevelAssets.add(asset);
+            if (parentName == null || assets.stream().noneMatch(assetImportDTO -> assetImportDTO.getName().equals(parentName))) {
+                topLevelAssets.add(asset);
             }
         }
 
+        // Order assets recursively
         List<AssetImportDTO> orderedAssets = new ArrayList<>();
-        Set<AssetImportDTO> visited = new HashSet<>(); // Keep track of visited assets
-
-        // Process identified top-level assets.
-        // The `visited` set will ensure each asset is added only once,
-        // even if it appears multiple times in `identifiedTopLevelAssets`
-        // (e.g., multiple distinct orphan objects point to the same non-existent parent)
-        // or if children of different top-level assets overlap due to same names.
-        orderAssetsRecursive(assetMap, identifiedTopLevelAssets, orderedAssets, visited);
+        orderAssetsRecursive(assetMap, topLevelAssets, orderedAssets);
 
         return orderedAssets;
     }
 
-    private static void orderAssetsRecursive(Map<String, List<AssetImportDTO>> assetMap,
-                                             List<AssetImportDTO> currentLevelAssets,
-                                             List<AssetImportDTO> orderedAssets,
-                                             Set<AssetImportDTO> visited) {
-        if (currentLevelAssets == null) {
-            return;
-        }
-        for (AssetImportDTO asset : currentLevelAssets) {
-            // Only process and add the asset if it hasn't been visited yet
-            if (visited.add(asset)) { // .add() returns true if the element was new to the set
-                orderedAssets.add(asset);
-                List<AssetImportDTO> children = assetMap.get(asset.getName());
-                if (children != null) {
-                    orderAssetsRecursive(assetMap, children, orderedAssets, visited);
-                }
+    private static void orderAssetsRecursive(Map<String, List<AssetImportDTO>> assetMap, List<AssetImportDTO> assets,
+                                             List<AssetImportDTO> orderedAssets) {
+        for (AssetImportDTO asset : assets) {
+            orderedAssets.add(asset);
+            List<AssetImportDTO> children = assetMap.get(asset.getName());
+            if (children != null) {
+                orderAssetsRecursive(assetMap, children, orderedAssets);
             }
         }
     }
 
-
     public Boolean hasChildren(Long assetId) {
         return assetRepository.countByParentAsset_Id(assetId) > 0;
+    }
+
+    // Stats
+    public long getMTBFLF(Long assetId, Date start, Date end) {
+        Asset asset = findById(assetId).get();
+        Collection<AssetDowntime> downtimes = assetDowntimeService.findByAssetAndStartsOnBetween(assetId, start, end);
+        long downtimesDuration = downtimes.stream().mapToLong(AssetDowntime::getDuration).sum();
+        long age = asset.getAge();
+        return downtimes.isEmpty() ? 0 : ((age - downtimesDuration) / 60) / downtimes.size();
     }
 
     public long getMTBF(Long assetId, Date start, Date end) {
@@ -517,30 +388,11 @@ public class AssetService {
 
     public long getUptime(Long assetId, Date start, Date end) {
         Asset asset = findById(assetId).get();
-        Date now = new Date();
-        Date effectiveStart = start.after(asset.getRealCreatedAt()) ? start : asset.getRealCreatedAt();
-        Date effectiveEnd = end.before(now) ? end : now;
-        if (effectiveStart.after(effectiveEnd)) {
-            return 0;
-        }
-        long effectiveDuration = Helper.getDateDiff(effectiveStart, effectiveEnd, TimeUnit.SECONDS);
-        return effectiveDuration - getDowntime(assetId, effectiveStart, effectiveEnd);
+        return asset.getAge() - getDowntime(assetId, start, end);
     }
 
     public double getTotalCost(Long assetId, Date start, Date end, Boolean includeLaborCost) {
         Collection<WorkOrder> workOrders = workOrderService.findByAssetAndCreatedAtBetween(assetId, start, end);
         return workOrderService.getAllCost(workOrders, includeLaborCost);
     }
-
-    private void dispatchAssetStatusChangeWebhook(Asset asset, AssetStatus previousStatus, AssetStatus newStatus) {
-        Map<String, Object> webhookPayload = new HashMap<>();
-        webhookPayload.put("assetId", asset.getId());
-        webhookPayload.put("assetName", asset.getName());
-        webhookPayload.put("previousStatus", previousStatus);
-        webhookPayload.put("newStatus", newStatus);
-        Object serializedAsset = assetMapper.toShowDto(asset, this);
-        webhookDispatchService.dispatchWebhook(asset.getCompany(), WebhookEvent.ASSET_STATUS_CHANGE, webhookPayload,
-                "changedAsset", serializedAsset, null, newStatus, null, null, null);
-    }
 }
-

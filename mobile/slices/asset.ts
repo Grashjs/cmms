@@ -3,10 +3,6 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { AppThunk } from '../store';
 import { AssetDTO, AssetMiniDTO, AssetRow } from '../models/asset';
 import api from '../utils/api';
-import {
-  createCancellableRequest,
-  isAbortError
-} from '../utils/cancellableRequest';
 import WorkOrder from '../models/workOrder';
 import { getInitialPage, Page, SearchCriteria } from '../models/page';
 import { revertAll } from '../utils/redux';
@@ -72,13 +68,6 @@ const slice = createSlice({
     addAsset(state: AssetState, action: PayloadAction<{ asset: AssetDTO }>) {
       const { asset } = action.payload;
       state.assets.content = [...state.assets.content, asset];
-      state.assetsMini = [
-        ...state.assetsMini,
-        {
-          ...asset,
-          parentId: asset.parentAsset?.id ?? null
-        }
-      ];
     },
     editAsset(state: AssetState, action: PayloadAction<{ asset: AssetDTO }>) {
       const { asset } = action.payload;
@@ -169,18 +158,13 @@ export const reducer = slice.reducer;
 export const getAssets =
   (criteria: SearchCriteria): AppThunk =>
   async (dispatch) => {
-    const { signal } = createCancellableRequest('getAssets');
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
       const assets = await api.post<Page<AssetDTO>>(
         `${basePath}/search`,
-        criteria,
-        { signal }
+        criteria
       );
       dispatch(slice.actions.getAssets({ assets }));
-    } catch (error) {
-      if (isAbortError(error)) return;
-      throw error;
     } finally {
       dispatch(slice.actions.setLoadingGet({ loading: false }));
     }
@@ -188,47 +172,29 @@ export const getAssets =
 export const getMoreAssets =
   (criteria: SearchCriteria, pageNum: number): AppThunk =>
   async (dispatch) => {
-    const { signal } = createCancellableRequest('getMoreAssets');
     criteria = { ...criteria, pageNum };
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
       const assets = await api.post<Page<AssetDTO>>(
         `${basePath}/search`,
-        criteria,
-        { signal }
+        criteria
       );
       dispatch(slice.actions.getMoreAssets({ assets }));
-    } catch (error) {
-      if (isAbortError(error)) return;
-      throw error;
     } finally {
       dispatch(slice.actions.setLoadingGet({ loading: false }));
     }
   };
-export const getAssetsMini =
-  (locationId?: number | null): AppThunk =>
-  async (dispatch) => {
-    const { signal } = createCancellableRequest('getAssetsMini');
-    try {
-      dispatch(slice.actions.setLoadingGet({ loading: true }));
-      const assets = await api.get<AssetMiniDTO[]>(
-        `${basePath}/mini?locationId=${locationId ?? ''}`,
-        { signal }
-      );
-      dispatch(slice.actions.getAssetsMini({ assets }));
-    } catch (error) {
-      if (isAbortError(error)) return;
-      throw error;
-    } finally {
-      dispatch(slice.actions.setLoadingGet({ loading: false }));
-    }
-  };
+export const getAssetsMini = (locationId?: number|null): AppThunk => async (dispatch) => {
+  dispatch(slice.actions.setLoadingGet({ loading: true }));
+  const assets = await api.get<AssetMiniDTO[]>(`${basePath}/mini?locationId=${locationId??""}`);
+  dispatch(slice.actions.getAssetsMini({ assets }));
+  dispatch(slice.actions.setLoadingGet({ loading: false }));
+};
 export const addAsset =
   (asset): AppThunk =>
   async (dispatch) => {
     const assetResponse = await api.post<AssetDTO>(basePath, asset);
     dispatch(slice.actions.addAsset({ asset: assetResponse }));
-    return assetResponse;
   };
 export const editAsset =
   (id: number, asset: Partial<AssetDTO>): AppThunk =>
@@ -287,19 +253,17 @@ export const getAssetByNfc =
   (nfcId: string): AppThunk =>
   async (dispatch) => {
     dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const asset = await api.get<AssetMiniDTO>(`${basePath}/nfc?nfcId=${nfcId}`);
+    const asset = await api.get<AssetDTO>(`${basePath}/nfc/${nfcId}`);
     dispatch(slice.actions.setLoadingGet({ loading: false }));
-    return asset;
+    return asset.id;
   };
 export const getAssetByBarcode =
   (barCode: string): AppThunk =>
   async (dispatch) => {
     dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const asset = await api.get<AssetMiniDTO>(
-      `${basePath}/barcode?data=${barCode}`
-    );
+    const asset = await api.get<AssetDTO>(`${basePath}/barcode/${barCode}`);
     dispatch(slice.actions.setLoadingGet({ loading: false }));
-    return asset;
+    return asset.id;
   };
 export const getAssetWorkOrders =
   (id: number): AppThunk =>

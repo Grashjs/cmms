@@ -1,10 +1,4 @@
-import {
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useDispatch, useSelector } from '../../store';
 import * as React from 'react';
 import { useContext, useEffect, useState } from 'react';
@@ -13,24 +7,22 @@ import useAuth from '../../hooks/useAuth';
 import { PermissionEntity } from '../../models/role';
 import { getCustomers, getMoreCustomers } from '../../slices/customer';
 import { FilterField, SearchCriteria } from '../../models/page';
-import { Avatar, Searchbar, Text } from 'react-native-paper';
+import { Card, Searchbar, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { Customer } from '../../models/customer';
-import { isCloseToBottom, onSearchQueryChange } from '../../utils/overall';
+import { onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
-import { useAppTheme } from '../../custom-theme';
-import { IconWithLabel } from '../../components/IconWithLabel';
 
 export default function CustomersScreen({
-  navigation
-}: RootStackScreenProps<'VendorsCustomers'>) {
+                                          navigation
+                                        }: RootStackScreenProps<'VendorsCustomers'>) {
   const { t } = useTranslation();
   const [startedSearch, setStartedSearch] = useState<boolean>(false);
   const { customers, loadingGet, currentPageNum, lastPage } = useSelector(
     (state) => state.customers
   );
-  const theme = useAppTheme();
+  const theme = useTheme();
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
   const { getFormattedDate, getUserNameById } = useContext(
@@ -77,6 +69,17 @@ export default function CustomersScreen({
     setCriteria(getCriteriaFromFilterFields([]));
   };
 
+  const isCloseToBottom = ({
+                             layoutMeasurement,
+                             contentOffset,
+                             contentSize
+                           }) => {
+    const paddingToBottom = 20;
+    return (
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom
+    );
+  };
   const onQueryChange = (query) => {
     onSearchQueryChange<Customer>(
       query,
@@ -132,57 +135,22 @@ export default function CustomersScreen({
       >
         {!!customers.content.length ? (
           customers.content.map((customer) => (
-            <TouchableOpacity
+            <Card
+              style={{
+                padding: 5,
+                marginVertical: 5,
+                backgroundColor: 'white'
+              }}
               key={customer.id}
               onPress={() =>
-                navigation.push('CustomerDetails', {
-                  id: customer.id,
-                  customerProp: customer
-                })
+                navigation.push('CustomerDetails', { id: customer.id, customerProp: customer })
               }
             >
-              <View style={styles.card}>
-                <View
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    gap: 6
-                  }}
-                >
-                  <Avatar.Icon
-                    size={50}
-                    icon="account-group-outline"
-                    style={{ backgroundColor: theme.colors.background }}
-                    color={theme.colors.primary}
-                  />
-                  <View style={{ flex: 1 }}>
-                    <View style={styles.cardHeader}>
-                      <View style={{ flex: 1 }}>
-                        <Text variant="titleMedium" style={styles.cardTitle}>
-                          {customer.name}
-                        </Text>
-                      </View>
-                    </View>
-                    <View style={styles.cardBody}>
-                      {customer.customerType && (
-                        <IconWithLabel
-                          label={customer.customerType}
-                          icon="account-box-outline"
-                          color={theme.colors.grey}
-                        />
-                      )}
-                      {customer.address && (
-                        <IconWithLabel
-                          label={customer.address}
-                          icon="map-marker-outline"
-                          color={theme.colors.grey}
-                        />
-                      )}
-                    </View>
-                  </View>
-                </View>
-              </View>
-            </TouchableOpacity>
+              <Card.Content>
+                <Text variant='titleMedium'>{customer.name}</Text>
+                <Text>{customer.customerType}</Text>
+              </Card.Content>
+            </Card>
           ))
         ) : loadingGet ? null : (
           <View
@@ -199,7 +167,7 @@ export default function CustomersScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // alignItems: 'center',
+    alignItems: 'center',
     justifyContent: 'center'
   },
   title: {
@@ -208,36 +176,12 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     width: '100%',
-    height: '100%'
+    height: '100%',
+    padding: 5
   },
   row: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center'
-  },
-  card: {
-    backgroundColor: 'white',
-    marginBottom: 1,
-    padding: 10
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8
-  },
-  cardTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-    flexShrink: 1
-  },
-  cardBody: {
-    gap: 10
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 10
   }
 });

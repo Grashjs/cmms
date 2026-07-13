@@ -20,17 +20,14 @@ import ListField from '../../../components/ListField';
 import BasicField from '../../../components/BasicField';
 import { getFormattedCostPerUnit } from '../../../utils/formatters';
 import { getFormattedQuantityWithUnit } from '../PartsScreen';
-import { getCustomFieldValuesForDetails } from '../../../models/form';
 
 export default function PartDetails({ part }: { part: Part }) {
   const { t } = useTranslation();
-  const { getFormattedCurrency, getFormattedDate: ctxGetFormattedDate } =
-    useContext(CompanySettingsContext);
+  const { getFormattedCurrency } = useContext(CompanySettingsContext);
   const theme = useTheme();
   const fieldsToRender: {
     label: string;
     value: string | number;
-    isLink?: boolean;
   }[] = [
     {
       label: t('name'),
@@ -67,11 +64,7 @@ export default function PartDetails({ part }: { part: Part }) {
     {
       label: t('area'),
       value: part.area
-    },
-    ...getCustomFieldValuesForDetails(
-      part.customFieldValues,
-      ctxGetFormattedDate
-    )
+    }
   ];
   return (
     <ScrollView
@@ -81,12 +74,7 @@ export default function PartDetails({ part }: { part: Part }) {
         <Image style={{ height: 200 }} source={{ uri: part.image.url }} />
       )}
       {fieldsToRender.map((field) => (
-        <BasicField
-          key={field.label}
-          label={field.label}
-          value={field.value}
-          isLink={field.isLink}
-        />
+        <BasicField key={field.label} label={field.label} value={field.value} />
       ))}
       <ListField
         values={part?.assignedTo}

@@ -1,18 +1,8 @@
-import {
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity
-} from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { View } from '../components/Themed';
-import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
+import { IconSource } from 'react-native-paper/src/components/Icon';
 import Notification, { NotificationType } from '../models/notification';
-import {
-  editNotification,
-  getMoreNotifications,
-  readAllNotifications
-} from '../slices/notification';
+import { editNotification, getMoreNotifications, readAllNotifications } from '../slices/notification';
 import { RootStackParamList, RootStackScreenProps } from '../types';
 import { useDispatch, useSelector } from '../store';
 import { getNotificationUrl } from '../utils/urlPaths';
@@ -22,11 +12,10 @@ import { useContext, useEffect } from 'react';
 import { CompanySettingsContext } from '../contexts/CompanySettingsContext';
 import { useTranslation } from 'react-i18next';
 import { SearchCriteria } from '../models/page';
-import { isCloseToBottom } from '../utils/overall';
 
 export default function NotificationsScreen({
-  navigation
-}: RootStackScreenProps<'Notifications'>) {
+                                              navigation
+                                            }: RootStackScreenProps<'Notifications'>) {
   const dispatch = useDispatch();
   const { notifications, loadingGet, lastPage, currentPageNum } = useSelector(
     (state) => state.notifications
@@ -42,7 +31,7 @@ export default function NotificationsScreen({
   const { getFormattedDate } = useContext(CompanySettingsContext);
 
   useEffect(() => {
-    if (notifications.content.some((notification) => !notification.seen))
+    if (notifications.content.some(notification => !notification.seen))
       navigation.setOptions({
         headerRight: () => (
           <TouchableOpacity
@@ -50,9 +39,7 @@ export default function NotificationsScreen({
               dispatch(readAllNotifications());
             }}
           >
-            <Text style={{ color: theme.colors.primary }} variant="titleMedium">
-              {t('mark_all_as_seen')}
-            </Text>
+            <Text style={{ color: theme.colors.primary }} variant='titleMedium'>{t('mark_all_as_seen')}</Text>
           </TouchableOpacity>
         )
       });
@@ -86,7 +73,17 @@ export default function NotificationsScreen({
     INFO: 'information',
     PURCHASE_ORDER: 'comma-circle-outline'
   };
-
+  const isCloseToBottom = ({
+                             layoutMeasurement,
+                             contentOffset,
+                             contentSize
+                           }) => {
+    const paddingToBottom = 20;
+    return (
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom
+    );
+  };
   return (
     <ScrollView
       style={styles.container}

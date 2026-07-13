@@ -7,12 +7,10 @@ import { revertAll } from 'src/utils/redux';
 
 interface CategoryState {
   categories: { [basePath: string]: Category[] };
-  loading: { [basePath: string]: boolean };
 }
 
 const initialState: CategoryState = {
-  categories: {},
-  loading: {}
+  categories: {}
 };
 
 const slice = createSlice({
@@ -57,12 +55,6 @@ const slice = createSlice({
         (category) => category.id === id
       );
       state.categories[basePath].splice(categoryIndex, 1);
-    },
-    loading(
-      state: CategoryState,
-      action: PayloadAction<{ basePath: any; loading: boolean }>
-    ) {
-      state.loading[action.payload.basePath] = action.payload.loading;
     }
   }
 });
@@ -70,32 +62,19 @@ const slice = createSlice({
 export const reducer = slice.reducer;
 
 export const getCategories =
-  (basePath: string): AppThunk =>
+  (basePath): AppThunk =>
   async (dispatch) => {
-    try {
-      dispatch(slice.actions.loading({ basePath, loading: true }));
-      const categories = await api.get<Category[]>(basePath);
-      dispatch(slice.actions.getCategories({ categories, basePath }));
-    } finally {
-      dispatch(slice.actions.loading({ basePath, loading: false }));
-    }
+    const categories = await api.get<Category[]>(basePath);
+    dispatch(slice.actions.getCategories({ categories, basePath }));
   };
 
 export const addCategory =
-  (
-    category: {
-      name: string;
-      description?: string;
-      companySettings: { id: number };
-    },
-    basePath: string
-  ): AppThunk =>
+  (category, basePath): AppThunk =>
   async (dispatch) => {
     const categoryResponse = await api.post<Category>(basePath, category);
     dispatch(
       slice.actions.addCategory({ category: categoryResponse, basePath })
     );
-    return categoryResponse;
   };
 export const editCategory =
   (id: number, category, basePath): AppThunk =>

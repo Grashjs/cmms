@@ -16,10 +16,9 @@ interface WOStatusPieProps {
   ) => void;
   start: Date;
   end: Date;
-  companyId?: number;
 }
 
-function WOStatusPie({ handleOpenModal, start, end, companyId }: WOStatusPieProps) {
+function WOStatusPie({ handleOpenModal, start, end }: WOStatusPieProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -29,8 +28,8 @@ function WOStatusPie({ handleOpenModal, start, end, companyId }: WOStatusPieProp
   const RADIAN = Math.PI / 180;
 
   useEffect(() => {
-    dispatch(getIncompleteByStatus(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getIncompleteByStatus(start, end));
+  }, [start, end]);
 
   const columns = ['id'];
   const formattedData = [

@@ -1,7 +1,7 @@
 package com.grash.service;
 
-import com.grash.factory.MailServiceFactory;
-import com.grash.model.User;
+import com.grash.dto.AuthResponse;
+import com.grash.model.OwnUser;
 import com.grash.model.VerificationToken;
 import com.grash.repository.UserRepository;
 import com.grash.repository.VerificationTokenRepository;
@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 
 @Service
@@ -22,14 +23,13 @@ public class VerificationTokenService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
-    private final MailServiceFactory mailServiceFactory;
 
 
     public VerificationToken getVerificationTokenEntity(String token) {
         return verificationTokenRepository.findVerificationTokenEntityByToken(token);
     }
 
-    public void deleteVerificationTokenEntity(User user) {
+    public void deleteVerificationTokenEntity(OwnUser user) {
         ArrayList<VerificationToken> verificationToken =
                 verificationTokenRepository.findAllVerificationTokenEntityByUser(user);
         verificationTokenRepository.deleteAll(verificationToken);
@@ -54,18 +54,20 @@ public class VerificationTokenService {
         return verificationToken;
     }
 
-    public String confirmMail(String token) throws Exception {
+    public AuthResponse confirmMail(String token) throws Exception {
 
-        User user = verifyToken(token).getUser();
+        OwnUser user = verifyToken(token).getUser();
         //valid token
         userService.enableUser(user.getEmail());
-        if (!user.getCompany().isDemo()) mailServiceFactory.getMailService().addToContactList(user);
-        return user.getEmail();
+        String message = "Account successfully activated !";
+
+        return new AuthResponse(jwtTokenProvider.createToken(user.getEmail(),
+                Arrays.asList(user.getRole().getRoleType())));
     }
 
-    public User confirmResetPassword(String token) throws Exception {
+    public OwnUser confirmResetPassword(String token) throws Exception {
         VerificationToken verificationToken = verifyToken(token);
-        User user = verificationToken.getUser();
+        OwnUser user = verificationToken.getUser();
         user.setPassword(passwordEncoder.encode(verificationToken.getPayload()));
         return userRepository.save(user);
     }

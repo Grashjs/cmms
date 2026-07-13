@@ -9,17 +9,13 @@ import * as Yup from 'yup';
 import { useTranslation } from 'react-i18next';
 import { CustomSnackBarContext } from './CustomSnackBarContext';
 import mailToLink from 'mailto-link';
-import { useBrand } from '../hooks/useBrand';
-import { format } from 'date-fns';
-import { utcToZonedTime } from 'date-fns-tz';
 
 type CompanySettingsContext = {
   getFormattedDate: (dateString: string, hideTime?: boolean) => string;
   uploadFiles: (
     files: any[],
     images: any[],
-    hidden?: boolean,
-    bypass?: boolean
+    hidden?: boolean
   ) => Promise<{ id: number; type: FileType }[]>;
   getUserNameById: (id: number) => string | null;
   getWOFieldsAndShapes: (
@@ -41,30 +37,29 @@ export const CompanySettingsProvider: FC = ({ children }) => {
   const dispatch = useDispatch();
   const { generalPreferences } = companySettings ?? {
     dateFormat: 'DDMMYY',
-    currency: { code: '$' },
-    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    currency: { code: '$' }
   };
-  const { allUsersMini } = useSelector((state) => state.users);
+  const { usersMini } = useSelector((state) => state.users);
   const { workOrderConfiguration } = companySettings ?? {
     workOrderFieldConfigurations: []
   };
   const { t }: { t: any } = useTranslation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const brandConfig = useBrand();
 
   const getFormattedDate = (dateString: string, hideTime?: boolean) => {
     if (!dateString) return '';
-
-    const tz = generalPreferences.timeZone;
-    const date = utcToZonedTime(new Date(dateString), tz);
-
-    const timeStr = hideTime ? '' : format(date, ' HH:mm');
-
+    const date = new Date(dateString);
+    const month = ('0' + (date.getMonth() + 1).toString()).substr(-2);
+    const day = ('0' + date.getDate().toString()).substr(-2);
+    const year = date.getFullYear().toString().substr(2);
+    const time = hideTime
+      ? ''
+      : (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) +
+        ':' +
+        (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
     if (generalPreferences.dateFormat === 'MMDDYY') {
-      return format(date, 'MM/dd/yy') + timeStr;
-    } else {
-      return format(date, 'dd/MM/yy') + timeStr;
-    }
+      return month + '/' + day + '/' + year + ' ' + time;
+    } else return day + '/' + month + '/' + year + ' ' + time;
   };
   const getFormattedCurrency = (amount: number): string => {
     const code = generalPreferences.currency.code;
@@ -81,12 +76,11 @@ export const CompanySettingsProvider: FC = ({ children }) => {
   const uploadFiles = async (
     files: [],
     images: [],
-    hidden?: boolean,
-    bypass?: boolean
+    hidden?: boolean
   ): Promise<{ id: number; type: FileType }[]> => {
     let result: { id: number; type: FileType }[] = [];
     if (files?.length) {
-      await dispatch(addFiles(files, 'OTHER', undefined, `${hidden}`, bypass))
+      await dispatch(addFiles(files, 'OTHER', undefined, `${hidden}`))
         .then((fileIds) => {
           if (Array.isArray(fileIds))
             result = [
@@ -98,7 +92,7 @@ export const CompanySettingsProvider: FC = ({ children }) => {
         .catch(onUploadError);
     }
     if (images?.length) {
-      await dispatch(addFiles(images, 'IMAGE', undefined, `${hidden}`, bypass))
+      await dispatch(addFiles(images, 'IMAGE', undefined, `${hidden}`))
         .then((images) => {
           if (Array.isArray(images))
             result = [
@@ -114,7 +108,7 @@ export const CompanySettingsProvider: FC = ({ children }) => {
   };
 
   const getUserNameById = (id: number) => {
-    const user = allUsersMini.find((user) => user.id === id);
+    const user = usersMini.find((user) => user.id === id);
     return user ? `${user.firstName} ${user.lastName}` : null;
   };
   const getWOFieldsAndShapes = (
@@ -138,15 +132,13 @@ export const CompanySettingsProvider: FC = ({ children }) => {
       'files',
       'signature'
     ];
-    const fieldMap = { images: 'image' };
     fieldsToConfigure.forEach((name) => {
-      const trueFieldName = fieldMap[name] || name;
       const fieldConfig =
         workOrderConfiguration.workOrderFieldConfigurations.find(
           (woFC) => woFC.fieldName === name
         );
       const fieldIndexInFields = fields.findIndex(
-        (field) => field.name === trueFieldName
+        (field) => field.name === name
       );
       if (fieldIndexInFields !== -1) {
         if (fieldConfig.fieldType === 'REQUIRED') {
@@ -158,16 +150,16 @@ export const CompanySettingsProvider: FC = ({ children }) => {
           let yupSchema;
           switch (fields[fieldIndexInFields].type) {
             case 'text':
-              yupSchema = Yup.string().required(requiredMessage).nullable();
+              yupSchema = Yup.string().required(requiredMessage);
               break;
             case 'date':
-              yupSchema = Yup.string().required(requiredMessage).nullable();
+              yupSchema = Yup.string().required(requiredMessage);
               break;
             case 'file':
               yupSchema = Yup.array().required(requiredMessage);
               break;
             case 'number':
-              yupSchema = Yup.number().required(requiredMessage).nullable();
+              yupSchema = Yup.number().required(requiredMessage);
               break;
             case 'select':
               if (fields[fieldIndexInFields].multiple) {
@@ -180,7 +172,7 @@ export const CompanySettingsProvider: FC = ({ children }) => {
               yupSchema = Yup.object().required(requiredMessage).nullable();
               break;
           }
-          shape[trueFieldName] = yupSchema;
+          shape[name] = yupSchema;
         } else if (fieldConfig.fieldType === 'HIDDEN') {
           fields.splice(fieldIndexInFields, 1);
         }
@@ -191,11 +183,11 @@ export const CompanySettingsProvider: FC = ({ children }) => {
   const requestSubscriptionChange = () => {
     window.open(
       mailToLink({
-        to: brandConfig.mail,
+        to: 'contact@atlas-cmms.com',
         subject: 'Subscription change request',
-        body: `Dear ${brandConfig.name} Team,
+        body: `Dear Atlas CMMS Team,
 
-I would like to request an upgrade to my current ${brandConfig.name} plan.
+I would like to request an upgrade to my current Atlas CMMS plan.
 
 Account Information:
 - Company Name: ${company.name}
@@ -222,7 +214,7 @@ ${company.name}
     );
   };
   useEffect(() => {
-    if (isAuthenticated) dispatch(getUsersMini(true));
+    if (isAuthenticated) dispatch(getUsersMini());
   }, [isAuthenticated]);
   return (
     <CompanySettingsContext.Provider

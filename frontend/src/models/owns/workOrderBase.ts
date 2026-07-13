@@ -1,4 +1,4 @@
-import File, { FileThumbnailDTO } from './file';
+import File from './file';
 import { AssetMiniDTO } from './asset';
 import { LocationMiniDTO } from './location';
 import { UserMiniDTO } from '../user';
@@ -7,8 +7,6 @@ import { Audit } from './audit';
 import { CustomerMiniDTO } from './customer';
 import Category from './category';
 import { Priority } from './workOrder';
-import { RequestPortalMiniDTO } from './requestPortal';
-import { CustomField } from './customField';
 
 export interface WorkOrderBase extends Audit {
   title: string;
@@ -17,7 +15,7 @@ export interface WorkOrderBase extends Audit {
   estimatedStartDate: string;
   estimatedDuration: number;
   priority: Priority;
-  image: FileThumbnailDTO;
+  image: File;
   asset: AssetMiniDTO;
   location: LocationMiniDTO;
   primaryUser: UserMiniDTO;
@@ -27,9 +25,6 @@ export interface WorkOrderBase extends Audit {
   category: Category | null;
   team: Team;
   files: File[];
-  requestPortal: RequestPortalMiniDTO | null;
-  requiredSignature: boolean;
-  customFieldValues: { customField: CustomField; value: string }[];
 }
 
 export interface WorkOrderBaseMiniDTO {

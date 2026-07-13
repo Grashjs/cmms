@@ -9,7 +9,6 @@ import {
   DialogTitle,
   Drawer,
   Grid,
-  Stack,
   Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
@@ -32,11 +31,11 @@ import {
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useNavigate, useParams } from 'react-router-dom';
 import PurchaseOrderDetails from './PurchaseOrderDetails';
-import { IField, getCustomFieldsIFields } from '../type';
+import { IField } from '../type';
 import Form from '../components/form';
 import * as Yup from 'yup';
 import { isNumeric } from '../../../utils/validators';
-import { formatSelect, formatCustomFields } from '../../../utils/formatters';
+import { formatSelect } from '../../../utils/formatters';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import useAuth from '../../../hooks/useAuth';
@@ -53,9 +52,6 @@ import Category from '../../../models/owns/category';
 import { SearchCriteria } from '../../../models/owns/page';
 import { onSearchQueryChange } from '../../../utils/overall';
 import SearchInput from '../components/SearchInput';
-import { getCustomFields } from '../../../slices/customField';
-import { CustomFieldEntityType } from '../../../models/owns/customField';
-import { getCustomFieldsRequiredShape } from '../type';
 
 function PurchaseOrders() {
   const { t }: { t: any } = useTranslation();
@@ -75,7 +71,6 @@ function PurchaseOrders() {
   const { purchaseOrders, loadingGet, singlePurchaseOrder } = useSelector(
     (state) => state.purchaseOrders
   );
-  const { customFields } = useSelector((state) => state.customFields);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
   const [criteria, setCriteria] = useState<SearchCriteria>({
     filterFields: [],
@@ -173,12 +168,6 @@ function PurchaseOrders() {
     if (currentPurchaseOrder)
       dispatch(getPartQuantitiesByPurchaseOrder(currentPurchaseOrder.id));
   }, [currentPurchaseOrder?.id]);
-
-  useEffect(() => {
-    if (openUpdateModal && !customFields.length) {
-      dispatch(getCustomFields());
-    }
-  }, [openUpdateModal]);
 
   const handleDelete = (id: number) => {
     handleCloseDetails();
@@ -445,12 +434,10 @@ function PurchaseOrders() {
       label: t('shipping_method'),
       placeholder: t('shipping_method'),
       midWidth: true
-    },
-    ...getCustomFieldsIFields(customFields, CustomFieldEntityType.PURCHASE_REQUEST)
+    }
   ];
   const shape = {
-    name: Yup.string().required(t('required_name')),
-    ...getCustomFieldsRequiredShape(customFields, CustomFieldEntityType.PURCHASE_REQUEST, t)
+    name: Yup.string().required(t('required_name'))
   };
   const renderUpdateModal = () => (
     <Dialog
@@ -500,7 +487,6 @@ function PurchaseOrders() {
             onSubmit={async (values) => {
               values.vendor = formatSelect(values.vendor);
               values.category = formatSelect(values.category);
-              values = formatCustomFields(values);
               return new Promise<void>((resolve, rej) => {
                 dispatch(editPurchaseOrder(currentPurchaseOrder.id, values))
                   .then(() => {
@@ -539,70 +525,86 @@ function PurchaseOrders() {
           <Helmet>
             <title>{t('purchase_orders')}</title>
           </Helmet>
-          <Box justifyContent="center" alignItems="stretch" paddingX={4}>
+          <Grid
+            container
+            justifyContent="center"
+            alignItems="stretch"
+            spacing={1}
+            paddingX={4}
+          >
             {hasCreatePermission(PermissionEntity.PURCHASE_ORDERS) && (
-              <Stack
-                my={1}
-                direction="row"
+              <Grid
+                item
+                xs={12}
+                display="flex"
+                flexDirection="row"
                 justifyContent="space-between"
                 alignItems="center"
               >
-                <SearchInput onChange={debouncedQueryChange} />
+                <Box sx={{ my: 0.5 }}>
+                  <SearchInput onChange={debouncedQueryChange} />
+                </Box>
                 <Button
                   onClick={() => navigate('/app/purchase-orders/create')}
                   startIcon={<AddTwoToneIcon />}
+                  sx={{ mx: 6, my: 1 }}
                   variant="contained"
                 >
                   {t('purchase_order')}
                 </Button>
-              </Stack>
+              </Grid>
             )}
-            <Card
-              sx={{
-                py: 2,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}
-            >
-              <Box sx={{ width: '95%' }}>
-                <CustomDataGrid
-                  columns={columns}
-                  pageSize={criteria.pageSize}
-                  page={criteria.pageNum}
-                  rows={purchaseOrders.content}
-                  rowCount={purchaseOrders.totalElements}
-                  pagination
-                  paginationMode="server"
-                  onPageSizeChange={onPageSizeChange}
-                  onPageChange={onPageChange}
-                  rowsPerPageOptions={[10, 20, 50]}
-                  loading={loadingGet}
-                  components={{
-                    NoRowsOverlay: () => (
-                      <NoRowsMessageWrapper
-                        message={t('noRows.po.message')}
-                        action={t('noRows.po.action')}
-                      />
-                    )
-                  }}
-                  onRowClick={(params) => handleOpenDetails(Number(params.id))}
-                  initialState={{
-                    columns: {
-                      columnVisibilityModel: {}
+            <Grid item xs={12}>
+              <Card
+                sx={{
+                  p: 2,
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}
+              >
+                <Box sx={{ width: '95%' }}>
+                  <CustomDataGrid
+                    columns={columns}
+                    pageSize={criteria.pageSize}
+                    page={criteria.pageNum}
+                    rows={purchaseOrders.content}
+                    rowCount={purchaseOrders.totalElements}
+                    pagination
+                    paginationMode="server"
+                    onPageSizeChange={onPageSizeChange}
+                    onPageChange={onPageChange}
+                    rowsPerPageOptions={[10, 20, 50]}
+                    loading={loadingGet}
+                    components={{
+                      
+                      NoRowsOverlay: () => (
+                        <NoRowsMessageWrapper
+                          message={t('noRows.po.message')}
+                          action={t('noRows.po.action')}
+                        />
+                      )
+                    }}
+                    onRowClick={(params) =>
+                      handleOpenDetails(Number(params.id))
                     }
-                  }}
-                />
-              </Box>
-            </Card>
-          </Box>
+                    initialState={{
+                      columns: {
+                        columnVisibilityModel: {}
+                      }
+                    }}
+                  />
+                </Box>
+              </Card>
+            </Grid>
+          </Grid>
           <Drawer
             anchor="right"
             open={openDrawer}
             onClose={handleCloseDetails}
             PaperProps={{
-              sx: { width: { xs: '90%', sm: '70%', md: '50%' } }
+              sx: { width: '50%' }
             }}
           >
             <PurchaseOrderDetails

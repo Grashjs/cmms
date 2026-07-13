@@ -15,16 +15,15 @@ interface WOStatusNumbersProps {
   ) => void;
   start: Date;
   end: Date;
-  companyId?: number;
 }
 
-function Overview({ handleOpenModal, start, end, companyId }: WOStatusNumbersProps) {
+function Overview({ handleOpenModal, start, end }: WOStatusNumbersProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { overview, loading } = useSelector((state) => state.requestAnalytics);
   useEffect(() => {
-    dispatch(getRequestOverview(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getRequestOverview(start, end));
+  }, [start, end]);
 
   const totalCount = overview.approved + overview.pending + overview.cancelled;
 

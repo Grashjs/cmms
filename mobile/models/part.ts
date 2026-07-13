@@ -4,7 +4,6 @@ import { VendorMiniDTO } from './vendor';
 import { CustomerMiniDTO } from './customer';
 import { TeamMiniDTO } from './team';
 import File from './file';
-import { CustomFieldValue } from './customField';
 
 export default interface Part extends Audit {
   files: File[];
@@ -26,7 +25,6 @@ export default interface Part extends Audit {
   teams: TeamMiniDTO[];
   openWorkOrders: number;
   unit: string;
-  customFieldValues?: CustomFieldValue[];
 }
 export interface PartMiniDTO {
   name: string;

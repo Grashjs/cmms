@@ -26,10 +26,9 @@ interface WOStatusPieProps {
   start: Date;
   end: Date;
   assetColors: { color: string; id: number }[];
-  companyId?: number;
 }
 
-function RepairTimeByAsset({ handleOpenModal, start, end, assetColors, companyId }: WOStatusPieProps) {
+function RepairTimeByAsset({ handleOpenModal, start, end, assetColors }: WOStatusPieProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { repairTimeByAsset, loading } = useSelector(
@@ -37,8 +36,8 @@ function RepairTimeByAsset({ handleOpenModal, start, end, assetColors, companyId
   );
 
   useEffect(() => {
-    dispatch(getRepairTimeByAsset(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getRepairTimeByAsset(start, end));
+  }, [start, end]);
   const columns: string[] = ['id'];
 
   const formattedData: {

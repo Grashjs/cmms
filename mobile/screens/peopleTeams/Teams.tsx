@@ -1,10 +1,4 @@
-import {
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useDispatch, useSelector } from '../../store';
 import * as React from 'react';
 import { useContext, useEffect, useState } from 'react';
@@ -13,24 +7,22 @@ import useAuth from '../../hooks/useAuth';
 import { PermissionEntity } from '../../models/role';
 import { getMoreTeams, getTeams } from '../../slices/team';
 import { FilterField, SearchCriteria } from '../../models/page';
-import { Avatar, Searchbar, Text } from 'react-native-paper';
+import { Card, Searchbar, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Team from '../../models/team';
-import { isCloseToBottom, onSearchQueryChange } from '../../utils/overall';
+import { onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
-import { useAppTheme } from '../../custom-theme';
-import { IconWithLabel } from '../../components/IconWithLabel';
 
 export default function Teams({
-  navigation
-}: RootStackScreenProps<'PeopleTeams'>) {
+                                navigation
+                              }: RootStackScreenProps<'PeopleTeams'>) {
   const { t } = useTranslation();
   const [startedSearch, setStartedSearch] = useState<boolean>(false);
   const { teams, loadingGet, currentPageNum, lastPage } = useSelector(
     (state) => state.teams
   );
-  const theme = useAppTheme();
+  const theme = useTheme();
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
   const { getFormattedDate, getUserNameById } = useContext(
@@ -72,6 +64,17 @@ export default function Teams({
     setCriteria(getCriteriaFromFilterFields([]));
   };
 
+  const isCloseToBottom = ({
+                             layoutMeasurement,
+                             contentOffset,
+                             contentSize
+                           }) => {
+    const paddingToBottom = 20;
+    return (
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom
+    );
+  };
   const onQueryChange = (query) => {
     onSearchQueryChange<Team>(query, criteria, setCriteria, setSearchQuery, [
       'name',
@@ -115,47 +118,22 @@ export default function Teams({
       >
         {!!teams.content.length ? (
           teams.content.map((team) => (
-            <TouchableOpacity
+            <Card
+              style={{
+                padding: 5,
+                marginVertical: 5,
+                backgroundColor: 'white'
+              }}
               key={team.id}
-              onPress={() =>
-                navigation.push('TeamDetails', { id: team.id, teamProp: team })
-              }
+              onPress={() => navigation.push('TeamDetails', { id: team.id, teamProp: team })}
             >
-              <View style={styles.card}>
-                <View
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    gap: 10
-                  }}
-                >
-                  <Avatar.Icon
-                    size={40}
-                    icon="account-group-outline"
-                    style={{ backgroundColor: theme.colors.background }}
-                  />
-                  <View style={{ flex: 1 }}>
-                    <View style={styles.cardHeader}>
-                      <View style={{ flex: 1 }}>
-                        <Text variant="titleMedium" style={styles.cardTitle}>
-                          {team.name}
-                        </Text>
-                      </View>
-                    </View>
-                    <View style={styles.cardBody}>
-                      <IconWithLabel
-                        label={t('team_members_count', {
-                          count: team.users.length
-                        })}
-                        icon="account-multiple-outline"
-                        color={theme.colors.grey}
-                      />
-                    </View>
-                    <View style={styles.cardFooter} />
-                  </View>
-                </View>
-              </View>
-            </TouchableOpacity>
+              <Card.Content>
+                <Text variant='titleMedium'>{team.name}</Text>
+                <Text>
+                  {t('team_members_count', { count: team.users.length })}
+                </Text>
+              </Card.Content>
+            </Card>
           ))
         ) : loadingGet ? null : (
           <View
@@ -172,7 +150,7 @@ export default function Teams({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // alignItems: 'center',
+    alignItems: 'center',
     justifyContent: 'center'
   },
   title: {
@@ -181,36 +159,12 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     width: '100%',
-    height: '100%'
+    height: '100%',
+    padding: 5
   },
   row: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center'
-  },
-  card: {
-    backgroundColor: 'white',
-    marginBottom: 1,
-    padding: 10
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8
-  },
-  cardTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-    flexShrink: 1
-  },
-  cardBody: {
-    gap: 10
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 10
   }
 });

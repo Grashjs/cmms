@@ -112,47 +112,172 @@ function Roles() {
       setCurrentRole(roles.find((role) => role.id == currentRole.id));
     }
   }, [roles]);
-  const permissionRoots: PermissionRoot[] = [
-    'viewPermissions',
-    'viewOtherPermissions',
-    'createPermissions',
-    'editOtherPermissions',
-    'deleteOtherPermissions'
-  ];
+  const permissionsMapping = new Map<
+    string,
+    {
+      permissionsRoot: PermissionRoot;
+      permissions: PermissionEntity[];
+    }[]
+  >([
+    [
+      'createPeopleTeams',
+      [
+        {
+          permissionsRoot: 'createPermissions',
+          permissions: [PermissionEntity.PEOPLE_AND_TEAMS]
+        },
+        {
+          permissionsRoot: 'editOtherPermissions',
+          permissions: [PermissionEntity.PEOPLE_AND_TEAMS]
+        }
+      ]
+    ],
+    [
+      'createCategories',
+      [
+        {
+          permissionsRoot: 'createPermissions',
+          permissions: [PermissionEntity.CATEGORIES]
+        },
+        {
+          permissionsRoot: 'editOtherPermissions',
+          permissions: [PermissionEntity.CATEGORIES]
+        }
+      ]
+    ],
+    [
+      'deleteWorkOrders',
+      [
+        {
+          permissionsRoot: 'deleteOtherPermissions',
+          permissions: [PermissionEntity.WORK_ORDERS]
+        }
+      ]
+    ],
+    [
+      'deletePreventiveMaintenanceTrigger',
+      [
+        {
+          permissionsRoot: 'deleteOtherPermissions',
+          permissions: [PermissionEntity.PREVENTIVE_MAINTENANCES]
+        }
+      ]
+    ],
+    [
+      'deleteLocations',
+      [
+        {
+          permissionsRoot: 'deleteOtherPermissions',
+          permissions: [PermissionEntity.LOCATIONS]
+        }
+      ]
+    ],
+    [
+      'deleteAssets',
+      [
+        {
+          permissionsRoot: 'deleteOtherPermissions',
+          permissions: [PermissionEntity.ASSETS]
+        }
+      ]
+    ],
+    [
+      'deletePartsAndSets',
+      [
+        {
+          permissionsRoot: 'deleteOtherPermissions',
+          permissions: [PermissionEntity.PARTS_AND_MULTIPARTS]
+        }
+      ]
+    ],
+    [
+      'deletePurchaseOrders',
+      [
+        {
+          permissionsRoot: 'deleteOtherPermissions',
+          permissions: [PermissionEntity.PURCHASE_ORDERS]
+        }
+      ]
+    ],
+    [
+      'deleteMeters',
+      [
+        {
+          permissionsRoot: 'deleteOtherPermissions',
+          permissions: [PermissionEntity.METERS]
+        }
+      ]
+    ],
+    [
+      'deleteVendorsCustomers',
+      [
+        {
+          permissionsRoot: 'deleteOtherPermissions',
+          permissions: [PermissionEntity.VENDORS_AND_CUSTOMERS]
+        }
+      ]
+    ],
+    [
+      'deleteCategories',
+      [
+        {
+          permissionsRoot: 'deleteOtherPermissions',
+          permissions: [PermissionEntity.CATEGORIES]
+        }
+      ]
+    ],
+    [
+      'deleteFiles',
+      [
+        {
+          permissionsRoot: 'deleteOtherPermissions',
+          permissions: [PermissionEntity.FILES]
+        }
+      ]
+    ],
+    [
+      'deletePeopleTeams',
+      [
+        {
+          permissionsRoot: 'deleteOtherPermissions',
+          permissions: [PermissionEntity.PEOPLE_AND_TEAMS]
+        }
+      ]
+    ],
+    [
+      'accessSettings',
+      [
+        {
+          permissionsRoot: 'viewPermissions',
+          permissions: [PermissionEntity.SETTINGS]
+        }
+      ]
+    ]
+  ]);
 
   const formatValues = (values, useDefaultPermissions: boolean) => {
     let newValues = { ...values };
 
     newValues.companySettings = { id: companySettings.id };
     newValues.roleType = 'ROLE_CLIENT';
-
-    permissionRoots.forEach((root) => {
-      if (useDefaultPermissions) {
-        newValues[root] = [...defaultPermissions[root]];
-      } else if (!newValues[root]) {
-        newValues[root] = [];
-      }
-    });
-
-    Object.keys(values).forEach((key) => {
-      const idx = key.indexOf('_');
-      if (idx > 0) {
-        const root = key.slice(0, idx) as PermissionRoot;
-        const entity = key.slice(idx + 1) as PermissionEntity;
+    newValues = useDefaultPermissions
+      ? { ...newValues, ...defaultPermissions }
+      : newValues;
+    permissionsMapping.forEach((configs, name) => {
+      configs.forEach((config) => {
         if (
-          permissionRoots.includes(root) &&
-          Object.values(PermissionEntity).includes(entity)
+          (newValues[name] && newValues[name][0] === 'on') ||
+          newValues[name]
         ) {
-          if (values[key]) {
-            if (!newValues[root].includes(entity)) {
-              newValues[root].push(entity);
-            }
-          } else if (newValues[root]) {
-            newValues[root] = newValues[root].filter((e) => e !== entity);
-          }
-          delete newValues[key];
+          newValues[config.permissionsRoot] = newValues[
+            config.permissionsRoot
+          ].concat(config.permissions);
+        } else if (!newValues[name] || newValues[name][0] === 'off') {
+          newValues[config.permissionsRoot] = newValues[
+            config.permissionsRoot
+          ].filter((permission) => !config.permissions.includes(permission));
         }
-      }
+      });
     });
     return newValues;
   };
@@ -371,7 +496,7 @@ function Roles() {
         open={openDrawer}
         onClose={() => setOpenDrawer(false)}
         PaperProps={{
-          sx: { width: { xs: '90%', sm: '70%', md: '50%' } }
+          sx: { width: '50%' }
         }}
       >
         <RoleDetails

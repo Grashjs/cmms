@@ -1,20 +1,24 @@
 import {
   Box,
-  Button,
   debounce,
   Dialog,
   DialogContent,
   DialogTitle,
   Drawer,
   Stack,
-  Switch,
   Typography,
   useTheme
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import CustomDatagrid2, {
-  CustomDatagridColumn2
-} from '../components/CustomDatagrid2';
+import CustomDataGrid from '../components/CustomDatagrid';
+import {
+  GridActionsCellItem,
+  GridEnrichedColDef,
+  GridRenderCellParams,
+  GridRowParams,
+  GridToolbar,
+  GridValueGetterParams
+} from '@mui/x-data-grid';
 import * as React from 'react';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import UserDetailsDrawer from './UserDetailsDrawer';
@@ -28,16 +32,12 @@ import {
   disableUser,
   editUser,
   editUserRole,
-  enableUser,
-  getLastWeekInvitations,
   getSingleUser,
-  getUsers,
-  inviteUsers
+  getUsers
 } from '../../../slices/user';
-import { OwnUser, UserResponseDTO } from '../../../models/user';
+import { OwnUser } from '../../../models/user';
 import { PermissionEntity, Role } from '../../../models/owns/role';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import ScheduleIcon from '@mui/icons-material/Schedule';
 import useAuth from '../../../hooks/useAuth';
 import Form from '../components/form';
 import * as Yup from 'yup';
@@ -48,44 +48,26 @@ import { SearchCriteria, SortDirection } from '../../../models/owns/page';
 import { onSearchQueryChange } from '../../../utils/overall';
 import SearchInput from '../components/SearchInput';
 import CancelIcon from '@mui/icons-material/Cancel';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ConfirmDialog from '../components/ConfirmDialog';
+import { useGridApiRef } from '@mui/x-data-grid-pro';
+import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import InviteUserDialog from './components/InviteUserDialog';
-import ShiftConfigurationModal from './components/ShiftConfigurationModal';
 import { isEmailVerificationEnabled } from '../../../config';
-import { createColumnHelper } from '@tanstack/react-table';
-import useTableState from '../../../hooks/useTableState';
-
-const fieldMapping: Record<string, string> = {
-  name: 'firstName',
-  email: 'email',
-  phone: 'phone',
-  jobTitle: 'jobTitle',
-  role: 'role.name',
-  rate: 'rate',
-  lastLogin: 'lastLogin'
-};
 
 interface PropsType {
   values?: any;
   openModal: boolean;
   handleCloseModal: () => void;
-  initialEmail?: string;
 }
 
-const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
+const People = ({ openModal, handleCloseModal }: PropsType) => {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
-  const [currentUser, setCurrentUser] = useState<UserResponseDTO>();
+  const [currentUser, setCurrentUser] = useState<OwnUser>();
   const [detailDrawerOpen, setDetailDrawerOpen] = useState(false);
-  const [shiftModalUser, setShiftModalUser] = useState<UserResponseDTO>();
-  const [shiftModalOpen, setShiftModalOpen] = useState(false);
   const { peopleId } = useParams();
   const { hasEditPermission, user } = useAuth();
-  const [enabledOnly, setEnabledOnly] = useState<boolean>(true);
-  const { users, loadingGet, singleUser, lastWeekInvitations } = useSelector(
-    (state) => state.users
-  );
+  const { users, loadingGet, singleUser } = useSelector((state) => state.users);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
   const [criteria, setCriteria] = useState<SearchCriteria>({
     filterFields: [],
@@ -93,32 +75,6 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
     pageNum: 0,
     direction: 'DESC'
   });
-
-  // Use the table state hook for TanStack Table
-  const {
-    sorting,
-    setSorting,
-    pagination,
-    setPagination,
-    columnOrder,
-    setColumnOrder,
-    columnSizing,
-    setColumnSizing,
-    columnVisibility,
-    setColumnVisibility,
-    pinnedColumns,
-    setPinnedColumns
-  } = useTableState({
-    prefix: 'people',
-    initialSorting: [],
-    initialPagination: {
-      pageSize: criteria.pageSize,
-      pageIndex: criteria.pageNum
-    },
-    setCriteria,
-    fieldMapping
-  });
-
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { getFormattedCurrency, getFormattedDate } = useContext(
@@ -126,7 +82,6 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
   );
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openDisableModal, setOpenDisableModal] = useState<boolean>(false);
-  const [openEnableModal, setOpenEnableModal] = useState<boolean>(false);
 
   const onQueryChange = (event) => {
     onSearchQueryChange<User>(event, criteria, setCriteria, [
@@ -146,7 +101,7 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
   const onEditFailure = (err) =>
     showSnackBar(t("The User couldn't be edited"), 'error');
 
-  const handleOpenDrawer = (user: UserResponseDTO) => {
+  const handleOpenDrawer = (user: OwnUser) => {
     setCurrentUser(user);
     window.history.replaceState(
       null,
@@ -175,25 +130,10 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
       setOpenDisableModal(true);
     }
   };
-  const handleOpenEnable = (id: number) => {
-    const foundUser = users.content.find((user) => user.id === id);
-    if (foundUser) {
-      setCurrentUser(foundUser);
-      setOpenEnableModal(true);
-    }
-  };
   const handleCloseDetails = () => {
     window.history.replaceState(null, 'User', `/app/people-teams/people`);
     setDetailDrawerOpen(false);
   };
-
-  const onResendInvites = () => {
-    lastWeekInvitations.forEach((invitation) => {
-      dispatch(inviteUsers(invitation.roleId, [invitation.email], false, true));
-    });
-    showSnackBar(t('users_invite_success'), 'success');
-  };
-
   const defautfields: Array<IField> = [
     {
       name: 'rate',
@@ -302,12 +242,8 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
   }, [peopleId]);
 
   useEffect(() => {
-    dispatch(getUsers(criteria, enabledOnly));
-  }, [criteria, enabledOnly]);
-
-  useEffect(() => {
-    dispatch(getLastWeekInvitations());
-  }, []);
+    dispatch(getUsers(criteria));
+  }, [criteria]);
 
   //see changes in ui on edit
   useEffect(() => {
@@ -330,218 +266,171 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
     };
   }, [singleUser, users]);
 
-  const columnHelper = createColumnHelper<UserResponseDTO>();
+  const onPageSizeChange = (size: number) => {
+    setCriteria({ ...criteria, pageSize: size });
+  };
+  const onPageChange = (number: number) => {
+    setCriteria({ ...criteria, pageNum: number });
+  };
 
-  const columns: CustomDatagridColumn2<UserResponseDTO>[] = [
-    columnHelper.accessor(
-      (row) =>
-        `${row.firstName} ${row.lastName}${
-          row.enabled ? '' : ` (${t('disabled')})`
-        }`,
-      {
-        id: 'name',
-        header: () => t('name'),
-        cell: (info) => (
-          <Box
-            sx={{
-              fontWeight: 'bold',
-              color: info.row.original.enabled ? 'inherit' : 'gray'
-            }}
-          >
-            {info.getValue()}
-          </Box>
-        ),
-        size: 150
+  // let fields: Array<IField> = [];
+
+  // const shape = {};
+
+  const columns: GridEnrichedColDef[] = [
+    {
+      field: 'name',
+      headerName: t('name'),
+      width: 150,
+      valueGetter: (params) => `${params.row.firstName} ${params.row.lastName}`,
+      renderCell: (params: GridRenderCellParams<string>) => (
+        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
+      )
+    },
+    {
+      field: 'email',
+      headerName: t('email'),
+      width: 150
+    },
+    {
+      field: 'phone',
+      headerName: t('phone'),
+      width: 150
+    },
+    {
+      field: 'jobTitle',
+      headerName: t('job_title'),
+      width: 150
+    },
+    {
+      field: 'role',
+      headerName: t('role'),
+      width: 150,
+      valueGetter: (params: GridValueGetterParams<Role>) =>
+        params.value.code === 'USER_CREATED'
+          ? params.value.name
+          : t(`${params.value.code}_name`)
+    },
+    {
+      field: 'rate',
+      headerName: t('hourly_rate'),
+      width: 150,
+      valueGetter: (params: GridValueGetterParams<number>) =>
+        getFormattedCurrency(params.value)
+    },
+    {
+      field: 'lastLogin',
+      headerName: t('last_login'),
+      width: 150,
+      valueGetter: (params: GridValueGetterParams<string>) =>
+        getFormattedDate(params.value)
+    },
+    {
+      field: 'actions',
+      type: 'actions',
+      headerName: t('actions'),
+      description: t('actions'),
+      getActions: (params: GridRowParams<OwnUser>) => {
+        let actions = [
+          <GridActionsCellItem
+            key="edit"
+            icon={<EditTwoToneIcon fontSize="small" color={'primary'} />}
+            onClick={() => handleOpenUpdate(Number(params.id))}
+            label={t('edit')}
+          />,
+          ...(params.row.enabled && !params.row.ownsCompany
+            ? [
+                <GridActionsCellItem
+                  key="disable"
+                  icon={<CancelIcon fontSize="small" color={'error'} />}
+                  onClick={() => handleOpenDisable(Number(params.id))}
+                  label={t('disable')}
+                />
+              ]
+            : [])
+        ];
+        if (!hasEditPermission(PermissionEntity.PEOPLE_AND_TEAMS, params.row))
+          actions = [];
+        return actions;
       }
-    ),
-    columnHelper.accessor('email', {
-      id: 'email',
-      header: () => t('email'),
-      cell: (info) => info.getValue() || '',
-      size: 150
-    }),
-    columnHelper.accessor('phone', {
-      id: 'phone',
-      header: () => t('phone'),
-      cell: (info) => info.getValue() || '',
-      size: 150
-    }),
-    columnHelper.accessor('jobTitle', {
-      id: 'jobTitle',
-      header: () => t('job_title'),
-      cell: (info) => info.getValue() || '',
-      size: 150
-    }),
-    columnHelper.accessor('role', {
-      id: 'role',
-      header: () => t('role'),
-      cell: (info) => {
-        const role = info.getValue();
-        return role.code === 'USER_CREATED'
-          ? role.name
-          : t(`${role.code}_name`);
-      },
-      size: 150
-    }),
-    columnHelper.accessor('rate', {
-      id: 'rate',
-      header: () => t('hourly_rate'),
-      cell: (info) => getFormattedCurrency(info.getValue()),
-      size: 150
-    }),
-    columnHelper.display({
-      id: 'scheduled',
-      header: () => t('scheduled'),
-      cell: (info) => {
-        const sc = info.row.original.shiftConfiguration;
-        if (!sc?.enabled || !sc?.days) return t('no');
-        const enabledDays = sc.days
-          .filter((d) => d.enabled)
-          .map((d) => t(d.dayOfWeek.toLowerCase()));
-        return enabledDays.join(', ');
-      },
-      size: 180
-    }),
-    columnHelper.accessor('lastLogin', {
-      id: 'lastLogin',
-      header: () => t('last_login'),
-      cell: (info) => getFormattedDate(info.getValue()),
-      size: 150
-    }),
-    columnHelper.display({
-      id: 'actions',
-      header: () => t('actions'),
-      cell: (info) => {
-        const user = info.row.original;
-
-        if (!hasEditPermission(PermissionEntity.PEOPLE_AND_TEAMS, user))
-          return null;
-
-        return (
-          <Stack direction="row" spacing={1}>
-            <EditTwoToneIcon
-              fontSize="small"
-              color="primary"
-              sx={{ cursor: 'pointer' }}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleOpenUpdate(user.id);
-              }}
-            />
-            <ScheduleIcon
-              fontSize="small"
-              color="primary"
-              sx={{ cursor: 'pointer' }}
-              onClick={(e) => {
-                e.stopPropagation();
-                setShiftModalUser(user);
-                setShiftModalOpen(true);
-              }}
-            />
-            {user.enabled && !user.ownsCompany && (
-              <CancelIcon
-                fontSize="small"
-                color="error"
-                sx={{ cursor: 'pointer' }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleOpenDisable(user.id);
-                }}
-              />
-            )}
-            {!user.enabled && (
-              <CheckCircleIcon
-                fontSize="small"
-                color="success"
-                sx={{ cursor: 'pointer' }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleOpenEnable(user.id);
-                }}
-              />
-            )}
-          </Stack>
-        );
-      },
-      size: 100
-    })
+    }
   ];
+  const apiRef = useGridApiRef();
+  useGridStatePersist(apiRef, columns, 'users');
   const RenderPeopleList = () => (
-    <CustomDatagrid2
-      columns={columns}
-      data={users.content}
+    <CustomDataGrid
+      apiRef={apiRef}
+      pageSize={criteria.pageSize}
+      page={criteria.pageNum}
+      rows={users.content}
+      rowCount={users.totalElements}
+      pagination
+      paginationMode="server"
+      sortingMode="server"
+      onPageSizeChange={onPageSizeChange}
+      onPageChange={onPageChange}
+      rowsPerPageOptions={[10, 20, 50]}
       loading={loadingGet}
-      pagination={pagination}
-      onPaginationChange={setPagination}
-      totalRows={users.totalElements}
-      pageSizeOptions={[10, 20, 50]}
-      sorting={sorting}
-      onSortingChange={setSorting}
-      columnOrder={columnOrder}
-      onColumnOrderChange={setColumnOrder}
-      columnSizing={columnSizing}
-      onColumnSizingChange={setColumnSizing}
-      columnVisibility={columnVisibility}
-      onColumnVisibilityChange={setColumnVisibility}
-      onRowClick={(row) => handleOpenDetails(row.id)}
-      enableColumnReordering
-      enableColumnResizing
-      pinnedColumns={pinnedColumns}
-      onPinnedColumnsChange={setPinnedColumns}
+      onSortModelChange={(model) => {
+        if (model.length === 0) {
+          setCriteria({
+            ...criteria,
+            sortField: undefined,
+            direction: undefined
+          });
+          return;
+        }
+
+        const fieldMapping = {
+          firstName: 'firstName',
+          lastName: 'lastName',
+          email: 'email',
+          rate: 'rate',
+          role: 'role.name'
+        };
+
+        const field = model[0].field;
+        const mappedField = fieldMapping[field];
+
+        if (!mappedField) return;
+
+        setCriteria({
+          ...criteria,
+          sortField: mappedField,
+          direction: (model[0].sort?.toUpperCase() || 'ASC') as SortDirection
+        });
+      }}
+      columns={columns}
+      components={{
+        Toolbar: GridToolbar
+      }}
+      initialState={{
+        columns: {
+          columnVisibilityModel: {}
+        }
+      }}
+      onRowClick={(params) => {
+        // setCurrentUser(users.find((user) => user.id === params.id));
+        handleOpenDetails(Number(params.id));
+      }}
     />
   );
 
   return (
     <Box
       sx={{
-        p: 2
+        p: 2,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: '100%'
       }}
     >
-      <Stack direction="row" width="100%" justifyContent="space-between">
+      <Stack direction="row" width="95%">
         <Box sx={{ my: 0.5 }}>
           <SearchInput onChange={debouncedQueryChange} />
         </Box>
-        <Stack direction="row" spacing={1} alignItems="center">
-          <Typography>Enabled Only</Typography>
-          <Switch
-            checked={enabledOnly}
-            onChange={() => setEnabledOnly((prevState) => !prevState)}
-          />
-        </Stack>
       </Stack>
-      {lastWeekInvitations.length > 0 && (
-        <Box
-          sx={{
-            mb: 1,
-            p: 2,
-            bgcolor: 'info.light',
-            color: 'info.contrastText',
-            borderRadius: 1
-          }}
-        >
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            <Typography variant="subtitle2">
-              {lastWeekInvitations.length === 1
-                ? `${lastWeekInvitations[0].email} - ${lastWeekInvitations[0].roleName}`
-                : t('n_pending_invites', {
-                    count: lastWeekInvitations.length
-                  })}
-            </Typography>
-            <Button
-              onClick={onResendInvites}
-              variant="contained"
-              color="secondary"
-              size="small"
-            >
-              {t('resend_invites')}
-            </Button>
-          </Stack>
-        </Box>
-      )}
       {RenderPeopleList()}
 
       <Drawer
@@ -560,7 +449,6 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
         onRefreshUsers={() => {
           dispatch(getUsers(criteria));
         }}
-        initialEmail={initialEmail}
       />
       <ConfirmDialog
         open={openDisableModal}
@@ -578,30 +466,7 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
           user: `${currentUser?.firstName} ${currentUser?.lastName}`
         })}
       />
-      <ConfirmDialog
-        open={openEnableModal}
-        onCancel={() => {
-          setOpenEnableModal(false);
-        }}
-        onConfirm={() => {
-          dispatch(enableUser(currentUser.id)).then(() => {
-            setOpenEnableModal(false);
-            showSnackBar(t('operation_success'), 'success');
-          });
-        }}
-        confirmText={t('enable')}
-        question={t('confirm_enable_user', {
-          user: `${currentUser?.firstName} ${currentUser?.lastName}`
-        })}
-      />
       {renderEditUserModal()}
-      {shiftModalUser && (
-        <ShiftConfigurationModal
-          user={shiftModalUser}
-          open={shiftModalOpen}
-          onClose={() => setShiftModalOpen(false)}
-        />
-      )}
     </Box>
   );
 };

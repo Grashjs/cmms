@@ -12,7 +12,7 @@ const TabsContainerWrapper = styled(Box)(
       margin-top: 2px;
       position: relative;
       bottom: -1px;
-      max-width: 100%;
+      max-width: 82%;
 
       .MuiTabs-root {
         height: 44px;
@@ -102,7 +102,6 @@ interface SettingsLayoutProps {
   secondActionTitle?: string;
   secondActionIcon?: ReactNode;
   editAction?: boolean;
-  rawAction?: ReactNode;
   withoutCard?: boolean;
 }
 
@@ -119,8 +118,7 @@ function MultipleTabsLayout(props: SettingsLayoutProps) {
     editAction,
     secondAction,
     secondActionTitle,
-    secondActionIcon,
-    rawAction
+    secondActionIcon
   } = props;
   const { t }: { t: any } = useTranslation();
   const navigate = useNavigate();
@@ -150,31 +148,26 @@ function MultipleTabsLayout(props: SettingsLayoutProps) {
             ))}
           </Tabs>
         </TabsContainerWrapper>
-        {(action || secondAction || rawAction) && (
-          <Stack direction="row" spacing={1} sx={{ mr: 4, my: 1 }}>
-            {action && (
-              <Button
-                startIcon={
-                  editAction ? <EditTwoToneIcon /> : <AddTwoToneIcon />
-                }
-                variant="contained"
-                onClick={action}
-              >
-                {actionTitle}
-              </Button>
-            )}
-            {secondAction && secondActionTitle && (
-              <Button
-                startIcon={secondActionIcon}
-                variant="outlined"
-                onClick={secondAction}
-              >
-                {secondActionTitle}
-              </Button>
-            )}
-            {rawAction}
-          </Stack>
-        )}
+        <Stack direction="row" spacing={1} sx={{ mr: 4, my: 1 }}>
+          {action && (
+            <Button
+              startIcon={editAction ? <EditTwoToneIcon /> : <AddTwoToneIcon />}
+              variant="contained"
+              onClick={action}
+            >
+              {actionTitle}
+            </Button>
+          )}
+          {secondAction && secondActionTitle && (
+            <Button
+              startIcon={secondActionIcon}
+              variant="outlined"
+              onClick={secondAction}
+            >
+              {secondActionTitle}
+            </Button>
+          )}
+        </Stack>
       </Box>
       {withoutCard ? (
         children

@@ -1,6 +1,5 @@
 import {
   Box,
-  IconButton,
   Link,
   List,
   ListItem,
@@ -8,31 +7,23 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import { PartQuantityMiniDTO } from '../../../models/owns/partQuantity';
 import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import { getFormattedCostPerUnit } from '../../../utils/formatters';
-import { deletePartQuantity } from '../../../slices/partQuantity';
-import { useDispatch } from '../../../store';
 
 interface PartQuantityListProps {
   partQuantities: PartQuantityMiniDTO[];
   onChange: (value: string, partQuantity: PartQuantityMiniDTO) => void;
   disabled: boolean;
-  deleteDisabled?: boolean;
-  onDelete?: (partQuantity: PartQuantityMiniDTO) => void;
 }
 export default function PartQuantitiesList({
   partQuantities,
   onChange,
-  disabled,
-  deleteDisabled,
-  onDelete
+  disabled
 }: PartQuantityListProps) {
   const { t }: { t: any } = useTranslation();
-  const dispatch = useDispatch();
   const { getFormattedCurrency } = useContext(CompanySettingsContext);
 
   return (
@@ -63,45 +54,20 @@ export default function PartQuantitiesList({
                   getFormattedCurrency
                 )}
               </Typography>
-              {!(disabled || deleteDisabled) && (
-                <IconButton
-                  size="small"
-                  onClick={() => {
-                    if (onDelete) {
-                      onDelete(partQuantity);
-                    } else {
-                      if (window.confirm(t('confirm_delete_row'))) {
-                        dispatch(deletePartQuantity(partQuantity.id));
-                      }
-                    }
-                  }}
-                >
-                  <DeleteTwoToneIcon fontSize="small" color="error" />
-                </IconButton>
-              )}
             </Box>
           }
         >
           <ListItemText
             primary={
-              <div
-                style={{
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  width: '18rem'
-                }}
+              <Link
+                target="_blank"
+                rel="noopener noreferrer"
+                href={`/app/inventory/parts/${partQuantity.part.id}`}
+                key={partQuantity.part.id}
+                variant="h6"
               >
-                <Link
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={`/app/inventory/parts/${partQuantity.part.id}`}
-                  key={partQuantity.part.id}
-                  variant="h6"
-                  noWrap
-                >
-                  {partQuantity.part.name}
-                </Link>
-              </div>
+                {partQuantity.part.name}
+              </Link>
             }
             secondary={
               <div
@@ -119,11 +85,7 @@ export default function PartQuantitiesList({
       ))}
       <ListItem
         secondaryAction={
-          <Typography
-            variant="h6"
-            fontWeight="bold"
-            sx={{ mr: !(deleteDisabled || disabled) ? 3 : 0 }}
-          >
+          <Typography variant="h6" fontWeight="bold">
             {getFormattedCurrency(
               partQuantities.reduce(
                 (acc, partQuantity) =>

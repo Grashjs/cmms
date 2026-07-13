@@ -3,10 +3,6 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { AppThunk } from '../store';
 import Location, { LocationMiniDTO, LocationRow } from '../models/location';
 import api from '../utils/api';
-import {
-  createCancellableRequest,
-  isAbortError
-} from '../utils/cancellableRequest';
 import { getInitialPage, Page, SearchCriteria } from '../models/page';
 import { revertAll } from '../utils/redux';
 
@@ -77,15 +73,6 @@ const slice = createSlice({
     ) {
       const { location } = action.payload;
       state.locations.content = [...state.locations.content, location];
-      state.locationsMini = [
-        ...state.locationsMini,
-        {
-          id: location.id,
-          name: location.name,
-          address: location.address,
-          customId: location.customId
-        }
-      ];
     },
     editLocation(
       state: LocationState,
@@ -145,18 +132,13 @@ export const reducer = slice.reducer;
 export const getLocations =
   (criteria: SearchCriteria): AppThunk =>
   async (dispatch) => {
-    const { signal } = createCancellableRequest('getLocations');
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
       const locations = await api.post<Page<Location>>(
         `locations/search`,
-        criteria,
-        { signal }
+        criteria
       );
       dispatch(slice.actions.getLocations({ locations }));
-    } catch (error) {
-      if (isAbortError(error)) return;
-      throw error;
     } finally {
       dispatch(slice.actions.setLoadingGet({ loading: false }));
     }
@@ -164,19 +146,14 @@ export const getLocations =
 export const getMoreLocations =
   (criteria: SearchCriteria, pageNum: number): AppThunk =>
   async (dispatch) => {
-    const { signal } = createCancellableRequest('getMoreLocations');
     criteria = { ...criteria, pageNum };
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
       const locations = await api.post<Page<Location>>(
         `locations/search`,
-        criteria,
-        { signal }
+        criteria
       );
       dispatch(slice.actions.getMoreLocations({ locations }));
-    } catch (error) {
-      if (isAbortError(error)) return;
-      throw error;
     } finally {
       dispatch(slice.actions.setLoadingGet({ loading: false }));
     }
@@ -195,26 +172,16 @@ export const getLocationDetails =
     dispatch(slice.actions.setLoadingGet({ loading: false }));
   };
 export const getLocationsMini = (): AppThunk => async (dispatch) => {
-  const { signal } = createCancellableRequest('getLocationsMini');
-  try {
-    dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const locations = await api.get<LocationMiniDTO[]>('locations/mini', {
-      signal
-    });
-    dispatch(slice.actions.getLocationsMini({ locations }));
-  } catch (error) {
-    if (isAbortError(error)) return;
-    throw error;
-  } finally {
-    dispatch(slice.actions.setLoadingGet({ loading: false }));
-  }
+  dispatch(slice.actions.setLoadingGet({ loading: true }));
+  const locations = await api.get<LocationMiniDTO[]>('locations/mini');
+  dispatch(slice.actions.getLocationsMini({ locations }));
+  dispatch(slice.actions.setLoadingGet({ loading: false }));
 };
 export const addLocation =
   (location): AppThunk =>
   async (dispatch) => {
     const locationResponse = await api.post<Location>('locations', location);
     dispatch(slice.actions.addLocation({ location: locationResponse }));
-    return locationResponse;
   };
 export const editLocation =
   (id: number, location): AppThunk =>

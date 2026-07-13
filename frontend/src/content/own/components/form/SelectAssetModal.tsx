@@ -1,39 +1,49 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Box,
   Button,
-  Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
+  CircularProgress,
   IconButton,
+  Stack,
   Typography,
-  useTheme
+  useTheme,
+  Chip
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from '../../../../store';
-import { getAssetsMini, resetAssetsHierarchy } from '../../../../slices/asset';
-import { AssetMiniDTO } from '../../../../models/owns/asset';
+import {
+  getAssetChildren,
+  resetAssetsHierarchy
+} from '../../../../slices/asset';
+import CustomDataGrid, { CustomDatagridColumn } from '../CustomDatagrid';
+import {
+  GridRenderCellParams,
+  GridRow,
+  GridEventListener,
+  GridSelectionModel
+} from '@mui/x-data-grid';
+import { DataGridProProps, useGridApiRef } from '@mui/x-data-grid-pro';
+import { AssetRow, AssetMiniDTO } from '../../../../models/owns/asset';
+import { GroupingCellWithLazyLoading } from '../../Assets/GroupingCellWithLazyLoading';
 import ReplayTwoToneIcon from '@mui/icons-material/ReplayTwoTone';
+import { Pageable } from '../../../../models/owns/page';
 import NoRowsMessageWrapper from '../NoRowsMessageWrapper';
 import { usePrevious } from '../../../../hooks/usePrevious';
-import { createColumnHelper } from '@tanstack/react-table';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import CustomDatagrid2, { CustomDatagridColumn2 } from '../CustomDatagrid2';
 
 interface SelectAssetModalProps {
   open: boolean;
   onClose: () => void;
-  onSelect: (assets: AssetMiniDTO[]) => void;
-  excludedAssetIds?: number[];
+  onSelect: (assets: AssetMiniDTO[]) => void; // Changed to handle array of assets
+  excludedAssetIds?: number[]; // Changed to array for multiple exclusions
   locationId?: number;
-  maxSelections?: number;
-  initialSelectedAssets?: AssetMiniDTO[];
+  maxSelections?: number; // Optional limit for selections
+  initialSelectedAssets?: AssetMiniDTO[]; // Optional pre-selected assets
 }
 
-type AssetRow = AssetMiniDTO & { depth?: number };
 const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
   open,
   onClose,
@@ -45,69 +55,32 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const apiRef = useGridApiRef();
   const theme = useTheme();
-  const { loadingGet, assetsMini } = useSelector((state) => state.assets);
+  const { assetsHierarchy, loadingGet } = useSelector((state) => state.assets);
+  const [pageable, setPageable] = useState<Pageable>({ page: 0, size: 1000 });
   const initialized = useRef<boolean>(false);
   const single = maxSelections === 1;
-
-  // State for tracking expanded rows
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [deployedAssets, setDeployedAssets] = useState<
+    { id: number; hierarchy: number[] }[]
+  >([{ id: 0, hierarchy: [] }]);
 
   // State for tracking selected assets
   const [selectedAssets, setSelectedAssets] = useState<AssetMiniDTO[]>(
     initialSelectedAssets
   );
-  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>(
-    initialSelectedAssets.reduce((acc, asset) => {
-      acc[asset.id] = true;
-      return acc;
-    }, {} as Record<string, boolean>)
+  const [selectionModel, setSelectionModel] = useState<GridSelectionModel>(
+    initialSelectedAssets.map((asset) => asset.id)
   );
   const previousInitialSelectedAssets = usePrevious(initialSelectedAssets);
 
   const handleReset = (callApi: boolean) => {
+    dispatch(resetAssetsHierarchy(callApi));
+    setDeployedAssets([{ id: 0, hierarchy: [] }]);
     if (callApi) {
-      dispatch(getAssetsMini());
+      dispatch(getAssetChildren(0, [], pageable));
     }
   };
-
-  // Flatten hierarchy based on expanded state
-  const getHierarchicalData = (
-    flatList: AssetMiniDTO[],
-    expanded: Record<string, boolean>,
-    parentId: number | null = null,
-    depth: number = 0
-  ): (AssetMiniDTO & { depth: number })[] => {
-    let result: (AssetMiniDTO & { depth: number })[] = [];
-
-    const nodes = flatList.filter((item) => {
-      if (parentId === null) {
-        return !item.parentId;
-      }
-      return item.parentId === parentId;
-    });
-
-    for (const node of nodes) {
-      result.push({ ...node, depth });
-
-      if (expanded[node.id]) {
-        const children = getHierarchicalData(
-          flatList,
-          expanded,
-          node.id,
-          depth + 1
-        );
-        result = [...result, ...children];
-      }
-    }
-
-    return result;
-  };
-
-  const tableData = useMemo(
-    () => getHierarchicalData(assetsMini, expanded),
-    [assetsMini, expanded]
-  );
 
   useEffect(() => {
     if (
@@ -120,15 +93,10 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
       handleReset(true);
       if (initialSelectedAssets?.length) {
         setSelectedAssets(initialSelectedAssets);
-        setRowSelection(
-          initialSelectedAssets.reduce((acc, asset) => {
-            acc[asset.id] = true;
-            return acc;
-          }, {} as Record<string, boolean>)
-        );
+        setSelectionModel(initialSelectedAssets.map((asset) => asset.id));
       } else {
         setSelectedAssets([]);
-        setRowSelection({});
+        setSelectionModel([]);
       }
     }
   }, [open, initialSelectedAssets, previousInitialSelectedAssets]);
@@ -136,107 +104,150 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
   useEffect(() => {
     if (single && open) {
       setSelectedAssets([]);
-      setRowSelection({});
+      setSelectionModel([]);
     }
-  }, [open, single]);
-
-  const handleToggleExpand = (row: AssetRow) => {
-    setExpanded((prev) => ({ ...prev, [row.id]: !prev[row.id] }));
-  };
-
-  const columnHelper = createColumnHelper<AssetMiniDTO>();
-
-  const columns: CustomDatagridColumn2<AssetMiniDTO>[] = [
-    columnHelper.display({
-      id: 'expander',
-      header: '',
-      cell: ({ row }) => {
-        const isExpanded = expanded[row.original.id];
-        const hasChildren = assetsMini.some(
-          (asset) => asset.parentId === row.original.id
-        );
-
-        if (!hasChildren) {
-          return <Box sx={{ width: 24 }} />;
-        }
-
-        return (
-          <IconButton
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleToggleExpand(row.original);
-            }}
-            sx={{ padding: 0.5 }}
-          >
-            {isExpanded ? (
-              <ExpandMoreIcon fontSize="small" />
-            ) : (
-              <ChevronRightIcon fontSize="small" />
-            )}
-          </IconButton>
-        );
-      },
-      size: 50
-    }),
-    columnHelper.accessor('customId', {
-      id: 'customId',
-      header: () => t('id'),
-      cell: (info) => info.getValue() || '',
-      size: 100
-    }),
-    columnHelper.accessor('name', {
-      id: 'name',
-      header: () => t('name'),
-      cell: (info) => (
-        <Box
-          sx={{
-            py: 1,
-            fontWeight: 'bold',
-            ml: (info.row.depth || 0) * 24
-          }}
-        >
-          {info.getValue()}
-        </Box>
-      ),
-      size: Number.MAX_SAFE_INTEGER
-    })
-  ];
-
-  const handleRowClick = (row: AssetMiniDTO) => {
-    // Prevent selection of excluded assets
-    if (excludedAssetIds.includes(row.id)) return;
-
-    if (single) {
-      // Single selection mode
-      const newSelection = [row];
-      setSelectedAssets(newSelection);
-      onSelect(newSelection);
-      onClose();
-    } else {
-      // Multiple selection mode
-      const isSelected = rowSelection[row.id];
-      let newRowSelection: Record<string, boolean>;
-      let updatedSelectedAssets: AssetMiniDTO[];
-
-      if (isSelected) {
-        // Remove from selection
-        newRowSelection = { ...rowSelection };
-        delete newRowSelection[row.id];
-        updatedSelectedAssets = selectedAssets.filter(
-          (asset) => asset.id !== row.id
-        );
-      } else {
-        // Add to selection
-        if (maxSelections && selectedAssets.length >= maxSelections) {
+  }, [open]);
+  useEffect(() => {
+    if (apiRef.current.getRow) {
+      const handleRowExpansionChange: GridEventListener<
+        'rowExpansionChange'
+      > = async (node) => {
+        const row = apiRef.current.getRow(node.id) as AssetRow | null;
+        if (!node.childrenExpanded || !row || row.childrenFetched) {
           return;
         }
-        newRowSelection = { ...rowSelection, [row.id]: true };
-        updatedSelectedAssets = [...selectedAssets, row];
-      }
+        apiRef.current.updateRows([
+          {
+            id: t('loading_assets', { name: row.name, id: node.id }),
+            hierarchy: [...row.hierarchy, '']
+          }
+        ]);
+        if (
+          !deployedAssets.find((deployedAsset) => deployedAsset.id === row.id)
+        ) {
+          setDeployedAssets((prev) => [
+            ...prev,
+            { id: row.id, hierarchy: row.hierarchy }
+          ]);
+        }
+        dispatch(getAssetChildren(row.id, row.hierarchy, pageable));
+      };
 
-      setRowSelection(newRowSelection);
-      setSelectedAssets(updatedSelectedAssets);
+      const handleCellKeyDown: GridEventListener<'cellKeyDown'> = (
+        params,
+        event
+      ) => {
+        const cellParams = apiRef.current.getCellParams(
+          params.id,
+          params.field
+        );
+        if (cellParams.colDef.type === 'treeDataGroup' && event.key === ' ') {
+          event.stopPropagation();
+          event.preventDefault();
+          event.defaultMuiPrevented = true;
+          apiRef.current.setRowChildrenExpansion(
+            params.id,
+            !params.rowNode.childrenExpanded
+          );
+        }
+      };
+
+      const unsubscribeExpansion = apiRef.current.subscribeEvent(
+        'rowExpansionChange',
+        handleRowExpansionChange
+      );
+      const unsubscribeKeyDown = apiRef.current.subscribeEvent(
+        'cellKeyDown',
+        handleCellKeyDown,
+        { isFirst: true }
+      );
+
+      return () => {
+        unsubscribeExpansion();
+        unsubscribeKeyDown();
+      };
+    }
+  }, [apiRef, dispatch, pageable, t, deployedAssets]);
+
+  const columns: CustomDatagridColumn[] = [
+    {
+      field: 'customId',
+      headerName: t('id'),
+      flex: 1
+    },
+    {
+      field: 'name',
+      headerName: t('name'),
+      flex: 1,
+      renderCell: (params: GridRenderCellParams<string>) => (
+        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
+      )
+    },
+    {
+      field: 'location',
+      headerName: t('location'),
+      flex: 1,
+      valueGetter: (params) => params.row.location?.name ?? ''
+    }
+  ];
+
+  const groupingColDef: DataGridProProps['groupingColDef'] = {
+    headerName: t('hierarchy'),
+    renderCell: (params) => <GroupingCellWithLazyLoading {...params} />
+  };
+
+  const CustomRow = (props: React.ComponentProps<typeof GridRow>) => {
+    const rowNode = apiRef.current.getRowNode(props.rowId);
+    return (
+      <GridRow
+        {...props}
+        style={
+          (rowNode?.depth ?? 0) > 0
+            ? {
+                backgroundColor:
+                  rowNode.depth % 2 === 0
+                    ? theme.colors.primary.light
+                    : theme.colors.primary.main,
+                color: 'white'
+              }
+            : undefined
+        }
+      />
+    );
+  };
+
+  const handleRowClick: GridEventListener<'rowClick'> = (params) => {
+    // Prevent selection of loading rows or excluded assets
+    if (typeof params.id === 'string' && params.id.startsWith('loading_'))
+      return;
+    if (excludedAssetIds.includes(params.id as number)) return;
+
+    // Get the current selection model
+    const currentSelectionModel = [...selectionModel];
+
+    // Check if the item is already selected
+    const selectedIndex = currentSelectionModel.indexOf(params.id);
+
+    // Toggle selection
+    if (selectedIndex === -1) {
+      // Check maximum selections limit if applicable
+      if (maxSelections && currentSelectionModel.length >= maxSelections) {
+        return; // Do not add if max is reached
+      }
+      currentSelectionModel.push(params.id);
+    } else {
+      currentSelectionModel.splice(selectedIndex, 1);
+    }
+    setSelectionModel(currentSelectionModel);
+
+    // Update the selected assets array
+    const updatedSelectedAssets = currentSelectionModel.map((id) => {
+      return apiRef.current.getRow(id) as AssetRow;
+    });
+    setSelectedAssets(updatedSelectedAssets);
+    if (single) {
+      onSelect(updatedSelectedAssets);
+      onClose();
     }
   };
 
@@ -246,9 +257,8 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
   };
 
   const handleRemoveSelection = (assetId: number) => {
-    const newRowSelection = { ...rowSelection };
-    delete newRowSelection[assetId];
-    setRowSelection(newRowSelection);
+    const updatedSelectionModel = selectionModel.filter((id) => id !== assetId);
+    setSelectionModel(updatedSelectionModel);
 
     const updatedSelectedAssets = selectedAssets.filter(
       (asset) => asset.id !== assetId
@@ -256,10 +266,10 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
     setSelectedAssets(updatedSelectedAssets);
   };
 
-  const filteredTableData = tableData.filter(
+  const filteredAssetsHierarchy = assetsHierarchy.filter(
     (asset) =>
       !excludedAssetIds.includes(asset.id) &&
-      (locationId ? asset.locationId === locationId : true)
+      (locationId ? asset.location?.id === locationId : true)
   );
 
   return (
@@ -298,21 +308,50 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
 
       <DialogContent dividers sx={{ p: 1, height: '60vh' }}>
         <Box sx={{ height: '100%', width: '100%' }}>
-          <CustomDatagrid2
+          <CustomDataGrid
+            pro
+            treeData
+            apiRef={apiRef}
             columns={columns}
-            data={filteredTableData}
+            rows={filteredAssetsHierarchy}
             loading={loadingGet}
-            enableRowSelection={!single}
-            rowSelection={rowSelection}
-            onRowSelectionChange={setRowSelection}
+            getRowId={(row) => row.id}
+            getRowHeight={() => 'auto'}
+            getTreeDataPath={(row) => row.hierarchy.map(String)}
+            groupingColDef={groupingColDef}
+            disableColumnFilter
+            checkboxSelection={!single}
+            selectionModel={selectionModel}
+            onSelectionModelChange={(newSelectionModel) => {
+              if (loadingGet) return;
+              if (maxSelections && newSelectionModel.length > maxSelections) {
+                return;
+              }
+              setSelectionModel(newSelectionModel);
+              const updatedSelectedAssets = newSelectionModel.map((id) => {
+                const row = apiRef.current.getRow(id) as AssetRow;
+                return {
+                  id: row.id,
+                  name: row.name,
+                  customId: row.customId
+                };
+              });
+
+              setSelectedAssets(updatedSelectedAssets);
+            }}
+            components={{
+              Row: CustomRow,
+              NoRowsOverlay: () => (
+                <NoRowsMessageWrapper
+                  message={t('noRows.asset.message')}
+                  action={t('noRows.asset.action')}
+                />
+              )
+            }}
             onRowClick={handleRowClick}
-            getRowId={(row) => row.id.toString()}
-            noRowsMessage={t('noRows.asset.message')}
-            noRowsAction={t('noRows.asset.action')}
-            pagination={{ pageIndex: 0, pageSize: 100 }}
-            onPaginationChange={() => {}}
-            totalRows={filteredTableData.length}
-            hidePagination
+            initialState={{
+              columns: { columnVisibilityModel: {} }
+            }}
           />
         </Box>
       </DialogContent>

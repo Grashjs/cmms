@@ -11,26 +11,24 @@ function SettingsLayout() {
   const { t }: { t: any } = useTranslation();
   const { user } = useAuth();
   const location = useLocation();
-
+  
   const tabs = [
     { value: '', label: t('general_settings') },
-    { value: 'features', label: t('features') },
+    { value: 'work-order', label: t('wo_configuration') },
+    { value: 'request', label: t('request_form_configuration') },
     { value: 'roles', label: t('roles') },
     { value: 'checklists', label: t('checklists') },
-    { value: 'integrations', label: t('integrations') }
+    { value: 'workflows', label: t('workflows') },
+    { value: 'ui-configuration', label: t('ui_configuration') }
   ];
-
+  
   // Determine the current tab index based on the URL path
   const getCurrentTabIndex = () => {
-    return (
-      tabs.length -
-      1 -
-      [...tabs]
-        .reverse()
-        .findIndex((tab) => location.pathname.includes('/' + tab.value))
-    );
+    const path = location.pathname.split('/').pop();
+    const index = tabs.findIndex(tab => tab.value === path);
+    return index >= 0 ? index : 0;
   };
-
+  
   const { setTitle } = useContext(TitleContext);
 
   useEffect(() => {

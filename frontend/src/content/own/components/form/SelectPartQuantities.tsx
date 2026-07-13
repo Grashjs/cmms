@@ -44,11 +44,6 @@ export default function SelectPartQuantities({
         partQuantities={partQuantities}
         onChange={onPartQuantityChange}
         disabled={false}
-        onDelete={(partQuantity) =>
-          setPartQuantities((prevState) =>
-            prevState.filter((pq) => pq.id !== partQuantity.id)
-          )
-        }
       />
       <SelectParts
         selected={partQuantities.map((partQuantity) => partQuantity.part.id)}

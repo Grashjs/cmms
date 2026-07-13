@@ -3,7 +3,6 @@ import { Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useContext, useEffect, useState } from 'react';
 import { TitleContext } from '../../../../../contexts/TitleContext';
-import useAuth from '../../../../../hooks/useAuth';
 import Overview from './Overview';
 import WOByPrimaryUser from './WOByPrimaryUser';
 import Costs from './Costs';
@@ -30,10 +29,6 @@ function WOStatusStats({ handleOpenWOModal }: WOStatusStatsProps) {
   const nowMinusMonth = new Date();
   nowMinusMonth.setMonth(nowMinusMonth.getMonth() - 1);
   const [start, setStart] = useState(nowMinusMonth);
-  const { user } = useAuth();
-  const [companyId, setCompanyId] = useState<number | undefined>(
-    user?.superAccountRelations?.[0]?.childCompanyId ?? undefined
-  );
 
   useEffect(() => {
     setTitle(t('wo_analysis'));
@@ -53,31 +48,31 @@ function WOStatusStats({ handleOpenWOModal }: WOStatusStatsProps) {
         paddingX={1}
       >
         <Grid item xs={6}>
-          <CustomDateRangePicker start={start} end={end} setStart={setStart} setEnd={setEnd} companyId={companyId} onCompanyChange={setCompanyId} />
+          <CustomDateRangePicker start={start} end={end} setStart={setStart} setEnd={setEnd} />
         </Grid>
         <Grid item xs={12} md={12}>
-          <Overview handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <Overview handleOpenModal={handleOpenWOModal} start={start} end={end} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <WOByPrimaryUser handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <WOByPrimaryUser handleOpenModal={handleOpenWOModal} start={start} end={end} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <WOByCompletedBy handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <WOByCompletedBy handleOpenModal={handleOpenWOModal} start={start} end={end} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <WOByPriority handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <WOByPriority handleOpenModal={handleOpenWOModal} start={start} end={end} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <WOByCategory handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <WOByCategory handleOpenModal={handleOpenWOModal} start={start} end={end} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <WOByWeek handleOpenModal={handleOpenWOModal} companyId={companyId} />
+          <WOByWeek handleOpenModal={handleOpenWOModal} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <TimeByWeek handleOpenModal={handleOpenWOModal} companyId={companyId} />
+          <TimeByWeek handleOpenModal={handleOpenWOModal} />
         </Grid>
         <Grid item xs={12} md={12}>
-          <Costs handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <Costs handleOpenModal={handleOpenWOModal} start={start} end={end} />
         </Grid>
       </Grid>
     </>

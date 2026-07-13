@@ -10,6 +10,4 @@ public interface WorkOrderCategoryRepository extends JpaRepository<WorkOrderCate
     Collection<WorkOrderCategory> findByCompanySettings_Id(Long id);
 
     Optional<WorkOrderCategory> findByNameIgnoreCaseAndCompanySettings_Id(String name, Long id);
-
-    void deleteByCompanySettings_Company_IdAndIsDemoTrue(Long companyId);
 }

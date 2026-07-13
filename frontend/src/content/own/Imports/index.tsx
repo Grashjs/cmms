@@ -12,8 +12,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Grid,
-  Link,
+  Grid, Link,
   MenuItem,
   Select,
   Stack,
@@ -39,14 +38,16 @@ import {
   ImportKeys,
   ImportResponse
 } from '../../../models/owns/imports';
+import { useDispatch } from '../../../store';
+import { importEntity } from '../../../slices/imports';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import FeatureErrorMessage from '../components/FeatureErrorMessage';
 import api from '../../../utils/api';
 import i18n from 'i18next';
 import downloadFile from 'downloadjs';
-import useImport, { EntityType } from 'src/hooks/useImport';
 
-interface OwnProps {}
+interface OwnProps {
+}
 
 export interface OwnHeader {
   label: string;
@@ -55,10 +56,16 @@ export interface OwnHeader {
   formatter?: (value: any) => any;
 }
 
+export type EntityType =
+  | 'work-orders'
+  | 'locations'
+  | 'assets'
+  | 'parts'
+  | 'meters';
+
 const Import = ({}: OwnProps) => {
   const { hasViewPermission, hasFeature } = useAuth();
   const { t }: { t: any } = useTranslation();
-  const { importEntity: importEntityHook, loadingImport } = useImport();
   const entityFromUrl = window.location.href.substring(
     window.location.href.lastIndexOf('/') + 1
   );
@@ -70,6 +77,8 @@ const Import = ({}: OwnProps) => {
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const [jsonData, setJsonData] = useState<{}[]>();
   const headerKeysConfig = getOwnHeadersConfig(t);
+  const dispatch = useDispatch();
+  const [loadingImport, setLoadingImport] = useState<boolean>(false);
   const [matches, setMatches] = useState<
     { ownHeader: OwnHeader; userHeader: string }[]
   >([]);
@@ -83,8 +92,7 @@ const Import = ({}: OwnProps) => {
     { label: t('assets'), value: 'assets' },
     { label: t('locations'), value: 'locations' },
     { label: t('parts'), value: 'parts' },
-    { label: t('meters'), value: 'meters' },
-    { label: t('preventive_maintenance'), value: 'preventive-maintenances' }
+    { label: t('meters'), value: 'meters' }
   ];
   useEffect(() => {
     setTitle(t('import'));
@@ -181,21 +189,13 @@ const Import = ({}: OwnProps) => {
         return 'import_part_success';
       case 'meters':
         return 'import_meter_success';
-      case 'preventive-maintenances':
-        return 'import_pm_success';
     }
   };
   const downloadTemplate = () => {
-    api
-      .get<any>(
-        `import/download-template?language=${i18n.language.toUpperCase()}&importEntity=${entity
-          .toUpperCase()
-          .replace('-', '_')
-          .substring(0, entity.length - 1)}`,
-        { raw: true }
-      )
-      .then((res) => res.blob())
-      .then((blob) => {
+    api.get<any>(
+      `import/download-template?language=${i18n.language.toUpperCase()}&importEntity=${entity.toUpperCase().replace('-', '_').substring(0, entity.length - 1)}`, { raw: true })
+      .then(res => res.blob())
+      .then(blob => {
         downloadFile(blob, `${entity} import template.csv`);
       });
   };
@@ -224,6 +224,7 @@ const Import = ({}: OwnProps) => {
     return result;
   };
   const onImport = () => {
+    setLoadingImport(true);
     const data = [...jsonData];
     const payload: ImportDTO[] = data.map((userElement) => {
       let result = {} as ImportDTO;
@@ -233,7 +234,7 @@ const Import = ({}: OwnProps) => {
             matches.find(
               (headerMatching) => headerMatching.ownHeader.keyName === keyName
             )?.userHeader
-          ];
+            ];
         if (formatter) {
           value = formatter(value);
         }
@@ -244,8 +245,7 @@ const Import = ({}: OwnProps) => {
       });
       return result;
     });
-
-    importEntityHook(entity, payload)
+    dispatch(importEntity(payload, entity))
       .then((response: ImportResponse) => {
         showSnackBar(
           t(getResponseMessage(entity), {
@@ -256,9 +256,11 @@ const Import = ({}: OwnProps) => {
         );
         setOpenModal(false);
         reset();
-      })
-      .catch((error) => {
-        showSnackBar(t('import_error'), 'error');
+      }).catch((error) => {
+      showSnackBar(t('import_error'), 'error');
+    })
+      .finally(() => {
+        setLoadingImport(false);
       });
   };
   const match = (data: { userHeader: string; keyName: string }[]) => {
@@ -307,7 +309,7 @@ const Import = ({}: OwnProps) => {
                   <MenuItem disabled value={''}>
                     <em>{t('select')}</em>
                   </MenuItem>
-                  {headerKeysConfig[entity].map((header, index) => (
+                  {headerKeysConfig[entity].map((header) => (
                     <MenuItem key={header.keyName} value={header.keyName}>
                       {header.label}
                     </MenuItem>
@@ -333,8 +335,8 @@ const Import = ({}: OwnProps) => {
                 <Typography>
                   {getMatchLabel(userHeader)
                     ? t(`matched_to_field`, {
-                        field: getMatchLabel(userHeader)
-                      })
+                      field: getMatchLabel(userHeader)
+                    })
                     : t('no_match_yet')}
                 </Typography>
                 <Stack direction="row" spacing={1}>
@@ -403,42 +405,33 @@ const Import = ({}: OwnProps) => {
                 type={'spreadsheet'}
                 description={t('upload')}
                 onDrop={(files: any) => {
-                  const file = files[0];
-                  if (!file) return;
-
                   setLoading(true);
-                  const reader = new FileReader();
-
-                  reader.onload = (e: any) => {
-                    const data = new Uint8Array(e.target.result);
-
-                    const workbook = read(data, { type: 'array' });
-
-                    const sheetName = workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[sheetName];
-
-                    /* 3. Convert to JSON */
-                    const localJsonArray: any[][] = utils.sheet_to_json(sheet, {
-                      header: 1
+                  var reader = new FileReader();
+                  reader.onload = function(e) {
+                    const data = e.target.result;
+                    const file = read(data, {
+                      type: 'string'
                     });
+                    const sheet = file.Sheets[file.SheetNames[0]];
+                    const localJsonArray: string[][] = utils.sheet_to_json(
+                      sheet,
+                      { header: 1 }
+                    );
                     const localJson = utils.sheet_to_json(sheet);
-
+                    setJsonData(localJson);
                     if (localJsonArray.length > 1) {
-                      setJsonData(localJson);
                       setUserHeaders(localJsonArray[0]);
-
                       const localObjectOfArrayOfArrays =
                         arrayToAoA(localJsonArray);
                       setSpreadSheetsConfig(localObjectOfArrayOfArrays);
                       setLoading(false);
                       handleNext();
                     } else {
-                      setLoading(false);
                       showSnackBar(t('not_enough_rows'), 'error');
                     }
+                    /* DO SOMETHING WITH workbook HERE */
                   };
-
-                  reader.readAsArrayBuffer(file);
+                  reader.readAsText(files[0]);
                 }}
               />
             )
@@ -553,18 +546,10 @@ const Import = ({}: OwnProps) => {
                     >
                       {t('start_import_process')}
                     </Button>
-                    <Stack
-                      direction={'row'}
-                      sx={{ mt: 2 }}
-                      onClick={downloadTemplate}
-                    >
+                    <Stack direction={'row'} sx={{ mt: 2 }} onClick={downloadTemplate}>
                       <DownloadTwoToneIcon color={'primary'} />
-                      <Typography
-                        color={'primary'}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        {t('download_template')}
-                      </Typography>
+                      <Typography color={'primary'} style={{ cursor: 'pointer' }}
+                      >{t('download_template')}</Typography>
                     </Stack>
                   </Grid>
                 </Grid>

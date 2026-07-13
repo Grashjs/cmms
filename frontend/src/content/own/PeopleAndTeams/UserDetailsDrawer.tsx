@@ -15,17 +15,7 @@ import { useTranslation } from 'react-i18next';
 import Scrollbar from 'src/components/Scrollbar';
 import Chart from 'react-apexcharts';
 import type { ApexOptions } from 'apexcharts';
-import { OwnUser, UserResponseDTO } from '../../../models/user';
-
-const dayTranslationKey: Record<string, string> = {
-  MONDAY: 'monday',
-  TUESDAY: 'tuesday',
-  WEDNESDAY: 'wednesday',
-  THURSDAY: 'thursday',
-  FRIDAY: 'friday',
-  SATURDAY: 'saturday',
-  SUNDAY: 'sunday'
-};
+import { OwnUser } from '../../../models/user';
 import { useDispatch, useSelector } from '../../../store';
 import { getTwoWeeksWorkOrders } from '../../../slices/analytics/user';
 import { getDayAndMonthAndYear } from '../../../utils/dates';
@@ -50,7 +40,7 @@ const TabsContainerWrapper = styled(CardContent)(
 );
 
 interface PropsType {
-  user: UserResponseDTO;
+  user: OwnUser;
 }
 
 function UserDetailsDrawer({ user }: PropsType) {
@@ -74,16 +64,8 @@ function UserDetailsDrawer({ user }: PropsType) {
   const handleTabsChange = (_event: ChangeEvent<{}>, value: string): void => {
     setCurrentTab(value);
   };
-  const getScheduledDays = (): string => {
-    if (!user.shiftConfiguration?.days) return '';
-    const enabledDays = user.shiftConfiguration.days
-      .filter((d) => d.enabled)
-      .map((d) => t(dayTranslationKey[d.dayOfWeek] ?? d.dayOfWeek));
-    return enabledDays.join(', ');
-  };
-
   const fieldsToRender = (
-    user: UserResponseDTO
+    user: OwnUser
   ): { label: string; value: string | number }[] => [
     {
       label: t('id'),
@@ -116,10 +98,6 @@ function UserDetailsDrawer({ user }: PropsType) {
     {
       label: t('hourly_rate'),
       value: user.rate
-    },
-    {
-      label: t('scheduled'),
-      value: getScheduledDays()
     }
   ];
 

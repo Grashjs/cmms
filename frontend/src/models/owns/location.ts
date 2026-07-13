@@ -3,15 +3,14 @@ import { Audit } from './audit';
 import { CustomerMiniDTO } from './customer';
 import { VendorMiniDTO } from './vendor';
 import { TeamMiniDTO } from './team';
-import { FileMiniDTO, FileThumbnailDTO } from './file';
-import { CustomFieldValue } from './customField';
+import { FileMiniDTO } from './file';
 
 export default interface Location extends Audit {
   id: number;
   name: string;
   address: string;
   longitude: number;
-  image: FileThumbnailDTO;
+  image: FileMiniDTO;
   files: FileMiniDTO[];
   latitude: number;
   parentLocation: LocationMiniDTO | null;
@@ -20,20 +19,15 @@ export default interface Location extends Audit {
   workers: UserMiniDTO[];
   teams: TeamMiniDTO[];
   customId: string;
-  customFieldValues: CustomFieldValue[];
 }
 export interface LocationMiniDTO {
   id: number;
   name: string;
   address: string;
   customId: string;
-  parentId: number;
 }
 
 export interface LocationRow extends Location {
   hierarchy: number[];
   childrenFetched?: boolean;
-  hasChildren?: boolean;
-  isLoadMoreRow?: boolean;
-  depth?: number;
 }

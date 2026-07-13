@@ -1,6 +1,5 @@
 import { Audit } from './audit';
 import Currency from './currency';
-import { CustomFieldValue } from './customField';
 
 export interface Customer extends Audit {
   id: number;
@@ -16,7 +15,6 @@ export interface Customer extends Audit {
   billingAddress2: string;
   billingName: string;
   billingCurrency: Currency;
-  customFieldValues?: CustomFieldValue[];
 }
 export interface CustomerMiniDTO {
   name: string;

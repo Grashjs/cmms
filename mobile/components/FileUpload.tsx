@@ -1,22 +1,20 @@
 import { View } from './Themed';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
+import { DocumentResult } from 'expo-document-picker';
 import * as React from 'react';
-import { useContext, useState } from 'react';
 import * as FileSystem from 'expo-file-system';
-import { Alert, Image, ScrollView, Text, TouchableOpacity } from 'react-native';
-import { IconButton, useTheme } from 'react-native-paper';
+import { useContext, useRef, useState } from 'react';
+import * as Permissions from 'expo-permissions';
+import { Alert, Image, PermissionsAndroid, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { Divider, IconButton, List, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import mime from 'mime';
-import { SheetManager } from 'react-native-actions-sheet';
+import { IconSource } from 'react-native-paper/src/components/Icon';
+import ActionSheet, { ActionSheetRef, SheetManager } from 'react-native-actions-sheet';
 import { CustomSnackBarContext } from '../contexts/CustomSnackBarContext';
-import { IFile } from '../models/file';
-import {
-  DocumentPickerOptions,
-  DocumentPickerResult
-} from 'expo-document-picker';
-import { openLibraryWithPermission } from '../utils/mediaPermissions';
-import InAppCamera from './InAppCamera';
+import { files, IFile } from '../models/file';
+
 
 interface OwnProps {
   title: string;
@@ -24,24 +22,56 @@ interface OwnProps {
   multiple: boolean;
   description: string;
   onChange: (files: IFile[]) => void;
-  files?: IFile[];
 }
 
 export default function FileUpload({
-  title,
-  type,
-  multiple,
-  onChange,
-  files: defaultFiles
-}: OwnProps) {
+                                     title,
+                                     type,
+                                     multiple,
+                                     onChange
+                                   }: OwnProps) {
   const theme = useTheme();
-  const [images, setImages] = useState<IFile[]>(defaultFiles || []);
-  const [files, setFiles] = useState<IFile[]>(defaultFiles || []);
-  const [inAppCameraVisible, setInAppCameraVisible] = useState(false);
+  const actionSheetRef = useRef<ActionSheetRef>(null);
+  const [images, setImages] = useState<IFile[]>([]);
+  const [files, setFiles] = useState<IFile[]>([]);
   const { t } = useTranslation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const maxFileSize: number = 7;
+  const checkPermissions = async () => {
+    try {
+      const result = await PermissionsAndroid.check(
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE
+      );
 
+      if (!result) {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+          {
+            title:
+              'You need to give storage permission to download and save the file',
+            message: 'App needs access to your camera ',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK'
+          }
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('You can use the camera');
+          return true;
+        } else {
+          Alert.alert(t('error'), t('PERMISSION_ACCESS_FILE'));
+
+          console.log('Camera permission denied');
+          return false;
+        }
+      } else {
+        return true;
+      }
+    } catch (err) {
+      console.warn(err);
+      return false;
+    }
+  };
   const onChangeInternal = (files: IFile[], type: 'file' | 'image') => {
     if (type === 'file') {
       setFiles(files);
@@ -57,52 +87,41 @@ export default function FileUpload({
   const isMoreThanTheMB = (fileSize: number, limit: number) => {
     return fileSize / 1024 / 1024 > limit;
   };
-  const takePhoto = () => {
-    setInAppCameraVisible(true);
-  };
-  const handleInAppCapture = async (uri: string) => {
-    setInAppCameraVisible(false);
-    try {
-      await checkSize(uri);
-      const fileName = uri.split('/').pop() || 'photo.jpg';
-      onChangeInternal(
-        [
-          ...(multiple ? images : []),
-          { uri, name: fileName, type: mime.getType(fileName) || 'image/jpeg' }
-        ],
-        'image'
-      );
-    } catch (_e) {
-      // checkSize already alerts the user
+  const takePhoto = async () => {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    if (status === 'granted') {
+      try {
+        const result = await ImagePicker.launchCameraAsync({
+          allowsEditing: true,
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsMultipleSelection: multiple,
+          selectionLimit: 10,
+          quality: 1
+        });
+        await onImagePicked(result);
+      } catch (e) {
+        console.error(e);
+      }
     }
   };
   const pickImage = async () => {
-    console.warn('[ImageUpload] Tap -> library');
-    try {
-      const result = await openLibraryWithPermission('ImageUpload', {
+    // No permissions request is necessary for launching the image library
+    const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
+    if (status === 'granted') {
+      let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsMultipleSelection: multiple,
-        selectionLimit: multiple ? 10 : 1,
+        selectionLimit: 10,
         quality: 1
       });
-
-      if (!result || result.canceled) {
-        console.warn(
-          '[ImageUpload] Library Image picker canceled or unavailable'
-        );
-        return;
-      }
       await onImagePicked(result);
-    } catch (error) {
-      console.error('Error picking image:', error);
-      Alert.alert('Error', 'Failed to pick image. Please try again.');
     }
   };
   const checkSize = async (uri: string) => {
     const fileInfo = await getFileInfo(uri);
-    if (!('size' in fileInfo)) return;
+
     if (!fileInfo?.size) {
-      Alert.alert("Can't select this file as the size is unknown.");
+      Alert.alert('Can\'t select this file as the size is unknown.');
       throw new Error();
     }
     if (isMoreThanTheMB(fileInfo.size, maxFileSize)) {
@@ -116,78 +135,31 @@ export default function FileUpload({
         const { uri } = asset;
         await checkSize(uri);
       }
-      onChangeInternal(
-        [
-          ...images,
-          ...result.assets.map((asset) => {
-            const fileName =
-              asset.uri.split('/')[asset.uri.split('/').length - 1];
-            return {
-              uri: asset.uri,
-              name: fileName,
-              type: mime.getType(fileName)
-            };
-          })
-        ],
-        'image'
-      );
+      onChangeInternal(result.assets.map((asset) => {
+        const fileName =
+          asset.uri.split('/')[asset.uri.split('/').length - 1];
+        return {
+          uri: asset.uri,
+          name: fileName,
+          type: mime.getType(fileName)
+        };
+      }), 'image');
     }
   };
   const pickFile = async () => {
-    try {
-      // Pass the 'multiple' prop to enable multi-file selection if needed
-      const options: DocumentPickerOptions = {
-        type:
-          type === 'spreadsheet'
-            ? [
-                'application/vnd.ms-excel',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'text/csv'
-              ]
-            : '*/*', // Default to all file types
-        copyToCacheDirectory: true,
-        multiple
-      };
-
-      const result: DocumentPickerResult =
-        await DocumentPicker.getDocumentAsync(options);
-      if (
-        result.canceled === true ||
-        !result.assets ||
-        result.assets.length === 0
-      ) {
-        console.log('Document picker was canceled or no file selected');
-        return;
+    const hasPermissions = await checkPermissions();
+    if (hasPermissions) {
+      let result = await DocumentPicker.getDocumentAsync({});
+      if (result.type !== 'cancel') {
+        await checkSize(result.uri);
+        onChangeInternal([
+          {
+            uri: result.uri,
+            name: result.name,
+            type: mime.getType(result.name)
+          }
+        ], 'file');
       }
-
-      // Process selected files (currently only handles the first asset due to existing component logic)
-      const selectedAssets = result.assets;
-      const filesToUpload: IFile[] = [];
-
-      // Loop through selected assets to perform size checks
-      for (const asset of selectedAssets) {
-        await checkSize(asset.uri);
-
-        filesToUpload.push({
-          uri: asset.uri,
-          name: asset.name,
-          type:
-            mime.getType(asset.name) ||
-            asset.mimeType ||
-            'application/octet-stream' // Use mime or the asset's mimeType
-        });
-
-        // Break the loop if 'multiple' is false, as the current display logic only shows one file.
-        if (!multiple) break;
-      }
-
-      // Pass the selected file(s) to the internal change handler
-      onChangeInternal(
-        multiple ? [...files, ...filesToUpload] : filesToUpload,
-        'file'
-      );
-    } catch (error) {
-      console.error('Error picking document:', error);
     }
   };
   const onPress = () => {
@@ -200,74 +172,44 @@ export default function FileUpload({
       });
     else pickFile();
   };
-
   return (
     <View style={{ display: 'flex', flexDirection: 'column' }}>
-      <InAppCamera
-        visible={inAppCameraVisible}
-        onCapture={handleInAppCapture}
-        onClose={() => setInAppCameraVisible(false)}
-      />
       <TouchableOpacity onPress={onPress}>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}
-        >
-          <Text style={{ color: 'black' }}>{title}</Text>
-          <IconButton iconColor={theme.colors.primary} icon={'plus-circle'} />
-        </View>
+        <Text>{title}</Text>
       </TouchableOpacity>
-      <View>
+      <ScrollView>
         {type === 'image' &&
           !!images.length &&
           images.map((image) => (
-            <View key={image.uri} style={{ margin: 3 }}>
+            <View>
               <Image source={{ uri: image.uri }} style={{ height: 200 }} />
               <IconButton
                 style={{ position: 'absolute', top: 10, right: 10 }}
                 onPress={() => {
-                  onChangeInternal(
-                    images.filter((item) => item.uri !== image.uri),
-                    'image'
-                  );
+                  onChangeInternal(images.filter((item) => item.uri !== image.uri), 'image');
                 }}
                 icon={'close-circle'}
                 iconColor={theme.colors.error}
               />
             </View>
           ))}
-        {type !== 'image' && // Covers 'file' and 'spreadsheet' types
-          !!files.length &&
-          files.map((file, index) => (
-            <View
-              key={file.uri} // <--- Use a unique key
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                paddingVertical: 1 // Optional: Add padding for separation
+        {type === 'file' && !!files.length && (
+          <View style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <Text style={{ color: theme.colors.primary }}>{files[0].name}</Text>
+            <IconButton
+              onPress={() => {
+                onChangeInternal([], 'file');
               }}
-            >
-              <Text style={{ color: theme.colors.primary, flexShrink: 1 }}>
-                {file.name}
-              </Text>
-              <IconButton
-                onPress={() => {
-                  onChangeInternal(
-                    files.filter((_, i) => i !== index),
-                    'file'
-                  );
-                }}
-                icon={'close-circle'}
-                iconColor={theme.colors.error}
-              />
-            </View>
-          ))}
-      </View>
+              icon={'close-circle'}
+              iconColor={theme.colors.error}
+            /></View>
+        )}
+      </ScrollView>
     </View>
   );
 }

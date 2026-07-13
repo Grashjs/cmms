@@ -12,10 +12,9 @@ const locale = {
   IN_PROGRESS: 'في تَقَدم',
   ON_HOLD: 'قيد الانتظار',
   COMPLETE: 'مكتمل',
-  fetch_more: 'جلب المزيد',
   'home.built': 'تم تصميمه لتسهيل إدارة الصيانة',
   home_description:
-    'عندما تكون السبورة البيضاء والملاحظات اللاصقة فوضوية، وتحتاج إلى برنامج CMMS سهل الاستخدام بما يكفي لفريقك - جرب {{shortBrandName}}',
+    'عندما تكون السبورة البيضاء والملاحظات اللاصقة فوضوية، وتحتاج إلى برنامج CMMS سهل الاستخدام بما يكفي لفريقك - جرب Atlas',
   try_grash: 'جرب أطلس',
   login: 'تسجيل الدخول',
   start_trial: 'ابدأ تجربة مجانية',
@@ -25,7 +24,7 @@ const locale = {
     'أنشئ سير عمل فعّالاً وموثوقاً يُمكّنك من التحكم في الصيانة. أنشئ أوامر العمل، وعيّنها، وتتبّعها. تحكّم بالمخزون. واحصل على تقارير آلية موثوقة تُحسّن الرؤية وتُعزّز المساءلة.',
   key_features: 'الميزات الرئيسية',
   key_features_description:
-    'بعض الميزات التي تجعل {{shortBrandName}} واحدًا من أفضل أنظمة CMMS المتوفرة اليوم',
+    'بعض الميزات التي تجعل Atlas واحدًا من أفضل أنظمة CMMS المتوفرة اليوم',
   contribute: 'يساهم',
   work_orders: 'أوامر العمل',
   request_system: 'نظام طلب العمل',
@@ -39,7 +38,7 @@ const locale = {
   'work-orders.descriptions.0':
     'هل سئمت من أكوام الأوراق وطلبات العمل المفقودة؟ كل هذه العناصر المفقودة تؤثر بشكل مباشر على أرباحك وسمعتك.',
   'work-orders.descriptions.1':
-    'باستخدام {{shortBrandName}}، يمكنك تنظيم جميع أوامر العمل ومديري المشاريع والمهام الأخرى بسهولة وسرعة في جميع أنحاء فريقك في قاعدة بيانات مركزية يمكن الوصول إليها من أي مكان وعلى أي جهاز.',
+    'باستخدام Atlas، يمكنك تنظيم جميع أوامر العمل ومديري المشاريع والمهام الأخرى بسهولة وسرعة في جميع أنحاء فريقك في قاعدة بيانات مركزية يمكن الوصول إليها من أي مكان وعلى أي جهاز.',
   'work-orders.checks.0':
     'عرض جميع مهامك بما في ذلك أوامر العمل، ورسائل المديرين، وطلبات العمل',
   'work-orders.checks.1':
@@ -53,7 +52,7 @@ const locale = {
   'work-requests.descriptions.0':
     'هل سئمت من استخدام نظام الهاتف والبريد الإلكتروني القديم الذي يؤدي إلى فقدان التذاكر والمقاطعات اليومية المستمرة وتكرار العمل؟',
   'work-requests.descriptions.1':
-    'يتيح حل إدارة الصيانة من {{shortBrandName}} لأي شخص تفوضه إرسال مشكلة إلى قسم الصيانة الخاص بك عن طريق مسح رمز الاستجابة السريعة (الرمز الشريطي) أو زيارة عنوان URL وكتابة طلبه من خلال أجهزته المحمولة.',
+    'يتيح حل إدارة الصيانة من Atlas لأي شخص تفوضه إرسال مشكلة إلى قسم الصيانة الخاص بك عن طريق مسح رمز الاستجابة السريعة (الرمز الشريطي) أو زيارة عنوان URL وكتابة طلبه من خلال أجهزته المحمولة.',
   'work-requests.checks.0': 'لا تفقد عملك مرة أخرى.',
   'work-requests.checks.1':
     'تقليل الوقت المستغرق في التعامل مع طلبات العمل بنسبة تصل إلى 34%.',
@@ -77,7 +76,7 @@ const locale = {
   'eam.descriptions.0':
     'هل تشعر بالإحباط من محاولة تنظيم الفوضى العارمة لمعدات الشركة، وتتساءل عما إذا كانت المعدات قد تم الاعتناء بها بشكل صحيح، ولا تعرف تكلفة صيانتها وجميع الصداع الآخر الذي يأتي مع إدارة الأصول؟',
   'eam.descriptions.1':
-    'يمكن استخدام وحدة إدارة الأصول المؤسسية من {{brandName}} لأي عدد يتراوح بين 10 إلى 1,000,000 من الأصول، مما يسمح لك بتتبع ما تريده بالضبط، بالطريقة التي تريدها، في هيكل شجرة سهل الاستخدام وقابل للبحث.',
+    'يمكن استخدام وحدة إدارة الأصول المؤسسية من Atlas CMMS لأي عدد يتراوح بين 10 إلى 1,000,000 من الأصول، مما يسمح لك بتتبع ما تريده بالضبط، بالطريقة التي تريدها، في هيكل شجرة سهل الاستخدام وقابل للبحث.',
   'eam.checks.0': 'تعرف على صحة أصولك في كل نقطة زمنية وما تكلفك',
   'eam.checks.1': 'عرض سجلات الصيانة الكاملة والمفصلة.',
   'eam.checks.2': 'تتبع فقط ما تريده مع حقول مخصصة غير محدودة',
@@ -90,7 +89,7 @@ const locale = {
   'pm.descriptions.0':
     'توقف عن إهدار ساعات ثمينة في توزيع قوائم التحقق من إدارة المشروع يدويًا ومتابعة فريقك للتأكد من إنجاز العمل.',
   'pm.descriptions.1':
-    'يتيح لك {{shortBrandName}} أتمتة جدولة الصيانة الوقائية بسهولة بحيث يتم تسليم العمل المناسب تلقائيًا في الوقت المناسب للفني المناسب للأصل المناسب.',
+    'يتيح لك Atlas أتمتة جدولة الصيانة الوقائية بسهولة بحيث يتم تسليم العمل المناسب تلقائيًا في الوقت المناسب للفني المناسب للأصل المناسب.',
   'pm.checks.0':
     'أتمتة جدولة الصيانة الوقائية لتكون يومية أو أسبوعية أو شهرية أو سنوية أو بناءً على الأحداث أو قراءات العداد.',
   'pm.checks.1':
@@ -107,7 +106,7 @@ const locale = {
   'part.descriptions.0':
     'لست متأكدًا من مخزون قطع الغيار لديك أو مكان استخدامها؟ لا تعرف متى ستنفد قطع الغيار لديك أو ما إذا كان فنيوك سيملكون القطع اللازمة لأداء عملهم؟',
   'part.descriptions.1':
-    'لقد قمنا بتصميم نظام إدارة أجزاء {{shortBrandName}} لحل هذه المشكلات وأكثر:',
+    'لقد قمنا بتصميم نظام إدارة أجزاء Atlas لحل هذه المشكلات وأكثر:',
   'part.checks.0':
     'احصل على إشعارات فورية عبر البريد الإلكتروني والدفع عند انخفاض كمية أي قطعة. حافظ على العدد المناسب من القطع في المخزون من خلال تلقي إشعارات فورية وتلقائية عبر البريد الإلكتروني والدفع عند انخفاض كمية أي قطعة عن الحد الأقصى المُحدد.',
   'part.checks.1':
@@ -126,21 +125,21 @@ const locale = {
   'dashboard.descriptions.0':
     'لنواجه الأمر، الخطوة الأولى لتحسين عملياتك هي معرفة الجيد والسيئ والقبيح.',
   'dashboard.descriptions.1':
-    'باستخدام لوحات معلومات {{shortBrandName}} المخصصة، يمكنك أخيرًا البدء في فهم "الثقب الأسود الشرير للصيانة" والبدء في وضع الخطط المدعومة بالبيانات موضع التنفيذ، مما يؤدي إلى تقليل تكاليف العمالة وتقليل وقت التوقف عن العمل والمزيد.',
+    'باستخدام لوحات معلومات Atlas المخصصة، يمكنك أخيرًا البدء في فهم "الثقب الأسود الشرير للصيانة" والبدء في وضع الخطط المدعومة بالبيانات موضع التنفيذ، مما يؤدي إلى تقليل تكاليف العمالة وتقليل وقت التوقف عن العمل والمزيد.',
   'dashboard.descriptions.2':
-    'باستخدام لوحات معلومات {{shortBrandName}} المخصصة، ستتمكن من...',
+    'باستخدام لوحات معلومات Atlas المخصصة، ستتمكن من...',
   'dashboard.checks.0': 'اعرف أين يتم إنفاق أموالك ولماذا',
   'dashboard.checks.1': 'تعرف على الأصول الأكثر تكلفة ولماذا',
   'dashboard.checks.2': 'قم بإنشاء مؤشرات الأداء الرئيسية المخصصة لك.',
   'dashboard.checks.3':
     'عرض التقارير التي يتم إنشاؤها وتحديثها تلقائيًا استنادًا إلى مقياسك',
   'dashboard.checks.4':
-    'عرض التقارير التي يمكن مشاركتها بسهولة عبر جداول بيانات Excel أو ملفات PDF أو داخل {{shortBrandName}}',
+    'عرض التقارير التي يمكن مشاركتها بسهولة عبر جداول بيانات Excel أو ملفات PDF أو داخل Atlas',
   'dashboard.checks.5': 'و أكثر من ذلك بكثير...',
   'home.smarter': 'أذكى',
   'home.work': 'عمل',
   'home.smarter_description':
-    'يجعل {{shortBrandName}} من السهل بشكل لا يصدق على الفنيين العمل بكفاءة من خلال منحهم إمكانية الوصول إلى الأدوات والبيانات التي يحتاجون إليها لإنجاز العمل - كل ذلك من راحة أيديهم.',
+    'يجعل Atlas من السهل بشكل لا يصدق على الفنيين العمل بكفاءة من خلال منحهم إمكانية الوصول إلى الأدوات والبيانات التي يحتاجون إليها لإنجاز العمل - كل ذلك من راحة أيديهم.',
   leading_maintenance: 'الريادة في الطريق نحو مستقبل أفضل للصيانة والموثوقية',
   premium_included: 'الميزات المتميزة المضمنة',
   no_credit_card: 'لا حاجة لبطاقة ائتمان',
@@ -214,7 +213,7 @@ const locale = {
   feedback_description: 'أعط تعليقك',
   required_feedback: 'مطلوب ردود الفعل',
   signature: 'إمضاء',
-  required_signature: 'التوقيع مطلوب',
+  required_signature: 'الصورة مطلوبة',
   close_wo: 'إغلاق أمر العمل',
   close: 'يغلق',
   task_update_success: 'تم تحديث المهمة بنجاح',
@@ -713,8 +712,6 @@ const locale = {
   please_type_emails: 'الرجاء كتابة رسائل البريد الإلكتروني للدعوة',
   please_select_role: 'الرجاء اختيار الدور',
   invite: 'يدعو',
-  n_pending_invites: '{{count}} دعوات معلقة',
-  resend_invites: 'إعادة إرسال الدعوات',
   team_create_success: 'تم إنشاء الفريق بنجاح',
   team_create_failure: 'لم يتمكن من إنشاء الفريق',
   team_edit_failure: 'لم يتمكن الفريق من التعديل',
@@ -799,7 +796,7 @@ const locale = {
   external_id: 'معرف خارجي',
   permissions: 'الأذونات',
   create_role_description:
-    'يمكن لهذا الدور القيام بكل ما يمكن للمسؤول القيام به في {{shortBrandName}}، ولكن يمكنك تخصيص بعض الأذونات المهمة أدناه.',
+    'يمكن لهذا الدور القيام بكل ما يمكن للمسؤول القيام به في Atlas، ولكن يمكنك تخصيص بعض الأذونات المهمة أدناه.',
   create_and_edit: 'إنشاء/تحرير',
   to_access: 'وصول',
   role_delete_success: 'تم حذف الدور بنجاح',
@@ -842,7 +839,6 @@ const locale = {
     'يحصل المستخدمون على تحديثات لأوامر العمل التي طلبوها',
   language: 'لغة',
   date_format: 'تنسيق التاريخ',
-  time_zone: 'المنطقة الزمنية',
   business_type: 'نوع العمل',
   general_asset_management: 'إدارة الأصول العامة',
   physical_asset_management: 'إدارة الأصول المادية',
@@ -1005,8 +1001,7 @@ const locale = {
   your_payment_secure: 'بيانات الدفع الخاصة بك مشفرة وآمنة.',
   plan: 'يخطط',
   current_plan: 'الخطة الحالية',
-  number_users_who_will_use_grash:
-    'عدد المستخدمين الذين سيستخدمون {{shortBrandName}}',
+  number_users_who_will_use_grash: 'عدد المستخدمين الذين سيستخدمون Atlas',
   admin_role: 'مسؤل',
   technical_role: 'اِصطِلاحِيّ',
   limited_technical_role: 'تقنية محدودة',
@@ -1224,7 +1219,7 @@ const locale = {
   upgrade: 'يرقي',
   downgrade: 'تخفيض الإصدار',
   upgrade_description:
-    'لقد قمتَ بترقية اشتراكك. عليكَ تفعيل خدمة {{shortBrandName}} للمستخدمين ذوي الإعاقة. يمكنكَ القيام بذلك مرة واحدة فقط للاشتراك الحالي. يُرجى اختيار الخيار بعناية.',
+    'لقد قمتَ بترقية اشتراكك. عليكَ تفعيل خدمة Atlas للمستخدمين ذوي الإعاقة. يمكنكَ القيام بذلك مرة واحدة فقط للاشتراك الحالي. يُرجى اختيار الخيار بعناية.',
   enable_users: 'تمكين المستخدمين',
   max_users_description: 'يمكنك تمكين ما يصل إلى {{maxUsers}} مستخدمين',
   downgrade_description:
@@ -1262,7 +1257,6 @@ const locale = {
   edit_company: 'تحرير الشركة',
   fill_fields_below: 'إملأ الحقول أدناه',
   IMPORT_CSV_feature: 'استيراد CSV',
-  RESOURCE_PLANNING_feature: 'تخطيط الموارد',
   no_import_access: 'قم بترقية خطتك لاستيراد ملفات CSV وExcel',
   members: 'أعضاء',
   assign_user: 'تعيين المستخدم',
@@ -1286,21 +1280,15 @@ const locale = {
   simplify_wo: 'تبسيط أوامر العمل في تطبيق الهاتف المحمول',
   simplify_wo_description:
     'إخفاء عناصر التحكم في الوقت والتكاليف والأجزاء في تفاصيل أمر العمل أثناء استخدام تطبيق الهاتف المحمول',
-  auto_generate_asset_barcode: 'إنشاء الرموز الشريطية تلقائيًا',
-  auto_generate_asset_barcode_description:
-    'إذا تم تحديد هذا الخيار، سيتم إنشاء الرموز الشريطية تلقائيًا عند إنشاء الأصول',
-  account_deletion: 'حذف حساب {{brandName}}',
+  account_deletion: 'حذف حساب Atlas CMMS',
   switch_account: 'تبديل الحساب',
   switch_to_super_user: 'التبديل إلى المشرف الأعلى',
   switch_account_description: 'الرجاء اختيار حساب للمتابعة',
   put_location_in_map: 'ضع الموقع على الخريطة',
   confirm_disable_user:
-    'هل أنت متأكد من رغبتك في تعطيل {{user}}؟',
+    'هل أنت متأكد من رغبتك في تعطيل {{user}}؟ لن تتمكن من تفعيله إلا بعد شهر واحد.',
   user_disabled_success: 'تم تعطيل المستخدم بنجاح',
   disable: 'إبطال',
-  confirm_enable_user:
-    'هل أنت متأكد من رغبتك في تفعيل {{user}}؟',
-  enable: 'تمكين',
   manufacturer: 'الشركة المصنعة',
   power: 'قوة',
   import_error: 'لم ينجح الاستيراد',
@@ -1390,523 +1378,7 @@ const locale = {
   ui_configuration: 'تكوين واجهة المستخدم',
   password_leave_empty_if_you_dont_want_to_change:
     'كلمة المرور - اتركها فارغة إذا كنت لا تريد تغييرها',
-  continue_with_sso: 'استمر مع تسجيل الدخول',
-  see_live_demo: 'عرض العرض المباشر',
-  csv_separator: 'محدد CSV',
-  open_source_cmms: 'نظام صيانة مفتوح المصدر (CMMS)',
-  'main.title': 'نظام صيانة مجاني مفتوح المصدر (برنامج إدارة الصيانة)',
-  'home.h1':
-    'نظام CMMS مجاني ومفتوح المصدر يمكنك استضافته ذاتيًا أو استخدامه في السحابة',
-  'home.h2': 'صيانة قوية بتكلفة منخفضة',
-  'home.h3':
-    'توقف عن الاعتماد على جداول البيانات والسبورات البيضاء. يساعد {{brandName}} فرق الصيانة على تخطيط التدخلات وتتبع المعدات والبقاء ممتثلاً. استضف ذاتيًا على خادمك الخاص أو ابدأ فورًا في السحابة.',
-  talk_to_sales: 'تحدث إلى المبيعات',
-  'pricing.choose_plan_and_get_started': 'اختر خطتك وابدأ.',
-  'pricing.slogan_effective_maintenance':
-    'يوفر برنامجنا لفرق الصيانة والموثوقية الأدوات التي يحتاجونها لإدارة العمليات بكفاءة وفعالية.',
-  'pricing.compare_plans_and_pricing': 'قارن بين الخطط والأسعار',
-  'pricing.see_which_plan_is_right_for_you': 'تعرف على الخطة المناسبة لك',
-  'pricing.select_two_plans_to_compare': 'اختر خطتين للمقارنة',
-  'pricing.select_three_plans_to_compare': 'اختر 3 خطط للمقارنة',
-  'pricing.month_per_user': 'شهريًا لكل مستخدم',
-  'pricing.year_per_user': 'سنة لكل مستخدم',
-  'pricing.plan_basic_name': 'أساسي',
-  'pricing.plan_basic_description':
-    'الفرق التي تتطلع إلى تتبع الأصول وإنشاء جداول صيانة وقائية أساسية مع إجراءات محددة.',
-  'pricing.feature_unlimited_work_orders': 'أوامر عمل غير محدودة',
-  'pricing.feature_custom_tasks': 'المهام المخصصة',
-  'pricing.feature_unlimited_request_user_licenses':
-    'تراخيص مستخدمين غير محدودة الطلبات',
-  'pricing.plan_starter_name': 'بداية',
-  'pricing.plan_starter_description':
-    'الفرق التي تتطلع إلى بناء صيانة وقائية فعالة وقوية من خلال حالة الآلات ورؤية القوى العاملة.',
-  'pricing.feature_everything_in_basic_plus':
-    'كل شيء في النسخة الأساسية بالإضافة إلى:',
-  'pricing.feature_preventive_maintenance_recurring_work_orders':
-    'أوامر العمل الوقائية/المتكررة',
-  'pricing.feature_custom_checklists': 'قوائم التحقق المخصصة',
-  'pricing.feature_inventory_management_costing':
-    'إدارة المخزون / حساب التكاليف',
-  'pricing.feature_time_and_manpower_tracking': 'تتبع الوقت والقوى العاملة',
-  'pricing.feature_thirty_day_analytics_reporting':
-    'التحليلات والتقارير لمدة 30 يومًا',
-  'pricing.plan_professional_name': 'احترافي',
-  'pricing.plan_professional_description':
-    'الإدارات التي تحتاج إلى الاستفادة من الرؤى والتحليلات لدفع نمو الصيانة والإنتاجية بشكل أكبر.',
-  'pricing.feature_everything_in_starter_plus':
-    'كل ما في باقة Starter بالإضافة إلى:',
-  'pricing.feature_multiple_inventory_lines': 'بنود جرد متعددة',
-  'pricing.feature_customizable_request_portal': 'بوابة طلبات قابلة للتخصيص',
-  'pricing.feature_mobile_offline_mode':
-    'وضع عدم الاتصال بالإنترنت على الهاتف المحمول',
-  'pricing.feature_advanced_analytics_reporting':
-    'التحليلات المتقدمة وإعداد التقارير',
-  'pricing.plan_business_name': 'عمل',
-  'pricing.plan_business_description':
-    'المنظمات الجاهزة لجمع بيانات الصيانة والتشغيل لإدارة مواقع متعددة وتخصيص النظام.',
-  'pricing.feature_everything_in_professional_plus':
-    'كل شيء في النسخة الاحترافية بالإضافة إلى:',
-  'pricing.feature_purchase_order_management': 'إدارة أوامر الشراء',
-  'pricing.feature_multi_site_module_support':
-    'دعم الوحدات النمطية متعددة المواقع',
-  'pricing.feature_custom_work_order_statuses': 'حالات أوامر العمل المخصصة',
-  'pricing.feature_custom_integrations_support': 'دعم عمليات التكامل المخصصة',
-  'pricing.feature_work_order_management': 'إدارة أوامر العمل',
-  'pricing.feature_recurring_work_orders': 'أوامر العمل المتكررة',
-  'pricing.feature_custom_categories': 'فئات مخصصة',
-  'pricing.feature_data_importing': 'استيراد البيانات',
-  'pricing.feature_time_and_cost_tracking': 'تتبع الوقت والتكلفة',
-  'pricing.feature_work_order_configuration': 'تكوين أمر العمل',
-  'pricing.feature_internal_requests': 'الطلبات الداخلية',
-  'pricing.feature_external_request_portal': 'بوابة الطلبات الخارجية',
-  'pricing.category_locations_assets_parts': 'المواقع والأصول والأجزاء',
-  'pricing.feature_location_management': 'إدارة المواقع',
-  'pricing.feature_barcode_scanning': 'مسح الباركود',
-  'pricing.feature_inventory_management': 'إدارة المخزون',
-  'pricing.feature_custom_asset_statuses': 'حالات الأصول المخصصة',
-  'pricing.feature_asset_downtime_tracking': 'تتبع وقت تعطل الأصول',
-  'pricing.feature_asset_depreciation_tracking': 'تتبع استهلاك الأصول',
-  'pricing.feature_asset_warranty_tracking': 'تتبع ضمان الأصول',
-  'pricing.feature_purchase_orders_management': 'أوامر الشراء',
-  'pricing.feature_asset_check_in_out': 'تسجيل دخول/خروج الأصول',
-  'pricing.category_mobile_offline':
-    'وضع عدم الاتصال بالإنترنت على الهاتف المحمول',
-  'pricing.feature_work_order_availability': 'توافر أوامر العمل',
-  'pricing.feature_updating_status': 'تحديث الحالة',
-  'pricing.feature_updating_tasks': 'تحديث المهام',
-  'pricing.feature_work_order_drafts': 'مسودات أوامر العمل',
-  'pricing.feature_full_drill_down_reporting_history': 'تقارير مفصلة وسجل كامل',
-  'pricing.period_thirty_days': '30 يومًا',
-  'pricing.period_full': 'ممتلىء',
-  'pricing.feature_pdf_csv_exporting': 'تصدير ملفات PDF و CSV',
-  'pricing.feature_itemized_time_reporting': 'تقرير الوقت المفصل',
-  'pricing.feature_user_login_reports': 'تقارير تسجيل دخول المستخدم',
-  'pricing.feature_parts_consumption_reports': 'تقارير استهلاك قطع الغيار',
-  'pricing.feature_asset_downtime_reports': 'تقارير تعطل الأصول',
-  'pricing.feature_equipment_reliability_reports': 'تقارير موثوقية المعدات',
-  'pricing.feature_multi_site_modules': 'وحدات متعددة المواقع',
-  'pricing.category_integrations': 'التكاملات',
-  'pricing.feature_business_integrations':
-    'تكامل الأعمال (SAP/Oracle/الذكاء الاصطناعي السببي...)',
-  'pricing.feature_custom_integrations': 'عمليات التكامل المخصصة',
-  'pricing.feature_unlimited_view_only_users':
-    'عدد غير محدود من المستخدمين للعرض فقط',
-  'pricing.feature_unlimited_requesters': 'عدد غير محدود من مقدمي الطلبات',
-  'pricing.feature_unlimited_vendors': 'عدد غير محدود من البائعين',
-  'pricing.feature_unlimited_customers': 'عدد غير محدود من العملاء',
-  'pricing.category_support': 'يدعم',
-  'pricing.feature_daily_email_digest': 'ملخص البريد الإلكتروني اليومي',
-  'pricing.feature_articles': 'مقالات',
-  'pricing.feature_training_webinars': 'ندوات تدريبية عبر الإنترنت',
-  'pricing.feature_community_support_discord': 'دعم المجتمع (ديسكورد)',
-  'pricing.feature_email_support': 'دعم عبر البريد الإلكتروني',
-  'pricing.feature_chat_phone_support': 'الدعم عبر الدردشة/الهاتف',
-  'pricing.feature_priority_support': 'دعم ذو أولوية',
-  'pricing.feature_implementation_training': 'التنفيذ والتدريب',
-  'pricing.feature_dedicated_account_manager': 'مدير حسابات مخصص',
-  'pricing.category_customization': 'التخصيص',
-  'pricing.feature_custom_development': 'التطوير المخصص',
-  'pricing.sh_plan_basic_name': 'أساسي',
-  'pricing.sh_plan_basic_description':
-    'للفرق الصغيرة التي تحتاج إلى سيادة كاملة على البيانات وتتبع الصيانة الأساسية على بنيتها التحتية الخاصة.',
-  'pricing.sh_feature_core_work_order_management': 'إدارة أوامر العمل الأساسية',
-  'pricing.sh_feature_asset_inventory_tracking': 'تتبع الأصول والمخزون',
-  'pricing.sh_feature_local_data_storage': 'تخزين البيانات المحلي',
-  'pricing.sh_plan_professional_name': 'احترافي',
-  'pricing.sh_plan_professional_description':
-    'مثالي لزراعة النباتات التي تتطلب قوائم مراجعة متقدمة، وسير عمل، وتكامل أعمق للنظام.',
-  'pricing.sh_feature_everything_in_basic_plus':
-    'كل شيء في النسخة الأساسية بالإضافة إلى:',
-  'pricing.sh_feature_unlimited_assets_checklists':
-    'أصول/قوائم مراجعة غير محدودة',
-  'pricing.sh_feature_nfc_barcode_scanning':
-    'تقنية الاتصال قريب المدى ومسح الباركود',
-  'pricing.sh_feature_email_support': 'دعم عبر البريد الإلكتروني',
-  'pricing.sh_plan_business_name': 'عمل',
-  'pricing.sh_plan_business_description':
-    'عمليات واسعة النطاق تتطلب إدارة متعددة النسخ، وعلامات تجارية مخصصة، وأمانًا من الدرجة الأولى.',
-  'pricing.sh_feature_everything_in_professional_plus':
-    'كل شيء في النسخة الاحترافية بالإضافة إلى:',
-  'pricing.sh_feature_multi_instance_management': 'إدارة النسخ المتعددة',
-  'pricing.sh_feature_custom_user_roles': 'أدوار المستخدم المخصصة',
-  'pricing.sh_feature_priority_implementation_support':
-    'دعم التنفيذ ذو الأولوية',
-  'pricing.faq_free_users_q':
-    'ما هي أنواع المستخدمين الذين يُعتبرون مستخدمين مجانيين؟',
-  'pricing.faq_free_users_a1':
-    'هناك ثلاثة أنواع من المستخدمين لا تتطلب ترخيصًا مدفوعًا:',
-  'pricing.faq_view_only_users_title': 'عرض المستخدمين فقط',
-  'pricing.faq_view_only_users_description':
-    'هؤلاء المستخدمون هم عادةً مشرفون يسجلون الدخول بشكل غير متكرر للاطلاع على لمحة سريعة عن أنشطة الصيانة. كما يمكنهم تقديم طلبات العمل وإعداد التقارير.',
-  'pricing.faq_requester_users_title': 'المستخدمون مقدمو الطلبات',
-  'pricing.faq_requester_users_description':
-    'يقتصر دور هؤلاء المستخدمين على تقديم طلبات العمل والاطلاع على حالة تلك الطلبات. ولا يمكنهم رؤية أوامر العمل أو الأصول أو قطع الغيار أو أي بيانات أخرى مخزنة في نظام إدارة الصيانة المحوسب.',
-  'pricing.faq_third_party_users_title': 'مستخدمو الطرف الثالث',
-  'pricing.faq_third_party_users_description':
-    'هؤلاء المستخدمون عادةً ما يكونون موردين ومقاولين. لا يمكنهم تسجيل الدخول إلى النظام فعلياً. يمكنهم فقط إرسال تحديثات لأمر عمل محدد تم وضع علامة عليهم فيه عبر رابط عام.',
-  'pricing.faq_paid_users_q':
-    'ما هي أنواع المستخدمين الذين يُعتبرون مستخدمين مدفوعين؟',
-  'pricing.faq_paid_users_a1':
-    'هناك ثلاثة أنواع من المستخدمين تتطلب ترخيصًا مدفوعًا:',
-  'pricing.faq_admin_users_title': 'المستخدمون الإداريون',
-  'pricing.faq_admin_users_description':
-    'يتمتع هؤلاء المستخدمون بصلاحية إضافة مستخدمين آخرين إلى الحساب، وقبول طلبات العمل أو رفضها، وتعديل تفاصيل أوامر العمل. وهم المستخدمون الذين يتحكمون بالحساب. يمكنك تعيين أكثر من مسؤول لكل حساب.',
-  'pricing.faq_technical_users_title': 'المستخدمون التقنيون',
-  'pricing.faq_technical_users_description':
-    'هؤلاء المستخدمون هم عادةً فنيون يقومون بإغلاق أوامر العمل ميدانياً. بإمكانهم تعديل أوامر العمل التي أنشأوها، ولكن ليس أوامر العمل الأخرى. كما يمكنهم إضافة صور وتحديثات الحالة إلى أوامر العمل، وإنشاء أوامر عمل جديدة.',
-  'pricing.faq_limited_technical_users_title': 'مستخدمون تقنيون محدودون',
-  'pricing.faq_limited_technical_users_description':
-    'يتمتع هؤلاء المستخدمون بنفس صلاحيات المستخدم التقني، باستثناء أنهم لا يستطيعون رؤية سوى أوامر العمل المخصصة لهم، وليس أوامر العمل الخاصة بالمستخدمين التقنيين الآخرين في الحساب.',
-  'pricing.faq_change_plans_q': 'هل يمكنني تغيير الخطط لاحقاً؟',
-  'pricing.faq_change_plans_a':
-    'نعم، يمكنك ترقية أو تخفيض خطتك في أي وقت. تُصبح التغييرات سارية المفعول مع بداية دورة الفوترة التالية.',
-  'pricing.faq_free_trial_q': 'هل هناك فترة تجريبية مجانية؟',
-  'pricing.faq_free_trial_a':
-    'نعم، نحن نقدم فترة تجريبية مجانية لمدة 15 يومًا لخطة الأعمال حتى تتمكن من تجربة جميع الميزات قبل اتخاذ القرار.',
-  'pricing.faq_non_profit_discounts_q':
-    'هل تقدمون خصومات للمنظمات غير الربحية؟',
-  'pricing.faq_non_profit_discounts_a':
-    'نعم، نقدم أسعاراً خاصة للمنظمات غير الربحية. يرجى التواصل مع فريق المبيعات لدينا لمزيد من المعلومات.',
-  'pricing.faq_payment_methods_q': 'ما هي طرق الدفع التي تقبلونها؟',
-  'pricing.faq_payment_methods_a':
-    'نقبل جميع بطاقات الائتمان الرئيسية، والتحويلات البنكية، وباي بال. بالنسبة لخطط المؤسسات، يمكننا أيضاً ترتيب إصدار الفواتير.',
-  'pricing.faq_cancel_subscription_q': 'هل يمكنني إلغاء اشتراكي؟',
-  'pricing.faq_cancel_subscription_a':
-    'نعم، يمكنك إلغاء اشتراكك في أي وقت. وسيظل بإمكانك الوصول إلى الخدمة حتى نهاية فترة فوترتك الحالية.',
-  'pricing.faq_data_secure_q': 'هل بياناتي آمنة؟',
-  'pricing.faq_data_secure_a':
-    'نعم، نحن نأخذ أمن البيانات على محمل الجد. يتم تشفير جميع البيانات أثناء نقلها وتخزينها، ونجري عمليات تدقيق أمنية منتظمة.',
-  'pricing.faq_title': 'الأسئلة الشائعة',
-  'pricing.annually_save_two_months': 'سنوياً (توفير شهرين)',
-  'pricing.most_popular': 'الأكثر شعبية',
-  'pricing.get_your_license': 'احصل على رخصتك',
-  get_started: 'ابدأ الآن',
-  workflow_automation: 'أتمتة سير العمل',
-  push_notifications: 'الإشعارات الفورية',
-  cloud: 'سحاب',
-  self_hosted: 'الاستضافة الذاتية',
-  full: 'ممتلىء',
-  pricing: 'التسعير',
-  industries: 'الصناعات',
-  work_order_management: 'إدارة أوامر العمل',
-  inventory_management: 'إدارة المخزون',
-  analytics_and_reporting: 'التحليلات والتقارير',
-  manufacturing: 'التصنيع',
-  facility_management: 'إدارة المرافق',
-  food_and_beverage: 'الأغذية والمشروبات',
-  healthcare: 'الرعاية الصحية',
-  energy_and_utilities: 'الطاقة والمرافق',
-  education: 'التعليم',
-  hospitality: 'الضيافة',
-  construction: 'البناء والتشييد',
-  installation_docs: 'وثائق التثبيت',
-  trusted_by_maintenance_teams:
-    'استخدامه من قبل فرق الصيانة في العديد من الصناعات',
-  cut_costs_performance: 'تقليل تكاليف برامج الصيانة دون تنازل عن الأداء',
-  'free_cmms.title': 'برنامج أطلس CMMS المجاني | لا حاجة لبطاقة ائتمان',
-  'free_cmms.description':
-    'برنامج CMMS مجاني — وليس نسخة تجريبية. قم بإدارة الصيانة والأصول وأوامر العمل على الفور. لا حاجة لبطاقة ائتمان.',
-  'free_cmms.keywords':
-    'cmms مجاني, برنامج إدارة الصيانة, برنامج أوامر العمل المجاني, تتبع الأصول, صيانة وقائية',
-  'overview.description':
-    'أطلس CMMS هو برنامج مجاني ومفتوح المصدر لإدارة الصيانة لإدارة أوامر العمل والصيانة الوقائية والأصول والمرافق. قم بتبسيط عمليات الصيانة الخاصة بك اليوم.',
-  'overview.keywords':
-    'CMMS, نظام إدارة الصيانة المحوسب, EAM, إدارة أصول المؤسسات, cmms مفتوح المصدر, برنامج صيانة مجاني, إدارة أوامر العمل, صيانة وقائية, تتبع الأصول, إدارة المرافق, برنامج تتبع الصيانة, صيانة المعدات, أطلس CMMS',
-  'pricing.title': 'التسعير - أطلس CMMS',
-  'pricing.description':
-    'خطط تسعير مرنة لبرنامج أطلس CMMS. اختر بين الإصدارات السحابية والمستضافة ذاتياً لبرنامجنا مفتوح المصدر لتحسين عمليات الصيانة الخاصة بك.',
-  'free_cmms.hero.subtitle': 'برنامج CMMS مجاني',
-  'free_cmms.hero.title': 'إدارة أوامر العمل والأصول - مجاناً للأبد',
-  'free_cmms.hero.description':
-    'توقف عن التوفيق بين جداول البيانات والأدوات القديمة. قم بالترقية إلى برنامج CMMS حديث - مجاناً.',
-  'free_cmms.hero.start_free': 'ابدأ مجاناً الآن',
-  'free_cmms.hero.work_orders_alt': 'أوامر العمل',
-  'free_cmms.hero.mobile_app_alt': 'تطبيق الجوال',
-  'free_cmms.features.work_orders.title': 'أوامر عمل بدون عناء',
-  'free_cmms.features.work_orders.p1':
-    'قم بإنشاء وتعيين وتتبع أوامر العمل في ثوانٍ.',
-  'free_cmms.features.work_orders.p2':
-    'أرفق الصور والكتيبات وقوائم التحقق بأي مهمة.',
-  'free_cmms.features.work_orders.p3':
-    'تتبع التقدم في الوقت الفعلي مع تحديثات الحالة الفورية.',
-  'free_cmms.features.work_orders.alt': 'إدارة أوامر العمل',
-  'free_cmms.features.asset_tracking.title': 'تتبع دورة حياة الأصول',
-  'free_cmms.features.asset_tracking.p1': 'احتفظ بسجل رقمي كامل لكل أصل.',
-  'free_cmms.features.asset_tracking.p2':
-    'اتخذ قرارات مدعومة بالبيانات بشأن الإصلاح أو الاستبدال.',
-  'free_cmms.features.asset_tracking.p3':
-    'ابق جاهزاً للتدقيق بفضل سجلات الامتثال الآلية.',
-  'free_cmms.features.asset_tracking.alt': 'إدارة الأصول',
-  'free_cmms.features.inventory.title': 'المخزون وقطع الغيار',
-  'free_cmms.features.inventory.p1':
-    'تتبع مستويات المخزون عبر مواقع متعددة في الوقت الفعلي.',
-  'free_cmms.features.inventory.p2':
-    'امسح رموز QR للبحث السريع عن القطع واستخدامها.',
-  'free_cmms.features.inventory.p3':
-    'احصل على تنبيهات تلقائية عند انخفاض المخزون وأعد الطلب على الفور.',
-  'free_cmms.features.inventory.alt': 'إدارة المخزون',
-  'free_cmms.features.mobile.title': 'الصيانة أثناء التنقل',
-  'free_cmms.features.mobile.p1':
-    'وظائف التطبيق المحمول كاملة لنظامي التشغيل iOS و Android.',
-  'free_cmms.features.mobile.p2':
-    'التقط الصور وامسح الباركود مباشرة من الميدان.',
-  'free_cmms.features.mobile.p3':
-    'قم بمزامنة البيانات فوراً واعمل دون اتصال بالإنترنت عند الحاجة.',
-  'free_cmms.features.mobile.alt': 'تطبيق CMMS للجوال',
-  'free_cmms.features.get_started_free': 'ابدأ مجاناً',
-  'free_cmms.features.ready_to_optimize': 'هل أنت مستعد لتحسين صيانتك؟',
-  'free_cmms.features.join_thousands':
-    'انضم إلى آلاف متخصصي الصيانة الذين يستخدمون برنامج CMMS المجاني الأكثر سهولة في العالم.',
-  'free_cmms.features.get_started_no_card':
-    'ابدأ مجاناً - لا حاجة لبطاقة ائتمان',
-  create_request_portal: 'إنشاء بوابة الطلبات',
-  edit_request_portal: 'تعديل بوابة الطلبات',
-  welcome_message: 'رسالة الترحيب',
-  fields: 'الحقول',
-  field_settings: 'إعدادات الحقول',
-  contact: 'جهة الاتصال',
-  required_title: 'العنوان مطلوب',
-  untitled_portal: 'بوابة بدون عنوان',
-  no_welcome_message: 'لا توجد رسالة ترحيب',
-  request_portal_create_success: 'تم إنشاء بوابة الطلبات بنجاح',
-  request_portal_edit_success: 'تم تحديث بوابة الطلبات بنجاح',
-  request_portal_delete_success: 'تم حذف بوابة الطلبات بنجاح',
-  request_portal_create_failure: 'فشل إنشاء بوابة الطلبات',
-  request_portal_edit_failure: 'فشل تحديث بوابة الطلبات',
-  request_portal_delete_failure: 'فشل حذف بوابة الطلبات',
-  no_access_request_portals: 'ليس لديك صلاحية الوصول إلى بوابات الطلبات',
-  'noRows.request_portal.message':
-    'يبدو أنه ليس لديك أي بوابات طلبات حتى الآن.',
-  'noRows.request_portal.action': 'أنشئ أول بوابة طلبات لك',
-  request_title: 'عنوان الطلب',
-  configure_form_fields: 'تكوين حقول النموذج',
-  allow_selection_from_all_locations: 'السماح بالاختيار من جميع المواقع',
-  allow_selection_from_all_assets: 'السماح بالاختيار من جميع الأصول',
-  restrict_to_a_specific_location: 'تقييد بموقع محدد',
-  restrict_to_a_specific_asset: 'تقييد بأصل محدد',
-  portal_public_asset_warning:
-    'هذه البوابة عامة ولا تتطلب مصادقة. الأصول المدرجة ستكون مرئية لأي شخص لديه الرابط.',
-  portal_public_location_warning:
-    'هذه البوابة عامة ولا تتطلب مصادقة. المواقع المدرجة ستكون مرئية لأي شخص لديه الرابط.',
-  submit_request: 'إرسال الطلب',
-  share_portal: 'مشاركة البوابة',
-  get_portal_link: 'الحصول على رابط البوابة',
-  portal_link_description:
-    'فقط الأشخاص الذين لديهم هذا الرابط يمكنهم الوصول إلى البوابة.',
-  print_qr_code: 'طباعة رمز QR',
-  qr_code_description:
-    'قم بتنزيل رمز QR والصقه على المنشأة، حتى يتمكن المستخدمون من مسحه ضوئياً والوصول إلى البوابة.',
-  copied: 'تم النسخ!',
-  copy: 'نسخ',
-  download: 'تنزيل',
-  share: 'مشاركة',
-  delete: 'حذف',
-  portal_not_found: 'البوابة غير موجودة',
-  request_submitted_success: 'تم إرسال طلبك بنجاح',
-  request_submit_failure: 'فشل إرسال الطلب. يرجى المحاولة مرة أخرى.',
-  required_description: 'الوصف مطلوب',
-  required_contact: 'جهة الاتصال مطلوبة',
-  required_location: 'الموقع مطلوب',
-  upload_files: 'تحميل الملفات',
-  request_portal: 'بوابة الطلبات',
-  required_image: 'الصورة مطلوبة',
-  requested_from_portal: 'تم إنشاء هذا الطلب من البوابة: ',
-  request_portals: 'بوابات الطلبات',
-  recaptcha_failed: 'فشل التحقق من reCAPTCHA. يرجى المحاولة مرة أخرى.',
-  select_date_range: 'حدد نطاق التاريخ',
-  get_mobile_app: 'احصل على التطبيق المحمول',
-  scan_qr_to_download: 'امسح رمز QR ضوئيًا لتنزيل التطبيق المحمول',
-  integrations: 'التكاملات',
-  api_keys: 'مفاتيح API',
-  connectors: 'الموصلات',
-  webhooks: 'Webhooks',
-  create_api_key: 'إنشاء مفتاح API',
-  api_key_label: 'اسم مفتاح API',
-  api_key_created_success: 'تم إنشاء مفتاح API بنجاح',
-  api_key_code_copied: 'تم نسخ رمز مفتاح API إلى الحافظة',
-  api_key_code_view_once:
-    'يمكن عرض هذا الرمز مرة واحدة فقط. يرجى نسخه الآن لأنه لن يكون متاحًا لاحقًا.',
-  api_key_code: 'رمز مفتاح API',
-  copy_code: 'نسخ الرمز',
-  last_used: 'آخر استخدام',
-  never: 'أبدًا',
-  delete_api_key: 'حذف مفتاح API',
-  delete_api_key_confirm: 'هل أنت متأكد أنك تريد حذف مفتاح API هذا؟',
-  upgrade_api: 'قم بالترقية للحصول على الوصول إلى API والموصلات وWebhooks',
-  // Webhooks
-  webhook_endpoints: 'نقاط نهاية Webhook',
-  create_webhook_endpoint: 'إنشاء نقطة نهاية Webhook',
-  delete_webhook_endpoint: 'حذف نقطة نهاية Webhook',
-  delete_webhook_endpoint_confirm:
-    'هل أنت متأكد أنك تريد حذف نقطة نهاية Webhook هذه؟',
-  webhook_endpoint_created_success: 'تم إنشاء نقطة نهاية Webhook بنجاح',
-  webhook_endpoint_deleted_success: 'تم حذف نقطة نهاية Webhook بنجاح',
-  webhook_endpoint_url: 'عنوان URL',
-  webhook_endpoint_event: 'الحدث',
-  webhook_endpoint_select_event: 'اختر حدثًا',
-  webhook_endpoint_asset_statuses: 'حالات الأصل',
-  webhook_endpoint_wo_statuses: 'حالات أمر العمل',
-  webhook_endpoint_work_request_approved_only: 'الطلبات المعتمدة فقط',
-  webhook_endpoint_work_request_approved_only_desc:
-    'التفعيل لأوامر العمل المعتمدة',
-  webhook_endpoint_wo_categories: 'فئات أمر العمل',
-  webhook_endpoint_wo_fields: 'حقول أمر العمل',
-  webhook_endpoint_part_fields: 'حقول القطعة',
-  webhook_endpoint_serialize: 'تسلسل الحمولة',
-  webhook_endpoint_serialize_description:
-    'إذا تم تحديده، فسيستقبل Webhook بيانات الكيان الكاملة',
-  webhook_endpoint_secret: 'السر',
-  webhook_endpoint_show_secret: 'إظهار السر',
-  webhook_endpoint_hide_secret: 'إخفاء السر',
-  webhook_endpoint_copy_secret: 'نسخ السر',
-  webhook_endpoint_rotate_secret: 'تدوير السر',
-  webhook_endpoint_secret_rotated: 'تم تدوير السر بنجاح',
-  webhook_endpoint_secret_copied: 'تم نسخ السر إلى الحافظة',
-  webhook_endpoint_last_triggered: 'آخر تشغيل',
-  webhook_endpoint_never_triggered: 'لم يتم تشغيله أبدًا',
-  webhook_endpoint_type: 'النوع',
-  WEBHOOK_ASSET_STATUS_CHANGE: 'تغيير حالة الأصل',
-  WEBHOOK_METER_TRIGGER_STATUS_CHANGE: 'تغيير حالة مُفعّل العداد',
-  WEBHOOK_NEW_ASSET: 'أصل جديد',
-  WEBHOOK_NEW_CATEGORY_ON_WORK_ORDER: 'فئة جديدة على أمر العمل',
-  WEBHOOK_NEW_COMMENT_ON_WORK_ORDER: 'تعليق جديد على أمر العمل',
-  WEBHOOK_NEW_LOCATION: 'موقع جديد',
-  WEBHOOK_NEW_PART: 'قطعة جديدة',
-  WEBHOOK_NEW_PURCHASE_ORDER: 'طلب شراء جديد',
-  WEBHOOK_NEW_VENDOR: 'مورد جديد',
-  WEBHOOK_NEW_WORK_ORDER: 'أمر عمل جديد',
-  WEBHOOK_NEW_REQUEST: 'طلب جديد',
-  WEBHOOK_PART_CHANGE: 'تغيير القطعة',
-  WEBHOOK_PART_DELETE: 'حذف القطعة',
-  WEBHOOK_PART_QUANTITY_CHANGED: 'تغيرت كمية القطعة',
-  WEBHOOK_PURCHASE_ORDER_CHANGE: 'تغيير طلب الشراء',
-  WEBHOOK_PURCHASE_ORDER_STATUS_CHANGE: 'تغيير حالة طلب الشراء',
-  WEBHOOK_WORK_ORDER_CHANGE: 'تغيير أمر العمل',
-  WEBHOOK_WORK_ORDER_DELETE: 'حذف أمر العمل',
-  WEBHOOK_WORK_ORDER_OVERDUE: 'أمر عمل متأخر',
-  WEBHOOK_WORK_ORDER_STATUS_CHANGE: 'تغيير حالة أمر العمل',
-  WEBHOOK_WORK_REQUEST_STATUS_CHANGE: 'تغيير حالة طلب العمل',
-  comments: 'التعليقات',
-  add_comment_placeholder: 'أضف تعليقاً...',
-  post_comment: 'نشر التعليق',
-  no_comments: 'لا توجد تعليقات بعد',
-  confirm_delete_comment: 'هل أنت متأكد أنك تريد حذف هذا التعليق؟',
-  work_orders_settings_description:
-    'تخصيص تفضيلات أوامر العمل مثل تتبع الوقت والتكلفة، والمزيد.',
-  requests_settings_description:
-    'تخصيص تفضيلات الطلبات مثل التوجيه والحقول المطلوبة',
-  assets_settings_description:
-    'تخصيص الإعدادات المتعلقة بالأصول مثل إنشاء الباركود أو نموذج إنشاء الأصول.',
-  locations_settings_description:
-    'إنشاء وإدارة وتعديل المواقع داخل مؤسستك.',
-  parts_inventory_settings_description:
-    'تخصيص نموذج ومفضلات مخزون القطع',
-  meters_settings_description: 'تخصيص نموذج ومفضلات العدادات',
-  vendors_contractors_settings_description:
-    'إدارة المقاولين والموردين الخارجيين الذين تعمل معهم مؤسستك',
-  workflows_settings_description: 'إنشاء وإدارة سير العمل الآلي',
-  request_portals_settings_description:
-    'إنشاء وإدارة وتعديل جميع بوابات الطلبات في مؤسستك.',
-  set_preferences: 'تعيين التفضيلات',
-  enabled: 'مفعل',
-  disabled: 'معطل',
-  go_to_request_portals: 'الذهاب إلى بوابات الطلبات',
-  preferences: 'التفضيلات',
-  customize_work_order_form: 'تخصيص نموذج أمر العمل',
-  custom_fields: 'الحقول المخصصة',
-  configure_fields: 'تكوين الحقول',
-  add_custom_field: 'إضافة حقل مخصص',
-  edit_custom_field: 'تعديل الحقل المخصص',
-  confirm_delete_custom_field:
-    'هل أنت متأكد أنك تريد حذف هذا الحقل المخصص؟',
-  copy_on_repeat_wo: 'نسخ قيم هذا الحقل عند تكرار أوامر العمل',
-  do_not_copy: 'عدم النسخ',
-  enter_options_comma_separated: 'أدخل الخيارات مفصولة بفواصل',
-  field_type: 'نوع الحقل',
-  options: 'الخيارات',
-  short_text: 'نص قصير',
-  long_text: 'نص طويل',
-  number: 'رقم',
-  date_time: 'التاريخ والوقت',
-  single_choice: 'اختيار واحد',
-  label: 'تسمية',
-  customize_form: 'تخصيص النموذج',
-  type_enter_to_add_option: 'اكتب واضغط Enter لإضافة خيار',
-  customers_settings_description:
-    'إدارة المقاولين الخارجيين الذين تعمل معهم مؤسستك.',
-  vendors_settings_description: 'تخصيص الإعدادات المتعلقة بالموردين',
-  go_to_billing: 'الذهاب إلى الفواتير',
-  view: 'عرض',
-  view_other: 'عرض الآخر',
-  view_other_hint: '"عرض الآخر" يعني عرض شيء تم إنشاؤه بواسطة شخص آخر',
-  import_from_spreadsheet: 'استيراد من جدول بيانات أو CSV',
-  reset: 'إعادة تعيين',
-  confirm_delete_row: 'هل أنت متأكد أنك تريد حذف هذا الصف؟',
-  scheduled: 'مجدول',
-  customize_shift: 'تخصيص الوردية',
-  default_schedule: 'الجدول الافتراضي',
-  custom_capacity_by_week: 'سعة مخصصة حسب الأسبوع',
-  total_weekly_capacity: 'إجمالي السعة الأسبوعية {{hours}}س {{minutes}}د',
-  hours_abbrev: 'س',
-  minutes_abbrev: 'د',
-  monday: 'الاثنين',
-  tuesday: 'الثلاثاء',
-  wednesday: 'الأربعاء',
-  thursday: 'الخميس',
-  friday: 'الجمعة',
-  saturday: 'السبت',
-  sunday: 'الأحد',
-  set_estimated_duration: 'تعيين المدة المقدرة',
-  schedule: 'جدول',
-  workload_view: 'عرض عبء العمل',
-  this_week: 'هذا الأسبوع',
-  total_resource_capacity: 'إجمالي سعة الموارد',
-  unscheduled_work_orders: 'أوامر العمل غير المجدولة',
-  user_capacity: 'سعة المستخدم',
-  overdue: 'متأخر',
-  due_soon: 'قريب الاستحقاق',
-  all_users: 'جميع المستخدمين',
-  team_member: 'عضو الفريق',
-  no_data: 'لا توجد بيانات',
-  hours_left: 'متبقي',
-  export_cost_and_time: 'تصدير التكلفة والوقت',
-   export_work_orders: 'تصدير أوامر العمل',
-   copy_wo: 'نسخ أمر العمل',
-   copy_pm: 'نسخ الصيانة الوقائية',
-   copy_pm_description:
-     'املأ الحقول أدناه لنسخ الصيانة الوقائية',
-   copy_asset: 'نسخ الأصل',
-   copy_asset_description:
-     'املأ الحقول أدناه لنسخ هذا الأصل',
-   copy_location: 'نسخ الموقع',
-   copy_location_description:
-     'املأ الحقول أدناه لنسخ هذا الموقع',
-   copy_meter: 'نسخ العداد',
-   copy_meter_description:
-     'املأ الحقول أدناه لنسخ هذا العداد',
-   copy_part: 'نسخ الجزء',
-   copy_part_description:
-     'املأ الحقول أدناه لنسخ هذا الجزء',
-  customize_report_description: 'ما الذي يجب تضمينه في ملف PDF هذا؟',
-  work_order_information: 'معلومات أمر العمل',
-  brand_color: 'لون العلامة التجارية',
-  restock_part: 'إعادة تخزين القطعة',
-   restock: 'إعادة تخزين',
-  export_part_transactions: 'تصدير معاملات الأجزاء',
-  export_parts: 'تصدير الأجزاء',
-  edit_time: 'تعديل الوقت',
-  edit_cost: 'تعديل التكلفة',
-  confirm_delete_labor: 'هل أنت متأكد أنك تريد حذف هذه العمالة؟',
-  confirm_delete_additional_cost: 'هل أنت متأكد أنك تريد حذف هذه التكلفة؟',
-  discard_changes: 'تجاهل التغييرات',
-  discard_changes_question:
-    "تجاهل التغييرات غير المحفوظة؟\n إذا غادرت الآن، ستفقد التغييرات غير المحفوظة",
-  email_contractors: 'البريد الإلكتروني للمقاولين',
-  email_contractors_description: 'قم بتكوين التقرير وإضافة رسالة اختيارية لإرسالها إلى المقاولين.',
-  custom_message_optional: 'رسالة مخصصة (اختياري)',
-  send_work_order_as_pdf: 'إرسال أمر العمل كملف PDF',
-  report_sent_success: 'تم إرسال التقرير بنجاح',
-  trigger_work_order: 'تنبيء أمر العمل'
+  continue_with_sso: 'استمر مع تسجيل الدخول'
 };
 
 export default locale;

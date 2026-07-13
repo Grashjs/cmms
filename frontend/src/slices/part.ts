@@ -5,7 +5,6 @@ import type { AppThunk } from 'src/store';
 import Part, { PartMiniDTO } from '../models/owns/part';
 import api from '../utils/api';
 import { revertAll } from 'src/utils/redux';
-import { cancellableFetch } from 'src/utils/cancellableRequest';
 
 const basePath = 'parts';
 
@@ -85,70 +84,54 @@ export const reducer = slice.reducer;
 
 export const getParts =
   (criteria: SearchCriteria): AppThunk =>
-  async (dispatch) => {
-    await cancellableFetch(
-      dispatch,
-      'getParts',
-      (signal) =>
-        api.post<Page<Part>>(`${basePath}/search`, criteria, { signal }),
-      (parts) => dispatch(slice.actions.getParts({ parts })),
-      (loading) => dispatch(slice.actions.setLoadingGet({ loading }))
-    );
-  };
+    async (dispatch) => {
+      try {
+        dispatch(slice.actions.setLoadingGet({ loading: true }));
+        const parts = await api.post<Page<Part>>(`${basePath}/search`, criteria);
+        dispatch(slice.actions.getParts({ parts }));
+      } finally {
+        dispatch(slice.actions.setLoadingGet({ loading: false }));
+      }
+    };
 
 export const getSinglePart =
   (id: number): AppThunk =>
-  async (dispatch) => {
-    dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const part = await api.get<Part>(`${basePath}/${id}`);
-    dispatch(slice.actions.getSinglePart({ part }));
-    dispatch(slice.actions.setLoadingGet({ loading: false }));
-  };
+    async (dispatch) => {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      const part = await api.get<Part>(`${basePath}/${id}`);
+      dispatch(slice.actions.getSinglePart({ part }));
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    };
 
 export const editPart =
   (id: number, part): AppThunk =>
-  async (dispatch) => {
-    const partResponse = await api.patch<Part>(`${basePath}/${id}`, part);
-    dispatch(slice.actions.editPart({ part: partResponse }));
-  };
+    async (dispatch) => {
+      const partResponse = await api.patch<Part>(`${basePath}/${id}`, part);
+      dispatch(slice.actions.editPart({ part: partResponse }));
+    };
 export const getPartsMini = (): AppThunk => async (dispatch) => {
   const parts = await api.get<PartMiniDTO[]>(`${basePath}/mini`);
   dispatch(slice.actions.getPartsMini({ parts }));
 };
 export const addPart =
   (part): AppThunk =>
-  async (dispatch) => {
-    const partResponse = await api.post<Part>(basePath, part);
-    dispatch(slice.actions.addPart({ part: partResponse }));
-    return partResponse;
-  };
+    async (dispatch) => {
+      const partResponse = await api.post<Part>(basePath, part);
+      dispatch(slice.actions.addPart({ part: partResponse }));
+    };
 export const deletePart =
   (id: number): AppThunk =>
-  async (dispatch) => {
-    const partResponse = await api.deletes<{ success: boolean }>(
-      `${basePath}/${id}`
-    );
-    const { success } = partResponse;
-    if (success) {
-      dispatch(slice.actions.deletePart({ id }));
-    }
-  };
+    async (dispatch) => {
+      const partResponse = await api.deletes<{ success: boolean }>(
+        `${basePath}/${id}`
+      );
+      const { success } = partResponse;
+      if (success) {
+        dispatch(slice.actions.deletePart({ id }));
+      }
+    };
 export const clearSinglePart = (): AppThunk => async (dispatch) => {
   dispatch(slice.actions.clearSinglePart({}));
 };
-
-export const restockPart =
-  (
-    id: number,
-    partRestockDTO: { quantity: number; description?: string }
-  ): AppThunk =>
-  async (dispatch, getState) => {
-    await api.post(`${basePath}/${id}/restock`, partRestockDTO);
-    const { singlePart, parts } = getState().parts;
-    const current = singlePart?.id === id ? singlePart : parts.content.find((p) => p.id === id);
-    if (current) {
-      dispatch(slice.actions.editPart({ part: { ...current, quantity: current.quantity + partRestockDTO.quantity } }));
-    }
-  };
 
 export default slice;

@@ -28,10 +28,9 @@ interface DowntimesByDateProps {
   ) => void;
   start: Date;
   end: Date;
-  companyId?: number;
 }
 
-function DowntimesByDate({ handleOpenModal, start, end, companyId }: DowntimesByDateProps) {
+function DowntimesByDate({ handleOpenModal, start, end }: DowntimesByDateProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -40,8 +39,8 @@ function DowntimesByDate({ handleOpenModal, start, end, companyId }: DowntimesBy
   );
 
   useEffect(() => {
-    dispatch(getDowntimesByDate(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getDowntimesByDate(start, end));
+  }, [start, end]);
 
   const columns: string[] = ['id'];
 

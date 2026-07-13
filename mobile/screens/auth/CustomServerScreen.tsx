@@ -14,10 +14,8 @@ import {
 } from 'react-native-paper';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import * as React from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AsyncStorage } from 'react-native';
 import { useAppTheme } from '../../custom-theme';
-import { useDispatch } from '../../store';
-import { getInstanceConfig } from '../../slices/instanceConfig';
 
 export default function CustomServerScreen({
   navigation
@@ -26,7 +24,6 @@ export default function CustomServerScreen({
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const theme = useAppTheme();
   const [currentUrl, setCurrentUrl] = useState<string>('');
-  const dispatch = useDispatch();
 
   useEffect(() => {
     // Load the current custom URL if it exists
@@ -36,7 +33,7 @@ export default function CustomServerScreen({
         setCurrentUrl(savedUrl);
       }
     };
-
+    
     loadCustomUrl();
   }, []);
 
@@ -48,7 +45,7 @@ export default function CustomServerScreen({
       >
         <Text style={styles.title}>{t('custom_server_title')}</Text>
         <Text style={styles.description}>{t('custom_server_description')}</Text>
-
+        
         <Formik
           initialValues={{
             serverUrl: currentUrl,
@@ -56,7 +53,9 @@ export default function CustomServerScreen({
           }}
           enableReinitialize
           validationSchema={Yup.object().shape({
-            serverUrl: Yup.string().required(t('required_url'))
+            serverUrl: Yup.string()
+              .url(t('invalid_url'))
+              .required(t('required_url'))
           })}
           onSubmit={async (
             values,
@@ -69,13 +68,11 @@ export default function CustomServerScreen({
               if (!url.endsWith('/')) {
                 url = url + '/';
               }
-
+              
               // Save the custom URL to AsyncStorage
               await AsyncStorage.setItem('customApiUrl', url);
               showSnackBar(t('server_url_saved'), 'success');
-
-              dispatch(getInstanceConfig());
-
+              
               // Navigate back to login
               navigation.goBack();
             } catch (error) {
@@ -93,7 +90,7 @@ export default function CustomServerScreen({
             handleSubmit,
             isSubmitting,
             touched,
-            values
+            values,
           }) => (
             <View style={{ alignSelf: 'stretch', paddingHorizontal: 30 }}>
               <TextInput
@@ -104,15 +101,12 @@ export default function CustomServerScreen({
                 value={values.serverUrl}
                 mode="outlined"
                 style={{ marginBottom: 10 }}
-                autoCapitalize="none"
                 placeholder="https://your-server-url.com"
               />
               {Boolean(touched.serverUrl && errors.serverUrl) && (
-                <HelperText type="error">
-                  {errors.serverUrl?.toString()}
-                </HelperText>
+                <HelperText type="error">{errors.serverUrl?.toString()}</HelperText>
               )}
-
+              
               <Button
                 color={theme.colors.primary}
                 onPress={() => handleSubmit()}
@@ -123,7 +117,7 @@ export default function CustomServerScreen({
               >
                 {t('save')}
               </Button>
-
+              
               <Button
                 mode="text"
                 onPress={() => navigation.goBack()}
@@ -131,14 +125,13 @@ export default function CustomServerScreen({
               >
                 {t('cancel')}
               </Button>
-
+              
               {currentUrl && (
                 <Button
                   mode="outlined"
                   onPress={async () => {
                     await AsyncStorage.removeItem('customApiUrl');
                     setCurrentUrl('');
-                    dispatch(getInstanceConfig());
                     showSnackBar(t('server_url_reset'), 'success');
                   }}
                   style={{ marginTop: 20 }}

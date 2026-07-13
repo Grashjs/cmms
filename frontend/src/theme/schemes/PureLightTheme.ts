@@ -1,7 +1,7 @@
 import { alpha, createTheme, lighten, darken } from '@mui/material';
 import '@mui/lab/themeAugmentation';
-import { customColors } from '../../config';
-import i18n from 'src/i18n/i18n';
+
+// import i18n from 'src/i18n/i18n';
 
 const themeColors = {
   primary: '#5569ff',
@@ -12,8 +12,7 @@ const themeColors = {
   info: '#33C2FF',
   black: '#223354',
   white: '#ffffff',
-  primaryAlt: '#000C57',
-  ...customColors
+  primaryAlt: '#000C57'
 };
 
 const colors = {
@@ -133,7 +132,7 @@ const colors = {
 };
 
 export const PureLightTheme = createTheme({
-  direction: i18n.dir(),
+  // direction: i18n.dir(),
   colors: {
     gradients: {
       blue1: colors.gradients.blue1,

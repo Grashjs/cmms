@@ -12,8 +12,6 @@ import { revertAll } from 'src/utils/redux';
 
 const basePath = 'analytics/requests';
 
-const companyQuery = (companyId?: number) => companyId ? `?companyId=${companyId}` : '';
-
 interface RequestStatstate {
   overview: RequestStats;
   requestsByDate: RequestsByDate[];
@@ -102,14 +100,14 @@ const slice = createSlice({
 
 export const reducer = slice.reducer;
 
-export const getRequestOverview = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getRequestOverview = (start: Date, end: Date): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'overview',
       loading: true
     })
   );
-  const stats = await api.post<RequestStats>(`${basePath}/overview${companyQuery(companyId)}`, { start, end });
+  const stats = await api.post<RequestStats>(`${basePath}/overview`, { start, end });
   dispatch(slice.actions.getOverview({ stats }));
   dispatch(
     slice.actions.setLoading({
@@ -118,14 +116,14 @@ export const getRequestOverview = (start: Date, end: Date, companyId?: number): 
     })
   );
 };
-export const getRequestStatsByPriority = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getRequestStatsByPriority = (start: Date, end: Date): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'requestStatsByPriority',
       loading: true
     })
   );
-  const stats = await api.post<RequestStatsByPriority>(`${basePath}/priority${companyQuery(companyId)}`, { start, end });
+  const stats = await api.post<RequestStatsByPriority>(`${basePath}/priority`, { start, end });
   dispatch(slice.actions.getRequestStatsByPriority({ stats }));
   dispatch(
     slice.actions.setLoading({
@@ -135,7 +133,7 @@ export const getRequestStatsByPriority = (start: Date, end: Date, companyId?: nu
   );
 };
 
-export const getRequestsByDate = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getRequestsByDate = (start: Date, end: Date): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'requestsByDate',
@@ -143,7 +141,7 @@ export const getRequestsByDate = (start: Date, end: Date, companyId?: number): A
     })
   );
   const stats = await api.post<RequestsByDate[]>(
-    `${basePath}/cycle-time/date${companyQuery(companyId)}`, { start, end }
+    `${basePath}/cycle-time/date`, { start, end }
   );
   dispatch(slice.actions.getRequestsByDate({ stats }));
   dispatch(
@@ -153,14 +151,14 @@ export const getRequestsByDate = (start: Date, end: Date, companyId?: number): A
     })
   );
 };
-export const getRequestsResolvedByDate = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getRequestsResolvedByDate = (start: Date, end: Date): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'requestsResolvedByDate',
       loading: true
     })
   );
-  const stats = await api.post<RequestsResolvedByDate[]>(`${basePath}/received-and-resolved${companyQuery(companyId)}`, { start, end });
+  const stats = await api.post<RequestsResolvedByDate[]>(`${basePath}/received-and-resolved`, { start, end });
   dispatch(slice.actions.getRequestsResolvedByDate({ stats }));
   dispatch(
     slice.actions.setLoading({
@@ -170,14 +168,14 @@ export const getRequestsResolvedByDate = (start: Date, end: Date, companyId?: nu
   );
 };
 
-export const getRequestsByCategory = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getRequestsByCategory = (start: Date, end: Date): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'requestsByCategory',
       loading: true
     })
   );
-  const stats = await api.post<CountByCategory[]>(`${basePath}/counts/category${companyQuery(companyId)}`, { start, end });
+  const stats = await api.post<CountByCategory[]>(`${basePath}/counts/category`, { start, end });
   dispatch(slice.actions.getRequestsByCategory({ stats }));
   dispatch(
     slice.actions.setLoading({

@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityManager;
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -54,12 +54,11 @@ public class TaskService {
         return taskRepository.findById(id);
     }
 
-    public List<Task> findByWorkOrder(Long id) {
-        return taskRepository.findByWorkOrder_IdOrderByCreatedAtAsc(id);
+    public Collection<Task> findByWorkOrder(Long id) {
+        return taskRepository.findByWorkOrder_Id(id);
     }
 
     public List<Task> findByPreventiveMaintenance(Long id) {
         return taskRepository.findByPreventiveMaintenance_Id(id);
     }
 }
-

@@ -187,10 +187,9 @@ public class WorkflowService {
 
     public void disableWorkflows(Long companyId) {
         Collection<Workflow> workflows = findByCompany(companyId);
-        if (!workflows.isEmpty()) {
+        if (workflows.size() > 0) {
             Workflow firstWorkflow = Collections.min(workflows, new AuditComparator());
-            Collection<Workflow> workflowsToDisable =
-                    workflows.stream().filter(workflow -> !workflow.getId().equals(firstWorkflow.getId())).collect(Collectors.toList());
+            Collection<Workflow> workflowsToDisable = workflows.stream().filter(workflow -> !workflow.getId().equals(firstWorkflow.getId())).collect(Collectors.toList());
             workflowsToDisable.forEach(workflow -> workflow.setEnabled(false));
             workflowRepository.saveAll(workflowsToDisable);
         }

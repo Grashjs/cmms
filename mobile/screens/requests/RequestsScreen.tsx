@@ -1,10 +1,8 @@
 import {
-  Image,
   Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
   View
 } from 'react-native';
 import { useDispatch, useSelector } from '../../store';
@@ -22,16 +20,12 @@ import {
   IconButton,
   Searchbar,
   Text,
-  Avatar,
-  TouchableRipple
+  useTheme
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Request from '../../models/request';
-import {
-  getPriorityColor,
-  isCloseToBottom,
-  onSearchQueryChange
-} from '../../utils/overall';
+import { IconSource } from 'react-native-paper/src/components/Icon';
+import { getPriorityColor, onSearchQueryChange } from '../../utils/overall';
 import { RootTabScreenProps } from '../../types';
 import Tag from '../../components/Tag';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
@@ -39,7 +33,7 @@ import { dayDiff } from '../../utils/dates';
 import { getNotifications } from '../../slices/notification';
 import { SheetManager } from 'react-native-actions-sheet';
 import _ from 'lodash';
-import EnumFilter from '../workOrders/components/EnumFilter';
+import EnumFilter from '../workOrders/EnumFilter';
 import { IconWithLabel } from '../../components/IconWithLabel';
 import { useAppTheme } from '../../custom-theme';
 
@@ -182,7 +176,17 @@ export default function RequestsScreen({
       return [t('rejected'), theme.colors.error];
     } else return [t('pending'), theme.colors.primary];
   };
-
+  const isCloseToBottom = ({
+    layoutMeasurement,
+    contentOffset,
+    contentSize
+  }) => {
+    const paddingToBottom = 20;
+    return (
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom
+    );
+  };
   const onFilterChange = (newFilters: FilterField[]) => {
     const newCriteria = { ...criteria };
     newCriteria.filterFields = newFilters;
@@ -215,7 +219,6 @@ export default function RequestsScreen({
             style={{ backgroundColor: theme.colors.background }}
           />
           <ScrollView
-            contentContainerStyle={{ paddingBottom: 100 }}
             style={styles.scrollView}
             onScroll={({ nativeEvent }) => {
               if (isCloseToBottom(nativeEvent)) {
@@ -234,13 +237,7 @@ export default function RequestsScreen({
           >
             <ScrollView
               horizontal
-              style={{
-                backgroundColor: 'white',
-                paddingLeft: 5,
-                borderRadius: 5,
-                marginBottom: 2
-              }}
-              showsHorizontalScrollIndicator={false}
+              style={{ backgroundColor: 'white', borderRadius: 5 }}
             >
               <EnumFilter
                 filterFields={criteria.filterFields}
@@ -271,7 +268,13 @@ export default function RequestsScreen({
             </ScrollView>
             {!!requests.content.length ? (
               requests.content.map((request) => (
-                <TouchableOpacity
+                <Card
+                  style={{
+                    padding: 5,
+                    marginVertical: 5,
+                    backgroundColor: 'white'
+                  }}
+                  key={request.id}
                   onPress={() => {
                     if (request.workOrder) {
                       navigation.push('WODetails', {
@@ -283,97 +286,74 @@ export default function RequestsScreen({
                         requestProp: request
                       });
                   }}
-                  key={request.id}
                 >
-                  <View style={styles.card}>
+                  <Card.Content>
                     <View
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        gap: 6
-                      }}
+                      style={{ ...styles.row, justifyContent: 'space-between' }}
                     >
-                      {request.image ? (
-                        <Avatar.Image
-                          size={50}
-                          source={{ uri: request.image?.url }}
-                        />
-                      ) : (
-                        <Avatar.Icon
-                          style={{
-                            backgroundColor: theme.colors.background
-                          }}
-                          color={'white'}
-                          icon={'inbox-arrow-down-outline'}
-                          size={50}
-                        />
-                      )}
-                      <View style={{ flex: 1 }}>
-                        <View style={styles.cardHeader}>
-                          <View style={{ flex: 1 }}>
-                            <Text
-                              variant="titleMedium"
-                              style={styles.cardTitle}
-                              numberOfLines={2}
-                            >
-                              {request.title}
-                            </Text>
-                            <Text
-                              variant={'bodySmall'}
-                              style={{ color: 'grey' }}
-                            >{`#${request.customId}`}</Text>
-                          </View>
+                      <View
+                        style={{
+                          ...styles.row,
+                          justifyContent: 'space-between'
+                        }}
+                      >
+                        <View style={{ marginRight: 10 }}>
                           <Tag
-                            text={getStatusMeta(request)[0]}
+                            text={`#${request.customId}`}
                             color="white"
-                            backgroundColor={getStatusMeta(request)[1]}
+                            backgroundColor="#545454"
                           />
                         </View>
-                        <View style={styles.cardBody}>
-                          {request.asset && (
-                            <IconWithLabel
-                              label={request.asset.name}
-                              icon="package-variant-closed"
-                              color={theme.colors.grey}
-                            />
-                          )}
-                          {request.location && (
-                            <IconWithLabel
-                              label={request.location.name}
-                              icon="map-marker-outline"
-                              color={theme.colors.grey}
-                            />
-                          )}
-                          {request.priority && request.priority !== 'NONE' && (
-                            <Tag
-                              text={t(request.priority)}
-                              color={getPriorityColor(request.priority, theme)}
-                              backgroundColor={'transparent'}
-                            />
-                          )}
+                        <View style={{ marginRight: 10 }}>
+                          <Tag
+                            text={t(request.priority)}
+                            color="white"
+                            backgroundColor={getPriorityColor(
+                              request.priority,
+                              theme
+                            )}
+                          />
                         </View>
-                        <View style={styles.cardFooter}>
-                          {request.dueDate && (
-                            <IconWithLabel
-                              color={
-                                (dayDiff(
-                                  new Date(request.dueDate),
-                                  new Date()
-                                ) <= 2 ||
-                                  new Date() > new Date(request.dueDate)) &&
-                                request.workOrder?.status !== 'COMPLETE'
-                                  ? theme.colors.error
-                                  : theme.colors.grey
-                              }
-                              label={getFormattedDate(request.dueDate)}
-                              icon="clock-alert-outline"
-                            />
-                          )}
-                        </View>
+                        <Tag
+                          text={getStatusMeta(request)[0]}
+                          color="white"
+                          backgroundColor={getStatusMeta(request)[1]}
+                        />
                       </View>
                     </View>
-                  </View>
-                </TouchableOpacity>
+                    <Text style={{ fontWeight: 'bold', fontSize: 18 }}>
+                      {request.title}
+                    </Text>
+                    {request.dueDate && (
+                      <IconWithLabel
+                        color={
+                          (dayDiff(new Date(request.dueDate), new Date()) <=
+                            2 ||
+                            new Date() > new Date(request.dueDate)) &&
+                          request.workOrder?.status !== 'COMPLETE'
+                            ? theme.colors.error
+                            : theme.colors.grey
+                        }
+                        label={getFormattedDate(request.dueDate)}
+                        icon="clock-alert-outline"
+                      />
+                    )}
+                    {request.asset && (
+                      <IconWithLabel
+                        label={request.asset.name}
+                        icon="package-variant-closed"
+                        color={theme.colors.grey}
+                      />
+                    )}
+                    {request.location && (
+                      <IconWithLabel
+                        label={request.location.name}
+                        icon="map-marker-outline"
+                        color={theme.colors.grey}
+                      />
+                    )}
+                  </Card.Content>
+                </Card>
               ))
             ) : loadingGet ? null : (
               <View
@@ -410,7 +390,7 @@ export default function RequestsScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // alignItems: 'center',
+    alignItems: 'center',
     justifyContent: 'center'
   },
   title: {
@@ -419,37 +399,13 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     width: '100%',
-    height: '100%'
+    height: '100%',
+    padding: 5
   },
   row: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center'
-  },
-  card: {
-    backgroundColor: 'white',
-    marginBottom: 1,
-    padding: 10
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8
-  },
-  cardTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-    flexShrink: 1
-  },
-  cardBody: {
-    gap: 10
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 10
   },
   fab: {
     position: 'absolute',

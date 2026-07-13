@@ -1,5 +1,4 @@
 import { lazy, Suspense } from 'react';
-import { Navigate } from 'react-router-dom';
 
 import SuspenseLoader from 'src/components/SuspenseLoader';
 import analyticsRoutes from './analytics';
@@ -17,62 +16,11 @@ const SettingsLayout = Loader(
 const GeneralSettings = Loader(
   lazy(() => import('../content/own/Settings/General'))
 );
-const FeaturesSettings = Loader(
-  lazy(() => import('../content/own/Settings/Features'))
-);
 const WorkOrderSettings = Loader(
-  lazy(() => import('../content/own/Settings/Features/WorkOrder'))
+  lazy(() => import('../content/own/Settings/WorkOrder'))
 );
-const ConfigureFields = Loader(
-  lazy(
-    () => import('../content/own/Settings/Features/WorkOrder/ConfigureFields')
-  )
-);
-const RequestConfigureFields = Loader(
-  lazy(() => import('../content/own/Settings/Features/Request/ConfigureFields'))
-);
-const WorkOrderCustomFields = Loader(
-  lazy(() => import('../content/own/Settings/Features/WorkOrder/CustomFields'))
-);
-
 const RequestSettings = Loader(
-  lazy(() => import('../content/own/Settings/Features/Request'))
-);
-const AssetSettings = Loader(
-  lazy(() => import('../content/own/Settings/Features/Asset'))
-);
-const AssetCustomFields = Loader(
-  lazy(() => import('../content/own/Settings/Features/Asset/CustomFields'))
-);
-const LocationSettings = Loader(
-  lazy(() => import('../content/own/Settings/Features/Location'))
-);
-const LocationCustomFields = Loader(
-  lazy(() => import('../content/own/Settings/Features/Location/CustomFields'))
-);
-const PartsSettings = Loader(
-  lazy(() => import('../content/own/Settings/Features/Parts'))
-);
-const PartsCustomFields = Loader(
-  lazy(() => import('../content/own/Settings/Features/Parts/CustomFields'))
-);
-const MetersSettings = Loader(
-  lazy(() => import('../content/own/Settings/Features/Meters'))
-);
-const MetersCustomFields = Loader(
-  lazy(() => import('../content/own/Settings/Features/Meters/CustomFields'))
-);
-const ContractorsSettings = Loader(
-  lazy(() => import('../content/own/Settings/Features/Contractors'))
-);
-const ContractorsCustomFields = Loader(
-  lazy(() => import('../content/own/Settings/Features/Contractors/CustomFields'))
-);
-const VendorsSettings = Loader(
-  lazy(() => import('../content/own/Settings/Features/Vendors'))
-);
-const VendorsCustomFields = Loader(
-  lazy(() => import('../content/own/Settings/Features/Vendors/CustomFields'))
+  lazy(() => import('../content/own/Settings/Request'))
 );
 const RolesSettings = Loader(
   lazy(() => import('../content/own/Settings/Roles'))
@@ -81,23 +29,10 @@ const ChecklistsSettings = Loader(
   lazy(() => import('../content/own/Settings/Checklists'))
 );
 const WorkflowsSettings = Loader(
-  lazy(() => import('../content/own/Settings/Features/Workflows'))
+  lazy(() => import('../content/own/Settings/Workflows'))
 );
-
-const RequestPortalSettings = Loader(
-  lazy(() => import('../content/own/Settings/Features/RequestPortal'))
-);
-const IntegrationsSettings = Loader(
-  lazy(() => import('../content/own/Settings/Integrations'))
-);
-const ApiKeysPage = Loader(
-  lazy(() => import('../content/own/Settings/Integrations/ApiKeysPage'))
-);
-const WebhooksPage = Loader(
-  lazy(() => import('../content/own/Settings/Integrations/Webhooks'))
-);
-const Connectors = Loader(
-  lazy(() => import('../content/own/Settings/Integrations/Connectors'))
+const UIConfigurationSettings = Loader(
+  lazy(() => import('../content/own/Settings/UiConfiguration'))
 );
 
 const UserProfile = Loader(lazy(() => import('../content/own/UserProfile')));
@@ -175,70 +110,12 @@ const appRoutes = [
         element: <GeneralSettings />
       },
       {
-        path: 'features',
-        children: [
-          { index: true, element: <FeaturesSettings /> },
-          {
-            path: 'work-order',
-            children: [
-              { index: true, element: <WorkOrderSettings /> },
-              { path: 'configure-fields', element: <ConfigureFields /> },
-              { path: 'custom-fields', element: <WorkOrderCustomFields /> }
-            ]
-          },
-          {
-            path: 'request',
-            children: [
-              { index: true, element: <RequestSettings /> },
-              { path: 'configure-fields', element: <RequestConfigureFields /> }
-            ]
-          },
-          {
-            path: 'asset',
-            children: [
-              { index: true, element: <AssetSettings /> },
-              { path: 'custom-fields', element: <AssetCustomFields /> }
-            ]
-          },
-          {
-            path: 'location',
-            children: [
-              { index: true, element: <LocationSettings /> },
-              { path: 'custom-fields', element: <LocationCustomFields /> }
-            ]
-          },
-          {
-            path: 'parts',
-            children: [
-              { index: true, element: <PartsSettings /> },
-              { path: 'custom-fields', element: <PartsCustomFields /> }
-            ]
-          },
-          {
-            path: 'meters',
-            children: [
-              { index: true, element: <MetersSettings /> },
-              { path: 'custom-fields', element: <MetersCustomFields /> }
-            ]
-          },
-          {
-            path: 'contractors',
-            children: [
-              { index: true, element: <ContractorsSettings /> },
-              { path: 'custom-fields', element: <ContractorsCustomFields /> }
-            ]
-          },
-          {
-            path: 'vendors',
-            children: [
-              { index: true, element: <VendorsSettings /> },
-              { path: 'custom-fields', element: <VendorsCustomFields /> }
-            ]
-          },
-          { path: 'request-portals', element: <RequestPortalSettings /> },
-          { path: 'request-portals/:id', element: <RequestPortalSettings /> },
-          { path: 'workflows', element: <WorkflowsSettings /> }
-        ]
+        path: 'work-order',
+        element: <WorkOrderSettings />
+      },
+      {
+        path: 'request',
+        element: <RequestSettings />
       },
       {
         path: 'roles',
@@ -248,16 +125,8 @@ const appRoutes = [
         path: 'checklists',
         element: <ChecklistsSettings />
       },
-      {
-        path: 'integrations',
-        element: <IntegrationsSettings />,
-        children: [
-          { index: true, element: <Navigate to="api-keys" replace /> },
-          { path: 'connectors', element: <Connectors /> },
-          { path: 'api-keys', element: <ApiKeysPage /> },
-          { path: 'webhooks', element: <WebhooksPage /> }
-        ]
-      }
+      { path: 'workflows', element: <WorkflowsSettings /> },
+      { path: 'ui-configuration', element: <UIConfigurationSettings /> }
     ]
   },
   {
@@ -325,23 +194,23 @@ const appRoutes = [
       }
     ]
   },
-  {
-    path: 'purchase-orders',
-    children: [
-      {
-        path: '',
-        element: <PurchaseOrders />
-      },
-      {
-        path: ':purchaseOrderId',
-        element: <PurchaseOrders />
-      },
-      {
-        path: 'create',
-        element: <CreatePurchaseOrders />
-      }
-    ]
-  },
+  // {
+  //   path: 'purchase-orders',
+  //   children: [
+  //     {
+  //       path: '',
+  //       element: <PurchaseOrders />
+  //     },
+  //     {
+  //       path: ':purchaseOrderId',
+  //       element: <PurchaseOrders />
+  //     },
+  //     {
+  //       path: 'create',
+  //       element: <CreatePurchaseOrders />
+  //     }
+  //   ]
+  // },
   {
     path: 'locations',
     children: [
@@ -408,10 +277,10 @@ const appRoutes = [
         path: 'asset',
         element: <AssetCategories />
       },
-      {
-        path: 'purchase-order',
-        element: <PurchaseOrderCategories />
-      },
+      // {
+      //   path: 'purchase-order',
+      //   element: <PurchaseOrderCategories />
+      // },
       {
         path: 'meter',
         element: <MeterCategories />
@@ -476,8 +345,7 @@ const appRoutes = [
       { path: 'assets', element: <Imports /> },
       { path: 'locations', element: <Imports /> },
       { path: 'parts', element: <Imports /> },
-      { path: 'meters', element: <Imports /> },
-      { path: 'preventive-maintenances', element: <Imports /> }
+      { path: 'meters', element: <Imports /> }
     ]
   },
   { path: 'upgrade', element: <Upgrade /> },

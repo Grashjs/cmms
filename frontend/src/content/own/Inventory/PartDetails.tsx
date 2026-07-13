@@ -18,8 +18,6 @@ import { ChangeEvent, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import AddShoppingCartTwoToneIcon from '@mui/icons-material/AddShoppingCartTwoTone';
 import Part from '../../../models/owns/part';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import { PermissionEntity } from '../../../models/owns/role';
@@ -36,25 +34,20 @@ import {
 import { editPart } from '../../../slices/part';
 import { useDispatch, useSelector } from '../../../store';
 import FilesList from '../components/FilesList';
-import BasicField from '../components/BasicField';
 import { getAssetsByPart } from '../../../slices/asset';
 import { useNavigate } from 'react-router-dom';
 import { getWorkOrdersByPart } from '../../../slices/workOrder';
 import { getFormattedQuantityWithUnit } from './Parts';
 import { getFormattedCostPerUnit } from '../../../utils/formatters';
-import { getCustomFieldValuesForDetails } from '../type';
-import RestockPartModal from './RestockPartModal';
 
 interface PartDetailsProps {
   part: Part;
   handleOpenUpdate: () => void;
   handleOpenDelete: () => void;
-  onCopy: (part: Part) => void;
 }
 export default function PartDetails(props: PartDetailsProps) {
-  const { part, handleOpenUpdate, handleOpenDelete, onCopy } = props;
-  const { hasEditPermission, hasDeletePermission, hasCreatePermission } =
-    useAuth();
+  const { part, handleOpenUpdate, handleOpenDelete } = props;
+  const { hasEditPermission, hasDeletePermission } = useAuth();
   const { t }: { t: any } = useTranslation();
   const { getFormattedDate, getFormattedCurrency } = useContext(
     CompanySettingsContext
@@ -62,7 +55,6 @@ export default function PartDetails(props: PartDetailsProps) {
   const dispatch = useDispatch();
   const [currentTab, setCurrentTab] = useState<string>('details');
   const [isImageViewerOpen, setIsImageViewerOpen] = useState<boolean>(false);
-  const [openRestock, setOpenRestock] = useState<boolean>(false);
   const theme = useTheme();
   const { assetsByPart } = useSelector((state) => state.assets);
   const { workOrdersByPart } = useSelector((state) => state.workOrders);
@@ -83,6 +75,22 @@ export default function PartDetails(props: PartDetailsProps) {
     } else if (value === 'workOrders' && !workOrders.length) {
       dispatch(getWorkOrdersByPart(part.id));
     }
+  };
+  const BasicField = ({
+    label,
+    value
+  }: {
+    label: string | number;
+    value: string | number;
+  }) => {
+    return value ? (
+      <Grid item xs={12} lg={6}>
+        <Typography variant="h6" sx={{ color: theme.colors.alpha.black[70] }}>
+          {label}
+        </Typography>
+        <Typography variant="h6">{value}</Typography>
+      </Grid>
+    ) : null;
   };
   const firstFieldsToRender = (part: Part): { label: string; value: any }[] => [
     {
@@ -120,8 +128,7 @@ export default function PartDetails(props: PartDetailsProps) {
     {
       label: t('barcode'),
       value: part.barcode
-    },
-    ...getCustomFieldValuesForDetails(part.customFieldValues, getFormattedDate)
+    }
   ];
   const areaFieldsToRender = (part: Part): { label: string; value: any }[] => [
     {
@@ -153,22 +160,6 @@ export default function PartDetails(props: PartDetailsProps) {
           {hasEditPermission(PermissionEntity.PARTS_AND_MULTIPARTS, part) && (
             <IconButton onClick={handleOpenUpdate} style={{ marginRight: 10 }}>
               <EditTwoToneIcon color="primary" />
-            </IconButton>
-          )}
-          {hasCreatePermission(PermissionEntity.PARTS_AND_MULTIPARTS) && (
-            <IconButton
-              style={{ marginRight: 10 }}
-              onClick={() => onCopy(part)}
-            >
-              <ContentCopyIcon color="primary" />
-            </IconButton>
-          )}
-          {hasEditPermission(PermissionEntity.PARTS_AND_MULTIPARTS, part) && (
-            <IconButton
-              style={{ marginRight: 10 }}
-              onClick={() => setOpenRestock(true)}
-            >
-              <AddShoppingCartTwoToneIcon color="primary" />
             </IconButton>
           )}
           {hasDeletePermission(PermissionEntity.PARTS_AND_MULTIPARTS, part) && (
@@ -218,7 +209,11 @@ export default function PartDetails(props: PartDetailsProps) {
                 </Typography>
                 <Grid container spacing={2}>
                   {firstFieldsToRender(part).map((field) => (
-                    <BasicField key={field.label} {...field} />
+                    <BasicField
+                      key={field.label}
+                      label={field.label}
+                      value={field.value}
+                    />
                   ))}
                 </Grid>
               </Grid>
@@ -424,11 +419,6 @@ export default function PartDetails(props: PartDetailsProps) {
           </Box>
         )}
       </Grid>
-      <RestockPartModal
-        open={openRestock}
-        onClose={() => setOpenRestock(false)}
-        part={part}
-      />
       {isImageViewerOpen && (
         <div style={{ zIndex: 100 }}>
           <ImageViewer

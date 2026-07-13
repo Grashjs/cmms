@@ -1,38 +1,39 @@
 import { View } from 'react-native';
-import React, { useEffect } from 'react';
+import { Audio } from 'expo-av';
+import React, { useState } from 'react';
 import { IconButton, useTheme } from 'react-native-paper';
-import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 
 export function AudioPlayer({ url }: { url: string }) {
+  const [sound, setSound] = useState<Audio.Sound>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
   const theme = useTheme();
-  const player = useAudioPlayer(url ? { uri: url } : null);
-  const status = useAudioPlayerStatus(player);
-  const isPlaying = status?.playing ?? false;
-
-  useEffect(() => {
-    if (url) {
-      player.replace({ uri: url });
-    }
-  }, [player, url]);
-
   const playRecording = async () => {
     try {
-      if (!url) return;
-      player.play();
+      const { sound } = await Audio.Sound.createAsync({ uri: url });
+      setSound(sound);
+      await sound.playAsync();
+      setIsPlaying(true);
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if ('isPlaying' in status && !status.isPlaying) {
+          setIsPlaying(false);
+        }
+      });
     } catch (error) {
       console.error('Failed to play recording', error);
     }
   };
   const pausePlayback = async () => {
-    player.pause();
+    if (sound) {
+      await sound.pauseAsync();
+      setIsPlaying(false);
+    }
   };
 
   const stopPlayback = async () => {
-    try {
-      player.pause();
-      await player.seekTo(0);
-    } catch (error) {
-      console.error('Failed to stop playback', error);
+    if (sound) {
+      await sound.stopAsync();
+      setIsPlaying(false);
     }
   };
 

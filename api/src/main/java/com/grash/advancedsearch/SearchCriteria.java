@@ -1,8 +1,7 @@
 package com.grash.advancedsearch;
 
 
-import com.grash.model.User;
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.grash.model.OwnUser;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,20 +16,14 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Search criteria for filtering and paginating work orders")
 public class SearchCriteria implements Cloneable {
-    @Schema(description = "List of filter conditions to apply to the search")
     private List<FilterField> filterFields = new ArrayList<>();
-    @Schema(description = "Sort direction for the results", allowableValues = {"ASC", "DESC"})
     private Direction direction = Direction.ASC;
-    @Schema(description = "Page number for pagination (0-based)")
     private int pageNum = 0;
-    @Schema(description = "Number of results per page")
     private int pageSize = 10;
-    @Schema(description = "Field name to sort the results by")
     private String sortField = "id";
 
-    public void filterCompany(User user) {
+    public void filterCompany(OwnUser user) {
         this.filterFields.add(FilterField.builder()
                 .field("company")
                 .value(user.getCompany().getId())
@@ -38,7 +31,7 @@ public class SearchCriteria implements Cloneable {
                 .values(new ArrayList<>()).build());
     }
 
-    public void filterCreatedBy(User user) {
+    public void filterCreatedBy(OwnUser user) {
         this.filterFields.add(FilterField.builder()
                 .field("createdBy")
                 .value(user.getId())

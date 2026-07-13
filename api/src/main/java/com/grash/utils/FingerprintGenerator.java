@@ -1,7 +1,6 @@
 package com.grash.utils;
 
 import java.net.NetworkInterface;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Collections;
 
@@ -23,7 +22,7 @@ public class FingerprintGenerator {
 
             // Hash the collected MACs
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(sb.toString().getBytes(StandardCharsets.UTF_8));
+            byte[] hash = digest.digest(sb.toString().getBytes("UTF-8"));
 
             // Convert to hex string
             StringBuilder hexString = new StringBuilder();

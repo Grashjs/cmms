@@ -6,9 +6,6 @@ import api from '../utils/api';
 import WorkOrder from '../models/owns/workOrder';
 import { getInitialPage, Page, SearchCriteria } from 'src/models/owns/page';
 import { revertAll } from 'src/utils/redux';
-import {
-  cancellableFetch,
-} from 'src/utils/cancellableRequest';
 import { AssetStatus } from '../models/owns/asset';
 
 const basePath = 'requests';
@@ -125,13 +122,16 @@ export const reducer = slice.reducer;
 export const getRequests =
   (criteria: SearchCriteria): AppThunk =>
   async (dispatch) => {
-    await cancellableFetch(
-      dispatch,
-      'getRequests',
-      (signal) => api.post<Page<Request>>(`${basePath}/search`, criteria, { signal }),
-      (requests) => dispatch(slice.actions.getRequests({ requests })),
-      (loading) => dispatch(slice.actions.setLoadingGet({ loading }))
-    );
+    try {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      const requests = await api.post<Page<Request>>(
+        `${basePath}/search`,
+        criteria
+      );
+      dispatch(slice.actions.getRequests({ requests }));
+    } finally {
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    }
   };
 
 export const getSingleRequest =
@@ -200,29 +200,4 @@ export const getPendingRequestsCount = (): AppThunk => async (dispatch) => {
 export const clearSingleRequest = (): AppThunk => async (dispatch) => {
   dispatch(slice.actions.clearSingleRequest({}));
 };
-
-export interface SubmitPublicRequestDTO {
-  title: string;
-  description?: string;
-  contact?: string;
-  location?: { id: number };
-  asset?: { id: number };
-  image?: { id: number };
-  files: { id: number }[];
-}
-
-export const submitPublicRequest =
-  (
-    uuid: string,
-    request: SubmitPublicRequestDTO,
-    recaptchaToken?: string
-  ): AppThunk =>
-  async (dispatch) => {
-    const requestResponse = await api.post<Request>(
-      `${basePath}/portal/${uuid}?recaptchaToken=${recaptchaToken}`,
-      request
-    );
-    return requestResponse as any;
-  };
-
 export default slice;

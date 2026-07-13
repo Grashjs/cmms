@@ -3,19 +3,16 @@ import { useTranslation } from 'react-i18next';
 import Form from '../components/form';
 import * as Yup from 'yup';
 import { IField } from '../type';
-import { formatSelect, formatSelectMultiple, formatCustomFields } from '../../../utils/formatters';
-import { useDispatch, useSelector } from '../../../store';
+import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
+import { useDispatch } from '../../../store';
 import { editWorkOrderMeterTrigger } from '../../../slices/workOrderMeterTrigger';
 import { getWOBaseFields, getWOBaseValues } from '../../../utils/woBase';
-import { getCustomFields } from '../../../slices/customField';
-import { CustomFieldEntityType } from '../../../models/owns/customField';
-import { getCustomFieldsRequiredShape } from '../../own/type';
 import Meter from '../../../models/owns/meter';
 import WorkOrderMeterTrigger from '../../../models/owns/workOrderMeterTrigger';
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
-import { handleFileUpload } from '../../../utils/overall';
+import { getImageAndFiles } from '../../../utils/overall';
 
 interface EditTriggerProps {
   open: boolean;
@@ -33,14 +30,6 @@ export default function EditTriggerModal({
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { uploadFiles } = useContext(CompanySettingsContext);
-  const { customFields } = useSelector((state) => state.customFields);
-
-  useEffect(() => {
-    if (open && !customFields.length) {
-      dispatch(getCustomFields());
-    }
-  }, [open]);
-
   const fields: Array<IField> = [
     {
       name: 'name',
@@ -71,7 +60,7 @@ export default function EditTriggerModal({
       type: 'titleGroupField',
       label: t('wo_configuration')
     },
-    ...getWOBaseFields(t, customFields)
+    ...getWOBaseFields(t)
   ];
   const onEditSuccess = () => {
     onClose();
@@ -84,12 +73,7 @@ export default function EditTriggerModal({
     name: Yup.string().required(t('Trequired_trigger_name')),
     title: Yup.string().required(t('required_wo_title')),
     value: Yup.number().required(t('required_value')),
-    triggerCondition: Yup.object().required(t('required_trigger_condition')),
-    ...getCustomFieldsRequiredShape(
-      customFields,
-      CustomFieldEntityType.WORK_ORDER,
-      t
-    )
+    triggerCondition: Yup.object().required(t('required_trigger_condition'))
   };
   const formatValues = (values) => {
     const newValues = { ...values };
@@ -101,7 +85,7 @@ export default function EditTriggerModal({
     newValues.assignedTo = formatSelectMultiple(newValues.assignedTo);
     newValues.priority = newValues.priority?.value;
     newValues.triggerCondition = newValues.triggerCondition.value;
-    return formatCustomFields(newValues);
+    return newValues;
   };
   return (
     <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
@@ -138,33 +122,45 @@ export default function EditTriggerModal({
           onChange={({ field, e }) => {}}
           onSubmit={async (values) => {
             let formattedValues = formatValues(values);
-            try {
-              const imageAndFiles = await handleFileUpload(
-                {
-                  files: formattedValues.files,
-                  image: formattedValues.image
-                },
-                uploadFiles
-              );
-
-              formattedValues = {
-                ...formattedValues,
-                image: imageAndFiles.image,
-                files: imageAndFiles.files
-              };
-
-              await dispatch(
-                editWorkOrderMeterTrigger(
-                  meter.id,
-                  workOrderMeterTrigger.id,
-                  formattedValues
-                )
-              );
-              onEditSuccess();
-            } catch (err) {
-              onEditFailure(err);
-              throw err;
-            }
+            const files = formattedValues.files.find((file) => file.id)
+              ? []
+              : formattedValues.files;
+            return new Promise<void>((resolve, rej) => {
+              uploadFiles(files, formattedValues.image)
+                .then((files) => {
+                  const imageAndFiles = getImageAndFiles(
+                    files,
+                    workOrderMeterTrigger.image
+                  );
+                  formattedValues = {
+                    ...formattedValues,
+                    image: imageAndFiles.image,
+                    files: [
+                      ...workOrderMeterTrigger.files,
+                      ...imageAndFiles.files
+                    ]
+                  };
+                  dispatch(
+                    editWorkOrderMeterTrigger(
+                      meter.id,
+                      workOrderMeterTrigger.id,
+                      formattedValues
+                    )
+                  )
+                    .then(() => {
+                      onEditSuccess();
+                      resolve();
+                    })
+                    .catch((err) => {
+                      onEditFailure(err);
+                      rej();
+                    });
+                })
+                .catch((err) => {
+                  onEditFailure(err);
+                  rej();
+                });
+            });
           }}
         />
       </DialogContent>

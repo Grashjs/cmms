@@ -3,21 +3,14 @@ package com.grash.service;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.RequestPatchDTO;
-import com.grash.dto.RequestPostDTO;
 import com.grash.dto.RequestShowDTO;
-import com.grash.dto.cutomField.CustomFieldValuePostDTO;
-import com.grash.dto.license.LicenseEntitlement;
-import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RequestMapper;
 import com.grash.model.*;
-import com.grash.model.enums.CustomFieldEntityType;
-import com.grash.model.enums.PortalFieldType;
 import com.grash.model.enums.Priority;
-import com.grash.model.enums.webhook.WebhookEvent;
-
-import com.grash.repository.FieldConfigurationRepository;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.RequestRepository;
+import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,9 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.*;
-
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,86 +39,25 @@ public class RequestService {
     private final RequestMapper requestMapper;
     private final EntityManager em;
     private final CustomSequenceService customSequenceService;
-    private final LicenseService licenseService;
-    private final RequestPortalService requestPortalService;
-    private final FieldConfigurationRepository fieldConfigurationRepository;
-    private final WebhookDispatchService webhookDispatchService;
-    private final CustomFieldValueService customFieldValueService;
-
 
     @Transactional
     public Request create(Request request, Company company) {
-        if (request instanceof RequestPostDTO requestPostDTO) {
-            request = requestMapper.fromPostDTO(requestPostDTO);
-            if (!requestPostDTO.getCustomFields().isEmpty()) {
-                setRequestCustomFields(request, requestPostDTO.getCustomFields(), company);
-            }
-        }
-        if (request.getAudioDescription() != null && !licenseService.hasEntitlement(LicenseEntitlement.VOICE_NOTES))
-            throw new CustomException("You need a license to add voice notes", HttpStatus.FORBIDDEN);
         Long nextSequence = customSequenceService.getNextRequestSequence(company);
         request.setCustomId("R" + String.format("%06d", nextSequence));
 
         Request savedRequest = requestRepository.saveAndFlush(request);
         em.refresh(savedRequest);
-        Map<String, Object> webhookPayload = new HashMap<>();
-        webhookPayload.put("requestId", savedRequest.getId());
-        Object serializedRequest = requestMapper.toShowDto(savedRequest);
-        webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_REQUEST, webhookPayload,
-                "newRequest", serializedRequest, null, null, null, null, null);
         return savedRequest;
     }
 
     @Transactional
-    public Request create(Request request, Company company, RequestPortal requestPortal) {
-        if (request.getAudioDescription() != null && !licenseService.hasEntitlement(LicenseEntitlement.VOICE_NOTES))
-            throw new CustomException("You need a license to add voice notes", HttpStatus.FORBIDDEN);
-        Long nextSequence = customSequenceService.getNextRequestSequence(company);
-        request.setCustomId("R" + String.format("%06d", nextSequence));
-        request.setRequestPortal(requestPortal);
-        request.setCompany(requestPortal.getCompany());
-        RequestPortalField assetField =
-                requestPortal.getFields().stream().filter(field -> field.getType().equals(PortalFieldType.ASSET) && field.getAsset() != null).findFirst().orElse(null);
-        RequestPortalField locationField =
-                requestPortal.getFields().stream().filter(field -> field.getType().equals(PortalFieldType.LOCATION) && field.getLocation() != null).findFirst().orElse(null);
-
-        if (assetField != null) request.setAsset(assetField.getAsset());
-        if (locationField != null) request.setLocation(locationField.getLocation());
-
-
-        Request savedRequest = requestRepository.saveAndFlush(request);
-        em.refresh(savedRequest);
-        Map<String, Object> webhookPayload = new HashMap<>();
-        webhookPayload.put("requestId", savedRequest.getId());
-        Object serializedRequest2 = requestMapper.toShowDto(savedRequest);
-        webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_REQUEST, webhookPayload,
-                "newRequest", serializedRequest2, null, null, null, null, null);
-        return savedRequest;
-    }
-
-    @Transactional
-    public Request update(Long id, RequestPatchDTO request, Company company) {
+    public Request update(Long id, RequestPatchDTO request) {
         if (requestRepository.existsById(id)) {
             Request savedRequest = requestRepository.findById(id).get();
-            if (!request.getCustomFields().isEmpty()) {
-                setRequestCustomFields(savedRequest, request.getCustomFields(), company);
-            }
             Request updatedRequest = requestRepository.saveAndFlush(requestMapper.updateRequest(savedRequest, request));
             em.refresh(updatedRequest);
             return updatedRequest;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-    }
-
-    private void setRequestCustomFields(Request request, List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
-                                        Company company) {
-        customFieldValueService.setCustomFields(
-                request,
-                request.getCustomFieldValues(),
-                customFieldValuePostDTOS,
-                company,
-                CustomFieldEntityType.WORK_ORDER,
-                cfv -> cfv.setRequest(request)
-        );
     }
 
     public Collection<Request> getAll() {
@@ -145,10 +76,10 @@ public class RequestService {
         return requestRepository.findByCompany_Id(id);
     }
 
-    public WorkOrder createWorkOrderFromRequest(Request request, User creator) {
-        WorkOrderPostDTO workOrder = workOrderService.getWorkOrderFromWorkOrderBase(request);
+    public WorkOrder createWorkOrderFromRequest(Request request, OwnUser creator) {
+        WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(request);
         if (creator.getCompany().getCompanySettings().getGeneralPreferences().isAutoAssignRequests()) {
-            User primaryUser = workOrder.getPrimaryUser();
+            OwnUser primaryUser = workOrder.getPrimaryUser();
             workOrder.setPrimaryUser(primaryUser == null ? creator : primaryUser);
         }
         workOrder.setParentRequest(request);
@@ -179,10 +110,8 @@ public class RequestService {
                         .filter(filterField -> filterField.getField().equals("priority"))
                         .findFirst().get().getValues().stream().map(value -> Priority.getPriorityFromString(value.toString())).collect(Collectors.toList());
                 if (!priorities.isEmpty()) {
-                    Join<Request, WorkOrder> workOrderJoin = requestRoot.join(Request_.workOrder, JoinType.LEFT);
-                    predicates.add(criteriaBuilder.or(workOrderJoin.get(WorkOrder_.priority).in(priorities),
-                            requestRoot.get(
-                            Request_.priority).in(priorities)));
+                    Join<Request, WorkOrder> workOrderJoin = requestRoot.join("workOrder", JoinType.INNER);
+                    predicates.add(workOrderJoin.get("priority").in(priorities));
                 }
             }
 
@@ -237,4 +166,3 @@ public class RequestService {
         return requestRepository.findByCategory_IdAndCreatedAtBetween(id, start, end);
     }
 }
-

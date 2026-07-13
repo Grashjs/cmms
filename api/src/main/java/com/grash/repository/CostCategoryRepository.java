@@ -13,5 +13,4 @@ public interface CostCategoryRepository extends JpaRepository<CostCategory, Long
     Optional<CostCategory> findByNameIgnoreCaseAndCompanySettings_Id(String name, Long id);
 
 
-    void deleteByCompanySettings_Company_IdAndIsDemoTrue(Long companyId);
 }

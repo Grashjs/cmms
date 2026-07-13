@@ -1,41 +1,66 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-  ext {
-    ndkVersion = "27.3.13750724"
-  }
-  repositories {
-    google()
-    mavenCentral()
-  }
-  dependencies {
-    classpath 'com.google.gms:google-services:4.4.1'
-    classpath('com.android.tools.build:gradle:8.7.2')
-    classpath('com.facebook.react:react-native-gradle-plugin')
-    classpath('org.jetbrains.kotlin:kotlin-gradle-plugin')
-  }
+    ext {
+        buildToolsVersion = '34.0.0'
+        minSdkVersion = 21
+        compileSdkVersion = 34
+        targetSdkVersion = 34
+        if (findProperty('android.kotlinVersion')) {
+            kotlinVersion = findProperty('android.kotlinVersion')
+        }
+        frescoVersion = findProperty('expo.frescoVersion') ?: '2.5.0'
+
+        if (System.properties['os.arch'] == 'aarch64') {
+            // For M1 Users we need to use the NDK 24 which added support for aarch64
+            ndkVersion = '24.0.8215888'
+        } else {
+            // Otherwise we default to the side-by-side NDK version from AGP.
+            ndkVersion = '21.4.7075529'
+        }
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.google.gms:google-services:4.3.3'
+        classpath('com.android.tools.build:gradle:7.2.1')
+        classpath('com.facebook.react:react-native-gradle-plugin')
+        classpath('de.undercouch:gradle-download-task:5.0.1')
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
 }
 
-def reactNativeAndroidDir = new File(
-  providers.exec {
-    workingDir(rootDir)
-    commandLine("node", "--print", "require.resolve('react-native/package.json')")
-  }.standardOutput.asText.get().trim(),
-  "../android"
-)
+def REACT_NATIVE_VERSION = new File(['node', '--print', "JSON.parse(require('fs').readFileSync(require.resolve('react-native/package.json'), 'utf-8')).version"].execute(null, rootDir).text.trim())
 
 allprojects {
-  repositories {
-    maven {
-      // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-      url(reactNativeAndroidDir)
+    configurations.all {
+        resolutionStrategy {
+            force "com.facebook.react:react-native:" + REACT_NATIVE_VERSION
+        }
     }
 
-    google()
-    mavenCentral()
-    maven { url 'https://www.jitpack.io' }
-  }
-}
+    repositories {
+        mavenLocal()
+        maven {
+            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+            url(new File(['node', '--print', "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim(), '../android'))
+        }
+        maven {
+            // Android JSC is installed from npm
+            url(new File(['node', '--print', "require.resolve('jsc-android/package.json')"].execute(null, rootDir).text.trim(), '../dist'))
+        }
 
-apply plugin: "expo-root-project"
-apply plugin: "com.facebook.react.rootproject"
+        google()
+        mavenCentral {
+            // We don't want to fetch react-native from Maven Central as there are
+            // older versions over there.
+            content {
+                excludeGroup 'com.facebook.react'
+            }
+        }
+        maven { url 'https://www.jitpack.io' }
+    }
+}

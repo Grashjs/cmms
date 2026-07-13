@@ -23,7 +23,6 @@ export default function CustomDateTimePicker({
   const hideDatePicker = () => {
     setDatePickerVisibility(false);
   };
-
   return (
     <View>
       <TouchableOpacity
@@ -38,7 +37,7 @@ export default function CustomDateTimePicker({
         <Text>{label}</Text>
         {value && (
           <Text style={{ color: theme.colors.primary }}>
-            {getFormattedDate(value)}
+            {getFormattedDate(value.toString())}
           </Text>
         )}
       </TouchableOpacity>

@@ -1,456 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style th:inline="css">
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-        font-family: 'Inter', Arial, sans-serif;
-        background: #fff;
-        color: #1C2B3A;
-        font-size: 13px;
-        line-height: 1.6;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    .clearfix:after { content: ""; display: table; clear: both; }
-
-    .report-wrap {
-        max-width: 860px;
-        margin: 0 auto;
-        padding: 32px 32px 48px;
-        background: #fff;
-    }
-
-    /* ── Header ── */
-    .report-header {
-        padding-bottom: 20px;
-        border-bottom: 2px solid #E4E8EE;
-        margin-bottom: 24px;
-    }
-
-    .header-brand {
-        float: left;
-    }
-
-    .header-wo {
-        float: right;
-        text-align: right;
-    }
-
-    .company-name {
-        display: block;
-        font-size: 20px;
-        font-weight: 700;
-        color: #1C2B3A;
-        margin-bottom: 6px;
-    }
-
-    .company-logo {
-        display: block;
-        height: 40px;
-        margin-bottom: 4px;
-    }
-
-    .company-phone {
-        display: block;
-        font-size: 11px;
-        color: #8A97A8;
-    }
-
-    .wo-eyebrow {
-        display: block;
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing: 1.2px;
-        text-transform: uppercase;
-        color: #8A97A8;
-        margin-bottom: 4px;
-    }
-
-    .wo-number {
-        display: block;
-        font-size: 26px;
-        font-weight: 700;
-    }
-
-    /* ── Meta bar (table-based) ── */
-    .meta-bar {
-        background: #F7F8FA;
-        border: 1px solid #E4E8EE;
-        border-radius: 6px;
-        padding: 0;
-        margin-bottom: 20px;
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .meta-bar td {
-        padding: 12px 18px;
-        vertical-align: top;
-        border-right: 1px solid #E4E8EE;
-    }
-
-    .meta-bar td:last-child {
-        border-right: none;
-    }
-
-    .meta-label {
-        display: block;
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing: 0.9px;
-        text-transform: uppercase;
-        color: #8A97A8;
-        margin-bottom: 3px;
-    }
-
-    .meta-icon {
+<link href="https://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<style>
+    .invoice-title h2, .invoice-title h3 {
         display: inline-block;
-        width: 11px;
-        height: 11px;
-        vertical-align: middle;
-        margin-right: 3px;
-        color: #9AABB8;
-        position: relative;
-        top: -1px;
     }
 
-    .meta-value {
-        display: block;
-        font-size: 13px;
-        font-weight: 500;
-        color: #1C2B3A;
+    .primary {
+        color: #088cf4;
     }
-
-    .status-badge {
-        display: inline-block;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    /* ── Panels ── */
-    .panel {
-        border: 1px solid #E4E8EE;
-        border-radius: 6px;
-        margin-bottom: 18px;
-        overflow: hidden;
-    }
-
-    .panel-header {
-        display: table;
-        width: 100%;
-        background: #F7F8FA;
-        border-bottom: 1px solid #E4E8EE;
-        padding: 10px 16px;
-    }
-    .panel-accent {
-        display: inline;
-        vertical-align: middle;
-        width: 4px;
-        padding: 0;
-    }
-    .panel-icon {
-        display: inline;
-        vertical-align: middle;
-        width: 16px;
-        height: 16px;
-    }
-    .panel-title {
-        display: inline;
-        vertical-align: middle;
-        padding-left: 8px;
-    }
-
-    .panel-body {
-        padding: 16px 18px;
-    }
-
-    /* ── WO title ── */
-    .wo-title {
-        font-size: 19px;
-        font-weight: 700;
-        color: #1C2B3A;
-        margin-bottom: 6px;
-    }
-
-    .wo-description {
-        font-size: 13px;
-        color: #5A6A7A;
-        line-height: 1.65;
-    }
-
-    /* ── Details (two-col float table) ── */
-    .details-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .details-table td {
-        width: 50%;
-        vertical-align: top;
-        padding: 5px 8px 5px 0;
-    }
-
-    .details-table td:last-child {
-        padding-left: 24px;
-        padding-right: 0;
-    }
-
-    .detail-label {
-        display: block;
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing: 0.9px;
-        text-transform: uppercase;
-        color: #8A97A8;
-        margin-bottom: 1px;
-    }
-
-    .detail-value {
-        display: block;
-        font-size: 13px;
-        font-weight: 500;
-        color: #1C2B3A;
-    }
-
-    /* ── Tasks ── */
-    .task-item {
-        padding: 10px 0;
-        border-bottom: 1px solid #F0F2F5;
-    }
-
-    .task-label {
-        font-size: 12px;
-        font-weight: 600;
-        color: #1C2B3A;
-        margin-bottom: 2px;
-    }
-
-    .task-value {
-        font-size: 13px;
-        color: #4A5568;
-    }
-
-    .task-notes {
-        font-size: 11px;
-        color: #8A97A8;
-        font-style: italic;
-        margin-top: 3px;
-    }
-
-    .task-images { margin-top: 8px; }
-    .task-images img {
-        height: 180px;
-        border-radius: 4px;
-        border: 1px solid #E4E8EE;
-        margin-right: 6px;
-    }
-
-    /* ── Cost tables ── */
-    .cost-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .cost-table th {
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing: 0.9px;
-        text-transform: uppercase;
-        color: #8A97A8;
-        padding: 0 12px 8px 0;
-        text-align: left;
-        border-bottom: 1px solid #E4E8EE;
-    }
-
-    .cost-table td {
-        padding: 8px 12px 8px 0;
-        font-size: 13px;
-        color: #1C2B3A;
-        border-bottom: 1px solid #F0F2F5;
-        vertical-align: top;
-    }
-
-    .cost-table tr:last-child td { border-bottom: none; }
-    .cost-table td.secondary { color: #5A6A7A; }
-
-    /* ── Relations ── */
-    .relation-item {
-        font-size: 13px;
-        color: #4A5568;
-        padding: 7px 0;
-        border-bottom: 1px solid #F0F2F5;
-    }
-
-    .relation-item:last-child { border-bottom: none; }
-
-    .relation-type {
-        display: inline-block;
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-        padding: 1px 6px;
-        border-radius: 4px;
-        background: #F0F2F5;
-        color: #5A6A7A;
-        margin: 0 5px;
-    }
-
-    /* ── History ── */
-    .history-item {
-        padding: 10px 0;
-        border-bottom: 1px solid #F0F2F5;
-    }
-
-    .history-item:last-child { border-bottom: none; }
-
-    .history-dot {
-        display: inline-block;
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        vertical-align: middle;
-        margin-right: 8px;
-        position: relative;
-        top: -1px;
-    }
-
-    .history-user {
-        display: inline;
-        font-size: 12px;
-        font-weight: 600;
-        color: #1C2B3A;
-    }
-
-    .history-name {
-        font-size: 13px;
-        color: #4A5568;
-        margin-top: 2px;
-    }
-
-    .history-date {
-        font-size: 11px;
-        color: #8A97A8;
-        margin-top: 1px;
-    }
-
-    /* ── Comments ── */
-    .comment-item {
-        padding: 10px 0;
-        border-bottom: 1px solid #F0F2F5;
-    }
-
-    .comment-item:last-child { border-bottom: none; padding-bottom: 0; }
-
-    .comment-author {
-        font-size: 12px;
-        font-weight: 600;
-        color: #1C2B3A;
-    }
-
-    .comment-date {
-        font-size: 11px;
-        color: #8A97A8;
-        margin-left: 8px;
-    }
-
-    .comment-body {
-        font-size: 13px;
-        color: #4A5568;
-        line-height: 1.6;
-        margin-top: 4px;
-    }
-
-    .comment-images { margin-top: 8px; }
-    .comment-images img {
-        height: 90px;
-        border-radius: 4px;
-        border: 1px solid #E4E8EE;
-        margin-right: 6px;
-    }
-
-    /* ── Files ── */
-    .files-wrap img {
-        height: 100px;
-        border-radius: 4px;
-        border: 1px solid #E4E8EE;
-        margin: 0 6px 6px 0;
-    }
-
-    /* ── Signature ── */
-    .signature-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .signature-table td {
-        width: 50%;
-        vertical-align: top;
-        padding-right: 20px;
-    }
-
-    .signature-box {
-        border: 1px dashed #CBD2DA;
-        border-radius: 6px;
-        padding: 14px;
-        min-height: 90px;
-    }
-
-    .signature-box-label {
-        display: block;
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing: 0.9px;
-        text-transform: uppercase;
-        color: #8A97A8;
-        margin-bottom: 8px;
-    }
-
-    .signature-box img { max-height: 70px; }
-
-    .signature-date-value {
-        display: block;
-        font-size: 14px;
-        font-weight: 500;
-        color: #1C2B3A;
-        margin-top: 10px;
-    }
-
-    /* ── Footer ── */
-    .report-footer {
-        margin-top: 32px;
-        padding-top: 18px;
-        border-top: 1px solid #E4E8EE;
-        text-align: center;
-    }
-
-    .footer-text {
-        display: block;
-        font-size: 11px;
-        color: #8A97A8;
-        margin-bottom: 10px;
-    }
-
-    .footer-logo {
-        opacity: 0.55;
-        height: 34px;
-    }
-
 </style>
 <body>
-
 <!--@thymesVar id="workOrder" type="com.grash.model.WorkOrder"-->
-<!--/*@thymesVar id="backgroundColor" type="java.lang.String"*/-->
 <!--@thymesVar id="companyName" type="java.lang.String"-->
-<!--@thymesVar id="companyLogo" type="java.lang.String"-->
 <!--/*@thymesVar id="relations" type="java.util.List<com.grash.model.Relation>"*/-->
-<!--/*@thymesVar id="tasks" type="java.util.List<com.grash.model.Task>"*/-->
-<!--/*@thymesVar id="tasksImagesUrls" type="java.util.Map<java.lang.Long, java.lang.String[]>"*/-->
+<!--/*@thymesVar id="tasks" type="java.util.List<org.springframework.data.util.Pair<java.lang.String, java.lang.String>>"*/-->
 <!--/*@thymesVar id="assignedTo" type="java.lang.String"*/-->
 <!--/*@thymesVar id="customers" type="java.lang.String"*/-->
 <!--/*@thymesVar id="companyPhone" type="java.lang.String"*/-->
@@ -460,391 +24,283 @@
 <!--/*@thymesVar id="workOrderHistories" type="java.util.List<com.grash.model.WorkOrderHistory>"*/-->
 <!--/*@thymesVar id="partQuantities" type="java.util.List<com.grash.model.PartQuantity>"*/-->
 <!--/*@thymesVar id="labors" type="java.util.List<com.grash.model.Labor>"*/-->
-<!--/*@thymesVar id="messageSource" type="org.springframework.context.MessageSource"*/-->
-<!--/*@thymesVar id="locale" type="java.util.Locale"*/-->
-<!--/*@thymesVar id="utils" type="com.grash.utils.Utils"*/-->
-<!--/*@thymesVar id="dateFormat" type="java.lang.String"*/-->
-<!--/*@thymesVar id="timeZone" type="java.lang.String"*/-->
-<!--/*@thymesVar id="reportConfig" type="com.grash.dto.ReportConfig"*/-->
-<!--/*@thymesVar id="comments" type="java.util.List<com.grash.model.Comment>"*/-->
-<!--/*@thymesVar id="commentFilesUrls" type="java.util.Map<java.lang.Long, java.lang.String[]>"*/-->
-<!--/*@thymesVar id="workOrderFilesUrls" type="java.lang.String[]"*/-->
-<!--/*@thymesVar id="workOrderImageUrl" type="java.lang.String"*/-->
-
-<div class="report-wrap">
-
-    <!-- ── Header ── -->
-    <div class="report-header clearfix">
-        <div class="header-brand">
-            <span class="company-name" th:text="${companyName}"></span>
-            <img th:if="${companyLogo!=null}" th:src="@{${companyLogo}}" class="company-logo" alt="logo">
-            <span class="company-phone" th:text="${companyPhone}"></span>
-        </div>
-        <div class="header-wo">
-            <span class="wo-eyebrow" th:text="#{work_order}"></span>
-            <span class="wo-number" th:style="'color:'+${backgroundColor}" th:text="${workOrder.customId}"></span>
-        </div>
-    </div>
-
-    <!-- ── Meta bar ── -->
-    <table class="meta-bar" th:if="${reportConfig.workOrderInformation}">
-        <tr>
-            <td>
-        <span class="meta-label">
-          <svg class="meta-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="12" height="12" rx="2"/><line x1="2" y1="5.5" x2="14" y2="5.5"/><line x1="5" y1="1" x2="5" y2="3.5"/><line x1="11" y1="1" x2="11" y2="3.5"/></svg>
-          <span th:text="#{created_at}"></span>
-        </span>
-                <span class="meta-value" th:text="${utils.getFormattedDate(workOrder.createdAt, dateFormat, timeZone)}"></span>
-            </td>
-            <td>
-        <span class="meta-label">
-          <svg class="meta-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 8a7 7 0 0 1 13.3-3"/><polyline points="14.5 1.5 14.5 5 11 5"/><path d="M15 8a7 7 0 0 1-13.3 3"/><polyline points="1.5 14.5 1.5 11 5 11"/></svg>
-          <span th:text="#{last_updated}"></span>
-        </span>
-                <span class="meta-value" th:text="${utils.getFormattedDate(workOrder.updatedAt, dateFormat, timeZone)}"></span>
-            </td>
-            <td th:if="${primaryUserName}">
-        <span class="meta-label">
-          <svg class="meta-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
-          <span th:text="#{assigned_to}"></span>
-        </span>
-                <span class="meta-value" th:text="${primaryUserName}"></span>
-            </td>
-            <td th:if="${workOrder.dueDate}">
-        <span class="meta-label">
-          <svg class="meta-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"/><polyline points="8,4.5 8,8 10.5,10.5"/></svg>
-          <span th:text="#{due_date}"></span>
-        </span>
-                <span class="meta-value" th:text="${workOrder.dueDate}"></span>
-            </td>
-            <td th:if="${workOrder.status}">
-        <span class="meta-label">
-          <svg class="meta-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"/><polyline points="5,8 7,10 11,6"/></svg>
-          <span th:text="#{status}"></span>
-        </span>
-                <span class="status-badge" th:style="'background:'+${backgroundColor}+'22; color:'+${backgroundColor}" th:text="#{${workOrder.status}}"></span>
-            </td>
-            <td th:if="${reportConfig.priority and workOrder.priority!=null}">
-        <span class="meta-label">
-          <svg class="meta-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2h8l-2.5 4 2.5 4H3V2z"/></svg>
-          <span th:text="#{priority}"></span>
-        </span>
-                <span class="meta-value" th:text="#{${workOrder.priority}}"></span>
-            </td>
-        </tr>
-    </table>
-
-    <!-- ── Work Order Title ── -->
-    <div class="panel">
-        <div class="panel-header">
-            <span class="panel-accent" th:style="'background:'+${backgroundColor}"></span>
-            <svg class="panel-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1.5" width="12" height="13" rx="1.5"/><line x1="5" y1="5" x2="11" y2="5"/><line x1="5" y1="8" x2="11" y2="8"/><line x1="5" y1="11" x2="8.5" y2="11"/></svg>
-            <span class="panel-title" th:text="#{work_order}"></span>
-        </div>
-        <div class="panel-body">
-            <div class="wo-title" th:text="${workOrder.title}"></div>
-            <div class="wo-description" th:if="${reportConfig.workOrderInformation}" th:text="${workOrder.description}"></div>
-            <div th:if="${workOrderImageUrl != null}" style="margin-top:12px;">
-                <img th:src="${workOrderImageUrl}" style="max-width:100%;max-height:300px;border-radius:6px;border:1px solid #E4E8EE;" />
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="invoice-title">
+                <h3 th:text="${companyName}"></h3>
+                <h3 class="pull-right primary" th:text="#{wo_number(${workOrder.customId})}"></h3>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-xs-6">
+                    <address>
+                        <div th:text="${companyPhone}"></div>
+                        <strong th:text="#{created_at}+': '"> </strong>
+                        <span th:text="${workOrder.createdAt}"></span>
+                        <br>
+                        <strong th:text="#{last_updated}+': '"></strong><span
+                            th:text="${workOrder.updatedAt}"></span><br>
+                    </address>
+                </div>
+                <div class="col-xs-6 text-right">
+                    <address>
+                        <div th:if="${primaryUserName}">
+                            <strong th:text="#{assigned_to}+': '"></strong>
+                            <span
+                                    th:text="${primaryUserName}">
+                            </span>
+                            <br>
+                        </div>
+                        <div th:if="${workOrder.dueDate}">
+                            <strong th:text="#{due_date}+': '"> </strong>
+                            <span
+                                    th:text="${workOrder.dueDate}">
+                            </span>
+                            <br>
+                        </div>
+                        <div th:if="${workOrder.status}">
+                            <strong th:text="#{status}+': '"> </strong>
+                            <span
+                                    th:text="#{${workOrder.status}}">
+                            </span>
+                            <br>
+                        </div>
+                        <div th:if="${workOrder.priority}">
+                            <strong th:text="#{priority}+': '"> </strong>
+                            <span
+                                    th:text="#{${workOrder.priority}}">
+                            </span>
+                            <br>
+                        </div>
+                    </address>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- ── Details ── -->
-    <div class="panel" th:if="${reportConfig.workOrderInformation or reportConfig.locationAddress or reportConfig.estimatedTime}">
-        <div class="panel-header">
-            <span class="panel-accent" th:style="'background:'+${backgroundColor}"></span>
-            <svg class="panel-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"/><line x1="8" y1="7" x2="8" y2="11.5"/><circle cx="8" cy="4.5" r="0.5" fill="currentColor" stroke="none"/></svg>
-            <span class="panel-title" th:text="#{details}"></span>
-        </div>
-        <div class="panel-body">
-            <table class="details-table">
-                <tr>
-                    <td>
-                        <div th:if="${reportConfig.locationAddress and workOrder.location!=null}" style="margin-bottom:10px;">
-                            <span class="detail-label" th:text="#{location}"></span>
-                            <span class="detail-value" th:text="${workOrder.location.name}"></span>
-                        </div>
-                        <div th:if="${reportConfig.workOrderInformation and workOrder.asset!=null}" style="margin-bottom:10px;">
-                            <span class="detail-label" th:text="#{asset}"></span>
-                            <span class="detail-value" th:text="|${workOrder.asset.name}${!#strings.isEmpty(workOrder.asset.serialNumber) ? ' (' + workOrder.asset.serialNumber + ')' : ''}|"></span>
-                        </div>
-                        <div th:if="${reportConfig.estimatedTime and workOrder.estimatedStartDate!=null}" style="margin-bottom:10px;">
-                            <span class="detail-label" th:text="#{estimated_start_date}"></span>
-                            <span class="detail-value" th:text="${workOrder.estimatedStartDate}"></span>
-                        </div>
-                        <div th:if="${reportConfig.estimatedTime and workOrder.estimatedDuration!=null}" style="margin-bottom:10px;">
-                            <span class="detail-label" th:text="#{estimated_duration}"></span>
-                            <span class="detail-value" th:text="${workOrder.estimatedDuration}"></span>
-                        </div>
-                        <div th:if="${reportConfig.workOrderInformation and workOrder.team!=null}" style="margin-bottom:10px;">
-                            <span class="detail-label" th:text="#{team}"></span>
-                            <span class="detail-value" th:text="${workOrder.team.name}"></span>
-                        </div>
-                        <div th:if="${reportConfig.workOrderInformation and workOrder.category!=null}" style="margin-bottom:10px;">
-                            <span class="detail-label" th:text="#{category}"></span>
-                            <span class="detail-value" th:text="${workOrder.category.name}"></span>
-                        </div>
-                    </td>
-                    <td>
-                        <div th:if="${reportConfig.workOrderInformation and !#strings.isEmpty(assignedTo)}" style="margin-bottom:10px;">
-                            <span class="detail-label" th:text="#{assigned_to}"></span>
-                            <span class="detail-value" th:text="${assignedTo}"></span>
-                        </div>
-                        <div th:if="${reportConfig.workOrderInformation and !#strings.isEmpty(customers)}" style="margin-bottom:10px;">
-                            <span class="detail-label" th:text="#{customers}"></span>
-                            <span class="detail-value" th:text="${customers}"></span>
-                        </div>
-                        <div th:if="${reportConfig.workOrderInformation and workOrder.completedBy!=null}" style="margin-bottom:10px;">
-                            <span class="detail-label" th:text="#{completed_by}"></span>
-                            <span class="detail-value" th:text="${workOrder.completedBy.getFullName()}"></span>
-                        </div>
-                        <div th:if="${reportConfig.workOrderInformation and workOrder.completedOn!=null}" style="margin-bottom:10px;">
-                            <span class="detail-label" th:text="#{completed_on}"></span>
-                            <span class="detail-value" th:text="${utils.getFormattedDate(workOrder.completedOn, dateFormat, timeZone)}"></span>
-                        </div>
-                        <div th:if="${reportConfig.workOrderInformation and workOrder.feedback!=null}" style="margin-bottom:10px;">
-                            <span class="detail-label" th:text="#{feedback}"></span>
-                            <span class="detail-value" th:text="${workOrder.feedback}"></span>
-                        </div>
-                        <div th:if="${reportConfig.workOrderInformation}" th:each="cfv : ${workOrder.customFieldValues}" style="margin-bottom:10px;">
-                            <span class="detail-label" th:text="${cfv.customField.label}"></span>
-                            <span class="detail-value" th:text="${cfv.value}"></span>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-    <!-- ── Tasks ── -->
-    <div class="panel" th:if="${reportConfig.tasks and not #lists.isEmpty(tasks)}">
-        <div class="panel-header">
-            <span class="panel-accent" th:style="'background:'+${backgroundColor}"></span>
-            <svg class="panel-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2.5,4 4.5,6 7,2.5"/><line x1="9.5" y1="4.5" x2="13.5" y2="4.5"/><polyline points="2.5,9.5 4.5,11.5 7,8"/><line x1="9.5" y1="10" x2="13.5" y2="10"/></svg>
-            <span class="panel-title" th:text="#{tasks}"></span>
-        </div>
-        <div class="panel-body">
-            <th:block th:each="task : ${tasks}">
-                <div class="task-item">
-                    <div class="task-label" th:text="${task.getTaskBase().getLabel()}"></div>
-                    <div class="task-value" th:text="${task.getTranslatedValue(locale, messageSource)}"></div>
-                    <div class="task-notes" th:text="${task.getNotes()}"></div>
-                    <div class="task-images" th:if="${tasksImagesUrls.get(task.getId()) != null}">
-                        <th:block th:each="imageUrl : ${tasksImagesUrls.get(task.getId())}">
-                            <img th:if="${imageUrl != null}" th:src="${imageUrl}" />
-                        </th:block>
-                    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong th:text="#{work_order}"></strong></h3>
                 </div>
-            </th:block>
-        </div>
-    </div>
+                <div class="panel-body">
+                    <h3 th:text="${workOrder.title}">
 
-    <!-- ── Labors ── -->
-    <div class="panel" th:if="${reportConfig.cost and not #lists.isEmpty(labors)}">
-        <div class="panel-header">
-            <span class="panel-accent" th:style="'background:'+${backgroundColor}"></span>
-            <svg class="panel-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1" width="12" height="14" rx="1"/><line x1="5" y1="5" x2="11" y2="5"/><line x1="5" y1="8" x2="11" y2="8"/><line x1="5" y1="11" x2="8" y2="11"/></svg>
-            <span class="panel-title" th:text="#{labors}"></span>
-        </div>
-        <div class="panel-body">
-            <table class="cost-table">
-                <thead>
-                <tr>
-                    <th th:text="#{user}"></th>
-                    <th th:text="#{duration}"></th>
-                    <th th:text="#{cost}"></th>
-                </tr>
-                </thead>
-                <tbody>
-                <th:block th:each="labor : ${labors}">
-                    <tr>
-                        <td th:text="${labor.getAssignedTo() == null ? '' : labor.getAssignedTo().getFullName()}"></td>
-                        <td class="secondary" th:text="#{format_date(${labor.getFormattedDuration().get(0)},${labor.getFormattedDuration().get(1)},${labor.getFormattedDuration().get(2)})}"></td>
-                        <td th:text="${labor.getCost()}+' '+ ${currency}"></td>
-                    </tr>
-                </th:block>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- ── Parts ── -->
-    <div class="panel" th:if="${reportConfig.cost and not #lists.isEmpty(partQuantities)}">
-        <div class="panel-header">
-            <span class="panel-accent" th:style="'background:'+${backgroundColor}"></span>
-            <svg class="panel-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5l7 3 7-3"/><path d="M8 14V8"/><rect x="1.5" y="2" width="13" height="12" rx="1"/></svg>
-            <span class="panel-title" th:text="#{parts}"></span>
-        </div>
-        <div class="panel-body">
-            <table class="cost-table">
-                <thead>
-                <tr>
-                    <th th:text="#{parts}"></th>
-                    <th th:text="#{quantity}"></th>
-                    <th th:text="#{cost}"></th>
-                </tr>
-                </thead>
-                <tbody>
-                <th:block th:each="partQuantity : ${partQuantities}">
-                    <tr>
-                        <td th:text="${partQuantity.getPart().getName()}"></td>
-                        <td class="secondary" th:text="${partQuantity.getQuantity()}"></td>
-                        <td th:text="${partQuantity.getCost()}+' '+ ${currency}"></td>
-                    </tr>
-                </th:block>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- ── Additional Costs ── -->
-    <div class="panel" th:if="${reportConfig.cost and not #lists.isEmpty(additionalCosts)}">
-        <div class="panel-header">
-            <span class="panel-accent" th:style="'background:'+${backgroundColor}"></span>
-            <svg viewBox="0 0 16 16" width="16" height="16">
-                <circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
-                <text x="8" y="11" text-anchor="middle"
-                      font-size="8"
-                      font-family="Arial, sans-serif"
-                      font-weight="700"
-                      fill="currentColor">$</text>
-            </svg>
-            <span class="panel-title" th:text="#{additional_costs}"></span>
-        </div>
-        <div class="panel-body">
-            <table class="cost-table">
-                <thead>
-                <tr>
-                    <th th:text="#{description}"></th>
-                    <th th:text="#{cost}"></th>
-                </tr>
-                </thead>
-                <tbody>
-                <th:block th:each="additionalCost : ${additionalCosts}">
-                    <tr>
-                        <td th:text="${additionalCost.getDescription()}"></td>
-                        <td th:text="${additionalCost.getCost()}+' '+ ${currency}"></td>
-                    </tr>
-                </th:block>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- ── Relations ── -->
-    <div class="panel" th:if="${reportConfig.relations and not #lists.isEmpty(relations)}">
-        <div class="panel-header">
-            <span class="panel-accent" th:style="'background:'+${backgroundColor}"></span>
-            <svg class="panel-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="3" cy="8" r="2"/><circle cx="13" cy="3.5" r="2"/><circle cx="13" cy="12.5" r="2"/><line x1="5" y1="7.3" x2="11" y2="4.2"/><line x1="5" y1="8.7" x2="11" y2="11.8"/></svg>
-            <span class="panel-title" th:text="#{relations}"></span>
-        </div>
-        <div class="panel-body">
-            <th:block th:each="relation : ${relations}">
-                <div class="relation-item">
-                    <span th:text="${relation.getParent().getTitle()}"></span>
-                    <span class="relation-type" th:text="#{${relation.getRelationType()}}"></span>
-                    <span th:text="${relation.getChild().getTitle()}"></span>
+                    </h3>
+                    <h5 th:text="${workOrder.description}">
+                    </h5>
                 </div>
-            </th:block>
-        </div>
-    </div>
-
-    <!-- ── History ── -->
-    <div class="panel" th:if="${reportConfig.workOrderHistory and not #lists.isEmpty(workOrderHistories)}">
-        <div class="panel-header">
-            <span class="panel-accent" th:style="'background:'+${backgroundColor}"></span>
-            <svg class="panel-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><polyline points="7.5 4.5 7.5 8 10 8"/><polyline points="2.5 3.5 1 5.5 3 7"/></svg>
-            <span class="panel-title" th:text="#{history}"></span>
-        </div>
-        <div class="panel-body">
-            <th:block th:each="workOrderHistory : ${workOrderHistories}">
-                <div class="history-item">
-                    <span class="history-dot" th:style="'background:'+${backgroundColor}"></span>
-                    <span class="history-user" th:text="${workOrderHistory.getUser().getFullName()}"></span>
-                    <div class="history-name" th:text="${workOrderHistory.getName()}"></div>
-                    <div class="history-date" th:text="${utils.getFormattedDate(workOrderHistory.getCreatedAt(), dateFormat, timeZone)}"></div>
-                </div>
-            </th:block>
-        </div>
-    </div>
-
-    <!-- ── Comments ── -->
-    <div class="panel" th:if="${reportConfig.comments and not #lists.isEmpty(comments)}">
-        <div class="panel-header">
-            <span class="panel-accent" th:style="'background:'+${backgroundColor}"></span>
-            <svg class="panel-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 10.3a1.5 1.5 0 0 1-1.5 1.5H4.5L2 14V3.5A1.5 1.5 0 0 1 3.5 2h9A1.5 1.5 0 0 1 14 3.5Z"/></svg>
-            <span class="panel-title" th:text="#{comments}"></span>
-        </div>
-        <div class="panel-body">
-            <th:block th:each="comment : ${comments}">
-                <div class="comment-item">
-                    <span class="comment-author" th:text="${comment.getUser().getFullName()}"></span>
-                    <span class="comment-date" th:text="${utils.getFormattedDate(comment.updatedAt == null ? comment.createdAt : comment.updatedAt, dateFormat, timeZone)}"></span>
-                    <div class="comment-body" th:text="${comment.getFormattedContent()}"></div>
-                    <div class="comment-images" th:if="${commentFilesUrls.get(comment.getId()) != null}">
-                        <th:block th:each="fileUrl : ${commentFilesUrls.get(comment.getId())}">
-                            <img th:if="${fileUrl != null}" th:src="${fileUrl}" />
-                        </th:block>
-                    </div>
-                </div>
-            </th:block>
-        </div>
-    </div>
-
-    <!-- ── Files ── -->
-    <div class="panel" th:if="${reportConfig.files and workOrderFilesUrls.length > 0}">
-        <div class="panel-header">
-            <span class="panel-accent" th:style="'background:'+${backgroundColor}"></span>
-            <svg class="panel-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1.5" width="12" height="13" rx="1.5"/><polyline points="5,8.5 7,10.5 11,6.5"/></svg>
-            <span class="panel-title" th:text="#{files}"></span>
-        </div>
-        <div class="panel-body">
-            <div class="files-wrap">
-                <th:block th:each="fileUrl : ${workOrderFilesUrls}">
-                    <img th:if="${fileUrl != null}" th:src="${fileUrl}" />
-                </th:block>
             </div>
         </div>
     </div>
-
-    <!-- ── Signature ── -->
-    <div class="panel" th:if="${reportConfig.signature}">
-        <div class="panel-header">
-            <span class="panel-accent" th:style="'background:'+${backgroundColor}"></span>
-            <svg class="panel-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12 C4 9, 6 13, 8 10 S11 5, 14 4"/><line x1="2" y1="14" x2="14" y2="14"/></svg>
-            <span class="panel-title" th:text="#{signature}"></span>
-        </div>
-        <div class="panel-body">
-            <table class="signature-table">
-                <tr>
-                    <td>
-                        <div class="signature-box">
-                            <span class="signature-box-label" th:text="#{signature}"></span>
-                            <img th:if="${workOrder.signature!=null}" th:src="@{${workOrder.signature}}" />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong th:text="#{details}+': '"></strong></h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div th:if="${workOrder.location}">
+                                <strong th:text="#{location}+': '"></strong>
+                                <span
+                                        th:text="${workOrder.location.name}">
+                                </span>
+                            </div>
+                            <div th:if="${workOrder.asset}">
+                                <strong th:text="#{asset}+': '"></strong>
+                                <span
+                                        th:text="${workOrder.asset.name}">
+                                </span>
+                            </div>
+                            <div th:if="${workOrder.estimatedDuration}">
+                                <strong th:text="#{estimated_duration}+': '"> </strong>
+                                <span
+                                        th:text="${workOrder.estimatedDuration}">
+                                </span>
+                            </div>
+                            <div th:if="${workOrder.team}">
+                                <strong th:text="#{team}+': '"> </strong>
+                                <span
+                                        th:text="${workOrder.team.name}">
+                                </span>
+                            </div>
+                            <div th:if="${workOrder.category}">
+                                <strong th:text="#{category}+': '"></strong>
+                                <span
+                                        th:text="${workOrder.category.name}">
+                                </span>
+                            </div>
                         </div>
-                    </td>
-                    <td>
-                        <div class="signature-box">
-                            <span class="signature-box-label" th:text="#{date}"></span>
-                            <span class="signature-date-value"
-                                  th:if="${workOrder.signature!=null && workOrder.completedOn!=null}"
-                                  th:text="${utils.getFormattedDate(workOrder.completedOn, dateFormat, timeZone)}"></span>
+                        <div class="col-xs-6">
+                            <div th:if="${!#strings.isEmpty(assignedTo)}">
+                                <strong th:text="#{assigned_to}+': '"> </strong>
+                                <span
+                                        th:text="${assignedTo}">
+                                </span>
+                            </div>
+                            <div th:if="${!#strings.isEmpty(customers)}">
+                                <strong th:text="#{customers}+': '"> </strong>
+                                <span
+                                        th:text="${customers}">
+                                </span>
+                            </div>
+                            <div th:if="${workOrder.completedBy}">
+                                <strong th:text="#{completed_by}+': '"></strong>
+                                <span
+                                        th:text="${workOrder.completedBy.getFullName()}">
+                                </span>
+                            </div>
+                            <div th:if="${workOrder.completedOn}">
+                                <strong th:text="#{completed_on}+': '"></strong>
+                                <span
+                                        th:text="${workOrder.completedOn}">
+                                </span>
+                            </div>
+                            <div th:if="${workOrder.feedback}">
+                                <strong th:text="#{feedback}+': '"> </strong>
+                                <span
+                                        th:text="${workOrder.feedback}">
+                                </span>
+                            </div>
                         </div>
-                    </td>
-                </tr>
-            </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- ── Footer ── -->
-    <div class="report-footer">
-        <span class="footer-text" th:text="#{this_wo_created}"></span>
-        <img class="footer-logo" th:if="${environment.getProperty('api.host') != null}" th:src="@{${#strings.isEmpty(environment.getProperty('white-labeling.logo-paths')) ?
-      environment.getProperty('api.host') + '/images/logo.png' :
-      environment.getProperty('api.host') + '/images/custom-logo.png'}}" alt="logo" />
+    <div class="row" th:if="${not #lists.isEmpty(tasks)}">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong th:text="#{tasks}"></strong></h3>
+                </div>
+                <div class="panel-body">
+                    <th:block th:each="task : ${tasks}">
+                        <strong th:text="${task.getFirst()}"></strong>
+                        <div th:text="${task.getSecond()}"></div>
+                    </th:block>
+                </div>
+            </div>
+        </div>
     </div>
-
+    <div class="row" th:if="${not #lists.isEmpty(labors)}">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong th:text="#{labors}"></strong></h3>
+                </div>
+                <div class="panel-body">
+                    <th:block th:each="labor : ${labors}">
+                        <div>
+                            <strong th:text="#{user}+': '"> </strong> <span
+                                th:text="${labor.getAssignedTo().getFullName()}"></span>
+                        </div>
+                        <div>
+                            <strong th:text="#{duration}+': '"> </strong> <span
+                                th:text="#{format_date(${labor.getFormattedDuration().get(0)},${labor.getFormattedDuration().get(1)},${labor.getFormattedDuration().get(2)})}"></span>
+                        </div>
+                        <div>
+                            <strong th:text="#{cost}+': '"></strong> <span
+                                th:text="${labor.getCost()}+' '+ ${currency}"></span>
+                        </div>
+                        <br>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" th:if="${not #lists.isEmpty(relations)}">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong th:text="#{relations}"></strong></h3>
+                </div>
+                <div class="panel-body">
+                    <th:block th:each="relation : ${relations}">
+                        <div th:text="${relation.getParent().getTitle()} + ' '+#{${relation.getRelationType()}} + ' '+ ${relation.getChild().getTitle()}"></div>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" th:if="${not #lists.isEmpty(additionalCosts)}">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong th:text="#{additional_costs}"></strong></h3>
+                </div>
+                <div class="panel-body">
+                    <th:block th:each="additionalCost : ${additionalCosts}">
+                        <div th:text="${additionalCost.getDescription()} + ': '+${additionalCost.getCost()} + ' '+ ${currency}"></div>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" th:if="${not #lists.isEmpty(workOrderHistories)}">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong th:text="#{history}"></strong></h3>
+                </div>
+                <div class="panel-body">
+                    <th:block th:each="workOrderHistory : ${workOrderHistories}">
+                        <div>
+                            <strong th:text="#{user}+': '"> </strong><span
+                                th:text="${workOrderHistory.getUser().getFullName()}"></span>
+                        </div>
+                        <div th:text="${workOrderHistory.getName()}"></div>
+                        <div th:text="${workOrderHistory.getCreatedAt()}"></div>
+                        <br>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" th:if="${not #lists.isEmpty(partQuantities)}">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong th:text="#{parts}"></strong></h3>
+                </div>
+                <div class="panel-body">
+                    <th:block th:each="partQuantity : ${partQuantities}">
+                        <div>
+                            <strong th:text="${partQuantity.getPart().getName()}"></strong>
+                        </div>
+                        <div>
+                            <span th:text="#{quantity}+': '"></span>
+                            <span th:text="${partQuantity.getQuantity()}"></span>
+                        </div>
+                        <div><span th:text="#{cost}+': '"></span><span
+                                th:text="${partQuantity.getCost()}+' '+ ${currency}"></span>
+                        </div>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-6">
+            <strong th:text="#{signature}+': '"> </strong><br>
+        </div>
+        <div class="col-xs-6">
+            <strong th:text="#{date}+': '"> </strong><br>
+        </div>
+    </div>
+    <br>
+    <hr>
+    <div class="row justify-content-center align-items-center">
+        <div>
+            <span th:text="#{this_wo_created}" style="margin-right: 20px;"></span>
+        </div>
+        <div>
+            <img th:src="@{${environment.getProperty('api.host')} + '/images/logo.png'}" width="75" height="75"/>
+        </div>
+    </div>
 </div>
 </body>
 </html>

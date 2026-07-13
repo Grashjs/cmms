@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import Location from '../../../models/location';
 import * as React from 'react';
-import { useContext } from 'react';
 import { Image, ScrollView, StyleSheet } from 'react-native';
 import { View } from '../../../components/Themed';
 import { Divider, Text, useTheme } from 'react-native-paper';
@@ -18,25 +17,17 @@ import {
 } from '../../../utils/urlPaths';
 import ListField from '../../../components/ListField';
 import BasicField from '../../../components/BasicField';
-import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
-import { getCustomFieldValuesForDetails } from '../../../models/form';
 
 export default function LocationDetails({ location }: { location: Location }) {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const theme = useTheme();
-  const { getFormattedDate } = useContext(CompanySettingsContext);
   const fieldsToRender: {
     label: string;
     value: string | number;
-    isLink?: boolean;
   }[] = [
     { label: t('name'), value: location?.name },
-    { label: t('address'), value: location?.address },
-    ...getCustomFieldValuesForDetails(
-      location?.customFieldValues,
-      getFormattedDate
-    )
+    { label: t('address'), value: location?.address }
   ];
   return (
     <ScrollView
@@ -45,14 +36,14 @@ export default function LocationDetails({ location }: { location: Location }) {
       {location.image && (
         <Image style={{ height: 200 }} source={{ uri: location.image.url }} />
       )}
-      {fieldsToRender.map((field) => (
-        <BasicField
-          key={field.label}
-          label={field.label}
-          value={field.value}
-          isLink={field.isLink}
-        />
-      ))}
+      {fieldsToRender.map(
+        (field) =>
+          <BasicField
+            key={field.label}
+            label={field.label}
+            value={field.value}
+          />
+      )}
       <ListField
         values={location?.workers}
         label={t('assigned_to')}

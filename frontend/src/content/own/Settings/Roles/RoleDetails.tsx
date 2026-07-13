@@ -1,15 +1,18 @@
 import {
   Box,
+  Checkbox,
+  Divider,
+  FormControlLabel,
   Grid,
   IconButton,
   Tooltip,
-  Typography
+  Typography,
+  useTheme
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
-import { Role } from '../../../../models/owns/role';
-import PermissionsMatrix from './PermissionsMatrix';
+import { PermissionEntity, Role } from '../../../../models/owns/role';
 import useAuth from '../../../../hooks/useAuth';
 import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
 
@@ -22,7 +25,122 @@ export default function RoleDetails(props: RoleDetailsProps) {
   const { role, handleOpenUpdate, handleOpenDelete } = props;
   const { hasFeature } = useAuth();
   const { t }: { t: any } = useTranslation();
+  const theme = useTheme();
+  const allPermissions: {
+    [key: string]: {
+      label: string;
+      condition: (role: Role) => boolean;
+    }[];
+  } = {
+    create: [
+      {
+        label: t('categories'),
+        condition: (role: Role) =>
+          role.createPermissions.includes(PermissionEntity.CATEGORIES)
+      },
+      {
+        label: t('people_teams'),
+        condition: (role: Role) =>
+          role.createPermissions.includes(PermissionEntity.PEOPLE_AND_TEAMS)
+      }
+    ],
+    delete: [
+      {
+        label: t('people_teams'),
+        condition: (role: Role) =>
+          role.deleteOtherPermissions.includes(
+            PermissionEntity.PEOPLE_AND_TEAMS
+          )
+      },
+      {
+        label: t('files'),
+        condition: (role: Role) =>
+          role.deleteOtherPermissions.includes(PermissionEntity.FILES)
+      },
+      {
+        label: t('categories'),
+        condition: (role: Role) =>
+          role.deleteOtherPermissions.includes(PermissionEntity.CATEGORIES)
+      },
+      {
+        label: t('meters'),
+        condition: (role: Role) =>
+          role.deleteOtherPermissions.includes(PermissionEntity.METERS)
+      },
+      {
+        label: t('locations'),
+        condition: (role: Role) =>
+          role.deleteOtherPermissions.includes(PermissionEntity.LOCATIONS)
+      },
+      {
+        label: t('assets'),
+        condition: (role: Role) =>
+          role.deleteOtherPermissions.includes(PermissionEntity.ASSETS)
+      },
+      {
+        label: t('purchase_orders'),
+        condition: (role: Role) =>
+          role.deleteOtherPermissions.includes(PermissionEntity.PURCHASE_ORDERS)
+      },
+      {
+        label: t('vendors_customers'),
+        condition: (role: Role) =>
+          role.deleteOtherPermissions.includes(
+            PermissionEntity.VENDORS_AND_CUSTOMERS
+          )
+      },
+      {
+        label: t('parts_and_sets'),
+        condition: (role: Role) =>
+          role.deleteOtherPermissions.includes(
+            PermissionEntity.PARTS_AND_MULTIPARTS
+          )
+      },
+      {
+        label: t('work_orders'),
+        condition: (role: Role) =>
+          role.deleteOtherPermissions.includes(PermissionEntity.WORK_ORDERS)
+      },
+      {
+        label: t('preventive_maintenance'),
+        condition: (role: Role) =>
+          role.deleteOtherPermissions.includes(
+            PermissionEntity.PREVENTIVE_MAINTENANCES
+          )
+      }
+    ],
+    access: [
+      {
+        label: t('settings'),
+        condition: (role: Role) =>
+          role.viewPermissions.includes(PermissionEntity.SETTINGS)
+      }
+    ]
+  };
 
+  const PermissionsGroup = ({
+    name,
+    title
+  }: {
+    name: string;
+    title: string;
+  }) => (
+    <Grid item xs={12} lg={6}>
+      <Grid item>
+        <Typography sx={{ mt: 2, mb: 1 }} variant="h5">
+          {title}
+        </Typography>
+      </Grid>
+      {allPermissions[name].map(({ label, condition }, index) => (
+        <Grid item key={index} xs={12} lg={12}>
+          <FormControlLabel
+            control={<Checkbox checked={condition(role)} />}
+            label={label}
+          />
+        </Grid>
+      ))}
+    </Grid>
+  );
   return (
     <Grid
       container
@@ -86,12 +204,19 @@ export default function RoleDetails(props: RoleDetailsProps) {
           </Box>
         )}
       </Grid>
+      <Divider />
 
       <Grid item xs={12}>
-        <Typography sx={{ mt: 2, mb: 2 }} variant="h4">
-          {t('permissions')}
-        </Typography>
-        <PermissionsMatrix role={role} />
+        <Box>
+          <Typography sx={{ mt: 2, mb: 1 }} variant="h4">
+            Permissions
+          </Typography>
+          <Grid container spacing={2}>
+            <PermissionsGroup name={'create'} title={t('create')} />
+            <PermissionsGroup name={'delete'} title={t('to_delete')} />
+            <PermissionsGroup name={'access'} title={t('to_access')} />
+          </Grid>
+        </Box>
       </Grid>
     </Grid>
   );

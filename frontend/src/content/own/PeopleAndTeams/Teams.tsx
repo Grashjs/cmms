@@ -186,7 +186,7 @@ const Teams = ({ openModal, handleCloseModal }: PropsType) => {
       headerName: t('people_in_team'),
       width: 200,
       renderCell: (params: GridRenderCellParams<UserMiniDTO[]>) => (
-        <UserAvatars compact={false} users={params.value} />
+        <UserAvatars users={params.value} />
       )
     }
   ];
@@ -455,7 +455,7 @@ const Teams = ({ openModal, handleCloseModal }: PropsType) => {
   return (
     <Box
       sx={{
-        py: 2,
+        p: 2,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

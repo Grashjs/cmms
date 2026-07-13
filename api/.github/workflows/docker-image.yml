@@ -1,0 +1,58 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: project ci cd
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: '1.8'
+          distribution: 'adopt'
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn clean install
+
+      - name: Build & push Docker image
+        uses: mr-smithers-excellent/docker-build-push@v6
+        with:
+          image: amb0u/atlas-api
+          tags: ${{ github.run_number }}
+          registry: docker.io
+          dockerfile: Dockerfile
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - uses: actions/checkout@v2
+        name: changing the deployment of git repo
+        with:
+          repository: 'Grashjs/atlas-apps'
+          token: ${{ secrets.GIT_PASSWORD }}
+      - name: modify the image
+        run: |
+          git config --local user.email '$(echo "$EMAIL")'
+          git config --local user.name '$(echo "$GIT_USERNAME")'
+          pwd
+          sed -i 's|image: amb0u/atlas-api:.*|image: amb0u/atlas-api:'$(echo "$GITHUB_RUN_NUMBER")'|' prod/api-deployment.yml
+          ## cat dev/api-deployment.yml
+          git add .
+          git commit -m 'Update manifest version'
+          git push origin master
+        env:
+          GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
+          GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
+          RUN_NUMBER: ${{ github.run_number }}
+          EMAIL: ${{ github.EMAIL }}

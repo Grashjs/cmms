@@ -4,27 +4,19 @@ import Form from '../../components/form';
 import * as Yup from 'yup';
 import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import { getImageAndFiles } from '../../utils/overall';
-import { useDispatch, useSelector } from '../../store';
+import { useDispatch } from '../../store';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { formatPartValues, formatRequestValues } from '../../utils/fields';
-import { formatCustomFields } from '../../utils/formatters';
 import useAuth from '../../hooks/useAuth';
 import { addRequest } from '../../slices/request';
-import {
-  IField,
-  getCustomFieldsIFields,
-  getCustomFieldsRequiredShape
-} from '../../models/form';
-import { CustomFieldEntityType } from '../../models/customField';
-import useUnsavedChanges from '../../hooks/useUnsavedChanges';
 
 export default function CreateRequestScreen({
-  navigation,
-  route
-}: RootStackScreenProps<'AddRequest'>) {
+                                              navigation,
+                                              route
+                                            }: RootStackScreenProps<'AddRequest'>) {
   const { t } = useTranslation();
   const { uploadFiles, getRequestFieldsAndShapes } = useContext(
     CompanySettingsContext
@@ -32,10 +24,6 @@ export default function CreateRequestScreen({
   const { companySettings } = useAuth();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
-  const { customFields } = useSelector((state) => state.customFields);
-  const [isFormDirty, setIsFormDirty] = useState(false);
-  useUnsavedChanges(navigation, isFormDirty);
-
   const onCreationSuccess = () => {
     showSnackBar(t('request_create_success'), 'success');
     navigation.goBack();
@@ -43,49 +31,25 @@ export default function CreateRequestScreen({
   const onCreationFailure = (err) =>
     showSnackBar(t('request_create_failure'), 'error');
 
-  const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
-    const baseShape = getRequestFieldsAndShapes()[1];
-    const customShape = getCustomFieldsRequiredShape(
-      customFields,
-      CustomFieldEntityType.WORK_ORDER,
-      t
-    );
-    const customFieldsList = getCustomFieldsIFields(
-      customFields,
-      CustomFieldEntityType.WORK_ORDER
-    );
-    return [
-      [...getRequestFieldsAndShapes()[0], ...customFieldsList],
-      { ...baseShape, ...customShape }
-    ];
-  };
-
   return (
     <View style={styles.container}>
       <Form
-        fields={getFieldsAndShapes()[0]}
-        validation={Yup.object().shape(getFieldsAndShapes()[1])}
+        fields={getRequestFieldsAndShapes()[0]}
+        validation={Yup.object().shape(getRequestFieldsAndShapes()[1])}
         navigation={navigation}
         submitText={t('save')}
         values={{ dueDate: null }}
-        onChange={() => setIsFormDirty(true)}
+        onChange={({ field, e }) => {
+        }}
         onSubmit={async (values) => {
-          setIsFormDirty(false);
           try {
             let formattedValues = formatRequestValues(values);
-            formattedValues = formatCustomFields(formattedValues);
-            const uploadedFiles = await uploadFiles(
-              formattedValues.files,
-              formattedValues.image
-            );
-            const imageAndFiles = getImageAndFiles(uploadedFiles);
+            const files = await uploadFiles(formattedValues.files, formattedValues.image);
+            const imageAndFiles = getImageAndFiles(files);
             if (values.audioDescription) {
-              const audioFiles = await uploadFiles(
-                [values.audioDescription],
-                []
-              );
-              const audioImageAndFiles = getImageAndFiles(audioFiles);
-              formattedValues.audioDescription = audioImageAndFiles.files[0];
+              const audioFiles = await uploadFiles([values.audioDescription], []);
+              const imageAndFiles = getImageAndFiles(audioFiles);
+              formattedValues.audioDescription = imageAndFiles.files[0];
             }
             formattedValues = {
               ...formattedValues,
@@ -96,7 +60,6 @@ export default function CreateRequestScreen({
             onCreationSuccess();
           } catch (err) {
             onCreationFailure(err);
-            throw err;
           }
         }}
       />

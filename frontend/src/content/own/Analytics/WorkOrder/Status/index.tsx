@@ -3,7 +3,6 @@ import { Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useContext, useEffect, useState } from 'react';
 import { TitleContext } from '../../../../../contexts/TitleContext';
-import useAuth from '../../../../../hooks/useAuth';
 import Overview from './Overview';
 import WOStatusPie from './WOStatusPie';
 import IncompleteWO from './IncompleteWO';
@@ -27,10 +26,6 @@ function WOStatusStats({ handleOpenWOModal }: WOStatusStatsProps) {
   const nowMinusMonth = new Date();
   nowMinusMonth.setMonth(nowMinusMonth.getMonth() - 1);
   const [start, setStart] = useState(nowMinusMonth);
-  const { user } = useAuth();
-  const [companyId, setCompanyId] = useState<number | undefined>(
-    user?.superAccountRelations?.[0]?.childCompanyId ?? undefined
-  );
 
   useEffect(() => {
     setTitle(t('status_report'));
@@ -50,26 +45,26 @@ function WOStatusStats({ handleOpenWOModal }: WOStatusStatsProps) {
         paddingX={1}
       >
         <Grid item xs={12}>
-          <CustomDateRangePicker start={start} end={end} setStart={setStart} setEnd={setEnd} companyId={companyId} onCompanyChange={setCompanyId} />
+          <CustomDateRangePicker start={start} end={end} setStart={setStart} setEnd={setEnd} />
         </Grid>
         <Grid item xs={12} md={6}>
           <Grid container spacing={1}>
             <Grid item xs={12} md={12}>
-              <Overview handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+              <Overview handleOpenModal={handleOpenWOModal} start={start} end={end} />
             </Grid>
             <Grid item xs={12} md={12}>
-              <WOStatusPie handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+              <WOStatusPie handleOpenModal={handleOpenWOModal} start={start} end={end} />
             </Grid>
           </Grid>
         </Grid>
         <Grid item xs={12} md={6}>
-          <IncompleteWO handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <IncompleteWO handleOpenModal={handleOpenWOModal} start={start} end={end} />
         </Grid>
         <Grid item xs={12}>
-          <StatusByDate handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <StatusByDate handleOpenModal={handleOpenWOModal} start={start} end={end} />
         </Grid>
         <Grid item xs={12} md={12}>
-          <HoursWorked handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <HoursWorked handleOpenModal={handleOpenWOModal} start={start} end={end} />
         </Grid>
       </Grid>
     </>

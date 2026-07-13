@@ -4,116 +4,85 @@ import {
   Button,
   Card,
   CircularProgress,
-  debounce,
   Dialog,
   DialogContent,
   DialogTitle,
   Drawer,
+  Grid,
   IconButton,
   Menu,
   MenuItem,
   Stack,
   Tab,
   Tabs,
-  Typography
+  Typography,
+  useTheme
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import {
-  getCustomFieldsIFields,
-  getCustomFieldsRequiredShape,
-  getCustomFieldsValues,
-  IField
-} from '../type';
+import { IField } from '../type';
 import ReplayTwoToneIcon from '@mui/icons-material/ReplayTwoTone';
-import Location, { LocationRow } from '../../../models/owns/location';
+import Location from '../../../models/owns/location';
 import * as React from 'react';
-import { ChangeEvent, useContext, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, useContext, useEffect, useState } from 'react';
 import { TitleContext } from '../../../contexts/TitleContext';
 import {
   addLocation,
   deleteLocation,
   editLocation,
-  getLocationChildrenPaginated,
+  getLocationChildren,
   getLocations,
-  getSingleLocation,
   resetLocationsHierarchy
 } from '../../../slices/location';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useDispatch, useSelector } from '../../../store';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
+import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
+import CustomDataGrid from '../components/CustomDatagrid';
+import {
+  GridActionsCellItem,
+  GridEventListener,
+  GridRenderCellParams,
+  GridRow,
+  GridRowParams,
+  GridToolbar,
+  GridValueGetterParams
+} from '@mui/x-data-grid';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import Form from '../components/form';
 import * as Yup from 'yup';
 import { isNumeric } from '../../../utils/validators';
 import LocationDetails from './LocationDetails';
-import {
-  useLocation,
-  useNavigate,
-  useParams,
-  useSearchParams
-} from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Map from '../components/Map';
-import {
-  formatCustomFields,
-  formatSelect,
-  formatSelectMultiple
-} from '../../../utils/formatters';
+import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
 import { CustomSnackBarContext } from 'src/contexts/CustomSnackBarContext';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
+import { DataGridProProps, useGridApiRef } from '@mui/x-data-grid-pro';
+import { GroupingCellWithLazyLoading } from '../Assets/GroupingCellWithLazyLoading';
+import { AssetRow } from '../../../models/owns/asset';
 import useAuth from '../../../hooks/useAuth';
 import { PermissionEntity } from '../../../models/owns/role';
 import PermissionErrorMessage from '../components/PermissionErrorMessage';
-import {
-  getImageAndFiles,
-  handleFileUpload,
-  onSearchQueryChange
-} from '../../../utils/overall';
+import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
+import { getImageAndFiles } from '../../../utils/overall';
 import { getLocationUrl } from '../../../utils/urlPaths';
-import { useExport } from '../../../hooks/useExport';
+import { exportEntity } from '../../../slices/exports';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
-import { Pageable, SearchCriteria, Sort } from '../../../models/owns/page';
-import { googleMapsConfig } from '../../../config';
-import { getErrorMessage } from '../../../utils/api';
-import SplitButton from '../components/SplitButton';
-import CustomDatagrid2, {
-  CustomDatagridColumn2
-} from '../components/CustomDatagrid2';
-import {
-  createColumnHelper,
-  SortingState,
-  Updater
-} from '@tanstack/react-table';
-import useTableState from '../../../hooks/useTableState';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import SearchInput from '../components/SearchInput';
-import { getCustomFields } from '../../../slices/customField';
-import { CustomFieldEntityType } from '../../../models/owns/customField';
-
-const PAGE_SIZE = 40;
+import useGridStatePersist from '../../../hooks/useGridStatePersist';
+import { Pageable, Sort } from '../../../models/owns/page';
 
 function Locations() {
   const { t }: { t: any } = useTranslation();
-  const location = useLocation();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [currentTab, setCurrentTab] = useState<string>('list');
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { getFormattedDate } = useContext(CompanySettingsContext);
   const [openDelete, setOpenDelete] = useState<boolean>(false);
-  const { apiKey } = googleMapsConfig;
-
-  const {
-    locationsHierarchy,
-    locations,
-    loadingGet,
-    childrenPages,
-    loadingHierarchy
-  } = useSelector((state) => state.locations);
-  const { customFields } = useSelector((state) => state.customFields);
+  const { locationsHierarchy, locations, loadingGet } = useSelector(
+    (state) => state.locations
+  );
   const [deployedLocations, setDeployedLocations] = useState<
     { id: number; hierarchy: number[] }[]
   >([
@@ -123,19 +92,16 @@ function Locations() {
     }
   ]);
 
-  const { exportEntity, loadingExport } = useExport();
+  const { loadingExport } = useSelector((state) => state.exports);
+  const apiRef = useGridApiRef();
   const tabs = [
     { value: 'list', label: t('list_view') },
-    ...(apiKey ? [{ value: 'map', label: t('map_view') }] : [])
+    { value: 'map', label: t('map_view') }
   ];
   const handleTabsChange = (_event: ChangeEvent<{}>, value: string): void => {
     setCurrentTab(value);
   };
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
-  const [openDiscardDialog, setOpenDiscardDialog] = useState<boolean>(false);
-  const [isFormDirty, setIsFormDirty] = useState<boolean>(false);
-  const [copyLocationData, setCopyLocationData] =
-    useState<Location | null>(null);
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const { setTitle } = useContext(TitleContext);
@@ -155,53 +121,8 @@ function Locations() {
   const navigate = useNavigate();
   const [pageable, setPageable] = useState<Pageable>({
     page: 0,
-    size: PAGE_SIZE
+    size: 1000
   });
-  const [searchQuery, setSearchQuery] = useState<string>('');
-
-  // View type state
-  const [hierarchySorting, setHierarchySorting] = useState<SortingState>([]);
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-  const [subRowsMap, setSubRowsMap] = useState<Record<number, LocationRow[]>>(
-    {}
-  );
-  // State for pre-filling location name from query params
-  const [initialLocationName, setInitialLocationName] = useState<string>('');
-  const [returnPath, setReturnPath] = useState<string>('');
-  const [returnField, setReturnField] = useState<string>('');
-  const initialCriteria: SearchCriteria = {
-    filterFields: [],
-    pageSize: 50,
-    pageNum: 0,
-    direction: 'DESC'
-  };
-  const [criteria, setCriteria] = useState<SearchCriteria>(initialCriteria);
-
-  // Field mapping for sorting
-  const fieldMapping: Record<string, string> = {
-    customId: 'customId',
-    name: 'name',
-    address: 'address',
-    createdAt: 'createdAt'
-  };
-
-  // Table state for column state persistence
-  const tableState = useTableState({
-    prefix: 'locations',
-    setCriteria,
-    fieldMapping,
-    initialPagination: { pageIndex: 0, pageSize: criteria.pageSize }
-  });
-
-  const onQueryChange = (event) => {
-    setSearchQuery(event.target.value);
-    onSearchQueryChange<Location>(event, criteria, setCriteria, [
-      'name',
-      'address',
-      'customId'
-    ]);
-  };
-  const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
 
   const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -217,39 +138,19 @@ function Locations() {
   };
 
   const changeCurrentLocation = (id: number) => {
-    setCurrentLocation(
-      locations.content.find((location) => location.id === id) ||
-        locationsHierarchy.find((location) => location.id === id)
-    );
+    setCurrentLocation(locations.find((location) => location.id === id));
   };
   const handleDelete = (id: number) => {
     handleCloseDetails();
     dispatch(deleteLocation(id)).then(onDeleteSuccess).catch(onDeleteFailure);
     setOpenDelete(false);
   };
-  const handleCopyLocation = (location: Location) => {
-    setCopyLocationData(location);
-    setOpenAddModal(true);
-  };
-  const onCreationSuccess = (createdLocation?: Location) => {
+  const onCreationSuccess = () => {
     setOpenAddModal(false);
-    setInitialLocationName('');
     showSnackBar(t('location_create_success'), 'success');
-
-    if (createdLocation) {
-      if (returnField) {
-        navigate({
-          pathname: returnPath || '/',
-          search: `?${returnField}=${createdLocation.id}`
-        });
-      } else if (copyLocationData) {
-        navigate(getLocationUrl(createdLocation.id));
-      }
-    }
-    setCopyLocationData(null);
   };
   const onCreationFailure = (err) =>
-    showSnackBar(getErrorMessage(err, t('location_create_failure')), 'error');
+    showSnackBar(t('location_create_failure'), 'error');
   const onEditSuccess = () => {
     setOpenUpdateModal(false);
     showSnackBar(t('changes_saved_success'), 'success');
@@ -262,11 +163,8 @@ function Locations() {
   const onDeleteFailure = (err) =>
     showSnackBar(t('location_delete_failure'), 'error');
 
-  const handleOpenDetails = async (id: number) => {
-    const foundLocation =
-      locationsHierarchy.find((location) => location.id === id) ||
-      locations.content.find((location) => location.id === id) ||
-      (await dispatch(getSingleLocation(id)));
+  const handleOpenDetails = (id: number) => {
+    const foundLocation = locations.find((location) => location.id === id);
     if (foundLocation) {
       setCurrentLocation(foundLocation);
       window.history.replaceState(null, 'Location details', getLocationUrl(id));
@@ -279,120 +177,85 @@ function Locations() {
   };
   useEffect(() => {
     setTitle(t('locations'));
+    if (hasViewPermission(PermissionEntity.LOCATIONS)) {
+      dispatch(getLocations());
+    }
   }, []);
 
   useEffect(() => {
     if (hasViewPermission(PermissionEntity.LOCATIONS)) {
       handleReset(false);
-      dispatch(getLocationChildrenPaginated(0, [], pageable));
+      dispatch(getLocationChildren(0, [], pageable));
     }
   }, [pageable]);
 
   useEffect(() => {
-    if (
-      hasViewPermission(PermissionEntity.LOCATIONS) &&
-      (currentTab === 'map' || searchQuery.trim())
-    )
-      dispatch(
-        getLocations({
-          ...criteria,
-          pageSize: currentTab === 'map' ? 50 : criteria.pageSize,
-          filterFields:
-            currentTab === 'map'
-              ? [
-                  ...criteria.filterFields,
-                  { field: 'latitude', operation: 'nn', value: '' },
-                  { field: 'latitude', operation: 'ne', value: 0 }
-                ]
-              : criteria.filterFields
-        })
-      );
-  }, [criteria, currentTab, searchQuery]);
-
-  const handleToggleExpand = async (row: LocationRow) => {
-    const isExpanded = expanded[row.id];
-
-    if (!isExpanded) {
-      // Check if we already have children for this row in the Redux store
-      const hasChildrenLoaded = locationsHierarchy.some(
-        (l) => l.parentLocation?.id === row.id
-      );
-
-      if (!hasChildrenLoaded && row.hasChildren) {
-        // Set temporary loading row
-        const loadingRow: LocationRow = {
-          id: `loading-${row.id}`,
-          name: t('loading_locations', { name: row.name, id: row.id }),
-          hierarchy: [...(row.hierarchy || []), row.id]
-        } as unknown as LocationRow;
-
-        setSubRowsMap((prev) => ({ ...prev, [row.id]: [loadingRow] }));
-
-        // Fetch the children
-        await dispatch(
-          getLocationChildrenPaginated(row.id, row.hierarchy || [], {
-            ...pageable,
-            page: 0
-          })
+    if (apiRef.current.getRow) {
+      const handleRowExpansionChange: GridEventListener<
+        'rowExpansionChange'
+      > = async (node) => {
+        const row = apiRef.current.getRow(node.id) as AssetRow | null;
+        if (!node.childrenExpanded || !row || row.childrenFetched) {
+          return;
+        }
+        apiRef.current.updateRows([
+          {
+            id: `Loading Locations under ${row.name} #${node.id}`,
+            hierarchy: [...row.hierarchy, '']
+          }
+        ]);
+        if (
+          !deployedLocations.find(
+            (deployedLocation) => deployedLocation.id === row.id
+          )
+        )
+          setDeployedLocations(
+            deployedLocations.concat({
+              id: row.id,
+              hierarchy: row.hierarchy
+            })
+          );
+        dispatch(getLocationChildren(row.id, row.hierarchy, pageable));
+      };
+      /**
+       * By default, the grid does not toggle the expansion of rows with 0 children
+       * We need to override the `cellKeyDown` event listener to force the expansion if there are children on the server
+       */
+      const handleCellKeyDown: GridEventListener<'cellKeyDown'> = (
+        params,
+        event
+      ) => {
+        const cellParams = apiRef.current.getCellParams(
+          params.id,
+          params.field
         );
-        setDeployedLocations((prevState) => [...prevState, row]);
+        if (cellParams.colDef.type === 'treeDataGroup' && event.key === ' ') {
+          event.stopPropagation();
+          event.preventDefault();
+          event.defaultMuiPrevented = true;
 
-        // Clean up the loading row once the fetch is complete
-        setSubRowsMap((prev) => {
-          const newMap = { ...prev };
-          delete newMap[row.id];
-          return newMap;
-        });
-      }
-    }
+          apiRef.current.setRowChildrenExpansion(
+            params.id,
+            !params.rowNode.childrenExpanded
+          );
+        }
+      };
 
-    // Toggle expand/collapse state
-    setExpanded((prev) => ({ ...prev, [row.id]: !isExpanded }));
-  };
-
-  const fetchMoreForParent = (parentId: number) => {
-    const parentPage = childrenPages[parentId];
-    if (parentPage && !parentPage.last) {
-      dispatch(
-        getLocationChildrenPaginated(parentId, [], {
-          ...pageable,
-          page: (parentPage.number || 0) + 1
-        })
+      apiRef.current.subscribeEvent(
+        'rowExpansionChange',
+        handleRowExpansionChange
       );
+      apiRef.current.subscribeEvent('cellKeyDown', handleCellKeyDown, {
+        isFirst: true
+      });
     }
-  };
-
-  const hasMorePages = (parentId: number): boolean => {
-    const childrenPage = childrenPages[parentId];
-    return childrenPage ? !childrenPage.last : false;
-  };
+  }, [apiRef]);
 
   useEffect(() => {
-    if (locationId && isNumeric(locationId)) {
+    if (locations?.length && locationId && isNumeric(locationId)) {
       handleOpenDetails(Number(locationId));
     }
-  }, [locations.content.length, locationsHierarchy.length]);
-
-  // Handle query params for inline creation (new=true&name=${name})
-  useEffect(() => {
-    const isNew = searchParams.get('new') === 'true';
-    const nameParam = searchParams.get('name');
-    const state = location.state as any;
-    if (isNew && hasCreatePermission(PermissionEntity.LOCATIONS)) {
-      setInitialLocationName(nameParam || '');
-      setReturnPath(state?.returnPath || '');
-      setReturnField(state?.returnField || '');
-      setOpenAddModal(true);
-      // Clear query params after opening modal
-      setSearchParams({}, { replace: true });
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
-    if ((openAddModal || openUpdateModal) && !customFields.length) {
-      dispatch(getCustomFields());
-    }
-  }, [openAddModal, openUpdateModal]);
+  }, [locations]);
 
   const formatValues = (values) => {
     const newValues = { ...values };
@@ -403,170 +266,75 @@ function Locations() {
     newValues.parentLocation = formatSelect(newValues.parentLocation);
     newValues.longitude = newValues.coordinates?.lng;
     newValues.latitude = newValues.coordinates?.lat;
-    return formatCustomFields(newValues);
+    return newValues;
   };
-
-  const columnHelper = createColumnHelper<Location | LocationRow>();
-
-  const columns: CustomDatagridColumn2<Location | LocationRow>[] = [
-    columnHelper.display({
-      id: 'expander',
-      header: '',
-      meta: { enableReordering: false },
-      cell: ({ row }) => {
-        const isExpanded = expanded[row.original.id];
-        const hasSubRows =
-          (row.original as LocationRow).hasChildren ||
-          subRowsMap[row.original.id]?.length > 0;
-
-        if (!hasSubRows) {
-          return <Box sx={{ width: 24 }} />;
-        }
-
-        return (
-          <IconButton
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleToggleExpand(row.original as LocationRow);
+  const columns: GridEnrichedColDef[] = [
+    {
+      field: 'name',
+      headerName: t('name'),
+      description: t('name'),
+      flex: 1,
+      renderCell: (params: GridRenderCellParams<string>) => (
+        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
+      )
+    },
+    {
+      field: 'address',
+      headerName: t('address'),
+      description: t('address'),
+      flex: 1
+    },
+    {
+      field: 'createdAt',
+      headerName: t('created_at'),
+      description: t('created_at'),
+      flex: 0.5,
+      valueGetter: (params: GridValueGetterParams<string>) =>
+        getFormattedDate(params.value)
+    },
+    {
+      field: 'customId',
+      headerName: t('id'),
+      description: t('id'),
+      flex: 0.5
+    },
+    {
+      field: 'actions',
+      type: 'actions',
+      headerName: t('actions'),
+      description: t('actions'),
+      getActions: (params: GridRowParams) => {
+        let actions = [
+          <GridActionsCellItem
+            key="edit"
+            icon={<EditTwoToneIcon fontSize="small" color="primary" />}
+            onClick={() => {
+              changeCurrentLocation(Number(params.id));
+              handleOpenUpdate();
             }}
-            sx={{ padding: 0.5 }}
-          >
-            {isExpanded ? (
-              <ExpandMoreIcon fontSize="small" />
-            ) : (
-              <ChevronRightIcon fontSize="small" />
-            )}
-          </IconButton>
-        );
-      },
-      size: 50
-    }),
-    columnHelper.accessor('customId', {
-      id: 'customId',
-      header: () => t('id'),
-      cell: (info) => info.getValue() ?? '',
-      size: 100
-    }),
-    columnHelper.accessor('name', {
-      id: 'name',
-      header: () => t('name'),
-      cell: (info) => {
-        const row = info.row.original as LocationRow & {
-          parentId?: number;
-        };
-        // Render "Load More" row as a clickable button
-        if (row.isLoadMoreRow) {
-          return (
-            <Box
-              sx={{
-                py: 1,
-                fontWeight: 'bold'
-              }}
-            >
-              <Button
-                size="small"
-                variant="text"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (row.parentId) {
-                    fetchMoreForParent(row.parentId);
-                  }
-                }}
-                disabled={loadingHierarchy}
-                endIcon={
-                  loadingHierarchy ? (
-                    <CircularProgress size="1rem" />
-                  ) : (
-                    <MoreHorizIcon />
-                  )
-                }
-              >
-                {t('fetch_more')}
-              </Button>
-            </Box>
-          );
-        }
-
-        return (
-          <Box
-            sx={{
-              py: 1,
-              fontWeight: 'bold',
-              ml: (info.row.depth || 0) * 24
+            label={t('edit')}
+          />,
+          <GridActionsCellItem
+            key="delete"
+            icon={<DeleteTwoToneIcon fontSize="small" color="error" />}
+            onClick={() => {
+              changeCurrentLocation(Number(params.id));
+              setOpenDelete(true);
             }}
-          >
-            {info.getValue()}
-          </Box>
-        );
-      },
-      size: 200
-    }),
-    columnHelper.accessor('address', {
-      id: 'address',
-      header: () => t('address'),
-      cell: (info) => info.getValue() || '',
-      size: 200
-    }),
-    columnHelper.accessor('createdAt', {
-      id: 'createdAt',
-      header: () => t('created_at'),
-      cell: (info) => getFormattedDate(info.getValue()),
-      size: 140
-    }),
-    columnHelper.display({
-      id: 'actions',
-      header: () => t('actions'),
-      cell: ({ row }) => {
-        const location = row.original;
-        if ('isLoadMoreRow' in location && location.isLoadMoreRow) return null;
-        let actions = [];
-        if (hasEditPermission(PermissionEntity.LOCATIONS, location)) {
-          actions.push(
-            <IconButton
-              key="edit"
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                changeCurrentLocation(Number(location.id));
-                handleOpenUpdate();
-              }}
-            >
-              <EditTwoToneIcon
-                fontSize="small"
-                color={
-                  'depth' in location && location.depth === 0
-                    ? 'primary'
-                    : 'action'
-                }
-              />
-            </IconButton>
-          );
+            label={'to_delete'}
+          />
+        ];
+        if (!hasEditPermission(PermissionEntity.LOCATIONS, params.row)) {
+          actions.shift();
         }
-        if (hasDeletePermission(PermissionEntity.LOCATIONS, location)) {
-          actions.push(
-            <IconButton
-              key="delete"
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                changeCurrentLocation(Number(location.id));
-                setOpenDelete(true);
-              }}
-            >
-              <DeleteTwoToneIcon fontSize="small" color="error" />
-            </IconButton>
-          );
+        if (!hasDeletePermission(PermissionEntity.LOCATIONS, params.row)) {
+          actions.pop();
         }
-        return (
-          <Stack direction="row" spacing={1}>
-            {actions}
-          </Stack>
-        );
-      },
-      size: 120
-    })
+        return actions;
+      }
+    }
   ];
+  useGridStatePersist(apiRef, columns, 'location');
   const fields: Array<IField> = [
     {
       name: 'name',
@@ -579,7 +347,8 @@ function Locations() {
       name: 'address',
       type: 'text',
       label: t('address'),
-      placeholder: '13th St, New York'
+      placeholder: 'Casa, Maroc',
+      required: true
     },
     {
       name: 'parentLocation',
@@ -620,29 +389,25 @@ function Locations() {
       label: t('customers'),
       placeholder: 'Select customers'
     },
-    ...(apiKey
-      ? ([
-          {
-            name: 'mapSwitch',
-            type: 'checkbox',
-            label: t('put_location_in_map'),
-            relatedFields: [
-              { field: 'mapTitle', value: false, hide: true },
-              { field: 'coordinates', value: false, hide: true }
-            ]
-          },
-          {
-            name: 'mapTitle',
-            type: 'titleGroupField',
-            label: t('map_coordinates')
-          },
-          {
-            name: 'coordinates',
-            type: 'coordinates',
-            label: t('map_coordinates')
-          }
-        ] as IField[])
-      : []),
+    {
+      name: 'mapSwitch',
+      type: 'checkbox',
+      label: t('put_location_in_map'),
+      relatedFields: [
+        { field: 'mapTitle', value: false, hide: true },
+        { field: 'coordinates', value: false, hide: true }
+      ]
+    },
+    {
+      name: 'mapTitle',
+      type: 'titleGroupField',
+      label: t('map_coordinates')
+    },
+    {
+      name: 'coordinates',
+      type: 'coordinates',
+      label: t('map_coordinates')
+    },
     {
       name: 'image',
       type: 'file',
@@ -655,55 +420,19 @@ function Locations() {
       multiple: true,
       label: t('files'),
       fileType: 'file'
-    },
-    ...getCustomFieldsIFields(customFields, CustomFieldEntityType.LOCATION)
+    }
   ];
 
   const getEditFields = () => {
     const fieldsClone = [...fields];
     return fieldsClone;
   };
-  const getLocationFormValues = (entity: Location | null | undefined) => ({
-    ...entity,
-    title: entity?.name,
-    workers:
-      entity?.workers?.map((worker) => ({
-        label: `${worker.firstName} ${worker.lastName}`,
-        value: worker.id
-      })) ?? [],
-    teams:
-      entity?.teams?.map((team) => ({
-        label: team.name,
-        value: team.id
-      })) ?? [],
-    vendors:
-      entity?.vendors?.map((vendor) => ({
-        label: vendor.companyName,
-        value: vendor.id
-      })) ?? [],
-    customers:
-      entity?.customers?.map((customer) => ({
-        label: customer.name,
-        value: customer.id
-      })) ?? [],
-    coordinates: entity?.longitude
-      ? { lng: entity.longitude, lat: entity.latitude }
-      : null,
-    parentLocation: entity?.parentLocation
-      ? { label: entity.parentLocation.name, value: entity.parentLocation.id }
-      : null,
-    ...getCustomFieldsValues(entity)
-  });
   const handleReset = (callApi: boolean) => {
     dispatch(resetLocationsHierarchy(pageable, callApi));
   };
   const shape = {
     name: Yup.string().required(t('required_location_name')),
-    ...getCustomFieldsRequiredShape(
-      customFields,
-      CustomFieldEntityType.LOCATION,
-      t
-    )
+    address: Yup.string().required(t('required_location_address'))
   };
 
   const renderLocationAddModal = () => (
@@ -711,15 +440,7 @@ function Locations() {
       fullWidth
       maxWidth="md"
       open={openAddModal}
-      onClose={() => {
-        if (isFormDirty) {
-          setOpenDiscardDialog(true);
-        } else {
-          setOpenAddModal(false);
-          setCopyLocationData(null);
-          setInitialLocationName('');
-        }
-      }}
+      onClose={() => setOpenAddModal(false)}
     >
       <DialogTitle
         sx={{
@@ -727,12 +448,10 @@ function Locations() {
         }}
       >
         <Typography variant="h4" gutterBottom>
-          {copyLocationData ? t('copy_location') : t('add_location')}
+          {t('add_location')}
         </Typography>
         <Typography variant="subtitle2">
-          {copyLocationData
-            ? t('copy_location_description')
-            : t('add_location_description')}
+          {t('add_location_description')}
         </Typography>
       </DialogTitle>
       <DialogContent
@@ -746,67 +465,75 @@ function Locations() {
             fields={fields}
             validation={Yup.object().shape(shape)}
             submitText={t('add')}
-            values={
-              copyLocationData
-                ? { ...getLocationFormValues(copyLocationData), id: null }
-                : initialLocationName
-                  ? { name: initialLocationName }
-                  : {}
-            }
-            onChange={() => setIsFormDirty(true)}
+            values={{}}
+            onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
-              setIsFormDirty(false);
               let formattedValues = formatValues(values);
-              try {
-                const uploadedFiles = await uploadFiles(
-                  formattedValues.files,
-                  formattedValues.image
-                );
-
-                const imageAndFiles = getImageAndFiles(uploadedFiles);
-                formattedValues = {
-                  ...formattedValues,
-                  image: imageAndFiles.image,
-                  files: imageAndFiles.files
-                };
-
-                const createdLocation = await dispatch(
-                  addLocation(formattedValues)
-                );
-                onCreationSuccess(createdLocation);
-                deployedLocations.forEach((deployedLocation) =>
-                  dispatch(
-                    getLocationChildrenPaginated(
-                      deployedLocation.id,
-                      deployedLocation.hierarchy,
-                      pageable
-                    )
-                  )
-                );
-                return createdLocation;
-              } catch (err) {
-                onCreationFailure(err);
-                throw err;
-              }
+              return new Promise<void>((resolve, rej) => {
+                uploadFiles(formattedValues.files, formattedValues.image)
+                  .then((files) => {
+                    const imageAndFiles = getImageAndFiles(files);
+                    formattedValues = {
+                      ...formattedValues,
+                      image: imageAndFiles.image,
+                      files: imageAndFiles.files
+                    };
+                    dispatch(addLocation(formattedValues))
+                      .then(onCreationSuccess)
+                      .then(() => {
+                        resolve();
+                        deployedLocations.forEach((deployedLocation) =>
+                          dispatch(
+                            getLocationChildren(
+                              deployedLocation.id,
+                              deployedLocation.hierarchy,
+                              pageable
+                            )
+                          )
+                        );
+                      })
+                      .catch((err) => {
+                        onCreationFailure(err);
+                        rej(err);
+                      });
+                  })
+                  .catch((err) => {
+                    onCreationFailure(err);
+                    rej(err);
+                  });
+              });
             }}
           />
         </Box>
       </DialogContent>
-      <ConfirmDialog
-        open={openDiscardDialog}
-        onCancel={() => setOpenDiscardDialog(false)}
-        onConfirm={() => {
-          setOpenDiscardDialog(false);
-          setOpenAddModal(false);
-          setCopyLocationData(null);
-          setInitialLocationName('');
-          setIsFormDirty(false);
-        }}
-        confirmText={t('discard_changes')}
-        question={t('discard_changes_question')}
-      />
     </Dialog>
   );
+  const groupingColDef: DataGridProProps['groupingColDef'] = {
+    headerName: t('hierarchy'),
+    renderCell: (params) => <GroupingCellWithLazyLoading {...params} />,
+    flex: 0.5
+  };
+  const CustomRow = (props: React.ComponentProps<typeof GridRow>) => {
+    const rowNode = apiRef.current.getRowNode(props.rowId);
+    const theme = useTheme();
+
+    return (
+      <GridRow
+        {...props}
+        style={
+          (rowNode?.depth ?? 0) > 0
+            ? {
+                backgroundColor:
+                  rowNode.depth % 2 === 0
+                    ? theme.colors.primary.light
+                    : theme.colors.primary.main,
+                color: 'white'
+              }
+            : undefined
+        }
+      />
+    );
+  };
   const renderMenu = () => (
     <Menu
       id="basic-menu"
@@ -820,18 +547,24 @@ function Locations() {
       {hasViewOtherPermission(PermissionEntity.LOCATIONS) && (
         <MenuItem
           disabled={loadingExport['locations']}
-          onClick={async () => {
-            try {
-              await exportEntity('locations');
-            } catch (error) {
-              showSnackBar(t('Export failed'), 'error');
-            }
+          onClick={() => {
+            dispatch(exportEntity('locations')).then((url: string) => {
+              window.open(url);
+            });
           }}
         >
           <Stack spacing={2} direction="row">
             {loadingExport['locations'] && <CircularProgress size="1rem" />}
             <Typography>{t('to_export')}</Typography>
           </Stack>
+        </MenuItem>
+      )}
+      {hasViewPermission(PermissionEntity.SETTINGS) && (
+        <MenuItem
+          onClick={() => navigate('/app/imports/locations')}
+          disabled={!hasFeature(PlanFeature.IMPORT_CSV)}
+        >
+          {t('to_import')}
         </MenuItem>
       )}
     </Menu>
@@ -866,178 +599,120 @@ function Locations() {
             fields={getEditFields()}
             validation={Yup.object().shape(shape)}
             submitText={t('save')}
-            values={getLocationFormValues(currentLocation)}
+            values={{
+              ...currentLocation,
+              title: currentLocation?.name,
+              workers: currentLocation?.workers.map((worker) => {
+                return {
+                  label: `${worker.firstName} ${worker.lastName}`,
+                  value: worker.id
+                };
+              }),
+              teams: currentLocation?.teams.map((team) => {
+                return {
+                  label: team.name,
+                  value: team.id
+                };
+              }),
+              vendors: currentLocation?.vendors.map((vendor) => {
+                return {
+                  label: vendor.companyName,
+                  value: vendor.id
+                };
+              }),
+              customers: currentLocation?.customers.map((customer) => {
+                return {
+                  label: customer.name,
+                  value: customer.id
+                };
+              }),
+              coordinates: currentLocation?.longitude
+                ? {
+                    lng: currentLocation.longitude,
+                    lat: currentLocation.latitude
+                  }
+                : null,
+              parentLocation: currentLocation?.parentLocation
+                ? {
+                    label: currentLocation.parentLocation.name,
+                    value: currentLocation.parentLocation.id
+                  }
+                : null
+            }}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
-              try {
-                const imageAndFiles = await handleFileUpload(
-                  {
-                    files: formattedValues.files,
-                    image: formattedValues.image
-                  },
-                  uploadFiles
-                );
-
-                formattedValues = {
-                  ...formattedValues,
-                  image: imageAndFiles.image,
-                  files: imageAndFiles.files
-                };
-
-                await dispatch(
-                  editLocation(currentLocation.id, formattedValues)
-                );
-                await onEditSuccess();
-              } catch (err) {
-                onEditFailure(err);
-                throw err;
-              }
+              //differentiate files from api and formattedValues
+              const files = formattedValues.files.find((file) => file.id)
+                ? []
+                : formattedValues.files;
+              return new Promise<void>((resolve, rej) => {
+                uploadFiles(files, formattedValues.image)
+                  .then((files) => {
+                    const imageAndFiles = getImageAndFiles(
+                      files,
+                      currentLocation.image
+                    );
+                    formattedValues = {
+                      ...formattedValues,
+                      image: imageAndFiles.image,
+                      files: [...currentLocation.files, ...imageAndFiles.files]
+                    };
+                    dispatch(editLocation(currentLocation.id, formattedValues))
+                      .then(() => {
+                        resolve();
+                        onEditSuccess();
+                      })
+                      .catch((err) => {
+                        onEditFailure(err);
+                        rej(err);
+                      });
+                  })
+                  .catch((err) => {
+                    onEditFailure(err);
+                    rej(err);
+                  });
+              });
             }}
           />
         </Box>
       </DialogContent>
     </Dialog>
   );
-  // Flatten hierarchy based on expanded state
-  const getHierarchicalData = (
-    flatList: LocationRow[],
-    expanded: Record<string, boolean>,
-    subRowsMap: Record<number, LocationRow[]>,
-    parentId: number | null = null,
-    depth: number = 0
-  ): LocationRow[] => {
-    let result: LocationRow[] = [];
-
-    // 1. Find the children of the current parent
-    const nodes = flatList.filter((item) => {
-      if (parentId === null) {
-        return !item.parentLocation; // Root nodes have no parent
-      }
-      return item.parentLocation?.id === parentId; // Child nodes
-    });
-
-    for (const node of nodes) {
-      // 2. Add the current node
-      result.push({ ...node, depth });
-
-      // 3. If expanded, add its children right below it
-      if (expanded[node.id]) {
-        const children = getHierarchicalData(
-          flatList,
-          expanded,
-          subRowsMap,
-          node.id,
-          depth + 1
-        );
-
-        if (children.length > 0) {
-          result = [...result, ...children];
-          // Add "Load More" row after children if there are more pages
-          if (hasMorePages(node.id)) {
-            result.push({
-              id: `load-more-${node.id}`,
-              name: t('fetch_more'),
-              depth: 0,
-              isLoadMoreRow: true,
-              parentId: node.id
-            } as unknown as LocationRow);
-          }
-        } else if (subRowsMap[node.id]) {
-          // Render the temporary loading row if fetching is in progress
-          result.push({ ...subRowsMap[node.id][0], depth: depth + 1 });
-        }
-      }
-    }
-
-    return result;
-  };
-
-  // Prepare data for the table based on expanded state
-  const tableData = getHierarchicalData(
-    locationsHierarchy,
-    expanded,
-    subRowsMap
-  );
-  const isHierarchyView = !searchQuery?.trim();
-  // Filter table data based on search query
-  const filteredTableData: (LocationRow | Location)[] = isHierarchyView
-    ? tableData
-    : locations.content;
-  // Handle pagination change for hierarchy view
-  const handlePaginationChange = (newPagination: {
-    pageIndex: number;
-    pageSize: number;
-  }) => {
-    if (isHierarchyView) {
-      setPageable((prev) => ({
-        ...prev,
-        page: newPagination.pageIndex,
-        size: newPagination.pageSize
-      }));
-    } else {
-      tableState.setPagination(newPagination);
-    }
-  };
-
-  const handleSortingChange = (newSorting: Updater<SortingState>) => {
-    if (isHierarchyView) {
-      // Resolve the sorting value (handle both direct value and updater function)
-      const resolvedSorting: SortingState =
-        typeof newSorting === 'function'
-          ? newSorting(hierarchySorting)
-          : newSorting;
-      setHierarchySorting(newSorting);
-      const sortParams =
-        resolvedSorting.length > 0
-          ? resolvedSorting.map(
-              (sort) =>
-                `${fieldMapping[sort.id] || sort.id},${
-                  sort.desc ? 'desc' : 'asc'
-                }` as Sort
-            )
-          : [];
-      setPageable((prev) => ({
-        ...prev,
-        sort: sortParams.length > 0 ? [...sortParams] : undefined
-      }));
-    } else {
-      tableState.setSorting(newSorting);
-    }
-  };
-
   if (hasViewPermission(PermissionEntity.LOCATIONS))
     return (
       <>
         <Helmet>
           <title>{t('locations')}</title>
         </Helmet>
-        <Box justifyContent="center" alignItems="stretch" paddingX={4}>
-          <Box
-            my={1}
+        <Grid
+          container
+          justifyContent="center"
+          alignItems="stretch"
+          spacing={1}
+          paddingX={4}
+        >
+          <Grid
+            item
+            xs={12}
             display="flex"
             flexDirection="row"
             justifyContent="space-between"
             alignItems="center"
           >
-            {tabs.length > 1 ? (
-              <Tabs
-                onChange={handleTabsChange}
-                value={currentTab}
-                variant="scrollable"
-                scrollButtons="auto"
-                textColor="primary"
-                indicatorColor="primary"
-              >
-                {tabs.map((tab) => (
-                  <Tab key={tab.value} label={tab.label} value={tab.value} />
-                ))}
-              </Tabs>
-            ) : (
-              <Box />
-            )}
+            <Tabs
+              onChange={handleTabsChange}
+              value={currentTab}
+              variant="scrollable"
+              scrollButtons="auto"
+              textColor="primary"
+              indicatorColor="primary"
+            >
+              {tabs.map((tab) => (
+                <Tab key={tab.value} label={tab.label} value={tab.value} />
+              ))}
+            </Tabs>
             <Stack direction={'row'} alignItems="center" spacing={1}>
-              <SearchInput onChange={debouncedQueryChange} />
               <IconButton onClick={() => handleReset(true)} color="primary">
                 <ReplayTwoToneIcon />
               </IconButton>
@@ -1045,106 +720,115 @@ function Locations() {
                 <MoreVertTwoToneIcon />
               </IconButton>
               {hasCreatePermission(PermissionEntity.LOCATIONS) && (
-                <SplitButton
-                  onMainClick={() => setOpenAddModal(true)}
+                <Button
+                  onClick={() => setOpenAddModal(true)}
                   startIcon={<AddTwoToneIcon />}
                   sx={{ mx: 6, my: 1 }}
-                  label={t('location')}
-                  menuItems={
-                    hasViewPermission(PermissionEntity.SETTINGS) &&
-                    hasFeature(PlanFeature.IMPORT_CSV)
-                      ? [
-                          {
-                            label: t('import_from_spreadsheet'),
-                            onClick: () => navigate('/app/imports/locations')
-                          }
-                        ]
-                      : []
-                  }
-                />
+                  variant="contained"
+                >
+                  {t('location')}
+                </Button>
               )}
             </Stack>
-          </Box>
+          </Grid>
           {currentTab === 'list' && (
-            <Card
-              sx={{
-                py: 2,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}
-            >
-              <Box sx={{ width: '95%' }}>
-                <CustomDatagrid2
-                  columns={isHierarchyView ? columns : columns.slice(1)}
-                  data={filteredTableData}
-                  loading={isHierarchyView ? loadingHierarchy : loadingGet}
-                  pagination={
-                    isHierarchyView
-                      ? { pageIndex: pageable.page, pageSize: pageable.size }
-                      : tableState.pagination
-                  }
-                  totalRows={
-                    isHierarchyView
-                      ? childrenPages[0]?.totalElements ||
-                        locationsHierarchy.length
-                      : locations.totalElements
-                  }
-                  pageSizeOptions={
-                    !isHierarchyView
-                      ? [10, 20, 50]
-                      : Array.from({ length: 4 }, (_, i) => PAGE_SIZE * (i + 1))
-                  }
-                  sorting={
-                    isHierarchyView ? hierarchySorting : tableState.sorting
-                  }
-                  onPaginationChange={handlePaginationChange}
-                  onSortingChange={handleSortingChange}
-                  columnOrder={tableState.columnOrder}
-                  onColumnOrderChange={tableState.setColumnOrder}
-                  columnSizing={tableState.columnSizing}
-                  onColumnSizingChange={tableState.setColumnSizing}
-                  columnVisibility={tableState.columnVisibility}
-                  onColumnVisibilityChange={tableState.setColumnVisibility}
-                  pinnedColumns={tableState.pinnedColumns}
-                  onPinnedColumnsChange={tableState.setPinnedColumns}
-                  noRowsMessage={t('noRows.location.message')}
-                  noRowsAction={t('noRows.location.action')}
-                  onRowClick={(row) => {
-                    if ('isLoadMoreRow' in row && row.isLoadMoreRow) return;
-                    handleOpenDetails(row.id);
-                  }}
-                />
-              </Box>
-            </Card>
+            <Grid item xs={12}>
+              <Card
+                sx={{
+                  p: 2,
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}
+              >
+                <Box sx={{ width: '95%' }}>
+                  <CustomDataGrid
+                    pro
+                    treeData
+                    columns={columns}
+                    rows={locationsHierarchy}
+                    loading={loadingGet}
+                    apiRef={apiRef}
+                    getTreeDataPath={(row) =>
+                      row.hierarchy.map((id) => id.toString())
+                    }
+                    groupingColDef={groupingColDef}
+                    components={{
+                      Row: CustomRow,
+                      NoRowsOverlay: () => (
+                        <NoRowsMessageWrapper
+                          message={t('noRows.location.message')}
+                          action={t('noRows.location.action')}
+                        />
+                      )
+                    }}
+                    onRowClick={(params) =>
+                      handleOpenDetails(Number(params.id))
+                    }
+                    initialState={{
+                      columns: {
+                        columnVisibilityModel: {}
+                      }
+                    }}
+                    sortingMode="client"
+                    onSortModelChange={(model, details) => {
+                      const mapper: Record<string, string> = {
+                        name: 'name',
+                        address: 'address',
+                        createdAt: 'createdAt',
+                        customId: 'customId'
+                      };
+                      if (
+                        model.length &&
+                        !Object.keys(mapper).includes(model[0].field)
+                      )
+                        return;
+                      //model length is at max 1
+                      setPageable((prevState) => ({
+                        ...prevState,
+                        sort: model.length
+                          ? [
+                              `${mapper[model[0].field]},${
+                                model[0].sort
+                              }` as Sort
+                            ]
+                          : []
+                      }));
+                    }}
+                  />
+                </Box>
+              </Card>
+            </Grid>
           )}
           {currentTab === 'map' && (
-            <Card
-              sx={{
-                p: 2,
-                justifyContent: 'center'
-              }}
-            >
-              <Map
-                dimensions={{ width: 1000, height: 500 }}
-                locations={locations.content
-                  .filter((location) => location.longitude)
-                  .map(({ name, longitude, latitude, address, id }) => {
-                    return {
-                      title: name,
-                      coordinates: {
-                        lng: longitude,
-                        lat: latitude
-                      },
-                      address,
-                      id
-                    };
-                  })}
-              />
-            </Card>
+            <Grid item xs={12}>
+              <Card
+                sx={{
+                  p: 2,
+                  justifyContent: 'center'
+                }}
+              >
+                <Map
+                  dimensions={{ width: 1000, height: 500 }}
+                  locations={locations
+                    .filter((location) => location.longitude)
+                    .map(({ name, longitude, latitude, address, id }) => {
+                      return {
+                        title: name,
+                        coordinates: {
+                          lng: longitude,
+                          lat: latitude
+                        },
+                        address,
+                        id
+                      };
+                    })}
+                />
+              </Card>
+            </Grid>
           )}
-        </Box>
+        </Grid>
         {renderLocationAddModal()}
         {renderLocationUpdateModal()}
         <Drawer
@@ -1152,14 +836,13 @@ function Locations() {
           open={openDrawer}
           onClose={handleCloseDetails}
           PaperProps={{
-            sx: { width: { xs: '90%', sm: '70%', md: '50%' } }
+            sx: { width: '50%' }
           }}
         >
           <LocationDetails
             location={currentLocation}
             handleOpenUpdate={handleOpenUpdate}
             handleOpenDelete={onOpenDeleteDialog}
-            onCopy={handleCopyLocation}
           />
         </Drawer>
         <ConfirmDialog

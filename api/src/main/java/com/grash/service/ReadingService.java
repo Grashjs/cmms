@@ -3,7 +3,9 @@ package com.grash.service;
 import com.grash.dto.ReadingPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.ReadingMapper;
+import com.grash.model.OwnUser;
 import com.grash.model.Reading;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.ReadingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +21,6 @@ import java.util.Optional;
 public class ReadingService {
     private final ReadingRepository readingRepository;
     private final ReadingMapper readingMapper;
-    private final LicenseService licenseService;
     private MeterService meterService;
 
     @Autowired
@@ -57,9 +58,5 @@ public class ReadingService {
 
     public Collection<Reading> findByMeter(Long id) {
         return readingRepository.findByMeter_Id(id);
-    }
-
-    public Optional<Reading> findLastByMeter(Long id) {
-        return readingRepository.findFirstByMeter_IdOrderByCreatedAtDesc(id);
     }
 }

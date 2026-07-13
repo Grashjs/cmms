@@ -18,12 +18,11 @@ import {
 } from '../../../utils/urlPaths';
 import ListField from '../../../components/ListField';
 import BasicField from '../../../components/BasicField';
-import { getCustomFieldValuesForDetails } from '../../../models/form';
 
 export default function AssetDetails({
-  asset,
-  navigation
-}: {
+                                       asset,
+                                       navigation
+                                     }: {
   asset: Asset;
   navigation: any;
 }) {
@@ -35,7 +34,6 @@ export default function AssetDetails({
   const fieldsToRender: {
     label: string;
     value: string | number;
-    isLink?: boolean;
   }[] = [
     { label: t('name'), value: asset?.name },
     { label: t('description'), value: asset?.description },
@@ -44,7 +42,7 @@ export default function AssetDetails({
     { label: t('serial_number'), value: asset?.serialNumber },
     {
       label: t('status'),
-      value: t(asset?.status)
+      value: asset?.status === 'OPERATIONAL' ? t('operational') : t('down')
     },
     {
       label: t('acquisition_cost'),
@@ -54,11 +52,6 @@ export default function AssetDetails({
     },
     { label: t('area'), value: asset?.area },
     { label: t('barcode'), value: asset?.barCode },
-    { label: t('nfc_tag'), value: asset?.nfcId },
-    {
-      label: t('additional_information'),
-      value: asset?.additionalInfos
-    },
     {
       label: t('placed_in_service'),
       value: getFormattedDate(asset?.inServiceDate)
@@ -66,11 +59,7 @@ export default function AssetDetails({
     {
       label: t('warranty_expiration'),
       value: getFormattedDate(asset?.warrantyExpirationDate)
-    },
-    ...getCustomFieldValuesForDetails(
-      asset?.customFieldValues,
-      getFormattedDate
-    )
+    }
   ];
   return (
     <ScrollView
@@ -79,14 +68,14 @@ export default function AssetDetails({
       {asset.image && (
         <Image style={{ height: 200 }} source={{ uri: asset.image.url }} />
       )}
-      {fieldsToRender.map((field) => (
-        <BasicField
-          key={field.label}
-          label={field.label}
-          value={field.value}
-          isLink={field.isLink}
-        />
-      ))}
+      {fieldsToRender.map(
+        (field) =>
+          <BasicField
+            key={field.label}
+            label={field.label}
+            value={field.value}
+          />
+      )}
       {asset.primaryUser && (
         <View>
           <View

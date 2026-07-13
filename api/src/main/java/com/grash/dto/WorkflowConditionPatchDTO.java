@@ -5,7 +5,6 @@ import com.grash.model.enums.ApprovalStatus;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
 import com.grash.model.enums.workflow.*;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,25 +19,16 @@ public class WorkflowConditionPatchDTO {
     private PartCondition partCondition;
     private TaskCondition taskCondition;
     private Priority priority;
-    @Schema(implementation = IdDTO.class)
     private Asset asset;
-    @Schema(implementation = IdDTO.class)
     private Location location;
-    @Schema(implementation = IdDTO.class)
-    private User user;
-    @Schema(implementation = IdDTO.class)
+    private OwnUser user;
     private Team team;
-    @Schema(implementation = IdDTO.class)
     private WorkOrderCategory workOrderCategory;
-    @Schema(implementation = IdDTO.class)
     private Checklist checklist;
     private Integer createdTimeStart;
     private Integer createdTimeEnd;
-    @Schema(implementation = IdDTO.class)
     private Vendor vendor;
-    @Schema(implementation = IdDTO.class)
     private Part part;
-    @Schema(implementation = IdDTO.class)
     private PurchaseOrderCategory purchaseOrderCategory;
     private Status workOrderStatus;
     private ApprovalStatus purchaseOrderStatus;

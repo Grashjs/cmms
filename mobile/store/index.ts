@@ -10,7 +10,7 @@ import rootReducer from './rootReducer';
 import { ImportResponse } from '../models/imports';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AsyncStorage } from 'react-native';
 
 const persistConfig = {
   key: 'root',
@@ -31,7 +31,12 @@ export type RootState = ReturnType<typeof store.getState>;
 
 export type AppDispatch = typeof store.dispatch;
 
-export type StoreReturnType = any;
+export type StoreReturnType =
+  | void
+  | number
+  | number[]
+  | string
+  | ImportResponse;
 export type AppThunk = ThunkAction<
   Promise<StoreReturnType>,
   RootState,

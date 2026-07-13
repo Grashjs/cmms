@@ -102,7 +102,7 @@ backup_atlas_cmms() {
             exit 1
         fi
 
-        docker exec atlas_db pg_dump -U "$POSTGRES_USER" --encoding=UTF8 atlas > "$TEMP_DIR/atlas_db.sql"
+        docker exec atlas_db pg_dump -U "$POSTGRES_USER" atlas > "$TEMP_DIR/atlas_db.sql"
 
         if [ $? -eq 0 ]; then
             echo "Database backup complete."
@@ -223,7 +223,7 @@ restore_atlas_cmms() {
             docker exec atlas_db bash -c "PGPASSWORD=$POSTGRES_PWD psql -U $POSTGRES_USER -d postgres -c 'CREATE DATABASE atlas;'"
 
             # Restore from backup
-            docker exec -i atlas_db psql -U "$POSTGRES_USER" -d atlas --set client_encoding=UTF8 < "$TEMP_DIR/atlas_db.sql"
+            cat "$TEMP_DIR/atlas_db.sql" | docker exec -i atlas_db psql -U "$POSTGRES_USER" -d atlas
 
             if [ $? -eq 0 ]; then
                 echo "Database restore complete."

@@ -4,48 +4,31 @@ import Form from '../../components/form';
 import * as Yup from 'yup';
 import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import {
-  getCustomFieldsIFields,
-  getCustomFieldsRequiredShape,
-  IField
-} from '../../models/form';
+import { IField } from '../../models/form';
 import { useContext, useState } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import { getImageAndFiles } from '../../utils/overall';
-import { useDispatch, useSelector } from '../../store';
+import { useDispatch } from '../../store';
 import { addWorkOrder } from '../../slices/workOrder';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { formatWorkOrderValues, getWorkOrderFields } from '../../utils/fields';
-import { formatCustomFields } from '../../utils/formatters';
 import { assetStatuses } from '../../models/asset';
-import { useAppTheme } from '../../custom-theme';
-import { getErrorMessage } from '../../utils/api';
-import { CustomFieldEntityType } from '../../models/customField';
-import useUnsavedChanges from '../../hooks/useUnsavedChanges';
+import { useTheme } from 'react-native-paper';
 
 export default function CreateWorkOrderScreen({
   navigation,
   route
 }: RootStackScreenProps<'AddWorkOrder'>) {
   const { t } = useTranslation();
-  const [isFormDirty, setIsFormDirty] = useState(false);
-  const theme = useAppTheme();
+  const [initialDueDate, setInitialDueDate] = useState<Date>(null);
+  const theme = useTheme();
   const { uploadFiles, getWOFieldsAndShapes } = useContext(
     CompanySettingsContext
   );
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
-  const { customFields } = useSelector((state) => state.customFields);
-
-  useUnsavedChanges(navigation, isFormDirty);
-
   const defaultShape: { [key: string]: any } = {
-    title: Yup.string().required(t('required_wo_title')),
-    ...getCustomFieldsRequiredShape(
-      customFields,
-      CustomFieldEntityType.WORK_ORDER,
-      t
-    )
+    title: Yup.string().required(t('required_wo_title'))
   };
 
   const onCreationSuccess = () => {
@@ -53,13 +36,9 @@ export default function CreateWorkOrderScreen({
     navigation.goBack();
   };
   const onCreationFailure = (err) =>
-    showSnackBar(getErrorMessage(err, t('wo_create_failure')), 'error');
+    showSnackBar(t('wo_create_failure'), 'error');
   const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
-    const fields = [
-      ...getWorkOrderFields(t),
-      ...getCustomFieldsIFields(customFields, CustomFieldEntityType.WORK_ORDER)
-    ];
-    return getWOFieldsAndShapes(fields, defaultShape);
+    return getWOFieldsAndShapes(getWorkOrderFields(t), defaultShape);
   };
   return (
     <View style={styles.container}>
@@ -83,7 +62,7 @@ export default function CreateWorkOrderScreen({
         submitText={t('save')}
         values={{
           requiredSignature: false,
-          dueDate: null,
+          dueDate: initialDueDate,
           location: route.params?.location
             ? {
                 label: route.params.location.name,
@@ -95,31 +74,35 @@ export default function CreateWorkOrderScreen({
                 label: route.params.asset.name,
                 value: route.params.asset.id.toString()
               }
-            : null,
-          estimatedDuration: 1
+            : null
         }}
-        onChange={() => setIsFormDirty(true)}
+        onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
-          setIsFormDirty(false);
           let formattedValues = formatWorkOrderValues(values);
-          formattedValues = formatCustomFields(formattedValues);
-          try {
-            const uploadedFiles = await uploadFiles(
-              formattedValues.files,
-              formattedValues.image
-            );
-            const imageAndFiles = getImageAndFiles(uploadedFiles);
-            formattedValues = {
-              ...formattedValues,
-              image: imageAndFiles.image,
-              files: imageAndFiles.files
-            };
-            await dispatch(addWorkOrder(formattedValues));
-            onCreationSuccess();
-          } catch (err) {
-            onCreationFailure(err);
-            throw err;
-          }
+          return new Promise<void>((resolve, rej) => {
+            uploadFiles(formattedValues.files, formattedValues.image)
+              .then((files) => {
+                const imageAndFiles = getImageAndFiles(files);
+                formattedValues = {
+                  ...formattedValues,
+                  image: imageAndFiles.image,
+                  files: imageAndFiles.files
+                };
+                dispatch(addWorkOrder(formattedValues))
+                  .then(() => {
+                    onCreationSuccess();
+                    resolve();
+                  })
+                  .catch((err) => {
+                    onCreationFailure(err);
+                    rej();
+                  });
+              })
+              .catch((err) => {
+                onCreationFailure(err);
+                rej();
+              });
+          });
         }}
       />
     </View>

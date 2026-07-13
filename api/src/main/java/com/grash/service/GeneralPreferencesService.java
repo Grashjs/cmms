@@ -4,6 +4,8 @@ import com.grash.dto.GeneralPreferencesPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.GeneralPreferencesMapper;
 import com.grash.model.GeneralPreferences;
+import com.grash.model.OwnUser;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.GeneralPreferencesRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

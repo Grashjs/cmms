@@ -15,11 +15,11 @@ const AvatarPrimary = styled(Avatar)(
     height: ${theme.spacing(4)};
 `
 );
-const renderSingleUser = (user: User, compact: boolean) => (
+const renderSingleUser = (user: User) => (
   <Tooltip key={user.id} title={`${user.firstName} ${user.lastName}`} arrow>
     <AvatarPrimary
       sx={{
-        my: compact ? 0 : 2
+        my: 2
       }}
       variant="circular"
       src={user.image?.url}
@@ -30,16 +30,10 @@ const renderSingleUser = (user: User, compact: boolean) => (
     </AvatarPrimary>
   </Tooltip>
 );
-export default function UserAvatarsRow({
-  users,
-  compact = true
-}: {
-  users: User[];
-  compact?: boolean;
-}) {
+export default function UserAvatarsRow({ users }: { users: User[] }) {
   return (
     <AvatarGroup max={3}>
-      {users.map((user) => renderSingleUser(user, compact))}
+      {users.map((user) => renderSingleUser(user))}
     </AvatarGroup>
   );
 }

@@ -2,24 +2,21 @@ import {
   Autocomplete,
   Box,
   Card,
-  CircularProgress,
   IconButton,
   InputAdornment,
   Link,
-  ListItemIcon,
   TextField,
   Typography
 } from '@mui/material';
 import { FormikProps, useFormikContext } from 'formik';
-import { useContext, useEffect, useState } from 'react';
-import { getLocationsMini } from 'src/slices/location';
+import { useState } from 'react';
+import { getLocationChildren, getLocationsMini } from 'src/slices/location';
 import { IField, IHash } from '../../type';
-import SelectAssetModal from './SelectAssetModal';
+import SelectAssetModal from './SelectAssetModal'; // Import the new modal
 import SelectForm from './SelectForm';
 import SelectParts from './SelectParts';
 import { useDispatch, useSelector } from '../../../../store';
-import SearchIcon from '@mui/icons-material/Search';
-import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
+import SearchIcon from '@mui/icons-material/Search'; // Added SearchIcon
 import SelectTasksModal from './SelectTasks';
 import { getCustomersMini } from '../../../../slices/customer';
 import { getVendorsMini } from '../../../../slices/vendor';
@@ -28,39 +25,13 @@ import { getAssetsMini } from '../../../../slices/asset';
 import { getTeamsMini } from '../../../../slices/team';
 import AssignmentTwoToneIcon from '@mui/icons-material/AssignmentTwoTone';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
+import AddCircleTwoToneIcon from '@mui/icons-material/AddCircleTwoTone';
 import { getPriorityLabel } from '../../../../utils/formatters';
-import { addCategory, getCategories } from '../../../../slices/category';
+import { getCategories } from '../../../../slices/category';
 import { getRoles } from '../../../../slices/role';
 import { getCurrencies } from '../../../../slices/currency';
+import ClearTwoToneIcon from '@mui/icons-material/ClearTwoTone';
 import { useTranslation } from 'react-i18next';
-import SelectLocationModal from './SelectLocationModal';
-import { useLocation, useNavigate } from 'react-router-dom';
-import useAuth from '../../../../hooks/useAuth';
-import { LocationMiniDTO } from '../../../../models/owns/location';
-import { AssetMiniDTO } from '../../../../models/owns/asset';
-import { PermissionEntity } from '../../../../models/owns/role';
-import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
-
-interface OptionType {
-  label: string;
-  value: string | number;
-  __createOption__?: boolean;
-}
-
-interface CreateOptionType extends OptionType {
-  __entityType__?: 'location' | 'asset';
-  __returnField__?: string;
-}
-
-interface InviteUserOptionType extends OptionType {
-  __inviteOption__?: boolean;
-  __email__?: string;
-}
-
-interface CreateCategoryOptionType extends OptionType {
-  __createCategoryOption__?: boolean;
-  __categoryName__?: string;
-}
 
 export const CustomSelect = ({
   field,
@@ -70,19 +41,10 @@ export const CustomSelect = ({
   handleChange: (formik: FormikProps<IHash<any>>, field: string, e) => void;
 }) => {
   const [assetModalOpen, setAssetModalOpen] = useState(false);
-  const [locationModalOpen, setLocationModalOpen] = useState(false);
-  const [creatingCategory, setCreatingCategory] = useState(false);
   const { t } = useTranslation();
   const formik = useFormikContext();
   const [openTask, setOpenTask] = useState(false);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const {
-    hasCreatePermission,
-    user: { companySettingsId }
-  } = useAuth();
-  const location = useLocation();
-  const { showSnackBar } = useContext(CustomSnackBarContext);
   const { customersMini } = useSelector((state) => state.customers);
   const { vendorsMini } = useSelector((state) => state.vendors);
   const { locationsMini, locationsHierarchy } = useSelector(
@@ -111,7 +73,9 @@ export const CustomSelect = ({
   const fetchRoles = async () => {
     dispatch(getRoles());
   };
-
+  const fetchRootLocations = async () => {
+    dispatch(getLocationChildren(0, [], { page: 0, size: 1000 }));
+  };
   const fetchCategories = async (category: string) => {
     dispatch(getCategories(category));
   };
@@ -124,71 +88,6 @@ export const CustomSelect = ({
   const fetchCurrencies = async () => {
     if (!currencies.length) dispatch(getCurrencies());
   };
-
-  // Handle inline category creation
-  const handleCreateCategory = async (categoryName: string) => {
-    if (!categoryName.trim() || !field.category) return;
-
-    setCreatingCategory(true);
-    try {
-      const newCategory = await dispatch(
-        addCategory(
-          { name: categoryName, companySettings: { id: companySettingsId } },
-          field.category
-        )
-      );
-
-      // Set the newly created category in the form
-      handleChange(formik, field.name, {
-        label: newCategory.name,
-        value: newCategory.id
-      });
-    } catch (error) {
-      console.error(error);
-      showSnackBar(t('category_create_failure'), 'error');
-    } finally {
-      setCreatingCategory(false);
-    }
-  };
-
-  // Handle returned entity from inline creation
-  useEffect(() => {
-    // Check for query params from returned entity (?location=123 or ?asset=123)
-    const searchParams = new URLSearchParams(window.location.search);
-    const locationId = searchParams.get('location');
-    const assetId = searchParams.get('asset');
-    const returnField = searchParams.get('returnField');
-
-    if (returnField && returnField === field.name) {
-      const entityId = locationId || assetId;
-      const entityType = locationId ? 'location' : 'asset';
-
-      if (entityId) {
-        // Get the entity from the mini lists
-        const entityList: (LocationMiniDTO | AssetMiniDTO)[] =
-          entityType === 'location' ? locationsMini : assetsMini;
-        const entity = entityList.find((e) => e.id === Number(entityId));
-
-        if (entity) {
-          handleChange(formik, field.name, {
-            label: entity.name,
-            value: entity.id
-          });
-        }
-
-        // Clear the query params
-        const newParams = new URLSearchParams(searchParams);
-        newParams.delete('location');
-        newParams.delete('asset');
-        newParams.delete('returnField');
-        window.history.replaceState(
-          {},
-          '',
-          `${window.location.pathname}?${newParams.toString()}`
-        );
-      }
-    }
-  }, [location.search]);
 
   let options = field.items;
   let loading = field.loading;
@@ -216,146 +115,14 @@ export const CustomSelect = ({
       onOpen = fetchVendors;
       break;
     case 'user':
-      const userOptions = usersMini.map((user) => {
+      options = usersMini.map((user) => {
         return {
           label: `${user.firstName} ${user.lastName}`,
           value: user.id
         };
       });
       onOpen = fetchUsers;
-
-      return (
-        <>
-          <Autocomplete
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                fullWidth={field.fullWidth || true}
-                variant="outlined"
-                required={field.required}
-                label={field.label}
-                placeholder={field.placeholder}
-                error={!!formik.errors[field.name] || field.error}
-                helperText={
-                  typeof formik.errors[field.name] === 'string'
-                    ? (formik.errors[field.name] as string)
-                    : ''
-                }
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: hasCreatePermission(
-                    PermissionEntity.PEOPLE_AND_TEAMS
-                  ) && (
-                    <InputAdornment position="end">
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate('/app/people-teams/people?invite=true');
-                        }}
-                      >
-                        <AddCircleTwoToneIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  )
-                }}
-              />
-            )}
-            fullWidth={field.fullWidth || true}
-            disabled={formik.isSubmitting}
-            onOpen={onOpen}
-            key={field.name}
-            freeSolo
-            filterOptions={(options, params) => {
-              const filtered = options.filter((option) => {
-                const inputValue = params.inputValue.toLowerCase();
-                const optionLabel = option.label.toLowerCase();
-                return optionLabel.includes(inputValue);
-              });
-
-              const { inputValue } = params;
-
-              // Always add invite option at the top
-              if (hasCreatePermission(PermissionEntity.PEOPLE_AND_TEAMS)) {
-                const inviteOption: InviteUserOptionType = {
-                  label: inputValue
-                    ? `${t('invite')} "${inputValue}"`
-                    : t('invite_users'),
-                  value: inputValue || 'invite',
-                  __inviteOption__: true,
-                  __email__: inputValue
-                };
-
-                filtered.unshift(inviteOption);
-              }
-              return filtered;
-            }}
-            //@ts-ignore
-            getOptionLabel={(option) =>
-              typeof option === 'string' ? option : option.label
-            }
-            isOptionEqualToValue={(option, value) =>
-              //@ts-ignore
-              option.value == value?.value
-            }
-            multiple={field.multiple}
-            value={field.multiple ? fieldValue ?? [] : fieldValue ?? null}
-            options={userOptions}
-            renderOption={(props, option) => {
-              const isInviteOption = (option as InviteUserOptionType)
-                .__inviteOption__;
-              // @ts-ignore
-              const { key, ...restProps } = props;
-              return (
-                <Box
-                  key={option.value ?? key}
-                  component="li"
-                  {...restProps}
-                  sx={{
-                    color: isInviteOption ? 'primary.main' : 'inherit',
-                    fontWeight: isInviteOption ? 600 : 400
-                  }}
-                >
-                  {isInviteOption && (
-                    <ListItemIcon sx={{ color: 'primary.main', minWidth: 36 }}>
-                      <AddCircleTwoToneIcon fontSize="small" />
-                    </ListItemIcon>
-                  )}
-                  <Typography
-                    variant="body2"
-                    sx={{ color: isInviteOption ? 'primary.main' : 'inherit' }}
-                  >
-                    {(option as OptionType).label}
-                  </Typography>
-                </Box>
-              );
-            }}
-            onChange={(event, newValue, reason, details) => {
-              const selectedOption = field.multiple
-                ? details?.option
-                : newValue;
-              if (
-                selectedOption &&
-                (selectedOption as InviteUserOptionType).__inviteOption__
-              ) {
-                const email = (selectedOption as InviteUserOptionType).__email__;
-                // Navigate to invite page with email if provided
-                if (email) {
-                  navigate(
-                    `/app/people-teams/people?invite=true&email=${encodeURIComponent(
-                      email
-                    )}`
-                  );
-                } else {
-                  navigate('/app/people-teams/people?invite=true');
-                }
-              } else {
-                handleChange(formik, field.name, newValue);
-              }
-            }}
-          />
-        </>
-      );
+      break;
     case 'team':
       options = teamsMini.map((team) => {
         return {
@@ -364,6 +131,15 @@ export const CustomSelect = ({
         };
       });
       onOpen = fetchTeams;
+      break;
+    case 'location':
+      options = locationsMini.map((location) => {
+        return {
+          label: location.name,
+          value: location.id
+        };
+      });
+      onOpen = fetchLocations;
       break;
     case 'currency':
       options = currencies.map((currency) => {
@@ -374,182 +150,17 @@ export const CustomSelect = ({
       });
       onOpen = fetchCurrencies;
       break;
-    case 'location':
     case 'parentLocation':
-      const locationOptions = locationsMini
-        .filter((location) => location.id !== excluded)
-        .map((location) => {
-          return {
-            label: location.name,
-            value: location.id
-          };
-        });
-      onOpen = fetchLocations;
-
-      return (
-        <>
-          <Autocomplete
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                fullWidth={field.fullWidth || true}
-                variant="outlined"
-                required={field.required}
-                label={field.label}
-                placeholder={field.placeholder}
-                error={!!formik.errors[field.name] || field.error}
-                helperText={
-                  typeof formik.errors[field.name] === 'string'
-                    ? (formik.errors[field.name] as string)
-                    : ''
-                }
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setLocationModalOpen(true);
-                        }}
-                      >
-                        <SearchIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  )
-                }}
-              />
-            )}
-            fullWidth={field.fullWidth || true}
-            disabled={formik.isSubmitting}
-            onOpen={onOpen}
-            key={field.name}
-            freeSolo
-            filterOptions={(options, params) => {
-              const filtered = options.filter((option) => {
-                const inputValue = params.inputValue.toLowerCase();
-                const optionLabel = option.label.toLowerCase();
-                return optionLabel.includes(inputValue);
-              });
-
-              const { inputValue } = params;
-              const isExisting = options.some((option) =>
-                option.label.toLowerCase().includes(inputValue.toLowerCase())
-              );
-
-              if (
-                inputValue !== '' &&
-                !isExisting &&
-                hasCreatePermission(PermissionEntity.LOCATIONS)
-              ) {
-                filtered.unshift({
-                  label: `${t('create')} "${inputValue}"`,
-                  value: inputValue,
-                  __createOption__: true,
-                  __entityType__: 'location',
-                  __returnField__: field.name
-                } as CreateOptionType);
-              }
-
-              return filtered;
-            }}
-            //@ts-ignore
-            getOptionLabel={(option) =>
-              typeof option === 'string' ? option : option.label
-            }
-            isOptionEqualToValue={(option, value) =>
-              //@ts-ignore
-              option.value == value?.value
-            }
-            multiple={field.multiple}
-            value={field.multiple ? fieldValue ?? [] : fieldValue ?? null}
-            options={locationOptions}
-            renderOption={(props, option) => {
-              const isCreateOption = (option as CreateOptionType)
-                .__createOption__;
-              // @ts-ignore
-              const { key, ...restProps } = props;
-              return (
-                <Box
-                  key={option.value ?? key}
-                  component="li"
-                  {...restProps}
-                  sx={{
-                    color: isCreateOption ? 'primary.main' : 'inherit',
-                    fontWeight: isCreateOption ? 600 : 400
-                  }}
-                >
-                  {isCreateOption && (
-                    <ListItemIcon sx={{ color: 'primary.main', minWidth: 36 }}>
-                      <AddCircleTwoToneIcon fontSize="small" />
-                    </ListItemIcon>
-                  )}
-                  <Typography
-                    variant="body2"
-                    sx={{ color: isCreateOption ? 'primary.main' : 'inherit' }}
-                  >
-                    {(option as OptionType).label}
-                  </Typography>
-                </Box>
-              );
-            }}
-            onChange={(event, newValue) => {
-              if (newValue && (newValue as CreateOptionType).__createOption__) {
-                const createOption = newValue as CreateOptionType;
-                // Navigate to create page with return info in state
-                navigate(
-                  `/app/locations?new=true&name=${encodeURIComponent(
-                    createOption.value as string
-                  )}`,
-                  {
-                    state: {
-                      returnPath: window.location.pathname,
-                      returnField: createOption.__returnField__
-                    }
-                  }
-                );
-              } else {
-                handleChange(formik, field.name, newValue);
-              }
-            }}
-          />
-          <SelectLocationModal
-            open={locationModalOpen}
-            onClose={() => setLocationModalOpen(false)}
-            excludedLocationIds={[excluded]}
-            maxSelections={field.multiple ? 10 : 1}
-            onSelect={(selectedLocations) => {
-              handleChange(
-                formik,
-                field.name,
-                field.multiple
-                  ? selectedLocations.map((location) => ({
-                      label: location.name,
-                      value: location.id
-                    }))
-                  : selectedLocations.length
-                  ? {
-                      label: selectedLocations[0].name,
-                      value: selectedLocations[0].id
-                    }
-                  : null
-              );
-              setLocationModalOpen(false);
-            }}
-            initialSelectedLocations={locationsMini.filter((location) =>
-              (field.multiple
-                ? fieldValue ?? []
-                : fieldValue
-                ? [fieldValue]
-                : []
-              ).some((a) => Number(a.value) === location.id)
-            )}
-          />
-        </>
-      );
+      options = locationsHierarchy.map((location) => {
+        return {
+          label: location.name,
+          value: location.id
+        };
+      });
+      onOpen = fetchRootLocations;
+      break;
     case 'asset': {
-      const assetOptions = assetsMini
+      options = assetsMini
         .filter((asset) => asset.id !== excluded)
         .map((asset) => {
           return {
@@ -574,11 +185,7 @@ export const CustomSelect = ({
                 label={field.label}
                 placeholder={field.placeholder}
                 error={!!formik.errors[field.name] || field.error}
-                helperText={
-                  typeof formik.errors[field.name] === 'string'
-                    ? (formik.errors[field.name] as string)
-                    : ''
-                }
+                helperText={formik.errors[field.name]}
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: (
@@ -586,7 +193,7 @@ export const CustomSelect = ({
                       <IconButton
                         size="small"
                         onClick={(e) => {
-                          e.stopPropagation();
+                          e.stopPropagation(); // Prevent TextField onClick from firing again
                           setAssetModalOpen(true);
                         }}
                       >
@@ -601,93 +208,17 @@ export const CustomSelect = ({
             disabled={formik.isSubmitting}
             onOpen={onOpen}
             key={field.name}
-            freeSolo
-            filterOptions={(options, params) => {
-              const filtered = options.filter((option) => {
-                const inputValue = params.inputValue.toLowerCase();
-                const optionLabel = option.label.toLowerCase();
-                return optionLabel.includes(inputValue);
-              });
-
-              const { inputValue } = params;
-              const isExisting = options.some((option) =>
-                option.label.toLowerCase().includes(inputValue.toLowerCase())
-              );
-
-              if (
-                inputValue !== '' &&
-                !isExisting &&
-                hasCreatePermission(PermissionEntity.ASSETS)
-              ) {
-                filtered.unshift({
-                  label: `${t('create')} "${inputValue}"`,
-                  value: inputValue,
-                  __createOption__: true,
-                  __entityType__: 'asset',
-                  __returnField__: field.name
-                } as CreateOptionType);
-              }
-
-              return filtered;
-            }}
             //@ts-ignore
-            getOptionLabel={(option) =>
-              typeof option === 'string' ? option : option.label
-            }
+            getOptionLabel={(option) => option.label}
             isOptionEqualToValue={(option, value) =>
               //@ts-ignore
-              option.value == value?.value
+              option.value == value.value
             }
             multiple={field.multiple}
             value={field.multiple ? fieldValue ?? [] : fieldValue ?? null}
-            options={assetOptions}
-            renderOption={(props, option) => {
-              const isCreateOption = (option as CreateOptionType)
-                .__createOption__;
-              // @ts-ignore
-              const { key, ...restProps } = props;
-              return (
-                <Box
-                  key={option.value ?? key}
-                  component="li"
-                  {...restProps}
-                  sx={{
-                    color: isCreateOption ? 'primary.main' : 'inherit',
-                    fontWeight: isCreateOption ? 600 : 400
-                  }}
-                >
-                  {isCreateOption && (
-                    <ListItemIcon sx={{ color: 'primary.main', minWidth: 36 }}>
-                      <AddCircleTwoToneIcon fontSize="small" />
-                    </ListItemIcon>
-                  )}
-                  <Typography
-                    variant="body2"
-                    sx={{ color: isCreateOption ? 'primary.main' : 'inherit' }}
-                  >
-                    {(option as OptionType).label}
-                  </Typography>
-                </Box>
-              );
-            }}
+            options={options}
             onChange={(event, newValue) => {
-              if (newValue && (newValue as CreateOptionType).__createOption__) {
-                const createOption = newValue as CreateOptionType;
-                // Navigate to create page with return info in state
-                navigate(
-                  `/app/assets?new=true&name=${encodeURIComponent(
-                    createOption.value as string
-                  )}`,
-                  {
-                    state: {
-                      returnPath: window.location.pathname,
-                      returnField: createOption.__returnField__
-                    }
-                  }
-                );
-              } else {
-                handleChange(formik, field.name, newValue);
-              }
+              handleChange(formik, field.name, newValue);
             }}
           />
           <SelectAssetModal
@@ -712,7 +243,7 @@ export const CustomSelect = ({
                     }
                   : null
               );
-              setAssetModalOpen(false);
+              setAssetModalOpen(false); // Close the modal
             }}
             initialSelectedAssets={assetsMini.filter((asset) =>
               (field.multiple
@@ -736,7 +267,7 @@ export const CustomSelect = ({
       onOpen = fetchRoles;
       break;
     case 'category':
-      const categoryOptions =
+      options =
         categories[field.category]?.map((category) => {
           return {
             label: category.name,
@@ -744,139 +275,7 @@ export const CustomSelect = ({
           };
         }) ?? [];
       onOpen = () => fetchCategories(field.category);
-
-      return (
-        <>
-          <Autocomplete
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                fullWidth={field.fullWidth || true}
-                variant="outlined"
-                required={field.required}
-                label={field.label}
-                placeholder={field.placeholder}
-                error={!!formik.errors[field.name] || field.error}
-                helperText={
-                  typeof formik.errors[field.name] === 'string'
-                    ? (formik.errors[field.name] as string)
-                    : ''
-                }
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: hasCreatePermission(
-                    PermissionEntity.CATEGORIES
-                  ) && (
-                    <InputAdornment position="end">
-                      {creatingCategory ? (
-                        <CircularProgress size="1rem" />
-                      ) : (
-                        <IconButton
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const inputValue = params.inputProps.value;
-                            if (inputValue) {
-                              handleCreateCategory(inputValue as string);
-                            }
-                          }}
-                          disabled={!params.inputProps.value}
-                        >
-                          <AddCircleTwoToneIcon />
-                        </IconButton>
-                      )}
-                    </InputAdornment>
-                  )
-                }}
-              />
-            )}
-            fullWidth={field.fullWidth || true}
-            disabled={formik.isSubmitting || creatingCategory}
-            onOpen={onOpen}
-            key={field.name}
-            freeSolo
-            filterOptions={(options, params) => {
-              const filtered = options.filter((option) => {
-                const inputValue = params.inputValue.toLowerCase();
-                const optionLabel = option.label.toLowerCase();
-                return optionLabel.includes(inputValue);
-              });
-
-              const { inputValue } = params;
-
-              // Add create category option when typing
-              if (
-                inputValue !== '' &&
-                hasCreatePermission(PermissionEntity.ASSETS)
-              ) {
-                filtered.unshift({
-                  label: `${t('create')} "${inputValue}"`,
-                  value: inputValue,
-                  __createCategoryOption__: true,
-                  __categoryName__: inputValue
-                } as CreateCategoryOptionType);
-              }
-
-              return filtered;
-            }}
-            //@ts-ignore
-            getOptionLabel={(option) =>
-              typeof option === 'string' ? option : option.label
-            }
-            isOptionEqualToValue={(option, value) =>
-              //@ts-ignore
-              option.value == value?.value
-            }
-            multiple={field.multiple}
-            value={field.multiple ? fieldValue ?? [] : fieldValue ?? null}
-            options={categoryOptions}
-            renderOption={(props, option) => {
-              const isCreateOption = (option as CreateCategoryOptionType)
-                .__createCategoryOption__;
-              //@ts-ignore
-              const { key, ...restProps } = props;
-
-              return (
-                <Box
-                  key={option.value ?? key}
-                  component="li"
-                  {...restProps}
-                  sx={{
-                    color: isCreateOption ? 'primary.main' : 'inherit',
-                    fontWeight: isCreateOption ? 600 : 400
-                  }}
-                >
-                  {isCreateOption && (
-                    <ListItemIcon sx={{ color: 'primary.main', minWidth: 36 }}>
-                      <AddCircleTwoToneIcon fontSize="small" />
-                    </ListItemIcon>
-                  )}
-                  <Typography
-                    variant="body2"
-                    sx={{ color: isCreateOption ? 'primary.main' : 'inherit' }}
-                  >
-                    {(option as OptionType).label}
-                  </Typography>
-                </Box>
-              );
-            }}
-            onChange={async (event, newValue) => {
-              if (
-                newValue &&
-                (newValue as CreateCategoryOptionType).__createCategoryOption__
-              ) {
-                const categoryName = (newValue as CreateCategoryOptionType)
-                  .__categoryName__;
-                if (categoryName) {
-                  await handleCreateCategory(categoryName);
-                }
-              } else {
-                handleChange(formik, field.name, newValue);
-              }
-            }}
-          />
-        </>
-      );
+      break;
     case 'priority':
       options = ['NONE', 'LOW', 'MEDIUM', 'HIGH'].map((value) => {
         return {

@@ -7,13 +7,10 @@ import {
   useMediaQuery,
   useTheme
 } from '@mui/material';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { customLogoPaths, homeUrl } from '../../config';
-import { useEffect, useState } from 'react';
-import { useBrand } from '../../hooks/useBrand';
-import { getLocalizedHomeUrl } from '../../utils/urlPaths';
 
-const LogoWrapper = styled('a')(
+const LogoWrapper = styled(Link)(
   ({ theme }) => `
         color: ${theme.palette.text.primary};
         display: flex;
@@ -51,24 +48,20 @@ const TooltipWrapper = styled(({ className, ...props }: TooltipProps) => (
 interface OwnProps {
   white?: boolean;
 }
-
 function Logo({ white }: OwnProps) {
-  const { t, i18n } = useTranslation();
+  const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const width = 60;
   const height = 60;
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { logo, name: brandName } = useBrand();
-
   return (
-    <TooltipWrapper title={brandName} arrow>
-      <LogoWrapper href={getLocalizedHomeUrl('', i18n.language)}>
+    <TooltipWrapper title="Atlas" arrow>
+      <LogoWrapper to="/overview">
         <LogoSignWrapper>
           <img
-            src={white ? logo.white : logo.dark}
+            src={`/static/images/logo/logo${white ? '-white' : ''}.png`}
             width={`${width * (mobile ? 0.7 : 1)}px`}
             height={`${height * (mobile ? 0.7 : 1)}px`}
-            alt={'logo'}
           />
         </LogoSignWrapper>
       </LogoWrapper>

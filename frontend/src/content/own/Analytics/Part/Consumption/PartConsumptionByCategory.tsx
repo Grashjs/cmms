@@ -18,10 +18,9 @@ interface PartConsumptionByCategoryProps {
   ) => void;
   start: Date;
   end: Date;
-  companyId?: number;
 }
 
-function PartConsumptionByCategory({ handleOpenModal, start, end, companyId }: PartConsumptionByCategoryProps) {
+function PartConsumptionByCategory({ handleOpenModal, start, end }: PartConsumptionByCategoryProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -30,8 +29,8 @@ function PartConsumptionByCategory({ handleOpenModal, start, end, companyId }: P
   );
 
   useEffect(() => {
-    dispatch(getPartConsumptionsByPartCategory(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getPartConsumptionsByPartCategory(start, end));
+  }, [start, end]);
 
   const columns = ['id'];
 

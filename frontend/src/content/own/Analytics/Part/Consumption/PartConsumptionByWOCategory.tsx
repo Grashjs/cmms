@@ -21,10 +21,9 @@ interface OwnProps {
   ) => void;
   start: Date;
   end: Date;
-  companyId?: number;
 }
 
-function PartConsumptionByWOCategory({ handleOpenModal, start, end, companyId }: OwnProps) {
+function PartConsumptionByWOCategory({ handleOpenModal, start, end }: OwnProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -33,8 +32,8 @@ function PartConsumptionByWOCategory({ handleOpenModal, start, end, companyId }:
   );
 
   useEffect(() => {
-    dispatch(getPartConsumptionsByWOCategory(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getPartConsumptionsByWOCategory(start, end));
+  }, [start, end]);
 
   const columns = ['id'];
 

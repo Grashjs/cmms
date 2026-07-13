@@ -2,7 +2,7 @@ package com.grash.model.abstracts;
 
 import lombok.Data;
 
-import jakarta.persistence.MappedSuperclass;
+import javax.persistence.MappedSuperclass;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -21,4 +21,3 @@ public abstract class Time extends CompanyAudit {
         return Arrays.asList(day, hours, minute, second);
     }
 }
-

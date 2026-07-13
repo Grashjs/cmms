@@ -9,6 +9,7 @@ declare global {
       GOOGLE_KEY: string;
       API_URL: string;
       NODE_ENV: string;
+      MUI_X_LICENSE: string;
     };
   }
 }

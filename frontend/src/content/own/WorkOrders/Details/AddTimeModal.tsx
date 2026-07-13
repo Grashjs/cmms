@@ -3,41 +3,27 @@ import { useTranslation } from 'react-i18next';
 import Form from '../../components/form';
 import * as Yup from 'yup';
 import { IField } from '../../type';
-import {
-  formatSelect,
-  getHoursAndMinutesAndSeconds
-} from '../../../../utils/formatters';
+import { formatSelect } from '../../../../utils/formatters';
 import { useDispatch } from '../../../../store';
-import { createLabor, editLabor } from '../../../../slices/labor';
+import { createLabor } from '../../../../slices/labor';
 import useAuth from '../../../../hooks/useAuth';
 import FeatureErrorMessage from '../../components/FeatureErrorMessage';
 import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
-import { getErrorMessage } from '../../../../utils/api';
-import { useContext } from 'react';
-import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
-import Labor from '../../../../models/owns/labor';
 
 interface AddTimeProps {
   open: boolean;
   onClose: () => void;
   workOrderId: number;
-  labor?: Labor;
 }
 
 export default function AddTimeModal({
-  open,
-  onClose,
-  workOrderId,
-  labor
-}: AddTimeProps) {
+                                       open,
+                                       onClose,
+                                       workOrderId
+                                     }: AddTimeProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { hasFeature } = useAuth();
-  const { showSnackBar } = useContext(CustomSnackBarContext);
-  const isEdit = !!labor;
-  const [editHours, editMinutes] = labor
-    ? getHoursAndMinutesAndSeconds(labor.duration)
-    : [0, 0];
   const fields: Array<IField> = [
     {
       name: 'assignedTo',
@@ -95,22 +81,6 @@ export default function AddTimeModal({
     minutes: Yup.number().required(t('required_minutes')),
     startedAt: Yup.date().required(t('required_field'))
   };
-  const defaultValues = labor
-    ? {
-        ...labor,
-        assignedTo: labor.assignedTo
-          ? {
-              label: `${labor.assignedTo.firstName} ${labor.assignedTo.lastName}`,
-              value: labor.assignedTo.id
-            }
-          : null,
-        timeCategory: labor.timeCategory
-          ? { label: labor.timeCategory.name, value: labor.timeCategory.id }
-          : null,
-        hours: editHours,
-        minutes: editMinutes
-      }
-    : { includeToTotalTime: true };
   return (
     <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
       <DialogTitle
@@ -119,7 +89,7 @@ export default function AddTimeModal({
         }}
       >
         <Typography variant="h4" gutterBottom>
-          {isEdit ? t('edit_time') : t('add_time')}
+          {t('add_time')}
         </Typography>
         <Typography variant="subtitle2">{t('add_time_description')}</Typography>
       </DialogTitle>
@@ -133,10 +103,10 @@ export default function AddTimeModal({
           <Form
             fields={fields}
             validation={Yup.object().shape(shape)}
-            submitText={isEdit ? t('edit') : t('add')}
-            values={defaultValues}
-            enableReinitialize={isEdit}
-            onChange={({ field, e }) => {}}
+            submitText={t('add')}
+            values={{ includeToTotalTime: true }}
+            onChange={({ field, e }) => {
+            }}
             onSubmit={async (values) => {
               const formattedValues = { ...values };
               formattedValues.assignedTo = formatSelect(
@@ -147,16 +117,9 @@ export default function AddTimeModal({
               );
               formattedValues.duration =
                 values.hours * 3600 + values.minutes * 60;
-              if (isEdit) {
-                return dispatch(
-                  editLabor(labor.id, workOrderId, formattedValues as any)
-                )
-                  .catch((err) => showSnackBar(getErrorMessage(err), 'error'))
-                  .then(() => onClose());
-              } else
-                return dispatch(createLabor(workOrderId, formattedValues))
-                  .catch((err) => showSnackBar(getErrorMessage(err), 'error'))
-                  .then(() => onClose());
+              return dispatch(
+                createLabor(workOrderId, formattedValues)
+              ).finally(() => onClose());
             }}
           />
         ) : (

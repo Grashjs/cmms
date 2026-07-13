@@ -252,7 +252,6 @@ export default function SingleTask({
             value={task.notes}
             label={t('notes')}
             type={'text'}
-            name={'singleTask' + task.id.toString()}
           />
           <Button
             sx={{ mt: 1 }}

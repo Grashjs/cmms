@@ -2,9 +2,8 @@ import { Audit } from './audit';
 import { AssetMiniDTO } from './asset';
 import { LocationMiniDTO } from './location';
 import { UserMiniDTO } from '../user';
-import File, { FileThumbnailDTO } from './file';
+import File from './file';
 import Category from './category';
-import { CustomFieldValue } from './customField';
 
 export default interface Meter extends Audit {
   name: string;
@@ -12,13 +11,12 @@ export default interface Meter extends Audit {
   unit: string;
   updateFrequency: number;
   meterCategory: Category;
-  image: FileThumbnailDTO | null;
+  image: File | null;
   users: UserMiniDTO[];
   location?: LocationMiniDTO;
   asset: AssetMiniDTO;
   nextReading: string;
   lastReading: string;
-  customFieldValues: CustomFieldValue[];
 }
 export interface MeterMiniDTO {
   name: string;

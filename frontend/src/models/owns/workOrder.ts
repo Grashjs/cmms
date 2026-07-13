@@ -9,7 +9,6 @@ import { OwnUser, UserMiniDTO } from '../user';
 import { CustomerMiniDTO } from './customer';
 import PreventiveMaintenance from './preventiveMaintenance';
 import { WorkOrderBase } from './workOrderBase';
-import { CustomField } from './customField';
 
 export type Priority = 'HIGH' | 'MEDIUM' | 'LOW' | 'NONE';
 
@@ -21,18 +20,11 @@ export default interface WorkOrder extends WorkOrderBase {
   archived: boolean;
   parentRequest: Request;
   parentPreventiveMaintenance: PreventiveMaintenance;
-  signature: string;
+  signature: File;
   feedback: string;
   requiredSignature: boolean;
   status: string;
   audioDescription: File;
   customId: string;
   //parentPreventiveMaintenance:
-}
-
-export interface WorkOrderMini {
-  id: number;
-  title: string;
-  status: string;
-  createdAt: string;
 }

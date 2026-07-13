@@ -1,7 +1,6 @@
 package com.grash.service;
 
 import com.grash.dto.AssetDowntimePatchDTO;
-import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetDowntimeMapper;
 import com.grash.model.AssetDowntime;
@@ -21,11 +20,8 @@ public class AssetDowntimeService {
     private final AssetDowntimeRepository assetDowntimeRepository;
     private final CompanyService companyService;
     private final AssetDowntimeMapper assetDowntimeMapper;
-    private final LicenseService licenseService;
 
-    public AssetDowntime create(AssetDowntime assetDowntime, boolean manual) {
-        if (manual && !licenseService.hasEntitlement(LicenseEntitlement.ASSET_DOWNTIME))
-            throw new CustomException("You need a license to create asset downtime", HttpStatus.FORBIDDEN);
+    public AssetDowntime create(AssetDowntime assetDowntime) {
         checkOverlapping(assetDowntime);
         return assetDowntimeRepository.save(assetDowntime);
     }
@@ -37,8 +33,7 @@ public class AssetDowntimeService {
     public AssetDowntime update(Long id, AssetDowntimePatchDTO assetDowntime) {
         if (assetDowntimeRepository.existsById(id)) {
             AssetDowntime savedAssetDowntime = assetDowntimeRepository.findById(id).get();
-            AssetDowntime updatedAssetDowntime = assetDowntimeMapper.updateAssetDowntime(savedAssetDowntime,
-                    assetDowntime);
+            AssetDowntime updatedAssetDowntime = assetDowntimeMapper.updateAssetDowntime(savedAssetDowntime, assetDowntime);
             checkOverlapping(updatedAssetDowntime);
             return assetDowntimeRepository.save(updatedAssetDowntime);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -73,22 +68,13 @@ public class AssetDowntimeService {
 
     }
 
-    public List<Object[]> findTopNAssetsByDowntime(Long companyId, Date start, Date end, int limit) {
-        return assetDowntimeRepository.findTopNAssetsByDowntime(companyId, start, end, limit);
-    }
-
-    public List<Object[]> findTopNAssetsForMTBF(Long companyId, Date start, Date end, int limit) {
-        return assetDowntimeRepository.findTopNAssetsForMTBF(companyId, start, end, limit);
-    }
-
     public long getDowntimesMeantime(Collection<AssetDowntime> downtimes) {
         long result = 0;
         if (downtimes.size() > 2) {
             DowntimeComparator downtimeComparator = new DowntimeComparator();
             AssetDowntime firstDowntime = Collections.min(downtimes, downtimeComparator);
             AssetDowntime lastDowntime = Collections.max(downtimes, downtimeComparator);
-            result =
-                    (Helper.getDateDiff(firstDowntime.getStartsOn(), lastDowntime.getStartsOn(), TimeUnit.HOURS)) / (downtimes.size() - 1);
+            result = (Helper.getDateDiff(firstDowntime.getStartsOn(), lastDowntime.getStartsOn(), TimeUnit.HOURS)) / (downtimes.size() - 1);
         }
         return result;
     }
@@ -109,9 +95,5 @@ public class AssetDowntimeService {
 
     public Collection<AssetDowntime> findByCompanyAndStartsOnBetween(Long id, Date start, Date end) {
         return assetDowntimeRepository.findByStartsOnBetweenAndCompany_Id(start, end, id);
-    }
-
-    public List<Object[]> findTopNAssetsDowntimeAndCosts(Long companyId, Date start, Date end, int limit) {
-        return assetDowntimeRepository.findTopNAssetsDowntimeAndCosts(companyId, start, end, limit);
     }
 }

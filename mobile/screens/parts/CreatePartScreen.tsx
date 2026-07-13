@@ -4,91 +4,65 @@ import Form from '../../components/form';
 import * as Yup from 'yup';
 import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
-import { useDispatch, useSelector } from '../../store';
+import { useDispatch } from '../../store';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { formatPartValues, getPartFields } from '../../utils/fields';
-import { formatCustomFields } from '../../utils/formatters';
 import useAuth from '../../hooks/useAuth';
 import { addPart } from '../../slices/part';
 import { getImageAndFiles } from '../../utils/overall';
-import { getErrorMessage } from '../../utils/api';
-import {
-  IField,
-  getCustomFieldsIFields,
-  getCustomFieldsRequiredShape
-} from '../../models/form';
-import { CustomFieldEntityType } from '../../models/customField';
-import useUnsavedChanges from '../../hooks/useUnsavedChanges';
 
 export default function CreatePartScreen({
   navigation,
   route
 }: RootStackScreenProps<'AddPart'>) {
   const { t } = useTranslation();
-  const { uploadFiles, getWOFieldsAndShapes } = useContext(
-    CompanySettingsContext
-  );
+  const { uploadFiles } = useContext(CompanySettingsContext);
   const { getFilteredFields } = useAuth();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
-  const { customFields } = useSelector((state) => state.customFields);
-  const [isFormDirty, setIsFormDirty] = useState(false);
-
-  useUnsavedChanges(navigation, isFormDirty);
-
-  const onCreationSuccess = (createdPart) => {
+  const onCreationSuccess = () => {
     showSnackBar(t('part_create_success'), 'success');
-    route.params?.onSuccess?.(createdPart);
     navigation.goBack();
   };
   const onCreationFailure = (err) =>
-    showSnackBar(getErrorMessage(err, t('part_create_failure')), 'error');
+    showSnackBar(t('part_create_failure'), 'error');
 
-  const defaultShape = {
-    name: Yup.string().required(t('required_part_name')),
-    ...getCustomFieldsRequiredShape(customFields, CustomFieldEntityType.PART, t)
-  };
-
-  const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
-    const fields = [
-      ...getFilteredFields(getPartFields(t)),
-      ...getCustomFieldsIFields(customFields, CustomFieldEntityType.PART)
-    ];
-    return getWOFieldsAndShapes(fields, defaultShape);
+  const shape = {
+    name: Yup.string().required(t('required_part_name'))
   };
 
   return (
     <View style={styles.container}>
       <Form
-        fields={getFieldsAndShapes()[0]}
-        validation={Yup.object().shape(getFieldsAndShapes()[1])}
+        fields={getFilteredFields(getPartFields(t))}
+        validation={Yup.object().shape(shape)}
         navigation={navigation}
         submitText={t('create_part')}
         values={{}}
-        onChange={() => setIsFormDirty(true)}
+        onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
-          setIsFormDirty(false);
           let formattedValues = formatPartValues(values);
-          formattedValues = formatCustomFields(formattedValues);
-          try {
-            const uploadedFiles = await uploadFiles(
-              formattedValues.files,
-              formattedValues.image
-            );
-            const imageAndFiles = getImageAndFiles(uploadedFiles);
-            formattedValues = {
-              ...formattedValues,
-              image: imageAndFiles.image,
-              files: imageAndFiles.files
-            };
-            const createdPart = await dispatch(addPart(formattedValues));
-            onCreationSuccess(createdPart);
-          } catch (err) {
-            onCreationFailure(err);
-            throw err;
-          }
+          return new Promise<void>((resolve, rej) => {
+            uploadFiles(formattedValues.files, formattedValues.image)
+              .then((files) => {
+                const imageAndFiles = getImageAndFiles(files);
+                formattedValues = {
+                  ...formattedValues,
+                  image: imageAndFiles.image,
+                  files: imageAndFiles.files
+                };
+                dispatch(addPart(formattedValues))
+                  .then(onCreationSuccess)
+                  .catch(onCreationFailure)
+                  .finally(resolve);
+              })
+              .catch((err) => {
+                onCreationFailure(err);
+                rej(err);
+              });
+          });
         }}
       />
     </View>

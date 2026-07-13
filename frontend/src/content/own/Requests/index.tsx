@@ -26,9 +26,13 @@ import {
 } from '../../../slices/request';
 import { useDispatch, useSelector } from '../../../store';
 import ConfirmDialog from '../components/ConfirmDialog';
-import CustomDatagrid2, {
-  CustomDatagridColumn2
-} from '../components/CustomDatagrid2';
+import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
+import CustomDataGrid from '../components/CustomDatagrid';
+import {
+  GridRenderCellParams,
+  GridToolbar,
+  GridValueGetterParams
+} from '@mui/x-data-grid';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import Request from '../../../models/owns/request';
 import Form from '../components/form';
@@ -39,85 +43,41 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { isNumeric } from '../../../utils/validators';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 import PriorityWrapper from '../components/PriorityWrapper';
-import {
-  formatSelect,
-  formatSelectMultiple,
-  formatCustomFields
-} from '../../../utils/formatters';
+import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
 import useAuth from '../../../hooks/useAuth';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import { getWOBaseFields, getWOBaseValues } from '../../../utils/woBase';
 import { PermissionEntity } from '../../../models/owns/role';
-import { getCustomFields } from '../../../slices/customField';
-import { CustomFieldEntityType } from '../../../models/owns/customField';
-import { getCustomFieldsRequiredShape } from '../type';
 import PermissionErrorMessage from '../components/PermissionErrorMessage';
 import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
-import {
-  handleFileUpload,
-  getImageAndFiles,
-  onSearchQueryChange
-} from '../../../utils/overall';
+import { getImageAndFiles, onSearchQueryChange } from '../../../utils/overall';
 import {
   FilterField,
   SearchCriteria,
   SortDirection
 } from '../../../models/owns/page';
-import { loadFilterFields, saveFilterFields } from '../../../utils/filter';
-import { createColumnHelper } from '@tanstack/react-table';
-import useTableState from '../../../hooks/useTableState';
+import { useGridApiRef } from '@mui/x-data-grid-pro';
+import useGridStatePersist from '../../../hooks/useGridStatePersist';
 import _ from 'lodash';
 import FilterAltTwoToneIcon from '@mui/icons-material/FilterAltTwoTone';
-import CompanyFilter from '../WorkOrders/Filters/CompanyFilter';
 import EnumFilter from '../WorkOrders/Filters/EnumFilter';
-import BusinessTwoToneIcon from '@mui/icons-material/BusinessTwoTone';
 import SignalCellularAltTwoToneIcon from '@mui/icons-material/SignalCellularAltTwoTone';
 import CircleTwoToneIcon from '@mui/icons-material/CircleTwoTone';
 import SearchInput from '../components/SearchInput';
 import * as React from 'react';
 import WorkOrder from '../../../models/owns/workOrder';
 
-const QUERY_SEARCH_FIELDS = new Set<keyof Request>([
-  'title',
-  'description',
-  'customId'
-]);
-
-const FILTERS_STORAGE_KEY = 'request_filters';
-const DEFAULT_FILTER_FIELDS: FilterField[] = [
-  {
-    field: 'priority',
-    operation: 'in',
-    values: [],
-    value: '',
-    enumName: 'PRIORITY'
-  },
-  {
-    field: 'status',
-    operation: 'in',
-    values: ['APPROVED', 'CANCELLED', 'PENDING'],
-    value: '',
-    enumName: 'STATUS'
-  }
-];
-
-const getInitialFilterFields = (): FilterField[] =>
-  loadFilterFields(FILTERS_STORAGE_KEY, DEFAULT_FILTER_FIELDS);
-
-function Requests() {
+function Files() {
   const { t }: { t: any } = useTranslation();
   const { setTitle } = useContext(TitleContext);
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
-  const [openDiscardDialog, setOpenDiscardDialog] = useState<boolean>(false);
-  const [isFormDirty, setIsFormDirty] = useState<boolean>(false);
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const {
     companySettings,
     hasViewPermission,
     hasCreatePermission,
-    getFilteredFields,
-    user
+    getFilteredFields
   } = useAuth();
   const { workOrderRequestConfiguration } = companySettings;
   const [currentRequest, setCurrentRequest] = useState<Request>();
@@ -128,48 +88,28 @@ function Requests() {
   const { requests, loadingGet, singleRequest } = useSelector(
     (state) => state.requests
   );
-  const { customFields } = useSelector((state) => state.customFields);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
+  const defaultFilterFields: FilterField[] = [
+    {
+      field: 'priority',
+      operation: 'in',
+      values: [],
+      value: '',
+      enumName: 'PRIORITY'
+    },
+    {
+      field: 'status',
+      operation: 'in',
+      values: ['APPROVED', 'CANCELLED', 'PENDING'],
+      value: '',
+      enumName: 'STATUS'
+    }
+  ];
   const [criteria, setCriteria] = useState<SearchCriteria>({
-    filterFields: getInitialFilterFields(),
+    filterFields: defaultFilterFields,
     pageSize: 10,
     pageNum: 0,
     direction: 'DESC'
-  });
-
-  // Mapping for column fields to API field names for sorting
-  const fieldMapping: Record<string, string> = {
-    customId: 'customId',
-    title: 'title',
-    description: 'description',
-    priority: 'priority',
-    createdAt: 'createdAt',
-    dueDate: 'dueDate'
-  };
-
-  // Use the table state hook for TanStack Table
-  const {
-    sorting,
-    setSorting,
-    pagination,
-    setPagination,
-    columnOrder,
-    setColumnOrder,
-    columnSizing,
-    setColumnSizing,
-    columnVisibility,
-    setColumnVisibility,
-    pinnedColumns,
-    setPinnedColumns
-  } = useTableState({
-    prefix: 'requests',
-    initialSorting: [],
-    initialPagination: {
-      pageSize: criteria.pageSize,
-      pageIndex: criteria.pageNum
-    },
-    setCriteria,
-    fieldMapping
   });
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const navigate = useNavigate();
@@ -217,11 +157,12 @@ function Requests() {
     };
   }, [singleRequest, requests]);
 
-  useEffect(() => {
-    if ((openAddModal || openUpdateModal) && !customFields.length) {
-      dispatch(getCustomFields());
-    }
-  }, [openAddModal, openUpdateModal]);
+  const onPageSizeChange = (size: number) => {
+    setCriteria({ ...criteria, pageSize: size });
+  };
+  const onPageChange = (number: number) => {
+    setCriteria({ ...criteria, pageNum: number });
+  };
 
   const handleDelete = (id: number) => {
     handleCloseDetails();
@@ -272,82 +213,64 @@ function Requests() {
     newValues.assignedTo = formatSelectMultiple(newValues.assignedTo);
     newValues.priority = newValues.priority?.value;
     newValues.category = formatSelect(newValues.category);
-    return formatCustomFields(newValues);
+    return newValues;
   };
-
-  const columnHelper = createColumnHelper<Request>();
-
-  const columns: CustomDatagridColumn2<Request>[] = [
-    columnHelper.accessor('customId', {
-      id: 'customId',
-      header: () => t('id'),
-      cell: (info) => info.getValue() || '',
-      size: 80
-    }),
-    columnHelper.accessor('title', {
-      id: 'title',
-      header: () => t('title'),
-      cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>,
-      size: 150
-    }),
-    columnHelper.accessor('description', {
-      id: 'description',
-      header: () => t('description'),
-      cell: (info) => info.getValue() || '',
-      size: 300
-    }),
-    columnHelper.accessor('priority', {
-      id: 'priority',
-      header: () => t('priority'),
-      cell: (info) => <PriorityWrapper priority={info.getValue()} />,
-      size: 150
-    }),
-    columnHelper.display({
-      id: 'status',
-      header: () => t('status'),
-      cell: (info) => {
-        const row = info.row.original;
-        return row.cancelled
+  const columns: GridEnrichedColDef[] = [
+    {
+      field: 'customId',
+      headerName: t('id'),
+      description: t('id')
+    },
+    {
+      field: 'title',
+      headerName: t('title'),
+      description: t('title'),
+      width: 150,
+      renderCell: (params: GridRenderCellParams<string>) => (
+        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
+      )
+    },
+    {
+      field: 'description',
+      headerName: t('description'),
+      description: t('description'),
+      width: 300
+    },
+    {
+      field: 'priority',
+      headerName: t('priority'),
+      description: t('priority'),
+      width: 150,
+      renderCell: (params: GridRenderCellParams<string>) => (
+        <PriorityWrapper priority={params.value} />
+      )
+    },
+    {
+      field: 'status',
+      headerName: t('status'),
+      description: t('status'),
+      width: 150,
+      valueGetter: (params: GridValueGetterParams<null, Request>) =>
+        params.row.cancelled
           ? t('rejected')
-          : row.workOrder
+          : params.row.workOrder
           ? t('approved')
-          : t('pending');
-      },
-      size: 150
-    }),
-    columnHelper.accessor('dueDate', {
-      id: 'dueDate',
-      header: () => t('due_date'),
-      cell: (info) => getFormattedDate(info.getValue()),
-      size: 150
-    }),
-    columnHelper.accessor((row) => row.asset?.name, {
-      id: 'asset',
-      header: () => t('asset'),
-      cell: (info) => info.getValue() || '',
-      size: 150
-    }),
-    columnHelper.accessor((row) => row.asset?.name, {
-      id: 'location',
-      header: () => t('location'),
-      cell: (info) => info.getValue() || '',
-      size: 150
-    }),
-    columnHelper.accessor('createdAt', {
-      id: 'createdAt',
-      header: () => t('created_at'),
-      cell: (info) => getFormattedDate(info.getValue()),
-      size: 150
-    })
+          : t('pending')
+    },
+    {
+      field: 'createdAt',
+      headerName: t('created_at'),
+      description: t('created_at'),
+      width: 150,
+      valueGetter: (params: GridValueGetterParams<null, Request>) =>
+        getFormattedDate(params.value)
+    }
   ];
-  const defaultFields: Array<IField> = [...getWOBaseFields(t, customFields)];
+  const apiRef = useGridApiRef();
+  useGridStatePersist(apiRef, columns, 'request');
+  const defaultFields: Array<IField> = [...getWOBaseFields(t)];
   const defaultShape = {
-    title: Yup.string().required(t('required_request_name')),
-    ...getCustomFieldsRequiredShape(
-      customFields,
-      CustomFieldEntityType.WORK_ORDER,
-      t
-    )
+    title: Yup.string().required(t('required_request_name'))
   };
   const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
     let fields = [...getFilteredFields(defaultFields)];
@@ -400,8 +323,7 @@ function Requests() {
   const onQueryChange = (event) => {
     onSearchQueryChange<WorkOrder>(event, criteria, setCriteria, [
       'title',
-      'description',
-      'customId'
+      'description'
     ]);
   };
   const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
@@ -410,20 +332,13 @@ function Requests() {
     const newCriteria = { ...criteria };
     newCriteria.filterFields = newFilters;
     setCriteria(newCriteria);
-    saveFilterFields(FILTERS_STORAGE_KEY, newFilters, QUERY_SEARCH_FIELDS);
   };
   const renderAddModal = () => (
     <Dialog
       fullWidth
       maxWidth="md"
       open={openAddModal}
-      onClose={() => {
-        if (isFormDirty) {
-          setOpenDiscardDialog(true);
-        } else {
-          setOpenAddModal(false);
-        }
-      }}
+      onClose={() => setOpenAddModal(false)}
     >
       <DialogTitle
         sx={{
@@ -449,44 +364,32 @@ function Requests() {
             validation={Yup.object().shape(getFieldsAndShapes()[1])}
             submitText={t('add')}
             values={{}}
-            onChange={() => setIsFormDirty(true)}
+            onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
-              setIsFormDirty(false);
               let formattedValues = formatValues(values);
-              try {
-                const uploadedFiles = await uploadFiles(
-                  formattedValues.files,
-                  formattedValues.image
-                );
-
-                const imageAndFiles = getImageAndFiles(uploadedFiles);
-                formattedValues = {
-                  ...formattedValues,
-                  image: imageAndFiles.image,
-                  files: imageAndFiles.files
-                };
-
-                await dispatch(addRequest(formattedValues));
-                onCreationSuccess();
-              } catch (err) {
-                onCreationFailure(err);
-                throw err;
-              }
+              return new Promise<void>((resolve, rej) => {
+                uploadFiles(formattedValues.files, formattedValues.image)
+                  .then((files) => {
+                    const imageAndFiles = getImageAndFiles(files);
+                    formattedValues = {
+                      ...formattedValues,
+                      image: imageAndFiles.image,
+                      files: imageAndFiles.files
+                    };
+                    dispatch(addRequest(formattedValues))
+                      .then(onCreationSuccess)
+                      .catch(onCreationFailure)
+                      .finally(resolve);
+                  })
+                  .catch((err) => {
+                    onCreationFailure(err);
+                    rej(err);
+                  });
+              });
             }}
           />
         </Box>
       </DialogContent>
-      <ConfirmDialog
-        open={openDiscardDialog}
-        onCancel={() => setOpenDiscardDialog(false)}
-        onConfirm={() => {
-          setOpenDiscardDialog(false);
-          setOpenAddModal(false);
-          setIsFormDirty(false);
-        }}
-        confirmText={t('discard_changes')}
-        question={t('discard_changes_question')}
-      />
     </Dialog>
   );
   const renderUpdateModal = () => (
@@ -526,29 +429,31 @@ function Requests() {
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
-              try {
-                const imageAndFiles = await handleFileUpload(
-                  {
-                    files: formattedValues.files,
-                    image: formattedValues.image
-                  },
-                  uploadFiles
-                );
-
-                formattedValues = {
-                  ...formattedValues,
-                  image: imageAndFiles.image,
-                  files: imageAndFiles.files
-                };
-
-                await dispatch(
-                  editRequest(currentRequest?.id, formattedValues)
-                );
-                await onEditSuccess();
-              } catch (err) {
-                onEditFailure(err);
-                throw err;
-              }
+              return new Promise<void>((resolve, rej) => {
+                const files = formattedValues.files.find((file) => file.id)
+                  ? []
+                  : formattedValues.files;
+                uploadFiles(files, formattedValues.image)
+                  .then((files) => {
+                    const imageAndFiles = getImageAndFiles(
+                      files,
+                      currentRequest.image
+                    );
+                    formattedValues = {
+                      ...formattedValues,
+                      image: imageAndFiles.image,
+                      files: [...currentRequest.files, ...imageAndFiles.files]
+                    };
+                    dispatch(editRequest(currentRequest?.id, formattedValues))
+                      .then(onEditSuccess)
+                      .catch(onEditFailure)
+                      .finally(resolve);
+                  })
+                  .catch((err) => {
+                    onEditFailure(err);
+                    rej(err);
+                  });
+              });
             }}
           />
         </Box>
@@ -563,9 +468,17 @@ function Requests() {
         </Helmet>
         {renderAddModal()}
         {renderUpdateModal()}
-        <Box justifyContent="center" alignItems="stretch" paddingX={4}>
+        <Grid
+          container
+          justifyContent="center"
+          alignItems="stretch"
+          spacing={1}
+          paddingX={4}
+        >
           {hasCreatePermission(PermissionEntity.REQUESTS) && (
-            <Box
+            <Grid
+              item
+              xs={12}
               display="flex"
               flexDirection="row"
               justifyContent="right"
@@ -573,88 +486,118 @@ function Requests() {
             >
               <Button
                 startIcon={<AddTwoToneIcon />}
-                sx={{ my: 1 }}
+                sx={{ mx: 6, my: 1 }}
                 variant="contained"
                 onClick={() => setOpenAddModal(true)}
               >
                 {t('request')}
               </Button>
-            </Box>
+            </Grid>
           )}
-          <Card
-            sx={{
-              py: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center'
-            }}
-          >
-            <Stack
-              sx={{ ml: 1 }}
-              direction="row"
-              spacing={1}
-              justifyContent={'flex-start'}
-              width={'95%'}
+          <Grid item xs={12}>
+            <Card
+              sx={{
+                p: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center'
+              }}
             >
-              <EnumFilter
-                filterFields={criteria.filterFields}
-                onChange={onFilterChange}
-                completeOptions={['NONE', 'LOW', 'MEDIUM', 'HIGH']}
-                fieldName="priority"
-                icon={<SignalCellularAltTwoToneIcon />}
-              />
-              <EnumFilter
-                filterFields={criteria.filterFields}
-                onChange={onFilterChange}
-                completeOptions={['APPROVED', 'CANCELLED', 'PENDING']}
-                fieldName="status"
-                icon={<CircleTwoToneIcon />}
-              />
-              {user?.superAccountRelations?.length > 0 && (
-                <CompanyFilter
+              <Stack
+                sx={{ ml: 1 }}
+                direction="row"
+                spacing={1}
+                justifyContent={'flex-start'}
+                width={'95%'}
+              >
+                <EnumFilter
                   filterFields={criteria.filterFields}
                   onChange={onFilterChange}
-                  superAccountRelations={user.superAccountRelations}
-                  icon={<BusinessTwoToneIcon />}
+                  completeOptions={['NONE', 'LOW', 'MEDIUM', 'HIGH']}
+                  fieldName="priority"
+                  icon={<SignalCellularAltTwoToneIcon />}
                 />
-              )}
-              <SearchInput onChange={debouncedQueryChange} />
-            </Stack>
-            <Divider sx={{ mt: 1 }} />
-            <Box sx={{ width: '95%' }}>
-              <CustomDatagrid2
-                columns={columns}
-                data={requests.content}
-                loading={loadingGet}
-                pagination={pagination}
-                onPaginationChange={setPagination}
-                totalRows={requests.totalElements}
-                pageSizeOptions={[10, 20, 50]}
-                sorting={sorting}
-                onSortingChange={setSorting}
-                columnOrder={columnOrder}
-                onColumnOrderChange={setColumnOrder}
-                columnSizing={columnSizing}
-                onColumnSizingChange={setColumnSizing}
-                columnVisibility={columnVisibility}
-                onColumnVisibilityChange={setColumnVisibility}
-                onRowClick={(row) => handleOpenDetails(row.id)}
-                noRowsMessage={t('noRows.request.message')}
-                noRowsAction={t('noRows.request.action')}
-                enableColumnReordering
-                enableColumnResizing
-                pinnedColumns={pinnedColumns}
-                onPinnedColumnsChange={setPinnedColumns}
-              />
-            </Box>
-          </Card>
-        </Box>
+                <EnumFilter
+                  filterFields={criteria.filterFields}
+                  onChange={onFilterChange}
+                  completeOptions={['APPROVED', 'CANCELLED', 'PENDING']}
+                  fieldName="status"
+                  icon={<CircleTwoToneIcon />}
+                />
+                <SearchInput onChange={debouncedQueryChange} />
+              </Stack>
+              <Divider sx={{ mt: 1 }} />
+              <Box sx={{ width: '95%' }}>
+                <CustomDataGrid
+                  apiRef={apiRef}
+                  columns={columns}
+                  loading={loadingGet}
+                  pageSize={criteria.pageSize}
+                  page={criteria.pageNum}
+                  rows={requests.content}
+                  rowCount={requests.totalElements}
+                  pagination
+                  paginationMode="server"
+                  onPageSizeChange={onPageSizeChange}
+                  onPageChange={onPageChange}
+                  rowsPerPageOptions={[10, 20, 50]}
+                  onRowClick={({ id }) => handleOpenDetails(Number(id))}
+                  components={{
+                    NoRowsOverlay: () => (
+                      <NoRowsMessageWrapper
+                        message={t('noRows.request.message')}
+                        action={t('noRows.request.action')}
+                      />
+                    )
+                  }}
+                  onSortModelChange={(model) => {
+                    if (model.length === 0) {
+                      setCriteria({
+                        ...criteria,
+                        sortField: undefined,
+                        direction: undefined
+                      });
+                      return;
+                    }
+
+                    const fieldMapping = {
+                      customId: 'customId',
+                      title: 'title',
+                      description: 'description',
+                      priority: 'priority',
+                      // status: 'status',
+                      createdAt: 'createdAt'
+                    };
+
+                    const field = model[0].field;
+                    const mappedField = fieldMapping[field];
+
+                    if (!mappedField) return;
+
+                    setCriteria({
+                      ...criteria,
+                      sortField: mappedField,
+                      direction: (model[0].sort?.toUpperCase() ||
+                        'ASC') as SortDirection
+                    });
+                  }}
+                  sortingMode={'server'}
+                  initialState={{
+                    columns: {
+                      columnVisibilityModel: {}
+                    }
+                  }}
+                />
+              </Box>
+            </Card>
+          </Grid>
+        </Grid>
         <Drawer
           anchor="right"
           open={openDrawer}
           onClose={handleCloseDetails}
           PaperProps={{
-            sx: { width: { xs: '90%', sm: '70%', md: '50%' } }
+            sx: { width: '50%' }
           }}
         >
           <RequestDetails
@@ -679,4 +622,4 @@ function Requests() {
   else return <PermissionErrorMessage message={'no_access_requests'} />;
 }
 
-export default Requests;
+export default Files;

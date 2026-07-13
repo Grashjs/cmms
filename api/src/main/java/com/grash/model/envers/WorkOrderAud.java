@@ -1,17 +1,15 @@
 package com.grash.model.envers;
 
 import com.grash.model.*;
-import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.context.MessageSource;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
-import jakarta.persistence.*;
-
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Locale;
 
 @Entity
 @Data
@@ -29,7 +27,7 @@ public class WorkOrderAud implements Serializable {
     private Date dueDate;
 
     @Column(name = "priority")
-    private Priority priority;
+    private Integer priority;
 
     @Column(name = "estimated_duration")
     private Double estimatedDuration;
@@ -64,11 +62,11 @@ public class WorkOrderAud implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "primary_user_id")
-    private User primaryUser;
+    private OwnUser primaryUser;
 
     @ManyToOne
     @JoinColumn(name = "completed_by_id")
-    private User completedBy;
+    private OwnUser completedBy;
 
     @Column(name = "completed_on")
     private Date completedOn;
@@ -76,7 +74,9 @@ public class WorkOrderAud implements Serializable {
     @Column(name = "status")
     private Status status;
 
-    private String signature;
+    @ManyToOne
+    @JoinColumn(name = "signature_id")
+    private File signature;
 
     @Column(name = "archived")
     private Boolean archived;
@@ -146,8 +146,7 @@ public class WorkOrderAud implements Serializable {
     private Boolean statusMod;
 
     @Column(name = "signature_MOD")
-    private Boolean signatureMod;
-
+    private Boolean signatureIdMod;
 
     @Column(name = "archived_MOD")
     private Boolean archivedMod;
@@ -165,82 +164,75 @@ public class WorkOrderAud implements Serializable {
     @Column(name = "asset_MOD")
     private Boolean assetIdMod;
 
-    public String getSummary(MessageSource messageSource, Locale locale) {
+    public String getSummary() {
         StringBuilder summary = new StringBuilder();
-        String separator = ", ";
-        String colon = ": ";
 
         if (dueDateMod != null && dueDateMod) {
-            summary.append(messageSource.getMessage("Due_Date", null, locale)).append(colon).append(dueDate).append(separator);
+            summary.append("Due Date: ").append(dueDate).append("\n");
         }
         if (priorityMod != null && priorityMod) {
-            summary.append(messageSource.getMessage("Priority", null, locale)).append(colon).append(messageSource.getMessage(priority.toString(), null, locale)).append(
-                    separator);
+            summary.append("Priority: ").append(priority).append("\n");
         }
         if (estimatedDurationMod != null && estimatedDurationMod) {
-            summary.append(messageSource.getMessage("Estimated_Duration", null, locale)).append(colon).append(estimatedDuration).append(separator);
+            summary.append("Estimated Duration: ").append(estimatedDuration).append("\n");
         }
         if (descriptionMod != null && descriptionMod) {
-            summary.append(messageSource.getMessage("Description", null, locale)).append(colon).append(description).append(separator);
+            summary.append("Description: ").append(description).append("\n");
         }
         if (titleMod != null && titleMod) {
-            summary.append(messageSource.getMessage("Title", null, locale)).append(colon).append(title).append(separator);
+            summary.append("Title: ").append(title).append("\n");
         }
         if (requiredSignatureMod != null && requiredSignatureMod) {
-            summary.append(messageSource.getMessage("Required_Signature", null, locale)).append(colon).append(getBooleanText(requiredSignature, messageSource, locale)).append(separator);
+            summary.append("Required Signature: ").append(requiredSignature).append("\n");
         }
         if (imageIdMod != null && imageIdMod) {
-            summary.append(messageSource.getMessage("Image", null, locale)).append(separator);
+            summary.append("Image.\n");
         }
         if (categoryIdMod != null && categoryIdMod) {
-            summary.append(messageSource.getMessage("Category", null, locale)).append(colon).append(category == null ? "N/A" : category.getName()).append(separator);
+            summary.append("Category: ").append(category == null ? "N/A" : category.getName()).append("\n");
         }
         if (locationIdMod != null && locationIdMod) {
-            summary.append(messageSource.getMessage("Location", null, locale)).append(colon).append(location == null ? "N/A" : location.getName()).append(separator);
+            summary.append("Location: ").append(location == null ? "N/A" : location.getName()).append("\n");
         }
         if (teamIdMod != null && teamIdMod) {
-            summary.append(messageSource.getMessage("Team", null, locale)).append(colon).append(team == null ? "N/A" : team.getName()).append(separator);
+            summary.append("Team: ").append(team == null ? "N/A" : team.getName()).append("\n");
         }
         if (primaryUserIdMod != null && primaryUserIdMod) {
-            summary.append(messageSource.getMessage("Primary_User_Email", null, locale)).append(colon).append(primaryUser == null ? "N/A" : primaryUser.getFullName()).append(
-                    separator);
+            summary.append("Primary User: ").append(primaryUser == null ? "N/A" : primaryUser.getFullName()).append(
+                    "\n");
         }
         if (completedByIdMod != null && completedByIdMod) {
-            summary.append(messageSource.getMessage("Completed_By_Email", null, locale)).append(colon).append(completedBy == null ? "N/A" : completedBy.getFullName()).append(
-                    separator);
+            summary.append("Completed By: ").append(completedBy == null ? "N/A" : completedBy.getFullName()).append(
+                    "\n");
         }
         if (completedOnMod != null && completedOnMod) {
-            summary.append(messageSource.getMessage("Completed_On", null, locale)).append(colon).append(completedOn).append(separator);
+            summary.append("Completed On: ").append(completedOn).append("\n");
         }
         if (statusMod != null && statusMod) {
-            summary.append(messageSource.getMessage("Status", null, locale)).append(colon).append(messageSource.getMessage(status.toString(), null, locale)).append(separator);
+            summary.append("Status: ").append(status).append("\n");
         }
-        if (signatureMod != null && signatureMod) {
-            summary.append(messageSource.getMessage("Signature", null, locale)).append(separator);
+        if (signatureIdMod != null && signatureIdMod) {
+            summary.append("Signature.\n");
         }
         if (archivedMod != null && archivedMod) {
-            summary.append(messageSource.getMessage("Archived", null, locale)).append(colon).append(getBooleanText(archived, messageSource, locale)).append(separator);
+            summary.append("Archived: ").append(archived).append("\n");
         }
         if (parentRequestIdMod != null && parentRequestIdMod) {
-            summary.append(messageSource.getMessage("Parent_Request", null, locale)).append(colon).append(parentRequest == null ? "N/A" : parentRequest.getTitle()).append(separator);
+            summary.append("Parent Request: ").append(parentRequest == null ? "N/A" : parentRequest.getTitle()).append("\n");
         }
         if (feedbackMod != null && feedbackMod) {
-            summary.append(messageSource.getMessage("Feedback", null, locale)).append(colon).append(feedback).append(separator);
+            summary.append("Feedback: ").append(feedback).append("\n");
         }
         if (parentPreventiveMaintenanceIdMod != null && parentPreventiveMaintenanceIdMod) {
-            summary.append(messageSource.getMessage("Parent_Preventive_Maintenance", null, locale)).append(colon).append(parentPreventiveMaintenance == null ? "N/A" :
-                    parentPreventiveMaintenance.getName()).append(separator);
+            summary.append("Parent Preventive Maintenance: ").append(parentPreventiveMaintenance == null ? "N/A" :
+                    parentPreventiveMaintenance.getName()).append("\n");
         }
         if (assetIdMod != null && assetIdMod) {
-            summary.append(messageSource.getMessage("Asset", null, locale)).append(colon).append(asset == null ? "N/A" : asset.getName()).append(separator);
+            summary.append("Asset: ").append(asset == null ? "N/A" : asset.getName()).append("\n");
         }
 
-        return summary.substring(0, Math.max(0, summary.length() - separator.length()));
+        return summary.toString();
     }
 
 
-    private String getBooleanText(Boolean value, MessageSource messageSource, Locale locale) {
-        return value == null ? "" : messageSource.getMessage(value ? "Yes" : "No", null, locale);
-    }
 }
-

@@ -80,24 +80,6 @@ const slice = createSlice({
         ...state.loadingPartQuantities,
         [id]: loading
       };
-    },
-    deletePartQuantity(
-      state: PartQuantityState,
-      action: PayloadAction<{ id: number }>
-    ) {
-      const { id } = action.payload;
-      for (const key of Object.keys(state.partQuantitiesByWorkOrder)) {
-        state.partQuantitiesByWorkOrder[Number(key)] =
-          state.partQuantitiesByWorkOrder[Number(key)].filter(
-            (pq) => pq.id !== id
-          );
-      }
-      for (const key of Object.keys(state.partQuantitiesByPurchaseOrder)) {
-        state.partQuantitiesByPurchaseOrder[Number(key)] =
-          state.partQuantitiesByPurchaseOrder[Number(key)].filter(
-            (pq) => pq.id !== id
-          );
-      }
     }
   }
 });
@@ -185,13 +167,6 @@ export const editPartQuantity =
           partQuantity
         })
       );
-  };
-
-export const deletePartQuantity =
-  (id: number): AppThunk =>
-  async (dispatch) => {
-    await api.deletes(`${basePath}/${id}`);
-    dispatch(slice.actions.deletePartQuantity({ id }));
   };
 
 export default slice;

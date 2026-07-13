@@ -1,5 +1,5 @@
 import Constants from 'expo-constants';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AsyncStorage } from 'react-native';
 
 export const googleMapsConfig = {
   apiKey: process.env.GOOGLE_KEY

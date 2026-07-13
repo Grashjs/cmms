@@ -18,10 +18,9 @@ interface WOByPrimaryUserProps {
   ) => void;
   start: Date;
   end: Date;
-  companyId?: number;
 }
 
-function WOByPriority({ handleOpenModal, start, end, companyId }: WOByPrimaryUserProps) {
+function WOByPriority({ handleOpenModal, start, end }: WOByPrimaryUserProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -30,8 +29,8 @@ function WOByPriority({ handleOpenModal, start, end, companyId }: WOByPrimaryUse
   );
 
   useEffect(() => {
-    dispatch(getCompleteByPriority(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getCompleteByPriority(start, end));
+  }, [start, end]);
 
   const columns = ['id'];
 

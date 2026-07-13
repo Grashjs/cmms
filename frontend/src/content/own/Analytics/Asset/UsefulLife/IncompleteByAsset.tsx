@@ -26,11 +26,10 @@ interface WOStatusIncompleteProps {
     title: string
   ) => void,
   start: Date,
-  end: Date,
-  companyId?: number
+  end: Date
 }
 
-function IncompleteWOByAsset({ handleOpenModal, start, end, companyId }: WOStatusIncompleteProps) {
+function IncompleteWOByAsset({ handleOpenModal, start, end }: WOStatusIncompleteProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const { incompleteByAsset, loading } = useSelector(
@@ -39,8 +38,8 @@ function IncompleteWOByAsset({ handleOpenModal, start, end, companyId }: WOStatu
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getIncompleteByAsset(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getIncompleteByAsset(start, end));
+  }, [start, end]);
 
   const columns: string[] = ['id'];
 

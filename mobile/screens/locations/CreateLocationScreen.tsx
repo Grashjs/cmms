@@ -4,99 +4,68 @@ import Form from '../../components/form';
 import * as Yup from 'yup';
 import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
-import { useDispatch, useSelector } from '../../store';
+import { useDispatch } from '../../store';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
-import { getImageAndFiles } from '../../utils/overall';
+import { formatLocationValues, getLocationFields } from '../../utils/fields';
 import useAuth from '../../hooks/useAuth';
 import { addLocation, getLocationChildren } from '../../slices/location';
-import { getErrorMessage } from '../../utils/api';
-import { formatLocationValues, getLocationFields } from '../../utils/fields';
-import { formatCustomFields } from '../../utils/formatters';
-import {
-  IField,
-  getCustomFieldsIFields,
-  getCustomFieldsRequiredShape
-} from '../../models/form';
-import { CustomFieldEntityType } from '../../models/customField';
-import Location from '../../models/location';
-import useUnsavedChanges from '../../hooks/useUnsavedChanges';
 
 export default function CreateLocationScreen({
   navigation,
   route
 }: RootStackScreenProps<'AddLocation'>) {
   const { t } = useTranslation();
-  const { uploadFiles, getWOFieldsAndShapes } = useContext(
-    CompanySettingsContext
-  );
+  const { uploadFiles } = useContext(CompanySettingsContext);
   const { getFilteredFields } = useAuth();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
-  const { customFields } = useSelector((state) => state.customFields);
-  const [isFormDirty, setIsFormDirty] = useState(false);
-
-  useUnsavedChanges(navigation, isFormDirty);
-
-  const onCreationSuccess = (createdLocation: Location) => {
+  const onCreationSuccess = () => {
     showSnackBar(t('location_create_success'), 'success');
-    route.params?.onSuccess?.(createdLocation);
     navigation.goBack();
   };
   const onCreationFailure = (err) =>
-    showSnackBar(getErrorMessage(err, t('location_create_failure')), 'error');
+    showSnackBar(t('location_create_failure'), 'error');
 
-  const defaultShape = {
-    name: Yup.string().required(t('required_location_name')),
-    ...getCustomFieldsRequiredShape(
-      customFields,
-      CustomFieldEntityType.LOCATION,
-      t
-    )
-  };
-
-  const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
-    const fields = [
-      ...getFilteredFields(getLocationFields(t)),
-      ...getCustomFieldsIFields(customFields, CustomFieldEntityType.LOCATION)
-    ];
-    return getWOFieldsAndShapes(fields, defaultShape);
+  const shape = {
+    name: Yup.string().required(t('required_location_name'))
   };
 
   return (
     <View style={styles.container}>
       <Form
-        fields={getFieldsAndShapes()[0]}
-        validation={Yup.object().shape(getFieldsAndShapes()[1])}
+        fields={getFilteredFields(getLocationFields(t))}
+        validation={Yup.object().shape(shape)}
         navigation={navigation}
         submitText={t('create_location')}
         values={{}}
-        onChange={() => setIsFormDirty(true)}
+        onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
-          setIsFormDirty(false);
           let formattedValues = formatLocationValues(values);
-          formattedValues = formatCustomFields(formattedValues);
-          try {
-            const uploadedFiles = await uploadFiles(
-              formattedValues.files,
-              formattedValues.image
-            );
-            const imageAndFiles = getImageAndFiles(uploadedFiles);
-            formattedValues = {
-              ...formattedValues,
-              image: imageAndFiles.image,
-              files: imageAndFiles.files
-            };
-            const createdLocation = await dispatch(
-              addLocation(formattedValues)
-            );
-            onCreationSuccess(createdLocation);
-            dispatch(getLocationChildren(0, []));
-          } catch (err) {
-            onCreationFailure(err);
-            throw err;
-          }
+          return new Promise<void>((resolve, rej) => {
+            uploadFiles(formattedValues.files, formattedValues.image)
+              .then((files) => {
+                formattedValues = {
+                  ...formattedValues,
+                  image: files.length ? { id: files[0].id } : null,
+                  files: files.map((file) => {
+                    return { id: file.id };
+                  })
+                };
+                dispatch(addLocation(formattedValues))
+                  .then(onCreationSuccess)
+                  .then(() => {
+                    dispatch(getLocationChildren(0, []));
+                  })
+                  .catch(onCreationFailure)
+                  .finally(resolve);
+              })
+              .catch((err) => {
+                onCreationFailure(err);
+                rej(err);
+              });
+          });
         }}
       />
     </View>

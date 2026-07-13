@@ -3,19 +3,15 @@ package com.grash.controller;
 import com.grash.dto.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
-import com.grash.factory.MailServiceFactory;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.SuperAccountRelation;
 import com.grash.repository.SuperAccountRelationRepository;
-import com.grash.repository.UserRepository;
 import com.grash.security.CurrentUser;
 import com.grash.security.JwtTokenProvider;
-import com.grash.service.CompanyService;
-import com.grash.service.LdapService;
+import com.grash.service.EmailService2;
 import com.grash.service.UserService;
 import com.grash.service.VerificationTokenService;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -24,16 +20,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
-
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.*;
 
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "Authentication", description = "Authentication and authorization operations")
+@Api(tags = "auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -43,10 +39,7 @@ public class AuthController {
     private final UserMapper userMapper;
     private final SuperAccountRelationRepository superAccountRelationRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final MailServiceFactory mailServiceFactory;
-    private final CompanyService companyService;
-    private final UserRepository userRepository;
-    private final LdapService ldapService;
+    private final EmailService2 emailService2;
     @Value("${frontend.url}")
     private String frontendUrl;
 
@@ -56,22 +49,15 @@ public class AuthController {
                     MediaType.APPLICATION_JSON_VALUE
             }
     )
+    @ApiOperation(value = "${AuthController.signin}")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Something went wrong"),
+            @ApiResponse(code = 422, message = "Invalid credentials")
+    })
     public ResponseEntity<AuthResponse> login(
-            @Parameter(description = "User login credentials") @Valid @RequestBody UserLoginRequest userLoginRequest) {
+            @ApiParam("AuthLoginRequest") @Valid @RequestBody UserLoginRequest userLoginRequest) {
         AuthResponse authResponse = new AuthResponse(userService.signin(userLoginRequest.getEmail().toLowerCase(),
                 userLoginRequest.getPassword(), userLoginRequest.getType()));
-        return new ResponseEntity<>(authResponse, HttpStatus.OK);
-    }
-
-    @PostMapping(
-            path = "/signin-ldap",
-            produces = {
-                    MediaType.APPLICATION_JSON_VALUE
-            }
-    )
-    public ResponseEntity<AuthResponse> signinLdap(
-            @Parameter(description = "LDAP login credentials") @Valid @RequestBody LdapLoginRequest ldapLoginRequest) {
-        AuthResponse authResponse = new AuthResponse(ldapService.signinLdap(ldapLoginRequest));
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
 
@@ -80,10 +66,13 @@ public class AuthController {
             produces = {
                     MediaType.APPLICATION_JSON_VALUE
             })
-    public SignupSuccessResponse<UserResponseDTO> signup(@Parameter(description = "User signup data") @Valid @RequestBody UserSignupRequest user) {
-        SignupSuccessResponse<User> response = userService.signup(user);
-        return new SignupSuccessResponse<>(response.isSuccess(), response.getMessage(),
-                userMapper.toResponseDto(response.getUser()));
+    @ApiOperation(value = "${AuthController.signup}")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 400, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 422, message = "Username is already in use")})
+    public SuccessResponse signup(@ApiParam("Signup User") @Valid @RequestBody UserSignupRequest user) {
+        return userService.signup(user);
     }
 
 //    @PostMapping(
@@ -95,27 +84,28 @@ public class AuthController {
 //            @ApiResponse(code = 400, message = "Something went wrong"), //
 //            @ApiResponse(code = 403, message = "Access denied"), //
 //            @ApiResponse(code = 422, message = "Username is already in use")})
-//    public void sendMail( @Valid @RequestBody UserSignupRequest user) {
+//    public void sendMail(@ApiParam("Signup User") @Valid @RequestBody UserSignupRequest user) {
 //        String email = "ibracool99@gmail.com";
 //        String subject = "GG";
 //        Map<String, Object> variables = new HashMap<String, Object>() {{
 //            put("verifyTokenLink", "gg");
 //            put("featuresLink", "s");
 //        }};
-//        mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{email}, subject,
-//        variables, "new-work-order"
-//        + ".html", Locale.FRENCH, null);
+//        emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, subject, variables, "new-work-order
+//        .html", Locale.FRENCH);
 //    }
 
     @GetMapping("/activate-account")
+    @ApiOperation(value = "activate account")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 400, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied")})
     public void activateAcount(
-            @Parameter(description = "Account activation token") @RequestParam String token,
-            HttpServletResponse httpServletResponse
+            @ApiParam("token") @RequestParam String token, HttpServletResponse httpServletResponse
     ) {
         try {
-            String email = verificationTokenService.confirmMail(token);
-            httpServletResponse.setHeader("Location",
-                    frontendUrl + "/account/login?email=" + email);
+            verificationTokenService.confirmMail(token);
+            httpServletResponse.setHeader("Location", frontendUrl + "/account/login");
         } catch (Exception ex) {
             httpServletResponse.setHeader("Location", frontendUrl + "/account/register");
         }
@@ -124,11 +114,11 @@ public class AuthController {
 
     @GetMapping("/reset-pwd-confirm")
     public void resetPasswordConfirm(
-            @Parameter(description = "Password reset token") @RequestParam String token,
+            @RequestParam String token,
             HttpServletResponse httpServletResponse
     ) {
         try {
-            User user = verificationTokenService.confirmResetPassword(token);
+            OwnUser user = verificationTokenService.confirmResetPassword(token);
             httpServletResponse.setHeader("Location", frontendUrl + "/account/login?email=" + user.getEmail());
         } catch (Exception ex) {
             httpServletResponse.setHeader("Location", frontendUrl + "/account/register");
@@ -138,21 +128,40 @@ public class AuthController {
 
     @DeleteMapping(value = "/{username}")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    public String delete(@PathVariable String username) {
+    @ApiOperation(value = "${AuthController.delete}", authorizations = {@Authorization(value = "apiKey")})
+    @ApiResponses(value = {//
+            @ApiResponse(code = 400, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "The user doesn't exist"), //
+            @ApiResponse(code = 500, message = "Expired or invalid JWT token")})
+    public String delete(@ApiParam("Username") @PathVariable String username) {
         userService.delete(username);
         return username;
     }
 
     @GetMapping(value = "/{username}")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    public UserResponseDTO search(@PathVariable String username) {
+    @ApiOperation(value = "${AuthController.search}", response = UserResponseDTO.class, authorizations =
+            {@Authorization(value = "apiKey")})
+    @ApiResponses(value = {//
+            @ApiResponse(code = 400, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "The user doesn't exist"), //
+            @ApiResponse(code = 500, message = "Expired or invalid JWT token")})
+    public UserResponseDTO search(@ApiParam("Username") @PathVariable String username) {
         return userMapper.toResponseDto(userService.findByEmail(username).get());
     }
 
     @GetMapping(value = "/me")
     @PreAuthorize("permitAll()")
+    @ApiOperation(value = "${AuthController.me}", response = UserResponseDTO.class, authorizations =
+            {@Authorization(value = "apiKey")})
+    @ApiResponses(value = {//
+            @ApiResponse(code = 400, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 500, message = "Expired or invalid JWT token")})
     public UserResponseDTO whoami(HttpServletRequest req) {
-        return userMapper.toResponseDto(userService.whoami(req, false));
+        return userMapper.toResponseDto(userService.whoami(req));
     }
 
     @GetMapping("/refresh")
@@ -163,14 +172,14 @@ public class AuthController {
 
     @PreAuthorize("permitAll()")
     @GetMapping(value = "/resetpwd", produces = "application/json")
-    public SuccessResponse resetPassword(@Parameter(description = "User email address for password reset") @RequestParam String email) {
+    public SuccessResponse resetPassword(@RequestParam String email) {
         return userService.resetPasswordRequest(email);
     }
 
     @PreAuthorize("permitAll()")
     @PostMapping(value = "/updatepwd", produces = "application/json")
-    public ResponseEntity<SuccessResponse> updatePassword(@Parameter(description = "Password update request") @Valid @RequestBody UpdatePasswordRequest updatePasswordRequest, HttpServletRequest req) {
-        User user = userService.whoami(req);
+    public ResponseEntity<SuccessResponse> updatePassword(@Valid @RequestBody UpdatePasswordRequest updatePasswordRequest, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
         String password = user.getPassword();
         String oldPassword = updatePasswordRequest.getOldPassword();
         if (passwordEncoder.matches(oldPassword, password)) {
@@ -186,14 +195,13 @@ public class AuthController {
     @GetMapping("/switch-account")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public AuthResponse switchAccount(
-            @Parameter(description = "Target user ID to switch to") @RequestParam("id") Long id, @Parameter(hidden =
-                    true) @CurrentUser User user
+            @RequestParam("id") Long id, @ApiIgnore @CurrentUser OwnUser user
     ) {
         if (!user.getSuperAccountRelations().isEmpty()) {//user is superUser
             SuperAccountRelation superAccountRelation =
                     superAccountRelationRepository.findBySuperUser_IdAndChildUser_Id(user.getId(), id);
             if (superAccountRelation == null) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            User childUser = userService.findById(id).get();
+            OwnUser childUser = userService.findById(id).get();
             if (!childUser.isEnabled()) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return new AuthResponse(jwtTokenProvider.createToken(childUser.getEmail(),
                     Collections.singletonList(childUser.getRole().getRoleType())));
@@ -201,23 +209,11 @@ public class AuthController {
             SuperAccountRelation superAccountRelation =
                     superAccountRelationRepository.findBySuperUser_IdAndChildUser_Id(id, user.getId());
             if (superAccountRelation == null) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            User superUser = userService.findById(id).get();
+            OwnUser superUser = userService.findById(id).get();
             if (!superUser.isEnabled()) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return new AuthResponse(jwtTokenProvider.createToken(superUser.getEmail(),
                     Collections.singletonList(superUser.getRole().getRoleType())));
         }
         throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
-
-    @DeleteMapping("")
-    @PreAuthorize("permitAll()")
-    public SuccessResponse deleteAccount(@Parameter(hidden = true) @CurrentUser User user) {
-        if (user.isOwnsCompany())
-            companyService.delete(user.getCompany().getId());
-        else userRepository.delete(user);
-        return new SuccessResponse(true, "Account deleted successfully");
-    }
-
 }
-
-

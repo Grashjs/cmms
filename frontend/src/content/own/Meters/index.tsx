@@ -32,10 +32,16 @@ import { useTranslation } from 'react-i18next';
 import * as React from 'react';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { TitleContext } from '../../../contexts/TitleContext';
-import CustomDatagrid2, {
-  CustomDatagridColumn2
-} from '../components/CustomDatagrid2';
+import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
+import CustomDataGrid, {
+  CustomDatagridColumn
+} from '../components/CustomDatagrid';
 import { SearchCriteria, SortDirection } from '../../../models/owns/page';
+import {
+  GridRenderCellParams,
+  GridToolbar,
+  GridValueGetterParams
+} from '@mui/x-data-grid';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import Meter from '../../../models/owns/meter';
 import Form from '../components/form';
@@ -44,14 +50,7 @@ import { IField } from '../type';
 import MeterDetails from './MeterDetails';
 import { useNavigate, useParams } from 'react-router-dom';
 import { isNumeric } from '../../../utils/validators';
-import {
-  formatSelect,
-  formatSelectMultiple,
-  formatCustomFields
-} from '../../../utils/formatters';
-import { getCustomFields } from '../../../slices/customField';
-import { CustomFieldEntityType } from '../../../models/owns/customField';
-import { getCustomFieldsIFields, getCustomFieldsRequiredShape } from '../type';
+import { formatSelect, formatSelectMultiple } from '../../../utils/formatters';
 import { CustomSnackBarContext } from 'src/contexts/CustomSnackBarContext';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import useAuth from '../../../hooks/useAuth';
@@ -60,19 +59,12 @@ import PermissionErrorMessage from '../components/PermissionErrorMessage';
 import FeatureErrorMessage from '../components/FeatureErrorMessage';
 import { PlanFeature } from '../../../models/owns/subscriptionPlan';
 import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
-import { useExport } from '../../../hooks/useExport';
+import { exportEntity } from '../../../slices/exports';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
-import {
-  canAddReading,
-  getImageAndFiles,
-  onSearchQueryChange
-} from '../../../utils/overall';
+import { canAddReading, onSearchQueryChange } from '../../../utils/overall';
 import SearchInput from '../components/SearchInput';
-import { createColumnHelper } from '@tanstack/react-table';
-import useTableState from '../../../hooks/useTableState';
-import { getErrorMessage } from '../../../utils/api';
-import { getMeterUrl } from '../../../utils/urlPaths';
-import SplitButton from '../components/SplitButton';
+import { useGridApiRef } from '@mui/x-data-grid-pro';
+import useGridStatePersist from '../../../hooks/useGridStatePersist';
 
 const LabelWrapper = styled(Box)(
   ({ theme }) => `
@@ -82,27 +74,13 @@ const LabelWrapper = styled(Box)(
     border-radius: ${theme.general.borderRadiusSm};
     padding: ${theme.spacing(0.9, 1.5, 0.7)};
     line-height: 1;
-    width: fit-content;
   `
 );
-
-const fieldMapping: Record<string, string> = {
-  name: 'name',
-  unit: 'unit',
-  asset: 'asset.name',
-  location: 'location.name',
-  customId: 'customId',
-  createdAt: 'createdAt',
-  createdBy: 'createdBy'
-};
 
 function Meters() {
   const { t }: { t: any } = useTranslation();
   const { setTitle } = useContext(TitleContext);
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
-  const [openDiscardDialog, setOpenDiscardDialog] = useState<boolean>(false);
-  const [isFormDirty, setIsFormDirty] = useState<boolean>(false);
-  const [copyMeterData, setCopyMeterData] = useState<Meter | null>(null);
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const [currentMeter, setCurrentMeter] = useState<Meter>();
@@ -124,7 +102,6 @@ function Meters() {
   const { meters, loadingGet, singleMeter } = useSelector(
     (state) => state.meters
   );
-  const { customFields } = useSelector((state) => state.customFields);
   const [openDrawerFromUrl, setOpenDrawerFromUrl] = useState<boolean>(false);
   const [criteria, setCriteria] = useState<SearchCriteria>({
     filterFields: [],
@@ -132,32 +109,7 @@ function Meters() {
     pageNum: 0,
     direction: 'DESC'
   });
-
-  // Use the table state hook for TanStack Table
-  const {
-    sorting,
-    setSorting,
-    pagination,
-    setPagination,
-    columnOrder,
-    setColumnOrder,
-    columnSizing,
-    setColumnSizing,
-    columnVisibility,
-    setColumnVisibility,
-    pinnedColumns,
-    setPinnedColumns
-  } = useTableState({
-    prefix: 'meters',
-    initialSorting: [],
-    initialPagination: {
-      pageSize: criteria.pageSize,
-      pageIndex: criteria.pageNum
-    },
-    setCriteria,
-    fieldMapping
-  });
-  const { exportEntity, loadingExport } = useExport();
+  const { loadingExport } = useSelector((state) => state.exports);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
   const navigate = useNavigate();
@@ -187,12 +139,6 @@ function Meters() {
       dispatch(getMeters(criteria));
   }, [criteria]);
 
-  useEffect(() => {
-    if (openAddModal && !customFields.length) {
-      dispatch(getCustomFields());
-    }
-  }, [openAddModal]);
-
   const onNewReading = () => {
     dispatch(getMeters(criteria));
   };
@@ -217,23 +163,13 @@ function Meters() {
     };
   }, [singleMeter, meters]);
 
-  const getMeterFormValues = (entity: Meter | null | undefined) => ({
-    ...entity,
-    users:
-      entity?.users?.map((worker) => ({
-        label: `${worker?.firstName} ${worker.lastName}`,
-        value: worker.id
-      })) ?? [],
-    location: entity?.location
-      ? { label: entity.location.name, value: entity.location.id }
-      : null,
-    asset: entity?.asset
-      ? { label: entity.asset.name, value: entity.asset.id }
-      : null,
-    category: entity?.meterCategory
-      ? { label: entity.meterCategory.name, value: entity.meterCategory.id }
-      : null
-  });
+  const onPageSizeChange = (size: number) => {
+    setCriteria({ ...criteria, pageSize: size });
+  };
+  const onPageChange = (number: number) => {
+    setCriteria({ ...criteria, pageNum: number });
+  };
+
   const formatValues = (values) => {
     const newValues = { ...values };
     newValues.users = formatSelectMultiple(newValues.users);
@@ -242,7 +178,7 @@ function Meters() {
     newValues.location = formatSelect(newValues.location);
     newValues.asset = formatSelect(newValues.asset);
     newValues.updateFrequency = Number(newValues.updateFrequency);
-    return formatCustomFields(newValues);
+    return newValues;
   };
   const handleDelete = (id: number) => {
     handleCloseDetails();
@@ -271,46 +207,39 @@ function Meters() {
     window.history.replaceState(null, 'Meter', `/app/meters`);
     setOpenDrawer(false);
   };
-  const handleCopyMeter = (meter: Meter) => {
-    setCopyMeterData(meter);
-    setOpenAddModal(true);
-  };
-  const onCreationSuccess = (createdMeter?: Meter) => {
+  const onCreationSuccess = () => {
     setOpenAddModal(false);
     showSnackBar(t('meter_create_success'), 'success');
-    if (copyMeterData && createdMeter) {
-      navigate(getMeterUrl(createdMeter.id));
-    }
-    setCopyMeterData(null);
   };
   const onCreationFailure = (err) =>
-    showSnackBar(getErrorMessage(err, t('meter_create_failure')), 'error');
+    showSnackBar(t('meter_create_failure'), 'error');
   const onEditSuccess = () => {
     setOpenUpdateModal(false);
     showSnackBar(t('changes_saved_success'), 'success');
   };
-  const onEditFailure = (err) =>
-    showSnackBar(getErrorMessage(err, t('meter_edit_failure')), 'error');
+  const onEditFailure = (err) => showSnackBar(t('meter_edit_failure'), 'error');
   const onDeleteSuccess = () => {
     showSnackBar(t('meter_delete_success'), 'success');
   };
   const onDeleteFailure = (err) =>
     showSnackBar(t('meter_delete_failure'), 'error');
-
-  const columnHelper = createColumnHelper<Meter>();
-
-  const columns: CustomDatagridColumn2<Meter>[] = [
-    columnHelper.accessor('name', {
-      id: 'name',
-      header: () => t('name'),
-      cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>,
-      size: 150
-    }),
-    columnHelper.accessor('nextReading', {
-      id: 'nextReading',
-      header: () => t('next_reading_due'),
-      cell: (info) =>
-        canAddReading(info.row.original) ? (
+  const columns: CustomDatagridColumn[] = [
+    {
+      field: 'name',
+      headerName: t('name'),
+      description: t('name'),
+      width: 150,
+      renderCell: (params: GridRenderCellParams<string>) => (
+        <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
+      )
+    },
+    {
+      field: 'nextReading',
+      headerName: t('next_reading_due'),
+      description: t('next_reading_due'),
+      width: 150,
+      renderCell: (params: GridRenderCellParams<string, Meter>) =>
+        canAddReading(params.row) ? (
           <LabelWrapper
             sx={{
               background: theme.colors.error.main,
@@ -320,50 +249,56 @@ function Meters() {
             {t('past_due')}
           </LabelWrapper>
         ) : (
-          <Typography>{getFormattedDate(info.getValue())}</Typography>
-        ),
-      size: 150
-    }),
-    columnHelper.accessor('unit', {
-      id: 'unit',
-      header: () => t('unit_of_measurement'),
-      cell: (info) => info.getValue() || '',
-      size: 150
-    }),
-    columnHelper.accessor('lastReading', {
-      id: 'lastReading',
-      header: () => t('last_reading'),
-      cell: (info) => getFormattedDate(info.getValue()),
-      size: 150
-    }),
-    columnHelper.accessor((row) => row.location?.name, {
-      id: 'location',
-      header: () => t('location'),
-      cell: (info) => info.getValue() || '',
-      size: 150,
-      meta: {
-        uiConfigKey: 'locations'
-      }
-    }),
-    columnHelper.accessor((row) => row.asset?.name, {
-      id: 'asset',
-      header: () => t('asset'),
-      cell: (info) => info.getValue() || '',
-      size: 150
-    }),
-    columnHelper.accessor('createdBy', {
-      id: 'createdBy',
-      header: () => t('created_by'),
-      cell: (info) => getUserNameById(info.getValue()),
-      size: 150
-    }),
-    columnHelper.accessor('createdAt', {
-      id: 'createdAt',
-      header: () => t('created_at'),
-      cell: (info) => getFormattedDate(info.getValue()),
-      size: 150
-    })
+          <Typography>{getFormattedDate(params.value)}</Typography>
+        )
+    },
+    {
+      field: 'unit',
+      headerName: t('unit_of_measurement'),
+      description: t('unit_of_measurement'),
+      width: 150
+    },
+    {
+      field: 'lastReading',
+      headerName: t('last_reading'),
+      description: t('last_reading'),
+      width: 150,
+      valueGetter: (params: GridValueGetterParams<string>) =>
+        getFormattedDate(params.value)
+    },
+    {
+      field: 'location',
+      headerName: t('location'),
+      description: t('location'),
+      width: 150,
+      valueGetter: (params) => params.row.location?.name,
+      uiConfigKey: 'locations'
+    },
+    {
+      field: 'asset',
+      headerName: t('asset'),
+      description: t('asset'),
+      width: 150,
+      valueGetter: (params) => params.row.asset.name
+    },
+    {
+      field: 'createdBy',
+      headerName: t('created_by'),
+      description: t('created_by'),
+      width: 150,
+      valueGetter: (params) => getUserNameById(params.value)
+    },
+    {
+      field: 'createdAt',
+      headerName: t('created_at'),
+      description: t('created_at'),
+      width: 150,
+      valueGetter: (params: GridValueGetterParams<string>) =>
+        getFormattedDate(params.value)
+    }
   ];
+  const apiRef = useGridApiRef();
+  useGridStatePersist(apiRef, columns, 'meter');
   const fields: Array<IField> = [
     {
       name: 'name',
@@ -420,8 +355,7 @@ function Meters() {
       type2: 'user',
       label: t('workers'),
       multiple: true
-    },
-    ...getCustomFieldsIFields(customFields, CustomFieldEntityType.METER)
+    }
   ];
   const shape = {
     name: Yup.string().required(t('required_meter_name')),
@@ -429,26 +363,14 @@ function Meters() {
     updateFrequency: Yup.number().required(
       t('required_meter_update_frequency')
     ),
-    asset: Yup.object().required(t('required_asset')).nullable(),
-    ...getCustomFieldsRequiredShape(
-      customFields,
-      CustomFieldEntityType.METER,
-      t
-    )
+    asset: Yup.object().required(t('required_asset')).nullable()
   };
   const renderAddModal = () => (
     <Dialog
       fullWidth
       maxWidth="md"
       open={openAddModal}
-      onClose={() => {
-        if (isFormDirty) {
-          setOpenDiscardDialog(true);
-        } else {
-          setOpenAddModal(false);
-          setCopyMeterData(null);
-        }
-      }}
+      onClose={() => setOpenAddModal(false)}
     >
       <DialogTitle
         sx={{
@@ -456,12 +378,10 @@ function Meters() {
         }}
       >
         <Typography variant="h4" gutterBottom>
-          {copyMeterData ? t('copy_meter') : t('add_meter')}
+          {t('add_meter')}
         </Typography>
         <Typography variant="subtitle2">
-          {copyMeterData
-            ? t('copy_meter_description')
-            : t('add_meter_description')}
+          {t('add_meter_description')}
         </Typography>
       </DialogTitle>
       <DialogContent
@@ -475,47 +395,30 @@ function Meters() {
             fields={getFilteredFields(fields)}
             validation={Yup.object().shape(shape)}
             submitText={t('add')}
-            values={
-              copyMeterData
-                ? { ...getMeterFormValues(copyMeterData), id: null }
-                : {}
-            }
-            onChange={() => setIsFormDirty(true)}
+            values={{}}
+            onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
-              setIsFormDirty(false);
               let formattedValues = formatValues(values);
-              try {
-                const uploadedFiles = await uploadFiles([], values.image);
-                formattedValues = {
-                  ...formattedValues,
-                  image: uploadedFiles.length
-                    ? { id: uploadedFiles[0].id }
-                    : null
-                };
-                const createdMeter: Meter = await dispatch(
-                  addMeter(formattedValues)
-                );
-                onCreationSuccess(createdMeter);
-              } catch (err) {
-                onCreationFailure(err);
-                throw err;
-              }
+              return new Promise<void>((resolve, rej) => {
+                uploadFiles([], values.image)
+                  .then((files) => {
+                    formattedValues = {
+                      ...formattedValues,
+                      image: files.length ? { id: files[0].id } : null
+                    };
+                    dispatch(addMeter(formattedValues))
+                      .then(onCreationSuccess)
+                      .catch(onCreationFailure)
+                      .finally(resolve);
+                  })
+                  .catch((err) => {
+                    rej(err);
+                  });
+              });
             }}
           />
         </Box>
       </DialogContent>
-      <ConfirmDialog
-        open={openDiscardDialog}
-        onCancel={() => setOpenDiscardDialog(false)}
-        onConfirm={() => {
-          setOpenDiscardDialog(false);
-          setOpenAddModal(false);
-          setCopyMeterData(null);
-          setIsFormDirty(false);
-        }}
-        confirmText={t('discard_changes')}
-        question={t('discard_changes_question')}
-      />
     </Dialog>
   );
   const renderUpdateModal = () => (
@@ -548,26 +451,53 @@ function Meters() {
             fields={fields}
             validation={Yup.object().shape(shape)}
             submitText={t('save')}
-            values={getMeterFormValues(currentMeter)}
+            values={{
+              ...currentMeter,
+              users: currentMeter?.users.map((worker) => {
+                return {
+                  label: `${worker?.firstName} ${worker.lastName}`,
+                  value: worker.id
+                };
+              }),
+              location: currentMeter?.location
+                ? {
+                    label: currentMeter?.location.name,
+                    value: currentMeter?.location.id
+                  }
+                : null,
+              asset: {
+                label: currentMeter?.asset.name,
+                value: currentMeter?.asset.id
+              },
+              category: currentMeter?.meterCategory
+                ? {
+                    label: currentMeter?.meterCategory.name,
+                    value: currentMeter?.meterCategory.id
+                  }
+                : null
+            }}
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let formattedValues = formatValues(values);
-              try {
-                const uploadedFiles = await uploadFiles([], values.image);
-                formattedValues = {
-                  ...formattedValues,
-                  image: values.image
-                    ? uploadedFiles.length
-                      ? { id: uploadedFiles[0].id }
-                      : null
-                    : null
-                };
-                await dispatch(editMeter(currentMeter.id, formattedValues));
-                onEditSuccess();
-              } catch (err) {
-                onEditFailure(err);
-                throw err;
-              }
+              return new Promise<void>((resolve, rej) => {
+                uploadFiles([], values.image)
+                  .then((files) => {
+                    formattedValues = {
+                      ...formattedValues,
+                      image: files.length
+                        ? { id: files[0].id }
+                        : currentMeter.image
+                    };
+                    dispatch(editMeter(currentMeter.id, formattedValues))
+                      .then(onEditSuccess)
+                      .catch(onEditFailure)
+                      .finally(resolve);
+                  })
+                  .catch((err) => {
+                    rej(err);
+                    onEditFailure(err);
+                  });
+              });
             }}
           />
         </Box>
@@ -587,12 +517,10 @@ function Meters() {
       {hasViewOtherPermission(PermissionEntity.METERS) && (
         <MenuItem
           disabled={loadingExport['meters']}
-          onClick={async () => {
-            try {
-              await exportEntity('meters');
-            } catch (error) {
-              showSnackBar(t('Export failed'), 'error');
-            }
+          onClick={() => {
+            dispatch(exportEntity('meters')).then((url: string) => {
+              window.open(url);
+            });
           }}
         >
           <Stack spacing={2} direction="row">
@@ -621,88 +549,129 @@ function Meters() {
           {renderAddModal()}
           {renderUpdateModal()}
           {renderMenu()}
-          <Box justifyContent="center" alignItems="stretch" paddingX={4}>
-            <Stack
-              my={1}
-              direction="row"
+          <Grid
+            container
+            justifyContent="center"
+            alignItems="stretch"
+            spacing={1}
+            paddingX={4}
+          >
+            <Grid
+              item
+              xs={12}
+              display="flex"
+              flexDirection="row"
               justifyContent="space-between"
               alignItems="center"
             >
-              <SearchInput onChange={debouncedQueryChange} />
+              <Box sx={{ my: 0.5 }}>
+                <SearchInput onChange={debouncedQueryChange} />
+              </Box>
               <Stack direction={'row'} alignItems="center" spacing={1}>
                 <IconButton onClick={handleOpenMenu} color="primary">
                   <MoreVertTwoToneIcon />
                 </IconButton>
                 {hasCreatePermission(PermissionEntity.METERS) && (
-                  <SplitButton
-                    onMainClick={() => setOpenAddModal(true)}
+                  <Button
                     startIcon={<AddTwoToneIcon />}
-                    label={t('meter')}
-                    menuItems={
-                      hasViewPermission(PermissionEntity.SETTINGS) &&
-                      hasFeature(PlanFeature.IMPORT_CSV)
-                        ? [
-                            {
-                              label: t('import_from_spreadsheet'),
-                              onClick: () => navigate('/app/imports/meters')
-                            }
-                          ]
-                        : []
-                    }
-                  />
+                    sx={{ mx: 6, my: 1 }}
+                    variant="contained"
+                    onClick={() => setOpenAddModal(true)}
+                  >
+                    {t('meter')}
+                  </Button>
                 )}
               </Stack>
-            </Stack>
-            <Card
-              sx={{
-                py: 2,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}
-            >
-              <Box sx={{ width: '95%' }}>
-                <CustomDatagrid2
-                  columns={columns}
-                  data={meters.content}
-                  loading={loadingGet}
-                  pagination={pagination}
-                  onPaginationChange={setPagination}
-                  totalRows={meters.totalElements}
-                  pageSizeOptions={[10, 20, 50]}
-                  sorting={sorting}
-                  onSortingChange={setSorting}
-                  columnOrder={columnOrder}
-                  onColumnOrderChange={setColumnOrder}
-                  columnSizing={columnSizing}
-                  onColumnSizingChange={setColumnSizing}
-                  columnVisibility={columnVisibility}
-                  onColumnVisibilityChange={setColumnVisibility}
-                  onRowClick={(row) => handleOpenDetails(row.id)}
-                  noRowsMessage={t('noRows.meter.message')}
-                  noRowsAction={t('')}
-                  enableColumnReordering
-                  enableColumnResizing
-                  pinnedColumns={pinnedColumns}
-                  onPinnedColumnsChange={setPinnedColumns}
-                />
-              </Box>
-            </Card>
-          </Box>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Card
+                sx={{
+                  p: 2,
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}
+              >
+                <Box sx={{ width: '95%' }}>
+                  <CustomDataGrid
+                    apiRef={apiRef}
+                    columns={columns}
+                    loading={loadingGet}
+                    pageSize={criteria.pageSize}
+                    page={criteria.pageNum}
+                    rows={meters.content}
+                    rowCount={meters.totalElements}
+                    pagination
+                    paginationMode="server"
+                    sortingMode="server"
+                    onPageSizeChange={onPageSizeChange}
+                    onPageChange={onPageChange}
+                    rowsPerPageOptions={[10, 20, 50]}
+                    onSortModelChange={(model) => {
+                      if (model.length === 0) {
+                        setCriteria({
+                          ...criteria,
+                          sortField: undefined,
+                          direction: undefined
+                        });
+                        return;
+                      }
+
+                      const fieldMapping = {
+                        name: 'name',
+                        unit: 'unit',
+                        asset: 'asset.name',
+                        location: 'location.name',
+                        customId: 'customId',
+                        createdAt: 'createdAt',
+                        createdBy: 'createdBy'
+                      };
+
+                      const field = model[0].field;
+                      const mappedField = fieldMapping[field];
+
+                      if (!mappedField) return;
+
+                      setCriteria({
+                        ...criteria,
+                        sortField: mappedField,
+                        direction: (model[0].sort?.toUpperCase() ||
+                          'ASC') as SortDirection
+                      });
+                    }}
+                    onRowClick={({ id }) => handleOpenDetails(Number(id))}
+                    components={{
+                      NoRowsOverlay: () => (
+                        <NoRowsMessageWrapper
+                          message={t('noRows.meter.message')}
+                          action={t('')}
+                        />
+                      )
+                    }}
+                    initialState={{
+                      columns: {
+                        columnVisibilityModel: {}
+                      }
+                    }}
+                  />
+                </Box>
+              </Card>
+            </Grid>
+          </Grid>
           <Drawer
             anchor="right"
             open={openDrawer}
             onClose={handleCloseDetails}
             PaperProps={{
-              sx: { width: { xs: '90%', sm: '70%', md: '50%' } }
+              sx: { width: '50%' }
             }}
           >
             <MeterDetails
               meter={currentMeter}
               handleOpenUpdate={handleOpenUpdate}
               handleOpenDelete={() => setOpenDelete(true)}
-              onCopy={handleCopyMeter}
               onNewReading={onNewReading}
             />
           </Drawer>

@@ -5,23 +5,16 @@ import { SidebarContext } from 'src/contexts/SidebarContext';
 import {
   alpha,
   Box,
-  Button,
   darken,
   Divider,
   Drawer,
   lighten,
-  Link,
-  Stack,
-  styled,
-  Typography,
+  styled, Typography,
   useTheme
 } from '@mui/material';
 import SidebarMenu from './SidebarMenu';
 import SidebarFooter from './SidebarFooter';
 import Logo from 'src/components/LogoSign';
-import { isCloudVersion, isWhiteLabeled } from '../../../config';
-import useAuth from '../../../hooks/useAuth';
-import dayjs from 'dayjs';
 
 const SidebarWrapper = styled(Box)(
   ({ theme }) => `
@@ -70,17 +63,7 @@ function Sidebar() {
             >
               <Box>
                 <Logo white />
-                {!isWhiteLabeled && (
-                  <Typography
-                    style={{ cursor: 'pointer', color: 'white' }}
-                    fontSize={13}
-                    onClick={() => {
-                      window.open('https://www.intel-loop.com/', '_blank');
-                    }}
-                  >
-                    Powered by Intelloop
-                  </Typography>
-                )}
+                <Typography style={{cursor: 'pointer', color: 'white'}} fontSize={13} onClick={()=>{ window.open("https://www.intel-loop.com/",'_blank')}}>Powered by Intelloop</Typography>
               </Box>
             </Box>
           </Box>
@@ -129,17 +112,7 @@ function Sidebar() {
               >
                 <Box>
                   <Logo white />
-                  {!isWhiteLabeled && (
-                    <Typography
-                      style={{ cursor: 'pointer', color: 'white' }}
-                      fontSize={13}
-                      onClick={() => {
-                        window.open('https://www.intel-loop.com/', '_blank');
-                      }}
-                    >
-                      Powered by Intelloop
-                    </Typography>
-                  )}
+                  <Typography style={{cursor: 'pointer', color: 'white'}} fontSize={13} onClick={()=>{ window.open("https://www.intel-loop.com/",'_blank')}}>Powered by Intelloop</Typography>
                 </Box>
               </Box>
             </Box>

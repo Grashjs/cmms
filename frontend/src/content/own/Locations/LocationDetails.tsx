@@ -23,7 +23,6 @@ import { ChangeEvent, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import Form from '../components/form';
 import * as Yup from 'yup';
@@ -47,10 +46,9 @@ interface LocationDetailsProps {
   location: Location;
   handleOpenUpdate: () => void;
   handleOpenDelete: () => void;
-  onCopy: (location: Location) => void;
 }
 export default function LocationDetails(props: LocationDetailsProps) {
-  const { location, handleOpenUpdate, handleOpenDelete, onCopy } = props;
+  const { location, handleOpenUpdate, handleOpenDelete } = props;
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { getFormattedDate, uploadFiles } = useContext(CompanySettingsContext);
@@ -192,14 +190,6 @@ export default function LocationDetails(props: LocationDetailsProps) {
           {hasEditPermission(PermissionEntity.LOCATIONS, location) && (
             <IconButton onClick={handleOpenUpdate} style={{ marginRight: 10 }}>
               <EditTwoToneIcon color="primary" />
-            </IconButton>
-          )}
-          {hasCreatePermission(PermissionEntity.LOCATIONS) && (
-            <IconButton
-              style={{ marginRight: 10 }}
-              onClick={() => onCopy(location)}
-            >
-              <ContentCopyIcon color="primary" />
             </IconButton>
           )}
           {hasDeletePermission(PermissionEntity.LOCATIONS, location) && (

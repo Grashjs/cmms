@@ -14,15 +14,13 @@ import { IField } from '../../models/form';
 import { UserMiniDTO } from '../../models/user';
 import Form from '../../components/form';
 import * as Yup from 'yup';
-import { Button } from 'react-native-paper';
-import { useEffect } from 'react';
 
 export default function WorkOrderFilters({
   navigation,
   route
 }: RootStackScreenProps<'WorkOrderFilters'>) {
   const { t }: { t: any } = useTranslation();
-  const { filterFields, onFilterChange, onReset } = route.params;
+  const { filterFields, onFilterChange } = route.params;
   const { customersMini } = useSelector((state) => state.customers);
   const { locationsMini } = useSelector((state) => state.locations);
   const { categories } = useSelector((state) => state.categories);
@@ -62,8 +60,7 @@ export default function WorkOrderFilters({
     },
     { accessor: 'createdAt', fieldName: 'createdAt', type: 'date' },
     { accessor: 'updatedAt', fieldName: 'updatedAt', type: 'date' },
-    { accessor: 'completedOn', fieldName: 'completedOn', type: 'date' },
-    { accessor: 'dueDate', fieldName: 'dueDate', type: 'dateLessThan' }
+    { accessor: 'completedOn', fieldName: 'completedOn', type: 'date' }
   ];
   const fields: Array<IField> = [
     {
@@ -169,28 +166,8 @@ export default function WorkOrderFilters({
       name: 'updatedAt',
       type: 'dateRange',
       label: t('updated_at')
-    },
-    {
-      name: 'dueDate',
-      type: 'date',
-      label: t('due_date')
     }
   ];
-
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <Button
-          onPress={() => {
-            onReset();
-            navigation.goBack();
-          }}
-        >
-          {t('reset')}
-        </Button>
-      )
-    });
-  }, [navigation, onReset]);
 
   const getTypeLabelAndValue = (
     operation: SearchOperator
@@ -270,10 +247,7 @@ export default function WorkOrderFilters({
       ),
       createdAt: getDateValue(filterFields, 'createdAt'),
       updatedAt: getDateValue(filterFields, 'updatedAt'),
-      completedOn: getDateValue(filterFields, 'completedOn'),
-      dueDate: filterFields.find(
-        (filterField) => filterField.field === 'dueDate'
-      )?.value
+      completedOn: getDateValue(filterFields, 'completedOn')
     };
   };
   const shape = {};
@@ -299,11 +273,12 @@ export default function WorkOrderFilters({
             );
           });
           // type filter
-          const type: string = values?.type ?? 'ALL';
+          const type = values?.type ?? { value: 'ALL' };
+
           newFilters = newFilters.filter(
             ({ field }) => field !== 'parentPreventiveMaintenance'
           );
-          switch (type) {
+          switch (type.value) {
             case 'REACTIVE':
               newFilters.push({
                 field: 'parentPreventiveMaintenance',

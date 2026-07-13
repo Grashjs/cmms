@@ -1,126 +1,64 @@
-import { Alert, Platform, StyleSheet } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import { View } from '../components/Themed';
 import { Divider, List, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { RootStackScreenProps } from '../types';
 import { getAssetByBarcode, getAssetByNfc } from '../slices/asset';
 import { useDispatch } from '../store';
-import { useContext, useEffect } from 'react';
-import { getLicenseValidity } from '../slices/license';
-import { useLicenseEntitlement } from '../hooks/useLicenseEntitlement';
-import { CustomSnackBarContext } from '../contexts/CustomSnackBarContext';
-import { AssetDTO, AssetMiniDTO } from '../models/asset';
-import useAuth from '../hooks/useAuth';
-import { PermissionEntity } from '../models/role';
 
 export default function ScanAssetScreen({
-  navigation,
-  route
+  navigation
 }: RootStackScreenProps<'ScanAsset'>) {
   const theme = useTheme();
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { onChange } = route.params || {};
-  const { hasCreatePermission } = useAuth();
-  const hasBarcodeNfcEntitlement = useLicenseEntitlement('NFC_BARCODE');
-  // NFC scanning must remain disabled on iOS; keep barcode only there.
-  const isNfcEnabled = Platform.select({ ios: false, default: true });
-  const { showSnackBar } = useContext(CustomSnackBarContext);
-
-  const showLicenseError = () => {
-    showSnackBar(t('you_need_a_license'), 'error');
-  };
-
-  const handleAssetFound = (asset: AssetMiniDTO) => {
-    if (onChange) {
-      onChange(asset);
-      navigation.goBack();
-    } else {
-      navigation.replace('AssetDetails', { id: asset.id });
-    }
-  };
-
-  const getCreateAssetParams = (identifier: {
-    nfcId?: string;
-    barCode?: string;
-  }) => ({
-    ...identifier,
-    openedFromSelector: !!onChange,
-    onSuccess: onChange
-  });
-
-  useEffect(() => {
-    dispatch(getLicenseValidity());
-  }, []);
-
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <View>
-        {isNfcEnabled && (
-          <>
-            <List.Item
-              title={t('NFC')}
-              onPress={() => {
-                if (hasBarcodeNfcEntitlement)
-                  navigation.navigate('SelectNfc', {
-                    onChange: (nfcId) =>
-                      dispatch(getAssetByNfc(nfcId))
-                        .then((asset: AssetMiniDTO) => handleAssetFound(asset))
-                        .catch((err) =>
-                          hasCreatePermission(PermissionEntity.WORK_ORDERS)
-                            ? Alert.alert(t('error'), t('no_asset_found_nfc'), [
-                                {
-                                  text: t('no'),
-                                  onPress: () => navigation.goBack()
-                                },
-                                {
-                                  text: t('yes'),
-                                  onPress: () =>
-                                    navigation.replace(
-                                      'AddAsset',
-                                      getCreateAssetParams({ nfcId })
-                                    )
-                                }
-                              ])
-                            : Alert.alert(t('error'), t('asset_not_found'))
-                        )
-                  });
-                else showLicenseError();
-              }}
-            />
-            <Divider />
-          </>
-        )}
         <List.Item
-          title={t('barcode') + '/QR code'}
-          onPress={() => {
-            if (hasBarcodeNfcEntitlement)
-              navigation.navigate('SelectBarcode', {
-                onChange: (barCode) => {
-                  dispatch(getAssetByBarcode(barCode))
-                    .then((asset: AssetMiniDTO) => handleAssetFound(asset))
-                    .catch((err) =>
-                      hasCreatePermission(PermissionEntity.WORK_ORDERS)
-                        ? Alert.alert(t('error'), t('no_asset_found_barcode'), [
-                            {
-                              text: t('no'),
-                              onPress: () => navigation.goBack()
-                            },
-                            {
-                              text: t('yes'),
-                              onPress: () =>
-                                navigation.replace(
-                                  'AddAsset',
-                                  getCreateAssetParams({ barCode })
-                                )
-                            }
-                          ])
-                        : Alert.alert(t('error'), t('asset_not_found'))
-                    );
-                }
-              });
-            else showLicenseError();
-          }}
+          title={t('NFC')}
+          onPress={() =>
+            navigation.navigate('SelectNfc', {
+              onChange: (nfcId) =>
+                dispatch(getAssetByNfc(nfcId))
+                  .then((assetId: number) =>
+                    navigation.replace('AssetDetails', { id: assetId })
+                  )
+                  .catch((err) =>
+                    Alert.alert(t('error'), t('no_asset_found_nfc'), [
+                      { text: t('no'), onPress: () => navigation.goBack() },
+                      {
+                        text: t('yes'),
+                        onPress: () => navigation.replace('AddAsset', { nfcId })
+                      }
+                    ])
+                  )
+            })
+          }
+        />
+        <Divider />
+        <List.Item
+          title={t('barcode')}
+          onPress={() =>
+            navigation.navigate('SelectBarcode', {
+              onChange: (barCode) => {
+                dispatch(getAssetByBarcode(barCode))
+                  .then((assetId: number) =>
+                    navigation.replace('AssetDetails', { id: assetId })
+                  )
+                  .catch((err) =>
+                    Alert.alert(t('error'), t('no_asset_found_barcode'), [
+                      { text: t('no'), onPress: () => navigation.goBack() },
+                      {
+                        text: t('yes'),
+                        onPress: () =>
+                          navigation.replace('AddAsset', { barCode })
+                      }
+                    ])
+                  );
+              }
+            })
+          }
         />
       </View>
     </View>

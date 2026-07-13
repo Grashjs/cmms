@@ -1,4 +1,4 @@
 ID,Name,Unit,Update Frequency,Category,Asset Name,Location Name,Users
-,Temperature Monitoring,ï¿½C,1,Condition,Generator Engine-Backup Generator-Utility Area,Main Facility 1,"technician1testcmms@gmail.com,abc@gmail.com"
-,Oil cylinder trigger,cycles,1,Usage,Exhaust Fans-Ventilation System-Brooding House,Main Facility 1,limitedtechnician1testcmms@gmail.com
-,Facility 1 daily Energy consumption reading,KWH,1,Usage,Generator Engine-Backup Generator-Utility Area,Main Facility 1,limitedtechnician1testcmms@gmail.com
+,Temperature Monitoring,°C,1,Condition,Generator Engine-Backup Generator-Utility Area,Main Facility 1,"technician1atlascmms@gmail.com,abc@gmail.com"
+,Oil cylinder trigger,cycles,1,Usage,Exhaust Fans-Ventilation System-Brooding House,Main Facility 1,limitedtechnician1atlascmms@gmail.com
+,Facility 1 daily Energy consumption reading,KWH,1,Usage,Generator Engine-Backup Generator-Utility Area,Main Facility 1,limitedtechnician1atlascmms@gmail.com

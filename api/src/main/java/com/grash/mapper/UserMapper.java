@@ -1,8 +1,10 @@
 package com.grash.mapper;
 
 import com.grash.dto.*;
-import com.grash.model.User;
+import com.grash.model.Asset;
+import com.grash.model.OwnUser;
 import com.grash.model.UiConfiguration;
+import com.grash.service.AssetService;
 import com.grash.service.UiConfigurationService;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,34 +12,20 @@ import org.springframework.context.annotation.Lazy;
 
 @Mapper(componentModel = "spring", uses = {SuperAccountRelationMapper.class, FileMapper.class})
 public abstract class UserMapper {
-    public abstract User updateUser(@MappingTarget User entity, UserPatchDTO dto);
+    public abstract OwnUser updateUser(@MappingTarget OwnUser entity, UserPatchDTO dto);
 
     @Lazy
     @Autowired
     private UiConfigurationService uiConfigurationService;
 
-    @Lazy
-    @Autowired
-    private ShiftConfigurationMapper shiftConfigurationMapper;
-
     @Mappings({@Mapping(source = "company.id", target = "companyId"),
             @Mapping(source = "company.companySettings.id", target = "companySettingsId"),
-            @Mapping(target = "shiftConfiguration", ignore = true),
-            @Mapping(source = "userSettings.id", target = "userSettingsId"),
-            @Mapping(source = "company.companySettings.uiConfiguration", target = "uiConfiguration"),
-            @Mapping(target = "image", source = "image", qualifiedByName = "toThumbnailDto")})
-    public abstract UserResponseDTO toResponseDto(User model);
-
-    public UserResponseDTO toResponseDtoWithShift(User model) {
-        UserResponseDTO dto = toResponseDto(model);
-        if (model.getShiftConfiguration() != null) {
-            dto.setShiftConfiguration(shiftConfigurationMapper.toShowDto(model.getShiftConfiguration()));
-        }
-        return dto;
-    }
+            @Mapping(source = "userSettings.id", target = "userSettingsId")})
+    @Mapping(source = "company.companySettings.uiConfiguration", target = "uiConfiguration")
+    public abstract UserResponseDTO toResponseDto(OwnUser model);
 
     @AfterMapping
-    protected UserResponseDTO toResponseDto(User model, @MappingTarget UserResponseDTO target) {
+    protected UserResponseDTO toResponseDto(OwnUser model, @MappingTarget UserResponseDTO target) {
         if (target.getUiConfiguration() == null) {
             UiConfiguration uiConfiguration = new UiConfiguration();
             uiConfiguration.setCompanySettings(model.getCompany().getCompanySettings());
@@ -47,23 +35,7 @@ public abstract class UserMapper {
     }
 
     @Mappings({})
-    public abstract User toModel(UserSignupRequest dto);
+    public abstract OwnUser toModel(UserSignupRequest dto);
 
-    @AfterMapping
-    protected User toModel(UserSignupRequest dto, @MappingTarget User target) {
-        UtmParams utm = dto.getUtmParams();
-        if (utm != null) {
-            target.setUtmSource(utm.getUtm_source());
-            target.setUtmMedium(utm.getUtm_medium());
-            target.setUtmCampaign(utm.getUtm_campaign());
-            target.setUtmTerm(utm.getUtm_term());
-            target.setUtmContent(utm.getUtm_content());
-            target.setGclid(utm.getGclid());
-            target.setFbclid(utm.getFbclid());
-            target.setReferrer(utm.getReferrer());
-        }
-        return target;
-    }
-
-    public abstract UserMiniDTO toMiniDto(User user);
+    public abstract UserMiniDTO toMiniDto(OwnUser user);
 }

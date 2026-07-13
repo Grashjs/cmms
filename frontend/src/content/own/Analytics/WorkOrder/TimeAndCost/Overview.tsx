@@ -16,18 +16,17 @@ interface WOStatusNumbersProps {
   ) => void;
   start: Date;
   end: Date;
-  companyId?: number;
 }
 
-function Overview({ handleOpenModal, start, end, companyId }: WOStatusNumbersProps) {
+function Overview({ handleOpenModal, start, end }: WOStatusNumbersProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { getFormattedCurrency } = useContext(CompanySettingsContext);
   const { completeCosts, loading } = useSelector((state) => state.woAnalytics);
 
   useEffect(() => {
-    dispatch(getCompleteCosts(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getCompleteCosts(start, end));
+  }, [start, end]);
 
   const formattedData: {
     label: string;

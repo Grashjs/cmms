@@ -4,6 +4,8 @@ import com.grash.dto.FieldConfigurationPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.FieldConfigurationMapper;
 import com.grash.model.FieldConfiguration;
+import com.grash.model.OwnUser;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.FieldConfigurationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

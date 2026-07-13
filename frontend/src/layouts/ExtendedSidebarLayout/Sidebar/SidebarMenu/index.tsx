@@ -1,14 +1,4 @@
-import {
-  alpha,
-  Box,
-  Button,
-  Link,
-  List,
-  ListSubheader,
-  Stack,
-  styled,
-  Typography
-} from '@mui/material';
+import { alpha, Box, List, ListSubheader, styled } from '@mui/material';
 import { matchPath, useLocation } from 'react-router-dom';
 import SidebarMenuItem from './item';
 import menuItems, { MenuItem } from './items';
@@ -18,9 +8,6 @@ import { useEffect } from 'react';
 import { getUrgentWorkOrdersCount } from '../../../../slices/workOrder';
 import { useDispatch, useSelector } from '../../../../store';
 import { getPendingRequestsCount } from '../../../../slices/request';
-import { PermissionEntity } from '../../../../models/owns/role';
-import dayjs from 'dayjs';
-import { isCloudVersion } from 'src/config';
 
 const MenuWrapper = styled(Box)(
   ({ theme }) => `
@@ -247,122 +234,67 @@ function SidebarMenu() {
   const location = useLocation();
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
-  const { hasViewPermission, hasFeature, user, company } = useAuth();
+  const { hasViewPermission, hasFeature, user } = useAuth();
   const { urgentCount } = useSelector((state) => state.workOrders);
   const { pendingCount } = useSelector((state) => state.requests);
-  const TRIAL_DAYS = 15;
-  const daysPassed = dayjs().diff(dayjs(company.createdAt), 'day');
-  const daysLeft = TRIAL_DAYS - daysPassed;
 
   useEffect(() => {
     if (user.id) {
       dispatch(getUrgentWorkOrdersCount());
-      if (user.role.code !== 'REQUESTER') dispatch(getPendingRequestsCount());
+      dispatch(getPendingRequestsCount());
     }
   }, [user.id]);
   return (
     <>
-      {isCloudVersion &&
-        !company.demo &&
-        user.ownsCompany &&
-        !company.subscription.activated &&
-        user.superAccountRelations.length === 0 && (
-          <Stack
-            sx={{
-              backgroundColor: 'rgb(51, 194, 255)',
-              p: 2,
-              mx: 2,
-              mt: 2,
-              borderRadius: 2
-            }}
-            spacing={1}
-          >
-            <Typography color={'white'} fontSize={'16px'} fontWeight={'bold'}>
-              {daysLeft > 0
-                ? `Your trial ends in ${daysLeft} days`
-                : `Your trial has ended`}
-            </Typography>
-            <Typography color={'white'} fontSize={'14px'}>
-              You are on the {company.subscription.subscriptionPlan.name} plan
-            </Typography>
-            <Button
-              component={Link}
-              href={'/app/subscription/plans'}
-              variant="contained"
-              color="primary"
-              sx={{ mt: 1 }}
-            >
-              Upgrade
-            </Button>
-          </Stack>
-        )}
-      <>
-        {(user.superAccountRelations.length
-          ? [
-              {
-                ...menuItems[0],
-                items: menuItems[0].items.filter((item) =>
-                  [
-                    'work_orders',
-                    'Statistics',
-                    'requests',
-                    'preventive_maintenance'
-                  ].includes(item.name)
-                )
+      {menuItems
+        .map((section, index) => {
+          const sectionClone = { ...section };
+          sectionClone.items = sectionClone.items.filter((item) => {
+            const hasPermission = item.permission
+              ? hasViewPermission(item.permission)
+              : true;
+            const featured = item.planFeature
+              ? hasFeature(item.planFeature)
+              : true;
+
+            const inUiConfig: boolean = user.uiConfiguration
+              ? item.uiConfigKey
+                ? user.uiConfiguration[item.uiConfigKey]
+                : true
+              : true;
+
+            return hasPermission && featured && inUiConfig;
+          });
+          if (index === 0) {
+            //ownItems
+            sectionClone.items = sectionClone.items.map((item) => {
+              if (item.name === 'work_orders') {
+                item.badge = urgentCount > 0 ? urgentCount.toString() : null;
+              } else if (item.name === 'requests') {
+                item.badge = pendingCount > 0 ? pendingCount.toString() : null;
               }
-            ]
-          : menuItems
-        )
-          .map((section, index) => {
-            const sectionClone = { ...section };
-            sectionClone.items = sectionClone.items.filter((item) => {
-              const hasPermission = item.permission
-                ? hasViewPermission(item.permission)
-                : true;
-              const featured = item.planFeature
-                ? hasFeature(item.planFeature)
-                : true;
-
-              const inUiConfig: boolean = user.uiConfiguration
-                ? item.uiConfigKey
-                  ? user.uiConfiguration[item.uiConfigKey]
-                  : true
-                : true;
-
-              return hasPermission && featured && inUiConfig;
+              return item;
             });
-            if (index === 0) {
-              //ownItems
-              sectionClone.items = sectionClone.items.map((item) => {
-                if (item.name === 'work_orders') {
-                  item.badge = urgentCount > 0 ? urgentCount.toString() : null;
-                } else if (item.name === 'requests') {
-                  item.badge =
-                    pendingCount > 0 ? pendingCount.toString() : null;
-                }
-                return item;
-              });
-            }
-            return sectionClone;
-          })
-          .map((section) => (
-            <MenuWrapper key={section.heading}>
-              <List
-                component="div"
-                subheader={
-                  <ListSubheader component="div" disableSticky>
-                    {t(section.heading)}
-                  </ListSubheader>
-                }
-              >
-                {renderSidebarMenuItems({
-                  items: section.items,
-                  path: location.pathname
-                })}
-              </List>
-            </MenuWrapper>
-          ))}
-      </>
+          }
+          return sectionClone;
+        })
+        .map((section) => (
+          <MenuWrapper key={section.heading}>
+            <List
+              component="div"
+              subheader={
+                <ListSubheader component="div" disableSticky>
+                  {t(section.heading)}
+                </ListSubheader>
+              }
+            >
+              {renderSidebarMenuItems({
+                items: section.items,
+                path: location.pathname
+              })}
+            </List>
+          </MenuWrapper>
+        ))}
     </>
   );
 }

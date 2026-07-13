@@ -4,121 +4,23 @@ import router from 'src/router';
 import { SnackbarProvider } from 'notistack';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import { enUS } from 'date-fns/locale';
-import { Locale } from 'date-fns';
 import useAuth from 'src/hooks/useAuth';
 
-import { Alert, CssBaseline } from '@mui/material';
+import { CssBaseline } from '@mui/material';
 import ThemeProvider from './theme/ThemeProvider';
 import AppInit from './components/AppInit';
 import { CustomSnackBarProvider } from './contexts/CustomSnackBarContext';
 import ReactGA from 'react-ga4';
-import {
-  customLogoPaths,
-  googleTrackingId,
-  IS_LOCALHOST,
-  isCloudVersion,
-  isWhiteLabeled,
-  PADDLE_SECRET_TOKEN,
-  paddleEnvironment
-} from './config';
-import { useEffect, useState } from 'react';
+import { googleTrackingId, IS_LOCALHOST } from './config';
+import { useEffect } from 'react';
 import { CompanySettingsProvider } from './contexts/CompanySettingsContext';
-import { getLicenseValidity } from './slices/license';
-import { useDispatch, useSelector } from './store';
-import { useBrand } from './hooks/useBrand';
-import { useTranslation } from 'react-i18next';
-import { UtmTrackerProvider } from '@nik0di3m/utm-tracker-hook';
-import { useLicenseEntitlement } from './hooks/useLicenseEntitlement';
-import { initializePaddle } from '@paddle/paddle-js';
-import { getDateLocale, loadLanguage, supportedLanguages } from './i18n/i18n';
-import MobileAppDownloadDialog from './components/MobileAppDownloadDialog';
-import { useMobileAppPrompt } from './hooks/useMobileAppPrompt';
 
 if (!IS_LOCALHOST && googleTrackingId) ReactGA.initialize(googleTrackingId);
-
-const DemoAlert = () => {
-  const [show, setShow] = useState<boolean>(true);
-  const { t } = useTranslation();
-  return (
-    show && (
-      <Alert
-        onClose={() => {
-          setShow(false);
-        }}
-        sx={{
-          position: 'fixed',
-          bottom: 10,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 1000,
-          width: '50%'
-        }}
-        severity="error"
-      >
-        {t('demo_warning')}
-      </Alert>
-    )
-  );
-};
-
-const DemoCleaningAlert = () => {
-  const { isInitialized, company, isAuthenticated, user } = useAuth();
-  const { t } = useTranslation();
-  const userCreatedAt = new Date(user?.createdAt);
-  const [show, setShow] = useState<boolean>(true);
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-  if (
-    isCloudVersion &&
-    isAuthenticated &&
-    user?.ownsCompany &&
-    show &&
-    userCreatedAt > sevenDaysAgo &&
-    !localStorage.getItem('demoDataCleaningHint')
-  )
-    return (
-      <Alert
-        onClose={() => {
-          setShow(false);
-          localStorage.setItem('demoDataCleaningHint', 'shown');
-        }}
-        sx={{
-          position: 'fixed',
-          bottom: 10,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 1000,
-          width: '50%'
-        }}
-        severity="info"
-      >
-        {t('You can delete demo data from General Settings')}
-      </Alert>
-    );
-  return null;
-};
-
 function App() {
   const content = useRoutes(router);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { logo } = useBrand();
   const { isInitialized, company, isAuthenticated, user } = useAuth();
-  const { state: licensingState } = useSelector((state) => state.license);
-  const hasBrandingEntitlement = useLicenseEntitlement('BRANDING');
-  const { i18n } = useTranslation();
   let location = useLocation();
-  const { shouldShowPrompt, dismissPrompt } = useMobileAppPrompt();
-  const [dateFnsLocale, setDateFnsLocale] = useState<Locale>(enUS);
-
-  useEffect(() => {
-    const lang = i18n.language || 'en';
-    loadLanguage(lang);
-    getDateLocale(lang).then(setDateFnsLocale);
-  }, [i18n.language]);
-
   useEffect(() => {
     if (!IS_LOCALHOST && googleTrackingId)
       ReactGA.send({
@@ -126,7 +28,6 @@ function App() {
         page: location.pathname + location.search
       });
   }, [location]);
-
   useEffect(() => {
     const arr = location.pathname.split('/');
     if (
@@ -148,83 +49,30 @@ function App() {
       isInitialized &&
       isAuthenticated
     )
-      if (
-        user.superAccountRelations.length &&
-        ![
-          'work-orders',
-          'analytics',
-          'requests',
-          'preventive-maintenances'
-        ].includes(arr[2])
-      ) {
+      if (user.superAccountRelations.length) {
         navigate('/app/switch-account');
       }
   }, [user, isInitialized, isAuthenticated, location]);
 
-  useEffect(() => {
-    dispatch(getLicenseValidity());
-  }, []);
-
-  useEffect(() => {
-    if (customLogoPaths && hasBrandingEntitlement) {
-      let link: HTMLLinkElement = document.querySelector("link[rel~='icon']");
-      if (!link) {
-        link = document.createElement('link');
-        link.rel = 'icon';
-        document.getElementsByTagName('head')[0].appendChild(link);
-      }
-      link.href = logo.dark;
-    }
-  }, [logo.dark, hasBrandingEntitlement]);
-
-  useEffect(() => {
-    if (isCloudVersion) {
-      const referrer = document.referrer || '';
-      localStorage.setItem('referrerData', referrer);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isCloudVersion) {
-      if (user && !user.paddleUserId) return;
-      initializePaddle({
-        environment: paddleEnvironment,
-        token: PADDLE_SECRET_TOKEN,
-        pwCustomer: user ? { id: user.paddleUserId } : undefined
-      });
-    }
-  }, [user]);
-
   return (
-    <UtmTrackerProvider customParams={['msclkid', 'ref']}>
-      <ThemeProvider>
-        <LocalizationProvider
-          dateAdapter={AdapterDateFns}
-          locale={dateFnsLocale}
+    <ThemeProvider>
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <SnackbarProvider
+          maxSnack={6}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right'
+          }}
         >
-          <SnackbarProvider
-            maxSnack={6}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right'
-            }}
-          >
-            <CustomSnackBarProvider>
-              <CompanySettingsProvider>
-                <CssBaseline />
-                {isInitialized ? content : <AppInit />}
-                {user && company?.demo && <DemoAlert />}
-                <DemoCleaningAlert />
-                <MobileAppDownloadDialog
-                  open={shouldShowPrompt}
-                  onClose={dismissPrompt}
-                />
-              </CompanySettingsProvider>
-            </CustomSnackBarProvider>
-          </SnackbarProvider>
-        </LocalizationProvider>
-      </ThemeProvider>
-    </UtmTrackerProvider>
+          <CustomSnackBarProvider>
+            <CompanySettingsProvider>
+              <CssBaseline />
+              {isInitialized ? content : <AppInit />}
+            </CompanySettingsProvider>
+          </CustomSnackBarProvider>
+        </SnackbarProvider>
+      </LocalizationProvider>
+    </ThemeProvider>
   );
 }
 export default App;

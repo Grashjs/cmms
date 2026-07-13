@@ -1,7 +1,6 @@
 {
   "cli": {
-    "version": ">= 7.0.0",
-    "appVersionSource": "remote"
+    "version": ">= 3.7.2"
   },
   "build": {
     "development": {
@@ -14,17 +13,16 @@
     },
     "preview": {
       "distribution": "internal",
-      "channel": "preview-51",
+      "channel": "preview",
       "ios": {
         "resourceClass": "m1-medium"
       }
     },
     "production": {
-      "channel": "production-1-0-31",
+      "channel": "master",
       "ios": {
         "resourceClass": "m1-medium"
-      },
-      "autoIncrement": true
+      }
     },
     "previewAndroid": {
       "android": {

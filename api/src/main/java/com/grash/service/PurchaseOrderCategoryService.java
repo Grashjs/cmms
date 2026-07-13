@@ -3,8 +3,9 @@ package com.grash.service;
 import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PurchaseOrderCategoryMapper;
+import com.grash.model.OwnUser;
 import com.grash.model.PurchaseOrderCategory;
-import com.grash.model.User;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.PurchaseOrderCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,10 +22,8 @@ public class PurchaseOrderCategoryService {
     private final CompanySettingsService companySettingsService;
     private final PurchaseOrderCategoryMapper purchaseOrderCategoryMapper;
 
-    public PurchaseOrderCategory create(PurchaseOrderCategory purchaseOrderCategory, User user) {
-        Optional<PurchaseOrderCategory> categoryWithSameName =
-                purchaseOrderCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(
-                        purchaseOrderCategory.getName(), user.getCompany().getCompanySettings().getId());
+    public PurchaseOrderCategory create(PurchaseOrderCategory purchaseOrderCategory) {
+        Optional<PurchaseOrderCategory> categoryWithSameName = purchaseOrderCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(purchaseOrderCategory.getName(), purchaseOrderCategory.getCompanySettings().getId());
         if (categoryWithSameName.isPresent()) {
             throw new CustomException("PurchaseOrderCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }

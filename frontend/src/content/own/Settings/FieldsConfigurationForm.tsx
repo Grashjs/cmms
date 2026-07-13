@@ -1,13 +1,11 @@
 import { Box, Grid, Typography, useTheme } from '@mui/material';
 import { Formik } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { FC, useContext } from 'react';
+import { FC } from 'react';
 import { FieldConfigurationsType } from '../../../contexts/JWTAuthContext';
 import useAuth from '../../../hooks/useAuth';
 import GrayWhiteSelector from './components/GrayWhiteSelector';
 import { FieldType } from '../../../models/owns/fieldConfiguration';
-import { getErrorMessage } from '../../../utils/api';
-import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 
 interface FieldsConfigurationFormProps {
   initialValues: any;
@@ -25,7 +23,6 @@ const FieldsConfigurationForm: FC<FieldsConfigurationFormProps> = ({
   const requestFieldConfigurations =
     companySettings?.workOrderRequestConfiguration?.fieldConfigurations;
   const theme = useTheme();
-  const { showSnackBar } = useContext(CustomSnackBarContext);
   const renderFields = (
     fields: { label: string; name: string; type: FieldConfigurationsType }[]
   ) => {
@@ -40,9 +37,7 @@ const FieldsConfigurationForm: FC<FieldsConfigurationFormProps> = ({
           fields={fields}
           options={options}
           onFieldChange={(field, value, type: FieldConfigurationsType) =>
-            patchFieldConfiguration(field, value, type).catch((err) =>
-              showSnackBar(getErrorMessage(err), 'error')
-            )
+            patchFieldConfiguration(field, value, type)
           }
           getValue={(field) =>
             field.type === 'workOrder'

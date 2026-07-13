@@ -5,9 +5,8 @@ import { TeamMiniDTO } from './team';
 import { VendorMiniDTO } from './vendor';
 import Location from './location';
 import { CustomerMiniDTO } from './customer';
-import File, { FileMiniDTO, FileThumbnailDTO } from './file';
+import File, { FileMiniDTO } from './file';
 import Category from './category';
-import { CustomFieldValue } from './customField';
 
 export default interface Asset extends Audit {
   id: number;
@@ -25,7 +24,7 @@ export const assetStatuses = [
     status: 'INSPECTION_SCHEDULED',
     color: (theme) => theme.palette.warning.main
   },
-  { status: 'COMMISSIONING', color: (theme) => '#808080' },
+  { status: 'COMMISSIONING', color: (theme) => 'grey' },
   { status: 'EMERGENCY_SHUTDOWN', color: (theme) => theme.palette.error.dark }
 ] as const;
 
@@ -33,7 +32,7 @@ export type AssetStatus = typeof assetStatuses[number]['status'];
 export interface AssetDTO extends Audit {
   id: number;
   name: string;
-  image: FileThumbnailDTO;
+  image: File;
   location: Location;
   area: string;
   model: string;
@@ -59,18 +58,13 @@ export interface AssetDTO extends Audit {
   power: string;
   manufacturer: string;
   customId: string;
-  customFieldValues?: CustomFieldValue[];
 }
 export interface AssetRow extends AssetDTO {
+  hierarchy: number[];
   childrenFetched?: boolean;
-  showMoreButton?: boolean;
-  isLoadMoreRow?: boolean;
-  depth?: number;
 }
 export interface AssetMiniDTO {
   id: number;
   name: string;
   customId: string;
-  locationId: number;
-  parentId: number;
 }

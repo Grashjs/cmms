@@ -17,9 +17,5 @@ android/local.properties
 .DS_Store
 google-services.json
 android/app/google-services.json
-GoogleService-Info.plist
-ios/**/GoogleService-Info.plist
 
 .env*
-
-.metro-health-check*

@@ -1,25 +1,25 @@
 package com.grash.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.Role;
 import com.grash.model.enums.Language;
-import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor
 public class UserSignupRequest {
 
+    @ApiModelProperty(position = 1)
     @NotNull
     private String email;
+    @ApiModelProperty(position = 2)
     @NotNull
     private String password;
 
-    @Schema(implementation = IdDTO.class)
+    @ApiModelProperty(position = 3)
     private Role role;
 
     @NotNull
@@ -36,18 +36,7 @@ public class UserSignupRequest {
     private int employeesCount;
 
     private Language language;
-    @Schema(hidden = true)
+
     private String subscriptionPlanId;
-    @Schema(hidden = true)
-    private Boolean demo;
-
-    @Schema(hidden = true)
-    private UtmParams utmParams;
-
-    @JsonIgnore
-    private Boolean skipMailSending;
-
-    private String timeZone;
 
 }
-

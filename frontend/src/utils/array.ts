@@ -1,5 +1,5 @@
-export function splitToChunks<T>(array: T[], parts: number): T[][] {
-  let result: T[][] = [];
+export function splitToChunks(array: any[], parts: number) {
+  let result = [];
   for (let i = parts; i > 0; i--) {
     result.push(array.splice(0, Math.ceil(array.length / i)));
   }
@@ -15,4 +15,4 @@ export function arrayMove(arr: any[], old_index, new_index) {
   }
   arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
   return arr; // for testing
-}
+};

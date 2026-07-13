@@ -3,7 +3,6 @@ import { createSlice } from '@reduxjs/toolkit';
 import { getInitialPage, Page, SearchCriteria } from 'src/models/owns/page';
 import type { AppThunk } from 'src/store';
 import { UserMiniDTO, UserResponseDTO } from '../models/user';
-import { UserInvitationMiniDTO } from '../models/owns/user';
 import api from '../utils/api';
 import { revertAll } from 'src/utils/redux';
 import { UiConfiguration } from '../models/owns/uiConfiguration';
@@ -13,9 +12,7 @@ interface UserState {
   users: Page<UserResponseDTO>;
   singleUser: UserResponseDTO;
   usersMini: UserMiniDTO[];
-  allUsersMini: UserMiniDTO[];
   disabledUsersMini: UserMiniDTO[];
-  lastWeekInvitations: UserInvitationMiniDTO[];
   loadingGet: boolean;
 }
 
@@ -23,9 +20,7 @@ const initialState: UserState = {
   users: getInitialPage<UserResponseDTO>(),
   singleUser: null,
   usersMini: [],
-  allUsersMini: [],
   disabledUsersMini: [],
-  lastWeekInvitations: [],
   loadingGet: false
 };
 
@@ -84,13 +79,6 @@ export const slice = createSlice({
       const { users } = action.payload;
       state.usersMini = users;
     },
-    getAllUsersMini(
-      state: UserState,
-      action: PayloadAction<{ users: UserMiniDTO[] }>
-    ) {
-      const { users } = action.payload;
-      state.allUsersMini = users;
-    },
     getDisabledUsersMini(
       state: UserState,
       action: PayloadAction<{ users: UserMiniDTO[] }>
@@ -119,22 +107,6 @@ export const slice = createSlice({
     },
     clearSingleUser(state: UserState, action: PayloadAction<{}>) {
       state.singleUser = null;
-    },
-    getLastWeekInvitations(
-      state: UserState,
-      action: PayloadAction<{ invitations: UserInvitationMiniDTO[] }>
-    ) {
-      const { invitations } = action.payload;
-      state.lastWeekInvitations = invitations;
-    },
-    addLastWeekInvitations(
-      state: UserState,
-      action: PayloadAction<{ invitations: UserInvitationMiniDTO[] }>
-    ) {
-      state.lastWeekInvitations = [
-        ...action.payload.invitations,
-        ...state.lastWeekInvitations
-      ];
     }
   }
 });
@@ -142,12 +114,12 @@ export const slice = createSlice({
 export const reducer = slice.reducer;
 
 export const getUsers =
-  (criteria: SearchCriteria, enabledOnly: boolean = true): AppThunk =>
+  (criteria: SearchCriteria): AppThunk =>
   async (dispatch) => {
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
       const users = await api.post<Page<UserResponseDTO>>(
-        `${basePath}/search?enabledOnly=${enabledOnly}`,
+        `${basePath}/search`,
         criteria
       );
       dispatch(slice.actions.getUsers({ users }));
@@ -184,15 +156,6 @@ export const disableUser =
     );
     dispatch(slice.actions.editUser({ user: userResponse }));
   };
-export const enableUser =
-  (id: number): AppThunk =>
-  async (dispatch) => {
-    const userResponse = await api.patch<UserResponseDTO>(
-      `${basePath}/${id}/enable`,
-      {}
-    );
-    dispatch(slice.actions.editUser({ user: userResponse }));
-  };
 export const editUserRole =
   (id: number, roleId: number): AppThunk =>
   async (dispatch) => {
@@ -208,19 +171,10 @@ export const getSingleUserMini =
     const user = await api.get<UserResponseDTO>(`users/${id}`);
     dispatch(slice.actions.getSingleUserMini({ user, id }));
   };
-export const getUsersMini =
-  (withRequesters?: boolean): AppThunk =>
-  async (dispatch) => {
-    const query =
-      withRequesters !== undefined ? `?withRequesters=${withRequesters}` : '';
-    const users = await api.get<UserMiniDTO[]>(`users/mini${query}`);
-    dispatch(
-      withRequesters
-        ? slice.actions.getAllUsersMini({ users })
-        : slice.actions.getUsersMini({ users })
-    );
-  };
-
+export const getUsersMini = (): AppThunk => async (dispatch) => {
+  const users = await api.get<UserMiniDTO[]>('users/mini');
+  dispatch(slice.actions.getUsersMini({ users }));
+};
 export const getDisabledUsersMini = (): AppThunk => async (dispatch) => {
   const users = await api.get<UserMiniDTO[]>('users/mini/disabled');
   dispatch(slice.actions.getDisabledUsersMini({ users }));
@@ -242,40 +196,19 @@ export const deleteUser =
   };
 
 export const inviteUsers =
-  (
-    roleId: number,
-    emails: string[],
-    disableSendingEmail: boolean,
-    isResend?: boolean
-  ): AppThunk =>
-  async (dispatch, getState) => {
+  (roleId: number, emails: string[]): AppThunk =>
+  async (dispatch) => {
     const successResponse = await api.post<{ success: boolean }>(
       'users/invite',
       {
         role: { id: roleId },
-        emails,
-        disableSendingEmail
+        emails
       }
     );
-    if (isResend) return;
-    const role = getState().roles.roles.find((r) => r.id === roleId);
-    const invitations: UserInvitationMiniDTO[] = emails.map((email) => ({
-      email,
-      roleId,
-      roleName: role?.name ?? ''
-    }));
-    dispatch(slice.actions.addLastWeekInvitations({ invitations }));
   };
 
 export const clearSingleUser = (): AppThunk => async (dispatch) => {
   dispatch(slice.actions.clearSingleUser({}));
-};
-
-export const getLastWeekInvitations = (): AppThunk => async (dispatch) => {
-  const invitations = await api.get<UserInvitationMiniDTO[]>(
-    'users/invitations/last-week'
-  );
-  dispatch(slice.actions.getLastWeekInvitations({ invitations }));
 };
 
 export default slice;

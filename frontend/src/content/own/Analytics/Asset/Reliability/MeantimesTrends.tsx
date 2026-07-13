@@ -25,10 +25,9 @@ interface HoursWorkedProps {
   ) => void;
   start: Date;
   end: Date;
-  companyId?: number;
 }
 
-function MeantimesTrends({ handleOpenModal, start, end, companyId }: HoursWorkedProps) {
+function MeantimesTrends({ handleOpenModal, start, end }: HoursWorkedProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const theme = useTheme();
@@ -37,8 +36,8 @@ function MeantimesTrends({ handleOpenModal, start, end, companyId }: HoursWorked
   );
 
   useEffect(() => {
-    dispatch(getDowntimesMeantimeByDate(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getDowntimesMeantimeByDate(start, end));
+  }, [start, end]);
 
   const formattedData: {
     label: string;

@@ -1,10 +1,6 @@
-import { Platform } from 'react-native';
 import { IField } from '../models/form';
 import { formatSelect, formatSelectMultiple } from './formatters';
 import { isTask } from '../models/tasks';
-
-// iOS build must ignore NFC-specific fields and logic.
-const isIos = Platform.OS === 'ios';
 
 export const getWorkOrderFields = (t): IField[] => {
   return [
@@ -27,21 +23,6 @@ export const getWorkOrderFields = (t): IField[] => {
       type: 'file',
       fileType: 'image',
       label: t('image')
-    },
-    {
-      name: 'location',
-      type: 'select',
-      type2: 'location',
-      label: t('location'),
-      placeholder: t('select_location')
-    },
-    {
-      name: 'asset',
-      type: 'select',
-      type2: 'asset',
-      label: t('asset'),
-      placeholder: t('select_asset'),
-      relatedFields: [{ field: 'location' }]
     },
     {
       name: 'dueDate',
@@ -98,6 +79,21 @@ export const getWorkOrderFields = (t): IField[] => {
       type2: 'team',
       label: t('team'),
       placeholder: t('select_team')
+    },
+    {
+      name: 'location',
+      type: 'select',
+      type2: 'location',
+      label: t('location'),
+      placeholder: t('select_location')
+    },
+    {
+      name: 'asset',
+      type: 'select',
+      type2: 'asset',
+      label: t('asset'),
+      placeholder: t('select_asset'),
+      relatedFields: [{ field: 'location' }]
     },
     {
       name: 'tasks',
@@ -219,15 +215,6 @@ export const getAssetFields = (t): Array<IField> => {
       type: 'barcode',
       label: t('barcode')
     },
-    ...(!isIos
-      ? [
-          {
-            name: 'nfcId',
-            type: 'nfc' as const,
-            label: t('nfc_tag')
-          }
-        ]
-      : []),
     {
       name: 'category',
       midWidth: true,
@@ -298,6 +285,11 @@ export const getAssetFields = (t): Array<IField> => {
       multiple: true,
       label: t('vendors'),
       placeholder: t('vendors_description')
+    },
+    {
+      name: 'nfcId',
+      type: 'nfc',
+      label: t('nfc_tag')
     },
     {
       name: 'inServiceDate',
@@ -385,7 +377,8 @@ export const getLocationFields = (t): IField[] => {
       name: 'address',
       type: 'text',
       label: t('address'),
-      placeholder: '13th St, New York'
+      placeholder: 'Casa, Maroc',
+      required: true
     },
     {
       name: 'parentLocation',

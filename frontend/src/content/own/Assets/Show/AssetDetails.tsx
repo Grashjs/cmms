@@ -1,10 +1,8 @@
 import {
   Box,
-  Button,
   Card,
   Divider,
   Grid,
-  IconButton,
   Link,
   Stack,
   styled,
@@ -12,7 +10,7 @@ import {
   useTheme
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { AssetDTO } from '../../../../models/owns/asset';
+import { AssetDTO, assetStatuses } from '../../../../models/owns/asset';
 import { UserMiniDTO } from '../../../../models/user';
 import { Customer } from '../../../../models/owns/customer';
 import { Vendor } from '../../../../models/owns/vendor';
@@ -24,64 +22,29 @@ import {
   getVendorUrl
 } from '../../../../utils/urlPaths';
 import { useContext } from 'react';
-import { useDispatch } from '../../../../store';
-import { editAsset } from '../../../../slices/asset';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
-import AssetStatusSelect from '../components/AssetStatusSelect';
-import Loading from '../../Analytics/Loading';
-import { PermissionEntity } from '../../../../models/owns/role';
-import SplitButton from '../../components/SplitButton';
-import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
-import * as React from 'react';
-import useAuth from '../../../../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
-import { getCustomFieldValuesForDetails } from '../../type';
-import { QRCodeSVG } from 'qrcode.react';
+import AssetStatusTag from '../components/AssetStatusTag';
 
 interface PropsType {
   asset: AssetDTO;
-  loading: boolean;
-  onCopy?: () => void;
 }
-const downloadQRCode = (value: string) => {
-  const svgElement = document.getElementById(`qr-code-${value}`);
-  if (!svgElement) return;
 
-  const svgData = new XMLSerializer().serializeToString(svgElement);
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  const img = new Image();
-
-  canvas.width = 120;
-  canvas.height = 120;
-
-  const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-  const url = URL.createObjectURL(svgBlob);
-
-  img.onload = () => {
-    ctx?.drawImage(img, 0, 0);
-    URL.revokeObjectURL(url);
-
-    const pngUrl = canvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.href = pngUrl;
-    link.download = `qr-code-${value}.png`;
-    link.click();
-  };
-
-  img.src = url;
-};
-const AssetDetails = ({ asset, loading, onCopy }: PropsType) => {
+const LabelWrapper = styled(Box)(
+  ({ theme }) => `
+    font-size: ${theme.typography.pxToRem(10)};
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: ${theme.general.borderRadiusSm};
+    padding: ${theme.spacing(0.9, 1.5, 0.7)};
+    line-height: 1;
+  `
+);
+const AssetDetails = ({ asset }: PropsType) => {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
-  const { hasCreatePermission, hasEditPermission } = useAuth();
-  const navigate = useNavigate();
   const { getFormattedDate, getFormattedCurrency } = useContext(
     CompanySettingsContext
   );
-  const dispatch = useDispatch();
   const informationFields = [
     { label: t('name'), value: asset?.name },
     { label: t('description'), value: asset?.description },
@@ -97,13 +60,9 @@ const AssetDetails = ({ asset, loading, onCopy }: PropsType) => {
         : null
     },
     { label: t('area'), value: asset?.area },
-    { label: t('barcode'), value: asset?.barCode, barcode: true }
+    { label: t('barcode'), value: asset?.barCode }
   ];
   const moreInfosFields = [
-    {
-      label: t('additional_information'),
-      value: asset?.additionalInfos
-    },
     {
       label: t('placed_in_service'),
       value: getFormattedDate(asset?.inServiceDate)
@@ -111,20 +70,14 @@ const AssetDetails = ({ asset, loading, onCopy }: PropsType) => {
     {
       label: t('warranty_expiration'),
       value: getFormattedDate(asset?.warrantyExpirationDate)
-    },
-    ...getCustomFieldValuesForDetails(
-      asset?.customFieldValues,
-      getFormattedDate
-    )
+    }
   ];
   const BasicField = ({
     label,
-    value,
-    barcode
+    value
   }: {
     label: string | number;
     value: string | number;
-    barcode?: boolean;
   }) => {
     return value ? (
       <Grid item xs={12}>
@@ -132,21 +85,7 @@ const AssetDetails = ({ asset, loading, onCopy }: PropsType) => {
           <Typography variant="h6" fontWeight="bold">
             {label}
           </Typography>
-          <Box>
-            <Typography variant="h6">{value}</Typography>
-            {barcode && value && (
-              <QRCodeSVG
-                id={`qr-code-${value}`}
-                value={value.toString()}
-                size={120}
-                level="H"
-                onClick={() => {
-                  downloadQRCode(value.toString());
-                }}
-                style={{ marginTop: theme.spacing(1), cursor: 'pointer' }}
-              />
-            )}
-          </Box>
+          <Typography variant="h6">{value}</Typography>
         </Stack>
         <Divider sx={{ mt: 1 }} />
       </Grid>
@@ -188,19 +127,6 @@ const AssetDetails = ({ asset, loading, onCopy }: PropsType) => {
       )
     );
   };
-  if (loading)
-    return (
-      <Box
-        sx={{
-          height: '50vh',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}
-      >
-        <Loading />
-      </Box>
-    );
   return (
     <Box sx={{ px: 4 }}>
       <Grid container spacing={2}>
@@ -213,51 +139,27 @@ const AssetDetails = ({ asset, loading, onCopy }: PropsType) => {
                 </Grid>
               )}
               <Grid item xs={12}>
-                <Stack direction={'row'} justifyContent={'space-between'}>
-                  <Stack direction={'row'} spacing={2} alignItems={'center'}>
-                    <Typography variant="h3">
-                      {t('asset_information')}
-                    </Typography>
-                    {asset && (
-                      <AssetStatusSelect
-                        value={asset.status}
-                        onChange={(status) =>
-                          dispatch(
-                            editAsset(asset.id, { ...asset, status })
-                          )
-                        }
-                        disabled={
-                          !hasEditPermission(PermissionEntity.ASSETS, asset)
-                        }
-                      />
-                    )}
-                    {hasCreatePermission(PermissionEntity.ASSETS) && (
-                      <IconButton onClick={onCopy}>
-                        <ContentCopyIcon />
-                      </IconButton>
-                    )}
-                  </Stack>
-                  {hasCreatePermission(PermissionEntity.WORK_ORDERS) && (
-                    <Button
-                      onClick={() =>
-                        navigate(`/app/work-orders?asset=${asset.id}`)
-                      }
-                      startIcon={<AddTwoToneIcon />}
-                      variant={'contained'}
-                    >
-                      {t('work_order')}
-                    </Button>
-                  )}
+                <Stack direction={'row'} spacing={2} alignItems={'center'}>
+                  <Typography variant="h3">{t('asset_information')}</Typography>
+                  {asset && <AssetStatusTag status={asset.status} />}
                 </Stack>
               </Grid>
               {informationFields.map((field) => (
-                <BasicField key={field.label} {...field} />
+                <BasicField
+                  key={field.label}
+                  label={field.label}
+                  value={field.value}
+                />
               ))}
               <Grid item xs={12}>
                 <Typography variant="h3">{t('more_informations')}</Typography>
               </Grid>
               {moreInfosFields.map((field) => (
-                <BasicField key={field.label} {...field} />
+                <BasicField
+                  key={field.label}
+                  label={field.label}
+                  value={field.value}
+                />
               ))}
               {asset?.primaryUser && (
                 <Grid item xs={12}>

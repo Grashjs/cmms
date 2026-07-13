@@ -1,10 +1,4 @@
-import {
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useDispatch, useSelector } from '../../store';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
@@ -17,7 +11,6 @@ import {
 } from '../../slices/location';
 import { FilterField, SearchCriteria } from '../../models/page';
 import {
-  Avatar,
   Button,
   Card,
   IconButton,
@@ -28,13 +21,11 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Location from '../../models/location';
-import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
-import { isCloseToBottom, onSearchQueryChange } from '../../utils/overall';
+import { IconSource } from 'react-native-paper/src/components/Icon';
+import { onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 import Tag from '../../components/Tag';
-import { useAppTheme } from '../../custom-theme';
-import { IconWithLabel } from '../../components/IconWithLabel';
 
 export default function LocationsScreen({
   navigation,
@@ -49,7 +40,7 @@ export default function LocationsScreen({
     currentPageNum,
     lastPage
   } = useSelector((state) => state.locations);
-  const theme = useAppTheme();
+  const theme = useTheme();
   const [view, setView] = useState<'hierarchy' | 'list'>('hierarchy');
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
@@ -110,6 +101,17 @@ export default function LocationsScreen({
     setCriteria(getCriteriaFromFilterFields([]));
   };
 
+  const isCloseToBottom = ({
+    layoutMeasurement,
+    contentOffset,
+    contentSize
+  }) => {
+    const paddingToBottom = 20;
+    return (
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom
+    );
+  };
   const onQueryChange = (query) => {
     onSearchQueryChange<Location>(
       query,
@@ -144,81 +146,6 @@ export default function LocationsScreen({
     setCurrentLocations(result);
   }, [locationsHierarchy]);
 
-  const LocationCard = ({
-    location,
-    showChildrenButton = false
-  }: {
-    location: any;
-    showChildrenButton?: boolean;
-  }) => (
-    <TouchableOpacity
-      onPress={() =>
-        navigation.push('LocationDetails', {
-          id: location.id,
-          locationProp: location
-        })
-      }
-      key={location.id}
-    >
-      <View style={styles.card}>
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: 6
-          }}
-        >
-          <Avatar.Icon
-            style={{
-              backgroundColor: theme.colors.background
-            }}
-            color={'white'}
-            icon={'map-marker-outline'}
-            size={50}
-          />
-          <View style={{ flex: 1 }}>
-            <View style={styles.cardHeader}>
-              <View style={{ flex: 1 }}>
-                <Text variant="titleMedium" style={styles.cardTitle}>
-                  {location.name}
-                </Text>
-                <Text
-                  variant={'bodySmall'}
-                  style={{ color: 'grey' }}
-                >{`#${location.customId}`}</Text>
-              </View>
-            </View>
-            <View style={styles.cardBody}>
-              {location.address && (
-                <IconWithLabel
-                  label={location.address}
-                  icon="map-legend"
-                  color={theme.colors.grey}
-                />
-              )}
-            </View>
-            {showChildrenButton && location.hasChildren && (
-              <View style={styles.cardFooter}>
-                <View style={{ flex: 1 }} />
-                <Button
-                  compact
-                  onPress={() => {
-                    navigation.push('Locations', {
-                      id: location.id,
-                      hierarchy: location.hierarchy
-                    });
-                  }}
-                >
-                  {t('view_children')}
-                </Button>
-              </View>
-            )}
-          </View>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-
   return (
     <View
       style={{ ...styles.container, backgroundColor: theme.colors.background }}
@@ -250,7 +177,36 @@ export default function LocationsScreen({
         >
           {!!locations.content.length ? (
             locations.content.map((location) => (
-              <LocationCard key={location.id} location={location} />
+              <Card
+                style={{
+                  marginVertical: 5,
+                  backgroundColor: 'white'
+                }}
+                key={location.id}
+                onPress={() =>
+                  navigation.push('LocationDetails', {
+                    id: location.id,
+                    locationProp: location
+                  })
+                }
+              >
+                <Card.Content>
+                  <List.Item
+                    titleStyle={{ fontWeight: 'bold' }}
+                    title={location.name}
+                    description={location.address}
+                    right={(props) => (
+                      <View>
+                        <Tag
+                          text={`#${location.customId}`}
+                          color="white"
+                          backgroundColor="#545454"
+                        />
+                      </View>
+                    )}
+                  />
+                </Card.Content>
+              </Card>
             ))
           ) : loadingGet ? null : (
             <View
@@ -278,11 +234,50 @@ export default function LocationsScreen({
         >
           {!!currentLocations.length &&
             currentLocations.map((location) => (
-              <LocationCard
+              <Card
+                style={{
+                  marginVertical: 5,
+                  backgroundColor: 'white'
+                }}
                 key={location.id}
-                location={location}
-                showChildrenButton={true}
-              />
+                onPress={() =>
+                  navigation.push('LocationDetails', {
+                    id: location.id,
+                    locationProp: location
+                  })
+                }
+              >
+                <Card.Content>
+                  <List.Item
+                    titleStyle={{ fontWeight: 'bold' }}
+                    title={location.name}
+                    description={location.address}
+                    right={(props) => (
+                      <View>
+                        <Tag
+                          text={`#${location.customId}`}
+                          color="white"
+                          backgroundColor="#545454"
+                        />
+                      </View>
+                    )}
+                  />
+                </Card.Content>
+                <Card.Actions>
+                  {location.hasChildren && (
+                    <Button
+                      onPress={() => {
+                        navigation.push('Locations', {
+                          id: location.id,
+                          hierarchy: location.hierarchy
+                        });
+                      }}
+                    >
+                      {t('view_children')}
+                    </Button>
+                  )}
+                </Card.Actions>
+              </Card>
             ))}
         </ScrollView>
       )}
@@ -293,7 +288,7 @@ export default function LocationsScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // alignItems: 'center',
+    alignItems: 'center',
     justifyContent: 'center'
   },
   title: {
@@ -302,36 +297,12 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     width: '100%',
-    height: '100%'
+    height: '100%',
+    padding: 5
   },
   row: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center'
-  },
-  card: {
-    backgroundColor: 'white',
-    marginBottom: 1,
-    padding: 10
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8
-  },
-  cardTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-    flexShrink: 1
-  },
-  cardBody: {
-    gap: 10
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 10
   }
 });

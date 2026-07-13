@@ -184,7 +184,6 @@ const plJSON = {
   employeesCount: 'Liczba pracowników',
   i_accept: 'Akceptuję',
   terms_conditions: 'warunki i postanowienia',
-  required_fields_notice: 'Wszystkie pola oznaczone * są obowiązkowe.',
   create_your_account: 'Utwórz swoje konto',
   register: 'Rejestr',
   login_description:
@@ -230,7 +229,7 @@ const plJSON = {
   feedback_description: 'Przekaż swoją opinię',
   required_feedback: 'Wymagana jest opinia',
   signature: 'Podpis',
-  required_signature: 'Podpis jest wymagany',
+  required_signature: 'Obraz jest wymagany',
   close_wo: 'Zamknij zlecenie robocze',
   close: 'Zamknąć',
   task_update_success: 'Zadanie zostało pomyślnie zaktualizowane',
@@ -260,8 +259,6 @@ const plJSON = {
   column_view: 'Widok kolumny',
   wo_create_success: 'Zlecenie robocze zostało pomyślnie utworzone',
   wo_create_failure: 'Nie można utworzyć zlecenia roboczego',
-  discard_changes: 'Odrzuć zmiany',
-  discard_changes_question: 'Odrzucić niezapisane zmiany?\nJeśli teraz wyjdziesz, stracisz niezapisane zmiany',
   changes_saved_success: 'Zmiany zostały zapisane',
   wo_update_failure: 'Nie można edytować zlecenia roboczego',
   wo_delete_success: 'Zlecenie robocze zostało pomyślnie usunięte',
@@ -1029,12 +1026,6 @@ const plJSON = {
   personal_details_description:
     'Zarządzaj informacjami związanymi z Twoimi danymi osobowymi',
   change_password: 'Zmień hasło',
-  delete_account: 'Usuń konto',
-  delete_account_confirmation:
-    'Czy na pewno chcesz usunąć swoje konto? Tej czynności nie można cofnąć.',
-  account_deleted: 'Konto zostało pomyślnie usunięte',
-  account_delete_error: 'Błąd podczas usuwania konta',
-  confirm_delete_account: 'Usuń konto',
   notification_settings: 'Ustawienia powiadomień',
   notification_settings_description:
     'Zarządzaj szczegółami związanymi z powiadomieniami',
@@ -1442,17 +1433,6 @@ const plJSON = {
   power: 'Moc',
   library: 'Biblioteka',
   camera: 'Kamera',
-  media_library: 'Biblioteka zdjęć',
-  permission_required_title: 'Wymagane uprawnienie',
-  permission_required_message:
-    'Dostęp do {{permission}} jest wymagany. Włącz go w ustawieniach aplikacji.',
-  permission_denied_title: 'Odmowa uprawnienia',
-  permission_denied_message:
-    'Dostęp do {{permission}} jest wymagany, aby kontynuować.',
-  unable_to_request_permission:
-    'Nie udało się poprosić o uprawnienie do {{permission}}.',
-  open_settings: 'Otwórz ustawienia',
-  ok: 'OK',
   CANCELLED: 'Odrzucony',
   max_file_size_error: 'Rozmiar pliku nie powinien być większy niż {{size}} MB',
   assignedToUser: 'Moja praca',
@@ -1485,28 +1465,7 @@ const plJSON = {
   top_level: 'Poziom główny',
   no_results_found: 'Nie znaleziono wyników',
   no_sub_assets: 'Brak podzasobów',
-  no_assets_available: 'Brak dostępnych zasobów',
-  asset_not_found: 'Zasób nie znaleziony',
-  comments: 'Komentarze',
-  no_comments: 'Brak komentarzy. Bądź pierwszym, który skomentuje!',
-  post_comment: 'Opublikuj komentarz',
-  confirm_delete_comment: 'Czy na pewno chcesz usunąć ten komentarz?',
-  add_comment_placeholder: 'Dodaj komentarz...',
-  create_category: 'Create Category',
-  delete_row_confirm_message: 'Czy na pewno chcesz usunąć ten wiersz?',
-  review_prompt_title: 'Czy podoba Ci się Atlas CMMS?',
-  feedback_title: 'Pomóż nam się poprawić',
-  feedback_description1:
-    'Przykro nam to słyszeć. Twoja opinia pomaga nam ulepszać Atlas.',
-  feedback_placeholder: 'Powiedz nam, co poszło nie tak lub jak możemy się poprawić…',
-  send: 'Wyślij',
-  edit_additional_cost: 'Edytuj koszt',
-  delete_additional_cost: 'Usuń koszt',
-  confirm_delete_additional_cost: 'Czy na pewno chcesz usunąć ten koszt?',
-  edit_additional_time: 'Edytuj czas',
-  delete_additional_time: 'Usuń czas',
-  confirm_delete_additional_time: 'Czy na pewno chcesz usunąć ten czas?',
-  reset: 'Reset',
-  operation_success: 'Operacja zakończyła się sukcesem'
+  no_assets_available: 'Brak dostępnych zasobów'
 };
+
 export default plJSON;

@@ -4,7 +4,6 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PartCategoryMapper;
 import com.grash.model.PartCategory;
-import com.grash.model.User;
 import com.grash.repository.PartCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,9 +19,8 @@ public class PartCategoryService {
     private final CompanySettingsService companySettingsService;
     private final PartCategoryMapper partCategoryMapper;
 
-    public PartCategory create(PartCategory partCategory, User user) {
-        Optional<PartCategory> categoryWithSameName = partCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(
-                partCategory.getName(), user.getCompany().getCompanySettings().getId());
+    public PartCategory create(PartCategory partCategory) {
+        Optional<PartCategory> categoryWithSameName = partCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(partCategory.getName(), partCategory.getCompanySettings().getId());
         if (categoryWithSameName.isPresent()) {
             throw new CustomException("PartCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }

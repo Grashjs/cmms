@@ -180,7 +180,6 @@ const locale = {
   employeesCount: 'Número de empleados',
   i_accept: 'Acepto los',
   terms_conditions: 'términos y condiciones',
-  required_fields_notice: 'Todos los campos marcados con * son obligatorios.',
   create_your_account: 'Crea tu cuenta',
   register: 'Registro',
   login_description:
@@ -227,7 +226,7 @@ const locale = {
   feedback_description: 'Envíanos tu opinión',
   required_feedback: 'Se requieren comentarios',
   signature: 'Firma',
-  required_signature: 'La firma es obligatoria',
+  required_signature: 'Se requiere imagen',
   close_wo: 'Cerrar Orden de Trabajo',
   close: 'Cerrada',
   task_update_success: 'Tarea actualizada exitosamente',
@@ -258,8 +257,6 @@ const locale = {
   column_view: 'Vista de columna',
   wo_create_success: 'La Orden de Trabajo se ha creado correctamente',
   wo_create_failure: 'No se pudo crear la Oden de Trabajo',
-  discard_changes: 'Descartar cambios',
-  discard_changes_question: '¿Descartar cambios no guardados?\nSi sales ahora, perderás los cambios no guardados',
   changes_saved_success: 'Los cambios se han guardado',
   wo_update_failure: 'No se pudo editar la Orden de Trabajo',
   wo_delete_success: 'La Orden de Trabajo se ha eliminado correctamente',
@@ -1044,12 +1041,6 @@ const locale = {
   personal_details_description:
     'Gestionar información relacionada con tus datos personales',
   change_password: 'Cambiar la contraseña',
-  delete_account: 'Eliminar cuenta',
-  delete_account_confirmation:
-    '¿Está seguro de que desea eliminar su cuenta? Esta acción no se puede deshacer.',
-  account_deleted: 'Cuenta eliminada con éxito',
-  account_delete_error: 'Error al eliminar la cuenta',
-  confirm_delete_account: 'Eliminar cuenta',
   notification_settings: 'Configuración de notificaciones',
   notification_settings_description:
     'Administrar detalles relacionados con tus notificaciones',
@@ -1461,17 +1452,6 @@ const locale = {
   power: 'Potencia',
   library: 'Biblioteca',
   camera: 'Cámara',
-  media_library: 'Biblioteca de fotos',
-  permission_required_title: 'Permiso requerido',
-  permission_required_message:
-    'Se necesita acceso a {{permission}}. Actívalo en la configuración de la aplicación.',
-  permission_denied_title: 'Permiso denegado',
-  permission_denied_message:
-    'Se necesita acceso a {{permission}} para continuar.',
-  unable_to_request_permission:
-    'No se pudo solicitar el permiso de {{permission}}.',
-  open_settings: 'Abrir configuración',
-  ok: 'OK',
   CANCELLED: 'Rechazado',
   max_file_size_error: 'El tamaño del archivo no debe ser mayor a {{size}} MB',
   assignedToUser: 'Mi trabajo',
@@ -1505,28 +1485,7 @@ const locale = {
   top_level: 'Nivel superior',
   no_results_found: 'No se encontraron resultados',
   no_sub_assets: 'Sin subactivos',
-  no_assets_available: 'No hay activos disponibles',
-  asset_not_found: 'Activo no encontrado',
-  comments: 'Comentarios',
-  no_comments: 'Aún no hay comentarios. ¡Sé el primero en comentar!',
-  post_comment: 'Publicar comentario',
-  confirm_delete_comment: '¿Está seguro de que desea eliminar este comentario?',
-  add_comment_placeholder: 'Añadir un comentario...',
-  create_category: 'Create Category',
-  delete_row_confirm_message: '¿Está seguro de que desea eliminar esta fila?',
-  review_prompt_title: '¿Está disfrutando de Atlas CMMS?',
-  feedback_title: 'Ayúdenos a mejorar',
-  feedback_description1:
-    'Lamentamos oír eso. Sus comentarios nos ayudan a mejorar Atlas.',
-  feedback_placeholder: 'Cuéntenos qué salió mal o cómo podemos mejorar…',
-  send: 'Enviar',
-  edit_additional_cost: 'Editar costo',
-  delete_additional_cost: 'Eliminar costo',
-  confirm_delete_additional_cost: '¿Está seguro de que desea eliminar este costo?',
-  edit_additional_time: 'Editar tiempo',
-  delete_additional_time: 'Eliminar tiempo',
-  confirm_delete_additional_time: '¿Está seguro de que desea eliminar este tiempo?',
-  reset: 'Restablecer',
-  operation_success: 'La operación fue exitosa'
+  no_assets_available: 'No hay activos disponibles'
 };
+
 export default locale;

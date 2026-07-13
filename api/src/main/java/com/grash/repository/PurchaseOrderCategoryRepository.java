@@ -11,6 +11,4 @@ public interface PurchaseOrderCategoryRepository extends JpaRepository<PurchaseO
 
     Optional<PurchaseOrderCategory> findByNameIgnoreCaseAndCompanySettings_Id(String name, Long id);
 
-    void deleteByCompanySettings_Company_IdAndIsDemoTrue(Long companyId);
-
 }

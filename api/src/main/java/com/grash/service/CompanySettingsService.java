@@ -1,6 +1,8 @@
 package com.grash.service;
 
 import com.grash.model.CompanySettings;
+import com.grash.model.OwnUser;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.CompanySettingsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

@@ -3,14 +3,14 @@ package com.grash.controller.analytics;
 import com.grash.dto.analytics.users.UserWOStats;
 import com.grash.dto.analytics.users.WOStatsByDay;
 import com.grash.exception.CustomException;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.security.CurrentUser;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
 import com.grash.utils.Helper;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
@@ -20,14 +20,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import io.swagger.v3.oas.annotations.Parameter;
+import springfox.documentation.annotations.ApiIgnore;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.*;
 
 @RestController
 @RequestMapping("/analytics/users")
-@Tag(name = "User Analytics", description = "Analytics operations on users")
+@Api(tags = "UserAnalytics")
 @RequiredArgsConstructor
 public class UserAnalyticsController {
 
@@ -40,7 +41,7 @@ public class UserAnalyticsController {
             value = "getUserWOStats",
             key = "#user.id"
     )
-    public ResponseEntity<UserWOStats> getWOStats(@Parameter(hidden = true) @CurrentUser User user) {
+    public ResponseEntity<UserWOStats> getWOStats(@ApiIgnore @CurrentUser OwnUser user) {
         Collection<WorkOrder> createdWorkOrders = workOrderService.findByCreatedBy(user.getId());
         Collection<WorkOrder> completedWorkOrders = workOrderService.findByCompletedBy(user.getId());
         return ResponseEntity.ok(UserWOStats.builder()
@@ -52,9 +53,9 @@ public class UserAnalyticsController {
     @GetMapping("/two-weeks/work-orders/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<List<WOStatsByDay>> getWoStatsByUserFor2Weeks(@PathVariable("id") Long id,
-                                                                        @Parameter(hidden = true) @CurrentUser User user) {
+                                                                        @ApiIgnore @CurrentUser OwnUser user) {
         if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
-            Optional<User> optionalUser = userService.findByIdAndCompany(id, user.getCompany().getId());
+            Optional<OwnUser> optionalUser = userService.findByIdAndCompany(id, user.getCompany().getId());
             if (optionalUser.isPresent()) {
                 Date firstDay = Helper.localDateToDate(LocalDate.now().minusDays(14));
                 Collection<WorkOrder> createdWorkOrders = workOrderService.findByCreatedByAndCreatedAtBetween(id,
@@ -80,4 +81,3 @@ public class UserAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 }
-

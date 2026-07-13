@@ -3,8 +3,10 @@ package com.grash.service;
 import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TimeCategoryMapper;
+import com.grash.model.CompanySettings;
+import com.grash.model.OwnUser;
 import com.grash.model.TimeCategory;
-import com.grash.model.User;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.TimeCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,10 +22,8 @@ public class TimeCategoryService {
     private final CompanySettingsService companySettingsService;
     private final TimeCategoryMapper timeCategoryMapper;
 
-    public TimeCategory create(TimeCategory timeCategory, User user) {
-        Optional<TimeCategory> categoryWithSameName =
-                timeCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(timeCategory.getName(),
-                        user.getCompany().getCompanySettings().getId());
+    public TimeCategory create(TimeCategory timeCategory) {
+        Optional<TimeCategory> categoryWithSameName = timeCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(timeCategory.getName(), timeCategory.getCompanySettings().getId());
         if (categoryWithSameName.isPresent()) {
             throw new CustomException("TimeCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }
@@ -56,8 +56,7 @@ public class TimeCategoryService {
 
     public boolean isTimeCategoryInCompany(TimeCategory timeCategory, long companyId, boolean optional) {
         if (optional) {
-            Optional<TimeCategory> optionalTimeCategory = timeCategory == null ? Optional.empty() :
-                    findById(timeCategory.getId());
+            Optional<TimeCategory> optionalTimeCategory = timeCategory == null ? Optional.empty() : findById(timeCategory.getId());
             return timeCategory == null || (optionalTimeCategory.isPresent() && optionalTimeCategory.get().getCompanySettings().getCompany().getId().equals(companyId));
         } else {
             Optional<TimeCategory> optionalTimeCategory = findById(timeCategory.getId());

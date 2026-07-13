@@ -176,7 +176,7 @@ function Filters({ filterFields, onFilterChange, onSave }: OwnProps) {
       | { label: string; value: string }
       | { label: string; value: number }[]
       | boolean
-      | [Date | null, Date | null];
+      | [string, string];
   } => {
     return {
       categories: getLabelAndValue(

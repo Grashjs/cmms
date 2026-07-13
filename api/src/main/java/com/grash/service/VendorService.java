@@ -3,18 +3,15 @@ package com.grash.service;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.VendorPatchDTO;
-import com.grash.dto.VendorPostDTO;
-import com.grash.dto.cutomField.CustomFieldValuePostDTO;
-import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.VendorMapper;
+import com.grash.model.OwnUser;
 import com.grash.model.Vendor;
-import com.grash.model.Company;
-import com.grash.model.enums.CustomFieldEntityType;
-import com.grash.model.enums.webhook.WebhookEvent;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.VendorRepository;
-import com.grash.service.CustomFieldValueService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,11 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,45 +27,26 @@ public class VendorService {
     private final VendorRepository vendorRepository;
     private final CompanyService companyService;
     private final VendorMapper vendorMapper;
-    private final LicenseService licenseService;
-    private final WebhookDispatchService webhookDispatchService;
-    private final CustomFieldValueService customFieldValueService;
+    private AssetService assetService;
+    private LocationService locationService;
+    private PartService partService;
 
-    public Vendor create(Vendor vendor, Company company) {
-        if (!licenseService.hasEntitlement(LicenseEntitlement.CUSTOMER_VENDOR))
-            throw new CustomException("You need a license to create a vendor", HttpStatus.FORBIDDEN);
-        if (vendor instanceof VendorPostDTO vendorPostDTO) {
-            vendor = vendorMapper.fromPostDto(vendorPostDTO);
-            if (vendorPostDTO.getCustomFields() != null && !vendorPostDTO.getCustomFields().isEmpty()) {
-                setVendorCustomFields(vendor, vendorPostDTO.getCustomFields(), company);
-            }
-        }
-        Vendor savedVendor = vendorRepository.save(vendor);
-        Map<String, Object> webhookPayload = new HashMap<>();
-        webhookPayload.put("vendorId", savedVendor.getId());
-        webhookDispatchService.dispatchWebhook(savedVendor.getCompany(), WebhookEvent.NEW_VENDOR, webhookPayload,
-                "newVendor", savedVendor, null, null, null, null, null);
-        return savedVendor;
+    @Autowired
+    public void setDeps(@Lazy PartService partService, @Lazy LocationService locationService,
+                        @Lazy AssetService assetService
+    ) {
+        this.partService = partService;
+        this.locationService = locationService;
+        this.assetService = assetService;
     }
 
-    private void setVendorCustomFields(Vendor vendor, List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
-                                       Company company) {
-        customFieldValueService.setCustomFields(
-                vendor,
-                vendor.getCustomFieldValues(),
-                customFieldValuePostDTOS,
-                company,
-                CustomFieldEntityType.VENDOR,
-                cfv -> cfv.setVendor(vendor)
-        );
+    public Vendor create(Vendor Vendor) {
+        return vendorRepository.save(Vendor);
     }
 
-    public Vendor update(Long id, VendorPatchDTO vendor, Company company) {
+    public Vendor update(Long id, VendorPatchDTO vendor) {
         if (vendorRepository.existsById(id)) {
             Vendor savedVendor = vendorRepository.findById(id).get();
-            if (vendor.getCustomFields() != null && !vendor.getCustomFields().isEmpty()) {
-                setVendorCustomFields(savedVendor, vendor.getCustomFields(), company);
-            }
             return vendorRepository.save(vendorMapper.updateVendor(savedVendor, vendor));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -114,5 +88,4 @@ public class VendorService {
     public Optional<Vendor> findByNameIgnoreCaseAndCompany(String name, Long companyId) {
         return vendorRepository.findByNameIgnoreCaseAndCompany_Id(name, companyId);
     }
-
 }

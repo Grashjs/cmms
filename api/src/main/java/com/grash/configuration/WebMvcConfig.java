@@ -20,20 +20,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private final CurrentUserResolver currentUserResolver;
     @Value("${frontend.url}")
     private String frontendUrl;
-    @Value("${frontend.home-url}")
-    private String frontendHomeUrl;
-    @Value("${security.cors.enabled}")
-    private boolean enableCors;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        if (enableCors) {
-            registry.addMapping("/**")
-                    .allowedOrigins(frontendUrl, frontendHomeUrl)
-                    .allowedMethods("HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE")
-                    .allowCredentials(true)
-                    .maxAge(MAX_AGE_SECS);
-        } else registry.addMapping("/**").allowedMethods("*");
+        registry.addMapping("/**")
+                .allowedOrigins(frontendUrl)
+                .allowedMethods("HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE")
+                .maxAge(MAX_AGE_SECS);
     }
 
     @Override
@@ -44,8 +37,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/images/**")
-                .addResourceLocations("classpath:/static/images/")
-                .addResourceLocations("file:/app/static/images/")
-                .addResourceLocations("file:/app/static/config/");
+                .addResourceLocations("classpath:/static/images/");
     }
 }

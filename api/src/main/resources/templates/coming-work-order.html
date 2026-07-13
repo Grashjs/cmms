@@ -1,9 +1,114 @@
-<!--/*@thymesVar id="pmTitle" type="java.lang.String"*/-->
-<!--/*@thymesVar id="pmLink" type="java.lang.String"*/-->
-<div th:replace="fragments/main-layout :: emailTemplate(
-    #{coming_wo},
-    #{comingWorkOrderHeader},
-    #{coming_wo_message(${pmTitle})},
-    #{seeDetails},
-    ${pmLink}
-)"></div>
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <link href="../static/css/layout.css" rel="stylesheet"/>
+</head>
+
+<body style="background-color: #f4f4f4; margin: 0 !important; padding: 0 !important;">
+<!-- HIDDEN PREHEADER TEXT -->
+<div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: 'Lato', Helvetica, Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;"
+     th:text="#{comingWorkOrderHeader}">
+</div>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <!-- LOGO -->
+    <tr>
+        <td bgcolor="#00a0e3" align="center">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                <tr>
+                    <td align="center" valign="top" style="padding: 40px 10px 40px 10px;"></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td bgcolor="#00a0e3" align="center" style="padding: 0px 10px 0px 10px;">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                <tr>
+                    <td bgcolor="#ffffff" align="center" valign="top"
+                        style="padding: 40px 20px 20px 20px; border-radius: 4px 4px 0px 0px; color: #111111; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 48px; font-weight: 400; letter-spacing: 4px; line-height: 48px;">
+                        <h1 style="font-size: 48px; font-weight: 400; margin: 2;" th:text="#{coming_wo}"></h1> <img
+                            th:src="@{${environment.getProperty('api.host')} + '/images/logo.png'}"
+                            width="150" height="150" style="display: block; border: 0px;"/>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td bgcolor="#f4f4f4" align="center" style="padding: 0px 10px 0px 10px;">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                <tr>
+                    <td bgcolor="#ffffff" align="left"
+                        style="padding: 20px 30px 40px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
+                        <p style="margin: 0;" th:text="#{coming_wo_message(${pmTitle})}"></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td bgcolor="#ffffff" align="left">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <td bgcolor="#ffffff" align="center" style="padding: 20px 30px 60px 30px;">
+                                    <table border="0" cellspacing="0" cellpadding="0">
+                                        <tr>
+                                            <td align="center" style="border-radius: 3px;" bgcolor="#00a0e3"><a
+                                                    th:href="${pmLink}"
+
+
+                                                    target="_blank"
+                                                    style="font-size: 20px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; color: #ffffff; text-decoration: none; padding: 15px 25px; border-radius: 2px; border: 1px solid #00a0e3; display: inline-block;"
+                                                    th:text="#{seeDetails}"></a></td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr> <!-- COPY -->
+
+                <tr>
+                    <td bgcolor="#ffffff" align="left"
+                        style="padding: 0px 30px 40px 30px; border-radius: 0px 0px 4px 4px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
+                        <p style="margin: 0;" th:text="#{grashTeam}"><br></p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td bgcolor="#f4f4f4" align="center" style="padding: 30px 10px 0px 10px;">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                <tr>
+                    <td bgcolor="white" align="center"
+                        style="padding: 30px 30px 30px 30px; border-radius: 4px 4px 4px 4px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
+                        <h2 style="font-size: 20px; font-weight: 400; color: #111111; margin: 0;"
+                            th:text="#{needHelp}"></h2>
+                        <p style="margin: 0;"><a th:href="${featuresLink}"
+
+                                                 target="_blank" style="color: #00a0e3;" th:text="#{hereToHelp}"></a>
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td bgcolor="#f4f4f4" align="center" style="padding: 0px 10px 0px 10px;">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                <tr>
+                    <td bgcolor="#f4f4f4" align="left"
+                        style="padding: 0px 30px 30px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; line-height: 18px;">
+                        <br>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+
+</html>

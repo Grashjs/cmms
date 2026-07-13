@@ -5,16 +5,10 @@ import WorkOrder from '../models/owns/workOrder';
 import api from '../utils/api';
 import { Task } from '../models/owns/tasks';
 import { getInitialPage, Page, SearchCriteria } from '../models/owns/page';
-import {
-  WorkOrderBase,
-  WorkOrderBaseMiniDTO
-} from 'src/models/owns/workOrderBase';
+import { WorkOrderBase, WorkOrderBaseMiniDTO } from 'src/models/owns/workOrderBase';
 import PreventiveMaintenance from 'src/models/owns/preventiveMaintenance';
 import { revertAll } from 'src/utils/redux';
 import File from '../models/owns/file';
-import { cancellableFetch } from 'src/utils/cancellableRequest';
-import { addToUnscheduled } from './workload';
-import type { WorkloadWorkOrderDTO } from 'src/models/owns/workload';
 
 const basePath = 'work-orders';
 
@@ -106,7 +100,7 @@ const slice = createSlice({
     },
     addFilesToWorkOrder(
       state: WorkOrderState,
-      action: PayloadAction<{ files: File[]; id: number }>
+      action: PayloadAction<{ files: File[], id: number }>
     ) {
       const { files, id } = action.payload;
       const inContent = state.workOrders.content.some(
@@ -127,7 +121,7 @@ const slice = createSlice({
     },
     setFilesForWorkOrder(
       state: WorkOrderState,
-      action: PayloadAction<{ files: File[]; id: number }>
+      action: PayloadAction<{ files: File[], id: number }>
     ) {
       const { files, id } = action.payload;
       const inContent = state.workOrders.content.some(
@@ -143,7 +137,8 @@ const slice = createSlice({
           }
         );
       }
-      if (state.singleWorkOrder?.id === id) state.singleWorkOrder.files = files;
+      if (state.singleWorkOrder?.id === id)
+        state.singleWorkOrder.files = files;
     },
     deleteWorkOrder(
       state: WorkOrderState,
@@ -175,9 +170,7 @@ const slice = createSlice({
     },
     getEvents(
       state: WorkOrderState,
-      action: PayloadAction<{
-        events: CalendarEvent<WorkOrder | PreventiveMaintenance>[];
-      }>
+      action: PayloadAction<{ events: CalendarEvent<WorkOrder | PreventiveMaintenance>[] }>
     ) {
       const { events } = action.payload;
       state.calendar.events = events;
@@ -203,218 +196,165 @@ export const reducer = slice.reducer;
 
 export const getWorkOrders =
   (criteria: SearchCriteria): AppThunk =>
-  async (dispatch) => {
-    await cancellableFetch(
-      dispatch,
-      'getWorkOrders',
-      (signal) =>
-        api.post<Page<WorkOrder>>(`${basePath}/search`, criteria, { signal }),
-      (workOrders) => dispatch(slice.actions.getWorkOrders({ workOrders })),
-      (loading) => dispatch(slice.actions.setLoadingGet({ loading }))
-    );
-  };
+    async (dispatch) => {
+      try {
+        dispatch(slice.actions.setLoadingGet({ loading: true }));
+        const workOrders = await api.post<Page<WorkOrder>>(
+          `${basePath}/search`,
+          criteria
+        );
+        dispatch(slice.actions.getWorkOrders({ workOrders }));
+      } finally {
+        dispatch(slice.actions.setLoadingGet({ loading: false }));
+      }
+    };
 
 export const getWorkOrdersMini =
   (criteria: SearchCriteria): AppThunk =>
-  async (dispatch) => {
-    await cancellableFetch(
-      dispatch,
-      'getWorkOrdersMini',
-      (signal) =>
-        api.post<Page<WorkOrderBaseMiniDTO>>(
+    async (dispatch) => {
+      try {
+        const workOrders = await api.post<Page<WorkOrderBaseMiniDTO>>(
           `${basePath}/search/mini`,
-          criteria,
-          { signal }
-        ),
-      (workOrders) => dispatch(slice.actions.getWorkOrdersMini({ workOrders }))
-    );
-  };
+          criteria
+        );
+        dispatch(slice.actions.getWorkOrdersMini({ workOrders }));
+      } finally {
+      }
+    };
 export const getSingleWorkOrder =
   (id: number): AppThunk =>
-  async (dispatch) => {
-    dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const workOrder = await api.get<WorkOrder>(`${basePath}/${id}`);
-    dispatch(slice.actions.getSingleWorkOrder({ workOrder }));
-    dispatch(slice.actions.setLoadingGet({ loading: false }));
-  };
+    async (dispatch) => {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      const workOrder = await api.get<WorkOrder>(`${basePath}/${id}`);
+      dispatch(slice.actions.getSingleWorkOrder({ workOrder }));
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    };
 export const addWorkOrder =
   (workOrder): AppThunk =>
-  async (dispatch) => {
-    const workOrderResponse = await api.post<WorkOrder>(basePath, workOrder);
-    dispatch(slice.actions.addWorkOrder({ workOrder: workOrderResponse }));
-    if (
-      (!workOrderResponse.primaryUser &&
-        workOrderResponse.assignedTo.length === 0) ||
-      !workOrderResponse.estimatedStartDate
-    ) {
-      dispatch(
-        addToUnscheduled({
-          workOrder: workOrderResponse
-        })
-      );
-    }
-    const taskBases =
-      workOrder.tasks?.map((task) => {
-        return {
-          ...task.taskBase,
-          options: task.taskBase.options.map((option) => option.label)
-        };
-      }) ?? [];
-    if (taskBases.length) {
-      const tasks = await api.patch<Task[]>(
-        `tasks/work-order/${workOrderResponse.id}`,
-        taskBases,
-        null
-      );
-    }
-    return workOrderResponse;
-  };
+    async (dispatch) => {
+      const workOrderResponse = await api.post<WorkOrder>(basePath, workOrder);
+      dispatch(slice.actions.addWorkOrder({ workOrder: workOrderResponse }));
+      const taskBases =
+        workOrder.tasks?.map((task) => {
+          return {
+            ...task.taskBase,
+            options: task.taskBase.options.map((option) => option.label)
+          };
+        }) ?? [];
+      if (taskBases.length) {
+        const tasks = await api.patch<Task[]>(
+          `tasks/work-order/${workOrderResponse.id}`,
+          taskBases,
+          null
+        );
+      }
+    };
 export const editWorkOrder =
   (id: number, workOrder): AppThunk =>
-  async (dispatch) => {
-    const workOrderResponse = await api.patch<WorkOrder>(
-      `${basePath}/${id}`,
-      workOrder
-    );
-    dispatch(slice.actions.editWorkOrder({ workOrder: workOrderResponse }));
-    if (workOrder.archived) dispatch(slice.actions.deleteWorkOrder({ id }));
-  };
+    async (dispatch) => {
+      const workOrderResponse = await api.patch<WorkOrder>(
+        `${basePath}/${id}`,
+        workOrder
+      );
+      dispatch(slice.actions.editWorkOrder({ workOrder: workOrderResponse }));
+    };
 export const addFilesToWorkOrder =
   (id: number, files: { id: number }[]): AppThunk =>
-  async (dispatch) => {
-    const response = await api.patch<File[]>(
-      `${basePath}/files/${id}/add`,
-      files
-    );
-    dispatch(slice.actions.addFilesToWorkOrder({ files: response, id }));
-  };
+    async (dispatch) => {
+      const response = await api.patch<File[]>(
+        `${basePath}/files/${id}/add`,
+        files
+      );
+      dispatch(slice.actions.addFilesToWorkOrder({ files: response, id }));
+    };
 export const removeFileFromWorkOrder =
   (workOrderId: number, fileId: number): AppThunk =>
-  async (dispatch) => {
-    const response = await api.deletes<File[]>(
-      `${basePath}/files/${workOrderId}/${fileId}/remove`
-    );
-    dispatch(
-      slice.actions.setFilesForWorkOrder({ files: response, id: workOrderId })
-    );
-  };
+    async (dispatch) => {
+      const response = await api.deletes<File[]>(
+        `${basePath}/files/${workOrderId}/${fileId}/remove`
+      );
+      dispatch(slice.actions.setFilesForWorkOrder({ files: response, id: workOrderId }));
+    };
 export const changeWorkOrderStatus =
-  (
-    id: number,
-    body: { status: string; feedback?: string; signature?: string }
-  ): AppThunk =>
-  async (dispatch) => {
-    const workOrderResponse = await api.patch<WorkOrder>(
-      `${basePath}/${id}/change-status`,
-      body
-    );
-    dispatch(slice.actions.editWorkOrder({ workOrder: workOrderResponse }));
-  };
+  (id: number, body: { status: string; feedback?: string; signature?: { id: number } }): AppThunk =>
+    async (dispatch) => {
+      const workOrderResponse = await api.patch<WorkOrder>(
+        `${basePath}/${id}/change-status`,
+        body
+      );
+      dispatch(slice.actions.editWorkOrder({ workOrder: workOrderResponse }));
+    };
 export const deleteWorkOrder =
   (id: number): AppThunk =>
-  async (dispatch) => {
-    const workOrderResponse = await api.deletes<{ success: boolean }>(
-      `${basePath}/${id}`
-    );
-    const { success } = workOrderResponse;
-    if (success) {
-      dispatch(slice.actions.deleteWorkOrder({ id }));
-    }
-  };
+    async (dispatch) => {
+      const workOrderResponse = await api.deletes<{ success: boolean }>(
+        `${basePath}/${id}`
+      );
+      const { success } = workOrderResponse;
+      if (success) {
+        dispatch(slice.actions.deleteWorkOrder({ id }));
+      }
+    };
 
 export const getWorkOrdersByLocation =
   (id: number): AppThunk =>
-  async (dispatch) => {
-    const workOrders = await api.get<WorkOrder[]>(`${basePath}/location/${id}`);
-    dispatch(
-      slice.actions.getWorkOrdersByLocation({
-        id,
-        workOrders
-      })
-    );
-  };
+    async (dispatch) => {
+      const workOrders = await api.get<WorkOrder[]>(`${basePath}/location/${id}`);
+      dispatch(
+        slice.actions.getWorkOrdersByLocation({
+          id,
+          workOrders
+        })
+      );
+    };
 
 export const getWorkOrdersByPart =
   (id: number): AppThunk =>
-  async (dispatch) => {
-    const workOrders = await api.get<WorkOrder[]>(`${basePath}/part/${id}`);
-    dispatch(
-      slice.actions.getWorkOrdersByPart({
-        id,
-        workOrders
-      })
-    );
-  };
-export interface ReportConfig {
-  cost: boolean;
-  comments: boolean;
-  workOrderHistory: boolean;
-  estimatedTime: boolean;
-  locationAddress: boolean;
-  priority: boolean;
-  workOrderInformation: boolean;
-  relations: boolean;
-  files: boolean;
-  signature: boolean;
-  tasks: boolean;
-}
-
-export interface WorkOrderSendReportDTO {
-  config?: ReportConfig;
-  message?: string;
-  customers: { id: number }[];
-}
-
+    async (dispatch) => {
+      const workOrders = await api.get<WorkOrder[]>(`${basePath}/part/${id}`);
+      dispatch(
+        slice.actions.getWorkOrdersByPart({
+          id,
+          workOrders
+        })
+      );
+    };
 export const getPDFReport =
-  (id: number, config?: ReportConfig): AppThunk =>
-  async (dispatch): Promise<string> => {
-    const response = await api.post<{ success: boolean; message: string }>(
-      `${basePath}/report/${id}`,
-      config
-    );
-    const { message } = response;
-    return message;
-  };
-
-export const sendWorkOrderReport =
-  (id: number, body: WorkOrderSendReportDTO): AppThunk =>
-  async (dispatch): Promise<{ success: boolean; message: string }> => {
-    const res = await api.post<{ success: boolean; message: string }>(
-      `${basePath}/${id}/report/send`,
-      body
-    );
-    return res;
-  };
+  (id: number): AppThunk =>
+    async (dispatch): Promise<string> => {
+      const response = await api.get<{ success: boolean; message: string }>(
+        `${basePath}/report/${id}`
+      );
+      const { message } = response;
+      return message;
+    };
 
 export const getWorkOrderEvents =
-  (start: Date, end: Date, companyId: number = null): AppThunk =>
-  async (dispatch) => {
-    dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const response = await api.post<
-      CalendarEvent<WorkOrder | PreventiveMaintenance>[]
-    >(`${basePath}/events?companyId=${companyId || ''}`, {
-      start,
-      end
-    });
-    dispatch(
-      slice.actions.getEvents({
-        events: response
-      })
-    );
-    dispatch(slice.actions.setLoadingGet({ loading: false }));
-  };
-export const getUrgentWorkOrdersCount = (): AppThunk => async (dispatch) => {
-  const response = await api.get<{ success: boolean; message: string }>(
-    `${basePath}/urgent`
-  );
-  dispatch(
-    slice.actions.getUrgentWorkOrdersCount({
-      count: Number(response.message)
-    })
-  );
-};
+  (start: Date, end: Date): AppThunk =>
+    async (dispatch) => {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      const response = await api.post<CalendarEvent<WorkOrder | PreventiveMaintenance>[]>(`${basePath}/events`, {
+        start,
+        end
+      });
+      dispatch(
+        slice.actions.getEvents({
+          events: response
+        })
+      );
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    };
+export const getUrgentWorkOrdersCount =
+  (): AppThunk =>
+    async (dispatch) => {
+      const response = await api.get<{ success: boolean, message: string }>(`${basePath}/urgent`);
+      dispatch(
+        slice.actions.getUrgentWorkOrdersCount({
+          count: Number(response.message)
+        })
+      );
+    };
 export const clearSingleWorkOrder = (): AppThunk => async (dispatch) => {
   dispatch(slice.actions.clearSingleWorkOrder({}));
 };
-export const updateWorkOrderInContent = slice.actions.editWorkOrder;
 export default slice;

@@ -6,11 +6,9 @@ import PreventiveMaintenance, {
 } from '../models/owns/preventiveMaintenance';
 import api from '../utils/api';
 import Schedule from '../models/owns/schedule';
-import { WorkOrderMini } from '../models/owns/workOrder';
 import { getInitialPage, Page, SearchCriteria } from '../models/owns/page';
 import { Task } from '../models/owns/tasks';
 import { revertAll } from 'src/utils/redux';
-import { cancellableFetch } from 'src/utils/cancellableRequest';
 
 interface PreventiveMaintenanceState {
   preventiveMaintenances: Page<PreventiveMaintenance>;
@@ -90,10 +88,7 @@ const slice = createSlice({
           }
           return preventiveMaintenance;
         });
-      if (
-        state.singlePreventiveMaintenance &&
-        state.singlePreventiveMaintenance.id === pmId
-      )
+      if (state.singlePreventiveMaintenance && state.singlePreventiveMaintenance.id === pmId)
         state.singlePreventiveMaintenance.schedule = schedule;
     },
     deletePreventiveMaintenance(
@@ -131,112 +126,98 @@ export const reducer = slice.reducer;
 
 export const getPreventiveMaintenances =
   (criteria: SearchCriteria): AppThunk =>
-  async (dispatch) => {
-    await cancellableFetch(
-      dispatch,
-      'getPreventiveMaintenances',
-      (signal) =>
-        api.post<Page<PreventiveMaintenance>>(`${basePath}/search`, criteria, {
-          signal
-        }),
-      (preventiveMaintenances) =>
+    async (dispatch) => {
+      try {
+        dispatch(slice.actions.setLoadingGet({ loading: true }));
+        const preventiveMaintenances = await api.post<
+          Page<PreventiveMaintenance>
+        >(`${basePath}/search`, criteria);
         dispatch(
           slice.actions.getPreventiveMaintenances({ preventiveMaintenances })
-        ),
-      (loading) => dispatch(slice.actions.setLoadingGet({ loading }))
-    );
-  };
+        );
+      } finally {
+        dispatch(slice.actions.setLoadingGet({ loading: false }));
+      }
+    };
 
 export const getSinglePreventiveMaintenance =
   (id: number): AppThunk =>
-  async (dispatch) => {
-    dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const preventiveMaintenance = await api.get<PreventiveMaintenance>(
-      `${basePath}/${id}`
-    );
-    dispatch(
-      slice.actions.getSinglePreventiveMaintenance({ preventiveMaintenance })
-    );
-    dispatch(slice.actions.setLoadingGet({ loading: false }));
-  };
+    async (dispatch) => {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      const preventiveMaintenance = await api.get<PreventiveMaintenance>(
+        `${basePath}/${id}`
+      );
+      dispatch(
+        slice.actions.getSinglePreventiveMaintenance({ preventiveMaintenance })
+      );
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    };
 export const addPreventiveMaintenance =
   (preventiveMaintenance: Partial<PreventiveMaintenancePost>): AppThunk =>
-  async (dispatch) => {
-    const preventiveMaintenanceResponse = await api.post<PreventiveMaintenance>(
-      basePath,
-      preventiveMaintenance
-    );
-    dispatch(
-      slice.actions.addPreventiveMaintenance({
-        preventiveMaintenance: preventiveMaintenanceResponse
-      })
-    );
-    const taskBases =
-      preventiveMaintenance.tasks?.map((task) => {
-        return {
-          ...task.taskBase,
-          options: task.taskBase.options.map((option) => option.label)
-        };
-      }) ?? [];
-    if (taskBases.length) {
-      const tasks = await api.patch<Task[]>(
-        `tasks/preventive-maintenance/${preventiveMaintenanceResponse.id}`,
-        taskBases,
-        null
-      );
-    }
-    return preventiveMaintenanceResponse;
-  };
-export const editPreventiveMaintenance =
-  (id: number, preventiveMaintenance): AppThunk =>
-  async (dispatch) => {
-    const preventiveMaintenanceResponse =
-      await api.patch<PreventiveMaintenance>(
-        `${basePath}/${id}`,
+    async (dispatch) => {
+      const preventiveMaintenanceResponse = await api.post<PreventiveMaintenance>(
+        basePath,
         preventiveMaintenance
       );
-    dispatch(
-      slice.actions.editPreventiveMaintenance({
-        preventiveMaintenance: preventiveMaintenanceResponse
-      })
-    );
-  };
+      dispatch(
+        slice.actions.addPreventiveMaintenance({
+          preventiveMaintenance: preventiveMaintenanceResponse
+        })
+      );
+      const taskBases =
+        preventiveMaintenance.tasks?.map((task) => {
+          return {
+            ...task.taskBase,
+            options: task.taskBase.options.map((option) => option.label)
+          };
+        }) ?? [];
+      if (taskBases.length) {
+        const tasks = await api.patch<Task[]>(
+          `tasks/preventive-maintenance/${preventiveMaintenanceResponse.id}`,
+          taskBases,
+          null
+        );
+      }
+    };
+export const editPreventiveMaintenance =
+  (id: number, preventiveMaintenance): AppThunk =>
+    async (dispatch) => {
+      const preventiveMaintenanceResponse =
+        await api.patch<PreventiveMaintenance>(
+          `${basePath}/${id}`,
+          preventiveMaintenance
+        );
+      dispatch(
+        slice.actions.editPreventiveMaintenance({
+          preventiveMaintenance: preventiveMaintenanceResponse
+        })
+      );
+    };
 export const patchSchedule =
   (scheduleId: number, pmId: number, schedule: Partial<Schedule>): AppThunk =>
-  async (dispatch) => {
-    const scheduleResponse = await api.patch<Schedule>(
-      `schedules/${scheduleId}`,
-      schedule
-    );
-    dispatch(
-      slice.actions.patchSchedule({
-        pmId,
-        schedule: scheduleResponse
-      })
-    );
-  };
+    async (dispatch) => {
+      const scheduleResponse = await api.patch<Schedule>(
+        `schedules/${scheduleId}`,
+        schedule
+      );
+      dispatch(
+        slice.actions.patchSchedule({
+          pmId,
+          schedule: scheduleResponse
+        })
+      );
+    };
 export const deletePreventiveMaintenance =
   (id: number): AppThunk =>
-  async (dispatch) => {
-    const preventiveMaintenanceResponse = await api.deletes<{
-      success: boolean;
-    }>(`${basePath}/${id}`);
-    const { success } = preventiveMaintenanceResponse;
-    if (success) {
-      dispatch(slice.actions.deletePreventiveMaintenance({ id }));
-    }
-  };
-
-export const triggerWorkOrder =
-  (id: number): AppThunk =>
-  async () => {
-    const workOrder = await api.post<WorkOrderMini>(
-      `${basePath}/${id}/trigger-work-order`,
-      {}
-    );
-
-    return workOrder;
-  };
+    async (dispatch) => {
+      const preventiveMaintenanceResponse = await api.deletes<{
+        success: boolean;
+      }>(`${basePath}/${id}`);
+      const { success } = preventiveMaintenanceResponse;
+      if (success) {
+        dispatch(slice.actions.deletePreventiveMaintenance({ id }));
+      }
+    };
 
 export const clearSinglePM = (): AppThunk => async (dispatch) => {
   dispatch(slice.actions.clearSinglePM({}));

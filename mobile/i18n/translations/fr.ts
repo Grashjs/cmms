@@ -285,7 +285,6 @@ const frJSON = {
   employeesCount: "Nombre d'employés",
   i_accept: "J'accepte les",
   terms_conditions: 'termes et conditions',
-  required_fields_notice: 'Tous les champs marqués d’un * sont obligatoires.',
   create_your_account: 'Créer votre compte',
   login_description:
     'Remplissez les champs ci-dessous pour vous connecter à votre compte.',
@@ -333,7 +332,7 @@ const frJSON = {
   feedback_description: 'Donnez votre avis',
   required_feedback: "L'avis est requis",
   signature: 'Signature',
-  required_signature: 'La signature est requise',
+  required_signature: "L'image est requise",
   close_wo: 'Terminer le bon de travail',
   close: 'Fermer',
   task_update_success: 'Tâche mise à jour avec succès',
@@ -363,8 +362,6 @@ const frJSON = {
   column_view: 'Vue colonnes',
   wo_create_success: 'Le bon de travail a été créé avec succès',
   wo_create_failure: "Le bon de travail n'a pas pu être créé",
-  discard_changes: 'Annuler les modifications',
-  discard_changes_question: 'Annuler les modifications non enregistrées ?\nSi vous partez maintenant, vous perdrez les modifications non enregistrées',
   changes_saved_success: 'Les changements ont été enregistrés',
   wo_update_failure: "Le bon de travail n'a pas pu être modifié",
   wo_delete_success: 'Le bon de travail a été supprimé avec succès',
@@ -1160,12 +1157,6 @@ const frJSON = {
   personal_details_description:
     'Gérer les informations relatives à vos données personnelles',
   change_password: 'Changer le mot de passe',
-  delete_account: 'Supprimer le compte',
-  delete_account_confirmation:
-    'Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.',
-  account_deleted: 'Compte supprimé avec succès',
-  account_delete_error: 'Erreur lors de la suppression du compte',
-  confirm_delete_account: 'Supprimer le compte',
   notification_settings: 'Paramètres de notifications',
   notification_settings_description:
     'Gérer les détails liés à vos notifications',
@@ -1582,17 +1573,6 @@ const frJSON = {
   power: 'Puissance',
   library: 'Bibliothèque photo',
   camera: 'Caméra',
-  media_library: 'Photothèque',
-  permission_required_title: 'Permission requise',
-  permission_required_message:
-    "L'accès à {{permission}} est nécessaire. Veuillez l'activer dans les paramètres de l'application.",
-  permission_denied_title: 'Permission refusée',
-  permission_denied_message:
-    "L'accès à {{permission}} est nécessaire pour continuer.",
-  unable_to_request_permission:
-    'Impossible de demander la permission {{permission}}.',
-  open_settings: 'Ouvrir les paramètres',
-  ok: 'OK',
   CANCELLED: 'Rejeté',
   max_file_size_error: 'La taille du fichier ne doit pas dépasser {{size}} Mo',
   assignedToUser: 'Mon travail',
@@ -1626,31 +1606,6 @@ const frJSON = {
   back_to: 'Retour à',
   top_level: 'Niveau supérieur',
   no_results_found: 'Aucun résultat trouvé',
-  no_sub_assets: 'Aucun sous-équipement',
-  asset_not_found: 'Équipement non trouvé',
-  comments: 'Commentaires',
-  no_comments:
-    'Aucun commentaire pour le moment. Soyez le premier à commenter !',
-  post_comment: 'Publier un commentaire',
-  confirm_delete_comment: 'Êtes-vous sûr de vouloir supprimer ce commentaire ?',
-  add_comment_placeholder: 'Ajouter un commentaire...',
-  create_category: 'Create Category',
-  delete_row_confirm_message:
-    'Êtes-vous sûr de vouloir supprimer cette ligne ?',
-  review_prompt_title: 'Appréciez-vous Atlas CMMS ?',
-  feedback_title: 'Aidez-nous à nous améliorer',
-  feedback_description1:
-    "Nous sommes désolés d'apprendre cela. Vos commentaires nous aident à améliorer Atlas.",
-  feedback_placeholder:
-    "Dites-nous ce qui n'a pas fonctionné ou comment nous pouvons nous améliorer…",
-  send: 'Envoyer',
-  edit_additional_cost: 'Modifier le coût',
-  delete_additional_cost: 'Supprimer le coût',
-  confirm_delete_additional_cost: 'Êtes-vous sûr de vouloir supprimer ce coût ?',
-  edit_additional_time: 'Modifier le temps',
-  delete_additional_time: 'Supprimer le temps',
-  confirm_delete_additional_time: 'Êtes-vous sûr de vouloir supprimer ce temps ?',
-  reset: 'Réinitialiser',
-  operation_success: "L'opération a réussi"
+  no_sub_assets: 'Aucun sous-équipement'
 };
 export default frJSON;

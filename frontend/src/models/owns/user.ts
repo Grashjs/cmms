@@ -1,11 +1,3 @@
-import { FileMiniDTO, FileThumbnailDTO } from './file';
-
-export interface UserInvitationMiniDTO {
-  email: string;
-  roleId: number;
-  roleName: string;
-}
-
 export default interface User {
   id: number;
   firstName: string;
@@ -17,14 +9,6 @@ export default interface User {
   accountType: string;
   lastVisit: string;
   hourlyRate: number;
-}
-
-export interface UserMiniDTO {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  image: FileThumbnailDTO;
 }
 
 export const users: User[] = [

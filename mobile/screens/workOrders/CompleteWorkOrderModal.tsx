@@ -7,8 +7,6 @@ import { useContext } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import { IField } from '../../models/form';
 import Form from '../../components/form';
-import { getErrorMessage } from '../../utils/api';
-import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 
 export default function CompleteWorkOrderModal({
   navigation,
@@ -17,10 +15,9 @@ export default function CompleteWorkOrderModal({
   const { onComplete, fieldsConfig } = route.params;
   const { t }: { t: any } = useTranslation();
   const { uploadFiles } = useContext(CompanySettingsContext);
-  const { showSnackBar } = useContext(CustomSnackBarContext);
 
   const getFieldsAndShape = (): [Array<IField>, { [key: string]: any }] => {
-    let fields: IField[] = [];
+    let fields = [];
     let shape = {};
     if (fieldsConfig.feedback) {
       fields.push({
@@ -35,12 +32,13 @@ export default function CompleteWorkOrderModal({
     if (fieldsConfig.signature) {
       fields.push({
         name: 'signature',
-        type: 'signature',
-        label: t('signature')
+        type: 'file',
+        label: t('signature'),
+        fileType: 'image'
       });
       shape = {
         ...shape,
-        signature: Yup.string().required(t('required_signature'))
+        signature: Yup.array().required(t('required_signature'))
       };
     }
     return [fields, shape];
@@ -55,9 +53,15 @@ export default function CompleteWorkOrderModal({
         navigation={navigation}
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {
-          return onComplete(values.signature, values.feedback).catch((err) =>
-            showSnackBar(getErrorMessage(err), 'error')
-          );
+          return new Promise<void>((resolve, rej) => {
+            uploadFiles([], values.signature ?? [])
+              .then((files) => {
+                onComplete(files[0]?.id, values?.feedback).then(resolve);
+              })
+              .catch((err) => {
+                rej(err);
+              });
+          });
         }}
       />
     </View>
@@ -66,7 +70,6 @@ export default function CompleteWorkOrderModal({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    marginTop: 'auto'
+    flex: 1
   }
 });

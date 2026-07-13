@@ -20,19 +20,16 @@ import { SheetManager } from 'react-native-actions-sheet';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import BasicField from '../../../components/BasicField';
-import { getCustomFieldValuesForDetails } from '../../../models/form';
 
 export default function CustomerDetailsScreen({
-  navigation,
-  route
-}: RootStackScreenProps<'CustomerDetails'>) {
+                                                navigation,
+                                                route
+                                              }: RootStackScreenProps<'CustomerDetails'>) {
   const { id, customerProp } = route.params;
   const { customerInfos, loadingGet } = useSelector((state) => state.customers);
   const customer = customerInfos[id]?.customer ?? customerProp;
   const theme = useTheme();
-  const { getFormattedCurrency, getFormattedDate } = useContext(
-    CompanySettingsContext
-  );
+  const { getFormattedCurrency } = useContext(CompanySettingsContext);
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
@@ -57,12 +54,12 @@ export default function CustomerDetailsScreen({
             });
           }}
         >
-          <IconButton icon="dots-vertical" />
+          <IconButton icon='dots-vertical' />
         </Pressable>
       )
     });
   }, [customer]);
-  const fieldsToRender: { label: string; value: string; isLink?: boolean }[] = [
+  const fieldsToRender: { label: string; value: string }[] = [
     {
       label: t('address'),
       value: customer?.address
@@ -86,11 +83,7 @@ export default function CustomerDetailsScreen({
     {
       label: t('hourly_rate'),
       value: !!customer?.rate ? getFormattedCurrency(customer.rate) : null
-    },
-    ...getCustomFieldValuesForDetails(
-      customer?.customFieldValues,
-      getFormattedDate
-    )
+    }
   ];
 
   const onDeleteSuccess = () => {
@@ -112,7 +105,7 @@ export default function CustomerDetailsScreen({
         <Dialog visible={openDelete} onDismiss={() => setOpenDelete(false)}>
           <Dialog.Title>{t('confirmation')}</Dialog.Title>
           <Dialog.Content>
-            <Text variant="bodyMedium">{t('confirm_delete_customer')}</Text>
+            <Text variant='bodyMedium'>{t('confirm_delete_customer')}</Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setOpenDelete(false)}>{t('cancel')}</Button>
@@ -127,15 +120,8 @@ export default function CustomerDetailsScreen({
       <ScrollView style={{ flex: 1, backgroundColor: theme.colors.background }}>
         {renderConfirmDelete()}
         {fieldsToRender.map(
-          ({ label, value, isLink }, index) =>
-            value && (
-              <BasicField
-                key={label}
-                label={label}
-                value={value}
-                isLink={isLink}
-              />
-            )
+          ({ label, value }, index) =>
+            value && <BasicField key={label} label={label} value={value} />
         )}
         {customer.website && (
           <View>

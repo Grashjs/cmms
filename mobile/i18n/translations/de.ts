@@ -184,8 +184,6 @@ const deJSON = {
   employeesCount: 'Anzahl der Mitarbeiter ',
   i_accept: 'Ich akzeptiere die ',
   terms_conditions: 'Allgemeinen Geschäftsbedingungen ',
-  required_fields_notice:
-    'Alle mit * gekennzeichneten Felder sind erforderlich.',
   create_your_account: 'Erstellen Sie Ihr Konto ',
   register: 'Registrieren ',
   //signin
@@ -234,7 +232,7 @@ const deJSON = {
   feedback_description: 'Geben Sie Ihr Feedback ',
   required_feedback: 'Feedback ist erforderlich ',
   signature: 'Unterschrift ',
-  required_signature: 'Unterschrift ist erforderlich',
+  required_signature: 'Bild ist erforderlich ',
   close_wo: 'Arbeitsauftrag schließen ',
   close: 'Schließen ',
   task_update_success: 'Aufgabe erfolgreich aktualisiert ',
@@ -265,8 +263,6 @@ const deJSON = {
   column_view: 'Spaltenansicht ',
   wo_create_success: 'Der Arbeitsauftrag wurde erfolgreich erstellt ',
   wo_create_failure: 'Der Arbeitsauftrag konnte nicht erstellt werden ',
-  discard_changes: 'Änderungen verwerfen',
-  discard_changes_question: 'Nicht gespeicherte Änderungen verwerfen?\nWenn Sie jetzt gehen, verlieren Sie nicht gespeicherte Änderungen',
   changes_saved_success: 'Die Änderungen wurden gespeichert ',
   wo_update_failure: 'Der Arbeitsauftrag konnte nicht bearbeitet werden ',
   wo_delete_success: 'Der Arbeitsauftrag wurde erfolgreich gelöscht ',
@@ -1089,12 +1085,6 @@ const deJSON = {
   personal_details_description:
     'Verwalten Sie Informationen zu Ihren persönlichen Details ',
   change_password: 'Passwort ändern ',
-  delete_account: 'Konto löschen ',
-  delete_account_confirmation:
-    'Möchten Sie Ihr Konto wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
-  account_deleted: 'Konto erfolgreich gelöscht',
-  account_delete_error: 'Fehler beim Löschen des Kontos',
-  confirm_delete_account: 'Konto löschen',
   notification_settings: 'Benachrichtigungseinstellungen ',
   notification_settings_description:
     'Verwalten Sie Details zu Ihren Benachrichtigungen ',
@@ -1508,17 +1498,6 @@ const deJSON = {
   power: 'Leistung ',
   library: 'Bibliothek ',
   camera: 'Kamera ',
-  media_library: 'Mediathek',
-  permission_required_title: 'Berechtigung erforderlich',
-  permission_required_message:
-    'Der Zugriff auf {{permission}} ist erforderlich. Bitte aktiviere ihn in den App-Einstellungen.',
-  permission_denied_title: 'Berechtigung verweigert',
-  permission_denied_message:
-    'Der Zugriff auf {{permission}} ist erforderlich, um fortzufahren.',
-  unable_to_request_permission:
-    'Die Berechtigung für {{permission}} konnte nicht angefordert werden.',
-  open_settings: 'Einstellungen öffnen',
-  ok: 'OK',
   CANCELLED: 'Abgelehnt ',
   max_file_size_error:
     'Die Dateigröße sollte nicht größer als {{size}} MB sein ',
@@ -1552,29 +1531,7 @@ const deJSON = {
   top_level: 'Oberste Ebene',
   no_results_found: 'Keine Ergebnisse gefunden',
   no_sub_assets: 'Keine Unter-Assets',
-  no_assets_available: 'Keine verfügbaren Assets',
-  asset_not_found: 'Asset nicht gefunden',
-  comments: 'Kommentare',
-  no_comments: 'Noch keine Kommentare. Seien Sie der Erste, der kommentiert!',
-  post_comment: 'Kommentar posten',
-  confirm_delete_comment:
-    'Sind Sie sicher, dass Sie diesen Kommentar löschen möchten?',
-  add_comment_placeholder: 'Kommentar hinzufügen...',
-  create_category: 'Create Category',
-  delete_row_confirm_message: 'Sind Sie sicher, dass Sie diese Zeile löschen möchten?',
-  review_prompt_title: 'Gefällt Ihnen Atlas CMMS?',
-  feedback_title: 'Helfen Sie uns, besser zu werden',
-  feedback_description1:
-    'Das tut uns leid. Ihr Feedback hilft uns, Atlas zu verbessern.',
-  feedback_placeholder: 'Teilen Sie uns mit, was nicht funktioniert hat oder wie wir uns verbessern können…',
-  send: 'Senden',
-  edit_additional_cost: 'Kosten bearbeiten',
-  delete_additional_cost: 'Kosten löschen',
-  confirm_delete_additional_cost: 'Sind Sie sicher, dass Sie diese Kosten löschen möchten?',
-  edit_additional_time: 'Zeit bearbeiten',
-  delete_additional_time: 'Zeit löschen',
-  confirm_delete_additional_time: 'Sind Sie sicher, dass Sie diese Zeit löschen möchten?',
-  reset: 'Zurücksetzen',
-  operation_success: 'Der Vorgang war erfolgreich'
+  no_assets_available: 'Keine verfügbaren Assets'
 };
+
 export default deJSON;

@@ -10,8 +10,7 @@ import {
 import { OwnUser, UserResponseDTO } from '../models/user';
 import api, { authHeader } from '../utils/api';
 import { verify } from '../utils/jwt';
-import { Alert, AppState, Linking, Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert, AppState, AsyncStorage, Linking, Platform } from 'react-native';
 import PropTypes from 'prop-types';
 import {
   getCompanySettings,
@@ -34,6 +33,7 @@ import { IField } from '../models/form';
 import WorkOrder from '../models/workOrder';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
+import * as Permissions from 'expo-permissions';
 import { useTranslation } from 'react-i18next';
 import analytics from '@react-native-firebase/analytics';
 import { useDispatch } from '../store';
@@ -46,9 +46,6 @@ import Meter from '../models/meter';
 import { AssetDTO } from '../models/asset';
 import Location from '../models/location';
 import { UiConfiguration } from '../models/uiConfiguration';
-import Constants from 'expo-constants';
-import moment from 'moment-timezone';
-import { getCustomFields } from '../slices/customField';
 
 interface AuthState {
   isInitialized: boolean;
@@ -57,19 +54,16 @@ interface AuthState {
   company: Company | null;
   userSettings: UserSettings | null;
   companySettings: CompanySettings | null;
-  reviewEligible: boolean;
 }
 
 export type FieldConfigurationsType = 'workOrder' | 'request';
 
 interface AuthContextValue extends AuthState {
   method: 'JWT';
-  login: (email: string, password: string, ldap?: boolean) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  reviewEligible: boolean;
   register: (values: any) => Promise<void>;
   getInfos: () => void;
-  deleteAccount: () => Promise<void>;
   switchAccount: (id: number) => Promise<void>;
   patchUserSettings: (values: Partial<UserSettings>) => Promise<UserSettings>;
   patchUser: (values: Partial<OwnUser>) => Promise<void>;
@@ -224,11 +218,6 @@ type PatchUiConfigurationAction = {
   };
 };
 
-type ReviewEligibleAction = {
-  type: 'REVIEW_ELIGIBLE';
-  payload: boolean;
-};
-
 type Action =
   | InitializeAction
   | LoginAction
@@ -247,8 +236,7 @@ type Action =
   | ResumeSubscriptionAction
   | UpgradeAction
   | DowngradeAction
-  | PatchUiConfigurationAction
-  | ReviewEligibleAction;
+  | PatchUiConfigurationAction;
 
 const initialAuthState: AuthState = {
   isAuthenticated: false,
@@ -256,8 +244,7 @@ const initialAuthState: AuthState = {
   user: null,
   company: null,
   userSettings: null,
-  companySettings: null,
-  reviewEligible: false
+  companySettings: null
 };
 
 const setSession = (accessToken: string | null): void => {
@@ -469,12 +456,6 @@ const handlers: Record<
         );
     }
     return stateClone;
-  },
-  REVIEW_ELIGIBLE: (state: AuthState, action: ReviewEligibleAction): AuthState => {
-    return {
-      ...state,
-      reviewEligible: action.payload
-    };
   }
 };
 
@@ -484,12 +465,10 @@ const reducer = (state: AuthState, action: Action): AuthState =>
 const AuthContext = createContext<AuthContextValue>({
   ...initialAuthState,
   method: 'JWT',
-  login: (email?: string, password?: string, ldap?: boolean) =>
-    Promise.resolve(),
+  login: () => Promise.resolve(),
   logout: () => Promise.resolve(),
   register: () => Promise.resolve(),
   getInfos: () => Promise.resolve(),
-  deleteAccount: () => Promise.resolve(),
   patchUserSettings: () => Promise.resolve(null),
   patchCompany: () => Promise.resolve(),
   patchUser: () => Promise.resolve(),
@@ -513,8 +492,7 @@ const AuthContext = createContext<AuthContextValue>({
   downgrade: () => Promise.resolve(false),
   upgrade: () => Promise.resolve(false),
   switchAccount: () => Promise.resolve(),
-  patchUiConfiguration: () => Promise.resolve(),
-  reviewEligible: false
+  patchUiConfiguration: () => Promise.resolve()
 });
 
 export const AuthProvider: FC<AuthProviderProps> = (props) => {
@@ -602,7 +580,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   };
 
   async function registerForPushNotificationsAsync() {
-    let token: string;
+    let token;
     if (Device.isDevice) {
       const { status: existingStatus } =
         await Notifications.getPermissionsAsync();
@@ -615,11 +593,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         Alert.alert(t('error'), t('failed_push_notification'));
         return;
       }
-      const projectId =
-        Constants?.expoConfig?.extra?.eas?.projectId ??
-        Constants?.easConfig?.projectId;
-
-      token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
+      token = (await Notifications.getExpoPushTokenAsync()).data;
     } else {
       Alert.alert('Must use physical device for Push Notifications');
     }
@@ -637,39 +611,33 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   }
 
   const checkPushNotificationState = async () => {
-    // Get the current permission status using expo-notifications
-    const { status: existingStatus } =
-      await Notifications.getPermissionsAsync();
+    let { status: existingStatus } = await Permissions.getAsync(
+      Permissions.NOTIFICATIONS
+    );
 
     if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-
-      if (status === 'granted') {
-        registerForPushNotificationsAsync().then((token) =>
-          savePushToken(token)
-        );
-      } else {
-        // Permission denied
-        Alert.alert(
-          t('no_notification_permission'),
-          t('no_notification_permission_description'),
-          [
-            { text: t('cancel'), onPress: () => console.log('cancel') },
-            {
-              text: t('allow'),
-              onPress: () => {
-                Linking.openSettings();
-                setOpenedSettings(true);
-              }
-            }
-          ],
-          { cancelable: false }
-        );
-        return;
-      }
-    } else {
-      // Permission was already granted
+      const status = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+      existingStatus = status.status;
+    }
+    if (existingStatus === 'granted') {
       registerForPushNotificationsAsync().then((token) => savePushToken(token));
+    } else {
+      Alert.alert(
+        t('no_notification_permission'),
+        t('no_notification_permission_description'),
+        [
+          { text: t('cancel'), onPress: () => console.log('cancel') },
+          {
+            text: t('allow'),
+            onPress: () => {
+              Linking.openSettings();
+              setOpenedSettings(true);
+            }
+          }
+        ],
+        { cancelable: false }
+      );
+      return;
     }
   };
   const savePushToken = (token: string) => {
@@ -681,17 +649,6 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       lng: companySettings.generalPreferences.language.toLowerCase()
     });
     checkPushNotificationState();
-    globalDispatch(getCustomFields());
-
-    try {
-      await api.post('reviews/session', {});
-      const { eligible } = await api.get<{ eligible: boolean }>(
-        'reviews/eligibility'
-      );
-      dispatch({ type: 'REVIEW_ELIGIBLE', payload: eligible });
-    } catch (e) {
-      console.error('Review eligibility check failed', e);
-    }
   };
   const getInfos = async (): Promise<void> => {
     // AsyncStorage.clear();
@@ -759,23 +716,14 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       }
     });
   };
-  const login = async (
-    email: string,
-    password: string,
-    ldap?: boolean
-  ): Promise<void> => {
+  const login = async (email: string, password: string): Promise<void> => {
     const response = await api.post<{ accessToken: string }>(
-      `auth/signin${ldap ? '-ldap' : ''}`,
-      ldap
-        ? {
-            username: email,
-            password
-          }
-        : {
-            email,
-            type: 'client',
-            password
-          },
+      'auth/signin',
+      {
+        email,
+        type: 'client',
+        password
+      },
       { headers: await authHeader(true) }
     );
     const { accessToken } = response;
@@ -787,22 +735,10 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     dispatch({ type: 'LOGOUT' });
   };
 
-  const deleteAccount = async (): Promise<void> => {
-    if (!state.user) {
-      return;
-    }
-
-    await api.deletes<{ success: boolean }>(`auth`);
-  };
-
   const register = async (values): Promise<void> => {
     const response = await api.post<{ message: string; success: boolean }>(
       'auth/signup',
-      {
-        ...values,
-        timeZone: moment.tz.guess(),
-        utmParams: { referrer: `${Platform.OS}_app` }
-      },
+      values,
       { headers: await authHeader(true) }
     );
     const { message, success } = response;
@@ -938,7 +874,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     });
   };
   const fetchCompany = async (): Promise<void> => {
-    const company = await api.get<Company>(`company/${state.user.companyId}`);
+    const company = await api.get<Company>(state.user.companyId);
     dispatch({
       type: 'GET_COMPANY',
       payload: {
@@ -1174,7 +1110,6 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         logout,
         register,
         getInfos,
-        deleteAccount,
         patchUser,
         patchSubscription,
         cancelSubscription,
@@ -1198,13 +1133,16 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         upgrade,
         downgrade,
         switchAccount,
-        patchUiConfiguration,
-        reviewEligible: state.reviewEligible
+        patchUiConfiguration
       }}
     >
       {children}
     </AuthContext.Provider>
   );
+};
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired
 };
 
 export default AuthContext;

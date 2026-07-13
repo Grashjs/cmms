@@ -1,6 +1,6 @@
 import { Audit } from './owns/audit';
 import { Role } from './owns/role';
-import File, { FileThumbnailDTO } from './owns/file';
+import File from './owns/file';
 import { UiConfiguration } from './owns/uiConfiguration';
 
 export type UserRole = 'admin' | 'customer' | 'subscriber';
@@ -32,35 +32,15 @@ export interface OwnUser extends Audit {
   jobTitle: string;
   role: Role;
   companyId: number;
-  image: FileThumbnailDTO;
+  image: File;
   lastLogin: string;
   enabled: boolean;
-  paddleUserId: string;
 }
 export interface UserMiniDTO {
   firstName: string;
   lastName: string;
-  image: FileThumbnailDTO;
+  image: File;
   id: number;
-}
-
-export interface ShiftDayConfiguration {
-  dayOfWeek: string;
-  availabilityMinutes: number;
-  enabled: boolean;
-}
-
-export interface ShiftException {
-  exceptionDate: string;
-  availabilityMinutes: number;
-  enabled: boolean;
-}
-
-export interface ShiftConfigurationShowDTO {
-  id: number;
-  days: ShiftDayConfiguration[];
-  exceptions: ShiftException[];
-  enabled: boolean;
 }
 
 export interface UserResponseDTO extends OwnUser {
@@ -69,11 +49,9 @@ export interface UserResponseDTO extends OwnUser {
   superAccountRelations: SuperAccountRelation[];
   parentSuperAccount: SuperAccountRelation;
   uiConfiguration: UiConfiguration;
-  shiftConfiguration?: ShiftConfigurationShowDTO;
 }
 export interface SuperAccountRelation {
   childCompanyName: string;
-  childCompanyId: number;
   childCompanyLogo: File;
   childUserId: number;
   superUserId: number;

@@ -16,6 +16,5 @@ public enum PlanFeatures {
     WORKFLOW,
     API_ACCESS,
     WEBHOOK,
-    IMPORT_CSV,
-    RESOURCE_PLANNING
+    IMPORT_CSV
 }

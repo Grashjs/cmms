@@ -8,13 +8,11 @@ import { Divider, Text, useTheme } from 'react-native-paper';
 import { View } from '../../../components/Themed';
 import { getAssetsByPart } from '../../../slices/asset';
 import Tag from '../../../components/Tag';
-import { getAssetStatusConfig } from '../../../models/asset';
-import { useAppTheme } from '../../../custom-theme';
 
 export default function PartAssets({
-  part,
-  navigation
-}: {
+                                     part,
+                                     navigation
+                                   }: {
   part: Part;
   navigation: any;
 }) {
@@ -22,7 +20,7 @@ export default function PartAssets({
   const dispatch = useDispatch();
   const { assetsByPart } = useSelector((state) => state.assets);
   const assets = assetsByPart[part.id] ?? [];
-  const theme = useAppTheme();
+  const theme = useTheme();
 
   useEffect(() => {
     dispatch(getAssetsByPart(part.id));
@@ -48,9 +46,18 @@ export default function PartAssets({
           >
             <Text style={{ fontWeight: 'bold' }}>{asset.name}</Text>
             <Tag
-              text={t(asset.status)}
-              backgroundColor={getAssetStatusConfig(asset.status).color(theme)}
-              color="white"
+              text={
+                asset.status === 'OPERATIONAL'
+                  ? t('operational')
+                  : t('down')
+              }
+              backgroundColor={
+                asset.status === 'OPERATIONAL'
+                  ? //@ts-ignore
+                  theme.colors.success
+                  : theme.colors.error
+              }
+              color='white'
             />
           </View>
           <Divider />

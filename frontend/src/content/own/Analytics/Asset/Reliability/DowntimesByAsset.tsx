@@ -28,10 +28,9 @@ interface WOStatusIncompleteProps {
   start: Date;
   end: Date;
   assetColors: { color: string; id: number }[];
-  companyId?: number;
 }
 
-function DowntimesByAsset({ handleOpenModal, start, end, assetColors, companyId }: WOStatusIncompleteProps) {
+function DowntimesByAsset({ handleOpenModal, start, end, assetColors }: WOStatusIncompleteProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const { downtimesByAsset, loading } = useSelector(
@@ -40,8 +39,8 @@ function DowntimesByAsset({ handleOpenModal, start, end, assetColors, companyId 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getDowntimesByAsset(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getDowntimesByAsset(start, end));
+  }, [start, end]);
 
   const columns: string[] = ['id'];
 

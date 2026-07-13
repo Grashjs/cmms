@@ -3,25 +3,28 @@ package com.grash.controller;
 import com.grash.dto.UiConfigurationPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.UiConfiguration;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
+import com.grash.model.UiConfiguration;
 import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.service.UiConfigurationService;
 import com.grash.service.UserService;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
-
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/ui-configurations")
-@Tag(name = "UI Configuration", description = "Operations on UI configuration")
+@Api(tags = "uiConfiguration")
 @RequiredArgsConstructor
 public class UiConfigurationController {
 
@@ -29,9 +32,9 @@ public class UiConfigurationController {
     private final UserService userService;
 
     @PatchMapping()
-    public UiConfiguration patch(@Parameter(description = "UI configuration fields to update") @Valid @RequestBody UiConfigurationPatchDTO uiConfiguration,
+    public UiConfiguration patch(@ApiParam("UiConfiguration") @Valid @RequestBody UiConfigurationPatchDTO uiConfiguration,
                                  HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<UiConfiguration> optionalUiConfiguration =
                 uiConfigurationService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
 
@@ -43,5 +46,3 @@ public class UiConfigurationController {
         } else throw new CustomException("UiConfiguration not found", HttpStatus.NOT_FOUND);
     }
 }
-
-

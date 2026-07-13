@@ -17,7 +17,7 @@ import {
   useTheme
 } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import PlanFeatures from './PlanFeatures';
 import { TitleContext } from '../../../../contexts/TitleContext';
 import { useDispatch, useSelector } from '../../../../store';
@@ -28,27 +28,17 @@ import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContex
 import { SubscriptionPlan } from '../../../../models/owns/subscriptionPlan';
 import { useNavigate } from 'react-router-dom';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
+import { Order } from '../../../../models/owns/fastspring';
 import api from '../../../../utils/api';
-import { useBrand } from '../../../../hooks/useBrand';
-import { fireGa4Event } from '../../../../utils/overall';
-import { initializePaddle, Paddle } from '@paddle/paddle-js';
-import {
-  apiUrl,
-  homeUrl,
-  PADDLE_SECRET_TOKEN,
-  paddleEnvironment
-} from '../../../../config';
-import { getLocalizedHomeUrl } from '../../../../utils/urlPaths';
 
 function SubscriptionPlans() {
-  const { t, i18n } = useTranslation();
+  const { t }: { t: any } = useTranslation();
   const { company, user, patchSubscription } = useAuth();
-  const brandConfig = useBrand();
   const subscription = company.subscription;
   const theme = useTheme();
   const [item, setItem] = useState(null);
   const [usersCount, setUsersCount] = useState<number>(
-    company.subscription.usersCount > 150 ? 10 : company.subscription.usersCount
+    company.subscription.usersCount
   );
   const [period, setPeriod] = useState<'monthly' | 'annually'>('monthly');
   const [selectedPlan, setSelectedPlan] = useState<string>('STARTER');
@@ -59,36 +49,8 @@ function SubscriptionPlans() {
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { getFormattedCurrency } = useContext(CompanySettingsContext);
   const [submitting, setSubmitting] = useState(false);
-  const checkoutComplete = useRef<boolean>(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  let paddle = useRef<Paddle | null>(null);
-
-  useEffect(() => {
-    const initPaddle = async () => {
-      paddle.current = await initializePaddle({
-        token: PADDLE_SECRET_TOKEN,
-        eventCallback: function (data) {
-          if (data.name == 'checkout.completed') {
-            checkoutComplete.current = true;
-            fireGa4Event('checkout_completed');
-          } else if (
-            data.name == 'checkout.closed' &&
-            checkoutComplete.current
-          ) {
-            patchSubscription({
-              id: randomInt(),
-              usersCount,
-              monthly: period === 'monthly',
-              subscriptionPlan: selectedPlanObject
-            }).then(onSubcriptionPatchSuccess);
-          }
-        }
-      });
-      paddle.current.Environment.set(paddleEnvironment);
-    };
-    initPaddle();
-  }, [usersCount, period, selectedPlanObject?.code]);
 
   useEffect(() => {
     setTitle(t('plans'));
@@ -103,58 +65,45 @@ function SubscriptionPlans() {
     }
   }, [subscriptionPlans]);
 
-  const buyProduct = async () => {
-    if (company.demo) {
-      showSnackBar('Create a real account to upgrade', 'error');
-      return;
+  const [country, setCountry] = useState('US');
+  const buyProduct = () => {
+    let path;
+    switch (selectedPlanObject.code) {
+      case 'STARTER':
+        path = 'starter';
+        break;
+      case 'BUSINESS':
+        path = 'business';
+        break;
+      case 'PROFESSIONAL':
+        path = 'professional';
+        break;
+      default:
+        break;
     }
-    fireGa4Event('checkout_started');
-    setSubmitting(true);
-    // if (selectedPlan === 'BUSINESS' || selectedPlanObject.code === 'BUSINESS') {
-    //   onUpgradeRequest();
-    //   return;
-    // }
-    let path = selectedPlanObject.code.toLowerCase();
-    path = `${path}-${period === 'monthly' ? 'monthly' : 'yearly'}`;
-    try {
-      // Create Checkout Session on backend
-      const response = await fetch(`${apiUrl}paddle/create-checkout-session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          planId: path,
-          userId: user.id,
+    path = `${path}-${period === 'monthly' ? 'monthly' : 'annually'}`;
+    // @ts-ignore
+    window.fastspring.builder.push({
+      products: [
+        {
+          path,
           quantity: usersCount
-        })
-      });
-
-      const data = await response.json();
-      if (data.sessionId) {
-        paddle.current.Checkout.open({
-          transactionId: data.sessionId,
-          customer: {
-            email: user.email.trim().toLowerCase()
-          }
-        });
-      }
-    } catch (error) {
-      console.error('Failed to create checkout session:', error);
-    } finally {
-      setSubmitting(false);
-    }
+        }
+      ],
+      paymentContact: {
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phoneNumber: user?.phone ?? null
+      },
+      tags: {
+        userId: user.id
+      },
+      checkout: true
+    });
   };
   const onUpgradeRequest = async () => {
     setSubmitting(true);
-    const cost = getCost();
-    fireGa4Event({
-      category: 'Pricing',
-      action: 'Upgrade_Request',
-      label: 'Upgrade_Request',
-      value: period == 'monthly' ? cost : cost * 10
-    });
-
     const payload = {
       code: selectedPlanObject.code,
       monthly: period === 'monthly',
@@ -167,7 +116,6 @@ function SubscriptionPlans() {
       );
       if (success) {
         showSnackBar(t('upgrade_request_success'), 'success');
-        navigate('/app/work-orders');
         return;
       }
     } catch (err) {
@@ -177,6 +125,50 @@ function SubscriptionPlans() {
       setSubmitting(false);
     }
   };
+  useEffect(() => {
+    const onNewOrder = (order: Order) => {
+      setUsersCount(order.items[0].quantity);
+    };
+    // Add SBL script programatically
+    const scriptId = 'fsc-api';
+    const existingScript = document.getElementById(scriptId);
+    if (!existingScript) {
+      const storeFrontToUse = 'grash.test.onfastspring.com/popup-grash';
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.id = scriptId;
+      script.src =
+        'https://d1f8f9xcsvx3ha.cloudfront.net/sbl/0.9.3/fastspring-builder.js';
+      script.dataset.storefront = storeFrontToUse;
+      // Make sure to add callback function to window so that the DOM is aware of it
+      // @ts-ignore
+      window.onNewOrder = onNewOrder;
+      script.setAttribute('data-data-callback', 'fastSpringCallBack');
+      script.setAttribute('data-popup-webhook-received', 'onNewOrder');
+      document.body.appendChild(script);
+    }
+    return () => {
+      document.body.removeChild(existingScript);
+    };
+  }, []);
+
+  useEffect(() => {
+    // @ts-ignore
+    window.onPopupClosed = (data: { id: string | null }) => {
+      if (data?.id) {
+        patchSubscription({
+          id: randomInt(),
+          usersCount,
+          monthly: period === 'monthly',
+          subscriptionPlan: selectedPlanObject
+        }).then(onSubcriptionPatchSuccess);
+      } else {
+        onSubcriptionPatchFailure();
+      }
+    };
+    const script = document.getElementById('fsc-api');
+    if (script) script.setAttribute('data-popup-closed', 'onPopupClosed');
+  }, [selectedPlanObject]);
 
   const periods = [
     { name: t('monthly'), value: 'monthly' },
@@ -207,10 +199,6 @@ function SubscriptionPlans() {
   const onSubcriptionPatchFailure = () => {
     showSnackBar(t("The Subscription couldn't be changed"), 'error');
   };
-
-  useEffect(() => {
-    fireGa4Event('pricing_view');
-  }, []);
 
   if (user.ownsCompany)
     return (
@@ -255,9 +243,7 @@ function SubscriptionPlans() {
                 <Box>
                   <Box>
                     <Typography variant="h4" gutterBottom>
-                      {t('number_users_who_will_use_grash', {
-                        shortBrandName: brandConfig.shortName
-                      })}
+                      {t('number_users_who_will_use_grash')}
                     </Typography>
                     <Typography variant="subtitle2">
                       <Trans
@@ -348,12 +334,7 @@ function SubscriptionPlans() {
                   </Typography>
                   <Typography variant="h6">
                     {t('checkout_our')}{' '}
-                    <Link
-                      target={'_blank'}
-                      href={getLocalizedHomeUrl('pricing', i18n.language)}
-                    >
-                      {t('pricing_page')}
-                    </Link>{' '}
+                    <Link href="/pricing">{t('pricing_page')}</Link>{' '}
                     {t('for_more_details')}
                   </Typography>
                   <RadioGroup
@@ -391,17 +372,23 @@ function SubscriptionPlans() {
                                   <Typography variant="h6" fontWeight="bold">
                                     {plan.name}
                                   </Typography>
-                                  <Typography variant="subtitle1">
-                                    <b>
+                                  {plan.code === 'BUSINESS' ? (
+                                    <Typography variant="subtitle1">
+                                      Custom pricing
+                                    </Typography>
+                                  ) : (
+                                    <Typography variant="subtitle1">
+                                      <b>
+                                        {period == 'monthly'
+                                          ? plan.monthlyCostPerUser
+                                          : plan.yearlyCostPerUser}{' '}
+                                        USD
+                                      </b>{' '}
                                       {period == 'monthly'
-                                        ? plan.monthlyCostPerUser
-                                        : plan.yearlyCostPerUser}{' '}
-                                      USD
-                                    </b>{' '}
-                                    {period == 'monthly'
-                                      ? t('per_user_month')
-                                      : t('per_user_year')}
-                                  </Typography>
+                                        ? t('per_user_month')
+                                        : t('per_user_year')}
+                                    </Typography>
+                                  )}
                                 </Box>
                               }
                             />
@@ -433,15 +420,13 @@ function SubscriptionPlans() {
                     </Typography>
                   )}
                   <Button
-                    onClick={buyProduct}
+                    onClick={onUpgradeRequest}
                     size="large"
                     variant="contained"
                     startIcon={submitting && <CircularProgress size="1rem" />}
-                    disabled={
-                      !selectedPlan || submitting || selectedPlan == 'FREE'
-                    }
+                    disabled={!selectedPlan || submitting}
                   >
-                    {t('upgrade_now')}
+                    {t('request_upgrade')}
                   </Button>
                 </Box>
               </Card>

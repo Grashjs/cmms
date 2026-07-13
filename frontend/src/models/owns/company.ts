@@ -1,9 +1,9 @@
 import CompanySettings from './companySettings';
 import OwnSubscription from './ownSubscription';
 import File from './file';
-import { Audit } from './audit';
 
-export interface Company extends Audit {
+export interface Company {
+  id: string;
   logo: File;
   name: string;
   address: string;
@@ -11,5 +11,4 @@ export interface Company extends Audit {
   phone: string;
   subscription: OwnSubscription;
   companySettings: CompanySettings;
-  demo: boolean;
 }

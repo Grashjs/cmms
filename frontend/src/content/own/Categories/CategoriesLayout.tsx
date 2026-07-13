@@ -76,7 +76,7 @@ function CategoriesLayout(props: CategoriesLayoutProps) {
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const handleOpenAdd = () => setOpenAddCategoryModal(true);
   const handleCloseAdd = () => setOpenAddCategoryModal(false);
-  const { categories, loading } = useSelector((state) => state.categories);
+  const { categories } = useSelector((state) => state.categories);
   const { setTitle } = useContext(TitleContext);
   const dispatch = useDispatch();
   const {
@@ -98,7 +98,7 @@ function CategoriesLayout(props: CategoriesLayoutProps) {
   };
   useEffect(() => {
     setTitle(t('categories'));
-    if (hasViewPermission(PermissionEntity.CATEGORIES))
+    if (hasViewPermission(PermissionEntity.CATEGORIES_WEB))
       dispatch(getCategories(basePath));
   }, []);
 
@@ -126,8 +126,7 @@ function CategoriesLayout(props: CategoriesLayoutProps) {
     { value: 'meter', label: t('meters') },
     { value: 'time', label: t('timers') },
     { value: 'cost', label: t('costs') },
-    { value: 'part', label: t('parts') },
-    { value: 'purchase-order', label: t('purchase_orders') }
+    { value: 'part', label: t('parts') }
   ];
   const renderModal = () => (
     <Dialog
@@ -167,14 +166,14 @@ function CategoriesLayout(props: CategoriesLayoutProps) {
         }}
       >
         {({
-          errors,
-          handleBlur,
-          handleChange,
-          handleSubmit,
-          isSubmitting,
-          touched,
-          values
-        }) => (
+            errors,
+            handleBlur,
+            handleChange,
+            handleSubmit,
+            isSubmitting,
+            touched,
+            values
+          }) => (
           <form onSubmit={handleSubmit}>
             <DialogContent
               dividers
@@ -259,10 +258,7 @@ function CategoriesLayout(props: CategoriesLayoutProps) {
         </Typography>
       </DialogTitle>
       <Formik
-        initialValues={{
-          name: currentCategory?.name,
-          description: currentCategory?.description
-        }}
+        initialValues={{ name: currentCategory?.name, description: currentCategory?.description }}
         validationSchema={Yup.object().shape({
           name: Yup.string().max(30).required(t('required_name'))
         })}
@@ -282,14 +278,14 @@ function CategoriesLayout(props: CategoriesLayoutProps) {
         }}
       >
         {({
-          errors,
-          handleBlur,
-          handleChange,
-          handleSubmit,
-          isSubmitting,
-          touched,
-          values
-        }) => (
+            errors,
+            handleBlur,
+            handleChange,
+            handleSubmit,
+            isSubmitting,
+            touched,
+            values
+          }) => (
           <form onSubmit={handleSubmit}>
             <DialogContent
               dividers
@@ -357,7 +353,7 @@ function CategoriesLayout(props: CategoriesLayoutProps) {
       </Formik>
     </Dialog>
   );
-  if (hasViewPermission(PermissionEntity.CATEGORIES))
+  if (hasViewPermission(PermissionEntity.CATEGORIES_WEB))
     return (
       <MultipleTabsLayout
         basePath="/app/categories"
@@ -496,10 +492,6 @@ function CategoriesLayout(props: CategoriesLayoutProps) {
                   </Fragment>
                 ))}
               </ListWrapper>
-            ) : loading[basePath] ? (
-              <Box display="flex" flexDirection="column" alignItems="center">
-                <CircularProgress />
-              </Box>
             ) : (
               <Box display="flex" flexDirection="column" alignItems="center">
                 <Typography variant="h4">

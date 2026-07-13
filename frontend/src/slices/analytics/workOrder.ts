@@ -21,8 +21,6 @@ import { revertAll } from 'src/utils/redux';
 
 const basePath = 'analytics/work-orders';
 
-const companyQuery = (companyId?: number) => companyId ? `?companyId=${companyId}` : '';
-
 interface WOStatstate {
   overview: WoOverviewStats;
   incompleteOverview: IncompleteWoStats;
@@ -249,23 +247,23 @@ const slice = createSlice({
 
 export const reducer = slice.reducer;
 
-export const getOverviewStats = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getOverviewStats = (start: Date, end: Date): AppThunk => async (dispatch) => {
   dispatch(slice.actions.setLoading({ operation: 'overview', loading: true }));
   const overviewStats = await api.post<WoOverviewStats>(
-    `${basePath}/complete/overview${companyQuery(companyId)}`, { start, end }
+    `${basePath}/complete/overview`, { start, end }
   );
   dispatch(slice.actions.getStats({ overviewStats }));
   dispatch(slice.actions.setLoading({ operation: 'overview', loading: false }));
 };
-export const getIncompleteStats = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getIncompleteStats = (start: Date, end: Date): AppThunk => async (dispatch) => {
   dispatch(slice.actions.setLoading({ operation: 'overview', loading: true }));
   const overviewStats = await api.post<IncompleteWoStats>(
-    `${basePath}/incomplete/overview${companyQuery(companyId)}`, { start, end }
+    `${basePath}/incomplete/overview`, { start, end }
   );
   dispatch(slice.actions.getIncompleteStats({ overviewStats }));
   dispatch(slice.actions.setLoading({ operation: 'overview', loading: false }));
 };
-export const getIncompleteByPriority = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getIncompleteByPriority = (start: Date, end: Date): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'incompleteByPriority',
@@ -273,7 +271,7 @@ export const getIncompleteByPriority = (start: Date, end: Date, companyId?: numb
     })
   );
   const stats = await api.post<WOStatsByPriority>(
-    `${basePath}/incomplete/priority${companyQuery(companyId)}`, { start, end }
+    `${basePath}/incomplete/priority`, { start, end }
   );
   dispatch(slice.actions.getIncompleteByPriority({ stats }));
   dispatch(
@@ -283,7 +281,7 @@ export const getIncompleteByPriority = (start: Date, end: Date, companyId?: numb
     })
   );
 };
-export const getIncompleteByStatus = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getIncompleteByStatus = (start: Date, end: Date): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'incompleteByStatus',
@@ -291,7 +289,7 @@ export const getIncompleteByStatus = (start: Date, end: Date, companyId?: number
     })
   );
   const stats = await api.post<WOStatsByStatus>(
-    `${basePath}/incomplete/statuses${companyQuery(companyId)}`, { start, end }
+    `${basePath}/incomplete/statuses`, { start, end }
   );
   dispatch(slice.actions.getIncompleteByStatus({ stats }));
   dispatch(
@@ -301,14 +299,14 @@ export const getIncompleteByStatus = (start: Date, end: Date, companyId?: number
     })
   );
 };
-export const getWOHours = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getWOHours = (start: Date, end: Date): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'hours',
       loading: true
     })
   );
-  const stats = await api.post<WOHours>(`${basePath}/hours${companyQuery(companyId)}`, { start, end });
+  const stats = await api.post<WOHours>(`${basePath}/hours`, { start, end });
   dispatch(slice.actions.getWOHours({ stats }));
   dispatch(
     slice.actions.setLoading({
@@ -317,7 +315,7 @@ export const getWOHours = (start: Date, end: Date, companyId?: number): AppThunk
     })
   );
 };
-export const getCountsByUser = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getCountsByUser = (start: Date, end: Date): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'completeByPrimaryUser',
@@ -325,7 +323,7 @@ export const getCountsByUser = (start: Date, end: Date, companyId?: number): App
     })
   );
   const stats = await api.post<WOCountsByUser[]>(
-    `${basePath}/complete/counts/primaryUser${companyQuery(companyId)}`, { start, end }
+    `${basePath}/complete/counts/primaryUser`, { start, end }
   );
   dispatch(slice.actions.getCountsByUser({ stats }));
   dispatch(
@@ -336,7 +334,7 @@ export const getCountsByUser = (start: Date, end: Date, companyId?: number): App
   );
 };
 
-export const getCompleteByCompletedBy = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getCompleteByCompletedBy = (start: Date, end: Date): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'completeByCompletedBy',
@@ -344,7 +342,7 @@ export const getCompleteByCompletedBy = (start: Date, end: Date, companyId?: num
     })
   );
   const stats = await api.post<WOCountsByUser[]>(
-    `${basePath}/complete/counts/completedBy${companyQuery(companyId)}`, { start, end }
+    `${basePath}/complete/counts/completedBy`, { start, end }
   );
   dispatch(slice.actions.getCountsByCompletedBy({ stats }));
   dispatch(
@@ -354,7 +352,7 @@ export const getCompleteByCompletedBy = (start: Date, end: Date, companyId?: num
     })
   );
 };
-export const getCompleteByPriority = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getCompleteByPriority = (start: Date, end: Date): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'completeByPriority',
@@ -362,7 +360,7 @@ export const getCompleteByPriority = (start: Date, end: Date, companyId?: number
     })
   );
   const stats = await api.post<{ [key: string]: number }>(
-    `${basePath}/complete/counts/priority${companyQuery(companyId)}`, { start, end }
+    `${basePath}/complete/counts/priority`, { start, end }
   );
   dispatch(slice.actions.getCompleteByPriority({ stats }));
   dispatch(
@@ -372,7 +370,7 @@ export const getCompleteByPriority = (start: Date, end: Date, companyId?: number
     })
   );
 };
-export const getCompleteByCategory = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getCompleteByCategory = (start: Date, end: Date): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'completeByCategory',
@@ -380,7 +378,7 @@ export const getCompleteByCategory = (start: Date, end: Date, companyId?: number
     })
   );
   const stats = await api.post<WOCountsByCategory[]>(
-    `${basePath}/complete/counts/category${companyQuery(companyId)}`, { start, end }
+    `${basePath}/complete/counts/category`, { start, end }
   );
   dispatch(slice.actions.getCountsByCategory({ stats }));
   dispatch(
@@ -390,7 +388,7 @@ export const getCompleteByCategory = (start: Date, end: Date, companyId?: number
     })
   );
 };
-export const getCompleteCosts = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getCompleteCosts = (start: Date, end: Date): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'completeCosts',
@@ -398,7 +396,7 @@ export const getCompleteCosts = (start: Date, end: Date, companyId?: number): Ap
     })
   );
   const stats = await api.post<WOCostsAndTime>(
-    `${basePath}/complete/costs-time${companyQuery(companyId)}`, { start, end }
+    `${basePath}/complete/costs-time`, { start, end }
   );
   dispatch(slice.actions.getCompleteCosts({ stats }));
   dispatch(
@@ -408,7 +406,7 @@ export const getCompleteCosts = (start: Date, end: Date, companyId?: number): Ap
     })
   );
 };
-export const getCompleteByWeek = (companyId?: number): AppThunk => async (dispatch) => {
+export const getCompleteByWeek = (): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'completeByWeek',
@@ -416,7 +414,7 @@ export const getCompleteByWeek = (companyId?: number): AppThunk => async (dispat
     })
   );
   const stats = await api.get<WOCountsByWeek[]>(
-    `${basePath}/complete/counts/week${companyQuery(companyId)}`
+    `${basePath}/complete/counts/week`
   );
   dispatch(slice.actions.getCompleteByWeek({ stats }));
   dispatch(
@@ -426,14 +424,14 @@ export const getCompleteByWeek = (companyId?: number): AppThunk => async (dispat
     })
   );
 };
-export const getCompleteTimesByWeek = (companyId?: number): AppThunk => async (dispatch) => {
+export const getCompleteTimesByWeek = (): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'completeTimesByWeek',
       loading: true
     })
   );
-  const stats = await api.get<WOTimeByWeek[]>(`${basePath}/complete/time/week${companyQuery(companyId)}`);
+  const stats = await api.get<WOTimeByWeek[]>(`${basePath}/complete/time/week`);
   dispatch(slice.actions.getCompleteTimesByWeek({ stats }));
   dispatch(
     slice.actions.setLoading({
@@ -442,7 +440,7 @@ export const getCompleteTimesByWeek = (companyId?: number): AppThunk => async (d
     })
   );
 };
-export const getIncompleteByAsset = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getIncompleteByAsset = (start: Date, end: Date): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'incompleteByAsset',
@@ -450,7 +448,7 @@ export const getIncompleteByAsset = (start: Date, end: Date, companyId?: number)
     })
   );
   const stats = await api.post<IncompleteWOByAsset[]>(
-    `${basePath}/incomplete/age/assets${companyQuery(companyId)}`, { start, end }
+    `${basePath}/incomplete/age/assets`, { start, end }
   );
   dispatch(slice.actions.getIncompleteByAsset({ stats }));
   dispatch(
@@ -460,7 +458,7 @@ export const getIncompleteByAsset = (start: Date, end: Date, companyId?: number)
     })
   );
 };
-export const getIncompleteByUser = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getIncompleteByUser = (start: Date, end: Date): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'incompleteByUser',
@@ -468,7 +466,7 @@ export const getIncompleteByUser = (start: Date, end: Date, companyId?: number):
     })
   );
   const stats = await api.post<IncompleteWOByUser[]>(
-    `${basePath}/incomplete/age/users${companyQuery(companyId)}`, { start, end }
+    `${basePath}/incomplete/age/users`, { start, end }
   );
   dispatch(slice.actions.getIncompleteByUser({ stats }));
   dispatch(
@@ -478,7 +476,7 @@ export const getIncompleteByUser = (start: Date, end: Date, companyId?: number):
     })
   );
 };
-export const getCompleteCostsByDate = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getCompleteCostsByDate = (start: Date, end: Date): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'completeCostsByDate',
@@ -486,7 +484,7 @@ export const getCompleteCostsByDate = (start: Date, end: Date, companyId?: numbe
     })
   );
   const stats = await api.post<WOCostByDate[]>(
-    `${basePath}/complete/costs/date${companyQuery(companyId)}`, { start, end }
+    `${basePath}/complete/costs/date`, { start, end }
   );
   dispatch(slice.actions.getCompleteCostsByDate({ stats }));
   dispatch(
@@ -496,7 +494,7 @@ export const getCompleteCostsByDate = (start: Date, end: Date, companyId?: numbe
     })
   );
 };
-export const getStatusesByDate = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getStatusesByDate = (start: Date, end: Date): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'statusesByDate',
@@ -504,7 +502,7 @@ export const getStatusesByDate = (start: Date, end: Date, companyId?: number): A
     })
   );
   const stats = await api.post<WOStatusesByDate[]>(
-    `${basePath}/statuses${companyQuery(companyId)}`, { start, end }
+    `${basePath}/statuses`, { start, end }
   );
   dispatch(slice.actions.getStatusesByDate({ stats }));
   dispatch(

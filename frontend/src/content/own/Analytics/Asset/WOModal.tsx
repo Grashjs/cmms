@@ -111,9 +111,7 @@ export default function WOModal({
       description: t('Worker'),
       width: 170,
       renderCell: (params: GridRenderCellParams<UserMiniDTO>) =>
-        params.value ? (
-          <UserAvatars compact={false} users={[params.value]} />
-        ) : null
+        params.value ? <UserAvatars users={[params.value]} /> : null
     },
     {
       field: 'assignedTo',
@@ -121,7 +119,7 @@ export default function WOModal({
       description: t('Assignees'),
       width: 170,
       renderCell: (params: GridRenderCellParams<UserMiniDTO[]>) => (
-        <UserAvatars compact={false} users={params.value} />
+        <UserAvatars users={params.value} />
       )
     },
     {

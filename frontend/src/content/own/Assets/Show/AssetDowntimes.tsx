@@ -6,6 +6,8 @@ import {
   DialogContent,
   DialogTitle,
   Grid,
+  MenuItem,
+  Select,
   Stack,
   Typography
 } from '@mui/material';
@@ -20,7 +22,11 @@ import {
 import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import { AssetDTO } from '../../../../models/owns/asset';
+import {
+  AssetDTO,
+  AssetStatus,
+  assetStatuses
+} from '../../../../models/owns/asset';
 import { useDispatch, useSelector } from '../../../../store';
 import { editAsset } from '../../../../slices/asset';
 import useAuth from '../../../../hooks/useAuth';
@@ -32,7 +38,6 @@ import {
 } from '../../../../slices/assetDowntime';
 import { useContext, useEffect, useState } from 'react';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
-import AssetStatusSelect from '../components/AssetStatusSelect';
 import Form from '../../components/form';
 import * as Yup from 'yup';
 import { IField } from '../../type';
@@ -43,7 +48,6 @@ import {
 } from '../../../../utils/formatters';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
 import AssetDowntime from '../../../../models/owns/assetDowntime';
-import { getErrorMessage } from '../../../../utils/api';
 
 interface PropsType {
   asset: AssetDTO;
@@ -74,7 +78,7 @@ const AssetDowntimes = ({ asset }: PropsType) => {
     showSnackBar(t('create_downtime_success'), 'success');
   };
   const onCreationFailure = (err) =>
-    showSnackBar(getErrorMessage(err, t('create_downtime_failure')), 'error');
+    showSnackBar(t('create_downtime_failure'), 'error');
   const onEditSuccess = () => {
     setOpenEditModal(false);
     showSnackBar(t('edit_downtime_success'), 'success');
@@ -270,18 +274,26 @@ const AssetDowntimes = ({ asset }: PropsType) => {
           <Card sx={{ p: 2 }}>
             <Box sx={{ height: 550, width: '95%' }}>
               <Stack direction="row" justifyContent="space-between" py={3}>
-                <AssetStatusSelect
+                <Select
                   value={asset?.status ?? 'OPERATIONAL'}
-                  onChange={(status) => {
+                  onChange={(event) => {
                     dispatch(
                       editAsset(asset.id, {
                         ...asset,
-                        status
+                        status: event.target.value as AssetStatus
                       })
                     );
                   }}
-                  disabled={!hasEditPermission(PermissionEntity.ASSETS, asset)}
-                />
+                >
+                  {assetStatuses.map((assetStatusConfig) => (
+                    <MenuItem
+                      key={assetStatusConfig.status}
+                      value={assetStatusConfig.status}
+                    >
+                      {t(assetStatusConfig.status)}
+                    </MenuItem>
+                  ))}
+                </Select>
                 {hasEditPermission(PermissionEntity.ASSETS, asset) && (
                   <Button
                     startIcon={<AddTwoToneIcon />}

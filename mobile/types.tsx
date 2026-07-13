@@ -9,10 +9,8 @@ import {
   NavigatorScreenParams
 } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import AdditionalCost from './models/additionalCost';
 import WorkOrder from './models/workOrder';
 import Part, { PartMiniDTO } from './models/part';
-import Labor from './models/labor';
 import { Task } from './models/tasks';
 import { Customer, CustomerMiniDTO } from './models/customer';
 import { Vendor, VendorMiniDTO } from './models/vendor';
@@ -27,7 +25,8 @@ import Meter, { MeterMiniDTO } from './models/meter';
 
 declare global {
   namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList {}
+    interface RootParamList extends RootStackParamList {
+    }
   }
 }
 
@@ -51,28 +50,11 @@ export type RootStackParamList = {
     parentAsset?: AssetDTO;
     nfcId?: string;
     barCode?: string;
-    openedFromSelector?: boolean;
-    onSuccess?: (asset: AssetMiniDTO) => void;
   };
-  AddLocation:
-    | {
-        openedFromSelector?: boolean;
-        onSuccess?: (location: LocationMiniDTO) => void;
-      }
-    | undefined;
-  AddPart:
-    | {
-        openedFromSelector?: boolean;
-        onSuccess?: (part: PartMiniDTO) => void;
-      }
-    | undefined;
+  AddLocation: undefined;
+  AddPart: undefined;
   AddMeter: undefined;
-  AddUser:
-    | {
-        openedFromSelector?: boolean;
-        onSuccess?: (user: UserMiniDTO) => void; //unused. May be used in the future
-      }
-    | undefined;
+  AddUser: undefined;
   WODetails: { id: number; workOrderProp?: WorkOrder };
   AssetDetails: { id: number; assetProp?: AssetDTO };
   LocationDetails: { id: number; locationProp?: Location };
@@ -128,10 +110,7 @@ export type RootStackParamList = {
   };
   SelectTasks: { onChange: (tasks: Task[]) => void; selected: Task[] };
   SelectChecklists: { onChange: (tasks: Task[]) => void; selected: Task[] };
-  SelectTasksOrChecklist: {
-    onChange: (tasks: Task[]) => void;
-    selected: Task[];
-  };
+  SelectTasksOrChecklist: { onChange: (tasks: Task[]) => void; selected: Task[] };
   SelectCategories: {
     onChange: (categories: Category[]) => void;
     selected: number[];
@@ -142,7 +121,7 @@ export type RootStackParamList = {
   SelectBarcode: { onChange: (value: string) => void };
   CompleteWorkOrder: {
     onComplete: (
-      signature: string | undefined,
+      signatureId: number | undefined,
       feedback: string | undefined
     ) => Promise<any>;
     fieldsConfig: { feedback: boolean; signature: boolean };
@@ -159,16 +138,10 @@ export type RootStackParamList = {
   WorkOrderFilters: {
     filterFields: FilterField[];
     onFilterChange: (filterFields: FilterField[]) => void;
-    onReset: () => void;
   };
   AddAdditionalCost: { workOrderId: number };
-  EditAdditionalCost: { workOrderId: number; additionalCost: AdditionalCost };
   AddAdditionalTime: { workOrderId: number };
-  EditAdditionalTime: { workOrderId: number; labor: Labor };
-  ScanAsset: {
-    onChange?: (asset: AssetMiniDTO) => void;
-  };
-  Feedback: undefined;
+  ScanAsset: undefined;
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =
@@ -181,7 +154,6 @@ export type RootTabParamList = {
   Requests: undefined;
   MoreEntities: undefined;
 };
-export type RootParamList = RootStackParamList & RootTabParamList;
 
 export type RootTabScreenProps<Screen extends keyof RootTabParamList> =
   CompositeScreenProps<
@@ -201,6 +173,5 @@ export type SuperUserStackParamList = {
 export type AuthStackScreenProps<Screen extends keyof AuthStackParamList> =
   NativeStackScreenProps<AuthStackParamList, Screen>;
 
-export type SuperUserStackScreenProps<
-  Screen extends keyof SuperUserStackParamList
-> = NativeStackScreenProps<SuperUserStackParamList, Screen>;
+export type SuperUserStackScreenProps<Screen extends keyof SuperUserStackParamList> =
+  NativeStackScreenProps<SuperUserStackParamList, Screen>;

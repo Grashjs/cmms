@@ -29,12 +29,7 @@ export const apiUrl = rawApiUrl
     : rawApiUrl + '/'
   : 'http://localhost:8080/';
 
-const rawHomeUrl = getRuntimeValue('HOME_URL');
-export const homeUrl = rawHomeUrl
-  ? rawHomeUrl.endsWith('/')
-    ? rawHomeUrl
-    : rawHomeUrl + '/'
-  : 'http://localhost:4000/';
+export const muiLicense = getRuntimeValue('MUI_X_LICENSE');
 
 export const zendeskKey = '';
 
@@ -48,60 +43,8 @@ export const isEmailVerificationEnabled =
 
 export const isCloudVersion = getRuntimeValue('CLOUD_VERSION') === 'true';
 
-const apiHostName = new URL(apiUrl, window.location.origin).hostname;
+const apiHostName = new URL(apiUrl).hostname;
 export const IS_LOCALHOST =
   apiHostName === 'localhost' || apiHostName === '127.0.0.1';
 
 export const isSSOEnabled = getRuntimeValue('ENABLE_SSO') === 'true';
-
-export const customLogoPaths: { white?: string; dark: string } =
-  getRuntimeValue('LOGO_PATHS')
-    ? JSON.parse(getRuntimeValue('LOGO_PATHS'))
-    : null;
-type ThemeColors = {
-  primary: string;
-  secondary: string;
-  success: string;
-  warning: string;
-  error: string;
-  info: string;
-  black: string;
-  white: string;
-  primaryAlt: string;
-};
-
-export const customColors: ThemeColors = getRuntimeValue('CUSTOM_COLORS')
-  ? JSON.parse(getRuntimeValue('CUSTOM_COLORS'))
-  : null;
-
-export interface BrandRawConfig {
-  name: string;
-  shortName: string;
-  website: string;
-  mail: string;
-  addressStreet: string;
-  phone: string;
-  addressCity: string;
-}
-export const brandRawConfig: BrandRawConfig = getRuntimeValue('BRAND_CONFIG')
-  ? JSON.parse(getRuntimeValue('BRAND_CONFIG'))
-  : null;
-
-export const demoLink: string = getRuntimeValue('DEMO_LINK');
-
-export const isWhiteLabeled: boolean = !!(customLogoPaths || brandRawConfig);
-
-export const IS_ORIGINAL_CLOUD = !isWhiteLabeled && isCloudVersion;
-
-export const PADDLE_SECRET_TOKEN: string = getRuntimeValue(
-  'PADDLE_SECRET_TOKEN'
-);
-
-export const paddleEnvironment = getRuntimeValue('PADDLE_ENVIRONMENT') as
-  | 'sandbox'
-  | 'production';
-
-export const recaptchaSiteKey = getRuntimeValue('RECAPTCHA_SITE_KEY');
-
-export const intercomId = getRuntimeValue('INTERCOM_ID');
-export const ldapEnabled = getRuntimeValue('LDAP_ENABLED') === 'true';

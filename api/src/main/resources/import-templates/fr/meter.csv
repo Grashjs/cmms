@@ -1,4 +1,4 @@
-ID,Nom,Unitï¿½,Frï¿½quence de mise ï¿½ jour,Catï¿½gorie,Nom de l'ï¿½quipement,Nom de l'emplacement,Utilisateurs
-,Surveillance de la tempï¿½rature,ï¿½C,1,ï¿½tat,Moteur du gï¿½nï¿½rateur-Groupe ï¿½lectrogï¿½ne de secours-Zone utilitaire,Site principal 1,"technicien1testcmms@gmail.com,abc@gmail.com"
-,Dï¿½clencheur de vï¿½rin hydraulique,cycles,1,Utilisation,Extracteurs d'air-Systï¿½me de ventilation-Poulailler,Site principal 1,limitedtechnicien1testcmms@gmail.com
-,Lecture de la consommation d'ï¿½nergie quotidienne de l'installation 1,KWh,1,Utilisation,Moteur du gï¿½nï¿½rateur-Groupe ï¿½lectrogï¿½ne de secours-Zone utilitaire,Site principal 1,limitedtechnicien1testcmms@gmail.com
+ID,Nom,Unité,Fréquence de mise à jour,Catégorie,Nom de l'équipement,Nom de l'emplacement,Utilisateurs
+,Surveillance de la température,°C,1,État,Moteur du générateur-Groupe électrogène de secours-Zone utilitaire,Site principal 1,"technicien1atlascmms@gmail.com,abc@gmail.com"
+,Déclencheur de vérin hydraulique,cycles,1,Utilisation,Extracteurs d'air-Système de ventilation-Poulailler,Site principal 1,limitedtechnicien1atlascmms@gmail.com
+,Lecture de la consommation d'énergie quotidienne de l'installation 1,KWh,1,Utilisation,Moteur du générateur-Groupe électrogène de secours-Zone utilitaire,Site principal 1,limitedtechnicien1atlascmms@gmail.com

@@ -167,13 +167,13 @@ const ownMenuItems: MenuItems[] = [
           }
         ]
       },
-      {
-        name: 'purchase_orders',
-        link: '/app/purchase-orders',
-        icon: ReceiptTwoToneIcon,
-        permission: PermissionEntity.PURCHASE_ORDERS,
-        planFeature: PlanFeature.PURCHASE_ORDER
-      },
+      // {
+      //   name: 'purchase_orders',
+      //   link: '/app/purchase-orders',
+      //   icon: ReceiptTwoToneIcon,
+      //   permission: PermissionEntity.PURCHASE_ORDERS,
+      //   planFeature: PlanFeature.PURCHASE_ORDER
+      // },
       {
         name: 'meters',
         link: '/app/meters',
@@ -219,7 +219,7 @@ const ownMenuItems: MenuItems[] = [
         name: 'categories',
         link: '/app/categories',
         icon: CategoryTwoToneIcon,
-        permission: PermissionEntity.CATEGORIES
+        permission: PermissionEntity.CATEGORIES_WEB
       },
       {
         name: 'files',

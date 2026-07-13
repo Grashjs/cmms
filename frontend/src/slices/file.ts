@@ -113,8 +113,7 @@ export const addFiles =
     files: any[],
     fileType: FileType = 'OTHER',
     taskId?: number,
-    hidden?: 'true' | 'false',
-    bypass?: boolean
+    hidden?: 'true' | 'false'
   ): AppThunk =>
   async (dispatch) => {
     let formData = new FormData();
@@ -125,9 +124,6 @@ export const addFiles =
     formData.append('folder', `company ${companyId}`);
     formData.append('type', fileType);
     formData.append('hidden', hidden);
-    if (typeof bypass === 'boolean') {
-      formData.append('bypass', bypass.toString());
-    }
     const baseRoute = `${basePath}/upload`;
     const filesResponse = await api.post<File[]>(
       taskId ? `${baseRoute}?taskId=${taskId}` : baseRoute,
@@ -154,25 +150,5 @@ export const deleteFile =
 export const clearSingleFile = (): AppThunk => async (dispatch) => {
   dispatch(slice.actions.clearSingleFile({}));
 };
-
-export const uploadToRequestPortal =
-  (uuid: string, files: any[], fileType: FileType): AppThunk =>
-  async (dispatch) => {
-    let formData = new FormData();
-    const headers = authHeader(true);
-    delete headers['Content-Type'];
-    files.forEach((file) => formData.append('files', file));
-    formData.append('type', fileType);
-    const filesResponse = await api.post<File[]>(
-      `${basePath}/upload/request-portal/${uuid}`,
-      formData,
-      {
-        headers
-      },
-      true
-    );
-    dispatch(slice.actions.addFiles({ files: filesResponse }));
-    return filesResponse.map((file) => file.id);
-  };
 
 export default slice;

@@ -3,8 +3,8 @@ import * as Yup from 'yup';
 import Form from '../../components/form';
 import { IField } from '../../type';
 import { useTranslation } from 'react-i18next';
-import { Button, Grid, Typography } from '@mui/material';
-import { useDispatch, useSelector } from '../../../../store';
+import { Grid, Typography } from '@mui/material';
+import { useSelector } from '../../../../store';
 import { UserMiniDTO } from '../../../../models/user';
 import {
   FilterFieldType,
@@ -12,27 +12,14 @@ import {
   getDateValue,
   getLabelAndValue
 } from '../../../../utils/filter';
-import { useEffect } from 'react';
-import { getAssetsMini } from '../../../../slices/asset';
-import { getCustomersMini } from '../../../../slices/customer';
-import { getTeamsMini } from '../../../../slices/team';
-import { getLocationsMini } from '../../../../slices/location';
-import { getCategories } from '../../../../slices/category';
-import { getUsersMini } from '../../../../slices/user';
 
 interface OwnProps {
   onFilterChange: (filterFields: FilterField[]) => void;
   filterFields: FilterField[];
   onClose: () => void;
-  onReset: () => void;
 }
 
-function MoreFilters({
-  filterFields,
-  onFilterChange,
-  onClose,
-  onReset
-}: OwnProps) {
+function MoreFilters({ filterFields, onFilterChange, onClose }: OwnProps) {
   const { t }: { t: any } = useTranslation();
   const { customersMini } = useSelector((state) => state.customers);
   const { locationsMini } = useSelector((state) => state.locations);
@@ -40,7 +27,6 @@ function MoreFilters({
   const { usersMini } = useSelector((state) => state.users);
   const { assetsMini } = useSelector((state) => state.assets);
   const { teamsMini } = useSelector((state) => state.teams);
-  const dispatch = useDispatch();
 
   const filtersConfig: {
     accessor: string;
@@ -57,7 +43,7 @@ function MoreFilters({
     { accessor: 'completedBy', fieldName: 'completedBy', type: 'array' },
     {
       accessor: 'customers',
-      fieldName: 'customers',
+      fieldName: 'customer',
       operator: 'inm',
       type: 'array'
     },
@@ -73,7 +59,6 @@ function MoreFilters({
       type: 'simple'
     },
     { accessor: 'createdAt', fieldName: 'createdAt', type: 'date' },
-    { accessor: 'dueDate', fieldName: 'dueDate', type: 'dateLessThan' },
     { accessor: 'updatedAt', fieldName: 'updatedAt', type: 'date' },
     { accessor: 'completedOn', fieldName: 'completedOn', type: 'date' }
   ];
@@ -168,11 +153,6 @@ function MoreFilters({
     },
     { name: 'datesGroup', type: 'titleGroupField', label: t('dates') },
     {
-      name: 'dueDate',
-      type: 'date',
-      label: t('due_date')
-    },
-    {
       name: 'createdAt',
       type: 'dateRange',
       label: t('created_at')
@@ -201,12 +181,12 @@ function MoreFilters({
         break;
     }
   };
-  const getValuesFromFilterFields = (): {
+  const getValuesFromfilterFields = (): {
     [key: string]:
       | { label: string; value: string }
       | { label: string; value: number }[]
       | boolean
-      | [Date | null, Date | null];
+      | [string, string];
   } => {
     const typeValue = filterFields.find(
       (filterField) => filterField.field === 'parentPreventiveMaintenance'
@@ -259,7 +239,7 @@ function MoreFilters({
       customers: getLabelAndValue(
         filterFields,
         customersMini,
-        'customers',
+        'customer',
         'name'
       ),
       createdBy: getLabelAndValue(
@@ -271,33 +251,10 @@ function MoreFilters({
       ),
       createdAt: getDateValue(filterFields, 'createdAt'),
       updatedAt: getDateValue(filterFields, 'updatedAt'),
-      completedOn: getDateValue(filterFields, 'completedOn'),
-      dueDate: filterFields.find(
-        (filterField) => filterField.field === 'dueDate'
-      )?.value
+      completedOn: getDateValue(filterFields, 'completedOn')
     };
   };
   const shape = {};
-  const USER_FIELDS = ['primaryUser', 'completedBy', 'createdBy', 'assignedTo'];
-
-  useEffect(() => {
-    const fieldsInUse = new Set(filterFields.map((f) => f.field));
-
-    if (fieldsInUse.has('asset')) dispatch(getAssetsMini());
-    if (fieldsInUse.has('customers') && !customersMini.length)
-      dispatch(getCustomersMini());
-    if (fieldsInUse.has('team') && !teamsMini.length) dispatch(getTeamsMini());
-    if (fieldsInUse.has('location') && !locationsMini.length)
-      dispatch(getLocationsMini());
-    if (
-      fieldsInUse.has('category') &&
-      !categories['work-order-categories']?.length
-    )
-      dispatch(getCategories('work-order-categories'));
-    if (USER_FIELDS.some((f) => fieldsInUse.has(f)) && !usersMini.length)
-      dispatch(getUsersMini());
-  }, [filterFields.length]);
-
   return (
     <Grid
       container
@@ -311,17 +268,10 @@ function MoreFilters({
       </Grid>
       <Grid item xs={12}>
         <Form
-          // key={`${assetsMini.length}-${teamsMini.length}-${customersMini.length}-${locationsMini.length}-${usersMini.length}-${categories['work-order-categories']?.length}`}
           fields={fields}
           validation={Yup.object().shape(shape)}
           submitText={t('save')}
-          values={getValuesFromFilterFields()}
-          enableReinitialize
-          nextToButton={
-            <Button sx={{ ml: 2 }} onClick={onReset} variant={'outlined'}>
-              {t('reset')}
-            </Button>
-          }
+          values={getValuesFromfilterFields()}
           onChange={({ field, e }) => {}}
           onSubmit={async (values) => {
             let newFilters = [...filterFields];

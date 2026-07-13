@@ -36,6 +36,4 @@ public interface StorageService {
     default String uploadAndSign(MultipartFile file, String folder) {
         return generateSignedUrl(upload(file, folder), 10);
     }
-
-    String upload(byte[] data, String fileName, String folder);
 }

@@ -49,7 +49,6 @@ function ProfileDetails() {
   const userConfig = {
     firstName: { value: user.firstName, title: t('first_name') },
     lastName: { value: user.lastName, title: t('last_name') },
-    email: { value: user.email, title: t('email') },
     phone: { value: user.phone, title: t('phone') },
     jobTitle: { value: user.jobTitle, title: t('job_title') },
     settings: {
@@ -145,14 +144,14 @@ function ProfileDetails() {
         }}
       >
         {({
-          errors,
-          handleBlur,
-          handleChange,
-          handleSubmit,
-          isSubmitting,
-          touched,
-          values
-        }) => (
+            errors,
+            handleBlur,
+            handleChange,
+            handleSubmit,
+            isSubmitting,
+            touched,
+            values
+          }) => (
           <form onSubmit={handleSubmit}>
             <DialogContent
               dividers
@@ -283,14 +282,14 @@ function ProfileDetails() {
         }}
       >
         {({
-          errors,
-          handleBlur,
-          handleChange,
-          handleSubmit,
-          isSubmitting,
-          touched,
-          values
-        }) => (
+            errors,
+            handleBlur,
+            handleChange,
+            handleSubmit,
+            isSubmitting,
+            touched,
+            values
+          }) => (
           <form onSubmit={handleSubmit}>
             <DialogContent
               dividers

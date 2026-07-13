@@ -23,7 +23,6 @@ import { useDispatch, useSelector } from '../../../../store';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 import { useNavigate } from 'react-router-dom';
 import PermissionErrorMessage from '../../components/PermissionErrorMessage';
-import { useBrand } from '../../../../hooks/useBrand';
 
 const MainContent = styled(Box)(
   () => `
@@ -41,7 +40,6 @@ function Upgrade() {
   const { t }: { t: any } = useTranslation();
   const { setTitle } = useContext(TitleContext);
   const { user, company, upgrade } = useAuth();
-  const brandConfig = useBrand();
   const dispatch = useDispatch();
   const { disabledUsersMini, usersMini } = useSelector((state) => state.users);
   const [selectedUsers, setSelectedUsers] = useState<{
@@ -110,9 +108,7 @@ function Upgrade() {
                   mb: 4
                 }}
               >
-                {t('upgrade_description', {
-                  shortBrandName: brandConfig.shortName
-                })}
+                {t('upgrade_description')}
               </Typography>
             </Box>
             <Container maxWidth="sm">
