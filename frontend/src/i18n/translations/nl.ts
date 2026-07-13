@@ -1970,6 +1970,8 @@ const locale = {
   custom_message_optional: 'Aangepast bericht (optioneel)',
   send_work_order_as_pdf: 'Werkorder als PDF verzenden',
   report_sent_success: 'Rapport succesvol verzonden',
-  trigger_work_order: 'Werkorder activeren'
+  trigger_work_order: 'Werkorder activeren',
+  edit_reading: 'Meting bewerken',
+  are_you_sure_delete_reading: 'Weet u zeker dat u deze meting wilt verwijderen?'
 };
 export default locale;

@@ -1924,7 +1924,9 @@ const locale = {
   custom_message_optional: 'カスタムメッセージ（オプション）',
   send_work_order_as_pdf: '作業指示書をPDFとして送信',
   report_sent_success: 'レポートが正常に送信されました',
-  trigger_work_order: '作業指示書をトリガー'
+  trigger_work_order: '作業指示書をトリガー',
+  edit_reading: '読み取りを編集',
+  are_you_sure_delete_reading: 'この読み取りを削除してもよろしいですか？'
 };
 
 export default locale;

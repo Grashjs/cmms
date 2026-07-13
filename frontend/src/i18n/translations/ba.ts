@@ -1954,7 +1954,9 @@ const locale = {
   custom_message_optional: 'Prilagođena poruka (opcionalno)',
   send_work_order_as_pdf: 'Pošalji radni nalog kao PDF',
   report_sent_success: 'Izvještaj uspješno poslan',
-  trigger_work_order: 'Aktiviraj radni nalog'
+  trigger_work_order: 'Aktiviraj radni nalog',
+  edit_reading: 'Uredi očitanje',
+  are_you_sure_delete_reading: 'Jeste li sigurni da želite izbrisati ovo očitanje?'
 };
 
 export default locale;

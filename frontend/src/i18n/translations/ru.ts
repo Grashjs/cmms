@@ -2031,7 +2031,9 @@ const ruJSON = {
   custom_message_optional: 'Пользовательское сообщение (необязательно)',
   send_work_order_as_pdf: 'Отправить заказ как PDF',
   report_sent_success: 'Отчет успешно отправлен',
-  trigger_work_order: 'Запустить рабочий заказ'
+  trigger_work_order: 'Запустить рабочий заказ',
+  edit_reading: 'Редактировать показание',
+  are_you_sure_delete_reading: 'Вы уверены, что хотите удалить это показание?'
 };
 
 export default ruJSON;

@@ -1634,7 +1634,9 @@ const locale = {
   custom_message_optional: '自定义消息（可选）',
   send_work_order_as_pdf: '以PDF形式发送工作单',
   report_sent_success: '报告已成功发送',
-  trigger_work_order: '触发工作单'
+  trigger_work_order: '触发工作单',
+  edit_reading: '编辑读数',
+  are_you_sure_delete_reading: '确定要删除此读数吗？'
 };
 
 export default locale;

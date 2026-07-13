@@ -2044,7 +2044,9 @@ const esJSON = {
   custom_message_optional: 'Mensaje personalizado (opcional)',
   send_work_order_as_pdf: 'Enviar orden de trabajo como PDF',
   report_sent_success: 'Informe enviado con éxito',
-  trigger_work_order: 'Activar orden de trabajo'
+  trigger_work_order: 'Activar orden de trabajo',
+  edit_reading: 'Editar lectura',
+  are_you_sure_delete_reading: '¿Está seguro de que desea eliminar esta lectura?'
 };
 
 export default esJSON;

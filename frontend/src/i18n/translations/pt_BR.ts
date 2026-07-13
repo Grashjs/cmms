@@ -1998,7 +1998,9 @@ const ptBRJSON = {
   custom_message_optional: 'Mensagem personalizada (opcional)',
   send_work_order_as_pdf: 'Enviar ordem de serviço como PDF',
   report_sent_success: 'Relatório enviado com sucesso',
-  trigger_work_order: 'Acionar ordem de serviço'
+  trigger_work_order: 'Acionar ordem de serviço',
+  edit_reading: 'Editar leitura',
+  are_you_sure_delete_reading: 'Tem certeza de que deseja excluir esta leitura?'
 };
 
 export default ptBRJSON;

@@ -1972,7 +1972,9 @@ const locale = {
   custom_message_optional: 'Messaggio personalizzato (opzionale)',
   send_work_order_as_pdf: 'Invia ordine di lavoro come PDF',
   report_sent_success: 'Report inviato con successo',
-  trigger_work_order: 'Attiva ordine di lavoro'
+  trigger_work_order: 'Attiva ordine di lavoro',
+  edit_reading: 'Modifica lettura',
+  are_you_sure_delete_reading: 'Sei sicuro di voler eliminare questa lettura?'
 };
 
 export default locale;

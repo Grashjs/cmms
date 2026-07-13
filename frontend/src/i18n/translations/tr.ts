@@ -1968,7 +1968,9 @@ const trJSON = {
   custom_message_optional: 'Özel mesaj (isteğe bağlı)',
   send_work_order_as_pdf: 'İş Emrini PDF Olarak Gönder',
   report_sent_success: 'Rapor başarıyla gönderildi',
-  trigger_work_order: 'İş Emrini Tetikle'
+  trigger_work_order: 'İş Emrini Tetikle',
+  edit_reading: 'Okumayı Düzenle',
+  are_you_sure_delete_reading: 'Bu okumayı silmek istediğinizden emin misiniz?'
 };
 
 export default trJSON;

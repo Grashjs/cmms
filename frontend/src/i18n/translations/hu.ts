@@ -1831,7 +1831,9 @@ const locale = {
   custom_message_optional: 'Egyéni üzenet (opcionális)',
   send_work_order_as_pdf: 'Munkautasítás küldése PDF-ként',
   report_sent_success: 'Jelentés sikeresen elküldve',
-  trigger_work_order: 'Munkautasítás indítása'
+  trigger_work_order: 'Munkautasítás indítása',
+  edit_reading: 'Olvasás szerkesztése',
+  are_you_sure_delete_reading: 'Biztosan törli ezt az olvasást?'
 };
 
 export default locale;

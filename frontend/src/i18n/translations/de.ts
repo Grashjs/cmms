@@ -2053,7 +2053,9 @@ const deJSON = {
   custom_message_optional: 'Benutzerdefinierte Nachricht (optional)',
   send_work_order_as_pdf: 'Arbeitsauftrag als PDF senden',
   report_sent_success: 'Bericht erfolgreich gesendet',
-  trigger_work_order: 'Arbeitsauftrag auslösen'
+  trigger_work_order: 'Arbeitsauftrag auslösen',
+  edit_reading: 'Lesung bearbeiten',
+  are_you_sure_delete_reading: 'Sind Sie sicher, dass Sie diese Lesung löschen möchten?'
 };
 
 export default deJSON;

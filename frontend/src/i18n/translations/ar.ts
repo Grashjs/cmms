@@ -1906,7 +1906,9 @@ const locale = {
   custom_message_optional: 'رسالة مخصصة (اختياري)',
   send_work_order_as_pdf: 'إرسال أمر العمل كملف PDF',
   report_sent_success: 'تم إرسال التقرير بنجاح',
-  trigger_work_order: 'تنبيء أمر العمل'
+  trigger_work_order: 'تنبيء أمر العمل',
+  edit_reading: 'تعديل القراءة',
+  are_you_sure_delete_reading: 'هل أنت متأكد أنك تريد حذف هذه القراءة؟'
 };
 
 export default locale;

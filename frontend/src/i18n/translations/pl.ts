@@ -1968,7 +1968,9 @@ const plJSON = {
   custom_message_optional: 'Wiadomość niestandardowa (opcjonalnie)',
   send_work_order_as_pdf: 'Wyślij zlecenie jako PDF',
   report_sent_success: 'Raport wysłany pomyślnie',
-  trigger_work_order: 'Uruchom zlecenie'
+  trigger_work_order: 'Uruchom zlecenie',
+  edit_reading: 'Edytuj odczyt',
+  are_you_sure_delete_reading: 'Czy na pewno chcesz usunąć ten odczyt?'
 };
 
 export default plJSON;

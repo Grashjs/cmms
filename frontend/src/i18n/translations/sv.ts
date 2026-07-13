@@ -1938,7 +1938,9 @@ const locale = {
   custom_message_optional: 'Anpassat meddelande (valfritt)',
   send_work_order_as_pdf: 'Skicka arbetsorder som PDF',
   report_sent_success: 'Rapport skickad framgångsrikt',
-  trigger_work_order: 'Aktivera arbetsorder'
+  trigger_work_order: 'Aktivera arbetsorder',
+  edit_reading: 'Redigera mätning',
+  are_you_sure_delete_reading: 'Är du säker på att du vill ta bort denna mätning?'
 };
 
 export default locale;

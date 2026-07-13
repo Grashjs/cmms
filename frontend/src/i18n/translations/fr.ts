@@ -2144,7 +2144,9 @@ const frJSON = {
   custom_message_optional: 'Message personnalisé (optionnel)',
   send_work_order_as_pdf: "Envoyer l'ordre de travail en PDF",
   report_sent_success: 'Rapport envoyé avec succès',
-  trigger_work_order: 'Déclencher l\'ordre de travail'
+  trigger_work_order: 'Déclencher l\'ordre de travail',
+  edit_reading: 'Modifier la lecture',
+  are_you_sure_delete_reading: 'Êtes-vous sûr de vouloir supprimer cette lecture ?'
 };
 
 export default frJSON;
