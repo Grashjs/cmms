@@ -24,8 +24,10 @@ import {
   getVendorUrl
 } from '../../../../utils/urlPaths';
 import { useContext } from 'react';
+import { useDispatch } from '../../../../store';
+import { editAsset } from '../../../../slices/asset';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
-import AssetStatusTag from '../components/AssetStatusTag';
+import AssetStatusSelect from '../components/AssetStatusSelect';
 import Loading from '../../Analytics/Loading';
 import { PermissionEntity } from '../../../../models/owns/role';
 import SplitButton from '../../components/SplitButton';
@@ -79,6 +81,7 @@ const AssetDetails = ({ asset, loading, onCopy }: PropsType) => {
   const { getFormattedDate, getFormattedCurrency } = useContext(
     CompanySettingsContext
   );
+  const dispatch = useDispatch();
   const informationFields = [
     { label: t('name'), value: asset?.name },
     { label: t('description'), value: asset?.description },
@@ -215,7 +218,19 @@ const AssetDetails = ({ asset, loading, onCopy }: PropsType) => {
                     <Typography variant="h3">
                       {t('asset_information')}
                     </Typography>
-                    {asset && <AssetStatusTag status={asset.status} />}
+                    {asset && (
+                      <AssetStatusSelect
+                        value={asset.status}
+                        onChange={(status) =>
+                          dispatch(
+                            editAsset(asset.id, { ...asset, status })
+                          )
+                        }
+                        disabled={
+                          !hasEditPermission(PermissionEntity.ASSETS, asset)
+                        }
+                      />
+                    )}
                     {hasCreatePermission(PermissionEntity.ASSETS) && (
                       <IconButton onClick={onCopy}>
                         <ContentCopyIcon />
