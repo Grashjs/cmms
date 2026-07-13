@@ -2,18 +2,23 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 import type { AppThunk } from 'src/store';
 import Reading from '../models/owns/reading';
+import { ReadingHistogram } from '../models/owns/reading';
 import api from '../utils/api';
 import { revertAll } from 'src/utils/redux';
 
 const basePath = 'readings';
 interface ReadingState {
   readingsByMeter: { [id: number]: Reading[] };
+  histogramData: ReadingHistogram[];
   loadingGet: boolean;
+  loadingHistogram: boolean;
 }
 
 const initialState: ReadingState = {
   readingsByMeter: {},
-  loadingGet: false
+  histogramData: [],
+  loadingGet: false,
+  loadingHistogram: false
 };
 
 const slice = createSlice({
@@ -27,6 +32,12 @@ const slice = createSlice({
     ) {
       const { readings, id } = action.payload;
       state.readingsByMeter[id] = readings;
+    },
+    setHistogramData(
+      state: ReadingState,
+      action: PayloadAction<ReadingHistogram[]>
+    ) {
+      state.histogramData = action.payload;
     },
     createReading(
       state: ReadingState,
@@ -56,8 +67,13 @@ const slice = createSlice({
       state: ReadingState,
       action: PayloadAction<{ loading: boolean }>
     ) {
-      const { loading } = action.payload;
-      state.loadingGet = loading;
+      state.loadingGet = action.payload.loading;
+    },
+    setLoadingHistogram(
+      state: ReadingState,
+      action: PayloadAction<{ loading: boolean }>
+    ) {
+      state.loadingHistogram = action.payload.loading;
     }
   }
 });
@@ -71,6 +87,21 @@ export const getReadings =
     const readings = await api.get<Reading[]>(`${basePath}/meter/${id}`);
     dispatch(slice.actions.getReadings({ id, readings }));
     dispatch(slice.actions.setLoadingGet({ loading: false }));
+  };
+
+export const getHistogramData =
+  (id: number, start: string, end: string): AppThunk =>
+  async (dispatch) => {
+    try {
+      dispatch(slice.actions.setLoadingHistogram({ loading: true }));
+      const data = await api.post<ReadingHistogram[]>(
+        `${basePath}/meter/${id}/histogram`,
+        { start, end }
+      );
+      dispatch(slice.actions.setHistogramData(data));
+    } finally {
+      dispatch(slice.actions.setLoadingHistogram({ loading: false }));
+    }
   };
 
 export const createReading =

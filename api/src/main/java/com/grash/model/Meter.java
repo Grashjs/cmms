@@ -82,6 +82,10 @@ public class Meter extends CompanyAudit {
             throw new CustomException("Frequency should not be less than 1", HttpStatus.NOT_ACCEPTABLE);
         this.updateFrequency = updateFrequency;
     }
+
+    public boolean isAssignedTo(User user) {
+        return users.stream().anyMatch(u -> u.getId().equals(user.getId()));
+    }
 }
 
 

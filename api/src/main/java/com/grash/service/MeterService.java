@@ -13,6 +13,7 @@ import com.grash.mapper.MeterMapper;
 import com.grash.model.*;
 import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.NotificationType;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.repository.MeterRepository;
 import com.grash.service.CustomFieldValueService;
 import lombok.RequiredArgsConstructor;
@@ -142,7 +143,7 @@ public class MeterService {
     public Collection<Meter> findByAsset(Long id) {
         return meterRepository.findByAsset_Id(id);
     }
-    
+
 
     public Page<MeterShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<Meter> builder = new SpecificationBuilder<>();
@@ -188,6 +189,11 @@ public class MeterService {
 
     public List<Meter> findByIdsAndCompany(List<Long> ids, Long companyId) {
         return meterRepository.findByIdInAndCompany_Id(ids, companyId);
+    }
+
+    public boolean isAccessibleBy(User user, Meter meter) {
+        return (user.getRole().getViewPermissions().contains(PermissionEntity.METERS) &&
+                (user.getRole().getViewOtherPermissions().contains(PermissionEntity.METERS) || (meter.getCreatedBy() != null && meter.getCreatedBy().equals(user.getId())) || meter.isAssignedTo(user)));
     }
 }
 

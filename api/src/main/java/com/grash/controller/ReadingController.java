@@ -1,5 +1,7 @@
 package com.grash.controller;
 
+import com.grash.dto.DateRange;
+import com.grash.dto.ReadingHistogramDTO;
 import com.grash.dto.ReadingPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.workOrder.WorkOrderPostDTO;
@@ -7,12 +9,14 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
 import com.grash.model.enums.NotificationType;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.WorkOrderMeterTriggerCondition;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.service.*;
 import com.grash.utils.AuditComparator;
 import com.grash.utils.Helper;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -54,8 +58,34 @@ public class ReadingController {
         User user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {
+            if (!meterService.isAccessibleBy(user, optionalMeter.get()))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return readingService.findByMeter(id);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/meter/{id}/histogram")
+    @PreAuthorize("permitAll()")
+    @Operation(summary = "Get histogram data for a meter within a date range (max 30 points)")
+    public List<ReadingHistogramDTO> getHistogram(
+            @PathVariable("id") Long id,
+            @RequestBody DateRange dateRange,
+            HttpServletRequest req) {
+        User user = userService.whoami(req);
+        Optional<Meter> optionalMeter = meterService.findById(id);
+        if (optionalMeter.isEmpty()) {
+            throw new CustomException("Meter not found", HttpStatus.NOT_FOUND);
+        }
+        if (!meterService.isAccessibleBy(user, optionalMeter.get()))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        if (dateRange.getStart() == null || dateRange.getEnd() == null) {
+            throw new CustomException("Start and end dates are required", HttpStatus.BAD_REQUEST);
+        }
+        if (dateRange.getStart().after(dateRange.getEnd())) {
+            throw new CustomException("Start date must be before end date", HttpStatus.BAD_REQUEST);
+        }
+        return readingService.getHistogramData(id, dateRange.getStart(),
+                dateRange.getEnd());
     }
 
     @PostMapping("")
@@ -68,6 +98,8 @@ public class ReadingController {
         Optional<Meter> optionalMeter = meterService.findById(readingReq.getMeter().getId());
         if (optionalMeter.isPresent()) {
             Meter meter = optionalMeter.get();
+            if (!meterService.isAccessibleBy(user, meter))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             Optional<Reading> optionalLastReading = readingService.findLastByMeter(readingReq.getMeter().getId());
             if (optionalLastReading.isPresent()) {
                 Reading lastReading = optionalLastReading.get();
@@ -135,6 +167,8 @@ public class ReadingController {
 
         if (optionalReading.isPresent()) {
             Reading savedReading = optionalReading.get();
+            if (!meterService.isAccessibleBy(user, savedReading.getMeter()))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return readingService.update(id, reading);
         } else throw new CustomException("Reading not found", HttpStatus.NOT_FOUND);
     }
@@ -146,11 +180,14 @@ public class ReadingController {
 
         Optional<Reading> optionalReading = readingService.findById(id);
         if (optionalReading.isPresent()) {
+            if (!meterService.isAccessibleBy(user, optionalReading.get().getMeter()))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             readingService.delete(id);
             return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                     HttpStatus.OK);
         } else throw new CustomException("Reading not found", HttpStatus.NOT_FOUND);
     }
+
 }
 
 

@@ -5,3 +5,9 @@ export default interface Reading extends Audit {
   value: number;
   date: string;
 }
+
+export interface ReadingHistogram {
+  date: string;
+  value: number;
+  count: number;
+}

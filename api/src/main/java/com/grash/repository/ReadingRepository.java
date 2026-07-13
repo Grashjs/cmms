@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
 
 public interface ReadingRepository extends JpaRepository<Reading, Long> {
@@ -15,4 +16,6 @@ public interface ReadingRepository extends JpaRepository<Reading, Long> {
     Collection<Reading> findByMeter_Id(Long id);
 
     Optional<Reading> findFirstByMeter_IdOrderByCreatedAtDesc(Long id);
+
+    Collection<Reading> findByMeter_IdAndCreatedAtBetween(Long meterId, Date start, Date end);
 }
