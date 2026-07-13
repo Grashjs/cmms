@@ -14,6 +14,7 @@ import com.grash.model.enums.webhook.WOField;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.CompanyRepository;
 import com.grash.repository.WebhookEndpointRepository;
+import com.grash.utils.WebhookUrlValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -118,6 +119,7 @@ public class WebhookDispatchService {
 
     private void sendWebhook(WebhookEndpoint endpoint, WebhookEvent eventType, Object payload) {
         try {
+            WebhookUrlValidator.validate(endpoint.getUrl());
             log.info("Sending webhook to: {}", endpoint.getUrl());
             String jsonPayload = objectMapper.writeValueAsString(payload);
             String signature = generateSignature(jsonPayload, endpoint.getSecret());

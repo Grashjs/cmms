@@ -35,8 +35,11 @@ public class UserSettingsController {
 
         Optional<UserSettings> optionalUserSettings = userSettingsService.findById(id);
         if (optionalUserSettings.isPresent()) {
-            UserSettings userSettings = optionalUserSettings.get();
-            return userSettings;
+            UserSettings savedUserSettings = optionalUserSettings.get();
+            if (!savedUserSettings.getId().equals(user.getUserSettings().getId())) {
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            }
+            return savedUserSettings;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

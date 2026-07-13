@@ -46,7 +46,11 @@ public class GeneralPreferencesController {
         User user = userService.whoami(req);
         Optional<GeneralPreferences> optionalGeneralPreferences = generalPreferencesService.findById(id);
         if (optionalGeneralPreferences.isPresent()) {
-            return generalPreferencesService.findById(id).get();
+            GeneralPreferences savedGeneralPreferences = optionalGeneralPreferences.get();
+            if (!savedGeneralPreferences.getCompanySettings().getCompany().getId().equals(user.getCompany().getId())) {
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            }
+            return savedGeneralPreferences;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

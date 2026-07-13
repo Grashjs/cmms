@@ -9,6 +9,7 @@ import com.grash.model.*;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.repository.WebhookEndpointRepository;
+import com.grash.utils.WebhookUrlValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ public class WebhookEndpointService {
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures()
                 .contains(PlanFeatures.WEBHOOK)))
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        WebhookUrlValidator.validate(webhookEndpointReq.getUrl());
         if (webhookEndpointReq.getEvent().name().contains("_CHANGE"))
             webhookEndpointReq.setSerialize(true);
         WebhookEndpoint webhookEndpoint = webhookEndpointMapper.fromPostDto(webhookEndpointReq);
@@ -48,6 +50,7 @@ public class WebhookEndpointService {
     public WebhookEndpoint update(Long id, WebhookEndpointPatchDTO webhookEndpointReq, User user) {
         WebhookEndpoint savedWebhookEndpoint = webhookEndpointRepository.findById(id).orElse(null);
         if (savedWebhookEndpoint != null) {
+            WebhookUrlValidator.validate(webhookEndpointReq.getUrl());
             WebhookEndpoint webhookEndpoint1 = webhookEndpointMapper.updateWebhookEndpoint(savedWebhookEndpoint,
                     webhookEndpointReq);
             return webhookEndpointRepository.save(webhookEndpoint1);

@@ -43,7 +43,7 @@ public class WorkOrderHistoryController {
         Optional<WorkOrderHistory> optionalWorkOrderHistory = workOrderHistoryService.findById(id);
         if (optionalWorkOrderHistory.isPresent()) {
             WorkOrderHistory savedWorkOrderHistory = optionalWorkOrderHistory.get();
-            savedWorkOrderHistory.getWorkOrder();//security check
+            workOrderService.checkAccessToWorkOrderId(savedWorkOrderHistory.getWorkOrder().getId(), user);
             return workOrderHistoryMapper.toShowDto(savedWorkOrderHistory);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -55,6 +55,7 @@ public class WorkOrderHistoryController {
         User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
+            workOrderService.checkAccessToWorkOrderId(id, user);
             return workOrderHistoryService.findByWorkOrder(id).stream().map(workOrderHistoryMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
