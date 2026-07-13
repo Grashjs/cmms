@@ -35,7 +35,7 @@ export default function MeterDetails({
   navigation,
   route
 }: RootStackScreenProps<'MeterDetails'>) {
-  const { id, meterProp } = route.params;
+  const { id, meterProp, onNewReading } = route.params;
   const { loadingGet, meterInfos } = useSelector((state) => state.meters);
   const { readingsByMeter } = useSelector((state) => state.readings);
   const { metersTriggers } = useSelector(
@@ -137,6 +137,7 @@ export default function MeterDetails({
       .then(() => {
         setAddedReading(true);
         setOpenModal(false);
+        onNewReading?.(parseFloat(readingValue));
       })
       .finally(() => setIsSubmitting(false));
   };

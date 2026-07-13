@@ -137,7 +137,10 @@ export default function MetersScreen({
               onPress={() =>
                 navigation.push('MeterDetails', {
                   id: meter.id,
-                  meterProp: meter
+                  meterProp: meter,
+                  onNewReading: (readingValue) => {
+                    dispatch(getMeters(criteria));
+                  }
                 })
               }
               key={meter.id}

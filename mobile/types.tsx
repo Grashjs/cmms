@@ -81,7 +81,11 @@ export type RootStackParamList = {
   UserProfile: undefined;
   TeamDetails: { id: number; teamProp?: Team };
   PartDetails: { id: number; partProp?: Part };
-  MeterDetails: { id: number; meterProp?: Meter };
+  MeterDetails: {
+    id: number;
+    meterProp?: Meter;
+    onNewReading?: (readingValue: number) => void;
+  };
   CustomerDetails: { id: number; customerProp?: Customer };
   VendorDetails: { id: number; vendorProp?: Vendor };
   Modal: undefined;
