@@ -97,7 +97,7 @@ public class AssetDowntimeService {
         Collection<AssetDowntime> assetDowntimes = findByAsset(assetDowntime.getAsset().getId());
         Date startedOn = assetDowntime.getStartsOn();
         Date endedOn = assetDowntime.getEndsOn();
-        assetDowntimes.forEach(assetDowntime1 -> {
+        assetDowntimes.stream().filter(assetDowntime1 -> !assetDowntime1.getId().equals(assetDowntime.getId())).forEach(assetDowntime1 -> {
             Date startedOn1 = assetDowntime1.getStartsOn();
             Date endedOn1 = assetDowntime1.getEndsOn();
             //(StartA <= EndB) and (EndA >= StartB)

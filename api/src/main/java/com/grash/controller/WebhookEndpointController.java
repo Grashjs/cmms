@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -56,6 +57,7 @@ public class WebhookEndpointController {
     private final WebhookEndpointMapper webhookEndpointMapper;
 
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Operation(
             summary = "Create a webhook subscription",
             description = """
@@ -95,6 +97,7 @@ public class WebhookEndpointController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Operation(
             summary = "List webhook subscriptions",
             description = "Retrieve all webhook subscriptions for your company"
@@ -116,6 +119,7 @@ public class WebhookEndpointController {
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Operation(
             summary = "Update a webhook subscription",
             description = "Update webhook configuration (URL, events, enabled status, etc.)"
@@ -155,6 +159,7 @@ public class WebhookEndpointController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Operation(
             summary = "Delete a webhook subscription",
             description = """
@@ -180,6 +185,7 @@ public class WebhookEndpointController {
     }
 
     @PatchMapping("/{id}/rotate-secret")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Operation(
             summary = "Rotate webhook secret",
             description = """

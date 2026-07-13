@@ -7,8 +7,10 @@ import com.grash.dto.TaskShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TaskMapper;
 import com.grash.model.*;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.TaskType;
 import com.grash.model.enums.workflow.WFMainCondition;
+import com.grash.security.CurrentUser;
 import com.grash.service.*;
 
 
@@ -46,9 +48,11 @@ public class TaskController {
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
     public TaskShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
+        User user = userService.whoami(req);
         Optional<Task> optionalTask = taskService.findById(id);
         if (optionalTask.isPresent()) {
             Task savedTask = optionalTask.get();
+            checkAccessToTask(savedTask, user, true);
             return taskMapper.toShowDto(savedTask);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -56,17 +60,23 @@ public class TaskController {
     @GetMapping("/work-order/{id}")
     @PreAuthorize("permitAll()")
     public Collection<TaskShowDTO> getByWorkOrder(@PathVariable("id") Long id, HttpServletRequest req) {
+        User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
+            if (!optionalWorkOrder.get().isAccessibleBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return taskService.findByWorkOrder(id).stream().map(taskMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/preventive-maintenance/{id}")
     @PreAuthorize("permitAll()")
-    public Collection<Task> getByPreventiveMaintenance(@PathVariable("id") Long id) {
+    public Collection<Task> getByPreventiveMaintenance(@PathVariable("id") Long id,
+                                                       @Parameter(hidden = true) @CurrentUser User user) {
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent()) {
+            if (!optionalPreventiveMaintenance.get().isAccessibleBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return taskService.findByPreventiveMaintenance(id);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -206,6 +216,7 @@ public class TaskController {
         Optional<Task> optionalTask = taskService.findById(id);
 
         if (optionalTask.isPresent()) {
+            checkAccessToTask(optionalTask.get(), user, false);
             Task patchedTask = taskService.update(id, task);
             Collection<Workflow> workflows =
                     workflowService.findByMainConditionAndCompany(WFMainCondition.TASK_UPDATED,
@@ -217,17 +228,36 @@ public class TaskController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
-
         Optional<Task> optionalTask = taskService.findById(id);
         if (optionalTask.isPresent()) {
+            checkAccessToTask(optionalTask.get(), user, false);
             taskService.delete(id);
-            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+            return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                     HttpStatus.OK);
         } else throw new CustomException("Task not found", HttpStatus.NOT_FOUND);
     }
 
+    private void checkAccessToTask(Task task, User user, boolean view) {
+        boolean hasAccess;
+
+        if (task.getWorkOrder() != null) {
+            WorkOrder workOrder = task.getWorkOrder();
+            hasAccess = view
+                    ? workOrder.isAccessibleBy(user)
+                    : workOrder.canBeEditedBy(user);
+        } else {
+            PreventiveMaintenance preventiveMaintenance = task.getPreventiveMaintenance();
+            hasAccess = view
+                    ? preventiveMaintenance.isAccessibleBy(user)
+                    : preventiveMaintenance.canBeEditedBy(user);
+        }
+
+        if (!hasAccess) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
+    }
 }
 
 

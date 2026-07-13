@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +30,7 @@ public class UiConfigurationController {
     private final UserService userService;
 
     @PatchMapping()
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     public UiConfiguration patch(@Parameter(description = "UI configuration fields to update") @Valid @RequestBody UiConfigurationPatchDTO uiConfiguration,
                                  HttpServletRequest req) {
         User user = userService.whoami(req);

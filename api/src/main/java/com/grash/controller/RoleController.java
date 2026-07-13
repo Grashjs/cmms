@@ -52,7 +52,7 @@ public class RoleController {
         Optional<Role> optionalRole = roleService.findById(id);
         if (optionalRole.isPresent()) {
             Role savedRole = optionalRole.get();
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) && savedRole.belongsToCompany(user.getCompany())) {
                 return savedRole;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -80,9 +80,10 @@ public class RoleController {
 
         if (optionalRole.isPresent()) {
             Role savedRole = optionalRole.get();
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
-                return roleService.update(id, role);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            if (!savedRole.belongsOnlyToCompany(user.getCompany())) {
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            }
+            return roleService.update(id, role);
         } else throw new CustomException("Role not found", HttpStatus.NOT_FOUND);
     }
 
@@ -90,15 +91,18 @@ public class RoleController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
-
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        }
         Optional<Role> optionalRole = roleService.findById(id);
         if (optionalRole.isPresent()) {
             Role savedRole = optionalRole.get();
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
-                roleService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            if (!savedRole.belongsOnlyToCompany(user.getCompany())) {
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            }
+            roleService.delete(id);
+            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                    HttpStatus.OK);
         } else throw new CustomException("Role not found", HttpStatus.NOT_FOUND);
     }
 

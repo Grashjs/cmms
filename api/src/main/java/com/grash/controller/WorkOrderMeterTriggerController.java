@@ -46,6 +46,7 @@ public class WorkOrderMeterTriggerController {
         Optional<WorkOrderMeterTrigger> optionalWorkOrderMeterTrigger = workOrderMeterTriggerService.findById(id);
         if (optionalWorkOrderMeterTrigger.isPresent()) {
             WorkOrderMeterTrigger savedWorkOrderMeterTrigger = optionalWorkOrderMeterTrigger.get();
+            checkAccessToMeter(savedWorkOrderMeterTrigger.getMeter(), user, true);
             return workOrderMeterTriggerMapper.toShowDto(savedWorkOrderMeterTrigger);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -55,6 +56,10 @@ public class WorkOrderMeterTriggerController {
     WorkOrderMeterTriggerShowDTO create(@Parameter(description = "Work order meter trigger to create") @Valid @RequestBody WorkOrderMeterTriggerPostDTO workOrderMeterTriggerReq,
                                         HttpServletRequest req) {
         User user = userService.whoami(req);
+        Optional<Meter> optionalMeter = meterService.findById(workOrderMeterTriggerReq.getMeter().getId());
+        if (optionalMeter.isPresent()) {
+            checkAccessToMeter(optionalMeter.get(), user, false);
+        } else throw new CustomException("Meter not found", HttpStatus.NOT_FOUND);
         return workOrderMeterTriggerMapper.toShowDto(workOrderMeterTriggerService.create(workOrderMeterTriggerReq,
                 user.getCompany()));
     }
@@ -67,6 +72,7 @@ public class WorkOrderMeterTriggerController {
         User user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {
+            checkAccessToMeter(optionalMeter.get(), user, true);
             return workOrderMeterTriggerService.findByMeter(id).stream().map(workOrderMeterTriggerMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -82,6 +88,7 @@ public class WorkOrderMeterTriggerController {
 
         if (optionalWorkOrderMeterTrigger.isPresent()) {
             WorkOrderMeterTrigger savedWorkOrderMeterTrigger = optionalWorkOrderMeterTrigger.get();
+            checkAccessToMeter(savedWorkOrderMeterTrigger.getMeter(), user, false);
             return workOrderMeterTriggerMapper.toShowDto(workOrderMeterTriggerService.update(id,
                     workOrderMeterTrigger, user.getCompany()));
         } else throw new CustomException("WorkOrderMeterTrigger not found", HttpStatus.NOT_FOUND);
@@ -95,10 +102,21 @@ public class WorkOrderMeterTriggerController {
         Optional<WorkOrderMeterTrigger> optionalWorkOrderMeterTrigger = workOrderMeterTriggerService.findById(id);
         if (optionalWorkOrderMeterTrigger.isPresent()) {
             WorkOrderMeterTrigger savedWorkOrderMeterTrigger = optionalWorkOrderMeterTrigger.get();
+            checkAccessToMeter(savedWorkOrderMeterTrigger.getMeter(), user, false);
             workOrderMeterTriggerService.delete(id);
             return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                     HttpStatus.OK);
         } else throw new CustomException("WorkOrderMeterTrigger not found", HttpStatus.NOT_FOUND);
+    }
+
+    private void checkAccessToMeter(Meter meter, User user, boolean view) {
+        boolean hasAccess = view
+                ? meter.isAccessibleBy(user)
+                : meter.canBeEditedBy(user);
+
+        if (!hasAccess) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
     }
 
 }

@@ -9,6 +9,7 @@ import com.grash.mapper.RelationMapper;
 import com.grash.model.User;
 import com.grash.model.Relation;
 import com.grash.model.WorkOrder;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.service.RelationService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
@@ -40,40 +41,21 @@ public class RelationController {
     private final RelationMapper relationMapper;
 
 
-    @GetMapping("")
-    @PreAuthorize("permitAll()")
-
-    public Collection<RelationShowDTO> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Long companyId = user.getCompany().getId();
-        return relationService.findByCompany(companyId).stream()
-                .map(relationMapper::toShowDto)
-                .collect(Collectors.toList());
-    }
-
     @GetMapping("/work-order/{id}")
     @PreAuthorize("permitAll()")
-
     public Collection<RelationShowDTO> getByWorkOrder(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
+            if (!optionalWorkOrder.get().isAccessibleBy(user)) {
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            }
             return relationService.findByWorkOrder(id).stream()
                     .map(relationMapper::toShowDto)
                     .collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("permitAll()")
-
-    public RelationShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Optional<Relation> optionalRelation = relationService.findById(id);
-        if (optionalRelation.isPresent()) {
-            return relationMapper.toShowDto(optionalRelation.get());
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-    }
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
@@ -82,6 +64,8 @@ public class RelationController {
         Long parentId = relationReq.getParent().getId();
         Long childId = relationReq.getChild().getId();
         if (relationService.findByParentAndChild(parentId, childId).isEmpty() && relationService.findByParentAndChild(childId, parentId).isEmpty()) {
+            if (!workOrderService.findById(parentId).get().canBeEditedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return relationMapper.toShowDto(relationService.createPost(relationReq, user));
         } else
             throw new CustomException("There already is a relation between these 2 Work Orders",
@@ -97,6 +81,8 @@ public class RelationController {
         Optional<Relation> optionalRelation = relationService.findById(id);
 
         if (optionalRelation.isPresent()) {
+            if (!optionalRelation.get().getParent().canBeEditedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return relationMapper.toShowDto(relationService.update(id, relation));
         } else {
             return null;
@@ -107,9 +93,10 @@ public class RelationController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
-
         Optional<Relation> optionalRelation = relationService.findById(id);
         if (optionalRelation.isPresent()) {
+            if (!optionalRelation.get().getParent().canBeEditedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             relationService.delete(id);
             return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                     HttpStatus.OK);

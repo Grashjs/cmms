@@ -74,6 +74,9 @@ public class WorkflowController {
     @PreAuthorize("permitAll()")
     public WorkflowShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
         Optional<Workflow> optionalWorkflow = workflowService.findById(id);
         if (optionalWorkflow.isPresent()) {
             Workflow savedWorkflow = optionalWorkflow.get();
@@ -87,6 +90,9 @@ public class WorkflowController {
                                  @PathVariable("id") Long id,
                                  HttpServletRequest req) {
         User user = userService.whoami(req);
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
         Optional<Workflow> optionalWorkflow = workflowService.findById(id);
 
         if (optionalWorkflow.isPresent()) {
@@ -100,6 +106,9 @@ public class WorkflowController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
 
         Optional<Workflow> optionalWorkflow = workflowService.findById(id);
         if (optionalWorkflow.isPresent()) {

@@ -83,17 +83,15 @@ public class AssetDowntimeController {
                                HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<AssetDowntime> optionalAssetDowntime = assetDowntimeService.findById(id);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
-            if (optionalAssetDowntime.isPresent()) {
-                if (canPatchAsset(optionalAssetDowntime.get().getAsset(), user)) {
-                    return assetDowntimeService.update(id, assetDowntime);
-                } else {
-                    throw new CustomException("Can't patch assetDowntime of someone else", HttpStatus.NOT_ACCEPTABLE);
-                }
+        if (optionalAssetDowntime.isPresent()) {
+            if (canPatchAsset(optionalAssetDowntime.get().getAsset(), user)) {
+                return assetDowntimeService.update(id, assetDowntime);
             } else {
-                throw new CustomException("Category not found", HttpStatus.NOT_FOUND);
+                throw new CustomException("Can't patch assetDowntime of someone else", HttpStatus.NOT_ACCEPTABLE);
             }
-        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        } else {
+            throw new CustomException("Category not found", HttpStatus.NOT_FOUND);
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -112,7 +110,9 @@ public class AssetDowntimeController {
     }
 
     private boolean canPatchAsset(Asset asset, User user) {
-        return user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || asset.getCreatedBy().equals(user.getId());
+        return user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS)
+                || asset.getCreatedBy().equals(user.getId())
+                || asset.getUsers().stream().anyMatch(u -> u.getId().equals(user.getId()));
     }
 }
 

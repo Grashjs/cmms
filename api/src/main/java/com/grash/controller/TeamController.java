@@ -67,6 +67,9 @@ public class TeamController {
     @PreAuthorize("permitAll()")
     public TeamShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
         Optional<Team> optionalTeam = teamService.findById(id);
         if (optionalTeam.isPresent()) {
             Team savedTeam = optionalTeam.get();
@@ -96,6 +99,9 @@ public class TeamController {
         Optional<Team> optionalTeam = teamService.findById(id);
         if (optionalTeam.isPresent()) {
             Team savedTeam = optionalTeam.get();
+            if (!user.getId().equals(savedTeam.getCreatedBy()) && !user.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            }
             em.detach(savedTeam);
             Team patchTeam = teamService.update(id, team);
             teamService.patchNotify(savedTeam, patchTeam, Helper.getLocale(user));

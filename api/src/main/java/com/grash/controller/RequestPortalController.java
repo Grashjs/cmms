@@ -47,12 +47,18 @@ public class RequestPortalController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public RequestPortalShowDTO create(@Parameter(description = "Request portal to create") @RequestBody @Valid RequestPortalPostDTO requestPortal,
                                        @Parameter(hidden = true) @CurrentUser User user) {
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
         return requestPortalMapper.toShowDto(requestPortalService.create(requestPortal, user));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public RequestPortalShowDTO getById(@PathVariable Long id, @Parameter(hidden = true) @CurrentUser User user) {
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
         return requestPortalMapper.toShowDto(requestPortalService.findById(id).orElseThrow(() -> new CustomException(
                 "Not found",
                 HttpStatus.NOT_FOUND)));
@@ -71,6 +77,9 @@ public class RequestPortalController {
     public RequestPortalShowDTO update(@PathVariable Long id,
                                        @Parameter(description = "Request portal fields to update") @RequestBody @Valid RequestPortalPatchDTO requestPortal,
                                        @Parameter(hidden = true) @CurrentUser User user) {
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
         return requestPortalMapper.toShowDto(requestPortalService.update(id, requestPortal, user));
     }
 
@@ -78,7 +87,9 @@ public class RequestPortalController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id,
                                                   @Parameter(hidden = true) @CurrentUser User user) {
-
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
         RequestPortal savedRequestPortal =
                 requestPortalService.findById(id).orElseThrow(() -> new CustomException("Not found",
                         HttpStatus.NOT_FOUND));

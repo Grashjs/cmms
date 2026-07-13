@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.dto.IdDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.abstracts.CompanyAudit;
+import com.grash.model.enums.PermissionEntity;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -85,6 +86,16 @@ public class Meter extends CompanyAudit {
 
     public boolean isAssignedTo(User user) {
         return users.stream().anyMatch(u -> u.getId().equals(user.getId()));
+    }
+
+    public boolean canBeEditedBy(User user) {
+        return user.getRole().getEditOtherPermissions().contains(PermissionEntity.METERS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())) || isAssignedTo(user);
+    }
+
+    public boolean isAccessibleBy(User user) {
+        return (user.getRole().getViewPermissions().contains(PermissionEntity.METERS) &&
+                (user.getRole().getViewOtherPermissions().contains(PermissionEntity.METERS) || (getCreatedBy() != null && getCreatedBy().equals(user.getId())) || isAssignedTo(user)));
     }
 }
 

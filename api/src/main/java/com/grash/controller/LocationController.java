@@ -125,6 +125,7 @@ public class LocationController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("permitAll()")
     public LocationShowDTO getById(@Parameter(description = "Location ID") @PathVariable("id") Long id,
                                    HttpServletRequest req) {
         User user = userService.whoami(req);
