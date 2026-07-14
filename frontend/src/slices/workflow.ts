@@ -71,9 +71,12 @@ export const reducer = slice.reducer;
 
 export const getWorkflows = (): AppThunk => async (dispatch) => {
   dispatch(slice.actions.setLoadingGet({ loading: true }));
-  const workflows = await api.get<Workflow[]>(basePath);
-  dispatch(slice.actions.getWorkflows({ workflows }));
-  dispatch(slice.actions.setLoadingGet({ loading: false }));
+  try {
+    const workflows = await api.get<Workflow[]>(basePath);
+    dispatch(slice.actions.getWorkflows({ workflows }));
+  } finally {
+    dispatch(slice.actions.setLoadingGet({ loading: false }));
+  }
 };
 
 export const addWorkflow =

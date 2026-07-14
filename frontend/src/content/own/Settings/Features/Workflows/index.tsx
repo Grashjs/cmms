@@ -163,7 +163,7 @@ function Workflows() {
   const { hasFeature } = useAuth();
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const { workflows } = useSelector((state) => state.workflows);
+  const { workflows, loadingGet } = useSelector((state) => state.workflows);
   const { vendorsMini } = useSelector((state) => state.vendors);
   const { locationsMini } = useSelector((state) => state.locations);
   const { categories } = useSelector((state) => state.categories);
@@ -937,35 +937,46 @@ function Workflows() {
                 </Button>
               </Grid>
               <Grid item xs={12}>
-                {workflows.map((workflow) => (
-                  <Card
-                    sx={{ p: 2, mt: 1 }}
-                    style={{
-                      cursor: workflow.enabled ? 'pointer' : 'not-allowed'
-                    }}
-                    key={workflow.id}
-                    onClick={() => {
-                      if (workflow.enabled) onEdit(workflow);
-                    }}
+                {loadingGet ? (
+                  <Stack
+                    direction={'row'}
+                    width={'100%'}
+                    justifyContent={'center'}
+                    alignItems={'center'}
                   >
-                    <Stack direction="row" justifyContent="space-between">
-                      <Typography variant="h4">{workflow.title}</Typography>
-                      {workflow.enabled || (
-                        <Typography variant="h6">{t('disabled')}</Typography>
-                      )}
-                      <Button
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setCurrentWorkflowId(workflow.id);
-                          setOpenDelete(true);
-                        }}
-                        color="error"
-                      >
-                        {t('to_delete')}
-                      </Button>
-                    </Stack>
-                  </Card>
-                ))}
+                    <CircularProgress />
+                  </Stack>
+                ) : (
+                  workflows.map((workflow) => (
+                    <Card
+                      sx={{ p: 2, mt: 1 }}
+                      style={{
+                        cursor: workflow.enabled ? 'pointer' : 'not-allowed'
+                      }}
+                      key={workflow.id}
+                      onClick={() => {
+                        if (workflow.enabled) onEdit(workflow);
+                      }}
+                    >
+                      <Stack direction="row" justifyContent="space-between">
+                        <Typography variant="h4">{workflow.title}</Typography>
+                        {workflow.enabled || (
+                          <Typography variant="h6">{t('disabled')}</Typography>
+                        )}
+                        <Button
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setCurrentWorkflowId(workflow.id);
+                            setOpenDelete(true);
+                          }}
+                          color="error"
+                        >
+                          {t('to_delete')}
+                        </Button>
+                      </Stack>
+                    </Card>
+                  ))
+                )}
               </Grid>
             </Grid>
           )}
