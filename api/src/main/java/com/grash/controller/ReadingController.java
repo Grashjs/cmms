@@ -85,7 +85,7 @@ public class ReadingController {
             throw new CustomException("Start date must be before end date", HttpStatus.BAD_REQUEST);
         }
         return readingService.getHistogramData(id, dateRange.getStart(),
-                dateRange.getEnd());
+                dateRange.getEnd(), user.getCompany().getCompanySettings().getGeneralPreferences().getTimeZone());
     }
 
     @PostMapping("")

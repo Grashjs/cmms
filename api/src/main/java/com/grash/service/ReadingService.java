@@ -6,6 +6,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.ReadingMapper;
 import com.grash.model.Reading;
 import com.grash.repository.ReadingRepository;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -65,7 +65,7 @@ public class ReadingService {
         return readingRepository.findFirstByMeter_IdOrderByCreatedAtDesc(id);
     }
 
-    public List<ReadingHistogramDTO> getHistogramData(Long meterId, Date start, Date end) {
+    public List<ReadingHistogramDTO> getHistogramData(Long meterId, Date start, Date end, @NotNull String timeZone) {
         Collection<Reading> readings = readingRepository.findByMeter_IdAndCreatedAtBetween(meterId, start, end);
         if (readings.isEmpty()) {
             return Collections.emptyList();
@@ -86,6 +86,7 @@ public class ReadingService {
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
+        cal.setTimeZone(TimeZone.getTimeZone(timeZone));
 
         List<ReadingHistogramDTO> result = new ArrayList<>();
         Date bucketStart = cal.getTime();

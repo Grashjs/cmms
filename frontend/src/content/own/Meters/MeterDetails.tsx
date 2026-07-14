@@ -153,7 +153,9 @@ export default function MeterDetails(props: MeterDetailsProps) {
   const onRefreshHistogram = () => {
     const [start, end] = [subDays(new Date(), 7), new Date()];
     setDateRange([start, end]);
-    dispatch(getHistogramData(meter.id, start, end));
+    dispatch(
+      getHistogramData(meter.id, start.toISOString(), end.toISOString())
+    );
   };
   const fields: Array<IField> = [
     {
