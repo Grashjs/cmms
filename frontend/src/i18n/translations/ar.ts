@@ -1908,7 +1908,8 @@ const locale = {
   report_sent_success: 'تم إرسال التقرير بنجاح',
   trigger_work_order: 'تنبيء أمر العمل',
   edit_reading: 'تعديل القراءة',
-  are_you_sure_delete_reading: 'هل أنت متأكد أنك تريد حذف هذه القراءة؟'
+  are_you_sure_delete_reading: 'هل أنت متأكد أنك تريد حذف هذه القراءة؟',
+  no_custom_fields_found: 'لم يتم العثور على حقول مخصصة'
 };
 
 export default locale;

@@ -1970,7 +1970,8 @@ const plJSON = {
   report_sent_success: 'Raport wysłany pomyślnie',
   trigger_work_order: 'Uruchom zlecenie',
   edit_reading: 'Edytuj odczyt',
-  are_you_sure_delete_reading: 'Czy na pewno chcesz usunąć ten odczyt?'
+  are_you_sure_delete_reading: 'Czy na pewno chcesz usunąć ten odczyt?',
+  no_custom_fields_found: 'Nie znaleziono pól niestandardowych'
 };
 
 export default plJSON;

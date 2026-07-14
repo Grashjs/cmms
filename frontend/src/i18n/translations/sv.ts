@@ -1940,7 +1940,8 @@ const locale = {
   report_sent_success: 'Rapport skickad framgångsrikt',
   trigger_work_order: 'Aktivera arbetsorder',
   edit_reading: 'Redigera mätning',
-  are_you_sure_delete_reading: 'Är du säker på att du vill ta bort denna mätning?'
+  are_you_sure_delete_reading: 'Är du säker på att du vill ta bort denna mätning?',
+  no_custom_fields_found: 'Inga anpassade fält hittades'
 };
 
 export default locale;

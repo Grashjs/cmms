@@ -195,6 +195,15 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
                   {...provided.droppableProps}
                   ref={provided.innerRef}
                 >
+                  {filteredCustomFields.length === 0 && (
+                    <Typography
+                      variant="body1"
+                      color="text.secondary"
+                      sx={{ textAlign: 'center', py: 4 }}
+                    >
+                      {t('no_custom_fields_found')}
+                    </Typography>
+                  )}
                   {filteredCustomFields.map((customField, index) => (
                     <Draggable
                       key={customField.id}

@@ -1833,7 +1833,8 @@ const locale = {
   report_sent_success: 'Jelentés sikeresen elküldve',
   trigger_work_order: 'Munkautasítás indítása',
   edit_reading: 'Olvasás szerkesztése',
-  are_you_sure_delete_reading: 'Biztosan törli ezt az olvasást?'
+  are_you_sure_delete_reading: 'Biztosan törli ezt az olvasást?',
+  no_custom_fields_found: 'Nem találhatók egyéni mezők'
 };
 
 export default locale;

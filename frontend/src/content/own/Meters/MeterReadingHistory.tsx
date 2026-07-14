@@ -44,7 +44,9 @@ export default function MeterReadingHistory({
   const { hasEditPermission, hasDeletePermission } = useAuth();
   const { getFormattedDate } = useContext(CompanySettingsContext);
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const { readingsByMeter } = useSelector((state) => state.readings);
+  const { readingsByMeter, loadingGet } = useSelector(
+    (state) => state.readings
+  );
   const currentMeterReadings = readingsByMeter[meter?.id] ?? [];
 
   const [editingReading, setEditingReading] = useState<Reading | null>(null);
@@ -79,33 +81,44 @@ export default function MeterReadingHistory({
   return (
     <>
       {historyFetched ? (
-        <List>
-          {[...currentMeterReadings].reverse().map((reading) => (
-            <ListItem
-              key={reading.id}
-              divider
-              secondaryAction={
-                <Stack spacing={1} direction="row">
-                  {hasEditPermission(PermissionEntity.METERS, meter) && (
-                    <IconButton onClick={() => setEditingReading(reading)}>
-                      <EditTwoToneIcon color={'primary'} />
-                    </IconButton>
-                  )}
-                  {hasDeletePermission(PermissionEntity.METERS, meter) && (
-                    <IconButton onClick={() => setDeletingReading(reading)}>
-                      <DeleteTwoToneIcon color="error" />
-                    </IconButton>
-                  )}
-                </Stack>
-              }
-            >
-              <ListItemText
-                primary={`${reading.value} ${meter.unit}`}
-                secondary={getFormattedDate(reading.createdAt)}
-              />
-            </ListItem>
-          ))}
-        </List>
+        loadingGet ? (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            py={4}
+          >
+            <CircularProgress />
+          </Box>
+        ) : (
+          <List>
+            {[...currentMeterReadings].reverse().map((reading) => (
+              <ListItem
+                key={reading.id}
+                divider
+                secondaryAction={
+                  <Stack spacing={1} direction="row">
+                    {hasEditPermission(PermissionEntity.METERS, meter) && (
+                      <IconButton onClick={() => setEditingReading(reading)}>
+                        <EditTwoToneIcon color={'primary'} />
+                      </IconButton>
+                    )}
+                    {hasDeletePermission(PermissionEntity.METERS, meter) && (
+                      <IconButton onClick={() => setDeletingReading(reading)}>
+                        <DeleteTwoToneIcon color="error" />
+                      </IconButton>
+                    )}
+                  </Stack>
+                }
+              >
+                <ListItemText
+                  primary={`${reading.value} ${meter.unit}`}
+                  secondary={getFormattedDate(reading.createdAt)}
+                />
+              </ListItem>
+            ))}
+          </List>
+        )
       ) : null}
 
       <Dialog

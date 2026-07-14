@@ -38,7 +38,9 @@ interface PropsType {
 const AssetMeters = ({ asset }: PropsType) => {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
-  const { metersByAsset } = useSelector((state) => state.meters);
+  const { metersByAsset, loadingGet: loadingMeters } = useSelector(
+    (state) => state.meters
+  );
   const { readingsByMeter, loadingGet } = useSelector(
     (state) => state.readings
   );
@@ -202,7 +204,7 @@ const AssetMeters = ({ asset }: PropsType) => {
                 components={{
                   Toolbar: GridToolbar
                 }}
-                loading={loadingGet}
+                loading={loadingMeters || loadingGet}
                 onRowClick={(params: GridRowParams<Meter>) => null}
                 initialState={{
                   columns: {

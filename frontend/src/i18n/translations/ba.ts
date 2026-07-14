@@ -1956,7 +1956,8 @@ const locale = {
   report_sent_success: 'Izvještaj uspješno poslan',
   trigger_work_order: 'Aktiviraj radni nalog',
   edit_reading: 'Uredi očitanje',
-  are_you_sure_delete_reading: 'Jeste li sigurni da želite izbrisati ovo očitanje?'
+  are_you_sure_delete_reading: 'Jeste li sigurni da želite izbrisati ovo očitanje?',
+  no_custom_fields_found: 'Nema prilagođenih polja'
 };
 
 export default locale;

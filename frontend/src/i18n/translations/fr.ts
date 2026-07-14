@@ -2146,7 +2146,8 @@ const frJSON = {
   report_sent_success: 'Rapport envoyé avec succès',
   trigger_work_order: 'Déclencher l\'ordre de travail',
   edit_reading: 'Modifier la lecture',
-  are_you_sure_delete_reading: 'Êtes-vous sûr de vouloir supprimer cette lecture ?'
+  are_you_sure_delete_reading: 'Êtes-vous sûr de vouloir supprimer cette lecture ?',
+  no_custom_fields_found: 'Aucun champ personnalisé trouvé'
 };
 
 export default frJSON;

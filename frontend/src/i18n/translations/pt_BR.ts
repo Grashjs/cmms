@@ -2000,7 +2000,8 @@ const ptBRJSON = {
   report_sent_success: 'Relatório enviado com sucesso',
   trigger_work_order: 'Acionar ordem de serviço',
   edit_reading: 'Editar leitura',
-  are_you_sure_delete_reading: 'Tem certeza de que deseja excluir esta leitura?'
+  are_you_sure_delete_reading: 'Tem certeza de que deseja excluir esta leitura?',
+  no_custom_fields_found: 'Nenhum campo personalizado encontrado'
 };
 
 export default ptBRJSON;

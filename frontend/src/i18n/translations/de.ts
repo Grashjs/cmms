@@ -2055,7 +2055,8 @@ const deJSON = {
   report_sent_success: 'Bericht erfolgreich gesendet',
   trigger_work_order: 'Arbeitsauftrag auslösen',
   edit_reading: 'Lesung bearbeiten',
-  are_you_sure_delete_reading: 'Sind Sie sicher, dass Sie diese Lesung löschen möchten?'
+  are_you_sure_delete_reading: 'Sind Sie sicher, dass Sie diese Lesung löschen möchten?',
+  no_custom_fields_found: 'Keine benutzerdefinierten Felder gefunden'
 };
 
 export default deJSON;

@@ -60,9 +60,13 @@ const AssetDowntimes = ({ asset }: PropsType) => {
   const [currentDowntime, setCurrentDowntime] = useState<AssetDowntime>();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { getFormattedDate } = useContext(CompanySettingsContext);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (asset) dispatch(getAssetDowntimes(asset.id));
+    if (asset) {
+      setLoading(true);
+      dispatch(getAssetDowntimes(asset.id)).finally(() => setLoading(false));
+    }
   }, [asset]);
   const handleDelete = (id: number) => {
     if (window.confirm(t('confirm_delete_asset_downtime'))) {
@@ -304,6 +308,7 @@ const AssetDowntimes = ({ asset }: PropsType) => {
                     columnVisibilityModel: {}
                   }
                 }}
+                loading={loading}
               />
             </Box>
           </Card>

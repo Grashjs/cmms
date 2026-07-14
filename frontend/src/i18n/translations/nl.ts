@@ -1972,6 +1972,7 @@ const locale = {
   report_sent_success: 'Rapport succesvol verzonden',
   trigger_work_order: 'Werkorder activeren',
   edit_reading: 'Meting bewerken',
-  are_you_sure_delete_reading: 'Weet u zeker dat u deze meting wilt verwijderen?'
+  are_you_sure_delete_reading: 'Weet u zeker dat u deze meting wilt verwijderen?',
+  no_custom_fields_found: 'Geen aangepaste velden gevonden'
 };
 export default locale;

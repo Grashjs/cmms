@@ -1926,7 +1926,8 @@ const locale = {
   report_sent_success: 'レポートが正常に送信されました',
   trigger_work_order: '作業指示書をトリガー',
   edit_reading: '読み取りを編集',
-  are_you_sure_delete_reading: 'この読み取りを削除してもよろしいですか？'
+  are_you_sure_delete_reading: 'この読み取りを削除してもよろしいですか？',
+  no_custom_fields_found: 'カスタムフィールドが見つかりません'
 };
 
 export default locale;

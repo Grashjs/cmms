@@ -1970,7 +1970,8 @@ const trJSON = {
   report_sent_success: 'Rapor başarıyla gönderildi',
   trigger_work_order: 'İş Emrini Tetikle',
   edit_reading: 'Okumayı Düzenle',
-  are_you_sure_delete_reading: 'Bu okumayı silmek istediğinizden emin misiniz?'
+  are_you_sure_delete_reading: 'Bu okumayı silmek istediğinizden emin misiniz?',
+  no_custom_fields_found: 'Özel alan bulunamadı'
 };
 
 export default trJSON;

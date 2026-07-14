@@ -2046,7 +2046,8 @@ const esJSON = {
   report_sent_success: 'Informe enviado con éxito',
   trigger_work_order: 'Activar orden de trabajo',
   edit_reading: 'Editar lectura',
-  are_you_sure_delete_reading: '¿Está seguro de que desea eliminar esta lectura?'
+  are_you_sure_delete_reading: '¿Está seguro de que desea eliminar esta lectura?',
+  no_custom_fields_found: 'No se encontraron campos personalizados'
 };
 
 export default esJSON;

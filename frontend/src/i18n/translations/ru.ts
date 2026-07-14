@@ -2033,7 +2033,8 @@ const ruJSON = {
   report_sent_success: 'Отчет успешно отправлен',
   trigger_work_order: 'Запустить рабочий заказ',
   edit_reading: 'Редактировать показание',
-  are_you_sure_delete_reading: 'Вы уверены, что хотите удалить это показание?'
+  are_you_sure_delete_reading: 'Вы уверены, что хотите удалить это показание?',
+  no_custom_fields_found: 'Пользовательские поля не найдены'
 };
 
 export default ruJSON;

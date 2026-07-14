@@ -1636,7 +1636,8 @@ const locale = {
   report_sent_success: '报告已成功发送',
   trigger_work_order: '触发工作单',
   edit_reading: '编辑读数',
-  are_you_sure_delete_reading: '确定要删除此读数吗？'
+  are_you_sure_delete_reading: '确定要删除此读数吗？',
+  no_custom_fields_found: '未找到自定义字段'
 };
 
 export default locale;

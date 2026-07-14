@@ -1920,7 +1920,8 @@ const locale = {
   report_sent_success: 'Report sent successfully',
   trigger_work_order: 'Trigger Work Order',
   edit_reading: 'Edit reading',
-  are_you_sure_delete_reading: 'Are you sure to delete this reading?'
+  are_you_sure_delete_reading: 'Are you sure to delete this reading?',
+  no_custom_fields_found: 'No custom fields found'
 };
 
 export default locale;

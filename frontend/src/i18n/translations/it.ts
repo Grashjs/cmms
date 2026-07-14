@@ -1974,7 +1974,8 @@ const locale = {
   report_sent_success: 'Report inviato con successo',
   trigger_work_order: 'Attiva ordine di lavoro',
   edit_reading: 'Modifica lettura',
-  are_you_sure_delete_reading: 'Sei sicuro di voler eliminare questa lettura?'
+  are_you_sure_delete_reading: 'Sei sicuro di voler eliminare questa lettura?',
+  no_custom_fields_found: 'Nessun campo personalizzato trovato'
 };
 
 export default locale;

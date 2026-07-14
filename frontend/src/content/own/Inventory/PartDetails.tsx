@@ -1,5 +1,6 @@
 import {
   Box,
+  CircularProgress,
   Divider,
   Grid,
   IconButton,
@@ -69,6 +70,8 @@ export default function PartDetails(props: PartDetailsProps) {
   const navigate = useNavigate();
   const assets = assetsByPart[part?.id] ?? [];
   const workOrders = workOrdersByPart[part?.id] ?? [];
+  const [loadingAssets, setLoadingAssets] = useState<boolean>(false);
+  const [loadingWorkOrders, setLoadingWorkOrders] = useState<boolean>(false);
   const tabs = [
     { value: 'details', label: t('details') },
     { value: 'assets', label: t('assets') },
@@ -79,9 +82,11 @@ export default function PartDetails(props: PartDetailsProps) {
   const handleTabsChange = (_event: ChangeEvent<{}>, value: string): void => {
     setCurrentTab(value);
     if (value === 'assets' && !assets.length) {
-      dispatch(getAssetsByPart(part.id));
+      setLoadingAssets(true);
+      dispatch(getAssetsByPart(part.id)).finally(() => setLoadingAssets(false));
     } else if (value === 'workOrders' && !workOrders.length) {
-      dispatch(getWorkOrdersByPart(part.id));
+      setLoadingWorkOrders(true);
+      dispatch(getWorkOrdersByPart(part.id)).finally(() => setLoadingWorkOrders(false));
     }
   };
   const firstFieldsToRender = (part: Part): { label: string; value: any }[] => [
@@ -322,7 +327,11 @@ export default function PartDetails(props: PartDetailsProps) {
         )}
         {currentTab === 'assets' && (
           <Box>
-            {assets.length ? (
+            {loadingAssets ? (
+              <Box display="flex" justifyContent="center" alignItems="center" py={4}>
+                <CircularProgress />
+              </Box>
+            ) : assets.length ? (
               <List sx={{ width: '100%' }}>
                 {assets.map((asset) => (
                   <ListItemButton
@@ -393,7 +402,11 @@ export default function PartDetails(props: PartDetailsProps) {
         )}
         {currentTab === 'workOrders' && (
           <Box>
-            {workOrders.length ? (
+            {loadingWorkOrders ? (
+              <Box display="flex" justifyContent="center" alignItems="center" py={4}>
+                <CircularProgress />
+              </Box>
+            ) : workOrders.length ? (
               <List sx={{ width: '100%' }}>
                 {workOrders.map((workOrder) => (
                   <ListItemButton

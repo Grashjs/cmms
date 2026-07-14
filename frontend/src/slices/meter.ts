@@ -99,18 +99,18 @@ export const reducer = slice.reducer;
 
 export const getMeters =
   (criteria: SearchCriteria): AppThunk =>
-    async (dispatch) => {
-      try {
-        dispatch(slice.actions.setLoadingGet({ loading: true }));
-        const meters = await api.post<Page<Meter>>(
-          `${basePath}/search`,
-          criteria
-        );
-        dispatch(slice.actions.getMeters({ meters }));
-      } finally {
-        dispatch(slice.actions.setLoadingGet({ loading: false }));
-      }
-    };
+  async (dispatch) => {
+    try {
+      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      const meters = await api.post<Page<Meter>>(
+        `${basePath}/search`,
+        criteria
+      );
+      dispatch(slice.actions.getMeters({ meters }));
+    } finally {
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    }
+  };
 export const getMetersMini = (): AppThunk => async (dispatch) => {
   const meters = await api.get<MeterMiniDTO[]>(`${basePath}/mini`);
   dispatch(slice.actions.getMetersMini({ meters }));
@@ -118,46 +118,51 @@ export const getMetersMini = (): AppThunk => async (dispatch) => {
 
 export const getSingleMeter =
   (id: number): AppThunk =>
-    async (dispatch) => {
-      dispatch(slice.actions.setLoadingGet({ loading: true }));
-      const meter = await api.get<Meter>(`${basePath}/${id}`);
-      dispatch(slice.actions.getSingleMeter({ meter }));
-      dispatch(slice.actions.setLoadingGet({ loading: false }));
-    };
+  async (dispatch) => {
+    dispatch(slice.actions.setLoadingGet({ loading: true }));
+    const meter = await api.get<Meter>(`${basePath}/${id}`);
+    dispatch(slice.actions.getSingleMeter({ meter }));
+    dispatch(slice.actions.setLoadingGet({ loading: false }));
+  };
 
 export const editMeter =
   (id: number, meter): AppThunk =>
-    async (dispatch) => {
-      const meterResponse = await api.patch<Meter>(`${basePath}/${id}`, meter);
-      dispatch(slice.actions.editMeter({ meter: meterResponse }));
-    };
+  async (dispatch) => {
+    const meterResponse = await api.patch<Meter>(`${basePath}/${id}`, meter);
+    dispatch(slice.actions.editMeter({ meter: meterResponse }));
+  };
 
 export const addMeter =
   (meter): AppThunk =>
-    async (dispatch) => {
-      const meterResponse = await api.post<Meter>(basePath, meter);
-      dispatch(slice.actions.addMeter({ meter: meterResponse }));
-      return meterResponse;
-    };
+  async (dispatch) => {
+    const meterResponse = await api.post<Meter>(basePath, meter);
+    dispatch(slice.actions.addMeter({ meter: meterResponse }));
+    return meterResponse;
+  };
 
 export const deleteMeter =
   (id: number): AppThunk =>
-    async (dispatch) => {
-      const meterResponse = await api.deletes<{ success: boolean }>(
-        `${basePath}/${id}`
-      );
-      const { success } = meterResponse;
-      if (success) {
-        dispatch(slice.actions.deleteMeter({ id }));
-      }
-    };
+  async (dispatch) => {
+    const meterResponse = await api.deletes<{ success: boolean }>(
+      `${basePath}/${id}`
+    );
+    const { success } = meterResponse;
+    if (success) {
+      dispatch(slice.actions.deleteMeter({ id }));
+    }
+  };
 
 export const getMetersByAsset =
   (id: number): AppThunk =>
-    async (dispatch) => {
+  async (dispatch) => {
+    dispatch(slice.actions.setLoadingGet({ loading: true }));
+    try {
       const meters = await api.get<Meter[]>(`${basePath}/asset/${id}`);
       dispatch(slice.actions.getMetersByAsset({ id, meters }));
-    };
+    } finally {
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    }
+  };
 export const clearSingleMeter = (): AppThunk => async (dispatch) => {
   dispatch(slice.actions.clearSingleMeter({}));
 };
