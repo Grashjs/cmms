@@ -44,14 +44,15 @@ public class VendorController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<Vendor>> search(@Parameter(description = "Search criteria for filtering vendors") @RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
+    public ResponseEntity<Page<VendorShowDTO>> search(@Parameter(description = "Search criteria for filtering " +
+            "vendors") @RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
                 searchCriteria.filterCompany(user);
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
-        return ResponseEntity.ok(vendorService.findBySearchCriteria(searchCriteria));
+        return ResponseEntity.ok(vendorService.findBySearchCriteria(searchCriteria).map(vendorMapper::toShowDto));
     }
 
     @GetMapping("/{id}")
