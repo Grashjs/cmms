@@ -52,7 +52,7 @@ import CompleteWorkOrderModal from '../screens/workOrders/CompleteWorkOrderModal
 import SelectPartsModal from '../screens/modals/SelectPartsModal';
 import TasksScreen from '../screens/workOrders/TasksScreen';
 import SelectCustomersModal from '../screens/modals/SelectCustomersModal';
-import SelectVendorsModal from '../screens/modals/SelectCustomersModal';
+import SelectVendorsModal from '../screens/modals/SelectVendorsModal';
 import SelectUsersModal from '../screens/modals/SelectUsersModal';
 import SelectTeamsModal from '../screens/modals/SelectTeamsModal';
 import SelectLocationsModal from '../screens/modals/SelectLocationsModal';
@@ -268,7 +268,10 @@ function RootNavigator() {
       <Stack.Screen
         name="VendorsCustomers"
         component={VendorsAndCustomersScreen}
-        options={{ title: t('vendors_and_customers'), contentStyle: Platform.OS === 'ios' ? { paddingTop: 10 } : undefined }}
+        options={{
+          title: t('vendors_and_customers'),
+          contentStyle: Platform.OS === 'ios' ? { paddingTop: 10 } : undefined
+        }}
       />
       <Stack.Screen
         name="CustomerDetails"
@@ -323,7 +326,10 @@ function RootNavigator() {
       <Stack.Screen
         name="PeopleTeams"
         component={PeopleAndTeamsScreen}
-        options={{ title: t('people_teams'), contentStyle: Platform.OS === 'ios' ? { paddingTop: 10 } : undefined }}
+        options={{
+          title: t('people_teams'),
+          contentStyle: Platform.OS === 'ios' ? { paddingTop: 10 } : undefined
+        }}
       />
       <Stack.Screen
         name="TeamDetails"
