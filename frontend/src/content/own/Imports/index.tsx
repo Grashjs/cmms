@@ -257,8 +257,11 @@ const Import = ({}: OwnProps) => {
         setOpenModal(false);
         reset();
       })
-      .catch((error) => {
-        showSnackBar(t('import_error'), 'error');
+      .catch((error: Error) => {
+        showSnackBar(
+          `${t('import_error')}${error ? `: ${error.message}` : ''}`,
+          'error'
+        );
       });
   };
   const match = (data: { userHeader: string; keyName: string }[]) => {
@@ -425,7 +428,7 @@ const Import = ({}: OwnProps) => {
 
                     if (localJsonArray.length > 1) {
                       setJsonData(localJson);
-                      setUserHeaders(localJsonArray[0]);
+                      setUserHeaders(localJsonArray[0].filter(Boolean));
 
                       const localObjectOfArrayOfArrays =
                         arrayToAoA(localJsonArray);
