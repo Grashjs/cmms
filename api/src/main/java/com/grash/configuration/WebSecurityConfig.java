@@ -82,6 +82,7 @@ public class WebSecurityConfig {
 //                .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()
+                        .requestMatchers("/api-docs.html").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         // Disallow everything else..
                         .anyRequest().authenticated()
