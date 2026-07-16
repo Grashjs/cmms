@@ -99,7 +99,7 @@ export const onSearchQueryChange = <T>(
       }
     ];
   }
-  setCriteria({ ...criteria, filterFields: newFilterFields });
+  setCriteria((prevState) => ({ ...prevState, filterFields: newFilterFields }));
 };
 
 export const getPriorityColor = (
