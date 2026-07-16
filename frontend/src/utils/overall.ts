@@ -12,7 +12,7 @@ import { sameDay } from './dates';
 import { apiUrl, googleTrackingId, IS_LOCALHOST } from '../config';
 import ReactGA from 'react-ga4';
 import { UaEventOptions } from 'react-ga4/types/ga4';
-import api from './api';
+import type { Paths } from 'type-fest';
 
 export const canAddReading = (meter: Meter): boolean => {
   if (!meter) {
@@ -140,7 +140,7 @@ export const onSearchQueryChange = <T>(
   event,
   criteria: SearchCriteria,
   setCriteria: React.Dispatch<React.SetStateAction<SearchCriteria>>,
-  fieldsToSearch: Extract<keyof T, string>[]
+  fieldsToSearch: Paths<T>[]
 ) => {
   const query = event.target.value;
   let newFilterFields: FilterField[] = [...criteria.filterFields];

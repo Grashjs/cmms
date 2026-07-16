@@ -7,14 +7,19 @@ import com.grash.utils.Helper;
 import org.springframework.data.jpa.domain.Specification;
 
 import jakarta.persistence.criteria.*;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.ManagedType;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class WrapperSpecification<T> implements Specification<T> {
 
     private final FilterField filterField;
+    private final Map<String, Join<?, ?>> joinCache = new HashMap<>();
 
     public WrapperSpecification(final FilterField filterField) {
         super();
@@ -30,7 +35,8 @@ public class WrapperSpecification<T> implements Specification<T> {
                 result = buildLikePredicate(root, cb, "%" + filterField.getValue().toString().toLowerCase() + "%");
                 break;
             case DOES_NOT_CONTAIN:
-                result = cb.not(buildLikePredicate(root, cb, "%" + filterField.getValue().toString().toLowerCase() + "%"));
+                result = cb.not(buildLikePredicate(root, cb, "%" + filterField.getValue().toString().toLowerCase() +
+                        "%"));
                 break;
             case BEGINS_WITH:
                 result = buildLikePredicate(root, cb, filterField.getValue().toString().toLowerCase() + "%");
@@ -45,7 +51,7 @@ public class WrapperSpecification<T> implements Specification<T> {
                 result = cb.not(buildLikePredicate(root, cb, "%" + filterField.getValue().toString().toLowerCase()));
                 break;
             case EQUAL: {
-                Path<?> path = getFieldPath(root, filterField.getField());
+                Path<?> path = resolveFieldPath(root, filterField.getField());
 
                 if (path.getJavaType().isAnnotationPresent(jakarta.persistence.Entity.class)) {
                     result = cb.equal(path.get("id"), filterField.getValue());
@@ -55,7 +61,7 @@ public class WrapperSpecification<T> implements Specification<T> {
                 break;
             }
             case NOT_EQUAL: {
-                Path<?> path = getFieldPath(root, filterField.getField());
+                Path<?> path = resolveFieldPath(root, filterField.getField());
 
                 if (path.getJavaType().isAnnotationPresent(jakarta.persistence.Entity.class)) {
                     result = cb.notEqual(path.get("id"), filterField.getValue());
@@ -65,37 +71,43 @@ public class WrapperSpecification<T> implements Specification<T> {
                 break;
             }
             case NUL:
-                result = cb.isNull(root.get(filterField.getField()));
+                result = cb.isNull(resolveFieldPath(root, filterField.getField()));
                 break;
             case NOT_NULL:
-                result = cb.isNotNull(root.get(filterField.getField()));
+                result = cb.isNotNull(resolveFieldPath(root, filterField.getField()));
                 break;
             case GREATER_THAN:
-                result = cb.greaterThan(root.get(filterField.getField()), (Comparable) filterField.getValue());
+                result = cb.greaterThan((Expression & Comparable) resolveFieldPath(root, filterField.getField()),
+                        (Comparable) filterField.getValue());
                 break;
             case GREATER_THAN_EQUAL:
                 if (filterField.getEnumName() != null && filterField.getEnumName().equals(EnumName.JS_DATE)) {
-                    result = cb.greaterThanOrEqualTo(root.get(filterField.getField()),
+                    result = cb.greaterThanOrEqualTo((Expression & Comparable) resolveFieldPath(root,
+                                    filterField.getField()),
                             Helper.getDateFromJsString(filterField.getValue().toString()));
                 } else {
-                    result = cb.greaterThanOrEqualTo(root.get(filterField.getField()),
+                    result = cb.greaterThanOrEqualTo((Expression & Comparable) resolveFieldPath(root,
+                                    filterField.getField()),
                             (Comparable) filterField.getValue());
                 }
                 break;
             case LESS_THAN:
-                result = cb.lessThan(root.get(filterField.getField()), (Comparable) filterField.getValue());
+                result = cb.lessThan((Expression & Comparable) resolveFieldPath(root, filterField.getField()),
+                        (Comparable) filterField.getValue());
                 break;
             case LESS_THAN_EQUAL:
                 if (filterField.getEnumName() != null && filterField.getEnumName().equals(EnumName.JS_DATE)) {
-                    result = cb.lessThanOrEqualTo(root.get(filterField.getField()),
+                    result = cb.lessThanOrEqualTo((Expression & Comparable) resolveFieldPath(root,
+                                    filterField.getField()),
                             Helper.getDateFromJsString(filterField.getValue().toString()));
                 } else {
-                    result = cb.lessThanOrEqualTo(root.get(filterField.getField()),
+                    result = cb.lessThanOrEqualTo((Expression & Comparable) resolveFieldPath(root,
+                                    filterField.getField()),
                             (Comparable) filterField.getValue());
                 }
                 break;
             case IN: {
-                Path<?> path = getFieldPath(root, filterField.getField());
+                Path<?> path = resolveFieldPath(root, filterField.getField());
                 CriteriaBuilder.In<Object> inClause;
 
                 if (path.getJavaType().isAnnotationPresent(jakarta.persistence.Entity.class)) {
@@ -157,23 +169,68 @@ public class WrapperSpecification<T> implements Specification<T> {
     }
 
     private Predicate buildLikePredicate(Root<T> root, CriteriaBuilder cb, String patternWithWildcards) {
+        Path<?> fieldPath = resolveFieldPath(root, filterField.getField());
+        Expression<String> field = (Expression<String>) fieldPath;
         Expression<String> unaccentedField = cb.function("unaccent", String.class,
-                cb.lower(root.get(filterField.getField())));
+                cb.lower(field));
         Expression<String> unaccentedPattern = cb.function("unaccent", String.class,
                 cb.literal(patternWithWildcards));
         return cb.like(unaccentedField, unaccentedPattern);
     }
 
-    private Path<T> getFieldPath(Root<T> root, String field) {
-        // Split the field path using dot notation
+    private Path<?> resolveFieldPath(Root<T> root, String field) {
         String[] fieldNames = field.split("\\.");
 
-        // Traverse the field path to get the Path object
-        Path<T> path = root;
-        for (String fieldName : fieldNames) {
-            path = path.get(fieldName);
+        From<?, ?> currentFrom = root;
+        Path<?> currentPath = root;
+
+        for (int i = 0; i < fieldNames.length; i++) {
+            String fieldName = fieldNames[i];
+
+            if (isCollectionAttribute(currentFrom, fieldName)) {
+                String joinKey = buildJoinKey(fieldNames, i);
+                Join<?, ?> join = joinCache.get(joinKey);
+                if (join == null) {
+                    join = currentFrom.join(fieldName, JoinType.LEFT);
+                    joinCache.put(joinKey, join);
+                }
+                currentFrom = join;
+                currentPath = join;
+            } else {
+                currentPath = currentPath.get(fieldName);
+                if (currentPath instanceof From) {
+                    currentFrom = (From<?, ?>) currentPath;
+                }
+            }
         }
-        return path;
+        return currentPath;
+    }
+
+    private boolean isCollectionAttribute(From<?, ?> from, String attributeName) {
+        try {
+            ManagedType<?> managedType = null;
+            if (from instanceof Root) {
+                managedType = ((Root<?>) from).getModel();
+            } else if (from.getModel() instanceof ManagedType) {
+                managedType = (ManagedType<?>) from.getModel();
+            }
+            if (managedType != null) {
+                Attribute<?, ?> attr = managedType.getAttribute(attributeName);
+                return attr.isCollection();
+            }
+        } catch (IllegalArgumentException e) {
+            // Attribute not found, fall through
+        }
+        return false;
+    }
+
+    private String buildJoinKey(String[] fieldNames, int upToIndex) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i <= upToIndex; i++) {
+            if (i > 0) sb.append(".");
+            sb.append(fieldNames[i]);
+        }
+        return sb.toString();
     }
 }
 

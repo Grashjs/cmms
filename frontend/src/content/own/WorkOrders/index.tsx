@@ -103,6 +103,7 @@ import { ExportEntityType, useExport } from '../../../hooks/useExport';
 import { getCustomFields } from '../../../slices/customField';
 import { CustomFieldEntityType } from '../../../models/owns/customField';
 import { randomInt } from '../../../utils/generators';
+import type { Paths } from 'type-fest';
 
 const fieldMapping: Record<string, string> = {
   customId: 'customId',
@@ -145,11 +146,12 @@ const DEFAULT_FILTER_FIELDS: FilterField[] = [
   }
 ];
 
-const QUERY_SEARCH_FIELDS = new Set<keyof WorkOrder>([
+const QUERY_SEARCH_FIELDS = new Set<Paths<WorkOrder>>([
   'title',
   'description',
   'feedback',
-  'customId'
+  'customId',
+  'customFieldValues.value'
 ]);
 
 const getInitialFilterFields = (): FilterField[] =>
@@ -173,13 +175,12 @@ function WorkOrders() {
     hasFeature,
     user
   } = useAuth();
-  const uiConfiguration = user.uiConfiguration;
-  const { uploadFiles, getWOFieldsAndShapes } = useContext(
-    CompanySettingsContext
-  );
-  const { getFormattedDate, getUserNameById } = useContext(
-    CompanySettingsContext
-  );
+  const {
+    uploadFiles,
+    getWOFieldsAndShapes,
+    getFormattedDate,
+    getUserNameById
+  } = useContext(CompanySettingsContext);
   const hasResourcePlanningEntitlement =
     useLicenseEntitlement('RESOURCE_PLANNING');
   const tabs: {
