@@ -9,6 +9,7 @@ import mime from 'mime';
 import ImagePicker from 'expo-image-picker';
 import { NativeSyntheticEvent } from 'react-native/Libraries/Types/CoreEventTypes';
 import { NativeScrollEvent } from 'react-native/Libraries/Components/ScrollView/ScrollView';
+import { Paths } from 'type-fest';
 
 export const canAddReading = (meter: Meter): boolean => {
   if (!meter) {
@@ -69,12 +70,34 @@ export const pushOrRemove = (array: string[], push: boolean, value: string) => {
   return array;
 };
 
+type Primitive =
+  | string
+  | number
+  | boolean
+  | bigint
+  | symbol
+  | null
+  | undefined
+  | Date
+  | Function;
+
+type SearchPaths<T> = T extends Primitive
+  ? never
+  : {
+      [K in keyof T & string]: T[K] extends Primitive
+        ? K
+        : T[K] extends readonly (infer U)[]
+        ? K | `${K}.${SearchPaths<U>}`
+        : T[K] extends object
+        ? K | `${K}.${SearchPaths<T[K]>}`
+        : K;
+    }[keyof T & string];
 export const onSearchQueryChange = <T>(
   query,
   criteria: SearchCriteria,
   setCriteria: React.Dispatch<React.SetStateAction<SearchCriteria>>,
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>,
-  fieldsToSearch: string[]
+  fieldsToSearch: SearchPaths<T>[]
 ) => {
   let newFilterFields: FilterField[] = [...criteria.filterFields];
 
