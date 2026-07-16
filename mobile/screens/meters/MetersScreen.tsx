@@ -92,7 +92,8 @@ export default function MetersScreen({
     onSearchQueryChange<Meter>(query, criteria, setCriteria, setSearchQuery, [
       'name',
       'unit',
-      'category'
+      'category',
+      'customFieldValues.value'
     ]);
   };
   useDebouncedEffect(

@@ -74,7 +74,7 @@ export const onSearchQueryChange = <T>(
   criteria: SearchCriteria,
   setCriteria: React.Dispatch<React.SetStateAction<SearchCriteria>>,
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>,
-  fieldsToSearch: Extract<keyof T, string>[]
+  fieldsToSearch: string[]
 ) => {
   let newFilterFields: FilterField[] = [...criteria.filterFields];
 

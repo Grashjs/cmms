@@ -202,7 +202,8 @@ export default function AssetsScreen({
         'serialNumber',
         'manufacturer',
         'power',
-        'customId'
+        'customId',
+        'customFieldValues.value'
       ]
     );
     setView('list');

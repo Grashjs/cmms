@@ -191,7 +191,9 @@ export default function RequestsScreen({
   const onQueryChange = (query) => {
     onSearchQueryChange<Request>(query, criteria, setCriteria, setSearchQuery, [
       'title',
-      'description'
+      'description',
+      'customId',
+      'customFieldValues.value'
     ]);
   };
   useDebouncedEffect(

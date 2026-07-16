@@ -54,7 +54,7 @@ export interface AssetDTO extends Audit {
   customId: string;
   manufacturer: string;
   power: string;
-  customFieldValues?: CustomFieldValue[];
+  customFieldValues: CustomFieldValue[];
 }
 export const assetStatuses: {
   status: AssetStatus;

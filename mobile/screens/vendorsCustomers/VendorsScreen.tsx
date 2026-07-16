@@ -79,7 +79,8 @@ export default function VendorsScreen({
       'phone',
       'email',
       'vendorType',
-      'description'
+      'description',
+      'customFieldValues.value'
     ]);
   };
   useDebouncedEffect(

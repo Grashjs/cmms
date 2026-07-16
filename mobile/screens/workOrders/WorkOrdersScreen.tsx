@@ -144,7 +144,7 @@ export default function WorkOrdersScreen({
       criteria,
       setCriteria,
       setSearchQuery,
-      ['title', 'description', 'feedback', 'customId']
+      ['title', 'description', 'feedback', 'customId', 'customFieldValues.value']
     );
   };
   useDebouncedEffect(

@@ -116,7 +116,7 @@ export default function LocationsScreen({
       criteria,
       setCriteria,
       setSearchQuery,
-      ['name', 'address']
+      ['name', 'address', 'customId', 'customFieldValues.value']
     );
     setView('list');
   };

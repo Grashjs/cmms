@@ -95,7 +95,8 @@ export default function PartsScreen({
       'description',
       'additionalInfos',
       'area',
-      'barcode'
+      'barcode',
+      'customFieldValues.value'
     ]);
   };
   useDebouncedEffect(

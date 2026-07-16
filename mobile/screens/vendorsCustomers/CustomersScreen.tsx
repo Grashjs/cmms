@@ -91,7 +91,8 @@ export default function CustomersScreen({
         'customerType',
         'description',
         'billingAddress',
-        'billingName'
+        'billingName',
+        'customFieldValues.value'
       ]
     );
   };
