@@ -24,26 +24,25 @@ public class WrapperSpecification<T> implements Specification<T> {
     @Override
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
-        String strToSearch = filterField.getValue().toString().toLowerCase();
         Predicate result = null;
         switch (Objects.requireNonNull(SearchOperation.getSimpleOperation(filterField.getOperation()))) {
             case CONTAINS:
-                result = cb.like(cb.lower(root.get(filterField.getField())), "%" + strToSearch + "%");
+                result = buildLikePredicate(root, cb, "%" + filterField.getValue().toString().toLowerCase() + "%");
                 break;
             case DOES_NOT_CONTAIN:
-                result = cb.notLike(cb.lower(root.get(filterField.getField())), "%" + strToSearch + "%");
+                result = cb.not(buildLikePredicate(root, cb, "%" + filterField.getValue().toString().toLowerCase() + "%"));
                 break;
             case BEGINS_WITH:
-                result = cb.like(cb.lower(root.get(filterField.getField())), strToSearch + "%");
+                result = buildLikePredicate(root, cb, filterField.getValue().toString().toLowerCase() + "%");
                 break;
             case DOES_NOT_BEGIN_WITH:
-                result = cb.notLike(cb.lower(root.get(filterField.getField())), strToSearch + "%");
+                result = cb.not(buildLikePredicate(root, cb, filterField.getValue().toString().toLowerCase() + "%"));
                 break;
             case ENDS_WITH:
-                result = cb.like(cb.lower(root.get(filterField.getField())), "%" + strToSearch);
+                result = buildLikePredicate(root, cb, "%" + filterField.getValue().toString().toLowerCase());
                 break;
             case DOES_NOT_END_WITH:
-                result = cb.notLike(cb.lower(root.get(filterField.getField())), "%" + strToSearch);
+                result = cb.not(buildLikePredicate(root, cb, "%" + filterField.getValue().toString().toLowerCase()));
                 break;
             case EQUAL: {
                 Path<?> path = getFieldPath(root, filterField.getField());
@@ -155,6 +154,14 @@ public class WrapperSpecification<T> implements Specification<T> {
             }
         }
         return value;
+    }
+
+    private Predicate buildLikePredicate(Root<T> root, CriteriaBuilder cb, String patternWithWildcards) {
+        Expression<String> unaccentedField = cb.function("unaccent", String.class,
+                cb.lower(root.get(filterField.getField())));
+        Expression<String> unaccentedPattern = cb.function("unaccent", String.class,
+                cb.literal(patternWithWildcards));
+        return cb.like(unaccentedField, unaccentedPattern);
     }
 
     private Path<T> getFieldPath(Root<T> root, String field) {

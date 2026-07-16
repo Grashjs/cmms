@@ -223,4 +223,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_06_25_1782400207_part_transaction.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_07_16_00000000001_create_unaccent.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>
