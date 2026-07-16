@@ -134,8 +134,9 @@ function Locations() {
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
   const [openDiscardDialog, setOpenDiscardDialog] = useState<boolean>(false);
   const [isFormDirty, setIsFormDirty] = useState<boolean>(false);
-  const [copyLocationData, setCopyLocationData] =
-    useState<Location | null>(null);
+  const [copyLocationData, setCopyLocationData] = useState<Location | null>(
+    null
+  );
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const { setTitle } = useContext(TitleContext);
@@ -198,7 +199,8 @@ function Locations() {
     onSearchQueryChange<Location>(event, criteria, setCriteria, [
       'name',
       'address',
-      'customId'
+      'customId',
+      'customFieldValues.value'
     ]);
   };
   const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
@@ -750,8 +752,8 @@ function Locations() {
               copyLocationData
                 ? { ...getLocationFormValues(copyLocationData), id: null }
                 : initialLocationName
-                  ? { name: initialLocationName }
-                  : {}
+                ? { name: initialLocationName }
+                : {}
             }
             onChange={() => setIsFormDirty(true)}
             onSubmit={async (values) => {

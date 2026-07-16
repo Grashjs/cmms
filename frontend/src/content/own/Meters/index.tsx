@@ -163,7 +163,11 @@ function Meters() {
   const navigate = useNavigate();
 
   const onQueryChange = (event) => {
-    onSearchQueryChange<Meter>(event, criteria, setCriteria, ['name', 'unit']);
+    onSearchQueryChange<Meter>(event, criteria, setCriteria, [
+      'name',
+      'unit',
+      'customFieldValues.value'
+    ]);
   };
   const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
 

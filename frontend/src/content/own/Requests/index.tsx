@@ -401,7 +401,8 @@ function Requests() {
     onSearchQueryChange<WorkOrder>(event, criteria, setCriteria, [
       'title',
       'description',
-      'customId'
+      'customId',
+      'customFieldValues.value'
     ]);
   };
   const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);

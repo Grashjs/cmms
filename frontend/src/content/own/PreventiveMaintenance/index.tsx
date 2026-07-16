@@ -338,7 +338,8 @@ function PMs() {
     onSearchQueryChange<PreventiveMaintenance>(event, criteria, setCriteria, [
       'title',
       'description',
-      'name'
+      'name',
+      'customFieldValues.value'
     ]);
   };
   const onFilterChange = (newFilters: FilterField[]) => {

@@ -164,7 +164,8 @@ const Parts = ({ setAction }: PropsType) => {
       'description',
       'additionalInfos',
       'area',
-      'barcode'
+      'barcode',
+      'customFieldValues.value'
     ]);
   };
   const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);

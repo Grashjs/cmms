@@ -128,7 +128,8 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
       'name',
       'vendorType',
       'companyName',
-      'description'
+      'description',
+      'customFieldValues.value'
     ]);
   };
   const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);

@@ -59,7 +59,7 @@ export interface AssetDTO extends Audit {
   power: string;
   manufacturer: string;
   customId: string;
-  customFieldValues?: CustomFieldValue[];
+  customFieldValues: CustomFieldValue[];
 }
 export interface AssetRow extends AssetDTO {
   childrenFetched?: boolean;

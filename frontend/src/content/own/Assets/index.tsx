@@ -162,7 +162,8 @@ function Assets() {
       'serialNumber',
       'manufacturer',
       'power',
-      'customId'
+      'customId',
+      'customFieldValues.value'
     ]);
   };
   const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);

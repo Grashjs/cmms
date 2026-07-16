@@ -129,7 +129,8 @@ const Customers = ({ openModal, handleCloseModal }: PropsType) => {
       'customerType',
       'billingName',
       'billingAddress',
-      'billingAddress2'
+      'billingAddress2',
+      'customFieldValues.value'
     ]);
   };
   const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
