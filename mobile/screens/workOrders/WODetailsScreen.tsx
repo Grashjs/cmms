@@ -134,9 +134,6 @@ export default function WODetailsScreen({
   );
   const workOrder = workOrderInfos[id]?.workOrder ?? workOrderProp;
   const { t } = useTranslation();
-  const [dropDownValue, setDropdownValue] = useState<string>(
-    workOrder?.status ?? ''
-  );
   const {
     hasEditPermission,
     user,
@@ -481,7 +478,7 @@ export default function WODetailsScreen({
           generalPreferences.askFeedBackOnWOClosed ||
           workOrder?.requiredSignature
         ) {
-          let error;
+          let error: string;
           if (workOrder?.requiredSignature) {
             if (!hasFeature(PlanFeature.SIGNATURE)) {
               error =
@@ -637,11 +634,6 @@ export default function WODetailsScreen({
   const removeCommentFile = (index: number) => {
     setCommentFiles(commentFiles.filter((_, i) => i !== index));
   };
-
-  useEffect(() => {
-    if (dropDownValue !== workOrder?.status && dropDownValue)
-      onStatusChange(dropDownValue);
-  }, [dropDownValue]);
 
   function ObjectField({
     label,
@@ -873,7 +865,9 @@ export default function WODetailsScreen({
                       payload: {
                         items: statuses,
                         value: workOrder.status,
-                        setValue: setDropdownValue
+                        setValue: (value: string) => {
+                          if (workOrder.status !== value) onStatusChange(value);
+                        }
                       }
                     })
                   }
