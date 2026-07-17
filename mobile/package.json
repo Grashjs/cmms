@@ -87,6 +87,7 @@
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@react-native-community/cli": "latest",
+    "@types/lodash": "^4.17.24",
     "@types/mime": "^3.0.1",
     "@types/react": "~19.0.10",
     "babel-plugin-transform-inline-environment-variables": "^0.4.4",

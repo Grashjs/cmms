@@ -387,6 +387,9 @@ function PMs() {
     newValues.daysOfWeek = newValues.daysOfWeek?.map((day) => day.value) ?? [];
     newValues.recurrenceBasedOn = newValues.recurrenceBasedOn?.value;
     newValues.recurrenceType = newValues.recurrenceType?.value;
+    newValues.requiredSignature = Array.isArray(newValues.requiredSignature)
+      ? newValues?.requiredSignature.includes('on')
+      : newValues.requiredSignature;
     return formatCustomFields(newValues);
   };
 
