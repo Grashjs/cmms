@@ -6,8 +6,10 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.LocationMapper;
 import com.grash.model.Asset;
 import com.grash.model.Location;
+import com.grash.model.RequestPortal;
 import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.PortalFieldType;
 import com.grash.model.enums.RoleType;
 import com.grash.service.LocationService;
 import com.grash.service.RateLimiterService;
@@ -121,7 +123,10 @@ public class LocationController {
         if (!rateLimiterService.resolvePublicMiniBucket(clientIp).tryConsume(1)) {
             throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
         }
-        return locationService.findByCompany(requestPortalService.findByUuidByUser(portalUUID).get().getCompany().getId()).stream().map(locationMapper::toMiniDto).collect(Collectors.toList());
+        RequestPortal requestPortal = requestPortalService.findByUuidByUser(portalUUID).get();
+        if (requestPortal.getFields().stream().anyMatch(requestPortalField -> requestPortalField.getLocation() != null && requestPortalField.getType().equals(PortalFieldType.LOCATION)))
+            throw new CustomException("This portal is not configured to show locations", HttpStatus.FORBIDDEN);
+        return locationService.findByCompany(requestPortal.getCompany().getId()).stream().map(locationMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")

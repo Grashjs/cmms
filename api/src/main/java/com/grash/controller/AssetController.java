@@ -9,11 +9,9 @@ import com.grash.dto.SuccessResponse;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetMapper;
-import com.grash.model.Asset;
-import com.grash.model.Location;
-import com.grash.model.User;
-import com.grash.model.Part;
+import com.grash.model.*;
 import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.PortalFieldType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.AssetRepository;
 import com.grash.security.CurrentUser;
@@ -272,9 +270,11 @@ public class AssetController {
             throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
         }
         List<Asset> assets = new ArrayList<>();
-        Long companyId = requestPortalService.findByUuidByUser(portalUUID).get().getCompany().getId();
+        RequestPortal requestPortal = requestPortalService.findByUuidByUser(portalUUID).get();
+        if (requestPortal.getFields().stream().anyMatch(requestPortalField -> requestPortalField.getAsset() != null && requestPortalField.getType().equals(PortalFieldType.ASSET)))
+            throw new CustomException("This portal is not configured to show assets", HttpStatus.FORBIDDEN);
         if (locationId == null) {
-            assets = assetService.findByCompany(companyId);
+            assets = assetService.findByCompany(requestPortal.getCompany().getId());
         } else {
             assets = assetService.findByLocation(locationId);
         }
