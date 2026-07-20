@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -27,5 +28,5 @@ public class RequestPortal extends CompanyAudit {
     private String uuid;
 
     @OneToMany(mappedBy = "requestPortal", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RequestPortalField> fields;
+    private List<RequestPortalField> fields = new ArrayList<>();
 }
