@@ -1,0 +1,118 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+        hibernate.default_batch_fetch_size: 64
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        id:
+          new_generator_mappings: false
+    defer-datasource-initialization: false
+  liquibase:
+    enabled: true
+  quartz:
+    job-store-type: memory
+    jdbc:
+      initialize-schema: never
+  mail:
+    host: localhost
+    port: 25
+    username: test
+    password: test
+    protocol: smtp
+  cache:
+    type: simple
+  sql:
+    init:
+      mode: never
+
+server:
+  port: 0
+
+security:
+  jwt:
+    token:
+      secret-key: sD1HBM6ngcaDLMzDqgA9Pn9LEECNAp0C1EOHIR/D+q4=
+      expire-length: 3600000
+  invitation-via-email: false
+  recaptcha-secret-key: test-recaptcha
+  cors:
+    enabled: false
+  rate-limit:
+    enabled: false
+
+frontend:
+  url: http://localhost:3000
+  home-url: http://localhost:3000
+mail:
+  recipients: test@example.com
+  enable: false
+  type: SMTP
+superAdmin:
+  role:
+    name: SuperAdministratorGrash@p;l
+management:
+  health:
+    mail:
+      enabled: false
+    ldap:
+      enabled: false
+api:
+  host: http://localhost:8080
+storage:
+  type: MINIO
+  minio:
+    endpoint:
+    bucket:
+    access-key:
+    secret-key:
+    public-endpoint:
+  gcp:
+    project-id: test-project
+    bucket-name: test-bucket
+    value:
+    json-path:
+
+allowed-organization-admins: admin@test.com
+cloud-version: false
+enable-sso: false
+oauth2:
+  success-redirect-url: http://localhost:3000/oauth2/success
+  failure-redirect-url: http://localhost:3000/oauth2/failure
+  provider: google
+license-key: test-license-key
+license-fingerprint-required: false
+license-file-path:
+white-labeling:
+  logo-paths:
+  custom-colors:
+  brand-config:
+
+ldap:
+  enabled: false
+
+paddle:
+  api-key: test-paddle-api-key
+  environment: sandbox
+  webhook-secret-key: test-paddle-webhook-secret
+keygen:
+  product-token: test-keygen-token
+  account-id: 1ca3e517-f3d8-473f-a45c-81069900acb7
+sendgrid:
+  api:
+    key: test-sendgrid-key
+  contact-list-id: test-contact-list
+  from:
+    email: test@example.com
+intercom:
+  token: test-intercom-token
+springdoc:
+  api-docs:
+    version: openapi_3_1
+  swagger-ui:
+    tags-sorter: alpha

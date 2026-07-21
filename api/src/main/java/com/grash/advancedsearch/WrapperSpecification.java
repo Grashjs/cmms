@@ -77,33 +77,28 @@ public class WrapperSpecification<T> implements Specification<T> {
                 result = cb.isNotNull(resolveFieldPath(root, filterField.getField()));
                 break;
             case GREATER_THAN:
-                result = cb.greaterThan((Expression & Comparable) resolveFieldPath(root, filterField.getField()),
-                        (Comparable) filterField.getValue());
+                result = gt(cb, resolveFieldPath(root, filterField.getField()), filterField.getValue());
                 break;
+
             case GREATER_THAN_EQUAL:
                 if (filterField.getEnumName() != null && filterField.getEnumName().equals(EnumName.JS_DATE)) {
-                    result = cb.greaterThanOrEqualTo((Expression & Comparable) resolveFieldPath(root,
-                                    filterField.getField()),
+                    result = ge(cb, resolveFieldPath(root, filterField.getField()),
                             Helper.getDateFromJsString(filterField.getValue().toString()));
                 } else {
-                    result = cb.greaterThanOrEqualTo((Expression & Comparable) resolveFieldPath(root,
-                                    filterField.getField()),
-                            (Comparable) filterField.getValue());
+                    result = ge(cb, resolveFieldPath(root, filterField.getField()), filterField.getValue());
                 }
                 break;
+
             case LESS_THAN:
-                result = cb.lessThan((Expression & Comparable) resolveFieldPath(root, filterField.getField()),
-                        (Comparable) filterField.getValue());
+                result = lt(cb, resolveFieldPath(root, filterField.getField()), filterField.getValue());
                 break;
+
             case LESS_THAN_EQUAL:
                 if (filterField.getEnumName() != null && filterField.getEnumName().equals(EnumName.JS_DATE)) {
-                    result = cb.lessThanOrEqualTo((Expression & Comparable) resolveFieldPath(root,
-                                    filterField.getField()),
+                    result = le(cb, resolveFieldPath(root, filterField.getField()),
                             Helper.getDateFromJsString(filterField.getValue().toString()));
                 } else {
-                    result = cb.lessThanOrEqualTo((Expression & Comparable) resolveFieldPath(root,
-                                    filterField.getField()),
-                            (Comparable) filterField.getValue());
+                    result = le(cb, resolveFieldPath(root, filterField.getField()), filterField.getValue());
                 }
                 break;
             case IN: {
@@ -231,6 +226,26 @@ public class WrapperSpecification<T> implements Specification<T> {
             sb.append(fieldNames[i]);
         }
         return sb.toString();
+    }
+
+    @SuppressWarnings({"unchecked"})
+    private <Y extends Comparable<? super Y>> Predicate le(CriteriaBuilder cb, Path<?> path, Object value) {
+        return cb.lessThanOrEqualTo((Expression<Y>) path, (Y) value);
+    }
+
+    @SuppressWarnings({"unchecked"})
+    private <Y extends Comparable<? super Y>> Predicate ge(CriteriaBuilder cb, Path<?> path, Object value) {
+        return cb.greaterThanOrEqualTo((Expression<Y>) path, (Y) value);
+    }
+
+    @SuppressWarnings({"unchecked"})
+    private <Y extends Comparable<? super Y>> Predicate lt(CriteriaBuilder cb, Path<?> path, Object value) {
+        return cb.lessThan((Expression<Y>) path, (Y) value);
+    }
+
+    @SuppressWarnings({"unchecked"})
+    private <Y extends Comparable<? super Y>> Predicate gt(CriteriaBuilder cb, Path<?> path, Object value) {
+        return cb.greaterThan((Expression<Y>) path, (Y) value);
     }
 }
 

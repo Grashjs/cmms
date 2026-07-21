@@ -438,4 +438,10 @@ public class Helper {
         }
         return companyId;
     }
+
+    public static <E> Optional<E> getRandomFromCollection(Collection<E> e) {
+        return e.stream()
+                .skip((int) (e.size() * Math.random()))
+                .findFirst();
+    }
 }
