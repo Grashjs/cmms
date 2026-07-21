@@ -14,9 +14,7 @@ import {
   pageableToQueryParams,
   SearchCriteria
 } from '../models/owns/page';
-import {
-  cancellableFetch,
-} from 'src/utils/cancellableRequest';
+import { cancellableFetch } from 'src/utils/cancellableRequest';
 
 interface LocationState {
   locations: Page<Location>;
@@ -85,6 +83,13 @@ const slice = createSlice({
         (location) => location.id === id
       );
       state.locations.content.splice(locationIndex, 1);
+
+      const locationHierarchyIndex = state.locationsHierarchy.findIndex(
+        (location) => location.id === id
+      );
+      if (locationHierarchyIndex !== -1) {
+        state.locationsHierarchy.splice(locationHierarchyIndex, 1);
+      }
     },
     getLocationChildrenPaginated(
       state: LocationState,
@@ -144,7 +149,8 @@ export const getLocations =
     await cancellableFetch(
       dispatch,
       'getLocations',
-      (signal) => api.post<Page<Location>>(`locations/search`, criteria, { signal }),
+      (signal) =>
+        api.post<Page<Location>>(`locations/search`, criteria, { signal }),
       (locations) => dispatch(slice.actions.getLocations({ locations })),
       (loading) => dispatch(slice.actions.setLoadingGet({ loading }))
     );
