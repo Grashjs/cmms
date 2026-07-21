@@ -330,6 +330,7 @@ public class UserService {
                 throw new CustomException("You can't add more users to this company", HttpStatus.NOT_ACCEPTABLE);
         }
         user.setEnabled(true);
+        user.setEnabledInSubscription(true);
         userRepository.save(user);
         cacheService.putUserInCache(user);
         return user;
