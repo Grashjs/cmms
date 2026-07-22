@@ -212,7 +212,7 @@ public class WorkOrderService {
     }
 
     public WorkOrder checkAccessToWorkOrderId(Long workOrderId, User user) {
-        WorkOrder workOrder = findById(workOrderId).orElseThrow(() -> new CustomException("Patient not found",
+        WorkOrder workOrder = findById(workOrderId).orElseThrow(() -> new CustomException("Work Order not found",
                 HttpStatus.NOT_FOUND));
         if (!workOrder.isAccessibleBy(user))
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
