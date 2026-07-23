@@ -160,7 +160,7 @@ export default function LocationsScreen({
       }
       key={location.id}
     >
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <View
           style={{
             display: 'flex',
@@ -184,7 +184,7 @@ export default function LocationsScreen({
                 </Text>
                 <Text
                   variant={'bodySmall'}
-                  style={{ color: 'grey' }}
+                  style={{ color: theme.colors.onSurfaceVariant }}
                 >{`#${location.customId}`}</Text>
               </View>
             </View>
@@ -255,7 +255,7 @@ export default function LocationsScreen({
           ) : loadingGet ? null : (
             <View
               style={{
-                backgroundColor: 'white',
+                backgroundColor: theme.colors.surface,
                 padding: 20,
                 borderRadius: 10
               }}
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   card: {
-    backgroundColor: 'white',
+    backgroundColor: 'transparent',
     marginBottom: 1,
     padding: 10
   },

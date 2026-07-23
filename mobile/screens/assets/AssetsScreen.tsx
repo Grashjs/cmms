@@ -59,7 +59,7 @@ const AssetCard = ({
       }
       key={asset.id}
     >
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         <View
           style={{
             display: 'flex',
@@ -273,7 +273,7 @@ export default function AssetsScreen({
           ) : loadingGet ? null : (
             <View
               style={{
-                backgroundColor: 'white',
+                backgroundColor: theme.colors.surface,
                 padding: 20,
                 borderRadius: 10
               }}
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   card: {
-    backgroundColor: 'white',
+    backgroundColor: 'transparent',
     marginBottom: 1,
     padding: 10
   },
