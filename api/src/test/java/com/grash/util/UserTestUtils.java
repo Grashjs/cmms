@@ -117,7 +117,7 @@ public class UserTestUtils {
 
     public User generateDisabledUser(RoleType roleType) {
         UserSignupRequest signupRequest = getRandomSignupRequest(roleType);
-        userService.signup(signupRequest);
+        SignupSuccessResponse<User> signupResponse = userService.signup(signupRequest);
         return userService.findByEmail(signupRequest.getEmail()).get();
     }
 

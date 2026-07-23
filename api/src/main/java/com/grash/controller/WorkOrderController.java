@@ -2,69 +2,39 @@ package com.grash.controller;
 
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.*;
-import com.grash.dto.comment.CommentCriteria;
-import com.grash.dto.license.LicenseEntitlement;
 import com.grash.dto.workOrder.WorkOrderPatchDTO;
 import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.dto.workOrder.WorkOrderSendReportDTO;
 import com.grash.dto.workOrder.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
-import com.grash.factory.StorageServiceFactory;
-import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.mapper.WorkOrderMapper;
-import com.grash.factory.MailServiceFactory;
 import com.grash.model.*;
-import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.*;
 import com.grash.model.enums.workflow.WFMainCondition;
-import com.grash.model.UserAppStats;
 import com.grash.service.*;
 import com.grash.utils.Helper;
-import com.grash.utils.MultipartFileImpl;
 import com.grash.utils.TenantAspectUtils;
-import com.grash.utils.Utils;
-import com.itextpdf.html2pdf.HtmlConverter;
-import com.itextpdf.html2pdf.ConverterProperties;
-import com.itextpdf.html2pdf.attach.ITagWorker;
-import com.itextpdf.html2pdf.attach.ITagWorkerFactory;
-import com.itextpdf.html2pdf.attach.ProcessorContext;
-import com.itextpdf.html2pdf.attach.impl.DefaultTagWorkerFactory;
-import com.itextpdf.styledxmlparser.node.IElementNode;
+import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
-import org.springframework.context.support.ResourceBundleMessageSource;
-import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring5.SpringTemplateEngine;
 
-import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 import jakarta.transaction.Transactional;
 
 import jakarta.validation.Valid;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static java.util.Comparator.comparingLong;
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toCollection;
 
 @RestController
 @RequestMapping("/work-orders")
@@ -77,40 +47,11 @@ public class WorkOrderController {
     private final WorkOrderService workOrderService;
     private final WorkOrderMapper workOrderMapper;
     private final UserService userService;
-    private final MessageSource messageSource;
     private final AssetService assetService;
     private final LocationService locationService;
-    private final LaborService laborService;
     private final PartService partService;
-    private final FileService fileService;
-    private final PartQuantityService partQuantityService;
-    private final NotificationService notificationService;
-    private final MailServiceFactory mailServiceFactory;
-    private final Utils utils;
-    private final TaskService taskService;
-    private final RelationService relationService;
-    private final AdditionalCostService additionalCostService;
-    private final WorkOrderHistoryService workOrderHistoryService;
-    private final SpringTemplateEngine thymeleafTemplateEngine;
-    private final StorageServiceFactory storageServiceFactory;
     private final WorkflowService workflowService;
-    private final Environment environment;
-    private final PreventiveMaintenanceService preventiveMaintenanceService;
     private final EntityManager em;
-    private final PreventiveMaintenanceMapper preventiveMaintenanceMapper;
-    private final BrandingService brandingService;
-    private final ScheduleService scheduleService;
-    private final LicenseService licenseService;
-    private final IntercomService intercomService;
-    private final CompanyService companyService;
-    private final ReviewEligibilityService reviewEligibilityService;
-    private final CommentService commentService;
-    private final ResourceBundleMessageSource emailMessageSource;
-    private final CustomerService customerService;
-
-
-    @Value("${frontend.url}")
-    private String frontendUrl;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -144,45 +85,7 @@ public class WorkOrderController {
                                                                              dateRange, @RequestParam(required =
             false) Long companyId, HttpServletRequest req) {
         User user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
-            return TenantAspectUtils.executeWithDisabledCompanyCheck(() -> {
-                List<Long> companyIds = user.getSuperAccountRelations().isEmpty()
-                        ? Collections.singletonList(user.getCompany().getId())
-                        : user.getSuperAccountRelations().stream()
-                        .map(rel -> rel.getChildUser().getCompany().getId())
-                        .distinct()
-                        .toList();
-                if (companyId != null) {
-                    if (!companyIds.contains(companyId))
-                        throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-                    companyIds = Collections.singletonList(companyId);
-                }
-
-                List<CalendarEvent<WorkOrderBaseMiniDTO>> result = new ArrayList<>();
-                for (Long compId : companyIds) {
-                    result.addAll(preventiveMaintenanceService.getEvents(dateRange.getEnd(), compId).stream()
-                            .filter(calendarEvent -> calendarEvent.getDate().after(new Date()))
-                            .filter(calendarEvent -> canViewWorkOrderBase(user, calendarEvent.getEvent()))
-                            .map(calendarEvent -> new CalendarEvent<>(calendarEvent.getType(),
-                                    preventiveMaintenanceMapper.toBaseMiniDto(calendarEvent.getEvent()),
-                                    calendarEvent.getDate()))
-                            .toList());
-                    result.addAll(workOrderService.findByDueDateBetweenAndCompany(dateRange.getStart(),
-                            dateRange.getEnd(),
-                            compId).stream().filter(workOrder -> canViewWorkOrderBase(user, workOrder)).map(workOrderMapper::toBaseMiniDto).map(workOrderMiniDTO -> new CalendarEvent<>("WORK_ORDER",
-                            workOrderMiniDTO, workOrderMiniDTO.getDueDate())).toList());
-                }
-                return result;
-            });
-        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-    }
-
-    private boolean canViewWorkOrderBase(User user, WorkOrderBase workOrderBase) {
-        boolean canViewOthers =
-                user.getRole().getViewOtherPermissions().contains(workOrderBase instanceof PreventiveMaintenance ?
-                        PermissionEntity.PREVENTIVE_MAINTENANCES : PermissionEntity.WORK_ORDERS);
-        return canViewOthers || (workOrderBase.getCreatedBy() != null && workOrderBase.getCreatedBy().equals(user.getId())) || workOrderBase.isAssignedTo(user);
-
+        return workOrderService.getEvents(dateRange, companyId, user);
     }
 
     @GetMapping("/asset/{id}")
@@ -226,23 +129,7 @@ public class WorkOrderController {
                 User primaryUser = workOrderReq.getPrimaryUser();
                 workOrderReq.setPrimaryUser(primaryUser == null ? user : primaryUser);
             }
-            WorkOrder createdWorkOrder = workOrderService.create(workOrderReq, user.getCompany());
-
-            // Fire Intercom event for first work order creation
-            if (!user.getCompany().isFirstWorkOrderCreated()) {
-                user.getCompany().setFirstWorkOrderCreated(true);
-                companyService.update(user.getCompany());
-                Map<String, Object> metadata = new HashMap<>();
-                metadata.put("work_order_id", createdWorkOrder.getId());
-                metadata.put("work_order_title", createdWorkOrder.getTitle());
-                intercomService.createCompanyActivationEvent(
-                        "first-work-order-created",
-                        user.getCompany().getId(),
-                        user.getEmail(),
-                        metadata
-                );
-            }
-
+            WorkOrder createdWorkOrder = workOrderService.createWithIntercom(workOrderReq, user);
             return workOrderMapper.toShowDto(createdWorkOrder);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -253,14 +140,7 @@ public class WorkOrderController {
         User user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
-            Collection<PartQuantity> partQuantities = partQuantityService.findByPart(id).stream()
-                    .filter(partQuantity -> partQuantity.getWorkOrder() != null).collect(Collectors.toList());
-            Collection<WorkOrder> workOrders =
-                    partQuantities.stream().map(PartQuantity::getWorkOrder).collect(Collectors.toList());
-            Collection<WorkOrder> uniqueWorkOrders =
-                    workOrders.stream().collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(WorkOrder::getId))),
-                            ArrayList::new));
-            return uniqueWorkOrders.stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
+            return workOrderService.getWorkOrdersByPart(id).stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -300,102 +180,8 @@ public class WorkOrderController {
                                          HttpServletRequest req,
                                          @RequestHeader(value = "X-Platform", required = false) String platform) {
         User user = userService.whoami(req);
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
-        WorkOrder savedWorkOrder = optionalWorkOrder.get();
-        em.detach(savedWorkOrder); // detach FIRST
-        WorkOrder originalWorkOrder = savedWorkOrder;
-        WorkOrder mutableWO = workOrderService.findById(id).get(); // fresh managed copy
-
-        if (mutableWO.getFirstTimeToReact() == null && !workOrder.getStatus().equals(Status.ON_HOLD))
-            mutableWO.setFirstTimeToReact(new Date());
-        Status savedWorkOrderStatusBefore = mutableWO.getStatus();
-
-        if (workOrder.getStatus() == null) throw new CustomException("Status can't be null", HttpStatus.NOT_ACCEPTABLE);
-        if (workOrder.getSignature() != null && !licenseService.hasEntitlement(LicenseEntitlement.SIGNATURE_CAPTURE))
-            throw new CustomException("You need a license to add signature to work order",
-                    HttpStatus.FORBIDDEN);
-        mutableWO.setSignature(workOrder.getSignature());
-        mutableWO.setStatus(workOrder.getStatus());
-        mutableWO.setFeedback(workOrder.getFeedback());
-
-        if (workOrder.getStatus() != Status.COMPLETE) {
-            mutableWO.setCompletedOn(null);
-            mutableWO.setCompletedBy(null);
-        }
-        if (mutableWO.canBeEditedBy(user) && (workOrder.getSignature() == null ||
-                user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE))) {
-            if (!workOrder.getStatus().equals(Status.IN_PROGRESS)) {
-                if (workOrder.getStatus().equals(Status.COMPLETE)) {
-                    mutableWO.setCompletedBy(user);
-                    mutableWO.setCompletedOn(new Date());
-                    if (mutableWO.getAsset() != null) {
-                        Asset asset = mutableWO.getAsset();
-                        Collection<WorkOrder> workOrdersOfSameAsset = workOrderService.findByAsset(asset.getId());
-                        if (workOrdersOfSameAsset.stream().noneMatch(workOrder1 -> !workOrder1.getId().equals(id) && !workOrder1.getStatus().equals(Status.COMPLETE))) {
-                            assetService.stopDownTime(asset.getId(), Helper.getLocale(user));
-                        }
-                    }
-                    if (mutableWO.getParentPreventiveMaintenance() != null)
-                        scheduleService.scheduleNextWorkOrderJobAfterCompletion(mutableWO.getParentPreventiveMaintenance().getSchedule().getId(), mutableWO.getCompletedOn());
-                }
-                Collection<Labor> labors = laborService.findByWorkOrder(id);
-                Collection<Labor> primaryTimes = labors.stream().filter(Labor::isLogged).collect(Collectors.toList());
-                primaryTimes.forEach(laborService::stop);
-            }
-            WorkOrder patchedWorkOrder = workOrderService.saveAndFlushWithWebhook(mutableWO, user.getCompany(),
-                    originalWorkOrder);
-
-            if (patchedWorkOrder.getStatus().equals(Status.COMPLETE) && !savedWorkOrderStatusBefore.equals(Status.COMPLETE)) {
-                List<User> admins =
-                        userService.findWorkersByCompany(user.getCompany().getId()).stream().filter(ownUser -> ownUser.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) && ownUser.isEnabled() && ownUser.getUserSettings().shouldEmailUpdatesForWorkOrders()).collect(Collectors.toList());
-                notificationService.createMultiple(admins.stream().map(admin -> new Notification(messageSource.getMessage("complete_work_order_content", new String[]{patchedWorkOrder.getTitle(), user.getFullName()}, Helper.getLocale(admin)), admin,
-                                NotificationType.WORK_ORDER, id)).collect(Collectors.toList()), true,
-                        messageSource.getMessage("complete_work_order", null, Helper.getLocale(user)));
-                Collection<Workflow> workflows =
-                        workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_CLOSED,
-                                user.getCompany().getId());
-                workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, patchedWorkOrder));
-
-                if ("ios".equalsIgnoreCase(platform) || "android".equalsIgnoreCase(platform)) {
-                    reviewEligibilityService.incrementWorkOrder(reviewEligibilityService.getOrCreate(user));
-                }
-            }
-            if (user.getCompany().getCompanySettings().getGeneralPreferences().isWoUpdateForRequesters()
-                    && savedWorkOrderStatusBefore != patchedWorkOrder.getStatus()
-                    && patchedWorkOrder.getParentRequest() != null) {
-                Long requesterId = patchedWorkOrder.getParentRequest().getCreatedBy();
-                String requesterEmail = null;
-                User requester = null;
-                if (requesterId == null) {
-                    String contact = patchedWorkOrder.getParentRequest().getContact();
-                    if (contact != null && Helper.isValidEmailAddress(contact)) {
-                        requesterEmail = contact;
-                    }
-                } else {
-                    requester = userService.findById(requesterId).get();
-                    requesterEmail = requester.getEmail();
-                }
-                Locale locale = Helper.getLocale(user);
-                String message = messageSource.getMessage("notification_wo_request",
-                        new Object[]{patchedWorkOrder.getTitle(),
-                                messageSource.getMessage(patchedWorkOrder.getStatus().toString(), null, locale)},
-                        locale);
-                if (requester != null) {
-                    notificationService.create(new Notification(message, requester,
-                            NotificationType.WORK_ORDER, id));
-                }
-                if ((requester != null && requester.getUserSettings().shouldEmailUpdatesForRequests() && requester.isEnabled()) || requesterEmail != null) {
-                    Map<String, Object> mailVariables = new HashMap<String, Object>() {{
-                        put("workOrderLink", frontendUrl + "/app/work-orders/" + id);
-                        put("message", message);
-                    }};
-                    mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{requesterEmail},
-                            messageSource.getMessage("request_update", null, locale), mailVariables, "requester" +
-                                    "-update.html", Helper.getLocale(user), null);
-                }
-            }
-            return workOrderMapper.toShowDto(patchedWorkOrder);
-        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        WorkOrder patchedWorkOrder = workOrderService.changeStatus(workOrder, id, user, platform);
+        return workOrderMapper.toShowDto(patchedWorkOrder);
     }
 
     @DeleteMapping("/{id}")
@@ -409,23 +195,7 @@ public class WorkOrderController {
             if (
                     user.getId().equals(savedWorkOrder.getCreatedBy()) ||
                             user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.WORK_ORDERS)) {
-                Map<String, Object> mailVariables = new HashMap<String, Object>() {{
-                    put("workOrdersLink", frontendUrl + "/app/work-orders");
-                    put("workOrderTitle", savedWorkOrder.getTitle());
-                    put("deleter", user.getFullName());
-                }};
-                String title = messageSource.getMessage("deleted_wo", null, Helper.getLocale(user));
-
-                List<User> usersToMail =
-                        userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole()
-                                        .getViewPermissions().contains(PermissionEntity.SETTINGS))
-                                .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
-
-                mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(User::getEmail)
-                                .toArray(String[]::new), title, mailVariables, "deleted-work-order.html",
-                        Helper.getLocale(user), null);
-
-                workOrderService.delete(savedWorkOrder, user.getCompany());
+                workOrderService.deleteWithNotifications(savedWorkOrder, user);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
@@ -436,9 +206,10 @@ public class WorkOrderController {
     @Transactional
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Deprecated
-    public ResponseEntity<SuccessResponse> getPDF(@PathVariable("id") Long id, HttpServletRequest req) throws IOException {
+    public ResponseEntity<SuccessResponse> getPDF(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
-        return generateReport(id, user, new ReportConfig());
+        String signedUrl = workOrderService.generateReport(id, user, new ReportConfig());
+        return ResponseEntity.ok().body(new SuccessResponse(true, signedUrl));
     }
 
     @PostMapping(path = "/report/{id}")
@@ -446,126 +217,10 @@ public class WorkOrderController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> getPDFWithConfig(@PathVariable("id") Long id,
                                                             @Valid @RequestBody ReportConfig config,
-                                                            HttpServletRequest req) throws IOException {
+                                                            HttpServletRequest req) {
         User user = userService.whoami(req);
-        return generateReport(id, user, config);
-    }
-
-    private byte[] generatePdfBytes(WorkOrder savedWorkOrder, User user, ReportConfig config) {
-        StorageService storageService = storageServiceFactory.getStorageService();
-        Context thymeleafContext = new Context();
-        thymeleafContext.setLocale(Helper.getLocale(user));
-        Optional<User> creator = savedWorkOrder.getCreatedBy() == null ? Optional.empty() :
-                userService.findById(savedWorkOrder.getCreatedBy());
-        List<Task> tasks = taskService.findByWorkOrder(savedWorkOrder.getId());
-        Map<Long, String[]> tasksImagesUrls = tasks.stream()
-                .collect(Collectors.toMap(
-                        Task::getId,
-                        task -> task.getImages().stream()
-                                .map(image -> storageService.generateSignedUrl(image, 5))
-                                .toArray(String[]::new)
-                ));
-        Collection<PartQuantity> partQuantities = config.isCost() ?
-                partQuantityService.findByWorkOrder(savedWorkOrder.getId()) :
-                Collections.emptyList();
-        Collection<Labor> labors = config.isCost() ? laborService.findByWorkOrder(savedWorkOrder.getId()) :
-                Collections.emptyList();
-        Collection<Relation> relations = config.isRelations() ?
-                relationService.findByWorkOrder(savedWorkOrder.getId()) :
-                Collections.emptyList();
-        Collection<AdditionalCost> additionalCosts = config.isCost() ?
-                additionalCostService.findByWorkOrder(savedWorkOrder.getId()) : Collections.emptyList();
-        Collection<WorkOrderHistory> workOrderHistories = config.isWorkOrderHistory() ?
-                workOrderHistoryService.findByWorkOrder(savedWorkOrder.getId()) : Collections.emptyList();
-        List<Comment> comments = config.isComments() ? commentService.findByCriteria(
-                new CommentCriteria() {{
-                    setWorkOrderId(savedWorkOrder.getId());
-                }}, user) : Collections.emptyList();
-        Map<Long, String[]> commentFilesUrls = comments.stream()
-                .collect(Collectors.toMap(
-                        Comment::getId,
-                        comment -> comment.getFiles().stream()
-                                .map(file -> storageService.generateSignedUrl(file, 5))
-                                .toArray(String[]::new)
-                ));
-        String[] workOrderFilesUrls = config.isFiles() ? savedWorkOrder.getFiles().stream()
-                .map(file -> storageService.generateSignedUrl(file, 5))
-                .toArray(String[]::new) : new String[0];
-        Map<String, Object> variables = new HashMap<String, Object>() {{
-            put("companyName", user.getCompany().getName());
-            put("companyPhone", user.getCompany().getPhone());
-            put("companyLogo", user.getCompany().getLogo() == null ? null :
-                    storageService.generateSignedUrl(user.getCompany().getLogo(), 5));
-            put("currency",
-                    user.getCompany().getCompanySettings().getGeneralPreferences().getCurrency().getCode());
-            put("utils", utils);
-            put("dateFormat", user.getCompany().getCompanySettings().getGeneralPreferences().getDateFormat());
-            put("timeZone", user.getCompany().getCompanySettings().getGeneralPreferences().getTimeZone());
-            put("assignedTo",
-                    Helper.enumerate(savedWorkOrder.getAssignedTo().stream().map(User::getFullName).collect(Collectors.toList())));
-            put("customers",
-                    Helper.enumerate(savedWorkOrder.getCustomers().stream().map(Customer::getName).collect(Collectors.toList())));
-            put("workOrder", savedWorkOrder);
-            put("primaryUserName", savedWorkOrder.getPrimaryUser() == null ? null :
-                    savedWorkOrder.getPrimaryUser().getFullName());
-            put("createdBy", creator.<Object>map(User::getFullName).orElse(null));
-            put("tasks", tasks);
-            put("labors", labors);
-            put("relations", relations);
-            put("additionalCosts", additionalCosts);
-            put("workOrderHistories", workOrderHistories);
-            put("partQuantities", partQuantities);
-            put("environment", environment);
-            put("tasksImagesUrls", tasksImagesUrls);
-            put("messageSource", messageSource);
-            put("locale", Helper.getLocale(user));
-            String companyColor = user.getCompany().getCompanySettings().getGeneralPreferences().getColor();
-            put("backgroundColor", companyColor != null && !companyColor.isBlank() ? companyColor :
-                    brandingService.getMailBackgroundColor()
-            );
-            put("reportConfig", config);
-            put("comments", comments);
-            put("commentFilesUrls", commentFilesUrls);
-            put("workOrderFilesUrls", workOrderFilesUrls);
-            put("workOrderImageUrl", savedWorkOrder.getImage() == null ? null :
-                    storageService.generateSignedUrl(savedWorkOrder.getImage(), 5));
-        }};
-        thymeleafContext.setVariables(variables);
-
-        String reportHtml = thymeleafTemplateEngine.process("work-order-report.html", thymeleafContext);
-
-        ConverterProperties converterProperties = new ConverterProperties()
-                .setTagWorkerFactory(new ITagWorkerFactory() {
-                    private final DefaultTagWorkerFactory defaultFactory = new DefaultTagWorkerFactory();
-
-                    @Override
-                    public ITagWorker getTagWorker(IElementNode tag, ProcessorContext context) {
-                        try {
-                            return defaultFactory.getTagWorker(tag, context);
-                        } catch (Exception e) {
-                            log.warn("Failed to create tag worker for <{}>: {}", tag.name(), e.getMessage());
-                            return null;
-                        }
-                    }
-                });
-        ByteArrayOutputStream target = new ByteArrayOutputStream();
-        HtmlConverter.convertToPdf(reportHtml, target, converterProperties);
-        return target.toByteArray();
-    }
-
-    private ResponseEntity<SuccessResponse> generateReport(Long id, User user, ReportConfig config) {
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
-        if (optionalWorkOrder.isPresent()) {
-            WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || user.getId().equals(savedWorkOrder.getCreatedBy()) || savedWorkOrder.isAssignedTo(user))) {
-                byte[] bytes = generatePdfBytes(savedWorkOrder, user, config);
-                MultipartFile file = new MultipartFileImpl(bytes, "Work Order Report.pdf");
-                return ResponseEntity.ok()
-                        .body(new SuccessResponse(true, storageServiceFactory.getStorageService().uploadAndSign(file,
-                                "reports/" + user.getCompany().getId())));
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+        String signedUrl = workOrderService.generateReport(id, user, config);
+        return ResponseEntity.ok().body(new SuccessResponse(true, signedUrl));
     }
 
     @PostMapping("/{id}/report/send")
@@ -575,67 +230,7 @@ public class WorkOrderController {
                                                       @Valid @RequestBody WorkOrderSendReportDTO request,
                                                       HttpServletRequest req) {
         User user = userService.whoami(req);
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
-        if (optionalWorkOrder.isEmpty()) {
-            throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-        }
-        WorkOrder savedWorkOrder = optionalWorkOrder.get();
-
-        if (!user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) ||
-                (!user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) &&
-                        !user.getId().equals(savedWorkOrder.getCreatedBy()) &&
-                        !savedWorkOrder.isAssignedTo(user))) {
-            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        }
-
-        List<Customer> customersInDb =
-                customerService.findByCompanyAndIdIn(user.getCompany().getId(),
-                        request.getCustomers().stream().map(Customer::getId).toList());
-
-        List<String> customerEmails = customersInDb.stream()
-                .map(Customer::getEmail)
-                .filter(email -> email != null && !email.isBlank())
-                .toList();
-
-        if (customerEmails.isEmpty()) {
-            throw new CustomException("No contractors with email addresses found", HttpStatus.BAD_REQUEST);
-        }
-
-        ReportConfig config = request.getConfig() != null ? request.getConfig() : new ReportConfig();
-        byte[] pdfBytes = generatePdfBytes(savedWorkOrder, user, config);
-
-        Set<String> allRecipients = new HashSet<>(customerEmails);
-        allRecipients.add(user.getEmail());
-
-        Locale locale = Helper.getLocale(user);
-        String subject = messageSource.getMessage("workOrderReportSubject",
-                null, locale);
-
-        String customMessage = request.getMessage() != null ? request.getMessage() : "";
-        String messageBody = messageSource.getMessage("workOrderReportBody",
-                new Object[]{user.getFullName(), customMessage, savedWorkOrder.getTitle()},
-                locale);
-
-        Map<String, Object> mailVariables = new HashMap<>();
-        mailVariables.put("messageBody", messageBody);
-
-        List<EmailAttachmentDTO> attachments = Collections.singletonList(
-                EmailAttachmentDTO.builder()
-                        .attachmentName(emailMessageSource.getMessage("workOrderReport", null, locale) + ".pdf")
-                        .attachmentData(pdfBytes)
-                        .attachmentType("application/pdf")
-                        .build()
-        );
-
-        mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(
-                allRecipients.toArray(new String[0]),
-                subject,
-                mailVariables,
-                "work-order-report-email.html",
-                locale,
-                attachments
-        );
-
+        workOrderService.sendReport(id, request, user);
         return ResponseEntity.ok(new SuccessResponse(true, "Report sent successfully"));
     }
 

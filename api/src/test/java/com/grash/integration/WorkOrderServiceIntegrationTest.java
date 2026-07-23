@@ -18,7 +18,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@Transactional
 class WorkOrderServiceIntegrationTest extends MockedServicesTestBase {
 
     @Autowired
@@ -27,11 +26,11 @@ class WorkOrderServiceIntegrationTest extends MockedServicesTestBase {
     private RoleRepository roleRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserTestUtils userTestUtils;
 
     private Company company;
     private User user;
-    @Autowired
-    private UserTestUtils userTestUtils;
 
     @BeforeEach
     void setUp() {
