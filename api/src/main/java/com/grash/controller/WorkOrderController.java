@@ -11,7 +11,6 @@ import com.grash.mapper.FileMapper;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
 import com.grash.model.enums.PermissionEntity;
-import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleType;
 import com.grash.service.*;
 import com.grash.utils.TenantAspectUtils;
@@ -116,16 +115,9 @@ public class WorkOrderController {
     WorkOrderShowDTO create(@Parameter(description = "Work order data to create") @Valid @RequestBody WorkOrderPostDTO
                                     workOrderReq, HttpServletRequest req) {
         User user = userService.whoami(req);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
-                && (workOrderReq.getSignature() == null ||
-                user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE))) {
-            if (user.getCompany().getCompanySettings().getGeneralPreferences().isAutoAssignWorkOrders()) {
-                User primaryUser = workOrderReq.getPrimaryUser();
-                workOrderReq.setPrimaryUser(primaryUser == null ? user : primaryUser);
-            }
-            WorkOrder createdWorkOrder = workOrderService.createWithIntercom(workOrderReq, user);
-            return workOrderMapper.toShowDto(createdWorkOrder);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        WorkOrder createdWorkOrder = workOrderService.createByUser(workOrderReq, user);
+        return workOrderMapper.toShowDto(createdWorkOrder);
+
     }
 
     @GetMapping("/part/{id}")

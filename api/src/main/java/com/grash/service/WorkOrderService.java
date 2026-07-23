@@ -1040,7 +1040,15 @@ public class WorkOrderService {
     }
 
     @Transactional
-    public WorkOrder createWithIntercom(WorkOrderPostDTO workOrderReq, User user) {
+    public WorkOrder createByUser(WorkOrderPostDTO workOrderReq, User user) {
+        if (!(user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
+                && (workOrderReq.getSignature() == null ||
+                user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE))))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        if (user.getCompany().getCompanySettings().getGeneralPreferences().isAutoAssignWorkOrders()) {
+            User primaryUser = workOrderReq.getPrimaryUser();
+            workOrderReq.setPrimaryUser(primaryUser == null ? user : primaryUser);
+        }
         WorkOrder createdWorkOrder = create(workOrderReq, user.getCompany());
 
         if (!user.getCompany().isFirstWorkOrderCreated()) {
