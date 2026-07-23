@@ -14,6 +14,7 @@ import jakarta.persistence.EntityManager;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.Collection;
 import java.util.List;
 
 import static org.apache.commons.lang3.reflect.FieldUtils.getAllFields;
@@ -45,8 +46,7 @@ public class TenantAspect {
             Parameter parameter = parameters[i];
             if (parameter.isAnnotationPresent(RequestBody.class)) {
                 Object arg = joinPoint.getArgs()[i]; // Get the requestBody
-                if (arg instanceof List) {
-                    List<?> list = (List<?>) arg;
+                if (arg instanceof Collection<?> list) {
                     list.forEach(this::validateObject);
                 } else {
                     validateObject(arg);
@@ -65,8 +65,7 @@ public class TenantAspect {
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
-            if (fieldValue instanceof List) {
-                List<?> list = (List<?>) fieldValue;
+            if (fieldValue instanceof Collection<?> list) {
                 list.forEach(this::validateFieldElement);
             } else {
                 validateFieldElement(fieldValue);
