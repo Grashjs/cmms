@@ -1,0 +1,66 @@
+name: Web SAST Scan
+
+on:
+  push:
+    branches:
+      - security
+  pull_request:
+    branches:
+      - security
+
+jobs:
+  web-sast:
+    name: ESLint + npm audit Security Scan (frontend/)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Navigate to frontend/ and install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      # --------------------------
+      # ESLint Scan
+      # --------------------------
+      - name: Run ESLint
+        working-directory: frontend
+        run: |
+          npx eslint . \
+            --ext .ts,.tsx \
+            --ignore-pattern commitlint.config.ts \
+            --max-warnings=0 || true
+
+      - name: Generate ESLint JSON report
+        working-directory: frontend
+        run: |
+          npx eslint . \
+            --ext .ts,.tsx \
+            --ignore-pattern commitlint.config.ts \
+            -f json -o eslint-report.json || true
+
+      - name: Upload ESLint report
+        uses: actions/upload-artifact@v4
+        with:
+          name: eslint-report
+          path: frontend/eslint-report.json
+
+      # --------------------------
+      # npm audit
+      # --------------------------
+      - name: Run npm audit and generate JSON report
+        working-directory: frontend
+        run: |
+          npm audit --json > npm-audit-report.json || true
+
+      - name: Upload npm audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-report
+          path: frontend/npm-audit-report.json
