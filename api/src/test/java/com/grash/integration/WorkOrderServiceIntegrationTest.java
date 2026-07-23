@@ -127,7 +127,7 @@ class WorkOrderServiceIntegrationTest extends MockedServicesTestBase {
         WorkOrder wo = WorkOrderFactory.createWorkOrder();
         WorkOrder saved = workOrderService.create(wo, company);
 
-        workOrderService.delete(saved, company);
+        workOrderService.deleteByIdAndUser(saved.getId(), user);
 
         assertThat(workOrderService.findById(saved.getId())).isEmpty();
     }

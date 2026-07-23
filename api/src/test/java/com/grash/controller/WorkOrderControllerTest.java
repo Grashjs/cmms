@@ -155,7 +155,7 @@ class WorkOrderControllerTest {
     @Test
     void delete_shouldRemoveWorkOrder() throws Exception {
         when(workOrderService.findById(1L)).thenReturn(Optional.of(testWorkOrder));
-        doNothing().when(workOrderService).delete(any(WorkOrder.class), any(Company.class));
+        doNothing().when(workOrderService).deleteByIdAndUser(anyLong(), any(User.class));
         when(messageSource.getMessage(any(), any(), any())).thenReturn("Work order deleted");
         when(userService.findByCompany(anyLong())).thenReturn(List.of());
         when(mailServiceFactory.getMailService()).thenReturn(mock(com.grash.service.MailService.class));

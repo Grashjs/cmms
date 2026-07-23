@@ -7,40 +7,35 @@ import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.dto.workOrder.WorkOrderSendReportDTO;
 import com.grash.dto.workOrder.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.FileMapper;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
-import com.grash.model.enums.*;
-import com.grash.model.enums.workflow.WFMainCondition;
+import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.PlanFeatures;
+import com.grash.model.enums.RoleType;
 import com.grash.service.*;
-import com.grash.utils.Helper;
 import com.grash.utils.TenantAspectUtils;
-import jakarta.persistence.EntityManager;
-import lombok.extern.slf4j.Slf4j;
-
-
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
-
-import jakarta.transaction.Transactional;
-
-import jakarta.validation.Valid;
-
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/work-orders")
 @Tag(name = "Work Orders", description = "Operations on work orders")
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
 public class WorkOrderController {
 
@@ -50,8 +45,7 @@ public class WorkOrderController {
     private final AssetService assetService;
     private final LocationService locationService;
     private final PartService partService;
-    private final WorkflowService workflowService;
-    private final EntityManager em;
+    private final FileMapper fileMapper;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -150,27 +144,8 @@ public class WorkOrderController {
                                           workOrder, @PathVariable("id") Long id,
                                   HttpServletRequest req) {
         User user = userService.whoami(req);
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
-        if (optionalWorkOrder.isPresent()) {
-            WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (savedWorkOrder.canBeEditedBy(user)) {
-                em.detach(savedWorkOrder);
-                WorkOrder patchedWorkOrder = workOrderService.update(id, workOrder, user);
-
-                if (patchedWorkOrder.isArchived() && !savedWorkOrder.isArchived()) {
-                    Collection<Workflow> workflows =
-                            workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_ARCHIVED,
-                                    user.getCompany().getId());
-                    workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, patchedWorkOrder));
-                }
-
-                boolean shouldNotify =
-                        !user.getCompany().getCompanySettings().getGeneralPreferences().isDisableClosedWorkOrdersNotif() || !patchedWorkOrder.getStatus().equals(Status.COMPLETE);
-                if (shouldNotify)
-                    workOrderService.patchNotify(savedWorkOrder, patchedWorkOrder, Helper.getLocale(user));
-                return workOrderMapper.toShowDto(patchedWorkOrder);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND);
+        WorkOrder patchedWorkOrder = workOrderService.patch(id, workOrder, user);
+        return workOrderMapper.toShowDto(patchedWorkOrder);
     }
 
     @PatchMapping("/{id}/change-status")
@@ -188,22 +163,12 @@ public class WorkOrderController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
-
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
-        if (optionalWorkOrder.isPresent()) {
-            WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (
-                    user.getId().equals(savedWorkOrder.getCreatedBy()) ||
-                            user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.WORK_ORDERS)) {
-                workOrderService.deleteWithNotifications(savedWorkOrder, user);
-                return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND);
+        workOrderService.deleteByIdAndUser(id, user);
+        return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
+                HttpStatus.OK);
     }
 
     @GetMapping(path = "/report/{id}")
-    @Transactional
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Deprecated
     public ResponseEntity<SuccessResponse> getPDF(@PathVariable("id") Long id, HttpServletRequest req) {
@@ -213,7 +178,6 @@ public class WorkOrderController {
     }
 
     @PostMapping(path = "/report/{id}")
-    @Transactional
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> getPDFWithConfig(@PathVariable("id") Long id,
                                                             @Valid @RequestBody ReportConfig config,
@@ -224,7 +188,6 @@ public class WorkOrderController {
     }
 
     @PostMapping("/{id}/report/send")
-    @Transactional
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> sendReport(@PathVariable("id") Long id,
                                                       @Valid @RequestBody WorkOrderSendReportDTO request,
@@ -245,38 +208,20 @@ public class WorkOrderController {
 
     @PatchMapping("/files/{id}/add")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<File> addFilesToWorkOrder(@PathVariable("id") Long id, @Parameter(description = "List of files to " +
-                                                  "add") @RequestBody List<File> files,
-                                          HttpServletRequest req) {
+    public List<FileShowDTO> addFilesToWorkOrder(@PathVariable("id") Long id, @Parameter(description = "List of files" +
+                                                         " to " +
+                                                         "add") @RequestBody List<File> files,
+                                                 HttpServletRequest req) {
         User user = userService.whoami(req);
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
-        if (optionalWorkOrder.isPresent()) {
-            WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (!savedWorkOrder.canBeEditedBy(user))
-                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            savedWorkOrder.getFiles().addAll(files);
-            workOrderService.save(savedWorkOrder);
-            return savedWorkOrder.getFiles();
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+        return workOrderService.addFiles(id, files, user).stream().map(fileMapper::toShowDto).collect(Collectors.toList());
     }
 
     @DeleteMapping("/files/{id}/{fileId}/remove")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<File> removeFileFromWorkOrder(@PathVariable("id") Long id,
-                                              @PathVariable("fileId") Long fileId, HttpServletRequest req) {
+    public List<FileShowDTO> removeFileFromWorkOrder(@PathVariable("id") Long id,
+                                                     @PathVariable("fileId") Long fileId, HttpServletRequest req) {
         User user = userService.whoami(req);
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
-        if (optionalWorkOrder.isPresent()) {
-            WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (!savedWorkOrder.canBeEditedBy(user))
-                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            savedWorkOrder.getFiles().removeIf(file -> file.getId().equals(fileId));
-            workOrderService.save(savedWorkOrder);
-            return savedWorkOrder.getFiles();
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+        return workOrderService.removeFile(id, fileId, user).stream().map(fileMapper::toShowDto).collect(Collectors.toList());
     }
 
 }
-
-
-

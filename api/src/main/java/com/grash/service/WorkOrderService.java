@@ -24,7 +24,6 @@ import com.grash.model.enums.webhook.WOField;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.model.enums.workflow.WFMainCondition;
 
-import com.grash.repository.WorkOrderHistoryRepository;
 import com.grash.repository.WorkOrderRepository;
 import com.grash.utils.Helper;
 import com.grash.utils.MultipartFileImpl;
@@ -53,7 +52,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
@@ -113,12 +111,6 @@ public class WorkOrderService {
     private PreventiveMaintenanceService preventiveMaintenanceService;
     private PreventiveMaintenanceMapper preventiveMaintenanceMapper;
 
-    @Autowired
-    public void setDeps(@Lazy WorkflowService workflowService
-    ) {
-        this.workflowService = workflowService;
-    }
-
     @Transactional
     public WorkOrder create(WorkOrder workOrder, Company company) {
         checkUsageBasedLimit(company);
@@ -171,25 +163,24 @@ public class WorkOrderService {
     @Autowired
     public void setDeps(@Lazy LaborService laborService,
                         @Lazy AdditionalCostService additionalCostService,
-                        @Lazy PartQuantityService partQuantityService) {
+                        @Lazy PartQuantityService partQuantityService,
+                        @Lazy TaskService taskService,
+                        @Lazy RelationService relationService,
+                        @Lazy CommentService commentService,
+                        @Lazy ScheduleService scheduleService,
+                        @Lazy PreventiveMaintenanceService preventiveMaintenanceService,
+                        @Lazy PreventiveMaintenanceMapper preventiveMaintenanceMapper,
+                        @Lazy WorkflowService workflowService) {
         this.laborService = laborService;
         this.additionalCostService = additionalCostService;
         this.partQuantityService = partQuantityService;
-    }
-
-    @Autowired
-    public void setCircularDeps(@Lazy TaskService taskService,
-                                @Lazy RelationService relationService,
-                                @Lazy CommentService commentService,
-                                @Lazy ScheduleService scheduleService,
-                                @Lazy PreventiveMaintenanceService preventiveMaintenanceService,
-                                @Lazy PreventiveMaintenanceMapper preventiveMaintenanceMapper) {
         this.taskService = taskService;
         this.relationService = relationService;
         this.commentService = commentService;
         this.scheduleService = scheduleService;
         this.preventiveMaintenanceService = preventiveMaintenanceService;
         this.preventiveMaintenanceMapper = preventiveMaintenanceMapper;
+        this.workflowService = workflowService;
     }
 
     private void checkUsageBasedLimit(Company company) {
@@ -204,7 +195,7 @@ public class WorkOrderService {
     }
 
     @Transactional
-    public WorkOrder update(Long id, WorkOrderPatchDTO workOrder, User user) {
+    protected WorkOrder update(Long id, WorkOrderPatchDTO workOrder, User user) {
         if (workOrderRepository.existsById(id)) {
             WorkOrder savedWorkOrder = workOrderRepository.findById(id).get();
             if (savedWorkOrder.getFirstTimeToReact() == null) savedWorkOrder.setFirstTimeToReact(new Date());
@@ -246,12 +237,38 @@ public class WorkOrderService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
+
+    @Transactional
+    public WorkOrder patch(Long id, WorkOrderPatchDTO workOrder, User user) {
+        Optional<WorkOrder> optionalWorkOrder = findById(id);
+        if (optionalWorkOrder.isPresent()) {
+            WorkOrder savedWorkOrder = optionalWorkOrder.get();
+            if (savedWorkOrder.canBeEditedBy(user)) {
+                em.detach(savedWorkOrder);
+                WorkOrder patchedWorkOrder = update(id, workOrder, user);
+
+                if (patchedWorkOrder.isArchived() && !savedWorkOrder.isArchived()) {
+                    Collection<Workflow> workflows =
+                            workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_ARCHIVED,
+                                    user.getCompany().getId());
+                    workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, patchedWorkOrder));
+                }
+
+                boolean shouldNotify =
+                        !user.getCompany().getCompanySettings().getGeneralPreferences().isDisableClosedWorkOrdersNotif() || !patchedWorkOrder.getStatus().equals(Status.COMPLETE);
+                if (shouldNotify)
+                    patchNotify(savedWorkOrder, patchedWorkOrder, Helper.getLocale(user));
+                return patchedWorkOrder;
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND);
+    }
+
     public Collection<WorkOrder> getAll() {
         return workOrderRepository.findAll();
     }
 
     @Transactional
-    public void delete(WorkOrder workOrder, Company company) {
+    protected void delete(WorkOrder workOrder, Company company) {
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("workOrderId", workOrder.getId());
         webhookPayload.put("workOrderTitle", workOrder.getTitle());
@@ -428,10 +445,6 @@ public class WorkOrderService {
         return workOrder;
     }
 
-    public Collection<WorkOrder> findByPrimaryUser(Long id) {
-        return workOrderRepository.findByPrimaryUser_Id(id);
-    }
-
     public Collection<WorkOrder> findByAssignedToUser(Long id) {
         return workOrderRepository.findByAssignedToUser(id);
     }
@@ -440,17 +453,9 @@ public class WorkOrderService {
         return workOrderRepository.findByCompletedBy_Id(id);
     }
 
-    public Collection<WorkOrder> findByPriorityAndCompany(Priority priority, Long companyId) {
-        return workOrderRepository.findByPriorityAndCompany_Id(priority, companyId);
-    }
-
     public Collection<WorkOrder> findByPriorityAndCompanyAndCreatedAtBetween(Priority priority, Long companyId,
                                                                              Date start, Date end) {
         return workOrderRepository.findByPriorityAndCompany_IdAndCreatedAtBetween(priority, companyId, start, end);
-    }
-
-    public Collection<WorkOrder> findByCategory(Long id) {
-        return workOrderRepository.findByCategory_Id(id);
     }
 
     public Collection<WorkOrder> findByCategoryAndCreatedAtBetween(Long id, Date start, Date end) {
@@ -505,16 +510,6 @@ public class WorkOrderService {
 
     public Collection<WorkOrder> findByCreatedBy(Long id) {
         return workOrderRepository.findByCreatedBy(id);
-    }
-
-    public boolean isWorkOrderInCompany(WorkOrder workOrder, long companyId, boolean optional) {
-        if (optional) {
-            Optional<WorkOrder> optionalWorkOrder = workOrder == null ? Optional.empty() : findById(workOrder.getId());
-            return workOrder == null || (optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId));
-        } else {
-            Optional<WorkOrder> optionalWorkOrder = findById(workOrder.getId());
-            return optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
-        }
     }
 
     public Collection<WorkOrder> findByDueDateBetweenAndCompany(Date date1, Date date2, Long id) {
@@ -1014,25 +1009,34 @@ public class WorkOrderService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
+
     @Transactional
-    public void deleteWithNotifications(WorkOrder savedWorkOrder, User user) {
-        Map<String, Object> mailVariables = new HashMap<String, Object>() {{
-            put("workOrdersLink", frontendUrl + "/app/work-orders");
-            put("workOrderTitle", savedWorkOrder.getTitle());
-            put("deleter", user.getFullName());
-        }};
-        String title = messageSource.getMessage("deleted_wo", null, Helper.getLocale(user));
+    public void deleteByIdAndUser(Long id, User user) {
+        Optional<WorkOrder> optionalWorkOrder = findById(id);
+        if (optionalWorkOrder.isPresent()) {
+            WorkOrder savedWorkOrder = optionalWorkOrder.get();
+            if (
+                    user.getId().equals(savedWorkOrder.getCreatedBy()) ||
+                            user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.WORK_ORDERS)) {
+                Map<String, Object> mailVariables = new HashMap<String, Object>() {{
+                    put("workOrdersLink", frontendUrl + "/app/work-orders");
+                    put("workOrderTitle", savedWorkOrder.getTitle());
+                    put("deleter", user.getFullName());
+                }};
+                String title = messageSource.getMessage("deleted_wo", null, Helper.getLocale(user));
 
-        List<User> usersToMail =
-                userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole()
-                                .getViewPermissions().contains(PermissionEntity.SETTINGS))
-                        .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).toList();
+                List<User> usersToMail =
+                        userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole()
+                                        .getViewPermissions().contains(PermissionEntity.SETTINGS))
+                                .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).toList();
 
-        mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(User::getEmail)
-                        .toArray(String[]::new), title, mailVariables, "deleted-work-order.html",
-                Helper.getLocale(user), null);
+                mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(User::getEmail)
+                                .toArray(String[]::new), title, mailVariables, "deleted-work-order.html",
+                        Helper.getLocale(user), null);
 
-        delete(savedWorkOrder, user.getCompany());
+                delete(savedWorkOrder, user.getCompany());
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND);
     }
 
     @Transactional
@@ -1170,5 +1174,29 @@ public class WorkOrderService {
                         PermissionEntity.PREVENTIVE_MAINTENANCES : PermissionEntity.WORK_ORDERS);
         return canViewOthers || (workOrderBase.getCreatedBy() != null && workOrderBase.getCreatedBy().equals(user.getId())) || workOrderBase.isAssignedTo(user);
 
+    }
+
+    public List<File> addFiles(Long workOrderId, List<File> files, User user) {
+        Optional<WorkOrder> optionalWorkOrder = findById(workOrderId);
+        if (optionalWorkOrder.isPresent()) {
+            WorkOrder savedWorkOrder = optionalWorkOrder.get();
+            if (!savedWorkOrder.canBeEditedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            savedWorkOrder.getFiles().addAll(files);
+            save(savedWorkOrder);
+            return savedWorkOrder.getFiles();
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    public List<File> removeFile(Long workOrderId, Long fileId, User user) {
+        Optional<WorkOrder> optionalWorkOrder = findById(workOrderId);
+        if (optionalWorkOrder.isPresent()) {
+            WorkOrder savedWorkOrder = optionalWorkOrder.get();
+            if (!savedWorkOrder.canBeEditedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            savedWorkOrder.getFiles().removeIf(file -> file.getId().equals(fileId));
+            save(savedWorkOrder);
+            return savedWorkOrder.getFiles();
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 }
