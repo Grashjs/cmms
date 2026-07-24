@@ -38,7 +38,7 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @Transactional
-class WorkOrderIntegrationTest extends AbstractIntegrationTest {
+class WorkOrderIntegrationTest extends MockedServicesTestBase {
 
     @Autowired
     private WorkOrderRepository workOrderRepository;
@@ -72,20 +72,14 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
     private TeamService teamService;
 
     @MockBean
-    private MailServiceFactory mailServiceFactory;
-
-    @MockBean
     private WebhookDispatchService webhookDispatchService;
 
-    private MailService mailService;
     private Company company;
     private User user;
     private Role adminRole;
 
     @BeforeEach
     void setUpBase() {
-        mailService = mock(MailService.class);
-        when(mailServiceFactory.getMailService()).thenReturn(mailService);
 
         SubscriptionPlan plan = SubscriptionPlan.builder()
                 .name("Test Plan")

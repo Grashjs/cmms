@@ -1,5 +1,6 @@
 package com.grash.integration;
 
+import com.grash.factory.MailServiceFactory;
 import com.grash.model.File;
 import com.grash.service.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,27 +11,21 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public abstract class MockedServicesTestBase extends AbstractIntegrationTest {
 
     @MockBean
-    protected EmailService2 emailService2;
-    @MockBean
-    protected SendgridService sendgridService;
+    protected MailServiceFactory mailServiceFactory;
 
-    @MockBean
-    protected GCPService gcpService;
-
-    @MockBean
-    protected MinioService minioService;
+    protected MailService mailService;
 
     @BeforeEach
     void setUpMocks() {
-        when(gcpService.generateSignedUrl(any(File.class), anyLong()))
-                .thenReturn(UUID.randomUUID().toString());
-        when(minioService.generateSignedUrl(any(File.class), anyLong()))
-                .thenReturn(UUID.randomUUID().toString());
+        mailService = mock(MailService.class);
+        when(mailServiceFactory.getMailService()).thenReturn(mailService);
+
     }
 }
