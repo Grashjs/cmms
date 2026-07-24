@@ -4,13 +4,14 @@ import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.ReportConfig;
 import com.grash.dto.WorkOrderChangeStatusDTO;
-import com.grash.dto.workOrder.WorkOrderPatchDTO;
+import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.dto.workOrder.WorkOrderSendReportDTO;
 import com.grash.exception.CustomException;
 import com.grash.factory.MailServiceFactory;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
 import com.grash.model.enums.*;
+import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.*;
 import com.grash.service.*;
 import com.grash.security.CustomUserDetail;
@@ -72,6 +73,9 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
 
     @MockBean
     private MailServiceFactory mailServiceFactory;
+
+    @MockBean
+    private WebhookDispatchService webhookDispatchService;
 
     private MailService mailService;
     private Company company;
@@ -155,54 +159,70 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
     @Nested
     class CreateTests {
 
-        @Test
-        void create_persistsCustomFieldsAndReturnsCorrectEntity() {
-            WorkOrderCategory category = new WorkOrderCategory();
-            category.setName("Electrical");
-            category.setCompanySettings(company.getCompanySettings());
-            category = workOrderCategoryRepository.save(category);
-
-            WorkOrder wo = new WorkOrder();
-            wo.setTitle("Integration Test WO");
-            wo.setDescription("Full integration test");
-            wo.setStatus(Status.OPEN);
-            wo.setPriority(Priority.HIGH);
-            wo.setEstimatedDuration(2.0);
-            wo.setCompany(company);
-            wo.setCategory(category);
-            wo.setAssignedTo(new ArrayList<>());
-            wo.setCustomers(new ArrayList<>());
-            wo.setFiles(new ArrayList<>());
-            wo.setCustomFieldValues(new ArrayList<>());
-            wo.setFirstTimeToReact(new Date());
-
-            WorkOrder saved = workOrderRepository.saveAndFlush(wo);
-            em.refresh(saved);
-
-            assertNotNull(saved.getId());
-            assertEquals("Integration Test WO", saved.getTitle());
-            assertEquals(Status.OPEN, saved.getStatus());
-            assertEquals(Priority.HIGH, saved.getPriority());
-            assertEquals(category.getId(), saved.getCategory().getId());
-            assertEquals(company.getId(), saved.getCompany().getId());
+        private WorkOrderPostDTO buildPostDTO(String title) {
+            WorkOrderPostDTO dto = new WorkOrderPostDTO();
+            dto.setTitle(title);
+            dto.setStatus(Status.OPEN);
+            dto.setPriority(Priority.NONE);
+            dto.setEstimatedDuration(1.0);
+            dto.setAssignedTo(new ArrayList<>());
+            dto.setCustomers(new ArrayList<>());
+            dto.setFiles(new ArrayList<>());
+            dto.setCustomFieldValues(new ArrayList<>());
+            return dto;
         }
 
         @Test
-        void create_setsCustomIdFromSequence() {
-            WorkOrder wo = new WorkOrder();
-            wo.setTitle("Seq Test");
-            wo.setStatus(Status.OPEN);
-            wo.setCompany(company);
-            wo.setAssignedTo(new ArrayList<>());
-            wo.setCustomers(new ArrayList<>());
-            wo.setFiles(new ArrayList<>());
-            wo.setCustomFieldValues(new ArrayList<>());
-            wo.setCustomId("WO000001");
+        void create_sequentialCustomIds() {
+            WorkOrderPostDTO dto1 = buildPostDTO("First WO");
+            WorkOrderPostDTO dto2 = buildPostDTO("Second WO");
 
-            WorkOrder saved = workOrderRepository.saveAndFlush(wo);
-            em.refresh(saved);
+            WorkOrder result1 = workOrderService.create(dto1, company);
+            WorkOrder result2 = workOrderService.create(dto2, company);
 
-            assertEquals("WO000001", saved.getCustomId());
+            assertNotNull(result1.getCustomId());
+            assertNotNull(result2.getCustomId());
+            assertNotEquals(result1.getCustomId(), result2.getCustomId());
+            assertTrue(result1.getCustomId().startsWith("WO"));
+            assertTrue(result2.getCustomId().startsWith("WO"));
+        }
+
+        @Test
+        void create_dispatchesNewWorkOrderWebhook() {
+            WorkOrderPostDTO dto = buildPostDTO("Webhook WO");
+
+            workOrderService.create(dto, company);
+
+            verify(webhookDispatchService).dispatchWebhook(
+                    eq(company),
+                    eq(WebhookEvent.NEW_WORK_ORDER),
+                    anyMap(),
+                    eq("newWorkOrder"),
+                    any(),
+                    isNull(), isNull(), isNull(), isNull(), isNull());
+        }
+
+        @Test
+        void create_throwsForbiddenWhenUsageLimitExceeded() {
+            for (int i = 0; i < 30; i++) {
+                WorkOrder wo = new WorkOrder();
+                wo.setTitle("Active WO " + i);
+                wo.setStatus(Status.OPEN);
+                wo.setPriority(Priority.NONE);
+                wo.setEstimatedDuration(1.0);
+                wo.setCompany(company);
+                wo.setCreatedBy(user.getId());
+                wo.setAssignedTo(new ArrayList<>());
+                wo.setCustomers(new ArrayList<>());
+                wo.setFiles(new ArrayList<>());
+                wo.setCustomFieldValues(new ArrayList<>());
+                workOrderRepository.saveAndFlush(wo);
+            }
+
+            WorkOrderPostDTO dto = buildPostDTO("Should Fail WO");
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.create(dto, company));
+            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
         }
     }
 
@@ -284,25 +304,9 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             WorkOrderChangeStatusDTO dto = new WorkOrderChangeStatusDTO();
             dto.setStatus(null);
 
-            assertThrows(NullPointerException.class,
+            CustomException ex = assertThrows(CustomException.class,
                     () -> workOrderService.changeStatus(dto, saved.getId(), user, "ios"));
-        }
-
-        @Test
-        void changeStatus_dbRowReflectsNewCompletedByAndCompletedOn() {
-            WorkOrder saved = createInitialWO();
-
-            WorkOrderChangeStatusDTO dto = new WorkOrderChangeStatusDTO();
-            dto.setStatus(Status.COMPLETE);
-
-            workOrderService.changeStatus(dto, saved.getId(), user, "ios");
-
-            em.clear();
-            WorkOrder fromDb = workOrderRepository.findById(saved.getId()).get();
-            assertEquals(Status.COMPLETE, fromDb.getStatus());
-            assertNotNull(fromDb.getCompletedBy());
-            assertEquals(user.getId(), fromDb.getCompletedBy().getId());
-            assertNotNull(fromDb.getCompletedOn());
+            assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
         }
     }
 

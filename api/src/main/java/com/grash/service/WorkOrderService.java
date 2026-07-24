@@ -183,7 +183,7 @@ public class WorkOrderService {
         this.workflowService = workflowService;
     }
 
-    private void checkUsageBasedLimit(Company company) {
+    void checkUsageBasedLimit(Company company) {
         Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)
                 && workOrderRepository.hasMoreActiveThan(company.getId(), threshold.longValue() - 1
@@ -677,7 +677,7 @@ public class WorkOrderService {
         this.webhookDispatchService = webhookDispatchService;
     }
 
-    private Collection<WOField> detectPatchDTOChangedFields(WorkOrder original, WorkOrderPatchDTO patch) {
+    Collection<WOField> detectPatchDTOChangedFields(WorkOrder original, WorkOrderPatchDTO patch) {
         Collection<WOField> changedFields = new ArrayList<>();
 
         if (!Objects.equals(
@@ -725,7 +725,7 @@ public class WorkOrderService {
         return changedFields;
     }
 
-    private Collection<WOField> detectChangedFieldsFromEntity(WorkOrder original, WorkOrder updated) {
+    Collection<WOField> detectChangedFieldsFromEntity(WorkOrder original, WorkOrder updated) {
         Collection<WOField> changedFields = new ArrayList<>();
 
         if (!Objects.equals(
@@ -776,7 +776,7 @@ public class WorkOrderService {
         return changedFields;
     }
 
-    private <T> boolean collectionsMatch(Collection<T> a, Collection<T> b, Function<T, Long> idExtractor) {
+    <T> boolean collectionsMatch(Collection<T> a, Collection<T> b, Function<T, Long> idExtractor) {
         if (a == null && b == null) return true;
         if (a == null || b == null) return false;
         if (a.size() != b.size()) return false;
@@ -801,11 +801,10 @@ public class WorkOrderService {
         WorkOrder originalWorkOrder = savedWorkOrder;
         WorkOrder mutableWO = findById(id).get(); // fresh managed copy
 
+        if (dto.getStatus() == null) throw new CustomException("Status can't be null", HttpStatus.NOT_ACCEPTABLE);
         if (mutableWO.getFirstTimeToReact() == null && !dto.getStatus().equals(Status.ON_HOLD))
             mutableWO.setFirstTimeToReact(new Date());
         Status savedWorkOrderStatusBefore = mutableWO.getStatus();
-
-        if (dto.getStatus() == null) throw new CustomException("Status can't be null", HttpStatus.NOT_ACCEPTABLE);
         if (dto.getSignature() != null && !licenseService.hasEntitlement(LicenseEntitlement.SIGNATURE_CAPTURE))
             throw new CustomException("You need a license to add signature to work order",
                     HttpStatus.FORBIDDEN);

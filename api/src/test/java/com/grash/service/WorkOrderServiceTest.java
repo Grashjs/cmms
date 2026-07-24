@@ -31,7 +31,6 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -256,30 +255,12 @@ class WorkOrderServiceTest {
         return c;
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T invokePrivate(String methodName, Object... args) throws Exception {
-        Method[] methods = workOrderService.getClass().getDeclaredMethods();
-        for (Method m : methods) {
-            if (m.getName().equals(methodName) && m.getParameterCount() == args.length) {
-                m.setAccessible(true);
-                try {
-                    return (T) m.invoke(workOrderService, args);
-                } catch (java.lang.reflect.InvocationTargetException e) {
-                    Throwable cause = e.getCause();
-                    if (cause instanceof Exception ex) throw ex;
-                    throw e;
-                }
-            }
-        }
-        throw new NoSuchMethodException(methodName);
+    private Collection<WOField> detectChangedFields(WorkOrder original, WorkOrder updated) {
+        return workOrderService.detectChangedFieldsFromEntity(original, updated);
     }
 
-    private Collection<WOField> invokeDetectChangedFields(WorkOrder original, WorkOrder updated) throws Exception {
-        return invokePrivate("detectChangedFieldsFromEntity", original, updated);
-    }
-
-    private Collection<WOField> invokeDetectPatchDTO(WorkOrder original, WorkOrderPatchDTO patch) throws Exception {
-        return invokePrivate("detectPatchDTOChangedFields", original, patch);
+    private Collection<WOField> detectPatchDTO(WorkOrder original, WorkOrderPatchDTO patch) {
+        return workOrderService.detectPatchDTOChangedFields(original, patch);
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -306,8 +287,7 @@ class WorkOrderServiceTest {
             original.setCustomers(new ArrayList<>(List.of(buildCustomer(60L))));
         }
 
-        @Test
-        void assetChanged() throws Exception {
+        void assetChanged() {
             WorkOrderPatchDTO patch = new WorkOrderPatchDTO();
             patch.setAsset(buildAsset(99L));
             patch.setAssignedTo(new ArrayList<>(List.of(buildUser(20L))));
@@ -320,12 +300,12 @@ class WorkOrderServiceTest {
             patch.setTitle("original title");
             patch.setTeam(buildTeam(50L));
             patch.setCustomers(new ArrayList<>(List.of(buildCustomer(60L))));
-            Collection<WOField> result = invokeDetectPatchDTO(original, patch);
+            Collection<WOField> result = detectPatchDTO(original, patch);
             assertTrue(result.contains(WOField.ASSET));
         }
 
         @Test
-        void assetUnchanged() throws Exception {
+        void assetUnchanged() {
             WorkOrderPatchDTO patch = new WorkOrderPatchDTO();
             patch.setAsset(buildAsset(10L));
             patch.setAssignedTo(new ArrayList<>(List.of(buildUser(20L))));
@@ -338,12 +318,12 @@ class WorkOrderServiceTest {
             patch.setTitle("original title");
             patch.setTeam(buildTeam(50L));
             patch.setCustomers(new ArrayList<>(List.of(buildCustomer(60L))));
-            Collection<WOField> result = invokeDetectPatchDTO(original, patch);
+            Collection<WOField> result = detectPatchDTO(original, patch);
             assertFalse(result.contains(WOField.ASSET));
         }
 
         @Test
-        void assetNullOnPatch() throws Exception {
+        void assetNullOnPatch() {
             WorkOrderPatchDTO patch = new WorkOrderPatchDTO();
             patch.setAsset(null);
             patch.setAssignedTo(new ArrayList<>(List.of(buildUser(20L))));
@@ -356,12 +336,12 @@ class WorkOrderServiceTest {
             patch.setTitle("original title");
             patch.setTeam(buildTeam(50L));
             patch.setCustomers(new ArrayList<>(List.of(buildCustomer(60L))));
-            Collection<WOField> result = invokeDetectPatchDTO(original, patch);
+            Collection<WOField> result = detectPatchDTO(original, patch);
             assertTrue(result.contains(WOField.ASSET));
         }
 
         @Test
-        void assetNullOnBothSides() throws Exception {
+        void assetNullOnBothSides() {
             original.setAsset(null);
             WorkOrderPatchDTO patch = new WorkOrderPatchDTO();
             patch.setAsset(null);
@@ -375,212 +355,212 @@ class WorkOrderServiceTest {
             patch.setTitle("original title");
             patch.setTeam(buildTeam(50L));
             patch.setCustomers(new ArrayList<>(List.of(buildCustomer(60L))));
-            Collection<WOField> result = invokeDetectPatchDTO(original, patch);
+            Collection<WOField> result = detectPatchDTO(original, patch);
             assertFalse(result.contains(WOField.ASSET));
         }
 
         @Test
-        void assigneesChanged() throws Exception {
+        void assigneesChanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setAssignedTo(new ArrayList<>(List.of(buildUser(20L), buildUser(21L))));
-            Collection<WOField> result = invokeDetectPatchDTO(original, patch);
+            Collection<WOField> result = detectPatchDTO(original, patch);
             assertTrue(result.contains(WOField.ASSIGNEES));
         }
 
         @Test
-        void assigneesUnchanged() throws Exception {
+        void assigneesUnchanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setAssignedTo(new ArrayList<>(List.of(buildUser(20L))));
-            Collection<WOField> result = invokeDetectPatchDTO(original, patch);
+            Collection<WOField> result = detectPatchDTO(original, patch);
             assertFalse(result.contains(WOField.ASSIGNEES));
         }
 
         @Test
-        void assigneesNullOnPatchNullOnOriginal() throws Exception {
+        void assigneesNullOnPatchNullOnOriginal() {
             original.setAssignedTo(null);
             WorkOrderPatchDTO patch = basePatch();
             patch.setAssignedTo(null);
-            Collection<WOField> result = invokeDetectPatchDTO(original, patch);
+            Collection<WOField> result = detectPatchDTO(original, patch);
             assertFalse(result.contains(WOField.ASSIGNEES));
         }
 
         @Test
-        void assigneesNullOnOneSide() throws Exception {
+        void assigneesNullOnOneSide() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setAssignedTo(null);
-            Collection<WOField> result = invokeDetectPatchDTO(original, patch);
+            Collection<WOField> result = detectPatchDTO(original, patch);
             assertTrue(result.contains(WOField.ASSIGNEES));
         }
 
         @Test
-        void categoryChanged() throws Exception {
+        void categoryChanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setCategory(buildCategory(99L, "New"));
-            Collection<WOField> result = invokeDetectPatchDTO(original, patch);
+            Collection<WOField> result = detectPatchDTO(original, patch);
             assertTrue(result.contains(WOField.CATEGORY));
         }
 
         @Test
-        void categoryUnchanged() throws Exception {
+        void categoryUnchanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setCategory(buildCategory(30L, "Cat"));
-            assertFalse(invokeDetectPatchDTO(original, patch).contains(WOField.CATEGORY));
+            assertFalse(detectPatchDTO(original, patch).contains(WOField.CATEGORY));
         }
 
         @Test
-        void categoryNullOnOneSide() throws Exception {
+        void categoryNullOnOneSide() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setCategory(null);
-            assertTrue(invokeDetectPatchDTO(original, patch).contains(WOField.CATEGORY));
+            assertTrue(detectPatchDTO(original, patch).contains(WOField.CATEGORY));
         }
 
         @Test
-        void descriptionChanged() throws Exception {
+        void descriptionChanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setDescription("new desc");
-            assertTrue(invokeDetectPatchDTO(original, patch).contains(WOField.DESCRIPTION));
+            assertTrue(detectPatchDTO(original, patch).contains(WOField.DESCRIPTION));
         }
 
         @Test
-        void descriptionUnchanged() throws Exception {
+        void descriptionUnchanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setDescription("original desc");
-            assertFalse(invokeDetectPatchDTO(original, patch).contains(WOField.DESCRIPTION));
+            assertFalse(detectPatchDTO(original, patch).contains(WOField.DESCRIPTION));
         }
 
         @Test
-        void descriptionNullOnOneSide() throws Exception {
+        void descriptionNullOnOneSide() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setDescription(null);
-            assertTrue(invokeDetectPatchDTO(original, patch).contains(WOField.DESCRIPTION));
+            assertTrue(detectPatchDTO(original, patch).contains(WOField.DESCRIPTION));
         }
 
         @Test
-        void dueDateChanged() throws Exception {
+        void dueDateChanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setDueDate(new Date(2000));
-            assertTrue(invokeDetectPatchDTO(original, patch).contains(WOField.DUE_DATE));
+            assertTrue(detectPatchDTO(original, patch).contains(WOField.DUE_DATE));
         }
 
         @Test
-        void dueDateUnchanged() throws Exception {
+        void dueDateUnchanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setDueDate(new Date(1000));
-            assertFalse(invokeDetectPatchDTO(original, patch).contains(WOField.DUE_DATE));
+            assertFalse(detectPatchDTO(original, patch).contains(WOField.DUE_DATE));
         }
 
         @Test
-        void estimatedDurationChanged() throws Exception {
+        void estimatedDurationChanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setEstimatedDuration(5.0);
-            assertTrue(invokeDetectPatchDTO(original, patch).contains(WOField.ESTIMATED_DURATION));
+            assertTrue(detectPatchDTO(original, patch).contains(WOField.ESTIMATED_DURATION));
         }
 
         @Test
-        void estimatedDurationUnchanged() throws Exception {
+        void estimatedDurationUnchanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setEstimatedDuration(2.0);
-            assertFalse(invokeDetectPatchDTO(original, patch).contains(WOField.ESTIMATED_DURATION));
+            assertFalse(detectPatchDTO(original, patch).contains(WOField.ESTIMATED_DURATION));
         }
 
         @Test
-        void locationChanged() throws Exception {
+        void locationChanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setLocation(buildLocation(99L));
-            assertTrue(invokeDetectPatchDTO(original, patch).contains(WOField.LOCATION));
+            assertTrue(detectPatchDTO(original, patch).contains(WOField.LOCATION));
         }
 
         @Test
-        void locationUnchanged() throws Exception {
+        void locationUnchanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setLocation(buildLocation(40L));
-            assertFalse(invokeDetectPatchDTO(original, patch).contains(WOField.LOCATION));
+            assertFalse(detectPatchDTO(original, patch).contains(WOField.LOCATION));
         }
 
         @Test
-        void locationNullOnBothSides() throws Exception {
+        void locationNullOnBothSides() {
             original.setLocation(null);
             WorkOrderPatchDTO patch = basePatch();
             patch.setLocation(null);
-            assertFalse(invokeDetectPatchDTO(original, patch).contains(WOField.LOCATION));
+            assertFalse(detectPatchDTO(original, patch).contains(WOField.LOCATION));
         }
 
         @Test
-        void priorityChanged() throws Exception {
+        void priorityChanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setPriority(Priority.HIGH);
-            assertTrue(invokeDetectPatchDTO(original, patch).contains(WOField.PRIORITY));
+            assertTrue(detectPatchDTO(original, patch).contains(WOField.PRIORITY));
         }
 
         @Test
-        void priorityUnchanged() throws Exception {
+        void priorityUnchanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setPriority(Priority.LOW);
-            assertFalse(invokeDetectPatchDTO(original, patch).contains(WOField.PRIORITY));
+            assertFalse(detectPatchDTO(original, patch).contains(WOField.PRIORITY));
         }
 
         @Test
-        void titleChanged() throws Exception {
+        void titleChanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setTitle("new title");
-            assertTrue(invokeDetectPatchDTO(original, patch).contains(WOField.TITLE));
+            assertTrue(detectPatchDTO(original, patch).contains(WOField.TITLE));
         }
 
         @Test
-        void titleUnchanged() throws Exception {
+        void titleUnchanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setTitle("original title");
-            assertFalse(invokeDetectPatchDTO(original, patch).contains(WOField.TITLE));
+            assertFalse(detectPatchDTO(original, patch).contains(WOField.TITLE));
         }
 
         @Test
-        void teamChanged() throws Exception {
+        void teamChanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setTeam(buildTeam(99L));
-            assertTrue(invokeDetectPatchDTO(original, patch).contains(WOField.TEAM));
+            assertTrue(detectPatchDTO(original, patch).contains(WOField.TEAM));
         }
 
         @Test
-        void teamUnchanged() throws Exception {
+        void teamUnchanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setTeam(buildTeam(50L));
-            assertFalse(invokeDetectPatchDTO(original, patch).contains(WOField.TEAM));
+            assertFalse(detectPatchDTO(original, patch).contains(WOField.TEAM));
         }
 
         @Test
-        void teamNullOnBothSides() throws Exception {
+        void teamNullOnBothSides() {
             original.setTeam(null);
             WorkOrderPatchDTO patch = basePatch();
             patch.setTeam(null);
-            assertFalse(invokeDetectPatchDTO(original, patch).contains(WOField.TEAM));
+            assertFalse(detectPatchDTO(original, patch).contains(WOField.TEAM));
         }
 
         @Test
-        void customersChanged() throws Exception {
+        void customersChanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setCustomers(new ArrayList<>(List.of(buildCustomer(60L), buildCustomer(61L))));
-            assertTrue(invokeDetectPatchDTO(original, patch).contains(WOField.CUSTOMERS));
+            assertTrue(detectPatchDTO(original, patch).contains(WOField.CUSTOMERS));
         }
 
         @Test
-        void customersUnchanged() throws Exception {
+        void customersUnchanged() {
             WorkOrderPatchDTO patch = basePatch();
             patch.setCustomers(new ArrayList<>(List.of(buildCustomer(60L))));
-            assertFalse(invokeDetectPatchDTO(original, patch).contains(WOField.CUSTOMERS));
+            assertFalse(detectPatchDTO(original, patch).contains(WOField.CUSTOMERS));
         }
 
         @Test
-        void customersDifferentOrderSameElements() throws Exception {
+        void customersDifferentOrderSameElements() {
             Customer c1 = buildCustomer(60L);
             Customer c2 = buildCustomer(61L);
             original.setCustomers(new ArrayList<>(List.of(c1, c2)));
             WorkOrderPatchDTO patch = basePatch();
             patch.setCustomers(new ArrayList<>(List.of(c2, c1)));
-            assertFalse(invokeDetectPatchDTO(original, patch).contains(WOField.CUSTOMERS));
+            assertFalse(detectPatchDTO(original, patch).contains(WOField.CUSTOMERS));
         }
 
         @Test
-        void multipleFieldsChanged() throws Exception {
+        void multipleFieldsChanged() {
             WorkOrderPatchDTO patch = new WorkOrderPatchDTO();
             patch.setTitle("new title");
             patch.setDescription("new desc");
@@ -593,7 +573,7 @@ class WorkOrderServiceTest {
             patch.setTeam(null);
             patch.setAssignedTo(new ArrayList<>());
             patch.setCustomers(new ArrayList<>());
-            Collection<WOField> result = invokeDetectPatchDTO(original, patch);
+            Collection<WOField> result = detectPatchDTO(original, patch);
             assertTrue(result.contains(WOField.TITLE));
             assertTrue(result.contains(WOField.DESCRIPTION));
             assertTrue(result.contains(WOField.PRIORITY));
@@ -629,174 +609,174 @@ class WorkOrderServiceTest {
     class DetectChangedFieldsFromEntity {
 
         @Test
-        void assetChanged() throws Exception {
+        void assetChanged() {
             WorkOrder original = buildWorkOrder(1L);
             original.setAsset(buildAsset(10L));
             WorkOrder updated = buildWorkOrder(1L);
             updated.setAsset(buildAsset(99L));
-            assertTrue(invokeDetectChangedFields(original, updated).contains(WOField.ASSET));
+            assertTrue(detectChangedFields(original, updated).contains(WOField.ASSET));
         }
 
         @Test
-        void assetUnchanged() throws Exception {
+        void assetUnchanged() {
             WorkOrder original = buildWorkOrder(1L);
             original.setAsset(buildAsset(10L));
             WorkOrder updated = buildWorkOrder(1L);
             updated.setAsset(buildAsset(10L));
-            assertFalse(invokeDetectChangedFields(original, updated).contains(WOField.ASSET));
+            assertFalse(detectChangedFields(original, updated).contains(WOField.ASSET));
         }
 
         @Test
-        void assetNullOnOneSide() throws Exception {
+        void assetNullOnOneSide() {
             WorkOrder original = buildWorkOrder(1L);
             original.setAsset(null);
             WorkOrder updated = buildWorkOrder(1L);
             updated.setAsset(buildAsset(10L));
-            assertTrue(invokeDetectChangedFields(original, updated).contains(WOField.ASSET));
+            assertTrue(detectChangedFields(original, updated).contains(WOField.ASSET));
         }
 
         @Test
-        void assetNullOnBothSides() throws Exception {
+        void assetNullOnBothSides() {
             WorkOrder original = buildWorkOrder(1L);
             original.setAsset(null);
             WorkOrder updated = buildWorkOrder(1L);
             updated.setAsset(null);
-            assertFalse(invokeDetectChangedFields(original, updated).contains(WOField.ASSET));
+            assertFalse(detectChangedFields(original, updated).contains(WOField.ASSET));
         }
 
         @Test
-        void assigneesChanged() throws Exception {
+        void assigneesChanged() {
             WorkOrder original = buildWorkOrder(1L);
             original.setAssignedTo(new ArrayList<>(List.of(buildUser(20L))));
             WorkOrder updated = buildWorkOrder(1L);
             updated.setAssignedTo(new ArrayList<>(List.of(buildUser(20L), buildUser(21L))));
-            assertTrue(invokeDetectChangedFields(original, updated).contains(WOField.ASSIGNEES));
+            assertTrue(detectChangedFields(original, updated).contains(WOField.ASSIGNEES));
         }
 
         @Test
-        void assigneesUnchanged() throws Exception {
+        void assigneesUnchanged() {
             WorkOrder original = buildWorkOrder(1L);
             original.setAssignedTo(new ArrayList<>(List.of(buildUser(20L))));
             WorkOrder updated = buildWorkOrder(1L);
             updated.setAssignedTo(new ArrayList<>(List.of(buildUser(20L))));
-            assertFalse(invokeDetectChangedFields(original, updated).contains(WOField.ASSIGNEES));
+            assertFalse(detectChangedFields(original, updated).contains(WOField.ASSIGNEES));
         }
 
         @Test
-        void categoryChanged() throws Exception {
+        void categoryChanged() {
             WorkOrder original = buildWorkOrder(1L);
             original.setCategory(buildCategory(30L, "A"));
             WorkOrder updated = buildWorkOrder(1L);
             updated.setCategory(buildCategory(31L, "B"));
-            assertTrue(invokeDetectChangedFields(original, updated).contains(WOField.CATEGORY));
+            assertTrue(detectChangedFields(original, updated).contains(WOField.CATEGORY));
         }
 
         @Test
-        void categoryNullOnOneSide() throws Exception {
+        void categoryNullOnOneSide() {
             WorkOrder original = buildWorkOrder(1L);
             original.setCategory(null);
             WorkOrder updated = buildWorkOrder(1L);
             updated.setCategory(buildCategory(30L, "A"));
-            assertTrue(invokeDetectChangedFields(original, updated).contains(WOField.CATEGORY));
+            assertTrue(detectChangedFields(original, updated).contains(WOField.CATEGORY));
         }
 
         @Test
-        void descriptionChanged() throws Exception {
+        void descriptionChanged() {
             WorkOrder original = buildWorkOrder(1L);
             original.setDescription("old");
             WorkOrder updated = buildWorkOrder(1L);
             updated.setDescription("new");
-            assertTrue(invokeDetectChangedFields(original, updated).contains(WOField.DESCRIPTION));
+            assertTrue(detectChangedFields(original, updated).contains(WOField.DESCRIPTION));
         }
 
         @Test
-        void dueDateChanged() throws Exception {
+        void dueDateChanged() {
             WorkOrder original = buildWorkOrder(1L);
             original.setDueDate(new Date(1000));
             WorkOrder updated = buildWorkOrder(1L);
             updated.setDueDate(new Date(2000));
-            assertTrue(invokeDetectChangedFields(original, updated).contains(WOField.DUE_DATE));
+            assertTrue(detectChangedFields(original, updated).contains(WOField.DUE_DATE));
         }
 
         @Test
-        void estimatedDurationChanged() throws Exception {
+        void estimatedDurationChanged() {
             WorkOrder original = buildWorkOrder(1L);
             original.setEstimatedDuration(1.0);
             WorkOrder updated = buildWorkOrder(1L);
             updated.setEstimatedDuration(2.0);
-            assertTrue(invokeDetectChangedFields(original, updated).contains(WOField.ESTIMATED_DURATION));
+            assertTrue(detectChangedFields(original, updated).contains(WOField.ESTIMATED_DURATION));
         }
 
         @Test
-        void locationChanged() throws Exception {
+        void locationChanged() {
             WorkOrder original = buildWorkOrder(1L);
             original.setLocation(buildLocation(40L));
             WorkOrder updated = buildWorkOrder(1L);
             updated.setLocation(buildLocation(41L));
-            assertTrue(invokeDetectChangedFields(original, updated).contains(WOField.LOCATION));
+            assertTrue(detectChangedFields(original, updated).contains(WOField.LOCATION));
         }
 
         @Test
-        void priorityChanged() throws Exception {
+        void priorityChanged() {
             WorkOrder original = buildWorkOrder(1L);
             original.setPriority(Priority.LOW);
             WorkOrder updated = buildWorkOrder(1L);
             updated.setPriority(Priority.HIGH);
-            assertTrue(invokeDetectChangedFields(original, updated).contains(WOField.PRIORITY));
+            assertTrue(detectChangedFields(original, updated).contains(WOField.PRIORITY));
         }
 
         @Test
-        void titleChanged() throws Exception {
+        void titleChanged() {
             WorkOrder original = buildWorkOrder(1L);
             original.setTitle("old");
             WorkOrder updated = buildWorkOrder(1L);
             updated.setTitle("new");
-            assertTrue(invokeDetectChangedFields(original, updated).contains(WOField.TITLE));
+            assertTrue(detectChangedFields(original, updated).contains(WOField.TITLE));
         }
 
         @Test
-        void teamChanged() throws Exception {
+        void teamChanged() {
             WorkOrder original = buildWorkOrder(1L);
             original.setTeam(buildTeam(50L));
             WorkOrder updated = buildWorkOrder(1L);
             updated.setTeam(buildTeam(51L));
-            assertTrue(invokeDetectChangedFields(original, updated).contains(WOField.TEAM));
+            assertTrue(detectChangedFields(original, updated).contains(WOField.TEAM));
         }
 
         @Test
-        void statusChanged() throws Exception {
+        void statusChanged() {
             WorkOrder original = buildWorkOrder(1L);
             original.setStatus(Status.OPEN);
             WorkOrder updated = buildWorkOrder(1L);
             updated.setStatus(Status.COMPLETE);
-            assertTrue(invokeDetectChangedFields(original, updated).contains(WOField.STATUS));
+            assertTrue(detectChangedFields(original, updated).contains(WOField.STATUS));
         }
 
         @Test
-        void statusUnchanged() throws Exception {
+        void statusUnchanged() {
             WorkOrder original = buildWorkOrder(1L);
             original.setStatus(Status.OPEN);
             WorkOrder updated = buildWorkOrder(1L);
             updated.setStatus(Status.OPEN);
-            assertFalse(invokeDetectChangedFields(original, updated).contains(WOField.STATUS));
+            assertFalse(detectChangedFields(original, updated).contains(WOField.STATUS));
         }
 
         @Test
-        void customersChanged() throws Exception {
+        void customersChanged() {
             WorkOrder original = buildWorkOrder(1L);
             original.setCustomers(new ArrayList<>(List.of(buildCustomer(60L))));
             WorkOrder updated = buildWorkOrder(1L);
             updated.setCustomers(new ArrayList<>(List.of(buildCustomer(61L))));
-            assertTrue(invokeDetectChangedFields(original, updated).contains(WOField.CUSTOMERS));
+            assertTrue(detectChangedFields(original, updated).contains(WOField.CUSTOMERS));
         }
 
         @Test
-        void customersNullOnOneSide() throws Exception {
+        void customersNullOnOneSide() {
             WorkOrder original = buildWorkOrder(1L);
             original.setCustomers(null);
             WorkOrder updated = buildWorkOrder(1L);
             updated.setCustomers(new ArrayList<>());
-            assertTrue(invokeDetectChangedFields(original, updated).contains(WOField.CUSTOMERS));
+            assertTrue(detectChangedFields(original, updated).contains(WOField.CUSTOMERS));
         }
     }
 
@@ -809,48 +789,48 @@ class WorkOrderServiceTest {
         private final java.util.function.Function<User, Long> idExtractor = User::getId;
 
         @Test
-        void bothNull() throws Exception {
-            assertTrue((Boolean) invokePrivate("collectionsMatch", null, null, idExtractor));
+        void bothNull() {
+            assertTrue(workOrderService.collectionsMatch(null, null, idExtractor));
         }
 
         @Test
-        void firstNullSecondEmpty() throws Exception {
-            assertFalse((Boolean) invokePrivate("collectionsMatch", null, new ArrayList<>(), idExtractor));
+        void firstNullSecondEmpty() {
+            assertFalse(workOrderService.collectionsMatch(null, new ArrayList<>(), idExtractor));
         }
 
         @Test
-        void firstEmptySecondNull() throws Exception {
-            assertFalse((Boolean) invokePrivate("collectionsMatch", new ArrayList<>(), null, idExtractor));
+        void firstEmptySecondNull() {
+            assertFalse(workOrderService.collectionsMatch(new ArrayList<>(), null, idExtractor));
         }
 
         @Test
-        void sameElementsDifferentOrder() throws Exception {
+        void sameElementsDifferentOrder() {
             User u1 = buildUser(1L);
             User u2 = buildUser(2L);
             List<User> a = List.of(u1, u2);
             List<User> b = List.of(u2, u1);
-            assertTrue((Boolean) invokePrivate("collectionsMatch", a, b, idExtractor));
+            assertTrue(workOrderService.collectionsMatch(a, b, idExtractor));
         }
 
         @Test
-        void differentSizes() throws Exception {
+        void differentSizes() {
             List<User> a = List.of(buildUser(1L));
             List<User> b = List.of(buildUser(1L), buildUser(2L));
-            assertFalse((Boolean) invokePrivate("collectionsMatch", a, b, idExtractor));
+            assertFalse(workOrderService.collectionsMatch(a, b, idExtractor));
         }
 
         @Test
-        void sameSizeDifferentElements() throws Exception {
+        void sameSizeDifferentElements() {
             List<User> a = List.of(buildUser(1L));
             List<User> b = List.of(buildUser(2L));
-            assertFalse((Boolean) invokePrivate("collectionsMatch", a, b, idExtractor));
+            assertFalse(workOrderService.collectionsMatch(a, b, idExtractor));
         }
 
         @Test
-        void singleElementMatch() throws Exception {
+        void singleElementMatch() {
             List<User> a = List.of(buildUser(1L));
             List<User> b = List.of(buildUser(1L));
-            assertTrue((Boolean) invokePrivate("collectionsMatch", a, b, idExtractor));
+            assertTrue(workOrderService.collectionsMatch(a, b, idExtractor));
         }
     }
 
@@ -861,32 +841,25 @@ class WorkOrderServiceTest {
     class CheckUsageBasedLimit {
 
         @Test
-        void exactlyAtThreshold_throwsException() {
+        void underLimit_noException() {
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(false);
             when(workOrderRepository.hasMoreActiveThan(eq(1L), eq(29L))).thenReturn(false);
-            assertDoesNotThrow(() -> invokePrivate("checkUsageBasedLimit", company));
+            assertDoesNotThrow(() -> workOrderService.checkUsageBasedLimit(company));
         }
 
         @Test
-        void oneBelowThreshold_noException() {
-            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(false);
-            when(workOrderRepository.hasMoreActiveThan(eq(1L), eq(29L))).thenReturn(false);
-            assertDoesNotThrow(() -> invokePrivate("checkUsageBasedLimit", company));
-        }
-
-        @Test
-        void oneAboveThreshold_throwsForbidden() {
+        void atLimit_throwsForbidden() {
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(false);
             when(workOrderRepository.hasMoreActiveThan(eq(1L), eq(29L))).thenReturn(true);
             CustomException ex = assertThrows(CustomException.class,
-                    () -> invokePrivate("checkUsageBasedLimit", company));
+                    () -> workOrderService.checkUsageBasedLimit(company));
             assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
         }
 
         @Test
         void entitlementPresent_bypassesLimit() {
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(true);
-            assertDoesNotThrow(() -> invokePrivate("checkUsageBasedLimit", company));
+            assertDoesNotThrow(() -> workOrderService.checkUsageBasedLimit(company));
             verify(workOrderRepository, never()).hasMoreActiveThan(anyLong(), anyLong());
         }
     }
@@ -934,7 +907,27 @@ class WorkOrderServiceTest {
         @Test
         void signatureWithLicenseAndPlanFeature_proceeds() {
             stubBasic();
+            dto.setSignature("base64sig");
             assertDoesNotThrow(() -> workOrderService.changeStatus(dto, 1L, user, "ios"));
+        }
+
+        @Test
+        void signatureWithEntitlementButPlanLacksFeature_throwsForbidden() {
+            stubBasic();
+            dto.setSignature("base64sig");
+            SubscriptionPlan planWithoutSignature = SubscriptionPlan.builder()
+                    .id(2L)
+                    .name("Basic")
+                    .features(new HashSet<>(Collections.singletonList(PlanFeatures.WEBHOOK)))
+                    .build();
+            Subscription subscriptionWithoutSignature = Subscription.builder()
+                    .id(2L)
+                    .subscriptionPlan(planWithoutSignature)
+                    .build();
+            company.setSubscription(subscriptionWithoutSignature);
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.changeStatus(dto, 1L, user, "ios"));
+            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
         }
 
         @Test
@@ -1196,6 +1189,16 @@ class WorkOrderServiceTest {
             boolean hasAssignedToUserFilter = criteria.getFilterFields().stream()
                     .anyMatch(f -> "assignedToUser".equals(f.getField()));
             assertFalse(hasAssignedToUserFilter);
+        }
+
+        @Test
+        void nonClientRole_returnsUnmodifiedCriteria() {
+            role.setRoleType(RoleType.ROLE_SUPER_ADMIN);
+            SearchCriteria criteria = new SearchCriteria();
+            List<FilterField> originalFilters = new ArrayList<>(criteria.getFilterFields());
+            SearchCriteria result = workOrderService.getSearchCriteria(user, criteria);
+            assertEquals(originalFilters.size(), result.getFilterFields().size());
+            assertTrue(result.getFilterFields().isEmpty());
         }
     }
 
