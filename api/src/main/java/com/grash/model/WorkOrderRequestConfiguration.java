@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import jakarta.persistence.*;
 import java.util.Arrays;
@@ -29,6 +30,7 @@ public class WorkOrderRequestConfiguration {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JsonIgnore
+    @ToString.Exclude
     private CompanySettings companySettings;
 
     public WorkOrderRequestConfiguration(CompanySettings companySettings) {

@@ -15,6 +15,7 @@ spring:
     defer-datasource-initialization: false
   liquibase:
     enabled: true
+    change-log: classpath:/db/master.xml
   quartz:
     job-store-type: memory
     jdbc:

@@ -8,6 +8,7 @@ import com.grash.model.enums.RoleType;
 import com.grash.security.CustomUserDetail;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +35,7 @@ public abstract class CategoryAbstract extends Audit {
     @ManyToOne
     @JoinColumn(nullable = false)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @ToString.Exclude
     private CompanySettings companySettings;
 
     @PrePersist

@@ -3,13 +3,11 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.DateAudit;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +40,7 @@ public class Checklist extends DateAudit {
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @ToString.Exclude
     private CompanySettings companySettings;
 
 }

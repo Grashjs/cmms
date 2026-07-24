@@ -33,10 +33,12 @@ public class FieldConfiguration {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @ToString.Exclude
     private WorkOrderRequestConfiguration workOrderRequestConfiguration;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @ToString.Exclude
     private WorkOrderConfiguration workOrderConfiguration;
 
 

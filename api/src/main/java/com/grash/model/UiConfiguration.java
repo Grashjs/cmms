@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import jakarta.persistence.*;
 
@@ -29,6 +30,7 @@ public class UiConfiguration {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JsonIgnore
+    @ToString.Exclude
     private CompanySettings companySettings;
 
     public UiConfiguration(CompanySettings companySettings) {
