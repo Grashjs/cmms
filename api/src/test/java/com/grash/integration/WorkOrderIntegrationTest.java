@@ -39,7 +39,7 @@ import static org.mockito.Mockito.verify;
 
 @ActiveProfiles("test")
 @Transactional
-class WorkOrderIntegrationTest extends MockedServicesTestBase {
+class WorkOrderIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private WorkOrderRepository workOrderRepository;

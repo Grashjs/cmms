@@ -1,8 +1,7 @@
 package com.grash;
 
-import com.grash.integration.AbstractIntegrationTest;
-import org.junit.jupiter.api.Test;
+import com.grash.integration.AbstractTestContainer;
 
-class ApiApplicationTests extends AbstractIntegrationTest {
-    
+class ApiApplicationTests extends AbstractTestContainer {
+
 }
