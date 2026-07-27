@@ -2,7 +2,10 @@ package com.grash.service;
 
 import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
+import com.grash.dto.CalendarEvent;
+import com.grash.dto.DateRange;
 import com.grash.dto.WorkOrderChangeStatusDTO;
+import com.grash.dto.WorkOrderBaseMiniDTO;
 import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.dto.workOrder.WorkOrderPatchDTO;
@@ -2143,6 +2146,230 @@ class WorkOrderServiceTest {
             assertEquals(1, result.getCustomFields().size());
             assertEquals(99L, result.getCustomFields().get(0).getId());
             assertEquals("test-value", result.getCustomFields().get(0).getValue());
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // getEvents
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class GetEvents {
+
+        private DateRange buildDateRange(Date start, Date end) {
+            return DateRange.builder().start(start).end(end).build();
+        }
+
+        private CalendarEvent<PreventiveMaintenance> buildPMCalendarEvent(PreventiveMaintenance pm, Date date) {
+            CalendarEvent<PreventiveMaintenance> ce = new CalendarEvent<>();
+            ce.setType("PREVENTIVE_MAINTENANCE");
+            ce.setEvent(pm);
+            ce.setDate(date);
+            return ce;
+        }
+
+        private PreventiveMaintenance buildPM(long id, Long createdBy) {
+            PreventiveMaintenance pm = new PreventiveMaintenance();
+            pm.setId(id);
+            pm.setCreatedBy(createdBy);
+            return pm;
+        }
+
+        @Test
+        void noPermission_throwsAccessDenied() {
+            role.getViewPermissions().remove(PermissionEntity.WORK_ORDERS);
+            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+
+            assertThrows(CustomException.class,
+                    () -> workOrderService.getEvents(range, null, user));
+        }
+
+        @Test
+        void simpleFetch_returnsWorkOrdersAndPMs() {
+            role.getViewOtherPermissions().add(PermissionEntity.WORK_ORDERS);
+            role.getViewOtherPermissions().add(PermissionEntity.PREVENTIVE_MAINTENANCES);
+            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+            Date futureDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
+
+            PreventiveMaintenance pm = buildPM(10L, 99L);
+            CalendarEvent<PreventiveMaintenance> pmEvent = buildPMCalendarEvent(pm, futureDate);
+            when(preventiveMaintenanceService.getEvents(range.getEnd(), company.getId()))
+                    .thenReturn(List.of(pmEvent));
+
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setDueDate(futureDate);
+            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(), company.getId()))
+                    .thenReturn(List.of(wo));
+
+            WorkOrderBaseMiniDTO pmDto = new WorkOrderBaseMiniDTO();
+            when(preventiveMaintenanceMapper.toBaseMiniDto(pm)).thenReturn(pmDto);
+
+            WorkOrderBaseMiniDTO woDto = new WorkOrderBaseMiniDTO();
+            when(workOrderMapper.toBaseMiniDto(wo)).thenReturn(woDto);
+
+            Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
+                    workOrderService.getEvents(range, null, user);
+
+            assertEquals(2, result.size());
+        }
+
+        @Test
+        void filtersOutPastPMEvents() {
+            role.getViewOtherPermissions().add(PermissionEntity.PREVENTIVE_MAINTENANCES);
+            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+            Date pastDate = new Date(1000);
+
+            PreventiveMaintenance pm = buildPM(10L, 99L);
+            CalendarEvent<PreventiveMaintenance> pmEvent = buildPMCalendarEvent(pm, pastDate);
+            when(preventiveMaintenanceService.getEvents(range.getEnd(), company.getId()))
+                    .thenReturn(List.of(pmEvent));
+
+            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(any(), any(), any()))
+                    .thenReturn(Collections.emptyList());
+
+            Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
+                    workOrderService.getEvents(range, null, user);
+
+            assertTrue(result.isEmpty());
+        }
+
+        @Test
+        void filtersWOs_userWithoutViewOtherPermission() {
+            role.getViewOtherPermissions().remove(PermissionEntity.WORK_ORDERS);
+            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+            Date futureDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
+
+            when(preventiveMaintenanceService.getEvents(any(), any()))
+                    .thenReturn(Collections.emptyList());
+
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(999L);
+            wo.setPrimaryUser(buildUser(888L));
+            wo.setAssignedTo(new ArrayList<>());
+            wo.setDueDate(futureDate);
+            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(), company.getId()))
+                    .thenReturn(List.of(wo));
+
+            Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
+                    workOrderService.getEvents(range, null, user);
+
+            assertTrue(result.isEmpty());
+        }
+
+        @Test
+        void userCanViewOwnCreatedWO() {
+            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+            Date futureDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
+
+            when(preventiveMaintenanceService.getEvents(any(), any()))
+                    .thenReturn(Collections.emptyList());
+
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(user.getId());
+            wo.setPrimaryUser(buildUser(888L));
+            wo.setAssignedTo(new ArrayList<>());
+            wo.setDueDate(futureDate);
+            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(), company.getId()))
+                    .thenReturn(List.of(wo));
+
+            WorkOrderBaseMiniDTO woDto = new WorkOrderBaseMiniDTO();
+            when(workOrderMapper.toBaseMiniDto(wo)).thenReturn(woDto);
+
+            Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
+                    workOrderService.getEvents(range, null, user);
+
+            assertEquals(1, result.size());
+            assertEquals(woDto, result.iterator().next().getEvent());
+        }
+
+        @Test
+        void userCanViewAssignedWO() {
+            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+            Date futureDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
+
+            when(preventiveMaintenanceService.getEvents(any(), any()))
+                    .thenReturn(Collections.emptyList());
+
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(999L);
+            wo.setPrimaryUser(user);
+            wo.setAssignedTo(new ArrayList<>());
+            wo.setDueDate(futureDate);
+            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(), company.getId()))
+                    .thenReturn(List.of(wo));
+
+            WorkOrderBaseMiniDTO woDto = new WorkOrderBaseMiniDTO();
+            when(workOrderMapper.toBaseMiniDto(wo)).thenReturn(woDto);
+
+            Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
+                    workOrderService.getEvents(range, null, user);
+
+            assertEquals(1, result.size());
+        }
+
+        @Test
+        void companyIdSpecified_filtersToOnlyThatCompany() {
+            role.getViewOtherPermissions().add(PermissionEntity.WORK_ORDERS);
+            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+
+            when(preventiveMaintenanceService.getEvents(range.getEnd(), company.getId()))
+                    .thenReturn(Collections.emptyList());
+            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(), company.getId()))
+                    .thenReturn(Collections.emptyList());
+
+            Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
+                    workOrderService.getEvents(range, company.getId(), user);
+
+            verify(workOrderRepository).findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(), company.getId());
+            assertTrue(result.isEmpty());
+        }
+
+        @Test
+        void companyIdSpecified_noAccess_throwsAccessDenied() {
+            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+
+            assertThrows(CustomException.class,
+                    () -> workOrderService.getEvents(range, 999L, user));
+        }
+
+        @Test
+        void emptyResults_returnsEmptyList() {
+            role.getViewOtherPermissions().add(PermissionEntity.WORK_ORDERS);
+            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+
+            when(preventiveMaintenanceService.getEvents(any(), any()))
+                    .thenReturn(Collections.emptyList());
+            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(any(), any(), any()))
+                    .thenReturn(Collections.emptyList());
+
+            Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
+                    workOrderService.getEvents(range, null, user);
+
+            assertTrue(result.isEmpty());
+        }
+
+        @Test
+        void canViewAssignedPM_viaTeamMembership() {
+            role.getViewOtherPermissions().add(PermissionEntity.PREVENTIVE_MAINTENANCES);
+            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+            Date futureDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
+
+            PreventiveMaintenance pm = buildPM(10L, 999L);
+            pm.setPrimaryUser(user);
+            pm.setAssignedTo(new ArrayList<>());
+            CalendarEvent<PreventiveMaintenance> pmEvent = buildPMCalendarEvent(pm, futureDate);
+            when(preventiveMaintenanceService.getEvents(range.getEnd(), company.getId()))
+                    .thenReturn(List.of(pmEvent));
+
+            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(any(), any(), any()))
+                    .thenReturn(Collections.emptyList());
+
+            WorkOrderBaseMiniDTO pmDto = new WorkOrderBaseMiniDTO();
+            when(preventiveMaintenanceMapper.toBaseMiniDto(pm)).thenReturn(pmDto);
+
+            Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
+                    workOrderService.getEvents(range, null, user);
+
+            assertEquals(1, result.size());
         }
     }
 
