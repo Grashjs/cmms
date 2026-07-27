@@ -46,9 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(WorkOrderController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@Import(GlobalExceptionHandlerController.class)
-@EnableMethodSecurity
-class WorkOrderControllerTest {
+class WorkOrderControllerTest extends AbstractControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -67,13 +65,6 @@ class WorkOrderControllerTest {
     private PartService partService;
     @MockBean
     private FileMapper fileMapper;
-    @MockBean
-    private ApiKeyRepository apiKeyRepository;
-    @MockBean
-    private LicenseService licenseService;
-    @MockBean
-    private RateLimiterService rateLimiterService;
-
     private User clientUser;
     private User nonClientUser;
     private WorkOrderShowDTO showDto;
