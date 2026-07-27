@@ -31,6 +31,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.util.Pair;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -1912,6 +1913,515 @@ class WorkOrderServiceTest {
             verify(intercomService, never()).createCompanyActivationEvent(
                     anyString(), anyLong(), anyString(), anyMap());
             verify(companyService, never()).update(any());
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // checkAccessToWorkOrderId
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class CheckAccessToWorkOrderId {
+
+        @Test
+        void foundAndAccessible_returnsWorkOrder() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(user.getId());
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+
+            WorkOrder result = workOrderService.checkAccessToWorkOrderId(1L, user);
+            assertEquals(wo, result);
+        }
+
+        @Test
+        void notFound_throwsNotFound() {
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.empty());
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.checkAccessToWorkOrderId(1L, user));
+            assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
+        }
+
+        @Test
+        void foundButInaccessible_throwsForbidden() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(99L);
+            role.getViewOtherPermissions().clear();
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.checkAccessToWorkOrderId(1L, user));
+            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // notify
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class NotifyTests {
+
+        private void stubNotifyBase() {
+            lenient().when(messageSource.getMessage(anyString(), any(), any())).thenReturn("msg");
+            lenient().when(messageSource.getMessage(anyString(), any(), any(java.util.Locale.class))).thenReturn("msg");
+            lenient().when(mailServiceFactory.getMailService()).thenReturn(mailService);
+        }
+
+        @Test
+        void createsNotificationsForAllAssignedUsers() {
+            stubNotifyBase();
+            WorkOrder wo = buildWorkOrder(1L);
+            User u1 = buildUser(10L);
+            User u2 = buildUser(11L);
+            wo.setAssignedTo(new ArrayList<>(List.of(u1, u2)));
+
+            workOrderService.notify(wo, java.util.Locale.ENGLISH);
+
+            verify(notificationService).createMultiple(argThat(list -> list.size() == 2), eq(true), anyString());
+        }
+
+        @Test
+        void sendsEmailOnlyToEnabledUsersWithEmailPreference() {
+            stubNotifyBase();
+            WorkOrder wo = buildWorkOrder(1L);
+            User enabled = buildUser(10L);
+            enabled.setEnabled(true);
+            enabled.getUserSettings().setEmailUpdatesForWorkOrders(true);
+            User disabled = buildUser(11L);
+            disabled.setEnabled(false);
+            wo.setAssignedTo(new ArrayList<>(List.of(enabled, disabled)));
+
+            workOrderService.notify(wo, java.util.Locale.ENGLISH);
+
+            verify(mailService).sendMessageUsingThymeleafTemplate(
+                    eq(new String[]{enabled.getEmail()}), any(), anyMap(), anyString(), any());
+        }
+
+        @Test
+        void noEmailUsers_skipsMail() {
+            stubNotifyBase();
+            WorkOrder wo = buildWorkOrder(1L);
+            User noEmail = buildUser(10L);
+            noEmail.setEnabled(true);
+            noEmail.getUserSettings().setEmailUpdatesForWorkOrders(false);
+            wo.setAssignedTo(new ArrayList<>(List.of(noEmail)));
+
+            workOrderService.notify(wo, java.util.Locale.ENGLISH);
+
+            verify(mailService, never()).sendMessageUsingThymeleafTemplate(
+                    any(), any(), anyMap(), anyString(), any());
+        }
+
+        @Test
+        void emptyAssignedTo_sendsNoNotifications() {
+            stubNotifyBase();
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setAssignedTo(new ArrayList<>());
+
+            workOrderService.notify(wo, java.util.Locale.ENGLISH);
+
+            verify(notificationService).createMultiple(argThat(List::isEmpty), eq(true), any());
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // patchNotify
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class PatchNotifyTests {
+
+        private void stubPatchNotifyBase() {
+            lenient().when(messageSource.getMessage(anyString(), any(), any())).thenReturn("msg");
+            lenient().when(messageSource.getMessage(anyString(), any(), any(java.util.Locale.class))).thenReturn("msg");
+            lenient().when(mailServiceFactory.getMailService()).thenReturn(mailService);
+        }
+
+        @Test
+        void notifiesOnlyNewlyAssignedUsers() {
+            stubPatchNotifyBase();
+            User existing = buildUser(10L);
+            User newUser = buildUser(20L);
+            WorkOrder oldWo = buildWorkOrder(1L);
+            oldWo.setPrimaryUser(existing);
+            oldWo.setAssignedTo(new ArrayList<>());
+            WorkOrder newWo = buildWorkOrder(1L);
+            newWo.setPrimaryUser(existing);
+            newWo.setAssignedTo(new ArrayList<>(List.of(newUser)));
+
+            workOrderService.patchNotify(oldWo, newWo, java.util.Locale.ENGLISH);
+
+            verify(notificationService).createMultiple(argThat(list -> list.size() == 1), eq(true), any());
+        }
+
+        @Test
+        void noNewUsers_sendsNoNotifications() {
+            stubPatchNotifyBase();
+            User existing = buildUser(10L);
+            WorkOrder oldWo = buildWorkOrder(1L);
+            oldWo.setPrimaryUser(existing);
+            oldWo.setAssignedTo(new ArrayList<>());
+            WorkOrder newWo = buildWorkOrder(1L);
+            newWo.setPrimaryUser(existing);
+            newWo.setAssignedTo(new ArrayList<>());
+
+            workOrderService.patchNotify(oldWo, newWo, java.util.Locale.ENGLISH);
+
+            verify(notificationService).createMultiple(argThat(List::isEmpty), eq(true), any());
+        }
+
+        @Test
+        void sendsEmailOnlyToEnabledNewUsers() {
+            stubPatchNotifyBase();
+            User enabled = buildUser(20L);
+            enabled.setEnabled(true);
+            enabled.getUserSettings().setEmailUpdatesForWorkOrders(true);
+            User disabled = buildUser(30L);
+            disabled.setEnabled(false);
+
+            WorkOrder oldWo = buildWorkOrder(1L);
+            oldWo.setPrimaryUser(user);
+            oldWo.setAssignedTo(new ArrayList<>());
+            WorkOrder newWo = buildWorkOrder(1L);
+            newWo.setPrimaryUser(user);
+            newWo.setAssignedTo(new ArrayList<>(List.of(enabled, disabled)));
+
+            workOrderService.patchNotify(oldWo, newWo, java.util.Locale.ENGLISH);
+
+            verify(mailService).sendMessageUsingThymeleafTemplate(
+                    eq(new String[]{enabled.getEmail()}), any(), anyMap(), anyString(), any());
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // getWorkOrderFromWorkOrderBase
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class GetWorkOrderFromWorkOrderBase {
+
+        @Test
+        void copiesAllFields() {
+            WorkOrder source = buildWorkOrder(1L);
+            source.setTitle("title");
+            source.setDescription("desc");
+            source.setPriority(Priority.HIGH);
+            source.setEstimatedDuration(5.0);
+            source.setRequiredSignature(true);
+            source.setAsset(buildAsset(10L));
+            source.setLocation(buildLocation(20L));
+            source.setTeam(buildTeam(30L));
+            source.setCategory(buildCategory(40L, "Cat"));
+            User pu = buildUser(50L);
+            source.setPrimaryUser(pu);
+            source.setAssignedTo(new ArrayList<>(List.of(buildUser(60L))));
+            source.setCustomers(new ArrayList<>(List.of(buildCustomer(70L))));
+
+            WorkOrderPostDTO result = workOrderService.getWorkOrderFromWorkOrderBase(source);
+
+            assertEquals("title", result.getTitle());
+            assertEquals("desc", result.getDescription());
+            assertEquals(Priority.HIGH, result.getPriority());
+            assertEquals(5.0, result.getEstimatedDuration());
+            assertTrue(result.isRequiredSignature());
+            assertEquals(10L, result.getAsset().getId());
+            assertEquals(20L, result.getLocation().getId());
+            assertEquals(30L, result.getTeam().getId());
+            assertEquals(40L, result.getCategory().getId());
+            assertEquals(pu, result.getPrimaryUser());
+            assertEquals(1, result.getAssignedTo().size());
+        }
+
+        @Test
+        void transformsCustomFieldValues() {
+            WorkOrder source = buildWorkOrder(1L);
+            CustomField cf = new CustomField();
+            cf.setId(99L);
+            CustomFieldValue cfv = new CustomFieldValue();
+            cfv.setCustomField(cf);
+            cfv.setValue("test-value");
+            source.setCustomFieldValues(new ArrayList<>(List.of(cfv)));
+
+            WorkOrderPostDTO result = workOrderService.getWorkOrderFromWorkOrderBase(source);
+
+            assertEquals(1, result.getCustomFields().size());
+            assertEquals(99L, result.getCustomFields().get(0).getId());
+            assertEquals("test-value", result.getCustomFields().get(0).getValue());
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // cost computation
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class CostComputation {
+
+        private WorkOrder wo1;
+        private WorkOrder wo2;
+
+        @BeforeEach
+        void init() {
+            wo1 = buildWorkOrder(1L);
+            wo2 = buildWorkOrder(2L);
+        }
+
+        private Labor buildLabor(long hourlyRate, long duration) {
+            Labor labor = new Labor();
+            labor.setHourlyRate(hourlyRate);
+            labor.setDuration(duration);
+            return labor;
+        }
+
+        private AdditionalCost buildAdditionalCost(double cost) {
+            AdditionalCost ac = new AdditionalCost();
+            ac.setCost(cost);
+            return ac;
+        }
+
+        private PartQuantity buildPartQuantity(double partCost, double quantity) {
+            Part part = new Part();
+            part.setCost(partCost);
+            PartQuantity pq = new PartQuantity();
+            pq.setPart(part);
+            pq.setQuantity(quantity);
+            return pq;
+        }
+
+        @Test
+        void getLaborCostAndTime_multipleWorkOrders() {
+            when(laborService.findByWorkOrder(1L)).thenReturn(List.of(
+                    buildLabor(100, 7200),
+                    buildLabor(50, 3600)));
+            when(laborService.findByWorkOrder(2L)).thenReturn(List.of(
+                    buildLabor(200, 1800)));
+
+            Pair<Long, Long> result = workOrderService.getLaborCostAndTime(List.of(wo1, wo2));
+
+            long expectedCost1 = 100 * 7200 / 3600 + 50 * 3600 / 3600;
+            long expectedCost2 = 200 * 1800 / 3600;
+            assertEquals(expectedCost1 + expectedCost2, result.getFirst());
+            assertEquals(7200 + 3600 + 1800, result.getSecond());
+        }
+
+        @Test
+        void getLaborCostAndTime_emptyLabors() {
+            when(laborService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
+
+            Pair<Long, Long> result = workOrderService.getLaborCostAndTime(List.of(wo1));
+
+            assertEquals(0L, result.getFirst());
+            assertEquals(0L, result.getSecond());
+        }
+
+        @Test
+        void getLaborCostAndTime_emptyWorkOrders() {
+            Pair<Long, Long> result = workOrderService.getLaborCostAndTime(Collections.emptyList());
+
+            assertEquals(0L, result.getFirst());
+            assertEquals(0L, result.getSecond());
+        }
+
+        @Test
+        void getAdditionalCost_multipleWorkOrders() {
+            when(additionalCostService.findByWorkOrder(1L)).thenReturn(List.of(
+                    buildAdditionalCost(100.0), buildAdditionalCost(50.5)));
+            when(additionalCostService.findByWorkOrder(2L)).thenReturn(List.of(
+                    buildAdditionalCost(25.0)));
+
+            double result = workOrderService.getAdditionalCost(List.of(wo1, wo2));
+
+            assertEquals(175.5, result, 0.001);
+        }
+
+        @Test
+        void getAdditionalCost_emptyCosts() {
+            when(additionalCostService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
+
+            assertEquals(0.0, workOrderService.getAdditionalCost(List.of(wo1)), 0.001);
+        }
+
+        @Test
+        void getPartCost_multipleWorkOrders() {
+            when(partQuantityService.findByWorkOrder(1L)).thenReturn(List.of(
+                    buildPartQuantity(10.0, 3), buildPartQuantity(5.0, 2)));
+            when(partQuantityService.findByWorkOrder(2L)).thenReturn(List.of(
+                    buildPartQuantity(20.0, 1)));
+
+            double result = workOrderService.getPartCost(List.of(wo1, wo2));
+
+            assertEquals(10.0 * 3 + 5.0 * 2 + 20.0 * 1, result, 0.001);
+        }
+
+        @Test
+        void getPartCost_emptyParts() {
+            when(partQuantityService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
+
+            assertEquals(0.0, workOrderService.getPartCost(List.of(wo1)), 0.001);
+        }
+
+        @Test
+        void getAllCost_withLaborCost() {
+            when(partQuantityService.findByWorkOrder(anyLong())).thenReturn(Collections.emptyList());
+            when(additionalCostService.findByWorkOrder(anyLong())).thenReturn(Collections.emptyList());
+            when(laborService.findByWorkOrder(1L)).thenReturn(List.of(buildLabor(100, 7200)));
+
+            double result = workOrderService.getAllCost(List.of(wo1), true);
+
+            assertEquals(200.0, result, 0.001);
+        }
+
+        @Test
+        void getAllCost_withoutLaborCost() {
+            when(partQuantityService.findByWorkOrder(anyLong())).thenReturn(Collections.emptyList());
+            when(additionalCostService.findByWorkOrder(1L)).thenReturn(List.of(buildAdditionalCost(50.0)));
+
+            double result = workOrderService.getAllCost(List.of(wo1), false);
+
+            assertEquals(50.0, result, 0.001);
+        }
+
+        @Test
+        void getAllCost_emptyWorkOrders() {
+            assertEquals(0.0, workOrderService.getAllCost(Collections.emptyList(), true), 0.001);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // getWorkOrdersByPart
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class GetWorkOrdersByPart {
+
+        @Test
+        void deduplicatesSameWorkOrder() {
+            WorkOrder wo = buildWorkOrder(1L);
+            PartQuantity pq1 = new PartQuantity();
+            pq1.setWorkOrder(wo);
+            PartQuantity pq2 = new PartQuantity();
+            pq2.setWorkOrder(wo);
+            when(partQuantityService.findByPart(10L)).thenReturn(List.of(pq1, pq2));
+
+            List<WorkOrder> result = workOrderService.getWorkOrdersByPart(10L);
+
+            assertEquals(1, result.size());
+            assertEquals(1L, result.get(0).getId());
+        }
+
+        @Test
+        void filtersNullWorkOrders() {
+            WorkOrder wo = buildWorkOrder(1L);
+            PartQuantity pq1 = new PartQuantity();
+            pq1.setWorkOrder(wo);
+            PartQuantity pq2 = new PartQuantity();
+            pq2.setWorkOrder(null);
+            when(partQuantityService.findByPart(10L)).thenReturn(List.of(pq1, pq2));
+
+            List<WorkOrder> result = workOrderService.getWorkOrdersByPart(10L);
+
+            assertEquals(1, result.size());
+        }
+
+        @Test
+        void emptyPartQuantities_returnsEmptyList() {
+            when(partQuantityService.findByPart(10L)).thenReturn(Collections.emptyList());
+
+            List<WorkOrder> result = workOrderService.getWorkOrdersByPart(10L);
+
+            assertTrue(result.isEmpty());
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // addFiles
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class AddFilesTests {
+
+        @Test
+        void notFound_throwsNotFound() {
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.empty());
+            assertThrows(CustomException.class,
+                    () -> workOrderService.addFiles(1L, List.of(new com.grash.model.File()), user));
+        }
+
+        @Test
+        void cannotEdit_throwsForbidden() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(99L);
+            role.getEditOtherPermissions().clear();
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+
+            assertThrows(CustomException.class,
+                    () -> workOrderService.addFiles(1L, List.of(new com.grash.model.File()), user));
+        }
+
+        @Test
+        void addsFilesAndReturnsUpdatedList() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(user.getId());
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(workOrderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            com.grash.model.File f = new com.grash.model.File();
+            f.setId(10L);
+            f.setName("file.txt");
+
+            List<com.grash.model.File> result = workOrderService.addFiles(1L, List.of(f), user);
+
+            assertEquals(1, result.size());
+            assertEquals("file.txt", result.get(0).getName());
+            verify(workOrderRepository).save(wo);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // removeFile
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class RemoveFileTests {
+
+        @Test
+        void notFound_throwsNotFound() {
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.empty());
+            assertThrows(CustomException.class,
+                    () -> workOrderService.removeFile(1L, 10L, user));
+        }
+
+        @Test
+        void cannotEdit_throwsForbidden() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(99L);
+            role.getEditOtherPermissions().clear();
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+
+            assertThrows(CustomException.class,
+                    () -> workOrderService.removeFile(1L, 10L, user));
+        }
+
+        @Test
+        void removesExistingFile() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(user.getId());
+            com.grash.model.File f = new com.grash.model.File();
+            f.setId(10L);
+            wo.setFiles(new ArrayList<>(List.of(f)));
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(workOrderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            List<com.grash.model.File> result = workOrderService.removeFile(1L, 10L, user);
+
+            assertTrue(result.isEmpty());
+            verify(workOrderRepository).save(wo);
+        }
+
+        @Test
+        void fileNotFoundInList_stillSaves() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(user.getId());
+            wo.setFiles(new ArrayList<>());
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(workOrderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            List<com.grash.model.File> result = workOrderService.removeFile(1L, 99L, user);
+
+            assertTrue(result.isEmpty());
+            verify(workOrderRepository).save(wo);
         }
     }
 }
