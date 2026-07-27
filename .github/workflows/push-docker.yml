@@ -1,4 +1,5 @@
 name: Test, Push to DockerHub & Deploy to Koyeb
+
 on:
   push:
     branches:
@@ -16,7 +17,7 @@ jobs:
     if: ${{ vars.SKIP_TESTS != 'true' }}
     runs-on: ubuntu-latest
     env:
-     # SPRING_PROFILES_ACTIVE: ${{ vars.SPRING_PROFILES_ACTIVE }}
+      SPRING_PROFILES_ACTIVE: ${{ vars.SPRING_PROFILES_ACTIVE }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
