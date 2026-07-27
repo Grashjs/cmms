@@ -34,7 +34,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: 17
-          distribution: oracle
+          distribution: temurin
 
       - name: Run tests
         run: mvn test -DargLine="--add-opens java.base/java.lang=ALL-UNNAMED"
