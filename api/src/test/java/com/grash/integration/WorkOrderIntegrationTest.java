@@ -4,6 +4,7 @@ import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.ReportConfig;
 import com.grash.dto.WorkOrderChangeStatusDTO;
+import com.grash.dto.license.LicenseEntitlement;
 import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.dto.workOrder.WorkOrderSendReportDTO;
 import com.grash.exception.CustomException;
@@ -16,6 +17,7 @@ import com.grash.security.CustomUserDetail;
 import com.grash.service.TeamService;
 import com.grash.service.WebhookDispatchService;
 import com.grash.service.WorkOrderService;
+import com.grash.utils.Helper;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -33,11 +35,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+import static com.grash.utils.Consts.usageBasedLicenseLimits;
+import static com.grash.utils.Helper.setCurrentUser;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 
-@ActiveProfiles("test")
 @Transactional
 class WorkOrderIntegrationTest extends AbstractIntegrationTest {
 
@@ -56,11 +59,7 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private SubscriptionPlanRepository subscriptionPlanRepository;
     @Autowired
-    private WorkOrderCategoryRepository workOrderCategoryRepository;
-    @Autowired
     private EntityManager em;
-    @Autowired
-    private WorkOrderMapper workOrderMapper;
     @Autowired
     private WorkOrderService workOrderService;
     @Autowired
@@ -142,12 +141,6 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
         setCurrentUser(user);
     }
 
-    private void setCurrentUser(User u) {
-        CustomUserDetail detail = CustomUserDetail.builder().user(u).build();
-        Authentication auth = new UsernamePasswordAuthenticationToken(detail, null, detail.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
-    }
-
     // ═══════════════════════════════════════════════════════════════════
     // create
     // ═══════════════════════════════════════════════════════════════════
@@ -199,7 +192,7 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
 
         @Test
         void create_throwsForbiddenWhenUsageLimitExceeded() {
-            for (int i = 0; i < 30; i++) {
+            for (int i = 0; i < usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS); i++) {
                 WorkOrder wo = new WorkOrder();
                 wo.setTitle("Active WO " + i);
                 wo.setStatus(Status.OPEN);
@@ -386,7 +379,6 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             criteria.setFilterFields(new ArrayList<>());
             criteria.getFilterFields().add(FilterField.builder()
                     .field("priority")
-                    .value(Priority.HIGH)
                     .operation("in")
                     .values(new ArrayList<>(Arrays.asList(Priority.HIGH, Priority.LOW)))
                     .build());
@@ -411,7 +403,7 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             SearchCriteria result = workOrderService.getSearchCriteria(user, criteria);
 
             boolean hasCompanyFilter = result.getFilterFields().stream()
-                    .anyMatch(f -> "company".equals(f.getField()));
+                    .anyMatch(f -> "company".equals(f.getField()) && f.getValue().equals(company.getId()));
             assertTrue(hasCompanyFilter);
         }
 
@@ -433,7 +425,7 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             SearchCriteria result = workOrderService.getSearchCriteria(user, criteria);
 
             boolean hasCreatedByFilter = result.getFilterFields().stream()
-                    .anyMatch(f -> "createdBy".equals(f.getField()));
+                    .anyMatch(f -> "createdBy".equals(f.getField()) && f.getValue().equals(user.getId()));
             assertTrue(hasCreatedByFilter);
         }
 
@@ -523,10 +515,6 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             wo.setCreatedBy(user.getId());
             wo.setCompletedBy(user);
             wo.setCompletedOn(new Date());
-            wo.setAssignedTo(new ArrayList<>());
-            wo.setCustomers(new ArrayList<>());
-            wo.setFiles(new ArrayList<>());
-            wo.setCustomFieldValues(new ArrayList<>());
             return workOrderRepository.saveAndFlush(wo);
         }
 
@@ -572,7 +560,7 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
                     anyString(),
                     anyMap(),
                     eq("work-order-report-email.html"),
-                    any(Locale.class),
+                    eq(Helper.getLocale(user)),
                     argThat(attachments -> attachments != null && !attachments.isEmpty())
             );
         }

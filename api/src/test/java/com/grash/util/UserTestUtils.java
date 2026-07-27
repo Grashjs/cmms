@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
+@Deprecated
 public class UserTestUtils {
 
     @Autowired
@@ -126,7 +127,7 @@ public class UserTestUtils {
         return jwtTokenProvider.createToken(user.getEmail(),
                 List.of(user.getRole().getRoleType()));
     }
-    
+
 
     public Role getRandomRole(User clinician, Boolean paid) {
         return Helper.getRandomFromCollection(roleService.findByCompany(clinician.getCompany().getId()).stream().filter(role -> {
