@@ -76,6 +76,14 @@ jobs:
           tags: |
             intelloop/atlas-cmms-backend:${{ steps.docker-tag.outputs.TAG }}
 
+  deploy-koyeb:
+    needs: test
+    if: ${{ always() && (vars.SKIP_TESTS == 'true' || success()) }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Install and configure the Koyeb CLI
         uses: koyeb-community/koyeb-actions@v2
         with:
