@@ -1,7 +1,5 @@
-name: Build and Push Docker Images
-concurrency:
-  group: docker-build-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+name: Test, Push to DockerHub & Deploy to Koyeb
+
 on:
   push:
     branches:
@@ -9,11 +7,43 @@ on:
     tags:
       - 'v*'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build-and-push-backend:
+  test:
+    timeout-minutes: 25
+    if: ${{ vars.SKIP_TESTS != 'true' }}
     runs-on: ubuntu-latest
     env:
-      BACKEND_IMAGE: intelloop/atlas-cmms-backend
+     # SPRING_PROFILES_ACTIVE: ${{ vars.SPRING_PROFILES_ACTIVE }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: oracle
+
+      - name: Run tests
+        run: mvn test -DargLine="--add-opens java.base/java.lang=ALL-UNNAMED"
+        working-directory: ./api
+
+  deploy:
+    needs: test
+    if: ${{ always() && (vars.SKIP_TESTS == 'true' || success()) }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -28,14 +58,14 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Determine Docker tag
-        id: vars
+        id: docker-tag
         run: |
           if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            TAG_NAME="${GITHUB_REF#refs/tags/}"
+            TAG="${GITHUB_REF#refs/tags/}"
           else
-            TAG_NAME="latest"
+            TAG="latest"
           fi
-          echo "DOCKER_TAG=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "TAG=$TAG" >> $GITHUB_OUTPUT
 
       - name: Build and push backend image
         uses: docker/build-push-action@v6
@@ -44,40 +74,20 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ${{ env.BACKEND_IMAGE }}:${{ steps.vars.outputs.DOCKER_TAG }}
+            intelloop/atlas-cmms-backend:${{ steps.docker-tag.outputs.TAG }}
 
-  build-and-push-frontend:
-    runs-on: ubuntu-latest
-    env:
-      FRONTEND_IMAGE: intelloop/atlas-cmms-frontend
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+      - name: Install and configure the Koyeb CLI
+        uses: koyeb-community/koyeb-actions@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          api_token: "${{ secrets.KOYEB_API_TOKEN }}"
 
-      - name: Determine Docker tag
-        id: vars
-        run: |
-          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            TAG_NAME="${GITHUB_REF#refs/tags/}"
-          else
-            TAG_NAME="latest"
-          fi
-          echo "DOCKER_TAG=$TAG_NAME" >> $GITHUB_OUTPUT
-
-      - name: Build and push frontend image
-        uses: docker/build-push-action@v6
+      - name: Deploy to Koyeb
+        uses: koyeb/action-git-deploy@v1
         with:
-          context: ./frontend
-          push: true
-          platforms: linux/amd64,linux/arm64
-          tags: |
-            ${{ env.FRONTEND_IMAGE }}:${{ steps.vars.outputs.DOCKER_TAG }}
+          app-name: soviet-jennette
+          service-name: atlas-api
+          service-instance-type: small
+          service-env: "PORT=8080"
+          service-ports: "8080:http"
+          service-routes: "/:8080"
+          service-checks: "8080:http:/health-check"
