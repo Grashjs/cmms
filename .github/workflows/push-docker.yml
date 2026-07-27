@@ -99,6 +99,8 @@ jobs:
           service-ports: "8080:http"
           service-routes: "/:8080"
           service-checks: "8080:http:/health-check"
+          git-workdir: ./api
+          git-builder: docker
           git-docker-dockerfile: ./api/Dockerfile
 
   build-and-push-frontend:
