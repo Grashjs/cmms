@@ -51,17 +51,9 @@ class WorkOrderServiceTest {
     @Mock
     private WorkOrderRepository workOrderRepository;
     @Mock
-    private LocationService locationService;
-    @Mock
-    private CustomerService customerService;
-    @Mock
     private TeamService teamService;
     @Mock
     private AssetService assetService;
-    @Mock
-    private UserService userService;
-    @Mock
-    private CompanyService companyService;
     @Mock
     private LaborService laborService;
     @Mock
@@ -79,8 +71,6 @@ class WorkOrderServiceTest {
     @Mock
     private MailService mailService;
     @Mock
-    private WorkOrderCategoryService workOrderCategoryService;
-    @Mock
     private WorkflowService workflowService;
     @Mock
     private MessageSource messageSource;
@@ -89,27 +79,17 @@ class WorkOrderServiceTest {
     @Mock
     private LicenseService licenseService;
     @Mock
+    private UserService userService;
+    @Mock
+    private CompanyService companyService;
+    @Mock
     private WebhookDispatchService webhookDispatchService;
     @Mock
     private CustomFieldValueService customFieldValueService;
     @Mock
-    private IntercomService intercomService;
-    @Mock
     private ReviewEligibilityService reviewEligibilityService;
     @Mock
-    private BrandingService brandingService;
-    @Mock
-    private Utils utils;
-    @Mock
-    private WorkOrderHistoryService workOrderHistoryService;
-    @Mock
-    private org.thymeleaf.spring5.SpringTemplateEngine thymeleafTemplateEngine;
-    @Mock
-    private com.grash.factory.StorageServiceFactory storageServiceFactory;
-    @Mock
-    private Environment environment;
-    @Mock
-    private ResourceBundleMessageSource emailMessageSource;
+    private IntercomService intercomService;
     @Mock
     private TaskService taskService;
     @Mock
@@ -1048,14 +1028,16 @@ class WorkOrderServiceTest {
         @Test
         void underLimit_noException() {
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(false);
-            when(workOrderRepository.hasMoreActiveThan(eq(1L), eq((long) (Consts.usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS) - 1)))).thenReturn(false);
+            when(workOrderRepository.hasMoreActiveThan(eq(1L),
+                    eq((long) (Consts.usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS) - 1)))).thenReturn(false);
             assertDoesNotThrow(() -> workOrderService.checkUsageBasedLimit(company));
         }
 
         @Test
         void atLimit_throwsForbidden() {
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(false);
-            when(workOrderRepository.hasMoreActiveThan(eq(1L), eq((long) (Consts.usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS) - 1)))).thenReturn(true);
+            when(workOrderRepository.hasMoreActiveThan(eq(1L),
+                    eq((long) (Consts.usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS) - 1)))).thenReturn(true);
             CustomException ex = assertThrows(CustomException.class,
                     () -> workOrderService.checkUsageBasedLimit(company));
             assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
@@ -1705,6 +1687,231 @@ class WorkOrderServiceTest {
             workOrderService.create(postDto, company);
 
             verify(workOrderRepository).saveAndFlush(argThat(wo -> "WO000001".equals(wo.getCustomId())));
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // deleteByIdAndUser
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class DeleteByIdAndUser {
+
+        @Test
+        void notFound_throwsNotFound() {
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.empty());
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.deleteByIdAndUser(1L, user));
+            assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
+        }
+
+        @Test
+        void creatorCanDelete() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(user.getId());
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(userService.findByCompany(anyLong())).thenReturn(Collections.emptyList());
+            when(messageSource.getMessage(anyString(), any(), any())).thenReturn("deleted");
+            when(mailServiceFactory.getMailService()).thenReturn(mailService);
+
+            assertDoesNotThrow(() -> workOrderService.deleteByIdAndUser(1L, user));
+            verify(workOrderRepository).deleteById(1L);
+        }
+
+        @Test
+        void deleteOtherPermission_allowsDelete() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(99L);
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(userService.findByCompany(anyLong())).thenReturn(Collections.emptyList());
+            when(messageSource.getMessage(anyString(), any(), any())).thenReturn("deleted");
+            when(mailServiceFactory.getMailService()).thenReturn(mailService);
+
+            assertDoesNotThrow(() -> workOrderService.deleteByIdAndUser(1L, user));
+            verify(workOrderRepository).deleteById(1L);
+        }
+
+        @Test
+        void noPermission_throwsForbidden() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(99L);
+            role.getDeleteOtherPermissions().clear();
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.deleteByIdAndUser(1L, user));
+            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+            verify(workOrderRepository, never()).deleteById(anyLong());
+        }
+
+        @Test
+        void sendsDeletionEmailToSettingsAdmins() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(user.getId());
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(messageSource.getMessage(anyString(), any(), any())).thenReturn("deleted");
+
+            User admin = buildUser(2L);
+            admin.getRole().getViewPermissions().add(PermissionEntity.SETTINGS);
+            admin.getUserSettings().setEmailNotified(true);
+            admin.setEnabled(true);
+            when(userService.findByCompany(anyLong())).thenReturn(List.of(admin));
+            when(mailServiceFactory.getMailService()).thenReturn(mailService);
+
+            workOrderService.deleteByIdAndUser(1L, user);
+
+            verify(mailService).sendMessageUsingThymeleafTemplate(
+                    eq(new String[]{admin.getEmail()}),
+                    eq("deleted"), anyMap(), eq("deleted-work-order.html"), any(), isNull());
+        }
+
+        @Test
+        void dispatchesDeleteWebhook() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(user.getId());
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(userService.findByCompany(anyLong())).thenReturn(Collections.emptyList());
+            when(messageSource.getMessage(anyString(), any(), any())).thenReturn("deleted");
+            when(mailServiceFactory.getMailService()).thenReturn(mailService);
+            when(workOrderMapper.toShowDto(any())).thenReturn(new com.grash.dto.workOrder.WorkOrderShowDTO());
+
+            workOrderService.deleteByIdAndUser(1L, user);
+
+            verify(webhookDispatchService).dispatchWebhook(
+                    eq(company), eq(WebhookEvent.WORK_ORDER_DELETE),
+                    anyMap(), eq("deleteWorkOrder"), any(), isNull(), isNull(), isNull(), isNull(), isNull());
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // createByUser
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class CreateByUser {
+
+        private WorkOrderPostDTO basePostDto() {
+            WorkOrderPostDTO dto = new WorkOrderPostDTO();
+            dto.setTitle("New WO");
+            return dto;
+        }
+
+        private void stubCreateForUser(WorkOrder mapped) {
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(true);
+            when(workOrderMapper.fromPostDto(any())).thenReturn(mapped);
+            when(customSequenceService.getNextWorkOrderSequence(any())).thenReturn(1L);
+            when(workOrderRepository.saveAndFlush(any())).thenAnswer(inv -> {
+                WorkOrder saved = inv.getArgument(0);
+                saved.setId(1L);
+                return saved;
+            });
+            doNothing().when(em).refresh(any());
+            doNothing().when(notificationService).createMultiple(anyList(), anyBoolean(), any());
+            lenient().when(messageSource.getMessage(anyString(), any(), any())).thenReturn("msg");
+            lenient().when(workflowService.findByMainConditionAndCompany(any(), anyLong())).thenReturn(Collections.emptyList());
+            lenient().when(workOrderMapper.toShowDto(any())).thenReturn(new com.grash.dto.workOrder.WorkOrderShowDTO());
+        }
+
+        @Test
+        void noCreatePermission_throwsForbidden() {
+            role.getCreatePermissions().clear();
+            WorkOrderPostDTO postDto = basePostDto();
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.createByUser(postDto, user));
+            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+        }
+
+        @Test
+        void signatureWithoutPlanFeature_throwsForbidden() {
+            SubscriptionPlan planWithoutSignature = SubscriptionPlan.builder()
+                    .id(2L).name("Basic")
+                    .features(new HashSet<>(Collections.singletonList(PlanFeatures.WEBHOOK)))
+                    .build();
+            Subscription subWithoutSignature = Subscription.builder()
+                    .id(2L).subscriptionPlan(planWithoutSignature).build();
+            company.setSubscription(subWithoutSignature);
+
+            WorkOrderPostDTO postDto = basePostDto();
+            postDto.setSignature("base64sig");
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.createByUser(postDto, user));
+            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+        }
+
+        @Test
+        void signatureWithPlanFeature_proceeds() {
+            WorkOrderPostDTO postDto = basePostDto();
+            postDto.setSignature("base64sig");
+            WorkOrder mapped = buildWorkOrder(1L);
+            stubCreateForUser(mapped);
+
+            assertDoesNotThrow(() -> workOrderService.createByUser(postDto, user));
+        }
+
+        @Test
+        void autoAssignWorkOrders_setsPrimaryUserToRequester() {
+            generalPreferences.setAutoAssignWorkOrders(true);
+
+            WorkOrderPostDTO postDto = basePostDto();
+            postDto.setPrimaryUser(null);
+            WorkOrder mapped = buildWorkOrder(1L);
+            stubCreateForUser(mapped);
+
+            workOrderService.createByUser(postDto, user);
+
+            verify(workOrderMapper).fromPostDto(argThat(dto -> {
+                WorkOrderPostDTO captured = (WorkOrderPostDTO) dto;
+                return user.equals(captured.getPrimaryUser());
+            }));
+        }
+
+        @Test
+        void autoAssignWorkOrders_preservesExistingPrimaryUser() {
+            generalPreferences.setAutoAssignWorkOrders(true);
+
+            User existingPrimary = buildUser(50L);
+            WorkOrderPostDTO postDto = basePostDto();
+            postDto.setPrimaryUser(existingPrimary);
+            WorkOrder mapped = buildWorkOrder(1L);
+            stubCreateForUser(mapped);
+
+            workOrderService.createByUser(postDto, user);
+
+            verify(workOrderMapper).fromPostDto(argThat(dto -> {
+                WorkOrderPostDTO captured = (WorkOrderPostDTO) dto;
+                return existingPrimary.equals(captured.getPrimaryUser());
+            }));
+        }
+
+        @Test
+        void firstWorkOrderCreated_firesIntercomEvent() {
+            company.setFirstWorkOrderCreated(false);
+
+            WorkOrderPostDTO postDto = basePostDto();
+            WorkOrder mapped = buildWorkOrder(1L);
+            stubCreateForUser(mapped);
+
+            workOrderService.createByUser(postDto, user);
+
+            verify(intercomService).createCompanyActivationEvent(
+                    eq("first-work-order-created"), eq(1L), eq(user.getEmail()), anyMap());
+            verify(companyService).update(company);
+            assertTrue(company.isFirstWorkOrderCreated());
+        }
+
+        @Test
+        void subsequentWorkOrder_skipsIntercomEvent() {
+            company.setFirstWorkOrderCreated(true);
+
+            WorkOrderPostDTO postDto = basePostDto();
+            WorkOrder mapped = buildWorkOrder(1L);
+            stubCreateForUser(mapped);
+
+            workOrderService.createByUser(postDto, user);
+
+            verify(intercomService, never()).createCompanyActivationEvent(
+                    anyString(), anyLong(), anyString(), anyMap());
+            verify(companyService, never()).update(any());
         }
     }
 }
