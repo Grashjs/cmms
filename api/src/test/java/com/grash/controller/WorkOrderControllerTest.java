@@ -1,5 +1,8 @@
 package com.grash.controller;
 
+import com.grash.dto.CalendarEvent;
+import com.grash.dto.FileShowDTO;
+import com.grash.dto.WorkOrderBaseMiniDTO;
 import com.grash.dto.WorkOrderChangeStatusDTO;
 import com.grash.dto.workOrder.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
@@ -11,11 +14,10 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.model.enums.Status;
 import com.grash.repository.ApiKeyRepository;
-import com.grash.security.CustomUserDetail;
-import com.grash.security.JwtTokenProvider;
-import com.grash.security.OAuth2AuthenticationSuccessHandler;
-import com.grash.security.OAuth2AuthenticationFailureHandler;
 import com.grash.security.CustomUserDetailsService;
+import com.grash.security.JwtTokenProvider;
+import com.grash.security.OAuth2AuthenticationFailureHandler;
+import com.grash.security.OAuth2AuthenticationSuccessHandler;
 import com.grash.service.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -27,17 +29,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 
+import static com.grash.utils.Helper.setCurrentUser;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -47,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(WorkOrderController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @Import(GlobalExceptionHandlerController.class)
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
 class WorkOrderControllerTest {
 
     @Autowired
@@ -73,14 +73,7 @@ class WorkOrderControllerTest {
     private LicenseService licenseService;
     @MockBean
     private RateLimiterService rateLimiterService;
-    @MockBean
-    private JwtTokenProvider jwtTokenProvider;
-    @MockBean
-    private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
-    @MockBean
-    private OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
-    @MockBean
-    private CustomUserDetailsService customUserDetailsService;
+
     private User clientUser;
     private User nonClientUser;
     private WorkOrderShowDTO showDto;
@@ -105,18 +98,12 @@ class WorkOrderControllerTest {
         clientUser.setEmail("john@test.com");
         clientUser.setRole(clientRole);
         clientUser.setEnabled(true);
-        clientUser.setSuperAccountRelations(new ArrayList<>());
         clientUser.setUserSettings(new UserSettings());
 
         Role nonClientRole = Role.builder()
                 .id(2L)
                 .roleType(RoleType.ROLE_SUPER_ADMIN)
                 .name("SuperAdmin")
-                .viewPermissions(new HashSet<>())
-                .createPermissions(new HashSet<>())
-                .viewOtherPermissions(new HashSet<>())
-                .editOtherPermissions(new HashSet<>())
-                .deleteOtherPermissions(new HashSet<>())
                 .build();
 
         nonClientUser = new User();
@@ -126,7 +113,6 @@ class WorkOrderControllerTest {
         nonClientUser.setEmail("admin@test.com");
         nonClientUser.setRole(nonClientRole);
         nonClientUser.setEnabled(true);
-        nonClientUser.setSuperAccountRelations(new ArrayList<>());
 
         showDto = new WorkOrderShowDTO();
         showDto.setId(1L);
@@ -134,11 +120,6 @@ class WorkOrderControllerTest {
         showDto.setStatus(Status.OPEN);
     }
 
-    private void setCurrentUser(User user) {
-        CustomUserDetail detail = CustomUserDetail.builder().user(user).build();
-        Authentication auth = new UsernamePasswordAuthenticationToken(detail, null, detail.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
-    }
 
     // ═══════════════════════════════════════════════════════════════════
     // @PreAuthorize enforcement
@@ -319,6 +300,42 @@ class WorkOrderControllerTest {
             mockMvc.perform(delete("/work-orders/files/1/1/remove"))
                     .andExpect(status().isForbidden());
         }
+
+        @Test
+        void getUrgentCount_success() throws Exception {
+            Role clientWithRequestsRole = Role.builder()
+                    .id(3L)
+                    .roleType(RoleType.ROLE_CLIENT)
+                    .name("Client With Requests")
+                    .viewPermissions(new HashSet<>(Collections.singletonList(PermissionEntity.REQUESTS)))
+                    .build();
+            User urgentClient = new User();
+            urgentClient.setId(3L);
+            urgentClient.setFirstName("Jane");
+            urgentClient.setLastName("Doe");
+            urgentClient.setEmail("jane@test.com");
+            urgentClient.setRole(clientWithRequestsRole);
+            urgentClient.setEnabled(true);
+            urgentClient.setUserSettings(new UserSettings());
+
+            setCurrentUser(urgentClient);
+            when(userService.whoami(any())).thenReturn(urgentClient);
+            when(workOrderService.countUrgent(urgentClient)).thenReturn(5);
+
+            mockMvc.perform(get("/work-orders/urgent"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.message").value("5"));
+        }
+
+        @Test
+        void getUrgentCount_forbidden() throws Exception {
+            setCurrentUser(clientUser);
+            when(userService.whoami(any())).thenReturn(clientUser);
+
+            mockMvc.perform(get("/work-orders/urgent"))
+                    .andExpect(status().isForbidden());
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -396,6 +413,16 @@ class WorkOrderControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"title\":\"WO\",\"customFields\":[]}"))
                     .andExpect(status().isForbidden());
+        }
+
+        @Test
+        void getByPart_notFound_returns404() throws Exception {
+            setCurrentUser(clientUser);
+            when(userService.whoami(any())).thenReturn(clientUser);
+            when(partService.findById(99L)).thenReturn(Optional.empty());
+
+            mockMvc.perform(get("/work-orders/part/99"))
+                    .andExpect(status().isNotFound());
         }
     }
 
@@ -539,6 +566,81 @@ class WorkOrderControllerTest {
                             .content("{\"customers\":[{\"id\":1}],\"message\":\"test\"}"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.success").value(true));
+        }
+
+        @Test
+        void getByPart_success() throws Exception {
+            setCurrentUser(clientUser);
+            when(userService.whoami(any())).thenReturn(clientUser);
+            Part part = new Part();
+            part.setId(1L);
+            when(partService.findById(1L)).thenReturn(Optional.of(part));
+            WorkOrder wo = new WorkOrder();
+            wo.setId(1L);
+            when(workOrderService.getWorkOrdersByPart(1L)).thenReturn(Collections.singletonList(wo));
+            when(workOrderMapper.toShowDto(wo)).thenReturn(showDto);
+
+            mockMvc.perform(get("/work-orders/part/1"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].title").value("Test WO"));
+        }
+
+        @Test
+        void getEvents_success() throws Exception {
+            setCurrentUser(clientUser);
+            when(userService.whoami(any())).thenReturn(clientUser);
+            WorkOrderBaseMiniDTO miniDto = new WorkOrderBaseMiniDTO();
+            miniDto.setId(1L);
+            miniDto.setTitle("Event WO");
+            CalendarEvent<WorkOrderBaseMiniDTO> event = new CalendarEvent<>("workOrder", miniDto, new Date());
+            when(workOrderService.getEvents(any(), isNull(), eq(clientUser)))
+                    .thenReturn(Collections.singletonList(event));
+
+            mockMvc.perform(post("/work-orders/events")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"start\":\"2024-01-01T00:00:00\",\"end\":\"2024-12-31T23:59:59\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].type").value("workOrder"));
+        }
+
+        @Test
+        void addFilesToWorkOrder_success() throws Exception {
+            setCurrentUser(clientUser);
+            when(userService.whoami(any())).thenReturn(clientUser);
+            File file = new File();
+            file.setId(1L);
+            file.setName("test.pdf");
+            when(workOrderService.addFiles(eq(1L), any(), eq(clientUser)))
+                    .thenReturn(Collections.singletonList(file));
+            FileShowDTO fileShowDto = new FileShowDTO();
+            fileShowDto.setId(1L);
+            fileShowDto.setName("test.pdf");
+            when(fileMapper.toShowDto(file)).thenReturn(fileShowDto);
+
+            mockMvc.perform(patch("/work-orders/files/1/add")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("[{\"name\":\"test.pdf\",\"path\":\"/files/test.pdf\"}]"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].name").value("test.pdf"));
+        }
+
+        @Test
+        void removeFileFromWorkOrder_success() throws Exception {
+            setCurrentUser(clientUser);
+            when(userService.whoami(any())).thenReturn(clientUser);
+            File file = new File();
+            file.setId(1L);
+            file.setName("removed.pdf");
+            when(workOrderService.removeFile(eq(1L), eq(1L), eq(clientUser)))
+                    .thenReturn(Collections.singletonList(file));
+            FileShowDTO fileShowDto = new FileShowDTO();
+            fileShowDto.setId(1L);
+            fileShowDto.setName("removed.pdf");
+            when(fileMapper.toShowDto(file)).thenReturn(fileShowDto);
+
+            mockMvc.perform(delete("/work-orders/files/1/1/remove"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].name").value("removed.pdf"));
         }
     }
 }

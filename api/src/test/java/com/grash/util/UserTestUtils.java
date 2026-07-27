@@ -126,17 +126,7 @@ public class UserTestUtils {
         return jwtTokenProvider.createToken(user.getEmail(),
                 List.of(user.getRole().getRoleType()));
     }
-
-    public void setCurrentUser(User user) {
-        CustomUserDetail customUserDetail =
-                CustomUserDetail.builder().user(user).build();
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                customUserDetail,
-                null,
-                customUserDetail.getAuthorities()
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
+    
 
     public Role getRandomRole(User clinician, Boolean paid) {
         return Helper.getRandomFromCollection(roleService.findByCompany(clinician.getCompany().getId()).stream().filter(role -> {
