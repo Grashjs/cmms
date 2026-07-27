@@ -101,7 +101,6 @@ jobs:
           service-checks: "8080:http:/health-check"
           git-workdir: ./api
           git-builder: docker
-          git-docker-dockerfile: ./api/Dockerfile
 
   build-and-push-frontend:
     needs: test
