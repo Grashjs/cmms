@@ -3,8 +3,10 @@ package com.grash.service;
 import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.WorkOrderChangeStatusDTO;
+import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.dto.workOrder.WorkOrderPatchDTO;
+import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.factory.MailServiceFactory;
 import com.grash.mapper.PreventiveMaintenanceMapper;
@@ -13,7 +15,9 @@ import com.grash.model.*;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.*;
 import com.grash.model.enums.webhook.WOField;
+import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.WorkOrderRepository;
+import com.grash.utils.Consts;
 import com.grash.utils.Utils;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -287,6 +291,7 @@ class WorkOrderServiceTest {
             original.setCustomers(new ArrayList<>(List.of(buildCustomer(60L))));
         }
 
+        @Test
         void assetChanged() {
             WorkOrderPatchDTO patch = new WorkOrderPatchDTO();
             patch.setAsset(buildAsset(99L));
@@ -778,6 +783,206 @@ class WorkOrderServiceTest {
             updated.setCustomers(new ArrayList<>());
             assertTrue(detectChangedFields(original, updated).contains(WOField.CUSTOMERS));
         }
+
+        @Test
+        void categoryUnchanged() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setCategory(buildCategory(30L, "Cat"));
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setCategory(buildCategory(30L, "Cat"));
+            assertFalse(detectChangedFields(original, updated).contains(WOField.CATEGORY));
+        }
+
+        @Test
+        void categoryNullOnBothSides() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setCategory(null);
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setCategory(null);
+            assertFalse(detectChangedFields(original, updated).contains(WOField.CATEGORY));
+        }
+
+        @Test
+        void descriptionUnchanged() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setDescription("same");
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setDescription("same");
+            assertFalse(detectChangedFields(original, updated).contains(WOField.DESCRIPTION));
+        }
+
+        @Test
+        void descriptionNullOnOneSide() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setDescription(null);
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setDescription("new");
+            assertTrue(detectChangedFields(original, updated).contains(WOField.DESCRIPTION));
+        }
+
+        @Test
+        void dueDateUnchanged() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setDueDate(new Date(1000));
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setDueDate(new Date(1000));
+            assertFalse(detectChangedFields(original, updated).contains(WOField.DUE_DATE));
+        }
+
+        @Test
+        void dueDateNullOnOneSide() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setDueDate(null);
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setDueDate(new Date(1000));
+            assertTrue(detectChangedFields(original, updated).contains(WOField.DUE_DATE));
+        }
+
+        @Test
+        void estimatedDurationUnchanged() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setEstimatedDuration(2.0);
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setEstimatedDuration(2.0);
+            assertFalse(detectChangedFields(original, updated).contains(WOField.ESTIMATED_DURATION));
+        }
+
+        @Test
+        void estimatedDurationNullOnOneSide() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setEstimatedDuration(0);
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setEstimatedDuration(2.0);
+            assertTrue(detectChangedFields(original, updated).contains(WOField.ESTIMATED_DURATION));
+        }
+
+        @Test
+        void locationUnchanged() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setLocation(buildLocation(40L));
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setLocation(buildLocation(40L));
+            assertFalse(detectChangedFields(original, updated).contains(WOField.LOCATION));
+        }
+
+        @Test
+        void locationNullOnOneSide() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setLocation(null);
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setLocation(buildLocation(40L));
+            assertTrue(detectChangedFields(original, updated).contains(WOField.LOCATION));
+        }
+
+        @Test
+        void locationNullOnBothSides() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setLocation(null);
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setLocation(null);
+            assertFalse(detectChangedFields(original, updated).contains(WOField.LOCATION));
+        }
+
+        @Test
+        void priorityUnchanged() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setPriority(Priority.LOW);
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setPriority(Priority.LOW);
+            assertFalse(detectChangedFields(original, updated).contains(WOField.PRIORITY));
+        }
+
+        @Test
+        void titleUnchanged() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setTitle("same");
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setTitle("same");
+            assertFalse(detectChangedFields(original, updated).contains(WOField.TITLE));
+        }
+
+        @Test
+        void titleNullOnOneSide() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setTitle(null);
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setTitle("new");
+            assertTrue(detectChangedFields(original, updated).contains(WOField.TITLE));
+        }
+
+        @Test
+        void teamUnchanged() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setTeam(buildTeam(50L));
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setTeam(buildTeam(50L));
+            assertFalse(detectChangedFields(original, updated).contains(WOField.TEAM));
+        }
+
+        @Test
+        void teamNullOnOneSide() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setTeam(null);
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setTeam(buildTeam(50L));
+            assertTrue(detectChangedFields(original, updated).contains(WOField.TEAM));
+        }
+
+        @Test
+        void teamNullOnBothSides() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setTeam(null);
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setTeam(null);
+            assertFalse(detectChangedFields(original, updated).contains(WOField.TEAM));
+        }
+
+        @Test
+        void customersUnchanged() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setCustomers(new ArrayList<>(List.of(buildCustomer(60L))));
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setCustomers(new ArrayList<>(List.of(buildCustomer(60L))));
+            assertFalse(detectChangedFields(original, updated).contains(WOField.CUSTOMERS));
+        }
+
+        @Test
+        void customersNullOnBothSides() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setCustomers(null);
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setCustomers(null);
+            assertFalse(detectChangedFields(original, updated).contains(WOField.CUSTOMERS));
+        }
+
+        @Test
+        void customersDifferentOrderSameElements() {
+            Customer c1 = buildCustomer(60L);
+            Customer c2 = buildCustomer(61L);
+            WorkOrder original = buildWorkOrder(1L);
+            original.setCustomers(new ArrayList<>(List.of(c1, c2)));
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setCustomers(new ArrayList<>(List.of(c2, c1)));
+            assertFalse(detectChangedFields(original, updated).contains(WOField.CUSTOMERS));
+        }
+
+        @Test
+        void assigneesNullOnOneSide() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setAssignedTo(null);
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setAssignedTo(new ArrayList<>(List.of(buildUser(20L))));
+            assertTrue(detectChangedFields(original, updated).contains(WOField.ASSIGNEES));
+        }
+
+        @Test
+        void assigneesNullOnBothSides() {
+            WorkOrder original = buildWorkOrder(1L);
+            original.setAssignedTo(null);
+            WorkOrder updated = buildWorkOrder(1L);
+            updated.setAssignedTo(null);
+            assertFalse(detectChangedFields(original, updated).contains(WOField.ASSIGNEES));
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -843,14 +1048,14 @@ class WorkOrderServiceTest {
         @Test
         void underLimit_noException() {
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(false);
-            when(workOrderRepository.hasMoreActiveThan(eq(1L), eq(29L))).thenReturn(false);
+            when(workOrderRepository.hasMoreActiveThan(eq(1L), eq((long) (Consts.usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS) - 1)))).thenReturn(false);
             assertDoesNotThrow(() -> workOrderService.checkUsageBasedLimit(company));
         }
 
         @Test
         void atLimit_throwsForbidden() {
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(false);
-            when(workOrderRepository.hasMoreActiveThan(eq(1L), eq(29L))).thenReturn(true);
+            when(workOrderRepository.hasMoreActiveThan(eq(1L), eq((long) (Consts.usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS) - 1)))).thenReturn(true);
             CustomException ex = assertThrows(CustomException.class,
                     () -> workOrderService.checkUsageBasedLimit(company));
             assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
@@ -941,6 +1146,7 @@ class WorkOrderServiceTest {
                 return saved;
             });
             doNothing().when(assetService).stopDownTime(anyLong(), any());
+            when(workOrderRepository.findByAsset_Id(10L)).thenReturn(Collections.emptyList());
             when(workflowService.findByMainConditionAndCompany(any(), anyLong())).thenReturn(Collections.emptyList());
 
             workOrderService.changeStatus(dto, 1L, user, "ios");
@@ -1069,6 +1275,68 @@ class WorkOrderServiceTest {
             workOrderService.changeStatus(dto, 1L, user, "ios");
             verify(reviewEligibilityService, never()).incrementWorkOrder(any());
         }
+
+        @Test
+        void statusChange_firesWorkOrderStatusChangeWebhook() {
+            WorkOrder originalSnapshot = buildWorkOrder(1L);
+            originalSnapshot.setAsset(buildAsset(10L));
+            originalSnapshot.setStatus(Status.OPEN);
+
+            WorkOrder mutableCopy = buildWorkOrder(1L);
+            mutableCopy.setAsset(buildAsset(10L));
+            mutableCopy.setStatus(Status.OPEN);
+
+            when(workOrderRepository.findById(1L))
+                    .thenReturn(Optional.of(originalSnapshot))
+                    .thenReturn(Optional.of(mutableCopy));
+            when(workOrderRepository.saveAndFlush(any())).thenAnswer(inv -> {
+                WorkOrder saved = inv.getArgument(0);
+                saved.setId(1L);
+                return saved;
+            });
+            when(workOrderMapper.toShowDto(any())).thenReturn(new com.grash.dto.workOrder.WorkOrderShowDTO());
+            doNothing().when(em).refresh(any());
+            when(laborService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
+            doNothing().when(assetService).stopDownTime(anyLong(), any());
+            when(workOrderRepository.findByAsset_Id(10L)).thenReturn(Collections.emptyList());
+
+            dto.setStatus(Status.COMPLETE);
+            workOrderService.changeStatus(dto, 1L, user, "ios");
+
+            verify(webhookDispatchService).dispatchWebhook(
+                    eq(company), eq(WebhookEvent.WORK_ORDER_STATUS_CHANGE),
+                    anyMap(), anyString(), any(), any(), any(), any(), any(), any());
+        }
+
+        @Test
+        void statusUnchanged_doesNotFireWorkOrderStatusChangeWebhook() {
+            WorkOrder originalSnapshot = buildWorkOrder(1L);
+            originalSnapshot.setAsset(buildAsset(10L));
+            originalSnapshot.setStatus(Status.OPEN);
+
+            WorkOrder mutableCopy = buildWorkOrder(1L);
+            mutableCopy.setAsset(buildAsset(10L));
+            mutableCopy.setStatus(Status.OPEN);
+
+            when(workOrderRepository.findById(1L))
+                    .thenReturn(Optional.of(originalSnapshot))
+                    .thenReturn(Optional.of(mutableCopy));
+            when(workOrderRepository.saveAndFlush(any())).thenAnswer(inv -> {
+                WorkOrder saved = inv.getArgument(0);
+                saved.setId(1L);
+                return saved;
+            });
+            when(workOrderMapper.toShowDto(any())).thenReturn(new com.grash.dto.workOrder.WorkOrderShowDTO());
+            doNothing().when(em).refresh(any());
+            when(laborService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
+
+            dto.setStatus(Status.OPEN);
+            workOrderService.changeStatus(dto, 1L, user, "ios");
+
+            verify(webhookDispatchService, never()).dispatchWebhook(
+                    eq(company), eq(WebhookEvent.WORK_ORDER_STATUS_CHANGE),
+                    anyMap(), anyString(), any(), any(), any(), any(), any(), any());
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -1116,7 +1384,6 @@ class WorkOrderServiceTest {
         @Test
         void canViewOthersTrue_noCreatorFilter() {
             user.setSuperAccountRelations(new ArrayList<>());
-            role.getViewOtherPermissions().add(PermissionEntity.WORK_ORDERS);
             SearchCriteria criteria = new SearchCriteria();
             workOrderService.getSearchCriteria(user, criteria);
 
@@ -1154,7 +1421,6 @@ class WorkOrderServiceTest {
         @Test
         void assignedToUserFilter_alwaysStrippedAtTheEnd() {
             user.setSuperAccountRelations(new ArrayList<>());
-            role.getViewOtherPermissions().add(PermissionEntity.WORK_ORDERS);
             SearchCriteria criteria = new SearchCriteria();
             criteria.getFilterFields().add(FilterField.builder()
                     .field("assignedToUser")
@@ -1172,7 +1438,6 @@ class WorkOrderServiceTest {
         @Test
         void canViewOthersTrueWithAssignedToUser_addsAssignedToAndStripsAssignedToUser() {
             user.setSuperAccountRelations(new ArrayList<>());
-            role.getViewOtherPermissions().add(PermissionEntity.WORK_ORDERS);
             when(teamService.findByUser(1L)).thenReturn(Collections.emptyList());
             SearchCriteria criteria = new SearchCriteria();
             criteria.getFilterFields().add(FilterField.builder()
@@ -1334,6 +1599,112 @@ class WorkOrderServiceTest {
             verify(webhookDispatchService, never()).dispatchWebhook(
                     eq(company), eq(com.grash.model.enums.webhook.WebhookEvent.NEW_CATEGORY_ON_WORK_ORDER),
                     anyMap(), anyString(), any(), any(), any(), any(), any(), any());
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // create
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class Create {
+
+        private void stubCreateBase(WorkOrder mapped) {
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(true);
+            when(workOrderMapper.fromPostDto(any())).thenReturn(mapped);
+            when(customSequenceService.getNextWorkOrderSequence(any())).thenReturn(1L);
+            when(workOrderRepository.saveAndFlush(any())).thenAnswer(inv -> {
+                WorkOrder saved = inv.getArgument(0);
+                saved.setId(1L);
+                return saved;
+            });
+            doNothing().when(em).refresh(any());
+            doNothing().when(notificationService).createMultiple(anyList(), anyBoolean(), any());
+            lenient().when(messageSource.getMessage(anyString(), any(), any())).thenReturn("msg");
+            lenient().when(workflowService.findByMainConditionAndCompany(any(), anyLong())).thenReturn(Collections.emptyList());
+            lenient().when(workOrderMapper.toShowDto(any())).thenReturn(new com.grash.dto.workOrder.WorkOrderShowDTO());
+        }
+
+        @Test
+        void assetStatusUpdatedOnCreate() {
+            WorkOrderPostDTO postDto = new WorkOrderPostDTO();
+            postDto.setTitle("New WO");
+            postDto.setAsset(buildAsset(10L));
+            postDto.setAssetStatus(AssetStatus.DOWN);
+
+            Asset asset = buildAsset(10L);
+            WorkOrder mapped = buildWorkOrder(1L);
+            mapped.setAsset(asset);
+            stubCreateBase(mapped);
+
+            when(assetService.findById(10L)).thenReturn(Optional.of(asset));
+
+            workOrderService.create(postDto, company);
+
+            verify(assetService).save(argThat(a -> a.getStatus() == AssetStatus.DOWN));
+        }
+
+        @Test
+        void customFieldsSetOnCreate() {
+            WorkOrderPostDTO postDto = new WorkOrderPostDTO();
+            postDto.setTitle("New WO");
+
+            CustomFieldValuePostDTO cf = new CustomFieldValuePostDTO();
+            cf.setId(1L);
+            cf.setValue("val");
+            postDto.setCustomFields(List.of(cf));
+
+            WorkOrder mapped = buildWorkOrder(1L);
+            mapped.setCustomFieldValues(new ArrayList<>());
+            stubCreateBase(mapped);
+
+            workOrderService.create(postDto, company);
+
+            verify(customFieldValueService).setCustomFields(
+                    any(), anyList(), eq(postDto.getCustomFields()),
+                    eq(company), eq(CustomFieldEntityType.WORK_ORDER), any());
+        }
+
+        @Test
+        void customFieldsEmpty_skipsSetWOCustomFields() {
+            WorkOrderPostDTO postDto = new WorkOrderPostDTO();
+            postDto.setTitle("New WO");
+            postDto.setCustomFields(new ArrayList<>());
+
+            WorkOrder mapped = buildWorkOrder(1L);
+            stubCreateBase(mapped);
+
+            workOrderService.create(postDto, company);
+
+            verify(customFieldValueService, never()).setCustomFields(
+                    any(), anyList(), anyList(), any(), any(), any());
+        }
+
+        @Test
+        void dispatchesNewWorkOrderWebhook() {
+            WorkOrderPostDTO postDto = new WorkOrderPostDTO();
+            postDto.setTitle("New WO");
+
+            WorkOrder mapped = buildWorkOrder(1L);
+            stubCreateBase(mapped);
+
+            workOrderService.create(postDto, company);
+
+            verify(webhookDispatchService).dispatchWebhook(
+                    eq(company), eq(WebhookEvent.NEW_WORK_ORDER),
+                    anyMap(), eq("newWorkOrder"), any(), isNull(), isNull(), isNull(), isNull(), isNull());
+        }
+
+        @Test
+        void generatesCustomIdFromSequence() {
+            WorkOrderPostDTO postDto = new WorkOrderPostDTO();
+            postDto.setTitle("New WO");
+
+            WorkOrder mapped = buildWorkOrder(1L);
+            stubCreateBase(mapped);
+
+            workOrderService.create(postDto, company);
+
+            verify(workOrderRepository).saveAndFlush(argThat(wo -> "WO000001".equals(wo.getCustomId())));
         }
     }
 }
