@@ -43,7 +43,6 @@ public class AuthController {
     private final UserMapper userMapper;
     private final SuperAccountRelationRepository superAccountRelationRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final MailServiceFactory mailServiceFactory;
     private final CompanyService companyService;
     private final UserRepository userRepository;
     private final LdapService ldapService;
