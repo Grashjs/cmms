@@ -7,6 +7,7 @@ import com.grash.dto.UserSignupRequest;
 import com.grash.dto.UtmParams;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.dto.license.LicensingState;
+import com.grash.event.CompanyCreatedEvent;
 import com.grash.exception.CustomException;
 import com.grash.factory.MailServiceFactory;
 import com.grash.mapper.UserMapper;
@@ -449,6 +450,168 @@ class UserServiceTest {
             CustomException ex = assertThrows(CustomException.class,
                     () -> userService.signup(signupRequest));
             assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+        }
+
+        @Test
+        void newCompany_noMultiInstanceEntitlement_throws() {
+            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
+            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
+            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
+            when(utils.generateStringId()).thenReturn("username123");
+            when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(false);
+            when(companyService.existsAtLeastOneWithMinWorkOrders()).thenReturn(true);
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> userService.signup(signupRequest));
+            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+        }
+
+        @Test
+        void newCompanyOnLocalhost_cloudVersionTrue() {
+            ReflectionTestUtils.setField(userService, "PUBLIC_API_URL", "http://localhost:8080");
+            ReflectionTestUtils.setField(userService, "cloudVersion", true);
+            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
+            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
+            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
+            when(utils.generateStringId()).thenReturn("username123");
+            when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(true);
+            when(subscriptionPlanService.findByCode("BUSINESS"))
+                    .thenReturn(Optional.of(subscriptionPlan));
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            com.grash.model.Currency currency = new com.grash.model.Currency();
+            currency.setCode("$");
+            when(currencyService.findByCode("$")).thenReturn(Optional.of(currency));
+            when(roleService.findDefaultRoles()).thenReturn(List.of(role));
+            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
+                    .thenReturn("signup-token");
+
+            SignupSuccessResponse<User> response = userService.signup(signupRequest);
+
+            assertTrue(response.isSuccess());
+            verify(applicationEventPublisher).publishEvent(any(CompanyCreatedEvent.class));
+        }
+
+        @Test
+        void invitedRole_noInvitationsFound_throws() {
+            Role invitedRole = Role.builder()
+                    .id(2L).name("Technician").roleType(RoleType.ROLE_CLIENT)
+                    .code(RoleCode.TECHNICIAN).paid(false).build();
+            signupRequest.setRole(invitedRole);
+            mappedUser.setRole(invitedRole);
+            ReflectionTestUtils.setField(userService, "enableInvitationViaEmail", true);
+
+            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
+            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
+            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
+            when(utils.generateStringId()).thenReturn("username123");
+            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
+            when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
+                    .thenReturn(new ArrayList<>());
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> userService.signup(signupRequest));
+            assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+        }
+
+        @Test
+        void invitedRole_withCompanySettings_success() {
+            Role invitedRole = Role.builder()
+                    .id(2L).name("Technician").roleType(RoleType.ROLE_CLIENT)
+                    .code(RoleCode.TECHNICIAN).paid(true).build();
+            CompanySettings companySettings = new CompanySettings();
+            companySettings.setCompany(company);
+            invitedRole.setCompanySettings(companySettings);
+            signupRequest.setRole(invitedRole);
+            mappedUser.setRole(invitedRole);
+            UserInvitation invitation = new UserInvitation("new@test.com", invitedRole);
+            invitation.setId(1L);
+            invitation.setCreatedBy(1L);
+
+            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
+            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
+            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
+            when(utils.generateStringId()).thenReturn("username123");
+            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
+            when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
+                    .thenReturn(new ArrayList<>(List.of(invitation)));
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(true);
+            when(userRepository.findByCompany_Id(1L)).thenReturn(List.of());
+            when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
+                    .thenReturn("signup-token");
+
+            SignupSuccessResponse<User> response = userService.signup(signupRequest);
+
+            assertTrue(response.isSuccess());
+            assertEquals(company, response.getUser().getCompany());
+        }
+
+        @Test
+        void invitedRole_exceedsSubscriptionLimit_throws() {
+            Role invitedRole = Role.builder()
+                    .id(2L).name("Technician").roleType(RoleType.ROLE_CLIENT)
+                    .code(RoleCode.TECHNICIAN).paid(true).build();
+            signupRequest.setRole(invitedRole);
+            mappedUser.setRole(invitedRole);
+            UserInvitation invitation = new UserInvitation("new@test.com", invitedRole);
+            invitation.setId(1L);
+            invitation.setCreatedBy(1L);
+            company.getSubscription().setUsersCount(1);
+            User otherUser = buildUser(2L, "other@test.com");
+            otherUser.setEnabled(true);
+            otherUser.setEnabledInSubscription(true);
+
+            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
+            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
+            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
+            when(utils.generateStringId()).thenReturn("username123");
+            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
+            when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
+                    .thenReturn(new ArrayList<>(List.of(invitation)));
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(true);
+            when(userRepository.findByCompany_Id(1L)).thenReturn(List.of(user, otherUser));
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> userService.signup(signupRequest));
+            assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+        }
+
+        @Test
+        void newCompanyNonLocalhost_enableInvitationViaEmail() {
+            ReflectionTestUtils.setField(userService, "PUBLIC_API_URL", "https://app.test.com");
+            ReflectionTestUtils.setField(userService, "cloudVersion", false);
+            ReflectionTestUtils.setField(userService, "enableInvitationViaEmail", true);
+            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
+            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
+            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
+            when(utils.generateStringId()).thenReturn("username123");
+            when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(true);
+            when(subscriptionPlanService.findByCode("BUSINESS"))
+                    .thenReturn(Optional.of(subscriptionPlan));
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            com.grash.model.Currency currency = new com.grash.model.Currency();
+            currency.setCode("$");
+            when(currencyService.findByCode("$")).thenReturn(Optional.of(currency));
+            when(roleService.findDefaultRoles()).thenReturn(List.of(role));
+            when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(verificationTokenRepository.save(any(VerificationToken.class))).thenReturn(null);
+            doNothing().when(mailService).sendMessageUsingThymeleafTemplate(
+                    any(String[].class), anyString(), anyMap(), anyString(), any(), any());
+            when(messageSource.getMessage(anyString(), any(), any())).thenReturn("Confirm Email");
+
+            SignupSuccessResponse<User> response = userService.signup(signupRequest);
+
+            assertTrue(response.isSuccess());
+            assertEquals("Successful registration. Check your mailbox to activate your account",
+                    response.getMessage());
+            assertNull(response.getUser());
         }
     }
 
