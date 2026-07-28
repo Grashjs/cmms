@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -86,6 +87,12 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
     private LocationRepository locationRepository;
     @Autowired
     private AssetRepository assetRepository;
+    @Autowired
+    private WorkOrderCategoryRepository workOrderCategoryRepository;
+    @Autowired
+    private TeamRepository teamRepository;
+    @Autowired
+    private PreventiveMaintenanceRepository preventiveMaintenanceRepository;
 
     @MockBean
     private WebhookDispatchService webhookDispatchService;
@@ -1204,6 +1211,244 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             WorkOrder fetched = result.getContent().get(0);
             assertNotNull(fetched.getAsset());
             assertNotNull(fetched.getLocation());
+        }
+
+        @Test
+        void findByAssetAndCreatedAtBetween_filtersCorrectly() {
+            Asset asset = new Asset();
+            asset.setName("Filter Asset");
+            asset.setCompany(company);
+            asset.setStatus(AssetStatus.OPERATIONAL);
+            asset.setFiles(new ArrayList<>());
+            asset.setCustomers(new ArrayList<>());
+            asset.setTeams(new ArrayList<>());
+            asset.setParts(new ArrayList<>());
+            asset.setCustomFieldValues(new ArrayList<>());
+            asset = assetRepository.saveAndFlush(asset);
+
+            WorkOrder wo1 = createQueryWO("Asset WO", Status.OPEN);
+            wo1.setAsset(asset);
+            workOrderRepository.saveAndFlush(wo1);
+
+            WorkOrder wo2 = createQueryWO("Other WO", Status.OPEN);
+            workOrderRepository.saveAndFlush(wo2);
+
+            em.clear();
+            Date start = new Date(0);
+            Date end = new Date(System.currentTimeMillis() + 86400000);
+            Collection<WorkOrder> result = workOrderService.findByAssetAndCreatedAtBetween(
+                    asset.getId(), start, end);
+
+            assertTrue(result.stream().anyMatch(wo -> wo.getId().equals(wo1.getId())));
+            assertFalse(result.stream().anyMatch(wo -> wo.getId().equals(wo2.getId())));
+        }
+
+        @Test
+        void findByLocation_filtersCorrectly() {
+            Location location = new Location();
+            location.setName("Test Location");
+            location.setCompany(company);
+            location = locationRepository.saveAndFlush(location);
+
+            WorkOrder wo = createQueryWO("Located WO", Status.OPEN);
+            wo.setLocation(location);
+            workOrderRepository.saveAndFlush(wo);
+
+            em.clear();
+            Collection<WorkOrder> result = workOrderService.findByLocation(location.getId());
+
+            assertTrue(result.stream().anyMatch(w -> w.getId().equals(wo.getId())));
+        }
+
+        @Test
+        void findByAssignedToUser_returnsOrdersForPrimaryUser() {
+            WorkOrder wo = createQueryWO("Assigned WO", Status.OPEN);
+            wo.setPrimaryUser(user);
+            workOrderRepository.saveAndFlush(wo);
+
+            em.clear();
+            Collection<WorkOrder> result = workOrderService.findByAssignedToUser(user.getId());
+
+            assertTrue(result.stream().anyMatch(w -> w.getId().equals(wo.getId())));
+        }
+
+        @Test
+        void findByAssignedToUser_returnsOrdersViaTeam() {
+            Team team = new Team();
+            team.setName("Test Team");
+            team.setCompany(company);
+            team.setUsers(new ArrayList<>());
+            team.getUsers().add(user);
+            team = teamRepository.saveAndFlush(team);
+
+            WorkOrder wo = createQueryWO("Team WO", Status.OPEN);
+            wo.setTeam(team);
+            workOrderRepository.saveAndFlush(wo);
+
+            em.clear();
+            Collection<WorkOrder> result = workOrderService.findByAssignedToUser(user.getId());
+
+            assertTrue(result.stream().anyMatch(w -> w.getId().equals(wo.getId())));
+        }
+
+        @Test
+        void findByAssignedToUserAndCreatedAtBetween_filtersByUserAndDate() {
+            WorkOrder wo = createQueryWO("Date Assigned WO", Status.OPEN);
+            wo.setPrimaryUser(user);
+            workOrderRepository.saveAndFlush(wo);
+
+            em.clear();
+            Date start = new Date(0);
+            Date end = new Date(System.currentTimeMillis() + 86400000);
+            Collection<WorkOrder> result = workOrderService.findByAssignedToUserAndCreatedAtBetween(
+                    user.getId(), start, end);
+
+            assertTrue(result.stream().anyMatch(w -> w.getId().equals(wo.getId())));
+        }
+
+        @Test
+        void findByPriorityAndCompanyAndCreatedAtBetween_filtersCorrectly() {
+            WorkOrder wo = createQueryWO("High Priority", Status.OPEN);
+            wo.setPriority(Priority.HIGH);
+            workOrderRepository.saveAndFlush(wo);
+
+            WorkOrder wo2 = createQueryWO("Low Priority", Status.OPEN);
+            wo2.setPriority(Priority.LOW);
+            workOrderRepository.saveAndFlush(wo2);
+
+            em.clear();
+            Date start = new Date(0);
+            Date end = new Date(System.currentTimeMillis() + 86400000);
+            Collection<WorkOrder> result = workOrderService.findByPriorityAndCompanyAndCreatedAtBetween(
+                    Priority.HIGH, company.getId(), start, end);
+
+            assertTrue(result.stream().anyMatch(w -> w.getId().equals(wo.getId())));
+            assertFalse(result.stream().anyMatch(w -> w.getId().equals(wo2.getId())));
+        }
+
+        @Test
+        void findByCategoryAndCreatedAtBetween_filtersCorrectly() {
+            WorkOrderCategory category = new WorkOrderCategory();
+            category.setName("Electrical");
+            category.setCompanySettings(company.getCompanySettings());
+            category = workOrderCategoryRepository.saveAndFlush(category);
+
+            WorkOrder wo = createQueryWO("Category WO", Status.OPEN);
+            wo.setCategory(category);
+            workOrderRepository.saveAndFlush(wo);
+
+            em.clear();
+            Date start = new Date(0);
+            Date end = new Date(System.currentTimeMillis() + 86400000);
+            Collection<WorkOrder> result = workOrderService.findByCategoryAndCreatedAtBetween(
+                    category.getId(), start, end);
+
+            assertTrue(result.stream().anyMatch(w -> w.getId().equals(wo.getId())));
+        }
+
+        @Test
+        void findByCreatedByAndCreatedAtBetween_filtersCorrectly() {
+            WorkOrder wo = createQueryWO("Created by me", Status.OPEN);
+            wo.setCreatedBy(user.getId());
+            workOrderRepository.saveAndFlush(wo);
+
+            em.clear();
+            Date start = new Date(0);
+            Date end = new Date(System.currentTimeMillis() + 86400000);
+            Collection<WorkOrder> result = workOrderService.findByCreatedByAndCreatedAtBetween(
+                    user.getId(), start, end);
+
+            assertTrue(result.stream().anyMatch(w -> w.getId().equals(wo.getId())));
+        }
+
+        @Test
+        void findByCompletedByAndCreatedAtBetween_filtersCorrectly() {
+            WorkOrder wo = createQueryWO("Done WO", Status.OPEN);
+            wo.setCompletedBy(user);
+            workOrderRepository.saveAndFlush(wo);
+
+            em.clear();
+            Date start = new Date(0);
+            Date end = new Date(System.currentTimeMillis() + 86400000);
+            Collection<WorkOrder> result = workOrderService.findByCompletedByAndCreatedAtBetween(
+                    user.getId(), start, end);
+
+            assertTrue(result.stream().anyMatch(w -> w.getId().equals(wo.getId())));
+        }
+
+        @Test
+        void findUnscheduledByCompany_returnsUnscheduled() {
+            WorkOrder scheduled = createQueryWO("Scheduled", Status.OPEN);
+            scheduled.setEstimatedStartDate(new Date());
+            scheduled.setEstimatedDuration(1.0);
+            scheduled.setPrimaryUser(user);
+            workOrderRepository.saveAndFlush(scheduled);
+
+            WorkOrder unscheduled = createQueryWO("Unscheduled", Status.OPEN);
+            unscheduled.setEstimatedDuration(1.0);
+            unscheduled.setPrimaryUser(user);
+            unscheduled.setEstimatedStartDate(null);
+            workOrderRepository.saveAndFlush(unscheduled);
+
+            em.clear();
+            Collection<WorkOrder> result = workOrderRepository.findUnscheduledByCompany(company.getId());
+
+            assertTrue(result.stream().anyMatch(w -> w.getId().equals(unscheduled.getId())));
+            assertFalse(result.stream().anyMatch(w -> w.getId().equals(scheduled.getId())));
+        }
+
+        @Test
+        void findByCompanyWithTimeAndCost_queriesCorrectly() {
+            WorkOrder wo = createQueryWO("Cost WO", Status.OPEN);
+
+            Labor labor = new Labor();
+            labor.setWorkOrder(wo);
+            labor.setCompany(company);
+            labor.setHourlyRate(5000L);
+            labor.setStartedAt(new Date());
+            labor.setDuration(7200L);
+            laborRepository.saveAndFlush(labor);
+
+            em.clear();
+            Page<WorkOrder> result = workOrderService.findByCompanyWithTimeAndCost(
+                    company.getId(), PageRequest.of(0, 10));
+
+            assertTrue(result.getContent().stream().anyMatch(w -> w.getId().equals(wo.getId())));
+        }
+
+        @Test
+        void countUrgent_returnsCorrectCount() {
+            WorkOrder urgent = createQueryWO("Urgent", Status.OPEN);
+            urgent.setDueDate(Helper.addSeconds(new Date(), 3600));
+            workOrderRepository.saveAndFlush(urgent);
+
+            em.clear();
+            Integer count = workOrderService.countUrgent(user);
+
+            assertNotNull(count);
+            assertTrue(count > 0);
+        }
+
+        @Test
+        void findLastByPM_returnsLatest() {
+            PreventiveMaintenance pm = new PreventiveMaintenance();
+            pm.setName("Test PM");
+            pm.setTitle("PM Title");
+            pm.setCustomFieldValues(new ArrayList<>());
+            pm = preventiveMaintenanceRepository.saveAndFlush(pm);
+
+            WorkOrder oldWo = createQueryWO("Old PM WO", Status.OPEN);
+            oldWo.setParentPreventiveMaintenance(pm);
+            workOrderRepository.saveAndFlush(oldWo);
+
+            WorkOrder newWo = createQueryWO("New PM WO", Status.OPEN);
+            newWo.setParentPreventiveMaintenance(pm);
+            workOrderRepository.saveAndFlush(newWo);
+
+            em.clear();
+            Page<WorkOrder> result = workOrderService.findLastByPM(pm.getId(), 10);
+
+            assertEquals(2, result.getTotalElements());
         }
     }
 }

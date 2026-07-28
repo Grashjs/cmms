@@ -42,6 +42,10 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import com.grash.dto.ReportConfig;
+import com.grash.dto.workOrder.WorkOrderSendReportDTO;
+import org.springframework.data.jpa.domain.Specification;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -2177,7 +2181,8 @@ class WorkOrderServiceTest {
         @Test
         void noPermission_throwsAccessDenied() {
             role.getViewPermissions().remove(PermissionEntity.WORK_ORDERS);
-            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+            DateRange range = buildDateRange(new Date(0),
+                    new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
 
             assertThrows(CustomException.class,
                     () -> workOrderService.getEvents(range, null, user));
@@ -2187,7 +2192,8 @@ class WorkOrderServiceTest {
         void simpleFetch_returnsWorkOrdersAndPMs() {
             role.getViewOtherPermissions().add(PermissionEntity.WORK_ORDERS);
             role.getViewOtherPermissions().add(PermissionEntity.PREVENTIVE_MAINTENANCES);
-            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+            DateRange range = buildDateRange(new Date(0),
+                    new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
             Date futureDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
 
             PreventiveMaintenance pm = buildPM(10L, 99L);
@@ -2197,7 +2203,8 @@ class WorkOrderServiceTest {
 
             WorkOrder wo = buildWorkOrder(1L);
             wo.setDueDate(futureDate);
-            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(), company.getId()))
+            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(),
+                    company.getId()))
                     .thenReturn(List.of(wo));
 
             WorkOrderBaseMiniDTO pmDto = new WorkOrderBaseMiniDTO();
@@ -2215,7 +2222,8 @@ class WorkOrderServiceTest {
         @Test
         void filtersOutPastPMEvents() {
             role.getViewOtherPermissions().add(PermissionEntity.PREVENTIVE_MAINTENANCES);
-            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+            DateRange range = buildDateRange(new Date(0),
+                    new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
             Date pastDate = new Date(1000);
 
             PreventiveMaintenance pm = buildPM(10L, 99L);
@@ -2235,7 +2243,8 @@ class WorkOrderServiceTest {
         @Test
         void filtersWOs_userWithoutViewOtherPermission() {
             role.getViewOtherPermissions().remove(PermissionEntity.WORK_ORDERS);
-            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+            DateRange range = buildDateRange(new Date(0),
+                    new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
             Date futureDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
 
             when(preventiveMaintenanceService.getEvents(any(), any()))
@@ -2246,7 +2255,8 @@ class WorkOrderServiceTest {
             wo.setPrimaryUser(buildUser(888L));
             wo.setAssignedTo(new ArrayList<>());
             wo.setDueDate(futureDate);
-            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(), company.getId()))
+            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(),
+                    company.getId()))
                     .thenReturn(List.of(wo));
 
             Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
@@ -2257,7 +2267,8 @@ class WorkOrderServiceTest {
 
         @Test
         void userCanViewOwnCreatedWO() {
-            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+            DateRange range = buildDateRange(new Date(0),
+                    new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
             Date futureDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
 
             when(preventiveMaintenanceService.getEvents(any(), any()))
@@ -2268,7 +2279,8 @@ class WorkOrderServiceTest {
             wo.setPrimaryUser(buildUser(888L));
             wo.setAssignedTo(new ArrayList<>());
             wo.setDueDate(futureDate);
-            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(), company.getId()))
+            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(),
+                    company.getId()))
                     .thenReturn(List.of(wo));
 
             WorkOrderBaseMiniDTO woDto = new WorkOrderBaseMiniDTO();
@@ -2283,7 +2295,8 @@ class WorkOrderServiceTest {
 
         @Test
         void userCanViewAssignedWO() {
-            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+            DateRange range = buildDateRange(new Date(0),
+                    new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
             Date futureDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
 
             when(preventiveMaintenanceService.getEvents(any(), any()))
@@ -2294,7 +2307,8 @@ class WorkOrderServiceTest {
             wo.setPrimaryUser(user);
             wo.setAssignedTo(new ArrayList<>());
             wo.setDueDate(futureDate);
-            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(), company.getId()))
+            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(),
+                    company.getId()))
                     .thenReturn(List.of(wo));
 
             WorkOrderBaseMiniDTO woDto = new WorkOrderBaseMiniDTO();
@@ -2309,23 +2323,27 @@ class WorkOrderServiceTest {
         @Test
         void companyIdSpecified_filtersToOnlyThatCompany() {
             role.getViewOtherPermissions().add(PermissionEntity.WORK_ORDERS);
-            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+            DateRange range = buildDateRange(new Date(0),
+                    new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
 
             when(preventiveMaintenanceService.getEvents(range.getEnd(), company.getId()))
                     .thenReturn(Collections.emptyList());
-            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(), company.getId()))
+            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(),
+                    company.getId()))
                     .thenReturn(Collections.emptyList());
 
             Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
                     workOrderService.getEvents(range, company.getId(), user);
 
-            verify(workOrderRepository).findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(), company.getId());
+            verify(workOrderRepository).findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(),
+                    company.getId());
             assertTrue(result.isEmpty());
         }
 
         @Test
         void companyIdSpecified_noAccess_throwsAccessDenied() {
-            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+            DateRange range = buildDateRange(new Date(0),
+                    new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
 
             assertThrows(CustomException.class,
                     () -> workOrderService.getEvents(range, 999L, user));
@@ -2334,7 +2352,8 @@ class WorkOrderServiceTest {
         @Test
         void emptyResults_returnsEmptyList() {
             role.getViewOtherPermissions().add(PermissionEntity.WORK_ORDERS);
-            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+            DateRange range = buildDateRange(new Date(0),
+                    new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
 
             when(preventiveMaintenanceService.getEvents(any(), any()))
                     .thenReturn(Collections.emptyList());
@@ -2350,7 +2369,8 @@ class WorkOrderServiceTest {
         @Test
         void canViewAssignedPM_viaTeamMembership() {
             role.getViewOtherPermissions().add(PermissionEntity.PREVENTIVE_MAINTENANCES);
-            DateRange range = buildDateRange(new Date(0), new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+            DateRange range = buildDateRange(new Date(0),
+                    new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
             Date futureDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
 
             PreventiveMaintenance pm = buildPM(10L, 999L);
@@ -2370,6 +2390,37 @@ class WorkOrderServiceTest {
                     workOrderService.getEvents(range, null, user);
 
             assertEquals(1, result.size());
+        }
+
+        @Test
+        void withSuperAccountRelations_queriesChildCompanyInsteadOfOwn() {
+            role.getViewOtherPermissions().add(PermissionEntity.WORK_ORDERS);
+            DateRange range = DateRange.builder()
+                    .start(new Date(0))
+                    .end(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)))
+                    .build();
+
+            Company childCompany = new Company("Child", 10, subscription);
+            childCompany.setId(2L);
+            childCompany.setCompanySettings(companySettings);
+            User childUser = buildUser(2L);
+            childUser.setCompany(childCompany);
+            SuperAccountRelation relation = new SuperAccountRelation();
+            relation.setChildUser(childUser);
+            user.setSuperAccountRelations(List.of(relation));
+
+            when(preventiveMaintenanceService.getEvents(any(), any())).thenReturn(Collections.emptyList());
+            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(any(), any(), anyLong()))
+                    .thenReturn(Collections.emptyList());
+
+            Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
+                    workOrderService.getEvents(range, null, user);
+
+            verify(workOrderRepository, never())
+                    .findByDueDateBetweenAndCompany_Id(any(), any(), eq(company.getId()));
+            verify(workOrderRepository)
+                    .findByDueDateBetweenAndCompany_Id(any(), any(), eq(2L));
+            assertTrue(result.isEmpty());
         }
     }
 
@@ -2649,6 +2700,323 @@ class WorkOrderServiceTest {
 
             assertTrue(result.isEmpty());
             verify(workOrderRepository).save(wo);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // countUrgent
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class CountUrgent {
+
+        @Test
+        void countUrgent_returnsCount() {
+            when(workOrderRepository.count(any(Specification.class))).thenReturn(3L);
+            Integer result = workOrderService.countUrgent(user);
+            assertEquals(3, result);
+        }
+
+        @Test
+        void countUrgent_zeroWhenNone() {
+            when(workOrderRepository.count(any(Specification.class))).thenReturn(0L);
+            Integer result = workOrderService.countUrgent(user);
+            assertEquals(0, result);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // patch - forbidden and not found branches
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class PatchForbiddenNotFound {
+
+        @Test
+        void notFound_throwsNotFound() {
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.empty());
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.patch(1L, new WorkOrderPatchDTO(), user));
+            assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
+        }
+
+        @Test
+        void cannotEdit_throwsForbidden() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(99L);
+            role.getEditOtherPermissions().clear();
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.patch(1L, new WorkOrderPatchDTO(), user));
+            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+        }
+
+        @Test
+        void archived_workflowExecuted() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setArchived(false);
+            WorkOrder woAfterPatch = buildWorkOrder(1L);
+            woAfterPatch.setArchived(true);
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(workOrderRepository.existsById(1L)).thenReturn(true);
+            when(workOrderMapper.updateWorkOrder(any(), any())).thenReturn(woAfterPatch);
+            when(workOrderMapper.toShowDto(any())).thenReturn(new com.grash.dto.workOrder.WorkOrderShowDTO());
+            when(workOrderRepository.saveAndFlush(any())).thenAnswer(inv -> inv.getArgument(0));
+            doNothing().when(em).refresh(any());
+            when(workflowService.findByMainConditionAndCompany(any(), anyLong()))
+                    .thenReturn(List.of(new Workflow()));
+
+            workOrderService.patch(1L, new WorkOrderPatchDTO(), user);
+
+            verify(workflowService).runWorkOrder(any(Workflow.class), any(WorkOrder.class));
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // update - not found branch
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class UpdateNotFound {
+
+        @Test
+        void notFound_throwsNotFound() {
+            when(workOrderRepository.existsById(1L)).thenReturn(false);
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.update(1L, new WorkOrderPatchDTO(), user));
+            assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // update - custom fields branch
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class UpdateCustomFields {
+
+        @Test
+        void customFieldsNotEmpty_callsSetCustomFields() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCompany(company);
+            WorkOrderPatchDTO patch = new WorkOrderPatchDTO();
+            patch.setCustomFields(List.of(new CustomFieldValuePostDTO()));
+
+            when(workOrderRepository.existsById(1L)).thenReturn(true);
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(workOrderMapper.updateWorkOrder(any(), any())).thenReturn(wo);
+            when(workOrderRepository.saveAndFlush(any())).thenAnswer(inv -> inv.getArgument(0));
+            doNothing().when(em).refresh(any());
+            when(workOrderMapper.toShowDto(any())).thenReturn(new com.grash.dto.workOrder.WorkOrderShowDTO());
+
+            workOrderService.update(1L, patch, user);
+
+            verify(customFieldValueService).setCustomFields(
+                    any(), anyList(), anyList(), any(), any(), any());
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // saveAndFlushWithWebhook - category changed branch
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class SaveAndFlushWithWebhookCategoryChanged {
+
+        private WorkOrder original;
+        private WorkOrder updated;
+
+        @BeforeEach
+        void init() {
+            original = buildWorkOrder(1L);
+            original.setCategory(buildCategory(10L, "Old"));
+            updated = buildWorkOrder(1L);
+            updated.setCategory(buildCategory(11L, "New"));
+        }
+
+        private void stubBase() {
+            when(workOrderRepository.saveAndFlush(any())).thenAnswer(inv -> inv.getArgument(0));
+            when(workOrderMapper.toShowDto(any())).thenReturn(new com.grash.dto.workOrder.WorkOrderShowDTO());
+            doNothing().when(em).refresh(any());
+        }
+
+        @Test
+        void firesNewCategoryWebhook_whenCategoryChanged() {
+            stubBase();
+            workOrderService.saveAndFlushWithWebhook(updated, company, original);
+            verify(webhookDispatchService, atLeastOnce()).dispatchWebhook(
+                    eq(company), eq(WebhookEvent.NEW_CATEGORY_ON_WORK_ORDER),
+                    anyMap(), anyString(), any(), any(), any(), any(), any(), any());
+        }
+
+        @Test
+        void doesNotFireCategoryWebhook_whenCategoryUnchanged() {
+            updated.setCategory(buildCategory(10L, "Old"));
+            stubBase();
+            workOrderService.saveAndFlushWithWebhook(updated, company, original);
+            verify(webhookDispatchService, never()).dispatchWebhook(
+                    eq(company), eq(WebhookEvent.NEW_CATEGORY_ON_WORK_ORDER),
+                    anyMap(), anyString(), any(), any(), any(), any(), any(), any());
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // changeStatus - PM schedule next job
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class ChangeStatusPMSchedule {
+
+        @Test
+        void transitionToComplete_withParentPM_schedulesNextJob() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setAsset(buildAsset(10L));
+            wo.setStatus(Status.OPEN);
+            wo.setFirstTimeToReact(null);
+            Schedule schedule = new Schedule();
+            schedule.setId(42L);
+            PreventiveMaintenance pm = new PreventiveMaintenance();
+            pm.setSchedule(schedule);
+            wo.setParentPreventiveMaintenance(pm);
+
+            WorkOrderChangeStatusDTO dto = new WorkOrderChangeStatusDTO();
+            dto.setStatus(Status.COMPLETE);
+
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(workOrderRepository.saveAndFlush(any())).thenAnswer(inv -> {
+                WorkOrder saved = inv.getArgument(0);
+                saved.setId(1L);
+                saved.setCompletedOn(new Date());
+                return saved;
+            });
+            when(workOrderMapper.toShowDto(any())).thenReturn(new com.grash.dto.workOrder.WorkOrderShowDTO());
+            doNothing().when(em).refresh(any());
+            when(laborService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
+            when(workflowService.findByMainConditionAndCompany(any(), anyLong())).thenReturn(Collections.emptyList());
+            when(workOrderRepository.findByAsset_Id(10L)).thenReturn(Collections.emptyList());
+
+            workOrderService.changeStatus(dto, 1L, user, "ios");
+
+            verify(scheduleService).scheduleNextWorkOrderJobAfterCompletion(eq(42L), any());
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // changeStatus - requester notification with ID
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class ChangeStatusRequesterWithId {
+
+        @Test
+        void requesterWithId_sendsNotification() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setAsset(buildAsset(10L));
+            wo.setStatus(Status.OPEN);
+            wo.setFirstTimeToReact(null);
+            Request req = new Request();
+            req.setCreatedBy(5L);
+            wo.setParentRequest(req);
+            User requester = buildUser(5L);
+
+            WorkOrderChangeStatusDTO dto = new WorkOrderChangeStatusDTO();
+            dto.setStatus(Status.COMPLETE);
+
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(workOrderRepository.saveAndFlush(any())).thenAnswer(inv -> {
+                WorkOrder saved = inv.getArgument(0);
+                saved.setId(1L);
+                saved.setCompletedOn(new Date());
+                return saved;
+            });
+            when(workOrderMapper.toShowDto(any())).thenReturn(new com.grash.dto.workOrder.WorkOrderShowDTO());
+            doNothing().when(em).refresh(any());
+            when(laborService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
+            when(workflowService.findByMainConditionAndCompany(any(), anyLong())).thenReturn(Collections.emptyList());
+            when(workOrderRepository.findByAsset_Id(10L)).thenReturn(Collections.emptyList());
+            when(mailServiceFactory.getMailService()).thenReturn(mailService);
+            when(userService.findById(5L)).thenReturn(Optional.of(requester));
+            generalPreferences.setWoUpdateForRequesters(true);
+
+            workOrderService.changeStatus(dto, 1L, user, "ios");
+
+            verify(notificationService).create(any(Notification.class));
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // sendReport - not found and access denied
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class SendReportNotFoundAndDenied {
+
+        @Test
+        void notFound_throwsNotFound() {
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.empty());
+            WorkOrderSendReportDTO dto = new WorkOrderSendReportDTO();
+            dto.setCustomers(List.of(buildCustomer(1L)));
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.sendReport(1L, dto, user));
+            assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
+        }
+
+        @Test
+        void noPermission_throwsForbidden() {
+            WorkOrder wo = buildWorkOrder(1L);
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            role.getViewPermissions().remove(PermissionEntity.WORK_ORDERS);
+            WorkOrderSendReportDTO dto = new WorkOrderSendReportDTO();
+            dto.setCustomers(List.of(buildCustomer(1L)));
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.sendReport(1L, dto, user));
+            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+        }
+
+        @Test
+        void noViewOtherAndNotCreatorOrAssigned_throwsForbidden() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(99L);
+            wo.setAssignedTo(new ArrayList<>());
+            wo.setPrimaryUser(buildUser(99L));
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            role.getViewOtherPermissions().remove(PermissionEntity.WORK_ORDERS);
+            WorkOrderSendReportDTO dto = new WorkOrderSendReportDTO();
+            dto.setCustomers(List.of(buildCustomer(1L)));
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.sendReport(1L, dto, user));
+            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // generateReport - not found and access denied
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class GenerateReportNotFoundAndDenied {
+
+        @Test
+        void notFound_throwsNotFound() {
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.empty());
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.generateReport(1L, user, new ReportConfig()));
+            assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
+        }
+
+        @Test
+        void noPermission_throwsForbidden() {
+            WorkOrder wo = buildWorkOrder(1L);
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            role.getViewPermissions().remove(PermissionEntity.WORK_ORDERS);
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.generateReport(1L, user, new ReportConfig()));
+            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+        }
+
+        @Test
+        void noViewOtherAndNotCreatorOrAssigned_throwsForbidden() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(99L);
+            wo.setAssignedTo(new ArrayList<>());
+            wo.setPrimaryUser(buildUser(99L));
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            role.getViewOtherPermissions().remove(PermissionEntity.WORK_ORDERS);
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.generateReport(1L, user, new ReportConfig()));
+            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
         }
     }
 }

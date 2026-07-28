@@ -37,3 +37,5 @@ src/main/resources/liquibase-outputChangeLog.xml
 gcp.json
 
 test-output*.txt
+
+/htmlReport
