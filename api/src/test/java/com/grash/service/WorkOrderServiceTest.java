@@ -10,6 +10,7 @@ import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.dto.workOrder.WorkOrderPatchDTO;
 import com.grash.dto.workOrder.WorkOrderPostDTO;
+import com.grash.dto.imports.WorkOrderImportDTO;
 import com.grash.exception.CustomException;
 import com.grash.factory.MailServiceFactory;
 import com.grash.mapper.PreventiveMaintenanceMapper;
@@ -110,6 +111,12 @@ class WorkOrderServiceTest {
     private PreventiveMaintenanceService preventiveMaintenanceService;
     @Mock
     private PreventiveMaintenanceMapper preventiveMaintenanceMapper;
+    @Mock
+    private CustomerService customerService;
+    @Mock
+    private LocationService locationService;
+    @Mock
+    private WorkOrderCategoryService workOrderCategoryService;
 
     private Company company;
     private User user;
@@ -133,6 +140,9 @@ class WorkOrderServiceTest {
         ReflectionTestUtils.setField(workOrderService, "scheduleService", scheduleService);
         ReflectionTestUtils.setField(workOrderService, "preventiveMaintenanceService", preventiveMaintenanceService);
         ReflectionTestUtils.setField(workOrderService, "preventiveMaintenanceMapper", preventiveMaintenanceMapper);
+        ReflectionTestUtils.setField(workOrderService, "customerService", customerService);
+        ReflectionTestUtils.setField(workOrderService, "locationService", locationService);
+        ReflectionTestUtils.setField(workOrderService, "workOrderCategoryService", workOrderCategoryService);
 
         subscriptionPlan = SubscriptionPlan.builder()
                 .id(1L)
@@ -3016,6 +3026,210 @@ class WorkOrderServiceTest {
             role.getViewOtherPermissions().remove(PermissionEntity.WORK_ORDERS);
             CustomException ex = assertThrows(CustomException.class,
                     () -> workOrderService.generateReport(1L, user, new ReportConfig()));
+            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // importWorkOrder
+    // ═══════════════════════════════════════════════════════════════════
+    @Nested
+    class ImportWorkOrderTests {
+
+        private WorkOrder givenWorkOrder() {
+            return new WorkOrder();
+        }
+
+        @Test
+        void importWorkOrder_setsAllFields() {
+            WorkOrder workOrder = givenWorkOrder();
+            User completedBy = buildUser(20L);
+            completedBy.setEmail("tech@company.com");
+            Customer customer = buildCustomer(30L);
+            customer.setName("Client Inc");
+
+            WorkOrderImportDTO dto = WorkOrderImportDTO.builder()
+                    .title("Imported WO")
+                    .description("Desc")
+                    .status("Open")
+                    .priority("HIGH")
+                    .estimatedDuration(3.0)
+                    .dueDate(45000.0)
+                    .requiredSignature("Yes")
+                    .category("Electrical")
+                    .locationName("Warehouse")
+                    .teamName("Team Alpha")
+                    .primaryUserEmail("lead@company.com")
+                    .assignedToEmails(List.of("tech@company.com"))
+                    .assetName("Generator")
+                    .completedByEmail("tech@company.com")
+                    .completedOn(46000.0)
+                    .archived("false")
+                    .feedback("All good")
+                    .customersNames(List.of("Client Inc"))
+                    .build();
+
+            lenient().when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(true);
+            lenient().when(customSequenceService.getNextWorkOrderSequence(any())).thenReturn(1L);
+            when(workOrderCategoryService.getOrCreate("Electrical", company.getCompanySettings()))
+                    .thenReturn(buildCategory(100L, "Electrical"));
+            Location expectedLoc = new Location();
+            expectedLoc.setId(200L);
+            expectedLoc.setName("Warehouse");
+            expectedLoc.setCompany(company);
+            when(locationService.findByNameIgnoreCaseAndCompany("Warehouse", company.getId()))
+                    .thenReturn(List.of(expectedLoc));
+            Team expectedTeam = new Team();
+            expectedTeam.setId(300L);
+            expectedTeam.setName("Team Alpha");
+            expectedTeam.setCompany(company);
+            expectedTeam.setUsers(new ArrayList<>());
+            when(teamService.findByNameIgnoreCaseAndCompany("Team Alpha", company.getId()))
+                    .thenReturn(Optional.of(expectedTeam));
+            User expectedPrimaryUser = new User();
+            expectedPrimaryUser.setId(99L);
+            expectedPrimaryUser.setEmail("lead@company.com");
+            expectedPrimaryUser.setCompany(company);
+            expectedPrimaryUser.setRole(role);
+            expectedPrimaryUser.setEnabled(true);
+            expectedPrimaryUser.setUserSettings(new UserSettings());
+            when(userService.findByEmailAndCompany("lead@company.com", company.getId()))
+                    .thenReturn(Optional.of(expectedPrimaryUser));
+            when(userService.findByEmailAndCompany("tech@company.com", company.getId()))
+                    .thenReturn(Optional.of(completedBy));
+            Asset expectedAsset = new Asset();
+            expectedAsset.setId(400L);
+            expectedAsset.setName("Generator");
+            expectedAsset.setCompany(company);
+            when(assetService.findByNameIgnoreCaseAndCompany("Generator", company.getId()))
+                    .thenReturn(List.of(expectedAsset));
+            when(customerService.findByNameIgnoreCaseAndCompany("Client Inc", company.getId()))
+                    .thenReturn(Optional.of(customer));
+
+            workOrderService.importWorkOrder(workOrder, dto, company);
+
+            assertEquals("Imported WO", workOrder.getTitle());
+            assertEquals("Desc", workOrder.getDescription());
+            assertEquals(Priority.HIGH, workOrder.getPriority());
+            assertEquals(3.0, workOrder.getEstimatedDuration(), 0.001);
+            assertNotNull(workOrder.getCategory());
+            assertEquals("Electrical", workOrder.getCategory().getName());
+            assertNotNull(workOrder.getLocation());
+            assertEquals("Warehouse", workOrder.getLocation().getName());
+            assertNotNull(workOrder.getTeam());
+            assertEquals("Team Alpha", workOrder.getTeam().getName());
+            assertNotNull(workOrder.getPrimaryUser());
+            assertEquals(1, workOrder.getAssignedTo().size());
+            assertNotNull(workOrder.getAsset());
+            assertEquals("Generator", workOrder.getAsset().getName());
+            assertEquals(company, workOrder.getCompany());
+            assertNotNull(workOrder.getDueDate());
+            assertEquals("WO000001", workOrder.getCustomId());
+            assertTrue(workOrder.isRequiredSignature());
+            assertNotNull(workOrder.getCompletedBy());
+            assertEquals("tech@company.com", workOrder.getCompletedBy().getEmail());
+            assertNotNull(workOrder.getCompletedOn());
+            assertFalse(workOrder.isArchived());
+            assertEquals(Status.OPEN, workOrder.getStatus());
+            assertEquals("All good", workOrder.getFeedback());
+            assertEquals(1, workOrder.getCustomers().size());
+            assertEquals("Client Inc", workOrder.getCustomers().get(0).getName());
+            verify(licenseService).hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS);
+        }
+
+        @Test
+        void importWorkOrder_whenCompletedByNotFound_doesNotSetCompletedBy() {
+            WorkOrder workOrder = givenWorkOrder();
+            WorkOrderImportDTO dto = WorkOrderImportDTO.builder()
+                    .title("WO no completed")
+                    .description("Desc")
+                    .status("Complete")
+                    .priority("LOW")
+                    .estimatedDuration(1.0)
+                    .requiredSignature("No")
+                    .archived("true")
+                    .primaryUserEmail("lead@company.com")
+                    .completedByEmail("nonexistent@company.com")
+                    .customersNames(new ArrayList<>())
+                    .assignedToEmails(new ArrayList<>())
+                    .build();
+
+            lenient().when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(true);
+            lenient().when(customSequenceService.getNextWorkOrderSequence(any())).thenReturn(1L);
+            lenient().when(workOrderCategoryService.findByNameIgnoreCaseAndCompanySettings(any(), any()))
+                    .thenReturn(Optional.empty());
+            lenient().when(locationService.findByNameIgnoreCaseAndCompany(any(), any())).thenReturn(new ArrayList<>());
+            lenient().when(teamService.findByNameIgnoreCaseAndCompany(any(), any())).thenReturn(Optional.empty());
+            lenient().when(userService.findByEmailAndCompany("lead@company.com", company.getId()))
+                    .thenReturn(Optional.of(buildUser(99L)));
+            lenient().when(userService.findByEmailAndCompany("nonexistent@company.com", company.getId()))
+                    .thenReturn(Optional.empty());
+            lenient().when(assetService.findByNameIgnoreCaseAndCompany(any(), any())).thenReturn(new ArrayList<>());
+
+            workOrderService.importWorkOrder(workOrder, dto, company);
+
+            assertNull(workOrder.getCompletedBy());
+            assertNull(workOrder.getCompletedOn());
+            assertEquals(Status.COMPLETE, workOrder.getStatus());
+            assertTrue(workOrder.isArchived());
+            assertFalse(workOrder.isRequiredSignature());
+            assertTrue(workOrder.getCustomers().isEmpty());
+            assertNull(workOrder.getDueDate());
+        }
+
+        @Test
+        void importWorkOrder_whenCustomerNotFound_doesNotAddCustomer() {
+            WorkOrder workOrder = givenWorkOrder();
+            WorkOrderImportDTO dto = WorkOrderImportDTO.builder()
+                    .title("WO customer miss")
+                    .description("Desc")
+                    .status("Open")
+                    .priority("NONE")
+                    .estimatedDuration(1.0)
+                    .requiredSignature("No")
+                    .archived("false")
+                    .primaryUserEmail("lead@company.com")
+                    .customersNames(List.of("Mystery Corp"))
+                    .assignedToEmails(new ArrayList<>())
+                    .build();
+
+            lenient().when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(true);
+            lenient().when(customSequenceService.getNextWorkOrderSequence(any())).thenReturn(1L);
+            lenient().when(workOrderCategoryService.findByNameIgnoreCaseAndCompanySettings(any(), any()))
+                    .thenReturn(Optional.empty());
+            lenient().when(locationService.findByNameIgnoreCaseAndCompany(any(), any())).thenReturn(new ArrayList<>());
+            lenient().when(teamService.findByNameIgnoreCaseAndCompany(any(), any())).thenReturn(Optional.empty());
+            lenient().when(userService.findByEmailAndCompany("lead@company.com", company.getId()))
+                    .thenReturn(Optional.of(buildUser(99L)));
+            lenient().when(assetService.findByNameIgnoreCaseAndCompany(any(), any())).thenReturn(new ArrayList<>());
+            lenient().when(customerService.findByNameIgnoreCaseAndCompany("Mystery Corp", company.getId()))
+                    .thenReturn(Optional.empty());
+
+            workOrderService.importWorkOrder(workOrder, dto, company);
+
+            assertTrue(workOrder.getCustomers().isEmpty());
+        }
+
+        @Test
+        void importWorkOrder_throwsWhenUsageLimitExceeded() {
+            WorkOrder workOrder = givenWorkOrder();
+            WorkOrderImportDTO dto = WorkOrderImportDTO.builder()
+                    .title("Limit WO")
+                    .description("Desc")
+                    .status("Open")
+                    .priority("NONE")
+                    .estimatedDuration(1.0)
+                    .requiredSignature("No")
+                    .archived("false")
+                    .customersNames(new ArrayList<>())
+                    .assignedToEmails(new ArrayList<>())
+                    .build();
+
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(false);
+            when(workOrderRepository.hasMoreActiveThan(eq(company.getId()), anyLong())).thenReturn(true);
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.importWorkOrder(workOrder, dto, company));
             assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
         }
     }

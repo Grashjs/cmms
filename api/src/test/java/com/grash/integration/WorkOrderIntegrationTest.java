@@ -1450,5 +1450,291 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
 
             assertEquals(2, result.getTotalElements());
         }
+
+        @Test
+        void findByCompanyAndCreatedAtBetween_filtersByCompanyAndDate() {
+            WorkOrder wo = createQueryWO("Date Filter WO", Status.OPEN);
+
+            em.flush();
+            Date start = new Date(0);
+            Date end = new Date(System.currentTimeMillis() + 86400000);
+
+            Collection<WorkOrder> result = workOrderService.findByCompanyAndCreatedAtBetween(
+                    company.getId(), start, end);
+
+            assertTrue(result.stream().anyMatch(w -> w.getId().equals(wo.getId())));
+        }
+
+        @Test
+        void findByCompanyAndCreatedAtBetween_wrongCompany_returnsEmpty() {
+            createQueryWO("Wrong Co WO", Status.OPEN);
+
+            em.flush();
+            Date start = new Date(0);
+            Date end = new Date(System.currentTimeMillis() + 86400000);
+
+            Collection<WorkOrder> result = workOrderService.findByCompanyAndCreatedAtBetween(
+                    99999L, start, end);
+
+            assertTrue(result.isEmpty());
+        }
+
+        @Test
+        void findTopNAssetsByIncompleteWO_returnsRankedByCount() {
+            Asset asset1 = new Asset();
+            asset1.setName("HighIncidents");
+            asset1.setCompany(company);
+            asset1.setStatus(AssetStatus.OPERATIONAL);
+            asset1.setFiles(new ArrayList<>());
+            asset1.setCustomers(new ArrayList<>());
+            asset1.setTeams(new ArrayList<>());
+            asset1.setParts(new ArrayList<>());
+            asset1.setCustomFieldValues(new ArrayList<>());
+            asset1 = assetRepository.saveAndFlush(asset1);
+
+            Asset asset2 = new Asset();
+            asset2.setName("LowIncidents");
+            asset2.setCompany(company);
+            asset2.setStatus(AssetStatus.OPERATIONAL);
+            asset2.setFiles(new ArrayList<>());
+            asset2.setCustomers(new ArrayList<>());
+            asset2.setTeams(new ArrayList<>());
+            asset2.setParts(new ArrayList<>());
+            asset2.setCustomFieldValues(new ArrayList<>());
+            asset2 = assetRepository.saveAndFlush(asset2);
+
+            for (int i = 0; i < 3; i++) {
+                WorkOrder wo = createQueryWO("Inc WO " + i, Status.OPEN);
+                wo.setAsset(asset1);
+                workOrderRepository.saveAndFlush(wo);
+            }
+
+            WorkOrder woOther = createQueryWO("Other Inc", Status.IN_PROGRESS);
+            woOther.setAsset(asset2);
+            workOrderRepository.saveAndFlush(woOther);
+
+            WorkOrder complete = createQueryWO("Complete", Status.COMPLETE);
+            complete.setAsset(asset1);
+            workOrderRepository.saveAndFlush(complete);
+
+            em.clear();
+            Date start = new Date(0);
+            Date end = new Date(System.currentTimeMillis() + 86400000);
+
+            List<Object[]> result = workOrderService.findTopNAssetsByIncompleteWO(
+                    company.getId(), start, end, 5);
+
+            assertFalse(result.isEmpty());
+            Object[] top = result.get(0);
+            assertEquals("HighIncidents", top[1]);
+            assertEquals(3L, ((Number) top[2]).longValue());
+        }
+
+        @Test
+        void findTopNAssetsByIncompleteWO_respectsLimit() {
+            Asset asset1 = new Asset();
+            asset1.setName("A1");
+            asset1.setCompany(company);
+            asset1.setStatus(AssetStatus.OPERATIONAL);
+            asset1.setFiles(new ArrayList<>());
+            asset1.setCustomers(new ArrayList<>());
+            asset1.setTeams(new ArrayList<>());
+            asset1.setParts(new ArrayList<>());
+            asset1.setCustomFieldValues(new ArrayList<>());
+            asset1 = assetRepository.saveAndFlush(asset1);
+
+            Asset asset2 = new Asset();
+            asset2.setName("A2");
+            asset2.setCompany(company);
+            asset2.setStatus(AssetStatus.OPERATIONAL);
+            asset2.setFiles(new ArrayList<>());
+            asset2.setCustomers(new ArrayList<>());
+            asset2.setTeams(new ArrayList<>());
+            asset2.setParts(new ArrayList<>());
+            asset2.setCustomFieldValues(new ArrayList<>());
+            asset2 = assetRepository.saveAndFlush(asset2);
+
+            for (int i = 0; i < 3; i++) {
+                WorkOrder wo = createQueryWO("WO " + i, Status.OPEN);
+                wo.setAsset(i % 2 == 0 ? asset1 : asset2);
+                workOrderRepository.saveAndFlush(wo);
+            }
+
+            em.clear();
+            Date start = new Date(0);
+            Date end = new Date(System.currentTimeMillis() + 86400000);
+
+            List<Object[]> result = workOrderService.findTopNAssetsByIncompleteWO(
+                    company.getId(), start, end, 1);
+
+            assertEquals(1, result.size());
+        }
+
+        @Test
+        void findTopNAssetsTimeCost_returnsCostAggregation() {
+            Asset asset = new Asset();
+            asset.setName("CostlyAsset");
+            asset.setCompany(company);
+            asset.setStatus(AssetStatus.OPERATIONAL);
+            asset.setAcquisitionCost(50000.0);
+            asset.setFiles(new ArrayList<>());
+            asset.setCustomers(new ArrayList<>());
+            asset.setTeams(new ArrayList<>());
+            asset.setParts(new ArrayList<>());
+            asset.setCustomFieldValues(new ArrayList<>());
+            asset = assetRepository.saveAndFlush(asset);
+
+            WorkOrder wo = createQueryWO("Cost WO", Status.COMPLETE);
+            wo.setAsset(asset);
+            wo.setCompletedBy(user);
+            wo.setCompletedOn(new Date());
+            workOrderRepository.saveAndFlush(wo);
+
+            Labor labor = new Labor();
+            labor.setWorkOrder(wo);
+            labor.setCompany(company);
+            labor.setStartedAt(new Date());
+            labor.setDuration(3600L);
+            labor.setHourlyRate(50L);
+            laborRepository.saveAndFlush(labor);
+
+            em.clear();
+            Date start = new Date(0);
+            Date end = new Date(System.currentTimeMillis() + 86400000);
+
+            List<Object[]> result = workOrderService.findTopNAssetsTimeCost(
+                    company.getId(), start, end, 5);
+
+            assertFalse(result.isEmpty());
+            Object[] row = result.get(0);
+            assertEquals("CostlyAsset", row[1]);
+            assertEquals(3600L, ((Number) row[2]).longValue());
+            assertEquals(50.0, ((Number) row[3]).doubleValue(), 0.001);
+        }
+
+        @Test
+        void findWOCostsByDateRange_returnsCostsByCompletedDate() {
+            WorkOrder wo = createQueryWO("Cost By Date", Status.COMPLETE);
+            wo.setCompletedBy(user);
+            wo.setCompletedOn(new Date());
+            workOrderRepository.saveAndFlush(wo);
+
+            Labor labor = new Labor();
+            labor.setWorkOrder(wo);
+            labor.setCompany(company);
+            labor.setStartedAt(new Date());
+            labor.setDuration(1800L);
+            labor.setHourlyRate(100L);
+            laborRepository.saveAndFlush(labor);
+
+            AdditionalCost ac = new AdditionalCost();
+            ac.setWorkOrder(wo);
+            ac.setCost(200.0);
+            additionalCostRepository.saveAndFlush(ac);
+
+            em.clear();
+            Date start = new Date(0);
+            Date end = new Date(System.currentTimeMillis() + 86400000);
+
+            List<Object[]> result = workOrderService.findWOCostsByDateRange(
+                    company.getId(), start, end);
+
+            assertFalse(result.isEmpty());
+            Object[] row = result.get(0);
+            assertEquals(wo.getId(), row[0]);
+            assertNotNull(row[1]);
+            assertEquals(50.0, ((Number) row[2]).doubleValue(), 0.001);
+            assertEquals(200.0, ((Number) row[4]).doubleValue(), 0.001);
+        }
+
+        @Test
+        void findTopNAssetsRepairTime_returnsRankedByAvgDuration() {
+            Asset asset = new Asset();
+            asset.setName("SlowRepairAsset");
+            asset.setCompany(company);
+            asset.setStatus(AssetStatus.OPERATIONAL);
+            asset.setFiles(new ArrayList<>());
+            asset.setCustomers(new ArrayList<>());
+            asset.setTeams(new ArrayList<>());
+            asset.setParts(new ArrayList<>());
+            asset.setCustomFieldValues(new ArrayList<>());
+            asset = assetRepository.saveAndFlush(asset);
+
+            WorkOrder wo = createQueryWO("Repair WO", Status.COMPLETE);
+            wo.setAsset(asset);
+            wo.setCompletedBy(user);
+            wo.setCompletedOn(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(3)));
+            workOrderRepository.saveAndFlush(wo);
+
+            em.clear();
+            Date start = new Date(0);
+            Date end = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(30));
+
+            List<Object[]> result = workOrderService.findTopNAssetsRepairTime(
+                    company.getId(), start, end, 5);
+
+            assertFalse(result.isEmpty());
+            assertEquals("SlowRepairAsset", result.get(0)[1]);
+        }
+
+        @Test
+        void findTotalWOCosts_returnsAggregatedSums() {
+            Asset asset = new Asset();
+            asset.setName("TotalCostAsset");
+            asset.setCompany(company);
+            asset.setStatus(AssetStatus.OPERATIONAL);
+            asset.setAcquisitionCost(100000.0);
+            asset.setFiles(new ArrayList<>());
+            asset.setCustomers(new ArrayList<>());
+            asset.setTeams(new ArrayList<>());
+            asset.setParts(new ArrayList<>());
+            asset.setCustomFieldValues(new ArrayList<>());
+            asset = assetRepository.saveAndFlush(asset);
+
+            WorkOrder wo1 = createQueryWO("Total WO 1", Status.COMPLETE);
+            wo1.setAsset(asset);
+            wo1.setCompletedBy(user);
+            wo1.setCompletedOn(new Date());
+            workOrderRepository.saveAndFlush(wo1);
+
+            WorkOrder wo2 = createQueryWO("Total WO 2", Status.COMPLETE);
+            wo2.setAsset(asset);
+            wo2.setCompletedBy(user);
+            wo2.setCompletedOn(new Date());
+            workOrderRepository.saveAndFlush(wo2);
+
+            Labor labor1 = new Labor();
+            labor1.setWorkOrder(wo1);
+            labor1.setCompany(company);
+            labor1.setStartedAt(new Date());
+            labor1.setDuration(3600L);
+            labor1.setHourlyRate(100L);
+            laborRepository.saveAndFlush(labor1);
+
+            Labor labor2 = new Labor();
+            labor2.setWorkOrder(wo2);
+            labor2.setCompany(company);
+            labor2.setStartedAt(new Date());
+            labor2.setDuration(3600L);
+            labor2.setHourlyRate(50L);
+            laborRepository.saveAndFlush(labor2);
+
+            AdditionalCost ac = new AdditionalCost();
+            ac.setWorkOrder(wo1);
+            ac.setCost(300.0);
+            additionalCostRepository.saveAndFlush(ac);
+
+            em.clear();
+            Date start = new Date(0);
+            Date end = new Date(System.currentTimeMillis() + 86400000);
+
+            List<Object[]> result = workOrderService.findTotalWOCosts(
+                    company.getId(), start, end);
+
+            assertFalse(result.isEmpty());
+            Object[] row = result.get(0);
+            assertEquals(150.0, ((Number) row[0]).doubleValue(), 0.001);
+            assertEquals(300.0, ((Number) row[2]).doubleValue(), 0.001);
+        }
     }
 }
