@@ -200,7 +200,7 @@ public class UserService {
             user.setRole(role);
             if (role.getCompanySettings() == null) {
                 Optional<User> optionalInviter = findById(userInvitations.get(0).getCreatedBy());
-                if (!optionalInviter.isPresent())
+                if (optionalInviter.isEmpty())
                     throw new CustomException("Inviter not found", HttpStatus.NOT_ACCEPTABLE);
                 user.setCompany(optionalInviter.get().getCompany());
             } else user.setCompany(role.getCompanySettings().getCompany());
@@ -420,21 +420,6 @@ public class UserService {
     public Collection<User> saveAll(Collection<User> users) {
         return userRepository.saveAll(users);
     }
-
-    public boolean existsByEmail(String email) {
-        return userRepository.existsByEmailIgnoreCase(email);
-    }
-
-    public boolean isUserInCompany(User user, long companyId, boolean optional) {
-        if (optional) {
-            Optional<User> optionalUser = user == null ? Optional.empty() : findById(user.getId());
-            return user == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
-        } else {
-            Optional<User> optionalUser = findById(user.getId());
-            return optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId);
-        }
-    }
-
 
     public Page<User> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<User> builder = new SpecificationBuilder<>();
