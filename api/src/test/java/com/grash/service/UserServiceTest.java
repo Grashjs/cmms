@@ -613,6 +613,198 @@ class UserServiceTest {
                     response.getMessage());
             assertNull(response.getUser());
         }
+
+        @Test
+        void allowedOrganizationAdmins_allowsListedUser() {
+            ReflectionTestUtils.setField(userService, "allowedOrganizationAdmins",
+                    new String[]{"new@test.com"});
+            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
+            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
+            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
+            when(utils.generateStringId()).thenReturn("username123");
+            when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(true);
+            when(subscriptionPlanService.findByCode("BUSINESS"))
+                    .thenReturn(Optional.of(subscriptionPlan));
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            com.grash.model.Currency ccy = new com.grash.model.Currency();
+            ccy.setCode("$");
+            when(currencyService.findByCode("$")).thenReturn(Optional.of(ccy));
+            when(roleService.findDefaultRoles()).thenReturn(List.of(role));
+            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
+                    .thenReturn("signup-token");
+
+            SignupSuccessResponse<User> response = userService.signup(signupRequest);
+
+            assertTrue(response.isSuccess());
+        }
+
+        @Test
+        void invitedUser_enableInvitationViaEmail_withInvitations_fallsThrough() {
+            ReflectionTestUtils.setField(userService, "enableInvitationViaEmail", true);
+            Role invitedRole = Role.builder()
+                    .id(2L).name("Technician").roleType(RoleType.ROLE_CLIENT)
+                    .code(RoleCode.TECHNICIAN).paid(true).build();
+            signupRequest.setRole(invitedRole);
+            mappedUser.setRole(invitedRole);
+            UserInvitation invitation = new UserInvitation("new@test.com", invitedRole);
+            invitation.setId(1L);
+            invitation.setCreatedBy(1L);
+
+            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
+            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
+            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
+            when(utils.generateStringId()).thenReturn("username123");
+            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
+            when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
+                    .thenReturn(new ArrayList<>(List.of(invitation)));
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(true);
+            when(userRepository.findByCompany_Id(1L)).thenReturn(List.of());
+            when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
+                    .thenReturn("signup-token");
+
+            SignupSuccessResponse<User> response = userService.signup(signupRequest);
+
+            assertTrue(response.isSuccess());
+        }
+
+        @Test
+        void invitedUser_filterExcludesDisabledUsers() {
+            Role invitedRole = Role.builder()
+                    .id(2L).name("Technician").roleType(RoleType.ROLE_CLIENT)
+                    .code(RoleCode.TECHNICIAN).paid(true).build();
+            signupRequest.setRole(invitedRole);
+            mappedUser.setRole(invitedRole);
+            UserInvitation invitation = new UserInvitation("new@test.com", invitedRole);
+            invitation.setId(1L);
+            invitation.setCreatedBy(1L);
+            company.getSubscription().setUsersCount(2);
+            User disabledUser = buildUser(2L, "disabled@test.com");
+            disabledUser.setEnabled(false);
+            User notInSubscriptionUser = buildUser(3L, "notinsub@test.com");
+            notInSubscriptionUser.setEnabledInSubscription(false);
+
+            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
+            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
+            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
+            when(utils.generateStringId()).thenReturn("username123");
+            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
+            when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
+                    .thenReturn(new ArrayList<>(List.of(invitation)));
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(true);
+            when(userRepository.findByCompany_Id(1L))
+                    .thenReturn(List.of(user, disabledUser, notInSubscriptionUser));
+            when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
+                    .thenReturn("signup-token");
+
+            SignupSuccessResponse<User> response = userService.signup(signupRequest);
+
+            assertTrue(response.isSuccess());
+        }
+
+        @Test
+        void newCompanyNonLocalhost_enableInvitationViaEmail_skipMailSending() {
+            ReflectionTestUtils.setField(userService, "PUBLIC_API_URL", "https://app.test.com");
+            ReflectionTestUtils.setField(userService, "cloudVersion", false);
+            ReflectionTestUtils.setField(userService, "enableInvitationViaEmail", true);
+            signupRequest.setSkipMailSending(true);
+            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
+            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
+            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
+            when(utils.generateStringId()).thenReturn("username123");
+            when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(true);
+            when(subscriptionPlanService.findByCode("BUSINESS"))
+                    .thenReturn(Optional.of(subscriptionPlan));
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            com.grash.model.Currency ccy = new com.grash.model.Currency();
+            ccy.setCode("$");
+            when(currencyService.findByCode("$")).thenReturn(Optional.of(ccy));
+            when(roleService.findDefaultRoles()).thenReturn(List.of(role));
+            when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(verificationTokenRepository.save(any(VerificationToken.class))).thenReturn(null);
+
+            SignupSuccessResponse<User> response = userService.signup(signupRequest);
+
+            assertTrue(response.isSuccess());
+            assertEquals("Successful registration. Check your mailbox to activate your account",
+                    response.getMessage());
+            assertNull(response.getUser());
+            verify(mailService, never()).sendMessageUsingThymeleafTemplate(
+                    any(), anyString(), anyMap(), anyString(), any(), any());
+        }
+
+        @Test
+        void newCompanyNonLocalhost_enableInvitationViaEmail_demoUser() {
+            ReflectionTestUtils.setField(userService, "PUBLIC_API_URL", "https://app.test.com");
+            ReflectionTestUtils.setField(userService, "cloudVersion", false);
+            ReflectionTestUtils.setField(userService, "enableInvitationViaEmail", true);
+            signupRequest.setDemo(true);
+            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
+            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
+            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
+            when(utils.generateStringId()).thenReturn("username123");
+            when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(true);
+            when(subscriptionPlanService.findByCode("BUSINESS"))
+                    .thenReturn(Optional.of(subscriptionPlan));
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            com.grash.model.Currency ccy = new com.grash.model.Currency();
+            ccy.setCode("$");
+            when(currencyService.findByCode("$")).thenReturn(Optional.of(ccy));
+            when(roleService.findDefaultRoles()).thenReturn(List.of(role));
+            when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(verificationTokenRepository.save(any(VerificationToken.class))).thenReturn(null);
+            doNothing().when(mailService).sendMessageUsingThymeleafTemplate(
+                    any(String[].class), anyString(), anyMap(), anyString(), any(), any());
+            when(messageSource.getMessage(anyString(), any(), any())).thenReturn("Confirm Email");
+            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
+                    .thenReturn("signup-token");
+
+            SignupSuccessResponse<User> response = userService.signup(signupRequest);
+
+            assertTrue(response.isSuccess());
+            assertNotNull(response.getUser());
+        }
+
+        @Test
+        void newCompanyNonLocalhost_roleSetOnRequest_notNullBranch() throws jakarta.mail.MessagingException, java.io.IOException {
+            ReflectionTestUtils.setField(userService, "PUBLIC_API_URL", "https://app.test.com");
+            ReflectionTestUtils.setField(userService, "cloudVersion", false);
+            signupRequest.setRole(role);
+
+            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
+            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
+            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
+            when(utils.generateStringId()).thenReturn("username123");
+            when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(true);
+            when(subscriptionPlanService.findByCode("BUSINESS"))
+                    .thenReturn(Optional.of(subscriptionPlan));
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            com.grash.model.Currency ccy = new com.grash.model.Currency();
+            ccy.setCode("$");
+            when(currencyService.findByCode("$")).thenReturn(Optional.of(ccy));
+            when(roleService.findDefaultRoles()).thenReturn(List.of(role));
+            when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+            doNothing().when(cacheService).putUserInCache(any());
+            doNothing().when(mailService).sendHtmlMessage(any(), anyString(), anyString(), any());
+
+            SignupSuccessResponse<User> response = userService.signup(signupRequest);
+
+            assertTrue(response.isSuccess());
+            assertNull(response.getUser());
+            assertEquals("Successful registration. Check your mailbox to activate your account",
+                    response.getMessage());
+        }
     }
 
     @Nested
