@@ -356,16 +356,16 @@ public class Helper {
             WorkOrderCategoryService workOrderCategoryService
     ) {
         Long companyId = company.getId();
-        Long companySettingsId = company.getCompanySettings().getId();
 
         workOrderBase.setTitle(dto.getTitle());
         workOrderBase.setDescription(dto.getDescription());
         workOrderBase.setPriority(Priority.getPriorityFromString(dto.getPriority()));
         workOrderBase.setEstimatedDuration(dto.getEstimatedDuration());
 
-        Optional<WorkOrderCategory> optionalWorkOrderCategory =
-                workOrderCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
-        optionalWorkOrderCategory.ifPresent(workOrderBase::setCategory);
+        if (dto.getCategory() != null && !dto.getCategory().isBlank()) {
+            WorkOrderCategory category = workOrderCategoryService.getOrCreate(dto.getCategory(), company.getCompanySettings());
+            workOrderBase.setCategory(category);
+        }
 
         Optional<Location> optionalLocation = locationService.findByNameIgnoreCaseAndCompany(dto.getLocationName(),
                 companyId).stream().findFirst();

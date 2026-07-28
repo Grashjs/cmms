@@ -318,7 +318,6 @@ public class AssetService {
         checkUsageBasedLimit(company);
         if (!licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY) && dto.getParentAssetName() != null && !dto.getParentAssetName().isEmpty())
             throw new CustomException("You need a license to import assets with hierarchy", HttpStatus.FORBIDDEN);
-        Long companySettingsId = company.getCompanySettings().getId();
         Long companyId = company.getId();
         asset.setCompany(company);
         asset.setArea(dto.getArea());
@@ -358,9 +357,10 @@ public class AssetService {
             }
             asset.setParentAsset(parentAsset);
         }
-        Optional<AssetCategory> optionalAssetCategory =
-                assetCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
-        optionalAssetCategory.ifPresent(asset::setCategory);
+        if (dto.getCategory() != null && !dto.getCategory().isBlank()) {
+            AssetCategory category = assetCategoryService.getOrCreate(dto.getCategory(), company.getCompanySettings());
+            asset.setCategory(category);
+        }
         asset.setName(dto.getName());
         Optional<User> optionalPrimaryUser = userService.findByEmailAndCompany(dto.getPrimaryUserEmail(), companyId);
         optionalPrimaryUser.ifPresent(asset::setPrimaryUser);

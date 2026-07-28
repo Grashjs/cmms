@@ -157,7 +157,6 @@ public class MeterService {
     public void importMeter(Meter meter, MeterImportDTO dto, Company company) {
         checkUsageBasedLimit(company);
         Long companyId = company.getId();
-        Long companySettingsId = company.getCompanySettings().getId();
         meter.setCompany(company);
         meter.setName(dto.getName());
         meter.setUnit(dto.getUnit());
@@ -168,9 +167,10 @@ public class MeterService {
         Optional<Asset> optionalAsset = assetService.findByNameIgnoreCaseAndCompany(dto.getAssetName(),
                 companyId).stream().findFirst();
         optionalAsset.ifPresent(meter::setAsset);
-        Optional<MeterCategory> optionalMeterCategory =
-                meterCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getMeterCategory(), companySettingsId);
-        optionalMeterCategory.ifPresent(meter::setMeterCategory);
+        if (dto.getMeterCategory() != null && !dto.getMeterCategory().isBlank()) {
+            MeterCategory category = meterCategoryService.getOrCreate(dto.getMeterCategory(), company.getCompanySettings());
+            meter.setMeterCategory(category);
+        }
         List<User> users = new ArrayList<>();
         dto.getUsersEmails().forEach(email -> {
             Optional<User> optionalUser1 = userService.findByEmailAndCompany(email, companyId);

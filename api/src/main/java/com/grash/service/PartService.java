@@ -276,13 +276,13 @@ public class PartService {
     public void importPart(Part part, PartImportDTO dto, Company company) {
         checkUsageBasedLimit(company);
         Long companyId = company.getId();
-        Long companySettingsId = company.getCompanySettings().getId();
         part.setCompany(company);
         part.setName(dto.getName());
         part.setCost(dto.getCost());
-        Optional<PartCategory> optionalPartCategory =
-                partCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
-        optionalPartCategory.ifPresent(part::setCategory);
+        if (dto.getCategory() != null && !dto.getCategory().isBlank()) {
+            PartCategory category = partCategoryService.getOrCreate(dto.getCategory(), company.getCompanySettings());
+            part.setCategory(category);
+        }
         part.setNonStock(Helper.getBooleanFromString(dto.getCategory()));
         if (dto.getBarcode() != null && !dto.getBarcode().trim().isEmpty()) {
             Optional<Part> optionalPartWithSameBarCode = findByBarcodeAndCompany(dto.getBarcode(), company.getId());

@@ -4,6 +4,7 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetCategoryMapper;
 import com.grash.model.AssetCategory;
+import com.grash.model.CompanySettings;
 import com.grash.model.User;
 import com.grash.repository.AssetCategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -67,5 +68,10 @@ public class AssetCategoryService {
 
     public Optional<AssetCategory> findByNameIgnoreCaseAndCompanySettings(String category, Long companySettingsId) {
         return assetCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(category, companySettingsId);
+    }
+
+    public AssetCategory getOrCreate(String name, CompanySettings companySettings) {
+        return assetCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(name, companySettings.getId())
+                .orElseGet(() -> assetCategoryRepository.save(new AssetCategory(name, companySettings)));
     }
 }

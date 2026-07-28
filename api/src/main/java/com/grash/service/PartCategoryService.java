@@ -3,6 +3,7 @@ package com.grash.service;
 import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PartCategoryMapper;
+import com.grash.model.CompanySettings;
 import com.grash.model.PartCategory;
 import com.grash.model.User;
 import com.grash.repository.PartCategoryRepository;
@@ -54,5 +55,10 @@ public class PartCategoryService {
 
     public Optional<PartCategory> findByNameIgnoreCaseAndCompanySettings(String category, Long companySettingsId) {
         return partCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(category, companySettingsId);
+    }
+
+    public PartCategory getOrCreate(String name, CompanySettings companySettings) {
+        return partCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(name, companySettings.getId())
+                .orElseGet(() -> partCategoryRepository.save(new PartCategory(name, companySettings)));
     }
 }

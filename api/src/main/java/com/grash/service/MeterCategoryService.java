@@ -3,6 +3,7 @@ package com.grash.service;
 import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MeterCategoryMapper;
+import com.grash.model.CompanySettings;
 import com.grash.model.MeterCategory;
 import com.grash.model.User;
 import com.grash.repository.MeterCategoryRepository;
@@ -58,5 +59,10 @@ public class MeterCategoryService {
 
     public Optional<MeterCategory> findByNameIgnoreCaseAndCompanySettings(String name, Long companySettingsId) {
         return meterCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(name, companySettingsId);
+    }
+
+    public MeterCategory getOrCreate(String name, CompanySettings companySettings) {
+        return meterCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(name, companySettings.getId())
+                .orElseGet(() -> meterCategoryRepository.save(new MeterCategory(name, companySettings)));
     }
 }

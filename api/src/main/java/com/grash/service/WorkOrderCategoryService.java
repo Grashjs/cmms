@@ -3,6 +3,7 @@ package com.grash.service;
 import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderCategoryMapper;
+import com.grash.model.CompanySettings;
 import com.grash.model.User;
 import com.grash.model.WorkOrderCategory;
 import com.grash.repository.WorkOrderCategoryRepository;
@@ -56,5 +57,10 @@ public class WorkOrderCategoryService {
 
     public Optional<WorkOrderCategory> findByNameIgnoreCaseAndCompanySettings(String name, Long id) {
         return workOrderCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(name, id);
+    }
+
+    public WorkOrderCategory getOrCreate(String name, CompanySettings companySettings) {
+        return workOrderCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(name, companySettings.getId())
+                .orElseGet(() -> workOrderCategoryRepository.save(new WorkOrderCategory(name, companySettings)));
     }
 }
