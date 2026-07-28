@@ -103,10 +103,6 @@ class WorkOrderControllerTest extends AbstractControllerTest {
         showDto.setStatus(Status.OPEN);
     }
 
-
-    // ═══════════════════════════════════════════════════════════════════
-    // @PreAuthorize enforcement
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class AuthorizationTests {
 
@@ -321,9 +317,6 @@ class WorkOrderControllerTest extends AbstractControllerTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // CustomException → HTTP status mapping
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class ExceptionMapping {
 
@@ -409,9 +402,6 @@ class WorkOrderControllerTest extends AbstractControllerTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // X-Platform header passthrough
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class PlatformHeaderPassthrough {
 
@@ -465,9 +455,6 @@ class WorkOrderControllerTest extends AbstractControllerTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // Routing and serialization
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class RoutingAndSerialization {
 

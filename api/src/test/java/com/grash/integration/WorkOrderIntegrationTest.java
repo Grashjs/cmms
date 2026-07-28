@@ -164,9 +164,6 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
         setCurrentUser(user);
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // create
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class CreateTests {
 
@@ -237,9 +234,6 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // changeStatus
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class ChangeStatusTests {
 
@@ -321,9 +315,6 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // findBySearchCriteria + getSearchCriteria
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class SearchCriteriaTests {
 
@@ -521,9 +512,6 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // sendReport
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class SendReportTests {
 
@@ -626,9 +614,6 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // deleteByIdAndUser
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class DeleteTests {
 
@@ -725,9 +710,6 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // addFiles / removeFile
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class FileTests {
 
@@ -835,9 +817,6 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // cost computation
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class CostComputationTests {
 
@@ -982,9 +961,6 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // JPA query verification
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class QueryTests {
 

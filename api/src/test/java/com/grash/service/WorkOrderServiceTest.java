@@ -265,9 +265,6 @@ class WorkOrderServiceTest {
         return workOrderService.detectPatchDTOChangedFields(original, patch);
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // detectPatchDTOChangedFields
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class DetectPatchDTOChangedFields {
 
@@ -605,9 +602,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // detectChangedFieldsFromEntity
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class DetectChangedFieldsFromEntity {
 
@@ -983,9 +977,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // collectionsMatch
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class CollectionsMatch {
 
@@ -1037,9 +1028,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // checkUsageBasedLimit
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class CheckUsageBasedLimit {
 
@@ -1069,9 +1057,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // changeStatus
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class ChangeStatus {
 
@@ -1339,9 +1324,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // getSearchCriteria
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class GetSearchCriteria {
 
@@ -1467,9 +1449,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // patch – notification skip logic
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class PatchNotification {
 
@@ -1538,9 +1517,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // update – category-change webhook
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class UpdateCategoryWebhook {
 
@@ -1602,9 +1578,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // create
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class Create {
 
@@ -1708,9 +1681,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // deleteByIdAndUser
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class DeleteByIdAndUser {
 
@@ -1800,9 +1770,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // createByUser
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class CreateByUser {
 
@@ -1933,9 +1900,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // checkAccessToWorkOrderId
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class CheckAccessToWorkOrderId {
 
@@ -1970,9 +1934,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // notify
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class NotifyTests {
 
@@ -2039,9 +2000,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // patchNotify
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class PatchNotifyTests {
 
@@ -2107,9 +2065,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // getWorkOrderFromWorkOrderBase
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class GetWorkOrderFromWorkOrderBase {
 
@@ -2163,9 +2118,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // getEvents
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class GetEvents {
 
@@ -2434,9 +2386,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // cost computation
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class CostComputation {
 
@@ -2570,9 +2519,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // getWorkOrdersByPart
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class GetWorkOrdersByPart {
 
@@ -2615,9 +2561,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // addFiles
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class AddFilesTests {
 
@@ -2658,9 +2601,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // removeFile
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class RemoveFileTests {
 
@@ -2713,9 +2653,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // countUrgent
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class CountUrgent {
 
@@ -2734,9 +2671,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // patch - forbidden and not found branches
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class PatchForbiddenNotFound {
 
@@ -2781,9 +2715,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // update - not found branch
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class UpdateNotFound {
 
@@ -2796,9 +2727,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // update - custom fields branch
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class UpdateCustomFields {
 
@@ -2823,9 +2751,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // saveAndFlushWithWebhook - category changed branch
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class SaveAndFlushWithWebhookCategoryChanged {
 
@@ -2866,9 +2791,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // changeStatus - PM schedule next job
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class ChangeStatusPMSchedule {
 
@@ -2906,9 +2828,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // changeStatus - requester notification with ID
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class ChangeStatusRequesterWithId {
 
@@ -2948,9 +2867,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // sendReport - not found and access denied
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class SendReportNotFoundAndDenied {
 
@@ -2992,9 +2908,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // generateReport - not found and access denied
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class GenerateReportNotFoundAndDenied {
 
@@ -3030,9 +2943,6 @@ class WorkOrderServiceTest {
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // importWorkOrder
-    // ═══════════════════════════════════════════════════════════════════
     @Nested
     class ImportWorkOrderTests {
 
